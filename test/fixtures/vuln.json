@@ -1,0 +1,10 @@
+{
+  "below": "4.3.2",
+  "severity": "medium",
+  "identifiers": {
+    "advisory": "semver_dos"
+  },
+  "info": [
+    "http://nodesecurity.io/advisories/semver_dos"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "demo-no-deps-private",
+  "description": "Demo",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Remy Sharp",
+  "license": "private"
+}

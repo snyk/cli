@@ -1,0 +1,53 @@
+<section class="gh-flow-content">
+    <header>
+        <h1>Create your account</h1>
+    </header>
+
+    <form id="setup" class="gh-flow-create">
+        {{!-- Horrible hack to prevent Chrome from incorrectly auto-filling inputs --}}
+        <input style="display:none;" type="text" name="fakeusernameremembered"/>
+        <input style="display:none;" type="password" name="fakepasswordremembered"/>
+
+        {{gh-profile-image fileStorage=config.fileStorage email=email setImage="setImage"}}
+        {{#gh-form-group errors=errors property="email"}}
+            <label for="email-address">Email address</label>
+            <span class="input-icon icon-mail">
+                {{gh-input type="email" name="email" placeholder="Eg. john@example.com" class="gh-input" autofocus="autofocus" autocorrect="off" value=email focusOut=(action "validate" "email")}}
+            </span>
+            {{gh-error-message errors=errors property="email"}}
+        {{/gh-form-group}}
+        {{#gh-form-group errors=errors property="name"}}
+            <label for="full-name">Full name</label>
+            <span class="input-icon icon-user">
+                {{gh-input type="text" name="name" placeholder="Eg. John H. Watson" class="gh-input" autofocus="autofocus" autocorrect="off" value=name focusOut=(action "validate" "name")}}
+            </span>
+            {{gh-error-message errors=errors property="name"}}
+        {{/gh-form-group}}
+        {{#gh-form-group errors=errors property="password"}}
+            <label for="password">Password</label>
+            <span class="input-icon icon-lock">
+                {{gh-input type="password" name="password" placeholder="At least 8 characters" class="gh-input" autofocus="autofocus" autocorrect="off" value=password focusOut=(action "validate" "password")}}
+                <div class="pw-strength">
+                    <div class="pw-strength-dot"></div>
+                    <div class="pw-strength-dot"></div>
+                    <div class="pw-strength-dot"></div>
+                    <div class="pw-strength-dot"></div>
+                    <div class="pw-strength-dot <!--pw-strength-activedot-->"></div>
+                </div>
+            </span>
+            {{gh-error-message errors=errors property="password"}}
+        {{/gh-form-group}}
+        {{#gh-form-group errors=errors property="blogTitle"}}
+            <label for="blog-title">Blog title</label>
+            <span class="input-icon icon-content">
+                {{gh-input type="text" name="blog-title" placeholder="Eg. The Daily Awesome" class="gh-input" autofocus="autofocus" autocorrect="off" value=blogTitle focusOut=(action "validate" "blogTitle")}}
+            </span>
+            {{gh-error-message errors=errors property="blogTitle"}}
+        {{/gh-form-group}}
+    </form>
+
+    <button type="submit" class="btn btn-green btn-lg btn-block" {{action "setup"}} {{submitting}}>Last step: Invite your team <i class="icon-chevron"></i></button>
+    {{#if showError}}
+    <p class="main-error">{{invalidMessage}}</p>
+    {{/if}}
+</section>

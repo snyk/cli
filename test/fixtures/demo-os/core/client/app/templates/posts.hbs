@@ -1,0 +1,46 @@
+<section class="gh-view content-view-container">
+<header class="view-header">
+    {{#gh-view-title openMobileMenu="openMobileMenu"}}Content{{/gh-view-title}}
+    <section class="view-actions">
+        {{#link-to "editor.new" class="btn btn-green" title="New Post"}}New Post{{/link-to}}
+    </section>
+</header>
+
+<div class="view-container">
+    <section class="content-list js-content-list {{if postListFocused 'keyboard-focused'}}">
+        {{#gh-infinite-scroll-box tagName="section" classNames="content-list-content js-content-scrollbox" fetch="loadNextPage"}}
+            <ol class="posts-list">
+                {{#each sortedPosts key="id" as |post|}}
+                    {{#gh-posts-list-item post=post active=(is-equal post currentPost) click="showPostContent" onDoubleClick="openEditor" as |component|}}
+                        {{#link-to "posts.post" post.id class="permalink" title="Edit this post"}}
+                            <h3 class="entry-title">{{post.title}}</h3>
+                            <section class="entry-meta">
+                                <span class="avatar" style={{component.authorAvatarBackground}}>
+                                    <img src="{{component.authorAvatar}}" title="{{component.authorName}}">
+                                </span>
+                                <span class="author">{{component.authorName}}</span>
+                                <span class="status">
+                                    {{#if component.isPublished}}
+                                        {{#if post.page}}
+                                            <span class="page">Page</span>
+                                        {{else}}
+                                            <time datetime="{{post.published_at}}" class="date published">
+                                                Published {{gh-format-timeago post.published_at}}
+                                            </time>
+                                        {{/if}}
+                                    {{else}}
+                                        <span class="draft">Draft</span>
+                                    {{/if}}
+                                </span>
+                            </section>
+                        {{/link-to}}
+                    {{/gh-posts-list-item}}
+                {{/each}}
+            </ol>
+        {{/gh-infinite-scroll-box}}
+    </section>
+    <section class="content-preview js-content-preview {{if postContentFocused 'keyboard-focused'}}">
+        {{outlet}}
+    </section>
+</div>
+</section>
