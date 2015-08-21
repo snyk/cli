@@ -20,7 +20,7 @@
   "author": "Remy Sharp",
   "license": "UNLICENSED",
   "dependencies": {
-    "@remy/snyk-config": "^2.0.1",
+    "@snyk/config": "^3.0.0",
     "configstore": "^1.2.0",
     "debug": "^2.2.0",
     "es6-promise": "^2.3.0",
