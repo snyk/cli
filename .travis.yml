@@ -1,4 +1,6 @@
 sudo: false
+services:
+  - mongodb
 language: node_js
 cache:
   directories:
