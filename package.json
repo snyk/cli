@@ -17,6 +17,7 @@
     "security",
     "snyk"
   ],
+  "private": true,
   "author": "Remy Sharp",
   "license": "UNLICENSED",
   "dependencies": {
