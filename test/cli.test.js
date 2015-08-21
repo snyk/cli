@@ -7,7 +7,7 @@ var port = process.env.PORT = process.env.SNYK_PORT = 12345;
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1'; // jshint ignore:line
 process.env.SNYK_HOST = 'http://localhost:' + port;
 
-var server = require('@remy/snyk-registry/test/fixtures/demo-registry-server');
+var server = require('@snyk/registry/test/fixtures/demo-registry-server');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -35,7 +35,7 @@ test('prime database', function (t) {
   t.plan(3);
   // create a user and a vulnerability
 
-  var vulnTest = require('@remy/snyk-registry/test/vuln.test');
+  var vulnTest = require('@snyk/registry/test/vuln.test');
 
   vulnTest.on('end', function () {
     t.pass('vulnerability sub-test completed');

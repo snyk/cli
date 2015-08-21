@@ -34,7 +34,7 @@
     "then-fs": "^2.0.0"
   },
   "devDependencies": {
-    "@remy/snyk-registry": "^1.0.0",
+    "@snyk/registry": "^1.0.0",
     "jscs": "^2.0.0",
     "nodemon": "^1.3.7",
     "tap-spec": "^4.0.2",
