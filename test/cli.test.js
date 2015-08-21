@@ -32,7 +32,7 @@ test('setup', function (t) {
 });
 
 test('prime database', function (t) {
-  t.plan(2);
+  t.plan(3);
   // create a user and a vulnerability
 
   var vulnTest = require('@remy/snyk-registry/test/vuln.test');
@@ -50,13 +50,17 @@ test('prime database', function (t) {
       return t.bailout();
     }
     t.pass('demo user created');
+
+    cli.config('set', 'api=' + apiKey).then(function () {
+      t.pass('api key set');
+    });
   });
 });
 
 test('cli', function (t) {
   t.plan(2);
 
-  cli.test('semver@4.0').then(function (res) {
+  cli.test('semver@4.0.0').then(function (res) {
     t.fail(res);
   }).catch(function (error) {
     var res = error.message;
