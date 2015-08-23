@@ -14,6 +14,7 @@ Once you have node, you should follow these step to use snyk locally:
 git clone git@github.com:Snyk/snyk.git
 cd snyk
 npm link --production
+npm install
 snyk version   # ... should echo "development"
 ```
 
