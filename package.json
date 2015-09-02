@@ -22,6 +22,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@snyk/config": "^3.0.0",
+    "@snyk/registry": "^1.4.0",
     "base32": "0.0.6",
     "configstore": "^1.2.0",
     "debug": "^2.2.0",
@@ -34,8 +35,8 @@
     "promise": "^7.0.3",
     "request": "^2.60.0",
     "semver": "^5.0.1",
-    "validator": "^4.0.5",
-    "then-fs": "^2.0.0"
+    "then-fs": "^2.0.0",
+    "validator": "^4.0.5"
   },
   "devDependencies": {
     "@snyk/registry": "^1.0.0",

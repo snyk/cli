@@ -53,13 +53,14 @@ test('prime database', function (t) {
 });
 
 test('cli', function (t) {
-  t.plan(1);
+  t.plan(2);
 
   cli.test('semver@4.0.0').then(function (res) {
     t.fail(res);
   }).catch(function (error) {
     var res = error.message;
     var pos = res.indexOf('vulnerability found');
+    t.pass(res);
     t.notEqual(pos, -1, 'correctly found vulnerability: ' + res);
   });
 

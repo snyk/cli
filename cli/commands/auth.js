@@ -6,8 +6,11 @@ module.exports = auth;
  * MIT https://github.com/semantic-release/cli/blob/acb47922/README.md#license
  */
 
+var Promise = require('es6-promise').Promise; // jshint ignore:line
 var debug = require('debug')('snyk');
 var pkg = require('../../package.json');
+var snyk = require('../../lib/');
+var config = require('../../lib/config');
 var keytar = require('keytar');
 var inquirer = require('inquirer');
 var validator = require('validator');
@@ -51,8 +54,6 @@ function randomId() {
 
 function createAuthorization(info, cb) {
   var log = info.log;
-  // var reponame = info.ghrepo && info.ghrepo.slug[1];
-  // var node = (reponame ? '-' + reponame + '-' : '-') + randomId();
 
   var payload = {
     method: 'POST',
@@ -60,19 +61,17 @@ function createAuthorization(info, cb) {
     json: true,
     auth: info.github,
     headers: {
-      'User-Agent': 'snyk',
+      'User-Agent': 'snyk cli',
       'X-GitHub-OTP': info.github.code,
     },
     body: {
       scopes: [
         'user:email',
       ],
-      fingerprint: 'snyk',
-      note: 'snyk', // + node,
+      fingerprint: 'snyk-' + randomId(),
+      note: 'snyk cli',
     },
   };
-
-  debug('request', payload);
 
   request(payload, function (err, response, body) {
     debug('response: %s', response.statusCode, body);
@@ -116,18 +115,29 @@ function github() {
 
     info.log = require('../log')('warn');
 
-    inquirer.prompt([{
+    var prompts = [{
       type: 'input',
       name: 'username',
       message: 'What is your GitHub username?',
       default: process.env.USER,
       validate: _.ary(_.bind(validator.isLength, validator, _, 1), 1),
+      when: function (answers) {
+        if (answers.reauth === false) {
+          return false;
+        }
+
+        return true;
+      },
     }, {
       type: 'password',
       name: 'password',
       message: 'What is your GitHub password?',
       validate: _.ary(_.bind(validator.isLength, validator, _, 1), 1),
       when: function (answers) {
+        if (answers.reauth === false) {
+          return false;
+        }
+
         if (!info.options.keychain) {
           return true;
         }
@@ -136,7 +146,22 @@ function github() {
         }
         return !passwordStorage.get(answers.username);
       },
-    }, ], function (answers) {
+    }, ];
+
+    // if the user has already authed - check if they want to re-auth.
+    if (snyk.api) {
+      prompts.unshift({
+        type: 'confirm',
+        default: false,
+        name: 'reauth',
+        message: 'You have a Snyk API key already, re-auth?',
+      });
+    }
+
+    inquirer.prompt(prompts, function (answers) {
+      if (answers.reauth === false) {
+        return reject(new Error('Cancelled authentication'));
+      }
       answers.password = answers.password ||
                          passwordStorage.get(answers.username);
 
@@ -162,7 +187,35 @@ function github() {
 }
 
 function auth() {
-  return github();
+  return github().then(function (info) {
+    return new Promise(function (resolve, reject) {
+      var payload = {
+        body: {
+          token: info.github.token,
+          username: info.github.username,
+        },
+        method: 'POST',
+        url: config.API + '/verify/github',
+        json: true,
+      };
+
+      request(payload, function (error, res, body) {
+        if (error) {
+          return reject(error);
+        }
+
+        if (res.statusCode === 200 || res.statusCode === 201) {
+          snyk.config.set('api', body.api);
+          resolve('Your account has been authenicated. Snyk is now ready to ' +
+            'be used.');
+        } else {
+          reject(new Error('Authentication failed. Please check the API key ' +
+            'on https://snyk.io'));
+        }
+      });
+    });
+
+  });
 
   // return github().then(function (info) {
   //   return new Promise(function (resolve, reject) {
