@@ -1,4 +1,10 @@
 sudo: false
+addons:
+  apt:
+    packages:
+      - xvfb
+      - gnome-keyring
+      - libgnome-keyring-dev
 services:
   - mongodb
 language: node_js
