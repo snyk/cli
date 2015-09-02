@@ -14,7 +14,8 @@ addons:
     - gnome-keyring
     - libgnome-keyring-dev
 node_js:
-  - iojs
+  - iojs-v2
+  - iojs-v1
   - "0.12"
   - "0.10"
 before_install: |
