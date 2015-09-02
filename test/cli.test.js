@@ -4,7 +4,7 @@ var apiKey = '123456789';
 var oldkey;
 var port = process.env.PORT = process.env.SNYK_PORT = 12345;
 
-process.env.SNYK_API = 'http://localhost:' + port + '/api/v1'; // jshint ignore:line
+process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 
 var server = require('@snyk/registry/test/fixtures/demo-registry-server');
@@ -32,17 +32,12 @@ test('setup', function (t) {
 });
 
 test('prime database', function (t) {
-  t.plan(3);
-  // create a user and a vulnerability
-
-  var vulnTest = require('@snyk/registry/test/vuln.test');
-
-  vulnTest.on('end', function () {
-    t.pass('vulnerability sub-test completed');
-  });
+  t.plan(2);
 
   new server.db.User({
-    apiKey: apiKey,
+    api: [{
+      key: apiKey,
+    }, ],
     email: 'test@example.com',
   }).save(function (error) {
     if (error) {
@@ -58,19 +53,17 @@ test('prime database', function (t) {
 });
 
 test('cli', function (t) {
-  t.plan(2);
+  t.plan(1);
 
   cli.test('semver@4.0.0').then(function (res) {
     t.fail(res);
   }).catch(function (error) {
     var res = error.message;
     var pos = res.indexOf('vulnerability found');
-    t.ok(pos !== -1, 'correctly found vulnerability');
+    t.notEqual(pos, -1, 'correctly found vulnerability: ' + res);
   });
 
-  cli.config('set', 'api=' + apiKey).then(function () {
-    t.pass('user config updated');
-  });
+
 });
 
 test('teardown', function (t) {
