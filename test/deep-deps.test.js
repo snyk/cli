@@ -7,9 +7,10 @@ var snyk = require('..');
 var osDir = path.resolve(__dirname, 'fixtures', 'demo-private');
 
 test('finds all sub-dependencies', function (t) {
-  t.plan(2);
+  t.plan(3);
   snyk.modules(osDir).then(function (modules) {
     t.ok(true, 'did not bail');
+    t.pass(JSON.stringify(modules));
     t.equal(modules.dependencies.marked.dependencies, false, 'marked has no dependencies');
   }).catch(function (e) {
     t.fail(e.message);
