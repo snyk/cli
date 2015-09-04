@@ -16,26 +16,26 @@ module.exports = function (path) {
       res += '\n';
 
       var upgradeSteps = (vuln.upgradePath || []).filter(Boolean);
-      console.log(vuln.upgradePath + " --- " + vuln.from);
 
       // Remediation instructions (if we have one)
       if (upgradeSteps.length) {
 
         // Create upgrade text
         var upgradeText = upgradeSteps.shift();
-        upgradeText += (upgradeSteps.length)?"":' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')';
+        upgradeText += (upgradeSteps.length)?'':' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')';
+
 
         res += 'Fix : ';
         for(var idx=0; idx<vuln.upgradePath.length; idx++)
         {
-          elem = vuln.upgradePath[idx];
+          var elem = vuln.upgradePath[idx];
 
           if (elem) {
             // Check if we're suggesting to upgrade to ourselves.
-            if (vuln.from.length > idx && vuln.from[idx] == elem) {
+            if (vuln.from.length > idx && vuln.from[idx] === elem) {
               // This version should get the not-vulnerable dependency, suggest a refresh
-              res += "Your dependencies are out of date. Delete node_modules and reinstall, should trigger an upgrade to " + upgradeText +
-                ". If you're using a private repsository, ensure it's up to date.";
+              res += 'Your dependencies are out of date. Delete node_modules and reinstall, should trigger an upgrade to ' + upgradeText +
+                '. If you\'re using a private repsository, ensure it\'s up to date.';
               break;
             }
             switch (idx) {
@@ -45,11 +45,11 @@ module.exports = function (path) {
                 break;
               case 1:
                 // Second elem is non-false, means a direct dependency needs upgrade. Nothing to add.
-                res += "Upgrade direct dependency " + upgradeText;
+                res += 'Upgrade direct dependency ' + upgradeText;
                 break;
               default:
                 // Later item is non-false, means a deep dependency needs to be upgraded
-                res += "Manually upgrade deep dependency " + upgradeText;
+                res += 'Manually upgrade deep dependency ' + upgradeText;
                 break;
             }
             break;
