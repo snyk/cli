@@ -186,10 +186,23 @@ function github() {
   });
 }
 
-function auth() {
-  return github().then(function (info) {
-    return new Promise(function (resolve, reject) {
-      var payload = {
+function auth(api) {
+  var promise;
+  if (api) {
+    // user is manually setting the API key on the CLI - let's trust them
+    promise = new Promise(function (resolve) {
+      resolve({
+        body: {
+          api: api,
+        },
+        method: 'POST',
+        url: config.API + '/verify/token',
+        json: true,
+      });
+    });
+  } else {
+    promise = github().then(function (info) {
+      return {
         body: {
           token: info.github.token,
           username: info.github.username,
@@ -198,8 +211,14 @@ function auth() {
         url: config.API + '/verify/github',
         json: true,
       };
+    });
+  }
 
+  return promise.then(function (payload) {
+    return new Promise(function (resolve, reject) {
+      debug(payload);
       request(payload, function (error, res, body) {
+        debug(error, body);
         if (error) {
           return reject(error);
         }
@@ -208,18 +227,15 @@ function auth() {
           snyk.config.set('api', body.api);
           resolve('Your account has been authenicated. Snyk is now ready to ' +
             'be used.');
+        } else if (body.message) {
+          var e = new Error(body.message);
+          e.code = res.statusCode;
+          reject(e);
         } else {
-          reject(new Error('Authentication failed. Please check the API key ' +
-            'on https://snyk.io'));
+          reject(new Error('Authentication failed. Please check the API ' +
+            'key on https://snyk.io'));
         }
       });
     });
-
   });
-
-  // return github().then(function (info) {
-  //   return new Promise(function (resolve, reject) {
-
-  //   });
-  // });
 }
