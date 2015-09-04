@@ -22,35 +22,34 @@ module.exports = function (path) {
 
         // Create upgrade text
         var upgradeText = upgradeSteps.shift();
-        upgradeText += (upgradeSteps.length)?'':' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')';
-
+        upgradeText += (upgradeSteps.length)?'':
+           ' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')';
 
         res += 'Fix : ';
-        for(var idx=0; idx<vuln.upgradePath.length; idx++)
-        {
+        for (var idx = 0; idx < vuln.upgradePath.length; idx++) {
           var elem = vuln.upgradePath[idx];
 
           if (elem) {
             // Check if we're suggesting to upgrade to ourselves.
             if (vuln.from.length > idx && vuln.from[idx] === elem) {
-              // This version should get the not-vulnerable dependency, suggest a refresh
-              res += 'Your dependencies are out of date. Delete node_modules and reinstall, should trigger an upgrade to ' + upgradeText +
-                '. If you\'re using a private repsository, ensure it\'s up to date.';
+              // This ver should get the not-vuln dependency, suggest refresh
+              res +=
+               'Your dependencies are out of date. ' +
+               'Delete node_modules & reinstall to upgrade to ' + upgradeText +
+               '.\n If you\'re using a private repsository, ' +
+                'ensure it\'s up to date.';
               break;
             }
-            switch (idx) {
-              case 0:
-                // First elem is non-false, means you're in an outdated version of yourself
-                res += 'You\'ve tested an outdated version of the project. Should be upgraded to ' + upgradeText;
-                break;
-              case 1:
-                // Second elem is non-false, means a direct dependency needs upgrade. Nothing to add.
-                res += 'Upgrade direct dependency ' + upgradeText;
-                break;
-              default:
-                // Later item is non-false, means a deep dependency needs to be upgraded
-                res += 'Manually upgrade deep dependency ' + upgradeText;
-                break;
+            if (idx === 0) {
+              // This is an outdated version of yourself
+              res += 'You\'ve tested an outdated version of the project. ' +
+                'Should be upgraded to ' + upgradeText;
+            } else if (idx === 1) {
+              // A direct dependency needs upgrade. Nothing to add.
+              res += 'Upgrade direct dependency ' + upgradeText;
+            } else {
+              // A deep dependency needs to be upgraded
+              res += 'Manually upgrade deep dependency ' + upgradeText;
             }
             break;
           }
