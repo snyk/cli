@@ -1,3 +1,4 @@
 {
-  "API": "https://snyk.io/api/v1"
+  "API": "https://snyk.io/api/v1",
+  "inclDevDeps": "true"
 }

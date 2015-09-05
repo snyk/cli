@@ -22,8 +22,8 @@ module.exports = function (path) {
 
         // Create upgrade text
         var upgradeText = upgradeSteps.shift();
-        upgradeText += (upgradeSteps.length)?'':
-           ' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')';
+        upgradeText += (upgradeSteps.length)?
+           ' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')':'';
 
         res += 'Fix : ';
         for (var idx = 0; idx < vuln.upgradePath.length; idx++) {
@@ -58,6 +58,6 @@ module.exports = function (path) {
         res += 'Fix: None available. Consider not using this dependency.';
       }
       return res;
-    }).join('\n\n'));
+    }).join('\n-----\n'));
   });
 };

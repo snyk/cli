@@ -1,0 +1,19 @@
+{
+  "name": "hbs-demo",
+  "description": "Demo",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Remy Sharp",
+  "license": "private",
+  "devDependencies": {
+    "semver": "~3.0.1",
+    "uglify-js": "~2.3.6"
+  },
+  "dependencies": {
+    "qs": "~0.6.0"
+  }
+}
+
