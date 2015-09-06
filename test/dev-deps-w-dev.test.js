@@ -5,6 +5,15 @@ var snyk = require('..');
 
 var osDir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
 
+var oldValue = null;
+test('setup', function (t) {
+  var config = require('../lib/config');
+  oldValue = config.devDeps;
+  config.devDeps = true;
+  t.pass('config primed');
+  t.end();
+});
+
 test('dev deps: dev-deps-demo, including dev deps', function (t) {
   function runTests(t, error, modules) {
     t.plan(3 + 2 + (4 * 2));
@@ -61,4 +70,13 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
       runTests(t, error, modules);
     });
   });
+});
+
+
+var oldValue = null;
+test('teardown', function (t) {
+  var config = require('../lib/config');
+  config.devDeps = oldValue;
+  t.pass('config restored');
+  t.end();
 });
