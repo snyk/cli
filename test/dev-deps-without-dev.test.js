@@ -3,9 +3,9 @@ var test = require('tape');
 var path = require('path');
 var snyk = require('..');
 
+// FIXME this test doesn't actually work yet, since
 var osDir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
-process.env.SNYK_noDevDeps = 'true';
-var cli = require('../cli/commands');
+process.env.SNYK_devDeps = 'false';
 
 
 test('dev deps: dev-deps-demo, including dev deps', function (t) {
@@ -50,7 +50,7 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
     t.end();
   }
   t.test('specified directory', function (t) {
-    snyk.modules(osDir, null, function (error, modules) {
+    snyk.modules(osDir, function (error, modules) {
       if (error) console.log(error.stack);
       runTests(t, error, modules);
     });

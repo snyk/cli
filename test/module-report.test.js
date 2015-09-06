@@ -44,7 +44,7 @@ test('module reporting: private project', function (t) {
     t.end();
   }
   t.test('specified directory', function (t) {
-    snyk.modules(osDir, null, function (error, modules) {
+    snyk.modules(osDir, function (error, modules) {
       if (error) console.log(error.stack);
       runTests(t, error, modules);
     });
