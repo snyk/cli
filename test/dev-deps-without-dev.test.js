@@ -6,15 +6,6 @@ var snyk = require('..');
 // FIXME this test doesn't actually work yet, since
 var osDir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
 
-var oldValue = null;
-test('setup', function (t) {
-  var config = require('../lib/config');
-  oldValue = config.devDeps;
-  config.devDeps = false;
-  t.pass('config primed');
-  t.end();
-});
-
 test('dev deps: dev-deps-demo, including dev deps', function (t) {
   function runTests(t, error, modules) {
     t.plan(3 + 1 + (3 * 2));
@@ -68,13 +59,4 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
       runTests(t, error, modules);
     });
   });
-});
-
-
-var oldValue = null;
-test('teardown', function (t) {
-  var config = require('../lib/config');
-  config.devDeps = oldValue;
-  t.pass('config restored');
-  t.end();
 });
