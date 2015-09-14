@@ -11,7 +11,6 @@ var debug = require('debug')('snyk');
 var pkg = require('../../package.json');
 var snyk = require('../../lib/');
 var config = require('../../lib/config');
-var keytar = require('keytar');
 var inquirer = require('inquirer');
 var validator = require('validator');
 var crypto = require('crypto');
@@ -23,6 +22,22 @@ var passwordStorage = passwordStorageService('github');
 
 function passwordStorageService(service) {
   var key = pkg.name + ':' + service;
+
+  var keytar = false;
+
+  // allow for an optional dependency: keytar, since not all systems will
+  // be able to build it (travis being one...)
+  try {
+    keytar = require('keytar');
+  } catch (e) {
+    var noop = function () {
+      return false;
+    };
+    keytar = {
+      getPassword: noop,
+      replacePassword: noop,
+    };
+  }
 
   return {
     get: function (username) {
