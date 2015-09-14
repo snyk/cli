@@ -6,6 +6,7 @@ module.exports = {
   config: require('./config'),
   snapshot: require('./snapshot'),
   test: require('./test'),
+  protect: require('./protect'),
   // watch: require('./watch'),
   // modules: require('./modules'),
 };

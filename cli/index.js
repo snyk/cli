@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-'use strict';
 
 var alias = {
   v: 'version',
   d: 'debug',
   h: 'help',
   q: 'quiet',
+  i: 'interactive',
 };
 
 // allows us to support flags with true or false only
@@ -31,24 +31,18 @@ if (argv.debug) {
   require('debug').enable('snyk');
 }
 
+if (argv.version) {
+  argv._ = ['version'];
+}
+
+var debug = require('debug')('snyk');
+debug(argv);
+
 // this is done after the debug activation line above
 // because we want to see the debug messaging when we
 // use the `-d` flag
 var cli = require('./commands');
-
-// checks for available update and returns an instance
-// var updateNotifier = require('update-notifier');
-// var pkg = require('../package.json');
-// var notifier = updateNotifier({ pkg: pkg });
-// if (notifier.update) {
-//   // notify using the built-in convenience method
-//   notifier.notify();
-// }
-
 var command = argv._.shift();
-// var argvKeys = Object.keys(argv).filter(function (item) {
-//   return item !== '_';
-// });
 
 if (!command || argv.help) {
   command = 'help';
@@ -79,6 +73,12 @@ if (!method) {
   }
 }
 
+if (command === 'protect') {
+  // copy all the options across to argv._ as an object
+  argv._.push(argv);
+}
+
+
 method.apply(null, argv._).then(function (result) {
   if (result && !argv.quiet) {
     console.log(result);
@@ -97,3 +97,12 @@ method.apply(null, argv._).then(function (result) {
   }
   process.exit(1);
 });
+
+// finally, check for available update and returns an instance
+// var updateNotifier = require('update-notifier');
+// var pkg = require('../package.json');
+// var notifier = updateNotifier({ pkg: pkg });
+// if (notifier.update) {
+//   // notify using the built-in convenience method
+//   notifier.notify();
+// }
