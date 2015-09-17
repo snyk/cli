@@ -16,11 +16,17 @@ function protect(options) {
 
   options['dry-run'] = true;
 
-  if (options.interactive) {
-    return interactive(options);
+  if (options['dry-run']) {
+    debug('*** dry run ****');
   }
 
-  return snyk.dotfile.load().catch(function (error) {
+  return snyk.dotfile.load().then(function (dotfile) {
+    if (options.interactive) {
+      return interactive(dotfile, options);
+    }
+
+    return 'nothing to do';
+  }).catch(function (error) {
     if (error.code === 'ENOENT') {
       error.code = 'MISSING_DOTFILE';
     }
@@ -29,16 +35,19 @@ function protect(options) {
   });
 }
 
-function interactive(options) {
+function interactive(config, options) {
   return snyk.test(process.cwd()).then(function (res) {
     if (res.ok) {
       return 'Nothing to be done. Well done, you.';
     }
 
-    // find all the direct dependencies and ask if we can update their package
-    // for them
+    // `install` will give us what to uninstall and which specific version to
+    // newly install. within the .reduce loop, we'll also capture the list
+    // of packages (in `patch`)  that we need to apply patch files to, to avoid
+    // the vuln
+    var patch = [];
     var install = findUpgrades(res.vulnerabilities.filter(function (vuln) {
-      return vuln.upgradePath.filter(function (pkg, i) {
+      var res = !!vuln.upgradePath.filter(function (pkg, i) {
         // if the upgade path is to upgrade the module to the same range the
         // user already asked for, then it means we need to just blow that
         // module away and re-install
@@ -55,20 +64,173 @@ function interactive(options) {
 
         return false;
       }).length;
+
+      // if there's no match on our conditions above, then it's a file that
+      // needs a manual upgrade inside the package, so we capture it in our
+      // patch array
+      if (!res) {
+        patch.push(vuln);
+      }
+
+      return res;
     }));
 
+
+    // FIXME untested
+    // reduce the patch list down to the unique, and the highest version that
+    // we need to have installed to get out of the vuln range.
+    patch = patch.reduce(function (acc, curr) {
+      var patch = acc.filter(function (patch) {
+        return patch.name === curr.name;
+      }).pop(); // should either be undefined or length: 1
+
+      // if patch, then this is a **reference** so we'll modify it
+      if (patch) {
+        patch.count++;
+        if (semver.gt(curr.version, patch.version)) {
+          patch.version = curr.version;
+        }
+      } else {
+        patch = {
+          count: 1,
+          value: curr,
+        };
+        acc.push(patch);
+      }
+
+      patch.name = curr.name + '@' + curr.version +
+        ' (' + patch.count + ' vulns)';
+
+      return acc;
+    }, []);
+
+
     debug('reinstalls: %s', Object.keys(install).length);
+    debug('to patch: %s', patch.length);
+
+    // turn the "to-install" list into an inquirer compatiable list, with
+    // useful text labels (`.name`).
+    var packages = Object.keys(install).reduce(function (acc, curr) {
+      var version = install[curr].version;
+
+      var text = 's';
+      if (install[curr].count === 1) {
+        text = '';
+      }
+
+      var res = {
+        value: {
+          package: curr,
+          version: version,
+        },
+        name: curr + '@' + version + ' (fixes ' +
+          install[curr].count + ' vulnerable package' + text + ')',
+      };
+
+      if (acc[curr]) {
+        if (semver.gt(acc[curr].version, version)) {
+          acc[curr] = res;
+        }
+      } else {
+        acc[curr] = res;
+      }
+
+      return acc;
+    }, {});
+
+    var ignoreVulns = res.vulnerabilities.map(function (vuln) {
+      var from = vuln.from.slice(1).filter(Boolean);
+      var fromText = '';
+      if (from.length === 1) {
+        fromText = 'direct dependency';
+      } else {
+        fromText = from.join(' -> ');
+      }
+      return {
+        name: vuln.name + '@' + vuln.version + ' (via ' + fromText + ')',
+        checked: false,
+        value: vuln,
+      };
+    });
+
+    var all = {
+      name: 'All vulnerable packages',
+      value: '__all__',
+    };
+
+    debug('starting questions');
 
     return new Promise(function (resolve, reject) {
       inquirer.prompt([{
         type: 'confirm',
         default: false,
+        name: 'ignore',
+        message: 'Do you want to ignore any vulnerabilities?',
+      }, {
+        type: 'checkbox',
+        choices: ignoreVulns,
+        name: 'ignore-vulns',
+        message: 'Select the vulnerabilities you want to ignore',
+        when: function (answers) {
+          return answers.ignore;
+        },
+      }, {
+        type: 'confirm',
+        default: true,
         name: 'update',
         message: 'Do you want snyk to update your vulnerable dependencies?',
+      }, {
+        type: 'checkbox',
+        choices: [all].concat(packages),
+        name: 'packages',
+        message: 'Select the packages you want to update',
+        when: function (answers) {
+          return answers.update;
+        },
+        filter: function (res) {
+          // if they selected "all" then this is a hack to overwrite
+          // our selection with the /actual/ selection of all
+          if (res.length === 1 && res[0] === all.value) {
+            res = packages;
+          }
+          return res;
+        },
+      }, {
+        type: 'confirm',
+        default: false,
+        name: 'patch',
+        message: 'Do you want snyk to patch your vulnerable dependencies?',
+      }, {
+        type: 'checkbox',
+        choices: [all].concat(patch),
+        name: 'patch-packages',
+        message: 'Select the packages you want to apply patches to',
+        when: function (answers) {
+          return answers.patch;
+        },
+        filter: function (res) {
+          if (res.length === 1 && res[0] === all.value) {
+            res = patch;
+          }
+          return res;
+        },
       }, ], function (answers) {
         var promises = [];
 
-        if (answers.update) {
+        debug('answers', answers);
+        var ignore = answers['ignore-vulns'];
+
+        if (answers.ignore && ignore.length) {
+          promises.push(new Promise(function (resolve) {
+            var config = {};
+            config.ignore = ignore.map(function (vuln) {
+              return vuln.from.slice(1);
+            });
+            resolve(snyk.dotfile.save(config));
+          }));
+        }
+
+        if (answers.update && answers.packages.length) {
           npm.load({
             save: true, // save to the user's local package.json
           }, function (error, npm) {
@@ -76,102 +238,61 @@ function interactive(options) {
               return reject(error);
             }
 
-            var installNames = Object.keys(install);
-            var packages = installNames.reduce(function (acc, curr) {
-              var version = install[curr].version;
+            debug('to upgrade', answers.packages);
 
-              var text = 's';
-              if (install[curr].count === 1) {
-                text = '';
-              }
-
-              var res = {
-                package: curr,
-                version: version,
-                optionLabel: curr + '@' + version + ' (fixes ' +
-                  install[curr].count + ' vulnerable package' + text + ')',
-              };
-
-              if (acc[curr]) {
-                if (semver.gt(acc[curr].version, version)) {
-                  acc[curr] = res;
-                }
-              } else {
-                acc[curr] = res;
-              }
-
-              return acc;
-            }, {});
-
-            // create a reverse lookup to allow the user to select a sensible
-            // readable name, and then we can work out what that actually
-            // relates to.
-            var labelToPackage = {};
-            var choices = installNames.map(function (name) {
-              labelToPackage[packages[name].optionLabel] = name;
-              return packages[name].optionLabel;
+            // the uninstall doesn't need versions in the strings
+            // but install *does* so we build up arrays of both
+            var upgradeWithoutVersions = [];
+            var upgrade = answers.packages.map(function (res) {
+              upgradeWithoutVersions.push(res.package);
+              return res.package + '@' + res.version;
             });
 
-            var all = 'All vulnerable packages';
-
-            inquirer.prompt([{
-              type: 'checkbox',
-              choices: [all].concat(choices),
-              name: 'packages',
-              message: 'Select the packages you want to update',
-            }, ], function (answers) {
-              debug(answers)
-              if (answers.packages.length === 0) {
+            promises.push(new Promise(function (resolve, reject) {
+              debug('npm uninstall %s', upgradeWithoutVersions.join(' '));
+              if (options['dry-run']) {
                 return resolve();
               }
+              npm.commands.uninstall(Object.keys(install), function (error) {
+                if (error) {
+                  return reject(error);
+                }
+                resolve();
+              });
+            }));
 
-              if (answers.packages[0] === all) {
-                answers.packages = choices;
+            promises.push(new Promise(function (resolve, reject) {
+              debug('npm install %s', upgrade.join(' '));
+              var res = { upgraded: upgrade };
+
+              if (options['dry-run']) {
+                return resolve(res);
               }
 
-              debug('to upgrade', answers.packages);
-              var upgradeWithoutVersions = [];
-              var upgrade = answers.packages.map(function (label) {
-                var res = packages[labelToPackage[label]];
-                upgradeWithoutVersions.push(res.package);
-                return res.package + '@' + res.version;
+              npm.commands.install(upgrade, function (error) {
+                if (error) {
+                  return reject(error);
+                }
+
+                resolve(res);
               });
-              promises.push(new Promise(function (resolve, reject) {
-                debug('npm uninstall %s', upgradeWithoutVersions.join(' '));
-                if (options['dry-run']) {
-                  return resolve();
-                }
-                npm.commands.uninstall(Object.keys(install), function (error) {
-                  if (error) {
-                    return reject(error);
-                  }
-                  resolve();
-                });
-              }));
-
-              promises.push(new Promise(function (resolve, reject) {
-                debug('npm install %s', upgrade.join(' '));
-                var res = { upgraded: upgrade };
-
-                if (options['dry-run']) {
-                  return resolve(res);
-                }
-
-                npm.commands.install(installNames, function (error) {
-                  if (error) {
-                    return reject(error);
-                  }
-
-                  resolve(res);
-                });
-              }));
-
-              resolve(Promise.all(promises));
-            });
+            }));
           });
-        } else {
-          resolve('Listing modules to patch');
         }
+
+        var toPatch = answers['patch-packages'];
+        if (answers.patch && toPatch.length) {
+          debug('patching', toPatch);
+
+          var patches = toPatch.map(function (package) {
+            return Promise.resolve(package);
+          });
+
+          // merge the promises
+          [].push.apply(promises, patches);
+        }
+
+        resolve(Promise.all(promises));
 
       });
     });
@@ -182,7 +303,11 @@ function interactive(options) {
 
 function findUpgrades(packages) {
   return packages.map(function (vuln) {
-    return moduleToObject(vuln.upgradePath[1]);
+    // ignoring the first element in the upgrade path, find the first non-false
+    // entry in the array
+    var path = vuln.upgradePath.slice(1).filter(Boolean).shift();
+
+    return moduleToObject(path);
   }).reduce(function (acc, curr) {
     if (!acc[curr.name]) {
       acc[curr.name] = {
