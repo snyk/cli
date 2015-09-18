@@ -41,11 +41,12 @@
   },
   "devDependencies": {
     "@snyk/registry": "^1.4.0",
+    "git-rev": "^0.2.1",
     "jscs": "^2.0.0",
     "nodemon": "^1.3.7",
+    "semantic-release": "^4.1.0",
     "tap-spec": "^2.2.2",
-    "tape": "^4.0.0",
-    "semantic-release": "^4.1.0"
+    "tape": "^4.0.0"
   },
   "repository": {
     "type": "git",

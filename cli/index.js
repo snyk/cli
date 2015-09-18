@@ -36,19 +36,7 @@ if (argv.debug) {
 // use the `-d` flag
 var cli = require('./commands');
 
-// checks for available update and returns an instance
-// var updateNotifier = require('update-notifier');
-// var pkg = require('../package.json');
-// var notifier = updateNotifier({ pkg: pkg });
-// if (notifier.update) {
-//   // notify using the built-in convenience method
-//   notifier.notify();
-// }
-
 var command = argv._.shift();
-// var argvKeys = Object.keys(argv).filter(function (item) {
-//   return item !== '_';
-// });
 
 if (!command || argv.help) {
   command = 'help';
@@ -97,3 +85,12 @@ method.apply(null, argv._).then(function (result) {
   }
   process.exit(1);
 });
+
+// checks for available update and returns an instance
+// var updateNotifier = require('update-notifier');
+// var pkg = require('../package.json');
+// var notifier = updateNotifier({ pkg: pkg });
+// if (notifier.update) {
+//   // notify using the built-in convenience method
+//   notifier.notify();
+// }
