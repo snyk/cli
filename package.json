@@ -45,7 +45,6 @@
   },
   "devDependencies": {
     "@snyk/registry": "^1.4.0",
-    "git-rev": "^0.2.1",
     "jscs": "^2.0.0",
     "nodemon": "^1.3.7",
     "semantic-release": "^4.1.0",
