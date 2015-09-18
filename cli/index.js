@@ -38,6 +38,10 @@ var cli = require('./commands');
 
 var command = argv._.shift();
 
+if (argv.version) {
+  command = 'version';
+}
+
 if (!command || argv.help) {
   command = 'help';
   if (argv.help === true) {

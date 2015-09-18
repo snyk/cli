@@ -1,6 +1,7 @@
 var path = require('path');
 var exec = require('child_process').exec;
 var Promise = require('es6-promise').Promise; // jshint ignore:line
+var root = path.resolve(__dirname, '..', '..');
 
 module.exports = function () {
   return new Promise(function (resolve) {
@@ -12,27 +13,48 @@ module.exports = function () {
     }
 
     // else we're in development, give the commit out
-    var root = path.resolve(__dirname, '..', '..');
     // get the last commit and whether the working dir is dirty
-    var cmd = 'expr $(git status --porcelain 2>/dev/null| ' +
-      'egrep "^(M| M)" | wc -l)';
+    var promises = [
+      branch(),
+      commit(),
+      dirty(),
+    ];
 
-    exec(cmd, {
-      cwd: root,
-    }, function (error, stdout) {
-      var dirtyCount = parseInt(stdout.trim(), 10);
+    resolve(Promise.all(promises).then(function (res) {
+      var branch = res[0];
+      var commit = res[1];
+      var dirtyCount = parseInt(res[2], 10);
+      var curr = branch + ': ' + commit;
+      if (dirtyCount !== 0) {
+        curr += ' (' + dirtyCount + ' dirty files)';
+      }
 
-      var git = require('git-rev'); // only included in devDeps
-
-      return git.branch(function (branch) {
-        git.long(function (hash) {
-          var curr = branch + ': ' + hash;
-          if (dirtyCount !== 0) {
-            curr += ' (' + dirtyCount + ' dirty files)';
-          }
-          resolve(curr);
-        });
-      });
-    });
+      return curr;
+    }));
   });
 };
+
+function command(cmd) {
+  return new Promise(function (resolve, reject) {
+    exec(cmd, { cwd: root }, function (err, stdout, stderr) {
+      var error = stderr.trim();
+      if (error) {
+        return reject(new Error(error));
+      }
+      resolve(stdout.split('\n').join(''));
+    });
+  });
+}
+
+function commit() {
+  return command('git rev-parse HEAD');
+}
+
+function branch() {
+  return command('git rev-parse --abbrev-ref HEAD');
+}
+
+function dirty() {
+  return command('expr $(git status --porcelain 2>/dev/null| ' +
+      'egrep "^(M| M)" | wc -l)');
+}
