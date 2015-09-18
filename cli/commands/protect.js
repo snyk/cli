@@ -3,11 +3,10 @@ module.exports = protect;
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 var debug = require('debug')('snyk');
-var moduleToObject = require('@snyk/module');
 var snyk = require('../../lib/');
 var protect = require('../../lib/protect');
-var semver = require('semver');
 var inquirer = require('inquirer');
+var _ = require('lodash');
 
 function protect(options) {
   if (!options) {
@@ -47,13 +46,53 @@ function interactive(config, options) {
     // newly install. within the .reduce loop, we'll also capture the list
     // of packages (in `patch`)  that we need to apply patch files to, to avoid
     // the vuln
-    var patch = [];
-    var install = findUpgrades(res.vulnerabilities.filter(function (vuln) {
-      var res = !!vuln.upgradePath.filter(function (pkg, i) {
+    var actions = [{
+      value: 'skip',
+      key: 's',
+      name: 'skip it',
+    }, {
+      value: 'ignore',
+      key: 'i',
+      name: 'ignore it for 30 days',
+    }, ];
+
+    var patchAction = {
+      value: 'patch',
+      key: 'p',
+      name: 'patch',
+    };
+
+    var updateAction = {
+      value: 'update',
+      key: 'u',
+      name: 'update',
+    };
+
+    var prompts = res.vulnerabilities.map(function (vuln, i) {
+      var id = vuln.id || ('node-' + vuln.name + '@' + vuln.below);
+
+      id += '-' + i;
+
+      var choices = _.cloneDeep(actions);
+      var patch = _.cloneDeep(patchAction);
+      var update = _.cloneDeep(updateAction);
+
+      var from = vuln.from.slice(1).filter(Boolean).shift();
+
+      var res = {
+        name: id,
+        type: 'expand',
+        message: 'Fix vulnerability in ' + from +
+          '\n  - from: ' + vuln.from.join(' > '),
+      };
+
+
+      var actionAdded = vuln.upgradePath.some(function (pkg, i) {
         // if the upgade path is to upgrade the module to the same range the
         // user already asked for, then it means we need to just blow that
         // module away and re-install
         if (pkg && vuln.from.length > i && pkg === vuln.from[i]) {
+          choices.unshift(update);
           return true;
         }
 
@@ -61,208 +100,64 @@ function interactive(config, options) {
         // the project itself (i.e. jsbin) then the direct dependency can be
         // upgraded. Note that if the first two elements
         if (vuln.upgradePath.slice(0, 2).filter(Boolean).length) {
+          choices.unshift(update);
           return true;
         }
+      });
 
-        return false;
-      }).length;
-
-      // if there's no match on our conditions above, then it's a file that
-      // needs a manual upgrade inside the package, so we capture it in our
-      // patch array
-      if (!res) {
-        patch.push(vuln);
+      if (!actionAdded) {
+        choices.unshift(patch);
       }
+
+      // kludge to make sure that we get the vuln in the user selection
+      res.choices = choices.map(function (choice) {
+        var value = choice.value;
+        choice.value = {
+          vuln: vuln,
+          choice: value,
+        };
+        return choice;
+      });
 
       return res;
-    }));
-
-
-    // FIXME untested
-    // reduce the patch list down to the unique, and the highest version that
-    // we need to have installed to get out of the vuln range.
-    patch = patch.reduce(function (acc, curr) {
-      var patch = acc.filter(function (patch) {
-        return patch.name === curr.name;
-      }).pop(); // should either be undefined or length: 1
-
-      // if patch, then this is a **reference** so we'll modify it
-      if (patch) {
-        patch.count++;
-        if (semver.gt(curr.version, patch.version)) {
-          patch.version = curr.version;
-        }
-      } else {
-        patch = {
-          count: 1,
-          value: curr,
-        };
-        acc.push(patch);
-      }
-
-      patch.name = curr.name + '@' + curr.version +
-        ' (' + patch.count + ' vulns)';
-
-      return acc;
-    }, []);
-
-
-    debug('reinstalls: %s', Object.keys(install).length);
-    debug('to patch: %s', patch.length);
-
-    // turn the "to-install" list into an inquirer compatiable list, with
-    // useful text labels (`.name`).
-    var packages = Object.keys(install).reduce(function (acc, curr) {
-      var version = install[curr].version;
-
-      var text = 's';
-      if (install[curr].count === 1) {
-        text = '';
-      }
-
-      var res = {
-        value: {
-          package: curr,
-          version: version,
-        },
-        name: curr + '@' + version + ' (fixes ' +
-          install[curr].count + ' vulnerable package' + text + ')',
-      };
-
-      acc.push(res);
-
-      return acc;
-    }, []);
-
-    var ignoreVulns = res.vulnerabilities.map(function (vuln) {
-      var from = vuln.from.slice(1).filter(Boolean);
-      var fromText = '';
-      if (from.length === 1) {
-        fromText = 'direct dependency';
-      } else {
-        fromText = from.join(' -> ');
-      }
-      return {
-        name: vuln.name + '@' + vuln.version + ' (via ' + fromText + ')',
-        checked: false,
-        value: vuln,
-      };
     });
-
-    var all = {
-      name: 'All vulnerable packages',
-      value: '__all__',
-    };
 
     debug('starting questions');
 
     return new Promise(function (resolve) {
-      inquirer.prompt([{
-        type: 'confirm',
-        default: false,
-        name: 'ignore',
-        message: 'Do you want to ignore any vulnerabilities?',
-      }, {
-        type: 'checkbox',
-        choices: ignoreVulns,
-        name: 'ignore-vulns',
-        message: 'Select the vulnerabilities you want to ignore',
-        when: function (answers) {
-          return answers.ignore;
-        },
-      }, {
-        type: 'confirm',
-        default: true,
-        name: 'update',
-        message: 'Do you want snyk to update your vulnerable dependencies?',
-      }, {
-        type: 'checkbox',
-        choices: [all].concat(packages),
-        name: 'packages',
-        message: 'Select the packages you want to update',
-        when: function (answers) {
-          return answers.update;
-        },
-        filter: function (res) {
-          // if they selected "all" then this is a hack to overwrite
-          // our selection with the /actual/ selection of all
-          if (res.length === 1 && res[0] === all.value) {
-            res = packages;
-          }
-          return res;
-        },
-      }, {
-        type: 'confirm',
-        default: false,
-        name: 'patch',
-        message: 'Do you want snyk to patch your vulnerable dependencies?',
-      }, {
-        type: 'checkbox',
-        choices: [all].concat(patch),
-        name: 'patch-packages',
-        message: 'Select the packages you want to apply patches to',
-        when: function (answers) {
-          return answers.patch;
-        },
-        filter: function (res) {
-          if (res.length === 1 && res[0] === all.value) {
-            res = patch;
-          }
-          return res;
-        },
-      }, ], function (answers) {
-        var promises = [];
+      inquirer.prompt(prompts, function (answers) {
+        debug(JSON.stringify(answers, '', 2));
 
-        debug('answers', answers);
-        var ignore = answers['ignore-vulns'];
+        // split the choices into:
+        // update
+        // ignore
+        // patch
+        // note that "skip" is left alone
 
-        if (answers.ignore && ignore.length) {
-          promises.push(protect.ignore(ignore));
-        }
+        var tasks = {
+          ignore: [],
+          update: [],
+          patch: [],
+          skip: [],
+        };
 
-        var packages = answers.packages.map(function (res) {
-          return {
-            package: res.value.package,
-            version: res.value.version,
-          };
+        Object.keys(answers).forEach(function (key) {
+          var answer = answers[key];
+          var task = answer.choice;
+
+          tasks[task].push(answer.vuln);
         });
 
-        if (answers.update && packages.length) {
-          promises.push(protect.update(packages, !options['dry-run']));
-        }
-
-        var toPatch = answers['patch-packages'];
-        if (answers.patch && toPatch.length) {
-          promises.push(protect.patch(toPatch));
-        }
+        var promises = [
+          protect.ignore(tasks.ignore),
+          protect.update(tasks.update, !options['dry-run']),
+          protect.patch(tasks.patch, !options['dry-run']),
+        ];
 
         resolve(Promise.all(promises));
-
       });
     });
 
   });
 
-}
-
-function findUpgrades(packages) {
-  return packages.map(function (vuln) {
-    // ignoring the first element in the upgrade path, find the first non-false
-    // entry in the array
-    var path = vuln.upgradePath.slice(1).filter(Boolean).shift();
-
-    return moduleToObject(path);
-  }).reduce(function (acc, curr) {
-    if (!acc[curr.name]) {
-      acc[curr.name] = {
-        version: curr.version,
-        count: 1,
-      };
-    } else if (semver.gt(curr.version, acc[curr.name].version)) {
-      acc[curr.name].version = curr.version;
-      acc[curr.name].count++;
-    }
-
-    return acc;
-  }, {});
 }
