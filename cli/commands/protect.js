@@ -5,9 +5,9 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 var debug = require('debug')('snyk');
 var moduleToObject = require('@snyk/module');
 var snyk = require('../../lib/');
+var protect = require('../../lib/protect');
 var semver = require('semver');
 var inquirer = require('inquirer');
-var npm = require('npm');
 
 function protect(options) {
   if (!options) {
@@ -18,6 +18,8 @@ function protect(options) {
 
   if (options['dry-run']) {
     debug('*** dry run ****');
+  } else {
+    debug('~~~~ LIVE RUN ~~~~');
   }
 
   return snyk.dotfile.load().then(function (dotfile) {
@@ -127,16 +129,10 @@ function interactive(config, options) {
           install[curr].count + ' vulnerable package' + text + ')',
       };
 
-      if (acc[curr]) {
-        if (semver.gt(acc[curr].version, version)) {
-          acc[curr] = res;
-        }
-      } else {
-        acc[curr] = res;
-      }
+      acc.push(res);
 
       return acc;
-    }, {});
+    }, []);
 
     var ignoreVulns = res.vulnerabilities.map(function (vuln) {
       var from = vuln.from.slice(1).filter(Boolean);
@@ -160,7 +156,7 @@ function interactive(config, options) {
 
     debug('starting questions');
 
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       inquirer.prompt([{
         type: 'confirm',
         default: false,
@@ -221,75 +217,23 @@ function interactive(config, options) {
         var ignore = answers['ignore-vulns'];
 
         if (answers.ignore && ignore.length) {
-          promises.push(new Promise(function (resolve) {
-            var config = {};
-            config.ignore = ignore.map(function (vuln) {
-              return vuln.from.slice(1);
-            });
-            resolve(snyk.dotfile.save(config));
-          }));
+          promises.push(protect.ignore(ignore));
         }
 
-        if (answers.update && answers.packages.length) {
-          npm.load({
-            save: true, // save to the user's local package.json
-          }, function (error, npm) {
-            if (error) {
-              return reject(error);
-            }
+        var packages = answers.packages.map(function (res) {
+          return {
+            package: res.value.package,
+            version: res.value.version,
+          };
+        });
 
-            debug('to upgrade', answers.packages);
-
-            // the uninstall doesn't need versions in the strings
-            // but install *does* so we build up arrays of both
-            var upgradeWithoutVersions = [];
-            var upgrade = answers.packages.map(function (res) {
-              upgradeWithoutVersions.push(res.package);
-              return res.package + '@' + res.version;
-            });
-
-            promises.push(new Promise(function (resolve, reject) {
-              debug('npm uninstall %s', upgradeWithoutVersions.join(' '));
-              if (options['dry-run']) {
-                return resolve();
-              }
-              npm.commands.uninstall(Object.keys(install), function (error) {
-                if (error) {
-                  return reject(error);
-                }
-                resolve();
-              });
-            }));
-
-            promises.push(new Promise(function (resolve, reject) {
-              debug('npm install %s', upgrade.join(' '));
-              var res = { upgraded: upgrade };
-
-              if (options['dry-run']) {
-                return resolve(res);
-              }
-
-              npm.commands.install(upgrade, function (error) {
-                if (error) {
-                  return reject(error);
-                }
-
-                resolve(res);
-              });
-            }));
-          });
+        if (answers.update && packages.length) {
+          promises.push(protect.update(packages, !options['dry-run']));
         }
 
         var toPatch = answers['patch-packages'];
         if (answers.patch && toPatch.length) {
-          debug('patching', toPatch);
-
-          var patches = toPatch.map(function (package) {
-            return Promise.resolve(package);
-          });
-
-          // merge the promises
-          [].push.apply(promises, patches);
+          promises.push(protect.patch(toPatch));
         }
 
         resolve(Promise.all(promises));
