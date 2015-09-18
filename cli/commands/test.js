@@ -46,10 +46,12 @@ module.exports = function (path) {
                 'Should be upgraded to ' + upgradeText;
             } else if (idx === 1) {
               // A direct dependency needs upgrade. Nothing to add.
-              res += 'Upgrade direct dependency ' + upgradeText;
+              res += 'Upgrade direct dependency ' + vuln.from[idx] +
+                ' to ' + upgradeText;
             } else {
               // A deep dependency needs to be upgraded
-              res += 'Manually upgrade deep dependency ' + upgradeText;
+              res += 'Manually upgrade deep dependency ' + vuln.from[idx] +
+                ' to ' + upgradeText;
             }
             break;
           }
