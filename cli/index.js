@@ -42,6 +42,7 @@ debug(argv);
 // because we want to see the debug messaging when we
 // use the `-d` flag
 var cli = require('./commands');
+
 var command = argv._.shift();
 
 if (!command || argv.help) {
