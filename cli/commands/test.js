@@ -1,8 +1,17 @@
 var snyk = require('../../');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 
-module.exports = function (path) {
+module.exports = function (path, options) {
+  if (path && typeof path !== 'string') {
+    options = path;
+    path = false;
+  }
+
   return snyk.test(path || process.cwd()).then(function (res) {
+    if (options.json) {
+      return JSON.stringify(res, '', 2);
+    }
+
     if (res.ok) {
       return '✓ No vulnerabilities found';
     }

@@ -78,11 +78,11 @@ if (!method) {
   }
 }
 
-if (command === 'protect') {
+if (command === 'protect' ||
+    command === 'test') {
   // copy all the options across to argv._ as an object
   argv._.push(argv);
 }
-
 
 method.apply(null, argv._).then(function (result) {
   if (result && !argv.quiet) {

@@ -107,6 +107,8 @@ function interactive(config, options) {
 
       if (!actionAdded) {
         choices.unshift(patch);
+      } else {
+        update.name = 'Update to ' + vuln.upgradePath.filter(Boolean).shift();
       }
 
       // kludge to make sure that we get the vuln in the user selection
