@@ -55,7 +55,7 @@ test('prime database', function (t) {
 test('cli', function (t) {
   t.plan(2);
 
-  cli.test('semver@4.0.0').then(function (res) {
+  cli.test('semver@2').then(function (res) {
     t.fail(res);
   }).catch(function (error) {
     var res = error.message;

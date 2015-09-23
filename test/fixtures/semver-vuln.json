@@ -1,0 +1,25 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "below": "4.3.2",
+      "severity": "medium",
+      "identifiers": {
+        "advisory": "semver_dos"
+      },
+      "info": [
+        "http://nodesecurity.io/advisories/semver_dos"
+      ],
+      "id": "node-semver-63",
+      "name": "semver",
+      "version": "2.3.2",
+      "from": [
+        "semver@2.3.2"
+      ],
+      "upgradePath": [
+        false,
+        "semver@4.3.2"
+      ]
+    }
+  ]
+}

@@ -7,6 +7,10 @@ module.exports = function (path, options) {
     path = false;
   }
 
+  if (!options) {
+    options = {};
+  }
+
   return snyk.test(path || process.cwd()).then(function (res) {
     if (options.json) {
       return JSON.stringify(res, '', 2);

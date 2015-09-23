@@ -10,7 +10,8 @@
     "snyk": "./cli/index.js"
   },
   "scripts": {
-    "test": "jscs cli/*.js cli/**/*.js lib/*.js -v && tape test/*.test.js --cov | tap-spec",
+    "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
+    "test": "npm run lint && tape test/*.test.js --cov | tap-spec",
     "watch": "nodemon -q -x 'for FILE in test/*.test.js; do echo $FILE; tape $FILE | tap-spec; if [ $? -ne 0 ]; then exit 1; fi; done'",
     "//semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
@@ -26,13 +27,11 @@
     "base32": "0.0.6",
     "configstore": "^1.2.0",
     "debug": "^2.2.0",
-    "diff": "^2.1.1",
     "es6-promise": "^3.0.2",
     "inquirer": "^0.10.0",
     "js-yaml": "^3.4.2",
     "lodash": "^3.10.1",
     "minimist": "^1.1.1",
-    "npm": "^2.14.3",
     "npmlog": "^1.2.1",
     "promise": "^7.0.3",
     "request": "^2.60.0",

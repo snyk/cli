@@ -4,7 +4,7 @@ var protect = require('../lib/protect');
 var test = require('tape');
 var vulns = require('./fixtures/test-jsbin-vulns.json');
 
-test.only('protect correctly filters', function (t) {
+test('protect correctly filters', function (t) {
   Promise.resolve(vulns).then(function (res) {
     function runFilter(rule, date) {
       return protect.filterIgnored({
