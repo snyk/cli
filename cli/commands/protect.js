@@ -37,7 +37,8 @@ function protect(options) {
 }
 
 function interactive(config, options) {
-  return snyk.test(process.cwd()).then(function (res) {
+  var cwd = process.cwd();
+  return snyk.test(cwd).then(function (res) {
     if (res.ok) {
       return 'Nothing to be done. Well done, you.';
     }

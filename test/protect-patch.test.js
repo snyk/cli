@@ -8,9 +8,10 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 
 test('patch is correctly applied', function (t) {
-  var pkg = 'semver@2';
+  var name = 'semver';
+  var version = '2';
 
-  npm('install', pkg).then(function () {
+  npm('install', name + '@' + version).then(function () {
     var dir = path.resolve(__dirname, 'fixtures/protect');
     debug('installing to %s', dir);
     return protect.patch(vulns, true, dir).then(function () {
@@ -22,7 +23,7 @@ test('patch is correctly applied', function (t) {
     t.fail(error);
   })
   .then(function () {
-    return npm('uninstall', pkg).then(function () {
+    return npm('uninstall', name).then(function () {
       t.pass('packages cleaned up');
       t.end();
     });
@@ -39,6 +40,7 @@ function npm(method, packages) {
   }
   return new Promise(function (resolve, reject) {
     var cmd = 'npm ' + method + ' ' + packages.join(' ');
+    debug(cmd);
     exec(cmd, {
       cwd: path.resolve(__dirname, 'fixtures', 'protect'),
     }, function (error, stdout, stderr) {
