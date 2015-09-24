@@ -1,7 +1,7 @@
 {
   "name": "protect-test",
   "version": "1.0.0",
-  "description": "",
+  "description": "protect-test",
   "main": "index.js",
   "dependencies": {
     "semver": "^2.3.2"

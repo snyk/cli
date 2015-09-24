@@ -6,6 +6,8 @@ var debug = require('debug')('snyk');
 var snyk = require('../../lib/');
 var protect = require('../../lib/protect');
 var inquirer = require('inquirer');
+var path = require('path');
+var fs = require('then-fs');
 var _ = require('lodash');
 
 function protect(options) {
@@ -13,19 +15,21 @@ function protect(options) {
     options = {};
   }
 
-  options['dry-run'] = true;
-
   if (options['dry-run']) {
     debug('*** dry run ****');
   } else {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.dotfile.load().then(function (dotfile) {
+  return snyk.dotfile.load().then(function (config) {
     if (options.interactive) {
-      return interactive(dotfile, options);
+      return interactive(config, options);
     }
 
+    // FIXME should patch
+    if (config.patch) {
+      return 'patch not available in beta';
+    }
     return 'nothing to do';
   }).catch(function (error) {
     if (error.code === 'ENOENT') {
@@ -49,24 +53,24 @@ function interactive(config, options) {
     // the vuln
     var actions = [{
       value: 'skip',
-      key: 's',
-      name: 'skip it',
+      key: 'n',
+      name: 'Do nothing',
     }, {
       value: 'ignore',
       key: 'i',
-      name: 'ignore it for 30 days',
+      name: 'Ignore it for 30 days',
     }, ];
 
     var patchAction = {
       value: 'patch',
       key: 'p',
-      name: 'patch',
+      name: 'Patch',
     };
 
     var updateAction = {
       value: 'update',
       key: 'u',
-      name: 'update',
+      name: '<updated-in-code>',
     };
 
     var prompts = res.vulnerabilities.map(function (vuln, i) {
@@ -129,12 +133,6 @@ function interactive(config, options) {
 
     return new Promise(function (resolve) {
       inquirer.prompt(prompts, function (answers) {
-        // split the choices into:
-        // update
-        // ignore
-        // patch
-        // note that "skip" is left alone
-
         var tasks = {
           ignore: [],
           update: [],
@@ -149,13 +147,62 @@ function interactive(config, options) {
           tasks[task].push(answer.vuln);
         });
 
+        debug(tasks.patch);
+
         var promises = [
-          protect.ignore(tasks.ignore),
+          protect.ignore(tasks.ignore, !options['dry-run']),
           protect.update(tasks.update, !options['dry-run']),
           protect.patch(tasks.patch, !options['dry-run']),
         ];
 
-        resolve(Promise.all(promises));
+        var promise = Promise.all(promises).then(function (res) {
+          var results = _.flattenDeep(res).filter(Boolean);
+          results.unshift(config);
+          var newConfig = _.merge.apply(_, results);
+
+          // need to reapply the ignore, because those won't be in the new rules
+
+
+          debug(JSON.stringify(newConfig, '', 2));
+
+          if (!options['dry-run']) {
+            var packageFile = path.resolve(cwd, 'package.json');
+            debug('updating %s', packageFile);
+            return snyk.dotfile.save(newConfig)
+              .then(function () {
+                return fs.readFile(packageFile, 'utf8');
+              })
+              .then(function (src) {
+                var data = JSON.parse(src);
+                // finally save to the package.json
+                if (!data.scripts) {
+                  data.scripts = {};
+                }
+
+                data.scripts['snyk-protect'] = 'snyk protect';
+
+                var cmd = 'npm run snyk-protect';
+                if (data.scripts['post-install']) {
+                  data.scripts['post-install'] = cmd + ' && ' +
+                    data.scripts['post-install'];
+                } else {
+                  data.scripts['post-install'] = cmd;
+                }
+
+                data.snyk = true;
+
+                return JSON.stringify(data, '', 2);
+              })
+              .then(fs.writeFile.bind(null, packageFile))
+              .then(function () {
+                return '.snyk file saved and package.json updated with ' +
+                  'protect.';
+              });
+          }
+          return 'This was a dry run: nothing changed';
+        });
+
+        resolve(promise);
       });
     });
 
