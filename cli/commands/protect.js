@@ -129,8 +129,6 @@ function interactive(config, options) {
 
     return new Promise(function (resolve) {
       inquirer.prompt(prompts, function (answers) {
-        debug(JSON.stringify(answers, '', 2));
-
         // split the choices into:
         // update
         // ignore
