@@ -56,7 +56,6 @@ test('protect correctly filters', function (t) {
 test('protect generates detailed ignore format', function (t) {
   t.plan(2);
 
-  var save = snyk.dotfile.save;
   Promise.resolve(vulns).then(function (res) {
     var vulns = res.vulnerabilities.filter(function (vuln) {
       return (vuln.name === 'semver' && vuln.version === '3.0.1');
@@ -72,19 +71,14 @@ test('protect generates detailed ignore format', function (t) {
       path: [vuln.from.slice(1).join(' > ')],
     };
 
-    snyk.dotfile.save = function (res) {
+    return protect.ignore(vulns).then(function (res) {
       // copy the time across since it can be out by a microsecond...
       expect.ignore[vuln.id].expires = res.ignore[vuln.id].expires;
       // loose required as date doesn't yeild equality.
       t.deepLooseEqual(res, expect, 'dotfile format is correct');
-    };
-
-    return protect.ignore(vulns);
+    });
   }).catch(function (e) {
     console.log(e.stack);
     t.fail(e);
-  }).then(function () {
-    // restore
-    snyk.dotfile.save = save;
   });
 });

@@ -18,11 +18,10 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
   function runTests(t, error, modules) {
     t.plan(3 + 2 + (4 * 2));
 
-    //t.comment(JSON.stringify(modules));
     var expectedDirectDeps = {
       'uglify-js': '2.3.6',
-      'qs': '0.6.6',
-      'semver': '3.0.1',
+      qs: '0.6.6',
+      semver: '3.0.1',
       'kind-of': '2.0.1',
       'dev-deps-demo': null,
     };
@@ -48,17 +47,22 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
         t.equal(childKeys.length, 2, 'dep count of kind-of');
 
         // Check child dependencies
-        t.ok(childDeps['is-buffer'] !== undefined, 'is-buffer child dep was expected');
-        t.ok(childDeps['typeof'] !== undefined, 'typeof child dep was expected');
+        t.ok(childDeps['is-buffer'] !== undefined,
+          'is-buffer child dep was expected');
+        t.ok(childDeps['typeof'] !== undefined,
+          'typeof child dep was expected');
       } else {
-        t.equal(expectedDirectDeps[key], modules.dependencies[key].version, key + ' version is correct');
+        t.equal(expectedDirectDeps[key], modules.dependencies[key].version,
+          key + ' version is correct');
       }
     });
     t.end();
   }
   t.test('specified directory', function (t) {
     snyk.modules(osDir, function (error, modules) {
-      if (error) console.log(error.stack);
+      if (error) {
+        console.log(error.stack);
+      }
       runTests(t, error, modules);
     });
   });

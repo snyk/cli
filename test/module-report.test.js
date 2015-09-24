@@ -3,6 +3,7 @@ var test = require('tape');
 var path = require('path');
 var snyk = require('..');
 
+var cwd = process.cwd();
 var osDir = path.resolve(__dirname, 'fixtures', 'demo-private');
 
 test('module reporting: private project', function (t) {
@@ -43,9 +44,12 @@ test('module reporting: private project', function (t) {
     });
     t.end();
   }
+
   t.test('specified directory', function (t) {
     snyk.modules(osDir, function (error, modules) {
-      if (error) console.log(error.stack);
+      if (error) {
+        console.log(error.stack);
+      }
       runTests(t, error, modules);
     });
   });
@@ -57,4 +61,10 @@ test('module reporting: private project', function (t) {
       runTests(t, error, modules);
     });
   });
+});
+
+test('teardown', function (t) {
+  process.chdir(cwd);
+  t.pass('reset cwd');
+  t.end();
 });

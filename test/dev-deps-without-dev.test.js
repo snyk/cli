@@ -6,13 +6,13 @@ var snyk = require('..');
 // FIXME this test doesn't actually work yet, since
 var osDir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
 
-test('dev deps: dev-deps-demo, including dev deps', function (t) {
+test('dev deps: dev-deps-demo, _excluding_ dev deps', function (t) {
   function runTests(t, error, modules) {
     t.plan(3 + 1 + (3 * 2));
-    //t.comment(JSON.stringify(modules));
+
     var expectedDirectDeps = {
-      'qs': '0.6.6',
-      'semver': '3.0.1',
+      qs: '0.6.6',
+      semver: '3.0.1',
       'kind-of': '2.0.1',
       'dev-deps-demo': null,
     };
@@ -47,7 +47,9 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
   }
   t.test('specified directory', function (t) {
     snyk.modules(osDir, function (error, modules) {
-      if (error) console.log(error.stack);
+      if (error) {
+        console.log(error.stack);
+      }
       runTests(t, error, modules);
     });
   });
