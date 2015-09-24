@@ -1,12 +1,7 @@
 #!/usr/bin/env node
 
-var alias = {
-  v: 'version',
-  d: 'debug',
-  h: 'help',
-  q: 'quiet',
-  i: 'interactive',
-};
+var abbrev = require('abbrev');
+var alias = abbrev('version', 'debug', 'help', 'quiet', 'interactive');
 
 // allows us to support flags with true or false only
 var argv = process.argv.slice(2).reduce(function reduce(acc, arg) {
@@ -44,6 +39,11 @@ debug(argv);
 var cli = require('./commands');
 
 var command = argv._.shift();
+
+// alias switcheroo
+if (cli.aliases[command]) {
+  command = cli.aliases[command];
+}
 
 if (argv.version) {
   command = 'version';

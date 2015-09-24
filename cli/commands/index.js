@@ -1,4 +1,6 @@
-module.exports = {
+var abbrev = require('abbrev');
+
+var commands = {
   help: require('./help'),
   auth: require('./auth'),
   version: require('./version'),
@@ -10,3 +12,6 @@ module.exports = {
   // watch: require('./watch'),
   // modules: require('./modules'),
 };
+commands.aliases = abbrev(Object.keys(commands));
+
+module.exports = commands;
