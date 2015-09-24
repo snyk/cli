@@ -6,6 +6,7 @@
   "dependencies": {
     "semver": "^2.3.2"
   },
+  "private": true,
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
