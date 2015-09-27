@@ -9,6 +9,7 @@ module.exports = auth;
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var debug = require('debug')('snyk');
 var pkg = require('../../package.json');
+var open = require('open');
 var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var inquirer = require('inquirer');
@@ -131,6 +132,26 @@ function github() {
     info.log = require('../log')('warn');
 
     var prompts = [{
+      type: 'rawlist',
+      name: 'webauth',
+      message: 'How would you like to authenticate to Snyk?',
+      choices: [{
+          value: 'github',
+          name: 'Sign in on this prompt using Github credentials',
+        }, {
+          value: 'browser',
+          name: 'Browse to get an API key, and rerun snyk auth with the key',
+        }, ],
+      default: 0,
+      when: function (answers) {
+        if (answers.reauth === false) {
+          return false;
+        }
+
+        return true;
+      },
+
+    }, {
       type: 'input',
       name: 'username',
       message: 'What is your GitHub username?',
@@ -138,6 +159,10 @@ function github() {
       validate: _.ary(_.bind(validator.isLength, validator, _, 1), 1),
       when: function (answers) {
         if (answers.reauth === false) {
+          return false;
+        }
+
+        if (answers.webauth === 'browser') {
           return false;
         }
 
@@ -150,6 +175,10 @@ function github() {
       validate: _.ary(_.bind(validator.isLength, validator, _, 1), 1),
       when: function (answers) {
         if (answers.reauth === false) {
+          return false;
+        }
+
+        if (answers.webauth === 'browser') {
           return false;
         }
 
@@ -176,6 +205,11 @@ function github() {
     inquirer.prompt(prompts, function (answers) {
       if (answers.reauth === false) {
         return reject(new Error('Cancelled authentication'));
+      }
+      if (answers.webauth === 'browser') {
+        open(config.AUTH_URL);
+        return reject(new Error('After logging in at ' + config.AUTH_URL +
+          ', run \'snyk auth <KEY>\' command again'));
       }
       answers.password = answers.password ||
                          passwordStorage.get(answers.username);
