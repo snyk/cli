@@ -38,7 +38,9 @@
     "request": "^2.60.0",
     "semver": "^5.0.1",
     "then-fs": "^2.0.0",
-    "validator": "^4.0.5"
+    "validator": "^4.0.5",
+    "open": "^0.0.5",
+    "url": "^0.11.0"
   },
   "optionalDependencies": {
     "keytar": "^3.0.0"
