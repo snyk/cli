@@ -92,12 +92,12 @@ function interactive(config, options) {
       };
 
 
-      var actionAdded = vuln.upgradePath.some(function (pkg, i) {
+      choices.unshift(patch);
+      if (vuln.upgradePath.some(function (pkg, i) {
         // if the upgade path is to upgrade the module to the same range the
         // user already asked for, then it means we need to just blow that
         // module away and re-install
         if (pkg && vuln.from.length > i && pkg === vuln.from[i]) {
-          choices.unshift(update);
           return true;
         }
 
@@ -105,14 +105,10 @@ function interactive(config, options) {
         // the project itself (i.e. jsbin) then the direct dependency can be
         // upgraded. Note that if the first two elements
         if (vuln.upgradePath.slice(0, 2).filter(Boolean).length) {
-          choices.unshift(update);
           return true;
         }
-      });
-
-      if (!actionAdded) {
-        choices.unshift(patch);
-      } else {
+      })) {
+        choices.unshift(update);
         update.name = 'Update to ' + vuln.upgradePath.filter(Boolean).shift();
       }
 
