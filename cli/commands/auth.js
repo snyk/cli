@@ -23,7 +23,7 @@ var _ = require('lodash');
 var passwordStorage = passwordStorageService('github');
 
 var apiUrl = url.parse(config.API);
-var AUTH_URL = apiUrl.protocol + '//' + apiUrl.host
+var authUrl = apiUrl.protocol + '//' + apiUrl.host
 
 function passwordStorageService(service) {
   var key = pkg.name + ':' + service;
@@ -211,8 +211,8 @@ function github() {
         return reject(new Error('Cancelled authentication'));
       }
       if (answers.webauth === 'browser') {
-        open(AUTH_URL);
-        return reject(new Error('After logging in at ' + AUTH_URL +
+        open(authUrl);
+        return reject(new Error('After logging in at ' + authUrl +
           ', run \'snyk auth <KEY>\' command again'));
       }
       answers.password = answers.password ||
