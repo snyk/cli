@@ -17,9 +17,13 @@ var validator = require('validator');
 var crypto = require('crypto');
 var base32 = require('base32');
 var request = require('request');
+var url = require('url');
 var _ = require('lodash');
 
 var passwordStorage = passwordStorageService('github');
+
+var apiUrl = url.parse(config.API);
+var AUTH_URL = apiUrl.protocol + '//' + apiUrl.host
 
 function passwordStorageService(service) {
   var key = pkg.name + ':' + service;
@@ -207,8 +211,8 @@ function github() {
         return reject(new Error('Cancelled authentication'));
       }
       if (answers.webauth === 'browser') {
-        open(config.AUTH_URL);
-        return reject(new Error('After logging in at ' + config.AUTH_URL +
+        open(AUTH_URL);
+        return reject(new Error('After logging in at ' + AUTH_URL +
           ', run \'snyk auth <KEY>\' command again'));
       }
       answers.password = answers.password ||
