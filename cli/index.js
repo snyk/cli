@@ -31,7 +31,6 @@ if (argv.version) {
 }
 
 var debug = require('debug')('snyk');
-debug(argv);
 
 // this is done after the debug activation line above
 // because we want to see the debug messaging when we
@@ -83,6 +82,8 @@ if (command === 'protect' ||
   // copy all the options across to argv._ as an object
   argv._.push(argv);
 }
+
+debug(command, argv);
 
 method.apply(null, argv._).then(function (result) {
   if (result && !argv.quiet) {
