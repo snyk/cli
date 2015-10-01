@@ -1,14 +1,14 @@
-module.exports = snapshot;
+module.exports = monitor;
 
 var snyk = require('../../lib/');
 
-function snapshot(path) {
+function monitor(path) {
   if (!path) {
     path = process.cwd();
   }
 
   return snyk.modules(path || process.cwd())
-    .then(snyk.snapshot.bind(null, { method: 'cli' }))
+    .then(snyk.monitor.bind(null, { method: 'cli' }))
     .then(function () {
       return null;
     });

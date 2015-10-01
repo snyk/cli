@@ -29,7 +29,7 @@ To auth, you will need a github account and run `snyk auth` and follow the on sc
 Once authed, you can use the two snyk commands:
 
 - `snyk test`
-- `snyk snapshot`
+- `snyk monitor`
 
 ## test
 
@@ -46,6 +46,6 @@ The test command also takes a package and version as an argument. So if you want
 
 If there are vulnerabilities, the process with exit with a non-zero exit code - so that you can use this as part of your CI tests.
 
-## snapshot
+## monitor
 
 ...

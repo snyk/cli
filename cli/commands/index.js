@@ -6,7 +6,7 @@ var commands = {
   version: require('./version'),
   error: require('./error'),
   config: require('./config'),
-  snapshot: require('./snapshot'),
+  monitor: require('./monitor'),
   test: require('./test'),
   protect: require('./protect'),
   // watch: require('./watch'),

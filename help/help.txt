@@ -14,7 +14,7 @@ Commands:
   protect ............ protect your code from vulnerabilities and
                        optionally suppress specific vulnerabilities.
                        Run with `--interactive` to configure.
-  snapshot ........... record the state of dependencies and any
+  monitor ............ record the state of dependencies and any
                        vulnerabilities on snyk.io.
 
 Options:
