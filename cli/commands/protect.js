@@ -179,8 +179,12 @@ function interactive(config, options) {
 
                 var cmd = 'npm run snyk-protect';
                 if (data.scripts['post-install']) {
-                  data.scripts['post-install'] = cmd + ' && ' +
-                    data.scripts['post-install'];
+                  // only add the post-install if it's not in the post-install
+                  // already
+                  if (data.scripts['post-install'].indexOf(cmd) === -1) {
+                    data.scripts['post-install'] = cmd + ' && ' +
+                      data.scripts['post-install'];
+                  }
                 } else {
                   data.scripts['post-install'] = cmd;
                 }
