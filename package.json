@@ -25,7 +25,7 @@
     "@snyk/config": "^3.0.0",
     "@snyk/module": "^1.0.0",
     "abbrev": "^1.0.7",
-    "base32": "0.0.6",
+    "cli-spinner": "^0.2.1",
     "configstore": "^1.2.0",
     "debug": "^2.2.0",
     "es6-promise": "^3.0.2",
@@ -33,14 +33,14 @@
     "js-yaml": "^3.4.2",
     "lodash": "^3.10.1",
     "minimist": "^1.1.1",
-    "npmlog": "^1.2.1",
+    "node-uuid": "^1.4.3",
+    "open": "^0.0.5",
     "promise": "^7.0.3",
     "request": "^2.60.0",
     "semver": "^5.0.1",
     "then-fs": "^2.0.0",
-    "validator": "^4.0.5",
-    "open": "^0.0.5",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "validator": "^4.0.5"
   },
   "optionalDependencies": {
     "keytar": "^3.0.0"
