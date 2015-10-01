@@ -23,7 +23,7 @@ var _ = require('lodash');
 var passwordStorage = passwordStorageService('github');
 
 var apiUrl = url.parse(config.API);
-var authUrl = apiUrl.protocol + '//' + apiUrl.host
+var authUrl = apiUrl.protocol + '//' + apiUrl.host;
 
 function passwordStorageService(service) {
   var key = pkg.name + ':' + service;
