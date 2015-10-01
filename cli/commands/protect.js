@@ -91,7 +91,6 @@ function interactive(config, options) {
           '\n  - from: ' + vuln.from.join(' > '),
       };
 
-
       choices.unshift(patch);
       if (vuln.upgradePath.some(function (pkg, i) {
         // if the upgade path is to upgrade the module to the same range the
@@ -125,6 +124,19 @@ function interactive(config, options) {
       return res;
     });
 
+    prompts = prompts.reduce(function (acc, curr) {
+      acc.push(curr);
+      acc.push({
+        name: curr.name + '-reason',
+        message: '[audit] Reason for ignoring vulnerability?',
+        default: 'None given',
+        when: function (answers) {
+          return answers[curr.name].choice === 'ignore';
+        },
+      });
+      return acc;
+    }, []);
+
     debug('starting questions');
 
     return new Promise(function (resolve) {
@@ -137,8 +149,17 @@ function interactive(config, options) {
         };
 
         Object.keys(answers).forEach(function (key) {
+          // if we're looking at a reason, skip it
+          if (key.indexOf('-reason') !== -1) {
+            return;
+          }
+
           var answer = answers[key];
           var task = answer.choice;
+
+          if (task === 'ignore') {
+            answer.vuln.reason = answers[key + '-reason'];
+          }
 
           tasks[task].push(answer.vuln);
         });
@@ -152,12 +173,14 @@ function interactive(config, options) {
         ];
 
         var promise = Promise.all(promises).then(function (res) {
+          // we're squashing the arrays of arrays into a flat structure
+          // with only non-false values
           var results = _.flattenDeep(res).filter(Boolean);
+
+          // then we merge the configs together using the original config
+          // as the baseline (this lets us retain the user's existing config)
           results.unshift(config);
           var newConfig = _.merge.apply(_, results);
-
-          // need to reapply the ignore, because those won't be in the new rules
-
 
           debug(JSON.stringify(newConfig, '', 2));
 
