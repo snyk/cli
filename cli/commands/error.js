@@ -11,3 +11,5 @@ module.exports.Unauthorized = 'Unauthorized: please ensure you are ' +
   'logged using `snyk auth`';
 module.exports.MISSING_DOTFILE = 'Cannot find .snyk in this ' +
   'project, make to create one with `snyk protect --interactive`';
+
+module.exports['401'] = module.exports.Unauthorized;
