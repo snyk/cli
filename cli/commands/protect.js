@@ -160,7 +160,7 @@ function interactive(config, options) {
         var promises = [
           protect.ignore(tasks.ignore, !options['dry-run']),
           protect.update(tasks.update, !options['dry-run']),
-          //protect.patch(tasks.patch, !options['dry-run']),
+          // protect.patch(tasks.patch, !options['dry-run']),
         ];
 
         var promise = Promise.all(promises).then(function (res) {
