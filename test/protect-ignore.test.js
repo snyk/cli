@@ -1,5 +1,3 @@
-'use strict';
-var snyk = require('..');
 var protect = require('../lib/protect');
 var test = require('tape');
 var vulns = require('./fixtures/test-jsbin-vulns.json');
@@ -65,13 +63,25 @@ test('protect generates detailed ignore format', function (t) {
 
 
     var vuln = vulns[0];
+    vuln.meta = {
+      days: 30,
+    };
     var expect = { ignore: {} };
 
     expect.ignore[vuln.id] = {
       path: [vuln.from.slice(1).join(' > ')],
     };
 
-    return protect.ignore(vulns).then(function (res) {
+    var data = vulns.map(function (vuln) {
+      return {
+        vuln: vuln,
+        meta: {
+          days: 30,
+        },
+      };
+    });
+
+    return protect.ignore(data).then(function (res) {
       // copy the time across since it can be out by a microsecond...
       expect.ignore[vuln.id].expires = res.ignore[vuln.id].expires;
       // loose required as date doesn't yeild equality.

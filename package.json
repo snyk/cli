@@ -35,10 +35,12 @@
     "minimist": "^1.1.1",
     "node-uuid": "^1.4.3",
     "open": "^0.0.5",
+    "os-name": "^1.0.3",
     "promise": "^7.0.3",
     "request": "^2.60.0",
     "semver": "^5.0.1",
     "then-fs": "^2.0.0",
+    "update-notifier": "^0.5.0",
     "url": "^0.11.0",
     "validator": "^4.0.5"
   },

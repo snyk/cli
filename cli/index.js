@@ -39,6 +39,7 @@ var cli = require('./commands');
 
 var command = argv._.shift();
 
+
 // alias switcheroo
 if (cli.aliases[command]) {
   command = cli.aliases[command];
@@ -48,11 +49,12 @@ if (argv.version) {
   command = 'version';
 }
 
-if (!command || argv.help) {
-  command = 'help';
-  if (argv.help === true) {
+if (!command || argv.help || command === 'help') {
+  // bit of a song and dance to support `snyk -h` and `snyk help`
+  if (argv.help === true || command === 'help') {
     argv.help = 'help';
   }
+  command = 'help';
 
   argv._.unshift(argv.help || 'usage');
 }
@@ -104,11 +106,11 @@ method.apply(null, argv._).then(function (result) {
   process.exit(1);
 });
 
+debug('checking for cli updates');
 // finally, check for available update and returns an instance
-// var updateNotifier = require('update-notifier');
-// var pkg = require('../package.json');
-// var notifier = updateNotifier({ pkg: pkg });
-// if (notifier.update) {
-//   // notify using the built-in convenience method
-//   notifier.notify();
-// }
+var defaults = require('lodash').defaults;
+var pkg = require('../package.json');
+
+require('update-notifier')({
+  pkg: defaults(pkg, { version: '0.0.0' }),
+}).notify();
