@@ -20,7 +20,7 @@ var commands = {
   version: hotload('./version'),
   error: hotload('./error'),
   config: hotload('./config'),
-  snapshot: hotload('./snapshot'),
+  monitor: hotload('./monitor'),
   test: hotload('./test'),
   protect: hotload('./protect'),
   support: hotload('./support'),
