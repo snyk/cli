@@ -20,8 +20,8 @@ Commands:
 Options:
 
   -q, --quiet ........ silence all output.
-  -h, --help ......... output usage information.
-  -v, --version ...... output the version number.
+  -h, --help ......... this help information.
+  -v, --version ...... the CLI version.
   -i, --interactive .. configure the snyk protect settings.
   --dry-run .......... don't apply updates or patches during protect.
 
@@ -33,4 +33,4 @@ Examples:
 Pro tip: use `snyk test` in your test scripts, if a vulnerability is
 found, the process will exit with a non-zero exit code.
 
-For more details see https://snyk.io
+For more information see https://snyk.io
