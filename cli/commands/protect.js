@@ -58,13 +58,20 @@ function interactive(config, options) {
     }, {
       value: 'ignore',
       key: 'i',
+      meta: {
+        days: 30,
+      },
       name: 'Ignore it for 30 days',
     }, ];
 
     var patchAction = {
-      value: 'patch',
+      value: 'ignore', // FIXME was patch - will restore once feature complete
+      meta: {
+        days: 7,
+      },
       key: 'p',
-      name: 'Patch',
+      name: 'Patch (note: patch is not yet supported, ignoring for 7 days ' +
+        'instead for now)',
     };
 
     var updateAction = {
@@ -116,6 +123,7 @@ function interactive(config, options) {
       res.choices = choices.map(function (choice) {
         var value = choice.value;
         choice.value = {
+          meta: choice.meta,
           vuln: vuln,
           choice: value,
         };
@@ -140,7 +148,11 @@ function interactive(config, options) {
           var answer = answers[key];
           var task = answer.choice;
 
-          tasks[task].push(answer.vuln);
+          if (task === 'ignore') {
+            tasks[task].push(answer);
+          } else {
+            tasks[task].push(answer.vuln);
+          }
         });
 
         debug(tasks.patch);
@@ -148,7 +160,7 @@ function interactive(config, options) {
         var promises = [
           protect.ignore(tasks.ignore, !options['dry-run']),
           protect.update(tasks.update, !options['dry-run']),
-          protect.patch(tasks.patch, !options['dry-run']),
+          //protect.patch(tasks.patch, !options['dry-run']),
         ];
 
         var promise = Promise.all(promises).then(function (res) {
