@@ -70,7 +70,7 @@ module.exports = function (path, options) {
           }
         }
       } else {
-        res += 'Fix: None available. Consider not using this dependency.';
+        res += 'Fix: None available. Consider removing this dependency.';
       }
       return res;
     }).join('\n-----\n'));
