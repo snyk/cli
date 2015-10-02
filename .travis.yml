@@ -7,25 +7,12 @@ notifications:
   email: false
 services:
   - mongodb
-addons:
-  apt:
-    packages:
-    - xvfb
-    - gnome-keyring
-    - libgnome-keyring-dev
 node_js:
   - 4
   - "0.12"
   - "0.10"
 before_install: |
-  case ${TRAVIS_NODE_VERSION} in
-    iojs*)
-      echo "Not upgrading npm for iojs."
-      ;;
-    *)
-      npm update -g npm
-      ;;
-  esac
+  npm update -g npm
   echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 before_script:
   - npm prune
