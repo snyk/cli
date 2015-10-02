@@ -39,6 +39,7 @@ var cli = require('./commands');
 
 var command = argv._.shift();
 
+
 // alias switcheroo
 if (cli.aliases[command]) {
   command = cli.aliases[command];
@@ -48,11 +49,12 @@ if (argv.version) {
   command = 'version';
 }
 
-if (!command || argv.help) {
-  command = 'help';
-  if (argv.help === true) {
+if (!command || argv.help || command === 'help') {
+  // bit of a song and dance to support `snyk -h` and `snyk help`
+  if (argv.help === true || command === 'help') {
     argv.help = 'help';
   }
+  command = 'help';
 
   argv._.unshift(argv.help || 'usage');
 }
