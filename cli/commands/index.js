@@ -9,6 +9,7 @@ var commands = {
   monitor: require('./monitor'),
   test: require('./test'),
   protect: require('./protect'),
+  support: require('./support'),
   // watch: require('./watch'),
   // modules: require('./modules'),
 };

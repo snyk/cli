@@ -16,6 +16,7 @@ Commands:
                        Run with `--interactive` to configure.
   monitor ............ record the state of dependencies and any
                        vulnerabilities on snyk.io.
+  support ............ file an issue or request support.
 
 Options:
 

@@ -1,11 +1,5 @@
 module.exports = auth;
 
-/**
- * Credit, nearly entirely taken from
- * https://github.com/semantic-release/cli/blob/master/src/lib/github.js
- * MIT https://github.com/semantic-release/cli/blob/acb47922/README.md#license
- */
-
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var debug = require('debug')('snyk');
 var open = require('open');
