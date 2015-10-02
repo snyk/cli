@@ -38,6 +38,10 @@ test('prime database', function (t) {
     api: [{
       key: apiKey,
     }, ],
+    flags: {
+      beta: true,
+      betaTerms: true,
+    },
     email: 'test@example.com',
   }).save(function (error) {
     if (error) {
