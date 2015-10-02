@@ -14,8 +14,8 @@ addons:
     - gnome-keyring
     - libgnome-keyring-dev
 node_js:
-   - 4
-   - "0.12"
+  - 4
+  - "0.12"
   - "0.10"
 before_install: |
   case ${TRAVIS_NODE_VERSION} in
