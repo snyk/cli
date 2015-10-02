@@ -44,9 +44,6 @@
     "url": "^0.11.0",
     "validator": "^4.0.5"
   },
-  "optionalDependencies": {
-    "keytar": "^3.0.0"
-  },
   "devDependencies": {
     "@snyk/registry": "^2.0.0",
     "jscs": "^2.0.0",
