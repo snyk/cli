@@ -106,11 +106,11 @@ method.apply(null, argv._).then(function (result) {
   process.exit(1);
 });
 
+debug('checking for cli updates');
 // finally, check for available update and returns an instance
-// var updateNotifier = require('update-notifier');
-// var pkg = require('../package.json');
-// var notifier = updateNotifier({ pkg: pkg });
-// if (notifier.update) {
-//   // notify using the built-in convenience method
-//   notifier.notify();
-// }
+var defaults = require('lodash').defaults;
+var pkg = require('../package.json');
+
+require('update-notifier')({
+  pkg: defaults(pkg, { version: '0.0.0' }),
+}).notify();
