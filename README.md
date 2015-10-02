@@ -1,10 +1,10 @@
 # Snyk - So Now You Know!
 
-Note: Snyk is currently only available for private beta testing. 
-If you're not a part of the private beta and want to be, please [email us](mailto:contact@snyk.io). 
+Note: Snyk is currently only available for private beta testing.
+If you're not a part of the private beta and want to be, please [email us](mailto:contact@snyk.io).
 
-Snyk will help you reduce the security risk introduced by the use of third party dependencies. 
-It informs you of known vulnerabilities in the packages used in your projects, helps you fix those issues, and alerts you when new vulnerabilities are disclosed. 
+Snyk will help you reduce the security risk introduced by the use of third party dependencies.
+It informs you of known vulnerabilities in the packages used in your projects, helps you fix those issues, and alerts you when new vulnerabilities are disclosed.
 
 Snyk is easy to integrate into your Continuous Integration system, where you can patch individually chosen vulnerabilities and warn or err on new ones. If you own an open source project and have a vulnerable downstream dependency, snyk can ensure the vulnerability is patched as part of your app/package installation process.
 
@@ -26,6 +26,8 @@ You now have `snyk` installed as a command line utility, and are ready to `auth`
 During the private beta, you will need to authenticate with snyk before being able to use any of it's features. Once public, it's likely `test` and `protect` will be available without the need to `auth`.
 
 Authentication requires you to have a GitHub account, but *does not require access to your repositories* - we simply use Github to spare you managing another set of credentials. Run `snyk auth` and follow the on screen instructions.
+
+If you are authenticating on a remote machine (that doesn't have access to open a browser to GitHub) you can use your API key from https://snyk.io and authenticate directly on the command line using `snyk auth <key>`.
 
 Once authenticated, you can use the following commands:
 
@@ -62,7 +64,7 @@ Once you generated the `.snyk` file, add it to your source code repository, and 
 
 ## monitor
 
-With `test` and `protect`, you should be well setup to address currently known vulnerabilities. However, new vulnerabilities are constantly disclosed, which is where `monitor` comes in. 
+With `test` and `protect`, you should be well setup to address currently known vulnerabilities. However, new vulnerabilities are constantly disclosed, which is where `monitor` comes in.
 
 Just before you deploy, run `snyk monitor` in your project directory. This will post a snapshot of your full dependency tree to Snyk's servers, where they will be stored. Those dependencies will be tracked for newly discolsed vulnerabilities, and we will alert you if a new vulnerability related to those dependencies is disclosed.
 
