@@ -205,10 +205,11 @@ function interactive(config, options) {
 
                 return JSON.stringify(data, '', 2);
               })
-              .then(fs.writeFile.bind(null, packageFile))
+              // .then(fs.writeFile.bind(null, packageFile)) // FIXME deferred
               .then(function () {
-                return '.snyk file saved and package.json updated with ' +
-                  'protect.';
+                // originally:
+                // .snyk file saved and package.json updated with protect.
+                return '.snyk file successfully saved.';
               });
           }
           return 'This was a dry run: nothing changed';
