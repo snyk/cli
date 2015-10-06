@@ -2,33 +2,25 @@ sudo: false
 language: node_js
 cache:
   directories:
-  - node_modules
+    - node_modules
 notifications:
   email: false
 services:
-  - mongodb
-addons:
-  apt:
-    packages:
-    - xvfb
-    - gnome-keyring
-    - libgnome-keyring-dev
+ - mongodb
 node_js:
-  # tmp change to speed up CI tests on branch - MUST NOT GO TO DEVELOP
-  # - 4
-  # - iojs-v2
-  # - iojs-v1
-  # - "0.12"
-  - "0.10"
-before_install: |
-  case ${TRAVIS_NODE_VERSION} in
-    iojs*)
-      echo "Not upgrading npm for iojs."
-      ;;
-    *)
-      npm update -g npm
-      ;;
-  esac
-  echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+  - '4'
+  - '0.12'
+  - '0.10'
+before_install:
+  - npm i -g npm@^2.0.0
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 before_script:
   - npm prune
+  - 'curl -Lo travis_after_all.py https://git.io/vLSON'
+after_success:
+  - python travis_after_all.py
+  - export $(cat .to_export_back)
+  - npm run semantic-release
+branches:
+  except:
+    - "/^v\\d+\\.\\d+\\.\\d+$/"
