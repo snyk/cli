@@ -30,18 +30,20 @@ snyk test
 
 `snyk test` will take stock of all the local dependencies and their installed versions, and report them to Snyk. The Snyk servers will check will check if there are known vulnerabilities on these dependencies, and if so report about them and and suggest any remediation you can take. Since `snyk test` looks at the locally installed modules, it needs to run after `npm install`, and will seamlessly work with `shrinkwrap`, npm enterprise or any other custom installation logic you have.
 
-You can also use `snyk test` to scrutinize a public package before installing it, to see if it has known vulnerabilities or not.
+`snyk test` can also get a folder name as an argument. If you're using Snyk for the first time, you may want to go to a parent project folder and run `snyk test` on all its subdirectories. Here's a handy command to do so:
+```shell
+cd ~/my/parent/projects/folder/
+find . -type d -maxdepth 1 | xargs -t -I{} snyk test  {}
+```
+
+Lastly, you can also use `snyk test` to scrutinize a public package before installing it, to see if it has known vulnerabilities or not. Using the package name will test the latest version of that package, and you can also provide a specific version or range using `snyk test module[@semver-range]`.
 ```shell
 # example uses
 snyk test lodash
 snyk test ionic@1.6.5
 ```
 
-Using `snyk test` without an argument will test the current working directory and walk the local dependencies and installed versions. It will then give you a report on whether there are any known vulnerabilities in those dependencies and suggest any remediation you can take. Since `snyk test` looks at the locally installed modules, it needs to run after `npm install`, and will seamlessly work with `shrinkwrap`, npm enterprise or any other custom installation logic you have.
-
-The test command also accepts a package and version as an optional argument. If you wanted to test a module you don't have locally, you can `snyk test module[@semver-range]`.
-
-If `snyk test` found vulnerabilities, the process with exit with a non-zero exit code. Our recommendation is that you add `snyk test` to your CI tests, failing the tests (and build) if a known vulnerability is found. Note that `snyk test` can ignore vulnerabilities specified in the .snyk file, as explained in the `protect` section.
+If `snyk test` found vulnerabilities, the process with exit with a non-zero exit code, making it easy to integrate it into your CI, more on that below. Note that `snyk test` can ignore vulnerabilities specified in the .snyk file, as explained in the `protect` section.
 
 ## protect
 
