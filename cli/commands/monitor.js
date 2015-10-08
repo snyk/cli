@@ -20,7 +20,10 @@ function monitor(path) {
       .then(function (res) {
         var endpoint = url.parse(config.API);
         endpoint.pathname = '/monitor/' + res.id;
-        return 'Local state captured: ' + url.format(endpoint);
+        return 'Captured a snapshot of this project\'s dependencies.\n' +
+        'Explore this snapshot at ' +  url.format(endpoint) + '\n' +
+        'Notifications about newly disclosed vulnerabilities\n' +
+        'related to these dependencies will be emailed to you.\n';
       });
 
   });
