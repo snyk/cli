@@ -65,10 +65,11 @@ Here are the possible remediation steps for each vulnerability:
 ## Integrating Snyk into your dev workflow
 
 To continuously test against and protect from known vulnerabilities, integrate Snyk into your continuous integration (a.k.a. build) system. Here are the steps required to to so:
-. Add `snyk` to your project's dependencies (`npm install -S snyk`), and commit the change in
-. Ensure the `.snyk` file you generated was added to your source control (`git add .snyk`);
-. After the `npm install` steps in your CI, run `snyk protect` to apply any necessary patches
-. Run `snyk test` to identify (and err) on any known vulnerabilities not already ignored or patched.
+
+1. Add `snyk` to your project's dependencies (`npm install -S snyk`), and commit the change in
+2. Ensure the `.snyk` file you generated was added to your source control (`git add .snyk`);
+3. After the `npm install` steps in your CI, run `snyk protect` to apply any necessary patches
+4. Run `snyk test` to identify (and err) on any known vulnerabilities not already ignored or patched.
 
 A few potential alternatives to consider:
 - Add `snyk test` to your Package.json `test` scripts, to capture them in local `npm test` runs. 
