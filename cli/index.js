@@ -96,8 +96,8 @@ method.apply(null, argv._).then(function (result) {
     console.log(error.stack);
   } else {
     if (!argv.quiet) {
-      if (cli.error[error.code || error.message]) {
-        console.log(cli.error[error.code || error.message]);
+      if (cli.errorMessage[error.code || error.message]) {
+        console.log(cli.errorMessage[error.code || error.message]);
       } else {
         console.log(error.message);
       }

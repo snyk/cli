@@ -1,5 +1,5 @@
 var abbrev = require('abbrev');
-
+var errorMessage = require('./error')
 // this will speed up the module load time, only loading the CLI commands
 // as needed by the user, and totally avoiding if the module is being required
 // into a user project
@@ -28,5 +28,5 @@ var commands = {
   // modules: hotload('./modules'),
 };
 commands.aliases = abbrev(Object.keys(commands));
-
+commands.errorMessage = errorMessage;
 module.exports = commands;
