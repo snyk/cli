@@ -16,19 +16,22 @@ module.exports = function (path, options) {
       return JSON.stringify(res, '', 2);
     }
 
-    if (res.ok) {
-      var msg = '✓ Tested ';
-      if (res.hasOwnProperty('dependency_count')) {
-        msg += res['dependency_count'] + ' dependencies';
-      } else {
-        msg += 'the latest version of ' + path;
-      }
+    var msg = 'Tested ';
+    if (res.hasOwnProperty('dependency_count')) {
+      msg += res['dependency_count'] + ' dependencies';
+    } else {
+      msg += 'the latest version of ' + path;
+    }
+    msg += ' for known vulnerabilities';
 
-      msg += ' for known vulnerabilities, no vulnerabilities found.';
+    if (res.ok) {
+      msg = '✓ ' + msg + ', no vulnerabilities found.';
       return msg;
     }
 
-    throw new Error(res.vulnerabilities.map(function (vuln) {
+    msg = msg + ', found ' + res.vulnerabilities.length + ' vulnerabilities.\n'
+
+    throw new Error(msg + res.vulnerabilities.map(function (vuln) {
       var name = vuln.name + '@' + vuln.version;
       var res = '✗ vulnerability found on ' + name + '\n';
 
