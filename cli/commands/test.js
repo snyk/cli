@@ -17,7 +17,15 @@ module.exports = function (path, options) {
     }
 
     if (res.ok) {
-      return '✓ No vulnerabilities found';
+      var msg = '✓ Tested ';
+      if (res.hasOwnProperty('dependency_count')) {
+        msg += res['dependency_count'] + ' dependencies';
+      } else {
+        msg += 'the latest version of ' + path;
+      }
+
+      msg += ' for known vulnerabilities, no vulnerabilities found.';
+      return msg;
     }
 
     throw new Error(res.vulnerabilities.map(function (vuln) {
