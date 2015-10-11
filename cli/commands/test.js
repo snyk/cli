@@ -17,10 +17,10 @@ module.exports = function (path, options) {
     }
 
     var msg = 'Tested ';
-    if (res.hasOwnProperty('dependency_count')) {
-      msg += res['dependency_count'] + ' dependencies';
+    if (res.hasOwnProperty('dependencyCount')) {
+      msg += res['dependencyCount'] + ' dependencies';
     } else {
-      msg += 'the latest version of ' + path;
+      msg += path;
     }
     msg += ' for known vulnerabilities';
 
@@ -29,7 +29,12 @@ module.exports = function (path, options) {
       return msg;
     }
 
-    msg = msg + ', found ' + res.vulnerabilities.length + ' vulnerabilities.\n'
+    msg = msg + ', found ' + res.vulnerabilities.length;
+    if (res.vulnerabilities.length == 1) {
+      msg += ' vulnerability.\n'
+    } else {
+      msg += ' vulnerabilities.\n'
+    }
 
     throw new Error(msg + res.vulnerabilities.map(function (vuln) {
       var name = vuln.name + '@' + vuln.version;
