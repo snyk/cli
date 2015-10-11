@@ -92,6 +92,43 @@ Authentication requires you to have a GitHub account, but *does not require acce
 
 If you are authenticating on a remote machine, for instance on a build server, you can use your API key from https://snyk.io and authenticate directly on the command line using `snyk auth <key>`. Browse to the [Snyk app](https://app.snyk.io/) to find out your own API key.
 
+## Sample Commands
+
+For easy reference, here is a list of the examples previously mentioned. 
+
+Get Started
+```shell
+npm install -g snyk
+snyk auth
+snyk test ionic@1.6.5
+```
+Test a single local project
+```shell
+cd ~/projects/myproj/
+snyk test
+```
+Test all projects under a parent folder
+```shell
+cd ~/projects/
+find . -type d -maxdepth 1 | xargs -t -I{} snyk test  {}
+```
+Test a public package
+```shell
+snyk test lodash
+snyk test ionic@1.6.5
+```
+Interactive `snyk protect` to address found issues
+```shell
+snyk protect -i
+```
+Store a snapshot of current dependencies to monitor for new ones
+```shell
+# example uses
+cd ~/projects/myproject/
+snyk monitor
+# a snyk.io monitor response URL is returned
+```
+
 ## Credits
 
 While we use multiple sources to determine vulnerabilities, the primary (current) source is the [Node Security project](http://nodesecurity.io).
