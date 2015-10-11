@@ -1,6 +1,6 @@
 # Snyk - So Now You Know!
 
-Note: Snyk is currently only available for private beta testing.[Email us](mailto:contact@snyk.io) if you want to join the beta.
+Note: Snyk is currently only available for private beta testing. [Email us](mailto:contact@snyk.io) if you want to join the beta.
 
 ## Installation & Getting Started
 
@@ -25,7 +25,7 @@ snyk test
 
 `snyk test` will take stock of all the local dependencies and their installed versions, and report them to Snyk. The Snyk servers will check if there are known vulnerabilities on these dependencies, and if so report about them and and suggest any remediation you can take. Since `snyk test` looks at the locally installed modules, it needs to run after `npm install`, and will seamlessly work with `shrinkwrap`, npm enterprise or any other custom installation logic you have.
 
-`snyk test` can also get a folder name as an argument, which is especially handy if you want to test multiple projects. For instance, the following command tests all the projets under a certain folder for known vulnerabilities:
+`snyk test` can also get a folder name as an argument, which is especially handy if you want to test multiple projects. For instance, the following command tests all the projects under a certain folder for known vulnerabilities:
 ```shell
 cd ~/projects/
 find . -type d -maxdepth 1 | xargs -t -I{} snyk test  {}
@@ -49,9 +49,9 @@ snyk protect -i
 
 Protect's interactive mode will run `test` again, and ask you what to do for each found issue. Here are the possible remediation steps for each vulnerability:
 
-- `Upgrade` - if upgrading a direct dependency can fix the current vulnerability, `snyk protect` can automatically modify your Package.json file to use the newer version. Note that you'll still need to run `npm update` aftewards to get the new packages.
+- `Upgrade` - if upgrading a direct dependency can fix the current vulnerability, `snyk protect` can automatically modify your Package.json file to use the newer version. Note that you'll still need to run `npm update` afterwards to get the new packages.
 - `Ignore` - If you believe this vulnerability does not apply to you, or if the dependent module in question never runs on a production system, you can choose to ignore the vulnerability. By default, we will ignore the vulnerability for 30 days, to avoid easily hiding a true issue. If you want to ignore it permanently, you can manually edit the generated `.snyk` file.
-- `Patch` - Sometimes there is no direct upgrade that can address the vulnerability, or there is one but you cannot upgrade due to functional reasons (e.g. it's a major breaking change). For such cases, `snyk protect` lets you patch the issue with a patch applied locally to the releant dependency files. We manually create and maintain these patches, and may not have one for every issue. If you cannot upgrade, patch is often a better option than doing nothing *Note: patch is not yet enabled in the private beta, it will be soon. In the meantime, patch will be replaced with a short ignore*.
+- `Patch` - Sometimes there is no direct upgrade that can address the vulnerability, or there is one but you cannot upgrade due to functional reasons (e.g. it's a major breaking change). For such cases, `snyk protect` lets you patch the issue with a patch applied locally to the relevant dependency files. We manually create and maintain these patches, and may not have one for every issue. If you cannot upgrade, patch is often a better option than doing nothing *Note: patch is not yet enabled in the private beta, it will be soon. In the meantime, patch will be replaced with a short ignore*.
 
 Once completed, `snyk protect -i` will create a local `.snyk` file that guides non-interactive executions of `snyk protect`. Note that `snyk protect` will never unilaterally decide to ignore or patch a vulnerability - it will simply follow the guidance captured in the `.snyk` file.
 
@@ -75,7 +75,7 @@ Note: During private beta, all snyk actions require authentication. This means m
 
 With `test` and `protect`, you're well setup to address currently known vulnerabilities. However, new vulnerabilities are constantly disclosed - which is where `monitor` comes in.
 
-Just before you deploy, run `snyk monitor` in your project directory. This will post a snapshot of your full dependency tree to Snyk's servers, where they will be stored. Those dependencies will be tracked for newly discolsed vulnerabilities, and we will alert you if a new vulnerability related to those dependencies is disclosed.
+Just before you deploy, run `snyk monitor` in your project directory. This will post a snapshot of your full dependency tree to Snyk's servers, where they will be stored. Those dependencies will be tracked for newly disclosed vulnerabilities, and we will alert you if a new vulnerability related to those dependencies is disclosed.
 
 ```shell
 # example uses
