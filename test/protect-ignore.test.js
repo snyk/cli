@@ -61,15 +61,17 @@ test('protect generates detailed ignore format', function (t) {
 
     t.equal(vulns.length, 1, 'narrowed to test vuln');
 
-
+    var reason = 'not given';
     var vuln = vulns[0];
     vuln.meta = {
       days: 30,
+      reason: reason,
     };
     var expect = { ignore: {} };
 
     expect.ignore[vuln.id] = {
       path: [vuln.from.slice(1).join(' > ')],
+      reason: reason,
     };
 
     var data = vulns.map(function (vuln) {
@@ -77,6 +79,7 @@ test('protect generates detailed ignore format', function (t) {
         vuln: vuln,
         meta: {
           days: 30,
+          reason: 'not given',
         },
       };
     });
