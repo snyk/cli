@@ -8,6 +8,8 @@ Snyk helps you find and fix known vulnerabilities in your Node.js dependencies, 
 
 To get up and running quickly, run these commands to install, authenticate and perform a quick test. Note that while we authenticate using GitHub, we *do not* require access to your repositories (only your email):
 ```shell
+# If you're using node 0.10, first install npm 2 to support scoped modules, like so:
+# npm install -g npm@2
 npm install -g snyk
 snyk auth
 snyk test ionic@1.6.5
