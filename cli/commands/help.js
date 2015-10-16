@@ -13,7 +13,8 @@ function help(item) {
   item = item.replace(/[^a-z]/gi, '');
 
   var filename = path.resolve(__dirname, '..', '..', 'help', item + '.txt');
-  return fs.readFile(filename, 'utf8').catch(function () {
-    return '"' + item + '" help can\'t be found';
-  });
+  return fs.readFile(filename, 'utf8')
+    .catch(function () {
+      return '"' + item + '" help can\'t be found';
+    });
 }
