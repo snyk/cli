@@ -26,6 +26,11 @@ module.exports = function (path, options) {
     var summary = 'Tested ';
     if (res.dependencyCount) {
       summary += res.dependencyCount + ' dependencies';
+    }
+
+    var msg = 'Tested ';
+    if (res.hasOwnProperty('dependencyCount')) {
+      msg += res.dependencyCount + ' dependencies';
     } else {
       summary += path;
     }
