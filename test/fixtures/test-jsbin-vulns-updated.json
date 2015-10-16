@@ -1,0 +1,70 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "below": "2.4.24",
+      "info": [
+        "https://github.com/mishoo/UglifyJS2/issues/751",
+        "https://github.com/tmcw/mdast-uglify-bug"
+      ],
+      "id": "npm:uglify-js:20150824",
+      "name": "uglify-js",
+      "version": "2.3.6",
+      "from": [
+        "jsbin@3.35.0",
+        "handlebars@2.0.0",
+        "uglify-js@2.3.6"
+      ],
+      "upgradePath": [
+        false,
+        "handlebars@4.0.0",
+        "uglify-js@2.4.24"
+      ]
+    },
+    {
+      "below": "2.4.24",
+      "info": [
+        "https://github.com/mishoo/UglifyJS2/issues/751",
+        "https://github.com/tmcw/mdast-uglify-bug"
+      ],
+      "id": "npm:uglify-js:20150824",
+      "name": "uglify-js",
+      "version": "2.3.6",
+      "from": [
+        "jsbin@3.35.0",
+        "express-hbs@0.8.4",
+        "handlebars@3.0.3",
+        "uglify-js@2.3.6"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "handlebars@4.0.0",
+        "uglify-js@2.4.24"
+      ]
+    },
+    {
+      "below": "2.4.24",
+      "info": [
+        "https://github.com/mishoo/UglifyJS2/issues/751",
+        "https://github.com/tmcw/mdast-uglify-bug"
+      ],
+      "id": "npm:uglify-js:20150824",
+      "name": "uglify-js",
+      "version": "2.2.5",
+      "from": [
+        "jsbin@3.35.0",
+        "jade@1.4.2",
+        "transformers@2.1.0",
+        "uglify-js@2.2.5"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "transformers@3.1.0",
+        "uglify-js@2.4.24"
+      ]
+    }
+  ],
+  "dependencyCount": 491
+}

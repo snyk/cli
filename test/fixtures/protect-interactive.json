@@ -1,1 +1,171 @@
-{"ignore":[{"meta":{"days":30,"reason":"None given"},"vuln":{"below":"2.4.24","info":["https://github.com/mishoo/UglifyJS2/issues/751","https://github.com/tmcw/mdast-uglify-bug"],"id":"npm:uglify-js:20150824","name":"uglify-js","version":"2.3.6","from":["jsbin@3.35.0","handlebars@2.0.0","uglify-js@2.3.6"],"upgradePath":[false,"handlebars@4.0.0","uglify-js@2.4.24"]},"choice":"ignore"},{"meta":{"days":30,"reason":"Not used"},"vuln":{"below":"2.4.24","info":["https://github.com/mishoo/UglifyJS2/issues/751","https://github.com/tmcw/mdast-uglify-bug"],"id":"npm:uglify-js:20150824","name":"uglify-js","version":"2.3.6","from":["jsbin@3.35.0","express-hbs@0.8.4","handlebars@3.0.3","uglify-js@2.3.6"],"upgradePath":[false,false,"handlebars@4.0.0","uglify-js@2.4.24"]},"choice":"ignore"},{"meta":{"days":7,"reason":"n"},"vuln":{"below":"2.4.24","info":["https://github.com/mishoo/UglifyJS2/issues/751","https://github.com/tmcw/mdast-uglify-bug"],"id":"npm:uglify-js:20150824","name":"uglify-js","version":"2.2.5","from":["jsbin@3.35.0","jade@1.4.2","transformers@2.1.0","uglify-js@2.2.5"],"upgradePath":[false,false,"transformers@3.1.0","uglify-js@2.4.24"]},"choice":"ignore"}],"update":[{"below":"1.6.3","severity":"medium","identifiers":{"advisory":"serve-static-xss"},"info":["http://nodesecurity.io/advisories/serve-static-xss"],"id":"npm:serve-index:20150314","name":"serve-index","version":"1.2.1","from":["jsbin@3.35.0","express@3.17.0","connect@2.26.0","serve-index@1.2.1"],"upgradePath":[false,"express@3.19.0","connect@2.28.0","serve-index@1.6.3"]}],"patch":[],"skip":[{"below":"4.3.2","severity":"medium","identifiers":{"advisory":"semver_dos"},"info":["http://nodesecurity.io/advisories/semver_dos"],"id":"npm:semver:20150403","name":"semver","version":"3.0.1","from":["jsbin@3.35.0","sqlite3@2.2.7","node-pre-gyp@0.5.22","semver@3.0.1"],"upgradePath":[false,"sqlite3@3.0.4","node-pre-gyp@0.6.4","semver@4.3.2"]},{"below":"1.0.0","severity":"low","identifiers":{"advisory":"qs_dos_extended_event_loop_blocking"},"info":["https://nodesecurity.io/advisories/qs_dos_extended_event_loop_blocking"],"id":"npm:qs:20140806","name":"qs","version":"0.6.6","from":["jsbin@3.35.0","sqlite3@2.2.7","node-pre-gyp@0.5.22","request@2.39.0","qs@0.6.6"],"upgradePath":[false,"sqlite3@2.2.7","node-pre-gyp@0.5.22","request@2.40.0","qs@1.0.0"]}]}
+{
+  "ignore": [
+    {
+      "meta": {
+        "days": 30,
+        "reason": "None given"
+      },
+      "vuln": {
+        "below": "2.4.24",
+        "info": [
+          "https://github.com/mishoo/UglifyJS2/issues/751",
+          "https://github.com/tmcw/mdast-uglify-bug"
+        ],
+        "id": "npm:uglify-js:20150824",
+        "name": "uglify-js",
+        "version": "2.3.6",
+        "from": [
+          "jsbin@3.35.0",
+          "handlebars@2.0.0",
+          "uglify-js@2.3.6"
+        ],
+        "upgradePath": [
+          false,
+          "handlebars@4.0.0",
+          "uglify-js@2.4.24"
+        ]
+      },
+      "choice": "ignore"
+    },
+    {
+      "meta": {
+        "days": 30,
+        "reason": "Not used"
+      },
+      "vuln": {
+        "below": "2.4.24",
+        "info": [
+          "https://github.com/mishoo/UglifyJS2/issues/751",
+          "https://github.com/tmcw/mdast-uglify-bug"
+        ],
+        "id": "npm:uglify-js:20150824",
+        "name": "uglify-js",
+        "version": "2.3.6",
+        "from": [
+          "jsbin@3.35.0",
+          "express-hbs@0.8.4",
+          "handlebars@3.0.3",
+          "uglify-js@2.3.6"
+        ],
+        "upgradePath": [
+          false,
+          false,
+          "handlebars@4.0.0",
+          "uglify-js@2.4.24"
+        ]
+      },
+      "choice": "ignore"
+    },
+    {
+      "meta": {
+        "days": 7,
+        "reason": "n"
+      },
+      "vuln": {
+        "below": "2.4.24",
+        "info": [
+          "https://github.com/mishoo/UglifyJS2/issues/751",
+          "https://github.com/tmcw/mdast-uglify-bug"
+        ],
+        "id": "npm:uglify-js:20150824",
+        "name": "uglify-js",
+        "version": "2.2.5",
+        "from": [
+          "jsbin@3.35.0",
+          "jade@1.4.2",
+          "transformers@2.1.0",
+          "uglify-js@2.2.5"
+        ],
+        "upgradePath": [
+          false,
+          false,
+          "transformers@3.1.0",
+          "uglify-js@2.4.24"
+        ]
+      },
+      "choice": "ignore"
+    }
+  ],
+  "update": [
+    {
+      "below": "1.6.3",
+      "severity": "medium",
+      "identifiers": {
+        "advisory": "serve-static-xss"
+      },
+      "info": [
+        "http://nodesecurity.io/advisories/serve-static-xss"
+      ],
+      "id": "npm:serve-index:20150314",
+      "name": "serve-index",
+      "version": "1.2.1",
+      "from": [
+        "jsbin@3.35.0",
+        "express@3.17.0",
+        "connect@2.26.0",
+        "serve-index@1.2.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.19.0",
+        "connect@2.28.0",
+        "serve-index@1.6.3"
+      ]
+    }
+  ],
+  "patch": [],
+  "skip": [
+    {
+      "below": "4.3.2",
+      "severity": "medium",
+      "identifiers": {
+        "advisory": "semver_dos"
+      },
+      "info": [
+        "http://nodesecurity.io/advisories/semver_dos"
+      ],
+      "id": "npm:semver:20150403",
+      "name": "semver",
+      "version": "3.0.1",
+      "from": [
+        "jsbin@3.35.0",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "semver@3.0.1"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite3@3.0.4",
+        "node-pre-gyp@0.6.4",
+        "semver@4.3.2"
+      ]
+    },
+    {
+      "below": "1.0.0",
+      "severity": "low",
+      "identifiers": {
+        "advisory": "qs_dos_extended_event_loop_blocking"
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/qs_dos_extended_event_loop_blocking"
+      ],
+      "id": "npm:qs:20140806",
+      "name": "qs",
+      "version": "0.6.6",
+      "from": [
+        "jsbin@3.35.0",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "request@2.39.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "request@2.40.0",
+        "qs@1.0.0"
+      ]
+    }
+  ]
+}

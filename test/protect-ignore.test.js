@@ -78,3 +78,18 @@ test('protect correctly filters', function (t) {
     // t.bailout();
   });
 });
+
+test('ignores real vuln data', function (t) {
+  var vulns2 = require('./fixtures/test-jsbin-vulns-updated.json');
+  var dotfile = require('../lib/dotfile');
+
+  t.plan(1);
+  dotfile.load(__dirname + '/fixtures/jsbin-snyk-config').then(function (config) {
+    return protect.filterIgnored(config.ignore, vulns2.vulnerabilities);
+  }).then(function (res) {
+    t.equal(res.length, 0, 'all vulns have been ignored');
+  }).catch(function (e) {
+    t.fail(e);
+  });
+
+});
