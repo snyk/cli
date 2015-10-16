@@ -52,13 +52,13 @@ function interactive(config, options) {
     // of packages (in `patch`)  that we need to apply patch files to, to avoid
     // the vuln
     var actions = [{
-      value: 'skip',
+      value: 'skip', // the value that we get in our callback
       key: 'n',
-      name: 'Do nothing',
+      name: 'Do nothing', // the text the user sees
     }, {
       value: 'ignore',
       key: 'i',
-      meta: {
+      meta: { // arbitrary data that we'll merged into the `value` later on
         days: 30,
       },
       name: 'Ignore it for 30 days',
@@ -77,7 +77,7 @@ function interactive(config, options) {
     var updateAction = {
       value: 'update',
       key: 'u',
-      name: '<updated-in-code>',
+      name: null, // updated below to the name of the package to update
     };
 
     var prompts = res.vulnerabilities.map(function (vuln, i) {
@@ -85,6 +85,7 @@ function interactive(config, options) {
 
       id += '-' + i;
 
+      // make complete copies of the actions, otherwise we'll mutate the object
       var choices = _.cloneDeep(actions);
       var patch = _.cloneDeep(patchAction);
       var update = _.cloneDeep(updateAction);
@@ -97,7 +98,6 @@ function interactive(config, options) {
         message: 'Fix vulnerability in ' + from +
           '\n  - from: ' + vuln.from.join(' > '),
       };
-
 
       choices.unshift(patch);
       if (vuln.upgradePath.some(function (pkg, i) {
@@ -122,16 +122,33 @@ function interactive(config, options) {
       // kludge to make sure that we get the vuln in the user selection
       res.choices = choices.map(function (choice) {
         var value = choice.value;
+        // this allows us to pass more data into the inquirer results
         choice.value = {
           meta: choice.meta,
           vuln: vuln,
-          choice: value,
+          choice: value, // this is the string "update", "ignore", etc
         };
         return choice;
       });
 
       return res;
     });
+
+    // zip together every prompt and a prompt asking "why", note that the `when`
+    // callback controls whether not to prompt the user with this question,
+    // in this case, we always show if the user choses to ignore.
+    prompts = prompts.reduce(function (acc, curr) {
+      acc.push(curr);
+      acc.push({
+        name: curr.name + '-reason',
+        message: '[audit] Reason for ignoring vulnerability?',
+        default: 'None given',
+        when: function (answers) {
+          return answers[curr.name].choice === 'ignore';
+        },
+      });
+      return acc;
+    }, []);
 
     debug('starting questions');
 
@@ -145,74 +162,81 @@ function interactive(config, options) {
         };
 
         Object.keys(answers).forEach(function (key) {
+          // if we're looking at a reason, skip it
+          if (key.indexOf('-reason') !== -1) {
+            return;
+          }
+
           var answer = answers[key];
           var task = answer.choice;
 
           if (task === 'ignore') {
+            answer.meta.reason = answers[key + '-reason'];
             tasks[task].push(answer);
           } else {
             tasks[task].push(answer.vuln);
           }
         });
 
-        debug(tasks.patch);
+        debug(tasks);
 
-        var promises = [
-          protect.ignore(tasks.ignore, !options['dry-run']),
-          protect.update(tasks.update, !options['dry-run']),
-          // protect.patch(tasks.patch, !options['dry-run']),
-        ];
+        var live = !options['dry-run'];
+        var packageFile = path.resolve(cwd, 'package.json');
+        var promise = protect.generateConfig(config, tasks, live);
 
-        var promise = Promise.all(promises).then(function (res) {
-          var results = _.flattenDeep(res).filter(Boolean);
-          results.unshift(config);
-          var newConfig = _.merge.apply(_, results);
-
-          // need to reapply the ignore, because those won't be in the new rules
-
-
-          debug(JSON.stringify(newConfig, '', 2));
-
-          if (!options['dry-run']) {
-            var packageFile = path.resolve(cwd, 'package.json');
-            debug('updating %s', packageFile);
-            return snyk.dotfile.save(newConfig)
-              .then(function () {
-                return fs.readFile(packageFile, 'utf8');
-              })
-              .then(function (src) {
-                var data = JSON.parse(src);
-                // finally save to the package.json
-                if (!data.scripts) {
-                  data.scripts = {};
-                }
-
-                data.scripts['snyk-protect'] = 'snyk protect';
-
-                var cmd = 'npm run snyk-protect';
-                if (data.scripts['post-install']) {
-                  // only add the post-install if it's not in the post-install
-                  // already
-                  if (data.scripts['post-install'].indexOf(cmd) === -1) {
-                    data.scripts['post-install'] = cmd + ' && ' +
-                      data.scripts['post-install'];
-                  }
-                } else {
-                  data.scripts['post-install'] = cmd;
-                }
-
-                data.snyk = true;
-
-                return JSON.stringify(data, '', 2);
-              })
-              // .then(fs.writeFile.bind(null, packageFile)) // FIXME deferred
-              .then(function () {
-                // originally:
-                // .snyk file saved and package.json updated with protect.
-                return '.snyk file successfully saved.';
-              });
+        promise.then(function (config) {
+          if (!live) {
+            // if this was a dry run, we'll throw an error to bail out of the
+            // promise chain, then in the catch, check the error.code and if
+            // it matches `DRYRUN` we'll return the text and not an error
+            // (which avoids the exit code 1).
+            var e = new Error('This was a dry run: nothing changed');
+            e.code = 'DRYRUN';
+            throw e;
           }
-          return 'This was a dry run: nothing changed';
+
+          return snyk.dotfile.save(config);
+        })
+        .then(function () {
+          debug('updating %s', packageFile);
+          return fs.readFile(packageFile, 'utf8');
+        })
+        .then(function (src) {
+          var data = JSON.parse(src);
+
+          if (!data.scripts) {
+            data.scripts = {};
+          }
+
+          data.scripts['snyk-protect'] = 'snyk protect';
+
+          var cmd = 'npm run snyk-protect';
+          if (data.scripts['post-install']) {
+            // only add the post-install if it's not already in the post-install
+            if (data.scripts['post-install'].indexOf(cmd) === -1) {
+              data.scripts['post-install'] = cmd + ' && ' +
+                data.scripts['post-install'];
+            }
+          } else {
+            data.scripts['post-install'] = cmd;
+          }
+
+          data.snyk = true;
+
+          return JSON.stringify(data, '', 2);
+        })
+        // .then(fs.writeFile.bind(null, packageFile)) // FIXME deferred
+        .then(function () {
+          // originally:
+          // .snyk file saved and package.json updated with protect.
+          return '.snyk file successfully saved.';
+        })
+        .catch(function (error) {
+          if (error.code === 'DRYRUN') {
+            return error.message;
+          }
+
+          throw error;
         });
 
         resolve(promise);

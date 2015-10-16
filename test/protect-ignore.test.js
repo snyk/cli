@@ -2,15 +2,43 @@ var protect = require('../lib/protect');
 var test = require('tape');
 var vulns = require('./fixtures/test-jsbin-vulns.json');
 
+// skipped intentially - only used for debugging tests
+test.skip('protect correctly filters (single)', function (t) {
+  t.plan(1);
+  Promise.resolve(vulns).then(function (res) {
+    function runFilter(path, date) {
+      var rule = { 'node-semver-63': [ {} ] };
+      rule['node-semver-63'][0][path] = {
+        expires: date || new Date(Date.now() + 1000 * 60 * 60 * 24),
+        reason: 'none given',
+      };
+
+      return protect.filterIgnored(rule, res.vulnerabilities);
+    }
+
+
+    // exact match
+    var total = res.vulnerabilities.length;
+    var vulns;
+
+    vulns = runFilter('*');
+    t.equal(vulns.length, total - 1, 'removed with * _only_ rule');
+  }).catch(function (e) {
+    console.log(e.stack);
+    t.fail(e);
+  });
+});
+
 test('protect correctly filters', function (t) {
   Promise.resolve(vulns).then(function (res) {
-    function runFilter(rule, date) {
-      return protect.filterIgnored({
-        'node-semver-63': {
-          expires: date || new Date(Date.now() + 1000 * 60 * 60 * 24),
-          path: [rule],
-        },
-      }, res.vulnerabilities);
+    function runFilter(path, date) {
+      var rule = { 'node-semver-63': [ {} ] };
+      rule['node-semver-63'][0][path] = {
+        expires: date || new Date(Date.now() + 1000 * 60 * 60 * 24),
+        reason: 'none given',
+      };
+
+      return protect.filterIgnored(rule, res.vulnerabilities);
     }
 
 
@@ -51,44 +79,17 @@ test('protect correctly filters', function (t) {
   });
 });
 
-test('protect generates detailed ignore format', function (t) {
-  t.plan(2);
+test('ignores real vuln data', function (t) {
+  var vulns2 = require('./fixtures/test-jsbin-vulns-updated.json');
+  var dotfile = require('../lib/dotfile');
 
-  Promise.resolve(vulns).then(function (res) {
-    var vulns = res.vulnerabilities.filter(function (vuln) {
-      return (vuln.name === 'semver' && vuln.version === '3.0.1');
-    });
-
-    t.equal(vulns.length, 1, 'narrowed to test vuln');
-
-
-    var vuln = vulns[0];
-    vuln.meta = {
-      days: 30,
-    };
-    var expect = { ignore: {} };
-
-    expect.ignore[vuln.id] = {
-      path: [vuln.from.slice(1).join(' > ')],
-    };
-
-    var data = vulns.map(function (vuln) {
-      return {
-        vuln: vuln,
-        meta: {
-          days: 30,
-        },
-      };
-    });
-
-    return protect.ignore(data).then(function (res) {
-      // copy the time across since it can be out by a microsecond...
-      expect.ignore[vuln.id].expires = res.ignore[vuln.id].expires;
-      // loose required as date doesn't yeild equality.
-      t.deepLooseEqual(res, expect, 'dotfile format is correct');
-    });
+  t.plan(1);
+  dotfile.load(__dirname + '/fixtures/jsbin-snyk-config').then(function (config) {
+    return protect.filterIgnored(config.ignore, vulns2.vulnerabilities);
+  }).then(function (res) {
+    t.equal(res.length, 0, 'all vulns have been ignored');
   }).catch(function (e) {
-    console.log(e.stack);
     t.fail(e);
   });
+
 });
