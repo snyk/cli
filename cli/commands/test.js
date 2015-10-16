@@ -1,4 +1,5 @@
 var snyk = require('../../');
+var chalk = require('chalk');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 
@@ -14,32 +15,38 @@ module.exports = function (path, options) {
 
   return snyk.test(path || process.cwd()).then(function (res) {
     if (options.json) {
-      return JSON.stringify(res, '', 2);
+      var json = JSON.stringify(res, '', 2);
+      if (res.ok) {
+        return json;
+      } else {
+        throw new Error(json);
+      }
     }
 
-    var msg = 'Tested ';
-    if (res.hasOwnProperty('dependencyCount')) {
-      msg += res.dependencyCount + ' dependencies';
+    var summary = 'Tested ';
+    if (res.dependencyCount) {
+      summary += res.dependencyCount + ' dependencies';
     } else {
-      msg += path;
+      summary += path;
     }
-    msg += ' for known vulnerabilities';
+    summary += ' for known vulnerabilities';
 
     if (res.ok) {
-      msg = '✓ ' + msg + ', no vulnerabilities found.';
-      return msg;
+      summary = chalk.green('✓ ' + summary + ', no vulnerabilities found.');
+      return summary;
     }
 
-    msg = msg + ', found ' + res.vulnerabilities.length;
+    var vulnLength = res.vulnerabilities.length;
+    summary = summary + ', ' + chalk.red.bold('found ' + vulnLength);
     if (res.vulnerabilities.length === 1) {
-      msg += ' vulnerability.\n\n';
+      summary += chalk.red.bold(' vulnerability.');
     } else {
-      msg += ' vulnerabilities.\n\n';
+      summary += chalk.red.bold(' vulnerabilities.');
     }
 
-    throw new Error(msg + res.vulnerabilities.map(function (vuln) {
+    throw new Error(res.vulnerabilities.map(function (vuln) {
       var name = vuln.name + '@' + vuln.version;
-      var res = '✗ vulnerability found on ' + name + '\n';
+      var res = chalk.red('✗ vulnerability found on ' + name + '\n');
 
       res += 'From: ' + vuln.from.join(' > ') + '\n';
       res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id;
@@ -55,7 +62,7 @@ module.exports = function (path, options) {
         upgradeText += (upgradeSteps.length)?
            ' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')':'';
 
-        res += 'Fix : ';
+        var fix = 'Fix : ';
         for (var idx = 0; idx < vuln.upgradePath.length; idx++) {
           var elem = vuln.upgradePath[idx];
 
@@ -63,7 +70,7 @@ module.exports = function (path, options) {
             // Check if we're suggesting to upgrade to ourselves.
             if (vuln.from.length > idx && vuln.from[idx] === elem) {
               // This ver should get the not-vuln dependency, suggest refresh
-              res +=
+              fix +=
                'Your dependencies are out of date. ' +
                'Delete node_modules & reinstall to upgrade to ' + upgradeText +
                '.\n If you\'re using a private repsository, ' +
@@ -72,24 +79,27 @@ module.exports = function (path, options) {
             }
             if (idx === 0) {
               // This is an outdated version of yourself
-              res += 'You\'ve tested an outdated version of the project. ' +
+              fix += 'You\'ve tested an outdated version of the project. ' +
                 'Should be upgraded to ' + upgradeText;
             } else if (idx === 1) {
               // A direct dependency needs upgrade. Nothing to add.
-              res += 'Upgrade direct dependency ' + vuln.from[idx] +
+              fix += 'Upgrade direct dependency ' + vuln.from[idx] +
                 ' to ' + upgradeText;
             } else {
               // A deep dependency needs to be upgraded
-              res += 'Manually upgrade deep dependency ' + vuln.from[idx] +
+              fix += 'Manually upgrade deep dependency ' + vuln.from[idx] +
                 ' to ' + upgradeText;
             }
             break;
           }
+
         }
+        res += chalk.bold(fix);
       } else {
-        res += 'Fix: None available. Consider removing this dependency.';
+        res += chalk.magenta('Fix: None available. Consider removing this' +
+        ' dependency.');
       }
       return res;
-    }).join('\n-----\n'));
+    }).join('\n\n') + '\n\n' + summary);
   });
 };
