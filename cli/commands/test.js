@@ -1,5 +1,6 @@
 var snyk = require('../../');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
+var config = require('../../lib/config');
 
 module.exports = function (path, options) {
   if (path && typeof path !== 'string') {
@@ -18,7 +19,7 @@ module.exports = function (path, options) {
 
     var msg = 'Tested ';
     if (res.hasOwnProperty('dependencyCount')) {
-      msg += res['dependencyCount'] + ' dependencies';
+      msg += res.dependencyCount + ' dependencies';
     } else {
       msg += path;
     }
@@ -30,10 +31,10 @@ module.exports = function (path, options) {
     }
 
     msg = msg + ', found ' + res.vulnerabilities.length;
-    if (res.vulnerabilities.length == 1) {
-      msg += ' vulnerability.\n'
+    if (res.vulnerabilities.length === 1) {
+      msg += ' vulnerability.\n\n';
     } else {
-      msg += ' vulnerabilities.\n'
+      msg += ' vulnerabilities.\n\n';
     }
 
     throw new Error(msg + res.vulnerabilities.map(function (vuln) {
@@ -41,7 +42,7 @@ module.exports = function (path, options) {
       var res = '✗ vulnerability found on ' + name + '\n';
 
       res += 'From: ' + vuln.from.join(' > ') + '\n';
-      res += 'Info: ' + vuln.info.join(', ');
+      res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id;
       res += '\n';
 
       var upgradeSteps = (vuln.upgradePath || []).filter(Boolean);
