@@ -49,13 +49,33 @@ module.exports = function (path, options) {
       summary += chalk.red.bold(' vulnerabilities.');
     }
 
-    throw new Error(res.vulnerabilities.map(function (vuln) {
-      var name = vuln.name + '@' + vuln.version;
-      var res = chalk.red('✗ vulnerability found on ' + name + '\n');
+    // // remap the results so they're grouped by vulnerability
+    // var vulns = res.vulnerabilities.reduce(function (acc, curr) {
+    //   if (!acc[curr.id]) {
+    //     acc[curr.id] = [];
+    //   }
+
+    //   acc[curr.id].push(curr);
+    //   return acc;
+    // }, {});
+
+    var sep = '\n\n'; //  ──────────────────\n
+
+    var lastId = null;
+    throw new Error(res.vulnerabilities.sort(function (a, b) {
+      return a.id < b.id;
+    }).map(function (vuln) {
+      var res = '';
+
+      if (lastId !== vuln.id) {
+        res += chalk.red('✗ Vulnerability found on ' + vuln.name + '\n');
+        res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n\n';
+      }
+      // var name = vuln.name + '@' + vuln.version;
+
+      lastId = vuln.id;
 
       res += 'From: ' + vuln.from.join(' > ') + '\n';
-      res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id;
-      res += '\n';
 
       var upgradeSteps = (vuln.upgradePath || []).filter(Boolean);
 
@@ -65,9 +85,9 @@ module.exports = function (path, options) {
         // Create upgrade text
         var upgradeText = upgradeSteps.shift();
         upgradeText += (upgradeSteps.length)?
-           ' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')':'';
+           '\nTriggers upgrades to ' + upgradeSteps.join(' > ') : '';
 
-        var fix = 'Fix : ';
+        var fix = ''; // = 'Fix:\n';
         for (var idx = 0; idx < vuln.upgradePath.length; idx++) {
           var elem = vuln.upgradePath[idx];
 
@@ -76,9 +96,9 @@ module.exports = function (path, options) {
             if (vuln.from.length > idx && vuln.from[idx] === elem) {
               // This ver should get the not-vuln dependency, suggest refresh
               fix +=
-               'Your dependencies are out of date. ' +
+               'Your dependencies are out of date.\n' +
                'Delete node_modules & reinstall to upgrade to ' + upgradeText +
-               '.\n If you\'re using a private repsository, ' +
+               '.\nIf you\'re using a private repsository, ' +
                 'ensure it\'s up to date.';
               break;
             }
@@ -105,6 +125,6 @@ module.exports = function (path, options) {
         ' dependency.');
       }
       return res;
-    }).join('\n\n') + '\n\n' + summary);
+    }).join(sep) + sep + summary);
   });
 };
