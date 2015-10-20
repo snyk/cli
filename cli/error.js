@@ -5,8 +5,7 @@ var errors = {
   connect: 'Check your network connection, failed to connect to Snyk API',
   endpoint: 'The Snyk API is not available on ' + config.API,
   auth: 'Unauthorized: please ensure you are logged using `snyk auth`',
-  dotfile: 'Cannot find .snyk in this project, make to create one with ' +
-    '`snyk protect --interactive`',
+  dotfile: 'Try running `snyk protect -i` to define a Snyk protect policy',
 };
 
 // a key/value pair of error.code (or error.message) as the key, and our nice
