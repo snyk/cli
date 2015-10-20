@@ -1,8 +1,42 @@
+module.exports = test;
+
 var snyk = require('../../');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 
-module.exports = function (path, options) {
+function test(path, options) {
+  var args = [].slice.call(arguments, 0);
+
+  // if we have more than path, options, we're going to assume that we've
+  // got multiple paths, i.e. test(path1, path2..., options)
+  if (args.length > 2) {
+    options = args.pop();
+
+    var shouldThrow = 0;
+    var promises = args.map(function (path) {
+      return test(path, options).catch(function (error) {
+        // don't blow up our entire promise chain - but track that we should
+        // throw the entire thing as an exception later on
+        shouldThrow++;
+        return error.message;
+      }).then(function (res) {
+        res = '\nTesting ' + path + '...\n' + res;
+        console.log(res);
+        return true;
+      });
+    });
+
+    return Promise.all(promises).then(function () {
+      if (shouldThrow > 0) {
+        var projects = shouldThrow > 1 ? ' project' : ' projects';
+        throw new Error('\n' + shouldThrow + projects +
+          ' contain vulnerabilities');
+      }
+
+      return '';
+    });
+  }
+
   if (path && typeof path !== 'string') {
     options = path;
     path = false;
