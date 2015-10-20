@@ -6,6 +6,7 @@ var errors = {
   endpoint: 'The Snyk API is not available on ' + config.API,
   auth: 'Unauthorized: please ensure you are logged using `snyk auth`',
   dotfile: 'Try running `snyk protect -i` to define a Snyk protect policy',
+  authfail: 'Authentication failed. Please check the API key on ' + config.ROOT,
 };
 
 // a key/value pair of error.code (or error.message) as the key, and our nice

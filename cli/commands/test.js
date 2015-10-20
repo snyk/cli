@@ -80,8 +80,9 @@ module.exports = function (path, options) {
                 ' to ' + upgradeText;
             } else {
               // A deep dependency needs to be upgraded
-              res += 'Manually upgrade deep dependency ' + vuln.from[idx] +
-                ' to ' + upgradeText;
+              res += 'No direct dependency upgrade can address this issue.\n' +
+                'Run snyk protect -i to apply a patch or manually upgrade ' +
+                'deep dependency\n' + vuln.from[idx] + ' to ' + upgradeText;
             }
             break;
           }
