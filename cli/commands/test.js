@@ -36,20 +36,21 @@ function test(path, options) {
 
         return error.message;
       }).then(function (res) {
-        res = '\nTesting ' + path + '...\n' + res;
+        res = chalk.bold('\n\nTesting ' + path + '...\n') + res;
         return res;
       });
     });
 
     return Promise.all(promises).then(function (res) {
       var projects = testedProjects === 1 ? ' project' : ' projects';
-      res += '\nTested ' + testedProjects + projects;
 
       if (shouldThrow > 0) {
-        res += ', ' + shouldThrow + ' contained vulnerabilities.';
+        res += chalk.bold.red('\n\nTested ' + testedProjects + projects +
+          ', ' + shouldThrow + ' contained vulnerabilities.');
         throw new Error(res);
       } else {
-        res += ', no vulnerabilities were found.';
+        res += chalk.green('\n\nTested ' + testedProjects + projects +
+          ', no vulnerabilities were found.');
       }
 
       return res;
@@ -107,8 +108,7 @@ function test(path, options) {
       var res = '';
       var name = vuln.name + '@' + vuln.version;
       res += chalk.red('✗ Vulnerability found on ' + name + '\n');
-      res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n\n';
-
+      res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
       res += 'From: ' + vuln.from.join(' > ') + '\n';
 
       var upgradeSteps = (vuln.upgradePath || []).filter(Boolean);
