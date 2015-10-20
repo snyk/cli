@@ -21,7 +21,20 @@ function protect(options) {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.dotfile.load().then(function (config) {
+  return snyk.dotfile.load().catch(function (error) {
+    // if we land in the catch, but we're in interactive mode, then it means
+    // the file hasn't been created yet, and that's fine, so we'll resolve
+    // with an empty object
+    if (options.interactive) {
+      return {};
+    }
+
+    if (error.code === 'ENOENT') {
+      error.code = 'MISSING_DOTFILE';
+    }
+
+    throw error;
+  }).then(function (config) {
     if (options.interactive) {
       return interactive(config, options);
     }
@@ -31,12 +44,6 @@ function protect(options) {
       return 'patch not available in beta';
     }
     return 'nothing to do';
-  }).catch(function (error) {
-    if (error.code === 'ENOENT') {
-      error.code = 'MISSING_DOTFILE';
-    }
-
-    throw error;
   });
 }
 

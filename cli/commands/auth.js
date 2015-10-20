@@ -24,9 +24,9 @@ function githubAuth() {
     'be ready to start using snyk.\n\nIf you can\'t wait use this url:\n' +
     url + '\n';
 
-  console.log(msg.replace(/^(.)/gm, '   $1'));
+  console.log(msg.replace(/^(.)/gm, '$1'));
 
-  var spinner = new Spinner('   %s  Waiting...');
+  var spinner = new Spinner('%s  Waiting...');
   spinner.setSpinnerDelay(75);
   spinner.setSpinnerString(2);
   spinner.start();
@@ -127,15 +127,14 @@ function auth(api) {
 
     if (res.statusCode === 200 || res.statusCode === 201) {
       snyk.config.set('api', body.api);
-      return 'Your account has been authenicated. Snyk is now ready to ' +
-        'be used.';
+      return '\nYour account has been authenicated. Snyk is now ready to ' +
+        'be used.\n';
     } else if (body.message) {
       var error = new Error(body.message);
       error.code = res.statusCode;
       throw error;
     } else {
-      throw new Error('Authentication failed. Please check the API ' +
-        'key on https://snyk.io');
+      throw new Error('authfail');
     }
   });
 }

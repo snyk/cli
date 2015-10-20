@@ -1,9 +1,61 @@
+module.exports = test;
+
 var snyk = require('../../');
 var chalk = require('chalk');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 
-module.exports = function (path, options) {
+function test(path, options) {
+  var args = [].slice.call(arguments, 0);
+
+  // if there's two strings on the arguments, it means we're doing multiple
+  // projects, but the options has been omitted, so let's do an argument dance
+  // to get some dummy opts in there
+  if (args.length === 2 && typeof args[1] === 'string') {
+    args.push({});
+  }
+
+  // if we have more than path, options, we're going to assume that we've
+  // got multiple paths, i.e. test(path1, path2..., options)
+  if (args.length > 2) {
+    options = args.pop();
+
+    var shouldThrow = 0;
+    var testedProjects = 0;
+    var promises = args.map(function (path) {
+      return test(path, options).then(function (res) {
+        testedProjects++;
+        return res;
+      }).catch(function (error) {
+        // don't blow up our entire promise chain - but track that we should
+        // throw the entire thing as an exception later on
+        if (error.code === 'VULNS') {
+          testedProjects++;
+          shouldThrow++;
+        }
+
+        return error.message;
+      }).then(function (res) {
+        res = '\nTesting ' + path + '...\n' + res;
+        return res;
+      });
+    });
+
+    return Promise.all(promises).then(function (res) {
+      var projects = testedProjects === 1 ? ' project' : ' projects';
+      res += '\nTested ' + testedProjects + projects;
+
+      if (shouldThrow > 0) {
+        res += ', ' + shouldThrow + ' contained vulnerabilities.';
+        throw new Error(res);
+      } else {
+        res += ', no vulnerabilities were found.';
+      }
+
+      return res;
+    });
+  }
+
   if (path && typeof path !== 'string') {
     options = path;
     path = false;
@@ -51,9 +103,8 @@ module.exports = function (path, options) {
 
     var sep = '\n\n'; //  ──────────────────\n
 
-    throw new Error(res.vulnerabilities.map(function (vuln) {
+    var error = new Error(res.vulnerabilities.map(function (vuln) {
       var res = '';
-
       var name = vuln.name + '@' + vuln.version;
       res += chalk.red('✗ Vulnerability found on ' + name + '\n');
       res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n\n';
@@ -95,8 +146,9 @@ module.exports = function (path, options) {
                 ' to ' + upgradeText;
             } else {
               // A deep dependency needs to be upgraded
-              fix += 'Manually upgrade deep dependency ' + vuln.from[idx] +
-                ' to ' + upgradeText;
+              res += 'No direct dependency upgrade can address this issue.\n' +
+                'Run snyk protect -i to apply a patch or manually upgrade ' +
+                'deep dependency\n' + vuln.from[idx] + ' to ' + upgradeText;
             }
             break;
           }
@@ -109,5 +161,8 @@ module.exports = function (path, options) {
       }
       return res;
     }).join(sep) + sep + summary);
+
+    error.code = 'VULNS';
+    throw error;
   });
-};
+}
