@@ -1,8 +1,60 @@
+module.exports = test;
+
 var snyk = require('../../');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 
-module.exports = function (path, options) {
+function test(path, options) {
+  var args = [].slice.call(arguments, 0);
+
+  // if there's two strings on the arguments, it means we're doing multiple
+  // projects, but the options has been omitted, so let's do an argument dance
+  // to get some dummy opts in there
+  if (args.length === 2 && typeof args[1] === 'string') {
+    args.push({});
+  }
+
+  // if we have more than path, options, we're going to assume that we've
+  // got multiple paths, i.e. test(path1, path2..., options)
+  if (args.length > 2) {
+    options = args.pop();
+
+    var shouldThrow = 0;
+    var testedProjects = 0;
+    var promises = args.map(function (path) {
+      return test(path, options).then(function (res) {
+        testedProjects++;
+        return res;
+      }).catch(function (error) {
+        // don't blow up our entire promise chain - but track that we should
+        // throw the entire thing as an exception later on
+        if (error.code === 'VULNS') {
+          testedProjects++;
+          shouldThrow++;
+        }
+
+        return error.message;
+      }).then(function (res) {
+        res = '\nTesting ' + path + '...\n' + res;
+        return res;
+      });
+    });
+
+    return Promise.all(promises).then(function (res) {
+      var projects = testedProjects === 1 ? ' project' : ' projects';
+      res += '\nTested ' + testedProjects + projects;
+
+      if (shouldThrow > 0) {
+        res += ', ' + shouldThrow + ' contained vulnerabilities.';
+        throw new Error(res);
+      } else {
+        res += ', no vulnerabilities were found.';
+      }
+
+      return res;
+    });
+  }
+
   if (path && typeof path !== 'string') {
     options = path;
     path = false;
@@ -37,7 +89,7 @@ module.exports = function (path, options) {
       msg += ' vulnerabilities.\n\n';
     }
 
-    throw new Error(msg + res.vulnerabilities.map(function (vuln) {
+    var error = new Error(msg + res.vulnerabilities.map(function (vuln) {
       var name = vuln.name + '@' + vuln.version;
       var res = '✗ vulnerability found on ' + name + '\n';
 
@@ -92,5 +144,8 @@ module.exports = function (path, options) {
       }
       return res;
     }).join('\n-----\n'));
+
+    error.code = 'VULNS';
+    throw error;
   });
-};
+}
