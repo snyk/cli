@@ -17,7 +17,6 @@ var commands = {
   help: hotload('./help'),
   auth: hotload('./auth'),
   version: hotload('./version'),
-  error: require('./error'),
   config: hotload('./config'),
   monitor: hotload('./monitor'),
   test: hotload('./test'),
