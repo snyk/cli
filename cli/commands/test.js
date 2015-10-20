@@ -13,11 +13,18 @@ function test(path, options) {
     options = args.pop();
 
     var shouldThrow = 0;
+    var testedProjects = 0;
     var promises = args.map(function (path) {
-      return test(path, options).catch(function (error) {
+      return test(path, options).then(function (res) {
+        testedProjects++;
+        return res;
+      }).catch(function (error) {
         // don't blow up our entire promise chain - but track that we should
         // throw the entire thing as an exception later on
-        shouldThrow++;
+        if (error.code === 'VULNS') {
+          shouldThrow++;
+        }
+
         return error.message;
       }).then(function (res) {
         res = '\nTesting ' + path + '...\n' + res;
@@ -27,13 +34,17 @@ function test(path, options) {
     });
 
     return Promise.all(promises).then(function () {
+      var projects = testedProjects === 1 ? ' project' : ' projects';
+      var res = '\nTested ' + testedProjects + projects;
+
       if (shouldThrow > 0) {
-        var projects = shouldThrow > 1 ? ' project' : ' projects';
-        throw new Error('\n' + shouldThrow + projects +
-          ' contain vulnerabilities');
+        res += ', ' + shouldThrow + ' contained vulnerabilities.';
+        throw new Error(res);
+      } else {
+        res += ', no vulnerabilities were found.';
       }
 
-      return '';
+      return res;
     });
   }
 
@@ -71,7 +82,7 @@ function test(path, options) {
       msg += ' vulnerabilities.\n\n';
     }
 
-    throw new Error(msg + res.vulnerabilities.map(function (vuln) {
+    var error = new Error(msg + res.vulnerabilities.map(function (vuln) {
       var name = vuln.name + '@' + vuln.version;
       var res = '✗ vulnerability found on ' + name + '\n';
 
@@ -126,5 +137,8 @@ function test(path, options) {
       }
       return res;
     }).join('\n-----\n'));
+
+    error.code = 'VULNS';
+    throw error;
   });
-};
+}
