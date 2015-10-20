@@ -63,7 +63,7 @@ test('cli', function (t) {
     t.fail(res);
   }).catch(function (error) {
     var res = error.message;
-    var pos = res.indexOf('vulnerability found');
+    var pos = res.toLowerCase().indexOf('vulnerability found');
     t.pass(res);
     t.notEqual(pos, -1, 'correctly found vulnerability: ' + res);
   });
