@@ -49,31 +49,14 @@ module.exports = function (path, options) {
       summary += chalk.red.bold(' vulnerabilities.');
     }
 
-    // // remap the results so they're grouped by vulnerability
-    // var vulns = res.vulnerabilities.reduce(function (acc, curr) {
-    //   if (!acc[curr.id]) {
-    //     acc[curr.id] = [];
-    //   }
-
-    //   acc[curr.id].push(curr);
-    //   return acc;
-    // }, {});
-
     var sep = '\n\n'; //  ──────────────────\n
 
-    var lastId = null;
-    throw new Error(res.vulnerabilities.sort(function (a, b) {
-      return a.id < b.id;
-    }).map(function (vuln) {
+    throw new Error(res.vulnerabilities.map(function (vuln) {
       var res = '';
 
-      if (lastId !== vuln.id) {
-        res += chalk.red('✗ Vulnerability found on ' + vuln.name + '\n');
-        res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n\n';
-      }
-      // var name = vuln.name + '@' + vuln.version;
-
-      lastId = vuln.id;
+      var name = vuln.name + '@' + vuln.version;
+      res += chalk.red('✗ Vulnerability found on ' + name + '\n');
+      res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n\n';
 
       res += 'From: ' + vuln.from.join(' > ') + '\n';
 
