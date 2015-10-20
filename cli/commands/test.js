@@ -7,6 +7,13 @@ var config = require('../../lib/config');
 function test(path, options) {
   var args = [].slice.call(arguments, 0);
 
+  // if there's two strings on the arguments, it means we're doing multiple
+  // projects, but the options has been omitted, so let's do an argument dance
+  // to get some dummy opts in there
+  if (args.length === 2 && typeof args[1] === 'string') {
+    args.push({});
+  }
+
   // if we have more than path, options, we're going to assume that we've
   // got multiple paths, i.e. test(path1, path2..., options)
   if (args.length > 2) {
@@ -22,20 +29,20 @@ function test(path, options) {
         // don't blow up our entire promise chain - but track that we should
         // throw the entire thing as an exception later on
         if (error.code === 'VULNS') {
+          testedProjects++;
           shouldThrow++;
         }
 
         return error.message;
       }).then(function (res) {
         res = '\nTesting ' + path + '...\n' + res;
-        console.log(res);
-        return true;
+        return res;
       });
     });
 
-    return Promise.all(promises).then(function () {
+    return Promise.all(promises).then(function (res) {
       var projects = testedProjects === 1 ? ' project' : ' projects';
-      var res = '\nTested ' + testedProjects + projects;
+      res += '\nTested ' + testedProjects + projects;
 
       if (shouldThrow > 0) {
         res += ', ' + shouldThrow + ' contained vulnerabilities.';

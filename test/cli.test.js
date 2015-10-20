@@ -68,7 +68,18 @@ test('cli', function (t) {
     t.notEqual(pos, -1, 'correctly found vulnerability: ' + res);
   });
 
+});
 
+test('multiple test arguments', function (t) {
+  t.plan(1);
+
+  cli.test('semver@2', 'jsbin@3.11.23').then(function (res) {
+    t.fail(res);
+  }).catch(function (error) {
+    var res = error.message;
+    var lastLine = res.trim().split('\n').pop();
+    t.equals(lastLine.indexOf('Tested 2 projects'), 0, 'successfully tested 2 projects');
+  });
 });
 
 test('teardown', function (t) {
