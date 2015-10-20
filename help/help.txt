@@ -29,7 +29,7 @@ Options:
 Examples:
 
   $ snyk test
-  $ snyk test express@3.x
+  $ snyk test ionic@1.6.5
 
 Pro tip: use `snyk test` in your test scripts, if a vulnerability is
 found, the process will exit with a non-zero exit code.
