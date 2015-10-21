@@ -9,14 +9,15 @@ var errors = {
   authfail: 'Authentication failed. Please check the API key on ' + config.ROOT,
   oldsnyk: 'You have an alpha format .snyk file in this directory. Please ' +
     'remove it, and re-create using `snyk protect -i`',
+  notfound: 'The package could not be found or does not exist',
 };
 
 // a key/value pair of error.code (or error.message) as the key, and our nice
 // strings as the value.
 var codes = {
   ECONNREFUSED: errors.connect,
-  404: errors.endpoint,
-  411: errors.endpoint,
+  404: errors.notfound,
+  411: errors.endpoint, // try to post to a weird endpoint
   403: errors.endpoint,
   401: errors.auth,
   Unauthorized: errors.auth,
