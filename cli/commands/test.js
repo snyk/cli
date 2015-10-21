@@ -42,6 +42,7 @@ function test(path, options) {
     });
 
     return Promise.all(promises).then(function (res) {
+      res = res.join('');
       var projects = testedProjects === 1 ? ' project' : ' projects';
 
       if (shouldThrow > 0) {
@@ -118,8 +119,8 @@ function test(path, options) {
 
         // Create upgrade text
         var upgradeText = upgradeSteps.shift();
-        upgradeText += (upgradeSteps.length)?
-           '\nTriggers upgrades to ' + upgradeSteps.join(' > ') : '';
+        upgradeText += (upgradeSteps.length) ?
+           ' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')' : '';
 
         var fix = ''; // = 'Fix:\n';
         for (var idx = 0; idx < vuln.upgradePath.length; idx++) {
@@ -147,8 +148,9 @@ function test(path, options) {
             } else {
               // A deep dependency needs to be upgraded
               res += 'No direct dependency upgrade can address this issue.\n' +
-                'Run snyk protect -i to apply a patch or manually upgrade ' +
-                'deep dependency\n' + vuln.from[idx] + ' to ' + upgradeText;
+                chalk.bold('Run `snyk protect -i` to patch this vulnerability' +
+                  '\nAlternatively, manually upgrade deep dependency ' +
+                  vuln.from[idx] + ' to ' + upgradeText);
             }
             break;
           }
