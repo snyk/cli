@@ -7,7 +7,7 @@ var errors = {
   auth: 'Unauthorized: please ensure you are logged using `snyk auth`',
   dotfile: 'Try running `snyk protect -i` to define a Snyk protect policy',
   authfail: 'Authentication failed. Please check the API key on ' + config.ROOT,
-  oldsnyk: 'You have an alpga format .snyk file in this directory. Please ' +
+  oldsnyk: 'You have an alpha format .snyk file in this directory. Please ' +
     'remove it, and re-create using `snyk protect -i`',
 };
 
