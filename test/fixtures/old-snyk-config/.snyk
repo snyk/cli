@@ -1,0 +1,24 @@
+ignore:
+  'npm:connect:20130701':
+    expires: 2015-11-15T15:43:03.168Z
+    path:
+      - 'express@3.0.6 > connect@2.7.2'
+  'npm:send:20140912':
+    expires: 2015-11-15T15:43:03.168Z
+    path:
+      - 'express@3.0.6 > send@0.1.0'
+  'npm:qs:20140806':
+    expires: 2015-11-15T15:43:03.168Z
+    path:
+      - 'express@3.0.6 > connect@2.7.2 > qs@0.5.1'
+      - 'sendy-api@0.0.1 > request@2.34.0 > qs@0.6.6'
+      - 'sqlite3@2.2.7 > node-pre-gyp@0.5.22 > request@2.39.0 > qs@0.6.6'
+  'npm:uglify-js:20150824':
+    expires: 2015-11-15T15:43:03.168Z
+    path:
+      - 'express-hbs@0.8.4 > handlebars@3.0.3 > uglify-js@2.3.6'
+      - 'jade@1.4.2 > transformers@2.1.0 > uglify-js@2.2.5'
+  'npm:semver:20150403':
+    expires: 2015-11-15T15:43:03.168Z
+    path:
+      - 'sqlite3@2.2.7 > node-pre-gyp@0.5.22 > semver@3.0.1'
