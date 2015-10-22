@@ -72,13 +72,9 @@ function interactive(config, options) {
     }, ];
 
     var patchAction = {
-      value: 'ignore', // FIXME was patch - will restore once feature complete
-      meta: {
-        days: 7,
-      },
+      value: 'patch',
       key: 'p',
-      name: 'Patch (note: patch is not yet supported, ignoring for 7 days ' +
-        'instead for now)',
+      name: 'Patch',
     };
 
     var updateAction = {
@@ -106,8 +102,20 @@ function interactive(config, options) {
           '\n  - from: ' + vuln.from.join(' > '),
       };
 
-      choices.unshift(patch);
-      if (vuln.upgradePath.some(function (pkg, i) {
+      if (vuln.patches && vuln.patches.length) {
+        // check that the version we have has a patch available
+        var patches = protect.patchesForPackage({
+          name: vuln.name,
+          version: vuln.version,
+        }, vuln);
+
+        if (patches !== null) {
+          debug('%s@%s', vuln.name, vuln.version, patches);
+          choices.unshift(patch);
+        }
+      }
+
+      var upgradeAvailable = vuln.upgradePath.some(function (pkg, i) {
         // if the upgade path is to upgrade the module to the same range the
         // user already asked for, then it means we need to just blow that
         // module away and re-install
@@ -121,7 +129,9 @@ function interactive(config, options) {
         if (vuln.upgradePath.slice(0, 2).filter(Boolean).length) {
           return true;
         }
-      })) {
+      });
+
+      if (upgradeAvailable) {
         choices.unshift(update);
         update.name = 'Update to ' + vuln.upgradePath.filter(Boolean).shift();
       }
