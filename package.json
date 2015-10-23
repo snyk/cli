@@ -21,8 +21,8 @@
   "author": "Remy Sharp",
   "license": "UNLICENSED",
   "dependencies": {
-    "@snyk/config": "^3.0.0",
-    "@snyk/module": "^1.0.0",
+    "snyk-config": "^1.0.0",
+    "snyk-module": "^1.0.1",
     "abbrev": "^1.0.7",
     "chalk": "^1.1.1",
     "cli-spinner": "^0.2.1",
