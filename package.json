@@ -13,7 +13,7 @@
     "test": "npm run lint && tape test/*.test.js --cov | tap-spec",
     "watch": "nodemon -q -x 'for FILE in test/*.test.js; do echo $FILE; tape $FILE | tap-spec; if [ $? -ne 0 ]; then exit 1; fi; done'",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "postinstall": "snyk help api-license"
+    "postinstall": "node cli/index.js help api-license"
   },
   "keywords": [
     "security",
