@@ -19,7 +19,7 @@
     "snyk"
   ],
   "author": "Remy Sharp",
-  "license": "UNLICENSED",
+  "license": "Apache-2.0",
   "dependencies": {
     "snyk-config": "^1.0.0",
     "snyk-module": "^1.0.1",
