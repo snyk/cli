@@ -10,7 +10,7 @@ function help(item) {
 
   // cleanse the filename to only contain letters
   // aka: /\W/g but figured this was eaiser to read
-  item = item.replace(/[^a-z]/gi, '');
+  item = item.replace(/[^a-z-]/gi, '');
 
   var filename = path.resolve(__dirname, '..', '..', 'help', item + '.txt');
   return fs.readFile(filename, 'utf8')
