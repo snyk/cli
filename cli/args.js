@@ -56,7 +56,9 @@ function args(processargv) {
     }
     command = 'help';
 
-    argv._.unshift(argv.help || 'usage');
+    if (!argv._.length) {
+      argv._.unshift(argv.help || 'usage');
+    }
   }
 
   if (command && command.indexOf('config:') === 0) {

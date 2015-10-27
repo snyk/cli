@@ -4,10 +4,7 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 var debug = require('debug')('snyk');
 var snyk = require('../../lib/');
-var config = require('../../lib/config');
 var protect = require('../../lib/protect');
-var moduleToObject = require('@snyk/module');
-var request = require('../../lib/request');
 var getVersion = require('./version');
 var inquirer = require('inquirer');
 var path = require('path');
