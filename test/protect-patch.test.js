@@ -23,7 +23,7 @@ test('patch is correctly applied', function (t) {
     t.fail(error);
   })
   .then(function () {
-    return npm('uninstall', name).then(function () {
+    return npm('uninstall', name, dir).then(function () {
       t.pass('packages cleaned up');
       t.end();
     });
