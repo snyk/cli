@@ -4,7 +4,11 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 var debug = require('debug')('snyk');
 var snyk = require('../../lib/');
+var config = require('../../lib/config');
 var protect = require('../../lib/protect');
+var moduleToObject = require('@snyk/module');
+var request = require('../../lib/request');
+var getVersion = require('./version');
 var inquirer = require('inquirer');
 var path = require('path');
 var fs = require('then-fs');
@@ -39,11 +43,22 @@ function protect(options) {
       return interactive(config, options);
     }
 
-    // FIXME should patch
     if (config.patch) {
-      return 'patch not available in beta';
+      return patch(config.patch, options);
     }
     return 'nothing to do';
+  });
+}
+
+function patch(patches, options) {
+  var ids = Object.keys(patches);
+
+  return snyk.test(process.cwd()).then(function (res) {
+    return res.vulnerabilities.filter(function (vuln) {
+      return ids.indexOf(vuln.id) !== -1;
+    });
+  }).then(function (res) {
+    return protect.patch(res, !options['dry-run']);
   });
 }
 
@@ -101,6 +116,7 @@ function interactive(config, options) {
         message: 'Fix vulnerability in ' + from +
           '\n  - from: ' + vuln.from.join(' > '),
       };
+
 
       if (vuln.patches && vuln.patches.length) {
         // check that the version we have has a patch available
@@ -200,8 +216,9 @@ function interactive(config, options) {
         var live = !options['dry-run'];
         var packageFile = path.resolve(cwd, 'package.json');
         var promise = protect.generateConfig(config, tasks, live);
+        var snykVersion = '*';
 
-        promise.then(function (config) {
+        var res = promise.then(function (config) {
           if (!live) {
             // if this was a dry run, we'll throw an error to bail out of the
             // promise chain, then in the catch, check the error.code and if
@@ -213,6 +230,16 @@ function interactive(config, options) {
           }
 
           return snyk.dotfile.save(config);
+        })
+        .then(getVersion)
+        .then(function (v) {
+          debug('snyk version: %s', v);
+          // little hack to circumvent local testing where the version will
+          // be the git branch + commit
+          if (v.match(/^\d+\./) === null) {
+            v = '*';
+          }
+          snykVersion = v;
         })
         .then(function () {
           debug('updating %s', packageFile);
@@ -228,11 +255,11 @@ function interactive(config, options) {
           data.scripts['snyk-protect'] = 'snyk protect';
 
           var cmd = 'npm run snyk-protect';
-          if (data.scripts['post-install']) {
+          var postInstall = data.scripts['post-install'];
+          if (postInstall) {
             // only add the post-install if it's not already in the post-install
-            if (data.scripts['post-install'].indexOf(cmd) === -1) {
-              data.scripts['post-install'] = cmd + ' && ' +
-                data.scripts['post-install'];
+            if (postInstall.indexOf(cmd) === -1) {
+              data.scripts['post-install'] = cmd + '; ' + postInstall;
             }
           } else {
             data.scripts['post-install'] = cmd;
@@ -240,15 +267,31 @@ function interactive(config, options) {
 
           data.snyk = true;
 
-          return JSON.stringify(data, '', 2);
+          // finally, add snyk as a dependency because they'll need it during
+          // the protect process
+          var depLocation = 'dependencies';
+          // TODO decide whether this logic makes sense. for now, commented out
+          // if (data.private) {
+          //   depLocation = 'devDependencies';
+          // }
+
+          if (!data[depLocation]) {
+            data[depLocation] = {};
+          }
+
+          if (!data[depLocation].snyk) {
+            data[depLocation].snyk = snykVersion;
+          }
+
+          return fs.writeFile(packageFile, JSON.stringify(data, '', 2));
         })
-        // .then(fs.writeFile.bind(null, packageFile)) // FIXME deferred
         .then(function () {
           // originally:
           // .snyk file saved and package.json updated with protect.
           return '.snyk file successfully saved.';
         })
         .catch(function (error) {
+          // if it's a dry run - exit with 0 status
           if (error.code === 'DRYRUN') {
             return error.message;
           }
@@ -256,7 +299,7 @@ function interactive(config, options) {
           throw error;
         });
 
-        resolve(promise);
+        resolve(res);
       });
     });
 

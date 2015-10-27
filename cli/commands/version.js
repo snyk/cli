@@ -1,4 +1,5 @@
 var path = require('path');
+var debug = require('debug')('snyk');
 var exec = require('child_process').exec;
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var root = path.resolve(__dirname, '..', '..');
