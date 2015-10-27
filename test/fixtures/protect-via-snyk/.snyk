@@ -1,11 +1,5 @@
-{
-  "patch": {
-    "npm:semver:20150403": [
-      {
-        "semver@2.3.2": {
-          "patched": "2015-10-27T14:49:34.091Z"
-        }
-      }
-    ]
-  }
-}
+patch:
+  'npm:semver:20150403':
+    - semver@2.3.2:
+        patched: '2015-10-27T16:30:18.628Z'
+ignore: {}

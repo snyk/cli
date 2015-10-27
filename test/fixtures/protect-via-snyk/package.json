@@ -1,15 +1,19 @@
 {
-  "name": "protect-test",
-  "version": "1.0.0",
+  "name": "@remy/protect-test",
+  "version": "1.0.4",
   "description": "protect-test",
   "main": "index.js",
   "dependencies": {
-    "semver": "^2.3.2"
+    "semver": "^2.3.2",
+    "snyk": "dev"
   },
-  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "env": "env",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "postinstall": "npm run snyk-protect"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "snyk": true
 }

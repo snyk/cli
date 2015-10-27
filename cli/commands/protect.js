@@ -255,14 +255,14 @@ function interactive(config, options) {
           data.scripts['snyk-protect'] = 'snyk protect';
 
           var cmd = 'npm run snyk-protect';
-          var postInstall = data.scripts['post-install'];
+          var postInstall = data.scripts.postinstall;
           if (postInstall) {
             // only add the post-install if it's not already in the post-install
             if (postInstall.indexOf(cmd) === -1) {
-              data.scripts['post-install'] = cmd + '; ' + postInstall;
+              data.scripts.postinstall = cmd + '; ' + postInstall;
             }
           } else {
-            data.scripts['post-install'] = cmd;
+            data.scripts.postinstall = cmd;
           }
 
           data.snyk = true;
