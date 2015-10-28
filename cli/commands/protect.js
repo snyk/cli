@@ -43,7 +43,9 @@ function protect(options) {
     }
 
     if (config.patch) {
-      return patch(config.patch, options);
+      return patch(config.patch, options).then(function (config) {
+        return 'Successfully applied Snyk patches';
+      });
     }
     return 'nothing to do';
   });
