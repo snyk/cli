@@ -109,7 +109,7 @@ function interactive(config, options) {
 
       var res = {
         name: id,
-        type: 'expand',
+        type: 'list',
         message: 'Fix vulnerability in ' + from +
           '\n  - from: ' + vuln.from.join(' > '),
       };
@@ -126,6 +126,17 @@ function interactive(config, options) {
           debug('%s@%s', vuln.name, vuln.version, patches);
           choices.unshift(patch);
         }
+      } else {
+        // add a disabled option saying that patch isn't available
+        // note that adding `disabled: true` does nothing, so the user can
+        // actually select this option. I'm not 100% it's the right thing,
+        // but we'll keep a keen eye on user feedback.
+        choices.unshift({
+          value: 'skip',
+          key: 'p',
+          name: 'Patch (no patch available for this vulnerability on ' +
+            vuln.name + '@' + vuln.version + ')',
+        });
       }
 
       var upgradeAvailable = vuln.upgradePath.some(function (pkg, i) {
@@ -144,9 +155,21 @@ function interactive(config, options) {
         }
       });
 
+      // note: the language presented the user is "upgrade" rather than "update"
+      // this change came long after all this code was written. I've decided
+      // *not* to update all the variables referring to `update`, but just
+      // to warn my dear code-reader that this is intentional.
       if (upgradeAvailable) {
         choices.unshift(update);
-        update.name = 'Update to ' + vuln.upgradePath.filter(Boolean).shift();
+        update.name = 'Upgrade to ' + vuln.upgradePath.filter(Boolean).shift();
+      } else {
+        // No upgrade available (as per no patch)
+        choices.unshift({
+          value: 'skip',
+          key: 'u',
+          name: 'Upgrade (no direct upgrade available to sufficiently ' +
+            'upgrade ' + vuln.name + '@' + vuln.version + ')',
+        });
       }
 
       // kludge to make sure that we get the vuln in the user selection
