@@ -8,7 +8,7 @@ var config = require('../../lib/config');
 var request = require('../../lib/request');
 var url = require('url');
 var uuid = require('node-uuid');
-var Spinner = require('cli-spinner').Spinner;
+var makeSpinner = require('../../lib/spinner');
 
 var apiUrl = url.parse(config.API);
 var authUrl = apiUrl.protocol + '//' + apiUrl.host;
@@ -24,12 +24,10 @@ function githubAuth() {
     'be ready to start using snyk.\n\nIf you can\'t wait use this url:\n' +
     url + '\n';
 
-  console.log(msg.replace(/^(.)/gm, '$1'));
+  // console.log(msg.replace(/^(.)/gm, '$1'));
+  console.log(msg);
 
-  var spinner = new Spinner('%s  Waiting...');
-  spinner.setSpinnerDelay(75);
-  spinner.setSpinnerString(2);
-  spinner.start();
+  var spinner = makeSpinner(' Waiting...');
 
   return new Promise(function (resolve) {
     setTimeout(function () {
@@ -38,9 +36,7 @@ function githubAuth() {
     // start checking the token immediately in case they've already
     // opened the url manually
     resolve(testAuthComplete(token).then(function (res) {
-      spinner.stop();
-      // send a nl
-      console.log('');
+      spinner.clear();
       return res;
     }));
   });
