@@ -107,7 +107,7 @@ function test(path, options) {
       summary += chalk.red.bold(' vulnerabilities.');
     }
 
-    var sep = '\n\n'; //  ──────────────────\n
+    var sep = '\n\n';
 
     var error = new Error(res.vulnerabilities.map(function (vuln) {
       var res = '';

@@ -26,7 +26,7 @@ function githubAuth() {
 
   console.log(msg);
 
-  var spinner = makeSpinner(' Waiting...');
+  var spinner = makeSpinner('Waiting...');
 
   return new Promise(function (resolve) {
     setTimeout(function () {
@@ -122,7 +122,7 @@ function auth(api) {
 
     if (res.statusCode === 200 || res.statusCode === 201) {
       snyk.config.set('api', body.api);
-      return '\nYour account has been authenicated. Snyk is now ready to ' +
+      return '\nYour account has been authenticated. Snyk is now ready to ' +
         'be used.\n';
     } else if (body.message) {
       var error = new Error(body.message);

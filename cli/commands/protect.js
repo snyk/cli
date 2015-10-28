@@ -389,7 +389,7 @@ function nextSteps(pkg) {
   var prompts = [{
     name: 'misc-run-monitor',
     message: 'Capture a snapshot of your dependencies to be notified about ' +
-      'new related vulnerabilties?',
+      'new related vulnerabilities?',
     type: 'confirm',
     default: true,
   }, ];
@@ -399,7 +399,7 @@ function nextSteps(pkg) {
     prompts.push({
       name: 'misc-add-test',
       message: 'Add `snyk test` to package.json file to fail test on newly ' +
-        'disclosed vulnerabiltiies?',
+        'disclosed vulnerabilities?',
       type: 'confirm',
       default: true,
     });
