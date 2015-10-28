@@ -92,6 +92,10 @@ function test(path, options) {
 
     if (res.ok) {
       summary = chalk.green('✓ ' + summary + ', no vulnerabilities found.');
+
+      summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified about' +
+        ' new related vulnerabilities.\n- Run `snyk test` as part of your ' +
+        'CI/test.';
       return summary;
     }
 
