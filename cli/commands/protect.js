@@ -5,6 +5,7 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 var debug = require('debug')('snyk');
 var snyk = require('../../lib/');
 var protect = require('../../lib/protect');
+var getVersion = require('./version');
 var inquirer = require('inquirer');
 var path = require('path');
 var fs = require('then-fs');
@@ -39,11 +40,22 @@ function protect(options) {
       return interactive(config, options);
     }
 
-    // FIXME should patch
     if (config.patch) {
-      return 'patch not available in beta';
+      return patch(config.patch, options);
     }
     return 'nothing to do';
+  });
+}
+
+function patch(patches, options) {
+  var ids = Object.keys(patches);
+
+  return snyk.test(process.cwd()).then(function (res) {
+    return res.vulnerabilities.filter(function (vuln) {
+      return ids.indexOf(vuln.id) !== -1;
+    });
+  }).then(function (res) {
+    return protect.patch(res, !options['dry-run']);
   });
 }
 
@@ -72,13 +84,9 @@ function interactive(config, options) {
     }, ];
 
     var patchAction = {
-      value: 'ignore', // FIXME was patch - will restore once feature complete
-      meta: {
-        days: 7,
-      },
+      value: 'patch',
       key: 'p',
-      name: 'Patch (note: patch is not yet supported, ignoring for 7 days ' +
-        'instead for now)',
+      name: 'Patch',
     };
 
     var updateAction = {
@@ -106,8 +114,21 @@ function interactive(config, options) {
           '\n  - from: ' + vuln.from.join(' > '),
       };
 
-      choices.unshift(patch);
-      if (vuln.upgradePath.some(function (pkg, i) {
+
+      if (vuln.patches && vuln.patches.length) {
+        // check that the version we have has a patch available
+        var patches = protect.patchesForPackage({
+          name: vuln.name,
+          version: vuln.version,
+        }, vuln);
+
+        if (patches !== null) {
+          debug('%s@%s', vuln.name, vuln.version, patches);
+          choices.unshift(patch);
+        }
+      }
+
+      var upgradeAvailable = vuln.upgradePath.some(function (pkg, i) {
         // if the upgade path is to upgrade the module to the same range the
         // user already asked for, then it means we need to just blow that
         // module away and re-install
@@ -121,7 +142,9 @@ function interactive(config, options) {
         if (vuln.upgradePath.slice(0, 2).filter(Boolean).length) {
           return true;
         }
-      })) {
+      });
+
+      if (upgradeAvailable) {
         choices.unshift(update);
         update.name = 'Update to ' + vuln.upgradePath.filter(Boolean).shift();
       }
@@ -190,8 +213,9 @@ function interactive(config, options) {
         var live = !options['dry-run'];
         var packageFile = path.resolve(cwd, 'package.json');
         var promise = protect.generateConfig(config, tasks, live);
+        var snykVersion = '*';
 
-        promise.then(function (config) {
+        var res = promise.then(function (config) {
           if (!live) {
             // if this was a dry run, we'll throw an error to bail out of the
             // promise chain, then in the catch, check the error.code and if
@@ -203,6 +227,16 @@ function interactive(config, options) {
           }
 
           return snyk.dotfile.save(config);
+        })
+        .then(getVersion)
+        .then(function (v) {
+          debug('snyk version: %s', v);
+          // little hack to circumvent local testing where the version will
+          // be the git branch + commit
+          if (v.match(/^\d+\./) === null) {
+            v = '*';
+          }
+          snykVersion = v;
         })
         .then(function () {
           debug('updating %s', packageFile);
@@ -218,27 +252,43 @@ function interactive(config, options) {
           data.scripts['snyk-protect'] = 'snyk protect';
 
           var cmd = 'npm run snyk-protect';
-          if (data.scripts['post-install']) {
+          var postInstall = data.scripts.postinstall;
+          if (postInstall) {
             // only add the post-install if it's not already in the post-install
-            if (data.scripts['post-install'].indexOf(cmd) === -1) {
-              data.scripts['post-install'] = cmd + ' && ' +
-                data.scripts['post-install'];
+            if (postInstall.indexOf(cmd) === -1) {
+              data.scripts.postinstall = cmd + '; ' + postInstall;
             }
           } else {
-            data.scripts['post-install'] = cmd;
+            data.scripts.postinstall = cmd;
           }
 
           data.snyk = true;
 
-          return JSON.stringify(data, '', 2);
+          // finally, add snyk as a dependency because they'll need it during
+          // the protect process
+          var depLocation = 'dependencies';
+          // TODO decide whether this logic makes sense. for now, commented out
+          // if (data.private) {
+          //   depLocation = 'devDependencies';
+          // }
+
+          if (!data[depLocation]) {
+            data[depLocation] = {};
+          }
+
+          if (!data[depLocation].snyk) {
+            data[depLocation].snyk = snykVersion;
+          }
+
+          return fs.writeFile(packageFile, JSON.stringify(data, '', 2));
         })
-        // .then(fs.writeFile.bind(null, packageFile)) // FIXME deferred
         .then(function () {
           // originally:
           // .snyk file saved and package.json updated with protect.
           return '.snyk file successfully saved.';
         })
         .catch(function (error) {
+          // if it's a dry run - exit with 0 status
           if (error.code === 'DRYRUN') {
             return error.message;
           }
@@ -246,7 +296,7 @@ function interactive(config, options) {
           throw error;
         });
 
-        resolve(promise);
+        resolve(res);
       });
     });
 

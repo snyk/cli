@@ -11,8 +11,8 @@ test('patch is correctly applied', function (t) {
   var name = 'semver';
   var version = '2';
 
-  npm('install', name + '@' + version).then(function () {
-    var dir = path.resolve(__dirname, 'fixtures/protect');
+  var dir = path.resolve(__dirname, 'fixtures/protect');
+  npm('install', name + '@' + version, dir).then(function () {
     debug('installing to %s', dir);
     return protect.patch(vulns, true, dir).then(function () {
       t.pass('patch resolved');
@@ -23,7 +23,7 @@ test('patch is correctly applied', function (t) {
     t.fail(error);
   })
   .then(function () {
-    return npm('uninstall', name).then(function () {
+    return npm('uninstall', name, dir).then(function () {
       t.pass('packages cleaned up');
       t.end();
     });
@@ -34,7 +34,7 @@ test('patch is correctly applied', function (t) {
   });
 });
 
-function npm(method, packages) {
+function npm(method, packages, dir) {
   if (!Array.isArray(packages)) {
     packages = [packages];
   }
@@ -42,7 +42,7 @@ function npm(method, packages) {
     var cmd = 'npm ' + method + ' ' + packages.join(' ');
     debug(cmd);
     exec(cmd, {
-      cwd: path.resolve(__dirname, 'fixtures', 'protect'),
+      cwd: dir,
     }, function (error, stdout, stderr) {
       if (error) {
         return reject(error);

@@ -59,7 +59,7 @@ function testAuthComplete(token) {
   return new Promise(function (resolve, reject) {
     debug(payload);
     request(payload, function (error, res, body) {
-      debug(error, res.statusCode, body);
+      debug(error, (res || {}).statusCode, body);
       if (error) {
         return reject(error);
       }
