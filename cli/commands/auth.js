@@ -24,7 +24,6 @@ function githubAuth() {
     'be ready to start using snyk.\n\nIf you can\'t wait use this url:\n' +
     url + '\n';
 
-  // console.log(msg.replace(/^(.)/gm, '$1'));
   console.log(msg);
 
   var spinner = makeSpinner(' Waiting...');
