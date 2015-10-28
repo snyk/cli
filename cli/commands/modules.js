@@ -10,8 +10,7 @@ module.exports = function (path) {
     }
 
     return parent + Object.keys(modules.dependencies).map(function (key) {
-      return modules.dependencies[key].full + ' ' +
-            (modules[key].valid ? '✓' : '✗');
+      return modules.dependencies[key].full;
     }).join('\n');
   });
 };

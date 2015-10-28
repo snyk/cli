@@ -1,4 +1,16 @@
 'use strict';
+require("babel/register")({
+  ignore: function (filename) {
+    if (filename.indexOf('@snyk/registry/test') !== -1) {
+      return false;
+    }
+    if (filename.indexOf('@snyk/registry/lib') !== -1) {
+      return false;
+    }
+    return true;
+  },
+//  only: /@snyk\/register\//,
+});
 var test = require('tape');
 var apiKey = '123456789';
 var oldkey;
@@ -8,13 +20,14 @@ process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 
 var server = require('@snyk/registry/test/fixtures/demo-registry-server');
+var utils = require('@snyk/registry/test/fixtures/utils');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
 var cli = require('../cli/commands');
 
 test('setup', function (t) {
-  t.plan(4);
+  t.plan(5);
   cli.config('get', 'api').then(function (key) {
     oldkey = key; // just in case
     t.pass('existing user config captured');
@@ -22,6 +35,9 @@ test('setup', function (t) {
   server(port, function () {
     t.pass('started demo server');
 
+    utils.pgSetup().then(function () {
+      t.pass('setup pg database');
+    });
     server.db.User.remove(function () {
       t.pass('user db emptied');
     });

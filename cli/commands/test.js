@@ -92,6 +92,10 @@ function test(path, options) {
 
     if (res.ok) {
       summary = chalk.green('✓ ' + summary + ', no vulnerabilities found.');
+
+      summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified about' +
+        ' new related vulnerabilities.\n- Run `snyk test` as part of your ' +
+        'CI/test.';
       return summary;
     }
 
@@ -103,7 +107,7 @@ function test(path, options) {
       summary += chalk.red.bold(' vulnerabilities.');
     }
 
-    var sep = '\n\n'; //  ──────────────────\n
+    var sep = '\n\n';
 
     var error = new Error(res.vulnerabilities.map(function (vuln) {
       var res = '';
@@ -130,11 +134,11 @@ function test(path, options) {
             // Check if we're suggesting to upgrade to ourselves.
             if (vuln.from.length > idx && vuln.from[idx] === elem) {
               // This ver should get the not-vuln dependency, suggest refresh
-              fix +=
-               'Your dependencies are out of date.\n' +
-               'Delete node_modules & reinstall to upgrade to ' + upgradeText +
-               '.\nIf you\'re using a private repsository, ' +
-                'ensure it\'s up to date.';
+              fix += 'Your dependencies are out of date, otherwise you would ' +
+                'be using a newer ' + vuln.name + ' than ' + vuln.name + '@' +
+                vuln.version + '.\nTry deleting node_modules, reinstalling ' +
+                'and running `snyk test` again.\nIf the problem persists, one' +
+                ' of your dependencies may be bundling outdated modules.';
               break;
             }
             if (idx === 0) {

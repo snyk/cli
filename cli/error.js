@@ -1,5 +1,6 @@
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../lib/config');
+var chalk = require('chalk');
 
 var errors = {
   connect: 'Check your network connection, failed to connect to Snyk API',
@@ -10,6 +11,11 @@ var errors = {
   oldsnyk: 'You have an alpha format .snyk file in this directory. Please ' +
     'remove it, and re-create using `snyk protect -i`',
   notfound: 'The package could not be found or does not exist',
+  patchfail: 'The patch against "%s" unexpectedly failed. Please contact ' +
+    'support@snyk.io with any details to help us diagnose.',
+  nodeModules: 'This directory looks like a node project, but is missing the ' +
+    'contents of the node_modules directory.\nPlease run `npm install` and ' +
+    're-run your snyk command.',
 };
 
 // a key/value pair of error.code (or error.message) as the key, and our nice
@@ -22,7 +28,9 @@ var codes = {
   401: errors.auth,
   Unauthorized: errors.auth,
   MISSING_DOTFILE: errors.dotfile,
+  MISSING_NODE_MODULES: errors.nodeModules,
   OLD_DOTFILE_FORMAT: errors.oldsnyk,
+  FAIL_PATCH: errors.patchfail,
 };
 
 module.exports = function error(command) {
@@ -30,12 +38,19 @@ module.exports = function error(command) {
 };
 
 module.exports.message = function (error) {
+  var message = error; // defaults to a string (which is super unlikely)
   if (error instanceof Error) {
     // try to lookup the error string based either on the error code OR
     // the actual error.message (which can be "Unauthorized" for instance),
     // otherwise send the error message back
-    return codes[error.code || error.message] || error.message;
-  } else {
-    return error; // string
+    message = codes[error.code || error.message];
+    if (message) {
+      message = message.replace(/(%s)/g, error.message);
+      message = chalk.bold.red(message);
+    } else {
+      message = error.message;
+    }
   }
+
+  return message;
 };
