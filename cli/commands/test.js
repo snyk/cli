@@ -130,11 +130,11 @@ function test(path, options) {
             // Check if we're suggesting to upgrade to ourselves.
             if (vuln.from.length > idx && vuln.from[idx] === elem) {
               // This ver should get the not-vuln dependency, suggest refresh
-              fix +=
-               'Your dependencies are out of date.\n' +
-               'Delete node_modules & reinstall to upgrade to ' + upgradeText +
-               '.\nIf you\'re using a private repsository, ' +
-                'ensure it\'s up to date.';
+              fix += 'Your dependencies are out of date, otherwise you would ' +
+                'be using a newer ' + vuln.name + ' than ' + vuln.name + '@' +
+                vuln.version + '.\nTry deleting node_modules, reinstalling ' +
+                'and running `snyk test` again.\nIf the problem persists, one' +
+                ' of your dependencies may be bundling outdated modules.';
               break;
             }
             if (idx === 0) {
