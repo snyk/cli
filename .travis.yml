@@ -3,6 +3,8 @@ language: node_js
 cache:
   directories:
     - node_modules
+addons:
+  postgresql: "9.4"
 notifications:
   email: false
 services:
@@ -16,6 +18,8 @@ before_install:
   - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
 before_script:
   - npm prune
+  - psql -c 'create database test;' -U postgres
+  - psql -U postgres -c "create extension hstore" test
   - 'curl -Lo travis_after_all.py https://git.io/vLSON'
 after_success:
   - python travis_after_all.py
