@@ -282,6 +282,8 @@ function interactive(config, options) {
             // be the git branch + commit
             if (v.match(/^\d+\./) === null) {
               v = '*';
+            } else {
+              v = '^' + v;
             }
             snykVersion = v;
           })
