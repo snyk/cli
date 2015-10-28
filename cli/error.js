@@ -13,6 +13,9 @@ var errors = {
   notfound: 'The package could not be found or does not exist',
   patchfail: 'The patch against "%s" unexpectedly failed. Please contact ' +
     'support@snyk.io with any details to help us diagnose.',
+  nodeModules: 'This directory looks like a node project, but is missing the ' +
+    'contents of the node_modules directory.\nPlease run `npm install` and ' +
+    're-run your snyk command.',
 };
 
 // a key/value pair of error.code (or error.message) as the key, and our nice
@@ -25,6 +28,7 @@ var codes = {
   401: errors.auth,
   Unauthorized: errors.auth,
   MISSING_DOTFILE: errors.dotfile,
+  MISSING_NODE_MODULES: errors.nodeModules,
   OLD_DOTFILE_FORMAT: errors.oldsnyk,
   FAIL_PATCH: errors.patchfail,
 };

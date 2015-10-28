@@ -1,4 +1,16 @@
 'use strict';
+require("babel/register")({
+  ignore: function (filename) {
+    if (filename.indexOf('@snyk/registry/test') !== -1) {
+      return false;
+    }
+    if (filename.indexOf('@snyk/registry/lib') !== -1) {
+      return false;
+    }
+    return true;
+  },
+//  only: /@snyk\/register\//,
+});
 var test = require('tape');
 var apiKey = '123456789';
 var oldkey;
