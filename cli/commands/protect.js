@@ -10,6 +10,7 @@ var inquirer = require('inquirer');
 var path = require('path');
 var fs = require('then-fs');
 var _ = require('lodash');
+var undefsafe = require('undefsafe');
 
 function protect(options) {
   if (!options) {
@@ -27,6 +28,7 @@ function protect(options) {
     // the file hasn't been created yet, and that's fine, so we'll resolve
     // with an empty object
     if (options.interactive) {
+      options.newDotFile = true;
       return {};
     }
 
@@ -115,9 +117,10 @@ function interactive(config, options) {
       };
 
 
+      var patches = null;
       if (vuln.patches && vuln.patches.length) {
         // check that the version we have has a patch available
-        var patches = protect.patchesForPackage({
+        patches = protect.patchesForPackage({
           name: vuln.name,
           version: vuln.version,
         }, vuln);
@@ -126,7 +129,9 @@ function interactive(config, options) {
           debug('%s@%s', vuln.name, vuln.version, patches);
           choices.unshift(patch);
         }
-      } else {
+      }
+
+      if (patches === null) {
         // add a disabled option saying that patch isn't available
         // note that adding `disabled: true` does nothing, so the user can
         // actually select this option. I'm not 100% it's the right thing,
@@ -203,126 +208,218 @@ function interactive(config, options) {
       return acc;
     }, []);
 
-    debug('starting questions');
+    var packageFile = path.resolve(cwd, 'package.json');
 
-    return new Promise(function (resolve) {
-      inquirer.prompt(prompts, function (answers) {
-        var tasks = {
-          ignore: [],
-          update: [],
-          patch: [],
-          skip: [],
-        };
+    return fs.readFile(packageFile, 'utf8')
+      .then(JSON.parse)
+      .then(function (pkg) {
+      return new Promise(function (resolve) {
+        debug('starting questions');
+        inquirer.prompt(prompts.concat(nextSteps(pkg)), function (answers) {
+          var tasks = {
+            ignore: [],
+            update: [],
+            patch: [],
+            skip: [],
+          };
 
-        Object.keys(answers).forEach(function (key) {
-          // if we're looking at a reason, skip it
-          if (key.indexOf('-reason') !== -1) {
-            return;
-          }
-
-          var answer = answers[key];
-          var task = answer.choice;
-
-          if (task === 'ignore') {
-            answer.meta.reason = answers[key + '-reason'];
-            tasks[task].push(answer);
-          } else {
-            tasks[task].push(answer.vuln);
-          }
-        });
-
-        debug(tasks);
-
-        var live = !options['dry-run'];
-        var packageFile = path.resolve(cwd, 'package.json');
-        var promise = protect.generateConfig(config, tasks, live);
-        var snykVersion = '*';
-
-        var res = promise.then(function (config) {
-          if (!live) {
-            // if this was a dry run, we'll throw an error to bail out of the
-            // promise chain, then in the catch, check the error.code and if
-            // it matches `DRYRUN` we'll return the text and not an error
-            // (which avoids the exit code 1).
-            var e = new Error('This was a dry run: nothing changed');
-            e.code = 'DRYRUN';
-            throw e;
-          }
-
-          return snyk.dotfile.save(config);
-        })
-        .then(getVersion)
-        .then(function (v) {
-          debug('snyk version: %s', v);
-          // little hack to circumvent local testing where the version will
-          // be the git branch + commit
-          if (v.match(/^\d+\./) === null) {
-            v = '*';
-          }
-          snykVersion = v;
-        })
-        .then(function () {
-          debug('updating %s', packageFile);
-          return fs.readFile(packageFile, 'utf8');
-        })
-        .then(function (src) {
-          var data = JSON.parse(src);
-
-          if (!data.scripts) {
-            data.scripts = {};
-          }
-
-          data.scripts['snyk-protect'] = 'snyk protect';
-
-          var cmd = 'npm run snyk-protect';
-          var postInstall = data.scripts.postinstall;
-          if (postInstall) {
-            // only add the post-install if it's not already in the post-install
-            if (postInstall.indexOf(cmd) === -1) {
-              data.scripts.postinstall = cmd + '; ' + postInstall;
+          Object.keys(answers).forEach(function (key) {
+            // if we're looking at a reason, skip it
+            if (key.indexOf('-reason') !== -1) {
+              return;
             }
-          } else {
-            data.scripts.postinstall = cmd;
-          }
 
-          data.snyk = true;
+            // ignore misc questions, like "add snyk test to package?"
+            if (key.indexOf('misc-') === 0) {
+              return;
+            }
 
-          // finally, add snyk as a dependency because they'll need it during
-          // the protect process
-          var depLocation = 'dependencies';
-          // TODO decide whether this logic makes sense. for now, commented out
-          // if (data.private) {
-          //   depLocation = 'devDependencies';
-          // }
+            var answer = answers[key];
+            var task = answer.choice;
 
-          if (!data[depLocation]) {
-            data[depLocation] = {};
-          }
+            if (task === 'ignore') {
+              answer.meta.reason = answers[key + '-reason'];
+              tasks[task].push(answer);
+            } else {
+              tasks[task].push(answer.vuln);
+            }
+          });
 
-          if (!data[depLocation].snyk) {
-            data[depLocation].snyk = snykVersion;
-          }
+          debug(tasks);
 
-          return fs.writeFile(packageFile, JSON.stringify(data, '', 2));
-        })
-        .then(function () {
-          // originally:
-          // .snyk file saved and package.json updated with protect.
-          return '.snyk file successfully saved.';
-        })
-        .catch(function (error) {
-          // if it's a dry run - exit with 0 status
-          if (error.code === 'DRYRUN') {
-            return error.message;
-          }
+          var live = !options['dry-run'];
+          var promise = protect.generateConfig(config, tasks, live);
+          var snykVersion = '*';
 
-          throw error;
+          var res = promise.then(function (config) {
+            if (!live) {
+              // if this was a dry run, we'll throw an error to bail out of the
+              // promise chain, then in the catch, check the error.code and if
+              // it matches `DRYRUN` we'll return the text and not an error
+              // (which avoids the exit code 1).
+              var e = new Error('This was a dry run: nothing changed');
+              e.code = 'DRYRUN';
+              throw e;
+            }
+
+            return snyk.dotfile.save(config);
+          })
+          .then(function () {
+            // re-read the package.json - because the generateConfig can apply
+            // an `npm install` which will change the deps
+            return fs.readFile(packageFile, 'utf8')
+              .then(JSON.parse)
+              .then(function (updatedPkg) {
+                pkg = updatedPkg;
+              });
+          })
+          .then(getVersion)
+          .then(function (v) {
+            debug('snyk version: %s', v);
+            // little hack to circumvent local testing where the version will
+            // be the git branch + commit
+            if (v.match(/^\d+\./) === null) {
+              v = '*';
+            }
+            snykVersion = v;
+          })
+          .then(function () {
+            if (!answers['misc-add-test']) {
+              return;
+            }
+
+            debug('adding `snyk test` to package');
+
+            if (!pkg.scripts) {
+              pkg.scripts = {};
+            }
+
+            var test = pkg.scripts.test;
+            var cmd = 'snyk test';
+            if (test) {
+              // only add the test if it's not already in the test
+              if (test.indexOf(cmd) === -1) {
+                pkg.scripts.test = cmd + ' && ' + test;
+              }
+            } else {
+              pkg.scripts.test = cmd;
+            }
+          })
+          .then(function () {
+            if (!answers['misc-add-protect']) {
+              return;
+            }
+
+            debug('adding `snyk protect` to package');
+
+            if (!pkg.scripts) {
+              pkg.scripts = {};
+            }
+
+            pkg.scripts['snyk-protect'] = 'snyk protect';
+
+            var cmd = 'npm run snyk-protect';
+            var postInstall = pkg.scripts.postinstall;
+            if (postInstall) {
+              // only add the postinstall if it's not already in the postinstall
+              if (postInstall.indexOf(cmd) === -1) {
+                pkg.scripts.postinstall = cmd + '; ' + postInstall;
+              }
+            } else {
+              pkg.scripts.postinstall = cmd;
+            }
+
+            pkg.snyk = true;
+          })
+          .then(function () {
+            if (answers['misc-add-test'] || answers['misc-add-protect']) {
+              debug('updating %s', packageFile);
+
+              // finally, add snyk as a dependency because they'll need it
+              // during the protect process
+              var depLocation = 'dependencies';
+
+              if (!pkg[depLocation]) {
+                pkg[depLocation] = {};
+              }
+
+              if (!pkg[depLocation].snyk) {
+                pkg[depLocation].snyk = snykVersion;
+              }
+
+              return fs.writeFile(packageFile, JSON.stringify(pkg, '', 2));
+            }
+          })
+          .then(function () {
+            if (answers['misc-run-monitor']) {
+              debug('running monitor');
+              return snyk.modules(cwd).then(snyk.monitor.bind(null, {
+                method: 'protect interactive',
+              }));
+            }
+          })
+          .then(function () {
+            return options.newDotFile ?
+              // if it's a newly created file
+              'A .snyk file has been created with the actions you\'ve ' +
+                'selected, add it to your source control (`git add .snyk`).' :
+              // otherwise we updated it
+              'Your .snyk file has been successfully updated.';
+          })
+          .catch(function (error) {
+            // if it's a dry run - exit with 0 status
+            if (error.code === 'DRYRUN') {
+              return error.message;
+            }
+
+            throw error;
+          });
+
+          resolve(res);
         });
-
-        resolve(res);
       });
     });
 
   });
 
+}
+
+function nextSteps(pkg) {
+  var i;
+  var prompts = [{
+    name: 'misc-run-monitor',
+    message: 'Capture a snapshot of your dependencies to be notified about ' +
+      'new related vulnerabilties?',
+    type: 'confirm',
+    default: true,
+  }, ];
+
+  i = (undefsafe(pkg, 'scripts.test') || '').indexOf('snyk test');
+  if (i === -1) {
+    prompts.push({
+      name: 'misc-add-test',
+      message: 'Add `snyk test` to package.json file to fail test on newly ' +
+        'disclosed vulnerabiltiies?',
+      type: 'confirm',
+      default: true,
+    });
+  }
+
+  i = (undefsafe(pkg, 'scripts.postinstall') || '').indexOf('snyk pro');
+  if (i === -1) {
+    prompts.push({
+      name: 'misc-add-protect',
+      message: 'Add `snyk protect` as package.json post-install step to apply' +
+        ' chosen patches on install?',
+      type: 'confirm',
+      when: function (answers) {
+        return Object.keys(answers).some(function (key) {
+          return answers[key].choice === 'patch';
+        });
+      },
+      default: true,
+    });
+  }
+
+  return prompts;
 }

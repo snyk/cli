@@ -22,8 +22,6 @@
   "author": "Remy Sharp",
   "license": "Apache-2.0",
   "dependencies": {
-    "snyk-config": "^1.0.0",
-    "snyk-module": "^1.0.1",
     "abbrev": "^1.0.7",
     "chalk": "^1.1.1",
     "cli-spinner": "^0.2.1",
@@ -39,8 +37,11 @@
     "promise": "^7.0.3",
     "request": "^2.60.0",
     "semver": "^5.0.1",
+    "snyk-config": "^1.0.0",
+    "snyk-module": "^1.0.1",
     "tempfile": "^1.1.1",
     "then-fs": "^2.0.0",
+    "undefsafe": "0.0.3",
     "update-notifier": "^0.5.0",
     "url": "^0.11.0",
     "validator": "^4.0.5"
