@@ -47,7 +47,7 @@ test('setup', function (t) {
   });
 });
 
-test('prime database', function (t) {
+test.skip('prime database', function (t) {
   t.plan(2);
 
   new server.db.User({
