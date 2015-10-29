@@ -99,7 +99,13 @@ test('multiple test arguments', function (t) {
 });
 
 test('teardown', function (t) {
-  t.plan(2);
+  t.plan(3);
+
+  delete process.env.SNYK_API;
+  delete process.env.SNYK_HOST;
+  delete process.env.SNYK_PORT;
+  t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
+
   server.app.close(function () {
     t.pass('server shutdown');
     cli.config('set', 'api=' + oldkey).then(function () {
