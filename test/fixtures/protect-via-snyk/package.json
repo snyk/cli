@@ -10,7 +10,7 @@
   "scripts": {
     "env": "env",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "snyk-protect": "node_modules/.bin/snyk protect",
+    "snyk-protect": "snyk protect -d",
     "postinstall": "npm run snyk-protect"
   },
   "author": "",
