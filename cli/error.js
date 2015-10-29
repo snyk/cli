@@ -11,8 +11,8 @@ var errors = {
   oldsnyk: 'You have an alpha format .snyk file in this directory. Please ' +
     'remove it, and re-create using `snyk protect -i`',
   notfound: 'The package could not be found or does not exist',
-  patchfail: 'The patch against "%s" unexpectedly failed. Please contact ' +
-    'support@snyk.io with any details to help us diagnose.',
+  patchfail: 'The patch against "%s" failed. We may not have a patch for ' +
+    'this version yet.',
   nodeModules: 'This directory looks like a node project, but is missing the ' +
     'contents of the node_modules directory.\nPlease run `npm install` and ' +
     're-run your snyk command.',
