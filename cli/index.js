@@ -26,6 +26,9 @@ debug('checking for cli updates');
 var defaults = require('lodash').defaults;
 var pkg = require('../package.json');
 
-require('update-notifier')({
-  pkg: defaults(pkg, { version: '0.0.0' }),
-}).notify();
+// only run if we're not inside an npm.script
+if (!process.env['npm_config_node_version']) { // jshint ignore:line
+  require('update-notifier')({
+    pkg: defaults(pkg, { version: '0.0.0' }),
+  }).notify();
+}
