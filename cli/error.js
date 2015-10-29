@@ -17,7 +17,7 @@ var errors = {
     'contents of the node_modules directory.\nPlease run `npm install` and ' +
     're-run your snyk command.',
   tryDevDeps: 'Snyk only tests production dependencies by default (which this ' +
-    'project had none). Try re-runnig with the `--dev` flag.'
+    'project had none). Try re-running with the `--dev` flag.'
 };
 
 // a key/value pair of error.code (or error.message) as the key, and our nice
