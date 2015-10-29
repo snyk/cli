@@ -8,6 +8,10 @@ var config = require('../../lib/config');
 function test(path, options) {
   var args = [].slice.call(arguments, 0);
 
+  if (typeof path === 'object') {
+    options = path;
+  }
+
   // if there's two strings on the arguments, it means we're doing multiple
   // projects, but the options has been omitted, so let's do an argument dance
   // to get some dummy opts in there
@@ -67,7 +71,7 @@ function test(path, options) {
     options = {};
   }
 
-  return snyk.test(path || process.cwd()).then(function (res) {
+  return snyk.test(path || process.cwd(), options).then(function (res) {
     if (options.json) {
       var json = JSON.stringify(res, '', 2);
       if (res.ok) {

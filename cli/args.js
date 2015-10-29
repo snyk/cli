@@ -1,7 +1,8 @@
-var abbrev = require('abbrev');
-var alias = abbrev('version', 'debug', 'help', 'quiet', 'interactive');
-
 module.exports = args;
+
+var abbrev = require('abbrev');
+var alias = abbrev('version', 'debug', 'help', 'quiet', 'interactive', 'dev');
+alias.d = 'debug'; // always make `-d` debug
 
 function args(processargv) {
   // allows us to support flags with true or false only
