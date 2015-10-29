@@ -20,6 +20,7 @@ Commands:
 
 Options:
 
+  --dev .............. include devDependencies (defaults to production only)
   -q, --quiet ........ silence all output.
   -h, --help ......... this help information.
   -v, --version ...... the CLI version.
