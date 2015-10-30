@@ -43,11 +43,9 @@ function protect(options) {
     }
 
     if (config.patch) {
-      return patch(config.patch, options).then(function (config) {
-        return 'Successfully applied Snyk patches';
-      });
+      return patch(config.patch, options);
     }
-    return 'nothing to do';
+    return 'Nothing to do';
   });
 }
 
@@ -55,11 +53,24 @@ function patch(patches, options) {
   var ids = Object.keys(patches);
 
   return snyk.test(process.cwd()).then(function (res) {
+    if (!res.vulnerabilities) {
+      var e = new Error('Code is already patched');
+      e.code = 'ALREADY_PATCHED';
+      throw e;
+    }
     return res.vulnerabilities.filter(function (vuln) {
       return ids.indexOf(vuln.id) !== -1;
     });
   }).then(function (res) {
     return protect.patch(res, !options['dry-run']);
+  }).then(function () {
+    return 'Successfully applied Snyk patches';
+  }).catch(function (e) {
+    if (e.code === 'ALREADY_PATCHED') {
+      return e.message + ', nothing to do';
+    }
+
+    throw e;
   });
 }
 
