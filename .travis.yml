@@ -1,0 +1,30 @@
+sudo: false
+language: node_js
+cache:
+  directories:
+    - node_modules
+notifications:
+  email: false
+services:
+ - mongodb
+addons:
+  postgresql: "9.4"
+node_js:
+  - '4'
+  - '0.12'
+  - '0.10'
+before_install:
+  - npm i -g npm@^2.0.0
+  - echo "//registry.npmjs.org/:_authToken=\${NPM_TOKEN}" > .npmrc
+before_script:
+  - npm prune
+  - psql -c 'create database test;' -U postgres
+  - psql -U postgres -c "create extension hstore" test
+  - 'curl -Lo travis_after_all.py https://git.io/vLSON'
+after_success:
+  - python travis_after_all.py
+  - export $(cat .to_export_back)
+  - npm run semantic-release
+branches:
+  except:
+    - "/^v\\d+\\.\\d+\\.\\d+$/"

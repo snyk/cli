@@ -1,0 +1,34 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "below": "4.3.2",
+      "severity": "medium",
+      "identifiers": {
+        "advisory": "semver_dos"
+      },
+      "info": [
+        "http://nodesecurity.io/advisories/semver_dos"
+      ],
+      "id": "npm:semver:20150403",
+      "name": "semver",
+      "version": "2.3.2",
+      "from": [
+        "protect-test@0.0.0",
+        "semver@2.3.2"
+      ],
+      "upgradePath": [
+        false,
+        "semver@4.3.2"
+      ],
+      "patches": [
+        {
+          "files": [
+            "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "version": "2.3.2 || 3.0.1 || 4.2.2"
+        }
+      ]
+    }
+  ]
+}

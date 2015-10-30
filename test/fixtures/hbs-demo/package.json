@@ -1,0 +1,15 @@
+{
+  "name": "hbs-demo",
+  "description": "Demo",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Remy Sharp",
+  "license": "private",
+  "dependencies": {
+    "handlebars": "~2.0.0-alpha.2"
+  }
+}
+

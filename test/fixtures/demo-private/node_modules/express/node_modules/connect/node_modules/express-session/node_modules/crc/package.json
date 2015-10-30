@@ -1,0 +1,59 @@
+{
+  "name": "crc",
+  "version": "3.3.0",
+  "description": "Various CRC JavaScript implementations",
+  "keywords": [
+    "crc"
+  ],
+  "main": "./lib/index.js",
+  "scripts": {
+    "test": "mocha test/*.spec.coffee",
+    "pretest": "coffee --bare --output ./lib --compile ./src/*.coffee"
+  },
+  "author": {
+    "name": "Alex Gorbatchev",
+    "url": "https://github.com/alexgorbatchev"
+  },
+  "devDependencies": {
+    "beautify-benchmark": "^0.2.4",
+    "benchmark": "^1.0.0",
+    "buffer-crc32": "^0.2.3",
+    "chai": "~1.9.1",
+    "coffee-errors": "~0.8.6",
+    "coffee-script": "~1.7.1",
+    "mocha": "*",
+    "seedrandom": "^2.3.6"
+  },
+  "homepage": "https://github.com/alexgorbatchev/node-crc",
+  "bugs": {
+    "url": "https://github.com/alexgorbatchev/node-crc/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/alexgorbatchev/node-crc.git"
+  },
+  "license": "MIT",
+  "gitHead": "5ec5f3c74cd5a0315ac428af695743ff447a6723",
+  "_id": "crc@3.3.0",
+  "_shasum": "fa622e1bc388bf257309082d6b65200ce67090ba",
+  "_from": "crc@3.3.0",
+  "_npmVersion": "2.7.4",
+  "_nodeVersion": "0.12.2",
+  "_npmUser": {
+    "name": "alexgorbatchev",
+    "email": "alex.gorbatchev@gmail.com"
+  },
+  "dist": {
+    "shasum": "fa622e1bc388bf257309082d6b65200ce67090ba",
+    "tarball": "http://registry.npmjs.org/crc/-/crc-3.3.0.tgz"
+  },
+  "maintainers": [
+    {
+      "name": "alexgorbatchev",
+      "email": "alex.gorbatchev@gmail.com"
+    }
+  ],
+  "directories": {},
+  "_resolved": "https://registry.npmjs.org/crc/-/crc-3.3.0.tgz",
+  "readme": "ERROR: No README data found!"
+}

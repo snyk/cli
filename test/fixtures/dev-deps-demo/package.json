@@ -1,0 +1,19 @@
+{
+  "name": "dev-deps-demo",
+  "description": "Demo",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Guy Podjarny",
+  "license": "private",
+  "devDependencies": {
+    "uglify-js": "~2.3.6"
+  },
+  "dependencies": {
+    "qs": "~0.6.0",
+    "kind-of": "~*"
+  }
+}
+
