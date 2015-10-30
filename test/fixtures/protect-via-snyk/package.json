@@ -5,12 +5,12 @@
   "main": "index.js",
   "dependencies": {
     "semver": "^2.3.2",
-    "snyk": "^0.5.0"
+    "snyk": "*"
   },
   "scripts": {
     "env": "env",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "snyk-protect": "snyk protect -d",
+    "test": "snyk test && echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
     "postinstall": "npm run snyk-protect"
   },
   "author": "",
