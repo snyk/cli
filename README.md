@@ -11,7 +11,6 @@ To get up and running quickly, run these commands to install, authenticate and p
 # If you're using node 0.10, first install npm 2 to support scoped modules, like so:
 # npm install -g npm@2
 npm install -g snyk
-snyk auth
 snyk test ionic@1.6.5
 ```
 
