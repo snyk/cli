@@ -40,7 +40,7 @@ test('patch is correctly skipped during tests', function (t) {
     t.fail(error);
   })
   .then(function () {
-    return npm('uninstall', 'semver', dir).then(function () {
+    return npm('uninstall', ['semver', 'snyk'], dir).then(function () {
       t.pass('packages cleaned up');
       t.end();
     });
