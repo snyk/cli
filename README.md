@@ -4,7 +4,7 @@ Note: Snyk is currently in beta. [Email us your feedback](mailto:contact@snyk.io
 
 ## Installation & Getting Started
 
-Snyk helps you find and fix known vulnerabilities in your Node.js dependencies, both ad hoc and as part of your CI (Build) system. 
+Snyk helps you find and fix known vulnerabilities in your Node.js dependencies, both ad hoc and as part of your CI (Build) system.
 
 To get up and running quickly, run these commands to install, authenticate and perform a quick test. You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects.
 ```shell
@@ -43,7 +43,7 @@ If you ran snyk locally and found vulnerabilities, you should proceed to use `sn
 
 ## protect
 
-Snyk's `protect` helps you address the known vulnerabilities `snyk test` found. 
+Snyk's `protect` helps you address the known vulnerabilities `snyk test` found.
 To get started, run `protect` in interactive mode:
 ```shell
 snyk protect -i
@@ -67,11 +67,11 @@ To continuously test against and protect from known vulnerabilities, integrate S
 4. Run `snyk test` to identify on any known vulnerabilities not already ignored or patched. If such vulnerabilities were found, `snyk test` will return a non-zero value to fail the test.
 
 A few potential alternatives to consider:
-- Add `snyk test` to your Package.json `test` scripts, to capture them in local `npm test` runs. 
+- Add `snyk test` to your Package.json `test` scripts, to capture them in local `npm test` runs.
 - Add `snyk test` as a `post-install` step in your Package.json file, to immediately spot any newly added module which has known vulnerabilities
 - Add `snyk protect` as a `post-install` step in your Package.json file, to apply patches even while working locally
 
-Note: During private beta, all snyk actions require authentication. This means modifying your Package.json will require your entire team to first run `snyk auth`. If you don't want that, hold off on modifying your Package.json file for now. 
+Note: During private beta, all snyk actions require authentication. This means modifying your Package.json will require your entire team to first run `snyk auth`. If you don't want that, hold off on modifying your Package.json file for now.
 
 ## monitor
 
@@ -88,15 +88,15 @@ snyk monitor
 
 ## More About Authentication
 
-You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects. 
+You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects.
 
-To access the Snyk portal,  you have to authenticate with a GitHub account. We *do not require access to your repositories* - we simply use Github to spare you managing another set of credentials. Run `snyk auth` and follow the on screen instructions, or go to the [Snyk website](https://.snyk.io/) and sign up.
+To access the Snyk portal,  you have to authenticate with a GitHub account. We *do not require access to your repositories* - we simply use GitHub to spare you managing another set of credentials. Run `snyk auth` and follow the on screen instructions, or go to the [Snyk website](https://.snyk.io/) and sign up.
 
-If you are authenticating on a remote machine, for instance on a build server, you can use your API key from https://snyk.io and authenticate directly on the command line using `snyk auth <key>`. Browse to the [Snyk app](https://app.snyk.io/) to find out your own API key.
+If you are authenticating on a remote machine, for instance on a build server, you can use your API key from [https://snyk.io](https://snyk.io) and authenticate directly on the command line using `snyk auth <key>`. Browse to the [Snyk app](https://app.snyk.io/) to find out your own API key.
 
 ## Sample Commands
 
-For easy reference, here is a list of the examples previously mentioned. 
+For easy reference, here is a list of the examples previously mentioned.
 
 Get Started
 ```shell
