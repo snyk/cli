@@ -1,12 +1,12 @@
 # Snyk - So Now You Know!
 
-Note: Snyk is currently only available for private beta testing. [Email us](mailto:contact@snyk.io) if you want to join the beta.
+Note: Snyk is currently in beta. [Email us your feedback](mailto:contact@snyk.io).
 
 ## Installation & Getting Started
 
 Snyk helps you find and fix known vulnerabilities in your Node.js dependencies, both ad hoc and as part of your CI (Build) system. 
 
-To get up and running quickly, run these commands to install, authenticate and perform a quick test. Note that while we authenticate using GitHub, we *do not* require access to your repositories (only your email):
+To get up and running quickly, run these commands to install, authenticate and perform a quick test. You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects.
 ```shell
 # If you're using node 0.10, first install npm 2 to support scoped modules, like so:
 # npm install -g npm@2
@@ -30,7 +30,7 @@ snyk test
 `snyk test` can also get a folder name as an argument, which is especially handy if you want to test multiple projects. For instance, the following command tests all the projects under a certain folder for known vulnerabilities:
 ```shell
 cd ~/projects/
-find . -type d -maxdepth 1 | xargs -t -I{} snyk test  {}
+snyk test *
 ```
 
 Lastly, you can also use `snyk test` to scrutinize a public package before installing it, to see if it has known vulnerabilities or not. Using the package name will test the latest version of that package, and you can also provide a specific version or range using `snyk test module[@semver-range]`.
@@ -88,9 +88,9 @@ snyk monitor
 
 ## More About Authentication
 
-During the private beta, you will need to authenticate with snyk before being able to use any of it's features. Once public, `test` and `protect` will be available without the need to `auth`.
+You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects. 
 
-Authentication requires you to have a GitHub account, but *does not require access to your repositories* - we simply use Github to spare you managing another set of credentials. Run `snyk auth` and follow the on screen instructions.
+To access the Snyk portal,  you have to authenticate with a GitHub account. We *do not require access to your repositories* - we simply use Github to spare you managing another set of credentials. Run `snyk auth` and follow the on screen instructions, or go to the [Snyk website](https://.snyk.io/) and sign up.
 
 If you are authenticating on a remote machine, for instance on a build server, you can use your API key from https://snyk.io and authenticate directly on the command line using `snyk auth <key>`. Browse to the [Snyk app](https://app.snyk.io/) to find out your own API key.
 
