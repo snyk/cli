@@ -89,7 +89,7 @@ snyk monitor
 
 You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects.
 
-To access the Snyk portal,  you have to authenticate with a GitHub account. We *do not require access to your repositories* - we simply use GitHub to spare you managing another set of credentials. Run `snyk auth` and follow the on screen instructions, or go to the [Snyk website](https://.snyk.io/) and sign up.
+To access the Snyk portal,  you have to authenticate with a GitHub account. We *do not require access to your repositories* - we simply use GitHub to spare you managing another set of credentials. Run `snyk auth` and follow the on screen instructions, or go to the [Snyk website](https://app.snyk.io/) and sign up.
 
 If you are authenticating on a remote machine, for instance on a build server, you can use your API key from [https://snyk.io](https://snyk.io) and authenticate directly on the command line using `snyk auth <key>`. Browse to the [Snyk app](https://app.snyk.io/) to find out your own API key.
 
