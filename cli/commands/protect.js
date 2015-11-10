@@ -10,6 +10,7 @@ var inquirer = require('inquirer');
 var path = require('path');
 var fs = require('then-fs');
 var _ = require('lodash');
+var isAuthed = require('./auth').isAuthed;
 var undefsafe = require('undefsafe');
 
 function protect(options) {
@@ -39,7 +40,18 @@ function protect(options) {
     throw error;
   }).then(function (config) {
     if (options.interactive) {
-      return interactive(config, options);
+      // silently fail
+      return isAuthed().then(function (authed) {
+        if (!authed) {
+          throw new Error('Unauthorized');
+        }
+
+        snyk.modules(process.cwd()).then(snyk.monitor.bind(null, {
+          method: 'protect'
+        }));
+
+        return interactive(config, options);
+      });
     }
 
     if (config.patch) {

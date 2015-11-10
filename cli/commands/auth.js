@@ -1,4 +1,5 @@
 module.exports = auth;
+module.exports.isAuthed = isAuthed;
 
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var debug = require('debug')('snyk');
@@ -79,6 +80,13 @@ function testAuthComplete(token) {
         resolve(testAuthComplete(token));
       }, 1000);
     });
+  });
+}
+
+function isAuthed() {
+  var apiKey = snyk.config.get('api');
+  return verifyAPI(apiKey).then(function (res) {
+    return res.body.ok;
   });
 }
 
