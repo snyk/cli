@@ -47,7 +47,7 @@ function protect(options) {
         }
 
         snyk.modules(process.cwd()).then(snyk.monitor.bind(null, {
-          method: 'protect'
+          method: 'protect',
         }));
 
         return interactive(config, options);
