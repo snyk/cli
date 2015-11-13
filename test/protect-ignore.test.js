@@ -89,6 +89,7 @@ test('ignores real vuln data', function (t) {
   }).then(function (res) {
     t.equal(res.length, 0, 'all vulns have been ignored');
   }).catch(function (e) {
+    console.log(e.stack);
     t.fail(e);
   });
 

@@ -22,7 +22,7 @@ var commands = {
   test: hotload('./test'),
   protect: hotload('./protect'),
   support: hotload('./support'),
-  // watch: hotload('./watch'),
+  wizard: hotload('./protect/wizard'),
   // modules: hotload('./modules'),
 };
 commands.aliases = abbrev(Object.keys(commands));
