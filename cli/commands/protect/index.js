@@ -13,7 +13,7 @@ function protect(options) {
 
   if (options.interactive) {
     // silently fail
-    return Promise.reject(new Error('`snyk protect --interactive` has moved! ' +
+    return Promise.reject(new Error('Snyk protect interactive mode has moved. ' +
       'Please run `snyk wizard`'));
   }
 
@@ -29,9 +29,9 @@ function protect(options) {
     }
 
     throw error;
-  }).then(function (config) {
-    if (config.patch) {
-      return patch(config.patch, options);
+  }).then(function (policy) {
+    if (policy.patch) {
+      return patch(policy.patch, options);
     }
     return 'Nothing to do';
   });

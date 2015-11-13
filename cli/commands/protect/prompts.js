@@ -7,6 +7,7 @@ var _ = require('lodash');
 var debug = require('debug')('snyk');
 var protect = require('../../../lib/protect');
 var undefsafe = require('undefsafe');
+var config = require('../../../lib/config');
 
 function getPrompts(vulns) {
   if (!vulns) {
@@ -15,8 +16,8 @@ function getPrompts(vulns) {
 
   var skipAction = {
     value: 'skip', // the value that we get in our callback
-    key: 'n',
-    name: 'Do nothing', // the text the user sees
+    key: 's',
+    name: 'Skip', // the text the user sees
   };
 
   var ignoreAction = {
@@ -25,7 +26,7 @@ function getPrompts(vulns) {
     meta: { // arbitrary data that we'll merged into the `value` later on
       days: 30,
     },
-    name: 'Ignore it for 30 days',
+    name: 'Set to ignore for 30 days',
   };
 
   var patchAction = {
@@ -54,12 +55,13 @@ function getPrompts(vulns) {
     var choices = [];
 
     var from = vuln.from.slice(1).filter(Boolean).shift();
-
+    var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
     var res = {
       name: id,
       type: 'list',
-      message: 'Fix vulnerability in ' + from +
-        '\n  - from: ' + vuln.from.join(' > '),
+      message: severity + ' severity vulnerability found in ' + from +
+        '\n  - info: ' + config.ROOT + '/vuln/' + vuln.id +
+        '\n  - from: ' + vuln.from.join(' > ')
     };
 
     var upgradeAvailable = vuln.upgradePath.some(function (pkg, i) {
@@ -90,8 +92,8 @@ function getPrompts(vulns) {
       choices.push({
         value: 'skip',
         key: 'u',
-        name: 'Upgrade (no direct upgrade available to sufficiently ' +
-          'upgrade ' + vuln.name + '@' + vuln.version + ')',
+        name: 'Upgrade (no sufficient ' + vuln.name + ' upgrade available, ' +
+          'we\'ll notify you when there is one)',
       });
     }
 
@@ -106,6 +108,9 @@ function getPrompts(vulns) {
 
       if (patches !== null) {
         debug('%s@%s', vuln.name, vuln.version, patches);
+        if (!upgradeAvailable) {
+          patch.default = true;
+        }
         choices.push(patch);
       }
     }
@@ -118,18 +123,22 @@ function getPrompts(vulns) {
       choices.push({
         value: 'skip',
         key: 'p',
-        name: 'Patch (no patch available for this vulnerability on ' +
-          vuln.name + '@' + vuln.version + ')',
+        name: 'Patch (no patch available, we\'ll notify you when there is one)',
       });
     }
 
-    if (!patches && !upgradeAvailable) {
-      ignore.name += ' (we\'ll notify you when a patch or upgrade path ' +
-        'is available)';
+    if (patches === null && !upgradeAvailable) {
+      ignore.default = true;
     }
 
     choices.push(ignore);
     choices.push(skip);
+
+    res.default = (choices.map(function (choice, i) {
+      return { i: i, default: choice.default };
+    }).filter(function (choice) {
+      return choice.default;
+    }).shift() || { i: 0 }).i;
 
     // kludge to make sure that we get the vuln in the user selection
     res.choices = choices.map(function (choice) {
@@ -167,13 +176,7 @@ function getPrompts(vulns) {
 
 function nextSteps(pkg) {
   var i;
-  var prompts = [{
-    name: 'misc-run-monitor',
-    message: 'Capture a snapshot of your dependencies to be notified about ' +
-      'new related vulnerabilities?',
-    type: 'confirm',
-    default: true,
-  }, ];
+  var prompts = [];
 
   i = (undefsafe(pkg, 'scripts.test') || '').indexOf('snyk test');
   if (i === -1) {

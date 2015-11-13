@@ -11,6 +11,9 @@ var fs = require('then-fs');
 var getPrompts = require('./prompts').getPrompts;
 var nextSteps = require('./prompts').nextSteps;
 var snyk = require('../../../lib/');
+var protect = require('../../../lib/protect');
+var config = require('../../../lib/config');
+var url = require('url');
 
 function wizard(options) {
   if (!options) {
@@ -33,7 +36,7 @@ function wizard(options) {
     }
 
     throw error;
-  }).then(function (config) {
+  }).then(function (policy) {
     return isAuthed().then(function (authed) {
       if (!authed) {
         throw new Error('Unauthorized');
@@ -49,14 +52,14 @@ function wizard(options) {
           return 'Nothing to be done. Well done, you.';
         }
 
-        return interactive(res.vulnerabilities, config, options);
+        return interactive(res.vulnerabilities, policy, options);
       });
     });
   });
 }
 
 
-function interactive(vulns, config, options) {
+function interactive(vulns, policy, options) {
   var cwd = process.cwd();
   var prompts = getPrompts(vulns);
   var packageFile = path.resolve(cwd, 'package.json');
@@ -97,10 +100,10 @@ function interactive(vulns, config, options) {
         debug(tasks);
 
         var live = !options['dry-run'];
-        var promise = protect.generateConfig(config, tasks, live);
+        var promise = protect.generatePolicy(policy, tasks, live);
         var snykVersion = '*';
 
-        var res = promise.then(function (config) {
+        var res = promise.then(function (policy) {
           if (!live) {
             // if this was a dry run, we'll throw an error to bail out of the
             // promise chain, then in the catch, check the error.code and if
@@ -111,10 +114,10 @@ function interactive(vulns, config, options) {
             throw e;
           }
 
-          return snyk.dotfile.save(config);
+          return snyk.dotfile.save(policy);
         })
         .then(function () {
-          // re-read the package.json - because the generateConfig can apply
+          // re-read the package.json - because the generatePolicy can apply
           // an `npm install` which will change the deps
           return fs.readFile(packageFile, 'utf8')
             .then(JSON.parse)
@@ -202,20 +205,25 @@ function interactive(vulns, config, options) {
           }
         })
         .then(function () {
-          if (answers['misc-run-monitor']) {
-            debug('running monitor');
-            return snyk.modules(cwd).then(snyk.monitor.bind(null, {
-              method: 'protect interactive',
-            }));
-          }
+          debug('running monitor');
+          return snyk.modules(cwd).then(snyk.monitor.bind(null, {
+            method: 'wizard',
+          }));
         })
-        .then(function () {
-          return options.newDotFile ?
+        .then(function (monitorRes) {
+          var endpoint = url.parse(config.API);
+          endpoint.pathname = '/monitor/' + monitorRes.id;
+
+          return (options.newDotFile ?
             // if it's a newly created file
-            'A .snyk file has been created with the actions you\'ve ' +
+            'Your policy file has been created with the actions you\'ve ' +
               'selected, add it to your source control (`git add .snyk`).' :
             // otherwise we updated it
-            'Your .snyk file has been successfully updated.';
+            'Your .snyk file has been successfully updated.') +
+            '\n\nYou can see a snapshot of your dependencies here:' +
+            url.format(endpoint) +
+            '\n\nWe\'ll notify you when relevant new vulnerabilities are ' +
+            'disclosed';
         })
         .catch(function (error) {
           // if it's a dry run - exit with 0 status
