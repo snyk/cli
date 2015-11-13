@@ -92,8 +92,8 @@ function getPrompts(vulns) {
       choices.push({
         value: 'skip',
         key: 'u',
-        name: 'Upgrade (no sufficient ' + vuln.name + ' upgrade available, ' +
-          'we\'ll notify you when there is one)',
+        name: 'Upgrade (no sufficient upgrade available for ' +
+          from.split('@')[0] + ', we\'ll notify you when there is one)',
       });
     }
 
