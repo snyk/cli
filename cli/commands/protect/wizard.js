@@ -14,11 +14,14 @@ var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
 var config = require('../../../lib/config');
 var url = require('url');
+var spinner = require('../../../lib/spinner');
 
 function wizard(options) {
   if (!options) {
     options = {};
   }
+
+  spinner.sticky();
 
   if (options['dry-run']) {
     debug('*** dry run ****');
@@ -42,19 +45,20 @@ function wizard(options) {
         throw new Error('Unauthorized');
       }
 
-      snyk.modules(process.cwd()).then(snyk.monitor.bind(null, {
-        method: 'protect',
-      }));
-
       var cwd = process.cwd();
-      return snyk.test(cwd).then(function (res) {
-        if (res.ok) {
-          return 'Nothing to be done. Well done, you.';
-        }
+      var intro = __dirname + '/../../../help/wizard-intro.txt';
+      return fs.readFile(intro, 'utf8').then(function (str) {
+        console.log(str);
+      }).then(function () {
+        return snyk.test(cwd).then(function (res) {
+          if (res.ok) {
+            return 'Nothing to be done. Well done, you.';
+          }
 
-        var intro = __dirname + '/../../../help/wizard-intro.txt';
-        return fs.readFile(intro, 'utf8').then(function (str) {
-          console.log(str);
+          console.log('Tested %s dependencies for known vulnerabilities, ' +
+            'found %s vulnerabilities.',
+            res.dependencyCount, res.vulnerabilities.length);
+
           return interactive(res.vulnerabilities, policy, options);
         });
       });
@@ -210,9 +214,14 @@ function interactive(vulns, policy, options) {
         })
         .then(function () {
           debug('running monitor');
-          return snyk.modules(cwd).then(snyk.monitor.bind(null, {
-            method: 'wizard',
-          }));
+          var lbl = 'Remembering current dependencies for future ' +
+            'notifications...';
+          return snyk.modules(cwd)
+            .then(spinner(lbl))
+            .then(snyk.monitor.bind(null, {
+              method: 'wizard',
+            }))
+            .then(spinner.clear(lbl));
         })
         .then(function (monitorRes) {
           var endpoint = url.parse(config.API);
@@ -220,10 +229,10 @@ function interactive(vulns, policy, options) {
 
           return (options.newDotFile ?
             // if it's a newly created file
-            'Your policy file has been created with the actions you\'ve ' +
+            '\nYour policy file has been created with the actions you\'ve ' +
               'selected, add it to your source control (`git add .snyk`).' :
             // otherwise we updated it
-            'Your .snyk file has been successfully updated.') +
+            '\nYour .snyk file has been successfully updated.') +
             '\n\nYou can see a snapshot of your dependencies here:\n' +
             url.format(endpoint) +
             '\n\nWe\'ll notify you when relevant new vulnerabilities are ' +
