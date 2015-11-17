@@ -77,7 +77,7 @@ function args(processargv) {
   if (!method) {
     // if we failed to find a command, then default to an error
     if (!method) {
-      method = require('./error');
+      method = require('../lib/error');
       argv._.push(command);
     }
   }
