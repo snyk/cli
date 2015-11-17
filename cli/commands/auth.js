@@ -9,7 +9,7 @@ var config = require('../../lib/config');
 var request = require('../../lib/request');
 var url = require('url');
 var uuid = require('node-uuid');
-var makeSpinner = require('../../lib/spinner');
+var spinner = require('../../lib/spinner');
 
 var apiUrl = url.parse(config.API);
 var authUrl = apiUrl.protocol + '//' + apiUrl.host;
@@ -27,18 +27,15 @@ function githubAuth() {
 
   console.log(msg);
 
-  var spinner = makeSpinner('Waiting...');
+  var lbl = 'Waiting...';
 
-  return new Promise(function (resolve) {
+  return spinner(lbl).then(function () {
     setTimeout(function () {
       open(url);
     }, 2000);
     // start checking the token immediately in case they've already
     // opened the url manually
-    resolve(testAuthComplete(token).then(function (res) {
-      spinner.clear();
-      return res;
-    }));
+    return testAuthComplete(token).then(spinner.clear(lbl));
   });
 }
 
