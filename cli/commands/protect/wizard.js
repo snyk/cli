@@ -52,7 +52,11 @@ function wizard(options) {
           return 'Nothing to be done. Well done, you.';
         }
 
-        return interactive(res.vulnerabilities, policy, options);
+        var intro = __dirname + '/../../../help/wizard-intro.txt';
+        return fs.readFile(intro, 'utf8').then(function (str) {
+          console.log(str);
+          return interactive(res.vulnerabilities, policy, options);
+        });
       });
     });
   });

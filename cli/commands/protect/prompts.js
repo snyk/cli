@@ -26,18 +26,22 @@ function getPrompts(vulns) {
     meta: { // arbitrary data that we'll merged into the `value` later on
       days: 30,
     },
+    short: 'Ignore',
     name: 'Set to ignore for 30 days',
   };
 
   var patchAction = {
     value: 'patch',
     key: 'p',
-    name: 'Patch',
+    short: 'Patch',
+    name: 'Patch (modifies files locally, updates policy for `snyk protect` ' +
+      'runs)',
   };
 
   var updateAction = {
     value: 'update',
     key: 'u',
+    short: 'Upgrade',
     name: null, // updated below to the name of the package to update
   };
 
@@ -55,11 +59,16 @@ function getPrompts(vulns) {
     var choices = [];
 
     var from = vuln.from.slice(1).filter(Boolean).shift();
+    var vulnIn = vuln.from.slice(-1).pop();
     var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
     var res = {
+      when: function () {
+        console.log(''); // blank line between prompts...kinda lame, sorry
+        return true;
+      },
       name: id,
       type: 'list',
-      message: severity + ' severity vulnerability found in ' + from +
+      message: severity + ' severity vulnerability found in ' + vulnIn +
         '\n  - info: ' + config.ROOT + '/vuln/' + vuln.id +
         '\n  - from: ' + vuln.from.join(' > ')
     };
@@ -92,6 +101,7 @@ function getPrompts(vulns) {
       choices.push({
         value: 'skip',
         key: 'u',
+        short: 'Upgrade (none available)',
         name: 'Upgrade (no sufficient upgrade available for ' +
           from.split('@')[0] + ', we\'ll notify you when there is one)',
       });
@@ -123,6 +133,7 @@ function getPrompts(vulns) {
       choices.push({
         value: 'skip',
         key: 'p',
+        short: 'Patch (none available)',
         name: 'Patch (no patch available, we\'ll notify you when there is one)',
       });
     }

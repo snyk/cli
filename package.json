@@ -27,7 +27,7 @@
     "configstore": "^1.2.0",
     "debug": "^2.2.0",
     "es6-promise": "^3.0.2",
-    "inquirer": "^0.10.0",
+    "inquirer": "^0.11.0",
     "js-yaml": "^3.4.2",
     "lodash": "^3.10.1",
     "node-uuid": "^1.4.3",
