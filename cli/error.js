@@ -24,6 +24,7 @@ var errors = {
 // strings as the value.
 var codes = {
   ECONNREFUSED: errors.connect,
+  ENOTFOUND: errors.connect,
   404: errors.notfound,
   411: errors.endpoint, // try to post to a weird endpoint
   403: errors.endpoint,
