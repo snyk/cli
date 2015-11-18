@@ -30,7 +30,7 @@ function wizard(options) {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.dotfile.load().catch(function (error) {
+  return snyk.dotfile.load(options).catch(function (error) {
     // if we land in the catch, but we're in interactive mode, then it means
     // the file hasn't been created yet, and that's fine, so we'll resolve
     // with an empty object
@@ -234,7 +234,7 @@ function interactive(vulns, policy, options) {
             '\nYour policy file has been created with the actions you\'ve ' +
               'selected, add it to your source control (`git add .snyk`).' :
             // otherwise we updated it
-            '\nYour .snyk file has been successfully updated.') +
+            '\nYour .snyk policy file has been successfully updated.') +
             '\n\nYou can see a snapshot of your dependencies here:\n' +
             url.format(endpoint) +
             '\n\nWe\'ll notify you when relevant new vulnerabilities are ' +
