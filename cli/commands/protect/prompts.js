@@ -27,7 +27,7 @@ function getPrompts(vulns) {
       days: 30,
     },
     short: 'Ignore',
-    name: 'Set to ignore for 30 days',
+    name: 'Set to ignore for 30 days (updates policy)',
   };
 
   var patchAction = {

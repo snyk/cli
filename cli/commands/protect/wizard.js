@@ -14,6 +14,7 @@ var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
 var config = require('../../../lib/config');
 var url = require('url');
+var chalk = require('chalk');
 var spinner = require('../../../lib/spinner');
 
 function wizard(options) {
@@ -55,9 +56,10 @@ function wizard(options) {
             return 'Nothing to be done. Well done, you.';
           }
 
-          console.log('Tested %s dependencies for known vulnerabilities, ' +
-            'found %s vulnerabilities.',
-            res.dependencyCount, res.vulnerabilities.length);
+          console.log('Tested ' + res.dependencyCount + ' dependencies for ' +
+            'known vulnerabilities, ' +
+            chalk.bold.red('found ' + res.vulnerabilities.length +
+            ' vulnerabilities.'));
 
           return interactive(res.vulnerabilities, policy, options);
         });
