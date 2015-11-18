@@ -7,9 +7,9 @@ test('ensure that when there is not remediation, prompt text is correct',
   var promptOptions = getPrompts(vulns);
   // firstly filter down to just the ignore prompts
   var res = promptOptions
-    .filter(_ => !_.when)
-    .map(_ => _.choices)
-    .map(_ => _.filter(_ => _.key === 'i').pop());
+    .filter(function (_) { return !_.when; })
+    .map(function (_) { return _.choices; })
+    .map(function (_) { return _.filter(function (_) { return _.key === 'i'; }).pop(); });
 
   // now pick out those that say they'll notify and check the vuln really
   // doesn't have a remediation path
@@ -17,7 +17,7 @@ test('ensure that when there is not remediation, prompt text is correct',
 
   t.plan(res.length);
 
-  res.forEach(_ => {
+  res.forEach(function (_) {
     if (_.name.indexOf('notify') !== -1) {
       t.notEqual(_.value.vuln.upgradePath.filter(Boolean).length,
         _.value.vuln.from.length -1,
