@@ -156,7 +156,7 @@ function test(path, options) {
             } else {
               // A deep dependency needs to be upgraded
               res += 'No direct dependency upgrade can address this issue.\n' +
-                chalk.bold('Run `snyk protect -i` to patch this vulnerability' +
+                chalk.bold('Run `snyk wizard` to patch this vulnerability' +
                   '\nAlternatively, manually upgrade deep dependency ' +
                   vuln.from[idx] + ' to ' + upgradeText);
             }
