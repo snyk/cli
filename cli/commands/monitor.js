@@ -10,6 +10,10 @@ function monitor(path, options) {
     path = process.cwd();
   }
 
+  if (!options) {
+    options = {};
+  }
+
   return fs.exists(path).then(function (exists) {
     if (!exists) {
       throw new Error('snyk monitor should be pointed at an existing project');
