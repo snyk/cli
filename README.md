@@ -7,9 +7,8 @@ Note: Snyk is currently in beta. [Email us your feedback](mailto:contact@snyk.io
 Snyk helps you find and fix known vulnerabilities in your Node.js dependencies, both ad hoc and as part of your CI (Build) system.
 
 To get up and running quickly, run these commands to install, authenticate and perform a quick test. You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects.
+
 ```shell
-# If you're using node 0.10, first install npm 2 to support scoped modules, like so:
-# npm install -g npm@2
 npm install -g snyk
 snyk test ionic@1.6.5
 ```
@@ -27,6 +26,7 @@ snyk test
 `snyk test` will take stock of all the local dependencies and their installed versions, and report them to Snyk. The Snyk servers will check if there are known vulnerabilities on these dependencies, and if so report about them and and suggest any remediation you can take. Since `snyk test` looks at the locally installed modules, it needs to run after `npm install`, and will seamlessly work with `shrinkwrap`, npm enterprise or any other custom installation logic you have.
 
 `snyk test` can also get a folder name as an argument, which is especially handy if you want to test multiple projects. For instance, the following command tests all the projects under a certain folder for known vulnerabilities:
+
 ```shell
 cd ~/projects/
 snyk test *
@@ -38,23 +38,28 @@ snyk test lodash
 snyk test ionic@1.6.5
 ```
 
-If you ran snyk locally and found vulnerabilities, you should proceed to use `snyk protect` to address them.
+If you ran snyk locally and found vulnerabilities, you should proceed to use `snyk wizard` to address them.
+
+## wizard
+
+Snyk's `wizard` helps you address the known vulnerabilities `snyk test` found.
+To get started, run:
+
+```shell
+snyk wizard
+```
+
+Snyk's interactive wizard mode will run `test` again, and ask you what to do for each found issue. Here are the possible remediation steps for each vulnerability:
+
+- `Upgrade` - if upgrading a direct dependency can fix the current vulnerability, `snyk protect` can automatically modify your Package.json file to use the newer version. Note that you'll still need to run `npm update` afterwards to get the new packages.
+- `Ignore` - If you believe this vulnerability does not apply to you, or if the dependent module in question never runs on a production system, you can choose to ignore the vulnerability. By default, we will ignore the vulnerability for 30 days, to avoid easily hiding a true issue. If you want to ignore it permanently, you can manually edit the generated `.snyk` policy file.
+- `Patch` - Sometimes there is no direct upgrade that can address the vulnerability, or there is one but you cannot upgrade due to functional reasons (e.g. it's a major breaking change). For such cases, `snyk protect` lets you patch the issue with a patch applied locally to the relevant dependency files. We manually create and maintain these patches, and may not have one for every issue. If you cannot upgrade, patch is often a better option than doing nothing *Note: patch is not yet enabled in the private beta, it will be soon. In the meantime, patch will be replaced with a short ignore*.
+
+Once completed, `snyk wizard` will create a local `.snyk` policy file that guides executions of `snyk protect`. Note that `snyk protect` will never unilaterally decide to ignore or patch a vulnerability - it will simply follow the guidance captured in the `.snyk` policy file.
 
 ## protect
 
-Snyk's `protect` helps you address the known vulnerabilities `snyk test` found.
-To get started, run `protect` in interactive mode:
-```shell
-snyk protect -i
-```
-
-Protect's interactive mode will run `test` again, and ask you what to do for each found issue. Here are the possible remediation steps for each vulnerability:
-
-- `Upgrade` - if upgrading a direct dependency can fix the current vulnerability, `snyk protect` can automatically modify your Package.json file to use the newer version. Note that you'll still need to run `npm update` afterwards to get the new packages.
-- `Ignore` - If you believe this vulnerability does not apply to you, or if the dependent module in question never runs on a production system, you can choose to ignore the vulnerability. By default, we will ignore the vulnerability for 30 days, to avoid easily hiding a true issue. If you want to ignore it permanently, you can manually edit the generated `.snyk` file.
-- `Patch` - Sometimes there is no direct upgrade that can address the vulnerability, or there is one but you cannot upgrade due to functional reasons (e.g. it's a major breaking change). For such cases, `snyk protect` lets you patch the issue with a patch applied locally to the relevant dependency files. We manually create and maintain these patches, and may not have one for every issue. If you cannot upgrade, patch is often a better option than doing nothing *Note: patch is not yet enabled in the private beta, it will be soon. In the meantime, patch will be replaced with a short ignore*.
-
-Once completed, `snyk protect -i` will create a local `.snyk` file that guides non-interactive executions of `snyk protect`. Note that `snyk protect` will never unilaterally decide to ignore or patch a vulnerability - it will simply follow the guidance captured in the `.snyk` file.
+Snyk's `protect` will take your `.snyk` policy file and apply patches that you've defined in the `snyk wizard` process. The wizard (above) will ask if you want to include `snyk protect` as part of your package's `postinstall` process (so that users of your package will automatically be protected from vulnerabilities). See the next section for more details.
 
 ## Integrating Snyk into your dev workflow
 
