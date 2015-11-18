@@ -6,7 +6,7 @@ var expected = require('./fixtures/protect-interactive-config.json');
 test('protect generates config', function (t) {
   var config = {};
   t.plan(1);
-  protect.generateConfig(config, plan, false).then(function (config) {
+  protect.generatePolicy(config, plan, false).then(function (config) {
     // copy the expires from the config to our expected object
     Object.keys(config.ignore).forEach(function (id) { // each vuln id
       config.ignore[id].forEach(function (path, i) {
