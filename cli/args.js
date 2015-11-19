@@ -77,13 +77,15 @@ function args(processargv) {
   if (!method) {
     // if we failed to find a command, then default to an error
     if (!method) {
-      method = require('./error');
+      method = require('../lib/error');
       argv._.push(command);
     }
   }
 
+  // TODO decide why we can't do this cart blanche...
   if (command === 'protect' ||
-      command === 'test') {
+      command === 'test' ||
+      command === 'wizard') {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
   }

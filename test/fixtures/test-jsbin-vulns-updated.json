@@ -2,16 +2,589 @@
   "ok": false,
   "vulnerabilities": [
     {
-      "below": "2.4.24",
+      "title": "methodOverride Middleware Reflected Cross-Site Scripting",
+      "credit": [
+        "Sergio Arcos"
+      ],
+      "description": "## Overview\n\nConnect is a stack of middleware that is executed in order in each request.\n\nThe \"methodOverride\" middleware allows the http post to override the method of the request with the value of the ```_method``` post key or with the header \"x-http-method-override\".\n\nBecause the user post input was not checked, req.method could contain any kind of value. Because the req.method did not match any common method VERB, connect answered with a 404 page containing the \"Cannot [method] [url]\" content. The method was not properly encoded for output in the browser.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Example\n\n```\n~ curl \"localhost:3000\" -d \"_method=<script src=http://nodesecurity.io/xss.js></script>\"\nCannot <SCRIPT SRC=HTTP://NODESECURITY.IO/XSS.JS></SCRIPT> /\n```\n\n## Mitigation factors\n\nUpdate to the newest version of Connect or disable methodOverride. It is not possible to avoid the vulnerability if you have enabled this middleware in the top of your stack.\n\n## History\n\n(2013-06-27) [Bug reported](https://github.com/senchalabs/connect/issues/831)\n(2013-06-27) [First fix: escape req.method output](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\n(2013-06-27) [Second fix: whitelist](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n",
+      "version": "2.7.2",
+      "semver": {
+        "vulnerable": "<=2.8.0",
+        "patched": ">=2.8.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [
+          "CVE-2013-7370"
+        ],
+        "NSP": 3
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/3"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/connect_20130701_0_0_277e5aad6a95d00f55571a9a0e11f2fa190d8135.patch",
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/connect_20130701_0_1_126187c4e12162e231b87350740045e5bb06e93a.patch"
+          ],
+          "version": "<=0.0.0",
+          "modificationTime": "2013-06-30T22:08:59.000Z",
+          "comments": [
+            "https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135.patch",
+            "https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a.patch"
+          ]
+        }
+      ],
+      "moduleName": "connect",
+      "creationTime": "2013-06-30T22:08:59.000Z",
+      "publicationTime": "2013-06-30T22:08:59.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:connect:20130701",
+      "below": "2.8.1",
+      "name": "connect",
+      "from": [
+        "jsbin@3.35.3",
+        "express@3.0.6",
+        "connect@2.7.2"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.3.1",
+        "connect@2.8.1"
+      ]
+    },
+    {
+      "alternativeIds": [
+        "npm:express:20140912-1"
+      ],
+      "title": "express No Charset in Content-Type Header",
+      "credit": [
+        "Paweł Hałdrzyński"
+      ],
+      "description": "## Overview:\nVulnerable versions of express do not specify a charset field in the content-type header while displaying 400 level response messages. The lack of enforcing user's browser to set correct charset, could be leveraged by an attacker to perform a cross-site scripting attack, using non-standard encodings, like UTF-7.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate express to a patched version.\n",
+      "version": "3.0.6",
+      "semver": {
+        "vulnerable": "<3.11 || >= 4 <4.5",
+        "patched": ">=3.11 <4 || >=4.5"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [
+          "CVE-2014-6393"
+        ],
+        "NSP": 8
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/8"
+      ],
+      "patches": [],
+      "moduleName": "express",
+      "creationTime": "2014-09-12T04:46:45.000Z",
+      "publicationTime": "2014-09-12T04:46:45.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:express:20140912",
+      "below": "3.11.0",
+      "name": "express",
+      "from": [
+        "jsbin@3.35.3",
+        "express@3.0.6"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.11.0"
+      ]
+    },
+    {
+      "title": "root path disclosure vulnerability in express.static, res.sendfile, and res.sendFile",
+      "credit": [],
+      "description": "## Overview:\n\nroot path disclosure vulnerability in express.static, res.sendfile, and res.sendFile\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\n  * Update to version 1.8.1 or greater.\n\n## References:\n- http://expressjs.com/ja/advanced/security-updates.html\n- https://github.com/expressjs/serve-static/commit/30fe8b1596e8879923610c0421598669c39aecc2\n- https://github.com/expressjs/serve-static/blob/master/HISTORY.md#181--2015-01-20\n",
+      "version": "3.0.6",
+      "semver": {
+        "vulnerable": "<4.11.1",
+        "patched": ">=4.11.1"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-211"
+        ],
+        "CVE": [],
+        "NSP": ""
+      },
+      "info": [
+        "https://github.com/expressjs/serve-static/blob/856c5e0f796a8988525c356018594bfb8c51a4fa/HISTORY.md#181--2015-01-20",
+        "http://expressjs.com/advanced/security-updates.html"
+      ],
+      "patches": [],
+      "moduleName": "express",
+      "creationTime": "2015-01-20T04:46:45.000Z",
+      "publicationTime": "2015-01-20T04:46:45.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:express:20150120",
+      "below": "3.11.0",
+      "name": "express",
+      "from": [
+        "jsbin@3.35.3",
+        "express@3.0.6"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.11.0"
+      ]
+    },
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview:\nThe qs module has the ability to create sparse arrays during parsing. By specifying a high index it is possible to create a large array that will eventually take up all the allocated memory of the running process, resulting in a crash.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate qs to version 1.0.0 or greater\n\n## References:\n- https://github.com/visionmedia/node-querystring/issues/104\n",
+      "version": "0.5.1",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "patched": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/29"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/qs/43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "below": "1.0.0",
+      "name": "qs",
+      "from": [
+        "jsbin@3.35.3",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "qs@0.5.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.0",
+        "connect@2.25.0",
+        "qs@1.0.0"
+      ]
+    },
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview:\nThe qs module has the ability to create sparse arrays during parsing. By specifying a high index it is possible to create a large array that will eventually take up all the allocated memory of the running process, resulting in a crash.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate qs to version 1.0.0 or greater\n\n## References:\n- https://github.com/visionmedia/node-querystring/issues/104\n",
+      "version": "0.6.6",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "patched": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/29"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/qs/43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "below": "1.0.0",
+      "name": "qs",
+      "from": [
+        "jsbin@3.35.3",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "request@2.39.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "request@2.40.0",
+        "qs@1.0.0"
+      ]
+    },
+    {
+      "title": "qs Denial-of-Service Extended Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview:\nThe qs module does not have an option or default for specifying object depth and when parsing a string representing a deeply nested object will block the event loop for long periods of time. An attacker could leverage this to cause a temporary denial-of-service condition, for example, in a web application, other requests would not be processed while this blocking is occurring.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate qs to version 1.0.0 or greater\n",
+      "version": "0.5.1",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "patched": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/28"
+      ],
+      "patches": [],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "below": "1.0.0",
+      "name": "qs",
+      "from": [
+        "jsbin@3.35.3",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "qs@0.5.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.0",
+        "connect@2.25.0",
+        "qs@1.0.0"
+      ]
+    },
+    {
+      "title": "qs Denial-of-Service Extended Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview:\nThe qs module does not have an option or default for specifying object depth and when parsing a string representing a deeply nested object will block the event loop for long periods of time. An attacker could leverage this to cause a temporary denial-of-service condition, for example, in a web application, other requests would not be processed while this blocking is occurring.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate qs to version 1.0.0 or greater\n",
+      "version": "0.6.6",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "patched": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/28"
+      ],
+      "patches": [],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "below": "1.0.0",
+      "name": "qs",
+      "from": [
+        "jsbin@3.35.3",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "request@2.39.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "request@2.40.0",
+        "qs@1.0.0"
+      ]
+    },
+    {
+      "title": "semver Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "description": "## Overview:\n\nsemver is vulnerable to regular expression denial of service ([ReDoS](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate to a version 4.3.2 or greater. Package version can no longer be more than 256 characters long. This prevents a situation in which parsing the version number can use exponentially more time and memory to parse, leading to a potential denial of service.\n\n## References:\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "version": "3.0.1",
+      "semver": {
+        "vulnerable": "<4.3.2",
+        "patched": ">=4.3.2"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 31
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/31"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "version": "2.3.2 || 3.0.1 || 4.2.2",
+          "modificationTime": "2015-04-03T16:00:00.000Z",
+          "comments": [
+            "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ]
+        }
+      ],
+      "moduleName": "semver",
+      "creationTime": "2015-04-03T16:00:00.000Z",
+      "publicationTime": "2015-04-03T16:00:00.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:semver:20150403",
+      "below": "4.3.2",
+      "name": "semver",
+      "from": [
+        "jsbin@3.35.3",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "semver@3.0.1"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite3@3.0.4",
+        "node-pre-gyp@0.6.4",
+        "semver@4.3.2"
+      ]
+    },
+    {
+      "title": "Root Path Disclosure",
+      "credit": [
+        "Dinis Cruz"
+      ],
+      "creationTime": "2015-11-06T02:09:36.183Z",
+      "modificationTime": "2015-11-06T02:09:36.183Z",
+      "publicationTime": "2015-11-03T07:12:20.676Z",
+      "description": "## Overview\nThe send module < 0.11.1 discloses the root path.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendation\nUpgrade to send version 0.11.1 or greater.\n\n## References\n- https://github.com/pillarjs/send/pull/70\n- https://github.com/expressjs/serve-static/blob/master/HISTORY.md#181--2015-01-20\n",
+      "semver": {
+        "vulnerable": "<0.11.1",
+        "patched": ">=0.11.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 56
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/56"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/send_20151103_0_0_6adc607a908fb95892e39ca366222d8e2951a4a4.patch"
+          ],
+          "version": "<0.11.1 >=0.9.0",
+          "modificationTime": "2015-11-03T07:12:20.676Z",
+          "comments": [
+            "https://github.com/dxa4481/send/commit/6adc607a908fb95892e39ca366222d8e2951a4a4.patch"
+          ]
+        }
+      ],
+      "moduleName": "send",
+      "id": "npm:send:20151103",
+      "below": "0.8.4",
+      "name": "send",
+      "version": "0.1.0",
+      "from": [
+        "jsbin@3.35.3",
+        "express@3.0.6",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.10",
+        "send@0.8.4"
+      ]
+    },
+    {
+      "title": "Symlink Arbitrary File Overwrite",
+      "credit": [
+        "Tim Cuthbertson"
+      ],
+      "creationTime": "2015-11-06T02:09:36.182Z",
+      "modificationTime": "2015-11-06T02:09:36.182Z",
+      "publicationTime": "2015-11-03T07:15:12.900Z",
+      "description": "## Overview\nThe `tar` module earlier than version 2.0.0 allow for archives to contain symbolic links that will overwrite targets outside the expected path for extraction.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendation\nUpdate to a version 2.0.0 or greater\n\n## References\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<2.0.0",
+        "patched": ">=2.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 57
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/57"
+      ],
+      "patches": [],
+      "moduleName": "tar",
+      "id": "npm:tar:20151103",
+      "below": "2.0.0",
+      "name": "tar",
+      "version": "1.0.0",
+      "from": [
+        "jsbin@3.35.3",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "tar@1.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "tar@2.0.0"
+      ]
+    },
+    {
+      "title": "Symlink Arbitrary File Overwrite",
+      "credit": [
+        "Tim Cuthbertson"
+      ],
+      "creationTime": "2015-11-06T02:09:36.182Z",
+      "modificationTime": "2015-11-06T02:09:36.182Z",
+      "publicationTime": "2015-11-03T07:15:12.900Z",
+      "description": "## Overview\nThe `tar` module earlier than version 2.0.0 allow for archives to contain symbolic links that will overwrite targets outside the expected path for extraction.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendation\nUpdate to a version 2.0.0 or greater\n\n## References\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<2.0.0",
+        "patched": ">=2.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 57
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/57"
+      ],
+      "patches": [],
+      "moduleName": "tar",
+      "id": "npm:tar:20151103",
+      "below": "2.0.0",
+      "name": "tar",
+      "version": "0.1.20",
+      "from": [
+        "jsbin@3.35.3",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "tar-pack@2.0.0",
+        "tar@0.1.20"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "tar@2.0.0"
+      ]
+    },
+    {
+      "title": "uglify-js incorrectly handles non-boolean comparisons during minification",
+      "credit": [
+        "Tom MacWright"
+      ],
+      "description": "## Overview:\n[Tom MacWright](https://github.com/mishoo/UglifyJS2/issues/751) discovered that UglifyJS versions 2.4.23 and earlier are affected by a vulnerability which allows a specially crafted Javascript file to have altered functionality after minification. This bug was [demonstrated](https://zyan.scripts.mit.edu/blog/backdooring-js/) by [Yan](https://twitter.com/bcrypt) to allow potentially malicious code to be hidden within secure code, activated by minification.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n\n### Details:\n\nIn Boolean algebra, DeMorgan's laws describe the relationships between conjunctions ( && ), disjunctions ( || ) and negations ( ! ).\nIn Javascript form, they state that:\n !(a && b) === (!a) || (!b)\n !(a || b) === (!a) && (!b)\n\nThe law does not hold true when one of the values is not a boolean however.\n\nVulnerable versions of UglifyJS do not account for this restriction, and erroneously apply the laws to a statement if it can be reduced in length by it.\n\nConsider this authentication function:\n\n```\nfunction isTokenValid(user) {\n    var timeLeft =\n        !!config && // config object exists\n        !!user.token && // user object has a token\n        !user.token.invalidated && // token is not explicitly invalidated\n        !config.uninitialized && // config is initialized\n        !config.ignoreTimestamps && // don't ignore timestamps\n        getTimeLeft(user.token.expiry); // > 0 if expiration is in the future\n\n    // The token must not be expired\n    return timeLeft > 0;\n}\n\nfunction getTimeLeft(expiry) {\n  return expiry - getSystemTime();\n}\n```\nWhen minified with a vulnerable version of UglifyJS, it will produce the following insecure output, where a token will never expire:\n\n( Formatted for readability )\n\n```\nfunction isTokenValid(user) {\n    var timeLeft = !(                       // negation\n        !config                             // config object does not exist\n        || !user.token                      // user object does not have a token\n        || user.token.invalidated           // token is explicitly invalidated\n        || config.uninitialized             // config isn't initialized\n        || config.ignoreTimestamps          // ignore timestamps\n        || !getTimeLeft(user.token.expiry)  // > 0 if expiration is in the future\n    );\n    return timeLeft > 0\n}\n\nfunction getTimeLeft(expiry) {\n    return expiry - getSystemTime()\n}\n```\n\n## Recommendations:\n\nUpgrade UglifyJS to version >= 2.4.24.\n\n## References:\n- https://zyan.scripts.mit.edu/blog/backdooring-js/\n- https://github.com/mishoo/UglifyJS2/issues/751\n",
+      "version": "2.3.6",
+      "semver": {
+        "vulnerable": "<= 2.4.23",
+        "patched": ">= 2.4.24"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-95"
+        ],
+        "CVE": [],
+        "NSP": 39
+      },
       "info": [
         "https://github.com/mishoo/UglifyJS2/issues/751",
         "https://github.com/tmcw/mdast-uglify-bug"
       ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20150824_0_0_905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ],
+          "version": "<= 2.4.23 >2.0.0",
+          "modificationTime": "2015-08-24T09:29:10.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/uglify-js/905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "uglify-js",
+      "creationTime": "2015-08-24T09:29:10.000Z",
+      "publicationTime": "2015-08-24T09:29:10.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
       "id": "npm:uglify-js:20150824",
+      "below": "2.4.24",
       "name": "uglify-js",
-      "version": "2.3.6",
       "from": [
-        "jsbin@3.35.0",
+        "jsbin@3.35.3",
         "handlebars@2.0.0",
         "uglify-js@2.3.6"
       ],
@@ -22,16 +595,50 @@
       ]
     },
     {
-      "below": "2.4.24",
+      "title": "uglify-js incorrectly handles non-boolean comparisons during minification",
+      "credit": [
+        "Tom MacWright"
+      ],
+      "description": "## Overview:\n[Tom MacWright](https://github.com/mishoo/UglifyJS2/issues/751) discovered that UglifyJS versions 2.4.23 and earlier are affected by a vulnerability which allows a specially crafted Javascript file to have altered functionality after minification. This bug was [demonstrated](https://zyan.scripts.mit.edu/blog/backdooring-js/) by [Yan](https://twitter.com/bcrypt) to allow potentially malicious code to be hidden within secure code, activated by minification.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n\n### Details:\n\nIn Boolean algebra, DeMorgan's laws describe the relationships between conjunctions ( && ), disjunctions ( || ) and negations ( ! ).\nIn Javascript form, they state that:\n !(a && b) === (!a) || (!b)\n !(a || b) === (!a) && (!b)\n\nThe law does not hold true when one of the values is not a boolean however.\n\nVulnerable versions of UglifyJS do not account for this restriction, and erroneously apply the laws to a statement if it can be reduced in length by it.\n\nConsider this authentication function:\n\n```\nfunction isTokenValid(user) {\n    var timeLeft =\n        !!config && // config object exists\n        !!user.token && // user object has a token\n        !user.token.invalidated && // token is not explicitly invalidated\n        !config.uninitialized && // config is initialized\n        !config.ignoreTimestamps && // don't ignore timestamps\n        getTimeLeft(user.token.expiry); // > 0 if expiration is in the future\n\n    // The token must not be expired\n    return timeLeft > 0;\n}\n\nfunction getTimeLeft(expiry) {\n  return expiry - getSystemTime();\n}\n```\nWhen minified with a vulnerable version of UglifyJS, it will produce the following insecure output, where a token will never expire:\n\n( Formatted for readability )\n\n```\nfunction isTokenValid(user) {\n    var timeLeft = !(                       // negation\n        !config                             // config object does not exist\n        || !user.token                      // user object does not have a token\n        || user.token.invalidated           // token is explicitly invalidated\n        || config.uninitialized             // config isn't initialized\n        || config.ignoreTimestamps          // ignore timestamps\n        || !getTimeLeft(user.token.expiry)  // > 0 if expiration is in the future\n    );\n    return timeLeft > 0\n}\n\nfunction getTimeLeft(expiry) {\n    return expiry - getSystemTime()\n}\n```\n\n## Recommendations:\n\nUpgrade UglifyJS to version >= 2.4.24.\n\n## References:\n- https://zyan.scripts.mit.edu/blog/backdooring-js/\n- https://github.com/mishoo/UglifyJS2/issues/751\n",
+      "version": "2.3.6",
+      "semver": {
+        "vulnerable": "<= 2.4.23",
+        "patched": ">= 2.4.24"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-95"
+        ],
+        "CVE": [],
+        "NSP": 39
+      },
       "info": [
         "https://github.com/mishoo/UglifyJS2/issues/751",
         "https://github.com/tmcw/mdast-uglify-bug"
       ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20150824_0_0_905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ],
+          "version": "<= 2.4.23 >2.0.0",
+          "modificationTime": "2015-08-24T09:29:10.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/uglify-js/905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "uglify-js",
+      "creationTime": "2015-08-24T09:29:10.000Z",
+      "publicationTime": "2015-08-24T09:29:10.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
       "id": "npm:uglify-js:20150824",
+      "below": "2.4.24",
       "name": "uglify-js",
-      "version": "2.3.6",
       "from": [
-        "jsbin@3.35.0",
+        "jsbin@3.35.3",
         "express-hbs@0.8.4",
         "handlebars@3.0.3",
         "uglify-js@2.3.6"
@@ -44,16 +651,50 @@
       ]
     },
     {
-      "below": "2.4.24",
+      "title": "uglify-js incorrectly handles non-boolean comparisons during minification",
+      "credit": [
+        "Tom MacWright"
+      ],
+      "description": "## Overview:\n[Tom MacWright](https://github.com/mishoo/UglifyJS2/issues/751) discovered that UglifyJS versions 2.4.23 and earlier are affected by a vulnerability which allows a specially crafted Javascript file to have altered functionality after minification. This bug was [demonstrated](https://zyan.scripts.mit.edu/blog/backdooring-js/) by [Yan](https://twitter.com/bcrypt) to allow potentially malicious code to be hidden within secure code, activated by minification.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n\n### Details:\n\nIn Boolean algebra, DeMorgan's laws describe the relationships between conjunctions ( && ), disjunctions ( || ) and negations ( ! ).\nIn Javascript form, they state that:\n !(a && b) === (!a) || (!b)\n !(a || b) === (!a) && (!b)\n\nThe law does not hold true when one of the values is not a boolean however.\n\nVulnerable versions of UglifyJS do not account for this restriction, and erroneously apply the laws to a statement if it can be reduced in length by it.\n\nConsider this authentication function:\n\n```\nfunction isTokenValid(user) {\n    var timeLeft =\n        !!config && // config object exists\n        !!user.token && // user object has a token\n        !user.token.invalidated && // token is not explicitly invalidated\n        !config.uninitialized && // config is initialized\n        !config.ignoreTimestamps && // don't ignore timestamps\n        getTimeLeft(user.token.expiry); // > 0 if expiration is in the future\n\n    // The token must not be expired\n    return timeLeft > 0;\n}\n\nfunction getTimeLeft(expiry) {\n  return expiry - getSystemTime();\n}\n```\nWhen minified with a vulnerable version of UglifyJS, it will produce the following insecure output, where a token will never expire:\n\n( Formatted for readability )\n\n```\nfunction isTokenValid(user) {\n    var timeLeft = !(                       // negation\n        !config                             // config object does not exist\n        || !user.token                      // user object does not have a token\n        || user.token.invalidated           // token is explicitly invalidated\n        || config.uninitialized             // config isn't initialized\n        || config.ignoreTimestamps          // ignore timestamps\n        || !getTimeLeft(user.token.expiry)  // > 0 if expiration is in the future\n    );\n    return timeLeft > 0\n}\n\nfunction getTimeLeft(expiry) {\n    return expiry - getSystemTime()\n}\n```\n\n## Recommendations:\n\nUpgrade UglifyJS to version >= 2.4.24.\n\n## References:\n- https://zyan.scripts.mit.edu/blog/backdooring-js/\n- https://github.com/mishoo/UglifyJS2/issues/751\n",
+      "version": "2.2.5",
+      "semver": {
+        "vulnerable": "<= 2.4.23",
+        "patched": ">= 2.4.24"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-95"
+        ],
+        "CVE": [],
+        "NSP": 39
+      },
       "info": [
         "https://github.com/mishoo/UglifyJS2/issues/751",
         "https://github.com/tmcw/mdast-uglify-bug"
       ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20150824_0_0_905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ],
+          "version": "<= 2.4.23 >2.0.0",
+          "modificationTime": "2015-08-24T09:29:10.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/uglify-js/905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "uglify-js",
+      "creationTime": "2015-08-24T09:29:10.000Z",
+      "publicationTime": "2015-08-24T09:29:10.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
       "id": "npm:uglify-js:20150824",
+      "below": "2.4.24",
       "name": "uglify-js",
-      "version": "2.2.5",
       "from": [
-        "jsbin@3.35.0",
+        "jsbin@3.35.3",
         "jade@1.4.2",
         "transformers@2.1.0",
         "uglify-js@2.2.5"
@@ -64,7 +705,60 @@
         "transformers@3.1.0",
         "uglify-js@2.4.24"
       ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.186Z",
+      "modificationTime": "2015-11-06T02:09:36.186Z",
+      "publicationTime": "2015-10-24T21:01:32.155Z",
+      "description": "## Overview\nuglify-js is vulnerable to regular expression denial of service (ReDoS) when certain types of input is passed into .parse().\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n\n```\nvar u = require('uglify-js');\nvar genstr = function (len, chr) {\n    var result = \"\";\n    for (i=0; i<=len; i++) {\n        result = result + chr;\n    }\n\n    return result;\n}\n\nu.parse(\"var a = \" + genstr(process.argv[2], \"1\") + \".1ee7;\");\n```\n\n### Results\n```\n$ time node test.js 10000\nreal\t0m1.091s\nuser\t0m1.047s\nsys\t0m0.039s\n\n$ time node test.js 80000\nreal\t0m6.486s\nuser\t0m6.229s\nsys\t0m0.094s\n```\n\n## Recommendation\nFor now do not minify untrusted scripts / input on the fly on a production server.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<2.6.0",
+        "patched": ">=2.6.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 48
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/48"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+          ],
+          "version": "<2.6.0 >=2.2.0",
+          "modificationTime": "2015-11-16T09:29:10.000Z",
+          "comments": [
+            "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+          ]
+        }
+      ],
+      "moduleName": "uglify-js",
+      "id": "npm:uglify-js:20151024",
+      "below": "2.4.24",
+      "name": "uglify-js",
+      "version": "2.3.6",
+      "from": [
+        "jsbin@3.35.3",
+        "handlebars@2.0.0",
+        "uglify-js@2.3.6"
+      ],
+      "upgradePath": [
+        false,
+        "handlebars@4.0.0",
+        "uglify-js@2.4.24"
+      ]
     }
   ],
-  "dependencyCount": 491
+  "dependencyCount": 549
 }

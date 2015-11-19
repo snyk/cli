@@ -11,9 +11,10 @@ Commands:
 
   auth ............... sign into snyk (required).
   test ............... test for any known vulnerabilities.
+  wizard ............. configure your policy file to update, auto patch and
+                       ignore vulnerabilities.
   protect ............ protect your code from vulnerabilities and
                        optionally suppress specific vulnerabilities.
-                       Run with `--interactive` to configure.
   monitor ............ record the state of dependencies and any
                        vulnerabilities on snyk.io.
   support ............ file an issue or request support.
@@ -21,11 +22,11 @@ Commands:
 Options:
 
   --dev .............. include devDependencies (defaults to production only)
+  --ignore-policy .... ignores and resets the state of your policy file
+  --dry-run .......... don't apply updates or patches during protect.
   -q, --quiet ........ silence all output.
   -h, --help ......... this help information.
   -v, --version ...... the CLI version.
-  -i, --interactive .. configure the snyk protect settings.
-  --dry-run .......... don't apply updates or patches during protect.
 
 Examples:
 

@@ -11,7 +11,7 @@ args.method.apply(null, args.options._).then(function (result) {
   if (args.options.debug) {
     console.log(error.stack);
   } else {
-    var errors = require('./error');
+    var errors = require('../lib/error');
     if (!args.options.quiet) {
       console.log(errors.message(error));
     }

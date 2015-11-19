@@ -80,15 +80,18 @@ test('protect correctly filters', function (t) {
 });
 
 test('ignores real vuln data', function (t) {
-  var vulns2 = require('./fixtures/test-jsbin-vulns-updated.json');
+  var vulns2 = require('./fixtures/test-jsbin-vulns-updated.json').vulnerabilities.filter(function (v) {
+    return v.id === 'npm:uglify-js:20150824' || v.id === 'npm:semver:20150403';
+  });
   var dotfile = require('../lib/dotfile');
 
   t.plan(1);
   dotfile.load(__dirname + '/fixtures/jsbin-snyk-config').then(function (config) {
-    return protect.filterIgnored(config.ignore, vulns2.vulnerabilities);
+    return protect.filterIgnored(config.ignore, vulns2);
   }).then(function (res) {
     t.equal(res.length, 0, 'all vulns have been ignored');
   }).catch(function (e) {
+    console.log(e.stack);
     t.fail(e);
   });
 

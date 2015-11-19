@@ -2,14 +2,17 @@ ignore:
   'npm:uglify-js:20150824':
     - 'handlebars@2.0.0 > uglify-js@2.3.6':
         reason: None given
-        expires: '2015-11-15T12:00:04.043Z'
+        expires: '2025-11-15T12:00:04.043Z'
     - 'express-hbs@0.8.4 > handlebars@3.0.3 > uglify-js@2.3.6':
         reason: None given
-        expires: '2015-11-15T12:00:04.043Z'
-    - 'jade@1.4.2 > transformers@2.1.0 > uglify-js@2.2.5':
+        expires: '2025-11-15T12:00:04.043Z'
+    - 'jade@1.4.2 > transformers@2.1.0 > uglify-js@<=2.4.23':
         reason: None given
-        expires: '2015-11-15T12:00:04.043Z'
+        expires: '2025-11-15T12:00:04.043Z'
   'npm:semver:20150403':
+    - '* > node-pre-gyp@* > semver@*':
+        reason: blindly giving up on semver
+        expires: '2025-11-15T12:00:04.043Z'
     - 'sqlite3@3.0.4 > node-pre-gyp@0.6.1 > semver@4.1.0':
         reason: None given
-        expires: '2015-11-15T12:00:04.043Z'
+        expires: '2025-11-15T12:00:04.043Z'
