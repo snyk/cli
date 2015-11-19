@@ -1,4 +1,4 @@
 config.local.json
-local.log
 /node_modules/
+local.log
 /patches/
