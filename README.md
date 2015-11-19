@@ -1,29 +1,125 @@
-# Snyk - So Now You Know!
-
-Note: Snyk is currently in beta. [Email us your feedback](mailto:contact@snyk.io).
-
-## Installation & Getting Started
+# Documentation
 
 Snyk helps you find and fix known vulnerabilities in your Node.js dependencies, both ad hoc and as part of your CI (Build) system.
 
-To get up and running quickly, run these commands to install, authenticate and perform a quick test. You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects.
+Note: Snyk is currently in beta. [Email us your feedback](mailto:support@snyk.io).
+
+## Installation & getting started
+
+Snyk is installed via npm. Run these commands to install it for local use:
 
 ```shell
 npm install -g snyk
+```
+
+Once installed, you can perform a quick test on a public package, for instance:
+
+```shell
 snyk test ionic@1.6.5
 ```
 
-You can now see an example of several known vulnerabilities found on an older version of `ionic`, as well as guidance on how to understand and address them. In the next sections we'll explain how to run the same test on your own projects.
+As you can see, Snyk found and reported several vulnerabilities in the package. For each issue found, Snyk provides the severity of the issue, a link to a detailed description, the path through which the vulnerable module got into your system, and guidance on how to fix the problem.
 
-## test
+```text
+$ snyk test
+✗ Vulnerability found on gm@1.13.3
+Info: https://dev.snyk.io/vuln/npm:gm:20151026
+From: snyk-demo-app@latest > gm@1.13.3
+Upgrade direct dependency gm@1.13.3 to gm@1.21.1
 
-To test your own project for known vulnerabilities, browse to your project's folder and run `snyk test`, like so (swapping the folder with your project's folder):
+✗ Vulnerability found on qs@0.6.6
+Info: https://dev.snyk.io/vuln/npm:qs:20140806
+From: snyk-demo-app@latest > webdriverio@2.4.5 > request@2.34.0 > qs@0.6.6
+Upgrade direct dependency webdriverio@2.4.5 to webdriverio@3.0.1 (triggers upgrades to request@2.40.0 > qs@1.0.0)
+
+✗ Vulnerability found on qs@0.4.2
+Info: https://dev.snyk.io/vuln/npm:qs:20140806-1
+From: snyk-demo-app@latest > cucumber@0.3.0 > connect@2.3.2 > qs@0.4.2
+No direct dependency upgrade can address this issue.
+Run `snyk wizard` to explore remediation options
+```
+
+In the next sections we'll explain how to run the same test on your own projects.
+
+## Authentication
+
+Some Snyk commands require authentication. We use GitHub for authentication, but **do not require access to your repositories**, only your email address. You can authenticate by browsing to the [Snyk website](https://snyk.io), clicking "[Sign Up](https://app.snyk.io/auth/github)", and pasting in the lines from your dashboard, which look roughly like this:
+
+```shell
+snyk auth <your key>
+```
+
+Alternatively, you can simply run `snyk auth` in your terminal and it'll guide you through this process. Once authenticated, you can proceed to run Snyk's [`wizard`](#wizard).
+
+## Wizard
+
+Snyk's `wizard` walks you through finding and fixing the known vulnerabilities in your project. It leverages the separate [`test`](#test), [`protect`](#protect) and [`monitor`](#monitor) actions, supported by an interactive workflow. To run the wizard, simply navigate to your project folder and run `snyk wizard` like so:
+
+```shell
+cd ~/projects/
+snyk wizard
+```
+
+The wizard goes through multiple phases.
+
+First, it takes stock of which dependencies are locally installed, queries the snyk service for related known vulnerabilities, and asks you how you want to address each vulnerability that was found. As you answer the questions, the wizard will create a Snyk policy file, stored in a file named `.snyk`, which will guide future Snyk commands.
+
+Here are the possible remediation steps for each vulnerability:
+
+* **Upgrade** - if upgrading a direct dependency can fix the current vulnerability, the wizard can automatically modify your `package.json` file to use the newer version and run `npm update` to apply the changes.
+* **Patch** - Sometimes there is no direct upgrade that can address the vulnerability, or there is one but you can't upgrade due to functional reasons (e.g. it's a major breaking change). For such cases, the wizard lets you patch the issue (using patches the Snyk team created and maintain). This option will make the minimal modifications to your locally installed module files to fix the vulnerability. It will also update the policy to patch this issue when running [`snyk protect`](#protect), as shown below.
+* **Ignore** - If you believe this vulnerability is not exploitable, you can set the Snyk policy to ignore this vulnerability. By default, we will ignore the vulnerability for 30 days, to avoid easily hiding a true issue. If you want to ignore it permanently, you can manually edit the generated `.snyk` file. If neither a patch nor an upgrade are available, you can choose to ignore the issue for now, and we'll notify you when a new patch or upgrade is available.
+
+
+```shell
+$ snyk wizard
+
+Snyk's wizard will:
+
+  * Enumerate your local dependencies and query Snyk's servers for vulnerabilities
+  * Guide you through fixing found vulnerabilities
+  * Create a .snyk policy file to guide snyk commands such as test and protect
+  * Remember your dependencies to alert you when new vulnerabilities are disclosed
+
+Loading dependencies...
+Querying vulnerabilities database...
+Tested 228 dependencies for known vulnerabilities, found 5 vulnerabilities.
+
+? High severity vulnerability found in gm@1.13.3
+  - info: https://dev.snyk.io/vuln/npm:gm:20151026
+  - from: snyk-demo-app@latest > gm@1.13.3 Upgrade
+
+? Medium severity vulnerability found in qs@0.6.6
+  - info: https://dev.snyk.io/vuln/npm:qs:20140806
+  - from: snyk-demo-app@latest > webdriverio@2.4.5 > request@2.34.0 > qs@0.6.6
+  Upgrade to webdriverio@3.0.1
+❯ Patch (modifies files locally, updates policy for `snyk protect` runs)
+  Set to ignore for 30 days (updates policy)
+  Skip
+```
+
+Once all the issues are addressed, `snyk wizard` will optionally integrate some tests and protection steps into your `package.json` file.
+
+It can add [`snyk test`](#test) to the `test` script, which will query your local dependencies for vulnerabilities and err if found (except those you chose to ignore). In addition, if you chose to patch an issue, the wizard will also optionally add [`snyk protect`](#protect) to your project as a `post-install` step. This is helpful if you publish this module, as it will repeatedly patch the issues specified in `.snyk` every time a module is installed.
+
+Once you've gone through all the issues, the wizard will create the `.snyk` file, modify `package.json` and run `npm update` to apply the changes. Lastly, the wizard will take a snapshot of your current dependencies (similar to running [`snyk monitor`](#monitor)), so we can inform you of newly disclosed vulnerabilities in them, or when a previously unavailable patch or upgrade path are created.
+
+### A few things to note:
+
+- The wizard doesn't perform any git (or source control) actions, so be sure to add the `.snyk` file to your repository.
+- Subsequent runs of the wizard will not show items previously ignored. To start a-fresh, run `snyk wizard --ignore-policy`.
+- By default, both `wizard` and [`test`](#test) ignore devDependencies. To test those, add the `--dev` flag.
+
+## Test
+
+To only test your project for known vulnerabilities, browse to your project's folder and run `snyk test`:
+
 ```shell
 cd ~/projects/myproj/
 snyk test
 ```
 
-`snyk test` will take stock of all the local dependencies and their installed versions, and report them to Snyk. The Snyk servers will check if there are known vulnerabilities on these dependencies, and if so report about them and and suggest any remediation you can take. Since `snyk test` looks at the locally installed modules, it needs to run after `npm install`, and will seamlessly work with `shrinkwrap`, npm enterprise or any other custom installation logic you have.
+`snyk test` takes stock of all the local dependencies and queries the snyk service for related known vulnerabilities. It displays the found issues along with additional information, and suggests remediation steps. Since `snyk test` looks at the locally installed modules, it needs to run after `npm install`, and will seamlessly work with `shrinkwrap`, npm enterprise or any other custom installation logic you have.
 
 `snyk test` can also get a folder name as an argument, which is especially handy if you want to test multiple projects. For instance, the following command tests all the projects under a certain folder for known vulnerabilities:
 
@@ -33,110 +129,46 @@ snyk test *
 ```
 
 Lastly, you can also use `snyk test` to scrutinize a public package before installing it, to see if it has known vulnerabilities or not. Using the package name will test the latest version of that package, and you can also provide a specific version or range using `snyk test module[@semver-range]`.
+
 ```shell
 snyk test lodash
 snyk test ionic@1.6.5
 ```
 
-If you ran snyk locally and found vulnerabilities, you should proceed to use `snyk wizard` to address them.
+To address the issues `snyk test` found, run [`snyk wizard`](#wizard).
 
-## wizard
+## Protect
 
-Snyk's `wizard` helps you address the known vulnerabilities `snyk test` found.
-To get started, run:
+The `protect` command applies the patches specified in your `.snyk` file to the local file system. You should only run `snyk protect` after you've created a .snyk file and installed your local dependencies (e.g. by running `npm install`).
+
+Since running `protect` is the way to repeatedly apply patches, you should run it every time you reinstall your modules. Common integration points would be your CI/build system, your deployment system, and adding it as a post-install step in your `package.json` file (necessary if you consume this module via `npm`).
+
+## Monitor
+
+With [`test`](#test) and [`protect`](#protect), you're well set up to address currently known vulnerabilities. However, new vulnerabilities are constantly disclosed - which is where `monitor` comes in.
 
 ```shell
-snyk wizard
+cd ~/projects/myproject/
+snyk monitor
 ```
 
-Snyk's interactive wizard mode will run `test` again, and ask you what to do for each found issue. Here are the possible remediation steps for each vulnerability:
+Just before you deploy, run `snyk monitor` in your project directory. This will take a snapshot of your current dependencies, so we can notify you about newly disclosed vulnerabilities in them, or when a previously unavailable patch or upgrade path are created. If you take multiple snapshots of the same application, we will only alert you to new information about the latest one.
 
-- `Upgrade` - if upgrading a direct dependency can fix the current vulnerability, `snyk protect` can automatically modify your Package.json file to use the newer version. Note that you'll still need to run `npm update` afterwards to get the new packages.
-- `Ignore` - If you believe this vulnerability does not apply to you, or if the dependent module in question never runs on a production system, you can choose to ignore the vulnerability. By default, we will ignore the vulnerability for 30 days, to avoid easily hiding a true issue. If you want to ignore it permanently, you can manually edit the generated `.snyk` policy file.
-- `Patch` - Sometimes there is no direct upgrade that can address the vulnerability, or there is one but you cannot upgrade due to functional reasons (e.g. it's a major breaking change). For such cases, `snyk protect` lets you patch the issue with a patch applied locally to the relevant dependency files. We manually create and maintain these patches, and may not have one for every issue. If you cannot upgrade, patch is often a better option than doing nothing *Note: patch is not yet enabled in the private beta, it will be soon. In the meantime, patch will be replaced with a short ignore*.
-
-Once completed, `snyk wizard` will create a local `.snyk` policy file that guides executions of `snyk protect`. Note that `snyk protect` will never unilaterally decide to ignore or patch a vulnerability - it will simply follow the guidance captured in the `.snyk` policy file.
-
-## protect
-
-Snyk's `protect` will take your `.snyk` policy file and apply patches that you've defined in the `snyk wizard` process. The wizard (above) will ask if you want to include `snyk protect` as part of your package's `postinstall` process (so that users of your package will automatically be protected from vulnerabilities). See the next section for more details.
+```shell
+$ snyk monitor
+Captured a snapshot of this project's dependencies. Explore this snapshot at https://app.snyk.io/monitor/1a53f19a-f64f-44ab-b122-74ce82c1c34b
+Notifications about newly disclosed vulnerabilities related to these dependencies will be emailed to you.
+```
 
 ## Integrating Snyk into your dev workflow
 
-To continuously test against and protect from known vulnerabilities, integrate Snyk into your continuous integration (a.k.a. build) system. Here are the steps required to to so:
+To continuously avoid known vulnerabilities in your dependencies, integrate Snyk into your continuous integration (a.k.a. build) system. Here are the steps required to to so:
 
-1. Add `snyk` to your project's dependencies (`npm install -S snyk`), and commit the change in
-2. Ensure the `.snyk` file you generated was added to your source control (`git add .snyk`);
-3. After the `npm install` steps in your CI, run `snyk protect` to apply any necessary patches
-4. Run `snyk test` to identify on any known vulnerabilities not already ignored or patched. If such vulnerabilities were found, `snyk test` will return a non-zero value to fail the test.
-
-A few potential alternatives to consider:
-- Add `snyk test` to your Package.json `test` scripts, to capture them in local `npm test` runs.
-- Add `snyk test` as a `post-install` step in your Package.json file, to immediately spot any newly added module which has known vulnerabilities
-- Add `snyk protect` as a `post-install` step in your Package.json file, to apply patches even while working locally
-
-Note: During private beta, all snyk actions require authentication. This means modifying your Package.json will require your entire team to first run `snyk auth`. If you don't want that, hold off on modifying your Package.json file for now.
-
-## monitor
-
-With `test` and `protect`, you're well setup to address currently known vulnerabilities. However, new vulnerabilities are constantly disclosed - which is where `monitor` comes in.
-
-Just before you deploy, run `snyk monitor` in your project directory. This will post a snapshot of your full dependency tree to Snyk's servers, where they will be stored. Those dependencies will be tracked for newly disclosed vulnerabilities, and we will alert you if a new vulnerability related to those dependencies is disclosed.
-
-```shell
-# example uses
-cd ~/projects/myproject/
-snyk monitor
-# a snyk.io monitor response URL is returned
-```
-
-## More About Authentication
-
-You don’t need to be authenticated to test and protect packages, but authentication is required for monitoring your projects.
-
-To access the Snyk portal,  you have to authenticate with a GitHub account. We *do not require access to your repositories* - we simply use GitHub to spare you managing another set of credentials. Run `snyk auth` and follow the on screen instructions, or go to the [Snyk website](https://app.snyk.io/) and sign up.
-
-If you are authenticating on a remote machine, for instance on a build server, you can use your API key from [https://snyk.io](https://snyk.io) and authenticate directly on the command line using `snyk auth <key>`. Browse to the [Snyk app](https://app.snyk.io/) to find out your own API key.
-
-## Sample Commands
-
-For easy reference, here is a list of the examples previously mentioned.
-
-Get Started
-```shell
-npm install -g snyk
-snyk auth
-snyk test ionic@1.6.5
-```
-Test a single local project
-```shell
-cd ~/projects/myproj/
-snyk test
-```
-Test all projects under a parent folder
-```shell
-cd ~/projects/
-find . -type d -maxdepth 1 | xargs -t -I{} snyk test  {}
-```
-Test a public package
-```shell
-snyk test lodash
-snyk test ionic@1.6.5
-```
-Interactive `snyk protect` to address found issues
-```shell
-snyk protect -i
-```
-Store a snapshot of current dependencies to monitor for new ones
-```shell
-# example uses
-cd ~/projects/myproject/
-snyk monitor
-# a snyk.io monitor response URL is returned
-```
+1. Add `snyk` to your project's dependencies (`npm install -S snyk`), and commit the modified `package.json` file.
+2. Ensure the `.snyk` file you generated was added to your source control (`git add .snyk`).
+3. After the `npm install` steps in your CI, run [`snyk protect`](#protect) to apply any necessary patches.
+4. Run [`snyk test`](#test) to identify on any known vulnerabilities not already ignored or patched. If such vulnerabilities were found, [`snyk test`](#test) will return a non-zero value to fail the test.
 
 ## Credits
 
 While we use multiple sources to determine vulnerabilities, the primary (current) source is the [Node Security project](http://nodesecurity.io).
-
-[![Analytics](https://ga-beacon.appspot.com/UA-69111857-2/Snyk/snyk?pixel)](https://snyk.io/)
