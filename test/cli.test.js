@@ -1,6 +1,9 @@
 'use strict';
 require("babel/register")({
   ignore: function (filename) {
+    if (filename.indexOf('@snyk/vuln/lib') !== -1) {
+      return false;
+    }
     if (filename.indexOf('@snyk/registry/test') !== -1) {
       return false;
     }
@@ -20,6 +23,7 @@ process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 
 var server = require('@snyk/registry/test/fixtures/demo-registry-server');
+var db = require('@snyk/registry/lib/models');
 var utils = require('@snyk/registry/test/fixtures/utils');
 
 // ensure this is required *after* the demo server, since this will
@@ -27,7 +31,7 @@ var utils = require('@snyk/registry/test/fixtures/utils');
 var cli = require('../cli/commands');
 
 test('setup', function (t) {
-  t.plan(5);
+  t.plan(3);
   cli.config('get', 'api').then(function (key) {
     oldkey = key; // just in case
     t.pass('existing user config captured');
@@ -38,37 +42,28 @@ test('setup', function (t) {
     utils.pgSetup().then(function () {
       t.pass('setup pg database');
     });
-    server.db.User.remove(function () {
-      t.pass('user db emptied');
-    });
-    server.db.Vuln.remove(function () {
-      t.pass('vulnerabilities db emptied');
-    });
   });
 });
 
-test.skip('prime database', function (t) {
+test('prime database', function (t) {
   t.plan(2);
 
-  new server.db.User({
-    api: [{
+  db.models.User.create({
+    ApiKeys: [{
       key: apiKey,
     }, ],
-    flags: {
-      beta: true,
-      betaTerms: true,
-    },
     email: 'test@example.com',
-  }).save(function (error) {
-    if (error) {
-      t.fail(error.message);
-      return t.bailout();
-    }
+  }, {
+    include: [db.models.ApiKey],
+  }).then(function () {
     t.pass('demo user created');
 
-    cli.config('set', 'api=' + apiKey).then(function () {
+    return cli.config('set', 'api=' + apiKey).then(function () {
       t.pass('api key set');
     });
+  }).catch(function (err) {
+    t.fail(err);
+    return t.bailout();
   });
 });
 
