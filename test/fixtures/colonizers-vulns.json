@@ -1,0 +1,1161 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\nms is vulnerable to regular expression denial of service (ReDoS) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\"[1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n```\nvar ms = require('ms');\nvar genstr = function (len, chr) {\n   var result = \"\";\n   for (i=0; i<=len; i++) {\n       result = result + chr;\n   }\n\n   return result;\n}\n\nms(genstr(process.argv[2], \"5\") + \" minutea\");\n\n```\n\n### Results\nShowing increase in execution time based on the input string.\n```\n$ time node ms.js 10000\n\nreal\t0m0.758s\nuser\t0m0.724s\nsys\t0m0.031s\n\n$ time node ms.js 20000\n\nreal\t0m2.580s\nuser\t0m2.494s\nsys\t0m0.047s\n\n$ time node ms.js 30000\n\nreal\t0m5.747s\nuser\t0m5.483s\nsys\t0m0.080s\n\n$ time node ms.js 80000\n\nreal\t0m41.022s\nuser\t0m38.894s\nsys\t0m0.529s\n```\n\n\n## Recommendation\nUpdate to version 0.7.1 or greater. An alternative would be to limit the input length of the user input before passing it into ms.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "patched": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/46"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ]
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "below": "0.7.1",
+      "name": "ms",
+      "version": "0.6.2",
+      "from": [
+        "colonizers@0.0.0",
+        "socket.io@1.3.7",
+        "debug@2.1.0",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\nms is vulnerable to regular expression denial of service (ReDoS) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\"[1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n```\nvar ms = require('ms');\nvar genstr = function (len, chr) {\n   var result = \"\";\n   for (i=0; i<=len; i++) {\n       result = result + chr;\n   }\n\n   return result;\n}\n\nms(genstr(process.argv[2], \"5\") + \" minutea\");\n\n```\n\n### Results\nShowing increase in execution time based on the input string.\n```\n$ time node ms.js 10000\n\nreal\t0m0.758s\nuser\t0m0.724s\nsys\t0m0.031s\n\n$ time node ms.js 20000\n\nreal\t0m2.580s\nuser\t0m2.494s\nsys\t0m0.047s\n\n$ time node ms.js 30000\n\nreal\t0m5.747s\nuser\t0m5.483s\nsys\t0m0.080s\n\n$ time node ms.js 80000\n\nreal\t0m41.022s\nuser\t0m38.894s\nsys\t0m0.529s\n```\n\n\n## Recommendation\nUpdate to version 0.7.1 or greater. An alternative would be to limit the input length of the user input before passing it into ms.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "patched": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/46"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ]
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "below": "0.7.1",
+      "name": "ms",
+      "version": "0.7.0",
+      "from": [
+        "colonizers@0.0.0",
+        "spm-client@0.4.3",
+        "debug@2.1.3",
+        "ms@0.7.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\nms is vulnerable to regular expression denial of service (ReDoS) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\"[1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n```\nvar ms = require('ms');\nvar genstr = function (len, chr) {\n   var result = \"\";\n   for (i=0; i<=len; i++) {\n       result = result + chr;\n   }\n\n   return result;\n}\n\nms(genstr(process.argv[2], \"5\") + \" minutea\");\n\n```\n\n### Results\nShowing increase in execution time based on the input string.\n```\n$ time node ms.js 10000\n\nreal\t0m0.758s\nuser\t0m0.724s\nsys\t0m0.031s\n\n$ time node ms.js 20000\n\nreal\t0m2.580s\nuser\t0m2.494s\nsys\t0m0.047s\n\n$ time node ms.js 30000\n\nreal\t0m5.747s\nuser\t0m5.483s\nsys\t0m0.080s\n\n$ time node ms.js 80000\n\nreal\t0m41.022s\nuser\t0m38.894s\nsys\t0m0.529s\n```\n\n\n## Recommendation\nUpdate to version 0.7.1 or greater. An alternative would be to limit the input length of the user input before passing it into ms.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "patched": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/46"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ]
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "below": "0.7.1",
+      "name": "ms",
+      "version": "0.6.2",
+      "from": [
+        "colonizers@0.0.0",
+        "socket.io@1.3.7",
+        "engine.io@1.5.4",
+        "debug@1.0.3",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\nms is vulnerable to regular expression denial of service (ReDoS) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\"[1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n```\nvar ms = require('ms');\nvar genstr = function (len, chr) {\n   var result = \"\";\n   for (i=0; i<=len; i++) {\n       result = result + chr;\n   }\n\n   return result;\n}\n\nms(genstr(process.argv[2], \"5\") + \" minutea\");\n\n```\n\n### Results\nShowing increase in execution time based on the input string.\n```\n$ time node ms.js 10000\n\nreal\t0m0.758s\nuser\t0m0.724s\nsys\t0m0.031s\n\n$ time node ms.js 20000\n\nreal\t0m2.580s\nuser\t0m2.494s\nsys\t0m0.047s\n\n$ time node ms.js 30000\n\nreal\t0m5.747s\nuser\t0m5.483s\nsys\t0m0.080s\n\n$ time node ms.js 80000\n\nreal\t0m41.022s\nuser\t0m38.894s\nsys\t0m0.529s\n```\n\n\n## Recommendation\nUpdate to version 0.7.1 or greater. An alternative would be to limit the input length of the user input before passing it into ms.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "patched": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/46"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ]
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "below": "0.7.1",
+      "name": "ms",
+      "version": "0.6.2",
+      "from": [
+        "colonizers@0.0.0",
+        "socket.io@1.3.7",
+        "socket.io-adapter@0.3.1",
+        "debug@1.0.2",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\nms is vulnerable to regular expression denial of service (ReDoS) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\"[1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n```\nvar ms = require('ms');\nvar genstr = function (len, chr) {\n   var result = \"\";\n   for (i=0; i<=len; i++) {\n       result = result + chr;\n   }\n\n   return result;\n}\n\nms(genstr(process.argv[2], \"5\") + \" minutea\");\n\n```\n\n### Results\nShowing increase in execution time based on the input string.\n```\n$ time node ms.js 10000\n\nreal\t0m0.758s\nuser\t0m0.724s\nsys\t0m0.031s\n\n$ time node ms.js 20000\n\nreal\t0m2.580s\nuser\t0m2.494s\nsys\t0m0.047s\n\n$ time node ms.js 30000\n\nreal\t0m5.747s\nuser\t0m5.483s\nsys\t0m0.080s\n\n$ time node ms.js 80000\n\nreal\t0m41.022s\nuser\t0m38.894s\nsys\t0m0.529s\n```\n\n\n## Recommendation\nUpdate to version 0.7.1 or greater. An alternative would be to limit the input length of the user input before passing it into ms.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "patched": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/46"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ]
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "below": "0.7.1",
+      "name": "ms",
+      "version": "0.6.2",
+      "from": [
+        "colonizers@0.0.0",
+        "socket.io-client@1.3.7",
+        "engine.io-client@1.5.4",
+        "debug@1.0.4",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\nms is vulnerable to regular expression denial of service (ReDoS) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\"[1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n```\nvar ms = require('ms');\nvar genstr = function (len, chr) {\n   var result = \"\";\n   for (i=0; i<=len; i++) {\n       result = result + chr;\n   }\n\n   return result;\n}\n\nms(genstr(process.argv[2], \"5\") + \" minutea\");\n\n```\n\n### Results\nShowing increase in execution time based on the input string.\n```\n$ time node ms.js 10000\n\nreal\t0m0.758s\nuser\t0m0.724s\nsys\t0m0.031s\n\n$ time node ms.js 20000\n\nreal\t0m2.580s\nuser\t0m2.494s\nsys\t0m0.047s\n\n$ time node ms.js 30000\n\nreal\t0m5.747s\nuser\t0m5.483s\nsys\t0m0.080s\n\n$ time node ms.js 80000\n\nreal\t0m41.022s\nuser\t0m38.894s\nsys\t0m0.529s\n```\n\n\n## Recommendation\nUpdate to version 0.7.1 or greater. An alternative would be to limit the input length of the user input before passing it into ms.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "patched": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/46"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ]
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "below": "0.7.1",
+      "name": "ms",
+      "version": "0.6.2",
+      "from": [
+        "colonizers@0.0.0",
+        "spm-client@0.4.3",
+        "father@0.10.6",
+        "debug@1.0.4",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\nms is vulnerable to regular expression denial of service (ReDoS) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\"[1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n```\nvar ms = require('ms');\nvar genstr = function (len, chr) {\n   var result = \"\";\n   for (i=0; i<=len; i++) {\n       result = result + chr;\n   }\n\n   return result;\n}\n\nms(genstr(process.argv[2], \"5\") + \" minutea\");\n\n```\n\n### Results\nShowing increase in execution time based on the input string.\n```\n$ time node ms.js 10000\n\nreal\t0m0.758s\nuser\t0m0.724s\nsys\t0m0.031s\n\n$ time node ms.js 20000\n\nreal\t0m2.580s\nuser\t0m2.494s\nsys\t0m0.047s\n\n$ time node ms.js 30000\n\nreal\t0m5.747s\nuser\t0m5.483s\nsys\t0m0.080s\n\n$ time node ms.js 80000\n\nreal\t0m41.022s\nuser\t0m38.894s\nsys\t0m0.529s\n```\n\n\n## Recommendation\nUpdate to version 0.7.1 or greater. An alternative would be to limit the input length of the user input before passing it into ms.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "patched": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/46"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ]
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ]
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "below": "0.7.1",
+      "name": "ms",
+      "version": "0.6.2",
+      "from": [
+        "colonizers@0.0.0",
+        "wascally@0.2.7",
+        "whistlepunk@0.2.0",
+        "debug@2.1.1",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ]
+    },
+    {
+      "title": "semver Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "description": "## Overview:\n\nsemver is vulnerable to regular expression denial of service ([ReDoS](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate to a version 4.3.2 or greater. Package version can no longer be more than 256 characters long. This prevents a situation in which parsing the version number can use exponentially more time and memory to parse, leading to a potential denial of service.\n\n## References:\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "version": "4.2.2",
+      "semver": {
+        "vulnerable": "<4.3.2",
+        "patched": ">=4.3.2"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 31
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/31"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "version": "2.3.2 || 3.0.1 || 4.2.2",
+          "modificationTime": "2015-04-03T16:00:00.000Z",
+          "comments": [
+            "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ]
+        }
+      ],
+      "moduleName": "semver",
+      "creationTime": "2015-04-03T16:00:00.000Z",
+      "publicationTime": "2015-04-03T16:00:00.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:semver:20150403",
+      "below": "4.3.2",
+      "name": "semver",
+      "from": [
+        "colonizers@0.0.0",
+        "spm-client@0.4.3",
+        "semver@4.2.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "semver@4.3.2"
+      ]
+    },
+    {
+      "title": "semver Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "description": "## Overview:\n\nsemver is vulnerable to regular expression denial of service ([ReDoS](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate to a version 4.3.2 or greater. Package version can no longer be more than 256 characters long. This prevents a situation in which parsing the version number can use exponentially more time and memory to parse, leading to a potential denial of service.\n\n## References:\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "version": "2.3.2",
+      "semver": {
+        "vulnerable": "<4.3.2",
+        "patched": ">=4.3.2"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 31
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/31"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "version": "2.3.2 || 3.0.1 || 4.2.2",
+          "modificationTime": "2015-04-03T16:00:00.000Z",
+          "comments": [
+            "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ]
+        }
+      ],
+      "moduleName": "semver",
+      "creationTime": "2015-04-03T16:00:00.000Z",
+      "publicationTime": "2015-04-03T16:00:00.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:semver:20150403",
+      "below": "4.3.2",
+      "name": "semver",
+      "from": [
+        "colonizers@0.0.0",
+        "spm-client@0.4.3",
+        "father@0.10.6",
+        "semver@2.3.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "father@0.14.0",
+        "semver@4.3.2"
+      ]
+    },
+    {
+      "title": "Symlink Arbitrary File Overwrite",
+      "credit": [
+        "Tim Cuthbertson"
+      ],
+      "creationTime": "2015-11-06T02:09:36.182Z",
+      "modificationTime": "2015-11-06T02:09:36.182Z",
+      "publicationTime": "2015-11-03T07:15:12.900Z",
+      "description": "## Overview\nThe `tar` module earlier than version 2.0.0 allow for archives to contain symbolic links that will overwrite targets outside the expected path for extraction.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendation\nUpdate to a version 2.0.0 or greater\n\n## References\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<2.0.0",
+        "patched": ">=2.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 57
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/57"
+      ],
+      "patches": [],
+      "moduleName": "tar",
+      "id": "npm:tar:20151103",
+      "below": "2.0.0",
+      "name": "tar",
+      "version": "1.0.3",
+      "from": [
+        "colonizers@0.0.0",
+        "spm-client@0.4.3",
+        "tar@1.0.3"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "tar@2.0.0"
+      ]
+    },
+    {
+      "title": "Symlink Arbitrary File Overwrite",
+      "credit": [
+        "Tim Cuthbertson"
+      ],
+      "creationTime": "2015-11-06T02:09:36.182Z",
+      "modificationTime": "2015-11-06T02:09:36.182Z",
+      "publicationTime": "2015-11-03T07:15:12.900Z",
+      "description": "## Overview\nThe `tar` module earlier than version 2.0.0 allow for archives to contain symbolic links that will overwrite targets outside the expected path for extraction.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendation\nUpdate to a version 2.0.0 or greater\n\n## References\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<2.0.0",
+        "patched": ">=2.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 57
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/57"
+      ],
+      "patches": [],
+      "moduleName": "tar",
+      "id": "npm:tar:20151103",
+      "below": "2.0.0",
+      "name": "tar",
+      "version": "0.1.20",
+      "from": [
+        "colonizers@0.0.0",
+        "spm-client@0.4.3",
+        "gulp-untar2@0.0.6",
+        "tar@0.1.20"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "tar@2.0.0"
+      ]
+    },
+    {
+      "title": "Symlink Arbitrary File Overwrite",
+      "credit": [
+        "Tim Cuthbertson"
+      ],
+      "creationTime": "2015-11-06T02:09:36.182Z",
+      "modificationTime": "2015-11-06T02:09:36.182Z",
+      "publicationTime": "2015-11-03T07:15:12.900Z",
+      "description": "## Overview\nThe `tar` module earlier than version 2.0.0 allow for archives to contain symbolic links that will overwrite targets outside the expected path for extraction.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendation\nUpdate to a version 2.0.0 or greater\n\n## References\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<2.0.0",
+        "patched": ">=2.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 57
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/57"
+      ],
+      "patches": [],
+      "moduleName": "tar",
+      "id": "npm:tar:20151103",
+      "below": "2.0.0",
+      "name": "tar",
+      "version": "0.1.20",
+      "from": [
+        "colonizers@0.0.0",
+        "babel@5.8.29",
+        "chokidar@1.2.0",
+        "fsevents@1.0.2",
+        "node-pre-gyp@0.6.12",
+        "tar-pack@2.0.0",
+        "tar@0.1.20"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "tar@2.0.0"
+      ]
+    },
+    {
+      "title": "uglify-js incorrectly handles non-boolean comparisons during minification",
+      "credit": [
+        "Tom MacWright"
+      ],
+      "description": "## Overview:\n[Tom MacWright](https://github.com/mishoo/UglifyJS2/issues/751) discovered that UglifyJS versions 2.4.23 and earlier are affected by a vulnerability which allows a specially crafted Javascript file to have altered functionality after minification. This bug was [demonstrated](https://zyan.scripts.mit.edu/blog/backdooring-js/) by [Yan](https://twitter.com/bcrypt) to allow potentially malicious code to be hidden within secure code, activated by minification.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n\n### Details:\n\nIn Boolean algebra, DeMorgan's laws describe the relationships between conjunctions ( && ), disjunctions ( || ) and negations ( ! ).\nIn Javascript form, they state that:\n !(a && b) === (!a) || (!b)\n !(a || b) === (!a) && (!b)\n\nThe law does not hold true when one of the values is not a boolean however.\n\nVulnerable versions of UglifyJS do not account for this restriction, and erroneously apply the laws to a statement if it can be reduced in length by it.\n\nConsider this authentication function:\n\n```\nfunction isTokenValid(user) {\n    var timeLeft =\n        !!config && // config object exists\n        !!user.token && // user object has a token\n        !user.token.invalidated && // token is not explicitly invalidated\n        !config.uninitialized && // config is initialized\n        !config.ignoreTimestamps && // don't ignore timestamps\n        getTimeLeft(user.token.expiry); // > 0 if expiration is in the future\n\n    // The token must not be expired\n    return timeLeft > 0;\n}\n\nfunction getTimeLeft(expiry) {\n  return expiry - getSystemTime();\n}\n```\nWhen minified with a vulnerable version of UglifyJS, it will produce the following insecure output, where a token will never expire:\n\n( Formatted for readability )\n\n```\nfunction isTokenValid(user) {\n    var timeLeft = !(                       // negation\n        !config                             // config object does not exist\n        || !user.token                      // user object does not have a token\n        || user.token.invalidated           // token is explicitly invalidated\n        || config.uninitialized             // config isn't initialized\n        || config.ignoreTimestamps          // ignore timestamps\n        || !getTimeLeft(user.token.expiry)  // > 0 if expiration is in the future\n    );\n    return timeLeft > 0\n}\n\nfunction getTimeLeft(expiry) {\n    return expiry - getSystemTime()\n}\n```\n\n## Recommendations:\n\nUpgrade UglifyJS to version >= 2.4.24.\n\n## References:\n- https://zyan.scripts.mit.edu/blog/backdooring-js/\n- https://github.com/mishoo/UglifyJS2/issues/751\n",
+      "version": "1.1.1",
+      "semver": {
+        "vulnerable": "<= 2.4.23",
+        "patched": ">= 2.4.24"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-95"
+        ],
+        "CVE": [],
+        "NSP": 39
+      },
+      "info": [
+        "https://github.com/mishoo/UglifyJS2/issues/751",
+        "https://github.com/tmcw/mdast-uglify-bug"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20150824_0_0_905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ],
+          "version": "<= 2.4.23 >2.0.0",
+          "modificationTime": "2015-08-24T09:29:10.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/uglify-js/905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "uglify-js",
+      "creationTime": "2015-08-24T09:29:10.000Z",
+      "publicationTime": "2015-08-24T09:29:10.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:uglify-js:20150824",
+      "below": "2.4.24",
+      "name": "uglify-js",
+      "from": [
+        "colonizers@0.0.0",
+        "tap@0.7.1",
+        "runforcover@0.0.2",
+        "bunker@0.1.2",
+        "burrito@0.2.12",
+        "uglify-js@1.1.1"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        "uglify-js@2.4.24"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.186Z",
+      "modificationTime": "2015-11-06T02:09:36.186Z",
+      "publicationTime": "2015-10-24T21:01:32.155Z",
+      "description": "## Overview\nuglify-js is vulnerable to regular expression denial of service (ReDoS) when certain types of input is passed into .parse().\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n\n```\nvar u = require('uglify-js');\nvar genstr = function (len, chr) {\n    var result = \"\";\n    for (i=0; i<=len; i++) {\n        result = result + chr;\n    }\n\n    return result;\n}\n\nu.parse(\"var a = \" + genstr(process.argv[2], \"1\") + \".1ee7;\");\n```\n\n### Results\n```\n$ time node test.js 10000\nreal\t0m1.091s\nuser\t0m1.047s\nsys\t0m0.039s\n\n$ time node test.js 80000\nreal\t0m6.486s\nuser\t0m6.229s\nsys\t0m0.094s\n```\n\n## Recommendation\nFor now do not minify untrusted scripts / input on the fly on a production server.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<2.6.0",
+        "patched": ">=2.6.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 48
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/48"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+          ],
+          "version": "<2.6.0 >=2.2.0",
+          "modificationTime": "2015-11-16T09:29:10.000Z",
+          "comments": [
+            "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+          ]
+        }
+      ],
+      "moduleName": "uglify-js",
+      "id": "npm:uglify-js:20151024",
+      "below": "2.5.0",
+      "name": "uglify-js",
+      "version": "2.4.24",
+      "from": [
+        "colonizers@0.0.0",
+        "handlebars@4.0.3",
+        "uglify-js@2.4.24"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "uglify-js@2.5.0"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.186Z",
+      "modificationTime": "2015-11-06T02:09:36.186Z",
+      "publicationTime": "2015-10-24T21:01:32.155Z",
+      "description": "## Overview\nuglify-js is vulnerable to regular expression denial of service (ReDoS) when certain types of input is passed into .parse().\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n### Proof of Concept\n\n```\nvar u = require('uglify-js');\nvar genstr = function (len, chr) {\n    var result = \"\";\n    for (i=0; i<=len; i++) {\n        result = result + chr;\n    }\n\n    return result;\n}\n\nu.parse(\"var a = \" + genstr(process.argv[2], \"1\") + \".1ee7;\");\n```\n\n### Results\n```\n$ time node test.js 10000\nreal\t0m1.091s\nuser\t0m1.047s\nsys\t0m0.039s\n\n$ time node test.js 80000\nreal\t0m6.486s\nuser\t0m6.229s\nsys\t0m0.094s\n```\n\n## Recommendation\nFor now do not minify untrusted scripts / input on the fly on a production server.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<2.6.0",
+        "patched": ">=2.6.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 48
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/48"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+          ],
+          "version": "<2.6.0 >=2.2.0",
+          "modificationTime": "2015-11-16T09:29:10.000Z",
+          "comments": [
+            "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+          ]
+        }
+      ],
+      "moduleName": "uglify-js",
+      "id": "npm:uglify-js:20151024",
+      "below": "2.4.24",
+      "name": "uglify-js",
+      "version": "1.1.1",
+      "from": [
+        "colonizers@0.0.0",
+        "tap@0.7.1",
+        "runforcover@0.0.2",
+        "bunker@0.1.2",
+        "burrito@0.2.12",
+        "uglify-js@1.1.1"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        "uglify-js@2.4.24"
+      ]
+    }
+  ],
+  "dependencyCount": 1360
+}

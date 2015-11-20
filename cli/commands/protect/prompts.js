@@ -9,6 +9,7 @@ var debug = require('debug')('snyk');
 var protect = require('../../../lib/protect');
 var undefsafe = require('undefsafe');
 var config = require('../../../lib/config');
+var snyk = require('../../../lib/');
 
 function getPrompts(vulns, policy) {
   if (!vulns) {
@@ -146,11 +147,17 @@ function getPrompts(vulns, policy) {
     choices.push(ignore);
     choices.push(skip);
 
+    // look for a default - the `res.default` needs to be the index
+    // of the choice, so we remap the choices to include the index, value of
+    // choice and whether it was supposed to be a default. If the user is
+    // updating their policy options, then we select the choice they had
+    // before, otherwise we select the default
     res.default = (choices.map(function (choice, i) {
       return { i: i, default: choice.default };
     }).filter(function (choice) {
       return choice.default;
     }).shift() || { i: 0 }).i;
+
 
     // kludge to make sure that we get the vuln in the user selection
     res.choices = choices.map(function (choice) {
@@ -172,10 +179,16 @@ function getPrompts(vulns, policy) {
   // in this case, we always show if the user choses to ignore.
   prompts = prompts.reduce(function (acc, curr) {
     acc.push(curr);
+    // console.log(curr.choices[0].value.vuln);
+    var rule = snyk.policy.getByVuln(policy, curr.choices[0].value.vuln);
+    var defaultAnswer = 'None given';
+    if (rule && rule.type === 'ignore') {
+      defaultAnswer = rule.reason;
+    }
     acc.push({
       name: curr.name + '-reason',
       message: '[audit] Reason for ignoring vulnerability?',
-      default: 'None given',
+      default: defaultAnswer,
       when: function (answers) {
         return answers[curr.name].choice === 'ignore';
       },
