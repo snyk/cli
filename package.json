@@ -10,7 +10,7 @@
   },
   "scripts": {
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
-    "test": "npm run lint && tap test/*.test.js --cov | tap-spec && node cli/index.js test",
+    "test": "npm run lint && tap test/*.test.js --cov --reporter=tap | tap-spec && node cli/index.js test",
     "watch": "nodemon -q -x 'for FILE in test/*.test.js; do echo $FILE; tape $FILE | tap-spec; if [ $? -ne 0 ]; then exit 1; fi; done'",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "postinstall": "node cli/index.js help api-license"
@@ -46,7 +46,7 @@
     "validator": "^4.0.5"
   },
   "devDependencies": {
-    "@snyk/registry": "^2.7.1",
+    "@snyk/registry": "^2.13.2",
     "babel": "^5.8.29",
     "istanbul": "^0.4.0",
     "jscs": "^2.0.0",
