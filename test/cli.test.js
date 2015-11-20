@@ -1,6 +1,9 @@
 'use strict';
 require("babel/register")({
   ignore: function (filename) {
+    if (filename.indexOf('@snyk/vuln/lib') !== -1) {
+      return false;
+    }
     if (filename.indexOf('@snyk/registry/test') !== -1) {
       return false;
     }
