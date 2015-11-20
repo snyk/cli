@@ -53,12 +53,13 @@ function wizard(options) {
         console.log(str);
       }).then(function () {
         return new Promise(function (resolve) {
+          if (options.newPolicy) {
+            return resolve(); // don't prompt to start over
+          }
           inquirer.prompt(allPrompts.startOver(), function (answers) {
-            if (!answers['misc-start-over']) {
-              return resolve();
+            if (answers['misc-start-over']) {
+              options['ignore-policy'] = true;
             }
-
-            options['ignore-policy'] = true;
 
             resolve();
           });
@@ -79,6 +80,10 @@ function wizard(options) {
           } else {
             console.log(chalk.green('✓ Tested %s for known vulnerabilities, ' +
               'no vulnerabilities found.'), res.dependencyCount);
+          }
+
+          if (prompts.length === 0) {
+            return processAnswers({}, policy, options);
           }
 
           // otherwise we're fine, but we still want to ask the user

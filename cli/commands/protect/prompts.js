@@ -202,8 +202,8 @@ function getPrompts(vulns, policy) {
 function startOver() {
   return {
     name: 'misc-start-over',
-    message: 'Do you want to revisit your existing policy [Y] or only update ' +
-      'it [n]?',
+    message: 'Do you want to revisit your existing policy [y] or only update ' +
+      'it [N]?',
     type: 'confirm',
     default: false,
   };
