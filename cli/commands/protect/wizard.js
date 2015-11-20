@@ -58,7 +58,6 @@ function wizard(options) {
               return resolve();
             }
 
-            options.startOver = true;
             options['ignore-policy'] = true;
 
             resolve();
