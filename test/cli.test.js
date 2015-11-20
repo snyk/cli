@@ -42,7 +42,7 @@ test('setup', function (t) {
   });
 });
 
-test.skip('prime database', function (t) {
+test('prime database', function (t) {
   t.plan(2);
 
   db.models.User.create({
@@ -55,11 +55,11 @@ test.skip('prime database', function (t) {
   }).then(function (user) {
     t.pass('demo user created');
 
-    cli.config('set', 'api=' + apiKey).then(function () {
+    return cli.config('set', 'api=' + apiKey).then(function () {
       t.pass('api key set');
     });
   }).catch(function (err) {
-    t.faill(err);
+    t.fail(err);
     return t.bailout();
   });
 });
