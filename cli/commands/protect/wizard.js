@@ -8,8 +8,7 @@ var getVersion = require('../version');
 var inquirer = require('inquirer');
 var path = require('path');
 var fs = require('then-fs');
-var getPrompts = require('./prompts').getPrompts;
-var nextSteps = require('./prompts').nextSteps;
+var allPrompts = require('./prompts');
 var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
 var config = require('../../../lib/config');
@@ -51,17 +50,31 @@ function wizard(options) {
       return fs.readFile(intro, 'utf8').then(function (str) {
         console.log(str);
       }).then(function () {
-        return snyk.test(cwd).then(function (res) {
+        return new Promise(function (resolve) {
+          inquirer.prompt(allPrompts.startOver(), function (answers) {
+            if (!answers['misc-start-over']) {
+              return resolve();
+            }
+
+            options.startOver = true;
+            options['ignore-policy'] = true;
+
+            resolve();
+          });
+        });
+      }).then(function () {
+        return snyk.test(cwd, options).then(function (res) {
           var prompts = [];
           var packageFile = path.resolve(cwd, 'package.json');
 
           if (!res.ok) {
+            var vulns = res.vulnerabilities;
             // echo out the deps + vulns found
             console.log('Tested %s dependencies for known vulnerabilities, %s',
               res.dependencyCount,
-              chalk.bold.red('found ' + res.vulnerabilities.length +
-              ' vulnerabilities.'));
-              prompts = getPrompts(res.vulnerabilities);
+              chalk.bold.red('found ' + vulns.length + ' vulnerabilities.'));
+
+            prompts = allPrompts.getPrompts(vulns, policy);
           } else {
             console.log(chalk.green('✓ Tested %s for known vulnerabilities, ' +
               'no vulnerabilities found.'), res.dependencyCount);
@@ -74,7 +87,7 @@ function wizard(options) {
             .then(JSON.parse)
             .then(function (pkg) {
 
-            prompts = prompts.concat(nextSteps(pkg));
+            prompts = prompts.concat(allPrompts.nextSteps(pkg));
             return interactive(prompts, policy, options);
 
           });

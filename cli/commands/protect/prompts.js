@@ -1,6 +1,7 @@
 module.exports = {
   getPrompts: getPrompts,
   nextSteps: nextSteps,
+  startOver: startOver,
 };
 
 var _ = require('lodash');
@@ -9,7 +10,7 @@ var protect = require('../../../lib/protect');
 var undefsafe = require('undefsafe');
 var config = require('../../../lib/config');
 
-function getPrompts(vulns) {
+function getPrompts(vulns, policy) {
   if (!vulns) {
     vulns = []; // being defensive, but maybe we should throw an error?
   }
@@ -183,6 +184,16 @@ function getPrompts(vulns) {
   }, []);
 
   return prompts;
+}
+
+function startOver() {
+  return {
+    name: 'misc-start-over',
+    message: 'Do you want to re-select your existing policy options [y], or ' +
+      'just update it [n]?',
+    type: 'confirm',
+    default: false,
+  };
 }
 
 function nextSteps(pkg) {
