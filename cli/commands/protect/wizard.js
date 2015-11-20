@@ -32,12 +32,12 @@ function wizard(options) {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.dotfile.load(options).catch(function (error) {
+  return snyk.policy.load(options).catch(function (error) {
     // if we land in the catch, but we're in interactive mode, then it means
     // the file hasn't been created yet, and that's fine, so we'll resolve
     // with an empty object
     if (error.code === 'ENOENT') {
-      options.newDotFile = true;
+      options.newPolicy = true;
       return {};
     }
 
@@ -164,7 +164,7 @@ function processAnswers(answers, policy, options) {
       throw e;
     }
 
-    return snyk.dotfile.save(policy);
+    return snyk.policy.save(policy);
   })
   .then(function () {
     // re-read the package.json - because the generatePolicy can apply
@@ -275,7 +275,7 @@ function processAnswers(answers, policy, options) {
     var endpoint = url.parse(config.API);
     endpoint.pathname = '/monitor/' + monitorRes.id;
 
-    return (options.newDotFile ?
+    return (options.newPolicy ?
       // if it's a newly created file
       '\nYour policy file has been created with the actions you\'ve ' +
         'selected, add it to your source control (`git add .snyk`).' :
