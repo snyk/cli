@@ -52,7 +52,7 @@ test('prime database', function (t) {
     email: 'test@example.com',
   }, {
     include: [db.models.ApiKey],
-  }).then(function (user) {
+  }).then(function () {
     t.pass('demo user created');
 
     return cli.config('set', 'api=' + apiKey).then(function () {
