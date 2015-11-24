@@ -1,6 +1,6 @@
 var debug = require('debug')('snyk');
 var wizard = require('../cli/commands/protect/wizard');
-var dotfile = require('../lib/dotfile');
+var policy = require('../lib/policy');
 var path = require('path');
 var test = require('tape');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
@@ -35,7 +35,7 @@ test('patch via wizard produces policy (on debug@2.1.0)', function (t) {
       // policy
     }).then(function () {
       // now check if the policy file worked.
-      return dotfile.load(process.cwd()).then(function (res) {
+      return policy.load(process.cwd()).then(function (res) {
         var patched = Object.keys(res.patch);
         t.equal(patched.length, 1, 'contains 1 patch');
         t.equal(patched[0], id, 'patch contains the correct vuln id');

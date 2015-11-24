@@ -1,0 +1,21 @@
+ignore:
+  'npm:tar:20151103':
+    - 'spm-client@0.4.3 > tar@1.0.3':
+        reason: Turnip
+        expires: '2015-12-19T11:49:11.679Z'
+    - 'spm-client@0.4.3 > gulp-untar2@0.0.6 > tar@0.1.20':
+        reason: Apples
+        expires: '2015-12-19T11:49:11.680Z'
+    - 'babel@5.8.29 > chokidar@1.2.0 > fsevents@1.0.2 > node-pre-gyp@0.6.12 > tar-pack@2.0.0 > tar@0.1.20':
+        reason: Oranges
+        expires: '2015-12-19T11:49:11.680Z'
+  'npm:uglify-js:20150824':
+    - 'tap@0.7.1 > runforcover@0.0.2 > bunker@0.1.2 > burrito@0.2.12 > uglify-js@1.1.1':
+        reason: Fruits
+        expires: '2015-12-19T11:49:11.680Z'
+  'npm:uglify-js:20151024':
+    - 'tap@0.7.1 > runforcover@0.0.2 > bunker@0.1.2 > burrito@0.2.12 > uglify-js@1.1.1':
+        reason: Stuff
+        expires: '2015-12-19T11:49:11.680Z'
+patch: {}
+version: v1

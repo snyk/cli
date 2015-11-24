@@ -10,14 +10,14 @@ var getVersion = require('../version');
 var inquirer = require('inquirer');
 var path = require('path');
 var fs = require('then-fs');
-var getPrompts = require('./prompts').getPrompts;
-var nextSteps = require('./prompts').nextSteps;
+var allPrompts = require('./prompts');
 var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
 var config = require('../../../lib/config');
 var url = require('url');
 var chalk = require('chalk');
 var spinner = require('../../../lib/spinner');
+var cwd = process.cwd();
 
 function wizard(options) {
   if (!options) {
@@ -32,12 +32,12 @@ function wizard(options) {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.dotfile.load(options).catch(function (error) {
+  return snyk.policy.load(options).catch(function (error) {
     // if we land in the catch, but we're in interactive mode, then it means
     // the file hasn't been created yet, and that's fine, so we'll resolve
     // with an empty object
     if (error.code === 'ENOENT') {
-      options.newDotFile = true;
+      options.newPolicy = true;
       return {};
     }
 
@@ -52,36 +52,62 @@ function wizard(options) {
       return fs.readFile(intro, 'utf8').then(function (str) {
         console.log(str);
       }).then(function () {
-        var cwd = process.cwd();
-        return snyk.test(cwd).then(function (res) {
-          if (res.ok) {
-            return 'Nothing to be done. Well done, you.';
+        return new Promise(function (resolve) {
+          if (options.newPolicy) {
+            return resolve(); // don't prompt to start over
+          }
+          inquirer.prompt(allPrompts.startOver(), function (answers) {
+            if (answers['misc-start-over']) {
+              options['ignore-policy'] = true;
+            }
+
+            resolve();
+          });
+        });
+      }).then(function () {
+        return snyk.test(cwd, options).then(function (res) {
+          var prompts = [];
+          var packageFile = path.resolve(cwd, 'package.json');
+
+          if (!res.ok) {
+            var vulns = res.vulnerabilities;
+            // echo out the deps + vulns found
+            console.log('Tested %s dependencies for known vulnerabilities, %s',
+              res.dependencyCount,
+              chalk.bold.red('found ' + vulns.length + ' vulnerabilities.'));
+
+            prompts = allPrompts.getPrompts(vulns, policy);
+          } else {
+            console.log(chalk.green('✓ Tested %s for known vulnerabilities, ' +
+              'no vulnerabilities found.'), res.dependencyCount);
           }
 
-          console.log('Tested ' + res.dependencyCount + ' dependencies for ' +
-            'known vulnerabilities, ' +
-            chalk.bold.red('found ' + res.vulnerabilities.length +
-            ' vulnerabilities.'));
+          if (prompts.length === 0) {
+            return processAnswers({}, policy, options);
+          }
 
-          return interactive(res.vulnerabilities, policy, options);
+          // otherwise we're fine, but we still want to ask the user
+          // if they wanted to save snyk to their test process, etc.
+
+          return fs.readFile(packageFile, 'utf8')
+            .then(JSON.parse)
+            .then(function (pkg) {
+
+            prompts = prompts.concat(allPrompts.nextSteps(pkg));
+            return interactive(prompts, policy, options);
+
+          });
         });
       });
     });
   });
 }
 
-
-function interactive(vulns, policy, options) {
-  var prompts = getPrompts(vulns);
-  var cwd = process.cwd();
-  var packageFile = path.resolve(cwd, 'package.json');
-
-  return fs.readFile(packageFile, 'utf8').then(JSON.parse).then(function (pkg) {
-    return new Promise(function (resolve) {
-      debug('starting questions');
-      inquirer.prompt(prompts.concat(nextSteps(pkg)), function (answers) {
-        resolve(processAnswers(answers, policy, options));
-      });
+function interactive(prompts, policy, options) {
+  return new Promise(function (resolve) {
+    debug('starting questions');
+    inquirer.prompt(prompts, function (answers) {
+      resolve(processAnswers(answers, policy, options));
     });
   });
 }
@@ -142,7 +168,7 @@ function processAnswers(answers, policy, options) {
       throw e;
     }
 
-    return snyk.dotfile.save(policy);
+    return snyk.policy.save(policy);
   })
   .then(function () {
     // re-read the package.json - because the generatePolicy can apply
@@ -253,7 +279,7 @@ function processAnswers(answers, policy, options) {
     var endpoint = url.parse(config.API);
     endpoint.pathname = '/monitor/' + monitorRes.id;
 
-    return (options.newDotFile ?
+    return (options.newPolicy ?
       // if it's a newly created file
       '\nYour policy file has been created with the actions you\'ve ' +
         'selected, add it to your source control (`git add .snyk`).' :

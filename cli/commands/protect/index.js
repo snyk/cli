@@ -23,7 +23,7 @@ function protect(options) {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.dotfile.load().catch(function (error) {
+  return snyk.policy.load().catch(function (error) {
     if (error.code === 'ENOENT') {
       error.code = 'MISSING_DOTFILE';
     }
