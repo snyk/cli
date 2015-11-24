@@ -1,0 +1,101 @@
+From c80180d8341a8ada0236815c29a2be59864afd70 Mon Sep 17 00:00:00 2001
+From: isaacs <i@izs.me>
+Date: Thu, 26 Mar 2015 18:25:40 -0700
+Subject: [PATCH] Prevent version strings > 256 chars, or with giant numbers
+
+---
+ semver.js           | 27 ++++++++++++++++++++++++++-
+ test/big-numbers.js | 24 ++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+), 1 deletion(-)
+ create mode 100644 test/big-numbers.js
+
+diff --git a/semver.js b/semver.js
+index 544bc83..d265b56 100644
+--- a/semver.js
++++ b/semver.js
+@@ -20,6 +20,9 @@ if (typeof module === 'object' && module.exports === exports)
+ // Not necessarily the package version of this code.
+ exports.SEMVER_SPEC_VERSION = '2.0.0';
+ 
++var MAX_LENGTH = 256;
++var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
++
+ // The actual regexps go on exports.re
+ var re = exports.re = [];
+ var src = exports.src = [];
+@@ -233,8 +236,18 @@ for (var i = 0; i < R; i++) {
+ 
+ exports.parse = parse;
+ function parse(version, loose) {
++  if (version.length > MAX_LENGTH)
++    return null;
++
+   var r = loose ? re[LOOSE] : re[FULL];
+-  return (r.test(version)) ? new SemVer(version, loose) : null;
++  if (!r.test(version))
++    return null;
++
++  try {
++    return new SemVer(version, loose);
++  } catch (er) {
++    return null;
++  }
+ }
+ 
+ exports.valid = valid;
+@@ -262,6 +275,9 @@ function SemVer(version, loose) {
+     throw new TypeError('Invalid Version: ' + version);
+   }
+ 
++  if (version.length > MAX_LENGTH)
++    throw new TypeError('version is longer than ' + MAX_LENGTH + ' characters')
++
+   if (!(this instanceof SemVer))
+     return new SemVer(version, loose);
+ 
+@@ -279,6 +295,15 @@ function SemVer(version, loose) {
+   this.minor = +m[2];
+   this.patch = +m[3];
+ 
++  if (this.major > MAX_SAFE_INTEGER || this.major < 0)
++    throw new TypeError('Invalid major version')
++
++  if (this.minor > MAX_SAFE_INTEGER || this.minor < 0)
++    throw new TypeError('Invalid minor version')
++
++  if (this.patch > MAX_SAFE_INTEGER || this.patch < 0)
++    throw new TypeError('Invalid patch version')
++
+   // numberify any prerelease numeric ids
+   if (!m[4])
+     this.prerelease = [];
+diff --git a/test/big-numbers.js b/test/big-numbers.js
+new file mode 100644
+index 0000000..692aa24
+--- /dev/null
++++ b/test/big-numbers.js
+@@ -0,0 +1,24 @@
++var test = require('tap').test
++var semver = require('../')
++
++test('long version is too long', function (t) {
++  var v = '1.2.' + new Array(256).join('1')
++  t.throws(function () {
++    new semver.SemVer(v)
++  })
++  t.equal(semver.valid(v, false), null)
++  t.equal(semver.valid(v, true), null)
++  t.equal(semver.inc(v, 'patch'), null)
++  t.end()
++})
++
++test('big number is like too long version', function (t) {
++  var v = '1.2.' + new Array(100).join('1')
++  t.throws(function () {
++    new semver.SemVer(v)
++  })
++  t.equal(semver.valid(v, false), null)
++  t.equal(semver.valid(v, true), null)
++  t.equal(semver.inc(v, 'patch'), null)
++  t.end()
++})
