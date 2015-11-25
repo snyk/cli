@@ -1,0 +1,43 @@
+ignore:
+  'npm:tar:20151103':
+    - 'spm-client@0.4.3 > tar@1.0.3':
+        reason: Something better than a turnip
+        expires: '2015-12-20T16:37:39.553Z'
+    - 'spm-client@0.4.3 > gulp-untar2@0.0.6 > tar@0.1.20':
+        reason: Apples
+        expires: '2015-12-20T16:37:39.553Z'
+    - 'babel@5.8.29 > chokidar@1.2.0 > fsevents@1.0.2 > node-pre-gyp@0.6.12 > tar-pack@2.0.0 > tar@0.1.20':
+        reason: Oranges
+        expires: '2015-12-20T16:37:39.553Z'
+  'npm:uglify-js:20150824':
+    - 'tap@0.7.1 > runforcover@0.0.2 > bunker@0.1.2 > burrito@0.2.12 > uglify-js@1.1.1':
+        reason: Fruits
+        expires: '2015-12-20T16:37:39.553Z'
+  'npm:uglify-js:20151024':
+    - 'tap@0.7.1 > runforcover@0.0.2 > bunker@0.1.2 > burrito@0.2.12 > uglify-js@1.1.1':
+        reason: Stuff
+        expires: '2015-12-20T16:37:39.553Z'
+patch:
+  'npm:ms:20151024':
+    - 'socket.io@1.3.7 > debug@2.1.0 > ms@0.6.2':
+        patched: '2015-11-20T16:37:39.554Z'
+    - 'spm-client@0.4.3 > debug@2.1.3 > ms@0.7.0':
+        patched: '2015-11-20T16:37:39.554Z'
+    - 'socket.io@1.3.7 > engine.io@1.5.4 > debug@1.0.3 > ms@0.6.2':
+        patched: '2015-11-20T16:37:39.554Z'
+    - 'socket.io@1.3.7 > socket.io-adapter@0.3.1 > debug@1.0.2 > ms@0.6.2':
+        patched: '2015-11-20T16:37:39.554Z'
+    - 'socket.io-client@1.3.7 > engine.io-client@1.5.4 > debug@1.0.4 > ms@0.6.2':
+        patched: '2015-11-20T16:37:39.554Z'
+    - 'spm-client@0.4.3 > father@0.10.6 > debug@1.0.4 > ms@0.6.2':
+        patched: '2015-11-20T16:37:39.554Z'
+    - 'wascally@0.2.7 > whistlepunk@0.2.0 > debug@2.1.1 > ms@0.6.2':
+        patched: '2015-11-20T16:37:39.554Z'
+  'npm:semver:20150403':
+    - 'spm-client@0.4.3 > semver@4.2.2':
+        patched: '2015-11-20T16:37:39.554Z'
+    - 'spm-client@0.4.3 > father@0.10.6 > semver@2.3.2':
+        patched: '2015-11-20T16:37:39.554Z'
+  'npm:uglify-js:20151024':
+    - 'handlebars@4.0.3 > uglify-js@2.4.24':
+        patched: '2015-11-20T16:37:39.554Z'
