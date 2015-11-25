@@ -285,7 +285,8 @@ function processAnswers(answers, policy, options) {
         'selected, add it to your source control (`git add .snyk`).' :
       // otherwise we updated it
       '\nYour .snyk policy file has been successfully updated.') +
-      '\n\nYou can see a snapshot of your dependencies here:\n' +
+      '\nTo review your policy, run `snyk policy`.\n\n' +
+      'You can see a snapshot of your dependencies here:\n' +
       url.format(endpoint) +
       '\n\nWe\'ll notify you when relevant new vulnerabilities are ' +
       'disclosed.';
