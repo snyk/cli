@@ -23,22 +23,22 @@ handlebars@4.0.3 > uglify-js@2.4.24
 #1 Ignore vulnerability https://app.snyk.io/vuln/npm:tar:20151103 in the following paths:
 spm-client@0.4.3 > tar@1.0.3
 Reason: Something better than a turnip
-Expires: Sun Dec 20 2015 16:37:39 GMT+0000 (GMT)
+Expires: Sun, 20 Dec 2015 16:37:39 GMT
 
 spm-client@0.4.3 > gulp-untar2@0.0.6 > tar@0.1.20
 Reason: Apples
-Expires: Sun Dec 20 2015 16:37:39 GMT+0000 (GMT)
+Expires: Sun, 20 Dec 2015 16:37:39 GMT
 
 babel@5.8.29 > chokidar@1.2.0 > fsevents@1.0.2 > node-pre-gyp@0.6.12 > tar-pack@2.0.0 > tar@0.1.20
 Reason: Oranges
-Expires: Sun Dec 20 2015 16:37:39 GMT+0000 (GMT)
+Expires: Sun, 20 Dec 2015 16:37:39 GMT
 
 #2 Ignore vulnerability https://app.snyk.io/vuln/npm:uglify-js:20150824 in the following paths:
 tap@0.7.1 > runforcover@0.0.2 > bunker@0.1.2 > burrito@0.2.12 > uglify-js@1.1.1
 Reason: Fruits
-Expires: Sun Dec 20 2015 16:37:39 GMT+0000 (GMT)
+Expires: Sun, 20 Dec 2015 16:37:39 GMT
 
 #3 Ignore vulnerability https://app.snyk.io/vuln/npm:uglify-js:20151024 in the following paths:
 tap@0.7.1 > runforcover@0.0.2 > bunker@0.1.2 > burrito@0.2.12 > uglify-js@1.1.1
 Reason: Stuff
-Expires: Sun Dec 20 2015 16:37:39 GMT+0000 (GMT)
+Expires: Sun, 20 Dec 2015 16:37:39 GMT
