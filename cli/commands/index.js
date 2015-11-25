@@ -1,21 +1,9 @@
 var abbrev = require('abbrev');
-var snyk = require('../../lib');
+var hotload = require('../../lib/hotload')(__dirname);
+require('../../lib/spinner').isRequired = false;
 
-snyk.isRequired = false;
-
-// this will speed up the module load time, only loading the CLI commands
-// as needed by the user, and totally avoiding if the module is being required
-// into a user project
-function hotload(name) {
-  var module = null;
-  return function () {
-    if (module === null) {
-      module = require(name);
-    }
-
-    return module.apply(null, arguments);
-  };
-}
+// the aim of this module is to load as little as possible to keep cli boot
+// time as low as possible
 
 var commands = {
   help: hotload('./help'),
@@ -24,6 +12,7 @@ var commands = {
   config: hotload('./config'),
   monitor: hotload('./monitor'),
   test: hotload('./test'),
+  policy: hotload('./policy'),
   protect: hotload('./protect'),
   support: hotload('./support'),
   wizard: hotload('./protect/wizard'),

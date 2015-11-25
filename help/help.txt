@@ -17,6 +17,7 @@ Commands:
                        optionally suppress specific vulnerabilities.
   monitor ............ record the state of dependencies and any
                        vulnerabilities on snyk.io.
+  policy ............. display the Snyk policy for a package.
   support ............ file an issue or request support.
 
 Options:
