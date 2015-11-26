@@ -5,7 +5,7 @@ module.exports.processAnswers = processAnswers;
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 var debug = require('debug')('snyk');
-var isAuthed = require('../auth').isAuthed;
+var auth = require('../auth');
 var getVersion = require('../version');
 var inquirer = require('inquirer');
 var path = require('path');
@@ -43,7 +43,7 @@ function wizard(options) {
 
     throw error;
   }).then(function (policy) {
-    return isAuthed().then(function (authed) {
+    return auth.isAuthed().then(function (authed) {
       if (!authed) {
         throw new Error('Unauthorized');
       }
