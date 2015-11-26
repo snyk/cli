@@ -1,0 +1,89 @@
+{
+  "title": "Title: Indirect upgrade",
+  "pkg": {
+    "name": "app",
+    "version": "0.0.0",
+    "full": "app@0.0.0",
+    "dependencies": {
+      "A": {
+        "name": "A",
+        "version": "1.0.0",
+        "full": "A@1.0.0",
+        "path": [
+          "app@0.0.0",
+          "A@1.0.0"
+        ],
+        "dependencies": {
+          "B": {
+            "name": "B",
+            "version": "1.0.0",
+            "full": "B@1.0.0",
+            "path": [
+              "app@0.0.0",
+              "A@1.0.0",
+              "B@1.0.0"
+            ],
+            "dependencies": false
+          }
+        }
+      }
+    },
+    "path": [
+      "app@0.0.0"
+    ]
+  },
+  "packages": {
+    "A@1.0.0": {
+      "dependencies": {
+        "B": {
+          "name": "B",
+          "version": "1.0.0",
+          "full": "B@1.0.0",
+          "path": [],
+          "dependencies": {}
+        }
+      }
+    },
+    "B@2.0.0": {
+      "dependencies": {}
+    },
+    "A@2.0.0": {
+      "dependencies": {
+        "B": {
+          "name": "B",
+          "version": "2.0.0",
+          "full": "B@2.0.0",
+          "path": [],
+          "dependencies": {}
+        }
+      }
+    }
+  },
+  "vulnerabilities": [
+    {
+      "moduleName": "B",
+      "id": "V1",
+      "name": "B",
+      "version": "1.0.0",
+      "below": "1.0.0",
+      "semver": {
+        "vulnerable": "1.0.0",
+        "patched": "2.0.0"
+      },
+      "severity": "high",
+      "info": [
+        "https://example.com/vuln/V1"
+      ],
+      "from": [
+        "app@0.0.0",
+        "A@1.0.0",
+        "B@1.0.0"
+      ],
+      "upgradePath": [
+        false,
+        "A@2.0.0",
+        "B@2.0.0"
+      ]
+    }
+  ]
+}

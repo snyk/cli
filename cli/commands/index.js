@@ -16,7 +16,8 @@ var commands = {
   protect: hotload('./protect'),
   support: hotload('./support'),
   wizard: hotload('./protect/wizard'),
-  // modules: hotload('./modules'),
+  modules: hotload('./modules'),
+  scenario: hotload('./scenario'),
 };
 commands.aliases = abbrev(Object.keys(commands));
 module.exports = commands;
