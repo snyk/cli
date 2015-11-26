@@ -97,7 +97,13 @@ function getPrompts(vulns, policy) {
     // to warn my dear code-reader that this is intentional.
     if (upgradeAvailable) {
       choices.push(update);
-      update.name = 'Upgrade to ' + vuln.upgradePath.filter(Boolean).shift();
+      var toPackage = vuln.upgradePath.filter(Boolean).shift();
+      var last = vuln.upgradePath.slice(-1).shift();
+      var out = toPackage;
+      if (toPackage !== last) {
+        out += ' (triggers update to ' + last + ')';
+      }
+      update.name = 'Upgrade to ' + out;
     } else {
       // No upgrade available (as per no patch)
       choices.push({
