@@ -146,10 +146,12 @@ function parseScenario(source) {
               vuln.patches.push({
                 urls: ['https://example.com/patches/' + m[1]],
                 version: '*',
+                modificationTime: patchDate(m.slice(-1).pop()),
               });
             }
           }); // jshint ignore:line
         }
+
       }
 
       continue;
@@ -335,6 +337,19 @@ function matchDep(module, deps) {
   }
 
   return false;
+}
+
+function patchDate(s) {
+  s = s.toLowerCase();
+  var d = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].map(function (d, i) {
+    return s.indexOf(d) === 0 ? i : false;
+  }).filter(Boolean);
+  var date = new Date();
+
+  if (d.length) {
+    date.setMonth(d[0]);
+  }
+  return date.toJSON();
 }
 
 /*
