@@ -172,3 +172,4 @@ To continuously avoid known vulnerabilities in your dependencies, integrate Snyk
 ## Credits
 
 While we use multiple sources to determine vulnerabilities, the primary (current) source is the [Node Security project](http://nodesecurity.io).
+[![Analytics](https://ga-beacon.appspot.com/UA-69111857-2/Snyk/snyk?pixel)](https://snyk.io/)
