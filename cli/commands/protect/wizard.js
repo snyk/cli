@@ -142,6 +142,9 @@ function processAnswers(answers, policy, options) {
 
     var answer = answers[key];
     var task = answer.choice;
+    if (task === 'review') {
+      task = 'skip';
+    }
 
     if (task === 'ignore') {
       answer.meta.reason = answers[key + '-reason'];
