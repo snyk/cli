@@ -33,7 +33,11 @@ function scenario(casefile, options) {
 }
 
 function loadScenario(casefile) {
-  return fs.readFile(casefile, 'utf8').then(parseScenario);
+  if (casefile.indexOf('.json') === -1) {
+    return fs.readFile(casefile, 'utf8').then(parseScenario);
+  }
+
+  return fs.readFile(casefile, 'utf8').then(JSON.parse);
 }
 
 function scenarioTest(data) {
@@ -133,7 +137,7 @@ function parseScenario(source) {
     if (line.indexOf(' fixes ') !== -1) {
       debug('found fixes...');
 
-      var vulns = line.match(vulnIds) || [,'V1'];
+      var vulns = line.match(vulnIds) || [, 'V1'];
       debug('vulns found? ', vulns);
       if ((m = patches.exec(line)) !== null) {
         for (var k = 0; k < vulns.length; k++) {
@@ -146,6 +150,7 @@ function parseScenario(source) {
               vuln.patches.push({
                 urls: ['https://example.com/patches/' + m[1]],
                 version: '*',
+                id: 'patch:' + m[1],
                 modificationTime: patchDate(m.slice(-1).pop()),
               });
             }
@@ -180,6 +185,22 @@ function parseScenario(source) {
 
         for (var k = 0; k < m.length; k++) {
           var v = m[k];
+
+          // first check if the vuln exists
+          var match = vulnerabilities.filter(function (vuln) {
+            return vuln.id === v;
+          }); // jshint ignore:line
+
+          if (match.length) {
+            match[0].semver = {
+              vulnerable: vulnIn[1],
+              patched: fixedIn[1],
+            };
+            match[0].from = [ pkg.name + '@' + pkg.version, vulnIn.join('@') ];
+            match[0].upgradePath = [ false, !fixedIn[0] ? false : fixedIn.join('@') ];
+            continue;
+          }
+
           var vulnerability = {
             moduleName: vulnIn[0],
             id: v,
@@ -340,8 +361,9 @@ function matchDep(module, deps) {
 }
 
 function patchDate(s) {
-  s = s.toLowerCase();
-  var d = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].map(function (d, i) {
+  s = (s || '').toLowerCase();
+  var d = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep',
+    'oct', 'nov', 'dec'].map(function (d, i) {
     return s.indexOf(d) === 0 ? i : false;
   }).filter(Boolean);
   var date = new Date();
