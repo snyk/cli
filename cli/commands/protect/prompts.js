@@ -143,7 +143,7 @@ function getPrompts(vulns, policy) {
       requires: acc[from].grouped.id,
     };
 
-    var upgrades = curr.upgradePath.slice(-1).shift();
+    var upgrades = curr.upgradePath[1];
     if (upgrades) { // otherwise it's a patch and that's hidden for now
       var p = moduleToObject(upgrades);
       if (p.name !== acc[from].grouped.affected.name &&
