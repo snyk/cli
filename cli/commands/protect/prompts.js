@@ -103,6 +103,7 @@ function getPrompts(vulns, policy) {
   });
 
   var copy = null;
+  var offset = 0;
   // mutate our objects so we can try to group them
   // note that I use slice first becuase the `res` array will change length
   // and `reduce` _really_ doesn't like when you change the array under
@@ -132,7 +133,9 @@ function getPrompts(vulns, policy) {
         main: false,
         requires: acc[from].grouped.id,
       };
-      res.splice(i, 0, copy);
+
+      res.splice(i + offset, 0, copy);
+      offset++;
     }
 
     debug('vuln found on group');
@@ -143,13 +146,15 @@ function getPrompts(vulns, policy) {
       requires: acc[from].grouped.id,
     };
 
-    var upgrades = curr.upgradePath[1];
-    debug('upgrade available? %s', curr.upgradePath);
-    if (upgrades) { // otherwise it's a patch and that's hidden for now
+    var upgrades = curr.upgradePath.slice(-1).shift();
+    debug('upgrade available? %s', upgrades && curr.upgradePath[1]);
+    // otherwise it's a patch and that's hidden for now
+    if (upgrades && curr.upgradePath[1]) {
       var p = moduleToObject(upgrades);
       if (p.name !== acc[from].grouped.affected.name &&
-          (' ' + acc[from].grouped.upgrades.join(' ') + ' ')
-            .indexOf(p.name + '@') === -1) {
+        (' ' + acc[from].grouped.upgrades.join(' ') + ' ')
+          .indexOf(p.name + '@') === -1) {
+        debug('+ adding %s to upgrades', upgrades);
         acc[from].grouped.upgrades.push(upgrades);
       }
     }
@@ -164,6 +169,7 @@ function getPrompts(vulns, policy) {
     if (vuln.grouped) {
       if (vuln.grouped.main) {
         if (vuln.grouped.upgrades.length === 0) {
+          debug('dropping %s', vuln.grouped.id);
           dropped.push(vuln.grouped.id);
           return false;
         }
@@ -187,7 +193,7 @@ function getPrompts(vulns, policy) {
   //   // return vuln.patches;
   //   return {
   //     from: vuln.from.slice(1).filter(Boolean).shift(),
-  //     upgrade: vuln.upgradePath.slice(-1).shift(),
+  //     upgrade: (vuln.grouped || {}).upgrades,
   //     group: vuln.grouped
   //   };
   // }), '', 2));
