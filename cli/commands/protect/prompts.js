@@ -144,6 +144,7 @@ function getPrompts(vulns, policy) {
     };
 
     var upgrades = curr.upgradePath[1];
+    debug('upgrade available? %s', curr.upgradePath);
     if (upgrades) { // otherwise it's a patch and that's hidden for now
       var p = moduleToObject(upgrades);
       if (p.name !== acc[from].grouped.affected.name &&
@@ -268,7 +269,8 @@ function generatePrompt(vulns, policy) {
     } else {
       infoLink += '/vuln/' + vuln.id;
       messageIntro = severity + ' severity vulnerability found in ' + vulnIn +
-        ', introduced via ' + from;
+        ', introduced via ' + from + (from !== vuln.from.slice(1).join(' > ') ?
+          '\n- from: ' + vuln.from.slice(1).join(' > ') : '');
     }
 
     var res = {
