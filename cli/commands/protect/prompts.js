@@ -27,6 +27,62 @@ function sort(prop) {
   };
 }
 
+function sortPrompts(a, b) {
+  var res = 0;
+
+  // first sort by module affected
+  var pa = moduleToObject(a.from[1]);
+  var pb = moduleToObject(b.from[1]);
+  res = sort('name')(pa, pb);
+  if (res !== 0) {
+    return res;
+  }
+
+  // we should have the same module, so the depth should be the same
+  debug('sorting by upgradePath', a.upgradePath[1], b.upgradePath[1]);
+  if (a.upgradePath[1] && b.upgradePath[1]) {
+    // put upgrades ahead of patches
+    if (b.upgradePath[1] === false) {
+      return 1;
+    }
+    var pua = moduleToObject(a.upgradePath[1]);
+    var pub = moduleToObject(b.upgradePath[1]);
+
+    debug('%s > %s', pua.version, pub.version);
+    res = semver.compare(pua.version, pub.version) * -1;
+
+    if (res !== 0) {
+      return res;
+    }
+  } else {
+    if (a.upgradePath[1]) {
+      return -1;
+    }
+
+    if (b.upgradePath[1]) {
+      return 1;
+    }
+  }
+
+  // sort by patch date
+  if (a.patches.length) {
+    // .slice because sort mutates
+    var pda = a.patches.slice(0).sort(function (a, b) {
+      return a.modificationTime - b.modificationTime;
+    }).pop();
+    var pdb = (b.patches || []).slice(0).sort(function (a, b) {
+      return a.modificationTime - b.modificationTime;
+    }).pop();
+
+    if (pda && pdb) {
+      return pda.modificationTime < pdb.modificationTime ? 1 :
+        pda.modificationTime > pdb.modificationTime ? -1 : 0;
+    }
+  }
+
+  return res;
+}
+
 function getPrompts(vulns, policy) {
   // take a copy so as not to mess with the original data
 
@@ -46,61 +102,7 @@ function getPrompts(vulns, policy) {
   });
 
   // sort by vulnerable package and the largest version
-  res.sort(function (a, b) {
-    var res = 0;
-
-    // first sort by module affected
-    var pa = moduleToObject(a.from[1]);
-    var pb = moduleToObject(b.from[1]);
-    res = sort('name')(pa, pb);
-    if (res !== 0) {
-      return res;
-    }
-
-    // we should have the same module, so the depth should be the same
-    debug('sorting by upgradePath', a.upgradePath[1], b.upgradePath[1]);
-    if (a.upgradePath[1] && b.upgradePath[1]) {
-      // put upgrades ahead of patches
-      if (b.upgradePath[1] === false) {
-        return 1;
-      }
-      var pua = moduleToObject(a.upgradePath[1]);
-      var pub = moduleToObject(b.upgradePath[1]);
-
-      debug('%s > %s', pua.version, pub.version);
-      res = semver.compare(pua.version, pub.version) * -1;
-
-      if (res !== 0) {
-        return res;
-      }
-    } else {
-      if (a.upgradePath[1]) {
-        return -1;
-      }
-
-      if (b.upgradePath[1]) {
-        return 1;
-      }
-    }
-
-    // sort by patch date
-    if (a.patches.length) {
-      // .slice because sort mutates
-      var pda = a.patches.slice(0).sort(function (a, b) {
-        return a.modificationTime - b.modificationTime;
-      }).pop();
-      var pdb = (b.patches || []).slice(0).sort(function (a, b) {
-        return a.modificationTime - b.modificationTime;
-      }).pop();
-
-      if (pda && pdb) {
-        return pda.modificationTime < pdb.modificationTime ? 1 :
-          pda.modificationTime > pdb.modificationTime ? -1 : 0;
-      }
-    }
-
-    return res;
-  });
+  res.sort(sortPrompts);
 
   var copy = null;
   var offset = 0;
@@ -183,6 +185,19 @@ function getPrompts(vulns, policy) {
     }
 
     return true;
+  });
+
+  // resort after we made changes
+  res.sort(function (a, b) {
+    if (a.grouped) {
+      return -1;
+    }
+
+    if (a.upgradePath[1]) {
+      return -1;
+    }
+
+    return 1;
   });
 
   debug(res.map(function (v) {
