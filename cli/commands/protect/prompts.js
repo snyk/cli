@@ -188,7 +188,7 @@ function getPrompts(vulns, policy) {
   });
 
   // resort after we made changes
-  res.sort(function (a, b) {
+  res.sort(function (a) {
     if (a.grouped) {
       return -1;
     }

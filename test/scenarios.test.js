@@ -16,8 +16,12 @@ test('ensure scenarios work', function (t) {
   Promise.all(promises).then(function (res) {
     t.equal(res.length, setups.length);
 
-    return res.map(function (res) {
-      t.equal(JSON.stringify(res[0], '', 2), res[1]);
+    return res.map(function (res, i) {
+      var target = JSON.parse(res[1]);
+      // remove modification times
+      removeModTime(res[0]);
+      removeModTime(target);
+      t.deepEqual(res[0], target, setups[i]);
     });
   }).catch(function (e) {
     t.fail(e);
@@ -26,3 +30,13 @@ test('ensure scenarios work', function (t) {
   });
 
 });
+
+function removeModTime(t) {
+  if (t.vulnerabilities) {
+    (t.vulnerabilities || []).forEach(function (v) {
+      (v.patches || []).forEach(function (p) {
+        delete p.modificationTime;
+      });
+    });
+  }
+}
