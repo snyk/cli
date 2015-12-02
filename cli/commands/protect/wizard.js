@@ -90,7 +90,12 @@ function wizard(options) {
             // we're fine, but we still want to ask the user if they wanted to
             // save snyk to their test process, etc.
             if (prompts.length === 0) {
-              return interactive(allPrompts.nextSteps(pkg), policy, options);
+              prompts = allPrompts.nextSteps(pkg, res.ok);
+              if (prompts.length) {
+                return interactive(prompts, policy, options);
+              } else {
+                return processAnswers({}, policy, options);
+              }
             }
 
             prompts = prompts.concat(allPrompts.nextSteps(pkg));
