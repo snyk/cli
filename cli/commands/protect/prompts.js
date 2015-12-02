@@ -493,7 +493,7 @@ function startOver() {
   };
 }
 
-function nextSteps(pkg) {
+function nextSteps(pkg, skipProtect) {
   var i;
   var prompts = [];
 
@@ -509,7 +509,7 @@ function nextSteps(pkg) {
   }
 
   i = (undefsafe(pkg, 'scripts.postinstall') || '').indexOf('snyk pro');
-  if (i === -1) {
+  if (i === -1 && !skipProtect) {
     prompts.push({
       name: 'misc-add-protect',
       message: 'Add `snyk protect` as package.json post-install step to apply' +
