@@ -81,6 +81,16 @@ test('cli', function (t) {
 
 });
 
+test('monitor', function (t) {
+  t.plan(1);
+
+  cli.monitor().then(function () {
+    t.pass('monitor captured');
+  }).catch(function (error) {
+    t.fail(error);
+  });
+});
+
 test('multiple test arguments', function (t) {
   t.plan(1);
 
