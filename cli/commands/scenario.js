@@ -70,9 +70,13 @@ function parseScenario(source) {
   pkg.path = [pkg.full];
 
   var packages = {};
+  var k;
+  var p;
+  var i;
+  var path;
 
   var lines = source.trim().split('\n').map(trim);
-  for (var i = 0; i < lines.length; i++) {
+  for (i = 0; i < lines.length; i++) {
     var line = lines[i];
     debug('>>> %s', line);
 
@@ -100,14 +104,14 @@ function parseScenario(source) {
               name: p[0],
               version: p[1],
               full: p.join('@'),
-              path: [], //p.join('@')
+              path: [],
               dependencies: {},
             };
           }); // jshint ignore:line
           m.shift();
         }
 
-        var p = m[1].split('-');
+        p = m[1].split('-');
         p[1] = cleanVersion(p[1]);
         var full = p.join('@');
         if (!packages[full]) {
@@ -125,7 +129,7 @@ function parseScenario(source) {
             name: p[0],
             version: p[1],
             full: p.join('@'),
-            path: [], //full, p.join('@')
+            path: [],
             dependencies: {},
           };
         }); // jshint ignore:line
@@ -140,7 +144,7 @@ function parseScenario(source) {
       var vulns = line.match(vulnIds) || [, 'V1'];
       debug('vulns found? ', vulns);
       if ((m = patches.exec(line)) !== null) {
-        for (var k = 0; k < vulns.length; k++) {
+        for (k = 0; k < vulns.length; k++) {
           vulnerabilities.forEach(function (vuln) {
             if (vuln.id === vulns[k]) {
               if (!vuln.patches) {
@@ -183,7 +187,7 @@ function parseScenario(source) {
         }
         debug('vulnIds', m, line);
 
-        for (var k = 0; k < m.length; k++) {
+        for (k = 0; k < m.length; k++) {
           var v = m[k];
 
           // first check if the vuln exists
@@ -197,7 +201,8 @@ function parseScenario(source) {
               patched: fixedIn[1],
             };
             match[0].from = [ pkg.name + '@' + pkg.version, vulnIn.join('@') ];
-            match[0].upgradePath = [ false, !fixedIn[0] ? false : fixedIn.join('@') ];
+            path = !fixedIn[0] ? false : fixedIn.join('@');
+            match[0].upgradePath = [ false, path ];
             continue;
           }
 
@@ -215,8 +220,10 @@ function parseScenario(source) {
             info: ['https://example.com/vuln/' + v],
           };
 
-          vulnerability.from = [ pkg.name + '@' + pkg.version, vulnIn.join('@') ];
-          vulnerability.upgradePath = [ false, !fixedIn[0] ? false : fixedIn.join('@') ];
+          var fullfrom = pkg.name + '@' + pkg.version;
+          vulnerability.from = [ fullfrom, vulnIn.join('@') ];
+          path = !fixedIn[0] ? false : fixedIn.join('@');
+          vulnerability.upgradePath = [ false, path ];
 
           vulnerabilities.push(vulnerability);
         }
@@ -236,6 +243,7 @@ function parseScenario(source) {
   vulnerabilities = vulnerabilities.filter(function (vuln) {
     // console.log(vuln);
     debug('checking new vuln: %s', vuln.id);
+    var p;
     var match = matchDep(vuln.name + '@' + vuln.version, pkg.dependencies);
     if (match) {
       vuln.from = match.path.slice(0);
@@ -246,13 +254,17 @@ function parseScenario(source) {
 
       var packagesFull = Object.keys(packages);
       for (var i = 0; i < packagesFull.length; i++) {
-        var p = packagesFull[i];
+        p = packagesFull[i];
         debug('checking for deep %s ~ %s', p, name);
 
         if (packages[p].dependencies[name]) {
           debug('found matching package %s', name);
           var v = target.split('@').pop();
-          debug('semver.satisfies(%s, %s) === %s', packages[p].dependencies[name].version, v, semver.satisfies(packages[p].dependencies[name].version, v));
+          debug('semver.satisfies(%s, %s) === %s',
+            packages[p].dependencies[name].version,
+            v,
+            semver.satisfies(packages[p].dependencies[name].version, v));
+
           if (semver.satisfies(packages[p].dependencies[name].version, v)) {
             debug('target found: %s', target);
             vuln.upgradePath.unshift(target);
@@ -266,8 +278,8 @@ function parseScenario(source) {
       }
 
       if (dirty === false) {
-        for (var i = 0; i < packagesFull.length; i++) {
-          var p = packagesFull[i];
+        for (i = 0; i < packagesFull.length; i++) {
+          p = packagesFull[i];
 
           debug('checking shallow');
 
@@ -312,7 +324,8 @@ function cleanDepTree(deps, pkg, packages) {
     pkg.dependencies[curr].path = pkg.path.concat(pkg.dependencies[curr].path);
     pkg.dependencies[curr].path.push(pkg.dependencies[curr].full);
     if (packages[full]) {
-      pkg.dependencies[curr].dependencies = _.cloneDeep(packages[full].dependencies);
+      pkg.dependencies[curr].dependencies =
+        _.cloneDeep(packages[full].dependencies);
       cleanDepTree(
         Object.keys(pkg.dependencies[curr].dependencies),
         pkg.dependencies[curr],
@@ -363,7 +376,7 @@ function matchDep(module, deps) {
 function patchDate(s) {
   s = (s || '').toLowerCase();
   var d = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep',
-    'oct', 'nov', 'dec'].map(function (d, i) {
+    'oct', 'nov', 'dec', ].map(function (d, i) {
     return s.indexOf(d) === 0 ? i : false;
   }).filter(Boolean);
   var date = new Date();

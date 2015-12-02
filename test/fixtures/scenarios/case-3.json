@@ -78,7 +78,9 @@
           "urls": [
             "https://example.com/patches/P1"
           ],
-          "version": "*"
+          "version": "*",
+          "id": "patch:P1",
+          "modificationTime": "2015-12-02T09:08:00.960Z"
         }
       ]
     }
