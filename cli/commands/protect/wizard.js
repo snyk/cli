@@ -78,8 +78,9 @@ function wizard(options) {
 
             prompts = allPrompts.getPrompts(vulns, policy);
           } else {
-            console.log(chalk.green('✓ Tested %s for known vulnerabilities, ' +
-              'no vulnerabilities found.'), res.dependencyCount);
+            console.log(chalk.green('✓ Tested %s dependencies for known ' +
+              'vulnerabilities, no vulnerabilities found.'),
+              res.dependencyCount);
           }
 
 
