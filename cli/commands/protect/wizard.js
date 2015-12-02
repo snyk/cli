@@ -82,16 +82,16 @@ function wizard(options) {
               'no vulnerabilities found.'), res.dependencyCount);
           }
 
-          if (prompts.length === 0) {
-            return processAnswers({}, policy, options);
-          }
-
-          // otherwise we're fine, but we still want to ask the user
-          // if they wanted to save snyk to their test process, etc.
 
           return fs.readFile(packageFile, 'utf8')
             .then(JSON.parse)
             .then(function (pkg) {
+
+            // we're fine, but we still want to ask the user if they wanted to
+            // save snyk to their test process, etc.
+            if (prompts.length === 0) {
+              return interactive(allPrompts.nextSteps(pkg), policy, options);
+            }
 
             prompts = prompts.concat(allPrompts.nextSteps(pkg));
             return interactive(prompts, policy, options);
