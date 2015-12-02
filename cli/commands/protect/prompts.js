@@ -64,21 +64,21 @@ function sortPrompts(a, b) {
     }
   }
 
-  // sort by patch date
-  if (a.patches.length) {
-    // .slice because sort mutates
-    var pda = a.patches.slice(0).sort(function (a, b) {
-      return a.modificationTime - b.modificationTime;
-    }).pop();
-    var pdb = (b.patches || []).slice(0).sort(function (a, b) {
-      return a.modificationTime - b.modificationTime;
-    }).pop();
+  // // sort by patch date
+  // if (a.patches.length) {
+  //   // .slice because sort mutates
+  //   var pda = a.patches.slice(0).sort(function (a, b) {
+  //     return a.modificationTime - b.modificationTime;
+  //   }).pop();
+  //   var pdb = (b.patches || []).slice(0).sort(function (a, b) {
+  //     return a.modificationTime - b.modificationTime;
+  //   }).pop();
 
-    if (pda && pdb) {
-      return pda.modificationTime < pdb.modificationTime ? 1 :
-        pda.modificationTime > pdb.modificationTime ? -1 : 0;
-    }
-  }
+  //   if (pda && pdb) {
+  //     return pda.modificationTime < pdb.modificationTime ? 1 :
+  //       pda.modificationTime > pdb.modificationTime ? -1 : 0;
+  //   }
+  // }
 
   return res;
 }
@@ -96,6 +96,16 @@ function getPrompts(vulns, policy) {
       vuln.patches = vuln.patches.filter(function (patch) {
         return semver.satisfies(vuln.version, patch.version);
       });
+
+      // sort by patchModification, then pick the latest one
+      vuln.patches = vuln.patches.sort(function (a, b) {
+        return b.modificationTime < a.modificationTime ? -1 : 1;
+      }).slice(0, 1);
+
+      // FIXME hack to give all the patches IDs if they don't already
+      if (vuln.patches[0] && !vuln.patches[0].id) {
+        vuln.patches[0].id = vuln.patches[0].urls[0].split('/').slice(-1).pop();
+      }
     }
 
     return vuln;
@@ -204,14 +214,14 @@ function getPrompts(vulns, policy) {
     return v.upgradePath[1];
   }));
 
-  // console.log(JSON.stringify(res.map(function (vuln) {
-  //   // return vuln.patches;
-  //   return {
-  //     from: vuln.from.slice(1).filter(Boolean).shift(),
-  //     upgrade: (vuln.grouped || {}).upgrades,
-  //     group: vuln.grouped
-  //   };
-  // }), '', 2));
+  console.log(JSON.stringify(res.map(function (vuln) {
+    return vuln;
+    return {
+      from: vuln.from.slice(1).filter(Boolean).shift(),
+      upgrade: (vuln.grouped || {}).upgrades,
+      group: vuln.grouped
+    };
+  }), '', 2));
 
   var prompts = generatePrompt(res, policy);
 
