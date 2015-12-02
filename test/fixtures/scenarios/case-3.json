@@ -1,0 +1,88 @@
+{
+  "title": "Title: Simple patch",
+  "pkg": {
+    "name": "app",
+    "version": "0.0.0",
+    "full": "app@0.0.0",
+    "dependencies": {
+      "A": {
+        "name": "A",
+        "version": "1.0.0",
+        "full": "A@1.0.0",
+        "path": [
+          "app@0.0.0",
+          "A@1.0.0"
+        ],
+        "dependencies": {
+          "B": {
+            "name": "B",
+            "version": "1.0.0",
+            "full": "B@1.0.0",
+            "path": [
+              "app@0.0.0",
+              "A@1.0.0",
+              "B@1.0.0"
+            ],
+            "dependencies": false
+          }
+        }
+      }
+    },
+    "path": [
+      "app@0.0.0"
+    ]
+  },
+  "packages": {
+    "A@1.0.0": {
+      "dependencies": {
+        "B": {
+          "name": "B",
+          "version": "1.0.0",
+          "full": "B@1.0.0",
+          "path": [],
+          "dependencies": {}
+        }
+      }
+    },
+    "@<0.0.0": {
+      "dependencies": {}
+    }
+  },
+  "vulnerabilities": [
+    {
+      "moduleName": "B",
+      "id": "V1",
+      "name": "B",
+      "version": "1.0.0",
+      "below": "1.0.0",
+      "semver": {
+        "vulnerable": "1.0.0",
+        "patched": "<0.0.0"
+      },
+      "severity": "high",
+      "info": [
+        "https://example.com/vuln/V1"
+      ],
+      "from": [
+        "app@0.0.0",
+        "A@1.0.0",
+        "B@1.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://example.com/patches/P1"
+          ],
+          "version": "*",
+          "id": "patch:P1",
+          "modificationTime": "2015-12-02T09:08:00.960Z"
+        }
+      ]
+    }
+  ]
+}

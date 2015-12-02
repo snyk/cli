@@ -85,6 +85,8 @@ function args(processargv) {
   // TODO decide why we can't do this cart blanche...
   if (command === 'protect' ||
       command === 'test' ||
+      command === 'modules' ||
+      command === 'scenario' ||
       command === 'wizard') {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
