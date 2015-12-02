@@ -214,14 +214,14 @@ function getPrompts(vulns, policy) {
     return v.upgradePath[1];
   }));
 
-  console.log(JSON.stringify(res.map(function (vuln) {
-    return vuln;
-    return {
-      from: vuln.from.slice(1).filter(Boolean).shift(),
-      upgrade: (vuln.grouped || {}).upgrades,
-      group: vuln.grouped
-    };
-  }), '', 2));
+  // console.log(JSON.stringify(res.map(function (vuln) {
+  //   return vuln;
+  //   return {
+  //     from: vuln.from.slice(1).filter(Boolean).shift(),
+  //     upgrade: (vuln.grouped || {}).upgrades,
+  //     group: vuln.grouped
+  //   };
+  // }), '', 2));
 
   var prompts = generatePrompt(res, policy);
 
