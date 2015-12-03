@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
+    "@remy/protect-test": "^1.0.7",
     "qs": "^0.6.6"
   },
   "devDependencies": {},
