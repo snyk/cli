@@ -304,6 +304,11 @@ function generatePrompt(vulns, policy) {
           '\n- from: ' + vuln.from.slice(1).join(' > ') : '');
     }
 
+    var note = false;
+    if (vuln.note) {
+      note = '- note: ' + vuln.note;
+    }
+
     var res = {
       when: function (answers) {
         var res = true;
@@ -338,7 +343,8 @@ function generatePrompt(vulns, policy) {
       },
       name: id,
       type: 'list',
-      message: [messageIntro, infoLink, '  Remediation options'].join('\n')
+      message: [messageIntro, infoLink, note, '  Remediation options']
+        .filter(Boolean).join('\n')
     };
 
     var upgradeAvailable = vuln.upgradePath.some(function (pkg, i) {

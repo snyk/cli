@@ -1,5 +1,21 @@
 var policy = require('../lib/policy');
 var test = require('tape');
+var dir = __dirname + '/fixtures/jsbin-snyk-config';
+
+test('policy is callable', function (t) {
+  t.plan(3);
+  policy.load(dir).then(function () {
+    t.pass('called with string');
+  });
+
+  policy.load([dir]).then(function () {
+    t.pass('called with array');
+  });
+
+  policy.load(dir, { 'ignore-policy': true }).then(function () {
+    t.pass('called with string and options');
+  });
+});
 
 test('test sensibly bails if gets an old .snyk format', function (t) {
   var vulns = require('./fixtures/test-jsbin-vulns-updated.json').vulnerabilities;
@@ -8,7 +24,7 @@ test('test sensibly bails if gets an old .snyk format', function (t) {
     return v.id === id;
   }).pop();
 
-  policy.load(__dirname + '/fixtures/jsbin-snyk-config').then(function (config) {
+  policy.load(dir).then(function (config) {
     var rule = policy.getByVuln(config, vuln);
     t.equal(id, rule.id);
     t.equal(rule.type, 'ignore', 'rule is correctly flagged as ignore');
