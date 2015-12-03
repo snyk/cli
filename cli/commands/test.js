@@ -120,6 +120,10 @@ function test(path, options) {
       res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
       res += 'From: ' + vuln.from.join(' > ') + '\n';
 
+      if (vuln.note) {
+        res += vuln.note + '\n';
+      }
+
       var upgradeSteps = (vuln.upgradePath || []).filter(Boolean);
 
       // Remediation instructions (if we have one)
