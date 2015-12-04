@@ -189,7 +189,7 @@ https://snyk.io/package/npm/name/badge.svg
 ```
 
 ```
-[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
+[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name)
 ```
 
 ## Credits
