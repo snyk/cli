@@ -181,15 +181,18 @@ If there are no vulnerabilities, this is indicated by a green badge. If vulnerab
 
 _Note:_ The badge works off the npm package, and does not factor in .snyk files yet. (This means that ignored vulnerabilities will not be taken into account). 
 
-Get the badge by navigating to your package report on Snyk: 
-https://snyk.io/package/npm/name/badge.svg
+Get the badge by copying the relevant snippet below and replacing "name" with the name of your package.
+
+HTML:
 
 ```
-<img src="https://snyk.io/package/npm/name/badge.svg" alt=“Known Vulnerabilities" data-canonical-src=“https://snyk.io/package/npm/name style="max-width:100%;">
+<img src="https://snyk.io/package/npm/name/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/package/npm/name/badge style="max-width:100%;">
 ```
 
+Markdown
+
 ```
-[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name)
+[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
 ```
 
 ## Credits
