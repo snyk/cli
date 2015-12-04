@@ -175,11 +175,11 @@ Once you’re vulnerability free, you can put a badge on your README showing you
 
 If there are no vulnerabilities, this is indicated by a green badge.
 
-[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
+[![Known Vulnerabilities](https://snyk.io/test/npm/name/badge.svg)](https://snyk.io/test/npm/name)
 
 If vulnerabilities have been found, the red badge will show the number of vulnerabilities. 
 
-[![Known Vulnerabilities](https://snyk.io/package/npm/jsbin/badge.svg)](https://snyk.io/package/npm/jsbin/badge)
+[![Known Vulnerabilities](https://snyk.io/test/npm/jsbin/badge.svg)](https://snyk.io/test/npm/jsbin)
 
 _Note:_ The badge works off the npm package, and does not factor in .snyk files yet. (This means that ignored vulnerabilities will not be taken into account). 
 
@@ -188,13 +188,13 @@ Get the badge by copying the relevant snippet below and replacing "name" with th
 HTML:
 
 ```
-<img src="https://snyk.io/package/npm/name/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/package/npm/name/badge style="max-width:100%;">
+<img src="https://snyk.io/test/npm/name/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/test/npm/name style="max-width:100%;">
 ```
 
 Markdown:
 
 ```
-[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
+[![Known Vulnerabilities](https://snyk.io/test/npm/name/badge.svg)](https://snyk.io/test/npm/name)
 ```
 
 ## Credits
