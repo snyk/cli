@@ -62,23 +62,10 @@ function sortPrompts(a, b) {
     if (b.upgradePath[1]) {
       return 1;
     }
+
+    // if no upgrade, then hopefully a patch
+    res = sort('publicationTime')(b, a);
   }
-
-  // // sort by patch date
-  // if (a.patches.length) {
-  //   // .slice because sort mutates
-  //   var pda = a.patches.slice(0).sort(function (a, b) {
-  //     return a.modificationTime - b.modificationTime;
-  //   }).pop();
-  //   var pdb = (b.patches || []).slice(0).sort(function (a, b) {
-  //     return a.modificationTime - b.modificationTime;
-  //   }).pop();
-
-  //   if (pda && pdb) {
-  //     return pda.modificationTime < pdb.modificationTime ? 1 :
-  //       pda.modificationTime > pdb.modificationTime ? -1 : 0;
-  //   }
-  // }
 
   return res;
 }
@@ -176,30 +163,31 @@ function getPrompts(vulns, policy) {
 
   // now filter out any vulns that don't have an upgrade path and only patches
   // and have already been grouped
-  var dropped = [];
-  res = res.filter(function (vuln) {
-    if (vuln.grouped) {
-      if (vuln.grouped.main) {
-        if (vuln.grouped.upgrades.length === 0) {
-          debug('dropping %s', vuln.grouped.id);
-          dropped.push(vuln.grouped.id);
-          return false;
-        }
-      }
+  // var dropped = [];
+  // res = res.filter(function (vuln) {
+  //   if (vuln.grouped) {
+  //     if (vuln.grouped.main) {
+  //       debug('ok!!');
+  //       if (vuln.grouped.upgrades.length === 0) {
+  //         debug('dropping %s', vuln.grouped.id);
+  //         // dropped.push(vuln.grouped.id);
+  //         // return false;
+  //       }
+  //     }
 
-      // we have to remove the group property on the collective vulns if the
-      // top grouping has been removed, because otherwise they won't be shown
-      if (dropped.indexOf(vuln.grouped.requires) !== -1) {
-        delete vuln.grouped;
-      }
-    }
+  //     // we have to remove the group property on the collective vulns if the
+  //     // top grouping has been removed, because otherwise they won't be shown
+  //     if (dropped.indexOf(vuln.grouped.requires) !== -1) {
+  //       delete vuln.grouped;
+  //     }
+  //   }
 
-    return true;
-  });
+  //   return true;
+  // });
 
-  // resort after we made changes
+  // resort after we made changes putting upgrades first
   res.sort(function (a) {
-    if (a.grouped) {
+    if (a.grouped) {//} && a.upgradePath[1]) { // RS changed to add in the upgradePath
       return -1;
     }
 
@@ -224,6 +212,8 @@ function getPrompts(vulns, policy) {
   // }), '', 2));
 
   var prompts = generatePrompt(res, policy);
+
+  // console.log(prompts);
 
   // do stuff
 
@@ -383,39 +373,40 @@ function generatePrompt(vulns, policy) {
       update.name = out;
     } else {
       // No upgrade available (as per no patch)
-      choices.push({
-        value: 'skip',
-        key: 'u',
-        short: 'Upgrade (none available)',
-        name: 'Upgrade (no sufficient upgrade available for ' +
-          from.split('@')[0] + ', we\'ll notify you when there is one)',
-      });
+      // choices.push({
+      //   value: 'skip',
+      //   key: 'u',
+      //   short: 'Upgrade (none available)',
+      //   name: 'Upgrade (no sufficient upgrade available for ' +
+      //     from.split('@')[0] + ', we\'ll notify you when there is one)',
+      // });
     }
 
     var patches = null;
 
-    if (group && group.upgrades.length) {
-      review.meta = {
-        groupId: group.id,
-      };
-      choices.push(review);
-    } else {
-      if (vuln.patches && vuln.patches.length) {
-        // check that the version we have has a patch available
-        patches = protect.patchesForPackage({
-          name: vuln.name,
-          version: vuln.version,
-        }, vuln);
+    if (vuln.patches && vuln.patches.length) {
+      // check that the version we have has a patch available
+      patches = protect.patchesForPackage({
+        name: vuln.name,
+        version: vuln.version,
+      }, vuln);
 
-        if (patches !== null) {
-          if (!upgradeAvailable) {
-            patch.default = true;
-          }
-          res.patches = patches;
-          choices.push(patch);
+      if (patches !== null) {
+        if (!upgradeAvailable) {
+          patch.default = true;
         }
-      }
+        res.patches = patches;
 
+        if (group) {
+          patch.name = 'Patch the ' + group.count + ' vulnerabilities';
+        }
+
+        choices.push(patch);
+      }
+    }
+
+    // only show patch option if this is NOT a grouped upgrade
+    if (upgradeAvailable === false || !group) {
       if (patches === null) {
         // add a disabled option saying that patch isn't available
         // note that adding `disabled: true` does nothing, so the user can
@@ -428,6 +419,13 @@ function generatePrompt(vulns, policy) {
           name: 'Patch (no patch available, we\'ll notify you when there is one)',
         });
       }
+    }
+
+    if (group) {
+      review.meta = {
+        groupId: group.id,
+      };
+      choices.push(review);
     }
 
     if (patches === null && !upgradeAvailable) {
