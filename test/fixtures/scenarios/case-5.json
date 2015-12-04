@@ -55,6 +55,7 @@
       "name": "B",
       "version": "1.0.0",
       "below": "1.0.0",
+      "publicationTime": "2015-10-04T12:00:00",
       "semver": {
         "vulnerable": "1.0.0",
         "patched": "<0.0.0"
@@ -91,6 +92,7 @@
     {
       "moduleName": "B",
       "id": "V2",
+      "publicationTime": "2015-12-04T12:00:00",
       "name": "B",
       "version": "1.0.0",
       "below": "1.0.0",
