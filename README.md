@@ -173,11 +173,11 @@ To continuously avoid known vulnerabilities in your dependencies, integrate Snyk
 
 Once you’re vulnerability free, you can put a badge on your README showing your package has no known security holes. This will show your users you care about security, and tell them that they should care too.
 
-[![snykbadge](https://snyk.io/package/npm/jsbin/badge.svg)](https://snyk.io/package/npm/jsbin/badge)
+[![Known Vulnerabilities](https://snyk.io/package/npm/jsbin/badge.svg)](https://snyk.io/package/npm/jsbin/badge)
 
 If there are no vulnerabilities, this is indicated by a green badge. If vulnerabilities have been found, the red badge will show the number of vulnerabilities. 
 
-[![snykbadge](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
+[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
 
 _Note:_ The badge works off the npm package, and does not factor in .snyk files yet. (This means that ignored vulnerabilities will not be taken into account). 
 
