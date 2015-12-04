@@ -189,7 +189,7 @@ HTML:
 <img src="https://snyk.io/package/npm/name/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/package/npm/name/badge style="max-width:100%;">
 ```
 
-Markdown
+Markdown:
 
 ```
 [![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
