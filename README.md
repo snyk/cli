@@ -220,7 +220,7 @@ If there are no vulnerabilities, this is indicated by a green badge. If vulnerab
 
 _Note:_ The badge works off the npm package, and does not factor in .snyk files yet. (This means that ignored vulnerabilities will not be taken into account). 
 
-Get the badge by navigation to your package on Snyk: 
+Get the badge by navigating to your package report on Snyk: 
 https://snyk.io/package/npm/name/badge.svg
 
 ## Credits
