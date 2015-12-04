@@ -173,48 +173,7 @@ To continuously avoid known vulnerabilities in your dependencies, integrate Snyk
 
 Once you’re vulnerability free, you can put a badge on your README showing your package has no known security holes. This will show your users you care about security, and tell them that they should care too.
 
-<p class="u--centered">
-  <svg id="snyk-badge" xmlns="http://www.w3.org/2000/svg" width="113" height="20">
-    <linearGradient id="b" x2="0" y2="100%">
-      <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-      <stop offset="1" stop-opacity=".1"/>
-    </linearGradient>
-    <mask id="a">
-      <rect width="113" height="20" rx="3" fill="#fff"/>
-    </mask>
-    <g mask="url(#a)">
-      <path fill="#555" d="M0 0h90v20H0z"/>
-      <path fill="#4c1" d="M90 0h113v20H90z"/>
-      <path fill="url(#b)" d="M0 0h113v20H0z"/>
-    </g>
-    <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-      <text x="45" y="15" fill="#010101" fill-opacity=".3">Vulnerabilities</text>
-      <text x="45" y="14">Vulnerabilties</text>
-      <text x="100" y="15" fill="#010101" fill-opacity=".3">0</text>
-      <text x="100" y="14">0</text>
-    </g>
-  </svg>
-  <svg id="snyk-badge" xmlns="http://www.w3.org/2000/svg" width="116" height="20">
-    <linearGradient id="b" x2="0" y2="100%">
-      <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
-      <stop offset="1" stop-opacity=".1"/>
-    </linearGradient>
-    <mask id="a">
-      <rect width="116" height="20" rx="3" fill="#fff"/>
-    </mask>
-    <g mask="url(#a)">
-      <path fill="#555" d="M0 0h90v20H0z"/>
-      <path fill="#e05d44" d="M90 0h116v20H90z"/>
-      <path fill="url(#b)" d="M0 0h116v20H0z"/>
-    </g>
-    <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
-      <text x="45" y="15" fill="#010101" fill-opacity=".3">Vulnerabilities</text>
-      <text x="45" y="14">Vulnerabilties</text>
-      <text x="102" y="15" fill="#010101" fill-opacity=".3">15</text>
-      <text x="102" y="14">15</text>
-    </g>
-  </svg>
-</p>
+[![snykbadge](https://snyk.io/package/npm/name/badge.svg)](http://snyk.io)
 
 If there are no vulnerabilities, this is indicated by a green badge. If vulnerabilities have been found, the red badge will show the number of vulnerabilities. 
 
