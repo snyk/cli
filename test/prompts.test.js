@@ -22,11 +22,43 @@ test('case 1: direct update', function (t) {
   t.ok(!!prompts, 'prompts actually loaded');
   t.equal(prompts.length, vulns.length * 2, 'found right number of prompts');
   t.ok(contains(prompts[0], 'update'));
-  t.ok(contains(prompts[0], 'patch', true));
+  t.equal(prompts[0].choices[1].value.choice, 'skip', 'patch is not available, so should skip instead');
   t.end();
 });
 
-test.only('case 5: two patches modify the same files', function (t) {
+test('case 2: indirect update', function (t) {
+  var vulns = require('./fixtures/scenarios/case-2.json').vulnerabilities;
+  var prompts = getPrompts(vulns);
+
+  t.ok(!!prompts, 'prompts actually loaded');
+  t.equal(prompts.length, vulns.length * 2, 'found right number of prompts');
+  t.ok(contains(prompts[0], 'update'));
+  t.equal(prompts[0].choices[1].value.choice, 'skip', 'patch is not available, so should skip instead');
+  t.end();
+});
+
+test('case 4: upgrades to different versions', function (t) {
+  var vulns = require('./fixtures/scenarios/case-4.json').vulnerabilities;
+  var prompts = getPrompts(vulns);
+
+  t.ok(!!prompts, 'prompts actually loaded');
+  t.equal(prompts.length, vulns.length * 2 + 2, 'found right number of prompts');
+
+  t.ok(contains(prompts[0], 'review'));
+  t.ok(contains(prompts[0], 'update'));
+
+  t.ok(contains(prompts[2], 'update'));
+  t.equal(prompts[2].choices[1].value.choice, 'skip', 'patch is not available, so should skip instead');
+
+  t.ok(contains(prompts[4], 'update'));
+  t.equal(prompts[4].choices[1].value.choice, 'skip', 'patch is not available, so should skip instead');
+
+
+  t.end();
+});
+
+
+test('case 5: two patches modify the same files', function (t) {
   var vulns = require('./fixtures/scenarios/case-5.json').vulnerabilities;
   var prompts = getPrompts(vulns);
 
