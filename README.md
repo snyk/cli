@@ -177,12 +177,20 @@ Once you’re vulnerability free, you can put a badge on your README showing you
 
 If there are no vulnerabilities, this is indicated by a green badge. If vulnerabilities have been found, the red badge will show the number of vulnerabilities. 
 
-[![snykbadge](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
+[![snykbadge](https://snyk.io/package/npm/yourpackage/badge.svg)](https://snyk.io/package/npm/name/badge)
 
 _Note:_ The badge works off the npm package, and does not factor in .snyk files yet. (This means that ignored vulnerabilities will not be taken into account). 
 
 Get the badge by navigating to your package report on Snyk: 
 https://snyk.io/package/npm/name/badge.svg
+
+```
+<img src="https://snyk.io/package/npm/name/badge.svg" alt=“Known Vulnerabilities" data-canonical-src=“https://snyk.io/package/npm/name style="max-width:100%;">
+```
+
+```
+[![snykbadge](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name/badge)
+```
 
 ## Credits
 
