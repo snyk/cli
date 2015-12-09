@@ -109,6 +109,7 @@ function getPrompts(vulns, policy) {
   // it's feet
   res.slice(0).reduce(function (acc, curr, i) {
     var from = curr.from[1];
+
     if (!acc[from]) {
       // only copy the biggest change
       copy = _.cloneDeep(curr);
@@ -116,39 +117,39 @@ function getPrompts(vulns, policy) {
       return acc;
     }
 
-    if (!acc[from].grouped) {
-      acc[from].grouped = {
-        affected: moduleToObject(from),
-        main: true,
-        id: acc[from].id + '-' + i,
-        count: 1,
-        upgrades: [],
-      };
-      acc[from].grouped.affected.full = from;
-
-      // splice this vuln into the list again so if the user choses to review
-      // they'll get this individual vuln and remediation
-      copy.grouped = {
-        main: false,
-        requires: acc[from].grouped.id,
-      };
-
-      res.splice(i + offset, 0, copy);
-      offset++;
-    }
-
-    debug('vuln found on group');
-    acc[from].grouped.count++;
-
-    curr.grouped = {
-      main: false,
-      requires: acc[from].grouped.id,
-    };
-
     var upgrades = curr.upgradePath.slice(-1).shift();
     debug('upgrade available? %s', upgrades && curr.upgradePath[1]);
     // otherwise it's a patch and that's hidden for now
     if (upgrades && curr.upgradePath[1]) {
+      if (!acc[from].grouped) {
+        acc[from].grouped = {
+          affected: moduleToObject(from),
+          main: true,
+          id: acc[from].id + '-' + i,
+          count: 1,
+          upgrades: [],
+        };
+        acc[from].grouped.affected.full = from;
+
+        // splice this vuln into the list again so if the user choses to review
+        // they'll get this individual vuln and remediation
+        copy.grouped = {
+          main: false,
+          requires: acc[from].grouped.id,
+        };
+
+        res.splice(i + offset, 0, copy);
+        offset++;
+      }
+
+      debug('vuln found on group');
+      acc[from].grouped.count++;
+
+      curr.grouped = {
+        main: false,
+        requires: acc[from].grouped.id,
+      };
+
       var p = moduleToObject(upgrades);
       if (p.name !== acc[from].grouped.affected.name &&
         (' ' + acc[from].grouped.upgrades.join(' ') + ' ')
@@ -160,6 +161,8 @@ function getPrompts(vulns, policy) {
 
     return acc;
   }, {});
+
+  // console.log(commonPatch);
 
   // now filter out any vulns that don't have an upgrade path and only patches
   // and have already been grouped
@@ -186,17 +189,17 @@ function getPrompts(vulns, policy) {
   // });
 
   // resort after we made changes putting upgrades first
-  res.sort(function (a) {
-    if (a.grouped) {//} && a.upgradePath[1]) { // RS changed to add in the upgradePath
-      return -1;
-    }
+  // res.sort(function (a) {
+  //   if (a.grouped) {//} && a.upgradePath[1]) { // RS changed to add in the upgradePath
+  //     return -1;
+  //   }
 
-    if (a.upgradePath[1]) {
-      return -1;
-    }
+  //   if (a.upgradePath[1]) {
+  //     return -1;
+  //   }
 
-    return 1;
-  });
+  //   return 1;
+  // });
 
   debug(res.map(function (v) {
     return v.upgradePath[1];
@@ -214,8 +217,6 @@ function getPrompts(vulns, policy) {
   var prompts = generatePrompt(res, policy);
 
   // console.log(prompts);
-
-  // do stuff
 
   return prompts;
 }
@@ -280,6 +281,7 @@ function generatePrompt(vulns, policy) {
 
     var infoLink = '- info: ' + config.ROOT;
     var messageIntro;
+    var fromText = false;
     var group = vuln.grouped && vuln.grouped.main ? vuln.grouped : false;
 
     if (group) {
@@ -290,8 +292,9 @@ function generatePrompt(vulns, policy) {
     } else {
       infoLink += '/vuln/' + vuln.id;
       messageIntro = severity + ' severity vulnerability found in ' + vulnIn +
-        ', introduced via ' + from + (from !== vuln.from.slice(1).join(' > ') ?
-          '\n- from: ' + vuln.from.slice(1).join(' > ') : '');
+        ', introduced via ' + from;
+      fromText = (from !== vuln.from.slice(1).join(' > ') ?
+          '- from: ' + vuln.from.slice(1).join(' > ') : '');
     }
 
     var note = false;
@@ -321,9 +324,20 @@ function generatePrompt(vulns, policy) {
           }
 
           // if we've upgraded, then stop asking
+          var updatedTo = null;
           res = groupAnswer.filter(function (answer) {
-            return answer.choice === 'update';
+            if (answer.choice === 'update') {
+              updatedTo = answer;
+              return true;
+            }
           }).length === 0;
+
+          if (!res) {
+            // echo out what would be upgraded
+            var via = 'Fixed through previous upgrade instruction to ' + updatedTo.vuln.upgradePath[1];
+            console.log(['', messageIntro, infoLink, via].join('\n'));
+            // console.log(updatedTo);
+          }
         }
 
         if (res) {
@@ -333,7 +347,7 @@ function generatePrompt(vulns, policy) {
       },
       name: id,
       type: 'list',
-      message: [messageIntro, infoLink, note, '  Remediation options']
+      message: [messageIntro, fromText, infoLink, note, '  Remediation options']
         .filter(Boolean).join('\n')
     };
 
@@ -384,24 +398,28 @@ function generatePrompt(vulns, policy) {
 
     var patches = null;
 
-    if (vuln.patches && vuln.patches.length) {
-      // check that the version we have has a patch available
-      patches = protect.patchesForPackage({
-        name: vuln.name,
-        version: vuln.version,
-      }, vuln);
+    if (upgradeAvailable && group) {
 
-      if (patches !== null) {
-        if (!upgradeAvailable) {
-          patch.default = true;
+    } else {
+      if (vuln.patches && vuln.patches.length) {
+        // check that the version we have has a patch available
+        patches = protect.patchesForPackage({
+          name: vuln.name,
+          version: vuln.version,
+        }, vuln);
+
+        if (patches !== null) {
+          if (!upgradeAvailable) {
+            patch.default = true;
+          }
+          res.patches = patches;
+
+          if (group) {
+            patch.name = 'Patch the ' + group.count + ' vulnerabilities';
+          }
+
+          choices.push(patch);
         }
-        res.patches = patches;
-
-        if (group) {
-          patch.name = 'Patch the ' + group.count + ' vulnerabilities';
-        }
-
-        choices.push(patch);
       }
     }
 
