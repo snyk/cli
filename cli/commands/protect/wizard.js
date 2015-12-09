@@ -1,6 +1,8 @@
 module.exports = wizard;
 // used for testing
 module.exports.processAnswers = processAnswers;
+module.exports.inquire = inquire;
+module.exports.interactive = interactive;
 
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 
@@ -17,6 +19,7 @@ var config = require('../../../lib/config');
 var url = require('url');
 var chalk = require('chalk');
 var spinner = require('../../../lib/spinner');
+var _ = require('lodash');
 var cwd = process.cwd();
 
 function wizard(options) {
@@ -66,7 +69,6 @@ function wizard(options) {
         });
       }).then(function () {
         return snyk.test(cwd, options).then(function (res) {
-          var prompts = [];
           var packageFile = path.resolve(cwd, 'package.json');
 
           if (!res.ok) {
@@ -75,8 +77,6 @@ function wizard(options) {
             console.log('Tested %s dependencies for known vulnerabilities, %s',
               res.dependencyCount,
               chalk.bold.red('found ' + vulns.length + ' vulnerabilities.'));
-
-            prompts = allPrompts.getPrompts(vulns, policy);
           } else {
             console.log(chalk.green('✓ Tested %s dependencies for known ' +
               'vulnerabilities, no vulnerabilities found.'),
@@ -88,15 +88,9 @@ function wizard(options) {
             .then(JSON.parse)
             .then(function (pkg) {
 
-            // we're fine, but we still want to ask the user if they wanted to
-            // save snyk to their test process, etc.
-            prompts = prompts.concat(allPrompts.nextSteps(pkg, res.ok));
-            if (prompts.length === 0) {
-              return processAnswers({}, policy, options);
-            }
-
-            return interactive(prompts, policy, options);
-
+            return interactive(res, pkg, policy).then(function (answers) {
+              return processAnswers(answers, policy, options);
+            });
           });
         });
       });
@@ -104,11 +98,40 @@ function wizard(options) {
   });
 }
 
-function interactive(prompts, policy, options) {
+function interactive(test, pkg, policy) {
+  var vulns = test.vulnerabilities;
+  if (!policy) {
+    policy = {};
+  }
+
+  if (!pkg) { // only really happening in tests
+    pkg = {};
+  }
+
   return new Promise(function (resolve) {
     debug('starting questions');
-    inquirer.prompt(prompts, function (answers) {
-      resolve(processAnswers(answers, policy, options));
+    var prompts = allPrompts.getUpdatePrompts(vulns, policy);
+    resolve(inquire(prompts, {}));
+  }).then(function (answers) {
+    var prompts = allPrompts.getPatchPrompts(vulns, policy);
+    return inquire(prompts, answers);
+  }).then(function (answers) {
+    var prompts = allPrompts.getIgnorePrompts(vulns, policy);
+    return inquire(prompts, answers);
+  }).then(function (answers) {
+    var prompts = allPrompts.nextSteps(pkg, test.ok);
+    return inquire(prompts, answers);
+  });
+}
+
+function inquire(prompts, answers) {
+  if (prompts.length === 0) {
+    return Promise.resolve(answers);
+  }
+  return new Promise(function (resolve) {
+    inquirer.prompt(prompts, function (theseAnswers) {
+      _.extend(answers, theseAnswers);
+      resolve(answers);
     });
   });
 }
