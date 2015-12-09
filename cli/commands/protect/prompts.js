@@ -2,6 +2,7 @@ module.exports = {
   getUpdatePrompts: getUpdatePrompts,
   getPatchPrompts: getPatchPrompts,
   getIgnorePrompts: getIgnorePrompts,
+  getPrompts: getPrompts,
   nextSteps: nextSteps,
   startOver: startOver,
 };
@@ -70,6 +71,12 @@ function sortPrompts(a, b) {
   }
 
   return res;
+}
+
+function getPrompts(vulns, policy) {
+  return getUpdatePrompts(vulns, policy)
+                  .concat(getPatchPrompts(vulns, policy))
+                  .concat(getIgnorePrompts(vulns, policy));
 }
 
 function getPatchPrompts(vulns, policy) {
