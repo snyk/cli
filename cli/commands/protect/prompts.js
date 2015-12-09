@@ -1,5 +1,7 @@
 module.exports = {
-  getPrompts: getPrompts,
+  getUpdatePrompts: getUpdatePrompts,
+  getPatchPrompts: getPatchPrompts,
+  getIgnorePrompts: getIgnorePrompts,
   nextSteps: nextSteps,
   startOver: startOver,
 };
@@ -70,33 +72,107 @@ function sortPrompts(a, b) {
   return res;
 }
 
-function getPrompts(vulns, policy) {
-  // take a copy so as not to mess with the original data
+function getPatchPrompts(vulns, policy) {
+  if (vulns.length === 0) {
+    return [];
+  }
 
   var res = _.cloneDeep(vulns);
 
-  // strip the irrelevant patches from the vulns at the same time, collect
-  // the unique package vulns
+  // sort by vulnerable package and the largest version
+  res.sort(sortPrompts);
 
-  res = res.map(function (vuln) {
-    if (vuln.patches) {
-      vuln.patches = vuln.patches.filter(function (patch) {
-        return semver.satisfies(vuln.version, patch.version);
-      });
+  var copy = null;
+  var offset = 0;
+  // mutate our objects so we can try to group them
+  // note that I use slice first becuase the `res` array will change length
+  // and `reduce` _really_ doesn't like when you change the array under
+  // it's feet
+  res.slice(0).reduce(function (acc, curr, i) {
+    // TODO allow for cross over patches on modules (i.e. patch can work
+    // on A-1 and A-2)
+    var last = curr.from.slice(-1).pop();
+    debug('last: %s',last);
+    if (!acc[last]) {
+      // only copy the biggest change
+      copy = _.cloneDeep(curr);
+      acc[last] = curr;
+      return acc;
+    }
 
-      // sort by patchModification, then pick the latest one
-      vuln.patches = vuln.patches.sort(function (a, b) {
-        return b.modificationTime < a.modificationTime ? -1 : 1;
-      }).slice(0, 1);
+    var upgrades = curr.upgradePath[1];
+    debug(upgrades && curr.patches.length, upgrades, curr.patches.length);
+    // otherwise it's a patch and that's hidden for now
+    if (!upgrades && curr.patches.length) {
+      debug('ok1');
+      if (!acc[last].grouped) {
+        acc[last].grouped = {
+          affected: moduleToObject(last),
+          main: true,
+          id: acc[last].id + '-' + i,
+          count: 1,
+          upgrades: [],
+        };
+        acc[last].grouped.affected.full = last;
 
-      // FIXME hack to give all the patches IDs if they don't already
-      if (vuln.patches[0] && !vuln.patches[0].id) {
-        vuln.patches[0].id = vuln.patches[0].urls[0].split('/').slice(-1).pop();
+        // splice this vuln into the list again so if the user choses to review
+        // they'll get this individual vuln and remediation
+        copy.grouped = {
+          main: false,
+          requires: acc[last].grouped.id,
+        };
+
+        res.splice(i + offset, 0, copy);
+        offset++;
+      }
+
+      debug('vuln found on group');
+      acc[last].grouped.count++;
+
+      curr.grouped = {
+        main: false,
+        requires: acc[last].grouped.id,
+      };
+
+      var p = moduleToObject(last);
+      if (p.name !== acc[last].grouped.affected.name &&
+        (' ' + acc[last].grouped.upgrades.join(' ') + ' ')
+          .indexOf(p.name + '@') === -1) {
+        debug('+ adding %s to upgrades', last);
+        acc[last].grouped.upgrades.push(last);
       }
     }
 
-    return vuln;
+    return acc;
+  }, {});
+
+  // FIXME this should not just strip those that have an upgrade path, but
+  // take into account the previous answers, and if the package has been
+  // upgraded, it should be left *out* of our list.
+  res = res.filter(function (curr) {
+    return !curr.upgradePath[1];
   });
+
+  var prompts = generatePrompt(res, policy);
+
+  return prompts;
+
+}
+
+function getIgnorePrompts(vulns, policy) {
+  if (vulns.length === 0) {
+    return [];
+  }
+
+  return [];
+}
+
+function getUpdatePrompts(vulns, policy) {
+  if (vulns.length === 0) {
+    return [];
+  }
+
+  var res = _.cloneDeep(vulns);
 
   // sort by vulnerable package and the largest version
   res.sort(sortPrompts);
@@ -162,61 +238,12 @@ function getPrompts(vulns, policy) {
     return acc;
   }, {});
 
-  // console.log(commonPatch);
-
-  // now filter out any vulns that don't have an upgrade path and only patches
-  // and have already been grouped
-  // var dropped = [];
-  // res = res.filter(function (vuln) {
-  //   if (vuln.grouped) {
-  //     if (vuln.grouped.main) {
-  //       debug('ok!!');
-  //       if (vuln.grouped.upgrades.length === 0) {
-  //         debug('dropping %s', vuln.grouped.id);
-  //         // dropped.push(vuln.grouped.id);
-  //         // return false;
-  //       }
-  //     }
-
-  //     // we have to remove the group property on the collective vulns if the
-  //     // top grouping has been removed, because otherwise they won't be shown
-  //     if (dropped.indexOf(vuln.grouped.requires) !== -1) {
-  //       delete vuln.grouped;
-  //     }
-  //   }
-
-  //   return true;
-  // });
-
-  // resort after we made changes putting upgrades first
-  // res.sort(function (a) {
-  //   if (a.grouped) {//} && a.upgradePath[1]) { // RS changed to add in the upgradePath
-  //     return -1;
-  //   }
-
-  //   if (a.upgradePath[1]) {
-  //     return -1;
-  //   }
-
-  //   return 1;
-  // });
-
-  debug(res.map(function (v) {
-    return v.upgradePath[1];
-  }));
-
-  // console.log(JSON.stringify(res.map(function (vuln) {
-  //   return vuln;
-  //   return {
-  //     from: vuln.from.slice(1).filter(Boolean).shift(),
-  //     upgrade: (vuln.grouped || {}).upgrades,
-  //     group: vuln.grouped
-  //   };
-  // }), '', 2));
+  // now strip anything that doesn't have an upgrade path
+  res = res.filter(function (curr) {
+    return !!curr.upgradePath[1];
+  });
 
   var prompts = generatePrompt(res, policy);
-
-  // console.log(prompts);
 
   return prompts;
 }
@@ -387,13 +414,13 @@ function generatePrompt(vulns, policy) {
       update.name = out;
     } else {
       // No upgrade available (as per no patch)
-      // choices.push({
-      //   value: 'skip',
-      //   key: 'u',
-      //   short: 'Upgrade (none available)',
-      //   name: 'Upgrade (no sufficient upgrade available for ' +
-      //     from.split('@')[0] + ', we\'ll notify you when there is one)',
-      // });
+      choices.push({
+        value: 'skip',
+        key: 'u',
+        short: 'Upgrade (none available)',
+        name: 'Upgrade (no sufficient upgrade available for ' +
+          from.split('@')[0] + ', we\'ll notify you when there is one)',
+      });
     }
 
     var patches = null;
