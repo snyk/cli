@@ -42,6 +42,14 @@ test('review patches', function (t) {
   });
 });
 
+test.only('direct update', function (t) {
+  run(t, 4, './fixtures/hardy.json').then(function (prompts) {
+    t.ok(contains(prompts[0], 'update'), 'update first');
+    t.equal(prompts[0].choices[0].name, 'Upgrade to cucumber@0.4.4 (triggers upgrade to syntax-error@1.1.1)', 'has correct upgrade text');
+    t.end();
+  });
+});
+
 test('patches also include (non-working) updates', function (t) {
   run(t, 2, './fixtures/uglify-contrived.json').then(function (prompts) {
     t.ok(hasText(prompts[0], 0, 'upgrade'), 'has upgrade');
