@@ -50,6 +50,13 @@ test('patches also include (non-working) updates', function (t) {
   });
 });
 
+test('case 0: no remediation', function (t) {
+  run(t, './fixtures/scenarios/case-0.json').then(function (prompts) {
+    t.ok(contains(prompts[0], 'ignore'));
+    t.end();
+  });
+});
+
 test('case 1: direct update', function (t) {
   run(t, './fixtures/scenarios/case-1.json').then(function (prompts) {
     t.ok(contains(prompts[0], 'update'));
