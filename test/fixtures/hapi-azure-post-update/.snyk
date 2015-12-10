@@ -1,0 +1,45 @@
+ignore:
+  'npm:validator:20130705':
+    - 'azure > azure-mgmt > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-compute > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-subscription > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-gallery > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-vnet > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-authorization > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-storage > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-hdinsight > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-resource > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-sb > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-scheduler > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.185Z'
+    - 'azure > azure-mgmt-sql > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.186Z'
+    - 'azure-mgmt-resource > azure-common > validator':
+        reason: None given
+        expires: '2016-01-09T11:49:42.186Z'
+version: v1

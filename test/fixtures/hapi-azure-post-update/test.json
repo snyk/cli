@@ -1,0 +1,330 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview\nThe qs module has the ability to create sparse arrays during parsing. By specifying a high index it is possible to create a large array that will eventually take up all the allocated memory of the running process, resulting in a crash.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/29)_\n\n## Remediation\nUpgrade qs to version 1.0.0 or greater.\n\n## References\n- https://nodesecurity.io/advisories/29\n- https://github.com/visionmedia/node-querystring/issues/104\n\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "patches": [],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.10.5",
+        "azure-storage@0.3.3",
+        "request@2.27.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "azure-storage@0.4.5",
+        "request@2.57.0",
+        "qs@3.1.0"
+      ],
+      "version": "0.6.6",
+      "name": "qs"
+    },
+    {
+      "title": "qs Denial-of-Service Extended Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview\nThe qs module does not have an option or default for specifying object depth and, when parsing a string representing a deeply nested object, will block the event loop for long periods of time. An attacker could leverage this to cause a temporary denial-of-service condition, for example in a web application, other requests would not be processed while this blocking is occurring.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/28)_\n\n## Remediation\nUpdate qs to version 1.0.0 or greater.\n\n## References\nhttps://nodesecurity.io/advisories/28\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.10.5",
+        "azure-storage@0.3.3",
+        "request@2.27.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "azure-storage@0.4.5",
+        "request@2.57.0",
+        "qs@3.1.0"
+      ],
+      "version": "0.6.6",
+      "name": "qs"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/42)_\n\n## Remediation\n\nUpdate to version 3.22.1 or greater.\n\n## References\n- https://nodesecurity.io/advisories/42\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "unaffected": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "patches": [],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.10.5",
+        "azure-gallery@2.0.0-pre.15",
+        "azure-common@0.9.11",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "version": "3.1.0",
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/42)_\n\n## Remediation\n\nUpdate to version 3.22.1 or greater.\n\n## References\n- https://nodesecurity.io/advisories/42\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "unaffected": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "patches": [],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.10.5",
+        "azure-mgmt-authorization@0.9.0-pre.6",
+        "azure-common@0.9.11",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "version": "3.1.0",
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/42)_\n\n## Remediation\n\nUpdate to version 3.22.1 or greater.\n\n## References\n- https://nodesecurity.io/advisories/42\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "unaffected": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "patches": [],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.10.5",
+        "azure-mgmt-resource@2.0.0-pre.16",
+        "azure-common@0.9.11",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "version": "3.1.0",
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/42)_\n\n## Remediation\n\nUpdate to version 3.22.1 or greater.\n\n## References\n- https://nodesecurity.io/advisories/42\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "unaffected": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "patches": [],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.10.5",
+        "azure-mgmt-scheduler@0.9.1-pre.16",
+        "azure-common@0.9.11",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "version": "3.1.0",
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/42)_\n\n## Remediation\n\nUpdate to version 3.22.1 or greater.\n\n## References\n- https://nodesecurity.io/advisories/42\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "unaffected": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "patches": [],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure-mgmt-resource@2.0.0-pre.17",
+        "azure-common@0.9.11",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "version": "3.1.0",
+      "name": "validator"
+    }
+  ],
+  "dependencyCount": 223
+}
