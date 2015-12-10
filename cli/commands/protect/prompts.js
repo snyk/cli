@@ -42,7 +42,6 @@ function sortPrompts(a, b) {
   }
 
   // we should have the same module, so the depth should be the same
-  debug('sorting by upgradePath', a.upgradePath[1], b.upgradePath[1]);
   if (a.upgradePath[1] && b.upgradePath[1]) {
     // put upgrades ahead of patches
     if (b.upgradePath[1] === false) {
@@ -125,7 +124,6 @@ function getPatchPrompts(vulns, policy) {
     // TODO allow for cross over patches on modules (i.e. patch can work
     // on A-1 and A-2)
     var last = curr.from.slice(-1).pop();
-    debug('last: %s',last);
     if (!acc[last]) {
       // only copy the biggest change
       copy = _.cloneDeep(curr);
@@ -134,7 +132,6 @@ function getPatchPrompts(vulns, policy) {
     }
 
     var upgrades = curr.upgradePath[1];
-    debug(upgrades && curr.patches.length, upgrades, curr.patches.length);
     // otherwise it's a patch and that's hidden for now
     if (!upgrades && curr.patches.length) {
       debug('ok1');
@@ -187,7 +184,7 @@ function getPatchPrompts(vulns, policy) {
       return false;
     }
 
-    if (!curr.patches) {
+    if (!curr.patches || curr.patches.length === 0) {
       return false;
     }
 
@@ -210,7 +207,7 @@ function getIgnorePrompts(vulns, policy) {
     // remove all patches and updates
 
     // if there's any upgrade available
-    if (vuln.upgradePath && vuln.upgradePath.slice(-1).shift()) {
+    if (vuln.upgradePath && vuln.upgradePath[1]) {
       return false;
     }
 
@@ -255,7 +252,6 @@ function getUpdatePrompts(vulns, policy) {
     }
 
     var upgrades = curr.upgradePath.slice(-1).shift();
-    debug('upgrade available? %s', upgrades && curr.upgradePath[1]);
     // otherwise it's a patch and that's hidden for now
     if (upgrades && curr.upgradePath[1]) {
       if (!acc[from].grouped) {
