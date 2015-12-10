@@ -10,7 +10,7 @@
   },
   "scripts": {
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
-    "test": "npm run lint && tap test/*.test.js --cov --timeout=60 && node cli/index.js test > /dev/null",
+    "test": "npm run lint && tap test/*.test.js -R=list --cov --timeout=60 && node cli/index.js test > /dev/null",
     "watch": "nodemon -q -x 'for FILE in test/*.test.js; do echo $FILE; tape $FILE | tap-spec; if [ $? -ne 0 ]; then exit 1; fi; done'",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
