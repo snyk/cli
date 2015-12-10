@@ -460,12 +460,25 @@ function generatePrompt(vulns, policy) {
       var toPackage = vuln.upgradePath.filter(Boolean).shift();
       update.short = 'Upgrade to ' + toPackage;
       var out = 'Upgrade to ' + toPackage;
+      var toPackageVersion = moduleToObject(toPackage).version;
+      var diff = semver.diff(moduleToObject(from).version, toPackageVersion);
+      var lead = '';
+      var breaking = 'potentially breaking change';
+      if (diff === 'major') {
+        lead = ' (' + breaking + ', ';
+      } else {
+        lead = ' (';
+      }
+
+      lead += 'triggers upgrade to ';
       if (group) {
-        out += ' (triggers upgrade to ' + group.upgrades.join(', ') + ')';
+        out += lead + group.upgrades.join(', ') + ')';
       } else {
         var last = vuln.upgradePath.slice(-1).shift();
         if (toPackage !== last) {
-          out += ' (triggers upgrade to ' + last + ')';
+          out += lead + last + ')';
+        } else {
+          out += ' (' + breaking + ')';
         }
       }
       update.name = out;
