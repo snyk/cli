@@ -50,7 +50,6 @@ function sortPrompts(a, b) {
     var pua = moduleToObject(a.upgradePath[1]);
     var pub = moduleToObject(b.upgradePath[1]);
 
-    debug('%s > %s', pua.version, pub.version);
     res = semver.compare(pua.version, pub.version) * -1;
 
     if (res !== 0) {
@@ -76,6 +75,10 @@ function stripInvalidPatches(vulns) {
   // strip the irrelevant patches from the vulns at the same time, collect
   // the unique package vulns
   return vulns.map(function (vuln) {
+    // strip verbose meta
+    delete vuln.description;
+    delete vuln.credit;
+
     if (vuln.patches) {
       vuln.patches = vuln.patches.filter(function (patch) {
         return semver.satisfies(vuln.version, patch.version);
@@ -275,7 +278,6 @@ function getUpdatePrompts(vulns, policy) {
         offset++;
       }
 
-      debug('vuln found on group');
       acc[from].grouped.count++;
 
       curr.grouped = {
@@ -642,11 +644,6 @@ function nextSteps(pkg, skipProtect) {
       message: 'Add `snyk protect` as package.json post-install step to apply' +
         ' chosen patches on install?',
       type: 'confirm',
-      when: function (answers) {
-        return Object.keys(answers).some(function (key) {
-          return answers[key].choice === 'patch';
-        });
-      },
       default: true,
     });
   }
