@@ -389,7 +389,6 @@ function generatePrompt(vulns, policy) {
     var res = {
       when: function (answers) {
         var res = true;
-        // console.log(answers);
         // only show this question if the user chose to review the details
         // of the vuln
         if (vuln.grouped && !vuln.grouped.main) {
@@ -420,7 +419,6 @@ function generatePrompt(vulns, policy) {
             // echo out what would be upgraded
             var via = 'Fixed through previous upgrade instruction to ' + updatedTo.vuln.upgradePath[1];
             console.log(['', messageIntro, infoLink, via].join('\n'));
-            // console.log(updatedTo);
           }
         }
 
@@ -471,13 +469,13 @@ function generatePrompt(vulns, policy) {
       }
 
       lead += 'triggers upgrade to ';
-      if (group) {
+      if (group && group.upgrades.length) {
         out += lead + group.upgrades.join(', ') + ')';
       } else {
         var last = vuln.upgradePath.slice(-1).shift();
         if (toPackage !== last) {
           out += lead + last + ')';
-        } else {
+        } else if (diff === 'major') {
           out += ' (' + breaking + ')';
         }
       }
