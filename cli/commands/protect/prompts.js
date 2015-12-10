@@ -73,6 +73,31 @@ function sortPrompts(a, b) {
   return res;
 }
 
+function stripInvalidPatches(vulns) {
+  // strip the irrelevant patches from the vulns at the same time, collect
+  // the unique package vulns
+  return vulns.map(function (vuln) {
+    if (vuln.patches) {
+      vuln.patches = vuln.patches.filter(function (patch) {
+        return semver.satisfies(vuln.version, patch.version);
+      });
+
+      // sort by patchModification, then pick the latest one
+      vuln.patches = vuln.patches.sort(function (a, b) {
+        return b.modificationTime < a.modificationTime ? -1 : 1;
+      }).slice(0, 1);
+
+      // FIXME hack to give all the patches IDs if they don't already
+      if (vuln.patches[0] && !vuln.patches[0].id) {
+        vuln.patches[0].id = vuln.patches[0].urls[0].split('/').slice(-1).pop();
+      }
+    }
+
+    return vuln;
+  });
+
+}
+
 function getPrompts(vulns, policy) {
   return getUpdatePrompts(vulns, policy)
                   .concat(getPatchPrompts(vulns, policy))
@@ -80,11 +105,12 @@ function getPrompts(vulns, policy) {
 }
 
 function getPatchPrompts(vulns, policy) {
+  debug('getPatchPrompts');
   if (vulns.length === 0) {
     return [];
   }
 
-  var res = _.cloneDeep(vulns);
+  var res = stripInvalidPatches(_.cloneDeep(vulns));
 
   // sort by vulnerable package and the largest version
   res.sort(sortPrompts);
@@ -157,7 +183,15 @@ function getPatchPrompts(vulns, policy) {
   // take into account the previous answers, and if the package has been
   // upgraded, it should be left *out* of our list.
   res = res.filter(function (curr) {
-    return !curr.upgradePath[1];
+    if (curr.upgradePath[1]) {
+      return false;
+    }
+
+    if (!curr.patches) {
+      return false;
+    }
+
+    return true;
   });
 
   var prompts = generatePrompt(res, policy);
@@ -167,19 +201,39 @@ function getPatchPrompts(vulns, policy) {
 }
 
 function getIgnorePrompts(vulns, policy) {
+  debug('getIgnorePrompts');
   if (vulns.length === 0) {
     return [];
   }
 
-  return [];
+  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter(function (vuln) {
+    // remove all patches and updates
+
+    // if there's any upgrade available
+    if (vuln.upgradePath && vuln.upgradePath.slice(-1).shift()) {
+      return false;
+    }
+
+    if (vuln.patches && vuln.patches.length) {
+      return false;
+    }
+
+    return true;
+  });
+
+  var prompts = generatePrompt(res, policy);
+
+  return prompts;
+
 }
 
 function getUpdatePrompts(vulns, policy) {
+  debug('getUpdatePrompts');
   if (vulns.length === 0) {
     return [];
   }
 
-  var res = _.cloneDeep(vulns);
+  var res = stripInvalidPatches(_.cloneDeep(vulns));
 
   // sort by vulnerable package and the largest version
   res.sort(sortPrompts);
