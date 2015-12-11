@@ -117,49 +117,90 @@ function getPatchPrompts(vulns, policy) {
   // sort by vulnerable package and the largest version
   res.sort(sortPrompts);
 
-  var copy = null;
+  var copy = {};
   var offset = 0;
   // mutate our objects so we can try to group them
   // note that I use slice first becuase the `res` array will change length
   // and `reduce` _really_ doesn't like when you change the array under
   // it's feet
-  res.slice(0).reduce(function (acc, curr, i) {
-    // TODO allow for cross over patches on modules (i.e. patch can work
-    // on A-1 and A-2)
-    var last = curr.from.slice(-1).pop();
-    if (!acc[last]) {
-      // only copy the biggest change
-      copy = _.cloneDeep(curr);
-      acc[last] = curr;
-      return acc;
-    }
-
+  res.slice(0).reduce(function (acc, curr, i, all) {
     var upgrades = curr.upgradePath[1];
     // otherwise it's a patch and that's hidden for now
-    if (!upgrades && curr.patches.length) {
-      debug('ok1');
+    if (!upgrades && curr.patches && curr.patches.length) {
+      // TODO allow for cross over patches on modules (i.e. patch can work
+      // on A-1 and A-2)
+      var last = curr.id; //curr.from.slice(-1).pop();
+
+      if (acc[curr.id]) {
+        last = curr.id;
+      } else {
+        // try to find the right vuln id based on the
+        last = (all.filter(function (vuln) {
+          var patch = vuln.patches[0];
+
+          // don't select the one we're looking at
+
+          if (curr.id === vuln.id) {
+            return false;
+          }
+
+          // only look at packages with the same name
+          if (curr.name !== vuln.name || !patch) {
+            return false;
+          }
+
+          // and ensure the patch can be applied to *our* module version
+          if (semver.satisfies(curr.version, patch.version)) {
+
+            // finally make sure the publicationTime is newer than the curr
+            // vulnerability
+            if (curr.publicationTime < vuln.publicationTime) {
+              debug('found alternative location for %s@%s (%s by %s) in vuln %s',
+                curr.name, curr.version, patch.version, curr.id, vuln.id);
+              return true;
+            }
+          }
+        }).shift() || curr).id;
+
+      }
+
+      if (!acc[last]) {
+        // only copy the biggest change
+        copy[last] = _.cloneDeep(curr);
+        acc[last] = curr;
+        return acc;
+      }
+
+      var full = curr.name + '@' + curr.version;
+
+      // only happens on the 2nd time around
       if (!acc[last].grouped) {
         acc[last].grouped = {
-          affected: moduleToObject(last),
+          affected: moduleToObject(acc[last].name + '@' + acc[last].version),
           main: true,
           id: acc[last].id + '-' + i,
           count: 1,
-          upgrades: [],
+          upgrades: [acc[last].from],
+          patch: true,
         };
-        acc[last].grouped.affected.full = last;
+
+        acc[last].grouped.affected.full = acc[last].name;
 
         // splice this vuln into the list again so if the user choses to review
         // they'll get this individual vuln and remediation
-        copy.grouped = {
+        copy[last].grouped = {
           main: false,
           requires: acc[last].grouped.id,
         };
 
-        res.splice(i + offset, 0, copy);
+        res.splice(i + offset, 0, copy[last]);
         offset++;
       }
 
-      debug('vuln found on group');
+      // if (acc[last].grouped.affected.full.indexOf(curr.version) === -1) {
+      //   acc[last].grouped.affected.full += ' / ' + curr.version;
+      // }
+
       acc[last].grouped.count++;
 
       curr.grouped = {
@@ -167,12 +208,13 @@ function getPatchPrompts(vulns, policy) {
         requires: acc[last].grouped.id,
       };
 
-      var p = moduleToObject(last);
-      if (p.name !== acc[last].grouped.affected.name &&
-        (' ' + acc[last].grouped.upgrades.join(' ') + ' ')
-          .indexOf(p.name + '@') === -1) {
-        debug('+ adding %s to upgrades', last);
-        acc[last].grouped.upgrades.push(last);
+      // add the from path to our group upgrades if we don't have it already
+      var have = !!acc[last].grouped.upgrades.filter(function (from) {
+        return from.join(' ') === curr.from.join(' ');
+      }).length;
+
+      if (!have) {
+        acc[last].grouped.upgrades.push(curr.from);
       }
     }
 
@@ -373,7 +415,8 @@ function generatePrompt(vulns, policy) {
     if (group) {
       infoLink += '/package/npm/' + group.affected.name + '/' +
         group.affected.version;
-      messageIntro = group.count + ' vulnerabilities introduced via ' +
+      var joiningText = group.patch ? ' in ' : ' via ';
+      messageIntro = group.count + ' vulnerabilities introduced' + joiningText +
         group.affected.full;
     } else {
       infoLink += '/vuln/' + vuln.id;
@@ -385,7 +428,11 @@ function generatePrompt(vulns, policy) {
 
     var note = false;
     if (vuln.note) {
-      note = '- note: ' + vuln.note;
+      if (group && group.patch) {
+
+      } else {
+        note = '- note: ' + vuln.note;
+      }
     }
 
     var res = {
@@ -405,6 +452,7 @@ function generatePrompt(vulns, policy) {
           }).filter(Boolean);
 
           if (!groupAnswer.length) {
+            debug('no group answer: show %s when %s', vuln.id, false);
             return false;
           }
 
@@ -427,6 +475,9 @@ function generatePrompt(vulns, policy) {
         if (res) {
           console.log(''); // blank line between prompts...kinda lame, sorry
         }
+
+        debug('final show %s when %s', vuln.id, res);
+
         return res; // true = show next
       },
       name: id,

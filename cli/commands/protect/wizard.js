@@ -173,6 +173,16 @@ function processAnswers(answers, policy, options) {
       task = 'skip';
     }
 
+    if (task === 'patch' && answer.vuln.grouped) {
+      // ignore the first as it's the same one as this particular answer
+      var additionalPatches = answer.vuln.grouped.upgrades.slice(1);
+      additionalPatches.forEach(function (from) {
+        var copy = _.cloneDeep(answer.vuln);
+        copy.from = from;
+        tasks.patch.push(copy);
+      });
+    }
+
     if (task === 'ignore') {
       answer.meta.reason = answers[key + '-reason'];
       tasks[task].push(answer);
