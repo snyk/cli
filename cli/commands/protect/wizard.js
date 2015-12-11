@@ -173,11 +173,13 @@ function processAnswers(answers, policy, options) {
       task = 'skip';
     }
 
-    if (task === 'patch' && answer.vuln.grouped) {
+    var vuln = answer.vuln;
+
+    if (task === 'patch' && vuln.grouped && vuln.grouped.upgrades) {
       // ignore the first as it's the same one as this particular answer
-      var additionalPatches = answer.vuln.grouped.upgrades.slice(1);
+      var additionalPatches = vuln.grouped.upgrades.slice(1);
       additionalPatches.forEach(function (from) {
-        var copy = _.cloneDeep(answer.vuln);
+        var copy = _.cloneDeep(vuln);
         copy.from = from;
         tasks.patch.push(copy);
       });
@@ -187,7 +189,7 @@ function processAnswers(answers, policy, options) {
       answer.meta.reason = answers[key + '-reason'];
       tasks[task].push(answer);
     } else {
-      tasks[task].push(answer.vuln);
+      tasks[task].push(vuln);
     }
   });
 

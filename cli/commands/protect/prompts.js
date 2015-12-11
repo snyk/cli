@@ -108,7 +108,7 @@ function getPrompts(vulns, policy) {
 
 function getPatchPrompts(vulns, policy) {
   debug('getPatchPrompts');
-  if (vulns.length === 0) {
+  if (!vulns || vulns.length === 0) {
     return [];
   }
 
@@ -170,8 +170,6 @@ function getPatchPrompts(vulns, policy) {
         acc[last] = curr;
         return acc;
       }
-
-      var full = curr.name + '@' + curr.version;
 
       // only happens on the 2nd time around
       if (!acc[last].grouped) {
@@ -238,13 +236,15 @@ function getPatchPrompts(vulns, policy) {
 
   var prompts = generatePrompt(res, policy);
 
+  debug(JSON.stringify(res.map(_ => _.grouped), '', 2));
+
   return prompts;
 
 }
 
 function getIgnorePrompts(vulns, policy) {
   debug('getIgnorePrompts');
-  if (vulns.length === 0) {
+  if (!vulns || vulns.length === 0) {
     return [];
   }
 
@@ -271,7 +271,7 @@ function getIgnorePrompts(vulns, policy) {
 
 function getUpdatePrompts(vulns, policy) {
   debug('getUpdatePrompts');
-  if (vulns.length === 0) {
+  if (!vulns || vulns.length === 0) {
     return [];
   }
 

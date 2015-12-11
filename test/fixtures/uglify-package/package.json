@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "ug-deep": "^1.0.0"
+    "ug-deep": "^1.0.0",
+    "ug-deep-alt": "^1.0.0"
   },
   "devDependencies": {},
   "scripts": {
