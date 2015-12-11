@@ -1,0 +1,79 @@
+{
+  "npm:uglify-js:20151024-0": {
+    "vuln": {
+      "title": "Regular Expression Denial of Service",
+      "creationTime": "2015-11-06T02:09:36.186Z",
+      "modificationTime": "2015-11-06T02:09:36.186Z",
+      "publicationTime": "2015-10-24T21:01:32.155Z",
+      "semver": {
+        "vulnerable": "<2.6.0",
+        "patched": ">=2.6.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 48
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/48"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+          ],
+          "version": "<2.6.0 >=2.2.0",
+          "modificationTime": "2015-11-16T09:29:10.000Z",
+          "comments": [
+            "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+          ],
+          "id": "uglify-js_20151024_0_0_63d35f8_snyk.patch"
+        }
+      ],
+      "moduleName": "uglify-js",
+      "id": "npm:uglify-js:20151024",
+      "from": [
+        "uglify-package@1.0.0",
+        "ug-deep@1.0.0",
+        "uglify-js@2.2.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "uglify-js@2.6.0"
+      ],
+      "version": "2.2.0",
+      "name": "uglify-js",
+      "note": "Snyk policy in ug-deep@1.0.0 suggests ignoring this issue, with reason: Not used in production",
+      "grouped": {
+        "affected": {
+          "name": "uglify-js",
+          "version": "2.2.0",
+          "full": "uglify-js"
+        },
+        "main": true,
+        "id": "npm:uglify-js:20151024-1",
+        "count": 3,
+        "upgrades": [
+          [
+            "uglify-package@1.0.0",
+            "ug-deep@1.0.0",
+            "uglify-js@2.2.0"
+          ],
+          [
+            "uglify-package@1.0.0",
+            "ug-deep-alt@1.0.0",
+            "uglify-js@2.4.24"
+          ]
+        ],
+        "patch": true
+      }
+    },
+    "choice": "patch"
+  },
+  "misc-add-test": true
+}
