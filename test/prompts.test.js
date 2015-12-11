@@ -24,7 +24,6 @@ function run(t, offset, filename) {
   return getPrompts(vulns).then(function (a) {
     t.ok(!!a, 'prompts loaded');
     var prompts = _.flattenDeep(spy.args);
-    // console.log(prompts.map(_ => _.message));
     t.equal(prompts.length, vulns.vulnerabilities.length * 2 + offset, 'found right number of prompts');
     return prompts;
   }).catch(function (e) {
@@ -42,13 +41,26 @@ test('review patches', function (t) {
   });
 });
 
-test.only('direct update', function (t) {
+test('direct update', function (t) {
   run(t, 4, './fixtures/hardy.json').then(function (prompts) {
     t.ok(contains(prompts[0], 'update'), 'update first');
     t.equal(prompts[0].choices[0].name, 'Upgrade to cucumber@0.4.4 (triggers upgrade to syntax-error@1.1.1)', 'has correct upgrade text');
     t.end();
   });
 });
+
+test('direct update post wizard', function (t) {
+  run(t, 2, './fixtures/hardy-post-wizard.json').then(function (prompts) {
+    t.ok(prompts.some(function (p) {
+      return p.vuln && p.vuln.grouped && p.vuln.grouped.main;
+    }), 'has main grouping');
+    t.end();
+  }).catch(function (e) {
+    console.log(e.stack);
+    t.end();
+  });
+});
+
 
 test('patches also include (non-working) updates', function (t) {
   run(t, 2, './fixtures/uglify-contrived.json').then(function (prompts) {
@@ -98,6 +110,23 @@ test('case 4: upgrades to different versions', function (t) {
 
 
 test('case 5: two patches modify the same files', function (t) {
+  run(t, 2, './fixtures/scenarios/case-5.json').then(function (prompts) {
+    t.ok(contains(prompts[0], 'review', true), 'review first');
+    t.ok(contains(prompts[0], 'patch'), 'path in review');
+
+    t.ok(contains(prompts[2], 'patch'));
+    t.ok(contains(prompts[4], 'patch'));
+
+    // first optional patch should be the latest one
+    var a = prompts[2].choices[0].value.vuln.publicationTime;
+    var b = prompts[4].choices[0].value.vuln.publicationTime;
+    t.ok(a > b, 'publicationTime is ordered by newest');
+
+    t.end();
+  });
+});
+
+test('case 5: two different patches modify the same files', function (t) {
   run(t, 2, './fixtures/scenarios/case-5.json').then(function (prompts) {
     t.ok(contains(prompts[0], 'review', true), 'review first');
     t.ok(contains(prompts[0], 'patch'), 'path in review');
