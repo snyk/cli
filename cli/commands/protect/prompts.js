@@ -236,8 +236,6 @@ function getPatchPrompts(vulns, policy) {
 
   var prompts = generatePrompt(res, policy);
 
-  debug(JSON.stringify(res.map(_ => _.grouped), '', 2));
-
   return prompts;
 
 }
