@@ -21,9 +21,8 @@ before_script:
   - npm prune
   - psql -c 'create database test;' -U postgres
   - psql -U postgres -c "create extension hstore" test
-  - 'curl -Lo travis_after_all.py https://git.io/vLSON'
 after_success:
-  - python travis_after_all.py
+  - python scripts/travis_after_all.py
   - export $(cat .to_export_back)
   - npm run semantic-release
 branches:
