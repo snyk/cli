@@ -71,7 +71,7 @@ test('prime database', function (t) {
   });
 });
 
-test.skip('cli', function (t) {
+test('cli', function (t) {
   t.plan(2);
 
   cli.test('semver@2').then(function (res) {
@@ -85,7 +85,7 @@ test.skip('cli', function (t) {
 
 });
 
-test.skip('monitor', function (t) {
+test('monitor', function (t) {
   t.plan(1);
 
   cli.monitor().then(function () {
@@ -95,7 +95,7 @@ test.skip('monitor', function (t) {
   });
 });
 
-test.skip('multiple test arguments', function (t) {
+test('multiple test arguments', function (t) {
   t.plan(1);
 
   cli.test('semver@2', 'jsbin@3.11.23').then(function (res) {
@@ -107,7 +107,7 @@ test.skip('multiple test arguments', function (t) {
   });
 });
 
-test.skip('auth via key', function (t) {
+test('auth via key', function (t) {
   t.plan(1);
 
   var spy = sinon.spy(function (req, callback) {
@@ -135,7 +135,7 @@ test.skip('auth via key', function (t) {
   });
 });
 
-test.skip('auth via invalid key', function (t) {
+test('auth via invalid key', function (t) {
   t.plan(1);
 
   var errors = require('../lib/error');
@@ -164,7 +164,7 @@ test.skip('auth via invalid key', function (t) {
   });
 });
 
-test.skip('auth via github', function (t) {
+test('auth via github', function (t) {
   t.plan(1);
 
   var tokenRequest = null;
