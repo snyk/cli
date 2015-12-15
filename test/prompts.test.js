@@ -143,6 +143,38 @@ test('case 5: two different patches modify the same files', function (t) {
   });
 });
 
+test.only('humpback - checks related groups and subitems', function (t) {
+  // expecting 3 review sections (containing 9, 3, 7) plus one stand alone
+  run(t, 4 * 2, './fixtures/scenarios/humpback.json').then(function (prompts) {
+    var offset = 0;
+
+    var tofind = null;
+    for (var i = offset; i < prompts.length; i += 2) {
+      if (prompts[i].default === true) {
+        continue;
+      }
+      var group = prompts[i].choices[prompts[i].default].value.vuln.grouped;
+      if (group) {
+        if (group) {
+          if (group.main) {
+            tofind = group.id;
+          } else {
+            t.equal(tofind, group.requires, 'correct ordering on patch group');
+          }
+        } else {
+          tofind = null;
+        }
+      }
+    }
+
+    t.end();
+  }).catch(function (e) {
+    console.log(e.stack);
+    t.bail(e.message);
+  });
+});
+
+
 function contains(question, value, patchWithUpdate) {
   var positions = {
     review: patchWithUpdate ? 2 : 1,
