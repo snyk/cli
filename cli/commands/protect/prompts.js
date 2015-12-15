@@ -442,6 +442,14 @@ function generatePrompt(vulns, policy) {
     var choices = [];
 
     var from = vuln.from.slice(1).filter(Boolean).shift();
+
+    // FIXME this should be handled a litle more gracefully
+    if (vuln.from.length === 1) {
+      console.log('');
+      var error = new Error(vuln.upgradePath[0]);
+      error.code = 'updatepackage';
+      throw error;
+    }
     var vulnIn = vuln.from.slice(-1).pop();
     var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
 
