@@ -30,10 +30,18 @@ function sort(prop) {
   };
 }
 
-function sortPrompts(a, b) {
+function sortUpgradePrompts(a, b) {
   var res = 0;
 
   // first sort by module affected
+  if (!a.from[1]) {
+    return -1;
+  }
+
+  if (!b.from[1]) {
+    return 1;
+  }
+
   var pa = moduleToObject(a.from[1]);
   var pb = moduleToObject(b.from[1]);
   res = sort('name')(pa, pb);
@@ -67,6 +75,34 @@ function sortPrompts(a, b) {
     // if no upgrade, then hopefully a patch
     res = sort('publicationTime')(b, a);
   }
+
+  return res;
+}
+
+function sortPatchPrompts(a, b) {
+  var res = 0;
+
+  // first sort by module affected
+  var afrom = a.from.slice(1).pop();
+  var bfrom = b.from.slice(1).pop();
+
+  if (!afrom) {
+    return -1;
+  }
+
+  if (!bfrom[1]) {
+    return 1;
+  }
+
+  var pa = moduleToObject(afrom);
+  var pb = moduleToObject(bfrom);
+  res = sort('name')(pa, pb);
+  if (res !== 0) {
+    return res;
+  }
+
+  // if no upgrade, then hopefully a patch
+  res = sort('publicationTime')(b, a);
 
   return res;
 }
@@ -115,7 +151,9 @@ function getPatchPrompts(vulns, policy) {
   var res = stripInvalidPatches(_.cloneDeep(vulns));
 
   // sort by vulnerable package and the largest version
-  res.sort(sortPrompts);
+  res.sort(sortPatchPrompts);
+
+  // console.log(res.map(_ => `${_.name}@${_.version}`));
 
   var copy = {};
   var offset = 0;
@@ -234,7 +272,9 @@ function getPatchPrompts(vulns, policy) {
     return true;
   });
 
+  // console.log(res.map(_ => _.grouped));
   var prompts = generatePrompt(res, policy);
+
 
   return prompts;
 
@@ -276,7 +316,7 @@ function getUpdatePrompts(vulns, policy) {
   var res = stripInvalidPatches(_.cloneDeep(vulns));
 
   // sort by vulnerable package and the largest version
-  res.sort(sortPrompts);
+  res.sort(sortUpgradePrompts);
 
   var copy = null;
   var offset = 0;

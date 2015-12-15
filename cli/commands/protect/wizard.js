@@ -48,9 +48,9 @@ function wizard(options) {
   }).then(function (policy) {
     return auth.isAuthed().then(function (authed) {
       if (!authed) {
-        throw new Error('Unauthorized');
+        return auth();
       }
-
+    }).then(function () {
       var intro = __dirname + '/../../../help/wizard-intro.txt';
       return fs.readFile(intro, 'utf8').then(function (str) {
         console.log(str);
