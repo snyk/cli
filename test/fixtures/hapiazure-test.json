@@ -1,0 +1,1204 @@
+
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "hapi.js rosetta-flash jsonp vulnerability",
+      "credit": [
+        "Michele Spagnuolo"
+      ],
+      "description": "## Overview:\n\nThis description taken from the pull request provided by Patrick Kettner.\n\n[Background from the vulnerabilty finder](http://miki.it/blog/2014/7/8/abusing-jsonp-with-rosetta-flash/)\n\ntl:dr - someone created a alphanum only swf converter, which means that they can in theory use it as a callback at a JSONP endpoint, and as a result, send data across domains.\n\nPrepending callbacks with an empty inline comment breaks the flash parser, and prevents the issue. This is a fairly common solution currently being implemented by Google, Facebook, and Github.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n- Update to the latest version of hapi.js\n\n## References:\n[PR #1766 - prepend jsonp callbacks with a comment to prevent the rosetta-flash vulnerability](https://github.com/spumko/hapi/pull/1766)\n\nThanks to [Patrick Kettner](https://github.com/patrickkettner) for submitting a pull request to address this in hapi.\n",
+      "version": "4.1.4",
+      "semver": {
+        "vulnerable": "< 6.1.0",
+        "patched": ">= 6.1.0"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [
+          "CVE-2014-4671"
+        ],
+        "NSP": 12
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/12"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/hapi_20140708-1_0_0_94c6f0f223c3c2c915ba80adec58b153f435b2d1.patch"
+          ],
+          "version": "< 6.1.0 >=2.3.0",
+          "modificationTime": "2014-07-08T06:33:48.000Z",
+          "comments": [
+            "https://github.com/patrickkettner/hapi/commit/94c6f0f223c3c2c915ba80adec58b153f435b2d1.patch"
+          ]
+        }
+      ],
+      "moduleName": "hapi",
+      "creationTime": "2014-07-08T06:33:48.000Z",
+      "publicationTime": "2014-07-08T06:33:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:hapi:20140708-1",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "hapi@4.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "hapi@6.1.0"
+      ],
+      "name": "hapi"
+    },
+    {
+      "title": "Incorrect handling of CORS preflight request headers",
+      "credit": [
+        "Eran Hammer"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-20T18:29:09.702Z",
+      "description": "## Overview\nHapi versions less than 11.0.0 implement CORS incorrectly and allowed for configurations that at best returned inconsistent headers and at worst allowed cross-origin activities that were expected to be forbidden. [1]\n\n'If the connection has CORS enabled but one route has it off, and the route is not GET, the OPTIONS prefetch request will return the default CORS headers and then the actual request will go through and return no CORS headers. This defeats the purpose of turning CORS on the route.' [2]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendation\nUpdated to hapi version 11.0.0 or greater\n\n## References\n- [1] https://github.com/hapijs/hapi/issues/2850\n- [2] https://github.com/hapijs/hapi/issues/2840\n",
+      "semver": {
+        "vulnerable": "<11.0.0",
+        "patched": ">=11.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 45
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/45"
+      ],
+      "patches": [],
+      "moduleName": "hapi",
+      "id": "npm:hapi:20151020",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "hapi@4.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "hapi@11.0.0"
+      ],
+      "version": "4.1.4",
+      "name": "hapi"
+    },
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview:\nThe qs module has the ability to create sparse arrays during parsing. By specifying a high index it is possible to create a large array that will eventually take up all the allocated memory of the running process, resulting in a crash.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate qs to version 1.0.0 or greater\n\n## References:\n- https://github.com/visionmedia/node-querystring/issues/104\n",
+      "version": "0.6.6",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "patched": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/29"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/qs/43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "hapi@4.1.4",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        "hapi@6.4.0",
+        "qs@1.0.0"
+      ],
+      "name": "qs"
+    },
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview:\nThe qs module has the ability to create sparse arrays during parsing. By specifying a high index it is possible to create a large array that will eventually take up all the allocated memory of the running process, resulting in a crash.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate qs to version 1.0.0 or greater\n\n## References:\n- https://github.com/visionmedia/node-querystring/issues/104\n",
+      "version": "0.6.6",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "patched": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/29"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/qs/43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "request@2.27.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        "azure@0.10.5",
+        "request@2.45.0",
+        "qs@1.2.0"
+      ],
+      "name": "qs"
+    },
+    {
+      "title": "qs Denial-of-Service Extended Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview:\nThe qs module does not have an option or default for specifying object depth and when parsing a string representing a deeply nested object will block the event loop for long periods of time. An attacker could leverage this to cause a temporary denial-of-service condition, for example, in a web application, other requests would not be processed while this blocking is occurring.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate qs to version 1.0.0 or greater\n",
+      "version": "0.6.6",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "patched": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/28"
+      ],
+      "patches": [],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "hapi@4.1.4",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        "hapi@6.4.0",
+        "qs@1.0.0"
+      ],
+      "name": "qs"
+    },
+    {
+      "title": "qs Denial-of-Service Extended Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview:\nThe qs module does not have an option or default for specifying object depth and when parsing a string representing a deeply nested object will block the event loop for long periods of time. An attacker could leverage this to cause a temporary denial-of-service condition, for example, in a web application, other requests would not be processed while this blocking is occurring.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate qs to version 1.0.0 or greater\n",
+      "version": "0.6.6",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "patched": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/28"
+      ],
+      "patches": [],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "request@2.27.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        "azure@0.10.5",
+        "request@2.45.0",
+        "qs@1.2.0"
+      ],
+      "name": "qs"
+    },
+    {
+      "title": "semver Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "description": "## Overview:\n\nsemver is vulnerable to regular expression denial of service ([ReDoS](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)) when extremely long version strings are parsed.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\nUpdate to a version 4.3.2 or greater. Package version can no longer be more than 256 characters long. This prevents a situation in which parsing the version number can use exponentially more time and memory to parse, leading to a potential denial of service.\n\n## References:\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "version": "2.2.1",
+      "semver": {
+        "vulnerable": "<4.3.2",
+        "patched": ">=4.3.2"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 31
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/31"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "version": "2.3.2 || 3.0.1 || 4.2.2",
+          "modificationTime": "2015-04-03T16:00:00.000Z",
+          "comments": [
+            "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ]
+        }
+      ],
+      "moduleName": "semver",
+      "creationTime": "2015-04-03T16:00:00.000Z",
+      "publicationTime": "2015-04-03T16:00:00.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:semver:20150403",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "hapi@4.1.4",
+        "semver@2.2.1"
+      ],
+      "upgradePath": [
+        false,
+        "hapi@7.0.0"
+      ],
+      "name": "semver"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-gallery@2.0.0-pre.10",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-authorization@0.9.0-pre.1",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-compute@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-hdinsight@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-resource@2.0.0-pre.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-sb@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-scheduler@0.9.1-pre.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-sql@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-storage@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-subscription@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-mgmt-vnet@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure@0.9.16",
+        "azure-storage-legacy@0.9.11",
+        "azure-common@0.9.8",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "azure@0.10.0"
+      ],
+      "name": "validator"
+    },
+    {
+      "title": "validator isURL Regular Expression Denial of Service",
+      "credit": [
+        "Karl Düüna"
+      ],
+      "description": "## Overview:\n\nThe validator module, versions < 3.22.1 are vulnerable to Regular Expression Denial of Service ([ReDoS](http://en.wikipedia.org/wiki/ReDoS)).\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Recommendations:\n\nUpdate to version 3.22.1 or greater.\n\n## References:\n- [Analysis of Node.js platform web application security (pdf)](http://lab.cs.ttu.ee/dl93)\n- https://github.com/chriso/validator.js/issues/152#issuecomment-48107184\n- http://en.wikipedia.org/wiki/ReDoS\n",
+      "version": "3.1.0",
+      "semver": {
+        "vulnerable": "<3.22.1",
+        "patched": ">=3.22.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-8882"
+        ],
+        "NSP": 42
+      },
+      "info": [
+        "https://nodesecurity.io/advisories/42"
+      ],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/validator_20130705_0_0_422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ],
+          "version": "<3.22.1 >=3.22.0",
+          "modificationTime": "2014-11-12T08:45:48.000Z",
+          "comments": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/validator/422d05423f8c427ec373258229763863a9d24b4c_snyk.patch"
+          ]
+        }
+      ],
+      "moduleName": "validator",
+      "creationTime": "2014-11-12T08:45:48.000Z",
+      "publicationTime": "2014-11-12T08:45:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:validator:20130705",
+      "from": [
+        "ngHapi.Azure@0.0.1",
+        "azure-mgmt-resource@2.0.0-pre.17",
+        "azure-common@0.9.11",
+        "validator@3.1.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "azure-common@0.9.13",
+        "validator@3.22.2"
+      ],
+      "name": "validator"
+    }
+  ],
+  "dependencyCount": 183
+}

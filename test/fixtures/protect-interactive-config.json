@@ -2,19 +2,19 @@
  "ignore": {
    "npm:uglify-js:20150824": [
      {
-       "handlebars@2.0.0 > uglify-js@2.3.6": {
+       "handlebars > uglify-js": {
          "reason": "None given",
          "expires": "2015-11-15T09:52:08.820Z"
        }
      },
      {
-       "express-hbs@0.8.4 > handlebars@3.0.3 > uglify-js@2.3.6": {
+       "express-hbs > handlebars > uglify-js": {
          "reason": "Not used",
          "expires": "2015-11-15T09:52:08.820Z"
        }
      },
      {
-       "jade@1.4.2 > transformers@2.1.0 > uglify-js@2.2.5": {
+       "jade > transformers > uglify-js": {
          "reason": "n",
          "expires": "2015-10-23T09:52:08.820Z"
        }

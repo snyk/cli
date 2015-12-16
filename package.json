@@ -10,7 +10,7 @@
   },
   "scripts": {
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
-    "test": "npm run lint && tap test/*.test.js --cov --timeout=60 && node cli/index.js test > /dev/null",
+    "test": "npm run lint && tap test/*.test.js -R=spec --cov --timeout=60 && node cli/index.js test > /dev/null",
     "watch": "nodemon -q -x 'for FILE in test/*.test.js; do echo $FILE; tape $FILE | tap-spec; if [ $? -ne 0 ]; then exit 1; fi; done'",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
@@ -34,7 +34,7 @@
     "os-name": "^1.0.3",
     "promise": "^7.0.3",
     "request": "^2.60.0",
-    "semver": "^5.0.1",
+    "semver": "^5.1.0",
     "snyk-config": "^1.0.0",
     "snyk-module": "^1.0.1",
     "tempfile": "^1.1.1",
@@ -50,7 +50,9 @@
     "istanbul": "^0.4.0",
     "jscs": "^2.0.0",
     "nodemon": "^1.3.7",
+    "proxyquire": "^1.7.3",
     "semantic-release": "^4.3.5",
+    "sinon": "^1.17.2",
     "tap": "^2.3.0",
     "tape": "^4.0.0"
   },

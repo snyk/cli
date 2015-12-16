@@ -1,5 +1,4 @@
-'use strict';
-require("babel/register")({
+require('babel/register')({
   ignore: function (filename) {
     if (filename.indexOf('@snyk/vuln/lib') !== -1) {
       return false;
@@ -17,7 +16,12 @@ require("babel/register")({
 var test = require('tape');
 var apiKey = '123456789';
 var oldkey;
+var chalk = require('chalk');
 var port = process.env.PORT = process.env.SNYK_PORT = 12345;
+var sinon = require('sinon');
+var proxyquire = require('proxyquire');
+var parse = require('url').parse;
+var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
@@ -103,6 +107,154 @@ test('multiple test arguments', function (t) {
   });
 });
 
+test('auth via key', function (t) {
+  t.plan(1);
+
+  var spy = sinon.spy(function (req, callback) {
+    process.nextTick(function () {
+      var body = {
+        ok: true,
+        api: req.body.api,
+      };
+      callback(null, {
+        statusCode: 200,
+        body: body,
+      }, body);
+    });
+  });
+
+  var auth = proxyquire('../cli/commands/auth', {
+    '../../lib/request': spy,
+  });
+
+  auth(apiKey).then(function (res) {
+    t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
+  }).catch(function (e) {
+    console.log(e.stack);
+    t.fail(e);
+  });
+});
+
+test('auth via invalid key', function (t) {
+  t.plan(1);
+
+  var errors = require('../lib/error');
+
+  var spy = sinon.spy(function (req, callback) {
+    process.nextTick(function () {
+      var body = {
+        ok: false,
+      };
+      callback(null, {
+        statusCode: 401,
+        body: body,
+      }, body);
+    });
+  });
+
+  var auth = proxyquire('../cli/commands/auth', {
+    '../../lib/request': spy,
+  });
+
+  auth('_____________').then(function (res) {
+    t.fail('auth should not succeed: ' + res);
+  }).catch(function (e) {
+    var message = chalk.stripColor(errors.message(e));
+    t.equal(message.toLowerCase().indexOf('authentication failed'), 0, 'captured failed auth');
+  });
+});
+
+test('auth via github', function (t) {
+  t.plan(1);
+
+  var tokenRequest = null;
+
+  var openSpy = sinon.spy(function (url) {
+    tokenRequest = parse(url);
+    tokenRequest.token = tokenRequest.query.split('=').pop();
+  });
+
+  var spy = sinon.spy(function (req, callback) {
+    process.nextTick(function () {
+      var body = {};
+
+      if (tokenRequest !== null) {
+        if (req.body.token === tokenRequest.token) {
+          body.api = apiKey;
+        }
+      }
+
+      callback(null, {
+        statusCode: 200,
+        body: body,
+      }, body);
+    });
+  });
+
+  var auth = proxyquire('../cli/commands/auth', {
+    '../../lib/request': spy,
+    'open': openSpy
+  });
+
+  auth().then(function (res) {
+    t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
+  }).catch(function (e) {
+    t.fail(e);
+  });
+});
+
+test('wizard and multi-patch', function (t) {
+
+  var authSpy = sinon.spy(function (req, callback) {
+    process.nextTick(function () {
+      var body = {
+        ok: true,
+        api: req.body.api,
+      };
+      callback(null, {
+        statusCode: 200,
+        body: body,
+      }, body);
+    });
+  });
+
+  var auth = proxyquire('../cli/commands/auth', {
+    '../../lib/request': authSpy
+  });
+
+  var vulns = require('./fixtures/uglify-contrived.json');
+  var answers = require('./fixtures/wizard-patch-answers.json');
+
+  var wizard = proxyquire('../cli/commands/protect/wizard', {
+    '../../../lib/': {
+      test: function () {
+        return Promise.resolve(vulns);
+      }
+    },
+    inquirer: {
+      prompt: function (questions, callback) {
+        if (questions.name === 'misc-start-over') {
+          return callback({ 'misc-start-over': false });
+        }
+
+        return callback(answers);
+      },
+    },
+  });
+
+  var cwd = process.cwd();
+  process.chdir(__dirname + '/fixtures/uglify-package');
+  wizard().then(function () {
+    t.pass('ok');
+  }).catch(function (e) {
+    t.fail(e);
+  }).then(function () {
+    process.chdir(cwd);
+    t.end();
+  });
+
+});
+
 test('teardown', function (t) {
   t.plan(3);
 
@@ -113,7 +265,13 @@ test('teardown', function (t) {
 
   server.app.close(function () {
     t.pass('server shutdown');
-    cli.config('set', 'api=' + oldkey).then(function () {
+    var key = 'set';
+    var value = 'api=' + oldkey;
+    if (!oldkey) {
+      key = 'unset';
+      value = 'api';
+    }
+    cli.config(key, value).then(function () {
       t.pass('user config restored');
       t.end();
     });
