@@ -5,6 +5,7 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 var debug = require('debug')('snyk');
 var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
+var analytics = require('../../../lib/analytics');
 
 function protect(options) {
   if (!options) {
@@ -52,11 +53,15 @@ function patch(patches, options) {
   }).then(function (res) {
     return protect.patch(res, !options['dry-run']);
   }).then(function () {
+    analytics.add('success', true);
     return 'Successfully applied Snyk patches';
   }).catch(function (e) {
     if (e.code === 'ALREADY_PATCHED') {
+      analytics.add('success', true);
       return e.message + ', nothing to do';
     }
+
+    analytics.add('success', false);
 
     throw e;
   });

@@ -19,6 +19,7 @@ var config = require('../../../lib/config');
 var url = require('url');
 var chalk = require('chalk');
 var spinner = require('../../../lib/spinner');
+var analytics = require('../../../lib/analytics');
 var _ = require('lodash');
 var cwd = process.cwd();
 
@@ -47,6 +48,7 @@ function wizard(options) {
     throw error;
   }).then(function (policy) {
     return auth.isAuthed().then(function (authed) {
+      analytics.add('inline-auth', !authed);
       if (!authed) {
         return auth();
       }
@@ -60,6 +62,7 @@ function wizard(options) {
             return resolve(); // don't prompt to start over
           }
           inquirer.prompt(allPrompts.startOver(), function (answers) {
+            analytics.add('start-over', answers['misc-start-over']);
             if (answers['misc-start-over']) {
               options['ignore-policy'] = true;
             }
@@ -156,6 +159,30 @@ function processAnswers(answers, policy, options) {
 
   var pkg = {};
 
+  analytics.add('answers', Object.keys(answers).map(function (key) {
+    // if we're looking at a reason, skip it
+    if (key.indexOf('-reason') !== -1) {
+      return;
+    }
+
+    // ignore misc questions, like "add snyk test to package?"
+    if (key.indexOf('misc-') === 0) {
+      return;
+    }
+
+    var answer = answers[key];
+    var res = {
+      vulnId: answer.vuln.id,
+      choice: answer.choice,
+    };
+
+    if (answer.grouped && answer.grouped.main) {
+      res.batch = true;
+    }
+
+    return res;
+  }).filter(Boolean));
+
   Object.keys(answers).forEach(function (key) {
     // if we're looking at a reason, skip it
     if (key.indexOf('-reason') !== -1) {
@@ -234,6 +261,7 @@ function processAnswers(answers, policy, options) {
     snykVersion = v;
   })
   .then(function () {
+    analytics.add('add-snyk-test', answers['misc-add-test']);
     if (!answers['misc-add-test']) {
       return;
     }
@@ -256,6 +284,7 @@ function processAnswers(answers, policy, options) {
     }
   })
   .then(function () {
+    analytics.add('add-snyk-protect', answers['misc-add-protect']);
     if (!answers['misc-add-protect']) {
       return;
     }
