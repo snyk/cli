@@ -25,6 +25,7 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
+process.env.LOG_LEVEL = 0;
 
 var server = require('@snyk/registry/test/fixtures/demo-registry-server');
 var db = require('@snyk/registry/lib/models');
