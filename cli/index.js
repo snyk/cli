@@ -19,7 +19,12 @@ args.method.apply(null, args.options._).then(function (result) {
     }
   }
   exitcode = 1;
-}).then(function () {
+  return error;
+}).then(function (res) {
+  if (res && res.code === 'UNKNOWN_COMMAND') {
+    // don't log analytics for unknown commands
+    return;
+  }
   var analytics = require('../lib/analytics');
   // delete args.options._; // we don't want this in the analytics
   return analytics({
