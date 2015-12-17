@@ -5,8 +5,8 @@ var snyk = require('../lib');
 
 test('analytics disabled', function (t) {
   var spy = sinon.spy();
-  var old = snyk.config['disable-analyics'];
-  snyk.config['disable-analyics'] = true;
+  var old = snyk.config['disable-analytics'];
+  snyk.config['disable-analytics'] = true;
   var analytics = proxyquire('../lib/analytics', {
     './request': spy,
   });
@@ -15,17 +15,17 @@ test('analytics disabled', function (t) {
   analytics().then(function () {
     t.equal(spy.called, false, 'the request should not have been made');
     if (old === undefined) {
-      delete snyk.config['disable-analyics'];
+      delete snyk.config['disable-analytics'];
     } else {
-      snyk.config['disable-analyics'] = old;
+      snyk.config['disable-analytics'] = old;
     }
   });
 });
 
 test('analytics', function (t) {
   var spy = sinon.spy();
-  var old = snyk.config['disable-analyics'];
-  snyk.config['disable-analyics'] = false;
+  var old = snyk.config['disable-analytics'];
+  snyk.config['disable-analytics'] = false;
   var analytics = proxyquire('../lib/analytics', {
     './request': spy,
   });
@@ -41,9 +41,9 @@ test('analytics', function (t) {
     var body = spy.lastCall.args[0].body.data;
     t.deepEqual(Object.keys(body).sort(), ['command', 'version', 'id', 'ci', 'metadata', 'args'].sort(), 'keys as expected');
     if (old === undefined) {
-      delete snyk.config['disable-analyics'];
+      delete snyk.config['disable-analytics'];
     } else {
-      snyk.config['disable-analyics'] = old;
+      snyk.config['disable-analytics'] = old;
     }
   });
 
