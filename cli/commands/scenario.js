@@ -305,9 +305,9 @@ function parseScenario(source) {
       }
 
       return true;
-    } else {
-      debug('no match for vuln');
     }
+
+    debug('no match for vuln');
   });
 
   data.pkg = pkg;

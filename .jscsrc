@@ -1,6 +1,7 @@
 {
   "preset": "node-style-guide",
   "requireCapitalizedComments": null,
+  "requireEarlyReturn": true,
   "requireSpacesInAnonymousFunctionExpression": {
     "beforeOpeningCurlyBrace": true,
     "beforeOpeningRoundBrace": true
