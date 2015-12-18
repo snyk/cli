@@ -1,0 +1,48 @@
+[
+  {
+    "title": "semver Regular Expression Denial of Service",
+    "semver": {
+      "vulnerable": "<4.3.2",
+      "unaffected": ">=4.3.2"
+    },
+    "CVSSv3": "",
+    "severity": "medium",
+    "identifiers": {
+      "CWE": [
+        "CWE-400"
+      ],
+      "CVE": [],
+      "NSP": 31
+    },
+    "patches": [
+      {
+        "urls": [
+          "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+        ],
+        "version": "<4.3.2 >= 2.0.2",
+        "modificationTime": "2015-04-03T16:00:00.000Z",
+        "comments": [
+          "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+        ],
+        "id": "patch:npm:semver:20150403:0"
+      }
+    ],
+    "moduleName": "semver",
+    "creationTime": "2015-04-03T16:00:00.000Z",
+    "publicationTime": "2015-04-03T16:00:00.000Z",
+    "modificationTime": "2015-11-06T02:09:36.180Z",
+    "id": "npm:semver:20150403",
+    "from": [
+      "deduped-dep@1.0.0",
+      "@remy/vuln-test@1.0.1",
+      "semver@2.3.2"
+    ],
+    "upgradePath": [
+      false,
+      false,
+      "semver@4.3.2"
+    ],
+    "version": "2.3.2",
+    "name": "semver"
+  }
+]
