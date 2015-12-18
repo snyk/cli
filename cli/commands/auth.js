@@ -129,12 +129,14 @@ function auth(api) {
       snyk.config.set('api', body.api);
       return '\nYour account has been authenticated. Snyk is now ready to ' +
         'be used.\n';
-    } else if (body.message) {
+    }
+
+    if (body.message) {
       var error = new Error(body.message);
       error.code = res.statusCode;
       throw error;
-    } else {
-      throw new Error('authfail');
     }
+
+    throw new Error('authfail');
   });
 }

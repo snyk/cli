@@ -76,9 +76,9 @@ function test(path, options) {
       var json = JSON.stringify(res, '', 2);
       if (res.ok) {
         return json;
-      } else {
-        throw new Error(json);
       }
+
+      throw new Error(json);
     }
 
     var summary = 'Tested ';

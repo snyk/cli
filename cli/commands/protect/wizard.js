@@ -204,6 +204,7 @@ function processAnswers(answers, policy, options) {
 
     if (task === 'patch' && vuln.grouped && vuln.grouped.upgrades) {
       // ignore the first as it's the same one as this particular answer
+      debug('additional patches required: %s', 0, vuln.grouped);
       var additionalPatches = vuln.grouped.upgrades.slice(1);
       additionalPatches.forEach(function (from) {
         var copy = _.cloneDeep(vuln);
