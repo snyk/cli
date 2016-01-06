@@ -719,9 +719,10 @@ function startOver() {
   };
 }
 
-function nextSteps(pkg, skipProtect) {
-  var i;
+function nextSteps(pkg, prevAnswers) {
+  var skipProtect = false;
   var prompts = [];
+  var i;
 
   i = (undefsafe(pkg, 'scripts.test') || '').indexOf('snyk test');
   if (i === -1) {
@@ -734,8 +735,23 @@ function nextSteps(pkg, skipProtect) {
     });
   }
 
-  i = (undefsafe(pkg, 'scripts.postinstall') || '').indexOf('snyk pro');
-  if (i === -1 && !skipProtect) {
+  // early exit if prevAnswers is false (when snyk test.ok === true)
+  if (prevAnswers === false) {
+    return prompts;
+  }
+
+  i = (undefsafe(pkg, 'scripts.postinstall') || '') .indexOf('snyk pro');
+
+  // if `snyk protect` doesn't already appear, then check if we need to add it
+  if (i === -1) {
+    skipProtect = Object.keys(prevAnswers).every(function (key) {
+      return prevAnswers[key].choice !== 'patch';
+    });
+  } else {
+    skipProtect = true;
+  }
+
+  if (!skipProtect) {
     prompts.push({
       name: 'misc-add-protect',
       message: 'Add `snyk protect` as package.json post-install step to apply' +
