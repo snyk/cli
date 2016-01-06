@@ -122,10 +122,7 @@ function interactive(test, pkg, policy) {
     var prompts = allPrompts.getIgnorePrompts(vulns, policy);
     return inquire(prompts, answers);
   }).then(function (answers) {
-    var skipProtect = Object.keys(answers).some(function (key) {
-      return answers[key].choice === 'patch';
-    });
-    var prompts = allPrompts.nextSteps(pkg, test.ok || skipProtect);
+    var prompts = allPrompts.nextSteps(pkg, test.ok ? false : answers);
     return inquire(prompts, answers);
   });
 }
