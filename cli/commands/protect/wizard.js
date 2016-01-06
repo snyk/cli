@@ -156,6 +156,15 @@ function inquire(prompts, answers) {
 }
 
 function processAnswers(answers, policy, options) {
+  if (!options) {
+    options = {};
+  }
+  // allow us to capture the answers the users gave so we can combine this
+  // the scenario running
+  if (options.json) {
+    return Promise.resolve(JSON.stringify(answers, '', 2));
+  }
+
   var cwd = process.cwd();
   var packageFile = path.resolve(cwd, 'package.json');
 
