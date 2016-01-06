@@ -1,0 +1,73 @@
+{
+  "npm:qs:20140806-1-0": {
+    "vuln": {
+      "title": "qs Denial-of-Service Extended Event Loop Blocking",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:0"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "wixx@1.0.0",
+        "openapi-node@3.0.3",
+        "restler@3.2.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "restler@3.3.0",
+        "qs@1.2.0"
+      ],
+      "version": "0.6.6",
+      "name": "qs",
+      "grouped": {
+        "affected": {
+          "name": "qs",
+          "version": "0.6.6",
+          "full": "qs"
+        },
+        "main": true,
+        "id": "npm:qs:20140806-1-1",
+        "count": 2,
+        "upgrades": [
+          [
+            "wixx@1.0.0",
+            "openapi-node@3.0.3",
+            "restler@3.2.0",
+            "qs@0.6.6"
+          ]
+        ],
+        "patch": true,
+        "includes": [
+          "npm:qs:20140806"
+        ]
+      }
+    },
+    "choice": "patch"
+  }
+}

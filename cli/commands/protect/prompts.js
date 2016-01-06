@@ -251,6 +251,11 @@ function getPatchPrompts(vulns, policy) {
 
       if (!have) {
         acc[last].grouped.upgrades.push(curr.from);
+      } else {
+        if (!acc[last].grouped.includes) {
+          acc[last].grouped.includes = [];
+        }
+        acc[last].grouped.includes.push(curr.id);
       }
     }
 

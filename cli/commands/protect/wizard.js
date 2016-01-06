@@ -86,7 +86,6 @@ function wizard(options) {
               res.dependencyCount);
           }
 
-
           return fs.readFile(packageFile, 'utf8')
             .then(JSON.parse)
             .then(function (pkg) {
@@ -125,6 +124,7 @@ function interactive(test, pkg, policy) {
     var skipProtect = Object.keys(answers).some(function (key) {
       return answers[key].choice === 'patch';
     });
+
     var prompts = allPrompts.nextSteps(pkg, test.ok || skipProtect);
     return inquire(prompts, answers);
   });
@@ -143,6 +143,15 @@ function inquire(prompts, answers) {
 }
 
 function processAnswers(answers, policy, options) {
+  if (!options) {
+    options = {};
+  }
+  // allow us to capture the answers the users gave so we can combine this
+  // the scenario running
+  if (options.json) {
+    return Promise.resolve(JSON.stringify(answers, '', 2));
+  }
+
   var cwd = process.cwd();
   var packageFile = path.resolve(cwd, 'package.json');
 
