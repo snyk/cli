@@ -18,13 +18,19 @@ function run(t, offset, filename) {
     filename = offset;
     offset = 0;
   }
-  offset += 2;
+  // this is for the snyk test question, note that it'll never add snyk protect
+  // because the answers passed back from the inquirer.prompt will next actually
+  // say if the user chose to patch
+  offset += 1;
   spy.reset();
   var vulns = require(filename);
   return getPrompts(vulns).then(function (a) {
     t.ok(!!a, 'prompts loaded');
+    if (vulns.ok) {
+      offset--; // since protect will be skiped if there's no vulns
+    }
     var prompts = _.flattenDeep(spy.args);
-    t.equal(prompts.length, vulns.vulnerabilities.length * 2 + offset, 'found right number of prompts');
+    t.equal(prompts.length, vulns.vulnerabilities.length * 2 + offset, 'found right number of prompts in ' + filename);
     return prompts;
   }).catch(function (e) {
     console.log(e.stack);
@@ -143,7 +149,7 @@ test('case 5: two different patches modify the same files', function (t) {
   });
 });
 
-test.only('humpback - checks related groups and subitems', function (t) {
+test('humpback - checks related groups and subitems', function (t) {
   // expecting 3 review sections (containing 9, 3, 7) plus one stand alone
   run(t, 4 * 2, './fixtures/scenarios/humpback.json').then(function (prompts) {
     var offset = 0;
