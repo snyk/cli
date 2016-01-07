@@ -119,7 +119,7 @@ function npm(method, packages, dir) {
         return reject(error);
       }
 
-      if (stderr) {
+      if (stderr.indexOf('ERR!') !== -1) {
         return reject(new Error(stderr.trim()));
       }
 
