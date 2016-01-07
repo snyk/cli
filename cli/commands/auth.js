@@ -6,6 +6,7 @@ var debug = require('debug')('snyk');
 var open = require('open');
 var snyk = require('../../lib/');
 var config = require('../../lib/config');
+var isCI = require('../../lib/is-ci');
 var request = require('../../lib/request');
 var url = require('url');
 var uuid = require('node-uuid');
@@ -25,7 +26,10 @@ function githubAuth() {
     'be ready to start using snyk.\n\nIf you can\'t wait use this url:\n' +
     url + '\n';
 
-  console.log(msg);
+  // suppress this message in CI
+  if (!isCI) {
+    console.log(msg);
+  }
 
   var lbl = 'Waiting...';
 

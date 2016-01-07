@@ -14,6 +14,7 @@ var path = require('path');
 var fs = require('then-fs');
 var allPrompts = require('./prompts');
 var snyk = require('../../../lib/');
+var isCI = require('../../../lib/is-ci');
 var protect = require('../../../lib/protect');
 var config = require('../../../lib/config');
 var url = require('url');
@@ -69,7 +70,9 @@ function wizard(options) {
       }).then(function () {
         var intro = __dirname + '/../../../help/wizard-intro.txt';
         return fs.readFile(intro, 'utf8').then(function (str) {
-          console.log(str);
+          if (!isCI) {
+            console.log(str);
+          }
         }).then(function () {
           return new Promise(function (resolve) {
             if (options.newPolicy) {
