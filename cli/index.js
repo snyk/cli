@@ -26,7 +26,6 @@ args.method.apply(null, args.options._).then(function (result) {
     return;
   }
   var analytics = require('../lib/analytics');
-  // delete args.options._; // we don't want this in the analytics
   return analytics({
     command: args.command,
     args: args.options._,
