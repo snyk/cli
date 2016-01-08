@@ -3,6 +3,7 @@ var wizard = require('../cli/commands/protect/wizard');
 var policy = require('../lib/policy');
 var path = require('path');
 var test = require('tape');
+var fs = require('fs');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 var vulns = require('./fixtures/debug-2.1.0-vuln.json').vulnerabilities;
@@ -55,6 +56,53 @@ test('patch via wizard produces policy (on debug@2.1.0)', function (t) {
 
 });
 
+test.only('patch via wizard produces policy (on openapi-node@3.0.3)', function (t) {
+  var name = 'openapi-node';
+  var version = '3.0.3';
+  var cwd = process.cwd();
+  var id = 'npm:qs:20140806-1';
+  var altId = 'npm:qs:20140806';
+  var answers = require('./fixtures/openapi-node/answers.json');
+
+  t.plan(3);
+
+  var dir = path.resolve(__dirname, 'fixtures/' + name);
+  npm('install', name + '@' + version, dir).then(function () {
+    // debug('installed to %s, cd-ing to %s', dir, dir + '/node_modules/' + name);
+    process.chdir(dir);
+  })
+  .then(function () {
+    // prevents monitor run, and package updates
+    answers['misc-test-no-monitor'] = true;
+    answers['misc-add-test'] = false;
+    answers['misc-add-protect'] = false;
+
+    return wizard.processAnswers(answers, {
+      // policy
+    }).then(function () {
+      // now check if the policy file worked.
+      return policy.load(process.cwd()).then(function (res) {
+        var patched = Object.keys(res.patch).sort();
+        var target = [id, altId].sort();
+        t.equal(patched.length, 2, 'contains 2 patches, even though 1 was applied');
+        t.deepEqual(patched, target, 'added all the patched vulns to the policy');
+      });
+    });
+  })
+  .catch(function (error) {
+    console.log(error.stack);
+    t.fail(error);
+  })
+  .then(function () {
+    return npm('uninstall', name, dir).then(function () {
+      fs.unlinkSync('.snyk');
+      process.chdir(cwd); // restore cwd
+      t.pass('packages cleaned up');
+    });
+  });
+
+});
+
 function npm(method, packages, dir) {
   if (!Array.isArray(packages)) {
     packages = [packages];
@@ -71,7 +119,7 @@ function npm(method, packages, dir) {
         return reject(error);
       }
 
-      if (stderr) {
+      if (stderr.indexOf('ERR!') !== -1) {
         return reject(new Error(stderr.trim()));
       }
 
