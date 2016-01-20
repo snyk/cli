@@ -1,0 +1,5 @@
+patch:
+  'npm:hawk:20160119':
+    - 'request > hawk':
+        patched: '2016-01-20T13:25:14.480Z'
+version: v1
