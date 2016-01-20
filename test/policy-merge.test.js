@@ -35,6 +35,9 @@ test('policies do not merge ignore rules', function (t) {
 test('policies merge when detected from tests', function (t) {
   t.plan(1);
   snyk.test(dir1).then(function (res) {
-    t.equal(res.vulnerabilities.length, 2, '2 vulns found, deep vuln is patched');
+    var vulns = res.vulnerabilities.map(function (v) {
+      return v.id;
+    });
+    t.equal(vulns.indexOf('npm:semver:20150403'), -1, 'semver is ignored via deep policy');
   });
 });
