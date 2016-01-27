@@ -11,7 +11,7 @@ test('finds all sub-dependencies', function (t) {
   snyk.modules(osDir).then(function (modules) {
     t.ok(true, 'did not bail');
     t.ok(JSON.stringify(modules), 'modules successfully stringified');
-    t.equal(modules.dependencies.marked.dependencies, false, 'marked has no dependencies');
+    t.deepEqual(modules.dependencies.marked.dependencies, {}, 'marked has no dependencies');
   }).catch(function (e) {
     t.fail(e.message);
     console.log(e.stack);

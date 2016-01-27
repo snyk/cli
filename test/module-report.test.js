@@ -46,19 +46,16 @@ test('module reporting: private project', function (t) {
   }
 
   t.test('specified directory', function (t) {
-    snyk.modules(osDir, function (error, modules) {
-      if (error) {
-        console.log(error.stack);
-      }
-      runTests(t, error, modules);
+    snyk.modules(osDir).then(function (modules) {
+      runTests(t, null, modules);
     });
   });
 
   t.test('inferred directory', function (t) {
     process.chdir(osDir);
 
-    snyk.modules(function (error, modules) {
-      runTests(t, error, modules);
+    snyk.modules('.').then(function (modules) {
+      runTests(t, null, modules);
     });
   });
 });
