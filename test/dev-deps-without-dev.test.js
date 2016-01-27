@@ -1,28 +1,18 @@
 'use strict';
-var test = require('tape');
+var test = require('tap').test;
 var path = require('path');
 var snyk = require('..');
 
-// FIXME this test doesn't actually work yet, since
-var osDir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
+var dir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
 
 test('dev deps: dev-deps-demo, _excluding_ dev deps', function (t) {
-  function runTests(t, error, modules) {
-    t.plan(3 + 1 + (3 * 2));
-
+  function runTests(t, modules) {
     var expectedDirectDeps = {
       qs: '0.6.6',
       semver: '3.0.1',
       'kind-of': '2.0.1',
       'dev-deps-demo': null,
     };
-
-    if (error) {
-      t.fail(error.message);
-      t.bailout();
-    }
-    t.ok(!error, 'module reading did not error');
-    t.ok(typeof modules === 'object', 'modules is an object');
 
     var keys = Object.keys(modules.dependencies);
     var count = keys.length;
@@ -45,20 +35,7 @@ test('dev deps: dev-deps-demo, _excluding_ dev deps', function (t) {
     });
     t.end();
   }
-  t.test('specified directory', function (t) {
-    snyk.modules(osDir, function (error, modules) {
-      if (error) {
-        console.log(error.stack);
-      }
-      runTests(t, error, modules);
-    });
-  });
-
-  t.test('inferred directory', function (t) {
-    process.chdir(osDir);
-
-    snyk.modules(function (error, modules) {
-      runTests(t, error, modules);
-    });
-  });
+  snyk.modules(dir).then(function (modules) {
+    runTests(t, modules);
+  }).catch(t.threw);
 });

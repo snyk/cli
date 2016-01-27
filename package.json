@@ -58,7 +58,7 @@
     "proxyquire": "^1.7.3",
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.2",
-    "tap": "^2.3.0",
+    "tap": "^5.2.0",
     "tape": "^4.0.0"
   },
   "repository": {
