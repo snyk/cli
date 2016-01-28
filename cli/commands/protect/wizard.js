@@ -23,19 +23,6 @@ var spinner = require('../../../lib/spinner');
 var analytics = require('../../../lib/analytics');
 var _ = require('lodash');
 var cwd = process.cwd();
-var semver = require('semver');
-var command = require('../../../lib/exec');
-
-// bail if npm version >=3
-function checkNpmVersion() {
-  return command('npm -v').then(function (ver) {
-    if (!semver.lt(ver, '3.0.0')) {
-      var error = new Error();
-      error.code = 'NPM_VERSION3_NOT_SUPPORTED';
-      throw error;
-    }
-  });
-}
 
 function wizard(options) {
   if (!options) {
@@ -50,74 +37,71 @@ function wizard(options) {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return checkNpmVersion().then(function () {
-    return snyk.policy.load(options).catch(function (error) {
-      // if we land in the catch, but we're in interactive mode, then it means
-      // the file hasn't been created yet, and that's fine, so we'll resolve
-      // with an empty object
-      if (error.code === 'ENOENT') {
-        options.newPolicy = true;
-        return {};
-      }
+  return snyk.policy.load(options).catch(function (error) {
+    // if we land in the catch, but we're in interactive mode, then it means
+    // the file hasn't been created yet, and that's fine, so we'll resolve
+    // with an empty object
+    if (error.code === 'ENOENT') {
+      options.newPolicy = true;
+      return {};
+    }
 
-      throw error;
-    }).then(function (policy) {
-      return auth.isAuthed().then(function (authed) {
-        analytics.add('inline-auth', !authed);
-        if (!authed) {
-          return auth();
+    throw error;
+  }).then(function (policy) {
+    return auth.isAuthed().then(function (authed) {
+      analytics.add('inline-auth', !authed);
+      if (!authed) {
+        return auth();
+      }
+    }).then(function () {
+      var intro = __dirname + '/../../../help/wizard-intro.txt';
+      return fs.readFile(intro, 'utf8').then(function (str) {
+        if (!isCI) {
+          console.log(str);
         }
       }).then(function () {
-        var intro = __dirname + '/../../../help/wizard-intro.txt';
-        return fs.readFile(intro, 'utf8').then(function (str) {
-          if (!isCI) {
-            console.log(str);
+        return new Promise(function (resolve) {
+          if (options.newPolicy) {
+            return resolve(); // don't prompt to start over
           }
-        }).then(function () {
-          return new Promise(function (resolve) {
-            if (options.newPolicy) {
-              return resolve(); // don't prompt to start over
+          inquirer.prompt(allPrompts.startOver(), function (answers) {
+            analytics.add('start-over', answers['misc-start-over']);
+            if (answers['misc-start-over']) {
+              options['ignore-policy'] = true;
             }
-            inquirer.prompt(allPrompts.startOver(), function (answers) {
-              analytics.add('start-over', answers['misc-start-over']);
-              if (answers['misc-start-over']) {
-                options['ignore-policy'] = true;
-              }
 
-              resolve();
-            });
+            resolve();
           });
-        }).then(function () {
-          return snyk.test(cwd, options).then(function (res) {
-            var packageFile = path.resolve(cwd, 'package.json');
+        });
+      }).then(function () {
+        return snyk.test(cwd, options).then(function (res) {
+          var packageFile = path.resolve(cwd, 'package.json');
 
-            if (!res.ok) {
-              var vulns = res.vulnerabilities;
-              // echo out the deps + vulns found
-              console.log('Tested %s dependencies for known vulnerabilities, %s',
-                res.dependencyCount,
-                chalk.bold.red('found ' + vulns.length + ' vulnerabilities.'));
-            } else {
-              console.log(chalk.green('✓ Tested %s dependencies for known ' +
-                'vulnerabilities, no vulnerabilities found.'),
-                res.dependencyCount);
-            }
+          if (!res.ok) {
+            var vulns = res.vulnerabilities;
+            // echo out the deps + vulns found
+            console.log('Tested %s dependencies for known vulnerabilities, %s',
+              res.dependencyCount,
+              chalk.bold.red('found ' + vulns.length + ' vulnerabilities.'));
+          } else {
+            console.log(chalk.green('✓ Tested %s dependencies for known ' +
+              'vulnerabilities, no vulnerabilities found.'),
+              res.dependencyCount);
+          }
 
 
-            return fs.readFile(packageFile, 'utf8')
-              .then(JSON.parse)
-              .then(function (pkg) {
+          return fs.readFile(packageFile, 'utf8')
+            .then(JSON.parse)
+            .then(function (pkg) {
 
-                return interactive(res, pkg, policy).then(function (answers) {
-                  return processAnswers(answers, policy, options);
-                });
+              return interactive(res, pkg, policy).then(function (answers) {
+                return processAnswers(answers, policy, options);
               });
-          });
+            });
         });
       });
     });
   });
-
 }
 
 function interactive(test, pkg, policy) {
