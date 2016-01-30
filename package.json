@@ -14,6 +14,7 @@
     "watch": "nodemon -q -x 'for FILE in test/*.test.js; do echo $FILE; tape $FILE | tap-spec; if [ $? -ne 0 ]; then exit 1; fi; done'",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "snyk-protect": "node cli/index.js protect",
+    "cover": "tap test/*.test.js --cov --coverage-report=lcov",
     "postinstall": "npm run snyk-protect"
   },
   "keywords": [
@@ -39,7 +40,7 @@
     "resolve": "^1.1.6",
     "semver": "^5.1.0",
     "snyk-config": "^1.0.0",
-    "snyk-module": "^1.0.1",
+    "snyk-module": "^1.1.0",
     "tempfile": "^1.1.1",
     "then-fs": "^2.0.0",
     "undefsafe": "0.0.3",
