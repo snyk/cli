@@ -6,10 +6,23 @@ var debug = require('debug')('snyk');
 var exitcode = 0;
 
 args.method.apply(null, args.options._).then(function (result) {
+  var analytics = require('../lib/analytics');
+  var res = analytics({
+    command: args.command,
+    args: args.options._,
+  });
   if (result && !args.options.quiet) {
     console.log(result);
   }
+  return res;
 }).catch(function (error) {
+  var analytics = require('../lib/analytics');
+  analytics.add('error', error.stack);
+  var res = analytics({
+    command: args.command,
+    args: args.options._,
+  });
+
   if (args.options.debug) {
     console.log(error.stack);
   } else {
@@ -18,18 +31,9 @@ args.method.apply(null, args.options._).then(function (result) {
       console.log(errors.message(error));
     }
   }
+
   exitcode = 1;
-  return error;
-}).then(function (res) {
-  if (res && res.code === 'UNKNOWN_COMMAND') {
-    // don't log analytics for unknown commands
-    return;
-  }
-  var analytics = require('../lib/analytics');
-  return analytics({
-    command: args.command,
-    args: args.options._,
-  });
+  return res;
 }).catch(function (e) {
   console.log('super fail', e.stack);
 }).then(function () {
