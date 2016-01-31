@@ -2,24 +2,24 @@
   "ok": false,
   "vulnerabilities": [
     {
-      "title": "methodOverride Middleware Reflected Cross-Site Scripting",
+      "title": "methodoverride middleware reflected cross-site scripting",
       "credit": [
-        "Sergio Arcos"
+        "sergio arcos"
       ],
-      "description": "## Overview\n\nConnect is a stack of middleware that is executed in order in each request.\n\nThe \"methodOverride\" middleware allows the http post to override the method of the request with the value of the ```_method``` post key or with the header \"x-http-method-override\".\n\nBecause the user post input was not checked, req.method could contain any kind of value. Because the req.method did not match any common method VERB, connect answered with a 404 page containing the \"Cannot [method] [url]\" content. The method was not properly encoded for output in the browser.\n\n_Original description taken from the [Node Security Project](https://nodesecurity.io/)_\n\n## Example\n\n```\n~ curl \"localhost:3000\" -d \"_method=<script src=http://nodesecurity.io/xss.js></script>\"\nCannot <SCRIPT SRC=HTTP://NODESECURITY.IO/XSS.JS></SCRIPT> /\n```\n\n## Mitigation factors\n\nUpdate to the newest version of Connect or disable methodOverride. It is not possible to avoid the vulnerability if you have enabled this middleware in the top of your stack.\n\n## History\n\n(2013-06-27) [Bug reported](https://github.com/senchalabs/connect/issues/831)\n(2013-06-27) [First fix: escape req.method output](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\n(2013-06-27) [Second fix: whitelist](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n",
+      "description": "## overview\n\nconnect is a stack of middleware that is executed in order in each request.\n\nthe \"methodoverride\" middleware allows the http post to override the method of the request with the value of the ```_method``` post key or with the header \"x-http-method-override\".\n\nbecause the user post input was not checked, req.method could contain any kind of value. because the req.method did not match any common method verb, connect answered with a 404 page containing the \"cannot [method] [url]\" content. the method was not properly encoded for output in the browser.\n\n_original description taken from the [node security project](https://nodesecurity.io/)_\n\n## example\n\n```\n~ curl \"localhost:3000\" -d \"_method=<script src=http://nodesecurity.io/xss.js></script>\"\ncannot <script src=http://nodesecurity.io/xss.js></script> /\n```\n\n## mitigation factors\n\nupdate to the newest version of connect or disable methodoverride. it is not possible to avoid the vulnerability if you have enabled this middleware in the top of your stack.\n\n## history\n\n(2013-06-27) [bug reported](https://github.com/senchalabs/connect/issues/831)\n(2013-06-27) [first fix: escape req.method output](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\n(2013-06-27) [second fix: whitelist](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n",
       "version": "2.7.2",
       "semver": {
         "vulnerable": "<=2.8.0",
         "patched": ">=2.8.1"
       },
-      "CVSSv3": "",
+      "cvssv3": "",
       "severity": "medium",
       "identifiers": {
-        "CWE": [],
-        "CVE": [
-          "CVE-2013-7370"
+        "cwe": [],
+        "cve": [
+          "cve-2013-7370"
         ],
-        "NSP": 3
+        "nsp": 3
       },
       "info": [
         "https://nodesecurity.io/advisories/3"
@@ -31,7 +31,7 @@
             "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/connect_20130701_0_1_126187c4e12162e231b87350740045e5bb06e93a.patch"
           ],
           "version": "<=0.0.0",
-          "modificationTime": "2013-06-30T22:08:59.000Z",
+          "modificationtime": "2013-06-30t22:08:59.000z",
           "comments": [
             "https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135.patch",
             "https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a.patch"

@@ -1,4 +1,4 @@
-var test = require('tape');
+var test = require('tap').test;
 var fs = require('then-fs');
 var scenario = require('../cli/commands/scenario');
 
@@ -23,11 +23,7 @@ test('ensure scenarios work', function (t) {
       removeModTime(target);
       t.deepEqual(res[0], target, setups[i]);
     });
-  }).catch(function (e) {
-    t.fail(e);
-  }).then(function () {
-    t.end();
-  });
+  }).catch(t.threw).then(t.end);
 
 });
 

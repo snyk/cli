@@ -56,11 +56,13 @@ function parseScenario(source) {
   var data = {};
   var vulnerabilities = [];
   var title = /^title:\s+(.*)$/im;
-  var vuln = /([A-Z]\-\d+) has.*vuln(?:.*in ([A-Z]\-\d+))?/mg;
-  var vulnIds = /(V\d+)/mg;
-  var uses = /([A-Z]\-\d+|App) uses ([A-Z]\-\d+)(?: and ([A-Z]\-\d+))*/mg;
-  var module = /([A-Z]\-\d+|App)/g;
-  var patches = /(P\d+) fixes (?:.*(V\d+)+.*in (\w+))?/mg;
+  var vuln = /([A-Za-z]\-\d+) has.*vuln(?:.*in ([A-Za-z]\-\d+))?/mgi;
+  var vulnIds = /([Vv]\d+)/mgi;
+  // jscs:disable
+  var uses = /([A-Za-z]\-\d+|App|app) uses ([A-Za-z]\-\d+)(?: and ([A-Za-z]\-\d+))*/mgi;
+  // jscs:enable
+  var module = /([A-Za-z]\-\d+|App)/gi;
+  var patches = /([Pp]\d+) fixes (?:.*([Vv]\d+)+.*in (\w+))?/mgi;
   var m;
 
   pkg.name = 'app';
