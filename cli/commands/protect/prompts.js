@@ -495,7 +495,18 @@ function generatePrompt(vulns, policy) {
           // find how they answered on the top level question
           var groupAnswer = Object.keys(answers).map(function (key) {
             if (answers[key].meta) {
+              // this meta.groupId only appears on a "review" choice, and thus
+              // this map will pick out those vulns that are specifically
+              // associated with this review group.
               if (answers[key].meta.groupId === vuln.grouped.requires) {
+                if (answers[key].choice === 'ignore') {
+                  answers[key].meta.vulnsInGroup.push({
+                    id: vuln.id,
+                    from: vuln.from,
+                  });
+                  return false;
+                }
+
                 return answers[key];
               }
             }
@@ -643,7 +654,11 @@ function generatePrompt(vulns, policy) {
         groupId: group.id,
       };
       choices.push(review);
+
+      ignore.meta.groupId = group.id;
+      ignore.meta.vulnsInGroup = [];
     }
+
 
     if (patches === null && !upgradeAvailable) {
       ignore.default = true;
