@@ -1,5 +1,5 @@
 var debug = require('debug')('snyk');
-var test = require('tape');
+var test = require('tap').test;
 var proxyquire = require('proxyquire');
 var sinon = require('sinon');
 var _ = require('lodash');

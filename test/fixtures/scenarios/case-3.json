@@ -1,27 +1,27 @@
 {
-  "title": "Title: Simple patch",
+  "title": "title: simple patch",
   "pkg": {
     "name": "app",
     "version": "0.0.0",
     "full": "app@0.0.0",
     "dependencies": {
-      "A": {
-        "name": "A",
+      "a": {
+        "name": "a",
         "version": "1.0.0",
-        "full": "A@1.0.0",
+        "full": "a@1.0.0",
         "path": [
           "app@0.0.0",
-          "A@1.0.0"
+          "a@1.0.0"
         ],
         "dependencies": {
-          "B": {
-            "name": "B",
+          "b": {
+            "name": "b",
             "version": "1.0.0",
-            "full": "B@1.0.0",
+            "full": "b@1.0.0",
             "path": [
               "app@0.0.0",
-              "A@1.0.0",
-              "B@1.0.0"
+              "a@1.0.0",
+              "b@1.0.0"
             ],
             "dependencies": false
           }
@@ -33,12 +33,12 @@
     ]
   },
   "packages": {
-    "A@1.0.0": {
+    "a@1.0.0": {
       "dependencies": {
-        "B": {
-          "name": "B",
+        "b": {
+          "name": "b",
           "version": "1.0.0",
-          "full": "B@1.0.0",
+          "full": "b@1.0.0",
           "path": [],
           "dependencies": {}
         }
@@ -50,9 +50,9 @@
   },
   "vulnerabilities": [
     {
-      "moduleName": "B",
+      "moduleName": "b",
       "id": "V1",
-      "name": "B",
+      "name": "b",
       "version": "1.0.0",
       "below": "1.0.0",
       "semver": {
@@ -65,8 +65,8 @@
       ],
       "from": [
         "app@0.0.0",
-        "A@1.0.0",
-        "B@1.0.0"
+        "a@1.0.0",
+        "b@1.0.0"
       ],
       "upgradePath": [
         false,
@@ -76,11 +76,11 @@
       "patches": [
         {
           "urls": [
-            "https://example.com/patches/P1"
+            "https://example.com/patches/p1"
           ],
           "version": "*",
-          "id": "patch:P1",
-          "modificationTime": "2015-12-02T09:08:00.960Z"
+          "id": "patch:p1",
+          "modificationTime": "2015-12-02T09:08:00.96Z"
         }
       ]
     }

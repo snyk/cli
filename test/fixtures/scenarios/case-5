@@ -1,8 +1,8 @@
-Title: Two patches modify the same files
+title: two patches modify the same files
 
-A-1 uses B-1
-B-1 has 2 vulns: V1 and V2
-Neither vuln is fixed, or 'A' has no version that has the fixes
-P1 fixes only V1, was created in October
-P2 fixes both V1 & V2, was created in November
-App uses A-1
+a-1 uses b-1
+b-1 has 2 vulns: v1 and v2
+neither vuln is fixed, or 'a' has no version that has the fixes
+p1 fixes only v1, was created in october
+p2 fixes both v1 & v2, was created in november
+App uses a-1

@@ -1,27 +1,27 @@
 {
-  "title": "Title: Two patches modify the same files",
+  "title": "title: two patches modify the same files",
   "pkg": {
     "name": "app",
     "version": "0.0.0",
     "full": "app@0.0.0",
     "dependencies": {
-      "A": {
-        "name": "A",
+      "a": {
+        "name": "a",
         "version": "1.0.0",
-        "full": "A@1.0.0",
+        "full": "a@1.0.0",
         "path": [
           "app@0.0.0",
-          "A@1.0.0"
+          "a@1.0.0"
         ],
         "dependencies": {
-          "B": {
-            "name": "B",
+          "b": {
+            "name": "b",
             "version": "1.0.0",
-            "full": "B@1.0.0",
+            "full": "b@1.0.0",
             "path": [
               "app@0.0.0",
-              "A@1.0.0",
-              "B@1.0.0"
+              "a@1.0.0",
+              "b@1.0.0"
             ],
             "dependencies": false
           }
@@ -33,12 +33,12 @@
     ]
   },
   "packages": {
-    "A@1.0.0": {
+    "a@1.0.0": {
       "dependencies": {
-        "B": {
-          "name": "B",
+        "b": {
+          "name": "b",
           "version": "1.0.0",
-          "full": "B@1.0.0",
+          "full": "b@1.0.0",
           "path": [],
           "dependencies": {}
         }
@@ -50,24 +50,24 @@
   },
   "vulnerabilities": [
     {
-      "moduleName": "B",
-      "id": "V1",
-      "name": "B",
+      "moduleName": "b",
+      "id": "v1",
+      "name": "b",
       "version": "1.0.0",
       "below": "1.0.0",
-      "publicationTime": "2015-10-04T12:00:00",
+      "publicationTime": "2015-10-04t12:00:00",
       "semver": {
         "vulnerable": "1.0.0",
         "patched": "<0.0.0"
       },
       "severity": "high",
       "info": [
-        "https://example.com/vuln/V1"
+        "https://example.com/vuln/v1"
       ],
       "from": [
         "app@0.0.0",
-        "A@1.0.0",
-        "B@1.0.0"
+        "a@1.0.0",
+        "b@1.0.0"
       ],
       "upgradePath": [
         false,
@@ -77,23 +77,23 @@
       "patches": [
         {
           "urls": [
-            "https://example.com/patches/P1"
+            "https://example.com/patches/p1"
           ],
           "version": "*"
         },
         {
           "urls": [
-            "https://example.com/patches/P2"
+            "https://example.com/patches/p2"
           ],
           "version": "*"
         }
       ]
     },
     {
-      "moduleName": "B",
-      "id": "V2",
-      "publicationTime": "2015-12-04T12:00:00",
-      "name": "B",
+      "moduleName": "b",
+      "id": "v2",
+      "publicationTime": "2015-12-04t12:00:00",
+      "name": "b",
       "version": "1.0.0",
       "below": "1.0.0",
       "semver": {
@@ -102,12 +102,12 @@
       },
       "severity": "high",
       "info": [
-        "https://example.com/vuln/V2"
+        "https://example.com/vuln/v2"
       ],
       "from": [
         "app@0.0.0",
-        "A@1.0.0",
-        "B@1.0.0"
+        "a@1.0.0",
+        "b@1.0.0"
       ],
       "upgradePath": [
         false,
@@ -117,7 +117,7 @@
       "patches": [
         {
           "urls": [
-            "https://example.com/patches/P2"
+            "https://example.com/patches/p2"
           ],
           "version": "*"
         }

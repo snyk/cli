@@ -1,27 +1,27 @@
 {
-  "title": "Title: Indirect upgrade",
+  "title": "title: indirect upgrade",
   "pkg": {
     "name": "app",
     "version": "0.0.0",
     "full": "app@0.0.0",
     "dependencies": {
-      "A": {
-        "name": "A",
+      "a": {
+        "name": "a",
         "version": "1.0.0",
-        "full": "A@1.0.0",
+        "full": "a@1.0.0",
         "path": [
           "app@0.0.0",
-          "A@1.0.0"
+          "a@1.0.0"
         ],
         "dependencies": {
-          "B": {
-            "name": "B",
+          "b": {
+            "name": "b",
             "version": "1.0.0",
-            "full": "B@1.0.0",
+            "full": "b@1.0.0",
             "path": [
               "app@0.0.0",
-              "A@1.0.0",
-              "B@1.0.0"
+              "a@1.0.0",
+              "b@1.0.0"
             ],
             "dependencies": false
           }
@@ -33,26 +33,26 @@
     ]
   },
   "packages": {
-    "A@1.0.0": {
+    "a@1.0.0": {
       "dependencies": {
-        "B": {
-          "name": "B",
+        "b": {
+          "name": "b",
           "version": "1.0.0",
-          "full": "B@1.0.0",
+          "full": "b@1.0.0",
           "path": [],
           "dependencies": {}
         }
       }
     },
-    "B@2.0.0": {
+    "b@2.0.0": {
       "dependencies": {}
     },
-    "A@2.0.0": {
+    "a@2.0.0": {
       "dependencies": {
-        "B": {
-          "name": "B",
+        "b": {
+          "name": "b",
           "version": "2.0.0",
-          "full": "B@2.0.0",
+          "full": "b@2.0.0",
           "path": [],
           "dependencies": {}
         }
@@ -61,9 +61,9 @@
   },
   "vulnerabilities": [
     {
-      "moduleName": "B",
+      "moduleName": "b",
       "id": "V1",
-      "name": "B",
+      "name": "b",
       "version": "1.0.0",
       "below": "1.0.0",
       "semver": {
@@ -76,13 +76,13 @@
       ],
       "from": [
         "app@0.0.0",
-        "A@1.0.0",
-        "B@1.0.0"
+        "a@1.0.0",
+        "b@1.0.0"
       ],
       "upgradePath": [
         false,
-        "A@2.0.0",
-        "B@2.0.0"
+        "a@2.0.0",
+        "b@2.0.0"
       ]
     }
   ]

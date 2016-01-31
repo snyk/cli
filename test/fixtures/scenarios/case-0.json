@@ -1,27 +1,27 @@
 {
-  "title": "Title: no remediation",
+  "title": "title: no remediation",
   "pkg": {
     "name": "app",
     "version": "0.0.0",
     "full": "app@0.0.0",
     "dependencies": {
-      "A": {
-        "name": "A",
+      "a": {
+        "name": "a",
         "version": "1.0.0",
-        "full": "A@1.0.0",
+        "full": "a@1.0.0",
         "path": [
           "app@0.0.0",
-          "A@1.0.0"
+          "a@1.0.0"
         ],
         "dependencies": {
-          "B": {
-            "name": "B",
+          "b": {
+            "name": "b",
             "version": "1.0.0",
-            "full": "B@1.0.0",
+            "full": "b@1.0.0",
             "path": [
               "app@0.0.0",
-              "A@1.0.0",
-              "B@1.0.0"
+              "a@1.0.0",
+              "b@1.0.0"
             ],
             "dependencies": false
           }
@@ -33,12 +33,12 @@
     ]
   },
   "packages": {
-    "A@1.0.0": {
+    "a@1.0.0": {
       "dependencies": {
-        "B": {
-          "name": "B",
+        "b": {
+          "name": "b",
           "version": "1.0.0",
-          "full": "B@1.0.0",
+          "full": "b@1.0.0",
           "path": [],
           "dependencies": {}
         }
@@ -50,9 +50,9 @@
   },
   "vulnerabilities": [
     {
-      "moduleName": "B",
-      "id": "V1",
-      "name": "B",
+      "moduleName": "b",
+      "id": "v1",
+      "name": "b",
       "version": "1.0.0",
       "below": "1.0.0",
       "semver": {
@@ -61,12 +61,12 @@
       },
       "severity": "high",
       "info": [
-        "https://example.com/vuln/V1"
+        "https://example.com/vuln/v1"
       ],
       "from": [
         "app@0.0.0",
-        "A@1.0.0",
-        "B@1.0.0"
+        "a@1.0.0",
+        "b@1.0.0"
       ],
       "upgradePath": [
         false,

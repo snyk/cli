@@ -1,38 +1,38 @@
 {
-  "title": "Title: Upgrades to different versions",
+  "title": "title: upgrades to different versions",
   "pkg": {
     "name": "app",
     "version": "0.0.0",
     "full": "app@0.0.0",
     "dependencies": {
-      "A": {
-        "name": "A",
+      "a": {
+        "name": "a",
         "version": "1.0.0",
-        "full": "A@1.0.0",
+        "full": "a@1.0.0",
         "path": [
           "app@0.0.0",
-          "A@1.0.0"
+          "a@1.0.0"
         ],
         "dependencies": {
-          "B": {
-            "name": "B",
+          "b": {
+            "name": "b",
             "version": "1.0.0",
-            "full": "B@1.0.0",
+            "full": "b@1.0.0",
             "path": [
               "app@0.0.0",
-              "A@1.0.0",
-              "B@1.0.0"
+              "a@1.0.0",
+              "b@1.0.0"
             ],
             "dependencies": false
           },
-          "C": {
-            "name": "C",
+          "c": {
+            "name": "c",
             "version": "1.0.0",
-            "full": "C@1.0.0",
+            "full": "c@1.0.0",
             "path": [
               "app@0.0.0",
-              "A@1.0.0",
-              "C@1.0.0"
+              "a@1.0.0",
+              "c@1.0.0"
             ],
             "dependencies": false
           }
@@ -44,61 +44,61 @@
     ]
   },
   "packages": {
-    "A@1.0.0": {
+    "a@1.0.0": {
       "dependencies": {
-        "B": {
-          "name": "B",
+        "b": {
+          "name": "b",
           "version": "1.0.0",
-          "full": "B@1.0.0",
+          "full": "b@1.0.0",
           "path": [],
           "dependencies": {}
         },
-        "C": {
-          "name": "C",
+        "c": {
+          "name": "c",
           "version": "1.0.0",
-          "full": "C@1.0.0",
+          "full": "c@1.0.0",
           "path": [],
           "dependencies": {}
         }
       }
     },
-    "B@2.0.0": {
+    "b@2.0.0": {
       "dependencies": {}
     },
-    "C@3.0.0": {
+    "c@3.0.0": {
       "dependencies": {}
     },
-    "A@2.0.0": {
+    "a@2.0.0": {
       "dependencies": {
-        "B": {
-          "name": "B",
+        "b": {
+          "name": "b",
           "version": "2.0.0",
-          "full": "B@2.0.0",
+          "full": "b@2.0.0",
           "path": [],
           "dependencies": {}
         },
-        "C": {
-          "name": "C",
+        "c": {
+          "name": "c",
           "version": "2.0.0",
-          "full": "C@2.0.0",
+          "full": "c@2.0.0",
           "path": [],
           "dependencies": {}
         }
       }
     },
-    "A@3.0.0": {
+    "a@3.0.0": {
       "dependencies": {
-        "B": {
-          "name": "B",
+        "b": {
+          "name": "b",
           "version": "2.0.0",
-          "full": "B@2.0.0",
+          "full": "b@2.0.0",
           "path": [],
           "dependencies": {}
         },
-        "C": {
-          "name": "C",
+        "c": {
+          "name": "c",
           "version": "3.0.0",
-          "full": "C@3.0.0",
+          "full": "c@3.0.0",
           "path": [],
           "dependencies": {}
         }
@@ -107,9 +107,9 @@
   },
   "vulnerabilities": [
     {
-      "moduleName": "B",
-      "id": "V1",
-      "name": "B",
+      "moduleName": "b",
+      "id": "v1",
+      "name": "b",
       "version": "1.0.0",
       "below": "1.0.0",
       "semver": {
@@ -118,23 +118,23 @@
       },
       "severity": "high",
       "info": [
-        "https://example.com/vuln/V1"
+        "https://example.com/vuln/v1"
       ],
       "from": [
         "app@0.0.0",
-        "A@1.0.0",
-        "B@1.0.0"
+        "a@1.0.0",
+        "b@1.0.0"
       ],
       "upgradePath": [
         false,
-        "A@2.0.0",
-        "B@2.0.0"
+        "a@2.0.0",
+        "b@2.0.0"
       ]
     },
     {
-      "moduleName": "C",
-      "id": "V2",
-      "name": "C",
+      "moduleName": "c",
+      "id": "v2",
+      "name": "c",
       "version": "1.0.0",
       "below": "1.0.0",
       "semver": {
@@ -143,17 +143,17 @@
       },
       "severity": "high",
       "info": [
-        "https://example.com/vuln/V2"
+        "https://example.com/vuln/v2"
       ],
       "from": [
         "app@0.0.0",
-        "A@1.0.0",
-        "C@1.0.0"
+        "a@1.0.0",
+        "c@1.0.0"
       ],
       "upgradePath": [
         false,
-        "A@3.0.0",
-        "C@3.0.0"
+        "a@3.0.0",
+        "c@3.0.0"
       ]
     }
   ]
