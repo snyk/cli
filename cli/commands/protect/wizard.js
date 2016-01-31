@@ -221,26 +221,43 @@ function processAnswers(answers, policy, options) {
 
     var answer = answers[key];
     var task = answer.choice;
-    if (task === 'review') {
-      task = 'skip';
+    if (task === 'review' || task === 'skip') {
+      // task = 'skip';
+      return;
     }
 
     var vuln = answer.vuln;
 
     if (task === 'patch' && vuln.grouped && vuln.grouped.upgrades) {
       // ignore the first as it's the same one as this particular answer
-      debug('additional patches required: %s', 0, vuln.grouped);
-      var additionalPatches = vuln.grouped.upgrades.slice(1);
-      additionalPatches.forEach(function (from) {
+      debug('additional answers required: %s',
+        vuln.grouped.count - 1,
+        vuln.grouped);
+
+      var additional = vuln.grouped.upgrades.slice(1);
+
+      additional.forEach(function (from) {
         var copy = _.cloneDeep(vuln);
         copy.from = from;
-        tasks.patch.push(copy);
+        tasks[task].push(copy);
       });
     }
 
     if (task === 'ignore') {
       answer.meta.reason = answers[key + '-reason'];
       tasks[task].push(answer);
+
+      if (answer.meta.vulnsInGroup) {
+        // also ignore any in the group
+        answer.meta.vulnsInGroup.forEach(function (vuln) {
+          if (vuln.id !== answer.vuln.id) {
+            tasks[task].push({
+              meta: answer.meta,
+              vuln: vuln,
+            });
+          }
+        });
+      }
     } else {
       tasks[task].push(vuln);
     }
