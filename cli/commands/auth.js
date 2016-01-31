@@ -29,6 +29,8 @@ function githubAuth() {
   // suppress this message in CI
   if (!isCI) {
     console.log(msg);
+  } else {
+    return Promise.reject(new Error('noAuthInCI'));
   }
 
   var lbl = 'Waiting...';
