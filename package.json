@@ -50,7 +50,7 @@
     "validator": "^4.0.5"
   },
   "devDependencies": {
-    "@snyk/registry": "^2.13.2",
+    "@snyk/registry": "2.25.0",
     "babel": "^5.8.29",
     "istanbul": "^0.4.0",
     "jscs": "^2.0.0",
