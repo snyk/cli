@@ -41,7 +41,7 @@
     "resolve": "^1.1.6",
     "semver": "^5.1.0",
     "snyk-config": "^1.0.0",
-    "snyk-module": "^1.0.1",
+    "snyk-module": "^1.2.0",
     "tempfile": "^1.1.1",
     "then-fs": "^2.0.0",
     "undefsafe": "0.0.3",
