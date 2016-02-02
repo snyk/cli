@@ -42,7 +42,7 @@
     "request": "^2.60.0",
     "semver": "^5.1.0",
     "snyk-config": "^1.0.0",
-    "snyk-module": "^1.1.0",
+    "snyk-module": "^1.2.0",
     "snyk-resolve": "^1.0.0",
     "snyk-resolve-deps": "^1.1.4",
     "tempfile": "^1.1.1",
