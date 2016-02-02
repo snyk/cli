@@ -12,11 +12,9 @@
     "cover": "tap test/*.test.js --cov --coverage-report=lcov",
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
     "test": "npm run lint && tap test/*.test.js --cov --timeout=60 && node cli/index.js test > /dev/null",
-    "cover": "tap test/*.test.js --cov --coverage-report=lcov",
     "watch": "nodemon -q -x 'for FILE in test/*.test.js; do echo $FILE; tape $FILE | tap-spec; if [ $? -ne 0 ]; then exit 1; fi; done'",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "snyk-protect": "node cli/index.js protect",
-    "cover": "tap test/*.test.js --cov --coverage-report=lcov",
     "postinstall": "npm run snyk-protect"
   },
   "keywords": [
@@ -54,6 +52,7 @@
   },
   "devDependencies": {
     "@snyk/registry": "2.25.0",
+    "@snyk/vuln": "^3.0.1",
     "babel": "^5.8.29",
     "istanbul": "^0.4.0",
     "jscs": "^2.0.0",
