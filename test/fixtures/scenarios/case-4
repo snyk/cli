@@ -1,7 +1,7 @@
-Title: Upgrades to different versions
-A-1 uses B-1 and C-1
-B-1 has a vuln V1, fixed in B-2
-C-1 has a vuln V2, fixed in C-3
-A-2 uses B-2 and C-2 (only fixes vuln in B)
-A-3 uses B-2 and C-3 (fixes vulns in both B and C)
-App uses A-1
+title: upgrades to different versions
+a-1 uses b-1 and c-1
+b-1 has a vuln v1, fixed in b-2
+c-1 has a vuln v2, fixed in c-3
+a-2 uses b-2 and c-2 (only fixes vuln in b)
+a-3 uses b-2 and c-3 (fixes vulns in both b and c)
+App uses a-1

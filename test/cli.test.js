@@ -13,7 +13,7 @@ require('babel/register')({
   },
 //  only: /@snyk\/register\//,
 });
-var test = require('tape');
+var test = require('tap').test;
 var apiKey = '123456789';
 var oldkey;
 var chalk = require('chalk');
@@ -166,8 +166,6 @@ test('auth via invalid key', function (t) {
 });
 
 test('auth via github', function (t) {
-  t.plan(1);
-
   var tokenRequest = null;
 
   var openSpy = sinon.spy(function (url) {
@@ -194,14 +192,13 @@ test('auth via github', function (t) {
 
   var auth = proxyquire('../cli/commands/auth', {
     '../../lib/request': spy,
-    'open': openSpy
+    'open': openSpy,
+    '../../lib/is-ci': false,
   });
 
   auth().then(function (res) {
     t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
-  }).catch(function (e) {
-    t.fail(e);
-  });
+  }).catch(t.threw).then(t.end);
 });
 
 test('wizard and multi-patch', function (t) {
