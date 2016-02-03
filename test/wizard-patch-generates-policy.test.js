@@ -56,7 +56,7 @@ test('patch via wizard produces policy (on debug@2.1.0)', function (t) {
 
 });
 
-test.only('patch via wizard produces policy (on openapi-node@3.0.3)', function (t) {
+test('patch via wizard produces policy (on openapi-node@3.0.3)', function (t) {
   var name = 'openapi-node';
   var version = '3.0.3';
   var cwd = process.cwd();

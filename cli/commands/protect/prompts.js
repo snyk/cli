@@ -760,7 +760,7 @@ function nextSteps(pkg, prevAnswers) {
     return prompts;
   }
 
-  i = (undefsafe(pkg, 'scripts.postinstall') || '') .indexOf('snyk pro');
+  i = (undefsafe(pkg, 'scripts.prepublish') || '') .indexOf('snyk pro');
 
   // if `snyk protect` doesn't already appear, then check if we need to add it
   if (i === -1) {
@@ -774,8 +774,8 @@ function nextSteps(pkg, prevAnswers) {
   if (!skipProtect) {
     prompts.push({
       name: 'misc-add-protect',
-      message: 'Add `snyk protect` as package.json post-install step to apply' +
-        ' chosen patches on install?',
+      message: 'Add `snyk protect` as a package.json installation hook to ' +
+        'apply chosen patches on install?',
       type: 'confirm',
       default: true,
     });

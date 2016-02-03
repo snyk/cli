@@ -40,7 +40,7 @@ test('test sensibly bails if gets an old .snyk format', function (t) {
   });
 });
 
-test.only('policy ignores correctly', function (t) {
+test('policy ignores correctly', function (t) {
   var dir = __dirname + '/fixtures/hapi-azure-post-update/';
   var vulns = require(dir + 'test.json').vulnerabilities;
 
