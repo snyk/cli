@@ -25,7 +25,7 @@ test('dev deps: dev-deps-demo, _excluding_ dev deps', function (t) {
       if (key === 'kind-of') {
         var childDeps = modules.dependencies[key].dependencies;
         var childKeys = Object.keys(childDeps);
-        t.equal(childKeys.length, 1, 'dep count of kind-of');
+        t.equal(childKeys.length, 2, 'dep count of kind-of');
 
         // Check child dependencies
         t.ok(childDeps['is-buffer'] !== undefined, 'is-buffer child dep was expected');

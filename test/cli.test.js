@@ -16,6 +16,7 @@ require('babel/register')({
 var test = require('tap').test;
 var apiKey = '123456789';
 var oldkey;
+var oldendpoint;
 var chalk = require('chalk');
 var port = process.env.PORT = process.env.SNYK_PORT = 12345;
 var sinon = require('sinon');
@@ -36,11 +37,17 @@ var utils = require('@snyk/registry/test/fixtures/utils');
 var cli = require('../cli/commands');
 
 test('setup', function (t) {
-  t.plan(3);
+  t.plan(4);
   cli.config('get', 'api').then(function (key) {
     oldkey = key; // just in case
     t.pass('existing user config captured');
   });
+
+  cli.config('get', 'endpoint').then(function (key) {
+    oldendpoint = key; // just in case
+    t.pass('existing user endpoint captured');
+  });
+
   server(port, function () {
     t.pass('started demo server');
 
@@ -51,7 +58,7 @@ test('setup', function (t) {
 });
 
 test('prime database', function (t) {
-  t.plan(2);
+  t.plan(3);
 
   db.models.User.create({
     ApiKeys: [{
@@ -65,6 +72,10 @@ test('prime database', function (t) {
 
     return cli.config('set', 'api=' + apiKey).then(function () {
       t.pass('api key set');
+    });
+  }).then(function () {
+    return cli.config('unset', 'endpoint').then(function () {
+      t.pass('endpoint removed');
     });
   }).catch(function (err) {
     t.fail(err);
@@ -254,7 +265,7 @@ test('wizard and multi-patch', function (t) {
 });
 
 test('teardown', function (t) {
-  t.plan(3);
+  t.plan(4);
 
   delete process.env.SNYK_API;
   delete process.env.SNYK_HOST;
@@ -271,7 +282,17 @@ test('teardown', function (t) {
     }
     cli.config(key, value).then(function () {
       t.pass('user config restored');
-      t.end();
+      if (oldendpoint) {
+        cli.config('endpoint', oldendpoint).then(function () {
+          t.pass('user endpoint restored');
+          t.end();
+        });
+      } else {
+        t.pass('no endpoint');
+        t.end();
+      }
     });
+
+
   });
 });
