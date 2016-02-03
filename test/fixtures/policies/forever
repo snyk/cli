@@ -1,5 +1,8 @@
 patch:
+  'npm:hawk:20160119':
+    - 'forever > forever-monitor > chokidar > fsevents > node-pre-gyp > request > hawk':
+        patched: '2016-02-03T18:00:05.710Z'
   'npm:is-my-json-valid:20160118':
     - 'forever > forever-monitor > chokidar > fsevents > node-pre-gyp > request > har-validator > is-my-json-valid':
-        patched: '2016-02-03T15:53:58.387Z'
+        patched: '2016-02-03T18:00:05.710Z'
 version: v1
