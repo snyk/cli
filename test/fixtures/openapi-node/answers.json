@@ -1,7 +1,7 @@
 {
   "npm:qs:20140806-1-0": {
     "vuln": {
-      "title": "qs Denial-of-Service Extended Event Loop Blocking",
+      "title": "Denial-of-Service through Event Loop Blocking",
       "semver": {
         "vulnerable": "<1.0.0",
         "unaffected": ">= 1.x"
@@ -32,7 +32,7 @@
       "modificationTime": "2015-11-06T02:09:36.180Z",
       "id": "npm:qs:20140806-1",
       "from": [
-        "wixx@1.0.0",
+        "openapi-node@3.0.3",
         "openapi-node@3.0.3",
         "restler@3.2.0",
         "qs@0.6.6"
@@ -45,6 +45,7 @@
       ],
       "version": "0.6.6",
       "name": "qs",
+      "__filename": "/Users/remy/Sites/snyk/test/fixtures/openapi-node/node_modules/openapi-node/node_modules/restler/node_modules/qs/package.json",
       "grouped": {
         "affected": {
           "name": "qs",
@@ -56,7 +57,7 @@
         "count": 2,
         "upgrades": [
           [
-            "wixx@1.0.0",
+            "openapi-node@3.0.3",
             "openapi-node@3.0.3",
             "restler@3.2.0",
             "qs@0.6.6"
