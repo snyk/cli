@@ -155,10 +155,6 @@ function processAnswers(answers, policy, options) {
   var cwd = process.cwd();
   var packageFile = path.resolve(cwd, 'package.json');
 
-  if (!options) {
-    options = {};
-  }
-
   var tasks = {
     ignore: [],
     update: [],
@@ -325,14 +321,21 @@ function processAnswers(answers, policy, options) {
     pkg.scripts['snyk-protect'] = 'snyk protect';
 
     var cmd = 'npm run snyk-protect';
-    var postInstall = pkg.scripts.postinstall;
-    if (postInstall) {
-      // only add the postinstall if it's not already in the postinstall
-      if (postInstall.indexOf(cmd) === -1) {
-        pkg.scripts.postinstall = cmd + '; ' + postInstall;
+    var runScript = pkg.scripts.prepublish;
+    if (runScript) {
+      // only add the prepublish if it's not already in the prepublish
+      if (runScript.indexOf(cmd) === -1) {
+        pkg.scripts.prepublish = cmd + '; ' + runScript;
       }
     } else {
-      pkg.scripts.postinstall = cmd;
+      pkg.scripts.prepublish = cmd;
+    }
+
+    // legacy check for `postinstall`, if `npm run snyk-protect` is in there
+    // we'll replace it with `true` so it can be cleanly swapped out
+    var postinstall = pkg.scripts.postinstall;
+    if (postinstall && postinstall.indexOf(cmd) !== -1) {
+      pkg.scripts.postinstall = postinstall.replace(cmd, 'true');
     }
 
     pkg.snyk = true;
