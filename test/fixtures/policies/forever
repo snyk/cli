@@ -1,0 +1,5 @@
+patch:
+  'npm:is-my-json-valid:20160118':
+    - 'forever > forever-monitor > chokidar > fsevents > node-pre-gyp > request > har-validator > is-my-json-valid':
+        patched: '2016-02-03T15:53:58.387Z'
+version: v1
