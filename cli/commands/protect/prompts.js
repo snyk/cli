@@ -393,11 +393,15 @@ function getUpdatePrompts(vulns, policy) {
 }
 
 function canBeUpgraded(vuln) {
+  if (vuln.bundled) {
+    return false;
+  }
+
   return vuln.upgradePath.some(function (pkg, i) {
     // if the upgade path is to upgrade the module to the same range the
     // user already asked for, then it means we need to just blow that
     // module away and re-install
-    if (vuln.from.length > i && pkg === vuln.from[i] && !vuln.bundled) {
+    if (vuln.from.length > i && pkg === vuln.from[i]) {
       return true;
     }
 
