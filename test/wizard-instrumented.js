@@ -34,15 +34,15 @@ function respondWith(q, res) {
         return choice;
       }
       return false;
-    }).filter(Boolean).pop();
+    }).filter(Boolean).pop() || null;
   }
 
   if (q.type === 'confirm') {
-    return res;
+    return { value: res };
   }
 
   // otherwise free text
-  return res;
+  return { value: res };
 }
 
 function getDefaultChoice(q) {
@@ -55,7 +55,11 @@ function interactive(vulns, responses) {
   spy = sinon.spy(function (q, i) {
     var response = responses[i];
 
-    if (response.indexOf('default:') === 0) {
+    if (response === undefined) {
+      throw new Error('Out of responses to ' + q.name);
+    }
+
+    if (typeof response === 'string' && response.indexOf('default:') === 0) {
       var def = getDefaultChoice(q);
       response = response.slice('default:'.length);
       if (def.value.choice !== response) {

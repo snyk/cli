@@ -212,7 +212,7 @@
       ],
       "upgradePath": [
         false,
-        "browser-sync@2.11.1",
+        false,
         "chokidar@1.4.1",
         "fsevents@1.0.7",
         "node-pre-gyp@0.6.19",
@@ -220,7 +220,15 @@
         "hawk@3.1.3"
       ],
       "version": "3.1.2",
-      "name": "hawk"
+      "name": "hawk",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/chokidar/node_modules/fsevents/node_modules/hawk/package.json",
+      "bundled": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "chokidar@1.4.1",
+        "fsevents@1.0.7",
+        "node-pre-gyp@0.6.19"
+      ]
     },
     {
       "title": "Regular Expression Denial of Service",
@@ -278,7 +286,7 @@
       ],
       "upgradePath": [
         false,
-        "browser-sync@2.11.1",
+        false,
         "chokidar@1.4.1",
         "fsevents@1.0.7",
         "node-pre-gyp@0.6.19",
@@ -287,7 +295,15 @@
         "is-my-json-valid@2.12.4"
       ],
       "version": "2.12.3",
-      "name": "is-my-json-valid"
+      "name": "is-my-json-valid",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/chokidar/node_modules/fsevents/node_modules/is-my-json-valid/package.json",
+      "bundled": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "chokidar@1.4.1",
+        "fsevents@1.0.7",
+        "node-pre-gyp@0.6.19"
+      ]
     },
     {
       "title": "Regular Expression Denial of Service",
@@ -471,21 +487,21 @@
         "optimizely-oui@9.0.0",
         "browser-sync@2.11.1",
         "socket.io@1.3.7",
-        "socket.io-adapter@0.3.1",
-        "debug@1.0.2",
+        "engine.io@1.5.4",
+        "debug@1.0.3",
         "ms@0.6.2"
       ],
       "upgradePath": [
         false,
         false,
         "socket.io@1.4.0",
-        "socket.io-adapter@0.4.0",
+        "engine.io@1.6.5",
         "debug@2.2.0",
         "ms@0.7.1"
       ],
       "version": "0.6.2",
       "name": "ms",
-      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/socket.io-adapter/node_modules/debug/node_modules/ms/package.json"
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/engine.io/node_modules/debug/node_modules/ms/package.json"
     },
     {
       "title": "Regular Expression Denial of Service",
@@ -571,21 +587,21 @@
         "optimizely-oui@9.0.0",
         "browser-sync@2.11.1",
         "socket.io@1.3.7",
-        "engine.io@1.5.4",
-        "debug@1.0.3",
+        "socket.io-adapter@0.3.1",
+        "debug@1.0.2",
         "ms@0.6.2"
       ],
       "upgradePath": [
         false,
         false,
         "socket.io@1.4.0",
-        "engine.io@1.6.5",
+        "socket.io-adapter@0.4.0",
         "debug@2.2.0",
         "ms@0.7.1"
       ],
       "version": "0.6.2",
       "name": "ms",
-      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/engine.io/node_modules/debug/node_modules/ms/package.json"
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/socket.io-adapter/node_modules/debug/node_modules/ms/package.json"
     },
     {
       "title": "Regular Expression Denial of Service",
