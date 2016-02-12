@@ -295,7 +295,7 @@ function getIgnorePrompts(vulns, policy) {
     // remove all patches and updates
 
     // if there's any upgrade available
-    if (vuln.upgradePath && vuln.upgradePath[1]) {
+    if (canBeUpgraded(vuln)) {
       return false;
     }
 
@@ -390,6 +390,24 @@ function getUpdatePrompts(vulns, policy) {
   var prompts = generatePrompt(res, policy);
 
   return prompts;
+}
+
+function canBeUpgraded(vuln) {
+  return vuln.upgradePath.some(function (pkg, i) {
+    // if the upgade path is to upgrade the module to the same range the
+    // user already asked for, then it means we need to just blow that
+    // module away and re-install
+    if (vuln.from.length > i && pkg === vuln.from[i] && !vuln.bundled) {
+      return true;
+    }
+
+    // if the upgradePath contains the first two elements, that is
+    // the project itself (i.e. jsbin) then the direct dependency can be
+    // upgraded. Note that if the first two elements
+    if (vuln.upgradePath.slice(0, 2).filter(Boolean).length) {
+      return true;
+    }
+  });
 }
 
 function generatePrompt(vulns, policy) {
@@ -548,21 +566,7 @@ function generatePrompt(vulns, policy) {
         .filter(Boolean).join('\n')
     };
 
-    var upgradeAvailable = vuln.upgradePath.some(function (pkg, i) {
-      // if the upgade path is to upgrade the module to the same range the
-      // user already asked for, then it means we need to just blow that
-      // module away and re-install
-      if (pkg && vuln.from.length > i && pkg === vuln.from[i]) {
-        return true;
-      }
-
-      // if the upgradePath contains the first two elements, that is
-      // the project itself (i.e. jsbin) then the direct dependency can be
-      // upgraded. Note that if the first two elements
-      if (vuln.upgradePath.slice(0, 2).filter(Boolean).length) {
-        return true;
-      }
-    });
+    var upgradeAvailable = canBeUpgraded(vuln);
 
     // note: the language presented the user is "upgrade" rather than "update"
     // this change came long after all this code was written. I've decided
@@ -571,8 +575,11 @@ function generatePrompt(vulns, policy) {
     if (upgradeAvailable) {
       choices.push(update);
       var toPackage = vuln.upgradePath.filter(Boolean).shift();
-      update.short = 'Upgrade to ' + toPackage;
-      var out = 'Upgrade to ' + toPackage;
+
+      var word = toPackage === from ? 'Re-install ' : 'Upgrade to ';
+
+      update.short = word + toPackage;
+      var out = word + toPackage;
       var toPackageVersion = moduleToObject(toPackage).version;
       var diff = semver.diff(moduleToObject(from).version, toPackageVersion);
       var lead = '';
@@ -597,12 +604,15 @@ function generatePrompt(vulns, policy) {
       update.name = out;
     } else {
       // No upgrade available (as per no patch)
+      var reason = vuln.bundled ? 'upgrade unavailable as ' +
+        vuln.bundled.slice(-1).pop() + ' bundled in the vulnerable ' +
+        vuln.name :
+        'no sufficient upgrade available we\'ll notify you when there is one';
       choices.push({
         value: 'skip',
         key: 'u',
         short: 'Upgrade (none available)',
-        name: 'Upgrade (no sufficient upgrade available' +
-          ', we\'ll notify you when there is one)',
+        name: 'Upgrade (' + reason + ')',
       });
     }
 
