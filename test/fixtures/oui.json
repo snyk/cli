@@ -1,0 +1,1277 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "methodOverride Middleware Reflected Cross-Site Scripting",
+      "credit": [
+        "Sergio Arcos"
+      ],
+      "description": "## Overview\n\nConnect is a stack of middleware that is executed in order in each request.\n\nThe \"methodOverride\" middleware allows the http post to override the method of the request with the value of the ```_method``` post key or with the header \"x-http-method-override\".\n\nBecause the user post input was not checked, req.method could contain any kind of value. Because the req.method did not match any common method VERB, connect answered with a 404 page containing the \"Cannot [method] [url]\" content. The method was not properly encoded for output in the browser.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/3)_\n\n## Details\n\n**Example**\n\n```\n~ curl \"localhost:3000\" -d \"_method=<script src=http://nodesecurity.io/xss.js></script>\"\nCannot <SCRIPT SRC=HTTP://NODESECURITY.IO/XSS.JS></SCRIPT> /\n```\n\n**Mitigation factors**\n\nUpdate to the newest version of Connect or disable methodOverride. It is not possible to avoid the vulnerability if you have enabled this middleware in the top of your stack.\n\n**History**\n\n- (2013-06-27) [Bug reported](https://github.com/senchalabs/connect/issues/831)\n- (2013-06-27) [First fix: escape req.method output](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\n- (2013-06-27) [Second fix: whitelist](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n\n## References\n- https://nodesecurity.io/advisories/3\n",
+      "semver": {
+        "vulnerable": "<=2.8.0",
+        "unaffected": ">=2.8.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [
+          "CVE-2013-7370"
+        ],
+        "NSP": 3
+      },
+      "patches": [],
+      "moduleName": "connect",
+      "creationTime": "2013-06-30T22:08:59.000Z",
+      "publicationTime": "2013-06-30T22:08:59.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:connect:20130701",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "browser-sync-ui@0.5.18",
+        "weinre@2.0.0-pre-I0Z7U9OV",
+        "express@2.5.11",
+        "connect@1.9.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "express@3.3.1",
+        "connect@2.8.1"
+      ],
+      "version": "1.9.2",
+      "name": "connect",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/browser-sync-ui/node_modules/weinre/node_modules/express/node_modules/connect/package.json"
+    },
+    {
+      "title": "express No Charset in Content-Type Header",
+      "credit": [
+        "Paweł Hałdrzyński"
+      ],
+      "description": "## Overview\nVulnerable versions of express do not specify a charset field in the content-type header while displaying 400 level response messages. The lack of enforcing the user's browser to set correct charset could be leveraged by an attacker to perform a cross-site scripting attack, using non-standard encodings like UTF-7.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/8)_\n\n## Recommendations\nUpdate express to a patched version.\n\n## References\n- https://nodesecurity.io/advisories/8\n",
+      "semver": {
+        "vulnerable": "<3.11 || >= 4 <4.5",
+        "unaffected": ">=3.11 <4 || >=4.5"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [
+          "CVE-2014-6393"
+        ],
+        "ALTERNATIVE": [
+          "npm:express:20140912-1"
+        ],
+        "NSP": 8
+      },
+      "patches": [],
+      "moduleName": "express",
+      "creationTime": "2014-09-12T04:46:45.000Z",
+      "publicationTime": "2014-09-12T04:46:45.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:express:20140912",
+      "alternativeIds": [
+        "npm:express:20140912-1"
+      ],
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "browser-sync-ui@0.5.18",
+        "weinre@2.0.0-pre-I0Z7U9OV",
+        "express@2.5.11"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "express@3.11.0"
+      ],
+      "version": "2.5.11",
+      "name": "express",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/browser-sync-ui/node_modules/weinre/node_modules/express/package.json"
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-01-19T23:24:51.834Z",
+      "modificationTime": "2016-01-19T23:24:51.834Z",
+      "publicationTime": "2016-01-19T21:51:35.396Z",
+      "description": "## Overview\nA [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in `hawk` package, affecting version 4.1.0 and below.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## References\n- https://github.com/hueniverse/hawk/issues/168\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=3.1.2 || >= 4.0.0 <4.1.1",
+        "unaffected": ">3.1.2 < 4.0.0 || >=4.1.1"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 77
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/hawk/20160119/hawk_20160119_0_0_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.1.1 >=4.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/hawk/20160119/hawk_20160119_0_1_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.0.0 >=3.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:1"
+        }
+      ],
+      "moduleName": "hawk",
+      "id": "npm:hawk:20160119",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "gulp-base64@0.1.3",
+        "request@2.33.0",
+        "hawk@1.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "request@2.59.0",
+        "hawk@3.1.3"
+      ],
+      "version": "1.0.0",
+      "name": "hawk",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/gulp-base64/node_modules/request/node_modules/hawk/package.json"
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-01-19T23:24:51.834Z",
+      "modificationTime": "2016-01-19T23:24:51.834Z",
+      "publicationTime": "2016-01-19T21:51:35.396Z",
+      "description": "## Overview\nA [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in `hawk` package, affecting version 4.1.0 and below.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## References\n- https://github.com/hueniverse/hawk/issues/168\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=3.1.2 || >= 4.0.0 <4.1.1",
+        "unaffected": ">3.1.2 < 4.0.0 || >=4.1.1"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 77
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/hawk/20160119/hawk_20160119_0_0_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.1.1 >=4.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/hawk/20160119/hawk_20160119_0_1_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.0.0 >=3.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:1"
+        }
+      ],
+      "moduleName": "hawk",
+      "id": "npm:hawk:20160119",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "chokidar@1.4.1",
+        "fsevents@1.0.7",
+        "node-pre-gyp@0.6.19",
+        "request@2.67.0",
+        "hawk@3.1.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "chokidar@1.4.1",
+        "fsevents@1.0.7",
+        "node-pre-gyp@0.6.19",
+        "request@2.67.0",
+        "hawk@3.1.3"
+      ],
+      "version": "3.1.2",
+      "name": "hawk",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/chokidar/node_modules/fsevents/node_modules/hawk/package.json",
+      "bundled": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "chokidar@1.4.1",
+        "fsevents@1.0.7",
+        "node-pre-gyp@0.6.19"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-01-18T12:28:12.885Z",
+      "modificationTime": "2016-01-18T12:28:12.885Z",
+      "publicationTime": "2016-01-18T04:29:55.903Z",
+      "description": "## Overview\nA [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in `utc-millisec` validator of `is-my-json-valid` package, affecting version 2.12.3 and below.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## References\n- https://nodesecurity.io/advisories/76\n- https://github.com/mafintosh/is-my-json-valid/commit/eca4beb21e61877d76fdf6bea771f72f39544d9b\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n\n\n",
+      "semver": {
+        "vulnerable": "<=2.12.3",
+        "unaffected": ">=2.12.4"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 76
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/is-my-json-valid/20160118/imjv_20160118_0_0_eca4beb21e61877d76fdf6bea771f72f39544d9b.patch"
+          ],
+          "version": "<=2.12.3 >=2.0.3",
+          "modificationTime": "2016-01-21T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:is-my-json-valid:20160118:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/is-my-json-valid/20160118/imjv_20160118_0_1_eca4beb21e61877d76fdf6bea771f72f39544d9b.patch"
+          ],
+          "version": "<2.0.3 >=1.3.4",
+          "modificationTime": "2016-01-21T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:is-my-json-valid:20160118:1"
+        }
+      ],
+      "moduleName": "is-my-json-valid",
+      "id": "npm:is-my-json-valid:20160118",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "chokidar@1.4.1",
+        "fsevents@1.0.7",
+        "node-pre-gyp@0.6.19",
+        "request@2.67.0",
+        "har-validator@2.0.3",
+        "is-my-json-valid@2.12.3"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "chokidar@1.4.1",
+        "fsevents@1.0.7",
+        "node-pre-gyp@0.6.19",
+        "request@2.67.0",
+        "har-validator@2.0.3",
+        "is-my-json-valid@2.12.4"
+      ],
+      "version": "2.12.3",
+      "name": "is-my-json-valid",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/chokidar/node_modules/fsevents/node_modules/is-my-json-valid/package.json",
+      "bundled": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "chokidar@1.4.1",
+        "fsevents@1.0.7",
+        "node-pre-gyp@0.6.19"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\n\nThe [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in the `ms` package, affecting version 0.7.0 and below.\n\n## Details\n\n`ms` is a milliseconds conversion utility, used to convert a time period string (i.e. `\"2 days\"`, `\"1h\"`) into milliseconds integer.\nThe regular expression used by the function to parse the time is vulnerable to a denial of service attack, where extremely long strings passed to `ms()` can take a long time to process, subsequently blocking the event loop for that extended period.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `ms` to version 0.7.1. \n\nIf direct dependency upgrade is not possible, use [snyk wizard](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/46\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "unaffected": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:5"
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "socket.io@1.3.7",
+        "debug@2.1.0",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "socket.io@1.4.0",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "version": "0.6.2",
+      "name": "ms",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/debug/node_modules/ms/package.json"
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\n\nThe [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in the `ms` package, affecting version 0.7.0 and below.\n\n## Details\n\n`ms` is a milliseconds conversion utility, used to convert a time period string (i.e. `\"2 days\"`, `\"1h\"`) into milliseconds integer.\nThe regular expression used by the function to parse the time is vulnerable to a denial of service attack, where extremely long strings passed to `ms()` can take a long time to process, subsequently blocking the event loop for that extended period.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `ms` to version 0.7.1. \n\nIf direct dependency upgrade is not possible, use [snyk wizard](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/46\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "unaffected": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:5"
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "socket.io@1.3.7",
+        "engine.io@1.5.4",
+        "debug@1.0.3",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "socket.io@1.4.0",
+        "engine.io@1.6.5",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "version": "0.6.2",
+      "name": "ms",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/engine.io/node_modules/debug/node_modules/ms/package.json"
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\n\nThe [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in the `ms` package, affecting version 0.7.0 and below.\n\n## Details\n\n`ms` is a milliseconds conversion utility, used to convert a time period string (i.e. `\"2 days\"`, `\"1h\"`) into milliseconds integer.\nThe regular expression used by the function to parse the time is vulnerable to a denial of service attack, where extremely long strings passed to `ms()` can take a long time to process, subsequently blocking the event loop for that extended period.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `ms` to version 0.7.1. \n\nIf direct dependency upgrade is not possible, use [snyk wizard](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/46\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "unaffected": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:5"
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "socket.io@1.3.7",
+        "socket.io-adapter@0.3.1",
+        "debug@1.0.2",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "socket.io@1.4.0",
+        "socket.io-adapter@0.4.0",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "version": "0.6.2",
+      "name": "ms",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/socket.io-adapter/node_modules/debug/node_modules/ms/package.json"
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-10-24T20:39:59.852Z",
+      "description": "## Overview\n\nThe [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in the `ms` package, affecting version 0.7.0 and below.\n\n## Details\n\n`ms` is a milliseconds conversion utility, used to convert a time period string (i.e. `\"2 days\"`, `\"1h\"`) into milliseconds integer.\nThe regular expression used by the function to parse the time is vulnerable to a denial of service attack, where extremely long strings passed to `ms()` can take a long time to process, subsequently blocking the event loop for that extended period.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `ms` to version 0.7.1. \n\nIf direct dependency upgrade is not possible, use [snyk wizard](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/46\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "unaffected": ">0.7.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 46
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ms/20151024/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:5"
+        }
+      ],
+      "moduleName": "ms",
+      "id": "npm:ms:20151024",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "socket.io@1.3.7",
+        "socket.io-client@1.3.7",
+        "engine.io-client@1.5.4",
+        "debug@1.0.4",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "socket.io@1.4.0",
+        "socket.io-client@1.4.0",
+        "engine.io-client@1.6.4",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "version": "0.6.2",
+      "name": "ms",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/socket.io-client/node_modules/engine.io-client/node_modules/debug/node_modules/ms/package.json"
+    },
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview\nDuring parsing, the qs module may create a sparse area (an array where not elements are filled), and grow that array to the necessary size based on the indices used on it. An attacker can specify a high index value in a query string, thus making the server allocate a respectively big array. Truly large values can cause the server to run out of memory and cause it to crash - thus enabling a Denial-of-Service attack.\n\n## Remediation\nUpgrade qs to version 1.0.0 or greater. In these versions, qs introduced a low limit on the index value, preventing such an attack\n\n## References\n- https://nodesecurity.io/advisories/29\n- https://github.com/visionmedia/node-querystring/issues/104\n\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806/qs_20140806_0_1_snyk_npm.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "gulp-base64@0.1.3",
+        "request@2.33.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "request@2.40.0",
+        "qs@1.0.0"
+      ],
+      "version": "0.6.6",
+      "name": "qs",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/gulp-base64/node_modules/request/node_modules/qs/package.json"
+    },
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview\nDuring parsing, the qs module may create a sparse area (an array where not elements are filled), and grow that array to the necessary size based on the indices used on it. An attacker can specify a high index value in a query string, thus making the server allocate a respectively big array. Truly large values can cause the server to run out of memory and cause it to crash - thus enabling a Denial-of-Service attack.\n\n## Remediation\nUpgrade qs to version 1.0.0 or greater. In these versions, qs introduced a low limit on the index value, preventing such an attack\n\n## References\n- https://nodesecurity.io/advisories/29\n- https://github.com/visionmedia/node-querystring/issues/104\n\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806/qs_20140806_0_1_snyk_npm.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "browser-sync-ui@0.5.18",
+        "weinre@2.0.0-pre-I0Z7U9OV",
+        "express@2.5.11",
+        "qs@0.4.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "express@3.0.0"
+      ],
+      "version": "0.4.2",
+      "name": "qs",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/browser-sync-ui/node_modules/weinre/node_modules/express/node_modules/qs/package.json"
+    },
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview\nDuring parsing, the qs module may create a sparse area (an array where not elements are filled), and grow that array to the necessary size based on the indices used on it. An attacker can specify a high index value in a query string, thus making the server allocate a respectively big array. Truly large values can cause the server to run out of memory and cause it to crash - thus enabling a Denial-of-Service attack.\n\n## Remediation\nUpgrade qs to version 1.0.0 or greater. In these versions, qs introduced a low limit on the index value, preventing such an attack\n\n## References\n- https://nodesecurity.io/advisories/29\n- https://github.com/visionmedia/node-querystring/issues/104\n\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806/qs_20140806_0_1_snyk_npm.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "browser-sync-ui@0.5.18",
+        "weinre@2.0.0-pre-I0Z7U9OV",
+        "express@2.5.11",
+        "connect@1.9.2",
+        "qs@0.4.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "express@2.5.11",
+        "connect@1.9.2",
+        "qs@1.0.0"
+      ],
+      "version": "0.4.2",
+      "name": "qs",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/browser-sync-ui/node_modules/weinre/node_modules/express/node_modules/qs/package.json"
+    },
+    {
+      "title": "Denial-of-Service through Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview\nWhen parsing a string representing a deeply nested object, qs will block the event loop for long periods of time. Such a delay may hold up the server's resources, keeping it from processing other requests in the meantime, thus enabling a Denial-of-Service attack. \n\n## Remediation\nUpdate qs to version 1.0.0 or greater. In these versions, qs enforces a max object depth (along with other limits), limiting the event loop length and thus preventing such an attack.\n\n## References\nhttps://nodesecurity.io/advisories/28\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "gulp-base64@0.1.3",
+        "request@2.33.0",
+        "qs@0.6.6"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "request@2.40.0",
+        "qs@1.0.0"
+      ],
+      "version": "0.6.6",
+      "name": "qs",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/gulp-base64/node_modules/request/node_modules/qs/package.json"
+    },
+    {
+      "title": "Denial-of-Service through Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview\nWhen parsing a string representing a deeply nested object, qs will block the event loop for long periods of time. Such a delay may hold up the server's resources, keeping it from processing other requests in the meantime, thus enabling a Denial-of-Service attack. \n\n## Remediation\nUpdate qs to version 1.0.0 or greater. In these versions, qs enforces a max object depth (along with other limits), limiting the event loop length and thus preventing such an attack.\n\n## References\nhttps://nodesecurity.io/advisories/28\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "browser-sync-ui@0.5.18",
+        "weinre@2.0.0-pre-I0Z7U9OV",
+        "express@2.5.11",
+        "qs@0.4.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "express@3.0.0"
+      ],
+      "version": "0.4.2",
+      "name": "qs",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/browser-sync-ui/node_modules/weinre/node_modules/express/node_modules/qs/package.json"
+    },
+    {
+      "title": "Denial-of-Service through Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview\nWhen parsing a string representing a deeply nested object, qs will block the event loop for long periods of time. Such a delay may hold up the server's resources, keeping it from processing other requests in the meantime, thus enabling a Denial-of-Service attack. \n\n## Remediation\nUpdate qs to version 1.0.0 or greater. In these versions, qs enforces a max object depth (along with other limits), limiting the event loop length and thus preventing such an attack.\n\n## References\nhttps://nodesecurity.io/advisories/28\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "browser-sync-ui@0.5.18",
+        "weinre@2.0.0-pre-I0Z7U9OV",
+        "express@2.5.11",
+        "connect@1.9.2",
+        "qs@0.4.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "express@2.5.11",
+        "connect@1.9.2",
+        "qs@1.0.0"
+      ],
+      "version": "0.4.2",
+      "name": "qs",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/browser-sync-ui/node_modules/weinre/node_modules/express/node_modules/qs/package.json"
+    },
+    {
+      "title": "Remote Memory Exposure",
+      "credit": [
+        "Feross Aboukhadijeh",
+        "Mathias Buss Madsen"
+      ],
+      "creationTime": "2016-01-05T12:38:01.749Z",
+      "modificationTime": "2016-01-05T12:38:01.749Z",
+      "publicationTime": "2016-01-04T19:34:19.734Z",
+      "description": "## Overview\nA client side memory disclosure vulnerability exists in ping functionality of the ws service. When a client sends a ping request and provides an integer value as ping data, it will result in leaking an uninitialized memory buffer. \n\n## Details\nThere were no checks performed on the type of data to be sent. With buffers in node when you allocate it with a number instead of a string it will allocate the amount of bytes.\n\n**Example:**\n```\nvar x = new Buffer(100);\n// vs\nvar x = new Buffer('100');\n```\n\nThis would allocate 100 bytes of memory in the first example and just 3 bytes with 100 as value in the second example. \n\n```\nvar ws = require('ws')\n\nvar server = new ws.Server({ port: 9000 })\nvar client = new ws('ws://localhost:9000')\n\nclient.on('open', function () {\n  console.log('open')\n  client.ping(50) // this makes the client allocate an uninitialized buffer of 50 bytes and send it to the server\n\n  client.on('pong', function (data) {\n    console.log('got pong')\n    console.log(data)\n  })\n})\n```\n\n## References\n- https://github.com/websockets/ws/releases/tag/1.0.1\n- https://github.com/nodejs/node-v0.x-archive/issues/4525\n",
+      "semver": {
+        "vulnerable": "< 1.0.1",
+        "unaffected": ">= 1.0.1"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-201"
+        ],
+        "CVE": [],
+        "NSP": 67
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ws/20160104/ws_20160104_0_0_29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "version": "< 1.0.1 >= 0.4.27",
+          "modificationTime": "2016-01-07T01:00:00.000Z",
+          "comments": [
+            "https://github.com/websockets/ws/commit/29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "id": "patch:npm:ws:20160104:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ws/20160104/ws_20160104_0_1_29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "version": "< 0.4.27 >= 0.4.8",
+          "modificationTime": "2016-01-07T01:00:00.000Z",
+          "comments": [
+            "https://github.com/websockets/ws/commit/29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "id": "patch:npm:ws:20160104:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ws/20160104/ws_20160104_0_2_29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "version": "< 0.4.8 >= 0.3.9",
+          "modificationTime": "2016-01-07T01:00:00.000Z",
+          "comments": [
+            "https://github.com/websockets/ws/commit/29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "id": "patch:npm:ws:20160104:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ws/20160104/ws_20160104_0_3_29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "version": "=0.3.8",
+          "modificationTime": "2016-01-07T01:00:00.000Z",
+          "comments": [
+            "https://github.com/websockets/ws/commit/29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "id": "patch:npm:ws:20160104:3"
+        }
+      ],
+      "moduleName": "ws",
+      "id": "npm:ws:20160104",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "socket.io@1.3.7",
+        "engine.io@1.5.4",
+        "ws@0.8.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "socket.io@1.4.0",
+        "engine.io@1.6.5",
+        "ws@1.0.1"
+      ],
+      "version": "0.8.0",
+      "name": "ws",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/engine.io/node_modules/ws/package.json"
+    },
+    {
+      "title": "Remote Memory Exposure",
+      "credit": [
+        "Feross Aboukhadijeh",
+        "Mathias Buss Madsen"
+      ],
+      "creationTime": "2016-01-05T12:38:01.749Z",
+      "modificationTime": "2016-01-05T12:38:01.749Z",
+      "publicationTime": "2016-01-04T19:34:19.734Z",
+      "description": "## Overview\nA client side memory disclosure vulnerability exists in ping functionality of the ws service. When a client sends a ping request and provides an integer value as ping data, it will result in leaking an uninitialized memory buffer. \n\n## Details\nThere were no checks performed on the type of data to be sent. With buffers in node when you allocate it with a number instead of a string it will allocate the amount of bytes.\n\n**Example:**\n```\nvar x = new Buffer(100);\n// vs\nvar x = new Buffer('100');\n```\n\nThis would allocate 100 bytes of memory in the first example and just 3 bytes with 100 as value in the second example. \n\n```\nvar ws = require('ws')\n\nvar server = new ws.Server({ port: 9000 })\nvar client = new ws('ws://localhost:9000')\n\nclient.on('open', function () {\n  console.log('open')\n  client.ping(50) // this makes the client allocate an uninitialized buffer of 50 bytes and send it to the server\n\n  client.on('pong', function (data) {\n    console.log('got pong')\n    console.log(data)\n  })\n})\n```\n\n## References\n- https://github.com/websockets/ws/releases/tag/1.0.1\n- https://github.com/nodejs/node-v0.x-archive/issues/4525\n",
+      "semver": {
+        "vulnerable": "< 1.0.1",
+        "unaffected": ">= 1.0.1"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-201"
+        ],
+        "CVE": [],
+        "NSP": 67
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ws/20160104/ws_20160104_0_0_29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "version": "< 1.0.1 >= 0.4.27",
+          "modificationTime": "2016-01-07T01:00:00.000Z",
+          "comments": [
+            "https://github.com/websockets/ws/commit/29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "id": "patch:npm:ws:20160104:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ws/20160104/ws_20160104_0_1_29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "version": "< 0.4.27 >= 0.4.8",
+          "modificationTime": "2016-01-07T01:00:00.000Z",
+          "comments": [
+            "https://github.com/websockets/ws/commit/29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "id": "patch:npm:ws:20160104:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ws/20160104/ws_20160104_0_2_29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "version": "< 0.4.8 >= 0.3.9",
+          "modificationTime": "2016-01-07T01:00:00.000Z",
+          "comments": [
+            "https://github.com/websockets/ws/commit/29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "id": "patch:npm:ws:20160104:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/ws/20160104/ws_20160104_0_3_29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "version": "=0.3.8",
+          "modificationTime": "2016-01-07T01:00:00.000Z",
+          "comments": [
+            "https://github.com/websockets/ws/commit/29293ed11b679e0366fa0f6bb9310b330dafd795.patch"
+          ],
+          "id": "patch:npm:ws:20160104:3"
+        }
+      ],
+      "moduleName": "ws",
+      "id": "npm:ws:20160104",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "socket.io@1.3.7",
+        "socket.io-client@1.3.7",
+        "engine.io-client@1.5.4",
+        "ws@0.8.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "socket.io@1.4.1",
+        "socket.io-client@1.4.1",
+        "engine.io-client@1.6.5",
+        "ws@1.0.1"
+      ],
+      "version": "0.8.0",
+      "name": "ws",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/socket.io/node_modules/socket.io-client/node_modules/engine.io-client/node_modules/ws/package.json"
+    }
+  ],
+  "dependencyCount": 1824
+}
