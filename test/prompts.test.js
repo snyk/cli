@@ -151,7 +151,7 @@ test('case 5: two different patches modify the same files', function (t) {
 
 test('humpback - checks related groups and subitems', function (t) {
   // expecting 3 review sections (containing 9, 3, 7) plus one stand alone
-  run(t, 4 * 2, './fixtures/scenarios/humpback.json').then(function (prompts) {
+  run(t, 3 * 2, './fixtures/scenarios/humpback.json').then(function (prompts) {
     var offset = 0;
 
     var tofind = null;
