@@ -1,12 +1,18 @@
 var test = require('tap').test;
 var proxyquire = require('proxyquire');
+var tryRequire = require('snyk-try-require');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var sinon = require('sinon');
 var spy = sinon.spy();
+var execSpy = sinon.spy();
 var noop = function () {};
 var snyk = require('../');
 
 var wizard = proxyquire('../cli/commands/protect/wizard', {
+  '../../../lib/exec': function (cmd, root) {
+    execSpy(cmd, root);
+    return Promise.resolve();
+  },
   '../../../lib/protect': proxyquire('../lib/protect', {
     'then-fs': {
       writeFile: function () {
@@ -58,6 +64,41 @@ test('pre-tarred packages can be patched', function (t) {
     t.deepEqual(vulns, expect, 'two patches included');
   }).catch(t.threw).then(function () {
     snyk.policy.save = save;
+    t.end();
+  });
+});
+
+test('process answers handles shrinkwrap', function (t) {
+  var save = snyk.policy.save;
+  snyk.policy.save = function () {
+    return Promise.resolve();
+  };
+
+  t.plan(3);
+
+  t.test('non-shrinkwrap package', function (t) {
+    execSpy = sinon.spy();
+    var answers = require(__dirname + '/fixtures/forever-answers.json');
+    wizard.processAnswers(answers).then(function () {
+      t.equal(execSpy.callCount, 0, 'shrinkwrap was not called');
+    }).catch(t.threw).then(t.end);
+  });
+
+  t.test('shrinkwraped package', function (t) {
+    execSpy = sinon.spy();
+    var cwd = process.cwd();
+    process.chdir(__dirname + '/fixtures/pkg-mean-io/');
+    var answers = require(__dirname + '/fixtures/mean-answers.json');
+    wizard.processAnswers(answers).then(function () {
+      t.equal(execSpy.callCount, 1, 'shrinkwrap was called');
+      process.chdir(cwd);
+    }).catch(t.threw).then(t.end);
+
+  });
+
+  t.test('teardown', function (t) {
+    snyk.policy.save = save;
+    t.pass('teardown complete');
     t.end();
   });
 });

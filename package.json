@@ -41,7 +41,8 @@
     "snyk-config": "^1.0.0",
     "snyk-module": "^1.2.0",
     "snyk-resolve": "^1.0.0",
-    "snyk-resolve-deps": "^1.4.0",
+    "snyk-resolve-deps": "^1.4.1",
+    "snyk-try-require": "^1.0.0",
     "tempfile": "^1.1.1",
     "then-fs": "^2.0.0",
     "undefsafe": "0.0.3",
@@ -60,6 +61,7 @@
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.2",
     "tap": "^5.4.1",
+    "tap-only": "0.0.5",
     "tape": "^4.0.0"
   },
   "repository": {

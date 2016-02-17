@@ -1,7 +1,7 @@
 module.exports = args;
 
 var abbrev = require('abbrev');
-var alias = abbrev('version', 'debug', 'help', 'quiet', 'interactive', 'dev');
+var alias = abbrev('copy', 'version', 'debug', 'help', 'quiet', 'interactive', 'dev');
 alias.d = 'debug'; // always make `-d` debug
 
 function args(processargv) {
