@@ -41,7 +41,6 @@ test('wizard prompts as expected', function (t) {
       'default:update', // 1
       'default:update', // 2
       'default:patch', // 2
-      'skip', // FIXME should be patch, but it's upgrade
       'default:patch', // 1
       'default:patch', // 1
       'default:patch', // 2

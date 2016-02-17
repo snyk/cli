@@ -1,6 +1,5 @@
 var test = require('tap').test;
 var proxyquire = require('proxyquire');
-var tryRequire = require('snyk-try-require');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var sinon = require('sinon');
 var spy = sinon.spy();
@@ -90,7 +89,8 @@ test('process answers handles shrinkwrap', function (t) {
     process.chdir(__dirname + '/fixtures/pkg-mean-io/');
     var answers = require(__dirname + '/fixtures/mean-answers.json');
     wizard.processAnswers(answers).then(function () {
-      t.equal(execSpy.callCount, 1, 'shrinkwrap was called');
+      var shrinkCall = execSpy.getCall(1); // get the 2nd call (as the first is the install of snyk)
+      t.equal(shrinkCall.args[0], 'npm shrinkwrap', 'shrinkwrap was called');
       process.chdir(cwd);
     }).catch(t.threw).then(t.end);
 

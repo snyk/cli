@@ -150,8 +150,8 @@ test('case 5: two different patches modify the same files', function (t) {
 });
 
 test('humpback - checks related groups and subitems', function (t) {
-  // expecting 3 review sections (containing 9, 3, 7) plus one stand alone
-  run(t, 3 * 2, './fixtures/scenarios/humpback.json').then(function (prompts) {
+  // expecting 4 review sections (containing 2, 9, 3, 6) plus two stand alone
+  run(t, 4, './fixtures/scenarios/humpback.json').then(function (prompts) {
     var offset = 0;
 
     var tofind = null;
@@ -174,10 +174,7 @@ test('humpback - checks related groups and subitems', function (t) {
     }
 
     t.end();
-  }).catch(function (e) {
-    console.log(e.stack);
-    t.bail(e.message);
-  });
+  }).catch(t.threw);
 });
 
 
