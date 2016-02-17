@@ -350,24 +350,18 @@ function processAnswers(answers, policy, options) {
 
       // finally, add snyk as a dependency because they'll need it
       // during the protect process
-      var depLocation = 'dependencies';
-
-      if (!pkg[depLocation]) {
-        pkg[depLocation] = {};
-      }
-
-      if (!pkg[depLocation].snyk) {
-        pkg[depLocation].snyk = snykVersion;
-      }
-
-      return fs.writeFile(packageFile, JSON.stringify(pkg, '', 2));
+      var lbl = 'Updating package.json...';
+      return spinner(lbl)
+        .then(fs.writeFile(packageFile, JSON.stringify(pkg, '', 2)))
+        .then(exec.bind(null, 'npm install --save snyk', cwd))
+        .then(spinner.clear(lbl));
     }
   })
   .then(function () {
     if (answers['misc-build-shrinkwrap'] && tasks.update.length) {
       debug('updating shrinkwrap');
 
-      var lbl = 'Running shrinkwrap...';
+      var lbl = 'Updating npm-shrinkwrap.json...';
       return spinner(lbl)
         .then(exec.bind(null, 'npm shrinkwrap', cwd))
         .then(spinner.clear(lbl));
