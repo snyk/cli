@@ -35,6 +35,11 @@ module.exports = function config(method) {
         // ensure we update the live library
         snyk.api = null;
       }
+    } else if (method === 'clear') {
+      snyk.config.clear();
+      // ensure we update the live library
+      snyk.api = null;
+      res = 'config cleared';
     } else if (!method) {
       res = Object.keys(snyk.config.all).sort(function (a, b) {
         return a.toLowerCase() < b.toLowerCase();

@@ -23,7 +23,7 @@ var protect = require('../../../lib/protect');
 var config = require('../../../lib/config');
 var spinner = require('../../../lib/spinner');
 var analytics = require('../../../lib/analytics');
-var exec = require('../../../lib/exec');
+var npm = require('../../../lib/npm');
 var cwd = process.cwd();
 
 function wizard(options) {
@@ -353,7 +353,7 @@ function processAnswers(answers, policy, options) {
       var lbl = 'Updating package.json...';
       return spinner(lbl)
         .then(fs.writeFile(packageFile, JSON.stringify(pkg, '', 2)))
-        .then(exec.bind(null, 'npm install --save snyk', cwd))
+        .then(npm.bind(null, 'install', 'snyk', live, cwd))
         .then(spinner.clear(lbl));
     }
   })
@@ -363,7 +363,7 @@ function processAnswers(answers, policy, options) {
 
       var lbl = 'Updating npm-shrinkwrap.json...';
       return spinner(lbl)
-        .then(exec.bind(null, 'npm shrinkwrap', cwd))
+        .then(npm.bind(null, 'shrinkwrap', null, live, cwd))
         .then(spinner.clear(lbl));
     }
   })
