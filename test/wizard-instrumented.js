@@ -51,9 +51,26 @@ function getDefaultChoice(q) {
   return choices[def || 0];
 }
 
-function interactive(vulns, responses) {
-  spy = sinon.spy(function (q, i) {
-    var response = responses[i];
+function interactive(vulns, originalResponses, options) {
+  var responses = [].slice.call(originalResponses); // copy
+  if (!options) {
+    options = {};
+  }
+
+  var callback = function () {};
+
+  if (options.callback) {
+    callback = options.callback;
+  }
+
+  spy = sinon.spy(function (q, i, j, all, acc) {
+    var intercept = callback(q, i, j, all, acc);
+
+    if (intercept !== undefined) {
+      return intercept;
+    }
+
+    var response = responses.shift();
 
     if (response === undefined) {
       throw new Error('Out of responses to ' + q.name);
@@ -75,5 +92,10 @@ function interactive(vulns, responses) {
     return res.value;
   });
 
-  return wizard.interactive(vulns);
+  return wizard.interactive(vulns, options.pkg, options.policy).then(function (res) {
+    if (responses.length) {
+      throw new Error('Too many responses. Remaining: ' + JSON.stringify(responses));
+    }
+    return res;
+  });
 }

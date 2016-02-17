@@ -2,6 +2,7 @@
 
 var args = require('./args')(process.argv);
 var debug = require('debug')('snyk');
+var copy = require('./copy');
 
 var exitcode = 0;
 
@@ -12,7 +13,12 @@ args.method.apply(null, args.options._).then(function (result) {
     args: args.options._,
   });
   if (result && !args.options.quiet) {
-    console.log(result);
+    if (args.options.copy) {
+      copy(result);
+      console.log('\nResult copied to clipboard');
+    } else {
+      console.log(result);
+    }
   }
   return res;
 }).catch(function (error) {
