@@ -8,8 +8,8 @@ var noop = function () {};
 var snyk = require('../');
 
 var wizard = proxyquire('../cli/commands/protect/wizard', {
-  '../../../lib/exec': function (cmd, root) {
-    execSpy(cmd, root);
+  '../../../lib/npm': function (cmd) {
+    execSpy(cmd);
     return Promise.resolve();
   },
   '../../../lib/protect': proxyquire('../lib/protect', {
@@ -31,6 +31,9 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
       statSync: function () {
         return true;
       }
+    },
+    './npm': function () {
+      return Promise.resolve();
     },
     'child_process': {
       exec: function (a, b, callback) {
@@ -78,6 +81,7 @@ test('process answers handles shrinkwrap', function (t) {
   t.test('non-shrinkwrap package', function (t) {
     execSpy = sinon.spy();
     var answers = require(__dirname + '/fixtures/forever-answers.json');
+    answers['misc-test-no-monitor'] = true;
     wizard.processAnswers(answers).then(function () {
       t.equal(execSpy.callCount, 0, 'shrinkwrap was not called');
     }).catch(t.threw).then(t.end);
@@ -88,9 +92,10 @@ test('process answers handles shrinkwrap', function (t) {
     var cwd = process.cwd();
     process.chdir(__dirname + '/fixtures/pkg-mean-io/');
     var answers = require(__dirname + '/fixtures/mean-answers.json');
+    answers['misc-test-no-monitor'] = true;
     wizard.processAnswers(answers).then(function () {
       var shrinkCall = execSpy.getCall(1); // get the 2nd call (as the first is the install of snyk)
-      t.equal(shrinkCall.args[0], 'npm shrinkwrap', 'shrinkwrap was called');
+      t.equal(shrinkCall.args[0], 'shrinkwrap', 'shrinkwrap was called');
       process.chdir(cwd);
     }).catch(t.threw).then(t.end);
 
