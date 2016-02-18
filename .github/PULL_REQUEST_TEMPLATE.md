@@ -1,5 +1,5 @@
 - [ ] Ready for review
-- [ ] Follows the [contributing](https://github.com/snyk/snyk/blob/master/.github/CONTRIBUTING.md) rules
+- [ ] Follows CONTRIBUTING rules
 - [ ] Reviewed by @remy (Snyk internal team)
 
 #### What does this PR do?
