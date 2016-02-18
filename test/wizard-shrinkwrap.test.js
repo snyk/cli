@@ -2,35 +2,8 @@ var test = require('tap').test;
 var tryRequire = require('snyk-try-require');
 var interactive = require('./wizard-instrumented');
 
-test('wizard prompts as expected', function (t) {
-  t.plan(2);
-  t.test('groups correctly (with oui package)', function (t) {
-    var responses = [ // 17
-      'default:patch',
-      'default:patch',
-      'default:patch', // 4
-      'default:patch', // 2
-      'default:patch', // 2
-      'default:ignore',
-      'none given',
-      'default:ignore',
-      'none given',
-      'default:ignore',
-      'none given',
-      'default:ignore',
-      'none given',
-      'default:ignore',
-      'none given',
-      false,
-      false,];
-
-    var vulns = require(__dirname + '/fixtures/oui.json');
-
-    interactive(vulns, responses).then(function () {
-      // console.log(res);
-      t.pass('ok');
-    }).catch(t.threw).then(t.end);
-  });
+test('wizard detects shrinkwrap', function (t) {
+  t.plan(1);
 
   t.test('includes shrinkwrap when updating', function (t) {
     var responses = [ //

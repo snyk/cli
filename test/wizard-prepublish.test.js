@@ -50,6 +50,6 @@ test('prepublish is added and postinstall is removed', function (t) {
 
   }).catch(t.threw).then(function () {
     snyk.policy.save = save;
-    t.end()
+    t.end();
   });
 });

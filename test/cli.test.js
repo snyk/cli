@@ -13,7 +13,8 @@ require('babel/register')({
   },
 //  only: /@snyk\/register\//,
 });
-var test = require('tap').test;
+var test = require('tap-only');
+var testUtils = require('./utils');
 var apiKey = '123456789';
 var oldkey;
 var oldendpoint;
@@ -207,9 +208,14 @@ test('auth via github', function (t) {
     '../../lib/is-ci': false,
   });
 
+  var unhook = testUtils.silenceLog();
+
   auth().then(function (res) {
     t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
-  }).catch(t.threw).then(t.end);
+  }).catch(t.threw).then(function () {
+    unhook();
+    t.end();
+  });
 });
 
 test('wizard and multi-patch', function (t) {
@@ -253,11 +259,13 @@ test('wizard and multi-patch', function (t) {
 
   var cwd = process.cwd();
   process.chdir(__dirname + '/fixtures/uglify-package');
+  var unhook = testUtils.silenceLog();
   wizard().then(function () {
     t.pass('ok');
   }).catch(function (e) {
     t.fail(e);
   }).then(function () {
+    unhook();
     process.chdir(cwd);
     t.end();
   });

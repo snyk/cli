@@ -7,21 +7,23 @@ module.exports.interactive = interactive;
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 var debug = require('debug')('snyk');
+var path = require('path');
+var inquirer = require('inquirer');
+var fs = require('then-fs');
+var tryRequire = require('snyk-try-require');
+var chalk = require('chalk');
+var url = require('url');
+var _ = require('lodash');
 var auth = require('../auth');
 var getVersion = require('../version');
-var inquirer = require('inquirer');
-var path = require('path');
-var fs = require('then-fs');
 var allPrompts = require('./prompts');
 var snyk = require('../../../lib/');
 var isCI = require('../../../lib/is-ci');
 var protect = require('../../../lib/protect');
 var config = require('../../../lib/config');
-var url = require('url');
-var chalk = require('chalk');
 var spinner = require('../../../lib/spinner');
 var analytics = require('../../../lib/analytics');
-var _ = require('lodash');
+var npm = require('../../../lib/npm');
 var cwd = process.cwd();
 
 function wizard(options) {
@@ -90,10 +92,7 @@ function wizard(options) {
           }
 
 
-          return fs.readFile(packageFile, 'utf8')
-            .then(JSON.parse)
-            .then(function (pkg) {
-
+          return tryRequire(packageFile).then(function (pkg) {
               return interactive(res, pkg, policy).then(function (answers) {
                 return processAnswers(answers, policy, options);
               });
@@ -127,6 +126,11 @@ function interactive(test, pkg, policy) {
   }).then(function (answers) {
     var prompts = allPrompts.nextSteps(pkg, test.ok ? false : answers);
     return inquire(prompts, answers);
+  }).then(function (answers) {
+    if (pkg.shrinkwrap) {
+      answers['misc-build-shrinkwrap'] = true;
+    }
+    return answers;
   });
 }
 
@@ -346,17 +350,21 @@ function processAnswers(answers, policy, options) {
 
       // finally, add snyk as a dependency because they'll need it
       // during the protect process
-      var depLocation = 'dependencies';
+      var lbl = 'Updating package.json...';
+      return spinner(lbl)
+        .then(fs.writeFile(packageFile, JSON.stringify(pkg, '', 2)))
+        .then(npm.bind(null, 'install', 'snyk', live, cwd))
+        .then(spinner.clear(lbl));
+    }
+  })
+  .then(function () {
+    if (answers['misc-build-shrinkwrap'] && tasks.update.length) {
+      debug('updating shrinkwrap');
 
-      if (!pkg[depLocation]) {
-        pkg[depLocation] = {};
-      }
-
-      if (!pkg[depLocation].snyk) {
-        pkg[depLocation].snyk = snykVersion;
-      }
-
-      return fs.writeFile(packageFile, JSON.stringify(pkg, '', 2));
+      var lbl = 'Updating npm-shrinkwrap.json...';
+      return spinner(lbl)
+        .then(npm.bind(null, 'shrinkwrap', null, live, cwd))
+        .then(spinner.clear(lbl));
     }
   })
   .then(function () {

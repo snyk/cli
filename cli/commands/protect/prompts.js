@@ -148,7 +148,10 @@ function getPatchPrompts(vulns, policy) {
     return [];
   }
 
-  var res = stripInvalidPatches(_.cloneDeep(vulns));
+  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter(function (vuln) {
+    // if there's any upgrade available, then remove it
+    return canBeUpgraded(vuln) ? false : true;
+  });
 
   // sort by vulnerable package and the largest version
   res.sort(sortPatchPrompts);
