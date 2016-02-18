@@ -15,7 +15,7 @@ args.method.apply(null, args.options._).then(function (result) {
   if (result && !args.options.quiet) {
     if (args.options.copy) {
       copy(result);
-      console.log('\nResult copied to clipboard');
+      console.log('Result copied to clipboard');
     } else {
       console.log(result);
     }
@@ -34,7 +34,13 @@ args.method.apply(null, args.options._).then(function (result) {
   } else {
     var errors = require('../lib/error');
     if (!args.options.quiet) {
-      console.log(errors.message(error));
+      var result = errors.message(error);
+      if (args.options.copy) {
+        copy(result);
+        console.log('Result copied to clipboard');
+      } else {
+        console.log(result);
+      }
     }
   }
 
