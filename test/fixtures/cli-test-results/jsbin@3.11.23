@@ -1,0 +1,875 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "methodOverride Middleware Reflected Cross-Site Scripting",
+      "credit": [
+        "Sergio Arcos"
+      ],
+      "description": "## Overview\n\nConnect is a stack of middleware that is executed in order in each request.\n\nThe \"methodOverride\" middleware allows the http post to override the method of the request with the value of the ```_method``` post key or with the header \"x-http-method-override\".\n\nBecause the user post input was not checked, req.method could contain any kind of value. Because the req.method did not match any common method VERB, connect answered with a 404 page containing the \"Cannot [method] [url]\" content. The method was not properly encoded for output in the browser.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/3)_\n\n## Details\n\n**Example**\n\n```\n~ curl \"localhost:3000\" -d \"_method=<script src=http://nodesecurity.io/xss.js></script>\"\nCannot <SCRIPT SRC=HTTP://NODESECURITY.IO/XSS.JS></SCRIPT> /\n```\n\n**Mitigation factors**\n\nUpdate to the newest version of Connect or disable methodOverride. It is not possible to avoid the vulnerability if you have enabled this middleware in the top of your stack.\n\n**History**\n\n- (2013-06-27) [Bug reported](https://github.com/senchalabs/connect/issues/831)\n- (2013-06-27) [First fix: escape req.method output](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\n- (2013-06-27) [Second fix: whitelist](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n\n## References\n- https://nodesecurity.io/advisories/3\n",
+      "semver": {
+        "vulnerable": "<=2.8.0",
+        "unaffected": ">=2.8.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [
+          "CVE-2013-7370"
+        ],
+        "NSP": 3
+      },
+      "patches": [],
+      "moduleName": "connect",
+      "creationTime": "2013-06-30T22:08:59.000Z",
+      "publicationTime": "2013-06-30T22:08:59.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:connect:20130701",
+      "from": [
+        "jsbin@3.11.23",
+        "express@3.0.6",
+        "connect@2.7.2"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.3.1",
+        "connect@2.8.1"
+      ],
+      "version": "2.7.2",
+      "name": "connect"
+    },
+    {
+      "title": "express No Charset in Content-Type Header",
+      "credit": [
+        "Paweł Hałdrzyński"
+      ],
+      "description": "## Overview\nVulnerable versions of express do not specify a charset field in the content-type header while displaying 400 level response messages. The lack of enforcing the user's browser to set correct charset could be leveraged by an attacker to perform a cross-site scripting attack, using non-standard encodings like UTF-7.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/8)_\n\n## Recommendations\nUpdate express to a patched version.\n\n## References\n- https://nodesecurity.io/advisories/8\n",
+      "semver": {
+        "vulnerable": "<3.11 || >= 4 <4.5",
+        "unaffected": ">=3.11 <4 || >=4.5"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [
+          "CVE-2014-6393"
+        ],
+        "ALTERNATIVE": [
+          "npm:express:20140912-1"
+        ],
+        "NSP": 8
+      },
+      "patches": [],
+      "moduleName": "express",
+      "creationTime": "2014-09-12T04:46:45.000Z",
+      "publicationTime": "2014-09-12T04:46:45.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:express:20140912",
+      "alternativeIds": [
+        "npm:express:20140912-1"
+      ],
+      "from": [
+        "jsbin@3.11.23",
+        "express@3.0.6"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.11.0"
+      ],
+      "version": "3.0.6",
+      "name": "express"
+    },
+    {
+      "title": "Quoteless Attributes in Templates can lead to Content Injection",
+      "credit": [
+        "Matias P. Brutti"
+      ],
+      "description": "## Overview\nWhen using attributes without quotes in a handlebars template, an attacker can manipulate the input to introduce additional attributes, potentially executing code. This may lead to a Cross-Site Scripting (XSS) vulnerability, assuming an attacker can influence the value entered into the template. If the handlebars template is used to render user-generated content, this vulnerability may escalate to a persistent XSS vulnerability.\n\n## Details\n\n**Example:**\n\nAssume handlebars was used to display user comments, using the following template: \n`<a href={{email}}>{{name}}</a><pre>{{comment}}</pre>`\n\nIf an attacker spoofed their email address and provided the following value: \n`jane@evil.org onload=alert(document.cookie)`\n\nThe resulting HTML would be: \n`<a href=wizard@evil.org onload=alert(document.cookie)>Evil Wizard</a><pre>Busted!</pre>`\n\n## References\n- https://nodesecurity.io/advisories/61\n- https://github.com/wycats/handlebars.js/commit/83b8e846a3569bd366cf0b6bdc1e4604d1a2077e\n- https://blog.srcclr.com/handlebars_vulnerability_research_findings/\n",
+      "semver": {
+        "vulnerable": "<4.0.0",
+        "unaffected": ">=4.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [],
+        "NSP": 61
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/handlebars/20151207/handlebars_0.patch"
+          ],
+          "version": "<4.0.0 >=3.0.2",
+          "modificationTime": "2015-12-14T23:52:16.811Z",
+          "comments": [
+            "https://github.com/wycats/handlebars.js/commit/83b8e846a3569bd366cf0b6bdc1e4604d1a2077e"
+          ],
+          "id": "patch:npm:handlebars:20151207:0"
+        }
+      ],
+      "moduleName": "handlebars",
+      "creationTime": "2015-12-14T23:52:16.811Z",
+      "modificationTime": "2015-12-14T23:52:16.811Z",
+      "publicationTime": "2015-12-07T16:52:07.962Z",
+      "id": "npm:handlebars:20151207",
+      "from": [
+        "jsbin@3.11.23",
+        "hbs@2.4.0",
+        "handlebars@1.0.12"
+      ],
+      "upgradePath": [
+        false,
+        "hbs@4.0.0",
+        "handlebars@4.0.3"
+      ],
+      "version": "1.0.12",
+      "name": "handlebars"
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-02-01T19:00:03.862Z",
+      "modificationTime": "2016-02-01T19:00:03.862Z",
+      "publicationTime": "2016-01-26T20:04:21.225Z",
+      "description": "## Overview\nThe `duration` function in the [`moment`](https://www.npmjs.com/package/moment) package is vulnerable to [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) attacks when long inputs of certain patterns are processed.\n\n## Details\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n## References\n- [1] https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://nodesecurity.io/advisories/55\n- https://github.com/moment/moment/issues/2936",
+      "semver": {
+        "vulnerable": "<=2.11.1",
+        "unaffected": "<0.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 55
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_0_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+          ],
+          "version": "<=2.11.1 >2.10.6",
+          "modificationTime": "2016-01-26T20:04:21.225Z",
+          "comments": [],
+          "id": "patch:npm:moment:20160126:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_1_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+          ],
+          "version": "<=2.10.6 >2.9.0",
+          "modificationTime": "2016-01-26T20:04:21.225Z",
+          "comments": [],
+          "id": "patch:npm:moment:20160126:1"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_2_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+          ],
+          "version": "<=2.9.0 >2.2.1",
+          "modificationTime": "2016-01-26T20:04:21.225Z",
+          "comments": [],
+          "id": "patch:npm:moment:20160126:2"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_3_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+          ],
+          "version": "=2.2.1",
+          "modificationTime": "2016-01-26T20:04:21.225Z",
+          "comments": [],
+          "id": "patch:npm:moment:20160126:3"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_4_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+          ],
+          "version": "<2.2.1 >2.0.0",
+          "modificationTime": "2016-01-26T20:04:21.225Z",
+          "comments": [],
+          "id": "patch:npm:moment:20160126:4"
+        }
+      ],
+      "moduleName": "moment",
+      "id": "npm:moment:20160126",
+      "from": [
+        "jsbin@3.11.23",
+        "moment@2.5.1"
+      ],
+      "upgradePath": [
+        false,
+        "moment@2.11.2"
+      ],
+      "version": "2.5.1",
+      "name": "moment"
+    },
+    {
+      "title": "qs Denial-of-Service Memory Exhaustion",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview\nDuring parsing, the qs module may create a sparse area (an array where not elements are filled), and grow that array to the necessary size based on the indices used on it. An attacker can specify a high index value in a query string, thus making the server allocate a respectively big array. Truly large values can cause the server to run out of memory and cause it to crash - thus enabling a Denial-of-Service attack.\n\n## Remediation\nUpgrade qs to version 1.0.0 or greater. In these versions, qs introduced a low limit on the index value, preventing such an attack\n\n## References\n- https://nodesecurity.io/advisories/29\n- https://github.com/visionmedia/node-querystring/issues/104\n\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806/qs_20140806_0_1_snyk_npm.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "from": [
+        "jsbin@3.11.23",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "qs@0.5.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.0",
+        "connect@2.25.0",
+        "qs@1.0.2"
+      ],
+      "version": "0.5.1",
+      "name": "qs"
+    },
+    {
+      "title": "Denial-of-Service through Event Loop Blocking",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview\nWhen parsing a string representing a deeply nested object, qs will block the event loop for long periods of time. Such a delay may hold up the server's resources, keeping it from processing other requests in the meantime, thus enabling a Denial-of-Service attack. \n\n## Remediation\nUpdate qs to version 1.0.0 or greater. In these versions, qs enforces a max object depth (along with other limits), limiting the event loop length and thus preventing such an attack.\n\n## References\nhttps://nodesecurity.io/advisories/28\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "jsbin@3.11.23",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "qs@0.5.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.0",
+        "connect@2.25.0",
+        "qs@1.0.2"
+      ],
+      "version": "0.5.1",
+      "name": "qs"
+    },
+    {
+      "title": "semver Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "description": "## Overview\nThe semver module uses regular expressions when parsing a version string. For a carefully crafted input, the time it takes to process these regular expressions is not linear to the length of the input. Since the semver module did not enforce a limit on the version string length, an attacker could provide a long string that would take up a large amount of resources, potentially taking a server down. This issue therefore enables a potential Denial of Service attack. This is a slightly differnt variant of a typical Regular Expression Denial of Service ([ReDoS](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)) vulnerability.\n\n## Remediation\nUpdate to a version 4.3.2 or greater. From the issue description [2]: \"Package version can no longer be more than 256 characters long. This prevents a situation in which parsing the version number can use exponentially more time and memory to parse, leading to a potential denial of service.\"\n\n## References\n- https://nodesecurity.io/advisories/31\n- [1] https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- [2] https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<4.3.2",
+        "unaffected": ">=4.3.2"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 31
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "version": "<4.3.2 >= 2.0.2",
+          "modificationTime": "2015-04-03T16:00:00.000Z",
+          "comments": [
+            "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "id": "patch:npm:semver:20150403:0"
+        }
+      ],
+      "moduleName": "semver",
+      "creationTime": "2015-04-03T16:00:00.000Z",
+      "publicationTime": "2015-04-03T16:00:00.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:semver:20150403",
+      "from": [
+        "jsbin@3.11.23",
+        "semver@2.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "semver@4.3.2"
+      ],
+      "version": "2.1.0",
+      "name": "semver"
+    },
+    {
+      "title": "semver Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "description": "## Overview\nThe semver module uses regular expressions when parsing a version string. For a carefully crafted input, the time it takes to process these regular expressions is not linear to the length of the input. Since the semver module did not enforce a limit on the version string length, an attacker could provide a long string that would take up a large amount of resources, potentially taking a server down. This issue therefore enables a potential Denial of Service attack. This is a slightly differnt variant of a typical Regular Expression Denial of Service ([ReDoS](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)) vulnerability.\n\n## Remediation\nUpdate to a version 4.3.2 or greater. From the issue description [2]: \"Package version can no longer be more than 256 characters long. This prevents a situation in which parsing the version number can use exponentially more time and memory to parse, leading to a potential denial of service.\"\n\n## References\n- https://nodesecurity.io/advisories/31\n- [1] https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- [2] https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<4.3.2",
+        "unaffected": ">=4.3.2"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 31
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "version": "<4.3.2 >= 2.0.2",
+          "modificationTime": "2015-04-03T16:00:00.000Z",
+          "comments": [
+            "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "id": "patch:npm:semver:20150403:0"
+        }
+      ],
+      "moduleName": "semver",
+      "creationTime": "2015-04-03T16:00:00.000Z",
+      "publicationTime": "2015-04-03T16:00:00.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:semver:20150403",
+      "from": [
+        "jsbin@3.11.23",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "semver@3.0.1"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite3@3.0.4",
+        "node-pre-gyp@0.6.4",
+        "semver@4.3.2"
+      ],
+      "version": "3.0.1",
+      "name": "semver"
+    },
+    {
+      "title": "send Directory Traversal",
+      "credit": [
+        "Ilya Kantor"
+      ],
+      "description": "## Overview\nWhen relying on the root option to restrict file access it may be possible for an application consumer to escape out of the restricted directory and access files in a similarly named directory. For example, `static(_dirname + '/public')` would allow access to `_dirname + '/public-restricted'`.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/32)_\n\n## Remediation\nUpgrade to a version greater than or equal to 0.8.4.\n\n## References\n- https://nodesecurity.io/advisories/32\n- https://github.com/visionmedia/send/pull/59\n- https://github.com/visionmedia/send/commit/9c6ca9b2c0b880afd3ff91ce0d211213c5fa5f9a\n",
+      "semver": {
+        "vulnerable": "< 0.8.4",
+        "unaffected": ">= 0.8.4"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-23"
+        ],
+        "CVE": [
+          "CVE-2014-6394"
+        ],
+        "NSP": 32
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/send/20140912/send_20140912_0_0_9c6ca9b2c0b880afd3ff91ce0d211213c5fa_snyk.patch"
+          ],
+          "version": "< 0.8.4 >=0.7.3",
+          "modificationTime": "2014-09-12T05:06:33.000Z",
+          "comments": [],
+          "id": "patch:npm:send:20140912:0"
+        }
+      ],
+      "moduleName": "send",
+      "creationTime": "2014-09-12T05:06:33.000Z",
+      "publicationTime": "2014-09-12T05:06:33.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:send:20140912",
+      "from": [
+        "jsbin@3.11.23",
+        "express@3.0.6",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.10",
+        "send@0.8.5"
+      ],
+      "version": "0.1.0",
+      "name": "send"
+    },
+    {
+      "title": "send Directory Traversal",
+      "credit": [
+        "Ilya Kantor"
+      ],
+      "description": "## Overview\nWhen relying on the root option to restrict file access it may be possible for an application consumer to escape out of the restricted directory and access files in a similarly named directory. For example, `static(_dirname + '/public')` would allow access to `_dirname + '/public-restricted'`.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/32)_\n\n## Remediation\nUpgrade to a version greater than or equal to 0.8.4.\n\n## References\n- https://nodesecurity.io/advisories/32\n- https://github.com/visionmedia/send/pull/59\n- https://github.com/visionmedia/send/commit/9c6ca9b2c0b880afd3ff91ce0d211213c5fa5f9a\n",
+      "semver": {
+        "vulnerable": "< 0.8.4",
+        "unaffected": ">= 0.8.4"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-23"
+        ],
+        "CVE": [
+          "CVE-2014-6394"
+        ],
+        "NSP": 32
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/send/20140912/send_20140912_0_0_9c6ca9b2c0b880afd3ff91ce0d211213c5fa_snyk.patch"
+          ],
+          "version": "< 0.8.4 >=0.7.3",
+          "modificationTime": "2014-09-12T05:06:33.000Z",
+          "comments": [],
+          "id": "patch:npm:send:20140912:0"
+        }
+      ],
+      "moduleName": "send",
+      "creationTime": "2014-09-12T05:06:33.000Z",
+      "publicationTime": "2014-09-12T05:06:33.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:send:20140912",
+      "from": [
+        "jsbin@3.11.23",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.0.0"
+      ],
+      "version": "0.1.0",
+      "name": "send"
+    },
+    {
+      "title": "Root Path Disclosure",
+      "credit": [
+        "Dinis Cruz"
+      ],
+      "creationTime": "2015-11-06T02:09:36.183Z",
+      "modificationTime": "2015-11-06T02:09:36.183Z",
+      "publicationTime": "2015-11-03T07:12:20.676Z",
+      "description": "## Overview\n[Send](https://www.npmjs.com/package/send) is a library for streaming files from the file system as an http response. It supports partial responses (Ranges), conditional-GET negotiation, high test coverage, and granular events which may be leveraged to take appropriate actions in your application or framework.\n\nA root path disclosure vulnerability exists in `send` versions prior to 0.11.1.\n\n## Remediation\nUpgrade `send` to version 0.11.1. or greater. \n\nIf a direct dependency update is not possible, use [snyk wizard](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/56\n- https://github.com/pillarjs/send/pull/70\n- https://github.com/pillarjs/send/commit/98a5b89982b38e79db684177cf94730ce7fc7aed\n- https://github.com/expressjs/serve-static/blob/master/HISTORY.md#181--2015-01-20\n- http://expressjs.com/advanced/security-updates.html\n",
+      "semver": {
+        "vulnerable": "<0.11.1",
+        "unaffected": ">=0.11.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 56
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/send/20151103/send_20151103_0_1_98a5b89982b38e79db684177cf94730ce7fc7aed.patch"
+          ],
+          "version": "<0.11.1 >=0.9.0",
+          "modificationTime": "2015-11-03T07:12:20.676Z",
+          "comments": [
+            "https://github.com/pillarjs/send/commit/98a5b89982b38e79db684177cf94730ce7fc7aed",
+            "https://github.com/dxa4481/send/commit/6adc607a908fb95892e39ca366222d8e2951a4a4"
+          ],
+          "id": "patch:npm:send:20151103:0"
+        }
+      ],
+      "moduleName": "send",
+      "id": "npm:send:20151103",
+      "from": [
+        "jsbin@3.11.23",
+        "express@3.0.6",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.19.1",
+        "send@0.11.1"
+      ],
+      "version": "0.1.0",
+      "name": "send"
+    },
+    {
+      "title": "Root Path Disclosure",
+      "credit": [
+        "Dinis Cruz"
+      ],
+      "creationTime": "2015-11-06T02:09:36.183Z",
+      "modificationTime": "2015-11-06T02:09:36.183Z",
+      "publicationTime": "2015-11-03T07:12:20.676Z",
+      "description": "## Overview\n[Send](https://www.npmjs.com/package/send) is a library for streaming files from the file system as an http response. It supports partial responses (Ranges), conditional-GET negotiation, high test coverage, and granular events which may be leveraged to take appropriate actions in your application or framework.\n\nA root path disclosure vulnerability exists in `send` versions prior to 0.11.1.\n\n## Remediation\nUpgrade `send` to version 0.11.1. or greater. \n\nIf a direct dependency update is not possible, use [snyk wizard](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/56\n- https://github.com/pillarjs/send/pull/70\n- https://github.com/pillarjs/send/commit/98a5b89982b38e79db684177cf94730ce7fc7aed\n- https://github.com/expressjs/serve-static/blob/master/HISTORY.md#181--2015-01-20\n- http://expressjs.com/advanced/security-updates.html\n",
+      "semver": {
+        "vulnerable": "<0.11.1",
+        "unaffected": ">=0.11.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 56
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/send/20151103/send_20151103_0_1_98a5b89982b38e79db684177cf94730ce7fc7aed.patch"
+          ],
+          "version": "<0.11.1 >=0.9.0",
+          "modificationTime": "2015-11-03T07:12:20.676Z",
+          "comments": [
+            "https://github.com/pillarjs/send/commit/98a5b89982b38e79db684177cf94730ce7fc7aed",
+            "https://github.com/dxa4481/send/commit/6adc607a908fb95892e39ca366222d8e2951a4a4"
+          ],
+          "id": "patch:npm:send:20151103:0"
+        }
+      ],
+      "moduleName": "send",
+      "id": "npm:send:20151103",
+      "from": [
+        "jsbin@3.11.23",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.0.0"
+      ],
+      "version": "0.1.0",
+      "name": "send"
+    },
+    {
+      "title": "Symlink Arbitrary File Overwrite",
+      "credit": [
+        "Tim Cuthbertson"
+      ],
+      "creationTime": "2015-11-06T02:09:36.182Z",
+      "modificationTime": "2015-11-06T02:09:36.182Z",
+      "publicationTime": "2015-11-03T07:15:12.900Z",
+      "description": "## Overview\nThe [`tar`](https://www.npmjs.com/package/tar) module prior to version 2.0.0 does not properly normalize symbolic links pointing to targets outside the extraction root. As a result, packages may hold symbolic links to parent and sibling directories and overwrite those files when the package is extracted.\n\n## Remediation\nUpgrade to version 2.0.0 or greater. \nIf a direct dependency update is not possible, use [`snyk wizard`](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/57\n- https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<2.0.0",
+        "unaffected": ">=2.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 57
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_0_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+          ],
+          "version": "<2.0.0 >=0.1.13",
+          "modificationTime": "2015-11-17T09:29:10.000Z",
+          "comments": [
+            "https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28.patch"
+          ],
+          "id": "patch:npm:tar:20151103:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_1_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+          ],
+          "version": "<0.1.13 >0.0.1",
+          "modificationTime": "2015-11-17T09:29:10.000Z",
+          "comments": [
+            "https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28.patch"
+          ],
+          "id": "patch:npm:tar:20151103:1"
+        }
+      ],
+      "moduleName": "tar",
+      "id": "npm:tar:20151103",
+      "from": [
+        "jsbin@3.11.23",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "tar@1.0.3"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite3@3.0.4",
+        "node-pre-gyp@0.6.5",
+        "tar@2.1.0"
+      ],
+      "version": "1.0.3",
+      "name": "tar"
+    },
+    {
+      "title": "Symlink Arbitrary File Overwrite",
+      "credit": [
+        "Tim Cuthbertson"
+      ],
+      "creationTime": "2015-11-06T02:09:36.182Z",
+      "modificationTime": "2015-11-06T02:09:36.182Z",
+      "publicationTime": "2015-11-03T07:15:12.900Z",
+      "description": "## Overview\nThe [`tar`](https://www.npmjs.com/package/tar) module prior to version 2.0.0 does not properly normalize symbolic links pointing to targets outside the extraction root. As a result, packages may hold symbolic links to parent and sibling directories and overwrite those files when the package is extracted.\n\n## Remediation\nUpgrade to version 2.0.0 or greater. \nIf a direct dependency update is not possible, use [`snyk wizard`](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/57\n- https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28\n- https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<2.0.0",
+        "unaffected": ">=2.0.0"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 57
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_0_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+          ],
+          "version": "<2.0.0 >=0.1.13",
+          "modificationTime": "2015-11-17T09:29:10.000Z",
+          "comments": [
+            "https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28.patch"
+          ],
+          "id": "patch:npm:tar:20151103:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_1_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+          ],
+          "version": "<0.1.13 >0.0.1",
+          "modificationTime": "2015-11-17T09:29:10.000Z",
+          "comments": [
+            "https://github.com/npm/node-tar/commit/a5337a6cd58a2d800fc03b3781a25751cf459f28.patch"
+          ],
+          "id": "patch:npm:tar:20151103:1"
+        }
+      ],
+      "moduleName": "tar",
+      "id": "npm:tar:20151103",
+      "from": [
+        "jsbin@3.11.23",
+        "sqlite3@2.2.7",
+        "node-pre-gyp@0.5.22",
+        "tar-pack@2.0.1",
+        "tar@0.1.20"
+      ],
+      "upgradePath": [
+        false,
+        "sqlite3@3.0.4",
+        "node-pre-gyp@0.6.15",
+        "tar-pack@3.1.0",
+        "tar@2.2.1"
+      ],
+      "version": "0.1.20",
+      "name": "tar"
+    },
+    {
+      "title": "uglify-js incorrectly handles non-boolean comparisons during minification",
+      "credit": [
+        "Tom MacWright"
+      ],
+      "description": "## Overview\n[Tom MacWright](https://github.com/mishoo/UglifyJS2/issues/751) discovered that UglifyJS versions 2.4.23 and earlier are affected by a vulnerability which allows a specially crafted Javascript file to have altered functionality after minification. This bug was [demonstrated](https://zyan.scripts.mit.edu/blog/backdooring-js/) by [Yan](https://twitter.com/bcrypt) to allow potentially malicious code to be hidden within secure code, activated by minification.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/39)_\n\n\n### Details\n\nIn Boolean algebra, DeMorgan's laws describe the relationships between conjunctions ( && ), disjunctions ( || ) and negations ( ! ).\nIn Javascript form, they state that:\n !(a && b) === (!a) || (!b)\n !(a || b) === (!a) && (!b)\n\nThe law does not hold true when one of the values is not a boolean however.\n\nVulnerable versions of UglifyJS do not account for this restriction, and erroneously apply the laws to a statement if it can be reduced in length by it.\n\nConsider this authentication function:\n\n```\nfunction isTokenValid(user) {\n    var timeLeft =\n        !!config && // config object exists\n        !!user.token && // user object has a token\n        !user.token.invalidated && // token is not explicitly invalidated\n        !config.uninitialized && // config is initialized\n        !config.ignoreTimestamps && // don't ignore timestamps\n        getTimeLeft(user.token.expiry); // > 0 if expiration is in the future\n\n    // The token must not be expired\n    return timeLeft > 0;\n}\n\nfunction getTimeLeft(expiry) {\n  return expiry - getSystemTime();\n}\n```\nWhen minified with a vulnerable version of UglifyJS, it will produce the following insecure output, where a token will never expire:\n\n( Formatted for readability )\n\n```\nfunction isTokenValid(user) {\n    var timeLeft = !(                       // negation\n        !config                             // config object does not exist\n        || !user.token                      // user object does not have a token\n        || user.token.invalidated           // token is explicitly invalidated\n        || config.uninitialized             // config isn't initialized\n        || config.ignoreTimestamps          // ignore timestamps\n        || !getTimeLeft(user.token.expiry)  // > 0 if expiration is in the future\n    );\n    return timeLeft > 0\n}\n\nfunction getTimeLeft(expiry) {\n    return expiry - getSystemTime()\n}\n```\n\n## Remediation\n\nUpgrade UglifyJS to version >= 2.4.24.\n\n## References\n- https://nodesecurity.io/advisories/39\n- https://github.com/tmcw/mdast-uglify-bug\n- https://zyan.scripts.mit.edu/blog/backdooring-js/\n- https://github.com/mishoo/UglifyJS2/issues/751\n",
+      "semver": {
+        "vulnerable": "<= 2.4.23",
+        "unaffected": ">= 2.4.24"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-95"
+        ],
+        "CVE": [],
+        "NSP": 39
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/uglify-js/20150824/uglify-js_20150824_0_0_905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ],
+          "version": "<= 2.4.23 >2.0.0",
+          "modificationTime": "2015-08-24T09:29:10.000Z",
+          "comments": [],
+          "id": "patch:npm:uglify-js:20150824:0"
+        }
+      ],
+      "moduleName": "uglify-js",
+      "creationTime": "2015-08-24T09:29:10.000Z",
+      "publicationTime": "2015-08-24T09:29:10.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:uglify-js:20150824",
+      "from": [
+        "jsbin@3.11.23",
+        "hbs@2.4.0",
+        "handlebars@1.0.12",
+        "uglify-js@2.3.6"
+      ],
+      "upgradePath": [
+        false,
+        "hbs@4.0.0",
+        "handlebars@4.0.3",
+        "uglify-js@2.4.24"
+      ],
+      "version": "2.3.6",
+      "name": "uglify-js"
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.186Z",
+      "modificationTime": "2015-11-06T02:09:36.186Z",
+      "publicationTime": "2015-10-24T21:01:32.155Z",
+      "description": "## Overview\nThe `parse()` function in the [`uglify-js`](https://www.npmjs.com/package/uglify-js) package prior to version 2.6.0 is vulnerable to regular expression denial of service (ReDoS) attacks when long inputs of certain patters are processed.\n\n## Details\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade to version 2.6.0 or greater. \nIf a direct dependency update is not possible, use `snyk wizard` to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/48\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<2.6.0",
+        "unaffected": ">=2.6.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 48
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
+          ],
+          "version": "<= 2.4.23 >=2.2.0",
+          "modificationTime": "2015-11-16T09:29:10.000Z",
+          "comments": [
+            "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+          ],
+          "id": "patch:npm:uglify-js:20151024:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+          ],
+          "version": "<2.6.0 >2.4.23",
+          "modificationTime": "2015-11-16T09:29:10.000Z",
+          "comments": [
+            "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+          ],
+          "id": "patch:npm:uglify-js:20151024:1"
+        }
+      ],
+      "moduleName": "uglify-js",
+      "id": "npm:uglify-js:20151024",
+      "from": [
+        "jsbin@3.11.23",
+        "hbs@2.4.0",
+        "handlebars@1.0.12",
+        "uglify-js@2.3.6"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "handlebars@4.0.5",
+        "uglify-js@2.6.0"
+      ],
+      "version": "2.3.6",
+      "name": "uglify-js"
+    }
+  ]
+}

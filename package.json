@@ -51,13 +51,11 @@
     "validator": "^4.0.5"
   },
   "devDependencies": {
-    "@snyk/registry": "2.25.0",
-    "@snyk/vuln": "^3.0.1",
-    "babel": "^5.8.29",
     "istanbul": "^0.4.0",
     "jscs": "^2.0.0",
     "nodemon": "^1.3.7",
     "proxyquire": "^1.7.3",
+    "restify": "^4.0.4",
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.2",
     "tap": "^5.4.1",
