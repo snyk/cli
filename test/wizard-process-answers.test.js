@@ -1,20 +1,37 @@
-var test = require('tap').test;
+var test = require('tap-only');
 var proxyquire = require('proxyquire');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
+var path = require('path');
 var sinon = require('sinon');
-var spy = sinon.spy();
-var execSpy = sinon.spy();
 var noop = function () {};
 var snyk = require('../');
+var save = snyk.policy.save;
+
+// spies
+var policySaveSpy = sinon.spy();
+var execSpy = sinon.spy();
+var writeSpy = sinon.spy();
+
+snyk.policy.save = function (data) {
+  policySaveSpy(data);
+  return Promise.resolve();
+};
 
 var wizard = proxyquire('../cli/commands/protect/wizard', {
   '../../../lib/npm': function (cmd) {
     execSpy(cmd);
     return Promise.resolve();
   },
+  'then-fs': {
+    writeFile: function (filename, body) {
+      writeSpy(filename, body);
+      return Promise.resolve();
+    },
+  },
   '../../../lib/protect': proxyquire('../lib/protect', {
     'then-fs': {
-      writeFile: function () {
+      writeFile: function (filename, body) {
+        writeSpy(filename, body);
         return Promise.resolve();
       },
       createWriteStream: function () {
@@ -46,37 +63,23 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
 
 test('pre-tarred packages can be patched', function (t) {
   var answers = require(__dirname + '/fixtures/forever-answers.json');
-  var save = snyk.policy.save;
-
-  snyk.policy.save = function (data) {
-    spy(data);
-    return Promise.resolve();
-  };
 
   wizard.processAnswers(answers, {
     // policy
   }).then(function () {
-    t.equal(spy.callCount, 1, 'write functon was only called once');
-    var vulns = Object.keys(spy.args[0][0].patch);
+    t.equal(policySaveSpy.callCount, 1, 'write functon was only called once');
+    var vulns = Object.keys(policySaveSpy.args[0][0].patch);
     var expect = Object.keys(answers).filter(function (key) {
       return key.slice(0, 5) !== 'misc-';
     }).map(function (key) {
       return answers[key].vuln.id;
     });
     t.deepEqual(vulns, expect, 'two patches included');
-  }).catch(t.threw).then(function () {
-    snyk.policy.save = save;
-    t.end();
-  });
+  }).catch(t.threw).then(t.end);
 });
 
 test('process answers handles shrinkwrap', function (t) {
-  var save = snyk.policy.save;
-  snyk.policy.save = function () {
-    return Promise.resolve();
-  };
-
-  t.plan(3);
+  t.plan(2);
 
   t.test('non-shrinkwrap package', function (t) {
     execSpy = sinon.spy();
@@ -100,10 +103,71 @@ test('process answers handles shrinkwrap', function (t) {
     }).catch(t.threw).then(t.end);
 
   });
+});
 
-  t.test('teardown', function (t) {
-    snyk.policy.save = save;
-    t.pass('teardown complete');
+test('wizard replaces npm\s default scripts.test', function (t) {
+  var old = process.cwd();
+  var dir = path.resolve(__dirname, 'fixtures', 'no-deps');
+  writeSpy = sinon.spy(); // create a new spy
+  process.chdir(dir);
+
+  wizard.processAnswers({
+    'misc-add-test': true,
+    'misc-test-no-monitor': true,
+  }).then(function () {
+    t.equal(writeSpy.callCount, 1, 'package was written to');
+    var pkg = JSON.parse(writeSpy.args[0][1]);
+    t.equal(pkg.scripts.test, 'snyk test', 'default npm exit 1 was replaced');
+  }).catch(t.threw).then(function () {
+    process.chdir(old);
     t.end();
   });
+});
+
+test('wizard replaces prepends to scripts.test', function (t) {
+  var old = process.cwd();
+  var dir = path.resolve(__dirname, 'fixtures', 'demo-os');
+  var prevPkg = require(dir + '/package.json');
+  writeSpy = sinon.spy(); // create a new spy
+  process.chdir(dir);
+
+  wizard.processAnswers({
+    'misc-add-test': true,
+    'misc-test-no-monitor': true,
+  }).then(function () {
+    t.equal(writeSpy.callCount, 1, 'package was written to');
+    var pkg = JSON.parse(writeSpy.args[0][1]);
+    t.equal(pkg.scripts.test, 'snyk test && ' + prevPkg.scripts.test, 'prepended to test script');
+  }).catch(t.threw).then(function () {
+    process.chdir(old);
+    t.end();
+  });
+});
+
+test('wizard detects existing snyk in scripts.test', function (t) {
+  var old = process.cwd();
+  var dir = path.resolve(__dirname, 'fixtures', 'pkg-mean-io');
+  var prevPkg = require(dir + '/package.json');
+  writeSpy = sinon.spy(); // create a new spy
+  process.chdir(dir);
+
+  wizard.processAnswers({
+    'misc-add-test': true,
+    'misc-test-no-monitor': true,
+  }).then(function () {
+    t.equal(writeSpy.callCount, 1, 'package was written to');
+    var pkg = JSON.parse(writeSpy.args[0][1]);
+    t.equal(pkg.scripts.test, prevPkg.scripts.test, 'test script untouched');
+  }).catch(t.threw).then(function () {
+    process.chdir(old);
+    t.end();
+  });
+});
+
+
+
+test('teardown', function (t) {
+  snyk.policy.save = save;
+  t.pass('teardown complete');
+  t.end();
 });
