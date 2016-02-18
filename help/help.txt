@@ -22,8 +22,11 @@ Commands:
 
 Options:
 
-  --dev .............. include devDependencies (defaults to production only)
-  --ignore-policy .... ignores and resets the state of your policy file
+  --dev .............. include devDependencies (defaults to production only).
+  --ignore-policy .... ignores and resets the state of your policy file.
+  --trust-policies ... applies and uses ignore rules from your dependencies's
+                       Snyk policies, otherwise ignore policies are only
+                       shown as a suggestion.
   --dry-run .......... don't apply updates or patches during protect.
   -q, --quiet ........ silence all output.
   -h, --help ......... this help information.
