@@ -6,7 +6,7 @@ var copy = require('./copy');
 
 var exitcode = 0;
 
-args.method.apply(null, args.options._).then(function (result) {
+var cli = args.method.apply(null, args.options._).then(function (result) {
   var analytics = require('../lib/analytics');
   var res = analytics({
     command: args.command,
@@ -24,8 +24,9 @@ args.method.apply(null, args.options._).then(function (result) {
 }).catch(function (error) {
   var analytics = require('../lib/analytics');
   analytics.add('error', error.stack);
+  analytics.add('command', args.command);
   var res = analytics({
-    command: args.command,
+    command: 'cli-bad-command',
     args: args.options._,
   });
 
@@ -48,20 +49,25 @@ args.method.apply(null, args.options._).then(function (result) {
   return res;
 }).catch(function (e) {
   console.log('super fail', e.stack);
-}).then(function () {
-  if (exitcode) {
-    process.exit(1);
+}).then(function (res) {
+  if (!process.env.TAP && exitcode) {
+    return process.exit(1);
   }
+  return res;
 });
 
-debug('checking for cli updates');
-// finally, check for available update and returns an instance
-var defaults = require('lodash').defaults;
-var pkg = require('../package.json');
+if (module.parent) {
+  module.exports = cli;
+} else {
+  debug('checking for cli updates');
+  // finally, check for available update and returns an instance
+  var defaults = require('lodash').defaults;
+  var pkg = require('../package.json');
 
-// only run if we're not inside an npm.script
-if (!process.env['npm_config_node_version']) { // jshint ignore:line
-  require('update-notifier')({
-    pkg: defaults(pkg, { version: '0.0.0' }),
-  }).notify();
+  // only run if we're not inside an npm.script
+  if (!process.env['npm_config_node_version']) { // jshint ignore:line
+    require('update-notifier')({
+      pkg: defaults(pkg, { version: '0.0.0' }),
+    }).notify();
+  }
 }
