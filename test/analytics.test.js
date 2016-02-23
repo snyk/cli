@@ -1,5 +1,5 @@
 var test = require('tap-only');
-var proxyquire = require('proxyquire');
+var proxyquire = require('proxyquire').noPreserveCache();
 var sinon = require('sinon');
 var snyk = require('../lib');
 
@@ -11,8 +11,7 @@ test('analytics disabled', function (t) {
     './request': spy,
   });
 
-  t.plan(1);
-  analytics().then(function () {
+  return analytics().then(function () {
     t.equal(spy.called, false, 'the request should not have been made');
     if (old === undefined) {
       snyk.config.del('disable-analytics');
@@ -30,11 +29,9 @@ test('analytics', function (t) {
     './request': spy,
   });
 
-  t.plan(1);
-
   analytics.add('foo', 'bar');
 
-  analytics({
+  return analytics({
     command: '__test__',
     args: [],
   }).then(function () {
