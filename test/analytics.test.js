@@ -1,4 +1,4 @@
-var test = require('tape');
+var test = require('tap-only');
 var proxyquire = require('proxyquire');
 var sinon = require('sinon');
 var snyk = require('../lib');
@@ -47,4 +47,30 @@ test('analytics', function (t) {
     }
   });
 
+});
+
+test('bad command', function (t) {
+  var spy = sinon.spy();
+  var old = snyk.config.get('disable-analytics');
+  snyk.config.del('disable-analytics');
+  process.argv = ['node', 'script.js', 'random command', '-q'];
+  var cli = proxyquire('../cli', {
+    '../lib/analytics': proxyquire('../lib/analytics', {
+      './request': spy,
+    })
+  });
+
+  return cli.then(function () {
+    t.equal(spy.callCount, 1, 'analytics was called');
+
+    var payload = spy.args[0][0].body;
+    t.equal(payload.data.command, 'cli-bad-command', 'correct event name');
+    t.equal(payload.data.metadata.command, 'random command', 'found original command');
+
+    if (old === undefined) {
+      snyk.config.del('disable-analytics');
+    } else {
+      snyk.config.set('disable-analytics', old);
+    }
+  });
 });
