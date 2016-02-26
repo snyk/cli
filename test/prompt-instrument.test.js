@@ -44,7 +44,7 @@ test('wizard prompts as expected', function (t) {
       'default:patch', // 1
       'default:patch', // 1
       'default:patch', // 2
-      true,];
+      ];
 
     var vulns = require(__dirname + '/fixtures/mean.json');
 

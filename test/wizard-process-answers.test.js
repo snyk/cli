@@ -97,7 +97,7 @@ test('process answers handles shrinkwrap', function (t) {
     var answers = require(__dirname + '/fixtures/mean-answers.json');
     answers['misc-test-no-monitor'] = true;
     wizard.processAnswers(answers).then(function () {
-      var shrinkCall = execSpy.getCall(1); // get the 2nd call (as the first is the install of snyk)
+      var shrinkCall = execSpy.getCall(0); // get the 2nd call (as the first is the install of snyk)
       t.equal(shrinkCall.args[0], 'shrinkwrap', 'shrinkwrap was called');
       process.chdir(cwd);
     }).catch(t.threw).then(t.end);

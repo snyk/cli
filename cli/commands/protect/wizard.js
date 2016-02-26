@@ -352,7 +352,6 @@ function processAnswers(answers, policy, options) {
       var installPromise;
 
       if (undefsafe(pkg, 'dependencies.snyk') ||
-          undefsafe(pkg, 'devDependencies.snyk') ||
           undefsafe(pkg, 'peerDependencies.snyk') ||
           undefsafe(pkg, 'optionalDependencies.snyk')) {
         installPromise = Promise.resolve(); // do nothing
