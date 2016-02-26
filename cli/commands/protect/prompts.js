@@ -791,7 +791,7 @@ function nextSteps(pkg, prevAnswers) {
     return prompts;
   }
 
-  i = (undefsafe(pkg, 'scripts.prepublish') || '') .indexOf('snyk pro');
+  i = (undefsafe(pkg, 'scripts.prepublish') || '').indexOf('snyk-pro');
 
   // if `snyk protect` doesn't already appear, then check if we need to add it
   if (i === -1) {
