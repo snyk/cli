@@ -14,6 +14,7 @@ var tryRequire = require('snyk-try-require');
 var chalk = require('chalk');
 var url = require('url');
 var _ = require('lodash');
+var undefsafe = require('undefsafe');
 var auth = require('../auth');
 var getVersion = require('../version');
 var allPrompts = require('./prompts');
@@ -348,12 +349,23 @@ function processAnswers(answers, policy, options) {
     if (answers['misc-add-test'] || answers['misc-add-protect']) {
       debug('updating %s', packageFile);
 
+      var installPromise;
+
+      if (undefsafe(pkg, 'dependencies.snyk') ||
+          undefsafe(pkg, 'devDependencies.snyk') ||
+          undefsafe(pkg, 'peerDependencies.snyk') ||
+          undefsafe(pkg, 'optionalDependencies.snyk')) {
+        installPromise = Promise.resolve(); // do nothing
+      } else {
+        installPromise = npm.bind(null, 'install', 'snyk', live, cwd);
+      }
+
       // finally, add snyk as a dependency because they'll need it
       // during the protect process
       var lbl = 'Updating package.json...';
       return spinner(lbl)
         .then(fs.writeFile(packageFile, JSON.stringify(pkg, '', 2)))
-        .then(npm.bind(null, 'install', 'snyk', live, cwd))
+        .then(installPromise)
         .then(spinner.clear(lbl));
     }
   })
