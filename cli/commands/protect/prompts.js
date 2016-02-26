@@ -9,6 +9,7 @@ module.exports = {
 
 var _ = require('lodash');
 var semver = require('semver');
+var fmt = require('util').format;
 var debug = require('debug')('snyk');
 var protect = require('../../../lib/protect');
 var moduleToObject = require('snyk-module');
@@ -400,6 +401,10 @@ function canBeUpgraded(vuln) {
     return false;
   }
 
+  if (vuln.shrinkwrap) {
+    return false;
+  }
+
   return vuln.upgradePath.some(function (pkg, i) {
     // if the upgade path is to upgrade the module to the same range the
     // user already asked for, then it means we need to just blow that
@@ -611,10 +616,19 @@ function generatePrompt(vulns, policy) {
       update.name = out;
     } else {
       // No upgrade available (as per no patch)
-      var reason = vuln.bundled ? 'upgrade unavailable as ' +
-        vuln.bundled.slice(-1).pop() + ' bundled in the vulnerable ' +
-        vuln.name :
-        'no sufficient upgrade available we\'ll notify you when there is one';
+      var reason = '';
+
+      if (vuln.shrinkwrap) {
+        reason = fmt('upgrade unavailable as %s@%s is shrinkwrapped by %s',
+          vuln.name, vuln.version, vuln.shrinkwrap);
+      } else if (vuln.bundled) {
+        reason = fmt('upgrade unavailable as %s is bundled in vulnerable %s',
+          vuln.bundled.slice(-1).pop(), vuln.name);
+      } else {
+        reason = 'no sufficient upgrade available we\'ll notify you when ' +
+          'there is one';
+      }
+
       choices.push({
         value: 'skip',
         key: 'u',
@@ -642,7 +656,7 @@ function generatePrompt(vulns, policy) {
           res.patches = patches;
 
           if (group) {
-            patch.name = 'Patch the ' + group.count + ' vulnerabilities';
+            patch.name = fmt('Patch the %s vulnerabilities', group.count);
           }
 
           choices.push(patch);
