@@ -1,0 +1,90 @@
+{
+  "title": "Regular Expression Denial of Service",
+  "credit": [
+    "Adam Baldwin"
+  ],
+  "creationTime": "2016-02-01T19:00:03.862Z",
+  "modificationTime": "2016-02-01T19:00:03.862Z",
+  "publicationTime": "2016-01-26T20:04:21.225Z",
+  "description": "## Overview\nThe `duration` function in the [`moment`](https://www.npmjs.com/package/moment) package is vulnerable to [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) attacks when long inputs of certain patterns are processed.\n\n## Details\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1]\n\n## References\n- [1] https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://nodesecurity.io/advisories/55\n- https://github.com/moment/moment/issues/2936",
+  "semver": {
+    "vulnerable": "<=2.11.1",
+    "unaffected": "<0.0.0"
+  },
+  "CVSSv3": "",
+  "severity": "low",
+  "identifiers": {
+    "CWE": [
+      "CWE-400"
+    ],
+    "CVE": [],
+    "NSP": 55
+  },
+  "patches": [
+    {
+      "urls": [
+        "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_0_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+      ],
+      "version": "<=2.11.1 >2.10.6",
+      "modificationTime": "2016-01-26T20:04:21.225Z",
+      "comments": [],
+      "id": "patch:npm:moment:20160126:0"
+    },
+    {
+      "urls": [
+        "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_1_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+      ],
+      "version": "<=2.10.6 >2.9.0",
+      "modificationTime": "2016-01-26T20:04:21.225Z",
+      "comments": [],
+      "id": "patch:npm:moment:20160126:1"
+    },
+    {
+      "urls": [
+        "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_2_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+      ],
+      "version": "<=2.9.0 >2.2.1",
+      "modificationTime": "2016-01-26T20:04:21.225Z",
+      "comments": [],
+      "id": "patch:npm:moment:20160126:2"
+    },
+    {
+      "urls": [
+        "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_3_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+      ],
+      "version": "=2.2.1",
+      "modificationTime": "2016-01-26T20:04:21.225Z",
+      "comments": [],
+      "id": "patch:npm:moment:20160126:3"
+    },
+    {
+      "urls": [
+        "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_4_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+      ],
+      "version": "<2.2.1 >2.0.0",
+      "modificationTime": "2016-01-26T20:04:21.225Z",
+      "comments": [],
+      "id": "patch:npm:moment:20160126:4"
+    }
+  ],
+  "moduleName": "moment",
+  "id": "npm:moment:20160126",
+  "from": [
+    "foo@1.0.0",
+    "glue@3.2.0",
+    "hapi@13.0.0",
+    "statehood@4.0.0",
+    "joi@7.1.0",
+    "moment@2.11.0"
+  ],
+  "upgradePath": [
+    false,
+    "glue@3.2.0",
+    "hapi@13.0.0",
+    "statehood@4.0.0",
+    "joi@7.1.0",
+    "moment@2.11.2"
+  ],
+  "version": "2.11.0",
+  "name": "moment"
+}

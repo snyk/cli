@@ -1,4 +1,4 @@
-var test = require('tap').test;
+var test = require('tap-only');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var fs = require('fs');
 
@@ -24,5 +24,18 @@ test('policy match logic', function (t) {
 
   var pathMatch = policy.matchToRule(vuln, rule);
   t.ok(pathMatch, 'vuln matches rule');
+  t.end();
+});
+
+test.only('policy match (triggering not found)', function (t) {
+  var vuln = require(__dirname + '/fixtures/path-not-found.json');
+  var rule = {
+    'glue > hapi > joi > moment': {
+      'patched': '2016-02-26T16:19:06.050Z'
+    }
+  };
+
+  var pathMatch = policy.matchToRule(vuln, rule);
+  t.equal(pathMatch, false, 'path does not match');
   t.end();
 });
