@@ -40,7 +40,7 @@
     "snyk-config": "^1.0.0",
     "snyk-module": "^1.2.0",
     "snyk-resolve": "^1.0.0",
-    "snyk-resolve-deps": "^1.5.0",
+    "snyk-resolve-deps": "^1.5.1",
     "snyk-try-require": "^1.0.0",
     "tempfile": "^1.1.1",
     "then-fs": "^2.0.0",
