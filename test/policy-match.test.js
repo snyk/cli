@@ -27,7 +27,7 @@ test('policy match logic', function (t) {
   t.end();
 });
 
-test.only('policy match (triggering not found)', function (t) {
+test('policy match (triggering not found)', function (t) {
   var vuln = require(__dirname + '/fixtures/path-not-found.json');
   var rule = {
     'glue > hapi > joi > moment': {
