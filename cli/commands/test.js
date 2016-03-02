@@ -111,6 +111,8 @@ function test(path, options) {
       summary += chalk.red.bold(' vulnerabilities.');
     }
 
+    summary += '\n\nRun `snyk wizard` to address these issues.';
+
     var sep = '\n\n';
 
     var error = new Error(res.vulnerabilities.map(function (vuln) {
