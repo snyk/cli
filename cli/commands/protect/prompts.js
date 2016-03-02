@@ -504,7 +504,8 @@ function generatePrompt(vulns, policy) {
         group.affected.full;
     } else {
       infoLink += '/vuln/' + vuln.id;
-      messageIntro = severity + ' severity vulnerability found in ' + vulnIn +
+      messageIntro = '"'  +vuln.title + '" ' + severity +
+        ' severity vulnerability found in ' + vulnIn +
         ', introduced via ' + from;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
           '- from: ' + vuln.from.slice(1).join(' > ') : '');
