@@ -18,6 +18,7 @@ var undefsafe = require('undefsafe');
 var auth = require('../auth');
 var getVersion = require('../version');
 var allPrompts = require('./prompts');
+var answersToTasks = require('./tasks');
 var snyk = require('../../../lib/');
 var isCI = require('../../../lib/is-ci');
 var protect = require('../../../lib/protect');
@@ -160,13 +161,6 @@ function processAnswers(answers, policy, options) {
   var cwd = process.cwd();
   var packageFile = path.resolve(cwd, 'package.json');
 
-  var tasks = {
-    ignore: [],
-    update: [],
-    patch: [],
-    skip: [],
-  };
-
   var pkg = {};
 
   analytics.add('answers', Object.keys(answers).map(function (key) {
@@ -193,61 +187,7 @@ function processAnswers(answers, policy, options) {
     return res;
   }).filter(Boolean));
 
-  Object.keys(answers).forEach(function (key) {
-    // if we're looking at a reason, skip it
-    if (key.indexOf('-reason') !== -1) {
-      return;
-    }
-
-    // ignore misc questions, like "add snyk test to package?"
-    if (key.indexOf('misc-') === 0) {
-      return;
-    }
-
-    var answer = answers[key];
-    var task = answer.choice;
-    if (task === 'review' || task === 'skip') {
-      // task = 'skip';
-      return;
-    }
-
-    var vuln = answer.vuln;
-
-    if (task === 'patch' && vuln.grouped && vuln.grouped.upgrades) {
-      // ignore the first as it's the same one as this particular answer
-      debug('additional answers required: %s',
-        vuln.grouped.count - 1,
-        vuln.grouped);
-
-      var additional = vuln.grouped.upgrades.slice(1);
-
-      additional.forEach(function (from) {
-        var copy = _.cloneDeep(vuln);
-        copy.from = from;
-        tasks[task].push(copy);
-      });
-    }
-
-    if (task === 'ignore') {
-      answer.meta.reason = answers[key + '-reason'];
-      tasks[task].push(answer);
-
-      if (answer.meta.vulnsInGroup) {
-        // also ignore any in the group
-        answer.meta.vulnsInGroup.forEach(function (vuln) {
-          if (vuln.id !== answer.vuln.id) {
-            tasks[task].push({
-              meta: answer.meta,
-              vuln: vuln,
-            });
-          }
-        });
-      }
-    } else {
-      tasks[task].push(vuln);
-    }
-  });
-
+  var tasks = answersToTasks(answers);
   debug(tasks);
 
   var live = !options['dry-run'];

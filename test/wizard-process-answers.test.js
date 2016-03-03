@@ -5,12 +5,20 @@ var path = require('path');
 var sinon = require('sinon');
 var noop = function () {};
 var snyk = require('../');
-var save = snyk.policy.save;
 
 // spies
 var policySaveSpy = sinon.spy();
 var execSpy = sinon.spy();
 var writeSpy = sinon.spy();
+
+// proxies
+var getVulnSource = proxyquire('../lib/protect/get-vuln-source', {
+  'fs': {
+    statSync: function () {
+      return true;
+    }
+  },
+});
 
 snyk.policy.save = function (data) {
   policySaveSpy(data);
@@ -29,35 +37,43 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
     },
   },
   '../../../lib/protect': proxyquire('../lib/protect', {
-    'then-fs': {
-      writeFile: function (filename, body) {
-        writeSpy(filename, body);
-        return Promise.resolve();
-      },
-      createWriteStream: function () {
-        // fake event emitter (sort of)
-        return {
-          on: noop,
-          end: noop,
-          removeListener: noop,
-          emit: noop,
-        };
-      },
-    },
     'fs': {
       statSync: function () {
         return true;
       }
     },
-    './npm': function () {
-      return Promise.resolve();
-    },
-    'child_process': {
-      exec: function (a, b, callback) {
-        callback(null, '', ''); // successful patch
-      }
-    }
-  })
+    './get-vuln-source': getVulnSource,
+    './patch': proxyquire('../lib/protect/patch', {
+      './get-vuln-source': getVulnSource,
+      'then-fs': {
+        writeFile: function (filename, body) {
+          writeSpy(filename, body);
+          return Promise.resolve();
+        },
+        createWriteStream: function () {
+          // fake event emitter (sort of)
+          return {
+            on: noop,
+            end: noop,
+            removeListener: noop,
+            emit: noop,
+          };
+        },
+      },
+      './apply-patch': proxyquire('../lib/protect/apply-patch', {
+        'child_process': {
+          exec: function (a, b, callback) {
+            callback(null, '', ''); // successful patch
+          }
+        }
+      })
+    }),
+    './update': proxyquire('../lib/protect/update', {
+      '../npm': function () {
+        return Promise.resolve();
+      },
+    }),
+  }),
 });
 
 
@@ -162,12 +178,4 @@ test('wizard detects existing snyk in scripts.test', function (t) {
     process.chdir(old);
     t.end();
   });
-});
-
-
-
-test('teardown', function (t) {
-  snyk.policy.save = save;
-  t.pass('teardown complete');
-  t.end();
 });
