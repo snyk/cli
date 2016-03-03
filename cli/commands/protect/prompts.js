@@ -166,9 +166,9 @@ function getPatchPrompts(vulns, policy) {
   // and `reduce` _really_ doesn't like when you change the array under
   // it's feet
   res.slice(0).reduce(function (acc, curr, i, all) {
-    var upgrades = curr.upgradePath[1];
+    // var upgrades = curr.upgradePath[1];
     // otherwise it's a patch and that's hidden for now
-    if (!upgrades && curr.patches && curr.patches.length) {
+    if (curr.patches && curr.patches.length) {
       // TODO allow for cross over patches on modules (i.e. patch can work
       // on A-1 and A-2)
       var last = curr.id; //curr.from.slice(-1).pop();
@@ -270,9 +270,9 @@ function getPatchPrompts(vulns, policy) {
   // take into account the previous answers, and if the package has been
   // upgraded, it should be left *out* of our list.
   res = res.filter(function (curr) {
-    if (curr.upgradePath[1]) {
-      return false;
-    }
+    // if (curr.upgradePath[1]) {
+    //   return false;
+    // }
 
     if (!curr.patches || curr.patches.length === 0) {
       return false;
@@ -322,7 +322,10 @@ function getUpdatePrompts(vulns, policy) {
     return [];
   }
 
-  var res = stripInvalidPatches(_.cloneDeep(vulns));
+  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter(function (vuln) {
+    // only keep upgradeable
+    return canBeUpgraded(vuln);
+  });
 
   // sort by vulnerable package and the largest version
   res.sort(sortUpgradePrompts);
