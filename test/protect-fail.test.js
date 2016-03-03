@@ -1,4 +1,4 @@
-var protect = require('../lib/protect');
+var applyPatch = require('../lib/protect/apply-patch');
 var path = require('path');
 var fs = require('fs');
 var thenfs = require('then-fs');
@@ -12,7 +12,7 @@ test('bad patch file does not apply', function (t) {
   var semver = fs.readFileSync(dir + '/semver.js', 'utf8');
   t.ok('original semver loaded');
 
-  protect.applyPatch(root + '/363ce409-2d19-46da-878a-e059df2d39bb.snyk-patch', dir, true).then(function () {
+  applyPatch(root + '/363ce409-2d19-46da-878a-e059df2d39bb.snyk-patch', dir, true).then(function () {
     t.fail('patch successfully applied');
     fs.writeFileSync(dir + '/semver.js', semver);
   }).catch(function (error) {
