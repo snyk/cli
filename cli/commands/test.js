@@ -119,8 +119,9 @@ function test(path, options) {
       var res = '';
       var name = vuln.name + '@' + vuln.version;
       var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
-      res += chalk.red('✗ "' + vuln.title + '" ' + severity + ' severity ' +
-        'vulnerability found on ' + name + '\n');
+      res += chalk.red('✗ ' + severity + ' severity vulnerability found on ' +
+        name + '\n');
+      res += 'Desc: ' + vuln.title + '\n';
       res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
       res += 'From: ' + vuln.from.join(' > ') + '\n';
 
