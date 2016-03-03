@@ -497,12 +497,11 @@ function generatePrompt(vulns, policy) {
       infoLink += '/package/npm/' + group.affected.name + '/' +
         group.affected.version;
       var joiningText = group.patch ? ' in ' : ' via ';
-      messageIntro = group.count + ' vulnerabilities introduced' + joiningText +
-        group.affected.full;
+      messageIntro = fmt('%s vulnerabilities introduced %s %s', group.count,joiningText, group.affected.full);
     } else {
       infoLink += '/vuln/' + vuln.id;
-      messageIntro = severity + ' severity vulnerability found in ' + vulnIn +
-        ', introduced via ' + from + '\n- desc: ' + vuln.title;
+      messageIntro = fmt('%s severity vulnerability found in %s, introduced via ', severity, vulnIn, from);
+      messageIntro += '\n- desc: ' + vuln.title;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
           '- from: ' + vuln.from.slice(1).join(' > ') : '');
     }
@@ -574,7 +573,7 @@ function generatePrompt(vulns, policy) {
       },
       name: id,
       type: 'list',
-      message: [messageIntro, fromText, infoLink, note, '  Remediation options']
+      message: [messageIntro, infoLink, fromText, note, '  Remediation options']
         .filter(Boolean).join('\n')
     };
 
