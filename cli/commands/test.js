@@ -111,14 +111,19 @@ function test(path, options) {
       summary += chalk.red.bold(' vulnerabilities.');
     }
 
+    summary += '\n\nRun `snyk wizard` to address these issues.';
+
     var sep = '\n\n';
 
     var error = new Error(res.vulnerabilities.map(function (vuln) {
       var res = '';
       var name = vuln.name + '@' + vuln.version;
-      res += chalk.red('✗ Vulnerability found on ' + name + '\n');
-      res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
-      res += 'From: ' + vuln.from.join(' > ') + '\n';
+      var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
+      res += chalk.red('✗ ' + severity + ' severity vulnerability found on ' +
+        name + '\n');
+      res += '- desc: ' + vuln.title + '\n';
+      res += '- info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
+      res += '- from: ' + vuln.from.join(' > ') + '\n';
 
       if (vuln.note) {
         res += vuln.note + '\n';
