@@ -19,6 +19,9 @@ var patch = proxyquire('../lib/protect/patch', {
   './get-vuln-source': function () {
     return 'foo';
   },
+  './write-patch-flag': function (now, vuln) {
+    return Promise.resolve(vuln);
+  },
   'then-fs': {
     rename: function (filename) {
       renameSpy(filename);
@@ -53,14 +56,15 @@ var patch = proxyquire('../lib/protect/patch', {
 
 test('if two patches for same package selected, only newest runs', function (t) {
   var latestId = 'uglify-js:20151024';
-  return patch(toTasks(answers).patch, true).then(function (res) {
-    t.equal(Object.keys(res.patch).length, 2, 'two vulns went in, two came out');
+  var tasks = toTasks(answers).patch;
+  return patch(tasks, true).then(function (res) {
+    t.equal(Object.keys(res.patch).length, tasks.length, 'two vulns went in, two came out');
     t.match(execSpy.args[0], new RegExp(latestId), 'correct patch picked');
     t.equal(execSpy.callCount, 1, 'patch only applied once');
   }).then(function () {
     // 2nd test
     execSpy = sinon.spy();
-    return patch(toTasks(answers).patch.reverse(), true).then(function () {
+    return patch(tasks.reverse(), true).then(function () {
       t.match(execSpy.args[0], new RegExp(latestId), 'correct patch picked (reversed)');
       t.equal(execSpy.callCount, 1, 'patch only applied once (reversed)');
     });
