@@ -121,9 +121,9 @@ function test(path, options) {
       var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
       res += chalk.red('✗ ' + severity + ' severity vulnerability found on ' +
         name + '\n');
-      res += 'Desc: ' + vuln.title + '\n';
-      res += 'Info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
-      res += 'From: ' + vuln.from.join(' > ') + '\n';
+      res += '- desc: ' + vuln.title + '\n';
+      res += '- info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
+      res += '- from: ' + vuln.from.join(' > ') + '\n';
 
       if (vuln.note) {
         res += vuln.note + '\n';
