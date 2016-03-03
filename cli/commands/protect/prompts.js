@@ -646,10 +646,7 @@ function generatePrompt(vulns, policy) {
     } else {
       if (vuln.patches && vuln.patches.length) {
         // check that the version we have has a patch available
-        patches = protect.patchesForPackage({
-          name: vuln.name,
-          version: vuln.version,
-        }, vuln);
+        patches = protect.patchesForPackage(vuln);
 
         if (patches !== null) {
           if (!upgradeAvailable) {
