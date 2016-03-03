@@ -20,6 +20,22 @@ var getVulnSource = proxyquire('../lib/protect/get-vuln-source', {
   },
 });
 
+var thenfs = {
+  writeFile: function (filename, body) {
+    writeSpy(filename, body);
+    return Promise.resolve();
+  },
+  createWriteStream: function () {
+    // fake event emitter (sort of)
+    return {
+      on: noop,
+      end: noop,
+      removeListener: noop,
+      emit: noop,
+    };
+  },
+};
+
 snyk.policy.save = function (data) {
   policySaveSpy(data);
   return Promise.resolve();
@@ -30,12 +46,7 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
     execSpy(cmd);
     return Promise.resolve();
   },
-  'then-fs': {
-    writeFile: function (filename, body) {
-      writeSpy(filename, body);
-      return Promise.resolve();
-    },
-  },
+  'then-fs': thenfs,
   '../../../lib/protect': proxyquire('../lib/protect', {
     'fs': {
       statSync: function () {
@@ -44,22 +55,11 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
     },
     './get-vuln-source': getVulnSource,
     './patch': proxyquire('../lib/protect/patch', {
+      './write-patch-flag': proxyquire('../lib/protect/write-patch-flag', {
+        'then-fs': thenfs,
+      }),
       './get-vuln-source': getVulnSource,
-      'then-fs': {
-        writeFile: function (filename, body) {
-          writeSpy(filename, body);
-          return Promise.resolve();
-        },
-        createWriteStream: function () {
-          // fake event emitter (sort of)
-          return {
-            on: noop,
-            end: noop,
-            removeListener: noop,
-            emit: noop,
-          };
-        },
-      },
+      'then-fs': thenfs,
       './apply-patch': proxyquire('../lib/protect/apply-patch', {
         'child_process': {
           exec: function (a, b, callback) {
