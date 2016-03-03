@@ -22,6 +22,8 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
   }
   return res;
 }).catch(function (error) {
+  var spinner = require('../lib/spinner');
+  spinner.clearAll();
   var analytics = require('../lib/analytics');
   analytics.add('error', error.stack);
   analytics.add('command', args.command);
