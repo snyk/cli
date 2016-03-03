@@ -1,0 +1,197 @@
+{
+  "npm:uglify-js:20151024-0": {
+    "meta": {
+      "groupId": "npm:uglify-js:20151024-1"
+    },
+    "vuln": {
+      "title": "Regular Expression Denial of Service",
+      "creationTime": "2015-11-06T02:09:36.186Z",
+      "modificationTime": "2015-11-06T02:09:36.186Z",
+      "publicationTime": "2015-10-24T21:01:32.155Z",
+      "semver": {
+        "vulnerable": "<2.6.0",
+        "unaffected": ">=2.6.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 48
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
+          ],
+          "version": "<= 2.4.23 >=2.2.0",
+          "modificationTime": "2015-11-16T09:29:10.000Z",
+          "comments": [
+            "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+          ],
+          "id": "patch:npm:uglify-js:20151024:0"
+        }
+      ],
+      "moduleName": "uglify-js",
+      "id": "npm:uglify-js:20151024",
+      "from": [
+        "foo@1.0.0",
+        "jade@1.11.0",
+        "transformers@2.1.0",
+        "uglify-js@2.2.5"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "uglify-js@2.6.0"
+      ],
+      "version": "2.2.5",
+      "name": "uglify-js",
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/jade/node_modules/transformers/node_modules/uglify-js/package.json",
+      "grouped": {
+        "affected": {
+          "name": "uglify-js",
+          "version": "2.2.5",
+          "full": "uglify-js"
+        },
+        "main": true,
+        "id": "npm:uglify-js:20151024-1",
+        "count": 2,
+        "upgrades": [
+          [
+            "foo@1.0.0",
+            "jade@1.11.0",
+            "transformers@2.1.0",
+            "uglify-js@2.2.5"
+          ]
+        ],
+        "patch": true,
+        "includes": [
+          "npm:uglify-js:20150824"
+        ]
+      }
+    },
+    "choice": "review"
+  },
+  "npm:uglify-js:20151024-1": {
+    "meta": {
+      "groupId": "npm:uglify-js:20151024-1"
+    },
+    "vuln": {
+      "title": "Regular Expression Denial of Service",
+      "creationTime": "2015-11-06T02:09:36.186Z",
+      "modificationTime": "2015-11-06T02:09:36.186Z",
+      "publicationTime": "2015-10-24T21:01:32.155Z",
+      "semver": {
+        "vulnerable": "<2.6.0",
+        "unaffected": ">=2.6.0"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 48
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
+          ],
+          "version": "<= 2.4.23 >=2.2.0",
+          "modificationTime": "2015-11-16T09:29:10.000Z",
+          "comments": [
+            "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+          ],
+          "id": "patch:npm:uglify-js:20151024:0"
+        }
+      ],
+      "moduleName": "uglify-js",
+      "id": "npm:uglify-js:20151024",
+      "from": [
+        "foo@1.0.0",
+        "jade@1.11.0",
+        "transformers@2.1.0",
+        "uglify-js@2.2.5"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "uglify-js@2.6.0"
+      ],
+      "version": "2.2.5",
+      "name": "uglify-js",
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/jade/node_modules/transformers/node_modules/uglify-js/package.json",
+      "grouped": {
+        "main": false,
+        "requires": "npm:uglify-js:20151024-1"
+      }
+    },
+    "choice": "patch"
+  },
+  "npm:uglify-js:20150824-2": {
+    "meta": {
+      "groupId": "npm:uglify-js:20151024-1"
+    },
+    "vuln": {
+      "title": "uglify-js incorrectly handles non-boolean comparisons during minification",
+      "semver": {
+        "vulnerable": "<= 2.4.23",
+        "unaffected": ">= 2.4.24"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-95"
+        ],
+        "CVE": [],
+        "NSP": 39
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/uglify-js/20150824/uglify-js_20150824_0_0_905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+          ],
+          "version": "<= 2.4.23 >2.0.0",
+          "modificationTime": "2015-08-24T09:29:10.000Z",
+          "comments": [],
+          "id": "patch:npm:uglify-js:20150824:0"
+        }
+      ],
+      "moduleName": "uglify-js",
+      "creationTime": "2015-08-24T09:29:10.000Z",
+      "publicationTime": "2015-08-24T09:29:10.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:uglify-js:20150824",
+      "from": [
+        "foo@1.0.0",
+        "jade@1.11.0",
+        "transformers@2.1.0",
+        "uglify-js@2.2.5"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "transformers@3.1.0",
+        "uglify-js@2.4.24"
+      ],
+      "version": "2.2.5",
+      "name": "uglify-js",
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/jade/node_modules/transformers/node_modules/uglify-js/package.json",
+      "grouped": {
+        "main": false,
+        "requires": "npm:uglify-js:20151024-1"
+      }
+    },
+    "choice": "patch"
+  },
+  "misc-add-test": false,
+  "misc-add-protect": false
+}

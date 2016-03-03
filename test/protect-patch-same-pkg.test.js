@@ -16,7 +16,7 @@ var patch = proxyquire('../lib/protect/patch', {
   'recursive-readdir': function (source, cb) {
     cb(null, ['uglify.js.orig']);
   },
-  './getVulnSource': function () {
+  './get-vuln-source': function () {
     return 'foo';
   },
   'then-fs': {
@@ -52,10 +52,24 @@ var patch = proxyquire('../lib/protect/patch', {
 });
 
 test('if two patches for same package selected, only newest runs', function (t) {
-  var tasks = toTasks(answers);
+  var latestId = 'uglify-js:20151024';
+  return patch(toTasks(answers).patch, true).then(function () {
+    t.match(execSpy.args[0], new RegExp(latestId), 'correct patch picked');
+    t.equal(execSpy.callCount, 1, 'patch only applied once');
+  }).then(function () {
+    // 2nd test
+    execSpy = sinon.spy();
+    return patch(toTasks(answers).patch.reverse(), true).then(function () {
+      t.match(execSpy.args[0], new RegExp(latestId), 'correct patch picked (reversed)');
+      t.equal(execSpy.callCount, 1, 'patch only applied once (reversed)');
+    });
+  });
+});
 
-  debugger;
-  return patch(tasks.patch, true).then(function () {
-    t.equal(execSpy.callCount, 1, 'should only patch once');
+test('different patches are not affected', function (t) {
+  var answers = require(__dirname + '/fixtures/forever-answers.json');
+  execSpy = sinon.spy();
+  return patch(toTasks(answers).patch, true).then(function () {
+    t.equal(execSpy.callCount, 2, 'two patches applied');
   });
 });
