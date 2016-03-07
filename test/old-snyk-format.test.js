@@ -3,7 +3,7 @@ var test = require('tape');
 
 test('test sensibly bails if gets an old .snyk format', function (t) {
   var vulns2 = require('./fixtures/test-jsbin-vulns-updated.json');
-  var policy = require('../lib/policy');
+  var policy = require('snyk-policy');
 
   t.plan(1);
   policy.load(__dirname + '/fixtures/old-snyk-config').then(function (config) {

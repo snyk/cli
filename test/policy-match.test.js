@@ -2,7 +2,7 @@ var test = require('tap-only');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var fs = require('fs');
 
-var policy = require('../lib/policy');
+var policy = require('snyk-policy');
 
 test('policy match logic', function (t) {
   var rule = {

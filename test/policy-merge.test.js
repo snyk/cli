@@ -1,5 +1,5 @@
 var test = require('tap-only');
-var policy = require('../lib/policy');
+var policy = require('snyk-policy');
 var snyk = require('../lib');
 var dir1 = __dirname + '/fixtures/qs-package';
 var dir2 = __dirname + '/fixtures/qs-package/node_modules/@remy/protect-test';

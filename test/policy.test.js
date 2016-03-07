@@ -1,4 +1,4 @@
-var policy = require('../lib/policy');
+var policy = require('snyk-policy');
 var protect = require('../lib/protect');
 var test = require('tape');
 var dir = __dirname + '/fixtures/jsbin-snyk-config';

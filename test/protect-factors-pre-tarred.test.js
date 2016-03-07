@@ -1,6 +1,5 @@
 var test = require('tap').test;
 var proxyquire = require('proxyquire');
-var parser = require('../lib/policy/').loadFromText;
 var fs = {
   statSync: function () {
     return true;
@@ -10,6 +9,8 @@ var protect = proxyquire('../lib/protect', {
   'fs': fs,
   './get-vuln-source': proxyquire('../lib/protect/get-vuln-source', { fs: fs })
 });
+var parser = require('snyk-policy').loadFromText;
+var fs = require('fs');
 
 test('pre-tarred packages can be ignored', function (t) {
   var res = require(__dirname + '/fixtures/forever.json');
