@@ -1,4 +1,4 @@
-var policy = require('../lib/policy');
+var policy = require('snyk-policy');
 var getPrompts = require('../cli/commands/protect/prompts').getPrompts;
 var test = require('tape');
 

@@ -7,7 +7,7 @@ var protect = proxyquire('../lib/protect', {
     }
   }
 });
-var parser = require('../lib/policy/').loadFromText;
+var parser = require('snyk-policy').loadFromText;
 var fs = require('fs');
 
 test('pre-tarred packages can be ignored', function (t) {

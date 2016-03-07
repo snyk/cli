@@ -1,6 +1,6 @@
 var debug = require('debug')('snyk');
 var wizard = require('../cli/commands/protect/wizard');
-var policy = require('../lib/policy');
+var policy = require('snyk-policy');
 var path = require('path');
 var test = require('tape');
 var fs = require('fs');
