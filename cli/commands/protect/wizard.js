@@ -390,7 +390,7 @@ function processAnswers(answers, policy, options) {
       'notifications...';
     return snyk.modules(cwd)
       .then(spinner(lbl))
-      .then(snyk.monitor.bind(null, {
+      .then(snyk.monitor.bind(null, cwd, {
         method: 'wizard',
       }))
       .then(spinner.clear(lbl));
