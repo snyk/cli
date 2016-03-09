@@ -9,7 +9,7 @@ test you non-public applications.
 
 Commands:
 
-  auth ............... sign into snyk (required).
+  auth [api-token] ... sign into snyk.
   test ............... test for any known vulnerabilities.
   wizard ............. configure your policy file to update, auto patch and
                        ignore vulnerabilities.
@@ -18,7 +18,6 @@ Commands:
   monitor ............ record the state of dependencies and any
                        vulnerabilities on snyk.io.
   policy ............. display the Snyk policy for a package.
-  support ............ file an issue or request support.
 
 Options:
 
