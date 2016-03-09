@@ -24,7 +24,7 @@ function monitor(path, options) {
     }
 
     return snyk.modules(path)
-      .then(snyk.monitor.bind(null, { method: 'cli' }))
+      .then(snyk.monitor.bind(null, path, { method: 'cli' }))
       .then(function (res) {
         var endpoint = url.parse(config.API);
         endpoint.pathname = '/monitor/' + res.id;

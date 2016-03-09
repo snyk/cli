@@ -28,7 +28,7 @@ function args(processargv) {
   // by passing `-d` to the cli, we enable the debugging output, but this must
   // be as early as possible in the cli logic to capture all the output
   if (argv.debug) {
-    require('debug').enable('snyk');
+    require('debug').enable(['snyk', process.env.DEBUG].join(','));
   }
 
   var debug = require('debug')('snyk');
