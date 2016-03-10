@@ -1,7 +1,7 @@
 var test = require('tap').test;
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 
-var policy = require('../lib/policy');
+var policy = require('snyk-policy');
 var protect = require('../lib/protect');
 
 test('ignored vulns do not turn up in tests', function (t) {

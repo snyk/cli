@@ -499,7 +499,7 @@ function generatePrompt(vulns, policy) {
     if (group) {
       infoLink += '/package/npm/' + group.affected.name + '/' +
         group.affected.version;
-      var joiningText = group.patch ? ' in ' : ' via ';
+      var joiningText = group.patch ? 'in' : 'via';
       messageIntro = fmt('%s vulnerabilities introduced %s %s', group.count,joiningText, group.affected.full);
     } else {
       infoLink += '/vuln/' + vuln.id;

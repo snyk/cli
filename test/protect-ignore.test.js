@@ -83,7 +83,7 @@ test('ignores real vuln data', function (t) {
   var vulns2 = require('./fixtures/test-jsbin-vulns-updated.json').vulnerabilities.filter(function (v) {
     return v.id === 'npm:uglify-js:20150824' || v.id === 'npm:semver:20150403';
   });
-  var policy = require('../lib/policy');
+  var policy = require('snyk-policy');
 
   t.plan(1);
   policy.load(__dirname + '/fixtures/jsbin-snyk-config').then(function (config) {
