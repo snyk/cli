@@ -205,7 +205,7 @@ function processAnswers(answers, policy, options) {
       throw e;
     }
 
-    return snyk.policy.save(policy);
+    return snyk.policy.save(policy, cwd, spinner);
   })
   .then(function () {
     // re-read the package.json - because the generatePolicy can apply
