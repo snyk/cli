@@ -1,25 +1,34 @@
-var protect = require('../lib/protect');
-var test = require('tape');
+var filter = require('snyk-policy').filter;
+var Promise = require('es6-promise').Promise; // jshint ignore:line
+var test = require('tap').test;
 var vulns = require('./fixtures/test-jsbin-vulns.json');
 
+function runFilterShared(res, path, date) {
+  var rule = { 'node-semver-63': [ {} ] };
+  rule['node-semver-63'][0][path] = {
+    expires: (date || new Date(Date.now() + 1000 * 60 * 60 * 24)).toJSON(),
+    reason: 'none given',
+  };
+
+  return filterIgnored(rule, res.vulnerabilities);
+}
+
+function filterIgnored(rule, vulns) {
+  var res = filter({
+    ok: false,
+    vulnerabilities: vulns,
+  }, { ignore: rule });
+  return res.vulnerabilities || [];
+}
+
 // skipped intentially - only used for debugging tests
-test.skip('protect correctly filters (single)', function (t) {
+test('protect correctly filters (single)', function (t) {
   t.plan(1);
   Promise.resolve(vulns).then(function (res) {
-    function runFilter(path, date) {
-      var rule = { 'node-semver-63': [ {} ] };
-      rule['node-semver-63'][0][path] = {
-        expires: date || new Date(Date.now() + 1000 * 60 * 60 * 24),
-        reason: 'none given',
-      };
-
-      return protect.filterIgnored(rule, res.vulnerabilities);
-    }
-
-
     // exact match
     var total = res.vulnerabilities.length;
     var vulns;
+    var runFilter = runFilterShared.bind(null, res);
 
     vulns = runFilter('*');
     t.equal(vulns.length, total - 1, 'removed with * _only_ rule');
@@ -27,24 +36,15 @@ test.skip('protect correctly filters (single)', function (t) {
     console.log(e.stack);
     t.fail(e);
   });
-});
+}, { skip: true });
 
 test('protect correctly filters', function (t) {
   Promise.resolve(vulns).then(function (res) {
-    function runFilter(path, date) {
-      var rule = { 'node-semver-63': [ {} ] };
-      rule['node-semver-63'][0][path] = {
-        expires: date || new Date(Date.now() + 1000 * 60 * 60 * 24),
-        reason: 'none given',
-      };
-
-      return protect.filterIgnored(rule, res.vulnerabilities);
-    }
-
 
     // exact match
     var total = res.vulnerabilities.length;
     var vulns;
+    var runFilter = runFilterShared.bind(null, res);
 
     vulns = runFilter('sqlite3@2.2.7 > node-pre-gyp@0.5.22 > semver@3.0.1');
     t.equal(vulns.length, total - 1, 'removed matched vuln');
@@ -72,11 +72,7 @@ test('protect correctly filters', function (t) {
     t.equal(vulns.length, total, 'no match');
 
     t.end();
-  }).catch(function (error) {
-    console.log(error.stack);
-    t.fail(error.stack);
-    // t.bailout();
-  });
+  }).catch(t.threw);
 });
 
 test('ignores real vuln data', function (t) {
@@ -87,7 +83,7 @@ test('ignores real vuln data', function (t) {
 
   t.plan(1);
   policy.load(__dirname + '/fixtures/jsbin-snyk-config').then(function (config) {
-    return protect.filterIgnored(config.ignore, vulns2);
+    return filterIgnored(config.ignore, vulns2);
   }).then(function (res) {
     t.equal(res.length, 0, 'all vulns have been ignored');
   }).catch(function (e) {

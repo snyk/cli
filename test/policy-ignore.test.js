@@ -1,25 +1,26 @@
 var test = require('tap').test;
 var Promise = require('es6-promise').Promise; // jshint ignore:line
-
 var policy = require('snyk-policy');
-var protect = require('../lib/protect');
+var extendExpiries = require('./utils').extendExpiries;
 
 test('ignored vulns do not turn up in tests', function (t) {
   var dir = __dirname + '/fixtures/jsbin-policy/';
   var res = require(dir + 'jsbin.json');
   policy.load(dir).then(function (config) {
-    t.equal(res.vulnerabilities.length, 8, 'initial vulns correct');
 
-    res.vulnerabilities = protect.filterIgnored(
-      config.ignore,
-      res.vulnerabilities,
+    var start = res.vulnerabilities.length;
+    t.equal(start, 8, 'initial vulns correct');
+
+    extendExpiries(config);
+
+    res = config.filter(
+      res,
       dir
     );
 
     // should strip:
     // - npm:handlebars:20151207
     // - npm:uglify-js:20150824
-
-    t.equal(res.vulnerabilities.length, 6, 'post filter');
+    t.equal(res.vulnerabilities.length, start - 2, 'post filter');
   }).catch(t.threw).then(t.end);
 });
