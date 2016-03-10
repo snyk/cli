@@ -1,20 +1,18 @@
 var debug = require('debug')('snyk');
-var protect = require('../lib/protect');
+var policy = require('snyk-policy');
 var path = require('path');
 var test = require('tape');
-var vulns = require('./fixtures/semver-vuln.json').vulnerabilities;
+var vulns = require('./fixtures/semver-vuln.json');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 
 // skipped intentially - only used for debugging tests
-test('patch is correctly skipped during tests', function (t) {
+test('patch is correctly skipped during tests', { timeout: 1000 * 60 * 2 }, function (t) {
   var dir = path.resolve(__dirname, 'fixtures/protect-via-snyk');
-  npm('install', '', dir).then(function () {
-  // Promise.resolve().then(function () {
+  npm('install', '', dir)
+  .then(function () {
     debug('installing to %s', dir);
-
-
-    return Promise.resolve({
+    var rule = {
       'patch': {
         'npm:semver:20150403': [
           {
@@ -25,15 +23,10 @@ test('patch is correctly skipped during tests', function (t) {
         ]
       },
       'ignore': {}
-    })
-    .then(function (rule) {
-      return protect.filterPatched(rule.patch, vulns, dir);
-    })
-    .then(function (res) {
-      // exact match
-      var total = vulns.length;
-      t.equal(res.length, total - 1, 'removed with * _only_ rule');
-    });
+    };
+
+    var res = policy.filter(vulns, rule, dir);
+    t.equal(res.ok, true, 'all vulns removed');
   })
   .catch(function (error) {
     console.log(error.stack);

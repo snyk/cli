@@ -1,7 +1,7 @@
 var policy = require('snyk-policy');
-var protect = require('../lib/protect');
 var test = require('tape');
 var dir = __dirname + '/fixtures/jsbin-snyk-config';
+var extendExpiries = require('./utils').extendExpiries
 
 test('policy is callable', function (t) {
   t.plan(3);
@@ -42,17 +42,13 @@ test('test sensibly bails if gets an old .snyk format', function (t) {
 
 test('policy ignores correctly', function (t) {
   var dir = __dirname + '/fixtures/hapi-azure-post-update/';
-  var vulns = require(dir + 'test.json').vulnerabilities;
+  var vulns = require(dir + 'test.json');
 
   policy.load(dir).then(function (config) {
     // strip the ignored modules from the results
-    vulns = protect.filterIgnored(
-      config.ignore,
-      vulns,
-      dir
-    );
-
-    t.equal(vulns.length, 2, 'only qs vuln should remain');
+    extendExpiries(config);
+    vulns = config.filter(vulns);
+    t.equal(vulns.vulnerabilities.length, 2, 'only qs vuln should remain');
     t.end();
   }).catch(function (e) {
     console.log(e.stack);

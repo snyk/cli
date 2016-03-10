@@ -1,4 +1,4 @@
-var protect = require('../lib/protect');
+var policy = require('snyk-policy');
 var test = require('tape');
 
 test('test sensibly bails if gets an old .snyk format', function (t) {
@@ -7,7 +7,7 @@ test('test sensibly bails if gets an old .snyk format', function (t) {
 
   t.plan(1);
   policy.load(__dirname + '/fixtures/old-snyk-config').then(function (config) {
-    return protect.filterIgnored(config.ignore, vulns2.vulnerabilities);
+    return config.filter(vulns2);
   }).then(function (res) {
     t.fail('was expecting an error, got ' + JSON.stringify(res));
   }).catch(function (e) {
