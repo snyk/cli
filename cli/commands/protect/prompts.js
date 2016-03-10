@@ -530,7 +530,8 @@ function generatePrompt(vulns, policy) {
               // this meta.groupId only appears on a "review" choice, and thus
               // this map will pick out those vulns that are specifically
               // associated with this review group.
-              if (answers[key].meta.groupId === vuln.grouped.requires) {
+              if (answers[key].meta.groupId === vuln.grouped.requires &&
+                  answers[key].meta.review) {
                 if (answers[key].choice === 'ignore') {
                   answers[key].meta.vulnsInGroup.push({
                     id: vuln.id,
@@ -682,6 +683,7 @@ function generatePrompt(vulns, policy) {
     if (group) {
       review.meta = {
         groupId: group.id,
+        review: true,
       };
       choices.push(review);
 

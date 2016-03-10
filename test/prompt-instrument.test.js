@@ -1,4 +1,4 @@
-var test = require('tap').test;
+var test = require('tap-only');
 var tryRequire = require('snyk-try-require');
 var interactive = require('./wizard-instrumented');
 
@@ -58,5 +58,19 @@ test('wizard prompts as expected', function (t) {
       });
     }).catch(t.threw).then(t.end);
 
+  });
+});
+
+test('wizard supports review and ignore (SC-943)', function (t) {
+  var responses = [
+    'review',
+    'ignore',
+    'none given',
+    'skip'];
+
+  var vulns = require(__dirname + '/fixtures/scenarios/anna.json');
+
+  return interactive(vulns, responses, { earlyExit: true }).then(function (res) {
+    t.pass('ok');
   });
 });
