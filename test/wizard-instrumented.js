@@ -73,6 +73,10 @@ function interactive(vulns, originalResponses, options) {
     var response = responses.shift();
 
     if (response === undefined) {
+      if (options.earlyExit) {
+        return false;
+      }
+
       throw new Error('Out of responses to ' + q.name);
     }
 
