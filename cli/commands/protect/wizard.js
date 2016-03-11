@@ -356,7 +356,7 @@ function processAnswers(answers, policy, options) {
           undefsafe(pkg, 'optionalDependencies.snyk')) {
         installPromise = Promise.resolve(); // do nothing
       } else {
-        installPromise = npm.bind(null, 'install', 'snyk', live, cwd);
+        installPromise = npm.bind(null, 'install', 'snyk', live, cwd, {dev: true});
       }
 
       // finally, add snyk as a dependency because they'll need it
