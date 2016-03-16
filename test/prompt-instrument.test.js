@@ -1,6 +1,9 @@
 var test = require('tap-only');
 var tryRequire = require('snyk-try-require');
 var interactive = require('./wizard-instrumented');
+var answersToTasks = require('../cli/commands/protect/tasks');
+var generatePolicy = require('../lib/protect').generatePolicy;
+var snykPolicy = require('snyk-policy');
 
 test('wizard prompts as expected', function (t) {
   t.plan(2);
@@ -70,7 +73,22 @@ test('wizard supports review and ignore (SC-943)', function (t) {
 
   var vulns = require(__dirname + '/fixtures/scenarios/anna.json');
 
-  return interactive(vulns, responses, { earlyExit: true }).then(function (res) {
+  return interactive(vulns, responses, { earlyExit: true }).then(function () {
     t.pass('ok');
+  });
+});
+
+test('ignored grouped update explodes into multiple rules (SC-959)', function (t) {
+  var responses = [
+    'ignore',
+    'none given',
+    'skip'];
+
+  var vulns = require(__dirname + '/fixtures/scenarios/explode-ignore.json');
+  var total = vulns.vulnerabilities.length;
+
+  return interactive(vulns, responses, { earlyExit: true }).then(function (answers) {
+    var tasks = answersToTasks(answers);
+    t.equal(tasks.ignore.length, total, 'should ignore all vulns');
   });
 });
