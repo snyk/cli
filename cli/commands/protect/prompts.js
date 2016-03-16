@@ -521,7 +521,7 @@ function generatePrompt(vulns, policy) {
     var res = {
       when: function (answers) {
         var res = true;
-        // only show this question if the user chose to review the details
+        // only show this question if the user choose to review the details
         // of the vuln
         if (vuln.grouped && !vuln.grouped.main) {
           // find how they answered on the top level question
@@ -530,9 +530,9 @@ function generatePrompt(vulns, policy) {
               // this meta.groupId only appears on a "review" choice, and thus
               // this map will pick out those vulns that are specifically
               // associated with this review group.
-              if (answers[key].meta.groupId === vuln.grouped.requires &&
-                  answers[key].meta.review) {
-                if (answers[key].choice === 'ignore') {
+              if (answers[key].meta.groupId === vuln.grouped.requires) {
+                if (answers[key].choice === 'ignore' &&
+                    answers[key].meta.review) {
                   answers[key].meta.vulnsInGroup.push({
                     id: vuln.id,
                     from: vuln.from,
@@ -687,6 +687,7 @@ function generatePrompt(vulns, policy) {
       };
       choices.push(review);
 
+      ignore.meta.review = true;
       ignore.meta.groupId = group.id;
       ignore.meta.vulnsInGroup = [];
     }

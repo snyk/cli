@@ -48,18 +48,16 @@ function answersToTasks(answers) {
 
     if (task === 'ignore') {
       answer.meta.reason = answers[key + '-reason'];
-      tasks[task].push(answer);
-
       if (answer.meta.vulnsInGroup) {
         // also ignore any in the group
         answer.meta.vulnsInGroup.forEach(function (vuln) {
-          if (vuln.id !== answer.vuln.id) {
-            tasks[task].push({
-              meta: answer.meta,
-              vuln: vuln,
-            });
-          }
+          tasks[task].push({
+            meta: answer.meta,
+            vuln: vuln,
+          });
         });
+      } else {
+        tasks[task].push(answer);
       }
     } else {
       tasks[task].push(vuln);

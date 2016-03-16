@@ -1,0 +1,431 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "methodOverride Middleware Reflected Cross-Site Scripting",
+      "credit": [
+        "Sergio Arcos"
+      ],
+      "description": "## Overview\n\nConnect is a stack of middleware that is executed in order in each request.\n\nThe \"methodOverride\" middleware allows the http post to override the method of the request with the value of the ```_method``` post key or with the header \"x-http-method-override\".\n\nBecause the user post input was not checked, req.method could contain any kind of value. Because the req.method did not match any common method VERB, connect answered with a 404 page containing the \"Cannot [method] [url]\" content. The method was not properly encoded for output in the browser.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/3)_\n\n## Details\n\n**Example**\n\n```\n~ curl \"localhost:3000\" -d \"_method=<script src=http://nodesecurity.io/xss.js></script>\"\nCannot <SCRIPT SRC=HTTP://NODESECURITY.IO/XSS.JS></SCRIPT> /\n```\n\n**Mitigation factors**\n\nUpdate to the newest version of Connect or disable methodOverride. It is not possible to avoid the vulnerability if you have enabled this middleware in the top of your stack.\n\n**History**\n\n- (2013-06-27) [Bug reported](https://github.com/senchalabs/connect/issues/831)\n- (2013-06-27) [First fix: escape req.method output](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\n- (2013-06-27) [Second fix: whitelist](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n\n## References\n- https://nodesecurity.io/advisories/3\n",
+      "semver": {
+        "vulnerable": "<=2.8.0",
+        "unaffected": ">=2.8.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [
+          "CVE-2013-7370"
+        ],
+        "NSP": 3
+      },
+      "patches": [],
+      "moduleName": "connect",
+      "creationTime": "2013-06-30T22:08:59.000Z",
+      "publicationTime": "2013-06-30T22:08:59.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:connect:20130701",
+      "from": [
+        "foo@1.0.0",
+        "express@3.0.6",
+        "connect@2.7.2"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.3.1",
+        "connect@2.8.1"
+      ],
+      "version": "2.7.2",
+      "name": "connect",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/express/node_modules/connect/package.json"
+    },
+    {
+      "title": "Cross-Site Scripting",
+      "credit": [
+        "Paweł Hałdrzyński"
+      ],
+      "description": "## Overview\nVulnerable versions of express do not specify a charset field in the content-type header while displaying 400 level response messages. The lack of enforcing the user's browser to set correct charset could be leveraged by an attacker to perform a cross-site scripting attack, using non-standard encodings like UTF-7.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/8)_\n\n## Recommendations\nUpdate express to a patched version.\n\n## References\n- https://nodesecurity.io/advisories/8\n",
+      "semver": {
+        "vulnerable": "<3.11 || >= 4 <4.5",
+        "unaffected": ">=3.11 <4 || >=4.5"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [
+          "CVE-2014-6393"
+        ],
+        "ALTERNATIVE": [
+          "npm:express:20140912-1"
+        ],
+        "NSP": 8
+      },
+      "patches": [],
+      "moduleName": "express",
+      "creationTime": "2014-09-12T04:46:45.000Z",
+      "publicationTime": "2014-09-12T04:46:45.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:express:20140912",
+      "alternativeIds": [
+        "npm:express:20140912-1"
+      ],
+      "from": [
+        "foo@1.0.0",
+        "express@3.0.6"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.11.0"
+      ],
+      "version": "3.0.6",
+      "name": "express",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/express/package.json"
+    },
+    {
+      "title": "Denial of Service (Memory Exhaustion)",
+      "credit": [
+        "Dustin Shiver"
+      ],
+      "description": "## Overview\nDuring parsing, the qs module may create a sparse area (an array where not elements are filled), and grow that array to the necessary size based on the indices used on it. An attacker can specify a high index value in a query string, thus making the server allocate a respectively big array. Truly large values can cause the server to run out of memory and cause it to crash - thus enabling a Denial-of-Service attack.\n\n## Remediation\nUpgrade qs to version 1.0.0 or greater. In these versions, qs introduced a low limit on the index value, preventing such an attack\n\n## References\n- https://nodesecurity.io/advisories/29\n- https://github.com/visionmedia/node-querystring/issues/104\n\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv2": "5.0 (MEDIUM) (AV:N/AC:L/Au:N/C:N/I:N/A:P)",
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2014-7191"
+        ],
+        "NSP": 29
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806/qs_20140806_0_1_snyk_npm.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-08-06T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:22.000Z",
+      "publicationTime": "2014-08-06T06:10:22.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806",
+      "from": [
+        "foo@1.0.0",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "qs@0.5.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.0",
+        "connect@2.25.0",
+        "qs@1.0.2"
+      ],
+      "version": "0.5.1",
+      "name": "qs",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/express/node_modules/connect/node_modules/qs/package.json"
+    },
+    {
+      "title": "Denial of Service (Event Loop Blocking)",
+      "credit": [
+        "Tom Steele"
+      ],
+      "description": "## Overview\nWhen parsing a string representing a deeply nested object, qs will block the event loop for long periods of time. Such a delay may hold up the server's resources, keeping it from processing other requests in the meantime, thus enabling a Denial-of-Service attack. \n\n## Remediation\nUpdate qs to version 1.0.0 or greater. In these versions, qs enforces a max object depth (along with other limits), limiting the event loop length and thus preventing such an attack.\n\n## References\nhttps://nodesecurity.io/advisories/28\n",
+      "semver": {
+        "vulnerable": "<1.0.0",
+        "unaffected": ">= 1.x"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 28
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+          ],
+          "version": "<1.0.0 >=0.6.5",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
+          ],
+          "version": "=0.5.6",
+          "modificationTime": "2014-11-20T06:10:22.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20140806-1:1"
+        }
+      ],
+      "moduleName": "qs",
+      "creationTime": "2014-08-06T06:10:23.000Z",
+      "publicationTime": "2014-08-06T06:10:23.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:qs:20140806-1",
+      "from": [
+        "foo@1.0.0",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "qs@0.5.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.0",
+        "connect@2.25.0",
+        "qs@1.0.2"
+      ],
+      "version": "0.5.1",
+      "name": "qs",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/express/node_modules/connect/node_modules/qs/package.json"
+    },
+    {
+      "title": "Directory Traversal",
+      "credit": [
+        "Ilya Kantor"
+      ],
+      "description": "## Overview\nWhen relying on the root option to restrict file access it may be possible for an application consumer to escape out of the restricted directory and access files in a similarly named directory. For example, `static(_dirname + '/public')` would allow access to `_dirname + '/public-restricted'`.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/32)_\n\n## Remediation\nUpgrade to a version greater than or equal to 0.8.4.\n\n## References\n- https://nodesecurity.io/advisories/32\n- https://github.com/visionmedia/send/pull/59\n- https://github.com/visionmedia/send/commit/9c6ca9b2c0b880afd3ff91ce0d211213c5fa5f9a\n",
+      "semver": {
+        "vulnerable": "< 0.8.4",
+        "unaffected": ">= 0.8.4"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-23"
+        ],
+        "CVE": [
+          "CVE-2014-6394"
+        ],
+        "NSP": 32
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/send/20140912/send_20140912_0_0_9c6ca9b2c0b880afd3ff91ce0d211213c5fa_snyk.patch"
+          ],
+          "version": "< 0.8.4 >=0.7.3",
+          "modificationTime": "2014-09-12T05:06:33.000Z",
+          "comments": [],
+          "id": "patch:npm:send:20140912:0"
+        }
+      ],
+      "moduleName": "send",
+      "creationTime": "2014-09-12T05:06:33.000Z",
+      "publicationTime": "2014-09-12T05:06:33.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:send:20140912",
+      "from": [
+        "foo@1.0.0",
+        "express@3.0.6",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.16.10",
+        "send@0.8.5"
+      ],
+      "version": "0.1.0",
+      "name": "send",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/express/node_modules/send/package.json"
+    },
+    {
+      "title": "Directory Traversal",
+      "credit": [
+        "Ilya Kantor"
+      ],
+      "description": "## Overview\nWhen relying on the root option to restrict file access it may be possible for an application consumer to escape out of the restricted directory and access files in a similarly named directory. For example, `static(_dirname + '/public')` would allow access to `_dirname + '/public-restricted'`.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/32)_\n\n## Remediation\nUpgrade to a version greater than or equal to 0.8.4.\n\n## References\n- https://nodesecurity.io/advisories/32\n- https://github.com/visionmedia/send/pull/59\n- https://github.com/visionmedia/send/commit/9c6ca9b2c0b880afd3ff91ce0d211213c5fa5f9a\n",
+      "semver": {
+        "vulnerable": "< 0.8.4",
+        "unaffected": ">= 0.8.4"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-23"
+        ],
+        "CVE": [
+          "CVE-2014-6394"
+        ],
+        "NSP": 32
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/send/20140912/send_20140912_0_0_9c6ca9b2c0b880afd3ff91ce0d211213c5fa_snyk.patch"
+          ],
+          "version": "< 0.8.4 >=0.7.3",
+          "modificationTime": "2014-09-12T05:06:33.000Z",
+          "comments": [],
+          "id": "patch:npm:send:20140912:0"
+        }
+      ],
+      "moduleName": "send",
+      "creationTime": "2014-09-12T05:06:33.000Z",
+      "publicationTime": "2014-09-12T05:06:33.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:send:20140912",
+      "from": [
+        "foo@1.0.0",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.0.0"
+      ],
+      "version": "0.1.0",
+      "name": "send",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/express/node_modules/send/package.json"
+    },
+    {
+      "title": "Root Path Disclosure",
+      "credit": [
+        "Dinis Cruz"
+      ],
+      "creationTime": "2015-11-06T02:09:36.183Z",
+      "modificationTime": "2015-11-06T02:09:36.183Z",
+      "publicationTime": "2015-11-03T07:12:20.676Z",
+      "description": "## Overview\n[Send](https://www.npmjs.com/package/send) is a library for streaming files from the file system as an http response. It supports partial responses (Ranges), conditional-GET negotiation, high test coverage, and granular events which may be leveraged to take appropriate actions in your application or framework.\n\nA root path disclosure vulnerability exists in `send` versions prior to 0.11.1.\n\n## Remediation\nUpgrade `send` to version 0.11.1. or greater. \n\nIf a direct dependency update is not possible, use [snyk wizard](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/56\n- https://github.com/pillarjs/send/pull/70\n- https://github.com/pillarjs/send/commit/98a5b89982b38e79db684177cf94730ce7fc7aed\n- https://github.com/expressjs/serve-static/blob/master/HISTORY.md#181--2015-01-20\n- http://expressjs.com/advanced/security-updates.html\n",
+      "semver": {
+        "vulnerable": "<0.11.1",
+        "unaffected": ">=0.11.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 56
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/send/20151103/send_20151103_0_1_98a5b89982b38e79db684177cf94730ce7fc7aed.patch"
+          ],
+          "version": "<0.11.1 >=0.9.0",
+          "modificationTime": "2015-11-03T07:12:20.676Z",
+          "comments": [
+            "https://github.com/pillarjs/send/commit/98a5b89982b38e79db684177cf94730ce7fc7aed",
+            "https://github.com/dxa4481/send/commit/6adc607a908fb95892e39ca366222d8e2951a4a4"
+          ],
+          "id": "patch:npm:send:20151103:0"
+        }
+      ],
+      "moduleName": "send",
+      "id": "npm:send:20151103",
+      "from": [
+        "foo@1.0.0",
+        "express@3.0.6",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@3.19.1",
+        "send@0.11.1"
+      ],
+      "version": "0.1.0",
+      "name": "send",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/express/node_modules/send/package.json"
+    },
+    {
+      "title": "Root Path Disclosure",
+      "credit": [
+        "Dinis Cruz"
+      ],
+      "creationTime": "2015-11-06T02:09:36.183Z",
+      "modificationTime": "2015-11-06T02:09:36.183Z",
+      "publicationTime": "2015-11-03T07:12:20.676Z",
+      "description": "## Overview\n[Send](https://www.npmjs.com/package/send) is a library for streaming files from the file system as an http response. It supports partial responses (Ranges), conditional-GET negotiation, high test coverage, and granular events which may be leveraged to take appropriate actions in your application or framework.\n\nA root path disclosure vulnerability exists in `send` versions prior to 0.11.1.\n\n## Remediation\nUpgrade `send` to version 0.11.1. or greater. \n\nIf a direct dependency update is not possible, use [snyk wizard](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://nodesecurity.io/advisories/56\n- https://github.com/pillarjs/send/pull/70\n- https://github.com/pillarjs/send/commit/98a5b89982b38e79db684177cf94730ce7fc7aed\n- https://github.com/expressjs/serve-static/blob/master/HISTORY.md#181--2015-01-20\n- http://expressjs.com/advanced/security-updates.html\n",
+      "semver": {
+        "vulnerable": "<0.11.1",
+        "unaffected": ">=0.11.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "NSP": 56
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/send/20151103/send_20151103_0_1_98a5b89982b38e79db684177cf94730ce7fc7aed.patch"
+          ],
+          "version": "<0.11.1 >=0.9.0",
+          "modificationTime": "2015-11-03T07:12:20.676Z",
+          "comments": [
+            "https://github.com/pillarjs/send/commit/98a5b89982b38e79db684177cf94730ce7fc7aed",
+            "https://github.com/dxa4481/send/commit/6adc607a908fb95892e39ca366222d8e2951a4a4"
+          ],
+          "id": "patch:npm:send:20151103:0"
+        }
+      ],
+      "moduleName": "send",
+      "id": "npm:send:20151103",
+      "from": [
+        "foo@1.0.0",
+        "express@3.0.6",
+        "connect@2.7.2",
+        "send@0.1.0"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.0.0"
+      ],
+      "version": "0.1.0",
+      "name": "send",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/foo/node_modules/express/node_modules/send/package.json"
+    }
+  ],
+  "dependencyCount": 18
+}
