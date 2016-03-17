@@ -503,7 +503,7 @@ function generatePrompt(vulns, policy) {
       messageIntro = fmt('%s vulnerabilities introduced %s %s', group.count,joiningText, group.affected.full);
     } else {
       infoLink += '/vuln/' + vuln.id;
-      messageIntro = fmt('%s severity vulnerability found in %s, introduced via ', severity, vulnIn, from);
+      messageIntro = fmt('%s severity vulnerability found in %s, introduced via', severity, vulnIn, from);
       messageIntro += '\n- desc: ' + vuln.title;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
           '- from: ' + vuln.from.slice(1).join(' > ') : '');
