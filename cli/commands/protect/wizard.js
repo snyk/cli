@@ -83,16 +83,19 @@ function wizard(options) {
 
           if (!res.ok) {
             var vulns = res.vulnerabilities;
+            var paths = vulns.length === 1 ? 'path' : 'paths';
             // echo out the deps + vulns found
             console.log('Tested %s dependencies for known vulnerabilities, %s',
               res.dependencyCount,
-              chalk.bold.red('found ' + vulns.length + ' vulnerabilities.'));
+              chalk.bold.red('found ' +
+                vulns.length +
+                ' vulnerable ' +
+                paths + '.'));
           } else {
             console.log(chalk.green('✓ Tested %s dependencies for known ' +
-              'vulnerabilities, no vulnerabilities found.'),
+              'vulnerabilities, no vulnerable paths found.'),
               res.dependencyCount);
           }
-
 
           return tryRequire(packageFile).then(function (pkg) {
               return interactive(res, pkg, policy).then(function (answers) {

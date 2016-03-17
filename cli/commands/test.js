@@ -48,14 +48,15 @@ function test(path, options) {
     return Promise.all(promises).then(function (res) {
       res = res.join('');
       var projects = testedProjects === 1 ? ' project' : ' projects';
+      var paths = shouldThrow === 1 ? 'path' : 'paths';
 
       if (shouldThrow > 0) {
         res += chalk.bold.red('\n\nTested ' + testedProjects + projects +
-          ', ' + shouldThrow + ' contained vulnerabilities.');
+          ', ' + shouldThrow + ' contained vulnerable ' + paths + '.');
         throw new Error(res);
       } else {
         res += chalk.green('\n\nTested ' + testedProjects + projects +
-          ', no vulnerabilities were found.');
+          ', no vulnerable paths were found.');
       }
 
       return res;
@@ -95,7 +96,7 @@ function test(path, options) {
     summary += ' for known vulnerabilities';
 
     if (res.ok) {
-      summary = chalk.green('✓ ' + summary + ', no vulnerabilities found.');
+      summary = chalk.green('✓ ' + summary + ', no vulnerable paths found.');
 
       summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified about' +
         ' new related vulnerabilities.\n- Run `snyk test` as part of your ' +
@@ -106,9 +107,9 @@ function test(path, options) {
     var vulnLength = res.vulnerabilities.length;
     summary = summary + ', ' + chalk.red.bold('found ' + vulnLength);
     if (res.vulnerabilities.length === 1) {
-      summary += chalk.red.bold(' vulnerability.');
+      summary += chalk.red.bold(' vulnerable path.');
     } else {
-      summary += chalk.red.bold(' vulnerabilities.');
+      summary += chalk.red.bold(' vulnerable paths.');
     }
 
     summary += '\n\nRun `snyk wizard` to address these issues.';
