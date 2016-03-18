@@ -2,6 +2,7 @@
   "name": "snyk",
   "description": "snyk library and cli utility",
   "main": "lib/index.js",
+"version": "1.12.1-alpha.1",
   "directories": {
     "test": "test"
   },
