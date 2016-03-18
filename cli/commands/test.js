@@ -105,13 +105,21 @@ function test(path, options) {
     }
 
     var vulnLength = res.vulnerabilities.length;
-    summary = summary + ', ' + chalk.red.bold('found ' + vulnLength);
-    if (res.vulnerabilities.length === 1) {
-      summary += chalk.red.bold(' vulnerable path.');
+    var count = 'found ' + res.uniqueCount;
+    if (res.uniqueCount === 1) {
+      count += ' vulnerability, ';
     } else {
-      summary += chalk.red.bold(' vulnerable paths.');
+      count += ' vulnerabilities, ';
+    }
+    count += vulnLength + ' vulnerable ';
+
+    if (res.vulnerabilities.length === 1) {
+      count += 'path.';
+    } else {
+      count += 'paths.';
     }
 
+    summary = summary + ', ' + chalk.red.bold(count);
     summary += '\n\nRun `snyk wizard` to address these issues.';
 
     var sep = '\n\n';

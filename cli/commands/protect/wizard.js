@@ -84,11 +84,14 @@ function wizard(options) {
           if (!res.ok) {
             var vulns = res.vulnerabilities;
             var paths = vulns.length === 1 ? 'path' : 'paths';
+            var ies = vulns.length === 1 ? 'y' : 'ies';
             // echo out the deps + vulns found
             console.log('Tested %s dependencies for known vulnerabilities, %s',
               res.dependencyCount,
               chalk.bold.red('found ' +
-                vulns.length +
+                res.uniqueCount +
+                ' vulnerabilit' + ies +
+                ', ' + vulns.length +
                 ' vulnerable ' +
                 paths + '.'));
           } else {
