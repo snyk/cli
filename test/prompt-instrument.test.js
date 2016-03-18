@@ -2,8 +2,6 @@ var test = require('tap-only');
 var tryRequire = require('snyk-try-require');
 var interactive = require('./wizard-instrumented');
 var answersToTasks = require('../cli/commands/protect/tasks');
-var generatePolicy = require('../lib/protect').generatePolicy;
-var snykPolicy = require('snyk-policy');
 
 test('wizard prompts as expected', function (t) {
   t.plan(2);
