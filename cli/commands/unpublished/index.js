@@ -23,7 +23,7 @@ module.exports = function (cwd) {
   spinner.sticky();
 
   return spinner(lbl).then(function () {
-    return resolve(cwd, { disk: true }).then(function (res) {
+    return resolve(cwd, { dev: true, disk: true }).then(function (res) {
       prune(res, function (p) {
         // console.log(p.name, packages.indexOf(p.name) === -1);
         return packages.indexOf(p.name) === -1;
