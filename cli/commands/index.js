@@ -18,6 +18,8 @@ var commands = {
   wizard: hotload('./protect/wizard'),
   modules: hotload('./modules'),
   scenario: hotload('./scenario'),
+  'test-unpublished': hotload('./unpublished'),
 };
 commands.aliases = abbrev(Object.keys(commands));
+commands.aliases.t = 'test';
 module.exports = commands;

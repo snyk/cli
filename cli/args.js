@@ -4,6 +4,7 @@ var abbrev = require('abbrev');
 var alias = abbrev('copy', 'version', 'debug', 'help', 'quiet', 'interactive',
   'dev');
 alias.d = 'debug'; // always make `-d` debug
+alias.t = 'test';
 
 function args(processargv) {
   // allows us to support flags with true or false only
