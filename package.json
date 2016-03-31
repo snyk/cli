@@ -28,7 +28,7 @@
     "debug": "^2.2.0",
     "es6-promise": "^3.0.2",
     "inquirer": "^0.11.0",
-    "lodash": "^3.10.1",
+    "lodash": "4.6.1",
     "node-uuid": "^1.4.3",
     "open": "^0.0.5",
     "os-name": "^1.0.3",
