@@ -2,12 +2,12 @@
 
 Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm packages, both ad hoc and as part of your CI (Build) system.
 
-If you're just getting started with Snyk, <a href="https://snyk.io/docs/quick-start/" title="Quick start guide">follow this step-by-step guide</a> to get set up.
-<a href="https://snyk.io/docs/using-snyk/" title="Using Snyk">Check our full documentation</a> for details on how to make the most of Snyk.
+* Get started with our __<a href="https://snyk.io/docs/quick-start/" title="Quick start guide">step-by-step guide.</a>__
+* <a href="https://snyk.io/docs/using-snyk/" title="Using Snyk">__Check our full documentation on snyk.io__</a> for details.
 
 Note: Snyk is currently in beta. [Email us your feedback](mailto:support@snyk.io).
 
-## CLI commands overview
+## CLI
 
 ```console
 snyk [options] [command] [package]
@@ -15,40 +15,7 @@ snyk [options] [command] [package]
 
 The package argument is optional. If no package is given, Snyk will run the command against the current working directory allowing you test you non-public applications.
 
-### Commands
-
-```console
-auth ............... sign into snyk (required).
-test ............... test for any known vulnerabilities.
-wizard ............. configure your policy file to update, auto patch and ignore vulnerabilities.
-protect ............ protect your code from vulnerabilities and optionally suppress specific vulnerabilities.
-monitor ............ record the state of dependencies and any vulnerabilities on snyk.io.
-policy ............. display the Snyk policy for a package.
-support ............ file an issue or request support.
-```
-
-### Options
-
-```console
---dev .............. include devDependencies (defaults to production only)
---ignore-policy .... ignores and resets the state of your policy file
---dry-run .......... don't apply updates or patches during protect.
--q, --quiet ........ silence all output.
--h, --help ......... this help information.
--v, --version ...... the CLI version.
-```
-
-### Examples
-
-```console
-snyk test
-snyk test ionic@1.6.5
-```
-
-<div class="alert alert--inline">
-  <p>Use `snyk test` in your test scripts. If a vulnerability is found, the process will exit with a non-zero exit code.</p>
-</div>
-
+Run `snyk --help` to get a quick overview of all commands.
 
 ## Integrating Snyk into your dev workflow
 
@@ -70,8 +37,6 @@ If there are no vulnerabilities, this is indicated by a green badge.
 If vulnerabilities have been found, the red badge will show the number of vulnerabilities. 
 
 [![Known Vulnerabilities](https://snyk.io/package/npm/jsbin/badge.svg)](https://snyk.io/package/npm/jsbin)
-
-_Note:_ The badge works off the npm package, and does not factor in .snyk files yet. (This means that ignored vulnerabilities will not be taken into account). 
 
 Get the badge by copying the relevant snippet below and replacing "name" with the name of your package.
 
