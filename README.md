@@ -3,7 +3,7 @@
 Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm packages, both ad hoc and as part of your CI (Build) system.
 
 * Get started with our __<a href="https://snyk.io/docs/quick-start/" title="Quick start guide">step-by-step guide.</a>__
-* <a href="https://snyk.io/docs/using-snyk/" title="Using Snyk">__Check our full documentation on snyk.io__</a> for details. 
+* <a href="https://snyk.io/docs/using-snyk/" title="Using Snyk">__Check our full documentation on snyk.io__</a> for details.
 
 Note: Snyk is currently in beta. [Email us your feedback](mailto:support@snyk.io).
 
@@ -15,16 +15,16 @@ snyk [options] [command] [package]
 
 The package argument is optional. If no package is given, Snyk will run the command against the current working directory allowing you test you non-public applications.
 
-Run `snyk --help` to get a quick overview of all commands. 
+Run `snyk --help` to get a quick overview of all commands.
 
 ## Integrating Snyk into your dev workflow
 
-To continuously avoid known vulnerabilities in your dependencies, integrate Snyk into your continuous integration (a.k.a. build) system. Here are the steps required to to so:
+To continuously avoid known vulnerabilities in your dependencies, integrate Snyk into your continuous integration (CI, a.k.a. build) system. Here are the steps required to to so:
 
-1. Add `snyk` to your project's dependencies (`npm install -S snyk`), and commit the modified `package.json` file.
-2. Ensure the `.snyk` file you generated was added to your source control (`git add .snyk`).
-3. After the `npm install` steps in your CI, run [`snyk protect`](#protect) to apply any necessary patches.
-4. Run [`snyk test`](#test) to identify on any known vulnerabilities not already ignored or patched. If such vulnerabilities were found, [`snyk test`](#test) will return a non-zero value to fail the test.
+1. Install the Snyk utility using `npm install -g snyk`.
+2. Run `snyk wizard` in the directory of your project following the prompts which will also generate a `.snyk` policy file.
+3. Ensure the `.snyk` file you generated was added to your source control (`git add .snyk`).
+4. If you selected to, Snyk will include `snyk test` as part of your `npm test` command, so if there are new vulnerabilities in the future, your CI will fail protecting you from introducing vulnerabilities to production.
 
 ## Badge
 
@@ -34,7 +34,7 @@ If there are no vulnerabilities, this is indicated by a green badge.
 
 [![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name)
 
-If vulnerabilities have been found, the red badge will show the number of vulnerabilities. 
+If vulnerabilities have been found, the red badge will show the number of vulnerabilities.
 
 [![Known Vulnerabilities](https://snyk.io/package/npm/jsbin/badge.svg)](https://snyk.io/package/npm/jsbin)
 
