@@ -25,6 +25,7 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
   var spinner = require('../lib/spinner');
   spinner.clearAll();
   var analytics = require('../lib/analytics');
+  analytics.add('error-message', error.message);
   analytics.add('error', error.stack);
   analytics.add('error-code', error.code);
   analytics.add('command', args.command);
