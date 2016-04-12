@@ -12,7 +12,12 @@ test('bad patch file does not apply', function (t) {
   var semver = fs.readFileSync(dir + '/semver.js', 'utf8');
   t.ok('original semver loaded');
 
-  applyPatch(root + '/363ce409-2d19-46da-878a-e059df2d39bb.snyk-patch', dir, true).then(function () {
+  applyPatch(root + '/363ce409-2d19-46da-878a-e059df2d39bb.snyk-patch', {
+    source: dir,
+    name: 'semver',
+    version: '4.3.1',
+    id: 'npm:semver:20150403',
+  }, true).then(function () {
     t.fail('patch successfully applied');
     fs.writeFileSync(dir + '/semver.js', semver);
   }).catch(function (error) {
