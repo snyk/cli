@@ -26,9 +26,10 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
   spinner.clearAll();
   var analytics = require('../lib/analytics');
   analytics.add('error', error.stack);
+  analytics.add('error-code', error.code);
   analytics.add('command', args.command);
   var res = analytics({
-    command: 'cli-bad-command',
+    command: 'bad-command',
     args: args.options._,
   });
 
@@ -37,11 +38,18 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
   } else {
     var errors = require('../lib/error');
     if (!args.options.quiet) {
+
       var result = errors.message(error);
       if (args.options.copy) {
         copy(result);
         console.log('Result copied to clipboard');
       } else {
+        if ((error.code + '').indexOf('AUTH_') === 0) {
+          var ansiEscapes = require('ansi-escapes');
+          // remove the last few lines
+          var erase = ansiEscapes.eraseLines(4);
+          process.stdout.write(erase);
+        }
         console.log(result);
       }
     }
