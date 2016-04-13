@@ -14,3 +14,17 @@ test('api key', function (t) {
   }
   t.end();
 });
+
+test('api key via env value', function (t) {
+  var fromConfig = snyk.config.get('api');
+  t.equal(fromConfig, snyk.api, 'current api value matches config store');
+  var value = '_____test_____';
+  snyk.config.set('api', value);
+  t.equal(value, snyk.api, 'dynamically set value is correct');
+  if (fromConfig !== undefined) {
+    snyk.config.set('api', fromConfig);
+  } else {
+    snyk.config.del('api');
+  }
+  t.end();
+});
