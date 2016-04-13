@@ -11,9 +11,13 @@ var request = require('../../lib/request');
 var url = require('url');
 var uuid = require('node-uuid');
 var spinner = require('../../lib/spinner');
-
 var apiUrl = url.parse(config.API);
 var authUrl = apiUrl.protocol + '//' + apiUrl.host;
+var attemptsLeft = 0;
+
+function resetAttempts() {
+  attemptsLeft = 30;
+}
 
 function githubAuth() {
   var token = uuid.v4(); // generate a random key
@@ -30,7 +34,9 @@ function githubAuth() {
   if (!isCI) {
     console.log(msg);
   } else {
-    return Promise.reject(new Error('noAuthInCI'));
+    var error = new Error('noAuthInCI');
+    error.code = 'AUTH_IN_CI';
+    return Promise.reject(error);
   }
 
   var lbl = 'Waiting...';
@@ -80,7 +86,15 @@ function testAuthComplete(token) {
 
       // we need to wait and poll again in a moment
       setTimeout(function () {
-        resolve(testAuthComplete(token));
+        attemptsLeft--;
+        if (attemptsLeft > 0) {
+          return resolve(testAuthComplete(token));
+        }
+
+        var error = new Error('Sorry, but your authentication token has now' +
+          ' expired.\nPlease try to authenticate again.');
+        error.code = 'AUTH_TIMEOUT';
+        reject(error);
       }, 1000);
     });
   });
@@ -119,6 +133,7 @@ function verifyAPI(api) {
 
 function auth(api) {
   var promise;
+  resetAttempts();
   if (api) {
     // user is manually setting the API key on the CLI - let's trust them
     promise = verifyAPI(api);

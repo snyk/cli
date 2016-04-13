@@ -61,7 +61,7 @@ test('bad command', function (t) {
     t.equal(spy.callCount, 1, 'analytics was called');
 
     var payload = spy.args[0][0].body;
-    t.equal(payload.data.command, 'cli-bad-command', 'correct event name');
+    t.equal(payload.data.command, 'bad-command', 'correct event name');
     t.equal(payload.data.metadata.command, 'random command', 'found original command');
 
     if (old === undefined) {
