@@ -4,6 +4,7 @@ var snyk = require('../../');
 var chalk = require('chalk');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
+var isCI = require('../../lib/is-ci');
 
 function test(path, options) {
   var args = [].slice.call(arguments, 0);
@@ -93,9 +94,11 @@ function test(path, options) {
     if (res.ok) {
       summary = chalk.green('✓ ' + summary + ', no vulnerable paths found.');
 
-      summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified about' +
-        ' new related vulnerabilities.\n- Run `snyk test` as part of your ' +
-        'CI/test.';
+      if (!isCI) {
+        summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified ' +
+          'about new related vulnerabilities.\n- Run `snyk test` as part of ' +
+          'your CI/test.';
+      }
       return summary;
     }
 
