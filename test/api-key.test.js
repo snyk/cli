@@ -1,7 +1,7 @@
 var test = require('tape');
 var snyk = require('../lib');
 
-test('api key', function (t) {
+test('api token', function (t) {
   var fromConfig = snyk.config.get('api');
   t.equal(fromConfig, snyk.api, 'current api value matches config store');
   var value = '_____test_____';
@@ -15,7 +15,7 @@ test('api key', function (t) {
   t.end();
 });
 
-test('api key via env value', function (t) {
+test('api token via env value', function (t) {
   var fromConfig = snyk.config.get('api');
   t.equal(fromConfig, snyk.api, 'current api value matches config store');
   var value = '_____test_____';
