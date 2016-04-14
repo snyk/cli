@@ -1,7 +1,7 @@
 module.exports = monitor;
 
 var fs = require('then-fs');
-var requireKey = require('../../lib/api-key').required;
+var apiTokenExists = require('../../lib/api-token').exists;
 var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var url = require('url');
@@ -15,7 +15,7 @@ function monitor(path, options) {
     options = {};
   }
 
-  return requireKey('snyk monitor').then(function () {
+  return apiTokenExists('snyk monitor').then(function () {
     return fs.exists(path);
   }).then(function (exists) {
     if (!exists) {

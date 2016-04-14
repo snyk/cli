@@ -39,7 +39,7 @@ test('setup', function (t) {
 
 test('prime config', function (t) {
   cli.config('set', 'api=' + apiKey).then(function () {
-    t.pass('api key set');
+    t.pass('api token set');
   }).then(function () {
     return cli.config('unset', 'endpoint').then(function () {
       t.pass('endpoint removed');

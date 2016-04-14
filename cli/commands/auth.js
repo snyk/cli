@@ -101,8 +101,8 @@ function testAuthComplete(token) {
 }
 
 function isAuthed() {
-  var apiKey = snyk.config.get('api');
-  return verifyAPI(apiKey).then(function (res) {
+  var token = snyk.config.get('api');
+  return verifyAPI(token).then(function (res) {
     return res.body.ok;
   });
 }
@@ -135,7 +135,7 @@ function auth(api) {
   var promise;
   resetAttempts();
   if (api) {
-    // user is manually setting the API key on the CLI - let's trust them
+    // user is manually setting the API token on the CLI - let's trust them
     promise = verifyAPI(api);
   } else {
     promise = githubAuth();
