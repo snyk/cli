@@ -213,6 +213,11 @@ function processAnswers(answers, policy, options) {
     }
 
     return snyk.policy.save(policy, cwd, spinner).then(function () {
+      // don't do this during testing
+      if (isCI || process.env.TAP) {
+        return Promise.resolve();
+      }
+
       return new Promise(function (resolve) {
         exec('git add .snyk', {
           cwd: cwd,
