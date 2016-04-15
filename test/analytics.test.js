@@ -80,7 +80,7 @@ test('test includes data', function (t) {
     './args': proxyquire('../cli/args', {
       './commands': proxyquire('../cli/commands', {
         '../../lib/hotload': proxyquire('../lib/hotload', {
-          '/Users/remy/Sites/snyk/cli/commands/test': proxyquire('../lib/test', {
+          '../cli/commands/test': proxyquire('../lib/test', {
             './analytics': analytics,
           })
         })
