@@ -11,7 +11,7 @@
   "scripts": {
     "cover": "tap test/*.test.js --cov --coverage-report=lcov",
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
-    "test": "npm run check-tests && npm run lint && tap test/*.test.js --timeout=60 && node cli/index.js test > /dev/null",
+    "test": "npm run check-tests && npm run lint && tap test/*.test.js --timeout=60 && node cli/index.js test -q",
     "check-tests": "! grep 'test.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
@@ -47,8 +47,7 @@
     "then-fs": "^2.0.0",
     "undefsafe": "0.0.3",
     "update-notifier": "^0.5.0",
-    "url": "^0.11.0",
-    "validator": "^4.0.5"
+    "url": "^0.11.0"
   },
   "devDependencies": {
     "jscs": "^2.0.0",
@@ -56,7 +55,7 @@
     "restify": "^4.0.4",
     "semantic-release": "^4.3.5",
     "sinon": "^1.17.2",
-    "tap": "^5.4.1",
+    "tap": "^5.7.1",
     "tap-only": "0.0.5",
     "tape": "^4.0.0"
   },

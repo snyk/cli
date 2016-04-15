@@ -14,7 +14,6 @@ var commands = {
   test: hotload('./test'),
   policy: hotload('./policy'),
   protect: hotload('./protect'),
-  support: hotload('./support'),
   wizard: hotload('./protect/wizard'),
   modules: hotload('./modules'),
   scenario: hotload('./scenario'),

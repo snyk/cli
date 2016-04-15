@@ -14,6 +14,7 @@ var tryRequire = require('snyk-try-require');
 var chalk = require('chalk');
 var url = require('url');
 var _ = require('lodash');
+var exec = require('child_process').exec;
 var undefsafe = require('undefsafe');
 var auth = require('../auth');
 var getVersion = require('../version');
@@ -211,7 +212,29 @@ function processAnswers(answers, policy, options) {
       throw e;
     }
 
-    return snyk.policy.save(policy, cwd, spinner);
+    return snyk.policy.save(policy, cwd, spinner).then(function () {
+      // don't do this during testing
+      if (isCI || process.env.TAP) {
+        return Promise.resolve();
+      }
+
+      return new Promise(function (resolve) {
+        exec('git add .snyk', {
+          cwd: cwd,
+        }, function (error, stdout, stderr) {
+          if (error) {
+            debug('error adding .snyk to git', error);
+          }
+
+          if (stderr) {
+            debug('stderr adding .snyk to git', stderr.trim());
+          }
+
+          // resolve either way
+          resolve();
+        });
+      });
+    });
   })
   .then(function () {
     // re-read the package.json - because the generatePolicy can apply
