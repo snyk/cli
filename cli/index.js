@@ -25,12 +25,20 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
   var spinner = require('../lib/spinner');
   spinner.clearAll();
   var analytics = require('../lib/analytics');
-  analytics.add('error-message', error.message);
-  analytics.add('error', error.stack);
-  analytics.add('error-code', error.code);
-  analytics.add('command', args.command);
+  var command = 'bad-command';
+
+  if (error.code === 'VULNS') {
+    // this isn't a bad command, so we won't record it as such
+    command = args.command;
+  } else {
+    analytics.add('error-message', error.message);
+    analytics.add('error', error.stack);
+    analytics.add('error-code', error.code);
+    analytics.add('command', args.command);
+  }
+
   var res = analytics({
-    command: 'bad-command',
+    command: command,
     args: args.options._,
   });
 
