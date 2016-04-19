@@ -171,12 +171,12 @@ function getPatchPrompts(vulns, policy) {
     if (curr.patches && curr.patches.length) {
       // TODO allow for cross over patches on modules (i.e. patch can work
       // on A-1 and A-2)
-      var last = curr.id; //curr.from.slice(-1).pop();
+      var last = curr.id;
 
       if (acc[curr.id]) {
         last = curr.id;
       } else {
-        // try to find the right vuln id based on the
+        // try to find the right vuln id based on the publication times
         last = (all.filter(function (vuln) {
           var patch = vuln.patches[0];
 
@@ -197,7 +197,7 @@ function getPatchPrompts(vulns, policy) {
             // finally make sure the publicationTime is newer than the curr
             // vulnerability
             if (curr.publicationTime < vuln.publicationTime) {
-              debug('found alternative location for %s@%s (%s by %s) in vuln %s',
+              debug('found alternative location for %s@%s (%s by %s) in %s',
                 curr.name, curr.version, patch.version, curr.id, vuln.id);
               return true;
             }
@@ -500,10 +500,12 @@ function generatePrompt(vulns, policy) {
       infoLink += '/package/npm/' + group.affected.name + '/' +
         group.affected.version;
       var joiningText = group.patch ? 'in' : 'via';
-      messageIntro = fmt('%s vulnerabilities introduced %s %s', group.count,joiningText, group.affected.full);
+      messageIntro = fmt('%s vulnerabilities introduced %s %s',
+        group.count,joiningText, group.affected.full);
     } else {
       infoLink += '/vuln/' + vuln.id;
-      messageIntro = fmt('%s severity vulnerability found in %s, introduced via', severity, vulnIn, from);
+      messageIntro = fmt('%s severity vuln found in %s, introduced via',
+        severity, vulnIn, from);
       messageIntro += '\n- desc: ' + vuln.title;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
           '- from: ' + vuln.from.slice(1).join(' > ') : '');
@@ -562,7 +564,8 @@ function generatePrompt(vulns, policy) {
 
           if (!res) {
             // echo out what would be upgraded
-            var via = 'Fixed through previous upgrade instruction to ' + updatedTo.vuln.upgradePath[1];
+            var via = 'Fixed through previous upgrade instruction to ' +
+              updatedTo.vuln.upgradePath[1];
             console.log(['', messageIntro, infoLink, via].join('\n'));
           }
         }
@@ -578,7 +581,7 @@ function generatePrompt(vulns, policy) {
       name: id,
       type: 'list',
       message: [messageIntro, infoLink, fromText, note, '  Remediation options']
-        .filter(Boolean).join('\n')
+        .filter(Boolean).join('\n'),
     };
 
     var upgradeAvailable = canBeUpgraded(vuln);
@@ -675,7 +678,8 @@ function generatePrompt(vulns, policy) {
           value: 'skip',
           key: 'p',
           short: 'Patch (none available)',
-          name: 'Patch (no patch available, we\'ll notify you when there is one)',
+          name: 'Patch (no patch available, we\'ll notify you when ' +
+            'there is one)',
         });
       }
     }
