@@ -9,10 +9,9 @@
     "snyk": "./cli/index.js"
   },
   "scripts": {
-    "cover": "npm run tap -- --cov --coverage-report=lcov",
+    "cover": "tap test/*.test.js --cov --coverage-report=lcov",
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
-    "tap": "babel-node node_modules/.bin/tap",
-    "test": "npm run check-tests && npm run lint && npm run tap --  test/*.test.js --timeout=60 && node cli/index.js test -q",
+    "test": "npm run check-tests && npm run lint && tap test/*.test.js --timeout=60 && node cli/index.js test -q",
     "check-tests": "! grep 'test.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },

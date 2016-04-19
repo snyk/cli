@@ -2,45 +2,6 @@
   "ok": false,
   "vulnerabilities": [
     {
-      "title": "SQL Injection in order/limit",
-      "credit": [
-        "Spencer Creasey"
-      ],
-      "description": "## Overview\n`sequelize` versions prior to 3.17.0 are vulnerable to SQL Injection attacks if untrusted user input is passed into the `order` or `limit` parameters.\n\n## Example\n```javascript\nmodels.User.findAll({\n  limit: '1; DELETE FROM \"Users\" WHERE 1=1; --',\n}).then(function (users) {\n  console.log(users);\n});\n```\n\n## Remediation\nUpdate to version 3.17.0 or greater.\n\n## References\n- https://github.com/sequelize/sequelize/pull/5167\n- https://github.com/sequelize/sequelize/blob/master/changelog.md#3170\n- https://github.com/sequelize/sequelize/commit/d198d78182cbf1ea3ef1706740b35813a6aa0838\n",
-      "semver": {
-        "vulnerable": "<=3.16.0 >=0.2.2",
-        "unaffected": "<0.2.2 || >3.16.0"
-      },
-      "CVSSv2": "",
-      "CVSSv3": "",
-      "severity": "high",
-      "identifiers": {
-        "CWE": [
-          "CWE-89"
-        ],
-        "CVE": []
-      },
-      "patches": [],
-      "moduleName": "sequelize",
-      "creationTime": "2016-04-01T00:00:00.000Z",
-      "publicationTime": "2015-01-06T00:00:00.000Z",
-      "modificationTime": "2016-04-01T00:00:00.000Z",
-      "id": "npm:sequelize:20160106",
-      "from": [
-        "sequelize_vulns_test@1.0.0",
-        "sequelize@3.16.0"
-      ],
-      "upgradePath": [
-        false,
-        "sequelize@3.17.0"
-      ],
-      "version": "3.16.0",
-      "name": "sequelize",
-      "isUpgradable": true,
-      "isPatchable": false,
-      "__filename": "/Users/remy/Sites/snyk-tests/SC-1076/node_modules/sequelize/package.json"
-    },
-    {
       "title": "Remote Memory Exposure",
       "credit": [
         ""
@@ -59,7 +20,26 @@
         ],
         "CVE": []
       },
-      "patches": [],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160115/sequelize_20160115_0_0_b85f78a318e6f7112a3374498171a3e148cdc4da.patch"
+          ],
+          "version": "<3.17.2 >3.16.0",
+          "modificationTime": "2016-04-13T10:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:sequelize:20160115:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160115/sequelize_20160115_0_0_b85f78a318e6f7112a3374498171a3e148cdc4da_w_20160106.patch"
+          ],
+          "version": "<=3.16.0 >3.13.0",
+          "modificationTime": "2016-04-17T10:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:sequelize:20160115:1"
+        }
+      ],
       "moduleName": "sequelize",
       "creationTime": "2016-04-01T02:09:36.180Z",
       "publicationTime": "2016-01-15T00:00:00.000Z",
@@ -76,7 +56,7 @@
       "version": "3.16.0",
       "name": "sequelize",
       "isUpgradable": true,
-      "isPatchable": false,
+      "isPatchable": true,
       "__filename": "/Users/remy/Sites/snyk-tests/SC-1076/node_modules/sequelize/package.json"
     },
     {
@@ -98,7 +78,50 @@
         ],
         "CVE": []
       },
-      "patches": [],
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71.patch"
+          ],
+          "version": "<=3.19.3 >=3.17.2",
+          "modificationTime": "2016-04-12T10:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:sequelize:20160329:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115.patch"
+          ],
+          "version": "<3.17.2 >3.16.0",
+          "modificationTime": "2016-04-13T10:00:00.000Z",
+          "comments": [
+            "also carries a fix for npm:sequelize:20160115"
+          ],
+          "id": "patch:npm:sequelize:20160329:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115_w_20160106.patch"
+          ],
+          "version": "<=3.16.0 >3.15.1",
+          "modificationTime": "2016-04-13T10:00:00.000Z",
+          "comments": [
+            "also carries a fix for npm:sequelize:20160115"
+          ],
+          "id": "patch:npm:sequelize:20160329:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_1_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115_w_20160106.patch"
+          ],
+          "version": "<=3.15.1 >3.13.0",
+          "modificationTime": "2016-04-13T10:00:00.000Z",
+          "comments": [
+            "also carries a fix for npm:sequelize:20160115"
+          ],
+          "id": "patch:npm:sequelize:20160329:2"
+        }
+      ],
       "moduleName": "sequelize",
       "creationTime": "2016-04-01T00:00:00.000Z",
       "publicationTime": "2016-03-29T00:00:00.000Z",
@@ -115,10 +138,10 @@
       "version": "3.16.0",
       "name": "sequelize",
       "isUpgradable": true,
-      "isPatchable": false,
+      "isPatchable": true,
       "__filename": "/Users/remy/Sites/snyk-tests/SC-1076/node_modules/sequelize/package.json"
     }
   ],
   "dependencyCount": 280,
-  "uniqueCount": 3
+  "uniqueCount": 2
 }
