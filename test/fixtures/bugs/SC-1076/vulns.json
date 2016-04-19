@@ -1,0 +1,147 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Remote Memory Exposure",
+      "credit": [
+        ""
+      ],
+      "description": "## Overview\nA potential memory disclosure vulnerability exists in sequelize versions prior to 3.17.2.\nA field of type `DataTypes.BLOB` can be used to expose sensitive information such as code, runtime memory and user data into MongoDB.\n\n### Details\n`sequelize` uses the `Buffer` type to represent `DataTypes.BLOB`. \nInitializing a `Buffer` with integer `N` creates a `Buffer`\nof length `N` with non zero-ed out memory.\n**Example:**\n```\nvar x = new Buffer(100); // uninitialized Buffer of length 100\n// vs\nvar x = new Buffer('100'); // initialized Buffer with value of '100'\n```\nInitializing a `BLOB` field in such manner will dump uninitialized\nmemory into the database.\nThe patch wraps `Buffer` field initialization in sequelize by converting a\n`number` value `N` to a string, initializing the `Buffer` with `N` in its\nascii form.\n\n#### Proof of concept\n```javascript\nvar Sequelize = require('sequelize');\nvar sequelize = new Sequelize('pastebin', null, null,\n    { host: '127.0.0.1', dialect: 'postgres', });\n\nvar Task = sequelize.define('Pastebin', {\n    title: Sequelize.STRING,\n    content: Sequelize.BLOB,\n  });\n\nTask.create({\n  title: 'title',\n  content: 100,\n}).then(function (task) {\n  console.log(task.title);\n  console.log(task.content); // will print out 100 bytes of previously used memory\n});\n```\n\n## Remediation\nUpgrade `mongoose` to version >= 3.17.3\n\n## References\n- https://github.com/sequelize/sequelize/blob/master/changelog.md#3172\n- https://github.com/sequelize/sequelize/commit/cbfaa4f0a135cfc55874c9bfc39ead2d85c417e9\n- https://github.com/ChALkeR/notes/blob/master/Lets-fix-Buffer-API.md#previous-materials\n- https://github.com/ChALkeR/notes/blob/master/Buffer-knows-everything.md\n",
+      "semver": {
+        "vulnerable": "<3.17.2",
+        "unaffected": ">3.17.2"
+      },
+      "CVSSv2": "",
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-201"
+        ],
+        "CVE": []
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160115/sequelize_20160115_0_0_b85f78a318e6f7112a3374498171a3e148cdc4da.patch"
+          ],
+          "version": "<3.17.2 >3.16.0",
+          "modificationTime": "2016-04-13T10:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:sequelize:20160115:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160115/sequelize_20160115_0_0_b85f78a318e6f7112a3374498171a3e148cdc4da_w_20160106.patch"
+          ],
+          "version": "<=3.16.0 >3.13.0",
+          "modificationTime": "2016-04-17T10:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:sequelize:20160115:1"
+        }
+      ],
+      "moduleName": "sequelize",
+      "creationTime": "2016-04-01T02:09:36.180Z",
+      "publicationTime": "2016-01-15T00:00:00.000Z",
+      "modificationTime": "2016-04-01T02:09:36.180Z",
+      "id": "npm:sequelize:20160115",
+      "from": [
+        "sequelize_vulns_test@1.0.0",
+        "sequelize@3.16.0"
+      ],
+      "upgradePath": [
+        false,
+        "sequelize@3.17.2"
+      ],
+      "version": "3.16.0",
+      "name": "sequelize",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1076/node_modules/sequelize/package.json"
+    },
+    {
+      "title": "SQL Injection in IN statement",
+      "credit": [
+        ""
+      ],
+      "description": "## Overview\n`sequelize` versions prior to 3.20.0 improperly escape arrays of strings bound to named parameters.\n\n## Remediation\nUpdate to version 3.20.0 or greater.\n\n## References\n- https://github.com/sequelize/sequelize/issues/5671\n- https://github.com/sequelize/sequelize/commit/23952a2b020cc3571f090e67dae7feb084e1be71\n",
+      "semver": {
+        "vulnerable": "<=3.19.3",
+        "unaffected": ">3.19.3"
+      },
+      "CVSSv2": "",
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-89"
+        ],
+        "CVE": []
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71.patch"
+          ],
+          "version": "<=3.19.3 >=3.17.2",
+          "modificationTime": "2016-04-12T10:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:sequelize:20160329:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115.patch"
+          ],
+          "version": "<3.17.2 >3.16.0",
+          "modificationTime": "2016-04-13T10:00:00.000Z",
+          "comments": [
+            "also carries a fix for npm:sequelize:20160115"
+          ],
+          "id": "patch:npm:sequelize:20160329:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115_w_20160106.patch"
+          ],
+          "version": "<=3.16.0 >3.15.1",
+          "modificationTime": "2016-04-13T10:00:00.000Z",
+          "comments": [
+            "also carries a fix for npm:sequelize:20160115"
+          ],
+          "id": "patch:npm:sequelize:20160329:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_1_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115_w_20160106.patch"
+          ],
+          "version": "<=3.15.1 >3.13.0",
+          "modificationTime": "2016-04-13T10:00:00.000Z",
+          "comments": [
+            "also carries a fix for npm:sequelize:20160115"
+          ],
+          "id": "patch:npm:sequelize:20160329:2"
+        }
+      ],
+      "moduleName": "sequelize",
+      "creationTime": "2016-04-01T00:00:00.000Z",
+      "publicationTime": "2016-03-29T00:00:00.000Z",
+      "modificationTime": "2016-04-01T00:00:00.000Z",
+      "id": "npm:sequelize:20160329",
+      "from": [
+        "sequelize_vulns_test@1.0.0",
+        "sequelize@3.16.0"
+      ],
+      "upgradePath": [
+        false,
+        "sequelize@3.20.0"
+      ],
+      "version": "3.16.0",
+      "name": "sequelize",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1076/node_modules/sequelize/package.json"
+    }
+  ],
+  "dependencyCount": 280,
+  "uniqueCount": 2
+}

@@ -14,8 +14,8 @@ function protect(options) {
 
   if (options.interactive) {
     // silently fail
-    return Promise.reject(new Error('Snyk protect interactive mode has moved. ' +
-      'Please run `snyk wizard`'));
+    return Promise.reject(new Error('Snyk protect interactive mode ' +
+      'has moved. Please run `snyk wizard`'));
   }
 
   if (options['dry-run']) {

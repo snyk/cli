@@ -50,6 +50,7 @@
     "url": "^0.11.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.7.5",
     "jscs": "^2.0.0",
     "proxyquire": "^1.7.4",
     "restify": "^4.0.4",
