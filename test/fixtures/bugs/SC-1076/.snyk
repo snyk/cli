@@ -1,0 +1,13 @@
+patch:
+  'npm:sequelize:20160329':
+    - sequelize:
+        patched: '2016-04-13T18:43:08.942Z'
+  'npm:sequelize:20160115':
+    - sequelize:
+        patched: '2016-04-13T18:43:08.942Z'
+version: v1
+ignore:
+  'npm:sequelize:20160106':
+    - sequelize:
+        reason: None given
+        expires: '2016-05-15T11:46:11.079Z'
