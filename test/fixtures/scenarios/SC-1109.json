@@ -1,0 +1,319 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-01-19T23:24:51.834Z",
+      "modificationTime": "2016-01-19T23:24:51.834Z",
+      "publicationTime": "2016-01-19T21:51:35.396Z",
+      "description": "## Overview\nA [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in `hawk` package, affecting version 4.1.0 and below.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## References\n- https://github.com/hueniverse/hawk/issues/168\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=3.1.2 || >= 4.0.0 <4.1.1",
+        "unaffected": ">3.1.2 < 4.0.0 || >=4.1.1"
+      },
+      "CVSSv3": "",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 77
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_0_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.1.1 >=4.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_1_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.0.0 >=3.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:1"
+        }
+      ],
+      "moduleName": "hawk",
+      "id": "npm:hawk:20160119",
+      "from": [
+        "SC-1109-simple@1.0.0",
+        "tap@5.7.1",
+        "codecov.io@0.1.6",
+        "request@2.42.0",
+        "hawk@1.1.1"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "request@2.59.0",
+        "hawk@3.1.3"
+      ],
+      "version": "1.1.1",
+      "name": "hawk",
+      "isUpgradable": false,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1109-simple/node_modules/tap/node_modules/codecov.io/node_modules/request/node_modules/hawk/package.json"
+    },
+    {
+      "title": "Remote Memory Exposure",
+      "credit": [
+        "Feross Aboukhadijeh"
+      ],
+      "creationTime": "2016-03-22T12:00:05.158Z",
+      "modificationTime": "2016-03-22T12:00:05.158Z",
+      "publicationTime": "2016-01-19T04:57:05.158Z",
+      "description": "## Overview\nA potential remote memory exposure vulnerability exists in `request`. If a `request` uses a multipart attachment and the _body type_ option is `number` with value X, then X bytes of uninitialized memory will be sent in the body of the request.\n\nNote that while the impact of this vulnerability is high (memory exposure), exploiting it is likely difficult, as the attacker needs to somehow control the body type of the request. One potential exploit scenario is when a request is composed based on JSON input, including the body type, allowing a malicious JSON to trigger the memory leak.\n\n### Details\nConstructing a `Buffer` class with integer `N` creates a `Buffer`\nof length `N` with non zero-ed out memory.\n**Example:**\n```\nvar x = new Buffer(100); // uninitialized Buffer of length 100\n// vs\nvar x = new Buffer('100'); // initialized Buffer with value of '100'\n```\n\nInitializing a multipart body in such manner will cause uninitialized memory to be sent in the body of the request.\n\n#### Proof of concept\n```javascript\nvar http = require('http')\nvar request = require('request')\n\nhttp.createServer(function (req, res) {\n  var data = ''\n  req.setEncoding('utf8')\n  req.on('data', function (chunk) {\n    console.log('data')\n    data += chunk\n  })\n  req.on('end', function () {\n    // this will print uninitialized memory from the client\n    console.log('Client sent:\\n', data)\n  })\n  res.end()\n}).listen(8000)\n\nrequest({\n  method: 'POST',\n  uri: 'http://localhost:8000',\n  multipart: [{ body: 1000 }]\n},\nfunction (err, res, body) {\n  if (err) return console.error('upload failed:', err)\n  console.log('sent')\n})\n```\n\n## Remediation\nUpgrade `request` to version 2.68.0 or higher.\n\nIf a direct dependency update is not possible, use [`snyk wizard`](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://github.com/request/request/pull/2018\n- https://github.com/ChALkeR/notes/blob/master/Lets-fix-Buffer-API.md#previous-materials\n- https://github.com/ChALkeR/notes/blob/master/Buffer-knows-everything.md\n",
+      "semver": {
+        "vulnerable": "<2.68.0 >2.2.5",
+        "unaffected": ">=2.68.0 <=2.2.6"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-201"
+        ],
+        "CVE": []
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_0_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.68.0 >=2.54.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_1_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.54.0 >2.51.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:1"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_2_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<=2.51.0 >2.47.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:2"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_3_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "=2.47.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:3"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_4_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.47.0 >=2.27.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:4"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_5_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.27.0 >=2.16.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:5"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_6_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.16.0 >=2.9.150",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:6"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_7_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.9.150 >=2.9.3",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:7"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_8_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.9.3 >=2.2.6",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:8"
+        }
+      ],
+      "moduleName": "request",
+      "id": "npm:request:20160119",
+      "from": [
+        "SC-1109-simple@1.0.0",
+        "tap@5.7.1",
+        "codecov.io@0.1.6",
+        "request@2.42.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "request@2.68.0"
+      ],
+      "version": "2.42.0",
+      "name": "request",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1109-simple/node_modules/tap/node_modules/codecov.io/node_modules/request/package.json"
+    },
+    {
+      "title": "Remote Memory Exposure",
+      "credit": [
+        "Feross Aboukhadijeh"
+      ],
+      "creationTime": "2016-03-22T12:00:05.158Z",
+      "modificationTime": "2016-03-22T12:00:05.158Z",
+      "publicationTime": "2016-01-19T04:57:05.158Z",
+      "description": "## Overview\nA potential remote memory exposure vulnerability exists in `request`. If a `request` uses a multipart attachment and the _body type_ option is `number` with value X, then X bytes of uninitialized memory will be sent in the body of the request.\n\nNote that while the impact of this vulnerability is high (memory exposure), exploiting it is likely difficult, as the attacker needs to somehow control the body type of the request. One potential exploit scenario is when a request is composed based on JSON input, including the body type, allowing a malicious JSON to trigger the memory leak.\n\n### Details\nConstructing a `Buffer` class with integer `N` creates a `Buffer`\nof length `N` with non zero-ed out memory.\n**Example:**\n```\nvar x = new Buffer(100); // uninitialized Buffer of length 100\n// vs\nvar x = new Buffer('100'); // initialized Buffer with value of '100'\n```\n\nInitializing a multipart body in such manner will cause uninitialized memory to be sent in the body of the request.\n\n#### Proof of concept\n```javascript\nvar http = require('http')\nvar request = require('request')\n\nhttp.createServer(function (req, res) {\n  var data = ''\n  req.setEncoding('utf8')\n  req.on('data', function (chunk) {\n    console.log('data')\n    data += chunk\n  })\n  req.on('end', function () {\n    // this will print uninitialized memory from the client\n    console.log('Client sent:\\n', data)\n  })\n  res.end()\n}).listen(8000)\n\nrequest({\n  method: 'POST',\n  uri: 'http://localhost:8000',\n  multipart: [{ body: 1000 }]\n},\nfunction (err, res, body) {\n  if (err) return console.error('upload failed:', err)\n  console.log('sent')\n})\n```\n\n## Remediation\nUpgrade `request` to version 2.68.0 or higher.\n\nIf a direct dependency update is not possible, use [`snyk wizard`](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- https://github.com/request/request/pull/2018\n- https://github.com/ChALkeR/notes/blob/master/Lets-fix-Buffer-API.md#previous-materials\n- https://github.com/ChALkeR/notes/blob/master/Buffer-knows-everything.md\n",
+      "semver": {
+        "vulnerable": "<2.68.0 >2.2.5",
+        "unaffected": ">=2.68.0 <=2.2.6"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-201"
+        ],
+        "CVE": []
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_0_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.68.0 >=2.54.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:0"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_1_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.54.0 >2.51.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:1"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_2_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<=2.51.0 >2.47.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:2"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_3_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "=2.47.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:3"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_4_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.47.0 >=2.27.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:4"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_5_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.27.0 >=2.16.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:5"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_6_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.16.0 >=2.9.150",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:6"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_7_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.9.150 >=2.9.3",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:7"
+        },
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/request/20160119/request_20160119_0_8_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.9.3 >=2.2.6",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:8"
+        }
+      ],
+      "moduleName": "request",
+      "id": "npm:request:20160119",
+      "from": [
+        "SC-1109-simple@1.0.0",
+        "tap@5.7.1",
+        "coveralls@2.11.9",
+        "request@2.67.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "request@2.68.0"
+      ],
+      "version": "2.67.0",
+      "name": "request",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1109-simple/node_modules/tap/node_modules/coveralls/node_modules/request/package.json"
+    }
+  ],
+  "dependencyCount": 412,
+  "uniqueCount": 2
+}
