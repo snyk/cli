@@ -90,3 +90,29 @@ test('ignored grouped update explodes into multiple rules (SC-959)', function (t
     t.equal(tasks.ignore.length, total, 'should ignore all vulns');
   });
 });
+
+test('patch grouped vuln should run multiple patches (SC-1109)', function (t) {
+  var responses = [
+    'default:patch',
+    'default:ignore',
+    'none given',
+  ];
+
+  var vulns = require(__dirname + '/fixtures/scenarios/SC-1109.json');
+
+  return interactive(vulns, responses, { earlyExit: true }).then(function (answers) {
+    var tasks = answersToTasks(answers);
+    var filenames = tasks.patch.map(function (_) {
+      // trim the filename to remove the common path
+      return _.__filename.replace(/.*\/node_modules\/tap\/node_modules\//, '');
+    });
+    t.notEqual(filenames[0], filenames[1], 'filenames should not be the same');
+
+    // now it should only patch those files
+    var patches = require('../lib/protect/dedupe-patches')(tasks.patch);
+
+    t.equal(patches.packages.length, 2, '2 patches remain');
+    t.equal(patches.packages[0].patches.id, 'patch:npm:request:20160119:0');
+    t.equal(patches.packages[1].patches.id, 'patch:npm:request:20160119:4');
+  });
+});

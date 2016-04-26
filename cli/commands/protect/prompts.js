@@ -220,7 +220,14 @@ function getPatchPrompts(vulns, policy) {
           main: true,
           id: acc[last].id + '-' + i,
           count: 1,
-          upgrades: [acc[last].from],
+          upgrades: [{
+            // all this information is used when the user selects group patch
+            // specifically: in ./tasks.js~42
+            from: acc[last].from,
+            filename: acc[last].__filename,
+            pathes: acc[last].patches,
+            version: acc[last].version,
+          },],
           patch: true,
         };
 
@@ -237,10 +244,6 @@ function getPatchPrompts(vulns, policy) {
         offset++;
       }
 
-      // if (acc[last].grouped.affected.full.indexOf(curr.version) === -1) {
-      //   acc[last].grouped.affected.full += ' / ' + curr.version;
-      // }
-
       acc[last].grouped.count++;
 
       curr.grouped = {
@@ -249,12 +252,17 @@ function getPatchPrompts(vulns, policy) {
       };
 
       // add the from path to our group upgrades if we don't have it already
-      var have = !!acc[last].grouped.upgrades.filter(function (from) {
-        return from.join(' ') === curr.from.join(' ');
+      var have = !!acc[last].grouped.upgrades.filter(function (upgrade) {
+        return upgrade.from.join(' ') === curr.from.join(' ');
       }).length;
 
       if (!have) {
-        acc[last].grouped.upgrades.push(curr.from);
+        acc[last].grouped.upgrades.push({
+          from: curr.from,
+          filename: curr.__filename,
+          patches: curr.patches,
+          version: curr.version,
+        });
       } else {
         if (!acc[last].grouped.includes) {
           acc[last].grouped.includes = [];
