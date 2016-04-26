@@ -39,9 +39,12 @@ function answersToTasks(answers) {
 
       var additional = vuln.grouped.upgrades.slice(1);
 
-      additional.forEach(function (from) {
+      additional.forEach(function (upgrade) {
         var copy = _.cloneDeep(vuln);
-        copy.from = from;
+        copy.from = upgrade.from;
+        copy.__filename = upgrade.filename;
+        copy.patches = upgrade.patches;
+        copy.version = upgrade.version;
         tasks[task].push(copy);
       });
     }

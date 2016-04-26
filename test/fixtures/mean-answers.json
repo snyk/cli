@@ -389,20 +389,48 @@
         "main": true,
         "id": "npm:hawk:20160119-10",
         "count": 2,
-        "upgrades": [
-          [
+        "upgrades": [{
+          "from": [
             "mean@0.5.5",
             "npm@2.13.5",
             "request@2.60.0",
             "hawk@3.1.0"
           ],
-          [
+          "__filename": "/Users/remy/Sites/snyk-tests/mean/node_modules/npm/node_modules/request/node_modules/hawk/package.json",
+          "version": "3.1.0",
+          "patches": [
+            {
+              "urls": [
+                "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_1_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+              ],
+              "version": "<4.0.0 >=3.0.0",
+              "modificationTime": "2016-01-20T12:51:35.396Z",
+              "comments": [],
+              "id": "patch:npm:hawk:20160119:1"
+            }
+          ]
+        }, {
+          "from": [
             "mean@0.5.5",
             "meanio@0.8.83",
             "stacksight@1.0.20",
             "request@2.61.0",
             "hawk@3.1.0"
+          ],
+          "__filename": "/Users/remy/Sites/snyk-tests/mean/node_modules/meanio/node_modules/stacksight/node_modules/request/node_modules/hawk/package.json",
+          "version": "3.1.0",
+          "patches": [
+            {
+              "urls": [
+                "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_1_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+              ],
+              "version": "<4.0.0 >=3.0.0",
+              "modificationTime": "2016-01-20T12:51:35.396Z",
+              "comments": [],
+              "id": "patch:npm:hawk:20160119:1"
+            }
           ]
+        }
         ],
         "patch": true
       }
@@ -626,19 +654,51 @@
         "main": true,
         "id": "npm:uglify-js:20151024-23",
         "count": 2,
-        "upgrades": [
-          [
+        "upgrades": [{
+          "from": [
             "mean@0.5.5",
             "swig@1.4.2",
             "uglify-js@2.4.24"
           ],
-          [
+          "version": "2.4.24",
+          "__filename": "/Users/remy/Sites/snyk-tests/mean/node_modules/swig/node_modules/uglify-js/package.json",
+          "patches": [
+            {
+              "urls": [
+                "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+              ],
+              "version": "<2.6.0 >2.4.23",
+              "modificationTime": "2015-11-16T09:29:10.000Z",
+              "comments": [
+                "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+              ],
+              "id": "patch:npm:uglify-js:20151024:1"
+            }
+          ]
+        },
+        {
+          "from": [
             "mean@0.5.5",
             "meanio@0.8.83",
             "swig@1.4.2",
             "uglify-js@2.4.24"
+          ],
+          "version": "2.4.24",
+          "__filename": "/Users/remy/Sites/snyk-tests/mean/node_modules/swig/node_modules/uglify-js/package.json",
+          "patches": [
+            {
+              "urls": [
+                "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+              ],
+              "version": "<2.6.0 >2.4.23",
+              "modificationTime": "2015-11-16T09:29:10.000Z",
+              "comments": [
+                "https://github.com/mishoo/UglifyJS2/commit/63d35f8.patch"
+              ],
+              "id": "patch:npm:uglify-js:20151024:1"
+            }
           ]
-        ],
+        } ],
         "patch": true
       }
     },
