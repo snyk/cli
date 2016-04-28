@@ -25,19 +25,12 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
 });
 
 test('prepublish is added and postinstall is removed', function (t) {
-
-  var save = snyk.policy.save;
-
-  snyk.policy.save = function () {
-    return Promise.resolve();
-  };
-
-  wizard.processAnswers({
+  return wizard.processAnswers({
     // answers
     'misc-test-no-monitor': true,
     'misc-add-protect': true,
   }, {
-    // policy
+    save: () => Promise.resolve()
   }).then(function () {
     t.equal(spy.callCount, 1, 'write functon was only called once');
     var pkg = JSON.parse(spy.args[0][0]);
@@ -47,9 +40,5 @@ test('prepublish is added and postinstall is removed', function (t) {
     fixture.scripts.prepublish = 'npm run snyk-protect';
 
     t.deepEqual(fixture, pkg, 'package is correct');
-
-  }).catch(t.threw).then(function () {
-    snyk.policy.save = save;
-    t.end();
   });
 });
