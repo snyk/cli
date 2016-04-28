@@ -3,3 +3,4 @@
 /test
 config.*.json
 !config.default.json
+tmp
