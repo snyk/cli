@@ -9,10 +9,14 @@
     "snyk": "./cli/index.js"
   },
   "scripts": {
-    "cover": "tap test/*.test.js --cov --coverage-report=lcov",
+    "travis-coverage": "node_modules/tap/node_modules/.bin/nyc report --reporter=text-lcov | node_modules/tap/node_modules/.bin/coveralls",
+    "coverage": "tap --cov --coverage-report=lcov test/*.test.js",
+    "tapone": "COVERALLS_REPO_TOKEN=0 tap --nyc-arg=--require --nyc-arg=babel-polyfill --timeout=60 --cov --coverage-report=text-summary",
+    "tap": "npm run tapone test/*.test.js",
+    "test": "npm run check-tests && npm run lint && npm run tap && node cli/index.js test -q",
+    "test:babel": "babel test/*.test.js -d . && npm test",
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
-    "test": "npm run check-tests && npm run lint && tap test/*.test.js --timeout=60 && node cli/index.js test -q",
-    "check-tests": "! grep 'test.only' test/*.test.js -n",
+    "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "keywords": [
@@ -38,7 +42,7 @@
     "semver": "^5.1.0",
     "snyk-config": "^1.0.0",
     "snyk-module": "^1.2.0",
-    "snyk-policy": "^1.2.1",
+    "snyk-policy": "^1.3.0",
     "snyk-resolve": "^1.0.0",
     "snyk-resolve-deps": "^1.7.0",
     "snyk-tree": "^1.0.0",
@@ -50,7 +54,10 @@
     "url": "^0.11.0"
   },
   "devDependencies": {
-    "babel-cli": "^6.7.5",
+    "babel-cli": "^6.7.7",
+    "babel-polyfill": "^6.7.4",
+    "babel-preset-es2015": "^6.6.0",
+    "babel-preset-stage-3": "^6.5.0",
     "jscs": "^2.0.0",
     "proxyquire": "^1.7.4",
     "restify": "^4.0.4",
