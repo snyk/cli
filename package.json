@@ -9,10 +9,11 @@
     "snyk": "./cli/index.js"
   },
   "scripts": {
-    "coverage": "tap --nyc-arg=--require --nyc-arg=babel-polyfill --nyc-arg=--require --nyc-arg=babel-register --cov --coverage-report=lcov",
-    "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
-    "tap": "tap --nyc-arg=--require --nyc-arg=babel-polyfill --nyc-arg=--require --nyc-arg=babel-register test/*.test.js --timeout=60 --no-cov",
+    "travis-coverage": "node_modules/tap/node_modules/.bin/nyc --require=babel-polyfill,babel-register report --reporter=text-lcov | node_modules/tap/node_modules/.bin/coveralls",
+    "coverage": "tap --nyc-arg=--require --nyc-arg=babel-polyfill,babel-register --cov --coverage-report=lcov test/*.test.js",
+    "tap": "tap --nyc-arg=--require --nyc-arg=babel-polyfill,babel-register --timeout=60 --cov --coverage-report=text test/*.test.js ",
     "test": "npm run check-tests && npm run lint && npm run tap && node cli/index.js test -q",
+    "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
