@@ -13,7 +13,7 @@
     "coverage": "tap --cov --coverage-report=lcov test/*.test.js",
     "tap": "COVERALLS_REPO_TOKEN=0 tap --timeout=60 --cov --coverage-report=text-summary test/*.test.js",
     "test": "npm run check-tests && npm run lint && npm run tap && node cli/index.js test -q",
-    "test:babel": "COVERALLS_REPO_TOKEN=0 tap --nyc-arg=--require --nyc-arg=babel-register,babel-polyfill --timeout=60 --cov --coverage-report=text-summary test/*.test.js",
+    "test:babel": "babel test/*.test.js -d . && npm test",
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
@@ -54,10 +54,8 @@
   },
   "devDependencies": {
     "babel-cli": "^6.7.7",
-    "babel-polyfill": "^6.7.4",
     "babel-preset-es2015": "^6.6.0",
     "babel-preset-stage-3": "^6.5.0",
-    "babel-register": "^6.7.2",
     "jscs": "^2.0.0",
     "proxyquire": "^1.7.4",
     "restify": "^4.0.4",
