@@ -9,10 +9,11 @@
     "snyk": "./cli/index.js"
   },
   "scripts": {
-    "travis-coverage": "node_modules/tap/node_modules/.bin/nyc --require=babel-polyfill,babel-register report --reporter=text-lcov | node_modules/tap/node_modules/.bin/coveralls",
-    "coverage": "tap --nyc-arg=--require --nyc-arg=babel-polyfill,babel-register --cov --coverage-report=lcov test/*.test.js",
-    "tap": "tap --nyc-arg=--require --nyc-arg=babel-polyfill,babel-register --timeout=60 --cov --coverage-report=text test/*.test.js ",
+    "travis-coverage": "node_modules/tap/node_modules/.bin/nyc report --reporter=text-lcov | node_modules/tap/node_modules/.bin/coveralls",
+    "coverage": "tap --cov --coverage-report=lcov test/*.test.js",
+    "tap": "COVERALLS_REPO_TOKEN=0 tap --timeout=60 --cov --coverage-report=text-summary test/*.test.js",
     "test": "npm run check-tests && npm run lint && npm run tap && node cli/index.js test -q",
+    "test:babel": "COVERALLS_REPO_TOKEN=0 tap --nyc-arg=--require --nyc-arg=babel-register,babel-polyfill --timeout=60 --cov --coverage-report=text-summary test/*.test.js",
     "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"

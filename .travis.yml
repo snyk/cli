@@ -13,6 +13,7 @@ node_js:
   - '5'
   - '4'
   - '0.10'
+script: "[[ $(echo $TRAVIS_NODE_VERSION | awk -F. '{print $1}') -lt 3 ]] && npm run test:babel || npm test"
 before_install:
   - npm i -g npm@^2.0.0
 before_script:
