@@ -21,6 +21,7 @@ before_script:
   - psql -c 'create database test;' -U postgres
   - psql -U postgres -c "create extension hstore" test
 after_success:
+  - npm run coverage
   - python scripts/travis_after_all.py
   - export $(cat .to_export_back)
   - npm run semantic-release
