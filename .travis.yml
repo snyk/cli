@@ -9,11 +9,13 @@ services:
  - redis-server
 addons:
   postgresql: "9.4"
-node_js:
-  - '5'
-  - '4'
-  - '0.10'
-script: "[[ $(echo $TRAVIS_NODE_VERSION | awk -F. '{print $1}') -lt 3 ]] && npm run test:babel || npm test"
+matrix:
+  include:
+    - node_js: "5"
+    - node_js: "4"
+    - node_js: "0.10"
+      env: BABEL=true
+script: "[[ $BABEL == true ]] && npm run test:babel || npm test"
 before_install:
   - npm i -g npm@^2.0.0
 before_script:
