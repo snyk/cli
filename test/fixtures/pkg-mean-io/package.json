@@ -15,7 +15,7 @@
     "start": "node server",
     "mocha": "node tools/test/run-mocha.js",
     "karma": "node node_modules/karma/bin/karma start karma.conf.js",
-    "test": "snyk test && gulp test",
+    "test": "snyk test --dev && gulp test",
     "test-e2e": "gulp e2e.test",
     "postinstall": "node tools/scripts/postinstall.js",
     "snyk-protect": "snyk protect",
