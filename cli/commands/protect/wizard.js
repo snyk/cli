@@ -56,7 +56,7 @@ function wizard(options) {
     return auth.isAuthed().then(function (authed) {
       analytics.add('inline-auth', !authed);
       if (!authed) {
-        return auth();
+        return auth(null, 'wizard');
       }
     }).then(function () {
       var intro = __dirname + '/../../../help/wizard-intro.txt';
