@@ -9,6 +9,6 @@ test('pre-tarred packages can be ignored', function (t) {
     var protectedValues = policy.filter(res);
 
     t.equal(protectedValues.ok, true, 'all vulns have been stripped');
-    t.equal(protectedValues.vulnerabilities, undefined, 'all vulns have been stripped');
+    t.deepEqual(protectedValues.vulnerabilities, [], 'all vulns have been stripped');
   });
 });
