@@ -18,6 +18,7 @@ matrix:
 script: "[[ $BABEL == true ]] && npm run test:babel || npm test"
 before_install:
   - npm i -g npm@^2.0.0
+  - printf '\nshopt -s globstar\n' >> ~/.profile
 before_script:
   - npm prune
   - psql -c 'create database test;' -U postgres
