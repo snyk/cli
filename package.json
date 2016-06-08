@@ -15,7 +15,7 @@
     "tap": "npm run tapone test/*.test.js",
     "test": "npm run check-tests && npm run lint && npm run tap && node cli/index.js test -q",
     "test:babel": "babel test/*.test.js -d . && npm test",
-    "lint": "jscs cli/*.js cli/**/*.js lib/*.js -v",
+    "lint": "bash --login -c './node_modules/.bin/jscs cli/**/*.js lib/**/*.js'",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
