@@ -5,10 +5,10 @@ cache:
     - node_modules
 notifications:
   email: false
-services:
- - redis-server
-addons:
-  postgresql: "9.4"
+# services:
+#  - redis-server
+# addons:
+#   postgresql: "9.4"
 matrix:
   include:
     - node_js: "5"
@@ -20,8 +20,8 @@ before_install:
   - npm i -g npm@^2.0.0
 before_script:
   - npm prune
-  - psql -c 'create database test;' -U postgres
-  - psql -U postgres -c "create extension hstore" test
+  # - psql -c 'create database test;' -U postgres
+  # - psql -U postgres -c "create extension hstore" test
 after_success:
   - npm run travis-coverage
   - python scripts/travis_after_all.py
