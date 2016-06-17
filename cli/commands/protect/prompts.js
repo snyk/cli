@@ -15,7 +15,7 @@ var protect = require('../../../lib/protect');
 var moduleToObject = require('snyk-module');
 var undefsafe = require('undefsafe');
 var config = require('../../../lib/config');
-var snyk = require('../../../lib/');
+var snykPolicy = require('snyk-policy');
 
 // via http://stackoverflow.com/a/4760279/22617
 function sort(prop) {
@@ -225,7 +225,7 @@ function getPatchPrompts(vulns, policy) {
             // specifically: in ./tasks.js~42
             from: acc[last].from,
             filename: acc[last].__filename,
-            pathes: acc[last].patches,
+            patches: acc[last].patches,
             version: acc[last].version,
           },],
           patch: true,
@@ -752,7 +752,7 @@ function generatePrompt(vulns, policy) {
   prompts = prompts.reduce(function (acc, curr) {
     acc.push(curr);
     // console.log(curr.choices[0].value.vuln);
-    var rule = snyk.policy.getByVuln(policy, curr.choices[0].value.vuln);
+    var rule = snykPolicy.getByVuln(policy, curr.choices[0].value.vuln);
     var defaultAnswer = 'None given';
     if (rule && rule.type === 'ignore') {
       defaultAnswer = rule.reason;
