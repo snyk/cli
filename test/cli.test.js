@@ -13,6 +13,7 @@ process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = 0;
 
+
 var server = require('./cli-server')(process.env.SNYK_API, apiKey);
 
 // ensure this is required *after* the demo server, since this will
