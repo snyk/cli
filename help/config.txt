@@ -1,4 +1,5 @@
-config:
+
+Configuration:
 
   $ snyk config [command] [key[=value]]
 
