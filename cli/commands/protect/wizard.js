@@ -384,7 +384,11 @@ function processAnswers(answers, policy, options) {
   })
   .then(function (monitorRes) {
     var endpoint = url.parse(config.API);
-    endpoint.pathname = '/org/' + monitorRes.org + '/monitor/' + monitorRes.id;
+    var leader = '';
+    if (monitorRes.org) {
+      leader = '/org/' + res.org;
+    }
+    endpoint.pathname = leader + '/monitor/' + monitorRes.id;
 
     return (options.newPolicy ?
       // if it's a newly created file
