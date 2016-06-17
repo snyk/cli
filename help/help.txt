@@ -22,7 +22,7 @@ Commands:
 Options:
 
   --dev .............. include devDependencies (defaults to production only).
-  --org=<org-name> ... associate a monitor (or wizard monitor) with a specific
+  --org=<org-name> ... associate a snapshot (or wizard snapshot) with a specific
                        organisation. For more help run `snyk --help=orgs`.
   --ignore-policy .... ignores and resets the state of your policy file.
   --trust-policies ... applies and uses ignore rules from your dependencies's
