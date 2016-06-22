@@ -386,7 +386,7 @@ function processAnswers(answers, policy, options) {
     var endpoint = url.parse(config.API);
     var leader = '';
     if (monitorRes.org) {
-      leader = '/org/' + res.org;
+      leader = '/org/' + monitorRes.org;
     }
     endpoint.pathname = leader + '/monitor/' + monitorRes.id;
 
