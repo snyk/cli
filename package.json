@@ -36,7 +36,7 @@
     "node-uuid": "^1.4.3",
     "open": "^0.0.5",
     "os-name": "^1.0.3",
-    "recursive-readdir": "^1.3.0",
+    "recursive-readdir": "https://github.com/Snyk/recursive-readdir",
     "request": "^2.60.0",
     "semver": "^5.1.0",
     "snyk-config": "1.0.1",
