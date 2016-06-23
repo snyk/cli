@@ -76,6 +76,20 @@ test('wizard supports review and ignore (SC-943)', function (t) {
   });
 });
 
+test('same name vulns do not get ignored (skipping in particular) (SC-1430)', function (t) {
+  var responses = [
+    'default:patch',
+    'skip',
+    'y',
+    'n', ];
+
+  var vulns = require(__dirname + '/fixtures/scenarios/SC-1430.json');
+
+  return interactive(vulns, responses).then(function (res) {
+    t.equal(Object.keys(res).length, 4, 'four prompts were answered');
+  });
+});
+
 test('ignored grouped update explodes into multiple rules (SC-959)', function (t) {
   var responses = [
     'ignore',

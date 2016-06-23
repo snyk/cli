@@ -290,7 +290,7 @@ function getPatchPrompts(vulns, policy) {
   });
 
   // console.log(res.map(_ => _.grouped));
-  var prompts = generatePrompt(res, policy);
+  var prompts = generatePrompt(res, policy, 'p');
 
 
   return prompts;
@@ -318,7 +318,7 @@ function getIgnorePrompts(vulns, policy) {
     return true;
   });
 
-  var prompts = generatePrompt(res, policy);
+  var prompts = generatePrompt(res, policy, 'i');
 
   return prompts;
 
@@ -402,7 +402,7 @@ function getUpdatePrompts(vulns, policy) {
     return !!curr.upgradePath[1];
   });
 
-  var prompts = generatePrompt(res, policy);
+  var prompts = generatePrompt(res, policy, 'u');
 
   return prompts;
 }
@@ -433,7 +433,10 @@ function canBeUpgraded(vuln) {
   });
 }
 
-function generatePrompt(vulns, policy) {
+function generatePrompt(vulns, policy, prefix) {
+  if (!prefix) {
+    prefix = '';
+  }
   if (!vulns) {
     vulns = []; // being defensive, but maybe we should throw an error?
   }
@@ -472,7 +475,7 @@ function generatePrompt(vulns, policy) {
   var prompts = vulns.map(function (vuln, i) {
     var id = vuln.id || ('node-' + vuln.name + '@' + vuln.below);
 
-    id += '-' + i;
+    id += '-' + prefix + i;
 
     // make complete copies of the actions, otherwise we'll mutate the object
     var ignore = _.cloneDeep(ignoreAction);
