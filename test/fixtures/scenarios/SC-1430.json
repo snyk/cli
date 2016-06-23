@@ -1,0 +1,1249 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "fstream-npm@1.0.7",
+        "fstream-ignore@1.0.3",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "fstream-npm@1.0.7",
+        "fstream-ignore@1.0.3",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "glob@7.0.4",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "glob@7.0.4",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "init-package-json@1.9.4",
+        "glob@6.0.4",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "init-package-json@1.9.4",
+        "glob@6.0.4",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "read-package-json@2.0.4",
+        "glob@6.0.4",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "read-package-json@2.0.4",
+        "glob@6.0.4",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "init-package-json@1.9.4",
+        "read-package-json@2.0.4",
+        "glob@6.0.4",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "init-package-json@1.9.4",
+        "read-package-json@2.0.4",
+        "glob@6.0.4",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "read-installed@4.0.3",
+        "read-package-json@2.0.4",
+        "glob@6.0.4",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "read-installed@4.0.3",
+        "read-package-json@2.0.4",
+        "glob@6.0.4",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "@snyk/log@1.2.0",
+        "bunyan@1.8.1",
+        "mv@2.1.1",
+        "rimraf@2.4.5",
+        "glob@6.0.4",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "bunyan@1.8.1",
+        "mv@2.1.1",
+        "rimraf@2.4.5",
+        "glob@6.0.4",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "fs-vacuum@1.2.9",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "fs-vacuum@1.2.9",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "node-gyp@3.3.1",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "tar@2.2.1",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "tar@2.2.1",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1",
+        "tar@2.2.1",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "node-gyp@3.3.1",
+        "tar@2.2.1",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "fstream-npm@1.0.7",
+        "fstream-ignore@1.0.3",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "fstream-npm@1.0.7",
+        "fstream-ignore@1.0.3",
+        "fstream@1.0.10",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "node-gyp@3.3.1",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "npm-registry-client@7.1.2",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "npm@2.15.8",
+        "npm-registry-client@7.1.2",
+        "rimraf@2.5.2",
+        "glob@7.0.0",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1",
+        "minimatch@1.0.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "minimatch@3.0.2"
+      ],
+      "version": "1.0.0",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": false,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/node-gyp/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    },
+    {
+      "title": "Regular Expression Denial of Service",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://raw.githubusercontent.com/Snyk/vulndb/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1",
+        "glob@4.5.3",
+        "minimatch@2.0.10"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        false,
+        "glob@5.0.15",
+        "minimatch@3.0.2"
+      ],
+      "version": "2.0.10",
+      "name": "minimatch",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/remy/Sites/snyk-tests/SC-1430/node_modules/@snyk/vuln/node_modules/npm/node_modules/node-gyp/node_modules/glob/node_modules/minimatch/package.json",
+      "bundled": [
+        "SC-1430@1.0.0",
+        "@snyk/vuln@4.7.0",
+        "npm@2.15.8",
+        "node-gyp@3.3.1"
+      ]
+    }
+  ],
+  "dependencyCount": 260,
+  "summary": "19 vulnerable dependency paths",
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 1
+}
