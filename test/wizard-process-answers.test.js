@@ -44,7 +44,7 @@ snyk.policy.save = function (data) {
 var wizard = proxyquire('../cli/commands/protect/wizard', {
   '../../../lib/npm': function (cmd) {
     execSpy(cmd);
-    return Promise.resolve();
+    return Promise.resolve(true);
   },
   'then-fs': thenfs,
   '../../../lib/protect': proxyquire('../lib/protect', {
@@ -69,8 +69,9 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
       })
     }),
     './update': proxyquire('../lib/protect/update', {
-      '../npm': function () {
-        return Promise.resolve();
+      '../npm': function (cmd, packages, live, cwd, flags) {
+        execSpy(cmd, packages, live, cwd, flags);
+        return Promise.resolve(true);
       },
     }),
   }),
@@ -112,13 +113,27 @@ test('process answers handles shrinkwrap', function (t) {
     process.chdir(__dirname + '/fixtures/pkg-mean-io/');
     var answers = require(__dirname + '/fixtures/mean-answers.json');
     answers['misc-test-no-monitor'] = true;
-    wizard.processAnswers(answers).then(function () {
-      var shrinkCall = execSpy.getCall(0); // get the 2nd call (as the first is the install of snyk)
+    wizard.processAnswers(answers, mockPolicy).then(function () {
+      var shrinkCall = execSpy.getCall(2); // get the 2nd call (as the first is the install of snyk)
       t.equal(shrinkCall.args[0], 'shrinkwrap', 'shrinkwrap was called');
       process.chdir(cwd);
     }).catch(t.threw).then(t.end);
 
   });
+});
+
+test('wizard updates vulns without changing dep type', function (t) {
+  execSpy = sinon.spy();
+  var cwd = process.cwd();
+  process.chdir(__dirname + '/fixtures/pkg-SC-1472/');
+  var answers = require(__dirname + '/fixtures/SC-1472.json');
+  answers['misc-test-no-monitor'] = true;
+  wizard.processAnswers(answers, mockPolicy).then(function () {
+    t.equal(execSpy.callCount, 3, 'uninstall, install prod, install dev');
+    t.equal(execSpy.getCall(1).args[1].length, 1, '1 prod dep');
+    t.equal(execSpy.getCall(1).args[1].length, 1, '2 dev dep');
+    process.chdir(cwd);
+  }).catch(t.threw).then(t.end);
 });
 
 test('wizard replaces npm\s default scripts.test', function (t) {
