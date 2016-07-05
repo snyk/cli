@@ -361,7 +361,7 @@ function processAnswers(answers, policy, options) {
 
       var lbl = 'Updating npm-shrinkwrap.json...';
       return spinner(lbl)
-        .then(npm.bind(null, 'shrinkwrap', null, live, cwd))
+        .then(npm.bind(null, 'shrinkwrap', null, live, cwd, null))
         .then(spinner.clear(lbl));
     }
   })
