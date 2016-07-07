@@ -48,7 +48,7 @@ function wizard(options) {
     // with an empty object
     if (error.code === 'ENOENT') {
       options.newPolicy = true;
-      return {};
+      return snyk.policy.create();
     }
 
     throw error;
@@ -56,7 +56,7 @@ function wizard(options) {
     return auth.isAuthed().then(function (authed) {
       analytics.add('inline-auth', !authed);
       if (!authed) {
-        return auth();
+        return auth(null, 'wizard');
       }
     }).then(function () {
       var intro = __dirname + '/../../../help/wizard-intro.txt';
@@ -212,7 +212,7 @@ function processAnswers(answers, policy, options) {
       throw e;
     }
 
-    return snyk.policy.save(policy, cwd, spinner).then(function () {
+    return policy.save(cwd, spinner).then(function () {
       // don't do this during testing
       if (isCI || process.env.TAP) {
         return Promise.resolve();
@@ -318,22 +318,40 @@ function processAnswers(answers, policy, options) {
     if (answers['misc-add-test'] || answers['misc-add-protect']) {
       debug('updating %s', packageFile);
 
-      var installPromise;
+      var lbl = 'Updating package.json...';
 
       if (undefsafe(pkg, 'dependencies.snyk') ||
           undefsafe(pkg, 'peerDependencies.snyk') ||
           undefsafe(pkg, 'optionalDependencies.snyk')) {
-        installPromise = Promise.resolve(); // do nothing
+        // nothing to do as the user already has Snyk
+        // TODO decide whether we should update the version being used
+        // and how do we reconcile if the global install is older
+        // than the local version?
       } else {
-        installPromise = npm.bind(null, 'install', 'snyk', live, cwd);
+        if (answers['misc-add-protect']) {
+          if (!pkg.dependencies) {
+            pkg.dependencies = {};
+          }
+          pkg.dependencies.snyk = snykVersion;
+          lbl = 'Adding Snyk to production dependencies (used by snyk protect)';
+
+          // but also check if we should remove it from devDependencies
+          if (undefsafe(pkg, 'devDependencies.snyk')) {
+            delete pkg.devDependencies.snyk;
+          }
+        } else if (!undefsafe(pkg, 'devDependencies.snyk')) {
+          if (!pkg.devDependencies) {
+            pkg.devDependencies = {};
+          }
+          lbl = 'Adding Snyk to devDependencies (used by npm test)';
+          pkg.devDependencies.snyk = snykVersion;
+        }
       }
 
       // finally, add snyk as a dependency because they'll need it
       // during the protect process
-      var lbl = 'Updating package.json...';
       return spinner(lbl)
         .then(fs.writeFile(packageFile, JSON.stringify(pkg, '', 2)))
-        .then(installPromise)
         .then(spinner.clear(lbl));
     }
   })
@@ -366,7 +384,11 @@ function processAnswers(answers, policy, options) {
   })
   .then(function (monitorRes) {
     var endpoint = url.parse(config.API);
-    endpoint.pathname = '/monitor/' + monitorRes.id;
+    var leader = '';
+    if (monitorRes.org) {
+      leader = '/org/' + monitorRes.org;
+    }
+    endpoint.pathname = leader + '/monitor/' + monitorRes.id;
 
     return (options.newPolicy ?
       // if it's a newly created file

@@ -1,3 +1,4 @@
+var tap = require('tap');
 var test = require('tap-only');
 var proxyquire = require('proxyquire');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
@@ -7,9 +8,35 @@ var noop = function () {};
 var snyk = require('../');
 
 // spies
-var policySaveSpy = sinon.spy();
-var execSpy = sinon.spy();
-var writeSpy = sinon.spy();
+var policySaveSpy;
+var execSpy;
+var writeSpy;
+
+// policy
+var save = p => {
+  policySaveSpy(p);
+  return Promise.resolve();
+};
+
+snyk.policy.save = function (data) {
+  policySaveSpy(data);
+  return Promise.resolve();
+};
+
+var policy = proxyquire('snyk-policy', { save: save });
+var mockPolicy;
+
+tap.beforeEach(done => {
+  // reset all spies
+  policySaveSpy = sinon.spy();
+  execSpy = sinon.spy();
+  writeSpy = sinon.spy();
+
+  policy.create().then(p => {
+    mockPolicy = p;
+    mockPolicy.save = save.bind(null, mockPolicy);
+  }).then(done);
+});
 
 // proxies
 var getVulnSource = proxyquire('../lib/protect/get-vuln-source', {
@@ -34,11 +61,6 @@ var thenfs = {
       emit: noop,
     };
   },
-};
-
-snyk.policy.save = function (data) {
-  policySaveSpy(data);
-  return Promise.resolve();
 };
 
 var wizard = proxyquire('../cli/commands/protect/wizard', {
@@ -81,9 +103,7 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
 test('pre-tarred packages can be patched', function (t) {
   var answers = require(__dirname + '/fixtures/forever-answers.json');
 
-  wizard.processAnswers(answers, {
-    // policy
-  }).then(function () {
+  wizard.processAnswers(answers, mockPolicy).then(function () {
     t.equal(policySaveSpy.callCount, 1, 'write functon was only called once');
     var vulns = Object.keys(policySaveSpy.args[0][0].patch);
     var expect = Object.keys(answers).filter(function (key) {
@@ -102,7 +122,7 @@ test('process answers handles shrinkwrap', function (t) {
     execSpy = sinon.spy();
     var answers = require(__dirname + '/fixtures/forever-answers.json');
     answers['misc-test-no-monitor'] = true;
-    wizard.processAnswers(answers).then(function () {
+    wizard.processAnswers(answers, mockPolicy).then(function () {
       t.equal(execSpy.callCount, 0, 'shrinkwrap was not called');
     }).catch(t.threw).then(t.end);
   });
@@ -145,7 +165,7 @@ test('wizard replaces npm\s default scripts.test', function (t) {
   wizard.processAnswers({
     'misc-add-test': true,
     'misc-test-no-monitor': true,
-  }).then(function () {
+  }, mockPolicy).then(function () {
     t.equal(writeSpy.callCount, 1, 'package was written to');
     var pkg = JSON.parse(writeSpy.args[0][1]);
     t.equal(pkg.scripts.test, 'snyk test', 'default npm exit 1 was replaced');
@@ -165,7 +185,7 @@ test('wizard replaces prepends to scripts.test', function (t) {
   wizard.processAnswers({
     'misc-add-test': true,
     'misc-test-no-monitor': true,
-  }).then(function () {
+  }, mockPolicy).then(function () {
     t.equal(writeSpy.callCount, 1, 'package was written to');
     var pkg = JSON.parse(writeSpy.args[0][1]);
     t.equal(pkg.scripts.test, 'snyk test && ' + prevPkg.scripts.test, 'prepended to test script');
@@ -185,7 +205,7 @@ test('wizard detects existing snyk in scripts.test', function (t) {
   wizard.processAnswers({
     'misc-add-test': true,
     'misc-test-no-monitor': true,
-  }).then(function () {
+  }, mockPolicy).then(function () {
     t.equal(writeSpy.callCount, 1, 'package was written to');
     var pkg = JSON.parse(writeSpy.args[0][1]);
     t.equal(pkg.scripts.test, prevPkg.scripts.test, 'test script untouched');

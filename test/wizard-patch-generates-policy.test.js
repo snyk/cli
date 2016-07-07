@@ -1,12 +1,21 @@
+var tap = require('tap');
+var test = tap.test;
 var debug = require('debug')('snyk');
 var wizard = require('../cli/commands/protect/wizard');
 var policy = require('snyk-policy');
+var mockPolicy;
 var path = require('path');
-var test = require('tape');
 var fs = require('fs');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 var vulns = require('./fixtures/debug-2.1.0-vuln.json').vulnerabilities;
+
+tap.beforeEach(done => {
+  policy.create().then(p => {
+    mockPolicy = p;
+    done();
+  });
+});
 
 test('patch via wizard produces policy (on debug@2.1.0)', function (t) {
   var name = 'debug';
@@ -32,9 +41,7 @@ test('patch via wizard produces policy (on debug@2.1.0)', function (t) {
       vuln: vulns[0], // only contains 1 vuln (ms@0.6.2)
     };
 
-    return wizard.processAnswers(answers, {
-      // policy
-    }).then(function () {
+    return wizard.processAnswers(answers, mockPolicy).then(function () {
       // now check if the policy file worked.
       return policy.load(process.cwd()).then(function (res) {
         var patched = Object.keys(res.patch);
@@ -77,9 +84,7 @@ test('patch via wizard produces policy (on openapi-node@3.0.3)', function (t) {
     answers['misc-add-test'] = false;
     answers['misc-add-protect'] = false;
 
-    return wizard.processAnswers(answers, {
-      // policy
-    }).then(function () {
+    return wizard.processAnswers(answers, mockPolicy).then(function () {
       // now check if the policy file worked.
       return policy.load(process.cwd()).then(function (res) {
         var patched = Object.keys(res.patch).sort();

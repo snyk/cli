@@ -76,6 +76,20 @@ test('wizard supports review and ignore (SC-943)', function (t) {
   });
 });
 
+test('same name vulns do not get ignored (skipping in particular) (SC-1430)', function (t) {
+  var responses = [
+    'default:patch',
+    'skip',
+    'y',
+    'n', ];
+
+  var vulns = require(__dirname + '/fixtures/scenarios/SC-1430.json');
+
+  return interactive(vulns, responses).then(function (res) {
+    t.equal(Object.keys(res).length, 4, 'four prompts were answered');
+  });
+});
+
 test('ignored grouped update explodes into multiple rules (SC-959)', function (t) {
   var responses = [
     'ignore',
@@ -88,5 +102,31 @@ test('ignored grouped update explodes into multiple rules (SC-959)', function (t
   return interactive(vulns, responses, { earlyExit: true }).then(function (answers) {
     var tasks = answersToTasks(answers);
     t.equal(tasks.ignore.length, total, 'should ignore all vulns');
+  });
+});
+
+test('patch grouped vuln should run multiple patches (SC-1109)', function (t) {
+  var responses = [
+    'default:patch',
+    'default:ignore',
+    'none given',
+  ];
+
+  var vulns = require(__dirname + '/fixtures/scenarios/SC-1109.json');
+
+  return interactive(vulns, responses, { earlyExit: true }).then(function (answers) {
+    var tasks = answersToTasks(answers);
+    var filenames = tasks.patch.map(function (_) {
+      // trim the filename to remove the common path
+      return _.__filename.replace(/.*\/node_modules\/tap\/node_modules\//, '');
+    });
+    t.notEqual(filenames[0], filenames[1], 'filenames should not be the same');
+
+    // now it should only patch those files
+    var patches = require('../lib/protect/dedupe-patches')(tasks.patch);
+
+    t.equal(patches.packages.length, 2, '2 patches remain');
+    t.equal(patches.packages[0].patches.id, 'patch:npm:request:20160119:0');
+    t.equal(patches.packages[1].patches.id, 'patch:npm:request:20160119:4');
   });
 });

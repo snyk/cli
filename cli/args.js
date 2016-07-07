@@ -15,7 +15,13 @@ function args(processargv) {
       if (alias[arg] !== undefined) {
         acc[alias[arg]] = true;
       } else if (arg.indexOf('-') === 0) {
-        acc[arg.slice(1)] = true;
+        arg = arg.slice(1);
+        if (arg.indexOf('=') === -1) {
+          acc[arg] = true;
+        } else {
+          var parts = arg.split('=');
+          acc[parts.shift()] = parts.join('=');
+        }
       } else {
         acc[arg] = true;
       }

@@ -22,6 +22,8 @@ Commands:
 Options:
 
   --dev .............. include devDependencies (defaults to production only).
+  --org=<org-name> ... associate a snapshot (or wizard snapshot) with a specific
+                       organisation. For more help run `snyk --help=orgs`.
   --ignore-policy .... ignores and resets the state of your policy file.
   --trust-policies ... applies and uses ignore rules from your dependencies's
                        Snyk policies, otherwise ignore policies are only
@@ -35,6 +37,7 @@ Examples:
 
   $ snyk test
   $ snyk test ionic@1.6.5
+  $ snyk monitor --org=my-team
 
 Pro tip: use `snyk test` in your test scripts, if a vulnerability is
 found, the process will exit with a non-zero exit code.

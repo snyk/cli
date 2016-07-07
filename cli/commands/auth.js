@@ -19,10 +19,19 @@ function resetAttempts() {
   attemptsLeft = 30;
 }
 
-function githubAuth() {
+function githubAuth(via) {
   var token = uuid.v4(); // generate a random key
+  var redirects = {
+    wizard: '/authenticated',
+  };
 
   var url = authUrl + '/login?token=' + token;
+
+  // validate that via comes from our code, and not from user & CLI
+  // currently only support `wizard` but we'll add more over time.
+  if (redirects[via]) {
+    url += '&redirectUri=' + new Buffer(redirects[via]).toString('base64');
+  }
 
   var msg =
     '\nNow redirecting you to our github auth page, go ahead and log in,\n' +
@@ -131,14 +140,14 @@ function verifyAPI(api) {
   });
 }
 
-function auth(api) {
+function auth(api, via) {
   var promise;
   resetAttempts();
   if (api) {
     // user is manually setting the API token on the CLI - let's trust them
     promise = verifyAPI(api);
   } else {
-    promise = githubAuth();
+    promise = githubAuth(via);
   }
 
   return promise.then(function (data) {

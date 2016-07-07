@@ -30,7 +30,11 @@ function monitor(path, options) {
       .then(snyk.monitor.bind(null, path, { method: 'cli' }))
       .then(function (res) {
         var endpoint = url.parse(config.API);
-        endpoint.pathname = '/monitor/' + res.id;
+        var leader = '';
+        if (res.org) {
+          leader = '/org/' + res.org;
+        }
+        endpoint.pathname = leader + '/monitor/' + res.id;
         return 'Captured a snapshot of this project\'s dependencies.\n' +
         'Explore this snapshot at ' +  url.format(endpoint) + '\n' +
         'Notifications about newly disclosed vulnerabilities\n' +

@@ -8,11 +8,11 @@ var port = process.env.PORT = process.env.SNYK_PORT = 12345;
 var sinon = require('sinon');
 var proxyquire = require('proxyquire');
 var parse = require('url').parse;
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = 0;
+
 
 var server = require('./cli-server')(process.env.SNYK_API, apiKey);
 

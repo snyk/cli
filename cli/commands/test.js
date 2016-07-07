@@ -91,7 +91,7 @@ function test(path, options) {
     }
     summary += ' for known vulnerabilities';
 
-    if (res.ok) {
+    if (res.ok && res.vulnerabilities.length === 0) {
       summary = chalk.green('✓ ' + summary + ', no vulnerable paths found.');
 
       if (!isCI) {
@@ -122,7 +122,7 @@ function test(path, options) {
 
     var sep = '\n\n';
 
-    var error = new Error(res.vulnerabilities.map(function (vuln) {
+    var body = res.vulnerabilities.map(function (vuln) {
       var res = '';
       var name = vuln.name + '@' + vuln.version;
       var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
@@ -184,7 +184,13 @@ function test(path, options) {
         ' dependency.');
       }
       return res;
-    }).join(sep) + sep + summary);
+    }).join(sep) + sep + summary;
+
+    if (res.ok) {
+      return body;
+    }
+
+    var error = new Error(body);
 
     error.code = 'VULNS';
     throw error;

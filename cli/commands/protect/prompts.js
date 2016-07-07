@@ -15,7 +15,7 @@ var protect = require('../../../lib/protect');
 var moduleToObject = require('snyk-module');
 var undefsafe = require('undefsafe');
 var config = require('../../../lib/config');
-var snyk = require('../../../lib/');
+var snykPolicy = require('snyk-policy');
 
 // via http://stackoverflow.com/a/4760279/22617
 function sort(prop) {
@@ -220,7 +220,14 @@ function getPatchPrompts(vulns, policy) {
           main: true,
           id: acc[last].id + '-' + i,
           count: 1,
-          upgrades: [acc[last].from],
+          upgrades: [{
+            // all this information is used when the user selects group patch
+            // specifically: in ./tasks.js~42
+            from: acc[last].from,
+            filename: acc[last].__filename,
+            patches: acc[last].patches,
+            version: acc[last].version,
+          },],
           patch: true,
         };
 
@@ -237,10 +244,6 @@ function getPatchPrompts(vulns, policy) {
         offset++;
       }
 
-      // if (acc[last].grouped.affected.full.indexOf(curr.version) === -1) {
-      //   acc[last].grouped.affected.full += ' / ' + curr.version;
-      // }
-
       acc[last].grouped.count++;
 
       curr.grouped = {
@@ -249,12 +252,17 @@ function getPatchPrompts(vulns, policy) {
       };
 
       // add the from path to our group upgrades if we don't have it already
-      var have = !!acc[last].grouped.upgrades.filter(function (from) {
-        return from.join(' ') === curr.from.join(' ');
+      var have = !!acc[last].grouped.upgrades.filter(function (upgrade) {
+        return upgrade.from.join(' ') === curr.from.join(' ');
       }).length;
 
       if (!have) {
-        acc[last].grouped.upgrades.push(curr.from);
+        acc[last].grouped.upgrades.push({
+          from: curr.from,
+          filename: curr.__filename,
+          patches: curr.patches,
+          version: curr.version,
+        });
       } else {
         if (!acc[last].grouped.includes) {
           acc[last].grouped.includes = [];
@@ -282,7 +290,7 @@ function getPatchPrompts(vulns, policy) {
   });
 
   // console.log(res.map(_ => _.grouped));
-  var prompts = generatePrompt(res, policy);
+  var prompts = generatePrompt(res, policy, 'p');
 
 
   return prompts;
@@ -310,7 +318,7 @@ function getIgnorePrompts(vulns, policy) {
     return true;
   });
 
-  var prompts = generatePrompt(res, policy);
+  var prompts = generatePrompt(res, policy, 'i');
 
   return prompts;
 
@@ -394,7 +402,7 @@ function getUpdatePrompts(vulns, policy) {
     return !!curr.upgradePath[1];
   });
 
-  var prompts = generatePrompt(res, policy);
+  var prompts = generatePrompt(res, policy, 'u');
 
   return prompts;
 }
@@ -425,7 +433,10 @@ function canBeUpgraded(vuln) {
   });
 }
 
-function generatePrompt(vulns, policy) {
+function generatePrompt(vulns, policy, prefix) {
+  if (!prefix) {
+    prefix = '';
+  }
   if (!vulns) {
     vulns = []; // being defensive, but maybe we should throw an error?
   }
@@ -464,7 +475,7 @@ function generatePrompt(vulns, policy) {
   var prompts = vulns.map(function (vuln, i) {
     var id = vuln.id || ('node-' + vuln.name + '@' + vuln.below);
 
-    id += '-' + i;
+    id += '-' + prefix + i;
 
     // make complete copies of the actions, otherwise we'll mutate the object
     var ignore = _.cloneDeep(ignoreAction);
@@ -744,7 +755,7 @@ function generatePrompt(vulns, policy) {
   prompts = prompts.reduce(function (acc, curr) {
     acc.push(curr);
     // console.log(curr.choices[0].value.vuln);
-    var rule = snyk.policy.getByVuln(policy, curr.choices[0].value.vuln);
+    var rule = snykPolicy.getByVuln(policy, curr.choices[0].value.vuln);
     var defaultAnswer = 'None given';
     if (rule && rule.type === 'ignore') {
       defaultAnswer = rule.reason;
