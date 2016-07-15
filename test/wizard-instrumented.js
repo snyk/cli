@@ -6,6 +6,10 @@ var spy;
 var wizard = proxyquire('../cli/commands/protect/wizard', {
   inquirer: {
     prompt: function (q, cb) {
+      if (!cb) {
+        cb = _ => Promise.resolve(_);
+      }
+
       if (spy) {
         var res = q.reduce(function (acc, curr, i, all) {
           if (curr.when && !curr.when(acc)) {
@@ -18,7 +22,7 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
 
         return cb(res);
       }
-      cb(q);
+      return cb(q);
     },
   }
 });

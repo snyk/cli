@@ -17,6 +17,7 @@ test('bad patch file does not apply', function (t) {
     name: 'semver',
     version: '4.3.1',
     id: 'npm:semver:20150403',
+    from: ['semver@4.3.1'],
   }, true).then(function () {
     t.fail('patch successfully applied');
     fs.writeFileSync(dir + '/semver.js', semver);

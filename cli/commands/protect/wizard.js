@@ -69,7 +69,7 @@ function wizard(options) {
           if (options.newPolicy) {
             return resolve(); // don't prompt to start over
           }
-          inquirer.prompt(allPrompts.startOver(), function (answers) {
+          inquirer.prompt(allPrompts.startOver()).then(function (answers) {
             analytics.add('start-over', answers['misc-start-over']);
             if (answers['misc-start-over']) {
               options['ignore-policy'] = true;
@@ -148,7 +148,7 @@ function inquire(prompts, answers) {
     return Promise.resolve(answers);
   }
   return new Promise(function (resolve) {
-    inquirer.prompt(prompts, function (theseAnswers) {
+    inquirer.prompt(prompts).then(function (theseAnswers) {
       _.extend(answers, theseAnswers);
       resolve(answers);
     });
@@ -185,9 +185,11 @@ function processAnswers(answers, policy, options) {
     var res = {
       vulnId: answer.vuln.id,
       choice: answer.choice,
+      from: answer.vuln.from.slice(1),
     };
 
-    if (answer.grouped && answer.grouped.main) {
+    if (answer.vuln.grouped) {
+      res.batchMain = !!answer.vuln.grouped.main;
       res.batch = true;
     }
 
