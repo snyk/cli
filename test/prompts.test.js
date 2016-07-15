@@ -7,7 +7,10 @@ var spy = sinon.spy();
 var wizard = proxyquire('../cli/commands/protect/wizard', {
   inquirer: {
     prompt: function (q, cb) {
-      cb(spy(q));
+      if (!cb) {
+        cb = Promise.resolve.bind(Promise);
+      }
+      return cb(spy(q));
     },
   }
 });
