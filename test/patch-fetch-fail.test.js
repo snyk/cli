@@ -1,11 +1,10 @@
 var test = require('tap-only');
 var proxyquire = require('proxyquire');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var shouldWork = true;
 var switchAfterFailure = true;
 var analyticsEvent;
 
-var patch = proxyquire('../lib/protect/patch', {
+var getPatchFile = proxyquire('../lib/protect/fetch-patch', {
   'then-fs': {
     createWriteStream: function () {},
   },
@@ -46,30 +45,28 @@ var patch = proxyquire('../lib/protect/patch', {
 
 test('Fetch does what it should when request works properly', t => {
   t.plan(1);
-  patch._getPatchFile('', 'name',
-                      () => t.fail('Rejected'),
-                      (name) => t.is(name, 'name'));
+  getPatchFile('', 'name')
+    .then(name => t.is(name, 'name'))
+    .catch(() => t.fail('Rejected'));
 });
 
 test('Fetch retries on error', t => {
   t.plan(1);
   shouldWork = false;
-  patch._getPatchFile('', 'name',
-                      () => t.fail('Rejected'),
-                      (name) => t.is(name, 'name'),
-                      1);
+  getPatchFile('', 'name', 1)
+    .then(name => t.is(name, 'name'))
+    .catch(() => t.fail('Rejected'));
 });
 
 test('Fetch fails after all attempts are used', t => {
   t.plan(3);
   shouldWork = false;
   switchAfterFailure = false;
-  patch._getPatchFile('', 'name',
-                      () => {
-                        t.is(analyticsEvent.type, 'patch-fetch-fail');
-                        t.is(analyticsEvent.data.message, 'foo');
-                        t.is(analyticsEvent.data.code, 'bar');
-                      },
-                      () => t.fail('Should have failed'),
-                      1);
+  getPatchFile('', 'name', 1)
+    .then(() => t.fail('Should have failed'))
+    .catch(() => {
+      t.is(analyticsEvent.type, 'patch-fetch-fail');
+      t.is(analyticsEvent.data.message, 'foo');
+      t.is(analyticsEvent.data.code, 'bar');
+    });
 });
