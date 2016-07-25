@@ -37,7 +37,7 @@
     "open": "^0.0.5",
     "os-name": "^1.0.3",
     "snyk-recursive-readdir": "^2.0.0",
-    "request": "^2.60.0",
+    "request": "^2.74.0",
     "semver": "^5.1.0",
     "snyk-config": "1.0.1",
     "snyk-module": "1.7.0",
