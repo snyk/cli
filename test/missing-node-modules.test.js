@@ -2,7 +2,7 @@ const test = require('tap-only');
 const fs = require('then-fs');
 const dir = __dirname + '/fixtures/bugs/SC-1615/';
 
-test('throws when missing node_moduless', t => {
+test('throws when missing node_modules', t => {
   var snyk = require('../');
   return snyk.test(dir).then(() => {
     t.fail('should have thrown');
