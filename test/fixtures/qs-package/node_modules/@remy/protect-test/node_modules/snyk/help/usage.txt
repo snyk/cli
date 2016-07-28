@@ -1,3 +1,0 @@
-Usage: snyk <command>
-
-See "snyk --help" for more.
