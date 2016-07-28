@@ -1,0 +1,27 @@
+sudo: false
+language: node_js
+cache:
+  directories:
+    - node_modules
+notifications:
+  email: false
+matrix:
+  include:
+    - node_js: "5"
+    - node_js: "4"
+    - node_js: "0.10"
+      env: BABEL=true
+script: "[[ $BABEL == true ]] && npm run test:babel || npm test"
+before_install:
+  - npm i -g npm@^2.0.0
+before_script:
+  - npm prune
+after_success:
+  - npm run travis-coverage
+  - python scripts/travis_after_all.py
+  - export $(cat .to_export_back)
+  - npm run semantic-release
+branches:
+  except:
+    - "/^v\\d+\\.\\d+\\.\\d+$/"
+    - /^released-/
