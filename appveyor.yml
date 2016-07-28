@@ -21,4 +21,4 @@ test_script:
   - node --version
   - npm --version
   # run tests
-  - npm test
+  - npm run windows-tests
