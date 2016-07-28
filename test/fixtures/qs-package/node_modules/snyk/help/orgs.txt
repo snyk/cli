@@ -1,0 +1,19 @@
+
+Organisations:
+
+To monitor your project for a specific org, you can add an optional flag to
+both the `monitor` and `wizard` commands:
+
+  $ snyk monitor --org=<my-org>
+  Captured a snapshot of this project's dependencies.
+  Explore this snapshot at https://snyk.io/org/my-org/monitor/c21bf27d-47f3
+  Notifications about newly disclosed vulnerabilities
+  related to these dependencies will be emailed to you.
+
+If you have multiple organisations, you can set a default from the CLI using:
+
+  $ snyk config set org=<my-default-org>
+
+Setting a default will ensure all newly monitored projects will be created
+under your default organisation. If you need to override the default, you can
+use the `--org=<other-org>` argument.
