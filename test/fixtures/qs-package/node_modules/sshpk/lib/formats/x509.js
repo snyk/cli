@@ -338,7 +338,8 @@ function sign(cert, key) {
 	var sig = cert.signatures.x509;
 
 	sig.algo = key.type + '-' + key.defaultHashAlgorithm();
-	assert.string(SIGN_ALGS[sig.algo]);
+	if (SIGN_ALGS[sig.algo] === undefined)
+		return (false);
 
 	var der = new asn1.BerWriter();
 	writeTBSCert(cert, der);
@@ -348,6 +349,8 @@ function sign(cert, key) {
 	var signer = key.createSign();
 	signer.write(blob);
 	cert.signatures.x509.signature = signer.sign();
+
+	return (true);
 }
 
 function write(cert, options) {
