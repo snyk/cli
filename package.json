@@ -14,7 +14,7 @@
     "tap": "COVERALLS_REPO_TOKEN=0 tap --timeout=60 --cov --coverage-report=text-summary test/*.test.js",
     "test": "npm run lint && npm run tap && node cli/index.js test",
     "test:babel": "babel test/*.js -d . && COVERALLS_REPO_TOKEN=0 tap --nyc-arg=--require --nyc-arg=babel-polyfill --timeout=60 --cov --coverage-report=text-summary test/*.test.js",
-    "windows-tests": "tap -R spec test/*.test.js --timeout=60",
+    "windows-tests": "tap -R spec test/*.test.js --timeout=120",
     "lint": "jscs ./cli/*.js ./cli/**/*.js ./lib/*.js -v",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
