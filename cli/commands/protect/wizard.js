@@ -391,6 +391,9 @@ function processAnswers(answers, policy, options) {
       leader = '/org/' + monitorRes.org;
     }
     endpoint.pathname = leader + '/monitor/' + monitorRes.id;
+    var monitorUrl = url.format(endpoint);
+    endpoint.pathname = leader + '/manage';
+    var manageUrl = url.format(endpoint);
 
     return (options.newPolicy ?
       // if it's a newly created file
@@ -400,9 +403,12 @@ function processAnswers(answers, policy, options) {
       '\nYour .snyk policy file has been successfully updated.') +
       '\nTo review your policy, run `snyk policy`.\n\n' +
       'You can see a snapshot of your dependencies here:\n' +
-      url.format(endpoint) +
-      '\n\nWe\'ll notify you when relevant new vulnerabilities are ' +
-      'disclosed.';
+      monitorUrl + '\n\n' +
+      (monitorRes.isMonitored ?
+      'We\'ll notify you when relevant new vulnerabilities are ' +
+      'disclosed.\n' :
+      chalk.bold.red('Project is inactive, so notifications are turned off.\n' +
+      'Activate this project here: ' + manageUrl + '\n'));
   })
   .catch(function (error) {
     // if it's a dry run - exit with 0 status

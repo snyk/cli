@@ -5,6 +5,7 @@ var apiTokenExists = require('../../lib/api-token').exists;
 var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var url = require('url');
+var chalk = require('chalk');
 
 function monitor(path, options) {
   if (!path) {
@@ -35,10 +36,18 @@ function monitor(path, options) {
           leader = '/org/' + res.org;
         }
         endpoint.pathname = leader + '/monitor/' + res.id;
+        var monitorUrl = url.format(endpoint);
+        endpoint.pathname = leader + '/manage';
+        var manageUrl = url.format(endpoint);
+
+        endpoint.pathname = leader + '/monitor/' + res.id;
         return 'Captured a snapshot of this project\'s dependencies.\n' +
-        'Explore this snapshot at ' +  url.format(endpoint) + '\n' +
+        'Explore this snapshot at ' +  monitorUrl + '\n' +
+        (res.isMonitored ?
         'Notifications about newly disclosed vulnerabilities\n' +
-        'related to these dependencies will be emailed to you.\n';
+        'related to these dependencies will be emailed to you.\n' :
+        chalk.bold.red('Project is inactive, so notifications are turned ' +
+        'off.\nActivate this project here: ' + manageUrl + '\n'));
       });
 
   });
