@@ -1,19 +1,11 @@
-# Form-Data [![NPM Module](https://img.shields.io/npm/v/form-data.svg)](https://www.npmjs.com/package/form-data) [![Join the chat at https://gitter.im/form-data/form-data](http://form-data.github.io/images/gitterbadge.svg)](https://gitter.im/form-data/form-data)
+# Form-Data [![Build Status](https://travis-ci.org/felixge/node-form-data.png?branch=master)](https://travis-ci.org/felixge/node-form-data) [![Dependency Status](https://gemnasium.com/felixge/node-form-data.png)](https://gemnasium.com/felixge/node-form-data)
 
-A library to create readable ```"multipart/form-data"``` streams. Can be used to submit forms and file uploads to other web applications.
+A module to create readable ```"multipart/form-data"``` streams. Can be used to submit forms and file uploads to other web applications.
 
-The API of this library is inspired by the [XMLHttpRequest-2 FormData Interface][xhr2-fd].
+The API of this module is inspired by the [XMLHttpRequest-2 FormData Interface][xhr2-fd].
 
 [xhr2-fd]: http://dev.w3.org/2006/webapi/XMLHttpRequest-2/Overview.html#the-formdata-interface
 [streams2-thing]: http://nodejs.org/api/stream.html#stream_compatibility_with_older_node_versions
-
-[![Linux Build](https://img.shields.io/travis/form-data/form-data/master.svg?label=linux:0.10-5.x)](https://travis-ci.org/form-data/form-data)
-[![Windows Build](https://img.shields.io/appveyor/ci/alexindigo/form-data/master.svg?label=windows:0.10-5.x)](https://ci.appveyor.com/project/alexindigo/form-data)
-[![Coverage Status](https://img.shields.io/coveralls/form-data/form-data/master.svg?label=code+coverage)](https://coveralls.io/github/form-data/form-data?branch=master)
-
-[![Dependency Status](https://img.shields.io/david/form-data/form-data.svg)](https://david-dm.org/form-data/form-data)
-[![Codacy Badge](https://img.shields.io/codacy/43ece80331c246179695e41f81eeffe2.svg)](https://www.codacy.com/app/form-data/form-data)
-[![bitHound Overall Score](https://www.bithound.io/github/form-data/form-data/badges/score.svg)](https://www.bithound.io/github/form-data/form-data)
 
 ## Install
 
@@ -51,7 +43,7 @@ http.request('http://nodejs.org/images/logo.png', function(response) {
 });
 ```
 
-Or @mikeal's [request](https://github.com/request/request) stream:
+Or @mikeal's request stream:
 
 ``` javascript
 var FormData = require('form-data');
@@ -69,7 +61,7 @@ In order to submit this form to a web application, call ```submit(url, [callback
 ``` javascript
 form.submit('http://example.org/', function(err, res) {
   // res – response object (http.IncomingMessage)  //
-  res.resume();
+  res.resume(); // for node-0.10.x
 });
 
 ```
@@ -169,49 +161,14 @@ form.submit({
 });
 ```
 
-### Integration with other libraries
-
-#### Request
-
-Form submission using  [request](https://github.com/request/request):
-
-```javascript
-var formData = {
-  my_field: 'my_value',
-  my_file: fs.createReadStream(__dirname + '/unicycle.jpg'),
-};
-
-request.post({url:'http://service.com/upload', formData: formData}, function(err, httpResponse, body) {
-  if (err) {
-    return console.error('upload failed:', err);
-  }
-  console.log('Upload successful!  Server responded with:', body);
-});
-```
-
-For more details see [request readme](https://github.com/request/request#multipartform-data-multipart-form-uploads).
-
-#### node-fetch
-
-You can also submit a form using [node-fetch](https://github.com/bitinn/node-fetch):
-
-```javascript
-var form = new FormData();
-
-form.append('a', 1);
-
-fetch('http://example.com', { method: 'POST', body: form })
-    .then(function(res) {
-        return res.json();
-    }).then(function(json) {
-        console.log(json);
-    });
-```
-
 ## Notes
 
 - ```getLengthSync()``` method DOESN'T calculate length for streams, use ```knownLength``` options as workaround.
 - If it feels like FormData hangs after submit and you're on ```node-0.10```, please check [Compatibility with Older Node Versions][streams2-thing]
+
+## TODO
+
+- Add new streams (0.10) support and try really hard not to break it for 0.8.x.
 
 ## License
 
