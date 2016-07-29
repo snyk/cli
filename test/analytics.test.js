@@ -4,6 +4,7 @@ var proxyquire = require('proxyquire').noPreserveCache();
 var sinon = require('sinon');
 var snyk = require('../lib');
 var old;
+var iswindows = require('os-name')().toLowerCase().indexOf('windows') === 0;
 
 tap.beforeEach(function (done) {
   old = snyk.config.get('disable-analytics');
@@ -67,7 +68,7 @@ test('bad command', function (t) {
   });
 });
 
-test('test includes data', function (t) {
+test('test includes data', { skip: iswindows }, function (t) {
   var spy = sinon.spy();
   process.argv = ['node', 'script.js', 'test', 'snyk-demo-app', '-q'];
 
