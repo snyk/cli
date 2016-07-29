@@ -128,10 +128,19 @@ Certificate.prototype.isSignedByKey = function (issuerKey) {
 };
 
 Certificate.prototype.signWith = function (key) {
+	utils.assertCompatible(key, PrivateKey, [1, 2], 'key');
 	var fmts = Object.keys(formats);
+	var didOne = false;
 	for (var i = 0; i < fmts.length; ++i) {
-		if (fmts[i] !== 'pem')
-			formats[fmts[i]].sign(this, key);
+		if (fmts[i] !== 'pem') {
+			var ret = formats[fmts[i]].sign(this, key);
+			if (ret === true)
+				didOne = true;
+		}
+	}
+	if (!didOne) {
+		throw (new Error('Failed to sign the certificate for any ' +
+		    'available certificate formats'));
 	}
 };
 

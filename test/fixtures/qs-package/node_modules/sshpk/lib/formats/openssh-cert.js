@@ -58,6 +58,8 @@ function fromBuffer(data, algo, partial) {
 	var innerAlgo = sshbuf.readString();
 	if (algo !== undefined && innerAlgo !== algo)
 		throw (new Error('SSH certificate algorithm mismatch'));
+	if (algo === undefined)
+		algo = innerAlgo;
 
 	var cert = {};
 	cert.signatures = {};
@@ -168,15 +170,22 @@ function dateToInt64(date) {
 }
 
 function sign(cert, key) {
-	assert.ok(PrivateKey.isPrivateKey(key, [1, 2]));
 	if (cert.signatures.openssh === undefined)
 		cert.signatures.openssh = {};
+	try {
+		var blob = toBuffer(cert, true);
+	} catch (e) {
+		delete (cert.signatures.openssh);
+		return (false);
+	}
 	var sig = cert.signatures.openssh;
-
-	var blob = toBuffer(cert, true);
-	var signer = key.createSign();
+	var hashAlgo = undefined;
+	if (key.type === 'rsa' || key.type === 'dsa')
+		hashAlgo = 'sha1';
+	var signer = key.createSign(hashAlgo);
 	signer.write(blob);
 	sig.signature = signer.sign();
+	return (true);
 }
 
 function write(cert, options) {
@@ -262,6 +271,8 @@ function getAlg(certType) {
 		return ('dsa');
 	if (certType.match(ECDSA_ALGO))
 		return ('ecdsa');
+	if (certType === 'ssh-ed25519-cert-v01@openssh.com')
+		return ('ed25519');
 	throw (new Error('Unsupported cert type ' + certType));
 }
 
@@ -272,5 +283,7 @@ function getCertType(key) {
 		return ('ssh-dss-cert-v01@openssh.com');
 	if (key.type === 'ecdsa')
 		return ('ecdsa-sha2-' + key.curve + '-cert-v01@openssh.com');
+	if (key.type === 'ed25519')
+		return ('ssh-ed25519-cert-v01@openssh.com');
 	throw (new Error('Unsupported key type ' + key.type));
 }
