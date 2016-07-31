@@ -1,0 +1,30 @@
+# snyk-resolve
+
+Finds the filename for a given package name and starting directory. This is used to resolve packages in situations like npm@3 and deduped packages.
+
+Supports both async (via promises) and sync methods of looking up.
+
+## Usage
+
+```js
+var resolve = require('snyk-resolve');
+
+// async (promise based)
+resolve('foo', process.cwd()).then(function (dir) {
+  // assuming that `foo` lived in the root of your drive
+  console.assert(dir === '/node_modules/foo');
+});
+
+// sync
+var dir = resolve('bar', process.cwd());
+// throws Error('package not found bar')
+```
+
+See tests for more examples.
+
+## Supports
+
+- npm@2 directory structure
+- npm@3 directory structure
+- deduped modules
+- scoped modules

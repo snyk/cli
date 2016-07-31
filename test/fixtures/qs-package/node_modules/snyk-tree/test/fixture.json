@@ -1,0 +1,15 @@
+{
+  "name": "@remy/npm-tree",
+  "dependencies": {
+    "ansicolors": {
+      "version": "0.3.2",
+      "from": "ansicolors@latest",
+      "resolved": "https://registry.npmjs.org/ansicolors/-/ansicolors-0.3.2.tgz"
+    },
+    "archy": {
+      "version": "1.0.0",
+      "from": "archy@*",
+      "resolved": "https://registry.npmjs.org/archy/-/archy-1.0.0.tgz"
+    }
+  }
+}

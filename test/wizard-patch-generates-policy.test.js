@@ -9,6 +9,7 @@ var fs = require('fs');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 var vulns = require('./fixtures/debug-2.1.0-vuln.json').vulnerabilities;
+var iswindows = require('os-name')().toLowerCase().indexOf('windows') === 0;
 
 tap.beforeEach(done => {
   policy.create().then(p => {
@@ -17,7 +18,7 @@ tap.beforeEach(done => {
   });
 });
 
-test('patch via wizard produces policy (on debug@2.1.0)', function (t) {
+test('patch via wizard produces policy (on debug@2.1.0)', { skip: iswindows }, function (t) {
   var name = 'debug';
   var version = '2.1.0';
   var cwd = process.cwd();
@@ -63,7 +64,7 @@ test('patch via wizard produces policy (on debug@2.1.0)', function (t) {
 
 });
 
-test('patch via wizard produces policy (on openapi-node@3.0.3)', function (t) {
+test('patch via wizard produces policy (on openapi-node@3.0.3)', { skip: iswindows }, function (t) {
   var name = 'openapi-node';
   var version = '3.0.3';
   var cwd = process.cwd();
