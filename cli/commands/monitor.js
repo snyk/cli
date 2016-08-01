@@ -42,12 +42,17 @@ function monitor(path, options) {
 
         endpoint.pathname = leader + '/monitor/' + res.id;
         return 'Captured a snapshot of this project\'s dependencies.\n' +
-        'Explore this snapshot at ' +  monitorUrl + '\n' +
+        'Explore this snapshot at ' +  monitorUrl + '\n\n' +
         (res.isMonitored ?
         'Notifications about newly disclosed vulnerabilities\n' +
-        'related to these dependencies will be emailed to you.\n' :
+        'related to these dependencies will be emailed to you.\n\n' :
         chalk.bold.red('Project is inactive, so notifications are turned ' +
-        'off.\nActivate this project here: ' + manageUrl + '\n'));
+        'off.\nActivate this project here: ' + manageUrl + '\n\n')) +
+        (res.trialStarted ?
+        chalk.yellow('You\'re over the free plan usage limit, \n' +
+        'and are now on a free 14-day premium trial.\n' +
+        'View plans here: ' + manageUrl + '\n\n') :
+        '');
       });
 
   });
