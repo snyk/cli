@@ -7,7 +7,7 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 
 // skipped intentially - only used for debugging tests
-test('patch is correctly skipped during tests', { timeout: 1000 * 60 * 2 }, function (t) {
+test('patch is correctly skipped during tests', { timeout: 1000 * 60 * 3 }, function (t) {
   var dir = path.resolve(__dirname, 'fixtures/protect-via-snyk');
   npm('install', '', dir)
   .then(function () {
