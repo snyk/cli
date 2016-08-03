@@ -1,0 +1,51 @@
+# https://www.appveyor.com/docs/appveyor-yml
+
+# to disable automatic builds
+build: off
+
+# branches to build
+branches:
+  # whitelist
+  only:
+    - develop
+    - master
+
+# Do not build on tags (GitHub and BitBucket)
+skip_tags: true
+
+# Fix line endings on Windows
+init:
+  - git config --global core.autocrlf true
+
+# quicker git clone
+shallow_clone: true
+clone_depth: 1
+
+# cache
+cache:
+  - node_modules -> package.json # cache node_modules, reset if package.json is modified
+
+# Test against these versions of Node.js
+environment:
+  matrix:
+    - nodejs_version: "6"
+    - nodejs_version: "4"
+
+# fastfail
+matrix:
+  fast_finish: true
+
+# Install scripts. (runs after repo cloning)
+install:
+  # Get the latest stable version of Node.js or io.js
+  - ps: Install-Product node $env:nodejs_version
+  # Output useful info for debugging.
+  - node --version
+  - npm --version
+  # install modules
+  - npm install
+
+# Post-install test scripts.
+test_script:
+  # run tests
+  - npm run windows-tests
