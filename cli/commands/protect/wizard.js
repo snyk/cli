@@ -370,7 +370,7 @@ function processAnswers(answers, policy, options) {
   .then(function () {
     if (answers['misc-test-no-monitor']) { // allows us to automate tests
       return {
-        id: 'test'
+        id: 'test',
       };
     }
 
