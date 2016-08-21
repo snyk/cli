@@ -406,9 +406,14 @@ function processAnswers(answers, policy, options) {
       monitorUrl + '\n\n' +
       (monitorRes.isMonitored ?
       'We\'ll notify you when relevant new vulnerabilities are ' +
-      'disclosed.\n' :
+      'disclosed.\n\n' :
       chalk.bold.red('Project is inactive, so notifications are turned off.\n' +
-      'Activate this project here: ' + manageUrl + '\n'));
+      'Activate this project here: ' + manageUrl + '\n')) +
+      (monitorRes.trialStarted ?
+      chalk.yellow('You\'re over the free plan usage limit, \n' +
+      'and are now on a free 14-day premium trial.\n' +
+      'View plans here: ' + manageUrl + '\n\n') :
+      '');
   })
   .catch(function (error) {
     // if it's a dry run - exit with 0 status
