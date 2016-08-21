@@ -34,6 +34,7 @@
     "configstore": "^1.2.0",
     "debug": "^2.2.0",
     "es6-promise": "^3.0.2",
+    "hasbin": "^1.2.3",
     "inquirer": "1.0.3",
     "lodash": "^3.10.1",
     "node-uuid": "^1.4.3",
