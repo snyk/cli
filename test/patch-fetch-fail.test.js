@@ -1,6 +1,7 @@
 var test = require('tap-only');
 var proxyquire = require('proxyquire');
 var shouldWork = true;
+var timeout = false;
 var switchAfterFailure = true;
 var analyticsEvent;
 
@@ -10,27 +11,37 @@ var getPatchFile = proxyquire('../lib/protect/fetch-patch', {
   },
   request: function () {
     return {
-      on: function (_, cb) {
-        if (shouldWork) {
-          cb();
+      on: function (_, responseCb) {
+        if (!timeout) {
+          responseCb({ statusCode: 200 });
+        } else {
+          timeout = false;
+          responseCb({ statusCode: 504 });
         }
         return {
           on: function (_, cb) {
-            if (!shouldWork) {
-              if (switchAfterFailure) {
-                shouldWork = !shouldWork;
-              }
-              cb({
-                message: 'foo',
-                code: 'bar',
-              });
+            if (shouldWork) {
+              cb();
             }
             return {
-              pipe: function () {},
-            }
-          }
-        }
-      }
+              on: function (_, cb) {
+                if (!shouldWork) {
+                  if (switchAfterFailure) {
+                    shouldWork = !shouldWork;
+                  }
+                  cb({
+                    message: 'foo',
+                    code: 'bar',
+                  });
+                }
+                return {
+                  pipe: function () {},
+                };
+              },
+            };
+          },
+        };
+      },
     };
   },
   '../analytics': {
@@ -38,7 +49,7 @@ var getPatchFile = proxyquire('../lib/protect/fetch-patch', {
       analyticsEvent = {
         type: type,
         data: data,
-      }
+      };
     },
   },
 });
@@ -53,6 +64,16 @@ test('Fetch does what it should when request works properly', t => {
 test('Fetch retries on error', t => {
   t.plan(1);
   shouldWork = false;
+  timeout = false;
+  getPatchFile('', 'name', 1)
+    .then(name => t.is(name, 'name'))
+    .catch(() => t.fail('Rejected'));
+});
+
+test('Fetch retries on server errors', t => {
+  t.plan(1);
+  shouldWork = true;
+  timeout = true;
   getPatchFile('', 'name', 1)
     .then(name => t.is(name, 'name'))
     .catch(() => t.fail('Rejected'));
@@ -60,6 +81,7 @@ test('Fetch retries on error', t => {
 
 test('Fetch fails after all attempts are used', t => {
   t.plan(3);
+  timeout = false;
   shouldWork = false;
   switchAfterFailure = false;
   getPatchFile('', 'name', 1)
