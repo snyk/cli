@@ -30,6 +30,6 @@ test('Ensure patch throws when patch does not exist', t => {
     .then(t.fail)
     .catch(() => {
       t.is(analyticsEvent.type, 'patch-binary-missing');
-      t.is(analyticsEvent.data.message, 'GNU "patch" binary does not exist.');
+      t.ok(analyticsEvent.data.message.indexOf('GNU') > -1);
     });
 });
