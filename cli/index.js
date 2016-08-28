@@ -80,7 +80,7 @@ if (module.parent) {
 } else {
   debug('checking for cli updates');
   // finally, check for available update and returns an instance
-  var defaults = require('lodash').defaults;
+  var defaults = require('../dist/lodash-min').defaults;
   var pkg = require('../package.json');
 
   // only run if we're not inside an npm.script
