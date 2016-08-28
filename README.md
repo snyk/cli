@@ -6,8 +6,6 @@ Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm pa
 * Get started with our __<a href="https://snyk.io/docs/quick-start/" title="Quick start guide">step-by-step guide.</a>__
 * <a href="https://snyk.io/docs/using-snyk/" title="Using Snyk">__Check our full documentation on snyk.io__</a> for details.
 
-Note: Snyk is currently in beta. [Email us your feedback](mailto:support@snyk.io).
-
 ## CLI
 
 ```console
