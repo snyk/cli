@@ -53,6 +53,15 @@ Markdown:
 [![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name)
 ```
 
+## Build
+
+If using this package from the repo directly, you'll need to first build the custom lodash by running:
+```
+npm run build
+```
+This will create a `dist` directory with the minimal lodash file.
+When using the package via npm, the build is not needed as the `dist` directory is already included in the npm package.
+
 ## Credits
 
 <p>We monitor existing node.js security portals and tools, such as <a href="https://nodesecurity.io/">Node Security Project</a>, the <a href="https://groups.google.com/forum/#!forum/nodejs-sec">nodejs-sec Google Group</a>, <a href="https://srcclr.com/">SRC:CLR</a>, or <a href="http://retirejs.github.io/retire.js/">Retire.js</a>. We also monitor Github activity and other online sources for new vulnerabilities.</p>
