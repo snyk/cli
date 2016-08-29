@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "mkdir dist; lodash -p -o ./dist/lodash-min.js include=cloneDeep,extend,defaults,forEach,flatten,flattenDeep,merge,unique",
+    "windows-build": "mkdir dist & lodash -p -o ./dist/lodash-min.js include=cloneDeep,extend,defaults,forEach,flatten,flattenDeep,merge,unique",
     "travis-coverage": "node_modules/tap/node_modules/.bin/nyc report --reporter=text-lcov | node_modules/tap/node_modules/.bin/coveralls",
     "coverage": "tap --cov --coverage-report=lcov test/*.test.js",
     "tap": "COVERALLS_REPO_TOKEN=0 tap --timeout=180 --cov --coverage-report=text-summary test/*.test.js",

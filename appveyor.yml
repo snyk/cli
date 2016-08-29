@@ -47,6 +47,5 @@ install:
 
 # Post-install test scripts.
 test_script:
-  # run tests
-  - npm run build
+  - npm run windows-build
   - npm run windows-tests
