@@ -4,6 +4,7 @@ var fs = require('fs');
 var thenfs = require('then-fs');
 var test = require('tape');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
+var snyk = require('../lib');
 
 test('bad patch file does not apply', function (t) {
   // check the target file first
@@ -11,6 +12,9 @@ test('bad patch file does not apply', function (t) {
   var dir = path.resolve(root, './node_modules/semver');
   var semver = fs.readFileSync(dir + '/semver.js', 'utf8');
   t.ok('original semver loaded');
+
+  var old = snyk.config.get('disable-analytics');
+  snyk.config.set('disable-analytics', '1');
 
   applyPatch(root + '/363ce409-2d19-46da-878a-e059df2d39bb.snyk-patch', {
     source: dir,
@@ -42,6 +46,11 @@ test('bad patch file does not apply', function (t) {
     console.log(e);
     t.fail('clean up failed');
   }).then(function () {
+    if (old === undefined) {
+      snyk.config.del('disable-analytics');
+    } else {
+      snyk.config.set('disable-analytics', old);
+    }
     t.end();
   });
 });
