@@ -1,10 +1,12 @@
+![Snyk logo](https://snyk.io/style/asset/logo/snyk-print.svg)
+
+***
+
 [![Known Vulnerabilities](https://snyk.io/test/npm/snyk/badge.svg)](https://snyk.io/test/npm/snyk)
-# Documentation
 
 Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm packages, both ad hoc and as part of your CI (Build) system.
 
-* Get started with our __<a href="https://snyk.io/docs/quick-start/" title="Quick start guide">step-by-step guide.</a>__
-* <a href="https://snyk.io/docs/using-snyk/" title="Using Snyk">__Check our full documentation on snyk.io__</a> for details.
+[Full documentation on snyk.io](https://snyk.io/docs/using-snyk/)
 
 ## CLI
 
