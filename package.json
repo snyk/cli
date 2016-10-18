@@ -38,7 +38,7 @@
     "es6-promise": "^3.0.2",
     "hasbin": "^1.2.3",
     "inquirer": "1.0.3",
-    "node-uuid": "^1.4.3",
+    "node-uuid": "^1.4.7",
     "open": "^0.0.5",
     "os-name": "^1.0.3",
     "request": "^2.74.0",
