@@ -1,6 +1,6 @@
 - [ ] Ready for review
 - [ ] Follows CONTRIBUTING rules
-- [ ] Reviewed by @remy (Snyk internal team)
+- [ ] Reviewed by Snyk internal team
 
 #### What does this PR do?
 
