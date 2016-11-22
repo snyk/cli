@@ -272,7 +272,7 @@ function processAnswers(answers, policy, options) {
     }
 
     var test = pkg.scripts.test;
-    var cmd = 'snyk test';
+    var cmd = 'snyk test --dev';
     if (test && test !== 'echo "Error: no test specified" && exit 1') {
       // only add the test if it's not already in the test
       if (test.indexOf(cmd) === -1) {

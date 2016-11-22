@@ -168,7 +168,7 @@ test('wizard replaces npm\s default scripts.test', function (t) {
   }, mockPolicy).then(function () {
     t.equal(writeSpy.callCount, 1, 'package was written to');
     var pkg = JSON.parse(writeSpy.args[0][1]);
-    t.equal(pkg.scripts.test, 'snyk test', 'default npm exit 1 was replaced');
+    t.equal(pkg.scripts.test, 'snyk test --dev', 'default npm exit 1 was replaced');
   }).catch(t.threw).then(function () {
     process.chdir(old);
     t.end();
@@ -188,7 +188,7 @@ test('wizard replaces prepends to scripts.test', function (t) {
   }, mockPolicy).then(function () {
     t.equal(writeSpy.callCount, 1, 'package was written to');
     var pkg = JSON.parse(writeSpy.args[0][1]);
-    t.equal(pkg.scripts.test, 'snyk test && ' + prevPkg.scripts.test, 'prepended to test script');
+    t.equal(pkg.scripts.test, 'snyk test --dev && ' + prevPkg.scripts.test, 'prepended to test script');
   }).catch(t.threw).then(function () {
     process.chdir(old);
     t.end();
