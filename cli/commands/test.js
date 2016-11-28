@@ -186,6 +186,11 @@ function test(path, options) {
       return res;
     }).join(sep) + sep + summary;
 
+    if (!snyk.api) {
+      body += sep + chalk.bgRed.bold.white('Warning: `snyk test` will soon ' +
+      'require authentication. Authenticate now with `snyk auth`.');
+    }
+
     if (res.ok) {
       return body;
     }

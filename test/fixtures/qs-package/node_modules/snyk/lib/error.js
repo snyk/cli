@@ -5,7 +5,7 @@ var chalk = require('chalk');
 var errors = {
   connect: 'Check your network connection, failed to connect to Snyk API',
   endpoint: 'The Snyk API is not available on ' + config.API,
-  auth: 'Unauthorized: please ensure you are logged using `snyk auth`',
+  auth: 'Unauthorized: please ensure you are logged in using `snyk auth`',
   dotfile: 'Try running `snyk wizard` to define a Snyk protect policy',
   authfail: 'Authentication failed. Please check the API token on ' +
     config.ROOT,
