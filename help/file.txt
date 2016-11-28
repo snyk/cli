@@ -1,0 +1,15 @@
+
+File:
+
+When testing locally, you can specify the file that Snyk should inspect for
+package information.
+
+  $ snyk test --file=package.json
+
+When ommitted Snyk will try to detect the appropriate file for your project by
+looking for a `package.json` or `Gemfile` file.
+
+If both files exist it will use the package.json file. In this case you can
+force a Ruby test by pointing to your Gemfile.
+
+  $ snyk test --file=Gemfile

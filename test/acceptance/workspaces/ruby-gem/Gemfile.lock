@@ -1,0 +1,20 @@
+PATH
+  remote: .
+  specs:
+    ruby-gem (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rake (10.5.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  bundler (~> 1.13)
+  rake (~> 10.0)
+  ruby-gem!
+
+BUNDLED WITH
+   1.13.5

@@ -6,10 +6,20 @@ var debug = require('debug')('snyk');
 var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
 var analytics = require('../../../lib/analytics');
+var detectPackageManager = require('../../../lib/detect').detectPackageManager;
 
 function protect(options) {
   if (!options) {
     options = {};
+  }
+
+  try {
+    if (detectPackageManager(process.cwd(), options) === 'rubygems') {
+      throw new Error(
+        'Snyk protect for Ruby projects is not currently supported');
+    }
+  } catch (error) {
+    return Promise.reject(error);
   }
 
   if (options.interactive) {

@@ -126,7 +126,9 @@ function test(path, options) {
     }
 
     summary = summary + ', ' + chalk.red.bold(count);
-    summary += '\n\nRun `snyk wizard` to address these issues.';
+    if (res.packageManager === 'npm') {
+      summary += '\n\nRun `snyk wizard` to address these issues.';
+    }
 
     var sep = '\n\n';
 

@@ -6,23 +6,28 @@ module.exports = function (root, apikey) {
     name: 'snyk-mock-server',
     version: '1.0.0'
   });
-
+  server._reqLog = [];
+  server.popRequest = function() {
+    return server._reqLog.pop();
+  };
   server.use(restify.acceptParser(server.acceptable));
   server.use(restify.queryParser());
   server.use(restify.bodyParser());
+  server.use(function logRequest(req, res, next) {
+    server._reqLog.push(req);
+    next();
+  });
 
   [
     root + '/verify/callback',
     root + '/verify/token'
   ].map(function (url) {
     server.post(url, function (req, res) {
-      if (req.params.api) {
-        if (req.params.api === apikey) {
-          return res.send({
-            ok: true,
-            api: apikey,
-          });
-        }
+      if (req.params.api && req.params.api === apikey) {
+        return res.send({
+          ok: true,
+          api: apikey,
+        });
       }
 
       if (req.params.token) {
@@ -39,22 +44,25 @@ module.exports = function (root, apikey) {
     });
   });
 
-  server.get(root + '/vuln/npm/:module/:version', function (req, res, next) {
-    res.send(req.params);
+  server.get(root + '/vuln/:registry/:module', function (req, res, next) {
+    res.send({
+      vulnerabilities: []
+    });
     return next();
   });
 
-  server.get(root + '/vuln/npm/:module', function (req, res, next) {
-    var module = req.params.module;
-    var body = fs.readFileSync(__dirname + '/fixtures/cli-test-results/' + module, 'utf8');
-    res.send(JSON.parse(body));
+  server.post(root + '/vuln/:registry', function (req, res, next) {
+    res.send({
+      vulnerabilities: []
+    });
     return next();
   });
 
-  server.put(root + '/monitor/npm', function (req, res) {
+  server.put(root + '/monitor/:registry', function (req, res, next) {
     res.send({
       id: 'test',
     });
+    return next();
   });
 
   return server;
