@@ -20,7 +20,10 @@ var server = require('./cli-server')(process.env.SNYK_API, apiKey);
 // configure our fake configuration too
 var cli = require('../cli/commands');
 
-test('setup', function (t) {
+var before = test;
+var after = test;
+
+before('setup', function (t) {
   t.plan(3);
   cli.config('get', 'api').then(function (key) {
     oldkey = key; // just in case
@@ -37,7 +40,7 @@ test('setup', function (t) {
   });
 });
 
-test('prime config', function (t) {
+before('prime config', function (t) {
   cli.config('set', 'api=' + apiKey).then(function () {
     t.pass('api token set');
   }).then(function () {
@@ -127,7 +130,7 @@ test('auth via github', function (t) {
   });
 });
 
-test('teardown', function (t) {
+after('teardown', function (t) {
   t.plan(4);
 
   delete process.env.SNYK_API;

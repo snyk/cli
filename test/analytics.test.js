@@ -82,7 +82,9 @@ test('test includes data', { skip: iswindows }, function (t) {
       './commands': proxyquire('../cli/commands', {
         '../../lib/hotload': proxyquire('../lib/hotload', {
           '../cli/commands/test': proxyquire('../lib/test', {
-            './analytics': analytics,
+            './npm': proxyquire('../lib/test/npm', {
+              '../../analytics': analytics,
+            })
           })
         })
       })

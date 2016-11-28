@@ -5,3 +5,5 @@ Snyk's wizard will:
   * Guide you through fixing found vulnerabilities
   * Create a .snyk policy file to guide snyk commands such as `test` and `protect`
   * Remember your dependencies to alert you when new vulnerabilities are disclosed
+
+Note: Node.js only.

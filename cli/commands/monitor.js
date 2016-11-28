@@ -6,6 +6,8 @@ var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var url = require('url');
 var chalk = require('chalk');
+var detectPackageManager = require('../../lib/detect').detectPackageManager;
+var getModuleInfo = require('../../lib/module-info');
 
 function monitor(path, options) {
   if (!path) {
@@ -16,19 +18,20 @@ function monitor(path, options) {
     options = {};
   }
 
+  if (options.id) {
+    snyk.id = options.id;
+  }
+
   return apiTokenExists('snyk monitor').then(function () {
     return fs.exists(path);
   }).then(function (exists) {
     if (!exists) {
       throw new Error('snyk monitor should be pointed at an existing project');
     }
-
-    if (options.id) {
-      snyk.id = options.id;
-    }
-
-    return snyk.modules(path)
-      .then(snyk.monitor.bind(null, path, { method: 'cli' }))
+    var packageManager = detectPackageManager(path, options);
+    var meta = { method: 'cli', packageManager: packageManager };
+    return getModuleInfo(packageManager, path, options)
+      .then(snyk.monitor.bind(null, path, meta))
       .then(function (res) {
         var endpoint = url.parse(config.API);
         var leader = '';
@@ -54,7 +57,5 @@ function monitor(path, options) {
         'View plans here: ' + manageUrl + '\n\n') :
         '');
       });
-
   });
-
 }

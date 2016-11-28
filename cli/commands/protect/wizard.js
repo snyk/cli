@@ -28,10 +28,20 @@ var spinner = require('../../../lib/spinner');
 var analytics = require('../../../lib/analytics');
 var npm = require('../../../lib/npm');
 var cwd = process.cwd();
+var detectPackageManager = require('../../../lib/detect').detectPackageManager;
 
 function wizard(options) {
   if (!options) {
     options = {};
+  }
+
+  try {
+    if (detectPackageManager(cwd, options) === 'rubygems') {
+      throw new Error(
+        'Snyk wizard for Ruby projects is not currently supported');
+    }
+  } catch (error) {
+    return Promise.reject(error);
   }
 
   spinner.sticky();
