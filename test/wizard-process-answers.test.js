@@ -214,3 +214,29 @@ test('wizard detects existing snyk in scripts.test', function (t) {
     t.end();
   });
 });
+
+test('wizard maintains whitespace at beginning and end of package.json',
+     function (t) {
+  var old = process.cwd();
+  var dir = path.resolve(__dirname, 'fixtures', 'pkg-mean-io');
+  var prevPkg = require(dir + '/package.json');
+  writeSpy = sinon.spy(); // create a new spy
+  process.chdir(dir);
+
+  wizard.processAnswers({
+    'misc-add-test': true,
+    'misc-test-no-monitor': true,
+  }, mockPolicy, {
+    packageLeading: '\n',
+    packageTrailing: '\n\n',
+  }).then(function () {
+    var pkgString = writeSpy.args[0][1];
+    t.equal(pkgString.substr(0, 2), '\n{',
+            'newline at beginning of file');
+    t.equal(pkgString.substr(pkgString.length - 3), '}\n\n',
+            'two newlines at end of file');
+  }).catch(t.threw).then(function () {
+    process.chdir(old);
+    t.end();
+  });
+});

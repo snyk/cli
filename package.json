@@ -50,7 +50,7 @@
     "snyk-resolve": "1.0.0",
     "snyk-resolve-deps": "1.7.0",
     "snyk-tree": "^1.0.0",
-    "snyk-try-require": "^1.0.0",
+    "snyk-try-require": "^1.2.0",
     "tempfile": "^1.1.1",
     "then-fs": "^2.0.0",
     "undefsafe": "0.0.3",
