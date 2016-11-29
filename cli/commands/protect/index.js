@@ -32,25 +32,22 @@ function protect(options) {
     throw error;
   }).then(function (policy) {
     if (policy.patch) {
-      return patch(policy.patch, options);
+      return patch(policy, options);
     }
     return 'Nothing to do';
   });
 }
 
-function patch(patches, options) {
-  var ids = Object.keys(patches);
-
-  return snyk.test(process.cwd()).then(function (res) {
+function patch(policy, options) {
+  return snyk.test(process.cwd(), {
+    policy: policy,
+    vulnEndpoint: '/vuln/npm/patches',
+  }).then(function (res) {
     if (!res.vulnerabilities) {
       var e = new Error('Code is already patched');
       e.code = 'ALREADY_PATCHED';
       throw e;
     }
-    return res.vulnerabilities.filter(function (vuln) {
-      return ids.indexOf(vuln.id) !== -1;
-    });
-  }).then(function (res) {
     return protect.patch(res, !options['dry-run']);
   }).then(function () {
     analytics.add('success', true);
