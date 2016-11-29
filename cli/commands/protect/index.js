@@ -48,7 +48,7 @@ function patch(policy, options) {
       e.code = 'ALREADY_PATCHED';
       throw e;
     }
-    return protect.patch(res, !options['dry-run']);
+    return protect.patch(res.vulnerabilities, !options['dry-run']);
   }).then(function () {
     analytics.add('success', true);
     return 'Successfully applied Snyk patches';
