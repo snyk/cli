@@ -102,10 +102,12 @@ function wizard(options) {
           }
 
           return tryRequire(packageFile).then(function (pkg) {
-              return interactive(res, pkg, policy).then(function (answers) {
-                return processAnswers(answers, policy, options);
-              });
+            options.packageLeading = pkg.prefix;
+            options.packageTrailing = pkg.suffix;
+            return interactive(res, pkg, policy).then(function (answers) {
+              return processAnswers(answers, policy, options);
             });
+          });
         });
       });
     });
@@ -159,6 +161,8 @@ function processAnswers(answers, policy, options) {
   if (!options) {
     options = {};
   }
+  options.packageLeading = options.packageLeading || '';
+  options.packageTrailing = options.packageTrailing || '';
   // allow us to capture the answers the users gave so we can combine this
   // the scenario running
   if (options.json) {
@@ -200,10 +204,10 @@ function processAnswers(answers, policy, options) {
   debug(tasks);
 
   var live = !options['dry-run'];
-  var promise = protect.generatePolicy(policy, tasks, live);
   var snykVersion = '*';
 
-  var res = promise.then(function (policy) {
+  var res = protect.generatePolicy(policy, tasks, live)
+  .then(function (policy) {
     if (!live) {
       // if this was a dry run, we'll throw an error to bail out of the
       // promise chain, then in the catch, check the error.code and if
@@ -317,10 +321,10 @@ function processAnswers(answers, policy, options) {
     pkg.snyk = true;
   })
   .then(function () {
+    var lbl = 'Updating package.json...';
     if (answers['misc-add-test'] || answers['misc-add-protect']) {
       debug('updating %s', packageFile);
 
-      var lbl = 'Updating package.json...';
 
       if (undefsafe(pkg, 'dependencies.snyk') ||
           undefsafe(pkg, 'peerDependencies.snyk') ||
@@ -335,7 +339,8 @@ function processAnswers(answers, policy, options) {
             pkg.dependencies = {};
           }
           pkg.dependencies.snyk = snykVersion;
-          lbl = 'Adding Snyk to production dependencies (used by snyk protect)';
+          lbl = 'Adding Snyk to production dependencies ' +
+                '(used by snyk protect)';
 
           // but also check if we should remove it from devDependencies
           if (undefsafe(pkg, 'devDependencies.snyk')) {
@@ -349,11 +354,14 @@ function processAnswers(answers, policy, options) {
           pkg.devDependencies.snyk = snykVersion;
         }
       }
+    }
 
-      // finally, add snyk as a dependency because they'll need it
-      // during the protect process
+    if (answers['misc-add-test'] || answers['misc-add-protect'] ||
+          tasks.update.length) {
+      var packageString = options.packageLeading + JSON.stringify(pkg, '', 2) +
+                          options.packageTrailing;
       return spinner(lbl)
-        .then(fs.writeFile(packageFile, JSON.stringify(pkg, '', 2)))
+        .then(fs.writeFile(packageFile, packageString))
         .then(spinner.clear(lbl));
     }
   })
