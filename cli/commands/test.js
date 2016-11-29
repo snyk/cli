@@ -6,6 +6,11 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
 
+var authenticationWarning = '\n\n' + chalk.bgRed.bold.white(
+  'Warning: `snyk test` will soon require authentication. ' +
+  'Authenticate now with `snyk auth`.'
+);
+
 function test(path, options) {
   var args = [].slice.call(arguments, 0);
 
@@ -99,6 +104,9 @@ function test(path, options) {
           'about new related vulnerabilities.\n- Run `snyk test` as part of ' +
           'your CI/test.';
       }
+      if (!snyk.api) {
+        summary += authenticationWarning;
+      }
       return summary;
     }
 
@@ -187,8 +195,7 @@ function test(path, options) {
     }).join(sep) + sep + summary;
 
     if (!snyk.api) {
-      body += sep + chalk.bgRed.bold.white('Warning: `snyk test` will soon ' +
-      'require authentication. Authenticate now with `snyk auth`.');
+      body += authenticationWarning;
     }
 
     if (res.ok) {
