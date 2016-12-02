@@ -1,6 +1,12 @@
 const test = require('tap-only');
 const fs = require('then-fs');
 const dir = __dirname + '/fixtures/bugs/SC-1615/';
+const before = test;
+
+before('setup: ensure node_modules does not exist', t => {
+  fs.rmdir(dir + '/node_modules').catch(e => {});
+  t.end();
+});
 
 test('throws when missing node_modules', t => {
   var snyk = require('../');
