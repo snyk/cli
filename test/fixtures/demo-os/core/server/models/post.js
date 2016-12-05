@@ -1,6 +1,6 @@
 // # Post Model
 var _              = require('lodash'),
-    uuid           = require('node-uuid'),
+    uuid           = require('uuid'),
     Promise        = require('bluebird'),
     sequence       = require('../utils/sequence'),
     errors         = require('../errors'),

@@ -6,7 +6,7 @@ var express     = require('express'),
     hbs         = require('express-hbs'),
     compress    = require('compression'),
     fs          = require('fs'),
-    uuid        = require('node-uuid'),
+    uuid        = require('uuid'),
     _           = require('lodash'),
     Promise     = require('bluebird'),
 
