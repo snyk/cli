@@ -1,4 +1,5 @@
 var test = require('tap-only');
+var path = require('path');
 var apiKey = '123456789';
 var oldkey;
 var oldendpoint;
@@ -158,8 +159,10 @@ test('`test monorepo --file=sub-ruby-app/Gemfile`', function(t) {
     var files = req.body.files;
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/rubygems', 'posts to correct url');
-    t.equal(req.body.targetFile, 'sub-ruby-app/Gemfile', 'specifies target');
-    t.equal(files.gemfile.name, 'sub-ruby-app/Gemfile', 'specifies name');
+    t.equal(req.body.targetFile, path.join('sub-ruby-app', 'Gemfile'),
+      'specifies target');
+    t.equal(files.gemfile.name, path.join('sub-ruby-app', 'Gemfile'),
+    'specifies name');
   });
 });
 
