@@ -13,6 +13,7 @@ matrix:
       env: BABEL=true
 script:
   - npm run build
+  - npm run snyk-auth
   - "[[ $BABEL == true ]] && npm run test:babel || npm test"
 before_install:
   - npm i -g npm@^2.0.0
