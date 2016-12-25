@@ -1,0 +1,17 @@
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building maven-app 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ maven-app ---
+[INFO] digraph "com.mycompany.app:maven-app:jar:1.0-SNAPSHOT" {
+[INFO] 	"com.mycompany.app:maven-app:jar:1.0-SNAPSHOT" -> "junit:junit:jar:3.8.2:test" ;
+[INFO]  }
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 1.180 s
+[INFO] Finished at: 2017-01-03T14:04:37+00:00
+[INFO] Final Memory: 12M/155M
+[INFO] ------------------------------------------------------------------------

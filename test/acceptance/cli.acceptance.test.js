@@ -1,5 +1,7 @@
 var test = require('tap-only');
 var path = require('path');
+var proxyquire = require('proxyquire');
+var fs = require('fs');
 var apiKey = '123456789';
 var oldkey;
 var oldendpoint;
@@ -166,6 +168,23 @@ test('`test monorepo --file=sub-ruby-app/Gemfile`', function(t) {
   });
 });
 
+test('`test maven-app --file=pom.xml` sends package info',
+function(t) {
+  t.plan(5);
+  chdirWorkspaces();
+  var proxiedCLI = proxyMavenExec('maven-app/mvn-dep-tree-stdout.txt');
+  return proxiedCLI.test('maven-app', {file: 'pom.xml'})
+  .then(function() {
+    var req = server.popRequest();
+    var pkg = req.body;
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/maven', 'posts to correct url');
+    t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
+    t.equal(pkg.dependencies.length, 1, 'specifies dependency list');
+    t.equal(pkg.dependencies[0].artifactId, 'junit', 'specifies dependency');
+  });
+});
+
 /**
  * `monitor`
  */
@@ -201,6 +220,41 @@ test('`monitor ruby-app`', function(t) {
       'remote: http://rubygems.org/', 'attaches Gemfile.lock');
   });
 });
+
+test('`monitor maven-app`', function(t) {
+  t.plan(5);
+  chdirWorkspaces();
+  var proxiedCLI = proxyMavenExec('maven-app/mvn-dep-tree-stdout.txt');
+  return proxiedCLI.monitor('maven-app', {file: 'pom.xml'}).then(function() {
+    var req = server.popRequest();
+    var pkg = req.body.package;
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/maven', 'puts at correct url');
+    t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
+    t.equal(pkg.dependencies.length, 1, 'specifies dependency list');
+    t.equal(pkg.dependencies[0].artifactId, 'junit', 'specifies dependency');
+  });
+});
+
+/**
+ * We can't expect all test environments to have Maven installed
+ * So, hijack the system exec call and return the expected output
+ */
+function proxyMavenExec(execOutputFile) {
+  function exec(command, options, callback) {
+    var stdout = fs.readFileSync(path.join(execOutputFile), 'utf8');
+    callback(null, stdout);
+  }
+  return proxyquire('../../cli/commands', {
+    './monitor': proxyquire('../../cli/commands/monitor', {
+      '../../lib/module-info': proxyquire('../../lib/module-info', {
+        './maven': proxyquire('../../lib/module-info/maven', {
+          'child_process': { 'exec': exec }
+        })
+      })
+    })
+  });
+}
 
 // @later: try and remove this config stuff
 // Was copied straight from ../cli-server.js
