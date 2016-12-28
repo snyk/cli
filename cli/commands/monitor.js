@@ -10,6 +10,11 @@ var detectPackageManager = require('../../lib/detect').detectPackageManager;
 var getModuleInfo = require('../../lib/module-info');
 
 function monitor(path, options) {
+  if (typeof path === 'object') {
+    options = path;
+    path = process.cwd();
+  }
+
   if (!path) {
     path = process.cwd();
   }
