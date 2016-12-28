@@ -99,6 +99,7 @@ function args(processargv) {
       command === 'test' ||
       command === 'modules' ||
       command === 'scenario' ||
+      command === 'monitor' ||
       command === 'wizard') {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
