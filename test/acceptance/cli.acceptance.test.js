@@ -80,6 +80,16 @@ function(t) {
  * Local source `test`
  */
 
+test('`test empty --file=Gemfile`', function(t) {
+  t.plan(2);
+  chdirWorkspaces();
+  return cli.test('empty', {file: 'Gemfile'})
+  .catch(function(error) {
+    t.pass('throws error');
+    t.match(error.message, 'File not found: Gemfile', 'shows error');
+  });
+});
+
 test('`test ruby-app-no-lockfile --file=Gemfile`', function(t) {
   t.plan(2);
   chdirWorkspaces();
