@@ -21,7 +21,8 @@
     "windows-tests": "tap -R spec test/*.test.js --timeout=120",
     "lint": "jscs `find ./cli -name '*.js'` -v && jscs `find ./lib -name '*.js'` -v",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "snyk-auth": "cli/index.js auth $SNYK_API_KEY"
   },
   "keywords": [
     "security",
