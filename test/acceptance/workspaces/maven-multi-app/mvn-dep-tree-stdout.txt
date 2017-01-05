@@ -1,0 +1,35 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO]
+[INFO] maven-multi-app
+[INFO] Simple Child Example
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building maven-multi-app 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ maven-multi-app ---
+[INFO] digraph "com.mycompany.app:maven-multi-app:pom:1.0-SNAPSHOT" {
+[INFO]  }
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Simple Child Example 1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ simple-child ---
+[INFO] digraph "com.mycompany.app:simple-child:jar:1.0-SNAPSHOT" {
+[INFO] 	"com.mycompany.app:simple-child:jar:1.0-SNAPSHOT" -> "log4j:log4j:jar:1.2.17:compile" ;
+[INFO]  }
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary:
+[INFO]
+[INFO] maven-multi-app .................................... SUCCESS [  0.769 s]
+[INFO] Simple Child Example ............................... SUCCESS [  0.068 s]
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 1.193 s
+[INFO] Finished at: 2017-01-05T16:05:23+00:00
+[INFO] Final Memory: 12M/155M
+[INFO] ------------------------------------------------------------------------
