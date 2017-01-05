@@ -190,8 +190,9 @@ function(t) {
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/maven', 'posts to correct url');
     t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
-    t.equal(pkg.dependencies.length, 1, 'specifies dependency list');
-    t.equal(pkg.dependencies[0].artifactId, 'junit', 'specifies dependency');
+    t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
+    t.equal(pkg.dependencies['junit:junit'].artifactId, 'junit',
+      'specifies dependency artifactId');
   });
 });
 
@@ -241,8 +242,9 @@ test('`monitor maven-app`', function(t) {
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/maven', 'puts at correct url');
     t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
-    t.equal(pkg.dependencies.length, 1, 'specifies dependency list');
-    t.equal(pkg.dependencies[0].artifactId, 'junit', 'specifies dependency');
+    t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
+    t.equal(pkg.dependencies['junit:junit'].artifactId, 'junit',
+      'specifies dependency artifactId');
   });
 });
 
