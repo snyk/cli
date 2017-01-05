@@ -248,6 +248,23 @@ test('`monitor maven-app`', function(t) {
   });
 });
 
+test('`monitor maven-multi-app`', function(t) {
+  t.plan(5);
+  chdirWorkspaces();
+  var proxiedCLI = proxyMavenExec('maven-multi-app/mvn-dep-tree-stdout.txt');
+  return proxiedCLI.monitor('maven-multi-app', {file: 'pom.xml'}).then(function() {
+    var req = server.popRequest();
+    var pkg = req.body.package;
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/maven', 'puts at correct url');
+    t.equal(pkg.artifactId, 'maven-multi-app', 'specifies artifactId');
+    t.ok(pkg.dependencies['com.mycompany.app:simple-child'],
+      'specifies dependency');
+    t.equal(pkg.dependencies['com.mycompany.app:simple-child'].artifactId,
+      'simple-child', 'specifies dependency artifactId');
+  });
+});
+
 /**
  * We can't expect all test environments to have Maven installed
  * So, hijack the system exec call and return the expected output
@@ -257,10 +274,11 @@ function proxyMavenExec(execOutputFile) {
     var stdout = fs.readFileSync(path.join(execOutputFile), 'utf8');
     callback(null, stdout);
   }
+  var nonCachingProxyquire = proxyquire.noPreserveCache();
   return proxyquire('../../cli/commands', {
     './monitor': proxyquire('../../cli/commands/monitor', {
       '../../lib/module-info': proxyquire('../../lib/module-info', {
-        './maven': proxyquire('../../lib/module-info/maven', {
+        './maven': nonCachingProxyquire('../../lib/module-info/maven', {
           'child_process': { 'exec': exec }
         })
       })
