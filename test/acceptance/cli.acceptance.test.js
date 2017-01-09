@@ -233,7 +233,7 @@ test('`monitor ruby-app`', function(t) {
 });
 
 test('`monitor maven-app`', function(t) {
-  t.plan(5);
+  t.plan(8);
   chdirWorkspaces();
   var proxiedCLI = proxyMavenExec('maven-app/mvn-dep-tree-stdout.txt');
   return proxiedCLI.monitor('maven-app', {file: 'pom.xml'}).then(function() {
@@ -242,14 +242,24 @@ test('`monitor maven-app`', function(t) {
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/maven', 'puts at correct url');
     t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
+    t.equal(pkg.from[0],
+      'com.mycompany.app:maven-app@1.0-SNAPSHOT',
+      'specifies "from" path for root package');
     t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
-    t.equal(pkg.dependencies['junit:junit'].artifactId, 'junit',
+    t.equal(pkg.dependencies['junit:junit'].artifactId,
+      'junit',
       'specifies dependency artifactId');
+    t.equal(pkg.dependencies['junit:junit'].from[0],
+      'com.mycompany.app:maven-app@1.0-SNAPSHOT',
+      'specifies "from" path for dependencies');
+    t.equal(pkg.dependencies['junit:junit'].from[1],
+      'junit:junit@3.8.2',
+      'specifies "from" path for dependencies');
   });
 });
 
 test('`monitor maven-multi-app`', function(t) {
-  t.plan(5);
+  t.plan(7);
   chdirWorkspaces();
   var proxiedCLI = proxyMavenExec('maven-multi-app/mvn-dep-tree-stdout.txt');
   return proxiedCLI.monitor('maven-multi-app', {file: 'pom.xml'}).then(function() {
@@ -258,10 +268,16 @@ test('`monitor maven-multi-app`', function(t) {
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/maven', 'puts at correct url');
     t.equal(pkg.artifactId, 'maven-multi-app', 'specifies artifactId');
+    t.equal(pkg.from[0],
+      'com.mycompany.app:maven-multi-app@1.0-SNAPSHOT',
+      'specifies "from" path for root package');
     t.ok(pkg.dependencies['com.mycompany.app:simple-child'],
       'specifies dependency');
     t.equal(pkg.dependencies['com.mycompany.app:simple-child'].artifactId,
       'simple-child', 'specifies dependency artifactId');
+    t.equal(pkg.dependencies['com.mycompany.app:simple-child'].from[0],
+      'com.mycompany.app:maven-multi-app@1.0-SNAPSHOT',
+      'specifies root module as first element of "from" path for dependencies');
   });
 });
 
