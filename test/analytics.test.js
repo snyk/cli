@@ -81,8 +81,8 @@ test('test includes data', { skip: iswindows }, function (t) {
     './args': proxyquire('../cli/args', {
       './commands': proxyquire('../cli/commands', {
         '../../lib/hotload': proxyquire('../lib/hotload', {
-          '../cli/commands/test': proxyquire('../lib/test', {
-            './npm': proxyquire('../lib/test/npm', {
+          '../cli/commands/test': proxyquire('../lib/snyk-test', {
+            './npm': proxyquire('../lib/snyk-test/npm', {
               '../../analytics': analytics,
             })
           })
