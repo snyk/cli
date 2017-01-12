@@ -1,7 +1,7 @@
 var test = require('tap-only');
 var path = require('path');
-var proxyquire = require('proxyquire');
 var fs = require('fs');
+var sinon = require('sinon');
 var apiKey = '123456789';
 var oldkey;
 var oldendpoint;
@@ -10,6 +10,7 @@ process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = 0;
 var server = require('./fake-server')(process.env.SNYK_API, apiKey);
+var child_process = require('child_process');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -182,8 +183,8 @@ test('`test maven-app --file=pom.xml` sends package info',
 function(t) {
   t.plan(5);
   chdirWorkspaces();
-  var proxiedCLI = proxyMavenExec('maven-app/mvn-dep-tree-stdout.txt');
-  return proxiedCLI.test('maven-app', {file: 'pom.xml'})
+  var stub = stubExec('maven-app/mvn-dep-tree-stdout.txt');
+  return cli.test('maven-app', {file: 'pom.xml'})
   .then(function() {
     var req = server.popRequest();
     var pkg = req.body;
@@ -193,6 +194,12 @@ function(t) {
     t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
     t.equal(pkg.dependencies['junit:junit'].artifactId, 'junit',
       'specifies dependency artifactId');
+  })
+  .catch(function(err) {
+    t.error(err);
+  })
+  .then(function() {
+    stub.restore();
   });
 });
 
@@ -235,8 +242,8 @@ test('`monitor ruby-app`', function(t) {
 test('`monitor maven-app`', function(t) {
   t.plan(8);
   chdirWorkspaces();
-  var proxiedCLI = proxyMavenExec('maven-app/mvn-dep-tree-stdout.txt');
-  return proxiedCLI.monitor('maven-app', {file: 'pom.xml'}).then(function() {
+  var stub = stubExec('maven-app/mvn-dep-tree-stdout.txt');
+  return cli.monitor('maven-app', {file: 'pom.xml'}).then(function() {
     var req = server.popRequest();
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -255,14 +262,20 @@ test('`monitor maven-app`', function(t) {
     t.equal(pkg.dependencies['junit:junit'].from[1],
       'junit:junit@3.8.2',
       'specifies "from" path for dependencies');
+  })
+  .catch(function(err) {
+    t.error(err);
+  })
+  .then(function() {
+    stub.restore();
   });
 });
 
 test('`monitor maven-multi-app`', function(t) {
   t.plan(7);
   chdirWorkspaces();
-  var proxiedCLI = proxyMavenExec('maven-multi-app/mvn-dep-tree-stdout.txt');
-  return proxiedCLI.monitor('maven-multi-app', {file: 'pom.xml'}).then(function() {
+  var stub = stubExec('maven-multi-app/mvn-dep-tree-stdout.txt');
+  return cli.monitor('maven-multi-app', {file: 'pom.xml'}).then(function() {
     var req = server.popRequest();
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -278,6 +291,12 @@ test('`monitor maven-multi-app`', function(t) {
     t.equal(pkg.dependencies['com.mycompany.app:simple-child'].from[0],
       'com.mycompany.app:maven-multi-app@1.0-SNAPSHOT',
       'specifies root module as first element of "from" path for dependencies');
+  })
+  .catch(function(err) {
+    t.error(err);
+  })
+  .then(function() {
+    stub.restore();
   });
 });
 
@@ -285,21 +304,11 @@ test('`monitor maven-multi-app`', function(t) {
  * We can't expect all test environments to have Maven installed
  * So, hijack the system exec call and return the expected output
  */
-function proxyMavenExec(execOutputFile) {
+function stubExec(execOutputFile) {
   function exec(command, options, callback) {
-    var stdout = fs.readFileSync(path.join(execOutputFile), 'utf8');
-    callback(null, stdout);
+    fs.readFile(path.join(execOutputFile), 'utf8', callback);
   }
-  var nonCachingProxyquire = proxyquire.noPreserveCache();
-  return proxyquire('../../cli/commands', {
-    './monitor': proxyquire('../../cli/commands/monitor', {
-      '../../lib/module-info': proxyquire('../../lib/module-info', {
-        './maven': nonCachingProxyquire('../../lib/module-info/maven', {
-          'child_process': { 'exec': exec }
-        })
-      })
-    })
-  });
+   return sinon.stub(child_process, 'exec', exec);
 }
 
 // @later: try and remove this config stuff
