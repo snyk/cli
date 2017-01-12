@@ -86,6 +86,20 @@ test('multiple test arguments', function (t) {
   });
 });
 
+test('test without authentication', function (t) {
+  t.plan(1);
+  return cli.config('unset', 'api').then(function () {
+    return cli.test('semver@2');
+  }).then(function (res) {
+    t.fail('test should not pass if not authenticated');
+  }).catch(function (error) {
+    t.equals(error.code, 'NO_API_TOKEN', 'test requires authentication');
+  })
+  .then(function () {
+    return cli.config('set', 'api=' + apiKey);
+  });
+});
+
 test('auth via key', function (t) {
   t.plan(1);
 

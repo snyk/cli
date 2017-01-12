@@ -5,11 +5,7 @@ var chalk = require('chalk');
 var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
-
-var authenticationWarning = '\n\n' + chalk.bgRed.bold.white(
-  'Warning: `snyk test` will soon require authentication. ' +
-  'Authenticate now with `snyk auth`.'
-);
+var apiTokenExists = require('../../lib/api-token').exists;
 
 function test(path, options) {
   var args = [].slice.call(arguments, 0);
@@ -25,60 +21,63 @@ function test(path, options) {
     args.push({});
   }
 
-  // if we have more than path, options, we're going to assume that we've
-  // got multiple paths, i.e. test(path1, path2..., options)
-  if (args.length > 2) {
-    options = args.pop();
+  return apiTokenExists('snyk test')
+  .then(function () {
+    // if we have more than path, options, we're going to assume that we've
+    // got multiple paths, i.e. test(path1, path2..., options)
+    if (args.length > 2) {
+      options = args.pop();
 
-    var shouldThrow = 0;
-    var testedProjects = 0;
-    var promises = args.map(function (path) {
-      return test(path, options).then(function (res) {
-        testedProjects++;
-        return res;
-      }).catch(function (error) {
-        // don't blow up our entire promise chain - but track that we should
-        // throw the entire thing as an exception later on
-        if (error.code === 'VULNS') {
+      var shouldThrow = 0;
+      var testedProjects = 0;
+      var promises = args.map(function (path) {
+        return test(path, options).then(function (res) {
           testedProjects++;
-          shouldThrow++;
+          return res;
+        }).catch(function (error) {
+          // don't blow up our entire promise chain - but track that we should
+          // throw the entire thing as an exception later on
+          if (error.code === 'VULNS') {
+            testedProjects++;
+            shouldThrow++;
+          }
+
+          return error.message;
+        }).then(function (res) {
+          res = chalk.bold('\n\nTesting ' + path + '...\n') + res;
+          return res;
+        });
+      });
+
+      return Promise.all(promises).then(function (res) {
+        res = res.join('');
+        var projects = testedProjects === 1 ? ' project' : ' projects';
+        var paths = shouldThrow === 1 ? 'path' : 'paths';
+
+        if (shouldThrow > 0) {
+          res += chalk.bold.red('\n\nTested ' + testedProjects + projects +
+            ', ' + shouldThrow + ' contained vulnerable ' + paths + '.');
+          throw new Error(res);
+        } else {
+          res += chalk.green('\n\nTested ' + testedProjects + projects +
+            ', no vulnerable paths were found.');
         }
 
-        return error.message;
-      }).then(function (res) {
-        res = chalk.bold('\n\nTesting ' + path + '...\n') + res;
         return res;
       });
-    });
+    }
 
-    return Promise.all(promises).then(function (res) {
-      res = res.join('');
-      var projects = testedProjects === 1 ? ' project' : ' projects';
-      var paths = shouldThrow === 1 ? 'path' : 'paths';
+    if (path && typeof path !== 'string') {
+      options = path;
+      path = false;
+    }
 
-      if (shouldThrow > 0) {
-        res += chalk.bold.red('\n\nTested ' + testedProjects + projects +
-          ', ' + shouldThrow + ' contained vulnerable ' + paths + '.');
-        throw new Error(res);
-      } else {
-        res += chalk.green('\n\nTested ' + testedProjects + projects +
-          ', no vulnerable paths were found.');
-      }
+    if (!options) {
+      options = {};
+    }
 
-      return res;
-    });
-  }
-
-  if (path && typeof path !== 'string') {
-    options = path;
-    path = false;
-  }
-
-  if (!options) {
-    options = {};
-  }
-
-  return snyk.test(path || process.cwd(), options).then(function (res) {
+    return snyk.test(path || process.cwd(), options);
+  }).then(function (res) {
     if (options.json) {
       var json = JSON.stringify(res, '', 2);
       if (res.ok) {
@@ -103,9 +102,6 @@ function test(path, options) {
         summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified ' +
           'about new related vulnerabilities.\n- Run `snyk test` as part of ' +
           'your CI/test.';
-      }
-      if (!snyk.api) {
-        summary += authenticationWarning;
       }
       return summary;
     }
@@ -195,10 +191,6 @@ function test(path, options) {
       }
       return res;
     }).join(sep) + sep + summary;
-
-    if (!snyk.api) {
-      body += authenticationWarning;
-    }
 
     if (res.ok) {
       return body;
