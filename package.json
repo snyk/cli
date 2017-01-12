@@ -22,7 +22,7 @@
     "lint": "jscs `find ./cli -name '*.js'` -v && jscs `find ./lib -name '*.js'` -v",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "snyk-auth": "cli/index.js auth $SNYK_API_KEY"
+    "snyk-auth": "node cli auth $SNYK_API_KEY"
   },
   "keywords": [
     "security",
