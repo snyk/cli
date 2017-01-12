@@ -47,5 +47,6 @@ install:
 
 # Post-install test scripts.
 test_script:
+  - npm run snyk-auth
   - npm run windows-build
   - npm run windows-tests
