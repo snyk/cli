@@ -10,7 +10,7 @@ process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = 0;
 var server = require('./fake-server')(process.env.SNYK_API, apiKey);
-var child_process = require('child_process');
+var subProcess = require('../../lib/sub-process');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -305,10 +305,11 @@ test('`monitor maven-multi-app`', function(t) {
  * So, hijack the system exec call and return the expected output
  */
 function stubExec(execOutputFile) {
-  function exec(command, options, callback) {
-    fs.readFile(path.join(execOutputFile), 'utf8', callback);
+  function execute() {
+    var stdout = fs.readFileSync(path.join(execOutputFile), 'utf8');
+    return Promise.resolve({stdout: stdout});
   }
-   return sinon.stub(child_process, 'exec', exec);
+  return sinon.stub(subProcess, 'execute', execute);
 }
 
 // @later: try and remove this config stuff
