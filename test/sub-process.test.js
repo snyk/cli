@@ -5,13 +5,16 @@ var subProcess = require('../lib/sub-process');
 
 var scriptDir;
 var scriptExtension;
+var shellVar;
 
 if (process.platform === 'win32') {
   scriptDir = 'windows';
   scriptExtension = '.bat';
+  shellVar = '%PATHEXT%';
 } else {
   scriptDir = 'posix';
   scriptExtension = '.sh';
+  shellVar = '$SHLVL';
 }
 
 function script(name) {
@@ -19,19 +22,48 @@ function script(name) {
     name + scriptExtension);
 }
 
+function isSupported() {
+  /**
+   * The 'shell' option for spawn is only supported on Node >= 6
+   * This is a temporary solution to get the build to succeed.
+   * We need to add the proper checks (node version, mvn version, platform)
+   * and fall back to exec (or appending '.cmd') for Node < 6 on Windows.
+   */
+  try {
+    const supportedNodeVersion = 6;
+    const majorVersion = Number(process.version.match(/^v([\d]+)/)[1]);
+    return majorVersion >= supportedNodeVersion;
+  } catch(err) {
+    return false;
+  }
+}
+
 test('sub-process.execute executes sub processes', function (t) {
+
+  if (isSupported()) {
+    t.test('runs in shell', function (t) {
+      t.plan(1);
+
+      subProcess.execute('echo', [shellVar])
+        .then(function (result) {
+          t.not(result.stdout.trim(), shellVar, 'evaluates shell variable');
+        })
+        .catch(t.fail);
+    });
+  }
+
   t.test('successful execution', function (t) {
     t.plan(2);
 
     subProcess.execute(script('stdout-echo'), ['hello world'])
       .then(function (result) {
-        t.equal(result.stdout, 'hello world', 'should resolve with stdout');
+        t.match(result.stdout, 'hello world', 'should resolve with stdout');
       })
       .catch(t.fail);
 
     subProcess.execute(script('stderr-echo'), ['hello error'])
       .then(function (result) {
-        t.equal(result.stderr, 'hello error', 'should resolve with stderr');
+        t.match(result.stderr, 'hello error', 'should resolve with stderr');
       })
       .catch(t.fail);
   });
@@ -44,7 +76,7 @@ test('sub-process.execute executes sub processes', function (t) {
         t.fail('should not have resolved');
       })
       .catch(function (err) {
-        t.equal(err, 'hello world', 'should reject with standard output');
+        t.match(err, 'hello world', 'should reject with standard output');
       });
 
     subProcess.execute(script('stderr-echo-fail'), ['hello error'])
@@ -52,7 +84,7 @@ test('sub-process.execute executes sub processes', function (t) {
         t.fail('should not have resolved');
       })
       .catch(function (err) {
-        t.equal(err, 'hello error',
+        t.match(err, 'hello error',
           'should reject with standard error, if no standard output');
       });
   });
