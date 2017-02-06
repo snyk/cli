@@ -797,9 +797,10 @@ function nextSteps(pkg, prevAnswers) {
     prompts.push({
       name: 'misc-add-test',
       message: 'Add `snyk test` to package.json file to fail test on newly ' +
-        'disclosed vulnerabilities?',
+        'disclosed vulnerabilities?\n' +
+        'This will require authentication via `snyk auth` when running tests.',
       type: 'confirm',
-      default: true,
+      default: false,
     });
   }
 
