@@ -25,7 +25,16 @@ To continuously avoid known vulnerabilities in your dependencies, integrate Snyk
 1. Install the Snyk utility using `npm install -g snyk`.
 2. Run `snyk wizard` in the directory of your project following the prompts which will also generate a `.snyk` policy file.
 3. Ensure the `.snyk` file you generated was added to your source control (`git add .snyk`).
-4. If you selected to, Snyk will include `snyk test` as part of your `npm test` command, so if there are new vulnerabilities in the future, your CI will fail protecting you from introducing vulnerabilities to production.
+
+If you selected to, Snyk will include `snyk test` as part of your `npm test` command, so if there are new vulnerabilities in the future, your CI will fail protecting you from introducing vulnerabilities to production.
+
+Some Snyk commands require authentication. We use GitHub for authentication, but do not require access to your repositories, only your email address. You can authenticate by running `snyk auth` in your terminal, and it’ll guide you through this process.
+
+Alternatively, you can visit [your account](https://snyk.io/account), copy your token and paste it into your terminal as follows:
+
+```
+snyk auth <your token>
+```
 
 ## Badge
 
