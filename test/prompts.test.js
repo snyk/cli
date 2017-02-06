@@ -34,6 +34,10 @@ function run(t, offset, filename) {
     }
     var prompts = _.flattenDeep(spy.args);
     t.equal(prompts.length, vulns.vulnerabilities.length * 2 + offset, 'found right number of prompts in ' + filename);
+    var testPrompt = prompts.find(function (prompt) {
+      return prompt.name === 'misc-add-test';
+    });
+    t.equal(testPrompt.default, false, 'test is not added by default');
     return prompts;
   }).catch(function (e) {
     console.log(e.stack);
@@ -162,16 +166,13 @@ test('humpback - checks related groups and subitems', function (t) {
       if (prompts[i].default === true) {
         continue;
       }
-      var group = prompts[i].choices[prompts[i].default].value.vuln.grouped;
+      var choices = prompts[i].choices;
+      var group = choices && choices[prompts[i].default].value.vuln.grouped;
       if (group) {
-        if (group) {
-          if (group.main) {
-            tofind = group.id;
-          } else {
-            t.equal(tofind, group.requires, 'correct ordering on patch group');
-          }
+        if (group.main) {
+          tofind = group.id;
         } else {
-          tofind = null;
+          t.equal(tofind, group.requires, 'correct ordering on patch group');
         }
       }
     }
@@ -210,4 +211,3 @@ function showChoices(question) {
   //   return v;
   // }));
 }
-
