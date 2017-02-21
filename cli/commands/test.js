@@ -78,6 +78,7 @@ function test(path, options) {
 
     return snyk.test(path || process.cwd(), options);
   }).then(function (res) {
+    var packageManager = res.packageManager;
     if (options.json) {
       var json = JSON.stringify(res, '', 2);
       if (res.ok) {
@@ -122,7 +123,7 @@ function test(path, options) {
     }
 
     summary = summary + ', ' + chalk.red.bold(count);
-    if (res.packageManager === 'npm') {
+    if (packageManager === 'npm') {
       summary += '\n\nRun `snyk wizard` to address these issues.';
     }
 
@@ -162,9 +163,15 @@ function test(path, options) {
               // This ver should get the not-vuln dependency, suggest refresh
               fix += 'Your dependencies are out of date, otherwise you would ' +
                 'be using a newer ' + vuln.name + ' than ' + vuln.name + '@' +
-                vuln.version + '.\nTry deleting node_modules, reinstalling ' +
-                'and running `snyk test` again.\nIf the problem persists, one' +
-                ' of your dependencies may be bundling outdated modules.';
+                vuln.version + '.\n';
+              if (packageManager === 'npm') {
+                fix += 'Try deleting node_modules, reinstalling ' +
+                'and running `snyk test` again.\nIf the problem persists, ' +
+                'one of your dependencies may be bundling outdated modules.';
+              } else if (packageManager === 'rubygems') {
+                fix += 'Try running `bundle update ' + vuln.name + '` ' +
+                'and running `snyk test` again.';
+              }
               break;
             }
             if (idx === 0) {
