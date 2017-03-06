@@ -4,9 +4,16 @@
 
 [![Known Vulnerabilities](https://snyk.io/test/npm/snyk/badge.svg)](https://snyk.io/test/npm/snyk)
 
-Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm packages, both ad hoc and as part of your CI (Build) system.
+Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm packages and Ruby projects, both on an ad hoc basis and as part of your CI (Build) system.
+
 
 [Full documentation on snyk.io](https://snyk.io/docs/using-snyk/)
+
+## Installation
+
+1. Install the Snyk utility using `npm install -g snyk`.
+2. Once installed you will need to authenticate with your Snyk account: `snyk auth`
+
 
 ## CLI
 
@@ -14,27 +21,29 @@ Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm pa
 snyk [options] [command] [package]
 ```
 
-The package argument is optional. If no package is given, Snyk will run the command against the current working directory allowing you test you non-public applications.
-
 Run `snyk --help` to get a quick overview of all commands.
 
-## Integrating Snyk into your dev workflow
+The package argument is optional. If no package is given, Snyk will run the command against the current working directory allowing you test you non-public applications.
 
-To continuously avoid known vulnerabilities in your dependencies, integrate Snyk into your continuous integration (CI, a.k.a. build) system. Here are the steps required to to so:
 
-1. Install the Snyk utility using `npm install -g snyk`.
-2. Run `snyk wizard` in the directory of your project following the prompts which will also generate a `.snyk` policy file.
-3. Ensure the `.snyk` file you generated was added to your source control (`git add .snyk`).
+## Features
+- **Find** known vulnerabilities by running `snyk test` on a project either as a one off or as part of your CI process.
+- **Fix** vulnerabilities using `snyk wizard` and `snyk protect`. 
+	- `snyk wizard` walks you through finding and fixing know vulnerabilities in your project. Remidiation options include configuring your policy file to update, auto patch and ignore vulnerabilities. (npm only) 
+	- `snyk protect` your code from vulnerabilities by applying patches and optionally suppressing specific vulnerabilities.
+- **Alert** `snyk monitor` records the state of dependencies and any vulnerabilities on snyk.io so you can be alerted when new vulnerabilities or updates/patches are disclosed that affect your repositories.
+- **Prevent** new vulnerable dependencies from being added to your project by running `snyk test` as part of your CI to fail tests when vulnerable Node.js or Ruby dependencies are added.
 
-If you selected to, Snyk will include `snyk test` as part of your `npm test` command, so if there are new vulnerabilities in the future, your CI will fail protecting you from introducing vulnerabilities to production.
 
-Some Snyk commands require authentication. We use GitHub for authentication, but do not require access to your repositories, only your email address. You can authenticate by running `snyk auth` in your terminal, and it’ll guide you through this process.
+## Build
 
-Alternatively, you can visit [your account](https://snyk.io/account), copy your token and paste it into your terminal as follows:
-
+If using this package from the repo directly, you'll need to first build the custom lodash by running:
 ```
-snyk auth <your token>
+npm run build
 ```
+This will create a `dist` directory with the minimal lodash file.
+When using the package via npm, the build is not needed as the `dist` directory is already included in the npm package.
+
 
 ## Badge
 
@@ -62,17 +71,5 @@ Markdown:
 [![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name)
 ```
 
-## Build
-
-If using this package from the repo directly, you'll need to first build the custom lodash by running:
-```
-npm run build
-```
-This will create a `dist` directory with the minimal lodash file.
-When using the package via npm, the build is not needed as the `dist` directory is already included in the npm package.
-
-## Credits
-
-<p>We monitor existing node.js security portals and tools, such as <a href="https://nodesecurity.io/">Node Security Project</a>, the <a href="https://groups.google.com/forum/#!forum/nodejs-sec">nodejs-sec Google Group</a>, or <a href="http://retirejs.github.io/retire.js/">Retire.js</a>. We also monitor Github activity and other online sources for new vulnerabilities.</p>
 
 [![Analytics](https://ga-beacon.appspot.com/UA-69111857-2/Snyk/snyk?pixel)](https://snyk.io/)
