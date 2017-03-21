@@ -4,16 +4,19 @@
 
 [![Known Vulnerabilities](https://snyk.io/test/npm/snyk/badge.svg)](https://snyk.io/test/npm/snyk)
 
-Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm packages and Ruby projects, both on an ad hoc basis and as part of your CI (Build) system.
+Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm, Ruby and Java dependencies, both on an ad hoc basis and as part of your CI (Build) system.
 
+## Documentation
 
-[Full documentation on snyk.io](https://snyk.io/docs/using-snyk/)
+[Full documentation is available on snyk.io](https://snyk.io/docs/using-snyk/?utm_campaign=docs&utm_medium=github&utm_source=full_docs)
+
 
 ## Installation
 
 1. Install the Snyk utility using `npm install -g snyk`.
 2. Once installed you will need to authenticate with your Snyk account: `snyk auth`
 
+For more detail on how to authenticate take a look at the [CLI authentication](https://snyk.io/docs/using-snyk#authentication?utm_campaign=docs&utm_medium=github&utm_source=CLI_authentication) section of the Snyk documentation. 
 
 ## CLI
 
@@ -21,7 +24,7 @@ Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm pa
 snyk [options] [command] [package]
 ```
 
-Run `snyk --help` to get a quick overview of all commands.
+Run `snyk --help` to get a quick overview of all commands or for full details on the CLI read the snyk.io [CLI docs](https://snyk.io/docs/using-snyk?utm_campaign=docs&utm_medium=github&utm_source=cli). 
 
 The package argument is optional. If no package is given, Snyk will run the command against the current working directory allowing you test you non-public applications.
 
