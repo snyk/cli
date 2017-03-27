@@ -21,6 +21,10 @@ function test(path, options) {
     args.push({});
   }
 
+  if (config.org) {
+    options.org = config.org;
+  }
+
   return apiTokenExists('snyk test')
   .then(function () {
     // if we have more than path, options, we're going to assume that we've
