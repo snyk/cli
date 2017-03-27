@@ -1,8 +1,8 @@
 
 Organisations:
 
-To monitor your project for a specific org, you can add an optional flag to
-both the `monitor` and `wizard` commands:
+To test or monitor your project for a specific org, you can add an optional
+flag to the `test`, `monitor` and `wizard` commands:
 
   $ snyk monitor --org=<my-org>
   Captured a snapshot of this project's dependencies.

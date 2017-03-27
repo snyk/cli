@@ -56,24 +56,26 @@ before('prime config', function (t) {
  */
 
 test('`test semver` sends remote NPM request:', function(t) {
-  t.plan(2);
+  t.plan(3);
   // We care about the request here, not the response
-  return cli.test('semver', {registry: 'npm'})
+  return cli.test('semver', {registry: 'npm', org: 'EFF'})
   .then(function() {
     var req = server.popRequest();
     t.equal(req.method, 'GET', 'makes GET request');
     t.match(req.url, '/vuln/npm/semver', 'gets from correct url');
+    t.equal(req.query.org, 'EFF', 'org sent as a query in request');
   });
 });
 
 test('`test sinatra --registry=rubygems` sends remote Rubygems request:',
 function(t) {
-  t.plan(2);
-  return cli.test('sinatra', {registry: 'rubygems'})
+  t.plan(3);
+  return cli.test('sinatra', {registry: 'rubygems', org: 'ACME'})
   .then(function() {
     var req = server.popRequest();
     t.equal(req.method, 'GET', 'makes GET request');
     t.match(req.url, '/vuln/rubygems/sinatra', 'gets from correct url');
+    t.equal(req.query.org, 'ACME', 'org sent as a query in request');
   });
 });
 
@@ -181,10 +183,10 @@ test('`test monorepo --file=sub-ruby-app/Gemfile`', function(t) {
 
 test('`test maven-app --file=pom.xml` sends package info',
 function(t) {
-  t.plan(5);
+  t.plan(6);
   chdirWorkspaces();
   var stub = stubExec('maven-app/mvn-dep-tree-stdout.txt');
-  return cli.test('maven-app', {file: 'pom.xml'})
+  return cli.test('maven-app', {file: 'pom.xml', org: 'nobelprize.org'})
   .then(function() {
     var req = server.popRequest();
     var pkg = req.body;
@@ -193,7 +195,9 @@ function(t) {
     t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
     t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
     t.equal(pkg.dependencies['junit:junit'].artifactId, 'junit',
-      'specifies dependency artifactId');
+            'specifies dependency artifactId');
+    t.equal(req.query.org, 'nobelprize.org', 'org sent as a query in request');
+
   })
   .catch(function(err) {
     t.error(err);

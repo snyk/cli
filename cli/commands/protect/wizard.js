@@ -35,6 +35,10 @@ function wizard(options) {
     options = {};
   }
 
+  if (config.org) {
+    options.org = config.org;
+  }
+
   try {
     if (detectPackageManager(cwd, options) === 'rubygems') {
       throw new Error(
