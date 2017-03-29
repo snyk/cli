@@ -19,6 +19,7 @@ Commands:
   monitor ............ Record the state of dependencies and any
                        vulnerabilities on snyk.io.
   policy ............. Display the Snyk policy for a package.
+  ignore ............. Ignore an issue. For more help run `snyk help ignore`.
 
 Options:
 

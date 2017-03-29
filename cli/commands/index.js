@@ -6,18 +6,19 @@ require('../../lib/spinner').isRequired = false;
 // time as low as possible
 
 var commands = {
-  help: hotload('./help'),
   auth: hotload('./auth'),
-  version: hotload('./version'),
   config: hotload('./config'),
+  help: hotload('./help'),
+  ignore: hotload('./ignore'),
+  modules: hotload('./modules'),
   monitor: hotload('./monitor'),
-  test: hotload('./test'),
   policy: hotload('./policy'),
   protect: hotload('./protect'),
-  wizard: hotload('./protect/wizard'),
-  modules: hotload('./modules'),
   scenario: hotload('./scenario'),
+  test: hotload('./test'),
   'test-unpublished': hotload('./unpublished'),
+  version: hotload('./version'),
+  wizard: hotload('./protect/wizard'),
 };
 commands.aliases = abbrev(Object.keys(commands));
 commands.aliases.t = 'test';

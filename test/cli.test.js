@@ -8,6 +8,7 @@ var port = process.env.PORT = process.env.SNYK_PORT = 12345;
 var sinon = require('sinon');
 var proxyquire = require('proxyquire');
 var parse = require('url').parse;
+var policy = require('snyk-policy');
 
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
@@ -142,6 +143,58 @@ test('auth via github', function (t) {
     unhook();
     t.end();
   });
+});
+
+test('snyk ignore - all options', function (t) {
+  t.plan(1);
+  var fullPolicy = {ID: [
+    {'*': {
+      reason: 'REASON',
+      expires: new Date('2017-10-07T00:00:00.000Z'), },
+    },
+  ],
+                   };
+  var dir = testUtils.tmpdir();
+  cli.ignore({
+    id: 'ID', reason: 'REASON', expiry: new Date('2017-10-07'), path: dir,
+  }).catch(() => t.fail('ignore should succeed'))
+    .then(() => policy.load(dir))
+    .then(pol => {
+      t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
+    });
+});
+
+test('snyk ignore - no ID', function (t) {
+  t.plan(1);
+  var dir = testUtils.tmpdir();
+  cli.ignore({
+    reason: 'REASON', expiry: new Date('2017-10-07'), path: dir,
+  }).then(function (res) {
+    t.fail('should not succeed with missing ID');
+  }).catch(function (e) {
+    var errors = require('../lib/error');
+    var message = chalk.stripColor(errors.message(e));
+    t.equal(message.toLowerCase().indexOf('id is a required field'), 0,
+            'captured failed ignore (no --id given)');
+  });
+});
+
+test('snyk ignore - default options', function (t) {
+  t.plan(3);
+  var dir = testUtils.tmpdir();
+  cli.ignore({id: 'ID3', path: dir,
+  }).catch(() => t.fail('ignore should succeed'))
+    .then(() => policy.load(dir))
+    .then(pol => {
+      t.true(pol.ignore.ID3, 'policy ID written correctly');
+      t.is(pol.ignore.ID3[0]['*'].reason, 'None Given',
+           'policy (default) reason written correctly');
+      var expiryFromNow = pol.ignore.ID3[0]['*'].expires - Date.now();
+      // not more than 30 days ahead, not less than (30 days - 1 minute)
+      t.true(expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
+             expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
+             'policy (default) expiry wirtten correctly');
+    });
 });
 
 after('teardown', function (t) {
