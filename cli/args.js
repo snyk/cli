@@ -100,7 +100,8 @@ function args(processargv) {
       command === 'modules' ||
       command === 'scenario' ||
       command === 'monitor' ||
-      command === 'wizard') {
+      command === 'wizard' ||
+      command === 'ignore') {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
   }
