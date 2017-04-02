@@ -5,3 +5,4 @@ local.log
 /patches/
 /dist
 tmp
+.DS_Store
