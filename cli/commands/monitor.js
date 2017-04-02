@@ -49,7 +49,10 @@ function monitor(path, options) {
         var manageUrl = url.format(endpoint);
 
         endpoint.pathname = leader + '/monitor/' + res.id;
-        return 'Captured a snapshot of this project\'s dependencies.\n' +
+        return (packageManager === 'yarn' ?
+        'A yarn.lock file was detected - continuing as a Yarn project.\n\n' :
+        '\n\n') +
+        'Captured a snapshot of this project\'s dependencies.\n' +
         'Explore this snapshot at ' +  monitorUrl + '\n\n' +
         (res.isMonitored ?
         'Notifications about newly disclosed vulnerabilities\n' +

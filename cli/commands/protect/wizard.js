@@ -34,20 +34,49 @@ function wizard(options) {
   if (!options) {
     options = {};
   }
-
   if (config.org) {
     options.org = config.org;
   }
-
-  try {
-    if (detectPackageManager(cwd, options) === 'rubygems') {
-      throw new Error(
-        'Snyk wizard for Ruby projects is not currently supported');
-    }
-  } catch (error) {
+  return processPackageManager(options)
+  .then(processWizardFlow)
+  .catch(function (error) {
     return Promise.reject(error);
-  }
+  });
+}
 
+function processPackageManager(options) {
+  var packageManager = detectPackageManager(cwd, options);
+  if (packageManager === 'rubygems') {
+    return Promise.reject(
+      'Snyk wizard for Ruby projects is not currently supported');
+  }
+  if (packageManager === 'maven') {
+    return Promise.reject(
+      'Snyk wizard for Maven projects is not currently supported');
+  }
+  if (packageManager === 'yarn') {
+    var prompt = {
+      name: 'choose-yarn',
+      message: 'A yarn.lock file was detected.\n' +
+        '  Should the wizard use Yarn [Y] or npm [n] when applying updates?',
+      type: 'confirm',
+      default: true,
+    };
+    return inquire(prompt, {})
+    .then(function (answer) {
+      if (answer['choose-yarn']) {
+        options.packageManager = packageManager;
+        return Promise.resolve(options);
+      }
+      options.packageManager = 'npm';
+      return Promise.resolve(options);
+    });
+  }
+  options.packageManager = packageManager;
+  return Promise.resolve(options);
+}
+
+function processWizardFlow(options) {
   spinner.sticky();
 
   if (options['dry-run']) {
@@ -88,7 +117,6 @@ function wizard(options) {
             if (answers['misc-start-over']) {
               options['ignore-policy'] = true;
             }
-
             resolve();
           });
         });
@@ -220,7 +248,7 @@ function processAnswers(answers, policy, options) {
   var live = !options['dry-run'];
   var snykVersion = '*';
 
-  var res = protect.generatePolicy(policy, tasks, live)
+  var res = protect.generatePolicy(policy, tasks, live, options.packageManager)
   .then(function (policy) {
     if (!live) {
       // if this was a dry run, we'll throw an error to bail out of the
@@ -338,7 +366,6 @@ function processAnswers(answers, policy, options) {
     var lbl = 'Updating package.json...';
     if (answers['misc-add-test'] || answers['misc-add-protect']) {
       debug('updating %s', packageFile);
-
 
       if (undefsafe(pkg, 'dependencies.snyk') ||
           undefsafe(pkg, 'peerDependencies.snyk') ||

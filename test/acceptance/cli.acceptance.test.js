@@ -207,6 +207,26 @@ function(t) {
   });
 });
 
+test('`test` on a yarn package does work and displays appropriate text',
+function(t) {
+  t.plan(5);
+  chdirWorkspaces('yarn-app');
+  return cli.test()
+  .then(function() {
+    var req = server.popRequest();
+    var pkg = req.body;
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/npm', 'posts to correct url');
+    t.equal(pkg.name, 'yarn-app-one', 'specifies package name');
+    t.ok(pkg.dependencies.marked, 'specifies dependency');
+    t.equal(pkg.dependencies.marked.full, 'marked@0.3.6',
+      'specifies dependency full name');
+  })
+  .catch(function(err) {
+    t.error(err);
+  });
+});
+
 /**
  * `monitor`
  */
@@ -304,6 +324,33 @@ test('`monitor maven-multi-app`', function(t) {
   });
 });
 
+test('`monitor yarn-app`', function(t) {
+  t.plan(8);
+  chdirWorkspaces('yarn-app');
+  return cli.monitor().then(function() {
+    var req = server.popRequest();
+    var pkg = req.body.package;
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/npm', 'puts at correct url');
+    t.equal(pkg.name, 'yarn-app-one', 'specifies name');
+    t.equal(pkg.from[0],
+      'yarn-app-one@1.0.0',
+      'specifies "from" path for root package');
+    t.ok(pkg.dependencies.marked, 'specifies dependency');
+    t.equal(pkg.dependencies.marked.full,
+      'marked@0.3.6', 'specifies dependency full name');
+    t.equal(pkg.dependencies.marked.from[0],
+      'yarn-app-one@1.0.0',
+      'specifies root module as first element of "from" path for dependencies');
+    t.equal(pkg.dependencies.marked.from[1],
+      'marked@0.3.6',
+      'specifies dependency module as second element of "from" path for dependencies');
+  })
+  .catch(function(err) {
+    t.error(err);
+  });
+});
+
 /**
  * We can't expect all test environments to have Maven installed
  * So, hijack the system exec call and return the expected output
@@ -349,8 +396,8 @@ after('teardown', function (t) {
   });
 });
 
-function chdirWorkspaces() {
-  process.chdir(__dirname + '/workspaces');
+function chdirWorkspaces(subdir) {
+  process.chdir(__dirname + '/workspaces' + (subdir ? '/' + subdir : ''));
 }
 
 function decode64(str) {
