@@ -485,7 +485,7 @@ function generatePrompt(vulns, policy, prefix) {
     var review = {
       value: 'review',
       short: 'Review',
-      name: 'Review vulnerabilities separately',
+      name: 'Review issues separately',
     };
 
     var choices = [];
@@ -511,12 +511,15 @@ function generatePrompt(vulns, policy, prefix) {
       infoLink += '/package/npm/' + group.affected.name + '/' +
         group.affected.version;
       var joiningText = group.patch ? 'in' : 'via';
-      messageIntro = fmt('%s vulnerabilities introduced %s %s',
-        group.count,joiningText, group.affected.full);
+      var issues = vuln.type === 'license' ? 'issues' : 'vulnerabilities';
+      messageIntro = fmt(
+        '%s %s introduced %s %s',
+        group.count, issues, joiningText, group.affected.full);
     } else {
       infoLink += '/vuln/' + vuln.id;
-      messageIntro = fmt('%s severity vuln found in %s, introduced via',
-        severity, vulnIn, from);
+      messageIntro = fmt(
+        '%s severity %s found in %s, introduced via',
+        severity, vuln.type === 'license' ? 'issue' : 'vuln', vulnIn, from);
       messageIntro += '\n- desc: ' + vuln.title;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
           '- from: ' + vuln.from.slice(1).join(' > ') : '');
@@ -760,9 +763,12 @@ function generatePrompt(vulns, policy, prefix) {
     if (rule && rule.type === 'ignore') {
       defaultAnswer = rule.reason;
     }
+    var issue = curr.choices[0].value.vuln &&
+          curr.choices[0].value.vuln.type === 'license' ?
+          'issue' : 'vulnerability';
     acc.push({
       name: curr.name + '-reason',
-      message: '[audit] Reason for ignoring vulnerability?',
+      message: '[audit] Reason for ignoring ' + issue + '?',
       default: defaultAnswer,
       when: function (answers) {
         if (!answers[curr.name]) {

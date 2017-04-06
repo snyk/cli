@@ -123,16 +123,28 @@ function processWizardFlow(options) {
       }).then(function () {
         return snyk.test(cwd, options).then(function (res) {
           var packageFile = path.resolve(cwd, 'package.json');
-
+          var licenseIssues = res.vulnerabilities.filter(function (issue) {
+            return issue.type === 'license';
+          });
+          if (licenseIssues) {
+            console.log('\nLicense issues are not supported by the wizard, ' +
+                        'use `snyk ignore`\n');
+          }
+          res.vulnerabilities = res.vulnerabilities.filter(function (vuln) {
+            return vuln.type !== 'license';
+          });
           if (!res.ok) {
             var vulns = res.vulnerabilities;
             var paths = vulns.length === 1 ? 'path' : 'paths';
             var ies = vulns.length === 1 ? 'y' : 'ies';
+            var uniqueCount = _.uniq(vulns.map(function (vuln) {
+              return vuln.id;
+            })).length;
             // echo out the deps + vulns found
             console.log('Tested %s dependencies for known vulnerabilities, %s',
               res.dependencyCount,
               chalk.bold.red('found ' +
-                res.uniqueCount +
+                uniqueCount +
                 ' vulnerabilit' + ies +
                 ', ' + vulns.length +
                 ' vulnerable ' +

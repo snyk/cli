@@ -98,7 +98,8 @@ function test(path, options) {
     } else {
       summary += path;
     }
-    summary += ' for known vulnerabilities';
+    var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+    summary += ' for known ' + issues;
 
     if (res.ok && res.vulnerabilities.length === 0) {
       summary = chalk.green('✓ ' + summary + ', no vulnerable paths found.');
@@ -114,9 +115,11 @@ function test(path, options) {
     var vulnLength = res.vulnerabilities.length;
     var count = 'found ' + res.uniqueCount;
     if (res.uniqueCount === 1) {
-      count += ' vulnerability, ';
+      var issue = res.licensesPolicy ? 'issue' : 'vulnerability';
+      count += ' ' + issue + ', ';
     } else {
-      count += ' vulnerabilities, ';
+      var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+      count += ' ' + issues + ', ';
     }
     count += vulnLength + ' vulnerable ';
 
@@ -137,7 +140,8 @@ function test(path, options) {
       var res = '';
       var name = vuln.name + '@' + vuln.version;
       var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
-      res += chalk.red('✗ ' + severity + ' severity vulnerability found on ' +
+      var issue = vuln.type === 'license' ? 'issue' : 'vulnerability';
+      res += chalk.red('✗ ' + severity + ' severity ' + issue + ' found on ' +
         name + '\n');
       res += '- desc: ' + vuln.title + '\n';
       res += '- info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
@@ -197,8 +201,13 @@ function test(path, options) {
         }
         res += chalk.bold(fix);
       } else {
-        res += chalk.magenta('Fix: None available. Consider removing this' +
-        ' dependency.');
+        if (vuln.type === 'license') {
+          // do not display fix (there isn't any), remove newline
+          res = res.slice(0, -1);
+        } else {
+          res += chalk.magenta(
+            'Fix: None available. Consider removing this dependency.');
+        }
       }
       return res;
     }).join(sep) + sep + summary;
