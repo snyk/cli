@@ -8,6 +8,8 @@ var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;
 
 function test(path, options) {
+  path = path || process.cwd();
+  options = options || {};
   var args = [].slice.call(arguments, 0);
 
   if (typeof path === 'object') {
@@ -24,6 +26,10 @@ function test(path, options) {
   if (config.org) {
     options.org = config.org;
   }
+
+  // making `show-vulnerable-paths` true by default.
+  var showVulnPaths = (options['show-vulnerable-paths'] || '')
+        .toLowerCase() !== 'false';
 
   return apiTokenExists('snyk test')
   .then(function () {
@@ -57,14 +63,23 @@ function test(path, options) {
         res = res.join('');
         var projects = testedProjects === 1 ? ' project' : ' projects';
         var paths = shouldThrow === 1 ? 'path' : 'paths';
+        var testedMessage = '\n\nTested ' + testedProjects + projects;
 
         if (shouldThrow > 0) {
-          res += chalk.bold.red('\n\nTested ' + testedProjects + projects +
-            ', ' + shouldThrow + ' contained vulnerable ' + paths + '.');
+          if (showVulnPaths) {
+            testedMessage +=  ', ' + shouldThrow + ' contained vulnerable ' +
+              paths;
+          }
+          testedMessage += '.';
+          res += chalk.bold.red(testedMessage);
           throw new Error(res);
         } else {
-          res += chalk.green('\n\nTested ' + testedProjects + projects +
-            ', no vulnerable paths were found.');
+          if (showVulnPaths) {
+            testedMessage += ', no vulnerable paths were found.';
+          } else {
+            testedMessage += ', no issues were found.';
+          }
+          res += chalk.green(testedMessage);
         }
 
         return res;
@@ -74,10 +89,6 @@ function test(path, options) {
     if (path && typeof path !== 'string') {
       options = path;
       path = false;
-    }
-
-    if (!options) {
-      options = {};
     }
 
     return snyk.test(path || process.cwd(), options);
@@ -102,7 +113,10 @@ function test(path, options) {
     summary += ' for known ' + issues;
 
     if (res.ok && res.vulnerabilities.length === 0) {
-      summary = chalk.green('✓ ' + summary + ', no vulnerable paths found.');
+      var vulnPaths = showVulnPaths ?
+            ', no vulnerable paths found.' :
+            ', none were found.';
+      summary = chalk.green('✓ ' + summary + vulnPaths);
 
       if (!isCI) {
         summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified ' +
@@ -118,18 +132,21 @@ function test(path, options) {
       var issue = res.licensesPolicy ? 'issue' : 'vulnerability';
       count += ' ' + issue + ', ';
     } else {
-      var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-      count += ' ' + issues + ', ';
+      count += ' ' + (res.licensesPolicy ? 'issues' : 'vulnerabilities') + ', ';
     }
-    count += vulnLength + ' vulnerable ';
+    if (showVulnPaths) {
+      count += vulnLength + ' vulnerable ';
 
-    if (res.vulnerabilities.length === 1) {
-      count += 'path.';
+      if (res.vulnerabilities.length === 1) {
+        count += 'path.';
+      } else {
+        count += 'paths.';
+      }
     } else {
-      count += 'paths.';
+      count = count.slice(0, -2) + '.'; // replace ', ' with dot
     }
-
     summary = summary + ', ' + chalk.red.bold(count);
+
     if (packageManager === 'npm' || packageManager === 'yarn') {
       summary += '\n\nRun `snyk wizard` to address these issues.';
     }
