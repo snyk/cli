@@ -43,8 +43,6 @@ function monitor(path, options) {
         if (res.org) {
           leader = '/org/' + res.org;
         }
-        endpoint.pathname = leader + '/monitor/' + res.id;
-        var monitorUrl = url.format(endpoint);
         endpoint.pathname = leader + '/manage';
         var manageUrl = url.format(endpoint);
 
@@ -54,7 +52,7 @@ function monitor(path, options) {
         'A yarn.lock file was detected - continuing as a Yarn project.\n\n' :
         '\n\n') +
         'Captured a snapshot of this project\'s dependencies.\n' +
-        'Explore this snapshot at ' +  monitorUrl + '\n\n' +
+        'Explore this snapshot at ' +  res.uri + '\n\n' +
         (res.isMonitored ?
          'Notifications about newly disclosed ' + issues + ' related\n' +
          'to these dependencies will be emailed to you.\n\n' :
