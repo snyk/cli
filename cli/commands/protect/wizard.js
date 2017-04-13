@@ -48,7 +48,7 @@ function processPackageManager(options) {
   var packageManager = detectPackageManager(cwd, options);
   if (packageManager === 'rubygems') {
     return Promise.reject(
-      'Snyk wizard for Ruby projects is not currently supported');
+      'Snyk wizard for RubyGems projects is not currently supported');
   }
   if (packageManager === 'maven') {
     return Promise.reject(
