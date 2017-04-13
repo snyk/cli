@@ -204,7 +204,8 @@ function test(path, options) {
         if (vuln.type === 'license') {
           // do not display fix (there isn't any), remove newline
           res = res.slice(0, -1);
-        } else if (packageManager !== 'maven') {
+        } else if (packageManager !== 'maven' ||
+            packageManager !== 'rubygems') {
           res += chalk.magenta(
             'Fix: None available. Consider removing this dependency.');
         }
