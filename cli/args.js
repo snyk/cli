@@ -7,9 +7,17 @@ alias.d = 'debug'; // always make `-d` debug
 alias.t = 'test';
 
 function args(processargv) {
+  // doubleDashArgs is used to signify that all arguments after a '--'
+  // are taken as is and passed to the next process (see lib/module-info/maven)
+  var doubleDashArgs = false;
   // allows us to support flags with true or false only
   var argv = processargv.slice(2).reduce(function reduce(acc, arg) {
-    if (arg.indexOf('-') === 0) {
+    if (arg === '--') {
+      doubleDashArgs = true;
+    } else if (doubleDashArgs) {
+      acc._doubleDashArgs = (acc._doubleDashArgs || '') + ' ' + arg;
+      acc._doubleDashArgs = acc._doubleDashArgs.trim();
+    } else if (arg.indexOf('-') === 0) {
       arg = arg.slice(1);
 
       if (alias[arg] !== undefined) {
