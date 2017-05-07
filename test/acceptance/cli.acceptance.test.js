@@ -55,11 +55,11 @@ before('prime config', function (t) {
  * Remote package `test`
  */
 
-test('`test semver` sends remote NPM request:', function(t) {
+test('`test semver` sends remote NPM request:', function (t) {
   t.plan(3);
   // We care about the request here, not the response
   return cli.test('semver', {registry: 'npm', org: 'EFF'})
-  .then(function() {
+  .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'GET', 'makes GET request');
     t.match(req.url, '/vuln/npm/semver', 'gets from correct url');
@@ -68,10 +68,9 @@ test('`test semver` sends remote NPM request:', function(t) {
 });
 
 test('`test sinatra --registry=rubygems` sends remote Rubygems request:',
-function(t) {
-  t.plan(3);
+function (t) {
   return cli.test('sinatra', {registry: 'rubygems', org: 'ACME'})
-  .then(function() {
+  .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'GET', 'makes GET request');
     t.match(req.url, '/vuln/rubygems/sinatra', 'gets from correct url');
@@ -83,32 +82,35 @@ function(t) {
  * Local source `test`
  */
 
-test('`test empty --file=Gemfile`', function(t) {
-  t.plan(2);
+test('`test empty --file=Gemfile`', function (t) {
   chdirWorkspaces();
   return cli.test('empty', {file: 'Gemfile'})
-  .catch(function(error) {
+  .then(function () {
+    t.fail('should have failed');
+  })
+  .catch(function (error) {
     t.pass('throws error');
     t.match(error.message, 'File not found: Gemfile', 'shows error');
   });
 });
 
-test('`test ruby-app-no-lockfile --file=Gemfile`', function(t) {
-  t.plan(2);
+test('`test ruby-app-no-lockfile --file=Gemfile`', function (t) {
   chdirWorkspaces();
   return cli.test('ruby-app-no-lockfile', {file: 'Gemfile'})
-  .catch(function(error) {
+  .then(function () {
+    t.fail('should have failed');
+  })
+  .catch(function (error) {
     t.pass('throws error');
     t.match(error.message, 'Please run `bundle install`', 'shows error');
   });
 });
 
 test('`test ruby-app --file=Gemfile.lock` sends Gemfile and Lockfile',
-function(t) {
-  t.plan(5);
+function (t) {
   chdirWorkspaces();
   return cli.test('ruby-app', {file: 'Gemfile.lock'})
-  .then(function() {
+  .then(function () {
     var req = server.popRequest();
     var files = req.body.files;
     t.equal(req.method, 'POST', 'makes POST request');
@@ -122,11 +124,10 @@ function(t) {
 });
 
 test('`test ruby-gem-no-lockfile --file=ruby-gem.gemspec` sends gemspec',
-function(t) {
-  t.plan(4);
+function (t) {
   chdirWorkspaces();
   return cli.test('ruby-gem-no-lockfile', {file: 'ruby-gem.gemspec'})
-  .then(function() {
+  .then(function () {
     var req = server.popRequest();
     var files = req.body.files;
     t.equal(req.method, 'POST', 'makes POST request');
@@ -138,11 +139,10 @@ function(t) {
 });
 
 test('`test ruby-gem --file=ruby-gem.gemspec` sends gemspec and Lockfile',
-function(t) {
-  t.plan(5);
+function (t) {
   chdirWorkspaces();
   return cli.test('ruby-gem', {file: 'ruby-gem.gemspec'})
-  .then(function() {
+  .then(function () {
     var req = server.popRequest();
     var files = req.body.files;
     t.equal(req.method, 'POST', 'makes POST request');
@@ -155,10 +155,10 @@ function(t) {
   });
 });
 
-test('`test ruby-app` auto-detects Gemfile', function(t) {
-  t.plan(3);
+test('`test ruby-app` auto-detects Gemfile', function (t) {
   chdirWorkspaces();
-  return cli.test('ruby-app').then(function() {
+  return cli.test('ruby-app')
+  .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/rubygems', 'posts to correct url');
@@ -166,10 +166,10 @@ test('`test ruby-app` auto-detects Gemfile', function(t) {
   });
 });
 
-test('`test monorepo --file=sub-ruby-app/Gemfile`', function(t) {
-  t.plan(4);
+test('`test monorepo --file=sub-ruby-app/Gemfile`', function (t) {
   chdirWorkspaces();
-  return cli.test('monorepo', {file: 'sub-ruby-app/Gemfile'}).then(function() {
+  return cli.test('monorepo', {file: 'sub-ruby-app/Gemfile'})
+  .then(function () {
     var req = server.popRequest();
     var files = req.body.files;
     t.equal(req.method, 'POST', 'makes POST request');
@@ -182,12 +182,11 @@ test('`test monorepo --file=sub-ruby-app/Gemfile`', function(t) {
 });
 
 test('`test maven-app --file=pom.xml` sends package info',
-function(t) {
-  t.plan(6);
+function (t) {
   chdirWorkspaces();
-  var stub = stubExec('maven-app/mvn-dep-tree-stdout.txt');
+  stubExec(t, 'maven-app/mvn-dep-tree-stdout.txt');
   return cli.test('maven-app', {file: 'pom.xml', org: 'nobelprize.org'})
-  .then(function() {
+  .then(function () {
     var req = server.popRequest();
     var pkg = req.body;
     t.equal(req.method, 'POST', 'makes POST request');
@@ -197,22 +196,14 @@ function(t) {
     t.equal(pkg.dependencies['junit:junit'].artifactId, 'junit',
             'specifies dependency artifactId');
     t.equal(req.query.org, 'nobelprize.org', 'org sent as a query in request');
-
-  })
-  .catch(function(err) {
-    t.error(err);
-  })
-  .then(function() {
-    stub.restore();
   });
 });
 
 test('`test` on a yarn package does work and displays appropriate text',
-function(t) {
-  t.plan(5);
+function (t) {
   chdirWorkspaces('yarn-app');
   return cli.test()
-  .then(function() {
+  .then(function () {
     var req = server.popRequest();
     var pkg = req.body;
     t.equal(req.method, 'POST', 'makes POST request');
@@ -221,9 +212,6 @@ function(t) {
     t.ok(pkg.dependencies.marked, 'specifies dependency');
     t.equal(pkg.dependencies.marked.full, 'marked@0.3.6',
       'specifies dependency full name');
-  })
-  .catch(function(err) {
-    t.error(err);
   });
 });
 
@@ -231,29 +219,32 @@ function(t) {
  * `monitor`
  */
 
-test('`monitor non-existing`', function(t) {
-  t.plan(2);
+test('`monitor non-existing`', function (t) {
   chdirWorkspaces();
-  return cli.monitor('non-existing').catch(function(error) {
+  return cli.monitor('non-existing')
+  .then(function () {
+    t.fail('should have failed');
+  })
+  .catch(function (error) {
     t.pass('throws error');
     t.match(error.message, 'pointed at an existing project', 'shows error');
   });
 });
 
-test('`monitor npm-package`', function(t) {
-  t.plan(2);
+test('`monitor npm-package`', function (t) {
   chdirWorkspaces();
-  return cli.monitor('npm-package').then(function() {
+  return cli.monitor('npm-package')
+  .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
   });
 });
 
-test('`monitor ruby-app`', function(t) {
-  t.plan(4);
+test('`monitor ruby-app`', function (t) {
   chdirWorkspaces();
-  return cli.monitor('ruby-app').then(function() {
+  return cli.monitor('ruby-app')
+  .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/rubygems', 'puts at correct url');
@@ -263,11 +254,11 @@ test('`monitor ruby-app`', function(t) {
   });
 });
 
-test('`monitor maven-app`', function(t) {
-  t.plan(8);
+test('`monitor maven-app`', function (t) {
   chdirWorkspaces();
-  var stub = stubExec('maven-app/mvn-dep-tree-stdout.txt');
-  return cli.monitor('maven-app', {file: 'pom.xml'}).then(function() {
+  stubExec(t, 'maven-app/mvn-dep-tree-stdout.txt');
+  return cli.monitor('maven-app', {file: 'pom.xml'})
+  .then(function () {
     var req = server.popRequest();
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -286,20 +277,14 @@ test('`monitor maven-app`', function(t) {
     t.equal(pkg.dependencies['junit:junit'].from[1],
       'junit:junit@3.8.2',
       'specifies "from" path for dependencies');
-  })
-  .catch(function(err) {
-    t.error(err);
-  })
-  .then(function() {
-    stub.restore();
   });
 });
 
-test('`monitor maven-multi-app`', function(t) {
-  t.plan(7);
+test('`monitor maven-multi-app`', function (t) {
   chdirWorkspaces();
-  var stub = stubExec('maven-multi-app/mvn-dep-tree-stdout.txt');
-  return cli.monitor('maven-multi-app', {file: 'pom.xml'}).then(function() {
+  stubExec(t, 'maven-multi-app/mvn-dep-tree-stdout.txt');
+  return cli.monitor('maven-multi-app', {file: 'pom.xml'})
+  .then(function () {
     var req = server.popRequest();
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -315,19 +300,13 @@ test('`monitor maven-multi-app`', function(t) {
     t.equal(pkg.dependencies['com.mycompany.app:simple-child'].from[0],
       'com.mycompany.app:maven-multi-app@1.0-SNAPSHOT',
       'specifies root module as first element of "from" path for dependencies');
-  })
-  .catch(function(err) {
-    t.error(err);
-  })
-  .then(function() {
-    stub.restore();
   });
 });
 
-test('`monitor yarn-app`', function(t) {
-  t.plan(8);
+test('`monitor yarn-app`', function (t) {
   chdirWorkspaces('yarn-app');
-  return cli.monitor().then(function() {
+  return cli.monitor()
+  .then(function () {
     var req = server.popRequest();
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -344,10 +323,7 @@ test('`monitor yarn-app`', function(t) {
       'specifies root module as first element of "from" path for dependencies');
     t.equal(pkg.dependencies.marked.from[1],
       'marked@0.3.6',
-      'specifies dependency module as second element of "from" path for dependencies');
-  })
-  .catch(function(err) {
-    t.error(err);
+      'specifies dep module as second element of "from" path for dependencies');
   });
 });
 
@@ -355,12 +331,14 @@ test('`monitor yarn-app`', function(t) {
  * We can't expect all test environments to have Maven installed
  * So, hijack the system exec call and return the expected output
  */
-function stubExec(execOutputFile) {
-  function execute() {
+function stubExec(t, execOutputFile) {
+  var stub = sinon.stub(subProcess, 'execute', function () {
     var stdout = fs.readFileSync(path.join(execOutputFile), 'utf8');
     return Promise.resolve({stdout: stdout});
-  }
-  return sinon.stub(subProcess, 'execute', execute);
+  });
+  t.teardown(function () {
+    stub.restore();
+  });
 }
 
 // @later: try and remove this config stuff

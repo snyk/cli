@@ -8,7 +8,7 @@ alias.t = 'test';
 
 function args(processargv) {
   // doubleDashArgs is used to signify that all arguments after a '--'
-  // are taken as is and passed to the next process (see lib/module-info/maven)
+  // are taken as is and passed to the next process (see lib/plugins/maven)
   var doubleDashArgs = false;
   // allows us to support flags with true or false only
   var argv = processargv.slice(2).reduce(function reduce(acc, arg) {
