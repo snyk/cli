@@ -11,6 +11,7 @@ process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = 0;
 var server = require('./fake-server')(process.env.SNYK_API, apiKey);
 var subProcess = require('../../lib/sub-process');
+var plugins = require('../../lib/plugins');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -215,6 +216,34 @@ function (t) {
   });
 });
 
+test('`test pip-app --file=requirements.txt`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('pip')
+  .returns(plugin);
+
+  return cli.test('pip-app', {
+    file: 'requirements.txt',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/pip', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['pip-app', 'requirements.txt', undefined], 'calls python plugin');
+  });
+});
+
 /**
  * `monitor`
  */
@@ -324,6 +353,37 @@ test('`monitor yarn-app`', function (t) {
     t.equal(pkg.dependencies.marked.from[1],
       'marked@0.3.6',
       'specifies dep module as second element of "from" path for dependencies');
+  });
+});
+
+test('`monitor pip-app --file=requirements.txt`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {},
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('pip')
+  .returns(plugin);
+
+  return cli.monitor('pip-app', {
+    file: 'requirements.txt',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/pip', 'puts at correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['pip-app', 'requirements.txt', undefined], 'calls python plugin');
   });
 });
 
