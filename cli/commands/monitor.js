@@ -6,8 +6,10 @@ var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var url = require('url');
 var chalk = require('chalk');
-var detectPackageManager = require('../../lib/detect').detectPackageManager;
-var getModuleInfo = require('../../lib/module-info');
+
+var detect = require('../../lib/detect');
+var plugins = require('../../lib/plugins');
+var ModuleInfo = require('../../lib/module-info');
 
 function monitor(path, options) {
   if (typeof path === 'object') {
@@ -33,9 +35,12 @@ function monitor(path, options) {
     if (!exists) {
       throw new Error('snyk monitor should be pointed at an existing project');
     }
-    var packageManager = detectPackageManager(path, options);
+    var packageManager = detect.detectPackageManager(path, options);
+    var targetFile = options.file || detect.detectPackageFile(path);
     var meta = { method: 'cli', packageManager: packageManager };
-    return getModuleInfo(packageManager, path, options)
+    var plugin = plugins.loadPlugin(packageManager);
+    var moduleInfo = ModuleInfo(plugin, options.policy);
+    return moduleInfo.inspect(path, targetFile, options._doubleDashArgs)
       .then(snyk.monitor.bind(null, path, meta))
       .then(function (res) {
         var endpoint = url.parse(config.API);
