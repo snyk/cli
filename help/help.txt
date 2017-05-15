@@ -12,14 +12,14 @@ Commands:
   auth [api-token] ... Sign into Snyk.
   test ............... Test for any known vulnerabilities.
   wizard ............. Configure your policy file to update, auto patch and
-                       ignore vulnerabilities. Note: Node.js only.
+                       ignore vulnerabilities in npm & yarn projects.
   protect ............ Protect your code from vulnerabilities and
                        optionally suppress specific vulnerabilities.
                        Note: Node.js only.
   monitor ............ Record the state of dependencies and any
                        vulnerabilities on snyk.io.
   policy ............. Display the Snyk policy for a package.
-  ignore ............. Ignore an issue. For more help run `snyk help ignore`.
+  ignore ............. Modifies the .snyk policy to ignore stated issues.
 
 Options:
 
