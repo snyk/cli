@@ -2,10 +2,11 @@ var cli = require('../cli/commands/');
 var test = require('tap').test;
 
 var urls = [
-  'https://github.com/remy/undefsafe',
-  'https://github.com/remy/undefsafe.git',
-  'git@github.com:remy/undefsafe.git',
-  'remy/undefsafe',
+  // a repo with no dependencies so it will never be vulnerable (2017-05-15)
+  'https://github.com/Snyk/vulndb-fixtures',
+  'https://github.com/Snyk/vulndb-fixtures.git',
+  'git@github.com:Snyk/vulndb-fixtures.git',
+  'Snyk/vulndb-fixtures.git',
 ];
 
 urls.forEach(function (url) {
