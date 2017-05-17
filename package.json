@@ -23,7 +23,9 @@
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "snyk-auth": "node cli auth $SNYK_API_KEY",
-    "snyk-auth-windows": "node cli auth %SNYK_API_KEY%"
+    "snyk-auth-windows": "node cli auth %SNYK_API_KEY%",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "keywords": [
     "security",
@@ -57,7 +59,8 @@
     "undefsafe": "0.0.3",
     "update-notifier": "^0.5.0",
     "url": "^0.11.0",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "snyk": "^1.30.1"
   },
   "devDependencies": {
     "babel-cli": "^6.7.7",
