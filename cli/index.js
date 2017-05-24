@@ -3,6 +3,7 @@
 var args = require('./args')(process.argv);
 var debug = require('debug')('snyk');
 var copy = require('./copy');
+var alerts = require('../lib/alerts');
 
 var exitcode = 0;
 
@@ -69,6 +70,7 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
 }).catch(function (e) {
   console.log('super fail', e.stack);
 }).then(function (res) {
+  console.log(alerts.displayAlerts());
   if (!process.env.TAP && exitcode) {
     return process.exit(1);
   }
