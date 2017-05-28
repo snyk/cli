@@ -46,7 +46,7 @@ test('sub-process.execute executes sub processes', function (t) {
 
       subProcess.execute('echo', [shellVar])
         .then(function (result) {
-          t.not(result.stdout.trim(), shellVar, 'evaluates shell variable');
+          t.not(result.trim(), shellVar, 'evaluates shell variable');
         })
         .catch(t.fail);
     });
@@ -57,13 +57,13 @@ test('sub-process.execute executes sub processes', function (t) {
 
     subProcess.execute(script('stdout-echo'), ['hello world'])
       .then(function (result) {
-        t.match(result.stdout, 'hello world', 'should resolve with stdout');
+        t.match(result, 'hello world', 'should resolve with stdout');
       })
       .catch(t.fail);
 
     subProcess.execute(script('stderr-echo'), ['hello error'])
       .then(function (result) {
-        t.match(result.stderr, 'hello error', 'should resolve with stderr');
+        t.match(result, 'hello error', 'should resolve with stderr');
       })
       .catch(t.fail);
   });
@@ -96,7 +96,7 @@ test('sub-process.execute executes sub processes', function (t) {
       var explicitWorkDir = path.resolve(path.join(__dirname, 'support'));
       subProcess.execute(script('pwd'), [], { cwd: explicitWorkDir })
         .then(function (result) {
-          t.match(result.stdout, explicitWorkDir,
+          t.match(result, explicitWorkDir,
             'specifies the working directory');
         })
         .catch(t.fail);
@@ -104,7 +104,7 @@ test('sub-process.execute executes sub processes', function (t) {
       var currentWorkDir = process.cwd();
       subProcess.execute(script('pwd'), [])
         .then(function (result) {
-          t.match(result.stdout, currentWorkDir,
+          t.match(result, currentWorkDir,
             'defaults to the current working directory');
         })
         .catch(t.fail);

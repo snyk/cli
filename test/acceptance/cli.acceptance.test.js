@@ -334,7 +334,7 @@ test('`monitor yarn-app`', function (t) {
 function stubExec(t, execOutputFile) {
   var stub = sinon.stub(subProcess, 'execute', function () {
     var stdout = fs.readFileSync(path.join(execOutputFile), 'utf8');
-    return Promise.resolve({stdout: stdout});
+    return Promise.resolve(stdout);
   });
   t.teardown(function () {
     stub.restore();
