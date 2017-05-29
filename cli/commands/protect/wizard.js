@@ -211,6 +211,17 @@ function inquire(prompts, answers) {
   });
 }
 
+function getNewScriptContent(scriptContent, cmd) {
+  if (scriptContent) {
+    // only add the command if it's not already in the script
+    if (scriptContent.indexOf(cmd) === -1) {
+      return cmd + '; ' + scriptContent;
+    }
+    return scriptContent;
+  }
+  return cmd;
+}
+
 function processAnswers(answers, policy, options) {
   if (!options) {
     options = {};
@@ -341,6 +352,9 @@ function processAnswers(answers, policy, options) {
     }
   })
   .then(function () {
+    return npm.getVersion();
+  })
+  .then(function (npmVersion) {
     analytics.add('add-snyk-protect', answers['misc-add-protect']);
     if (!answers['misc-add-protect']) {
       return;
@@ -355,14 +369,11 @@ function processAnswers(answers, policy, options) {
     pkg.scripts['snyk-protect'] = 'snyk protect';
 
     var cmd = 'npm run snyk-protect';
-    var runScript = pkg.scripts.prepublish;
-    if (runScript) {
-      // only add the prepublish if it's not already in the prepublish
-      if (runScript.indexOf(cmd) === -1) {
-        pkg.scripts.prepublish = cmd + '; ' + runScript;
-      }
+    npmVersion = parseInt(npmVersion.split('.')[0]);
+    if (npmVersion >= 5) {
+      pkg.scripts.prepare = getNewScriptContent(pkg.scripts.prepare, cmd);
     } else {
-      pkg.scripts.prepublish = cmd;
+      pkg.scripts.prepublish = getNewScriptContent(pkg.scripts.prepublish, cmd);
     }
 
     // legacy check for `postinstall`, if `npm run snyk-protect` is in there
