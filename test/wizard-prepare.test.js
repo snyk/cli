@@ -16,7 +16,7 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
   '../../../lib/npm': {
     getVersion: function() {
       return new Promise(function(resolve) {
-        return resolve('4.9.9');
+        return resolve('5.0.1');
       });
     },
   },
@@ -31,7 +31,7 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
   }
 });
 
-test('prepublish is added and postinstall is removed', function (t) {
+test('prepare is added and postinstall is removed', function (t) {
   return wizard.processAnswers({
     // answers
     'misc-test-no-monitor': true,
@@ -44,7 +44,7 @@ test('prepublish is added and postinstall is removed', function (t) {
     t.pass('package was valid JSON');
 
     fixture.scripts.postinstall = 'true';
-    fixture.scripts.prepublish = 'npm run snyk-protect';
+    fixture.scripts.prepare = 'npm run snyk-protect';
 
     t.deepEqual(fixture, pkg, 'package is correct');
   });
