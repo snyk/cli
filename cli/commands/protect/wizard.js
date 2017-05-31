@@ -26,6 +26,7 @@ var protect = require('../../../lib/protect');
 var config = require('../../../lib/config');
 var spinner = require('../../../lib/spinner');
 var analytics = require('../../../lib/analytics');
+var alerts = require('../../../lib/alerts');
 var npm = require('../../../lib/npm');
 var cwd = process.cwd();
 var detectPackageManager = require('../../../lib/detect').detectPackageManager;
@@ -122,6 +123,9 @@ function processWizardFlow(options) {
         });
       }).then(function () {
         return snyk.test(cwd, options).then(function (res) {
+          if (alerts.hasAlert('tests-reached') && res.isPrivate) {
+            return;
+          }
           var packageFile = path.resolve(cwd, 'package.json');
           var licenseIssues = res.vulnerabilities.filter(function (issue) {
             return issue.type === 'license';
