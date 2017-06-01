@@ -1,0 +1,3434 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "kamael"
+      ],
+      "moduleName": "brace-expansion",
+      "packageName": "brace-expansion",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`brace-expansion`](https://www.npmjs.com/package/brace-expansion) is a package that performs brace expansion as known from sh/bash.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) attacks.\nRunning:\n```js\nconst expand = require('brace-expansion');\nexpand('{,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\\n}')\n```\nWill hang for long periods of time.\n\n## Details\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack.  Many Regular Expression implementations may reach edge cases that causes them to work very slowly (exponentially related to input size), allowing an attacker to exploit this and can cause the program to enter these extreme situations by using a Regex string and cause the service to hang for a large periods of time.\n\nYou can read more about `Regular Expression Denial of Service (ReDoS)` on our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Remediation\nUpgrade `brace-expansion` to version 1.1.7 or higher.\n\n## References\n- [Github PR](https://github.com/juliangruber/brace-expansion/pull/35)\n- [Github Issue](https://github.com/juliangruber/brace-expansion/issues/33)\n- [Github Commit](https://github.com/juliangruber/brace-expansion/pull/35/commits/b13381281cead487cbdbfd6a69fb097ea5e456c3)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 338,
+        "ALTERNATIVE": [
+          "SNYK-JS-BRACEEXPANSION-10483"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=1.1.7",
+        "vulnerable": "<1.1.7"
+      },
+      "patches": [],
+      "severity": "medium",
+      "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2017-03-01T22:00:00.000Z",
+      "publicationTime": "2017-04-26T09:19:21.663Z",
+      "modificationTime": "2017-04-26T09:19:21.663Z",
+      "creationTime": "2017-04-26T09:19:21.663Z",
+      "id": "npm:brace-expansion:20170302",
+      "alternativeIds": [
+        "SNYK-JS-BRACEEXPANSION-10483"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "glob@7.0.3",
+        "minimatch@3.0.0",
+        "brace-expansion@1.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "glob@7.0.3",
+        "minimatch@3.0.0",
+        "brace-expansion@1.1.7"
+      ],
+      "version": "1.1.4",
+      "name": "brace-expansion",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "kamael"
+      ],
+      "moduleName": "brace-expansion",
+      "packageName": "brace-expansion",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`brace-expansion`](https://www.npmjs.com/package/brace-expansion) is a package that performs brace expansion as known from sh/bash.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) attacks.\nRunning:\n```js\nconst expand = require('brace-expansion');\nexpand('{,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\\n}')\n```\nWill hang for long periods of time.\n\n## Details\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack.  Many Regular Expression implementations may reach edge cases that causes them to work very slowly (exponentially related to input size), allowing an attacker to exploit this and can cause the program to enter these extreme situations by using a Regex string and cause the service to hang for a large periods of time.\n\nYou can read more about `Regular Expression Denial of Service (ReDoS)` on our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Remediation\nUpgrade `brace-expansion` to version 1.1.7 or higher.\n\n## References\n- [Github PR](https://github.com/juliangruber/brace-expansion/pull/35)\n- [Github Issue](https://github.com/juliangruber/brace-expansion/issues/33)\n- [Github Commit](https://github.com/juliangruber/brace-expansion/pull/35/commits/b13381281cead487cbdbfd6a69fb097ea5e456c3)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 338,
+        "ALTERNATIVE": [
+          "SNYK-JS-BRACEEXPANSION-10483"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=1.1.7",
+        "vulnerable": "<1.1.7"
+      },
+      "patches": [],
+      "severity": "medium",
+      "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2017-03-01T22:00:00.000Z",
+      "publicationTime": "2017-04-26T09:19:21.663Z",
+      "modificationTime": "2017-04-26T09:19:21.663Z",
+      "creationTime": "2017-04-26T09:19:21.663Z",
+      "id": "npm:brace-expansion:20170302",
+      "alternativeIds": [
+        "SNYK-JS-BRACEEXPANSION-10483"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "rimraf@2.5.2",
+        "glob@7.0.3",
+        "minimatch@3.0.0",
+        "brace-expansion@1.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "rimraf@2.5.2",
+        "glob@7.0.3",
+        "minimatch@3.0.0",
+        "brace-expansion@1.1.7"
+      ],
+      "version": "1.1.4",
+      "name": "brace-expansion",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "kamael"
+      ],
+      "moduleName": "brace-expansion",
+      "packageName": "brace-expansion",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`brace-expansion`](https://www.npmjs.com/package/brace-expansion) is a package that performs brace expansion as known from sh/bash.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) attacks.\nRunning:\n```js\nconst expand = require('brace-expansion');\nexpand('{,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\\n}')\n```\nWill hang for long periods of time.\n\n## Details\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack.  Many Regular Expression implementations may reach edge cases that causes them to work very slowly (exponentially related to input size), allowing an attacker to exploit this and can cause the program to enter these extreme situations by using a Regex string and cause the service to hang for a large periods of time.\n\nYou can read more about `Regular Expression Denial of Service (ReDoS)` on our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Remediation\nUpgrade `brace-expansion` to version 1.1.7 or higher.\n\n## References\n- [Github PR](https://github.com/juliangruber/brace-expansion/pull/35)\n- [Github Issue](https://github.com/juliangruber/brace-expansion/issues/33)\n- [Github Commit](https://github.com/juliangruber/brace-expansion/pull/35/commits/b13381281cead487cbdbfd6a69fb097ea5e456c3)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 338,
+        "ALTERNATIVE": [
+          "SNYK-JS-BRACEEXPANSION-10483"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=1.1.7",
+        "vulnerable": "<1.1.7"
+      },
+      "patches": [],
+      "severity": "medium",
+      "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2017-03-01T22:00:00.000Z",
+      "publicationTime": "2017-04-26T09:19:21.663Z",
+      "modificationTime": "2017-04-26T09:19:21.663Z",
+      "creationTime": "2017-04-26T09:19:21.663Z",
+      "id": "npm:brace-expansion:20170302",
+      "alternativeIds": [
+        "SNYK-JS-BRACEEXPANSION-10483"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3",
+        "rimraf@2.5.2",
+        "glob@7.0.3",
+        "minimatch@3.0.0",
+        "brace-expansion@1.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3",
+        "rimraf@2.5.2",
+        "glob@7.0.3",
+        "minimatch@3.0.0",
+        "brace-expansion@1.1.7"
+      ],
+      "version": "1.1.4",
+      "name": "brace-expansion",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "kamael"
+      ],
+      "moduleName": "brace-expansion",
+      "packageName": "brace-expansion",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`brace-expansion`](https://www.npmjs.com/package/brace-expansion) is a package that performs brace expansion as known from sh/bash.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) attacks.\nRunning:\n```js\nconst expand = require('brace-expansion');\nexpand('{,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\\n}')\n```\nWill hang for long periods of time.\n\n## Details\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack.  Many Regular Expression implementations may reach edge cases that causes them to work very slowly (exponentially related to input size), allowing an attacker to exploit this and can cause the program to enter these extreme situations by using a Regex string and cause the service to hang for a large periods of time.\n\nYou can read more about `Regular Expression Denial of Service (ReDoS)` on our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Remediation\nUpgrade `brace-expansion` to version 1.1.7 or higher.\n\n## References\n- [Github PR](https://github.com/juliangruber/brace-expansion/pull/35)\n- [Github Issue](https://github.com/juliangruber/brace-expansion/issues/33)\n- [Github Commit](https://github.com/juliangruber/brace-expansion/pull/35/commits/b13381281cead487cbdbfd6a69fb097ea5e456c3)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 338,
+        "ALTERNATIVE": [
+          "SNYK-JS-BRACEEXPANSION-10483"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=1.1.7",
+        "vulnerable": "<1.1.7"
+      },
+      "patches": [],
+      "severity": "medium",
+      "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2017-03-01T22:00:00.000Z",
+      "publicationTime": "2017-04-26T09:19:21.663Z",
+      "modificationTime": "2017-04-26T09:19:21.663Z",
+      "creationTime": "2017-04-26T09:19:21.663Z",
+      "id": "npm:brace-expansion:20170302",
+      "alternativeIds": [
+        "SNYK-JS-BRACEEXPANSION-10483"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "istanbul@0.4.3",
+        "fileset@0.2.1",
+        "minimatch@2.0.10",
+        "brace-expansion@1.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "istanbul@0.4.3",
+        "fileset@0.2.1",
+        "minimatch@2.0.10",
+        "brace-expansion@1.1.7"
+      ],
+      "version": "1.1.4",
+      "name": "brace-expansion",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "istanbul@0.4.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "kamael"
+      ],
+      "moduleName": "brace-expansion",
+      "packageName": "brace-expansion",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`brace-expansion`](https://www.npmjs.com/package/brace-expansion) is a package that performs brace expansion as known from sh/bash.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) attacks.\nRunning:\n```js\nconst expand = require('brace-expansion');\nexpand('{,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,\\n}')\n```\nWill hang for long periods of time.\n\n## Details\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack.  Many Regular Expression implementations may reach edge cases that causes them to work very slowly (exponentially related to input size), allowing an attacker to exploit this and can cause the program to enter these extreme situations by using a Regex string and cause the service to hang for a large periods of time.\n\nYou can read more about `Regular Expression Denial of Service (ReDoS)` on our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Remediation\nUpgrade `brace-expansion` to version 1.1.7 or higher.\n\n## References\n- [Github PR](https://github.com/juliangruber/brace-expansion/pull/35)\n- [Github Issue](https://github.com/juliangruber/brace-expansion/issues/33)\n- [Github Commit](https://github.com/juliangruber/brace-expansion/pull/35/commits/b13381281cead487cbdbfd6a69fb097ea5e456c3)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 338,
+        "ALTERNATIVE": [
+          "SNYK-JS-BRACEEXPANSION-10483"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=1.1.7",
+        "vulnerable": "<1.1.7"
+      },
+      "patches": [],
+      "severity": "medium",
+      "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2017-03-01T22:00:00.000Z",
+      "publicationTime": "2017-04-26T09:19:21.663Z",
+      "modificationTime": "2017-04-26T09:19:21.663Z",
+      "creationTime": "2017-04-26T09:19:21.663Z",
+      "id": "npm:brace-expansion:20170302",
+      "alternativeIds": [
+        "SNYK-JS-BRACEEXPANSION-10483"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "istanbul@0.4.3",
+        "fileset@0.2.1",
+        "glob@5.0.15",
+        "minimatch@2.0.10",
+        "brace-expansion@1.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "istanbul@0.4.3",
+        "fileset@0.2.1",
+        "glob@5.0.15",
+        "minimatch@2.0.10",
+        "brace-expansion@1.1.7"
+      ],
+      "version": "1.1.4",
+      "name": "brace-expansion",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "istanbul@0.4.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Remote Code Execution",
+      "moduleName": "ejs",
+      "description": "## Overview\n[`ejs`](https://www.npmjs.com/package/ejs) is a popular JavaScript templating engine.\nAffected versions of the package are vulnerable to _Remote Code Execution_ by letting the attacker under certain conditions control the source folder from which the engine renders include files.\nYou can read more about this vulnerability on the [Snyk blog](https://snyk.io/blog/fixing-ejs-rce-vuln).\n\nThere's also a [Cross-site Scripting](https://snyk.io/vuln/npm:ejs:20161130) & [Denial of Service](https://snyk.io/vuln/npm:ejs:20161130-1) vulnerabilities caused by the same behaviour. \n\n## Details\n`ejs` provides a few different options for you to render a template, two being very similar: `ejs.render()` and `ejs.renderFile()`. The only difference being that `render` expects a string to be used for the template and `renderFile` expects a path to a template file.\n\nBoth functions can be invoked in two ways. The first is calling them with `template`, `data`, and `options`:\n```js\nejs.render(str, data, options);\n\nejs.renderFile(filename, data, options, callback)\n```\nThe second way would be by calling only the `template` and `data`, while `ejs` lets the `options` be passed as part of the `data`:\n```js\nejs.render(str, dataAndOptions);\n\nejs.renderFile(filename, dataAndOptions, callback)\n```\n\nIf used with a variable list supplied by the user (e.g. by reading it from the URI with `qs` or equivalent), an attacker can control `ejs` options. This includes the `root` option, which allows changing the project root for includes with an absolute path.  \n\n```js\nejs.renderFile('my-template', {root:'/bad/root/'}, callback);\n```\n\nBy passing along the root directive in the line above, any includes would now be pulled from `/bad/root` instead of the path intended. This allows the attacker to take control of the root directory for included scripts and divert it to a library under his control, thus leading to remote code execution.\n\nThe [fix](https://github.com/mde/ejs/commit/3d447c5a335844b25faec04b1132dbc721f9c8f6) introduced in version `2.5.3` blacklisted `root` options from options passed via the `data` object.\n\n## Disclosure Timeline\n- November 27th, 2016 - Reported the issue to package owner.\n- November 27th, 2016 - Issue acknowledged by package owner.\n- November 28th, 2016 - Issue fixed and version `2.5.3` released.\n\n## Remediation\nThe vulnerability can be resolved by either using the GitHub integration to [generate a pull-request](https://snyk.io/org/projects) from your dashboard or by running `snyk wizard` from the command-line interface.\nOtherwise, Upgrade `ejs` to version `2.5.3` or higher.\n\n## References\n- [Snyk Blog](https://snyk.io/blog/fixing-ejs-rce-vuln)\n- [Fix commit](https://github.com/mde/ejs/commit/3d447c5a335844b25faec04b1132dbc721f9c8f6)\n\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-94"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-EJS-10218"
+        ]
+      },
+      "severity": "high",
+      "semver": {
+        "vulnerable": "<2.5.3",
+        "unaffected": ">=2.5.3"
+      },
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "disclosureTime": "2016-11-27T22:00:00.000Z",
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ejs/20161128/ejs_20161128_0_0_3d447c5a335844b25faec04b1132dbc721f9c8f6.patch"
+          ],
+          "version": "<2.5.3 >=2.2.4",
+          "modificationTime": "2016-12-04T20:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ejs:20161128:0"
+        }
+      ],
+      "publicationTime": "2016-11-28T18:44:12.405Z",
+      "modificationTime": "2016-12-01T18:44:12.405Z",
+      "creationTime": "2016-11-28T18:44:12.405Z",
+      "id": "npm:ejs:20161128",
+      "packageName": "ejs",
+      "alternativeIds": [
+        "SNYK-JS-EJS-10218"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "ejs@1.0.0"
+      ],
+      "upgradePath": [
+        false,
+        "ejs@2.5.3"
+      ],
+      "version": "1.0.0",
+      "name": "ejs",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Remote Code Execution",
+      "moduleName": "ejs",
+      "description": "## Overview\n[`ejs`](https://www.npmjs.com/package/ejs) is a popular JavaScript templating engine.\nAffected versions of the package are vulnerable to _Remote Code Execution_ by letting the attacker under certain conditions control the source folder from which the engine renders include files.\nYou can read more about this vulnerability on the [Snyk blog](https://snyk.io/blog/fixing-ejs-rce-vuln).\n\nThere's also a [Cross-site Scripting](https://snyk.io/vuln/npm:ejs:20161130) & [Denial of Service](https://snyk.io/vuln/npm:ejs:20161130-1) vulnerabilities caused by the same behaviour. \n\n## Details\n`ejs` provides a few different options for you to render a template, two being very similar: `ejs.render()` and `ejs.renderFile()`. The only difference being that `render` expects a string to be used for the template and `renderFile` expects a path to a template file.\n\nBoth functions can be invoked in two ways. The first is calling them with `template`, `data`, and `options`:\n```js\nejs.render(str, data, options);\n\nejs.renderFile(filename, data, options, callback)\n```\nThe second way would be by calling only the `template` and `data`, while `ejs` lets the `options` be passed as part of the `data`:\n```js\nejs.render(str, dataAndOptions);\n\nejs.renderFile(filename, dataAndOptions, callback)\n```\n\nIf used with a variable list supplied by the user (e.g. by reading it from the URI with `qs` or equivalent), an attacker can control `ejs` options. This includes the `root` option, which allows changing the project root for includes with an absolute path.  \n\n```js\nejs.renderFile('my-template', {root:'/bad/root/'}, callback);\n```\n\nBy passing along the root directive in the line above, any includes would now be pulled from `/bad/root` instead of the path intended. This allows the attacker to take control of the root directory for included scripts and divert it to a library under his control, thus leading to remote code execution.\n\nThe [fix](https://github.com/mde/ejs/commit/3d447c5a335844b25faec04b1132dbc721f9c8f6) introduced in version `2.5.3` blacklisted `root` options from options passed via the `data` object.\n\n## Disclosure Timeline\n- November 27th, 2016 - Reported the issue to package owner.\n- November 27th, 2016 - Issue acknowledged by package owner.\n- November 28th, 2016 - Issue fixed and version `2.5.3` released.\n\n## Remediation\nThe vulnerability can be resolved by either using the GitHub integration to [generate a pull-request](https://snyk.io/org/projects) from your dashboard or by running `snyk wizard` from the command-line interface.\nOtherwise, Upgrade `ejs` to version `2.5.3` or higher.\n\n## References\n- [Snyk Blog](https://snyk.io/blog/fixing-ejs-rce-vuln)\n- [Fix commit](https://github.com/mde/ejs/commit/3d447c5a335844b25faec04b1132dbc721f9c8f6)\n\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-94"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-EJS-10218"
+        ]
+      },
+      "severity": "high",
+      "semver": {
+        "vulnerable": "<2.5.3",
+        "unaffected": ">=2.5.3"
+      },
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "disclosureTime": "2016-11-27T22:00:00.000Z",
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ejs/20161128/ejs_20161128_0_0_3d447c5a335844b25faec04b1132dbc721f9c8f6.patch"
+          ],
+          "version": "<2.5.3 >=2.2.4",
+          "modificationTime": "2016-12-04T20:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ejs:20161128:0"
+        }
+      ],
+      "publicationTime": "2016-11-28T18:44:12.405Z",
+      "modificationTime": "2016-12-01T18:44:12.405Z",
+      "creationTime": "2016-11-28T18:44:12.405Z",
+      "id": "npm:ejs:20161128",
+      "packageName": "ejs",
+      "alternativeIds": [
+        "SNYK-JS-EJS-10218"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "ejs-locals@1.0.2",
+        "ejs@0.8.8"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "ejs@2.5.3"
+      ],
+      "version": "0.8.8",
+      "name": "ejs",
+      "isUpgradable": false,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Cross-site Scripting (XSS)",
+      "moduleName": "ejs",
+      "description": "## Overview\n[`ejs`](https://www.npmjs.com/package/ejs) is a popular JavaScript templating engine.\nAffected versions of the package are vulnerable to _Cross-site Scripting_ by letting the attacker under certain conditions control and override the `filename` option causing it to render the value as is, without escaping it.\nYou can read more about this vulnerability on the [Snyk blog](https://snyk.io/blog/fixing-ejs-rce-vuln).\n\nThere's also a [Remote Code Execution](https://snyk.io/vuln/npm:ejs:20161128) & [Denial of Service](https://snyk.io/vuln/npm:ejs:20161130-1) vulnerabilities caused by the same behaviour.\n\n## Details\n`ejs` provides a few different options for you to render a template, two being very similar: `ejs.render()` and `ejs.renderFile()`. The only difference being that `render` expects a string to be used for the template and `renderFile` expects a path to a template file.\n\nBoth functions can be invoked in two ways. The first is calling them with `template`, `data`, and `options`:\n```js\nejs.render(str, data, options);\n\nejs.renderFile(filename, data, options, callback)\n```\nThe second way would be by calling only the `template` and `data`, while `ejs` lets the `options` be passed as part of the `data`:\n```js\nejs.render(str, dataAndOptions);\n\nejs.renderFile(filename, dataAndOptions, callback)\n```\n\nIf used with a variable list supplied by the user (e.g. by reading it from the URI with `qs` or equivalent), an attacker can control `ejs` options. This includes the `filename` option, which will be rendered as is when an error occurs during rendering. \n\n```js\nejs.renderFile('my-template', {filename:'<script>alert(1)</script>'}, callback);\n```\n\nThe [fix](https://github.com/mde/ejs/commit/49264e0037e313a0a3e033450b5c184112516d8f) introduced in version `2.5.3` blacklisted `root` options from options passed via the `data` object.\n\n## Disclosure Timeline\n- November 28th, 2016 - Reported the issue to package owner.\n- November 28th, 2016 - Issue acknowledged by package owner.\n- December 06th, 2016 - Issue fixed and version `2.5.5` released.\n\n## Remediation\nThe vulnerability can be resolved by either using the GitHub integration to [generate a pull-request](https://snyk.io/org/projects) from your dashboard or by running `snyk wizard` from the command-line interface.\nOtherwise, Upgrade `ejs` to version `2.5.5` or higher.\n\n## References\n- [Snyk Blog](https://snyk.io/blog/fixing-ejs-rce-vuln)\n- [Fix commit](https://github.com/mde/ejs/commit/49264e0037e313a0a3e033450b5c184112516d8f)\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-EJS-10225"
+        ]
+      },
+      "severity": "medium",
+      "semver": {
+        "vulnerable": "<2.5.5",
+        "unaffected": ">=2.5.5"
+      },
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "disclosureTime": "2016-11-27T22:00:00.000Z",
+      "patches": [],
+      "publicationTime": "2016-12-06T15:00:00.000Z",
+      "modificationTime": "2016-12-06T00:00:00.000Z",
+      "creationTime": "2016-11-28T18:44:12.405Z",
+      "id": "npm:ejs:20161130",
+      "packageName": "ejs",
+      "alternativeIds": [
+        "SNYK-JS-EJS-10225"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "ejs@1.0.0"
+      ],
+      "upgradePath": [
+        false,
+        "ejs@2.5.5"
+      ],
+      "version": "1.0.0",
+      "name": "ejs",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Cross-site Scripting (XSS)",
+      "moduleName": "ejs",
+      "description": "## Overview\n[`ejs`](https://www.npmjs.com/package/ejs) is a popular JavaScript templating engine.\nAffected versions of the package are vulnerable to _Cross-site Scripting_ by letting the attacker under certain conditions control and override the `filename` option causing it to render the value as is, without escaping it.\nYou can read more about this vulnerability on the [Snyk blog](https://snyk.io/blog/fixing-ejs-rce-vuln).\n\nThere's also a [Remote Code Execution](https://snyk.io/vuln/npm:ejs:20161128) & [Denial of Service](https://snyk.io/vuln/npm:ejs:20161130-1) vulnerabilities caused by the same behaviour.\n\n## Details\n`ejs` provides a few different options for you to render a template, two being very similar: `ejs.render()` and `ejs.renderFile()`. The only difference being that `render` expects a string to be used for the template and `renderFile` expects a path to a template file.\n\nBoth functions can be invoked in two ways. The first is calling them with `template`, `data`, and `options`:\n```js\nejs.render(str, data, options);\n\nejs.renderFile(filename, data, options, callback)\n```\nThe second way would be by calling only the `template` and `data`, while `ejs` lets the `options` be passed as part of the `data`:\n```js\nejs.render(str, dataAndOptions);\n\nejs.renderFile(filename, dataAndOptions, callback)\n```\n\nIf used with a variable list supplied by the user (e.g. by reading it from the URI with `qs` or equivalent), an attacker can control `ejs` options. This includes the `filename` option, which will be rendered as is when an error occurs during rendering. \n\n```js\nejs.renderFile('my-template', {filename:'<script>alert(1)</script>'}, callback);\n```\n\nThe [fix](https://github.com/mde/ejs/commit/49264e0037e313a0a3e033450b5c184112516d8f) introduced in version `2.5.3` blacklisted `root` options from options passed via the `data` object.\n\n## Disclosure Timeline\n- November 28th, 2016 - Reported the issue to package owner.\n- November 28th, 2016 - Issue acknowledged by package owner.\n- December 06th, 2016 - Issue fixed and version `2.5.5` released.\n\n## Remediation\nThe vulnerability can be resolved by either using the GitHub integration to [generate a pull-request](https://snyk.io/org/projects) from your dashboard or by running `snyk wizard` from the command-line interface.\nOtherwise, Upgrade `ejs` to version `2.5.5` or higher.\n\n## References\n- [Snyk Blog](https://snyk.io/blog/fixing-ejs-rce-vuln)\n- [Fix commit](https://github.com/mde/ejs/commit/49264e0037e313a0a3e033450b5c184112516d8f)\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-EJS-10225"
+        ]
+      },
+      "severity": "medium",
+      "semver": {
+        "vulnerable": "<2.5.5",
+        "unaffected": ">=2.5.5"
+      },
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "disclosureTime": "2016-11-27T22:00:00.000Z",
+      "patches": [],
+      "publicationTime": "2016-12-06T15:00:00.000Z",
+      "modificationTime": "2016-12-06T00:00:00.000Z",
+      "creationTime": "2016-11-28T18:44:12.405Z",
+      "id": "npm:ejs:20161130",
+      "packageName": "ejs",
+      "alternativeIds": [
+        "SNYK-JS-EJS-10225"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "ejs-locals@1.0.2",
+        "ejs@0.8.8"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "ejs@2.5.5"
+      ],
+      "version": "0.8.8",
+      "name": "ejs",
+      "isUpgradable": false,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Denial of Service (DoS)",
+      "moduleName": "ejs",
+      "description": "## Overview\n[`ejs`](https://www.npmjs.com/package/ejs) is a popular JavaScript templating engine.\nAffected versions of the package are vulnerable to _Denial of Service_ by letting the attacker under certain conditions control and override the `localNames` option causing it to crash.\nYou can read more about this vulnerability on the [Snyk blog](https://snyk.io/blog/fixing-ejs-rce-vuln).\n\nThere's also a [Remote Code Execution](https://snyk.io/vuln/npm:ejs:20161128) & [Cross-site Scripting](https://snyk.io/vuln/npm:ejs:20161130) vulnerabilities caused by the same behaviour.\n\n## Details\n`ejs` provides a few different options for you to render a template, two being very similar: `ejs.render()` and `ejs.renderFile()`. The only difference being that `render` expects a string to be used for the template and `renderFile` expects a path to a template file.\n\nBoth functions can be invoked in two ways. The first is calling them with `template`, `data`, and `options`:\n```js\nejs.render(str, data, options);\n\nejs.renderFile(filename, data, options, callback)\n```\nThe second way would be by calling only the `template` and `data`, while `ejs` lets the `options` be passed as part of the `data`:\n```js\nejs.render(str, dataAndOptions);\n\nejs.renderFile(filename, dataAndOptions, callback)\n```\n\nIf used with a variable list supplied by the user (e.g. by reading it from the URI with `qs` or equivalent), an attacker can control `ejs` options. This includes the `localNames` option, which will cause the renderer to crash.\n\n```js\nejs.renderFile('my-template', {localNames:'try'}, callback);\n```\n\nThe [fix](https://github.com/mde/ejs/commit/49264e0037e313a0a3e033450b5c184112516d8f) introduced in version `2.5.3` blacklisted `root` options from options passed via the `data` object.\n\n## Disclosure Timeline\n- November 28th, 2016 - Reported the issue to package owner.\n- November 28th, 2016 - Issue acknowledged by package owner.\n- December 06th, 2016 - Issue fixed and version `2.5.5` released.\n\n## Remediation\nThe vulnerability can be resolved by either using the GitHub integration to [generate a pull-request](https://snyk.io/org/projects) from your dashboard or by running `snyk wizard` from the command-line interface.\nOtherwise, Upgrade `ejs` to version `2.5.5` or higher.\n\n## References\n- [Snyk Blog](https://snyk.io/blog/fixing-ejs-rce-vuln)\n- [Fix commit](https://github.com/mde/ejs/commit/49264e0037e313a0a3e033450b5c184112516d8f)\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-EJS-10226"
+        ]
+      },
+      "severity": "medium",
+      "semver": {
+        "vulnerable": "<2.5.5",
+        "unaffected": ">=2.5.5"
+      },
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2016-11-27T22:00:00.000Z",
+      "patches": [],
+      "publicationTime": "2016-12-06T15:00:00.000Z",
+      "modificationTime": "2016-12-06T00:00:00.000Z",
+      "creationTime": "2016-11-28T18:44:12.405Z",
+      "id": "npm:ejs:20161130-1",
+      "packageName": "ejs",
+      "alternativeIds": [
+        "SNYK-JS-EJS-10226"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "ejs@1.0.0"
+      ],
+      "upgradePath": [
+        false,
+        "ejs@2.5.5"
+      ],
+      "version": "1.0.0",
+      "name": "ejs",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Denial of Service (DoS)",
+      "moduleName": "ejs",
+      "description": "## Overview\n[`ejs`](https://www.npmjs.com/package/ejs) is a popular JavaScript templating engine.\nAffected versions of the package are vulnerable to _Denial of Service_ by letting the attacker under certain conditions control and override the `localNames` option causing it to crash.\nYou can read more about this vulnerability on the [Snyk blog](https://snyk.io/blog/fixing-ejs-rce-vuln).\n\nThere's also a [Remote Code Execution](https://snyk.io/vuln/npm:ejs:20161128) & [Cross-site Scripting](https://snyk.io/vuln/npm:ejs:20161130) vulnerabilities caused by the same behaviour.\n\n## Details\n`ejs` provides a few different options for you to render a template, two being very similar: `ejs.render()` and `ejs.renderFile()`. The only difference being that `render` expects a string to be used for the template and `renderFile` expects a path to a template file.\n\nBoth functions can be invoked in two ways. The first is calling them with `template`, `data`, and `options`:\n```js\nejs.render(str, data, options);\n\nejs.renderFile(filename, data, options, callback)\n```\nThe second way would be by calling only the `template` and `data`, while `ejs` lets the `options` be passed as part of the `data`:\n```js\nejs.render(str, dataAndOptions);\n\nejs.renderFile(filename, dataAndOptions, callback)\n```\n\nIf used with a variable list supplied by the user (e.g. by reading it from the URI with `qs` or equivalent), an attacker can control `ejs` options. This includes the `localNames` option, which will cause the renderer to crash.\n\n```js\nejs.renderFile('my-template', {localNames:'try'}, callback);\n```\n\nThe [fix](https://github.com/mde/ejs/commit/49264e0037e313a0a3e033450b5c184112516d8f) introduced in version `2.5.3` blacklisted `root` options from options passed via the `data` object.\n\n## Disclosure Timeline\n- November 28th, 2016 - Reported the issue to package owner.\n- November 28th, 2016 - Issue acknowledged by package owner.\n- December 06th, 2016 - Issue fixed and version `2.5.5` released.\n\n## Remediation\nThe vulnerability can be resolved by either using the GitHub integration to [generate a pull-request](https://snyk.io/org/projects) from your dashboard or by running `snyk wizard` from the command-line interface.\nOtherwise, Upgrade `ejs` to version `2.5.5` or higher.\n\n## References\n- [Snyk Blog](https://snyk.io/blog/fixing-ejs-rce-vuln)\n- [Fix commit](https://github.com/mde/ejs/commit/49264e0037e313a0a3e033450b5c184112516d8f)\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-EJS-10226"
+        ]
+      },
+      "severity": "medium",
+      "semver": {
+        "vulnerable": "<2.5.5",
+        "unaffected": ">=2.5.5"
+      },
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2016-11-27T22:00:00.000Z",
+      "patches": [],
+      "publicationTime": "2016-12-06T15:00:00.000Z",
+      "modificationTime": "2016-12-06T00:00:00.000Z",
+      "creationTime": "2016-11-28T18:44:12.405Z",
+      "id": "npm:ejs:20161130-1",
+      "packageName": "ejs",
+      "alternativeIds": [
+        "SNYK-JS-EJS-10226"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "ejs-locals@1.0.2",
+        "ejs@0.8.8"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "ejs@2.5.5"
+      ],
+      "version": "0.8.8",
+      "name": "ejs",
+      "isUpgradable": false,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-01-19T23:24:51.834Z",
+      "modificationTime": "2016-01-19T23:24:51.834Z",
+      "publicationTime": "2016-01-19T23:24:51.834Z",
+      "description": "## Overview\nA [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in `hawk` package, affecting version 4.1.0 and below.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## References\n- https://github.com/hueniverse/hawk/issues/168\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=3.1.2 || >= 4.0.0 <4.1.1",
+        "unaffected": ">3.1.2 < 4.0.0 || >=4.1.1"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "severity": "low",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 77,
+        "ALTERNATIVE": [
+          "SNYK-JS-HAWK-10080"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_0_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<4.1.1 >=4.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_1_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<=3.1.2 >=3.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_2_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<= 2.3.1 >= 2.2.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/hawk/20160119/hawk_20160119_0_3_0833f99ba64558525995a7e21d4093da1f3e15fa.patch"
+          ],
+          "version": "<= 1.1.1 >= 1.0.0",
+          "modificationTime": "2016-01-20T12:51:35.396Z",
+          "comments": [],
+          "id": "patch:npm:hawk:20160119:3"
+        }
+      ],
+      "moduleName": "hawk",
+      "disclosureTime": "2016-01-19T21:51:35.396Z",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:hawk:20160119",
+      "packageName": "hawk",
+      "alternativeIds": [
+        "SNYK-JS-HAWK-10080"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "codecov.io@0.1.6",
+        "request@2.42.0",
+        "hawk@1.1.1"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "request@2.59.0",
+        "hawk@3.1.3"
+      ],
+      "version": "1.1.1",
+      "name": "hawk",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Cross-site Scripting (XSS)",
+      "moduleName": "jquery",
+      "description": "## Overview\n[`jquery`](https://www.npmjs.com/package/jquery) is JavaScript library for DOM operations.\n\nAffected versions of the package are vulnerable to Cross-site Scripting (XSS) attacks when a cross-domain ajax request is performed without the `dataType` option causing `text/javascript` responses to be executed.\n\n## Remediation\nUpgrade `jquery` to version `3.0.0` or higher.\n\n## References\n- [Github Issue](https://github.com/jquery/jquery/issues/2432)\n- [Github PR](https://github.com/jquery/jquery/pull/2588)\n- [Github Commit 3.0.0](https://github.com/jquery/jquery/pull/2588/commits/c254d308a7d3f1eac4d0b42837804cfffcba4bb2)\n- [Github Commit 1.12](https://github.com/jquery/jquery/commit/f60729f3903d17917dc351f3ac87794de379b0cc)\n- [Vulnerable code](https://github.com/jquery/jquery/blob/250a1990baa571de60325ab2c52eabb399c4cf9e/src/ajax/script.js#L18)\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-JQUERY-10186"
+        ]
+      },
+      "severity": "medium",
+      "semver": {
+        "unaffected": ">=3.0.0-beta1 || >=1.12.0 <1.12.3",
+        "vulnerable": "<3.0.0-beta1 >1.12.3 || <1.12.0 >=1.4.0"
+      },
+      "credit": [
+        "Egor Homakov"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+      "disclosureTime": "2015-06-26T21:00:00.000Z",
+      "patches": [],
+      "publicationTime": "2016-11-27T00:00:00.000Z",
+      "modificationTime": "2017-03-27T15:12:44.538Z",
+      "creationTime": "2016-11-06T15:12:44.538Z",
+      "id": "npm:jquery:20150627",
+      "packageName": "jquery",
+      "alternativeIds": [
+        "SNYK-JS-JQUERY-10186"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "jquery@2.2.4"
+      ],
+      "upgradePath": [
+        false,
+        "jquery@3.0.0"
+      ],
+      "version": "2.2.4",
+      "name": "jquery",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Denial of Service (DoS)",
+      "moduleName": "jquery",
+      "description": "## Overview\n[`jquery`](https://www.npmjs.com/package/jquery) is JavaScript library for DOM operations.\nAffected versions of the package are vulnerable to Denial of Service (DoS) due to removing a logic that lowercased attribute names. Any attribute getter using a mixed-cased name for boolean attributes goes into an infinite recursion, exceeding the stack call limit.\n\n## Remediation\nUpgrade `jquery` to version 3.0.0 or higher.\n\n## References\n- [Github Issue](https://github.com/jquery/jquery/issues/3133)\n- [Github Commit](https://github.com/jquery/jquery/pull/3134)\n- [jsfiddle](https://jsfiddle.net/shnann6y/2/)\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-JQUERY-10187"
+        ]
+      },
+      "severity": "low",
+      "semver": {
+        "unaffected": ">=3.0.0",
+        "vulnerable": "<3.0.0 >=2.1.0-beta1"
+      },
+      "credit": [
+        "Michał Gołębiowski"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2016-05-28T21:00:00.000Z",
+      "patches": [],
+      "publicationTime": "2016-12-26T15:37:35.224Z",
+      "modificationTime": "2016-12-26T15:37:35.224Z",
+      "creationTime": "2016-11-06T15:37:35.224Z",
+      "id": "npm:jquery:20160529",
+      "packageName": "jquery",
+      "alternativeIds": [
+        "SNYK-JS-JQUERY-10187"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "jquery@2.2.4"
+      ],
+      "upgradePath": [
+        false,
+        "jquery@3.0.0"
+      ],
+      "version": "2.2.4",
+      "name": "jquery",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Content & Code Injection (XSS)",
+      "credit": [
+        "Matt Austin"
+      ],
+      "creationTime": "2016-04-20T14:45:19.556Z",
+      "modificationTime": "2016-09-28T14:45:19.556Z",
+      "publicationTime": "2016-04-20T14:45:19.556Z",
+      "description": "## Overview\n[`marked`](https://www.npmjs.com/package/marked) is a markdown parser and compiler used for rendering markdown content to html. It is vulnerable to content injection attack allowing the attacker to bypass its output sanitization (`sanitize: true`) protection. Using the [HTML Coded Character Set](https://www.w3.org/MarkUp/html-spec/html-spec_13.html#SEC13), attackers can inject `javascript:` code snippets into the output. For example, the following input `javascript&#x58document;alert&#40;1&#41;`  will result in `alert(1)` being executed when the user clicks on the link.\n\n## Remediation\nUpgrade `marked` to version 0.3.6 or higher.\nAlso, you can patch the vulnerability using [Snyk wizard](https://snyk.io/docs/using-snyk/#wizard). Alternatively you can use `remarkable` or other markdown libraries.\n\n## References\n- [Github PR](https://github.com/chjj/marked/pull/592)\n- [Github Commit](https://github.com/chjj/marked/pull/592/commits/2cff85979be8e7a026a9aca35542c470cf5da523)\n",
+      "semver": {
+        "vulnerable": "<0.3.6",
+        "unaffected": ">=0.3.6"
+      },
+      "CVSSv3": "",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [],
+        "NSP": 101,
+        "ALTERNATIVE": [
+          "SNYK-JS-MARKED-10099"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/marked/20150520/marked_20150520_0_0_2cff85979be8e7a026a9aca35542c470cf5da523.patch"
+          ],
+          "version": "<=0.3.5 >0.3.3",
+          "modificationTime": "2016-05-09T22:33:12.000Z",
+          "comments": [],
+          "id": "patch:npm:marked:20150520:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/marked/20150520/marked_20150520_0_1_2cff85979be8e7a026a9aca35542c470cf5da523_20140131-1.patch"
+          ],
+          "version": "=0.3.3",
+          "modificationTime": "2016-05-09T22:33:12.000Z",
+          "comments": [
+            "includes 20140131-1"
+          ],
+          "id": "patch:npm:marked:20150520:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/marked/20150520/marked_20150520_0_2_2cff85979be8e7a026a9aca35542c470cf5da523_20140131-1-2.patch"
+          ],
+          "version": "<=0.3.2 >0.3.0",
+          "modificationTime": "2016-05-09T22:33:12.000Z",
+          "comments": [
+            "includes 20140131-1, 20140131-2"
+          ],
+          "id": "patch:npm:marked:20150520:2"
+        }
+      ],
+      "moduleName": "marked",
+      "disclosureTime": "2015-05-20T16:45:00.000Z",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:marked:20150520",
+      "packageName": "marked",
+      "alternativeIds": [
+        "SNYK-JS-MARKED-10099"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "marked@0.3.5"
+      ],
+      "upgradePath": [
+        false,
+        "marked@0.3.6"
+      ],
+      "version": "0.3.5",
+      "name": "marked",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Cross-site Scripting (XSS) via Data URIs",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "creationTime": "2017-01-12T00:00:00.780Z",
+      "modificationTime": "2017-01-12T00:00:00.780Z",
+      "publicationTime": "2017-01-30T18:00:00.780Z",
+      "disclosureTime": "2017-01-12T00:00:00.780Z",
+      "description": "## Overview\n[`marked`](https://www.npmjs.com/package/marked) is a markdown parser and compiler used for rendering markdown content to html.\nAffected versions of the package allowed the use of `data:` URIs for all mime types by default potentially opening a door for Cross-site Scripting (XSS) attacks.\n\n## Details\nData URIs enable embedding small files in line in HTML documents, provided in the URL itself.\nAttackers can craft malicious web pages containing either HTML or script code that utilizes the data URI scheme, allowing them to bypass access controls or steal sensitive information.\n\nAn example of data URI used to deliver javascript code. The data holds `<script>alert('XSS')</script>` tag in base64 encoded format.\n```html\n[xss link](data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4K)\n```\n\n## Remediation\nThe fix is merged to the master branch but not yet published to npm. We recommend patching it using [Snyk wizard](https://snyk.io/docs/using-snyk/#wizard).\n\n## References\n- [Github Commit](https://github.com/chjj/marked/commit/cd2f6f5b7091154c5526e79b5f3bfb4d15995a51)\n",
+      "semver": {
+        "vulnerable": "<=0.3.6",
+        "unaffected": ">0.3.6"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MARKED-10377"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/marked/20170112/marked_20170112_0_0_cd2f6f5b7091154c5526e79b5f3bfb4d15995a51.patch"
+          ],
+          "version": "<=0.3.6 >0.3.3",
+          "modificationTime": "2017-02-06T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:marked:20170112:0"
+        }
+      ],
+      "moduleName": "marked",
+      "packageManager": "npm",
+      "language": "js",
+      "id": "npm:marked:20170112",
+      "packageName": "marked",
+      "alternativeIds": [
+        "SNYK-JS-MARKED-10377"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "marked@0.3.5"
+      ],
+      "upgradePath": [],
+      "version": "0.3.5",
+      "name": "marked",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118,
+        "ALTERNATIVE": [
+          "SNYK-JS-MINIMATCH-10105"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_1_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=2.0.5 >0.0.5",
+          "modificationTime": "2016-06-23T12:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:1"
+        }
+      ],
+      "moduleName": "minimatch",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:minimatch:20160620",
+      "packageName": "minimatch",
+      "alternativeIds": [
+        "SNYK-JS-MINIMATCH-10105"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "glob@7.0.3",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "glob@7.0.3",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118,
+        "ALTERNATIVE": [
+          "SNYK-JS-MINIMATCH-10105"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_1_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=2.0.5 >0.0.5",
+          "modificationTime": "2016-06-23T12:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:1"
+        }
+      ],
+      "moduleName": "minimatch",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:minimatch:20160620",
+      "packageName": "minimatch",
+      "alternativeIds": [
+        "SNYK-JS-MINIMATCH-10105"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "rimraf@2.5.2",
+        "glob@7.0.3",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "rimraf@2.5.2",
+        "glob@7.0.3",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118,
+        "ALTERNATIVE": [
+          "SNYK-JS-MINIMATCH-10105"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_1_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=2.0.5 >0.0.5",
+          "modificationTime": "2016-06-23T12:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:1"
+        }
+      ],
+      "moduleName": "minimatch",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:minimatch:20160620",
+      "packageName": "minimatch",
+      "alternativeIds": [
+        "SNYK-JS-MINIMATCH-10105"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3",
+        "rimraf@2.5.2",
+        "glob@7.0.3",
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3",
+        "rimraf@2.5.2",
+        "glob@7.0.3",
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "spawn-wrap@1.2.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118,
+        "ALTERNATIVE": [
+          "SNYK-JS-MINIMATCH-10105"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_1_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=2.0.5 >0.0.5",
+          "modificationTime": "2016-06-23T12:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:1"
+        }
+      ],
+      "moduleName": "minimatch",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:minimatch:20160620",
+      "packageName": "minimatch",
+      "alternativeIds": [
+        "SNYK-JS-MINIMATCH-10105"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "istanbul@0.4.3",
+        "fileset@0.2.1",
+        "minimatch@2.0.10"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "istanbul@0.4.5"
+      ],
+      "version": "2.0.10",
+      "name": "minimatch",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "istanbul@0.4.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Nick Starke"
+      ],
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "description": "## Overview\n[`minimatch`](https://www.npmjs.com/package/minimatch) is a minimalistic matching library used for converting glob expressions into JavaScript RegExp objects.\n\nAn attacker can provide a long value to the `minimatch` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `minimatch` to version `3.0.2` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955\n",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118,
+        "ALTERNATIVE": [
+          "SNYK-JS-MINIMATCH-10105"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_1_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=2.0.5 >0.0.5",
+          "modificationTime": "2016-06-23T12:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:1"
+        }
+      ],
+      "moduleName": "minimatch",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:minimatch:20160620",
+      "packageName": "minimatch",
+      "alternativeIds": [
+        "SNYK-JS-MINIMATCH-10105"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "istanbul@0.4.3",
+        "fileset@0.2.1",
+        "glob@5.0.15",
+        "minimatch@2.0.10"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "nyc@6.6.1",
+        "istanbul@0.4.3",
+        "fileset@0.2.1",
+        "glob@5.0.15",
+        "minimatch@3.0.2"
+      ],
+      "version": "2.0.10",
+      "name": "minimatch",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "bundled": [
+        "goof@0.0.3",
+        "nyc@6.6.1",
+        "istanbul@0.4.3"
+      ],
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "moduleName": "moment",
+      "description": "## Overview\n[`moment`](https://www.npmjs.com/package/moment) is a lightweight JavaScript date library for parsing, validating, manipulating, and formatting dates.\n\nAffected versions of the package are vulnerable to Regular Expression Denial of Service (ReDoS) attacks for any locale that has separate format and standalone options and `format` input can be controlled by the user.\n\nAn attacker can provide a specially crafted input to the `format` function, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the event loop and preventing it from processing other requests and making the server unavailable (a Denial of Service attack).\n\n## Disclosure Timeline\n- October 19th, 2016 - Reported the issue to package owner.\n- October 19th, 2016 - Issue acknowledged by package owner.\n- October 24th, 2016 - Issue fixed and version `2.15.2` released.\n\n## References\n- [Proof of concept](https://gist.github.com/grnd/50192ce22681848a7de812d95241b7fc)\n- [Fix commit](https://github.com/moment/moment/commit/663f33e333212b3800b63592cd8e237ac8fabdb9)\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MOMENT-10164"
+        ]
+      },
+      "semver": {
+        "vulnerable": "<2.15.2",
+        "unaffected": ">=2.15.2"
+      },
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "severity": "medium",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2016-10-18T21:00:00.000Z",
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20161019/moment_20161019_0_1.patch"
+          ],
+          "version": "<2.15.2 >=2.14.0",
+          "modificationTime": "2016-10-24T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:moment:20161019:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20161019/moment_20161019_0_0.patch"
+          ],
+          "version": "<2.14.0 >=2.12.0",
+          "modificationTime": "2016-10-24T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:moment:20161019:1"
+        }
+      ],
+      "publicationTime": "2016-10-24T06:57:59.675Z",
+      "modificationTime": "2016-10-23T06:57:59.675Z",
+      "creationTime": "2016-10-23T06:57:59.675Z",
+      "id": "npm:moment:20161019",
+      "packageName": "moment",
+      "alternativeIds": [
+        "SNYK-JS-MOMENT-10164"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "moment@2.15.1"
+      ],
+      "upgradePath": [
+        false,
+        "moment@2.15.2"
+      ],
+      "version": "2.15.1",
+      "name": "moment",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Remote Memory Exposure",
+      "credit": [
+        "ChALkeR"
+      ],
+      "creationTime": "2016-01-23T12:00:05.158Z",
+      "modificationTime": "2016-01-23T12:00:05.158Z",
+      "publicationTime": "2016-01-23T12:00:05.158Z",
+      "description": "## Overview\nA potential memory disclosure vulnerability exists in mongoose.\nA `Buffer` field in a MongoDB document can be used to expose sensitive\ninformation such as code, runtime memory and user data into MongoDB.\n\n### Details\nInitializing a `Buffer` field in a document with integer `N` creates a `Buffer`\nof length `N` with non zero-ed out memory.\n**Example:**\n```\nvar x = new Buffer(100); // uninitialized Buffer of length 100\n// vs\nvar x = new Buffer('100'); // initialized Buffer with value of '100'\n```\nInitializing a MongoDB document field in such manner will dump uninitialized\nmemory into MongoDB.\nThe patch wraps `Buffer` field initialization in mongoose by converting a\n`number` value `N` to array `[N]`, initializing the `Buffer` with `N` in its\nbinary form.\n\n#### Proof of concept\n```javascript\nvar mongoose = require('mongoose');\nmongoose.connect('mongodb://localhost/bufftest');\n\n// data: Buffer is not uncommon, taken straight from the docs: http://mongoosejs.com/docs/schematypes.html\nmongoose.model('Item', new mongoose.Schema({id: String, data: Buffer}));\n\nvar Item = mongoose.model('Item');\n\nvar sample = new Item();\nsample.id = 'item1';\n\n// This will create an uninitialized buffer of size 100\nsample.data = 100;\nsample.save(function () {\n    Item.findOne(function (err, result) {\n        // Print out the data (exposed memory)\n        console.log(result.data.toString('ascii'))\n        mongoose.connection.db.dropDatabase(); // Clean up everything\n        process.exit();\n    });\n});\n```\n\n## Remediation\nUpgrade `mongoose` to version >= 3.8.39 or >= 4.3.6.\n\nIf a direct dependency update is not possible, use [`snyk wizard`](https://snyk.io/docs/using-snyk#wizard) to patch this vulnerability.\n\n## References\n- [Github Issue](https://github.com/Automattic/mongoose/issues/3764)\n- [Blog: Node Buffer API fix](https://github.com/ChALkeR/notes/blob/master/Lets-fix-Buffer-API.md#previous-materials)\n- [Blog: Information about Buffer](https://github.com/ChALkeR/notes/blob/master/Buffer-knows-everything.md)\n",
+      "semver": {
+        "vulnerable": "<3.8.39 >=3.5.5 || <4.3.6 >=4.0.0",
+        "unaffected": "<3.5.5 || >=4.3.6"
+      },
+      "CVSSv3": "CVSS:3.0/AV:L/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-201"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MONGOOSE-10081"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/mongoose/20160116/20160116_0_0_mongoose_8066b145c07984c8b7e56dbb51721c0a3d48e18a.patch"
+          ],
+          "version": "<4.3.6 >=4.1.2",
+          "modificationTime": "2016-01-23T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:mongoose:20160116:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/mongoose/20160116/20160116_0_1_mongoose_8066b145c07984c8b7e56dbb51721c0a3d48e18a.patch"
+          ],
+          "version": "<4.1.2 >=4.0.0",
+          "modificationTime": "2016-01-23T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:mongoose:20160116:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/mongoose/20160116/20160116_0_3_mongoose_2ff7d36c5e52270211b17f3a84c8a47c6f4d8c1f.patch"
+          ],
+          "version": "<3.8.39 >=3.6.11",
+          "modificationTime": "2016-01-23T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:mongoose:20160116:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/mongoose/20160116/20160116_0_5_mongoose_2ff7d36c5e52270211b17f3a84c8a47c6f4d8c1f.patch"
+          ],
+          "version": "=3.6.11",
+          "modificationTime": "2016-01-23T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:mongoose:20160116:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/mongoose/20160116/20160116_0_4_mongoose_2ff7d36c5e52270211b17f3a84c8a47c6f4d8c1f.patch"
+          ],
+          "version": "<3.6.10 >=3.5.5",
+          "modificationTime": "2016-01-23T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:mongoose:20160116:4"
+        }
+      ],
+      "moduleName": "mongoose",
+      "disclosureTime": "2016-01-23T12:00:05.158Z",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:mongoose:20160116",
+      "packageName": "mongoose",
+      "alternativeIds": [
+        "SNYK-JS-MONGOOSE-10081"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "mongoose@4.2.4"
+      ],
+      "upgradePath": [
+        false,
+        "mongoose@4.3.6"
+      ],
+      "version": "4.2.4",
+      "name": "mongoose",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2015-11-06T02:09:36.187Z",
+      "modificationTime": "2015-11-06T02:09:36.187Z",
+      "publicationTime": "2015-11-06T02:09:36.187Z",
+      "description": "## Overview\n\nThe [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) vulnerability exists in the `ms` package, affecting version 0.7.0 and below.\n\n## Details\n\n`ms` is a milliseconds conversion utility, used to convert a time period string (i.e. `\"2 days\"`, `\"1h\"`) into milliseconds integer.\nThe regular expression used by the function to parse the time is vulnerable to a denial of service attack, where extremely long strings passed to `ms()` can take a long time to process, subsequently blocking the event loop for that extended period.\n\n\"The Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time.\" [1](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)\n\n## Remediation\nUpgrade `ms` to version 0.7.1. \n\nIf direct dependency upgrade is not possible, use [snyk wizard](https://snyk.io/docs/using-snyk#wizard) to patch this vulnerability.\n\n## References\n\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n",
+      "semver": {
+        "vulnerable": "<=0.7.0",
+        "unaffected": ">0.7.0"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [
+          "CVE-2015-8315"
+        ],
+        "NSP": 46,
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10064"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20151024/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+          ],
+          "version": "=0.7.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20151024/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+          ],
+          "version": "<0.7.0 >=0.6.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20151024/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+          ],
+          "version": "<0.6.0 >0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20151024/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+          ],
+          "version": "=0.3.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20151024/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+          ],
+          "version": "=0.2.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20151024/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+          ],
+          "version": "=0.1.0",
+          "modificationTime": "2015-10-24T20:39:59.852Z",
+          "comments": [],
+          "id": "patch:npm:ms:20151024:5"
+        }
+      ],
+      "moduleName": "ms",
+      "disclosureTime": "2015-10-24T20:39:59.852Z",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:ms:20151024",
+      "packageName": "ms",
+      "alternativeIds": [
+        "SNYK-JS-MS-10064"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "humanize-ms@1.0.1",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        "humanize-ms@1.0.2",
+        "ms@0.7.1"
+      ],
+      "version": "0.6.2",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "ms@0.7.3"
+      ],
+      "upgradePath": [
+        false,
+        "ms@2.0.0"
+      ],
+      "version": "0.7.3",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "humanize-ms@1.0.1",
+        "ms@0.6.2"
+      ],
+      "upgradePath": [
+        false,
+        "humanize-ms@1.2.1",
+        "ms@2.0.0"
+      ],
+      "version": "0.6.2",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "express@4.12.4",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.15.3",
+        "debug@2.6.7",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "express@4.12.4",
+        "finalhandler@0.3.6",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.15.0",
+        "finalhandler@1.0.3",
+        "debug@2.6.7",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "express@4.12.4",
+        "send@0.12.3",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.15.3",
+        "send@0.15.3",
+        "debug@2.6.7",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "express@4.12.4",
+        "serve-static@1.9.3",
+        "send@0.12.3",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.15.3",
+        "serve-static@1.12.3",
+        "send@0.15.3",
+        "debug@2.6.7",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "mongoose@4.2.4",
+        "mquery@1.6.3",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "mongoose@4.10.2",
+        "mquery@2.3.1",
+        "debug@2.6.8",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "tap-mocha-reporter@0.0.27",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "tap@5.8.0",
+        "tap-mocha-reporter@0.0.27",
+        "debug@2.6.7",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "express@4.12.4",
+        "send@0.12.3",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.15.3",
+        "send@0.15.3",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "express@4.12.4",
+        "serve-static@1.9.3",
+        "send@0.12.3",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.15.3",
+        "serve-static@1.12.3",
+        "send@0.15.3",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "mongoose@4.2.4",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "mongoose@4.10.2",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-06-16T18:00:02.240Z",
+      "modificationTime": "2016-06-16T18:00:02.240Z",
+      "publicationTime": "2016-06-16T17:36:06.000Z",
+      "disclosureTime": "2016-06-16T17:36:06.000Z",
+      "description": "## Overview\n[`negotiator`](https://npmjs.org/package/negotiator) is an HTTP content negotiator for Node.js. Versions prior to `0.6.1` are vulnerable to [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) attack when parsing \"Accept-Language\" http header.\n\nAn attacker can provide a long value in the Accept-Language header, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the thread and preventing it from processing other requests. By repeatedly sending multiple such requests, the attacker can make the server unavailable (a Denial of Service attack).\n\n## Details\nThe Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time. [1]\n\n## Remediation\nUpgrade `negotiator` to to version `0.6.1` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/jshttp/negotiator/commit/26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c\n",
+      "semver": {
+        "vulnerable": "<= 0.6.0",
+        "unaffected": ">= 0.6.1"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 106,
+        "ALTERNATIVE": [
+          "SNYK-JS-NEGOTIATOR-10104"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_0_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "0.6.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_1_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "<= 0.5.3 > 0.4.7",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_2_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "<= 0.4.7 > 0.1.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_3_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "0.1.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:3"
+        }
+      ],
+      "moduleName": "negotiator",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:negotiator:20160616",
+      "packageName": "negotiator",
+      "alternativeIds": [
+        "SNYK-JS-NEGOTIATOR-10104"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "st@0.2.4",
+        "negotiator@0.2.8"
+      ],
+      "upgradePath": [
+        false,
+        "st@1.1.0",
+        "negotiator@0.6.1"
+      ],
+      "version": "0.2.8",
+      "name": "negotiator",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-06-16T18:00:02.240Z",
+      "modificationTime": "2016-06-16T18:00:02.240Z",
+      "publicationTime": "2016-06-16T17:36:06.000Z",
+      "disclosureTime": "2016-06-16T17:36:06.000Z",
+      "description": "## Overview\n[`negotiator`](https://npmjs.org/package/negotiator) is an HTTP content negotiator for Node.js. Versions prior to `0.6.1` are vulnerable to [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) attack when parsing \"Accept-Language\" http header.\n\nAn attacker can provide a long value in the Accept-Language header, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the thread and preventing it from processing other requests. By repeatedly sending multiple such requests, the attacker can make the server unavailable (a Denial of Service attack).\n\n## Details\nThe Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time. [1]\n\n## Remediation\nUpgrade `negotiator` to to version `0.6.1` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/jshttp/negotiator/commit/26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c\n",
+      "semver": {
+        "vulnerable": "<= 0.6.0",
+        "unaffected": ">= 0.6.1"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 106,
+        "ALTERNATIVE": [
+          "SNYK-JS-NEGOTIATOR-10104"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_0_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "0.6.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_1_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "<= 0.5.3 > 0.4.7",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_2_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "<= 0.4.7 > 0.1.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_3_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "0.1.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:3"
+        }
+      ],
+      "moduleName": "negotiator",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:negotiator:20160616",
+      "packageName": "negotiator",
+      "alternativeIds": [
+        "SNYK-JS-NEGOTIATOR-10104"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "errorhandler@1.2.0",
+        "accepts@1.1.4",
+        "negotiator@0.4.9"
+      ],
+      "upgradePath": [
+        false,
+        "errorhandler@1.4.3",
+        "accepts@1.3.3",
+        "negotiator@0.6.1"
+      ],
+      "version": "0.4.9",
+      "name": "negotiator",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "creationTime": "2016-06-16T18:00:02.240Z",
+      "modificationTime": "2016-06-16T18:00:02.240Z",
+      "publicationTime": "2016-06-16T17:36:06.000Z",
+      "disclosureTime": "2016-06-16T17:36:06.000Z",
+      "description": "## Overview\n[`negotiator`](https://npmjs.org/package/negotiator) is an HTTP content negotiator for Node.js. Versions prior to `0.6.1` are vulnerable to [Regular expression Denial of Service (ReDoS)](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS) attack when parsing \"Accept-Language\" http header.\n\nAn attacker can provide a long value in the Accept-Language header, which nearly matches the pattern being matched. This will cause the regular expression matching to take a long time, all the while occupying the thread and preventing it from processing other requests. By repeatedly sending multiple such requests, the attacker can make the server unavailable (a Denial of Service attack).\n\n## Details\nThe Regular expression Denial of Service (ReDoS) is a Denial of Service attack, that exploits the fact that most Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size). An attacker can then cause a program using a Regular Expression to enter these extreme situations and then hang for a very long time. [1]\n\n## Remediation\nUpgrade `negotiator` to to version `0.6.1` or greater.\n\n## References\n- https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- https://github.com/jshttp/negotiator/commit/26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c\n",
+      "semver": {
+        "vulnerable": "<= 0.6.0",
+        "unaffected": ">= 0.6.1"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 106,
+        "ALTERNATIVE": [
+          "SNYK-JS-NEGOTIATOR-10104"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_0_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "0.6.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_1_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "<= 0.5.3 > 0.4.7",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_2_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "<= 0.4.7 > 0.1.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/negotiator/20160616/negotiator_20160616_0_3_26a05ec15cf7d1fa56000d66ebe9c9a1a62cb75c.patch"
+          ],
+          "version": "0.1.0",
+          "modificationTime": "2016-07-18T12:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:negotiator:20160616:3"
+        }
+      ],
+      "moduleName": "negotiator",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:negotiator:20160616",
+      "packageName": "negotiator",
+      "alternativeIds": [
+        "SNYK-JS-NEGOTIATOR-10104"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "express@4.12.4",
+        "accepts@1.2.13",
+        "negotiator@0.5.3"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.14.0",
+        "accepts@1.3.3",
+        "negotiator@0.6.1"
+      ],
+      "version": "0.5.3",
+      "name": "negotiator",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Prototype Override Protection Bypass",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "qs",
+      "packageName": "qs",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`qs`](https://www.npmjs.com/package/qs) is a querystring parser that supports nesting and arrays, with a depth limit.\n\nBy default `qs` protects against attacks that attempt to overwrite an object's existing prototype properties, such as `toString()`, `hasOwnProperty()`,etc.\n\nFrom [`qs` documentation](https://github.com/ljharb/qs):\n> By default parameters that would overwrite properties on the object prototype are ignored, if you wish to keep the data from those fields either use plainObjects as mentioned above, or set allowPrototypes to true which will allow user input to overwrite those properties. WARNING It is generally a bad idea to enable this option as it can cause problems when attempting to use the properties that have been overwritten. Always be careful with this option.\n\nOverwriting these properties can impact application logic, potentially allowing attackers to work around security controls, modify data, make the application unstable and more.\n\nIn versions of the package affected by this vulnerability, it is possible to circumvent this protection and overwrite prototype properties and functions by prefixing the name of the parameter with `[` or `]`. e.g. `qs.parse(\"]=toString\")` will return `{toString = true}`, as a result, calling `toString()` on the object will throw an exception.\n\n**Example:**\n```js\nqs.parse('toString=foo', { allowPrototypes: false })\n// {}\n\nqs.parse(\"]=toString\", { allowPrototypes: false })\n// {toString = true} <== prototype overwritten\n```\n\nFor more information, you can check out our [blog](https://snyk.io/blog/high-severity-vulnerability-qs/).\n\n## Disclosure Timeline\n- February 13th, 2017 - Reported the issue to package owner.\n- February 13th, 2017 - Issue acknowledged by package owner.\n- February 16th, 2017 - Partial fix released in versions `6.0.3`, `6.1.1`, `6.2.2`, `6.3.1`.\n- March 6th, 2017     - Final fix released in versions `6.4.0`,`6.3.2`, `6.2.3`, `6.1.2` and `6.0.4`\n\n## Remediation\nUpgrade `qs` to version `6.4.0` or higher.\n**Note:** The fix was backported to the following versions `6.3.2`, `6.2.3`, `6.1.2`, `6.0.4`.\n\n## References\n- [Github Commit](https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d)\n- [Report of an insufficient fix](https://github.com/ljharb/qs/issues/200)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-20"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-QS-10407"
+        ]
+      },
+      "semver": {
+        "vulnerable": "<6.3.2 >=6.3.0 || <6.2.3 >=6.2.0 || <6.1.2 >=6.1.0 || <6.0.4",
+        "unaffected": ">=6.4.0 || ~6.3.2 || ~6.2.3 || ~6.1.2 || ~6.0.4"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/630_632.patch"
+          ],
+          "version": "=6.3.0",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/631_632.patch"
+          ],
+          "version": "=6.3.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/621_623.patch"
+          ],
+          "version": "=6.2.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/622_623.patch"
+          ],
+          "version": "=6.2.2",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/610_612.patch"
+          ],
+          "version": "=6.1.0",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/611_612.patch"
+          ],
+          "version": "=6.1.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:5"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/602_604.patch"
+          ],
+          "version": "=6.0.2",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:6"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/603_604.patch"
+          ],
+          "version": "=6.0.3",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:7"
+        }
+      ],
+      "severity": "high",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "disclosureTime": "2017-02-13T00:00:00.000Z",
+      "publicationTime": "2017-03-01T10:00:54.163Z",
+      "modificationTime": "2017-03-06T21:00:00.000Z",
+      "creationTime": "2017-02-14T11:44:54.163Z",
+      "id": "npm:qs:20170213",
+      "alternativeIds": [
+        "SNYK-JS-QS-10407"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "body-parser@1.9.0",
+        "qs@2.2.4"
+      ],
+      "upgradePath": [
+        false,
+        "body-parser@1.17.1",
+        "qs@6.4.0"
+      ],
+      "version": "2.2.4",
+      "name": "qs",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Prototype Override Protection Bypass",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "qs",
+      "packageName": "qs",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`qs`](https://www.npmjs.com/package/qs) is a querystring parser that supports nesting and arrays, with a depth limit.\n\nBy default `qs` protects against attacks that attempt to overwrite an object's existing prototype properties, such as `toString()`, `hasOwnProperty()`,etc.\n\nFrom [`qs` documentation](https://github.com/ljharb/qs):\n> By default parameters that would overwrite properties on the object prototype are ignored, if you wish to keep the data from those fields either use plainObjects as mentioned above, or set allowPrototypes to true which will allow user input to overwrite those properties. WARNING It is generally a bad idea to enable this option as it can cause problems when attempting to use the properties that have been overwritten. Always be careful with this option.\n\nOverwriting these properties can impact application logic, potentially allowing attackers to work around security controls, modify data, make the application unstable and more.\n\nIn versions of the package affected by this vulnerability, it is possible to circumvent this protection and overwrite prototype properties and functions by prefixing the name of the parameter with `[` or `]`. e.g. `qs.parse(\"]=toString\")` will return `{toString = true}`, as a result, calling `toString()` on the object will throw an exception.\n\n**Example:**\n```js\nqs.parse('toString=foo', { allowPrototypes: false })\n// {}\n\nqs.parse(\"]=toString\", { allowPrototypes: false })\n// {toString = true} <== prototype overwritten\n```\n\nFor more information, you can check out our [blog](https://snyk.io/blog/high-severity-vulnerability-qs/).\n\n## Disclosure Timeline\n- February 13th, 2017 - Reported the issue to package owner.\n- February 13th, 2017 - Issue acknowledged by package owner.\n- February 16th, 2017 - Partial fix released in versions `6.0.3`, `6.1.1`, `6.2.2`, `6.3.1`.\n- March 6th, 2017     - Final fix released in versions `6.4.0`,`6.3.2`, `6.2.3`, `6.1.2` and `6.0.4`\n\n## Remediation\nUpgrade `qs` to version `6.4.0` or higher.\n**Note:** The fix was backported to the following versions `6.3.2`, `6.2.3`, `6.1.2`, `6.0.4`.\n\n## References\n- [Github Commit](https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d)\n- [Report of an insufficient fix](https://github.com/ljharb/qs/issues/200)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-20"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-QS-10407"
+        ]
+      },
+      "semver": {
+        "vulnerable": "<6.3.2 >=6.3.0 || <6.2.3 >=6.2.0 || <6.1.2 >=6.1.0 || <6.0.4",
+        "unaffected": ">=6.4.0 || ~6.3.2 || ~6.2.3 || ~6.1.2 || ~6.0.4"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/630_632.patch"
+          ],
+          "version": "=6.3.0",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/631_632.patch"
+          ],
+          "version": "=6.3.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/621_623.patch"
+          ],
+          "version": "=6.2.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/622_623.patch"
+          ],
+          "version": "=6.2.2",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/610_612.patch"
+          ],
+          "version": "=6.1.0",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/611_612.patch"
+          ],
+          "version": "=6.1.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:5"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/602_604.patch"
+          ],
+          "version": "=6.0.2",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:6"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/603_604.patch"
+          ],
+          "version": "=6.0.3",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:7"
+        }
+      ],
+      "severity": "high",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "disclosureTime": "2017-02-13T00:00:00.000Z",
+      "publicationTime": "2017-03-01T10:00:54.163Z",
+      "modificationTime": "2017-03-06T21:00:00.000Z",
+      "creationTime": "2017-02-14T11:44:54.163Z",
+      "id": "npm:qs:20170213",
+      "alternativeIds": [
+        "SNYK-JS-QS-10407"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "express@4.12.4",
+        "qs@2.4.2"
+      ],
+      "upgradePath": [
+        false,
+        "express@4.15.2",
+        "qs@6.4.0"
+      ],
+      "version": "2.4.2",
+      "name": "qs",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Prototype Override Protection Bypass",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "qs",
+      "packageName": "qs",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`qs`](https://www.npmjs.com/package/qs) is a querystring parser that supports nesting and arrays, with a depth limit.\n\nBy default `qs` protects against attacks that attempt to overwrite an object's existing prototype properties, such as `toString()`, `hasOwnProperty()`,etc.\n\nFrom [`qs` documentation](https://github.com/ljharb/qs):\n> By default parameters that would overwrite properties on the object prototype are ignored, if you wish to keep the data from those fields either use plainObjects as mentioned above, or set allowPrototypes to true which will allow user input to overwrite those properties. WARNING It is generally a bad idea to enable this option as it can cause problems when attempting to use the properties that have been overwritten. Always be careful with this option.\n\nOverwriting these properties can impact application logic, potentially allowing attackers to work around security controls, modify data, make the application unstable and more.\n\nIn versions of the package affected by this vulnerability, it is possible to circumvent this protection and overwrite prototype properties and functions by prefixing the name of the parameter with `[` or `]`. e.g. `qs.parse(\"]=toString\")` will return `{toString = true}`, as a result, calling `toString()` on the object will throw an exception.\n\n**Example:**\n```js\nqs.parse('toString=foo', { allowPrototypes: false })\n// {}\n\nqs.parse(\"]=toString\", { allowPrototypes: false })\n// {toString = true} <== prototype overwritten\n```\n\nFor more information, you can check out our [blog](https://snyk.io/blog/high-severity-vulnerability-qs/).\n\n## Disclosure Timeline\n- February 13th, 2017 - Reported the issue to package owner.\n- February 13th, 2017 - Issue acknowledged by package owner.\n- February 16th, 2017 - Partial fix released in versions `6.0.3`, `6.1.1`, `6.2.2`, `6.3.1`.\n- March 6th, 2017     - Final fix released in versions `6.4.0`,`6.3.2`, `6.2.3`, `6.1.2` and `6.0.4`\n\n## Remediation\nUpgrade `qs` to version `6.4.0` or higher.\n**Note:** The fix was backported to the following versions `6.3.2`, `6.2.3`, `6.1.2`, `6.0.4`.\n\n## References\n- [Github Commit](https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d)\n- [Report of an insufficient fix](https://github.com/ljharb/qs/issues/200)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-20"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-QS-10407"
+        ]
+      },
+      "semver": {
+        "vulnerable": "<6.3.2 >=6.3.0 || <6.2.3 >=6.2.0 || <6.1.2 >=6.1.0 || <6.0.4",
+        "unaffected": ">=6.4.0 || ~6.3.2 || ~6.2.3 || ~6.1.2 || ~6.0.4"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/630_632.patch"
+          ],
+          "version": "=6.3.0",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/631_632.patch"
+          ],
+          "version": "=6.3.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/621_623.patch"
+          ],
+          "version": "=6.2.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/622_623.patch"
+          ],
+          "version": "=6.2.2",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/610_612.patch"
+          ],
+          "version": "=6.1.0",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/611_612.patch"
+          ],
+          "version": "=6.1.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:5"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/602_604.patch"
+          ],
+          "version": "=6.0.2",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:6"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/603_604.patch"
+          ],
+          "version": "=6.0.3",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:7"
+        }
+      ],
+      "severity": "high",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "disclosureTime": "2017-02-13T00:00:00.000Z",
+      "publicationTime": "2017-03-01T10:00:54.163Z",
+      "modificationTime": "2017-03-06T21:00:00.000Z",
+      "creationTime": "2017-02-14T11:44:54.163Z",
+      "id": "npm:qs:20170213",
+      "alternativeIds": [
+        "SNYK-JS-QS-10407"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "codecov.io@0.1.6",
+        "request@2.42.0",
+        "qs@1.2.2"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "request@2.68.0",
+        "qs@6.0.4"
+      ],
+      "version": "1.2.2",
+      "name": "qs",
+      "isUpgradable": false,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Remote Memory Exposure",
+      "credit": [
+        "Feross Aboukhadijeh"
+      ],
+      "creationTime": "2016-03-22T12:00:05.158Z",
+      "modificationTime": "2017-01-19T12:00:05.158Z",
+      "publicationTime": "2016-03-22T12:00:05.158Z",
+      "description": "## Overview\n[`request`](https://www.npmjs.com/package/request) is a simplified http request client.\nA potential remote memory exposure vulnerability exists in `request`. If a `request` uses a multipart attachment and the _body type_ option is `number` with value X, then X bytes of uninitialized memory will be sent in the body of the request.\n\nNote that while the impact of this vulnerability is high (memory exposure), exploiting it is likely difficult, as the attacker needs to somehow control the body type of the request. One potential exploit scenario is when a request is composed based on JSON input, including the body type, allowing a malicious JSON to trigger the memory leak.\n\n### Details\nConstructing a `Buffer` class with integer `N` creates a `Buffer`\nof length `N` with non zero-ed out memory.\n**Example:**\n```\nvar x = new Buffer(100); // uninitialized Buffer of length 100\n// vs\nvar x = new Buffer('100'); // initialized Buffer with value of '100'\n```\n\nInitializing a multipart body in such manner will cause uninitialized memory to be sent in the body of the request.\n\n#### Proof of concept\n```javascript\nvar http = require('http')\nvar request = require('request')\n\nhttp.createServer(function (req, res) {\n  var data = ''\n  req.setEncoding('utf8')\n  req.on('data', function (chunk) {\n    console.log('data')\n    data += chunk\n  })\n  req.on('end', function () {\n    // this will print uninitialized memory from the client\n    console.log('Client sent:\\n', data)\n  })\n  res.end()\n}).listen(8000)\n\nrequest({\n  method: 'POST',\n  uri: 'http://localhost:8000',\n  multipart: [{ body: 1000 }]\n},\nfunction (err, res, body) {\n  if (err) return console.error('upload failed:', err)\n  console.log('sent')\n})\n```\n\n## Remediation\nUpgrade `request` to version 2.68.0 or higher.\n\nIf a direct dependency update is not possible, use [`snyk wizard`](https://snyk.io/documentation/#wizard) to patch this vulnerability.\n\n## References\n- [Github PR](https://github.com/request/request/pull/2018)\n- [Blog: Node Buffer API fix](https://github.com/ChALkeR/notes/blob/master/Lets-fix-Buffer-API.md#previous-materials)\n- [Blog: Information about Buffer](https://github.com/ChALkeR/notes/blob/master/Buffer-knows-everything.md)\n",
+      "semver": {
+        "vulnerable": "<2.68.0 >2.2.5",
+        "unaffected": ">=2.68.0 <=2.2.5"
+      },
+      "CVSSv3": "CVSS:3.0/AV:L/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-201"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-REQUEST-10088"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_0_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.68.0 >=2.54.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_1_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.54.0 >2.51.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_2_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<=2.51.0 >2.47.0",
+          "modificationTime": "2016-03-22T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_3_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "=2.47.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_4_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.47.0 >=2.27.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_5_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.27.0 >=2.16.0",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:5"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_6_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.16.0 >=2.9.150",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:6"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_7_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.9.150 >=2.9.3",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:7"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_8_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+          ],
+          "version": "<2.9.3 >=2.2.6",
+          "modificationTime": "2016-03-27T12:00:05.158Z",
+          "comments": [],
+          "id": "patch:npm:request:20160119:8"
+        }
+      ],
+      "moduleName": "request",
+      "disclosureTime": "2016-01-19T04:57:05.158Z",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:request:20160119",
+      "packageName": "request",
+      "alternativeIds": [
+        "SNYK-JS-REQUEST-10088"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "tap@5.8.0",
+        "codecov.io@0.1.6",
+        "request@2.42.0"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        false,
+        "request@2.68.0"
+      ],
+      "version": "2.42.0",
+      "name": "request",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "semver Regular Expression Denial of Service (DoS)",
+      "credit": [
+        "Adam Baldwin"
+      ],
+      "description": "## Overview\nThe semver module uses regular expressions when parsing a version string. For a carefully crafted input, the time it takes to process these regular expressions is not linear to the length of the input. Since the semver module did not enforce a limit on the version string length, an attacker could provide a long string that would take up a large amount of resources, potentially taking a server down. This issue therefore enables a potential Denial of Service attack. This is a slightly differnt variant of a typical Regular Expression Denial of Service ([ReDoS](https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS)) vulnerability.\n\n## Remediation\nUpdate to a version 4.3.2 or greater. From the issue description [2]: \"Package version can no longer be more than 256 characters long. This prevents a situation in which parsing the version number can use exponentially more time and memory to parse, leading to a potential denial of service.\"\n\n## References\n\n- [1] https://www.owasp.org/index.php/Regular_expression_Denial_of_Service_-_ReDoS\n- [2] https://github.com/npm/npm/releases/tag/v2.7.5\n",
+      "semver": {
+        "vulnerable": "<4.3.2",
+        "unaffected": ">=4.3.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 31,
+        "ALTERNATIVE": [
+          "SNYK-JS-SEMVER-10038"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "version": "<4.3.2 >= 2.0.2",
+          "modificationTime": "2015-04-03T16:00:00.000Z",
+          "comments": [
+            "https://github.com/npm/node-semver/commit/c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          ],
+          "id": "patch:npm:semver:20150403:0"
+        }
+      ],
+      "moduleName": "semver",
+      "creationTime": "2015-04-03T16:00:00.000Z",
+      "publicationTime": "2015-04-03T16:00:00.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "disclosureTime": "2015-04-03T16:00:00.000Z",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:semver:20150403",
+      "packageName": "semver",
+      "alternativeIds": [
+        "SNYK-JS-SEMVER-10038"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "npmconf@0.0.24",
+        "semver@1.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "npmconf@2.0.9",
+        "semver@4.3.2"
+      ],
+      "version": "1.1.4",
+      "name": "semver",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Directory Traversal",
+      "credit": [
+        "Charlie Somerville"
+      ],
+      "description": "## Overview\nVersions prior to 0.2.5 did not properly prevent path traversal. Literal dots in a path were resolved out, but url encoded dots were not. Thus, a request like ``` /%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/etc/passwd ``` would leak sensitive files and data from the server.\n\nAs of version 0.2.5, any ```'/../'``` in the request path, urlencoded or not, will be replaced with ```'/'```. If your application depends on url traversal, then you are encouraged to please refactor so that you do not depend on having ```..``` in url paths, as this tends to expose data that you may be surprised to be exposing.\n\n## Remediation\nUpgrade to version 0.2.5 or greater.\n\n## References\n- https://github.com/isaacs/st#security-status\n- http://blog.npmjs.org/post/80277229932/newly-paranoid-maintainers",
+      "semver": {
+        "vulnerable": "<0.2.5",
+        "unaffected": ">=0.2.5"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [
+          "CWE-22"
+        ],
+        "CVE": [
+          "CVE-2014-3744"
+        ],
+        "NSP": 36,
+        "ALTERNATIVE": [
+          "SNYK-JS-ST-10012"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/st/20140206/st-20140206_0_0_6b54ce2d2fb912eadd31e2c25c65456d2c8666e1.patch"
+          ],
+          "version": "<0.2.5 >0.1.4",
+          "modificationTime": "2016-02-17T12:50:48.000Z",
+          "comments": [],
+          "id": "patch:npm:st:20140206:0"
+        }
+      ],
+      "moduleName": "st",
+      "creationTime": "2014-02-06T07:33:48.000Z",
+      "publicationTime": "2014-02-06T07:33:48.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "disclosureTime": "2014-02-06T07:33:48.000Z",
+      "language": "js",
+      "packageManager": "npm",
+      "id": "npm:st:20140206",
+      "packageName": "st",
+      "alternativeIds": [
+        "SNYK-JS-ST-10012"
+      ],
+      "from": [
+        "goof@0.0.3",
+        "st@0.2.4"
+      ],
+      "upgradePath": [
+        false,
+        "st@0.2.5"
+      ],
+      "version": "0.2.4",
+      "name": "st",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "parentDepType": "prod"
+    }
+  ],
+  "dependencyCount": 428,
+  "org": "testing",
+  "licensesPolicy": null,
+  "isPrivate": true,
+  "summary": "44 vulnerable dependency paths",
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 19,
+  "packageManager": "npm"
+}
+
