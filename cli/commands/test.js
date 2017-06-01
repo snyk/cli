@@ -153,7 +153,11 @@ function test(path, options) {
 
     var sep = '\n\n';
 
+    var reportedVulns = {};
     var body = res.vulnerabilities.map(function (vuln) {
+      if (!showVulnPaths && reportedVulns[vuln.id]) { return; }
+      reportedVulns[vuln.id] = true;
+
       var res = '';
       var name = vuln.name + '@' + vuln.version;
       var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
@@ -162,10 +166,18 @@ function test(path, options) {
         name + '\n');
       res += '- desc: ' + vuln.title + '\n';
       res += '- info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
-      res += '- from: ' + vuln.from.join(' > ') + '\n';
+      if (showVulnPaths) {
+        res += '- from: ' + vuln.from.join(' > ') + '\n';
+      }
 
       if (vuln.note) {
         res += vuln.note + '\n';
+      }
+
+      // none of the output past this point is relevant if we're not displaying
+      // vulnerable paths
+      if (!showVulnPaths) {
+        return res.trim();
       }
 
       var upgradeSteps = (vuln.upgradePath || []).filter(Boolean);
@@ -228,7 +240,7 @@ function test(path, options) {
         }
       }
       return res;
-    }).join(sep) + sep + summary;
+    }).filter(Boolean).join(sep) + sep + summary;
 
     if (res.ok) {
       return body;

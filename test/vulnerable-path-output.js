@@ -30,6 +30,13 @@ test('"snyk test --show-vulnerable-paths=false"', function(t) {
         .values()
         .every(function(occurances) { return occurances === 1 }),
       'displays each vuln only once');
+
+    t.assert(
+      res.message.indexOf('Upgrade') === -1,
+      'does not display upgrade information');
+    t.assert(
+      res.message.indexOf('- from:') === -1,
+      'does not display vulnerable paths');
   });
 });
 
@@ -48,6 +55,12 @@ test('"snyk test"', function(t) {
         .values()
         .some(function(occurances) { return occurances > 1 }),
       'duplicates vuln data for each vulnerable-path');
+    t.assert(
+      res.message.indexOf('Upgrade') !== -1,
+      'display upgrade information');
+    t.assert(
+      res.message.indexOf('- from:') !== -1,
+      'displays vulnerable paths');
   });
 
 });
