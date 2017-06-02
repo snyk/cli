@@ -1,5 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.7.1
+version: v1.7.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
   'npm:qs:20170213':
@@ -14,4 +14,34 @@ ignore:
     - snyk-recursive-readdir > minimatch > brace-expansion:
         reason: not affected
         expires: '2018-05-14T15:20:37.409Z'
-patch: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:ms:20170412':
+    - snyk-policy > snyk-module > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-module > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-policy > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-resolve > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-resolve-deps > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-try-require > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-config > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-policy > snyk-resolve > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-resolve-deps > snyk-resolve > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-policy > snyk-try-require > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-resolve-deps > snyk-try-require > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-resolve-deps > snyk-module > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
+    - snyk-resolve-deps > clite > debug > ms:
+        patched: '2017-05-17T01:37:06.648Z'
