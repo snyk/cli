@@ -1,17 +1,4 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.7.1
-# ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore:
-  'npm:qs:20170213':
-    - request > qs:
-        reason: waiting for `request` to be fixed
-        expires: '2017-04-05T13:40:24.379Z'
-  'npm:ms:20170412':
-    - '* > ms':
-        reason: not affected
-        expires: '2018-05-14T15:17:30.932Z'
-  'npm:brace-expansion:20170302':
-    - snyk-recursive-readdir > minimatch > brace-expansion:
-        reason: not affected
-        expires: '2018-05-14T15:20:37.409Z'
+ignore: {}
 patch: {}
