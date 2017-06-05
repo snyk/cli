@@ -408,6 +408,10 @@ function getUpdatePrompts(vulns, policy) {
 }
 
 function canBeUpgraded(vuln) {
+  if (vuln.parentDepType === 'extraneous') {
+    return false;
+  }
+
   if (vuln.bundled) {
     return false;
   }
@@ -638,7 +642,9 @@ function generatePrompt(vulns, policy, prefix) {
       // No upgrade available (as per no patch)
       var reason = '';
 
-      if (vuln.shrinkwrap) {
+      if (vuln.parentDepType === 'extraneous') {
+        reason = fmt('extraneous package %s cannot be upgraded', vuln.from[1]);
+      } else if (vuln.shrinkwrap) {
         reason = fmt('upgrade unavailable as %s@%s is shrinkwrapped by %s',
           vuln.name, vuln.version, vuln.shrinkwrap);
       } else if (vuln.bundled) {

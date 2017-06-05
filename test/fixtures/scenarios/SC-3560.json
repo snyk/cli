@@ -1,0 +1,276 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Cross-site Scripting (XSS)",
+      "moduleName": "jquery",
+      "description": "## Overview\n[`jquery`](https://www.npmjs.com/package/jquery) is JavaScript library for DOM operations.\n\nAffected versions of the package are vulnerable to Cross-site Scripting (XSS) attacks when a cross-domain ajax request is performed without the `dataType` option causing `text/javascript` responses to be executed.\n\n## Remediation\nUpgrade `jquery` to version `3.0.0` or higher.\n\n## References\n- [Github Issue](https://github.com/jquery/jquery/issues/2432)\n- [Github PR](https://github.com/jquery/jquery/pull/2588)\n- [Github Commit 3.0.0](https://github.com/jquery/jquery/pull/2588/commits/c254d308a7d3f1eac4d0b42837804cfffcba4bb2)\n- [Github Commit 1.12](https://github.com/jquery/jquery/commit/f60729f3903d17917dc351f3ac87794de379b0cc)\n- [Vulnerable code](https://github.com/jquery/jquery/blob/250a1990baa571de60325ab2c52eabb399c4cf9e/src/ajax/script.js#L18)\n",
+      "language": "js",
+      "packageManager": "npm",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-JQUERY-10186"
+        ]
+      },
+      "severity": "medium",
+      "semver": {
+        "unaffected": ">=3.0.0-beta1 || >=1.12.0 <1.12.3",
+        "vulnerable": "<3.0.0-beta1 >1.12.3 || <1.12.0 >=1.4.0"
+      },
+      "credit": [
+        "Egor Homakov"
+      ],
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+      "disclosureTime": "2015-06-26T21:00:00.000Z",
+      "patches": [],
+      "publicationTime": "2016-11-27T00:00:00.000Z",
+      "modificationTime": "2017-03-27T15:12:44.538Z",
+      "creationTime": "2016-11-06T15:12:44.538Z",
+      "id": "npm:jquery:20150627",
+      "packageName": "jquery",
+      "alternativeIds": [
+        "SNYK-JS-JQUERY-10186"
+      ],
+      "from": [
+        "apicurio-design-studio@1.0.0",
+        "patternfly@3.17.0",
+        "jquery@2.1.4"
+      ],
+      "upgradePath": [
+        false,
+        "patternfly@3.25.0",
+        "jquery@3.2.1"
+      ],
+      "version": "2.1.4",
+      "name": "jquery",
+      "isUpgradable": true,
+      "isPatchable": false,
+      "__filename": "/Users/anton/code/adrukh/apicurio-studio/front-end/app/node_modules/jquery/package.json",
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "ms",
+      "packageName": "ms",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`ms`](https://www.npmjs.com/package/ms) is a tiny milisecond conversion utility.\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\n\n*Proof of concept*\n```js\nms = require('ms');\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\n```\n\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\n\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Disclosure Timeline\n- Feb 9th, 2017 - Reported the issue to package owner.\n- Feb 11th, 2017 - Issue acknowledged by package owner.\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\n- May 15th, 2017 - Vulnerability published.\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\n\n## Remediation\nUpgrade `ms` to version 2.0.0 or higher.\n\n## References\n- [Github PR](https://github.com/zeit/ms/pull/89)\n- [Github Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MS-10509"
+        ]
+      },
+      "semver": {
+        "unaffected": ">=2.0.0",
+        "vulnerable": "<2.0.0"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+          ],
+          "version": "=1.0.0",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+          ],
+          "version": "=0.7.2 || =0.7.3",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+          ],
+          "version": "=0.7.1",
+          "modificationTime": "2017-05-16T10:12:18.990Z",
+          "comments": [],
+          "id": "patch:npm:ms:20170412:2"
+        }
+      ],
+      "severity": "low",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "disclosureTime": "2017-04-11T21:00:00.000Z",
+      "publicationTime": "2017-05-15T06:02:45.497Z",
+      "modificationTime": "2017-05-21T10:02:45.497Z",
+      "creationTime": "2017-04-12T10:02:45.497Z",
+      "id": "npm:ms:20170412",
+      "alternativeIds": [
+        "SNYK-JS-MS-10509"
+      ],
+      "from": [
+        "apicurio-design-studio@1.0.0",
+        "node-pre-gyp@0.6.33",
+        "tar-pack@3.3.0",
+        "debug@2.2.0",
+        "ms@0.7.1"
+      ],
+      "upgradePath": [
+        false,
+        "node-pre-gyp@0.6.34",
+        "tar-pack@3.4.0",
+        "debug@2.6.7",
+        "ms@2.0.0"
+      ],
+      "version": "0.7.1",
+      "name": "ms",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "__filename": "/Users/anton/code/adrukh/apicurio-studio/front-end/app/node_modules/ms/package.json",
+      "parentDepType": "extraneous"
+    },
+    {
+      "title": "Prototype Override Protection Bypass",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "moduleName": "qs",
+      "packageName": "qs",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "## Overview\n[`qs`](https://www.npmjs.com/package/qs) is a querystring parser that supports nesting and arrays, with a depth limit.\n\nBy default `qs` protects against attacks that attempt to overwrite an object's existing prototype properties, such as `toString()`, `hasOwnProperty()`,etc.\n\nFrom [`qs` documentation](https://github.com/ljharb/qs):\n> By default parameters that would overwrite properties on the object prototype are ignored, if you wish to keep the data from those fields either use plainObjects as mentioned above, or set allowPrototypes to true which will allow user input to overwrite those properties. WARNING It is generally a bad idea to enable this option as it can cause problems when attempting to use the properties that have been overwritten. Always be careful with this option.\n\nOverwriting these properties can impact application logic, potentially allowing attackers to work around security controls, modify data, make the application unstable and more.\n\nIn versions of the package affected by this vulnerability, it is possible to circumvent this protection and overwrite prototype properties and functions by prefixing the name of the parameter with `[` or `]`. e.g. `qs.parse(\"]=toString\")` will return `{toString = true}`, as a result, calling `toString()` on the object will throw an exception.\n\n**Example:**\n```js\nqs.parse('toString=foo', { allowPrototypes: false })\n// {}\n\nqs.parse(\"]=toString\", { allowPrototypes: false })\n// {toString = true} <== prototype overwritten\n```\n\nFor more information, you can check out our [blog](https://snyk.io/blog/high-severity-vulnerability-qs/).\n\n## Disclosure Timeline\n- February 13th, 2017 - Reported the issue to package owner.\n- February 13th, 2017 - Issue acknowledged by package owner.\n- February 16th, 2017 - Partial fix released in versions `6.0.3`, `6.1.1`, `6.2.2`, `6.3.1`.\n- March 6th, 2017     - Final fix released in versions `6.4.0`,`6.3.2`, `6.2.3`, `6.1.2` and `6.0.4`\n\n## Remediation\nUpgrade `qs` to version `6.4.0` or higher.\n**Note:** The fix was backported to the following versions `6.3.2`, `6.2.3`, `6.1.2`, `6.0.4`.\n\n## References\n- [Github Commit](https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d)\n- [Report of an insufficient fix](https://github.com/ljharb/qs/issues/200)\n",
+      "identifiers": {
+        "CWE": [
+          "CWE-20"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-QS-10407"
+        ]
+      },
+      "semver": {
+        "vulnerable": "<6.3.2 >=6.3.0 || <6.2.3 >=6.2.0 || <6.1.2 >=6.1.0 || <6.0.4",
+        "unaffected": ">=6.4.0 || ~6.3.2 || ~6.2.3 || ~6.1.2 || ~6.0.4"
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/630_632.patch"
+          ],
+          "version": "=6.3.0",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:0"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/631_632.patch"
+          ],
+          "version": "=6.3.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:1"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/621_623.patch"
+          ],
+          "version": "=6.2.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:2"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/622_623.patch"
+          ],
+          "version": "=6.2.2",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:3"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/610_612.patch"
+          ],
+          "version": "=6.1.0",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:4"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/611_612.patch"
+          ],
+          "version": "=6.1.1",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:5"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/602_604.patch"
+          ],
+          "version": "=6.0.2",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:6"
+        },
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/603_604.patch"
+          ],
+          "version": "=6.0.3",
+          "modificationTime": "2017-03-09T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:qs:20170213:7"
+        }
+      ],
+      "severity": "high",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "disclosureTime": "2017-02-13T00:00:00.000Z",
+      "publicationTime": "2017-03-01T10:00:54.163Z",
+      "modificationTime": "2017-03-06T21:00:00.000Z",
+      "creationTime": "2017-02-14T11:44:54.163Z",
+      "id": "npm:qs:20170213",
+      "alternativeIds": [
+        "SNYK-JS-QS-10407"
+      ],
+      "from": [
+        "apicurio-design-studio@1.0.0",
+        "node-pre-gyp@0.6.33",
+        "request@2.79.0",
+        "qs@6.3.1"
+      ],
+      "upgradePath": [
+        false,
+        "node-pre-gyp@0.6.33",
+        "request@2.79.0",
+        "qs@6.3.2"
+      ],
+      "version": "6.3.1",
+      "name": "qs",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "__filename": "/Users/anton/code/adrukh/apicurio-studio/front-end/app/node_modules/qs/package.json",
+      "parentDepType": "extraneous"
+    }
+  ],
+  "dependencyCount": 170,
+  "org": "adrukh",
+  "licensesPolicy": null,
+  "isPrivate": true,
+  "summary": "3 vulnerable dependency paths",
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 3,
+  "packageManager": "yarn"
+}
