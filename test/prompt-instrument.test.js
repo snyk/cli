@@ -130,3 +130,24 @@ test('patch grouped vuln should run multiple patches (SC-1109)', function (t) {
     t.equal(patches.packages[1].patches.id, 'patch:npm:request:20160119:4');
   });
 });
+
+test('vulns from extraneous deps are patched (SC-3560)', function (t) {
+  var responses = [
+    'default:update',
+    'default:patch',
+    'default:patch',
+  ];
+
+  var vulns = require(__dirname + '/fixtures/scenarios/SC-3560.json');
+  var total = vulns.vulnerabilities.length;
+
+  return interactive(vulns, responses, { earlyExit: true })
+  .then(function (answers) {
+    var tasks = answersToTasks(answers);
+    t.equal(tasks.update[0].id, 'npm:jquery:20150627', 'prod jquery updated');
+    t.equal(tasks.update.length, 1, '1 update');
+    t.equal(tasks.patch[0].id, 'npm:ms:20170412', 'extraneous ms patched');
+    t.equal(tasks.patch[1].id, 'npm:qs:20170213', 'extraneous qs patched');
+    t.equal(tasks.patch.length, 2, '2 patches');
+  });
+});
