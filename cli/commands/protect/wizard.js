@@ -29,7 +29,9 @@ var analytics = require('../../../lib/analytics');
 var alerts = require('../../../lib/alerts');
 var npm = require('../../../lib/npm');
 var cwd = process.cwd();
-var detectPackageManager = require('../../../lib/detect').detectPackageManager;
+var detect = require('../../../lib/detect');
+var plugins = require('../../../lib/plugins');
+var ModuleInfo = require('../../../lib/module-info');
 
 function wizard(options) {
   if (!options) {
@@ -46,7 +48,7 @@ function wizard(options) {
 }
 
 function processPackageManager(options) {
-  var packageManager = detectPackageManager(cwd, options);
+  var packageManager = detect.detectPackageManager(cwd, options);
   if (packageManager === 'rubygems') {
     return Promise.reject(
       'Snyk wizard for RubyGems projects is not currently supported');
@@ -453,11 +455,15 @@ function processAnswers(answers, policy, options) {
     debug('running monitor');
     var lbl = 'Remembering current dependencies for future ' +
       'notifications...';
-    return snyk.modules(cwd)
+    var packageManager = detect.detectPackageManager(cwd, options);
+    var targetFile = options.file || detect.detectPackageFile(cwd);
+    var meta = { method: 'wizard', packageManager: packageManager };
+    var plugin = plugins.loadPlugin(packageManager);
+    var moduleInfo = ModuleInfo(plugin, options.policy);
+
+    return moduleInfo.inspect(cwd, targetFile, options._doubleDashArgs)
       .then(spinner(lbl))
-      .then(snyk.monitor.bind(null, cwd, {
-        method: 'wizard',
-      }))
+      .then(snyk.monitor.bind(null, cwd, meta))
       .then(spinner.clear(lbl));
   })
   .then(function (monitorRes) {
