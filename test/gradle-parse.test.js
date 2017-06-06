@@ -2,8 +2,19 @@ var test = require('tap').test;
 var parse = require('../lib/plugins/gradle/gradle-deps-parse');
 var fs = require('fs');
 
+test('compare full results', function (t) {
+  t.plan(1);
+  var gradleOutput = fs.readFileSync(
+    __dirname + '/fixtures/gradle/gradle-dependencies-output.txt', 'utf8');
+  var depTree = parse(gradleOutput, 'myPackage@1.0.0');
+  var results = require(
+    __dirname + '/fixtures/gradle/gradle-dependencies-results.json');
+
+  t.same(depTree, results);
+});
+
 test('parse a `gradle dependencies` output', function(t) {
-  t.plan(6);
+  t.plan(7);
   var gradleOutput = fs.readFileSync(
     __dirname + '/fixtures/gradle/gradle-dependencies-output.txt', 'utf8');
   var depTree = parse(gradleOutput, 'myPackage@1.0.0');
@@ -15,6 +26,12 @@ test('parse a `gradle dependencies` output', function(t) {
 
   t.equal(depTree['com.android.tools.build:builder'].groupId,
     'com.android.tools.build', 'found dependency');
+
+  if (typeof depTree['failed:failed'] === 'undefined') {
+    t.pass('failed dependency ignored');
+  } else {
+    t.fail('failed dependency is included in result');
+  }
 
   t.equal(
     depTree['com.android.tools.build:builder']
