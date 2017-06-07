@@ -459,9 +459,9 @@ function processAnswers(answers, policy, options) {
     var targetFile = options.file || detect.detectPackageFile(cwd);
     var meta = { method: 'wizard', packageManager: packageManager };
     var plugin = plugins.loadPlugin(packageManager);
-    var moduleInfo = moduleInfo(plugin, options.policy);
+    var info = moduleInfo(plugin, options.policy);
 
-    return moduleInfo.inspect(cwd, targetFile, options._doubleDashArgs)
+    return info.inspect(cwd, targetFile, options._doubleDashArgs)
       .then(spinner(lbl))
       .then(snyk.monitor.bind(null, cwd, meta))
       .then(spinner.clear(lbl));
