@@ -461,7 +461,7 @@ function processAnswers(answers, policy, options) {
     var plugin = plugins.loadPlugin(packageManager);
     var info = moduleInfo(plugin, options.policy);
 
-    return info.inspect(cwd, targetFile, options._doubleDashArgs)
+    return info.inspect(cwd, targetFile, options)
       .then(spinner(lbl))
       .then(snyk.monitor.bind(null, cwd, meta))
       .then(spinner.clear(lbl));
