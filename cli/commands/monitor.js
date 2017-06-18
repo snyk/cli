@@ -40,7 +40,7 @@ function monitor(path, options) {
     var meta = { method: 'cli', packageManager: packageManager };
     var plugin = plugins.loadPlugin(packageManager);
     var moduleInfo = ModuleInfo(plugin, options.policy);
-    return moduleInfo.inspect(path, targetFile, options._doubleDashArgs)
+    return moduleInfo.inspect(path, targetFile, options)
       .then(snyk.monitor.bind(null, path, meta))
       .then(function (res) {
         var endpoint = url.parse(config.API);

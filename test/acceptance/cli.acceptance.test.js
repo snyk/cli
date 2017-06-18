@@ -182,17 +182,19 @@ test('`test monorepo --file=sub-ruby-app/Gemfile`', function (t) {
   });
 });
 
-test('`test maven-app --file=pom.xml` sends package info',
+test('`test maven-app --file=pom.xml --dev` sends package info',
 function (t) {
   chdirWorkspaces();
   stubExec(t, 'maven-app/mvn-dep-tree-stdout.txt');
-  return cli.test('maven-app', {file: 'pom.xml', org: 'nobelprize.org'})
+  return cli.test('maven-app',
+    {file: 'pom.xml', org: 'nobelprize.org', dev: true})
   .then(function () {
     var req = server.popRequest();
     var pkg = req.body;
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/maven', 'posts to correct url');
     t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
+    t.ok(pkg.dependencies['axis:axis'], 'specifies dependency');
     t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
     t.equal(pkg.dependencies['junit:junit'].artifactId, 'junit',
             'specifies dependency artifactId');
@@ -240,7 +242,11 @@ function (t) {
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/pip', 'posts to correct url');
     t.same(plugin.inspect.getCall(0).args,
-      ['pip-app', 'requirements.txt', undefined], 'calls python plugin');
+      ['pip-app', 'requirements.txt', {
+        args: null,
+        file: 'requirements.txt',
+        packageManager: 'pip'
+      }], 'calls python plugin');
   });
 });
 
@@ -286,7 +292,7 @@ test('`monitor ruby-app`', function (t) {
 test('`monitor maven-app`', function (t) {
   chdirWorkspaces();
   stubExec(t, 'maven-app/mvn-dep-tree-stdout.txt');
-  return cli.monitor('maven-app', {file: 'pom.xml'})
+  return cli.monitor('maven-app', {file: 'pom.xml', dev: true})
   .then(function () {
     var req = server.popRequest();
     var pkg = req.body.package;
@@ -383,7 +389,10 @@ function (t) {
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/pip', 'puts at correct url');
     t.same(plugin.inspect.getCall(0).args,
-      ['pip-app', 'requirements.txt', undefined], 'calls python plugin');
+      ['pip-app', 'requirements.txt', {
+        args: null,
+        file: 'requirements.txt',
+      }], 'calls python plugin');
   });
 });
 

@@ -6,6 +6,7 @@
 [INFO]
 [INFO] --- maven-dependency-plugin:2.8:tree (default-cli) @ maven-app ---
 [INFO] digraph "com.mycompany.app:maven-app:jar:1.0-SNAPSHOT" {
+[INFO] 	"com.mycompany.app:maven-app:jar:1.0-SNAPSHOT" -> "axis:axis:jar:1.4:compile" ;
 [INFO] 	"com.mycompany.app:maven-app:jar:1.0-SNAPSHOT" -> "junit:junit:jar:3.8.2:test" ;
 [INFO]  }
 [INFO] ------------------------------------------------------------------------
