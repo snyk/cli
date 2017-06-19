@@ -1,4 +1,4 @@
-var test = require('tap').test;
+var test = require('tap-only');
 var parse = require('../lib/plugins/gradle/gradle-deps-parse');
 var fs = require('fs');
 
