@@ -65,7 +65,7 @@ Get the badge by copying the relevant snippet below and replacing "name" with th
 HTML:
 
 ```
-<img src="https://snyk.io/package/npm/name/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/package/npm/name style="max-width:100%;">
+<img src="https://snyk.io/package/npm/name/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/package/npm/name" style="max-width:100%;">
 ```
 
 Markdown:
