@@ -273,6 +273,22 @@ test('`monitor npm-package`', function (t) {
     var req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
+    t.ok(req.body.package.dependencies['to-array'], 'dependency');
+    t.notOk(req.body.package.dependencies['object-assign'],
+      'no dev dependency');
+  });
+});
+
+test('`monitor npm-package with dev dep flag`', function (t) {
+  chdirWorkspaces();
+  return cli.monitor('npm-package', { dev: true })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/npm', 'puts at correct url');
+    t.ok(req.body.package.dependencies['to-array'], 'dependency');
+    t.ok(req.body.package.dependencies['object-assign'],
+      'includes dev dependency');
   });
 });
 
