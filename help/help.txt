@@ -20,6 +20,8 @@ Commands:
                        vulnerabilities on snyk.io.
   policy ............. Display the Snyk policy for a package.
   ignore ............. Modifies the .snyk policy to ignore stated issues.
+                       For more information run `snyk help ignore`.
+  help [topic] ....... Display detailed help about commands and options.
 
 Options:
 
