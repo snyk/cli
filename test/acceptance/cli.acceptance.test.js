@@ -250,6 +250,38 @@ function (t) {
   });
 });
 
+test('`test golang-app --file=Gopkg.lock`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('golang')
+  .returns(plugin);
+
+  return cli.test('golang-app', {
+    file: 'Gopkg.lock',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/golang', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['golang-app', 'Gopkg.lock', {
+        args: null,
+        file: 'Gopkg.lock',
+        packageManager: 'golang',
+      },], 'calls golang plugin');
+  });
+});
+
 /**
  * `monitor`
  */
@@ -428,6 +460,7 @@ test('`wizard` for unsupported package managers', function (t) {
     { file: 'pip-app/requirements.txt', type: 'Python' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
+    { file: 'golang-app/Gopkg.lock', type: 'Golang' },
   ];
   return Promise.all(cases.map(testUnsupported))
   .then(function (results) {
@@ -455,6 +488,7 @@ test('`protect` for unsupported package managers', function (t) {
     { file: 'pip-app/requirements.txt', type: 'Python' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
+    { file: 'golang-app/Gopkg.lock', type: 'Golang' },
   ];
   return Promise.all(cases.map(testUnsupported))
   .then(function (results) {
