@@ -13,6 +13,7 @@ var unsupportedPackageManagers = {
   pip: 'Python',
   sbt: 'SBT',
   gradle: 'Gradle',
+  golang: 'Golang',
 };
 
 function protect(options) {
