@@ -32,6 +32,13 @@ var cwd = process.cwd();
 var detect = require('../../../lib/detect');
 var plugins = require('../../../lib/plugins');
 var moduleInfo = require('../../../lib/module-info');
+var unsupportedPackageManagers = {
+  rubygems: 'RubyGems',
+  maven: 'Maven',
+  pip: 'Python',
+  sbt: 'SBT',
+  gradle: 'Gradle',
+};
 
 function wizard(options) {
   if (!options) {
@@ -49,13 +56,11 @@ function wizard(options) {
 
 function processPackageManager(options) {
   var packageManager = detect.detectPackageManager(cwd, options);
-  if (packageManager === 'rubygems') {
+  var unsupported = unsupportedPackageManagers[packageManager];
+  if (unsupported) {
     return Promise.reject(
-      'Snyk wizard for RubyGems projects is not currently supported');
-  }
-  if (packageManager === 'maven') {
-    return Promise.reject(
-      'Snyk wizard for Maven projects is not currently supported');
+      'Snyk wizard for ' + unsupported +
+      ' projects is not currently supported');
   }
   if (packageManager === 'yarn') {
     var prompt = {

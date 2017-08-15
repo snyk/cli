@@ -412,6 +412,60 @@ function (t) {
   });
 });
 
+test('`wizard` for unsupported package managers', function (t) {
+  chdirWorkspaces();
+  function testUnsupported(data) {
+    return cli.wizard({file: data.file})
+    .then(function () { throw 'fail'; })
+    .catch(function (e) {
+      if (e === 'fail') { throw e; }
+      return e;
+    });
+  }
+  var cases = [
+    { file: 'maven-app/pom.xml', type: 'Maven' },
+    { file: 'ruby-app/Gemfile.lock', type: 'RubyGems' },
+    { file: 'pip-app/requirements.txt', type: 'Python' },
+    { file: 'sbt-app/build.sbt', type: 'SBT' },
+    { file: 'gradle-app/build.gradle', type: 'Gradle' },
+  ];
+  return Promise.all(cases.map(testUnsupported))
+  .then(function (results) {
+    results.map(function (result, i) {
+      var type = cases[i].type;
+      t.match(result, 'Snyk wizard for ' + type +
+        ' projects is not currently supported', type);
+    });
+  });
+});
+
+test('`protect` for unsupported package managers', function (t) {
+  chdirWorkspaces();
+  function testUnsupported(data) {
+    return cli.protect({file: data.file})
+    .then(function () { throw 'fail'; })
+    .catch(function (e) {
+      if (e === 'fail') { throw e; }
+      return e;
+    });
+  }
+  var cases = [
+    { file: 'ruby-app/Gemfile.lock', type: 'RubyGems' },
+    { file: 'maven-app/pom.xml', type: 'Maven' },
+    { file: 'pip-app/requirements.txt', type: 'Python' },
+    { file: 'sbt-app/build.sbt', type: 'SBT' },
+    { file: 'gradle-app/build.gradle', type: 'Gradle' },
+  ];
+  return Promise.all(cases.map(testUnsupported))
+  .then(function (results) {
+    results.map(function (result, i) {
+      var type = cases[i].type;
+      t.match(result.message, 'Snyk protect for ' + type +
+        ' projects is not currently supported', type);
+    });
+  });
+});
+
 /**
  * We can't expect all test environments to have Maven installed
  * So, hijack the system exec call and return the expected output
