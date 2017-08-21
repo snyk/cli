@@ -45,7 +45,7 @@
     "request": "^2.74.0",
     "semver": "^5.1.0",
     "snyk-config": "1.0.1",
-    "snyk-gradle-plugin": "1.1.0",
+    "snyk-gradle-plugin": "1.1.1",
     "snyk-module": "1.8.1",
     "snyk-mvn-plugin": "1.0.0",
     "snyk-policy": "1.7.1",
