@@ -9,40 +9,42 @@ var getPatchFile = proxyquire('../lib/protect/fetch-patch', {
   'then-fs': {
     createWriteStream: function () {},
   },
-  request: function () {
-    return {
-      on: function (_, responseCb) {
-        if (!timeout) {
-          responseCb({ statusCode: 200 });
-        } else {
-          timeout = false;
-          responseCb({ statusCode: 504 });
-        }
-        return {
-          on: function (_, cb) {
-            if (shouldWork) {
-              cb();
-            }
-            return {
-              on: function (_, cb) {
-                if (!shouldWork) {
-                  if (switchAfterFailure) {
-                    shouldWork = !shouldWork;
+  needle: {
+    get: function () {
+      return {
+        on: function (_, responseCb) {
+          if (!timeout) {
+            responseCb({ statusCode: 200 });
+          } else {
+            timeout = false;
+            responseCb({ statusCode: 504 });
+          }
+          return {
+            on: function (_, cb) {
+              if (shouldWork) {
+                cb();
+              }
+              return {
+                on: function (_, cb) {
+                  if (!shouldWork) {
+                    if (switchAfterFailure) {
+                      shouldWork = !shouldWork;
+                    }
+                    cb({
+                      message: 'foo',
+                      code: 'bar',
+                    });
                   }
-                  cb({
-                    message: 'foo',
-                    code: 'bar',
-                  });
-                }
-                return {
-                  pipe: function () {},
-                };
-              },
-            };
-          },
-        };
-      },
-    };
+                  return {
+                    pipe: function () {},
+                  };
+                },
+              };
+            },
+          };
+        },
+      };
+    },
   },
   '../analytics': {
     add: function (type, data) {
