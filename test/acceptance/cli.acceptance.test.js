@@ -282,6 +282,39 @@ function (t) {
   });
 });
 
+test('`test golang-app --file=vendor/vendor.json`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('golang')
+  .returns(plugin);
+
+  return cli.test('golang-app', {
+    file: 'vendor/vendor.json',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/golang', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['golang-app', 'vendor/vendor.json', {
+        args: null,
+        file: 'vendor/vendor.json',
+        packageManager: 'golang',
+      },], 'calls golang plugin');
+  });
+});
+
+
 /**
  * `monitor`
  */
@@ -444,6 +477,81 @@ function (t) {
   });
 });
 
+test('`monitor golang-app --file=Gopkg.lock',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          targetFile: 'Gopkg.lock',
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('golang')
+  .returns(plugin);
+
+  return cli.monitor('golang-app', {
+    file: 'Gopkg.lock',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/golang', 'puts at correct url');
+    t.equal(req.body.targetFile, 'Gopkg.lock', 'sends the targetFile');
+    t.same(plugin.inspect.getCall(0).args,
+      ['golang-app', 'Gopkg.lock', {
+        args: null,
+        file: 'Gopkg.lock',
+      }], 'calls golang plugin');
+  });
+});
+
+test('`monitor golang-app --file=vendor/vendor.json`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          targetFile: 'vendor/vendor.json',
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('golang')
+  .returns(plugin);
+
+  return cli.monitor('golang-app', {
+    file: 'vendor/vendor.json',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/golang', 'puts at correct url');
+    t.equal(req.body.targetFile, 'vendor/vendor.json', 'sends the targetFile');
+    t.same(plugin.inspect.getCall(0).args,
+      ['golang-app', 'vendor/vendor.json', {
+        args: null,
+        file: 'vendor/vendor.json',
+      }], 'calls golang plugin');
+  });
+});
+
+
 test('`wizard` for unsupported package managers', function (t) {
   chdirWorkspaces();
   function testUnsupported(data) {
@@ -461,6 +569,7 @@ test('`wizard` for unsupported package managers', function (t) {
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'golang-app/Gopkg.lock', type: 'Golang' },
+    { file: 'golang-app/vendor/vendor.json', type: 'Golang' },
   ];
   return Promise.all(cases.map(testUnsupported))
   .then(function (results) {
@@ -489,6 +598,7 @@ test('`protect` for unsupported package managers', function (t) {
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'golang-app/Gopkg.lock', type: 'Golang' },
+    { file: 'golang-app/vendor/vendor.json', type: 'Golang' },
   ];
   return Promise.all(cases.map(testUnsupported))
   .then(function (results) {

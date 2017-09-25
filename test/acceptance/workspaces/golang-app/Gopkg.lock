@@ -14,20 +14,14 @@
   version = "v1.4.0"
 
 [[projects]]
-  name = "github.com/square/go-jose"
-  packages = ["."]
+  name = "gopkg.in/square/go-jose.v2"
+  packages = [".","cipher","json"]
   revision = "296c7f1463ec9b712176dc804dea0173d06dc728"
   version = "v2.0.1"
-
-[[projects]]
-  name = "gopkg.in/square/go-jose.v2"
-  packages = ["cipher","json"]
-  revision = "af13e1fbc7ac2df7f7eab54e5177104d546d0e9c"
-  version = "v2.1.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a9a6c0d93db226c403d46b492a423b42ec0d66baaa5bab8f4ea97dcb6a322132"
+  inputs-digest = "52bcc11b7ad5db4c5fcd9cf974e5946e1029d91d008a0200ceb8ac3d5a6c7636"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -1,0 +1,207 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "o/3cn04KAiwC7NqNVvmfVTD+hgA=",
+			"path": "github.com/Microsoft/go-winio",
+			"revision": "78439966b38d69bf38227fbf57ac8a6fee70f69a",
+			"revisionTime": "2017-08-04T20:09:54Z"
+		},
+		{
+			"checksumSHA1": "GqIrOttKaO7k6HIaHQLPr3cY7rY=",
+			"path": "github.com/containerd/continuity/pathdriver",
+			"revision": "617902de2ab5e18974efd88a58eeef67ac82d127",
+			"revisionTime": "2017-09-25T16:43:31Z"
+		},
+		{
+			"checksumSHA1": "ndnAFCfsGC3upNQ6jAEwzxcurww=",
+			"path": "github.com/docker/docker/pkg/longpath",
+			"revision": "74a084162ce544fe995715ba47aa84d3d75b95c1",
+			"revisionTime": "2017-09-26T16:09:50Z"
+		},
+		{
+			"checksumSHA1": "IVWozKA/coqhti24Ss2b1nLrTSg=",
+			"path": "github.com/docker/docker/pkg/mount",
+			"revision": "74a084162ce544fe995715ba47aa84d3d75b95c1",
+			"revisionTime": "2017-09-26T16:09:50Z"
+		},
+		{
+			"checksumSHA1": "YdUAOhhc/C0zu+eYrJOJjDwr1/4=",
+			"path": "github.com/docker/docker/pkg/symlink",
+			"revision": "74a084162ce544fe995715ba47aa84d3d75b95c1",
+			"revisionTime": "2017-09-26T16:09:50Z"
+		},
+		{
+			"checksumSHA1": "UEMAKQqAyL9hs6RWxesQuYMQ3+I=",
+			"path": "github.com/docker/docker/pkg/system",
+			"revision": "74a084162ce544fe995715ba47aa84d3d75b95c1",
+			"revisionTime": "2017-09-26T16:09:50Z"
+		},
+		{
+			"checksumSHA1": "UmXGieuTJQOzJPspPJTVKKKMiUA=",
+			"path": "github.com/docker/go-units",
+			"revision": "0dadbb0345b35ec7ef35e228dabb8de89a65bf52",
+			"revisionTime": "2017-01-27T09:51:30Z"
+		},
+		{
+			"checksumSHA1": "RCARG9BoOH6jwbqnuix2Ne3K26w=",
+			"path": "github.com/docker/libcontainer",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "OVGl5SGmF1HZmaG6JRmkyWiycYA=",
+			"path": "github.com/docker/libcontainer/cgroups",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "q56oWh80PeIBiE/8nQ/Emz18ZZ8=",
+			"path": "github.com/docker/libcontainer/cgroups/fs",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "3NQtWwKOT4BlnSWn0tTsy/N+XhU=",
+			"path": "github.com/docker/libcontainer/console",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "WPIuCuWS1RkrGCHBRZuOJku7ZBc=",
+			"path": "github.com/docker/libcontainer/devices",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "HLo2E8AWKNCwE2p7ndEkKc4SPnM=",
+			"path": "github.com/docker/libcontainer/label",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "KYcr4bHkervvLS5wuH9w1+EhflY=",
+			"path": "github.com/docker/libcontainer/mount",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "tvHnvhbm17pLR/fA2WXWYlY9aDs=",
+			"path": "github.com/docker/libcontainer/mount/nodes",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "k9+kwIouq8vqmodLrGFp+9I7Jxs=",
+			"path": "github.com/docker/libcontainer/netlink",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "ndpCrSi/XKZNCCrkjpQ2cgMIxKA=",
+			"path": "github.com/docker/libcontainer/network",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "cfgnX7wKfSHOJ4mbhKyjAWizl+s=",
+			"path": "github.com/docker/libcontainer/selinux",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "M7/2WUk1uzgdqc5Ce/k9UcSyv1M=",
+			"path": "github.com/docker/libcontainer/system",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "2ZMmNaPI3TM4WyMjCw+h1jErSr0=",
+			"path": "github.com/docker/libcontainer/utils",
+			"revision": "53eca435e63db58b06cf796d3a9326db5fd42253",
+			"revisionTime": "2014-12-02T23:28:38Z",
+			"version": "v1.4",
+			"versionExact": "v1.4.0"
+		},
+		{
+			"checksumSHA1": "rJab1YdNhQooDiBWNnt7TLWPyBU=",
+			"path": "github.com/pkg/errors",
+			"revision": "2b3a18b5f0fb6b4f9190549597d3f962c02bc5eb",
+			"revisionTime": "2017-09-10T13:46:14Z"
+		},
+		{
+			"checksumSHA1": "BYvROBsiyAXK4sq6yhDe8RgT4LM=",
+			"path": "github.com/sirupsen/logrus",
+			"revision": "89742aefa4b206dcf400792f3bd35b542998eb3b",
+			"revisionTime": "2017-08-22T13:27:46Z"
+		},
+		{
+			"checksumSHA1": "nqWNlnMmVpt628zzvyo6Yv2CX5Q=",
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": "847319b7fc94cab682988f93da778204da164588",
+			"revisionTime": "2017-08-18T09:57:21Z"
+		},
+		{
+			"checksumSHA1": "uggjqMBFNJd11oNco2kbkAT641w=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "429f518978ab01db8bb6f44b66785088e7fba58b",
+			"revisionTime": "2017-09-20T21:38:28Z"
+		},
+		{
+			"checksumSHA1": "pBPFzDGt3AVSRffB7ffiUnruFUk=",
+			"path": "golang.org/x/sys/windows",
+			"revision": "429f518978ab01db8bb6f44b66785088e7fba58b",
+			"revisionTime": "2017-09-20T21:38:28Z"
+		},
+		{
+			"checksumSHA1": "o5NrWoSkC+ugoK9D6ragLSrXHw0=",
+			"path": "gopkg.in/square/go-jose.v2",
+			"revision": "296c7f1463ec9b712176dc804dea0173d06dc728",
+			"revisionTime": "2016-11-17T00:42:38Z",
+			"version": "v2.0",
+			"versionExact": "v2.0.1"
+		},
+		{
+			"checksumSHA1": "j94zYNLTvPSnfnqVKJ4LUf++uX4=",
+			"path": "gopkg.in/square/go-jose.v2/cipher",
+			"revision": "296c7f1463ec9b712176dc804dea0173d06dc728",
+			"revisionTime": "2016-11-17T00:42:38Z",
+			"version": "v2.0",
+			"versionExact": "v2.0.1"
+		},
+		{
+			"checksumSHA1": "JFun0lWY9eqd80Js2iWsehu1gc4=",
+			"path": "gopkg.in/square/go-jose.v2/json",
+			"revision": "296c7f1463ec9b712176dc804dea0173d06dc728",
+			"revisionTime": "2016-11-17T00:42:38Z",
+			"version": "v2.0",
+			"versionExact": "v2.0.1"
+		}
+	],
+	"rootPath": "with-vuln"
+}
