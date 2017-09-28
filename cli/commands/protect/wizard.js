@@ -39,7 +39,8 @@ var unsupportedPackageManagers = {
   pip: 'Python',
   sbt: 'SBT',
   gradle: 'Gradle',
-  golang: 'Golang',
+  golangdep: 'Golang/Dep',
+  govendor: 'Govendor',
   nuget: 'NuGet',
   composer: 'Composer',
 };
