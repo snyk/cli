@@ -460,7 +460,7 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('golang')
+  .withArgs('golangdep')
   .returns(plugin);
 
   return cli.test('golang-app', {
@@ -469,12 +469,12 @@ function (t) {
   .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/golang', 'posts to correct url');
+    t.match(req.url, '/vuln/golangdep', 'posts to correct url');
     t.same(plugin.inspect.getCall(0).args,
       ['golang-app', 'Gopkg.lock', {
         args: null,
         file: 'Gopkg.lock',
-        packageManager: 'golang',
+        packageManager: 'golangdep',
       },], 'calls golang plugin');
   });
 });
@@ -524,7 +524,7 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('golang')
+  .withArgs('govendor')
   .returns(plugin);
 
   return cli.test('golang-app', {
@@ -533,12 +533,12 @@ function (t) {
   .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/golang', 'posts to correct url');
+    t.match(req.url, '/vuln/govendor', 'posts to correct url');
     t.same(plugin.inspect.getCall(0).args,
       ['golang-app', 'vendor/vendor.json', {
         args: null,
         file: 'vendor/vendor.json',
-        packageManager: 'golang',
+        packageManager: 'govendor',
       },], 'calls golang plugin');
   });
 });
@@ -855,7 +855,7 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('golang')
+  .withArgs('golangdep')
   .returns(plugin);
 
   return cli.monitor('golang-app', {
@@ -864,7 +864,7 @@ function (t) {
   .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
-    t.match(req.url, '/monitor/golang', 'puts at correct url');
+    t.match(req.url, '/monitor/golangdep', 'puts at correct url');
     t.equal(req.body.targetFile, 'Gopkg.lock', 'sends the targetFile');
     t.same(plugin.inspect.getCall(0).args,
       ['golang-app', 'Gopkg.lock', {
@@ -892,7 +892,7 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('golang')
+  .withArgs('govendor')
   .returns(plugin);
 
   return cli.monitor('golang-app', {
@@ -901,7 +901,7 @@ function (t) {
   .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
-    t.match(req.url, '/monitor/golang', 'puts at correct url');
+    t.match(req.url, '/monitor/govendor', 'puts at correct url');
     t.equal(req.body.targetFile, 'vendor/vendor.json', 'sends the targetFile');
     t.same(plugin.inspect.getCall(0).args,
       ['golang-app', 'vendor/vendor.json', {
@@ -928,8 +928,8 @@ test('`wizard` for unsupported package managers', function (t) {
     { file: 'pip-app/requirements.txt', type: 'Python' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
-    { file: 'golang-app/Gopkg.lock', type: 'Golang' },
-    { file: 'golang-app/vendor/vendor.json', type: 'Golang' },
+    { file: 'golang-app/Gopkg.lock', type: 'Golang/Dep' },
+    { file: 'golang-app/vendor/vendor.json', type: 'Govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
   ];
   return Promise.all(cases.map(testUnsupported))
@@ -958,8 +958,8 @@ test('`protect` for unsupported package managers', function (t) {
     { file: 'pip-app/requirements.txt', type: 'Python' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
-    { file: 'golang-app/Gopkg.lock', type: 'Golang' },
-    { file: 'golang-app/vendor/vendor.json', type: 'Golang' },
+    { file: 'golang-app/Gopkg.lock', type: 'Golang/Dep' },
+    { file: 'golang-app/vendor/vendor.json', type: 'Govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
   ];
   return Promise.all(cases.map(testUnsupported))
