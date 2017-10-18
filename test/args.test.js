@@ -11,5 +11,5 @@ test('test command line arguments', function(t) {
     '-Pjaxen'
   ];
   var result = args(cliArgs);
-  t.equal(result.options._doubleDashArgs, '-Paxis -Pjaxen');
+  t.deepEqual(result.options._doubleDashArgs, ['-Paxis', '-Pjaxen']);
 });
