@@ -7,16 +7,15 @@ alias.d = 'debug'; // always make `-d` debug
 alias.t = 'test';
 
 function args(processargv) {
-  // doubleDashArgs is used to signify that all arguments after a '--'
-  // are taken as is and passed to the next process (see lib/plugins/maven)
-  var doubleDashArgs = false;
+  // all arguments after a '--' are taken as is and passed to the next process
+  // (see the snyk-mvn-plugin or snyk-gradle-plugin)
+  // these agrs are split by spaces and sent as an array of strings
   // allows us to support flags with true or false only
   var argv = processargv.slice(2).reduce(function reduce(acc, arg) {
-    if (arg === '--') {
-      doubleDashArgs = true;
-    } else if (doubleDashArgs) {
-      acc._doubleDashArgs = (acc._doubleDashArgs || '') + ' ' + arg;
-      acc._doubleDashArgs = acc._doubleDashArgs.trim();
+    if (acc._doubleDashArgs) {
+      acc._doubleDashArgs.push(arg);
+    } else if (arg === '--') {
+      acc._doubleDashArgs = [];
     } else if (arg.indexOf('-') === 0) {
       arg = arg.slice(1);
 
