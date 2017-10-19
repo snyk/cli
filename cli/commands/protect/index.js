@@ -45,7 +45,8 @@ function protect(options) {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.policy.load().catch(function (error) {
+  return snyk.policy.load(options['policy-path'])
+  .catch(function (error) {
     if (error.code === 'ENOENT') {
       error.code = 'MISSING_DOTFILE';
     }

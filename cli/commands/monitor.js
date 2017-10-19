@@ -37,7 +37,11 @@ function monitor(path, options) {
     }
     var packageManager = detect.detectPackageManager(path, options);
     var targetFile = options.file || detect.detectPackageFile(path);
-    var meta = { method: 'cli', packageManager: packageManager };
+    var meta = {
+      method: 'cli',
+      packageManager: packageManager,
+      'policy-path': options['policy-path'],
+    };
     var plugin = plugins.loadPlugin(packageManager);
     var moduleInfo = ModuleInfo(plugin, options.policy);
     return moduleInfo.inspect(path, targetFile, options)

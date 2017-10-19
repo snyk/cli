@@ -17,14 +17,10 @@ function ignore(options) {
   if (!options.reason) {
     options.reason = 'None Given';
   }
-  if (!options.path) {
-    debug('using cwd() as path');
-    options.path = process.cwd();
-  }
 
   debug('changing policy: ignore "%s", for all paths, reason: "%s", until: %o',
         options.id, options.reason, options.expiry);
-  return policy.load(options.path)
+  return policy.load(options['policy-path'])
   .catch(function (error) {
     if (error.code === 'ENOENT') {    // file does not exist - create it
       return policy.create();
@@ -41,6 +37,6 @@ function ignore(options) {
         },
       },
     ];
-    policy.save(pol, options.path);
+    policy.save(pol, options['policy-path']);
   });
 }
