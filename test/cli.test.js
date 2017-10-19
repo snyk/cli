@@ -131,7 +131,7 @@ test('auth via github', function (t) {
   });
 
   var auth = proxyquire('../cli/commands/auth', {
-    'open': openSpy,
+    open: openSpy,
     '../../lib/is-ci': false,
   });
 
@@ -156,7 +156,10 @@ test('snyk ignore - all options', function (t) {
                    };
   var dir = testUtils.tmpdir();
   cli.ignore({
-    id: 'ID', reason: 'REASON', expiry: new Date('2017-10-07'), path: dir,
+    id: 'ID',
+    reason: 'REASON',
+    expiry: new Date('2017-10-07'),
+    'policy-path': dir,
   }).catch(() => t.fail('ignore should succeed'))
     .then(() => policy.load(dir))
     .then(pol => {
@@ -168,7 +171,9 @@ test('snyk ignore - no ID', function (t) {
   t.plan(1);
   var dir = testUtils.tmpdir();
   cli.ignore({
-    reason: 'REASON', expiry: new Date('2017-10-07'), path: dir,
+    reason: 'REASON',
+    expiry: new Date('2017-10-07'),
+    'policy-path': dir,
   }).then(function (res) {
     t.fail('should not succeed with missing ID');
   }).catch(function (e) {
@@ -182,7 +187,9 @@ test('snyk ignore - no ID', function (t) {
 test('snyk ignore - default options', function (t) {
   t.plan(3);
   var dir = testUtils.tmpdir();
-  cli.ignore({id: 'ID3', path: dir,
+  cli.ignore({
+    id: 'ID3',
+    'policy-path': dir,
   }).catch(() => t.fail('ignore should succeed'))
     .then(() => policy.load(dir))
     .then(pol => {

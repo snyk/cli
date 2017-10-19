@@ -94,7 +94,8 @@ function processWizardFlow(options) {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.policy.load(options).catch(function (error) {
+  return snyk.policy.load(options['policy-path'], options)
+  .catch(function (error) {
     // if we land in the catch, but we're in interactive mode, then it means
     // the file hasn't been created yet, and that's fine, so we'll resolve
     // with an empty object
