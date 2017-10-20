@@ -683,6 +683,36 @@ test('`protect` for unsupported package managers', function (t) {
   });
 });
 
+test('`protect --policy-path`', function (t) {
+  t.plan(2);
+  chdirWorkspaces('npm-package-policy');
+
+  t.test('default policy', function (t) {
+    server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+    return cli.protect()
+    .catch(function (err) {
+      var req = server.popRequest();
+      var policyString = req.body.policy;
+      var expected = fs.readFileSync(path.join('.snyk'), 'utf8');
+      t.equal(policyString, expected, 'sends correct policy');
+    });
+  });
+
+  t.test('custom policy path', function (t) {
+    server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+    return cli.protect({
+      'policy-path': 'custom-location',
+    })
+    .catch(function (err) {
+      var req = server.popRequest();
+      var policyString = req.body.policy;
+      var expected = fs.readFileSync(path.join('custom-location', '.snyk'),
+        'utf8');
+      t.equal(policyString, expected, 'sends correct policy');
+    });
+  });
+});
+
 /**
  * We can't expect all test environments to have Maven installed
  * So, hijack the system exec call and return the expected output
