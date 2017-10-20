@@ -4,10 +4,10 @@ var fs = require('fs');
 module.exports = function (root, apikey) {
   var server = restify.createServer({
     name: 'snyk-mock-server',
-    version: '1.0.0'
+    version: '1.0.0',
   });
   server._reqLog = [];
-  server.popRequest = function() {
+  server.popRequest = function () {
     return server._reqLog.pop();
   };
   server.use(restify.acceptParser(server.acceptable));
@@ -20,7 +20,7 @@ module.exports = function (root, apikey) {
 
   [
     root + '/verify/callback',
-    root + '/verify/token'
+    root + '/verify/token',
   ].map(function (url) {
     server.post(url, function (req, res) {
       if (req.params.api && req.params.api === apikey) {
@@ -44,16 +44,25 @@ module.exports = function (root, apikey) {
     });
   });
 
+  server.use(function (req, res, next) {
+    if (!server._nextResponse) {
+      return next();
+    }
+    var response = server._nextResponse;
+    delete server._nextResponse;
+    res.send(response);
+  });
+
   server.get(root + '/vuln/:registry/:module', function (req, res, next) {
     res.send({
-      vulnerabilities: []
+      vulnerabilities: [],
     });
     return next();
   });
 
   server.post(root + '/vuln/:registry', function (req, res, next) {
     res.send({
-      vulnerabilities: []
+      vulnerabilities: [],
     });
     return next();
   });
@@ -64,6 +73,10 @@ module.exports = function (root, apikey) {
     });
     return next();
   });
+
+  server.setNextResponse = function (response) {
+    server._nextResponse = response;
+  };
 
   return server;
 };

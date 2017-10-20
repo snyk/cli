@@ -1,0 +1,110 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "Cross-site Scripting (XSS) via Data URIs",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "creationTime": "2017-01-12T00:00:00.780Z",
+      "modificationTime": "2017-01-12T00:00:00.780Z",
+      "publicationTime": "2017-01-30T18:00:00.780Z",
+      "disclosureTime": "2017-01-12T00:00:00.780Z",
+      "description": "description",
+      "semver": {
+        "vulnerable": "<=0.3.6",
+        "unaffected": ">0.3.6"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-79"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MARKED-10377"
+        ]
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/marked/20170112/marked_20170112_0_0_cd2f6f5b7091154c5526e79b5f3bfb4d15995a51.patch"
+          ],
+          "version": "<=0.3.6 >0.3.3",
+          "modificationTime": "2017-02-06T00:00:00.000Z",
+          "comments": [],
+          "id": "patch:npm:marked:20170112:0"
+        }
+      ],
+      "moduleName": "marked",
+      "packageManager": "npm",
+      "language": "js",
+      "id": "npm:marked:20170112",
+      "packageName": "marked",
+      "cvssScore": 7.5,
+      "alternativeIds": [
+        "SNYK-JS-MARKED-10377"
+      ],
+      "from": [
+        "custom-policy-location-package@0.0.1",
+        "marked@0.3.6"
+      ],
+      "upgradePath": [],
+      "version": "0.3.6",
+      "name": "marked",
+      "isUpgradable": false,
+      "isPatchable": true,
+      "__filename": "/Users/xxx/dev/work/snyk/repos/snyk-internal/test/acceptance/workspaces/npm-package-policy/node_modules/marked/package.json",
+      "parentDepType": "prod"
+    },
+    {
+      "title": "Regular Expression Denial of Service (ReDoS)",
+      "credit": [
+        "Cristian-Alexandru Staicu"
+      ],
+      "moduleName": "marked",
+      "packageName": "marked",
+      "language": "js",
+      "packageManager": "npm",
+      "description": "description",
+      "identifiers": {
+        "NSP": 531,
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "ALTERNATIVE": [
+          "SNYK-JS-MARKED-10782"
+        ]
+      },
+      "semver": {
+        "vulnerable": "*",
+        "unaffected": "<0.0.0"
+      },
+      "cvssScore": 7.5,
+      "patches": [],
+      "severity": "high",
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "disclosureTime": "2017-09-07T21:00:00.000Z",
+      "publicationTime": "2017-09-21T08:07:51.834Z",
+      "modificationTime": "2017-09-21T08:07:51.834Z",
+      "creationTime": "2017-09-21T08:07:51.834Z",
+      "id": "npm:marked:20170907",
+      "alternativeIds": [
+        "SNYK-JS-MARKED-10782"
+      ],
+      "from": [
+        "custom-policy-location-package@0.0.1",
+        "marked@0.3.6"
+      ],
+      "upgradePath": [],
+      "version": "0.3.6",
+      "name": "marked",
+      "isUpgradable": false,
+      "isPatchable": false,
+      "__filename": "/Users/xxx/dev/work/snyk/repos/snyk-internal/test/acceptance/workspaces/npm-package-policy/node_modules/marked/package.json",
+      "parentDepType": "prod"
+    }
+  ]
+}

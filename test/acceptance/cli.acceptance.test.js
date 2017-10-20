@@ -314,6 +314,46 @@ function (t) {
   });
 });
 
+test('`custom policy path`', function (t) {
+  t.plan(2);
+  chdirWorkspaces('npm-package-policy');
+
+  t.test('default location', function (t) {
+    server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+    return cli.test('.', {
+      json: true,
+    })
+    .then(function () {
+      t.fail('should have reported vulns');
+    })
+    .catch(function (res) {
+      var output = JSON.parse(res.message);
+      var ignore = output.filtered.ignore;
+      var vulnerabilities = output.vulnerabilities;
+      t.equal(ignore.length, 1, 'one ignore rule');
+      t.equal(ignore[0].id, 'npm:marked:20170907', 'ignore correct');
+      t.equal(vulnerabilities.length, 1, 'one vuln');
+      t.equal(vulnerabilities[0].id, 'npm:marked:20170112', 'vuln correct');
+    });
+  });
+
+  t.test('custom location', function (t) {
+    server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+    return cli.test('.', {
+      'policy-path': 'custom-location',
+      json: true,
+    })
+    .then(function (res) {
+      var output = JSON.parse(res);
+      var ignore = output.filtered.ignore;
+      var vulnerabilities = output.vulnerabilities;
+      t.equal(ignore.length, 2, 'two ignore rules');
+      t.equal(ignore[0].id, 'npm:marked:20170112', 'first ignore correct');
+      t.equal(ignore[1].id, 'npm:marked:20170907', 'second ignore correct');
+      t.equal(vulnerabilities.length, 0, 'all vulns ignored');
+    });
+  });
+});
 
 /**
  * `monitor`
