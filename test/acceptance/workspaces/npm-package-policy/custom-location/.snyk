@@ -1,0 +1,13 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.7.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  'npm:marked:20170907':
+    - '*':
+        reason: Custom policy location test
+        expires: 2027-11-19T14:12:53.987Z
+  'npm:marked:20170112':
+    - '*':
+        reason: Custom policy location test
+        expires: 2027-11-19T14:12:53.987Z
+patch: {}
