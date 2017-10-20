@@ -314,12 +314,13 @@ function (t) {
   });
 });
 
-test('`custom policy path`', function (t) {
+test('`test --policy-path`', function (t) {
   t.plan(2);
-  chdirWorkspaces('npm-package-policy');
 
-  t.test('default location', function (t) {
+  t.test('default policy', function (t) {
+    chdirWorkspaces('npm-package-policy');
     server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+
     return cli.test('.', {
       json: true,
     })
@@ -337,7 +338,9 @@ test('`custom policy path`', function (t) {
     });
   });
 
-  t.test('custom location', function (t) {
+  t.test('custom policy path', function (t) {
+    chdirWorkspaces('npm-package-policy');
+
     server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
     return cli.test('.', {
       'policy-path': 'custom-location',
@@ -358,6 +361,36 @@ test('`custom policy path`', function (t) {
 /**
  * `monitor`
  */
+
+test('`monitor --policy-path`', function (t) {
+  t.plan(2);
+  chdirWorkspaces('npm-package-policy');
+
+  t.test('default policy', function (t) {
+    return cli.monitor('.')
+    .then(function (res) {
+      var req = server.popRequest();
+      var policyString = req.body.policy;
+      var expected = fs.readFileSync(path.join('.snyk'), 'utf8');
+      t.equal(policyString, expected, 'sends correct policy');
+    });
+  });
+
+  t.test('custom policy path', function (t) {
+    return cli.monitor('.', {
+      'policy-path': 'custom-location',
+      json: true,
+    })
+    .then(function (res) {
+      var req = server.popRequest();
+      var policyString = req.body.policy;
+      var expected = fs.readFileSync(path.join('custom-location', '.snyk'),
+        'utf8');
+      t.equal(policyString, expected, 'sends correct policy');
+    });
+  });
+});
+
 
 test('`monitor non-existing`', function (t) {
   chdirWorkspaces();
