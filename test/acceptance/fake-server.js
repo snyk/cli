@@ -67,6 +67,13 @@ module.exports = function (root, apikey) {
     return next();
   });
 
+  server.post(root + '/vuln/:registry/patches', function (req, res, next) {
+    res.send({
+      vulnerabilities: [],
+    });
+    return next();
+  });
+
   server.put(root + '/monitor/:registry', function (req, res, next) {
     res.send({
       id: 'test',
