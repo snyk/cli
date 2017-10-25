@@ -41,6 +41,7 @@ function monitor(path, options) {
       method: 'cli',
       packageManager: packageManager,
       'policy-path': options['policy-path'],
+      'project-name': options['project-name'] || config['PROJECT_NAME'],
     };
     var plugin = plugins.loadPlugin(packageManager);
     var moduleInfo = ModuleInfo(plugin, options.policy);

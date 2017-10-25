@@ -37,6 +37,8 @@ Options:
                        Display the dependency paths from the top level
                        dependencies, down to the vulnerable packages (defaults
                        to true). Applicable to `snyk test`.
+  --project-name=<string>
+                       Specify a custom Snyk project name (`snyk monitor` only).
   --dry-run .......... Don't apply updates or patches during protect.
   -q, --quiet ........ Silence all output.
   -h, --help ......... This help information.
@@ -47,8 +49,9 @@ Examples:
 
   $ snyk test
   $ snyk test ionic@1.6.5
-  $ snyk monitor --org=my-team
   $ snyk test --show-vulnerable-paths=false
+  $ snyk monitor --org=my-team
+  $ snyk monitor --project-name=my-project
 
 Pro tip: use `snyk test` in your test scripts, if a vulnerability is
 found, the process will exit with a non-zero exit code.

@@ -417,6 +417,17 @@ test('`monitor npm-package`', function (t) {
   });
 });
 
+test('`monitor npm-package with custom --project-name`', function (t) {
+  chdirWorkspaces();
+  return cli.monitor('npm-package', {
+    'project-name': 'custom-project-name',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.body.meta.projectName, 'custom-project-name');
+  });
+});
+
 test('`monitor npm-package with dev dep flag`', function (t) {
   chdirWorkspaces();
   return cli.monitor('npm-package', { dev: true })
