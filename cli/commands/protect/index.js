@@ -14,6 +14,7 @@ var unsupportedPackageManagers = {
   sbt: 'SBT',
   gradle: 'Gradle',
   golang: 'Golang',
+  nuget: 'NuGet',
 };
 
 function protect(options) {
