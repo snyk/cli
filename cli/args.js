@@ -113,6 +113,11 @@ function args(processargv) {
     argv._.push(argv);
   }
 
+  if (argv['package-manager']) {
+    argv.packageManager = argv['package-manager'];
+    delete argv['package-manager'];
+  }
+
   debug(command, argv);
 
   return {
