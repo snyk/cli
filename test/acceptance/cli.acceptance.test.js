@@ -250,6 +250,37 @@ function (t) {
   });
 });
 
+test('`test nuget-app --file=app.csproj`', function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('nuget')
+  .returns(plugin);
+
+  return cli.test('nuget-app', {
+    file: 'app.csproj',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/nuget', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['nuget-app', 'app.csproj', {
+        args: null,
+        file: 'app.csproj',
+        packageManager: 'nuget',
+      },], 'calls nuget plugin');
+  });
+});
+
 test('`test nuget-app --file=project.json`', function (t) {
   chdirWorkspaces();
   var plugin = {
@@ -279,7 +310,7 @@ test('`test nuget-app --file=project.json`', function (t) {
         packageManager: 'nuget',
       },], 'calls nuget plugin');
   });
-})
+});
 
 test('`test golang-app --file=Gopkg.lock`',
 function (t) {
