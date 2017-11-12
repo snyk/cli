@@ -6,6 +6,12 @@ var alias = abbrev('copy', 'version', 'debug', 'help', 'quiet', 'interactive',
 alias.d = 'debug'; // always make `-d` debug
 alias.t = 'test';
 
+function dashToCamelCase(dash) {
+  return dash.indexOf('-') < 0
+    ? dash
+    : dash.replace(/-[a-z]/g, function (m) {return m[1].toUpperCase()})
+}
+
 function args(processargv) {
   // all arguments after a '--' are taken as is and passed to the next process
   // (see the snyk-mvn-plugin or snyk-gradle-plugin)
@@ -113,10 +119,18 @@ function args(processargv) {
     argv._.push(argv);
   }
 
-  if (argv['package-manager']) {
-    argv.packageManager = argv['package-manager'];
-    delete argv['package-manager'];
-  }
+  // arguments that needs transformation from dash-case to camelCase
+  // should be added here
+  [
+    'package-manager',
+    'packages-folder',
+  ].forEach(function (dashedArg) {
+    if (argv[dashedArg]) {
+      var camelCased = dashToCamelCase(dashedArg);
+      argv[camelCased] = argv[dashedArg];
+      delete argv[dashedArg];
+    }
+  });
 
   debug(command, argv);
 
