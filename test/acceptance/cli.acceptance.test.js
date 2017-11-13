@@ -381,6 +381,38 @@ function (t) {
   });
 });
 
+test('`test composer-app --file=composer.lock`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('composer')
+  .returns(plugin);
+
+  return cli.test('composer-app', {
+    file: 'composer.lock',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/composer', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['composer-app', 'composer.lock', {
+        args: null,
+        file: 'composer.lock',
+        packageManager: 'composer',
+      },], 'calls composer plugin');
+  });
+});
+
 test('`test golang-app --file=vendor/vendor.json`',
 function (t) {
   chdirWorkspaces();
@@ -800,6 +832,7 @@ test('`wizard` for unsupported package managers', function (t) {
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'golang-app/Gopkg.lock', type: 'Golang' },
     { file: 'golang-app/vendor/vendor.json', type: 'Golang' },
+    { file: 'composer-app/composer.lock', type: 'Composer' },
   ];
   return Promise.all(cases.map(testUnsupported))
   .then(function (results) {
@@ -829,6 +862,7 @@ test('`protect` for unsupported package managers', function (t) {
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'golang-app/Gopkg.lock', type: 'Golang' },
     { file: 'golang-app/vendor/vendor.json', type: 'Golang' },
+    { file: 'composer-app/composer.lock', type: 'Composer' },
   ];
   return Promise.all(cases.map(testUnsupported))
   .then(function (results) {

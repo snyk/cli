@@ -15,6 +15,7 @@ var unsupportedPackageManagers = {
   gradle: 'Gradle',
   golang: 'Golang',
   nuget: 'NuGet',
+  composer: 'Composer',
 };
 
 function protect(options) {

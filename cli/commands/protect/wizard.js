@@ -40,6 +40,7 @@ var unsupportedPackageManagers = {
   gradle: 'Gradle',
   golang: 'Golang',
   nuget: 'NuGet',
+  composer: 'Composer',
 };
 
 function wizard(options) {
