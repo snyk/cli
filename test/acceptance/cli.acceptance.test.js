@@ -17,6 +17,7 @@ var nock = require('nock');
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
 var cli = require('../../cli/commands');
+var snykPolicy = require('snyk-policy');
 
 var before = test;
 var after = test;
@@ -413,11 +414,14 @@ function (t) {
 });
 
 test('`test --policy-path`', function (t) {
-  t.plan(2);
+  t.plan(3);
 
   t.test('default policy', function (t) {
     chdirWorkspaces('npm-package-policy');
-    server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+    var expected = fs.readFileSync(path.join('.snyk'), 'utf8');
+    var vulns = require('./fixtures/npm-package-policy/vulns.json');
+    vulns.policy = expected;
+    server.setNextResponse(vulns);
 
     return cli.test('.', {
       json: true,
@@ -426,6 +430,10 @@ test('`test --policy-path`', function (t) {
       t.fail('should have reported vulns');
     })
     .catch(function (res) {
+      var req = server.popRequest();
+      var policyString = req.body.policy;
+      t.equal(policyString, expected, 'sends correct policy');
+
       var output = JSON.parse(res.message);
       var ignore = output.filtered.ignore;
       var vulnerabilities = output.vulnerabilities;
@@ -439,12 +447,21 @@ test('`test --policy-path`', function (t) {
   t.test('custom policy path', function (t) {
     chdirWorkspaces('npm-package-policy');
 
-    server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+    var expected = fs.readFileSync(path.join('custom-location', '.snyk'),
+      'utf8');
+    var vulns = require('./fixtures/npm-package-policy/vulns.json');
+    vulns.policy = expected;
+    server.setNextResponse(vulns);
+
     return cli.test('.', {
       'policy-path': 'custom-location',
       json: true,
     })
     .then(function (res) {
+      var req = server.popRequest();
+      var policyString = req.body.policy;
+      t.equal(policyString, expected, 'sends correct policy');
+
       var output = JSON.parse(res);
       var ignore = output.filtered.ignore;
       var vulnerabilities = output.vulnerabilities;
@@ -452,6 +469,37 @@ test('`test --policy-path`', function (t) {
       t.equal(ignore[0].id, 'npm:marked:20170112', 'first ignore correct');
       t.equal(ignore[1].id, 'npm:marked:20170907', 'second ignore correct');
       t.equal(vulnerabilities.length, 0, 'all vulns ignored');
+    });
+  });
+
+
+  t.test('api ignores policy', function (t) {
+    chdirWorkspaces('npm-package-policy');
+    var expected = fs.readFileSync(path.join('.snyk'), 'utf8');
+    return snykPolicy.loadFromText(expected)
+    .then(function (policy) {
+      policy.ignore['npm:marked:20170112'] = [
+        {'*': {reasonType: 'wont-fix', source: 'api'}},
+      ];
+
+      var vulns = require('./fixtures/npm-package-policy/vulns.json');
+      vulns.policy = policy.toString();
+      server.setNextResponse(vulns);
+
+      return cli.test('.', {
+        json: true,
+      })
+      .then(function (res) {
+        var req = server.popRequest();
+        var policyString = req.body.policy;
+        t.equal(policyString, expected, 'sends correct policy');
+
+        var output = JSON.parse(res);
+        var ignore = output.filtered.ignore;
+        var vulnerabilities = output.vulnerabilities;
+        t.equal(ignore.length, 2, 'two ignore rules');
+        t.equal(vulnerabilities.length, 0, 'no vulns');
+      });
     });
   });
 });
@@ -797,26 +845,30 @@ test('`protect --policy-path`', function (t) {
   chdirWorkspaces('npm-package-policy');
 
   t.test('default policy', function (t) {
-    server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+    var expected = fs.readFileSync(path.join('.snyk'), 'utf8');
+    var vulns = require('./fixtures/npm-package-policy/vulns.json');
+    vulns.policy = expected;
+    server.setNextResponse(vulns);
     return cli.protect()
     .catch(function (err) {
       var req = server.popRequest();
       var policyString = req.body.policy;
-      var expected = fs.readFileSync(path.join('.snyk'), 'utf8');
       t.equal(policyString, expected, 'sends correct policy');
     });
   });
 
   t.test('custom policy path', function (t) {
-    server.setNextResponse(require('./fixtures/npm-package-policy/vulns.json'));
+    var expected = fs.readFileSync(path.join('custom-location', '.snyk'),
+      'utf8');
+    var vulns = require('./fixtures/npm-package-policy/vulns.json');
+    vulns.policy = expected;
+    server.setNextResponse(vulns);
     return cli.protect({
       'policy-path': 'custom-location',
     })
     .catch(function (err) {
       var req = server.popRequest();
       var policyString = req.body.policy;
-      var expected = fs.readFileSync(path.join('custom-location', '.snyk'),
-        'utf8');
       t.equal(policyString, expected, 'sends correct policy');
     });
   });

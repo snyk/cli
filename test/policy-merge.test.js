@@ -35,5 +35,7 @@ test('policies merge when detected from tests', function (t) {
       return v.id;
     });
     t.equal(vulns.indexOf('npm:semver:20150403'), -1, 'semver is ignored via deep policy');
-  });
+  }).catch(function (err) {
+    t.threw(err);
+  })
 });
