@@ -63,7 +63,6 @@ function protect(options) {
 
 function patch(policy, options) {
   return snyk.test(process.cwd(), {
-    policy: policy,
     vulnEndpoint: '/vuln/npm/patches',
   }).then(function (res) {
     if (!res.vulnerabilities) {

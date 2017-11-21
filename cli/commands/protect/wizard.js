@@ -106,7 +106,7 @@ function processWizardFlow(options) {
     }
 
     throw error;
-  }).then(function (policy) {
+  }).then(function (cliPolicy) {
     return auth.isAuthed().then(function (authed) {
       analytics.add('inline-auth', !authed);
       if (!authed) {
@@ -156,11 +156,15 @@ function processWizardFlow(options) {
               res.dependencyCount);
           }
 
-          return tryRequire(packageFile).then(function (pkg) {
-            options.packageLeading = pkg.prefix;
-            options.packageTrailing = pkg.suffix;
-            return interactive(res, pkg, policy).then(function (answers) {
-              return processAnswers(answers, policy, options);
+          return snyk.policy.loadFromText(res.policy)
+          .then(function (combinedPolicy) {
+            return tryRequire(packageFile).then(function (pkg) {
+              options.packageLeading = pkg.prefix;
+              options.packageTrailing = pkg.suffix;
+              return interactive(res, pkg, combinedPolicy)
+              .then(function (answers) {
+                return processAnswers(answers, cliPolicy, options);
+              });
             });
           });
         });
