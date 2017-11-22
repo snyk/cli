@@ -254,6 +254,38 @@ function (t) {
   });
 });
 
+test('`test nuget-app --file=custom-manifest.json`', function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('nuget')
+  .returns(plugin);
+
+  return cli.test('nuget-app', {
+    file: 'custom-manifest.json',
+    packageManager: 'nuget',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/nuget', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['nuget-app', 'custom-manifest.json', {
+        args: null,
+        file: 'custom-manifest.json',
+        packageManager: 'nuget',
+      },], 'calls nuget plugin');
+  });
+});
+
 test('`test nuget-app --file=app.csproj`', function (t) {
   chdirWorkspaces();
   var plugin = {
