@@ -17,6 +17,12 @@ var undefsafe = require('undefsafe');
 var config = require('../../../lib/config');
 var snykPolicy = require('snyk-policy');
 
+var ignoreDisabledReasons = {
+  notAdmin: 'Set to ignore (only administrators can ignore issues)',
+  disregardFilesystemIgnores:
+    'Set to ignore (ignoring via the CLI is not enabled for this organisation)',
+}
+
 // via http://stackoverflow.com/a/4760279/22617
 function sort(prop) {
   var sortOrder = 1;
@@ -143,7 +149,7 @@ function getPrompts(vulns, policy) {
                   .concat(getIgnorePrompts(vulns, policy));
 }
 
-function getPatchPrompts(vulns, policy) {
+function getPatchPrompts(vulns, policy, ignoreDisabled) {
   debug('getPatchPrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -290,14 +296,14 @@ function getPatchPrompts(vulns, policy) {
   });
 
   // console.log(res.map(_ => _.grouped));
-  var prompts = generatePrompt(res, policy, 'p');
+  var prompts = generatePrompt(res, policy, 'p', ignoreDisabled);
 
 
   return prompts;
 
 }
 
-function getIgnorePrompts(vulns, policy) {
+function getIgnorePrompts(vulns, policy, ignoreDisabled) {
   debug('getIgnorePrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -318,13 +324,13 @@ function getIgnorePrompts(vulns, policy) {
     return true;
   });
 
-  var prompts = generatePrompt(res, policy, 'i');
+  var prompts = generatePrompt(res, policy, 'i', ignoreDisabled);
 
   return prompts;
 
 }
 
-function getUpdatePrompts(vulns, policy) {
+function getUpdatePrompts(vulns, policy, ignoreDisabled) {
   debug('getUpdatePrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -402,7 +408,7 @@ function getUpdatePrompts(vulns, policy) {
     return !!curr.upgradePath[1];
   });
 
-  var prompts = generatePrompt(res, policy, 'u');
+  var prompts = generatePrompt(res, policy, 'u', ignoreDisabled);
 
   return prompts;
 }
@@ -437,7 +443,7 @@ function canBeUpgraded(vuln) {
   });
 }
 
-function generatePrompt(vulns, policy, prefix) {
+function generatePrompt(vulns, policy, prefix, ignoreDisabled) {
   if (!prefix) {
     prefix = '';
   }
@@ -452,13 +458,14 @@ function generatePrompt(vulns, policy, prefix) {
   };
 
   var ignoreAction = {
-    value: 'ignore',
+    value: ignoreDisabled ? 'skip' : 'ignore',
     key: 'i',
     meta: { // arbitrary data that we'll merged into the `value` later on
       days: 30,
     },
     short: 'Ignore',
-    name: 'Set to ignore for 30 days (updates policy)',
+    name: ignoreDisabled ? ignoreDisabledReasons[ignoreDisabled.reasonCode] :
+          'Set to ignore for 30 days (updates policy)',
   };
 
   var patchAction = {

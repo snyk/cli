@@ -1,7 +1,7 @@
 var restify = require('restify');
 var fs = require('fs');
 
-module.exports = function (root, apikey) {
+module.exports = function (root, apikey, notAuthorizedApiKey) {
   var server = restify.createServer({
     name: 'snyk-mock-server',
     version: '1.0.0'
@@ -17,7 +17,8 @@ module.exports = function (root, apikey) {
   ].map(function (url) {
     server.post(url, function (req, res) {
       if (req.params.api) {
-        if (req.params.api === apikey) {
+        if (req.params.api === apikey ||
+          (notAuthorizedApiKey && req.params.api === notAuthorizedApiKey)) {
           return res.send({
             ok: true,
             api: apikey,
@@ -55,6 +56,22 @@ module.exports = function (root, apikey) {
     res.send({
       id: 'test',
     });
+  });
+
+  server.get(root + '/authorization/:action', function (req, res, next) {
+    var authorizationToken = req.headers.authorization.replace('token ', '');
+    if (authorizationToken === notAuthorizedApiKey) {
+      res.send({
+        result: {
+          allowed: false,
+          reason: 'Not authorized',
+          reasonCode: 'testReasonCode',
+        },
+      });
+    } else {
+      res.send({ result: { allowed: true } });
+    }
+    return next();
   });
 
   return server;

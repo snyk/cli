@@ -4,7 +4,7 @@ var interactive = require('./wizard-instrumented');
 var answersToTasks = require('../cli/commands/protect/tasks');
 
 test('wizard prompts as expected', function (t) {
-  t.plan(2);
+  t.plan(3);
   t.test('groups correctly (with oui package)', function (t) {
     var responses = [ // 17
       'default:patch',
@@ -28,9 +28,25 @@ test('wizard prompts as expected', function (t) {
     var vulns = require(__dirname + '/fixtures/oui.json');
 
     interactive(vulns, responses).then(function () {
-      // console.log(res);
       t.pass('ok');
     }).catch(t.threw).then(t.end);
+  });
+
+  t.test('with ignore disabled', function (t) {
+    var responses = ['ignore'];
+
+    var vulns = require(__dirname + '/fixtures/oui.json');
+
+    return interactive(vulns, responses, {
+      ignoreDisabled: true,
+      earlyExit: true,
+    })
+    .then(function (res) {
+      t.fail('should be invalid response');
+    }).catch(function (err) {
+      t.ok(err.message.indexOf('missing prompt response') !== -1,
+        'ignore is an invalid response')
+    }).then(t.end);
   });
 
   t.test('includes shrinkwrap when updating', function (t) {
