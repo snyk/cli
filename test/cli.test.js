@@ -1,6 +1,7 @@
 var test = require('tap-only');
 var testUtils = require('./utils');
 var apiKey = '123456789';
+var notAuthorizedApiKey = 'notAuthorized';
 var oldkey;
 var oldendpoint;
 var chalk = require('chalk');
@@ -15,7 +16,9 @@ process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = 0;
 
 
-var server = require('./cli-server')(process.env.SNYK_API, apiKey);
+var server = require('./cli-server')(
+  process.env.SNYK_API, apiKey, notAuthorizedApiKey
+);
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -87,6 +90,80 @@ test('multiple test arguments', function (t) {
   });
 });
 
+test('snyk ignore - all options', function (t) {
+  t.plan(1);
+  var fullPolicy = {ID: [
+    {'*': {
+      reason: 'REASON',
+      expires: new Date('2017-10-07T00:00:00.000Z'), },
+    },
+  ],
+                   };
+  var dir = testUtils.tmpdir();
+  cli.ignore({
+    id: 'ID',
+    reason: 'REASON',
+    expiry: new Date('2017-10-07'),
+    'policy-path': dir,
+  }).catch((err) => t.throws(err, 'ignore should succeed'))
+    .then(() => policy.load(dir))
+    .then(pol => {
+      t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
+    });
+});
+
+test('snyk ignore - no ID', function (t) {
+  t.plan(1);
+  var dir = testUtils.tmpdir();
+  cli.ignore({
+    reason: 'REASON',
+    expiry: new Date('2017-10-07'),
+    'policy-path': dir,
+  }).then(function (res) {
+    t.fail('should not succeed with missing ID');
+  }).catch(function (e) {
+    var errors = require('../lib/error');
+    var message = chalk.stripColor(errors.message(e));
+    t.equal(message.toLowerCase().indexOf('id is a required field'), 0,
+            'captured failed ignore (no --id given)');
+  });
+});
+
+test('snyk ignore - default options', function (t) {
+  t.plan(3);
+  var dir = testUtils.tmpdir();
+  cli.ignore({
+    id: 'ID3',
+    'policy-path': dir,
+  }).catch(() => t.fail('ignore should succeed'))
+    .then(() => policy.load(dir))
+    .then(pol => {
+      t.true(pol.ignore.ID3, 'policy ID written correctly');
+      t.is(pol.ignore.ID3[0]['*'].reason, 'None Given',
+           'policy (default) reason written correctly');
+      var expiryFromNow = pol.ignore.ID3[0]['*'].expires - Date.now();
+      // not more than 30 days ahead, not less than (30 days - 1 minute)
+      t.true(expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
+             expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
+             'policy (default) expiry wirtten correctly');
+    });
+});
+
+test('snyk ignore - not authorized', function (t) {
+  t.plan(1);
+  var dir = testUtils.tmpdir();
+  cli.config('set', 'api=' + notAuthorizedApiKey)
+    .then(function () {
+      return cli.ignore({
+        id: 'ID3',
+        'policy-path': dir,
+      });
+    })
+    .catch((err) => t.throws(err, 'ignore should succeed'))
+    .then(() => policy.load(dir))
+    .catch((err) => t.pass('no policy file saved'));
+});
+
 test('test without authentication', function (t) {
   t.plan(1);
   return cli.config('unset', 'api').then(function () {
@@ -143,65 +220,6 @@ test('auth via github', function (t) {
     unhook();
     t.end();
   });
-});
-
-test('snyk ignore - all options', function (t) {
-  t.plan(1);
-  var fullPolicy = {ID: [
-    {'*': {
-      reason: 'REASON',
-      expires: new Date('2017-10-07T00:00:00.000Z'), },
-    },
-  ],
-                   };
-  var dir = testUtils.tmpdir();
-  cli.ignore({
-    id: 'ID',
-    reason: 'REASON',
-    expiry: new Date('2017-10-07'),
-    'policy-path': dir,
-  }).catch(() => t.fail('ignore should succeed'))
-    .then(() => policy.load(dir))
-    .then(pol => {
-      t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
-    });
-});
-
-test('snyk ignore - no ID', function (t) {
-  t.plan(1);
-  var dir = testUtils.tmpdir();
-  cli.ignore({
-    reason: 'REASON',
-    expiry: new Date('2017-10-07'),
-    'policy-path': dir,
-  }).then(function (res) {
-    t.fail('should not succeed with missing ID');
-  }).catch(function (e) {
-    var errors = require('../lib/error');
-    var message = chalk.stripColor(errors.message(e));
-    t.equal(message.toLowerCase().indexOf('id is a required field'), 0,
-            'captured failed ignore (no --id given)');
-  });
-});
-
-test('snyk ignore - default options', function (t) {
-  t.plan(3);
-  var dir = testUtils.tmpdir();
-  cli.ignore({
-    id: 'ID3',
-    'policy-path': dir,
-  }).catch(() => t.fail('ignore should succeed'))
-    .then(() => policy.load(dir))
-    .then(pol => {
-      t.true(pol.ignore.ID3, 'policy ID written correctly');
-      t.is(pol.ignore.ID3[0]['*'].reason, 'None Given',
-           'policy (default) reason written correctly');
-      var expiryFromNow = pol.ignore.ID3[0]['*'].expires - Date.now();
-      // not more than 30 days ahead, not less than (30 days - 1 minute)
-      t.true(expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
-             expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
-             'policy (default) expiry wirtten correctly');
-    });
 });
 
 after('teardown', function (t) {
