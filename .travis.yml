@@ -7,6 +7,7 @@ notifications:
   email: false
 matrix:
   include:
+    - node_js: "8"
     - node_js: "6"
     - node_js: "4"
     - node_js: "0.12"
