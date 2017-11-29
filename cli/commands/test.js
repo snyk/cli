@@ -103,6 +103,8 @@ function test(path, options) {
       throw new Error(json);
     }
 
+    var meta = metaForDisplay(res, options) + '\n\n';
+
     var summary = 'Tested ';
     if (res.hasOwnProperty('dependencyCount')) {
       summary += res.dependencyCount + ' dependencies';
@@ -123,7 +125,7 @@ function test(path, options) {
           'about new related vulnerabilities.\n- Run `snyk test` as part of ' +
           'your CI/test.';
       }
-      return summary;
+      return meta + summary;
     }
 
     var vulnLength = res.vulnerabilities.length;
@@ -239,7 +241,7 @@ function test(path, options) {
         }
       }
       return res;
-    }).filter(Boolean).join(sep) + sep + summary;
+    }).filter(Boolean).join(sep) + sep + meta + summary;
 
     if (res.ok) {
       return body;
@@ -250,4 +252,24 @@ function test(path, options) {
     error.code = 'VULNS';
     throw error;
   });
+}
+
+function metaForDisplay(res, options) {
+  const meta = [
+    chalk.bold('Organisation: ') + res.org,
+    chalk.bold('Package manager: ') + res.packageManager,
+    chalk.bold('Target file: ') + options.file,
+    chalk.bold('Open source: ') + (res.isPrivate ? 'no' : 'yes'),
+  ];
+  if (res.filesystemPolicy) {
+    meta.push('Local Snyk policy found');
+    if (res.ignoreSettings && res.ignoreSettings.disregardFilesystemIgnores) {
+      meta.push('Local Snyk policy ignores disregarded');
+    }
+  }
+  if (res.licensesPolicy) {
+    meta.push('Licenses enabled');
+  }
+
+  return meta.join('\n');
 }

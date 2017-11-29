@@ -129,6 +129,42 @@ function (t) {
   });
 });
 
+test('`test returns correct meta', function (t) {
+  chdirWorkspaces();
+  return cli.test('ruby-app')
+  .then(function (res) {
+    var meta = res.slice(res.indexOf('Organisation:')).split('\n');
+    t.equal(meta[0], 'Organisation: test-org', 'organisation displayed');
+    t.equal(meta[1], 'Package manager: rubygems',
+      'package manager displayed');
+    t.equal(meta[2], 'Target file: Gemfile', 'target file displayed');
+    t.equal(meta[3], 'Open source: no', 'open source displayed');
+  });
+});
+
+test('`test returns correct meta for a vulnerable result', function (t) {
+  chdirWorkspaces();
+  return cli.test('ruby-app', { org: 'org-with-vulns' })
+  .catch(function (res) {
+    var meta = res.message.slice(res.message.indexOf('Organisation:'))
+      .split('\n');
+    t.equal(meta[0], 'Organisation: test-org', 'organisation displayed');
+    t.equal(meta[1], 'Package manager: rubygems',
+      'package manager displayed');
+    t.equal(meta[2], 'Target file: Gemfile', 'target file displayed');
+    t.equal(meta[3], 'Open source: no', 'open source displayed');
+  });
+});
+
+test('`test returns correct meta when target file specified', function (t) {
+  chdirWorkspaces();
+  return cli.test('ruby-app', {file: 'Gemfile.lock'})
+  .then(function (res) {
+    var meta = res.slice(res.indexOf('Organisation:')).split('\n');
+    t.equal(meta[2], 'Target file: Gemfile.lock', 'target file displayed');
+  });
+});
+
 test('`test ruby-gem-no-lockfile --file=ruby-gem.gemspec` sends gemspec',
 function (t) {
   chdirWorkspaces();

@@ -61,8 +61,38 @@ module.exports = function (root, apikey) {
   });
 
   server.post(root + '/vuln/:registry', function (req, res, next) {
+    const vulnerabilities = [];
+    if (req.query.org && req.query.org === 'org-with-vulns') {
+      vulnerabilities.push({
+        title: 'XML External Entity (XXE) Injection',
+        credit: [],
+        description: '',
+        moduleName: 'nokogiri',
+        language: 'ruby',
+        packageManager: 'rubygems',
+        semver: { unaffected: {}, vulnerable: {} },
+        identifiers: { CWE: [], CVE: [] },
+        CVSSv3: 'CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L',
+        severity: 'high',
+        creationTime: '2017-01-12T12:37:00.000Z',
+        modificationTime: '2017-01-12T12:37:00.000Z',
+        publicationTime: '2017-01-16T21:00:00.000Z',
+        disclosureTime: '2017-01-11T21:00:00.000Z',
+        id: 'SNYK-RUBY-NOKOGIRI-20299',
+        packageName: 'nokogiri',
+        cvssScore: 7.3,
+        from: [ 'nokogiri@1.8.1' ],
+        upgradePath: [],
+        version: '1.8.1',
+        name: 'nokogiri',
+        isUpgradable: false,
+        isPatchable: false,
+      });
+    }
     res.send({
-      vulnerabilities: [],
+      vulnerabilities: vulnerabilities,
+      org: 'test-org',
+      isPrivate: true,
     });
     return next();
   });
