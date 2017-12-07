@@ -25,6 +25,8 @@ after_success:
   - python scripts/travis_after_all.py
   - export $(cat .to_export_back)
   - npm run semantic-release
+  # manually detect master branch push, and post a dockerhub trigger to build the docker images
+  - 'if [ "$TRAVIS_BRANCH" = "master" ]; then curl -s -H "Content-Type: application/json" --data "{\"build\": true}" -X POST https://registry.hub.docker.com/u/snyk/snyk-cli/trigger/${DOCKER_TOKEN}/; fi'
 branches:
   except:
     - "/^v\\d+\\.\\d+\\.\\d+$/"
