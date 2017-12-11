@@ -68,8 +68,8 @@ The following environment variables can be used when running the container on do
 - `SNYK_TOKEN` - Snyk API token, obtained from [https://snyk.io/account](https://snyk.io/account).
 - `USER_ID` - [OPTIONAL] Current user ID on the host machine. If not provided will take the user ID of the currently running user inside the container. This is used for CI builds such as Jenkins where we are running with a non-privileged user and want to allow the user to access the mounted project folder.
 - `MONITOR` - [OPTIONAL] If set, tells the image that we want to run `snyk monitor` after running `snyk test`.
-- `TARGET_FILE_DIR` - [OPTIONAL] If set, this will cd to the directory inside the mounted project dir to run snyk inside it.
-- `GENERATE_REPORT` - [OPTIONAL] if set, this will generate the HTML report with a summary of the vulnerabilities detected by snyk.
+- `PROJECT_FOLDER` - [OPTIONAL] If set, this will cd to the directory inside the mounted project dir to run snyk inside it.
+- `ENV_FLAGS` - [OPTIONAL] additional environment parameters we need to `snyk test` when running the container.
 
 Docker images are tagged according to the package manager runtime they include the package manager version and snyk version.
 The general format of tags is [snyk-version]-[package-manager]-[package-manager-version] or [package-manager]-[package-manager-version] if we want to use the latest version of snyk. Please see available tags to see the available options.
@@ -90,7 +90,6 @@ docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
     -e "USER_ID=1234"
     -e "MONITOR=true"
-    -e "TARGET_FILE=package.json"
     -v "<PROJECT_DIRECTORY>:/project"
   snyk/snyk-cli:npm test --org=my-org-name
 ```
@@ -106,7 +105,6 @@ docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
     -e "USER_ID=1234"
     -e "MONITOR=true"
-    -e "TARGET_FILE=Gemfile.lock"
     -v "<PROJECT_DIRECTORY>:/project"
   snyk/snyk-cli:rubygems test --org=my-org-name
 ```
@@ -161,7 +159,7 @@ docker run -it
     -v "<PROJECT_DIRECTORY>:/project"
     -v "/home/user/.m2:/home/node/.m2"
     -v "/home/user/.ivy2:/home/node/.ivy2"
-  snyk/snyk-cli:gradle-2.8 test [args]
+  snyk/snyk-cli:gradle-2.8 test --org=my-org-name
 ```
 
 ## Badge
