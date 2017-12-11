@@ -7,16 +7,16 @@ SNYK_COMMAND="$1"
 SNYK_PARAMS="${@:2}"
 ADDITIONAL_ENV=""
 
-if [ -z $USER_ID ]; then
-  USER_ID=`id -u`
+if [ -z "$USER_ID" ]; then
+  USER_ID=$(id -u)
 fi
 
-if [ $USER_ID -ne 0 ]; then
-  useradd -m -o -u $USER_ID -d /home/node docker-user 2>/dev/null
+if [ "$USER_ID" -ne 0 ]; then
+  useradd -m -o -u "$USER_ID" -d /home/node docker-user 2>/dev/null
 fi
 
 runCmdAsDockerUser () {
-  if [ $USER_ID -ne 0 ]; then
+  if [ "$USER_ID" -ne 0 ]; then
     su docker-user -m -c "$1; status=$?"
   else
     bash -c "$1; status=$?"
@@ -28,13 +28,13 @@ runCmdAsDockerUser () {
 exitWithMsg () {
   echo "Failed to run the process ..."
 
-  if [ -f $1 ]; then
+  if [ -f "$1" ]; then
     cat "$1"
   else
     echo "$1"
   fi
 
-  exit $2
+  exit "$2"
 }
 
 ##
@@ -44,18 +44,19 @@ exitWithMsg () {
 ##
 
 TEST_SETTINGS="";
+PROJECT_SUBDIR=""
 
-if [ ! -z $TARGET_FILE ]; then
-  if [ ! -e $TARGET_FILE ]; then
-    exitWithMsg "$TARGET_FILE does not exist" 1
+if [ ! -z "$TARGET_FILE" ]; then
+  if [ ! -f "$PROJECT_PATH/$PROJECT_FOLDER/$TARGET_FILE" ]; then
+    exitWithMsg "$PROJECT_PATH/$PROJECT_FOLDER/$TARGET_FILE does not exist" 1
   fi
 
-  PROJECT_PATH=$(dirname "${TARGET_FILE}")
+  PROJECT_SUBDIR=$(dirname "${TARGET_FILE}")
   MANIFEST_NAME=$(basename "${TARGET_FILE}")
   TEST_SETTINGS="--file=${MANIFEST_NAME} "
 fi
 
-if [ ! -z $ORGANIZATION ]; then
+if [ ! -z "$ORGANIZATION" ]; then
   TEST_SETTINGS="${TEST_SETTINGS} --org=${ORGANIZATION}"
 fi
 
@@ -65,25 +66,25 @@ SNYK_PARAMS="${SNYK_PARAMS} ${TEST_SETTINGS}"
 ## End of backward compatability code
 ##
 
-if [ -z $SNYK_TOKEN ]; then
+if [ -z "$SNYK_TOKEN" ]; then
   exitWithMsg "Missing \$SNYK_TOKEN" 1
 fi
 
-if [ ! -z $ENV_FLAGS ]; then
+if [ ! -z "$ENV_FLAGS" ]; then
   ADDITIONAL_ENV="${ENV_FLAGS}"
 fi
 
-cd "$PROJECT_PATH/$PROJECT_FOLDER"
+cd "$PROJECT_PATH/$PROJECT_FOLDER/$PROJECT_SUBDIR" || exitWithMsg "Can't cd to $PROJECT_PATH/$PROJECT_FOLDER/$PROJECT_SUBDIR" 1
 
 runCmdAsDockerUser "PATH=$PATH snyk $SNYK_COMMAND $SNYK_PARAMS -- $ADDITIONAL_ENV > $OUTPUT_FILE 2>$ERROR_FILE"
 
 RC=$?
 
-if [ $RC -ne "0" ] && [ $RC -ne "1" ]; then
-  exitWithMsg "$OUTPUT_FILE" $RC
+if [ "$RC" -ne "0" ] && [ "$RC" -ne "1" ]; then
+  exitWithMsg "$OUTPUT_FILE" "$RC"
 fi
 
-if [ ! -z $MONITOR ]; then
+if [ ! -z "$MONITOR" ]; then
   runCmdAsDockerUser "PATH=$PATH snyk monitor $SNYK_PARAMS -- $ADDITIONAL_ENV"
 fi
 
@@ -94,15 +95,15 @@ fi
 # - `GENERATE_REPORT` - [OPTIONAL] if set, this will generate the HTML report with a summary of the vulnerabilities detected by snyk.
 #
 # if [ ! -z $GENERATE_REPORT ]; then
-runCmdAsDockerUser "cat $OUTPUT_FILE | jq '.vulnerabilities|= map(. + {severity_numeric: (if(.severity) == \"high\" then 1 else (if(.severity) == \"medium\" then 2 else (if(.severity) == \"low\" then 3 else 4 end) end) end)}) |.vulnerabilities |= sort_by(.severity_numeric) | del(.vulnerabilities[].severity_numeric)' | snyk-to-html | sed 's/<\/head>/  <link rel=\"stylesheet\" href=\"snyk_report.css\"><\/head>/' > $HTML_FILE"
-runCmdAsDockerUser "cat /home/node/snyk_report.css > snyk_report.css"
+runCmdAsDockerUser "cat $OUTPUT_FILE | jq '.vulnerabilities|= map(. + {severity_numeric: (if(.severity) == \"high\" then 1 else (if(.severity) == \"medium\" then 2 else (if(.severity) == \"low\" then 3 else 4 end) end) end)}) |.vulnerabilities |= sort_by(.severity_numeric) | del(.vulnerabilities[].severity_numeric)' | snyk-to-html | sed 's/<\/head>/  <link rel=\"stylesheet\" href=\"snyk_report.css\"><\/head>/' > $PROJECT_PATH/$PROJECT_FOLDER/$HTML_FILE"
+runCmdAsDockerUser "cat /home/node/snyk_report.css > $PROJECT_PATH/$PROJECT_FOLDER/snyk_report.css"
 # fi
 #
 
 if [ $RC -ne "0" ]; then
-  exitWithMsg "$OUTPUT_FILE" $RC
+  exitWithMsg "$OUTPUT_FILE" "$RC"
 fi
 
-cat $OUTPUT_FILE
+cat "$OUTPUT_FILE"
 
-exit $RC
+exit "$RC"
