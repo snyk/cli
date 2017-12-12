@@ -257,7 +257,8 @@ function test(path, options) {
 function metaForDisplay(res, options) {
   const meta = [
     chalk.bold('Organisation: ') + res.org,
-    chalk.bold('Package manager: ') + res.packageManager,
+    chalk.bold('Package manager: ') +
+      (options.packageManager || res.packageManager),
     chalk.bold('Target file: ') + options.file,
     chalk.bold('Open source: ') + (res.isPrivate ? 'no' : 'yes'),
   ];

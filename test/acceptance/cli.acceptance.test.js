@@ -129,7 +129,7 @@ function (t) {
   });
 });
 
-test('`test returns correct meta', function (t) {
+test('`test ruby-app` returns correct meta', function (t) {
   chdirWorkspaces();
   return cli.test('ruby-app')
   .then(function (res) {
@@ -142,7 +142,30 @@ test('`test returns correct meta', function (t) {
   });
 });
 
-test('`test returns correct meta for a vulnerable result', function (t) {
+test('`test gradle-app` returns correct meta', function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin.withArgs('gradle').returns(plugin);
+
+  return cli.test('gradle-app')
+  .then(function (res) {
+    var meta = res.slice(res.indexOf('Organisation:')).split('\n');
+    t.equal(meta[0], 'Organisation: test-org', 'organisation displayed');
+    t.equal(meta[1], 'Package manager: gradle',
+      'package manager displayed');
+    t.equal(meta[2], 'Target file: build.gradle', 'target file displayed');
+    t.equal(meta[3], 'Open source: no', 'open source displayed');
+  });
+});
+
+test('`test` returns correct meta for a vulnerable result', function (t) {
   chdirWorkspaces();
   return cli.test('ruby-app', { org: 'org-with-vulns' })
   .catch(function (res) {
@@ -156,7 +179,7 @@ test('`test returns correct meta for a vulnerable result', function (t) {
   });
 });
 
-test('`test returns correct meta when target file specified', function (t) {
+test('`test` returns correct meta when target file specified', function (t) {
   chdirWorkspaces();
   return cli.test('ruby-app', {file: 'Gemfile.lock'})
   .then(function (res) {
