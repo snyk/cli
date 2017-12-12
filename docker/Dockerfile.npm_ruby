@@ -5,7 +5,7 @@ MAINTAINER Snyk Ltd
 # Install snyk cli
 RUN npm install --global snyk snyk-to-html && \
     apt-get update && \
-    apt-get install jq
+    apt-get install -y jq
 
 RUN chmod -R a+wrx /home/node
 WORKDIR /home/node
