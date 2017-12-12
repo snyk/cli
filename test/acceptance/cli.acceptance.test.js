@@ -479,38 +479,6 @@ function (t) {
   });
 });
 
-test('`test composer-app --file=composer.lock`',
-function (t) {
-  chdirWorkspaces();
-  var plugin = {
-    inspect: function () {
-      return Promise.resolve({package: {}});
-    },
-  };
-  sinon.spy(plugin, 'inspect');
-
-  sinon.stub(plugins, 'loadPlugin');
-  t.teardown(plugins.loadPlugin.restore);
-  plugins.loadPlugin
-  .withArgs('composer')
-  .returns(plugin);
-
-  return cli.test('composer-app', {
-    file: 'composer.lock',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/composer', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['composer-app', 'composer.lock', {
-        args: null,
-        file: 'composer.lock',
-        packageManager: 'composer',
-      },], 'calls composer plugin');
-  });
-});
-
 test('`test golang-app --file=vendor/vendor.json`',
 function (t) {
   chdirWorkspaces();
@@ -540,6 +508,98 @@ function (t) {
         file: 'vendor/vendor.json',
         packageManager: 'govendor',
       },], 'calls golang plugin');
+  });
+});
+
+test('`test golang-app auto-detects golang/dep`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('golangdep')
+  .returns(plugin);
+
+  return cli.test('golang-app')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/golangdep', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['golang-app', 'Gopkg.lock', {
+        args: null,
+        file: 'Gopkg.lock',
+        packageManager: 'golangdep',
+      },], 'calls golang plugin');
+  });
+});
+
+test('`test golang-app-govendor auto-detects govendor`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('govendor')
+  .returns(plugin);
+
+  return cli.test('golang-app-govendor')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/govendor', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['golang-app-govendor', 'vendor/vendor.json', {
+        args: null,
+        file: 'vendor/vendor.json',
+        packageManager: 'govendor',
+      },], 'calls golang plugin');
+  });
+});
+
+test('`test composer-app --file=composer.lock`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('composer')
+  .returns(plugin);
+
+  return cli.test('composer-app', {
+    file: 'composer.lock',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/composer', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['composer-app', 'composer.lock', {
+        args: null,
+        file: 'composer.lock',
+        packageManager: 'composer',
+      },], 'calls composer plugin');
   });
 });
 
