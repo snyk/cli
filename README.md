@@ -151,8 +151,8 @@ docker run -it
     -e "USER_ID=1234"
     -e "MONITOR=true"
     -v "<PROJECT_DIRECTORY>:/project"
-    -v "/home/user/.m2:/root/.m2"
-    -v "/home/user/.ivy2:/root/.ivy2"
+    -v "/home/user/.m2:/home/node/.m2"
+    -v "/home/user/.ivy2:/home/node/.ivy2"
   snyk/snyk-cli:sbt-1.0.4 test --org=my-org-name
 ```
 
