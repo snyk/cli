@@ -11,16 +11,10 @@ if [ -z "$USER_ID" ]; then
   USER_ID=$(id -u)
 fi
 
-if [ "$USER_ID" -ne 0 ]; then
-  useradd -m -o -u "$USER_ID" -d /home/node docker-user 2>/dev/null
-fi
+useradd -o -m -u "$USER_ID" -d /home/node docker-user 2>/dev/null
 
 runCmdAsDockerUser () {
-  if [ "$USER_ID" -ne 0 ]; then
-    su docker-user -m -c "$1; status=$?"
-  else
-    bash -c "$1; status=$?"
-  fi
+  su docker-user -m -c "$1; status=$?"
 
   return $status
 }
@@ -71,12 +65,12 @@ if [ -z "$SNYK_TOKEN" ]; then
 fi
 
 if [ ! -z "$ENV_FLAGS" ]; then
-  ADDITIONAL_ENV="${ENV_FLAGS}"
+  ADDITIONAL_ENV="-- ${ENV_FLAGS}"
 fi
 
 cd "$PROJECT_PATH/$PROJECT_FOLDER/$PROJECT_SUBDIR" || exitWithMsg "Can't cd to $PROJECT_PATH/$PROJECT_FOLDER/$PROJECT_SUBDIR" 1
 
-runCmdAsDockerUser "PATH=$PATH snyk $SNYK_COMMAND $SNYK_PARAMS -- $ADDITIONAL_ENV > $OUTPUT_FILE 2>$ERROR_FILE"
+runCmdAsDockerUser "PATH=$PATH snyk $SNYK_COMMAND $SNYK_PARAMS $ADDITIONAL_ENV > $OUTPUT_FILE 2>$ERROR_FILE"
 
 RC=$?
 

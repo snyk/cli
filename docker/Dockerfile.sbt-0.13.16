@@ -19,8 +19,11 @@ RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.lis
     dpkg -i sbt.deb
 
 RUN echo "docker-user ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers  && \
+    mkdir -p /root/.sbt/0.13/plugins  && \
     mkdir -p /home/node/.sbt/0.13/plugins  && \
+    echo "addSbtPlugin(\"net.virtual-void\" % \"sbt-dependency-graph\" % \"0.8.2\")" >> /root/.sbt/0.13/plugins/build.sbt && \
     echo "addSbtPlugin(\"net.virtual-void\" % \"sbt-dependency-graph\" % \"0.8.2\")" >> /home/node/.sbt/0.13/plugins/build.sbt && \
+    echo "net.virtualvoid.sbt.graph.DependencyGraphSettings.graphSettings" >> /root/.sbt/0.13/user.sbt && \
     echo "net.virtualvoid.sbt.graph.DependencyGraphSettings.graphSettings" >> /home/node/.sbt/0.13/user.sbt && \
     echo "-sbt-version  0.13.16" >> /etc/sbt/sbtopts
 

@@ -20,7 +20,7 @@ RUN curl -L https://services.gradle.org/distributions/gradle-2.8-bin.zip -o grad
 # Install snyk cli
 RUN npm install --global snyk snyk-to-html && \
     apt-get update && \
-    apt-get install jq
+    apt-get install -y jq
 
 ENV GRADLE_HOME=/home/node/gradle-2.8
 ENV PATH=$PATH:$GRADLE_HOME/bin
