@@ -23,7 +23,9 @@
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "snyk-auth": "node cli auth $SNYK_API_KEY",
-    "snyk-auth-windows": "node cli auth %SNYK_API_KEY%"
+    "snyk-auth-windows": "node cli auth %SNYK_API_KEY%",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "keywords": [
     "security",
@@ -65,7 +67,8 @@
     "undefsafe": "0.0.3",
     "update-notifier": "^0.5.0",
     "url": "^0.11.0",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "snyk": "^1.58.0"
   },
   "devDependencies": {
     "babel-cli": "^6.7.7",
@@ -74,10 +77,10 @@
     "babel-preset-stage-3": "^6.5.0",
     "jscs": "^2.0.0",
     "lodash": "^3.10.1",
-    "lodash-cli": "^3.10.1",
+    "lodash-cli": "^4.0.0",
     "nock": "^9.1.0",
     "proxyquire": "^1.7.4",
-    "restify": "^4.1.1",
+    "restify": "^5.0.1",
     "semantic-release": "^6.3.6",
     "sinon": "^1.17.2",
     "tap": "^5.7.1",
@@ -98,8 +101,15 @@
     ]
   },
   "pkg": {
-    "scripts": ["cli/**/*.js", "lib/**/*.js", "dist/**/*.js"],
-    "assets": ["config.default.json", "help/**/*.txt"]
+    "scripts": [
+      "cli/**/*.js",
+      "lib/**/*.js",
+      "dist/**/*.js"
+    ],
+    "assets": [
+      "config.default.json",
+      "help/**/*.txt"
+    ]
   },
   "snyk": true
 }
