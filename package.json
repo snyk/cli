@@ -97,5 +97,9 @@
       "**/__tests__/**"
     ]
   },
+  "pkg": {
+    "scripts": ["cli/**/*.js", "lib/**/*.js", "dist/**/*.js"],
+    "assets": ["config.default.json", "help/**/*.txt"]
+  },
   "snyk": true
 }
