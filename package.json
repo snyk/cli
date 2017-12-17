@@ -82,7 +82,8 @@
     "sinon": "^1.17.2",
     "tap": "^5.7.1",
     "tap-only": "0.0.5",
-    "tape": "^4.0.0"
+    "tape": "^4.0.0",
+    "nyc": "11.0.1"
   },
   "repository": {
     "type": "git",
@@ -98,8 +99,15 @@
     ]
   },
   "pkg": {
-    "scripts": ["cli/**/*.js", "lib/**/*.js", "dist/**/*.js"],
-    "assets": ["config.default.json", "help/**/*.txt"]
+    "scripts": [
+      "cli/**/*.js",
+      "lib/**/*.js",
+      "dist/**/*.js"
+    ],
+    "assets": [
+      "config.default.json",
+      "help/**/*.txt"
+    ]
   },
   "snyk": true
 }
