@@ -231,6 +231,72 @@ test('`test ruby-app` auto-detects Gemfile', function (t) {
   });
 });
 
+test('`test nuget-app-1` auto-detects project.json file', function (t) {
+  chdirWorkspaces();
+  return cli.test('nuget-app-1')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/nuget', 'posts to correct url');
+    t.equal(req.body.targetFile, 'project.json', 'specifies target');
+  });
+});
+
+test('`test nuget-app-2` auto-detects project.assets.json file', function (t) {
+  chdirWorkspaces();
+  return cli.test('nuget-app-2')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/nuget', 'posts to correct url');
+    t.equal(req.body.targetFile, 'project.assets.json', 'specifies target');
+  });
+});
+
+test('`test nuget-app-2.1` auto-detects obj/project.assets.json file', function (t) {
+  chdirWorkspaces();
+  return cli.test('nuget-app-2.1')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/nuget', 'posts to correct url');
+    t.equal(req.body.targetFile, 'obj/project.assets.json', 'specifies target');
+  });
+});
+
+test('`test nuget-app-3` auto-detects packages.config file', function (t) {
+  chdirWorkspaces();
+  return cli.test('nuget-app-3')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/nuget', 'posts to correct url');
+    t.equal(req.body.targetFile, 'packages.config', 'specifies target');
+  });
+});
+
+test('`test nuget-app-4` auto-detects app.csproj file', function (t) {
+  chdirWorkspaces();
+  return cli.test('nuget-app-4')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/nuget', 'posts to correct url');
+    t.equal(req.body.targetFile, 'app.csproj', 'specifies target');
+  });
+});
+
+test('`test nuget-app-4` not auto-detects app.csproj file', function (t) {
+  chdirWorkspaces();
+  return cli.test('nuget-app-3')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/nuget', 'posts to correct url');
+    t.notEqual(req.body.targetFile, 'app.csproj', 'specifies incorrect target');
+  });
+});
+
 test('`test monorepo --file=sub-ruby-app/Gemfile`', function (t) {
   chdirWorkspaces();
   return cli.test('monorepo', {file: 'sub-ruby-app/Gemfile'})
@@ -311,38 +377,6 @@ function (t) {
         file: 'requirements.txt',
         packageManager: 'pip',
       }], 'calls python plugin');
-  });
-});
-
-test('`test nuget-app --file=custom-manifest.json`', function (t) {
-  chdirWorkspaces();
-  var plugin = {
-    inspect: function () {
-      return Promise.resolve({package: {}});
-    },
-  };
-  sinon.spy(plugin, 'inspect');
-
-  sinon.stub(plugins, 'loadPlugin');
-  t.teardown(plugins.loadPlugin.restore);
-  plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
-
-  return cli.test('nuget-app', {
-    file: 'custom-manifest.json',
-    packageManager: 'nuget',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app', 'custom-manifest.json', {
-        args: null,
-        file: 'custom-manifest.json',
-        packageManager: 'nuget',
-      },], 'calls nuget plugin');
   });
 });
 
@@ -434,37 +468,6 @@ test('`test nuget-app --file=project.json`', function (t) {
       ['nuget-app', 'project.json', {
         args: null,
         file: 'project.json',
-        packageManager: 'nuget',
-      },], 'calls nuget plugin');
-  });
-});
-
-test('`test nuget-app --file=project.assets.json`', function (t) {
-  chdirWorkspaces();
-  var plugin = {
-    inspect: function () {
-      return Promise.resolve({package: {}});
-    },
-  };
-  sinon.spy(plugin, 'inspect');
-
-  sinon.stub(plugins, 'loadPlugin');
-  t.teardown(plugins.loadPlugin.restore);
-  plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
-
-  return cli.test('nuget-app', {
-    file: 'project.assets.json',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app', 'project.assets.json', {
-        args: null,
-        file: 'project.assets.json',
         packageManager: 'nuget',
       },], 'calls nuget plugin');
   });
