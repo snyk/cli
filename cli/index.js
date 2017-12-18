@@ -31,6 +31,9 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
   if (error.code === 'VULNS') {
     // this isn't a bad command, so we won't record it as such
     command = args.command;
+  } else if (!error.stack) { // log errors that are not error objects
+    analytics.add('error', JSON.stringify(error));
+    analytics.add('command', args.command);
   } else {
     analytics.add('error-message', error.message);
     analytics.add('error', error.stack);
