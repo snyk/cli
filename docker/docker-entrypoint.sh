@@ -14,9 +14,9 @@ fi
 useradd -o -m -u "$USER_ID" -d /home/node docker-user 2>/dev/null
 
 runCmdAsDockerUser () {
-  su docker-user -m -c "$1; status=$?"
+  su docker-user -m -c "$1"
 
-  return $status
+  return $?
 }
 
 exitWithMsg () {
