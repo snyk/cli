@@ -65,6 +65,37 @@ test('bad command', function (t) {
     var payload = spy.args[0][0].body;
     t.equal(payload.data.command, 'bad-command', 'correct event name');
     t.equal(payload.data.metadata.command, 'random command', 'found original command');
+    t.equal(payload.data.metadata['error-message'],
+      'Unknown command "random command"', 'got correct error');
+  });
+});
+
+test('bad command with string error', function (t) {
+  var spy = sinon.spy();
+  process.argv = ['node', 'script.js', 'test', '-q'];
+  var cli = proxyquire('../cli', {
+    '../lib/analytics': proxyquire('../lib/analytics', {
+      './request': spy,
+    }),
+
+    './args': proxyquire('../cli/args', {
+      './commands': proxyquire('../cli/commands', {
+        '../../lib/hotload': proxyquire('../lib/hotload', {
+          '../cli/commands/test': function()  {
+            return Promise.reject('string error');
+          }
+        })
+      })
+    })
+  });
+
+  return cli.then(function () {
+    t.equal(spy.callCount, 1, 'analytics was called');
+
+    var payload = spy.args[0][0].body;
+    t.equal(payload.data.command, 'bad-command', 'correct event name');
+    t.equal(payload.data.metadata.command, 'test', 'found original command');
+    t.equal(payload.data.metadata.error, '"string error"', 'got correct error');
   });
 });
 
