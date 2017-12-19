@@ -93,6 +93,7 @@ test('bad command with string error', function (t) {
     t.equal(spy.callCount, 1, 'analytics was called');
 
     var payload = spy.args[0][0].body;
+    console.log("spy payload body", payload);
     t.equal(payload.data.command, 'bad-command', 'correct event name');
     t.equal(payload.data.metadata.command, 'test', 'found original command');
     t.equal(payload.data.metadata.error, '"string error"', 'got correct error');
