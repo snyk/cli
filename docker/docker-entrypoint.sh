@@ -11,6 +11,12 @@ if [ -z "$USER_ID" ]; then
   USER_ID=$(id -u)
 fi
 
+USER_NAME=$(getent passwd "$USER_ID" | awk -F ':' '{print $1}')
+
+if [ "$USER_NAME" -ne "" ] && [ "$USER_NAME" -ne "root" ]; then
+  usermod -d /home/node "$USER_NAME"
+fi
+
 useradd -o -m -u "$USER_ID" -d /home/node docker-user 2>/dev/null
 
 runCmdAsDockerUser () {
