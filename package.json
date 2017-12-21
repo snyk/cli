@@ -38,7 +38,6 @@
     "configstore": "^1.2.0",
     "debug": "^2.2.0",
     "es6-promise": "^3.0.2",
-    "glob-fs": "^0.1.7",
     "hasbin": "^1.2.3",
     "inquirer": "1.0.3",
     "needle": "^2.0.1",
