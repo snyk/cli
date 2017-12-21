@@ -231,35 +231,6 @@ test('`test ruby-app` auto-detects Gemfile', function (t) {
   });
 });
 
-test('`test nuget-app-1 auto-detects project.json`',
-function (t) {
-  chdirWorkspaces();
-  var plugin = {
-    inspect: function () {
-      return Promise.resolve({package: {}});
-    },
-  };
-  sinon.spy(plugin, 'inspect');
-
-  sinon.stub(plugins, 'loadPlugin');
-  t.teardown(plugins.loadPlugin.restore);
-  plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
-
-  return cli.test('nuget-app-1')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app-1', 'project.json', {
-        args: null,
-        file: 'project.json',
-        packageManager: 'nuget',
-      },], 'calls nuget plugin');
-  });
-});
 
 test('`test nuget-app-2 auto-detects project.assets.json`',
 function (t) {
@@ -321,37 +292,7 @@ function (t) {
   });
 });
 
-test('`test nuget-app-3 auto-detects packages.config`',
-function (t) {
-  chdirWorkspaces();
-  var plugin = {
-    inspect: function () {
-      return Promise.resolve({package: {}});
-    },
-  };
-  sinon.spy(plugin, 'inspect');
 
-  sinon.stub(plugins, 'loadPlugin');
-  t.teardown(plugins.loadPlugin.restore);
-  plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
-
-  return cli.test('nuget-app-3')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app-3', 'packages.config', {
-        args: null,
-        file: 'packages.config',
-        packageManager: 'nuget',
-      },], 'calls nuget plugin');
-  });
-});
-
-// TODO: this should be rectified to support filename
 test('`test nuget-app-4 auto-detects app.csproj`',
 function (t) {
   chdirWorkspaces();
@@ -375,36 +316,6 @@ function (t) {
     t.match(req.url, '/vuln/nuget', 'posts to correct url');
     t.same(plugin.inspect.getCall(0).args,
       ['nuget-app-4', 'app.csproj', {
-        args: null,
-        file: 'app.csproj',
-        packageManager: 'nuget',
-      },], 'calls nuget plugin');
-  });
-});
-
-test('`test nuget-app-3 not auto-detects app.csproj`',
-function (t) {
-  chdirWorkspaces();
-  var plugin = {
-    inspect: function () {
-      return Promise.resolve({package: {}});
-    },
-  };
-  sinon.spy(plugin, 'inspect');
-
-  sinon.stub(plugins, 'loadPlugin');
-  t.teardown(plugins.loadPlugin.restore);
-  plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
-
-  return cli.test('nuget-app-3')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.notSame(plugin.inspect.getCall(0).args,
-      ['nuget-app-3', 'app.csproj', {
         args: null,
         file: 'app.csproj',
         packageManager: 'nuget',

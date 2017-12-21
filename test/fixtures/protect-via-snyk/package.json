@@ -3,10 +3,7 @@
   "version": "1.0.4",
   "description": "protect-test",
   "main": "index.js",
-  "dependencies": {
-    "semver": "^2.3.2",
-    "snyk": "*"
-  },
+  "dependencies": {},
   "scripts": {
     "env": "env",
     "test": "snyk test && echo \"Error: no test specified\" && exit 1",

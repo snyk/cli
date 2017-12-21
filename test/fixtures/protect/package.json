@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "protect-test",
   "main": "index.js",
-  "dependencies": {
-    "semver": "^2.3.2"
-  },
+  "dependencies": {},
   "private": true,
   "devDependencies": {},
   "scripts": {
