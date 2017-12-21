@@ -655,6 +655,48 @@ function (t) {
   });
 });
 
+test('`test composer-app` auto-detects composer.lock', function (t) {
+  chdirWorkspaces();
+  return cli.test('composer-app')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/composer', 'posts to correct url');
+    t.equal(req.body.packageFormatVersion, 'composer:0.0.1', 'specifies package format');
+  });
+});
+
+test('`test composer-app auto-detects composer`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('composer')
+  .returns(plugin);
+
+  return cli.test('composer-app')
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/composer', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['composer-app', 'composer.lock', {
+        args: null,
+        file: 'composer.lock',
+        packageManager: 'composer',
+      },], 'calls composer plugin');
+  });
+});
+
+
 test('`test --policy-path`', function (t) {
   t.plan(3);
 
