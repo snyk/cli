@@ -81,6 +81,10 @@ test('bad command with string error', function (t) {
     './args': proxyquire('../cli/args', {
       './commands': proxyquire('../cli/commands', {
         '../../lib/hotload': proxyquire('../lib/hotload', {
+          // windows-based testing uses windows path separator
+          '..\\cli\\commands\\test': function() {
+            return Promise.reject('string error');
+          },
           '../cli/commands/test': function()  {
             return Promise.reject('string error');
           }
