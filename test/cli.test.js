@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var test = require('tap-only');
 var testUtils = require('./utils');
 var apiKey = '123456789';
@@ -71,8 +72,29 @@ test('cli', function (t) {
 test('monitor', function (t) {
   t.plan(1);
 
-  cli.monitor().then(function () {
+  cli.monitor().then(function (res) {
     t.pass('monitor captured');
+  }).catch(function (error) {
+    t.fail(error);
+  });
+});
+
+test('monitor --json', function (t) {
+  t.plan(3);
+
+  cli.monitor(undefined, { json: true }).then(function (res) {
+    if (_.isObject(res)) {
+      t.pass('monitor outputed JSON');
+    } else {
+      t.fail('Failed parsing monitor JSON output');
+    }
+
+    var keyList = [ 'packageManager', 'manageUrl' ];
+
+    keyList.forEach(k => {
+      !_.get(res, `${k}`) ? t.fail(`${k} not found`) :
+        t.pass(`${k} found`);
+    });
   }).catch(function (error) {
     t.fail(error);
   });

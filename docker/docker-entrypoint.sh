@@ -85,7 +85,7 @@ if [ "$RC" -ne "0" ] && [ "$RC" -ne "1" ]; then
 fi
 
 if [ ! -z "$MONITOR" ]; then
-  runCmdAsDockerUser "PATH=$PATH snyk monitor $SNYK_PARAMS -- $ADDITIONAL_ENV"
+  runCmdAsDockerUser "PATH=$PATH snyk monitor --json $SNYK_PARAMS -- $ADDITIONAL_ENV"
 fi
 
 #
