@@ -83,6 +83,8 @@ test('monitor --json', function (t) {
   t.plan(3);
 
   cli.monitor(undefined, { json: true }).then(function (res) {
+    res = JSON.parse(res);
+
     if (_.isObject(res)) {
       t.pass('monitor outputed JSON');
     } else {
