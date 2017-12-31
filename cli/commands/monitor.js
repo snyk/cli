@@ -85,9 +85,9 @@ function monitor(path, options) {
         '');
 
     return isJson ?
-      _.assign({}, res, {
+      JSON.stringify(_.assign({}, res, {
         manageUrl: manageUrl,
         packageManager: packageManager,
-      }) : strOutput;
+      })) : strOutput;
   }
 }
