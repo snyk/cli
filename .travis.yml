@@ -24,6 +24,10 @@ after_success:
   - npm run travis-coverage
   - python scripts/travis_after_all.py
   - export $(cat .to_export_back)
+# install `pkg` to create cli binaries for all platforms
+  - npm i -g pkg
+  - pkg .
+# release on npmjs, github.com, add cli binaries as assets
   - npm run semantic-release
   - bash scripts/travis_after_success.sh
 branches:
