@@ -109,18 +109,5 @@
       "help/**/*.txt"
     ]
   },
-  "release": {
-    "publish": [
-      "@semantic-release/npm",
-      {
-        "path": "@semantic-release/github",
-        "assets": [
-          {"path": "./snyk-linux", "label": "Snyk CLI for Linux"},
-          {"path": "./snyk-macos", "label": "Snyk CLI for MacOS"},
-          {"path": "./snyk-win.exe", "label": "Snyk CLI for Windows"}
-        ]
-      }
-    ]
-  },
   "snyk": true
 }
