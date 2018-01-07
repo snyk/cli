@@ -6,252 +6,274 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;
+var _ = require('lodash');
+var debug = require('debug')('snyk');
 
-function test(path, options) {
-  path = path || process.cwd();
-  options = options || {};
+// arguments array is 0 or more `path` strings followed by
+// an optional `option` object
+function test() {
   var args = [].slice.call(arguments, 0);
+  var options = {};
+  var results = [];
+  var resultOptions = [];
 
-  if (typeof path === 'object') {
-    options = path;
+  if (typeof args[args.length - 1] === 'object') {
+    options = args.pop();
   }
 
-  // if there's two strings on the arguments, it means we're doing multiple
-  // projects, but the options has been omitted, so let's do an argument dance
-  // to get some dummy opts in there
-  if (args.length === 2 && typeof args[1] === 'string') {
-    args.push({});
+  // populate with default path (cwd) if no path given
+  if (args.length ===  0) {
+    args.unshift(process.cwd());
   }
 
-  if (config.org) {
-    options.org = config.org;
-  }
+  // org fallback to config unless specified
+  options.org = options.org || config.org;
 
   // making `show-vulnerable-paths` true by default.
-  var showVulnPaths = (options['show-vulnerable-paths'] || '')
-        .toLowerCase() !== 'false';
+  options.showVulnPaths = (options['show-vulnerable-paths'] || '')
+    .toLowerCase() !== 'false';
 
   return apiTokenExists('snyk test')
   .then(function () {
-    // if we have more than path, options, we're going to assume that we've
-    // got multiple paths, i.e. test(path1, path2..., options)
-    if (args.length > 2) {
-      options = args.pop();
+    // Promise waterfall to test all other paths sequentially
+    var testsPromises = args.reduce(function (acc, path) {
+      return acc.then(function (res) {
+        // Create a copy of the options so a specific test can modify them
+        // i.e. add `options.file` etc. We'll need these options later.
+        var testOpts = _.cloneDeep(options);
+        testOpts.path = path;
+        resultOptions.push(testOpts);
 
-      var shouldThrow = 0;
-      var testedProjects = 0;
-      var promises = args.map(function (path) {
-        return test(path, options).then(function (res) {
-          testedProjects++;
-          return res;
-        }).catch(function (error) {
-          // don't blow up our entire promise chain - but track that we should
-          // throw the entire thing as an exception later on
-          if (error.code === 'VULNS') {
-            testedProjects++;
-            shouldThrow++;
+        // run the actual test
+        return snyk.test(path, testOpts)
+        .catch(function (error) {
+          // Don't blow up our entire promise chain if a test fails
+          // Errors can be simple strings (conn error to the server), or
+          // stringified JSONs (vulns detected, `ok: false`).
+          // Try to parse, stay with string if unable to handle
+          try {
+            return JSON.parse(error.message);
+          } catch (unused) {
+            return error;
           }
-
-          return error.message;
-        }).then(function (res) {
-          res = chalk.bold('\n\nTesting ' + path + '...\n') + res;
-          return res;
+        })
+        .then(function (res) {
+          results.push(res);
         });
       });
+    }, Promise.resolve());
 
-      return Promise.all(promises).then(function (res) {
-        res = res.join('');
-        var projects = testedProjects === 1 ? ' project' : ' projects';
-        var paths = shouldThrow === 1 ? 'path' : 'paths';
-        var testedMessage = '\n\nTested ' + testedProjects + projects;
-
-        if (shouldThrow > 0) {
-          if (showVulnPaths) {
-            testedMessage +=  ', ' + shouldThrow + ' contained vulnerable ' +
-              paths;
-          }
-          testedMessage += '.';
-          res += chalk.bold.red(testedMessage);
-          throw new Error(res);
-        } else {
-          if (showVulnPaths) {
-            testedMessage += ', no vulnerable paths were found.';
-          } else {
-            testedMessage += ', no issues were found.';
-          }
-          res += chalk.green(testedMessage);
-        }
-
-        return res;
-      });
-    }
-
-    if (path && typeof path !== 'string') {
-      options = path;
-      path = false;
-    }
-
-    return snyk.test(path || process.cwd(), options);
-  }).then(function (res) {
-    var packageManager = res.packageManager;
+    return testsPromises;
+  }).then(function () {
+    // resultOptions is now an array of 1 or more options used for the tests
+    // results is now an array of 1 or more test results
+    // values depend on `options.json` value - string or object
     if (options.json) {
-      var json = JSON.stringify(res, '', 2);
-      if (res.ok) {
+      // backwards compat - strip array iff only one result
+      var dataToSend = results.length === 1 ? results[0] : results;
+      var json = JSON.stringify(dataToSend, '', 2);
+
+      if (results.every(function (res) { return res.ok; })) {
         return json;
       }
 
       throw new Error(json);
     }
 
-    var meta = metaForDisplay(res, options) + '\n\n';
+    var response = results.map(function (unused, i) {
+      return displayResult(results[i], resultOptions[i]);
+    }).join('\n');
 
-    var summary = 'Tested ';
-    if (res.hasOwnProperty('dependencyCount')) {
-      summary += res.dependencyCount + ' dependencies';
-    } else {
-      summary += path;
-    }
-    var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-    summary += ' for known ' + issues;
-
-    if (res.ok && res.vulnerabilities.length === 0) {
-      var vulnPaths = showVulnPaths ?
-            ', no vulnerable paths found.' :
-            ', none were found.';
-      summary = chalk.green('✓ ' + summary + vulnPaths);
-
-      if (!isCI) {
-        summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified ' +
-          'about new related vulnerabilities.\n- Run `snyk test` as part of ' +
-          'your CI/test.';
+    var vulnerableResults = results.filter(function (res) { return !res.ok; });
+    var paths = vulnerableResults.length === 1 ? 'path' : 'paths';
+    var projects = results.length === 1 ? ' project' : ' projects';
+    var testedMessage = '\n\nTested ' + results.length + projects;
+    if (vulnerableResults.length > 0) {
+      if (options.showVulnPaths) {
+        testedMessage +=  ', ' + vulnerableResults.length +
+                          ' contained vulnerable ' + paths;
       }
-      return meta + summary;
-    }
+      testedMessage += '.';
 
-    var vulnLength = res.vulnerabilities.length;
-    var count = 'found ' + res.uniqueCount;
-    if (res.uniqueCount === 1) {
-      var issue = res.licensesPolicy ? 'issue' : 'vulnerability';
-      count += ' ' + issue + ', ';
+      // only summarise for multiple test paths
+      if (results.length > 1) {
+        response += chalk.bold.red(testedMessage);
+      }
+
+      const error = new Error(response);
+      // take the code of the first problem to go through error translation
+      error.code = vulnerableResults[0].code;
+      throw error;
     } else {
-      count += ' ' + (res.licensesPolicy ? 'issues' : 'vulnerabilities') + ', ';
-    }
-    if (showVulnPaths) {
-      count += vulnLength + ' vulnerable ';
-
-      if (res.vulnerabilities.length === 1) {
-        count += 'path.';
+      if (options.showVulnPaths) {
+        testedMessage += ', no vulnerable paths were found.';
       } else {
-        count += 'paths.';
+        testedMessage += ', no issues were found.';
       }
+      // only summarise for multiple test paths
+      if (results.length > 1) {
+        response += chalk.green(testedMessage);
+      }
+
+      return response;
+    }
+  });
+}
+
+function displayResult(res, options) {
+  var meta = metaForDisplay(res, options) + '\n\n';
+  var packageManager = options.packageManager;
+  var summary = 'Tested ';
+
+  // some errors will cause `res` to be string or a number, return as is.
+  if (typeof res === 'string' || typeof res === 'number') {
+    return res;
+  }
+
+  // some errors are real errors - return their message
+  if (res instanceof Error) {
+    return res.message;
+  }
+
+  // real `test` result object, let's describe it
+  if (res.hasOwnProperty('dependencyCount')) {
+    summary += res.dependencyCount + ' dependencies';
+  } else {
+    summary += options.path;
+  }
+  var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+  summary += ' for known ' + issues;
+
+  if (res.ok && res.vulnerabilities.length === 0) {
+    var vulnPaths = options.showVulnPaths ?
+          ', no vulnerable paths found.' :
+          ', none were found.';
+    summary = chalk.green('✓ ' + summary + vulnPaths);
+
+    if (!isCI) {
+      summary += '\n\nNext steps:\n- Run `snyk monitor` to be notified ' +
+        'about new related vulnerabilities.\n- Run `snyk test` as part of ' +
+        'your CI/test.';
+    }
+    return chalk.bold('\nTesting ' + options.path + '...\n') + meta + summary;
+  }
+
+  var vulnLength = res.vulnerabilities && res.vulnerabilities.length;
+  var count = 'found ' + res.uniqueCount;
+  if (res.uniqueCount === 1) {
+    var issue = res.licensesPolicy ? 'issue' : 'vulnerability';
+    count += ' ' + issue + ', ';
+  } else {
+    count += ' ' + (res.licensesPolicy ? 'issues' : 'vulnerabilities') + ', ';
+  }
+  if (options.showVulnPaths) {
+    count += vulnLength + ' vulnerable ';
+
+    if (res.vulnerabilities && res.vulnerabilities.length === 1) {
+      count += 'path.';
     } else {
-      count = count.slice(0, -2) + '.'; // replace ', ' with dot
+      count += 'paths.';
     }
-    summary = summary + ', ' + chalk.red.bold(count);
+  } else {
+    count = count.slice(0, -2) + '.'; // replace ', ' with dot
+  }
+  summary = summary + ', ' + chalk.red.bold(count);
 
-    if (packageManager === 'npm' || packageManager === 'yarn') {
-      summary += '\n\nRun `snyk wizard` to address these issues.';
+  if (packageManager === 'npm' || packageManager === 'yarn') {
+    summary += '\n\nRun `snyk wizard` to address these issues.';
+  }
+
+  var sep = '\n\n';
+
+  var reportedVulns = {};
+  var body = (res.vulnerabilities || []).map(function (vuln) {
+    if (!options.showVulnPaths && reportedVulns[vuln.id]) { return; }
+    reportedVulns[vuln.id] = true;
+
+    var res = '';
+    var name = vuln.name + '@' + vuln.version;
+    var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
+    var issue = vuln.type === 'license' ? 'issue' : 'vulnerability';
+    res += chalk.red('✗ ' + severity + ' severity ' + issue + ' found on ' +
+      name + '\n');
+    res += '- desc: ' + vuln.title + '\n';
+    res += '- info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
+    if (options.showVulnPaths) {
+      res += '- from: ' + vuln.from.join(' > ') + '\n';
     }
 
-    var sep = '\n\n';
+    if (vuln.note) {
+      res += vuln.note + '\n';
+    }
 
-    var reportedVulns = {};
-    var body = res.vulnerabilities.map(function (vuln) {
-      if (!showVulnPaths && reportedVulns[vuln.id]) { return; }
-      reportedVulns[vuln.id] = true;
+    // none of the output past this point is relevant if we're not displaying
+    // vulnerable paths
+    if (!options.showVulnPaths) {
+      return res.trim();
+    }
 
-      var res = '';
-      var name = vuln.name + '@' + vuln.version;
-      var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
-      var issue = vuln.type === 'license' ? 'issue' : 'vulnerability';
-      res += chalk.red('✗ ' + severity + ' severity ' + issue + ' found on ' +
-        name + '\n');
-      res += '- desc: ' + vuln.title + '\n';
-      res += '- info: ' + config.ROOT + '/vuln/' + vuln.id + '\n';
-      if (showVulnPaths) {
-        res += '- from: ' + vuln.from.join(' > ') + '\n';
-      }
+    var upgradeSteps = (vuln.upgradePath || []).filter(Boolean);
 
-      if (vuln.note) {
-        res += vuln.note + '\n';
-      }
+    // Remediation instructions (if we have one)
+    if (upgradeSteps.length) {
 
-      // none of the output past this point is relevant if we're not displaying
-      // vulnerable paths
-      if (!showVulnPaths) {
-        return res.trim();
-      }
+      // Create upgrade text
+      var upgradeText = upgradeSteps.shift();
+      upgradeText += (upgradeSteps.length) ?
+          ' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')' : '';
 
-      var upgradeSteps = (vuln.upgradePath || []).filter(Boolean);
+      var fix = ''; // = 'Fix:\n';
+      for (var idx = 0; idx < vuln.upgradePath.length; idx++) {
+        var elem = vuln.upgradePath[idx];
 
-      // Remediation instructions (if we have one)
-      if (upgradeSteps.length) {
-
-        // Create upgrade text
-        var upgradeText = upgradeSteps.shift();
-        upgradeText += (upgradeSteps.length) ?
-           ' (triggers upgrades to ' + upgradeSteps.join(' > ') + ')' : '';
-
-        var fix = ''; // = 'Fix:\n';
-        for (var idx = 0; idx < vuln.upgradePath.length; idx++) {
-          var elem = vuln.upgradePath[idx];
-
-          if (elem) {
-            // Check if we're suggesting to upgrade to ourselves.
-            if (vuln.from.length > idx && vuln.from[idx] === elem) {
-              // This ver should get the not-vuln dependency, suggest refresh
-              fix += 'Your dependencies are out of date, otherwise you would ' +
-                'be using a newer ' + vuln.name + ' than ' + vuln.name + '@' +
-                vuln.version + '.\n';
-              if (packageManager === 'npm') {
-                fix += 'Try deleting node_modules, reinstalling ' +
-                'and running `snyk test` again.\nIf the problem persists, ' +
-                'one of your dependencies may be bundling outdated modules.';
-              } else if (packageManager === 'rubygems') {
-                fix += 'Try running `bundle update ' + vuln.name + '` ' +
-                'and running `snyk test` again.';
-              }
-              break;
-            }
-            if (idx === 0) {
-              // This is an outdated version of yourself
-              fix += 'You\'ve tested an outdated version of the project. ' +
-                'Should be upgraded to ' + upgradeText;
-            } else if (idx === 1) {
-              // A direct dependency needs upgrade. Nothing to add.
-              fix += 'Upgrade direct dependency ' + vuln.from[idx] +
-                ' to ' + upgradeText;
-            } else {
-              // A deep dependency needs to be upgraded
-              res += 'No direct dependency upgrade can address this issue.\n' +
-                chalk.bold('Run `snyk wizard` to explore remediation options.');
+        if (elem) {
+          // Check if we're suggesting to upgrade to ourselves.
+          if (vuln.from.length > idx && vuln.from[idx] === elem) {
+            // This ver should get the not-vuln dependency, suggest refresh
+            fix += 'Your dependencies are out of date, otherwise you would ' +
+              'be using a newer ' + vuln.name + ' than ' + vuln.name + '@' +
+              vuln.version + '.\n';
+            if (packageManager === 'npm') {
+              fix += 'Try deleting node_modules, reinstalling ' +
+              'and running `snyk test` again.\nIf the problem persists, ' +
+              'one of your dependencies may be bundling outdated modules.';
+            } else if (packageManager === 'rubygems') {
+              fix += 'Try running `bundle update ' + vuln.name + '` ' +
+              'and running `snyk test` again.';
             }
             break;
           }
+          if (idx === 0) {
+            // This is an outdated version of yourself
+            fix += 'You\'ve tested an outdated version of the project. ' +
+              'Should be upgraded to ' + upgradeText;
+          } else if (idx === 1) {
+            // A direct dependency needs upgrade. Nothing to add.
+            fix += 'Upgrade direct dependency ' + vuln.from[idx] +
+              ' to ' + upgradeText;
+          } else {
+            // A deep dependency needs to be upgraded
+            res += 'No direct dependency upgrade can address this issue.\n' +
+              chalk.bold('Run `snyk wizard` to explore remediation options.');
+          }
+          break;
+        }
 
-        }
-        res += chalk.bold(fix);
-      } else {
-        if (vuln.type === 'license') {
-          // do not display fix (there isn't any), remove newline
-          res = res.slice(0, -1);
-        } else if (packageManager === 'npm') {
-          res += chalk.magenta(
-            'Fix: None available. Consider removing this dependency.');
-        }
       }
-      return res;
-    }).filter(Boolean).join(sep) + sep + meta + summary;
-
-    if (res.ok) {
-      return body;
+      res += chalk.bold(fix);
+    } else {
+      if (vuln.type === 'license') {
+        // do not display fix (there isn't any), remove newline
+        res = res.slice(0, -1);
+      } else if (packageManager === 'npm') {
+        res += chalk.magenta(
+          'Fix: None available. Consider removing this dependency.');
+      }
     }
+    return res;
+  }).filter(Boolean).join(sep) + sep + meta + summary;
 
-    var error = new Error(body);
-
-    error.code = 'VULNS';
-    throw error;
-  });
+  return chalk.bold('\nTesting ' + options.path + '...\n') + body;
 }
 
 function metaForDisplay(res, options) {

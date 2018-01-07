@@ -258,6 +258,8 @@ function (t) {
         args: null,
         file: 'project.assets.json',
         packageManager: 'nuget',
+        path: 'nuget-app-2',
+        showVulnPaths: true,
       },], 'calls nuget plugin');
   });
 });
@@ -288,6 +290,8 @@ function (t) {
         args: null,
         file: 'obj/project.assets.json',
         packageManager: 'nuget',
+        path: 'nuget-app-2.1',
+        showVulnPaths: true,
       },], 'calls nuget plugin');
   });
 });
@@ -319,6 +323,8 @@ function (t) {
         args: null,
         file: 'packages.config',
         packageManager: 'nuget',
+        path: 'nuget-app-4',
+        showVulnPaths: true,
       },], 'calls nuget plugin');
   });
 });
@@ -402,6 +408,8 @@ function (t) {
         args: null,
         file: 'requirements.txt',
         packageManager: 'pip',
+        path: 'pip-app',
+        showVulnPaths: true,
       }], 'calls python plugin');
   });
 });
@@ -433,6 +441,8 @@ test('`test nuget-app --file=project.assets.json`', function (t) {
         args: null,
         file: 'project.assets.json',
         packageManager: 'nuget',
+        path: 'nuget-app',
+        showVulnPaths: true,
       },], 'calls nuget plugin');
   });
 });
@@ -464,6 +474,8 @@ test('`test nuget-app --file=packages.config`', function (t) {
         args: null,
         file: 'packages.config',
         packageManager: 'nuget',
+        path: 'nuget-app',
+        showVulnPaths: true,
       },], 'calls nuget plugin');
   });
 });
@@ -495,6 +507,8 @@ test('`test nuget-app --file=project.json`', function (t) {
         args: null,
         file: 'project.json',
         packageManager: 'nuget',
+        path: 'nuget-app',
+        showVulnPaths: true,
       },], 'calls nuget plugin');
   });
 });
@@ -527,6 +541,8 @@ function (t) {
         args: null,
         file: 'Gopkg.lock',
         packageManager: 'golangdep',
+        path: 'golang-app',
+        showVulnPaths: true,
       },], 'calls golang plugin');
   });
 });
@@ -559,11 +575,13 @@ function (t) {
         args: null,
         file: 'vendor/vendor.json',
         packageManager: 'govendor',
+        path: 'golang-app',
+        showVulnPaths: true,
       },], 'calls golang plugin');
   });
 });
 
-test('`test golang-app auto-detects golang/dep`',
+test('`test golang-app` auto-detects golang/dep',
 function (t) {
   chdirWorkspaces();
   var plugin = {
@@ -589,11 +607,13 @@ function (t) {
         args: null,
         file: 'Gopkg.lock',
         packageManager: 'golangdep',
+        path: 'golang-app',
+        showVulnPaths: true,
       },], 'calls golang plugin');
   });
 });
 
-test('`test golang-app-govendor auto-detects govendor`',
+test('`test golang-app-govendor` auto-detects govendor',
 function (t) {
   chdirWorkspaces();
   var plugin = {
@@ -619,6 +639,8 @@ function (t) {
         args: null,
         file: 'vendor/vendor.json',
         packageManager: 'govendor',
+        path: 'golang-app-govendor',
+        showVulnPaths: true,
       },], 'calls golang plugin');
   });
 });
@@ -651,22 +673,44 @@ function (t) {
         args: null,
         file: 'composer.lock',
         packageManager: 'composer',
+        path: 'composer-app',
+        showVulnPaths: true,
       },], 'calls composer plugin');
   });
 });
 
 test('`test composer-app` auto-detects composer.lock', function (t) {
   chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('composer')
+  .returns(plugin);
+
   return cli.test('composer-app')
   .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/composer', 'posts to correct url');
-    t.equal(req.body.packageFormatVersion, 'composer:0.0.1', 'specifies package format');
+    t.same(plugin.inspect.getCall(0).args,
+      ['composer-app', 'composer.lock', {
+        args: null,
+        file: 'composer.lock',
+        packageManager: 'composer',
+        path: 'composer-app',
+        showVulnPaths: true,
+      },], 'calls composer plugin');
   });
 });
 
-test('`test composer-app auto-detects composer`',
+test('`test composer-app` auto-detects composer.lock',
 function (t) {
   chdirWorkspaces();
   var plugin = {
@@ -692,10 +736,77 @@ function (t) {
         args: null,
         file: 'composer.lock',
         packageManager: 'composer',
+        path: 'composer-app',
+        showVulnPaths: true,
       },], 'calls composer plugin');
   });
 });
 
+test('`test composer-app golang-app nuget-app` auto-detects all three projects',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin.withArgs('composer').returns(plugin);
+  plugins.loadPlugin.withArgs('golangdep').returns(plugin);
+  plugins.loadPlugin.withArgs('nuget').returns(plugin);
+
+  return cli.test('composer-app', 'golang-app', 'nuget-app', {org: 'test-org'})
+  .then(function () {
+    // assert three API calls made, each with a different url
+    var reqs = Array.from({length:3})
+      .map(function () { return server.popRequest(); });
+
+    t.same(reqs.map(function (r) { return r.method; }),
+      ['POST', 'POST', 'POST'], 'all post requests');
+
+    t.same(reqs.map(function (r) { return r.url; }).sort(), [
+      '/api/v1/vuln/composer?org=test-org',
+      '/api/v1/vuln/golangdep?org=test-org',
+      '/api/v1/vuln/nuget?org=test-org',
+    ], 'all urls are present');
+
+    // assert three plugin.inspect calls, each with a different app
+    var calls = plugin.inspect.getCalls().sort(function (call1, call2) {
+      return call1.args[0] < call2.args[1] ? -1 :
+              (call1.args[0] > call2.args[0] ? 1 : 0);
+    });
+    t.same(calls[0].args,
+      ['composer-app', 'composer.lock', {
+        args: null,
+        org: 'test-org',
+        file: 'composer.lock',
+        packageManager: 'composer',
+        path: 'composer-app',
+        showVulnPaths: true,
+      },], 'calls composer plugin');
+    t.same(calls[1].args,
+      ['golang-app', 'Gopkg.lock', {
+        args: null,
+        org: 'test-org',
+        file: 'Gopkg.lock',
+        packageManager: 'golangdep',
+        path: 'golang-app',
+        showVulnPaths: true,
+      },], 'calls golangdep plugin');
+    t.same(calls[2].args,
+      ['nuget-app', 'project.assets.json', {
+        args: null,
+        org: 'test-org',
+        file: 'project.assets.json',
+        packageManager: 'nuget',
+        path: 'nuget-app',
+        showVulnPaths: true,
+      },], 'calls nuget plugin');
+  });
+});
 
 test('`test --policy-path`', function (t) {
   t.plan(3);
