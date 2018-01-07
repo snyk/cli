@@ -67,6 +67,16 @@ test('cli', function (t) {
     t.notEqual(pos, -1, 'correctly found vulnerability: ' + res);
   });
 
+  cli.test('semver@2', {json: true}).then(function (res) {
+    t.fail(res);
+  }).catch(function (error) {
+    var res = error.message;
+    var vuln = res.vulnerabilities[0];
+    t.pass(res);
+    t.equal(vuln.id, 'npm:semver:20150403',
+      'correctly found vulnerability: ' + vuln.id);
+  });
+ 
 });
 
 test('monitor', function (t) {
@@ -103,14 +113,45 @@ test('monitor --json', function (t) {
 });
 
 test('multiple test arguments', function (t) {
-  t.plan(1);
+  t.plan(4);
 
-  cli.test('semver@2', 'jsbin@3.11.23').then(function (res) {
+  cli.test('semver@4', 'qs@6').then(function (res) {
+    var lastLine = res.trim().split('\n').pop();
+    t.equals(
+      lastLine.indexOf('Tested 2 projects, no vulnerable paths were found.'), 0,
+      'successfully tested semver@4, qs@6');
+  }).catch(function (error) {
+    t.fail(error);
+  });
+
+  cli.test('semver@4', 'qs@1').then(function (res) {
     t.fail(res);
   }).catch(function (error) {
     var res = error.message;
     var lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine.indexOf('Tested 2 projects'), 0, 'successfully tested 2 projects');
+    t.equals(
+      lastLine.indexOf('Tested 2 projects, 1 contained vulnerable path.'), 0,
+      'successfully tested semver@4, qs@1');
+  });
+
+  cli.test('semver@2', 'qs@6').then(function (res) {
+    t.fail(res);
+  }).catch(function (error) {
+    var res = error.message;
+    var lastLine = res.trim().split('\n').pop();
+    t.equals(
+      lastLine.indexOf('Tested 2 projects, 1 contained vulnerable path.'), 0,
+      'successfully tested semver@2, qs@6');
+  });
+
+  cli.test('semver@2', 'qs@1').then(function (res) {
+    t.fail(res);
+  }).catch(function (error) {
+    var res = error.message;
+    var lastLine = res.trim().split('\n').pop();
+    t.equals(
+      lastLine.indexOf('Tested 2 projects, 2 contained vulnerable paths.'), 0,
+      'successfully tested semver@2, qs@1');
   });
 });
 
