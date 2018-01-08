@@ -1,7 +1,7 @@
-const test = require('tap-only');
-const fs = require('then-fs');
-const dir = __dirname + '/fixtures/bugs/SC-1615/';
-const before = test;
+var test = require('tap-only');
+var fs = require('then-fs');
+var dir = __dirname + '/fixtures/bugs/SC-1615/';
+var before = test;
 
 before('setup: ensure node_modules does not exist', t => {
   fs.rmdir(dir + '/node_modules').catch(e => {});

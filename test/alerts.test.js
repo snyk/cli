@@ -49,7 +49,7 @@ test('register two different alerts', function (t) {
   alerts.registerAlerts([ alert2 ]);
   t.true(alerts.hasAlert(alert1.name), 'first alert is found');
   t.true(alerts.hasAlert(alert2.name), 'second alert is found');
-  const displayedAlerts = alerts.displayAlerts();
+  var displayedAlerts = alerts.displayAlerts();
   t.contains(displayedAlerts, alert1.msg,
     'first alert is displayed');
   t.contains(displayedAlerts, alert2.msg,

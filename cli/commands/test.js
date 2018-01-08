@@ -277,7 +277,7 @@ function displayResult(res, options) {
 }
 
 function metaForDisplay(res, options) {
-  const meta = [
+  var meta = [
     chalk.bold('Organisation: ') + res.org,
     chalk.bold('Package manager: ') +
       (options.packageManager || res.packageManager),
