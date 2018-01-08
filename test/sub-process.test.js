@@ -30,8 +30,8 @@ function isSupported() {
    * and fall back to exec (or appending '.cmd') for Node < 6 on Windows.
    */
   try {
-    const supportedNodeVersion = 6;
-    const majorVersion = Number(process.version.match(/^v([\d]+)/)[1]);
+    var supportedNodeVersion = 6;
+    var majorVersion = Number(process.version.match(/^v([\d]+)/)[1]);
     return majorVersion >= supportedNodeVersion;
   } catch(err) {
     return false;

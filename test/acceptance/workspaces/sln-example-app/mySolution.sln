@@ -1,0 +1,8 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "new_mvc_project", "dotnet2_new_mvc_project\new_mvc_project.csproj", "{26B9B59B-C5AC-49CE-9BD6-4C72940DAC89}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication2", "WebApplication2\WebApplication2.csproj", "{9A79CF26-C7E8-47A3-B718-C5E654AA2701}"
+EndProject
+Global
+EndGlobal

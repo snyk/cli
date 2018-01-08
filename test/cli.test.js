@@ -104,8 +104,8 @@ test('monitor --json', function (t) {
     var keyList = [ 'packageManager', 'manageUrl' ];
 
     keyList.forEach(k => {
-      !_.get(res, `${k}`) ? t.fail(`${k} not found`) :
-        t.pass(`${k} found`);
+      !_.get(res, k) ? t.fail(k + 'not found') :
+        t.pass(k + ' found');
     });
   }).catch(function (error) {
     t.fail(error);

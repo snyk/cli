@@ -4,8 +4,13 @@ var args = require('./args')(process.argv);
 var debug = require('debug')('snyk');
 var copy = require('./copy');
 var alerts = require('../lib/alerts');
+var sln = require('../lib/sln');
 
 var exitcode = 0;
+
+if (args.options.file && args.options.file.match(/\.sln$/)) {
+  sln.updateArgs(args);
+}
 
 var cli = args.method.apply(null, args.options._).then(function (result) {
   var analytics = require('../lib/analytics');
