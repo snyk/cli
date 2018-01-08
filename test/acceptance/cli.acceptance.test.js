@@ -293,7 +293,7 @@ function (t) {
 });
 
 
-test('`test nuget-app-4 auto-detects app.csproj`',
+test('`test nuget-app-4 auto-detects packages.config`',
 function (t) {
   chdirWorkspaces();
   var plugin = {
@@ -315,9 +315,9 @@ function (t) {
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/nuget', 'posts to correct url');
     t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app-4', 'app.csproj', {
+      ['nuget-app-4', 'packages.config', {
         args: null,
-        file: 'app.csproj',
+        file: 'packages.config',
         packageManager: 'nuget',
       },], 'calls nuget plugin');
   });
@@ -437,7 +437,7 @@ test('`test nuget-app --file=project.assets.json`', function (t) {
   });
 });
 
-test('`test nuget-app --file=app.csproj`', function (t) {
+test('`test nuget-app --file=packages.config`', function (t) {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -453,16 +453,16 @@ test('`test nuget-app --file=app.csproj`', function (t) {
   .returns(plugin);
 
   return cli.test('nuget-app', {
-    file: 'app.csproj',
+    file: 'packages.config',
   })
   .then(function () {
     var req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/nuget', 'posts to correct url');
     t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app', 'app.csproj', {
+      ['nuget-app', 'packages.config', {
         args: null,
-        file: 'app.csproj',
+        file: 'packages.config',
         packageManager: 'nuget',
       },], 'calls nuget plugin');
   });
