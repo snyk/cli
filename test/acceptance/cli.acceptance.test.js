@@ -935,7 +935,7 @@ test('`monitor --policy-path`', function (t) {
 
 test('`monitor non-existing`', function (t) {
   chdirWorkspaces();
-  return cli.monitor('non-existing')
+  return cli.monitor('non-existing', {json: true})
   .then(function () {
     t.fail('should have failed');
   })
@@ -1173,6 +1173,34 @@ function (t) {
         args: null,
         file: 'vendor/vendor.json',
       }], 'calls golang plugin');
+  });
+});
+
+test('`monitor composer-app ruby-app` works on multiple params', function (t) {
+  chdirWorkspaces();
+  return cli.monitor('composer-app', 'ruby-app', { json: true })
+  .then(function (results) {
+    results = JSON.parse(results);
+    // assert two proper responses
+    t.equal(results.length, 2, '2 monitor results');
+
+    // assert results contain monitor urls
+    t.match(results[0].manageUrl, 'http://localhost:12345/manage',
+      'first monitor url is present');
+    t.match(results[1].manageUrl, 'http://localhost:12345/manage',
+      'second monitor url is present');
+
+    // assert results contain monitor urls
+    t.match(results[0].path, 'composer', 'first monitor url is composer');
+    t.match(results[1].path, 'ruby-app', 'second monitor url is ruby-app');
+
+    // assert proper package managers detected
+    t.match(results[0].packageManager, 'composer', 'composer package manager');
+    t.match(results[1].packageManager, 'rubygems', 'rubygems package manager');
+    t.end();
+  })
+  .catch(function (err) {
+    t.fail(err.message);
   });
 });
 
