@@ -18,7 +18,7 @@ var getPatchFile = proxyquire('../lib/protect/fetch-patch', {
   },
   needle: {
     get: function () {
-      spy(...arguments);
+      spy(arguments[0], arguments[1]);
       return {
         on: function (_, responseCb) {
           responseCb({ statusCode: 200 });
