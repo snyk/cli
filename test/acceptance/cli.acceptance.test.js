@@ -57,6 +57,22 @@ before('prime config', function (t) {
 });
 
 
+test('test cli with multiple params: good and bad', function (t) {
+  t.plan(6);
+  return cli.test('/', 'semver', {registry: 'npm', org: 'EFF', json: true})
+  .then(function () {
+    t.fail('expect to error');
+  }).catch(function (error) {
+    errObj = JSON.parse(error.message);
+    t.ok(errObj.length == 2, 'expecting two results');
+    t.notOk(errObj[0].ok, 'first object shouldnt be ok');
+    t.ok(errObj[1].ok, 'second object should be ok');
+    t.ok(errObj[0].path.length > 0, 'should have path');
+    t.ok(errObj[1].path.length > 0, 'should have path');
+    t.pass('info on both objects');
+  });
+});
+
 /**
  * Remote package `test`
  */
@@ -975,16 +991,20 @@ test('`monitor --policy-path`', function (t) {
   });
 });
 
-
-test('`monitor non-existing`', function (t) {
+test('`monitor non-existing --json`', function (t) {
   chdirWorkspaces();
   return cli.monitor('non-existing', {json: true})
   .then(function () {
     t.fail('should have failed');
   })
   .catch(function (error) {
+    var errObj = JSON.parse(error.message);
+    t.notOk(errObj.ok, 'ok object should be false');
+    t.match(errObj.error,
+      'snyk monitor should be pointed at an existing project',
+      'show err message');
+    t.match(errObj.path, 'non-existing', 'should show specified path');
     t.pass('throws error');
-    t.match(error.message, 'pointed at an existing project', 'shows error');
   });
 });
 
