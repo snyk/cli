@@ -155,6 +155,16 @@ test('multiple test arguments', function (t) {
   });
 });
 
+test('test for non-existing', function (t) {
+  t.plan(1);
+
+  cli.test('@123').then(function (res) {
+    t.fails('should fail, instead received ' + res);
+  }).catch(function (error) {
+    t.match(error.message, '500', 'expected error ' + error.message)
+  });
+});
+
 test('snyk ignore - all options', function (t) {
   t.plan(1);
   var fullPolicy = {ID: [
