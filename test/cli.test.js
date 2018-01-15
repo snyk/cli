@@ -55,7 +55,7 @@ before('prime config', function (t) {
   }).catch(t.bailout).then(t.end);
 });
 
-test('cli', function (t) {
+test('cli tests for online repos', function (t) {
   t.plan(2);
 
   cli.test('semver@2').then(function (res) {
@@ -76,7 +76,20 @@ test('cli', function (t) {
     t.equal(vuln.id, 'npm:semver:20150403',
       'correctly found vulnerability: ' + vuln.id);
   });
- 
+});
+
+test('cli tests erroring paths', {timeout: 3000}, function (t) {
+  t.plan(3);
+
+  cli.test('/', {json: true}).then(function (res) {
+    t.fail(res);
+  }).catch(function (error) {
+    var errObj = JSON.parse(error.message);
+    t.ok(errObj.error.length > 1, 'should display error message');
+    t.match(errObj.path, '/', 'path property should be populated')
+    t.pass('error json with correct output when one bad project specified');
+    t.end();
+  });
 });
 
 test('monitor', function (t) {

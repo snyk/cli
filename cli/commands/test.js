@@ -58,7 +58,7 @@ function test() {
           }
         })
         .then(function (res) {
-          results.push(res);
+          results.push(_.assign(res, {path: path}));
         });
       });
     }, Promise.resolve());
@@ -69,7 +69,15 @@ function test() {
     // results is now an array of 1 or more test results
     // values depend on `options.json` value - string or object
     if (options.json) {
-      // backwards compat - strip array iff only one result
+      results = results.map(function (result) {
+        // add json for when thrown exception
+        if (result instanceof Error) {
+          return {ok: false, error: result.message, path: result.path};
+        }
+        return result;
+      });
+
+      // backwards compat - strip array IFF only one result
       var dataToSend = results.length === 1 ? results[0] : results;
       var json = JSON.stringify(dataToSend, '', 2);
 
