@@ -96,7 +96,50 @@ test('`test empty --file=Gemfile`', function (t) {
   })
   .catch(function (error) {
     t.pass('throws error');
-    t.match(error.message, 'File not found: Gemfile', 'shows error');
+    t.match(error.message, 'Could not find the specified file: Gemfile',
+      'shows error');
+  });
+});
+
+test('`test /` test for non-existent with path specified', function (t) {
+  chdirWorkspaces();
+  return cli.test('/')
+  .then(function () {
+    t.fail('should have failed');
+  })
+  .catch(function (error) {
+    t.pass('throws error');
+    t.match(error.message, 'Could not autodetect package manager for /',
+      'shows error message');
+  });
+});
+
+test('`test nuget-app --file=non_existent`', function (t) {
+  chdirWorkspaces();
+  return cli.test('nuget-app', {file: 'non-existent'})
+  .then(function () {
+    t.fail('should have failed');
+  })
+  .catch(function (error) {
+    t.pass('throws error');
+    t.match(error.message, 'Could not find the specified file: non-existent',
+      'show first part of error message')
+    t.match(error.message, 'Please check that it exists and try again.',
+    'show second part of error message')
+  });
+});
+
+test('`test empty --file=readme.md`', function (t) {
+  chdirWorkspaces();
+  return cli.test('empty', {file: 'readme.md'})
+  .then(function () {
+    t.fail('should have failed');
+  })
+  .catch(function (error) {
+    t.pass('throws error');
+    t.match(error.message,
+      'Could not detect package manager for file: readme.md',
+      'shows error message for when file specified exists, but not supported');
   });
 });
 
