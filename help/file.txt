@@ -7,9 +7,21 @@ package information.
   $ snyk test --file=package.json
 
 When ommitted Snyk will try to detect the appropriate file for your project by
-looking for a `package.json` or `Gemfile` file.
+looking for files in following order:
+  yarn.lock
+  package.json
+  Gemfile
+  Gemfile.lock
+  pom.xml
+  requirements.txt
+  build.gradle
+  build.sbt
+  Gopkg.lock
+  vendor/vendor.json
+  obj/project.assets.json
+  packages.config
 
-If both files exist it will use the package.json file. In this case you can
-force a Ruby test by pointing to your Gemfile.
+If more than one file exists it will use the first order-wise. If you wish to specify manually, you can
+  point the --file parameter to force using what you specify, for example:
 
   $ snyk test --file=Gemfile
