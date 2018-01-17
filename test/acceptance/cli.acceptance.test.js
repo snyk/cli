@@ -13,6 +13,7 @@ var server = require('./fake-server')(process.env.SNYK_API, apiKey);
 var subProcess = require('../../lib/sub-process');
 var plugins = require('../../lib/plugins');
 var nock = require('nock');
+var needle = require('needle');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -1411,6 +1412,42 @@ test('proxy environment variables', function (t) {
   });
 });
 
+test('`test --insecure`', function (t) {
+  t.plan(2);
+  chdirWorkspaces('npm-package');
+
+  t.test('default (insecure false)', function (t) {
+    sinon.stub(needle, 'request', function () {
+      throw 'bail';
+    });
+    t.teardown(needle.request.restore);
+    return cli.test('npm-package')
+    .catch(function () {
+      t.notOk(needle.request.firstCall.args[3].rejectUnauthorized,
+        'rejectUnauthorized not present (same as true)');
+    });
+  });
+
+  t.test('insecure true', function (t) {
+    // Unfortunately, all acceptance tests run through cli/commands
+    // which bypasses `args`, and `ignoreUnknownCA` is a global set
+    // by `args`, so we simply set the global here.
+    // NOTE: due to this we add tests to `args.test.js`
+    global.ignoreUnknownCA = true;
+    sinon.stub(needle, 'request', function () {
+      throw 'bail';
+    });
+    t.teardown(function () {
+      delete global.ignoreUnknownCA;
+      needle.request.restore();
+    });
+    return cli.test('npm-package')
+    .catch(function () {
+      t.false(needle.request.firstCall.args[3].rejectUnauthorized,
+        'rejectUnauthorized false');
+    });
+  });
+});
 
 /**
  * We can't expect all test environments to have Maven installed
