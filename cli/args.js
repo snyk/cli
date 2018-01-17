@@ -132,6 +132,10 @@ function args(processargv) {
     }
   });
 
+  if (argv.insecure) {
+    global.ignoreUnknownCA = true;
+  }
+
   debug(command, argv);
 
   return {
