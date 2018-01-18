@@ -4,7 +4,7 @@
 
 [![Known Vulnerabilities](https://snyk.io/test/npm/snyk/badge.svg)](https://snyk.io/test/npm/snyk)
 
-Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm, Ruby and Java dependencies, both on an ad hoc basis and as part of your CI (Build) system.
+Snyk helps you find, fix and monitor known vulnerabilities in Node.js npm, Ruby and Java dependencies, both on an ad hoc basis and as part of your CI (Build) system.
 
 ## Documentation
 
@@ -40,7 +40,7 @@ The package argument is optional. If no package is given, Snyk will run the comm
 ## Features
 - **Find** known vulnerabilities by running `snyk test` on a project either as a one off or as part of your CI process.
 - **Fix** vulnerabilities using `snyk wizard` and `snyk protect`.
-  - `snyk wizard` walks you through finding and fixing know vulnerabilities in your project. Remediation options include configuring your policy file to update, auto patch and ignore vulnerabilities. (npm only)
+  - `snyk wizard` walks you through finding and fixing known vulnerabilities in your project. Remediation options include configuring your policy file to update, auto patch and ignore vulnerabilities. (npm only)
   - `snyk protect` your code from vulnerabilities by applying patches and optionally suppressing specific vulnerabilities.
 - **Alert** `snyk monitor` records the state of dependencies and any vulnerabilities on snyk.io so you can be alerted when new vulnerabilities or updates/patches are disclosed that affect your repositories.
 - **Prevent** new vulnerable dependencies from being added to your project by running `snyk test` as part of your CI to fail tests when vulnerable Node.js or Ruby dependencies are added.
@@ -58,9 +58,9 @@ When using the package via npm, the build is not needed as the `dist` directory 
 
 ## Docker
 
-Snyk is also provided as a set of Docker images thatcarry the runtime environment of each package manager. For example the npm image will carry all of the needed setup to run `npm install` on the currently running container. Currently there are images for npm, Ruby, Maven, Gradle and SBT.
+Snyk is also provided as a set of Docker images that carry the runtime environment of each package manager. For example the npm image will carry all of the needed setup to run `npm install` on the currently running container. Currently there are images for npm, Ruby, Maven, Gradle and SBT.
 
-The images can perform `snyk test` by default on the specified project which is mounted to the container as a read/write volume and `snyk monitor` when the `MONITOR` environment variable is set when running the docker container. When running `snyk monitor` with the `GENERATE_REPORT` environment variable set an html file called `snyk-report.html` and a CSS file called `snyk-report.css` will be generated. The image also writes a file called `snyk-res.json` for internal use and `snyk-error.log` for errors that we can look at if something goes wrong.
+The images can perform `snyk test` by default on the specified project which is mounted to the container as a read/write volume and `snyk monitor` when the `MONITOR` environment variable is set when running the docker container. When running `snyk monitor` with the `GENERATE_REPORT` environment variable set, an html file called `snyk-report.html` and a CSS file called `snyk-report.css` will be generated. The image also writes a file called `snyk-res.json` for internal use and `snyk-error.log` for errors that we can look at if something goes wrong.
 
 
 The following environment variables can be used when running the container on docker:
@@ -79,7 +79,6 @@ The general format of tags is [snyk-version]-[package-manager]-[package-manager-
 [package-manager-version] - The version of the package manager that is installed inside the image.
 
 ### NodeJS
-
 
 We will need to mount the project root folder when running the image so that Snyk can access the code within the container. The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds. Please see the following examples on how to run Snyk inside docker:
 
