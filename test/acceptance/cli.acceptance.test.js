@@ -1363,6 +1363,27 @@ test('`protect --policy-path`', function (t) {
   });
 });
 
+test('`protect` with no policy', function (t) {
+  t.plan(1);
+  chdirWorkspaces('npm-with-dep-missing-policy');
+
+  var vulns = require('./fixtures/npm-package-policy/vulns.json');
+  server.setNextResponse(vulns);
+
+  var projectPolicy = fs.readFileSync(
+    __dirname + '/workspaces/npm-with-dep-missing-policy/.snyk').toString();
+
+  return cli.protect()
+  .then(function () {
+    var req = server.popRequest();
+    var policySentToServer = req.body.policy;
+    t.equal(policySentToServer, projectPolicy, 'sends correct policy');
+  })
+  .catch(function (err) {
+    t.fail(err);
+  });
+});
+
 /**
  * Verify support for http(s) proxy from environments variables
  * (http_proxy, https_proxy, no_proxy)

@@ -1,0 +1,20 @@
+{
+  "name": "project-with-dep-missing-policy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "qs": "^6.3.0",
+    "typescript-lazy-get-decorator": "^1.1.1",
+    "snyk": "^1.69.1"
+  },
+  "snyk": true
+}
