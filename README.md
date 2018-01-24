@@ -130,7 +130,7 @@ docker run -it
 
 We will need to mount the project root folder when running the image so that Snyk can access the code within the container and mount the local .m2 and .ivy2 folders. The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds. Please see the following examples on how to run Snyk inside docker:
 
-dependency-tree module is required as a global module in version 0.8.2. Please see [this repo](https://github.com/jrudolph/sbt-dependency-graph/tree/v0.8.2) for installation instructions.
+sbt-dependency-graph plugin is required as a global module for `snyk` to run test. It comes bundled in the docker image already: [version 0.8.2](https://github.com/jrudolph/sbt-dependency-graph/tree/v0.8.2) for SBT 0.13.16 and [version 0.9.0](https://github.com/jrudolph/sbt-dependency-graph/tree/v0.9.0) for version SBT 1.0.4.
 
 This is an example of running `snyk test` and `snyk monitor` in the image with Snyk latest version
 
@@ -156,7 +156,7 @@ docker run -it
   snyk/snyk-cli:sbt-1.0.4 test --org=my-org-name
 ```
 
-### Gradle 2.8
+### Gradle 2.8 / Gradle 4.4
 
 We will need to mount the project root folder when running the image so that Snyk can access the code within the container and mount the local .m2 and .ivy2 folders. The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds. Please see the following examples on how to run Snyk inside docker:
 
@@ -171,6 +171,17 @@ docker run -it
     -v "/home/user/.m2:/home/node/.m2"
     -v "/home/user/.ivy2:/home/node/.ivy2"
   snyk/snyk-cli:gradle-2.8 test --org=my-org-name
+```
+
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+    -v "/home/user/.m2:/home/node/.m2"
+    -v "/home/user/.ivy2:/home/node/.ivy2"
+  snyk/snyk-cli:gradle-4.4 test --org=my-org-name
 ```
 
 ## Badge
