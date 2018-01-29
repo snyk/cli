@@ -24,6 +24,9 @@ function protect(options) {
     options = {};
   }
 
+  options.loose = true; // replace missing policies with empty ones
+  options.vulnEndpoint = '/vuln/npm/patches';
+
   try {
     var packageManager = detectPackageManager(process.cwd(), options);
     var unsupported = unsupportedPackageManagers[packageManager];
@@ -64,9 +67,7 @@ function protect(options) {
 }
 
 function patch(policy, options) {
-  return snyk.test(process.cwd(), {
-    vulnEndpoint: '/vuln/npm/patches',
-  }).then(function (res) {
+  return snyk.test(process.cwd(), options).then(function (res) {
     if (!res.vulnerabilities) {
       var e = new Error('Code is already patched');
       e.code = 'ALREADY_PATCHED';
