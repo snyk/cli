@@ -199,6 +199,8 @@ test('`test ruby-app` returns correct meta', function (t) {
       'package manager displayed');
     t.equal(meta[2], 'Target file: Gemfile', 'target file displayed');
     t.equal(meta[3], 'Open source: no', 'open source displayed');
+    t.notEqual(meta[4], 'Local Snyk policy found',
+      'local policy not displayed');
   });
 });
 
@@ -222,6 +224,8 @@ test('`test gradle-app` returns correct meta', function (t) {
       'package manager displayed');
     t.equal(meta[2], 'Target file: build.gradle', 'target file displayed');
     t.equal(meta[3], 'Open source: no', 'open source displayed');
+    t.notEqual(meta[4], 'Local Snyk policy found',
+      'local policy not displayed');
   });
 });
 
@@ -236,6 +240,8 @@ test('`test` returns correct meta for a vulnerable result', function (t) {
       'package manager displayed');
     t.equal(meta[2], 'Target file: Gemfile', 'target file displayed');
     t.equal(meta[3], 'Open source: no', 'open source displayed');
+    t.notEqual(meta[4], 'Local Snyk policy found',
+      'local policy not displayed');
   });
 });
 
@@ -247,6 +253,20 @@ test('`test` returns correct meta when target file specified', function (t) {
     t.equal(meta[2], 'Target file: Gemfile.lock', 'target file displayed');
   });
 });
+
+test('`test npm-package-policy` returns correct meta', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package-policy')
+  .then(function (res) {
+    var meta = res.slice(res.indexOf('Organisation:')).split('\n');
+    t.equal(meta[0], 'Organisation: test-org', 'organisation displayed');
+    t.equal(meta[1], 'Package manager: npm', 'package manager displayed');
+    t.equal(meta[2], 'Target file: package.json', 'target file displayed');
+    t.equal(meta[3], 'Open source: no', 'open source displayed');
+    t.equal(meta[4], 'Local Snyk policy found', 'local policy displayed');
+  });
+});
+
 
 test('`test ruby-gem-no-lockfile --file=ruby-gem.gemspec` sends gemspec',
 function (t) {
