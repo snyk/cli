@@ -7,7 +7,7 @@ const sinon = require('sinon');
 
 // fixtures
 const fixturesFolder = `${__dirname}/fixtures/protect-apply-same-patch-again/`;
-const wizardAnswers = require(fixturesFolder + '/answers.json');
+const wizardAnswers = require(fixturesFolder + 'answers.json');
 
 const noop = function () {};
 
@@ -18,27 +18,20 @@ const writeSpy = sinon.spy();
 
 //main proxy
 const patch = proxyquire('../lib/protect/patch', {
-  './get-vuln-source': function () {
+  './get-vuln-source': () => {
     console.info(fixturesFolder);
     return fixturesFolder;
   },
   './write-patch-flag': proxyquire('../lib/protect/write-patch-flag', {
-    'writePatchFlag': {
       writePatchFlag: (now, vuln) =>  {
         writePatchFlagSpy(now, vuln);
       }
-    }
   }),
-  // './write-patch-flag': function (now, vuln) {
-  //   writePatchFlagSpy(now, vuln);
-  //   return Promise.resolve(vuln);
-  // },
   'then-fs': {
-    rename: function (filename) {
+    rename: (filename) => {
       return Promise.resolve();
     },
-    writeFile: function (filename, body) {
-      writeSpy(filename, body);
+    writeFile: (filename, body) => {
       return Promise.resolve();
     },
     createWriteStream: function () {
@@ -52,7 +45,7 @@ const patch = proxyquire('../lib/protect/patch', {
   },
   './apply-patch': proxyquire('../lib/protect/apply-patch', {
     'child_process': {
-      exec: function (a, b, callback) {
+      exec: (a, b, callback) => {
         // ignore dry run
         if (a.indexOf('--dry-run') === -1) {
           execSpy(a);
@@ -71,19 +64,17 @@ test('same patch is not applied again to the same package', (t) => {
 
   return patch(tasks, true)
     .then((res) => {
-      console.info(`===> Write flag`);
-      t.equal(writePatchFlagSpy.callCount, 1, 'Flag is written for first patch application');
+      console.log(`writePatchFlagSpy.callCount ${writePatchFlagSpy.callCount}`);
+        t.equal(writePatchFlagSpy.calledOnce, 'Flag is written only once still');
     })
     .then(() => {
       console.info(`**************************\n Apply patch again \n**************************\n `);
       // 2nd test
       // try to apply patch again
-      // make sure it is skipped
       // make sure write flag did not run this time
       return patch(tasks, true).then((res) => {
-        console.info(`===> Write flag`);
-        t.equal(writePatchFlagSpy.callCount, 1, 'Same patch is not applied again');
-        t.equal(writePatchFlagSpy.callCount, 1, 'Flag is not written on second application of same patch');
+        console.log(`writePatchFlagSpy.callCount ${writePatchFlagSpy.callCount}`);
+        t.equal(writePatchFlagSpy.calledOnce, 'Flag is not written again');
       })
     })
     .catch();
