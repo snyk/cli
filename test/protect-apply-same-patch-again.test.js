@@ -1,81 +1,105 @@
-const toTasks = require('../cli/commands/protect/tasks');
-const policy = require('snyk-policy');
 const test = require('tap-only');
 const Promise = require ('es6-promise').Promise; // jshint ignore:line
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const fs = require('then-fs');
+
+const toTasks = require('../cli/commands/protect/tasks');
+const writePatchFlag = require('../lib/protect/write-patch-flag');
+const applyPatch = require('../lib/protect/apply-patch');
+const debugNodeFileFixture = 'node-fixture.js';
+const policy = require('snyk-policy');
 
 // fixtures
-const fixturesFolder = `${__dirname}/fixtures/protect-apply-same-patch-again/`;
-const wizardAnswers = require(fixturesFolder + 'answers.json');
+const fixturesBaseFolder = __dirname +
+  '/fixtures/protect-apply-same-patch-again/';
+const fixturesModuleFolder = fixturesBaseFolder + 'src/';
+
+const wizardAnswers = require(fixturesBaseFolder + 'answers.json');
 
 const noop = function () {};
 
 // spies
-const execSpy = sinon.spy();
-const writePatchFlagSpy = sinon.spy();
-const writeSpy = sinon.spy();
+const writePatchFlagSpy = sinon.spy(writePatchFlag);
+const applyPatchSpy = sinon.spy(applyPatch);
 
 //main proxy
 const patch = proxyquire('../lib/protect/patch', {
   './get-vuln-source': () => {
-    console.info(fixturesFolder);
-    return fixturesFolder;
+    return fixturesBaseFolder;
   },
-  './write-patch-flag': proxyquire('../lib/protect/write-patch-flag', {
-      writePatchFlag: (now, vuln) =>  {
-        writePatchFlagSpy(now, vuln);
-      }
-  }),
-  'then-fs': {
-    rename: (filename) => {
-      return Promise.resolve();
-    },
-    writeFile: (filename, body) => {
-      return Promise.resolve();
-    },
-    createWriteStream: function () {
-      return {
-        on: noop,
-        end: noop,
-        removeListener: noop,
-        emit: noop,
-      };
-    },
-  },
-  './apply-patch': proxyquire('../lib/protect/apply-patch', {
-    'child_process': {
-      exec: (a, b, callback) => {
-        // ignore dry run
-        if (a.indexOf('--dry-run') === -1) {
-          execSpy(a);
-        }
-        callback(null, '', ''); // successful patch
-      }
-    }
-  })
+  './write-patch-flag': writePatchFlagSpy,
+  './apply-patch': applyPatchSpy,
+});
+
+test('setup', (t) => {
+  fs.createReadStream(fixturesModuleFolder + '/node-fixture.js')
+  .pipe(fs.createWriteStream(fixturesModuleFolder + '/node.js'));
+  t.pass();
+  t.end();
 });
 
 
-test('same patch is not applied again to the same package', (t) => {
-  console.info(`**************************\n Apply patch \n**************************\n `);
+test('Same patch is applied multiple times without issue', (t) => {
+  t.teardown((t) => {
+    fs.readdir(fixturesBaseFolder, (err, fileNames) => {
+      const fixturesBaseFolderFiles = fileNames || [];
 
+      if (err || fixturesBaseFolderFiles.length == 0) {
+        console.log(`ERROR: Could not remove the .snyk-***.flag | ${err}`);
+        return;
+      }
+
+      fixturesBaseFolderFiles.forEach((file) => {
+        const flagMatch = file.match(/\.snyk.*\.flag/)
+        if (flagMatch) {
+          fs.unlink(fixturesBaseFolder + file);
+        }
+      });
+    });
+
+    fs.readdir(fixturesModuleFolder, (err, fileNames) => {
+      const fixturesModuleFolderFiles = fileNames || [];
+
+      if (err || fixturesModuleFolderFiles.length == 0) {
+        return;
+      }
+
+      fixturesModuleFolderFiles.forEach((file) => {
+        if (file !== debugNodeFileFixture) {
+          fs.unlink(fixturesModuleFolder + file);
+        }
+      });
+    });
+  });
+
+  // get wizard answers
   const tasks = toTasks(wizardAnswers).patch;
 
+  // run patch based on wizard answers
   return patch(tasks, true)
     .then((res) => {
-      console.log(`writePatchFlagSpy.callCount ${writePatchFlagSpy.callCount}`);
-        t.equal(writePatchFlagSpy.calledOnce, 'Flag is written only once still');
+      const packagesToPatch = Object.keys(res.patch);
+      t.equal(packagesToPatch.length, 1,
+        'Two vulns went in for the same package but diff symlinked locations');
+      t.equal(writePatchFlagSpy.callCount, 2,
+        'Flag is written once for each of the 2 vulns');
+      t.equal(applyPatchSpy.callCount, 2,
+        'applyPatch is called once for each of the 2 vulns');
+      // if all went well we should only have 1 package with 2 vulns
+      // that need patching, both successfully patched
+
+      const vulnsToPatch = res.patch[packagesToPatch[0]];
+      var pacthedVulns = 0;
+      vulnsToPatch.forEach((vuln) => {
+        if (vuln[Object.keys(vuln)[0]].patched &&
+          vuln[Object.keys(vuln)[0]].patched.length > 0) {
+          pacthedVulns += 1;
+        }
+      });
+      t.equal(vulnsToPatch.length, pacthedVulns, 'Every vuln is patched');
+      t.pass();
+      t.end();
     })
-    .then(() => {
-      console.info(`**************************\n Apply patch again \n**************************\n `);
-      // 2nd test
-      // try to apply patch again
-      // make sure write flag did not run this time
-      return patch(tasks, true).then((res) => {
-        console.log(`writePatchFlagSpy.callCount ${writePatchFlagSpy.callCount}`);
-        t.equal(writePatchFlagSpy.calledOnce, 'Flag is not written again');
-      })
-    })
-    .catch();
+    .catch(t.threw);
 });

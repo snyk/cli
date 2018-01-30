@@ -4,7 +4,7 @@
       "groupId": "patch:npm:debug:20170905:0"
     },
     "vuln": {
-        "title": "Regular Expression Denial of Service (ReDoS)",
+        "title": "A: Regular Expression Denial of Service (ReDoS)",
         "credit": [
             "Cristian-Alexandru Staicu"
         ],
@@ -84,6 +84,104 @@
         ],
         "upgradePath": [
             false,
+            "node-pre-gyp@0.6.39",
+            "tar-pack@3.4.0",
+            "debug@2.6.9"
+        ],
+        "version": "2.6.8",
+        "name": "debug",
+        "isUpgradable": true,
+        "isPatchable": true
+    },
+    "choice": "patch"
+  },
+  "npm:debug:20170905:1": {
+    "meta": {
+      "groupId": "patch:npm:debug:20170905:0"
+    },
+    "vuln": {
+        "title": "B: Regular Expression Denial of Service (ReDoS)",
+        "credit": [
+            "Cristian-Alexandru Staicu"
+        ],
+        "moduleName": "debug",
+        "packageName": "debug",
+        "language": "js",
+        "packageManager": "npm",
+        "description": "## Overview\n[`debug`](https://www.npmjs.com/package/debug) is a JavaScript debugging utility modelled after Node.js core's debugging technique..\n\n`debug` uses [printf-style](https://wikipedia.org/wiki/Printf_format_string) formatting. Affected versions of this package are vulnerable to Regular expression Denial of Service (ReDoS) attacks via the the `%o` formatter (Pretty-print an Object all on a single line). It used a regular expression (`/\\s*\\n\\s*/g`) in order to strip whitespaces and replace newlines with spaces, in order to join the data into a single line. This can cause a very low impact of about 2 seconds matching time for data 50k characters long.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Many Regular Expression implementations may reach extreme situations that cause them to work very slowly (exponentially related to input size), allowing an attacker to exploit this and can cause the program to enter these extreme situations by using a specially crafted input and cause the service to excessively consume CPU, resulting in a Denial of Service.\n\nYou can read more about `Regular Expression Denial of Service (ReDoS)` on our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\n\n## Remediation\nUpgrade `debug` to version 2.6.9, 3.1.0 or higher.\n\n## References\n- [GitHub Issue](https://github.com/visionmedia/debug/issues/501)\n- [GitHub PR](https://github.com/visionmedia/debug/pull/504)\n",
+        "identifiers": {
+            "NSP": 534,
+            "CWE": [
+                "CWE-400"
+            ],
+            "CVE": [],
+            "ALTERNATIVE": [
+                "SNYK-JS-DEBUG-10762"
+            ]
+        },
+        "semver": {
+            "unaffected": "<3.0.0 >= 2.6.9 || >=3.1.0",
+            "vulnerable": "<2.6.9 || >=3.0.0 <3.1.0"
+        },
+        "patches": [
+            {
+                "urls": [
+                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_0_c38a0166c266a679c8de012d4eaccec3f944e685.patch"
+                ],
+                "version": ">= 3.0.0 <=3.0.1",
+                "modificationTime": "2017-09-24T06:52:18.990Z",
+                "comments": [],
+                "id": "patch:npm:debug:20170905:0"
+            },
+            {
+                "urls": [
+                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_1_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                ],
+                "version": ">=2.5.1 <2.6.9",
+                "modificationTime": "2017-09-24T06:52:18.990Z",
+                "comments": [],
+                "id": "patch:npm:debug:20170905:1"
+            },
+            {
+                "urls": [
+                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_2_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                ],
+                "version": ">=2.4.0 <2.5.0",
+                "modificationTime": "2017-09-24T06:52:18.990Z",
+                "comments": [],
+                "id": "patch:npm:debug:20170905:2"
+            },
+            {
+                "urls": [
+                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_3_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                ],
+                "version": ">=2.0.0 <2.4.0",
+                "modificationTime": "2017-09-24T06:52:18.990Z",
+                "comments": [],
+                "id": "patch:npm:debug:20170905:3"
+            }
+        ],
+        "cvssScore": 3.7,
+        "severity": "low",
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "disclosureTime": "2017-09-05T21:00:00.000Z",
+        "publicationTime": "2017-09-26T03:55:05.106Z",
+        "modificationTime": "2017-09-27T06:55:05.106Z",
+        "creationTime": "2017-09-13T07:55:05.106Z",
+        "id": "npm:debug:20170905",
+        "alternativeIds": [
+            "SNYK-JS-DEBUG-10762"
+        ],
+        "from": [
+            "protect-apply-same-patch-again@1.0.0",
+            "fsevents@1.1.3",
+            "node-pre-gyp@0.6.39",
+            "tar-pack@3.4.0",
+            "debug@2.6.8"
+        ],
+        "upgradePath": [
+            false,
+            "fsevents@1.1.3",
             "node-pre-gyp@0.6.39",
             "tar-pack@3.4.0",
             "debug@2.6.9"
