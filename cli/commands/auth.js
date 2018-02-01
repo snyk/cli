@@ -2,7 +2,7 @@ module.exports = auth;
 module.exports.isAuthed = isAuthed;
 
 var debug = require('debug')('snyk');
-var open = require('open');
+var open = require('opn');
 var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
@@ -51,7 +51,7 @@ function githubAuth(via) {
 
   return spinner(lbl).then(function () {
     setTimeout(function () {
-      open(url);
+      open(url, {wait: false});
     }, 2000);
     // start checking the token immediately in case they've already
     // opened the url manually

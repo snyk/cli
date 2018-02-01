@@ -43,7 +43,7 @@
     "hasbin": "^1.2.3",
     "inquirer": "1.0.3",
     "needle": "^2.0.1",
-    "open": "^0.0.5",
+    "opn": "^5.2.0",
     "os-name": "^1.0.3",
     "proxy-from-env": "^1.0.0",
     "recursive-readdir": "^2.2.1",
