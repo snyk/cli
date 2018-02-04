@@ -3,6 +3,7 @@
 ***
 
 [![Known Vulnerabilities](https://snyk.io/test/npm/snyk/badge.svg)](https://snyk.io/test/npm/snyk)
+[![Open Source Helpers](https://www.codetriage.com/snyk/snyk/badges/users.svg)](https://www.codetriage.com/snyk/snyk)
 
 Snyk helps you find, fix and monitor for known vulnerabilities in Node.js npm, Ruby and Java dependencies, both on an ad hoc basis and as part of your CI (Build) system.
 
