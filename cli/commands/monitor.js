@@ -1,6 +1,6 @@
 module.exports = monitor;
 
-var _ = require('lodash');
+var _ = require('../../dist/lodash-min');
 var fs = require('then-fs');
 var apiTokenExists = require('../../lib/api-token').exists;
 var snyk = require('../../lib/');
