@@ -49,7 +49,7 @@ var getPatchFile = proxyquire('../lib/protect/fetch-patch', {
   },
 });
 
-test('Fetch gets patches with no proxy', t => {
+test('Fetch gets patches with no proxy', function (t) {
   t.plan(1);
   return getPatchFile(PATCH_URL, 'unused')
     .then(() => {
