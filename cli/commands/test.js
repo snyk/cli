@@ -6,7 +6,7 @@ var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;
-var _ = require('lodash');
+var _ = require('../../dist/lodash-min');
 var debug = require('debug')('snyk');
 
 // arguments array is 0 or more `path` strings followed by
