@@ -47,10 +47,23 @@ function test() {
         // run the actual test
         return snyk.test(path, testOpts)
         .catch(function (error) {
-          // Don't blow up our entire promise chain if a test fails
-          // Errors can be simple strings (conn error to the server), or
-          // stringified JSONs (vulns detected, `ok: false`).
-          // Try to parse, stay with string if unable to handle
+          // Possible error cases:
+          // - the test found some vulns. `error.message` is a JSON-stringified
+          //   test result.
+          // - the flow failed, `error` is a real Error object.
+          // - the flow failed, `error` is a number or string describing the
+          //   problem.
+          //
+          // To standardise this, make sure we use the best _object_ to
+          // describe the error.
+          if (error instanceof Error) {
+            return error;
+          }
+
+          if (typeof error !== 'object') {
+            return new Error(error);
+          }
+
           try {
             return JSON.parse(error.message);
           } catch (unused) {
@@ -58,6 +71,7 @@ function test() {
           }
         })
         .then(function (res) {
+          // add the tested path to the result of the test (or error)
           results.push(_.assign(res, {path: path}));
         });
       });
@@ -133,12 +147,7 @@ function displayResult(res, options) {
   var packageManager = options.packageManager;
   var summary = 'Tested ';
 
-  // some errors will cause `res` to be string or a number, return as is.
-  if (typeof res === 'string' || typeof res === 'number') {
-    return res;
-  }
-
-  // some errors are real errors - return their message
+  // handle errors by extracting their message
   if (res instanceof Error) {
     return res.message;
   }
