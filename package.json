@@ -75,7 +75,7 @@
     "jscs": "^2.0.0",
     "lodash": "^3.10.1",
     "lodash-cli": "^3.10.1",
-    "nock": "^9.1.0",
+    "nock": "9.1.0",
     "proxyquire": "^1.7.4",
     "restify": "^4.1.1",
     "semantic-release": "^6.3.6",
