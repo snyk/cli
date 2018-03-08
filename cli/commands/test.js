@@ -35,7 +35,8 @@ function test() {
     .toLowerCase() !== 'false';
 
   if (options['severity-threshold']) {
-    // HACK: validation should happen at cli/args.js, but cli/index is not ready for it
+    // HACK: validation should happen at cli/args.js
+    // but cli/index is not ready for it
     if (!validateSeverityThreshold(options['severity-threshold'])) {
       return Promise.reject(new Error('INVALID_SEVERITY_THRESHOLD'));
     }
