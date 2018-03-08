@@ -42,6 +42,8 @@ Options:
   --insecure ......... Ignore unknown certificate authorities.
   --json ............. Return results in JSON format.
   --dry-run .......... Don't apply updates or patches during protect.
+  --severity-threshold=<low|medium|high>
+                       Only report vulnerabilities of provided level or higher.
   -q, --quiet ........ Silence all output.
   -h, --help ......... This help information.
   -v, --version ...... The CLI version.

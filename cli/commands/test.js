@@ -8,6 +8,7 @@ var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;
 var _ = require('../../dist/lodash-min');
 var debug = require('debug')('snyk');
+var SEVERITIES = require('../../lib/snyk-test/common').SEVERITIES;
 
 // arguments array is 0 or more `path` strings followed by
 // an optional `option` object
@@ -32,6 +33,15 @@ function test() {
   // making `show-vulnerable-paths` true by default.
   options.showVulnPaths = (options['show-vulnerable-paths'] || '')
     .toLowerCase() !== 'false';
+
+  if (options['severity-threshold']) {
+    // HACK: validation should happen at cli/args.js
+    // but cli/index is not ready for it
+    if (!validateSeverityThreshold(options['severity-threshold'])) {
+      return Promise.reject(new Error('INVALID_SEVERITY_THRESHOLD'));
+    }
+    options.severityThreshold = options['severity-threshold'];
+  }
 
   return apiTokenExists('snyk test')
   .then(function () {
@@ -312,4 +322,8 @@ function metaForDisplay(res, options) {
   }
 
   return meta.join('\n');
+}
+
+function validateSeverityThreshold(severityThreshold) {
+  return SEVERITIES.indexOf(severityThreshold) > -1;
 }
