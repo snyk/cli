@@ -40,6 +40,7 @@ Options:
   --project-name=<string>
                        Specify a custom Snyk project name (`snyk monitor` only).
   --insecure ......... Ignore unknown certificate authorities.
+  --json ............. Return results in JSON format.
   --dry-run .......... Don't apply updates or patches during protect.
   -q, --quiet ........ Silence all output.
   -h, --help ......... This help information.
