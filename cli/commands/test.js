@@ -8,7 +8,7 @@ var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;
 var _ = require('../../dist/lodash-min');
 var debug = require('debug')('snyk');
-var {SEVERITIES} = require('../../lib/snyk-test/common');
+var SEVERITIES = require('../../lib/snyk-test/common').SEVERITIES;
 
 // arguments array is 0 or more `path` strings followed by
 // an optional `option` object
@@ -325,5 +325,5 @@ function metaForDisplay(res, options) {
 }
 
 function validateSeverityThreshold(severityThreshold) {
-  return SEVERITIES.includes(severityThreshold);
+  return SEVERITIES.indexOf(severityThreshold) > -1;
 }
