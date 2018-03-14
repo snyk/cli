@@ -46,7 +46,7 @@ test('analytics', function (t) {
     args: [],
   }).then(function () {
     var body = spy.lastCall.args[0].body.data;
-    t.deepEqual(Object.keys(body).sort(), ['command', 'os', 'version', 'id', 'ci', 'metadata', 'args', 'nodeVersion'].sort(), 'keys as expected');
+    t.deepEqual(Object.keys(body).sort(), ['command', 'os', 'version', 'id', 'ci', 'metadata', 'args', 'nodeVersion', 'durationMs'].sort(), 'keys as expected');
   });
 });
 
