@@ -39,6 +39,14 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
     analytics.add('error', JSON.stringify(error));
     analytics.add('command', args.command);
   } else {
+    // remove vulnerabilities from the errors
+    // to keep the logs small
+    if (error.stack && error.stack.vulnerabilities) {
+      delete error.vulnerabilities;
+    }
+    if (error.message && error.message.vulnerabilities) {
+      delete error.message.vulnerabilities;
+    }
     analytics.add('error-message', error.message);
     analytics.add('error', error.stack);
     analytics.add('error-code', error.code);
