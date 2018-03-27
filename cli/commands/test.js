@@ -6,7 +6,6 @@ var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;
 var _ = require('lodash');
-var debug = require('debug')('snyk');
 var SEVERITIES = require('../../lib/snyk-test/common').SEVERITIES;
 
 // arguments array is 0 or more `path` strings followed by
@@ -324,14 +323,22 @@ function displayResult(res, options) {
 }
 
 function metaForDisplay(res, options) {
+  var packageManager = options.packageManager || res.packageManager;
+  var openSource = res.isPrivate ? 'no' : 'yes';
   var meta = [
     chalk.bold('Organisation:    ') + res.org,
-    chalk.bold('Package manager: ') +
-      (options.packageManager || res.packageManager),
-    chalk.bold('Target file:     ') + options.file,
-    chalk.bold('Open source:     ') + (res.isPrivate ? 'no' : 'yes'),
-    chalk.bold('Project path:    ') + options.path,
+    chalk.bold('Package manager: ') + packageManager,
   ];
+  if (options.file) {
+    meta.push(chalk.bold('Target file:     ') + options.file);
+  }
+  if (options.docker) {
+    meta.push(chalk.bold('Docker image:    ') + options.path);
+  } else {
+    meta.push(chalk.bold('Open source:     ') + openSource);
+    meta.push(chalk.bold('Project path:    ') + options.path);
+  }
+
   if (res.filesystemPolicy) {
     meta.push('Local Snyk policy found');
     if (res.ignoreSettings && res.ignoreSettings.disregardFilesystemIgnores) {
