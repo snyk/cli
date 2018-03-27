@@ -53,7 +53,6 @@ before('prime config', function (t) {
   }).catch(t.bailout).then(t.end);
 });
 
-
 test('test cli with multiple params: good and bad', function (t) {
   t.plan(6);
   return cli.test('/', 'semver', {registry: 'npm', org: 'EFF', json: true})
@@ -921,6 +920,141 @@ function (t) {
         path: 'nuget-app',
         showVulnPaths: true,
       },], 'calls nuget plugin');
+  });
+});
+
+test('`test foo:latest --docker`',
+function (t) {
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'deb',
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  return cli.test('foo:latest', {
+    docker: true,
+    org: 'explicit-org',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/deb',
+      'posts to correct url (uses package manager from plugin response)');
+    t.same(plugin.inspect.getCall(0).args,
+      ['foo:latest', null, {
+        args: null,
+        file: null,
+        docker: true,
+        org: 'explicit-org',
+        packageManager: null,
+        path: 'foo:latest',
+        showVulnPaths: true,
+      }], 'calls docker plugin with expected arguments');
+  });
+});
+
+test('`test foo:latest --docker` doesnt collect policy from cwd',
+function (t) {
+  chdirWorkspaces('npm-package-policy');
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'deb',
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  return cli.test('foo:latest', {
+    docker: true,
+    org: 'explicit-org',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/deb',
+      'posts to correct url (uses package manager from plugin response)');
+    t.same(plugin.inspect.getCall(0).args,
+      ['foo:latest', null, {
+        args: null,
+        file: null,
+        docker: true,
+        org: 'explicit-org',
+        packageManager: null,
+        path: 'foo:latest',
+        showVulnPaths: true,
+      }], 'calls docker plugin with expected arguments');
+    var policyString = req.body.policy;
+    t.false(policyString, 'policy not sent');
+  });
+});
+
+test('`test foo:latest --docker` supports custom policy',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'deb',
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  return cli.test('foo:latest', {
+    docker: true,
+    org: 'explicit-org',
+    'policy-path': 'npm-package-policy/custom-location',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/deb',
+      'posts to correct url (uses package manager from plugin response)');
+    t.same(plugin.inspect.getCall(0).args,
+      ['foo:latest', null, {
+        args: null,
+        file: null,
+        docker: true,
+        org: 'explicit-org',
+        packageManager: null,
+        path: 'foo:latest',
+        showVulnPaths: true,
+        'policy-path': 'npm-package-policy/custom-location',
+      }], 'calls docker plugin with expected arguments');
+
+    var expected = fs.readFileSync(
+      path.join('npm-package-policy/custom-location', '.snyk'),
+      'utf8');
+    var policyString = req.body.policy;
+    t.equal(policyString, expected, 'sends correct policy');
   });
 });
 
