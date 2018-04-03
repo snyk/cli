@@ -7,6 +7,7 @@ var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var url = require('url');
 var chalk = require('chalk');
+var pathUtil = require('path');
 var spinner = require('../../lib/spinner');
 
 var detect = require('../../lib/detect');
@@ -32,11 +33,7 @@ function monitor() {
     snyk.id = options.id;
   }
 
-  var lbl = 'Running monitor...';
-
-  return spinner(lbl).then(function () {
-    return apiTokenExists('snyk monitor');
-  })
+  return apiTokenExists('snyk monitor')
   .then(function () {
     return args.reduce(function (acc, path) {
       return acc.then(function () {
@@ -55,8 +52,28 @@ function monitor() {
           };
           var plugin = plugins.loadPlugin(packageManager);
           var moduleInfo = ModuleInfo(plugin, options.policy);
-          return moduleInfo.inspect(path, targetFile, options)
-            .then(snyk.monitor.bind(null, path, meta))
+
+          var relativeTargetPath =
+            pathUtil.relative('.', pathUtil.join(path, targetFile));
+          var analyzingDepsSpinnerLabel =
+            'Analyzing ' + packageManager + ' dependencies for ' +
+            relativeTargetPath;
+          var postingMonitorSpinnerLabel =
+            'Posting monitor snapshot for ' + relativeTargetPath + ' ...';
+
+          return spinner(analyzingDepsSpinnerLabel)
+            .then(function () {
+              return moduleInfo.inspect(path, targetFile, options)
+            })
+            .then(spinner.clear(analyzingDepsSpinnerLabel))
+            .then(function (info) {
+              return spinner(postingMonitorSpinnerLabel)
+              .then(function () { return info });
+            })
+            .then(function (info) {
+              return snyk.monitor(path, meta, info);
+            })
+            .then(spinner.clear(postingMonitorSpinnerLabel))
             .then(function (res) {
               res.path = path;
               var endpoint = url.parse(config.API);
@@ -107,7 +124,7 @@ function monitor() {
         return 'For path `' + res.path + '`, ' + res.data.message;
       }).join('\n');
     });
-  }).then(spinner.clear(lbl));
+  });
 }
 
 function formatMonitorOutput(packageManager, res, manageUrl, isJson) {
