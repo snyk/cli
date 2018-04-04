@@ -53,10 +53,9 @@ function monitor() {
           var plugin = plugins.loadPlugin(packageManager);
           var moduleInfo = ModuleInfo(plugin, options.policy);
 
-          var targetInfo = packageManager + ' : ' +
-            pathUtil.relative('.', pathUtil.join(path, targetFile))
           var analyzingDepsSpinnerLabel =
-            'Analyzing dependencies (' + targetInfo + ') ...';
+            'Analyzing ' + packageManager + ' dependencies for ' +
+            pathUtil.relative('.', pathUtil.join(path, targetFile));
           var postingMonitorSpinnerLabel = 'Posting monitor snapshot...'
 
           return spinner(analyzingDepsSpinnerLabel)
