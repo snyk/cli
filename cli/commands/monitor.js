@@ -7,6 +7,7 @@ var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var url = require('url');
 var chalk = require('chalk');
+var pathUtil = require('path');
 var spinner = require('../../lib/spinner');
 
 var detect = require('../../lib/detect');
@@ -52,8 +53,10 @@ function monitor() {
           var plugin = plugins.loadPlugin(packageManager);
           var moduleInfo = ModuleInfo(plugin, options.policy);
 
+          var targetInfo = packageManager + ' : ' +
+            pathUtil.relative('.', pathUtil.join(path, targetFile))
           var analyzingDepsSpinnerLabel =
-            'Analyzing dependencies (' + packageManager + ') ...';
+            'Analyzing dependencies (' + targetInfo + ') ...';
           var postingMonitorSpinnerLabel = 'Posting monitor snapshot...'
 
           return spinner(analyzingDepsSpinnerLabel)
