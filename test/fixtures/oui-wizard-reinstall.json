@@ -1,0 +1,51 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "title": "methodOverride Middleware Reflected Cross-Site Scripting",
+      "credit": [
+        "Sergio Arcos"
+      ],
+      "description": "## Overview\n\nConnect is a stack of middleware that is executed in order in each request.\n\nThe \"methodOverride\" middleware allows the http post to override the method of the request with the value of the ```_method``` post key or with the header \"x-http-method-override\".\n\nBecause the user post input was not checked, req.method could contain any kind of value. Because the req.method did not match any common method VERB, connect answered with a 404 page containing the \"Cannot [method] [url]\" content. The method was not properly encoded for output in the browser.\n\n_Source: [Node Security Project](https://nodesecurity.io/advisories/3)_\n\n## Details\n\n**Example**\n\n```\n~ curl \"localhost:3000\" -d \"_method=<script src=http://nodesecurity.io/xss.js></script>\"\nCannot <SCRIPT SRC=HTTP://NODESECURITY.IO/XSS.JS></SCRIPT> /\n```\n\n**Mitigation factors**\n\nUpdate to the newest version of Connect or disable methodOverride. It is not possible to avoid the vulnerability if you have enabled this middleware in the top of your stack.\n\n**History**\n\n- (2013-06-27) [Bug reported](https://github.com/senchalabs/connect/issues/831)\n- (2013-06-27) [First fix: escape req.method output](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\n- (2013-06-27) [Second fix: whitelist](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n\n## References\n- https://nodesecurity.io/advisories/3\n",
+      "semver": {
+        "vulnerable": "<=2.8.0",
+        "unaffected": ">=2.8.1"
+      },
+      "CVSSv3": "",
+      "severity": "medium",
+      "identifiers": {
+        "CWE": [],
+        "CVE": [
+          "CVE-2013-7370"
+        ],
+        "NSP": 3
+      },
+      "patches": [],
+      "moduleName": "connect",
+      "creationTime": "2013-06-30T22:08:59.000Z",
+      "publicationTime": "2013-06-30T22:08:59.000Z",
+      "modificationTime": "2015-11-06T02:09:36.180Z",
+      "id": "npm:connect:20130701",
+      "from": [
+        "optimizely-oui@9.0.0",
+        "browser-sync@2.11.1",
+        "browser-sync-ui@0.5.18",
+        "weinre@2.0.0-pre-I0Z7U9OV",
+        "express@3.3.1",
+        "connect@2.8.1"
+      ],
+      "upgradePath": [
+        false,
+        "browser-sync@2.11.1",
+        "browser-sync-ui@0.5.18",
+        "weinre@2.0.0-pre-I0Z7U9OV",
+        "express@3.3.1",
+        "connect@2.8.1"
+      ],
+      "version": "1.9.2",
+      "name": "connect",
+      "__filename": "/Users/remy/Sites/snyk-tests/oui/node_modules/browser-sync/node_modules/browser-sync-ui/node_modules/weinre/node_modules/express/node_modules/connect/package.json"
+    }
+  ],
+  "dependencyCount": 1824
+}

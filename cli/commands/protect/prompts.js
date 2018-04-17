@@ -149,7 +149,7 @@ function getPrompts(vulns, policy) {
                   .concat(getIgnorePrompts(vulns, policy));
 }
 
-function getPatchPrompts(vulns, policy, ignoreDisabled) {
+function getPatchPrompts(vulns, policy, options) {
   debug('getPatchPrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -296,14 +296,14 @@ function getPatchPrompts(vulns, policy, ignoreDisabled) {
   });
 
   // console.log(res.map(_ => _.grouped));
-  var prompts = generatePrompt(res, policy, 'p', ignoreDisabled);
+  var prompts = generatePrompt(res, policy, 'p', options);
 
 
   return prompts;
 
 }
 
-function getIgnorePrompts(vulns, policy, ignoreDisabled) {
+function getIgnorePrompts(vulns, policy, options) {
   debug('getIgnorePrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -313,7 +313,7 @@ function getIgnorePrompts(vulns, policy, ignoreDisabled) {
     // remove all patches and updates
 
     // if there's any upgrade available
-    if (canBeUpgraded(vuln)) {
+    if (canBeUpgraded(vuln, options)) {
       return false;
     }
 
@@ -324,13 +324,13 @@ function getIgnorePrompts(vulns, policy, ignoreDisabled) {
     return true;
   });
 
-  var prompts = generatePrompt(res, policy, 'i', ignoreDisabled);
+  var prompts = generatePrompt(res, policy, 'i', options);
 
   return prompts;
 
 }
 
-function getUpdatePrompts(vulns, policy, ignoreDisabled) {
+function getUpdatePrompts(vulns, policy, options) {
   debug('getUpdatePrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -408,7 +408,7 @@ function getUpdatePrompts(vulns, policy, ignoreDisabled) {
     return !!curr.upgradePath[1];
   });
 
-  var prompts = generatePrompt(res, policy, 'u', ignoreDisabled);
+  var prompts = generatePrompt(res, policy, 'u', options);
 
   return prompts;
 }
@@ -443,7 +443,7 @@ function canBeUpgraded(vuln) {
   });
 }
 
-function generatePrompt(vulns, policy, prefix, ignoreDisabled) {
+function generatePrompt(vulns, policy, prefix, options) {
   if (!prefix) {
     prefix = '';
   }
@@ -458,13 +458,14 @@ function generatePrompt(vulns, policy, prefix, ignoreDisabled) {
   };
 
   var ignoreAction = {
-    value: ignoreDisabled ? 'skip' : 'ignore',
+    value: options && options.ignoreDisabled ? 'skip' : 'ignore',
     key: 'i',
     meta: { // arbitrary data that we'll merged into the `value` later on
       days: 30,
     },
     short: 'Ignore',
-    name: ignoreDisabled ? ignoreDisabledReasons[ignoreDisabled.reasonCode] :
+    name: options && options.ignoreDisabled ?
+          ignoreDisabledReasons[options.ignoreDisabled.reasonCode] :
           'Set to ignore for 30 days (updates policy)',
   };
 
@@ -610,16 +611,22 @@ function generatePrompt(vulns, policy, prefix, ignoreDisabled) {
     };
 
     var upgradeAvailable = canBeUpgraded(vuln);
+    var toPackage = vuln.upgradePath.filter(Boolean).shift();
+    var isReinstall = toPackage === from;
+    var isYarn = !!(options && options.packageManager === 'yarn');
 
     // note: the language presented the user is "upgrade" rather than "update"
     // this change came long after all this code was written. I've decided
     // *not* to update all the variables referring to `update`, but just
     // to warn my dear code-reader that this is intentional.
-    if (upgradeAvailable) {
-      choices.push(update);
-      var toPackage = vuln.upgradePath.filter(Boolean).shift();
 
-      var word = toPackage === from ? 'Re-install ' : 'Upgrade to ';
+    // note: Yarn reinstallation does not currently work because the
+    // remediation advice is actually for npm
+
+    if (upgradeAvailable && (!isYarn || !isReinstall)) {
+      choices.push(update);
+
+      var word = isReinstall ? 'Re-install ' : 'Upgrade to ';
 
       update.short = word + toPackage;
       var out = word + toPackage;

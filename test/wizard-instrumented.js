@@ -101,7 +101,7 @@ function interactive(vulns, originalResponses, options) {
   });
 
   return wizard.interactive(
-    vulns, options.pkg, options.policy, options.ignoreDisabled
+    vulns, options.pkg, options.policy, options
   ).then(function (res) {
     if (responses.length) {
       throw new Error('Too many responses. Remaining: ' + JSON.stringify(responses));

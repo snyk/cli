@@ -118,9 +118,9 @@ function processWizardFlow(options) {
     }).then(function () {
       return authorization.actionAllowed('cliIgnore', options);
     }).then(function (cliIgnoreAuthorization) {
-      var ignoreDisabled = cliIgnoreAuthorization.allowed ?
+      options.ignoreDisabled = cliIgnoreAuthorization.allowed ?
         false : cliIgnoreAuthorization;
-      if (ignoreDisabled) {
+      if (options.ignoreDisabled) {
         debug('ignore disabled');
       }
       var intro = __dirname + '/../../../help/wizard-intro.txt';
@@ -171,7 +171,7 @@ function processWizardFlow(options) {
             return tryRequire(packageFile).then(function (pkg) {
               options.packageLeading = pkg.prefix;
               options.packageTrailing = pkg.suffix;
-              return interactive(res, pkg, combinedPolicy, ignoreDisabled)
+              return interactive(res, pkg, combinedPolicy, options)
               .then(function (answers) {
                 return processAnswers(answers, cliPolicy, options);
               });
@@ -183,7 +183,7 @@ function processWizardFlow(options) {
   });
 }
 
-function interactive(test, pkg, policy, ignoreDisabled) {
+function interactive(test, pkg, policy, options) {
   var vulns = test.vulnerabilities;
   if (!policy) {
     policy = {};
@@ -195,13 +195,13 @@ function interactive(test, pkg, policy, ignoreDisabled) {
 
   return new Promise(function (resolve) {
     debug('starting questions');
-    var prompts = allPrompts.getUpdatePrompts(vulns, policy, ignoreDisabled);
+    var prompts = allPrompts.getUpdatePrompts(vulns, policy, options);
     resolve(inquire(prompts, {}));
   }).then(function (answers) {
-    var prompts = allPrompts.getPatchPrompts(vulns, policy, ignoreDisabled);
+    var prompts = allPrompts.getPatchPrompts(vulns, policy, options);
     return inquire(prompts, answers);
   }).then(function (answers) {
-    var prompts = allPrompts.getIgnorePrompts(vulns, policy, ignoreDisabled);
+    var prompts = allPrompts.getIgnorePrompts(vulns, policy, options);
     return inquire(prompts, answers);
   }).then(function (answers) {
     var prompts = allPrompts.nextSteps(pkg, test.ok ? false : answers);
