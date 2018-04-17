@@ -167,3 +167,32 @@ test('vulns from extraneous deps are patched (SC-3560)', function (t) {
     t.equal(tasks.patch.length, 2, '2 patches');
   });
 });
+
+test('yarn reinstall is not a valid option', function (t) {
+  var responses = [
+    'default:update',
+  ];
+
+  var vulns = require(__dirname + '/fixtures/oui-wizard-reinstall.json');
+
+  return interactive(vulns, responses, {
+    packageManager: 'npm',
+    earlyExit: true,
+  }).then(function (answers) {
+    t.equal(answers['npm:connect:20130701-u0'].choice, 'update',
+      'reinstall is available for npm projects');
+  }).catch(function () {
+    t.fail('should not error for npm projects');
+  }).then(function () {
+    return interactive(vulns, responses, {
+      packageManager: 'yarn',
+      earlyExit: true,
+    });
+  }).then(function (res) {
+    t.fail('should be invalid response');
+  }).catch(function (err) {
+    t.equal(err.message,
+      'default did not match on npm:connect:20130701-u0, skip != update',
+      'reinstall is not provided as an option for yarn projects')
+  }).then(t.end);
+});
