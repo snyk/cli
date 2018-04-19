@@ -237,6 +237,39 @@ function getNewScriptContent(scriptContent, cmd) {
   return cmd;
 }
 
+function addProtectScripts(existingScripts, npmVersion, options) {
+  console.log('addProtect', npmVersion);
+  var scripts = existingScripts ? _.cloneDeep(existingScripts) : {};
+  scripts['snyk-protect'] = 'snyk protect';
+
+  var cmd = 'npm run snyk-protect';
+
+  // legacy check for `postinstall`, if `npm run snyk-protect` is in there
+  // we'll replace it with `true` so it can be cleanly swapped out
+  var postinstall = scripts.postinstall;
+  if (postinstall && postinstall.indexOf(cmd) !== -1) {
+    scripts.postinstall = postinstall.replace(cmd, 'true');
+  }
+
+  if (options.packageManager === 'yarn') {
+    cmd = 'yarn run snyk-protect';
+    scripts.prepare = getNewScriptContent(scripts.prepare, cmd);
+    return scripts;
+  }
+
+  var hook;
+  var npmVersion = parseInt(npmVersion.split('.')[0]);
+  if (npmVersion >= 5) {
+    scripts.prepare = getNewScriptContent(scripts.prepare, cmd);
+
+    return scripts;
+  }
+
+  scripts.prepublish = getNewScriptContent(scripts.prepublish, cmd);
+
+  return scripts;
+}
+
 function processAnswers(answers, policy, options) {
   if (!options) {
     options = {};
@@ -381,22 +414,7 @@ function processAnswers(answers, policy, options) {
       pkg.scripts = {};
     }
 
-    pkg.scripts['snyk-protect'] = 'snyk protect';
-
-    var cmd = 'npm run snyk-protect';
-    npmVersion = parseInt(npmVersion.split('.')[0]);
-    if (npmVersion >= 5) {
-      pkg.scripts.prepare = getNewScriptContent(pkg.scripts.prepare, cmd);
-    } else {
-      pkg.scripts.prepublish = getNewScriptContent(pkg.scripts.prepublish, cmd);
-    }
-
-    // legacy check for `postinstall`, if `npm run snyk-protect` is in there
-    // we'll replace it with `true` so it can be cleanly swapped out
-    var postinstall = pkg.scripts.postinstall;
-    if (postinstall && postinstall.indexOf(cmd) !== -1) {
-      pkg.scripts.postinstall = postinstall.replace(cmd, 'true');
-    }
+    pkg.scripts = addProtectScripts(pkg.scripts, npmVersion, options);
 
     pkg.snyk = true;
   })
