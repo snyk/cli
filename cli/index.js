@@ -96,16 +96,4 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
 
 if (module.parent) {
   module.exports = cli;
-} else {
-  debug('checking for cli updates');
-  // finally, check for available update and returns an instance
-  var defaults = require('../dist/lodash-min').defaults;
-  var pkg = require('../package.json');
-
-  // only run if we're not inside an npm.script
-  if (!process.env['npm_config_node_version']) { // jshint ignore:line
-    require('update-notifier')({
-      pkg: defaults(pkg, { version: '0.0.0' }),
-    }).notify();
-  }
 }
