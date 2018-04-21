@@ -1,4 +1,3 @@
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var resolve = require('snyk-resolve-deps');
 var tree = require('snyk-tree');
 var prune = require('./prune');

@@ -6,7 +6,6 @@ var policy = require('snyk-policy');
 var mockPolicy;
 var path = require('path');
 var fs = require('fs');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 var vulns = require('./fixtures/debug-2.1.0-vuln.json').vulnerabilities;
 var iswindows = require('os-name')().toLowerCase().indexOf('windows') === 0;

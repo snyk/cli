@@ -1,5 +1,4 @@
 var test = require('tap').test;
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var policy = require('snyk-policy');
 var extendExpiries = require('./utils').extendExpiries;
 

@@ -3,7 +3,6 @@ var test = require('tap').test;
 var fs = require('then-fs');
 var chalk = require('chalk');
 var display = require('../lib/display-policy');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 test('test sensibly bails if gets an old .snyk format', function (t) {
 

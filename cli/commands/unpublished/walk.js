@@ -1,5 +1,4 @@
 module.exports = walk;
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 function walk(deps, filter) {
   return new Promise(function (resolve) {

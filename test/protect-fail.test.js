@@ -3,7 +3,6 @@ var path = require('path');
 var fs = require('fs');
 var thenfs = require('then-fs');
 var test = require('tape');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var snyk = require('../lib');
 
 test('bad patch file does not apply', function (t) {

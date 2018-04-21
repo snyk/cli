@@ -4,7 +4,6 @@ var protect = require('../lib/protect');
 var path = require('path');
 var test = require('tape');
 var vulns = require('./fixtures/semver-vuln.json').vulnerabilities;
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 
 test('patch is correctly applied', function (t) {

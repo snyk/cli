@@ -1,6 +1,5 @@
 var toTasks = require('../cli/commands/protect/tasks');
 var test = require('tap-only');
-var Promise = require ('es6-promise').Promise; // jshint ignore:line
 var answers = require(__dirname + '/fixtures/patch-same-package-answers.json');
 var proxyquire = require('proxyquire');
 var sinon = require('sinon');

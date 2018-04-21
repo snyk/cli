@@ -2,7 +2,6 @@ module.exports = scenario;
 module.exports.loadScenario = loadScenario;
 
 var debug = require('debug')('snyk');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var fs = require('then-fs');
 var semver = require('semver');
 var _ = require('../../dist/lodash-min');
