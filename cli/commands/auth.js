@@ -1,7 +1,6 @@
 module.exports = auth;
 module.exports.isAuthed = isAuthed;
 
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var debug = require('debug')('snyk');
 var open = require('open');
 var snyk = require('../../lib/');

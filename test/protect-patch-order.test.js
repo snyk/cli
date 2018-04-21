@@ -1,6 +1,5 @@
 var dedupe = require('../lib/protect/dedupe-patches');
 var test = require('tap').test;
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var policy = require('snyk-policy');
 var dir = __dirname + '/fixtures/bugs/SC-1076';
 var vulns = require(dir + '/vulns.json');

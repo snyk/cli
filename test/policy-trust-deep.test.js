@@ -1,5 +1,4 @@
 var test = require('tap-only');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var cli = require('../cli/commands');
 var dir = __dirname + '/fixtures/qs-package';
 

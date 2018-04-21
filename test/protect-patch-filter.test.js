@@ -3,7 +3,6 @@ var policy = require('snyk-policy');
 var path = require('path');
 var test = require('tape');
 var vulns = require('./fixtures/semver-vuln.json');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var exec = require('child_process').exec;
 
 // skipped intentially - only used for debugging tests

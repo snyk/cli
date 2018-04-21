@@ -2,7 +2,6 @@ module.exports = test;
 
 var snyk = require('../../');
 var chalk = require('chalk');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;

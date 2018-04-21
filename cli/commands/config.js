@@ -1,5 +1,4 @@
 var snyk = require('../../lib');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 
 module.exports = function config(method) {
   var args = [].slice.call(arguments, 1);

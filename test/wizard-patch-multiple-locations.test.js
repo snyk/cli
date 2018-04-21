@@ -1,5 +1,4 @@
 var test = require('tap-only');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var interactive = require('./wizard-instrumented');
 var answersToTasks = require('../cli/commands/protect/tasks');
 var snykPolicy = require('snyk-policy');

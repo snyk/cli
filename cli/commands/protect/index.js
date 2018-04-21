@@ -1,7 +1,5 @@
 module.exports = protect;
 
-var Promise = require('es6-promise').Promise; // jshint ignore:line
-
 var debug = require('debug')('snyk');
 var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');

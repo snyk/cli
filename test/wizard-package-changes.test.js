@@ -1,6 +1,5 @@
 var tap = require('tap');
 var test = require('tap-only');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var path = require('path');
 var sinon = require('sinon');
 var proxyquire = require('proxyquire');

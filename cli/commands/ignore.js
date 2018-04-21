@@ -2,7 +2,6 @@ module.exports = ignore;
 
 var debug = require('debug')('snyk');
 var policy = require('snyk-policy');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var chalk = require('chalk');
 var snyk = require('../../lib');
 var authorization = require('../../lib/authorization');

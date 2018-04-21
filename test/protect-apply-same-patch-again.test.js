@@ -1,5 +1,4 @@
 const test = require('tap-only');
-const Promise = require ('es6-promise').Promise; // jshint ignore:line
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const fs = require('then-fs');

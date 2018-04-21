@@ -4,8 +4,6 @@ module.exports.processAnswers = processAnswers;
 module.exports.inquire = inquire;
 module.exports.interactive = interactive;
 
-var Promise = require('es6-promise').Promise; // jshint ignore:line
-
 var debug = require('debug')('snyk');
 var path = require('path');
 var inquirer = require('inquirer');

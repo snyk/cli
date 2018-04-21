@@ -1,6 +1,5 @@
 var test = require('tap').test;
 var proxyquire = require('proxyquire');
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var sinon = require('sinon');
 var spy = sinon.spy();
 var _ = require('lodash');

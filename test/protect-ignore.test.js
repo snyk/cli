@@ -1,5 +1,4 @@
 var filter = require('snyk-policy').filter;
-var Promise = require('es6-promise').Promise; // jshint ignore:line
 var test = require('tap').test;
 var vulns = require('./fixtures/test-jsbin-vulns.json');
 
