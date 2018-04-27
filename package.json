@@ -45,6 +45,7 @@
     "needle": "^2.0.1",
     "opn": "^5.2.0",
     "os-name": "^1.0.3",
+    "proxy-agent": "^3.0.0",
     "proxy-from-env": "^1.0.0",
     "recursive-readdir": "^2.2.1",
     "semver": "^5.1.0",
@@ -76,15 +77,15 @@
     "jscs": "^3.0.0",
     "lodash": "^3.10.1",
     "lodash-cli": "^3.10.1",
-    "nock": "9.1.0",
+    "nock": "^9.2.5",
+    "nyc": "11.0.1",
     "proxyquire": "^1.7.4",
     "restify": "^4.1.1",
     "semantic-release": "^6.3.6",
     "sinon": "^1.17.2",
     "tap": "^5.7.1",
     "tap-only": "0.0.5",
-    "tape": "^4.0.0",
-    "nyc": "11.0.1"
+    "tape": "^4.0.0"
   },
   "repository": {
     "type": "git",
