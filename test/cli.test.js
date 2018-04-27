@@ -11,6 +11,7 @@ var sinon = require('sinon');
 var proxyquire = require('proxyquire');
 var parse = require('url').parse;
 var policy = require('snyk-policy');
+const stripAnsi = require('strip-ansi');
 
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
@@ -211,7 +212,7 @@ test('snyk ignore - no ID', function (t) {
     t.fail('should not succeed with missing ID');
   }).catch(function (e) {
     var errors = require('../lib/error');
-    var message = chalk.stripColor(errors.message(e));
+    var message = stripAnsi(errors.message(e));
     t.equal(message.toLowerCase().indexOf('id is a required field'), 0,
             'captured failed ignore (no --id given)');
   });
@@ -282,7 +283,7 @@ test('auth via invalid key', function (t) {
   cli.auth('_____________').then(function (res) {
     t.fail('auth should not succeed: ' + res);
   }).catch(function (e) {
-    var message = chalk.stripColor(errors.message(e));
+    var message = stripAnsi(errors.message(e));
     t.equal(message.toLowerCase().indexOf('authentication failed'), 0, 'captured failed auth');
   });
 });

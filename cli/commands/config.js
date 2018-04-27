@@ -28,7 +28,7 @@ module.exports = function config(method) {
       if (!key) {
         throw new Error('config:unset requires an argument');
       }
-      snyk.config.del(key);
+      snyk.config.delete(key);
       res = key + ' deleted';
       if (key === 'api') {
         // ensure we update the live library

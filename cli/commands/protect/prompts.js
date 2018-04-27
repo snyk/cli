@@ -7,7 +7,7 @@ module.exports = {
   startOver: startOver,
 };
 
-var _ = require('../../../dist/lodash-min');
+var _ = require('lodash');
 var semver = require('semver');
 var fmt = require('util').format;
 var debug = require('debug')('snyk');

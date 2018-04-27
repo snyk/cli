@@ -333,6 +333,7 @@ function (t) {
       ['nuget-app-2', 'project.assets.json', {
         args: null,
         file: 'project.assets.json',
+        org: null,
         packageManager: 'nuget',
         path: 'nuget-app-2',
         showVulnPaths: true,
@@ -365,6 +366,7 @@ function (t) {
       ['nuget-app-2.1', 'obj/project.assets.json', {
         args: null,
         file: 'obj/project.assets.json',
+        org: null,
         packageManager: 'nuget',
         path: 'nuget-app-2.1',
         showVulnPaths: true,
@@ -398,6 +400,7 @@ function (t) {
       ['nuget-app-4', 'packages.config', {
         args: null,
         file: 'packages.config',
+        org: null,
         packageManager: 'nuget',
         path: 'nuget-app-4',
         showVulnPaths: true,
@@ -505,6 +508,7 @@ function (t) {
       ['pip-app', 'requirements.txt', {
         args: null,
         file: 'requirements.txt',
+        org: null,
         packageManager: 'pip',
         path: 'pip-app',
         showVulnPaths: true,
@@ -538,6 +542,7 @@ test('`test nuget-app --file=project.assets.json`', function (t) {
       ['nuget-app', 'project.assets.json', {
         args: null,
         file: 'project.assets.json',
+        org: null,
         packageManager: 'nuget',
         path: 'nuget-app',
         showVulnPaths: true,
@@ -571,6 +576,7 @@ test('`test nuget-app --file=packages.config`', function (t) {
       ['nuget-app', 'packages.config', {
         args: null,
         file: 'packages.config',
+        org: null,
         packageManager: 'nuget',
         path: 'nuget-app',
         showVulnPaths: true,
@@ -604,6 +610,7 @@ test('`test nuget-app --file=project.json`', function (t) {
       ['nuget-app', 'project.json', {
         args: null,
         file: 'project.json',
+        org: null,
         packageManager: 'nuget',
         path: 'nuget-app',
         showVulnPaths: true,
@@ -638,6 +645,7 @@ function (t) {
       ['golang-app', 'Gopkg.lock', {
         args: null,
         file: 'Gopkg.lock',
+        org: null,
         packageManager: 'golangdep',
         path: 'golang-app',
         showVulnPaths: true,
@@ -672,6 +680,7 @@ function (t) {
       ['golang-app', 'vendor/vendor.json', {
         args: null,
         file: 'vendor/vendor.json',
+        org: null,
         packageManager: 'govendor',
         path: 'golang-app',
         showVulnPaths: true,
@@ -704,6 +713,7 @@ function (t) {
       ['golang-app', 'Gopkg.lock', {
         args: null,
         file: 'Gopkg.lock',
+        org: null,
         packageManager: 'golangdep',
         path: 'golang-app',
         showVulnPaths: true,
@@ -736,6 +746,7 @@ function (t) {
       ['golang-app-govendor', 'vendor/vendor.json', {
         args: null,
         file: 'vendor/vendor.json',
+        org: null,
         packageManager: 'govendor',
         path: 'golang-app-govendor',
         showVulnPaths: true,
@@ -770,6 +781,7 @@ function (t) {
       ['composer-app', 'composer.lock', {
         args: null,
         file: 'composer.lock',
+        org: null,
         packageManager: 'composer',
         path: 'composer-app',
         showVulnPaths: true,
@@ -801,6 +813,7 @@ test('`test composer-app` auto-detects composer.lock', function (t) {
       ['composer-app', 'composer.lock', {
         args: null,
         file: 'composer.lock',
+        org: null,
         packageManager: 'composer',
         path: 'composer-app',
         showVulnPaths: true,
@@ -833,6 +846,7 @@ function (t) {
       ['composer-app', 'composer.lock', {
         args: null,
         file: 'composer.lock',
+        org: null,
         packageManager: 'composer',
         path: 'composer-app',
         showVulnPaths: true,

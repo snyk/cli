@@ -8,13 +8,13 @@ var iswindows = require('os-name')().toLowerCase().indexOf('windows') === 0;
 
 tap.beforeEach(function (done) {
   old = snyk.config.get('disable-analytics');
-  snyk.config.del('disable-analytics');
+  snyk.config.delete('disable-analytics');
   done();
 });
 
 tap.afterEach(function (done) {
   if (old === undefined) {
-    snyk.config.del('disable-analytics');
+    snyk.config.delete('disable-analytics');
   } else {
     snyk.config.set('disable-analytics', old);
   }
