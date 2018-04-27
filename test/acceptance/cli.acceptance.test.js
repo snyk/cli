@@ -12,7 +12,6 @@ process.env.LOG_LEVEL = 0;
 var server = require('./fake-server')(process.env.SNYK_API, apiKey);
 var subProcess = require('../../lib/sub-process');
 var plugins = require('../../lib/plugins');
-var nock = require('nock');
 var needle = require('needle');
 
 // ensure this is required *after* the demo server, since this will
@@ -22,9 +21,6 @@ var snykPolicy = require('snyk-policy');
 
 var before = test;
 var after = test;
-
-var PROXY_HOST = 'my.proxy.dot.com';
-var PROXY_PORT = 4242;
 
 // @later: remove this config stuff.
 // Was copied straight from ../cli-server.js
@@ -1404,55 +1400,6 @@ test('`protect` with no policy', function (t) {
   });
 });
 
-/**
- * Verify support for http(s) proxy from environments variables
- * (http_proxy, https_proxy, no_proxy)
- * see https://www.gnu.org/software/wget/manual/html_node/Proxies.html
- */
-test('proxy environment variables', function (t) {
-  t.plan(3);
-  chdirWorkspaces();
-
-  t.test('http_proxy', function (t) {
-    process.env.http_proxy = 'http://' + PROXY_HOST + ':' + PROXY_PORT;
-    var httpProxy = nock('http://' + PROXY_HOST + ':' + PROXY_PORT)
-        .get('http://localhost:12345/api/v1/vuln/npm/semver%40*')
-        .reply(200, {vulnerabilities: []});
-    return cli.test('semver', {registry: 'npm'})
-      .then(function () {
-        t.ok(httpProxy.isDone(), 'proxy called');
-        process.env.http_proxy = '';
-      });
-  });
-
-  t.test('HTTP_PROXY', function (t) {
-    process.env.HTTP_PROXY = 'http://' + PROXY_HOST + ':' + PROXY_PORT;
-    var httpProxy = nock('http://' + PROXY_HOST + ':' + PROXY_PORT)
-        .get('http://localhost:12345/api/v1/vuln/npm/poke%40*')
-        .reply(200, {vulnerabilities: []});
-    return cli.test('poke', {registry: 'npm'})
-      .then(function () {
-        t.ok(httpProxy.isDone(), 'proxy called');
-        process.env.HTTP_PROXY = '';
-      });
-  });
-
-  t.test('no_proxy', function (t) {
-    process.env.http_proxy = 'http://' + PROXY_HOST + ':' + PROXY_PORT;
-    process.env.no_proxy = '*';
-    var httpsProxy = nock('http://' + PROXY_HOST + ':' + PROXY_PORT)
-        .get('https://localhost:12345/api/v1/vuln/npm/j%40*')
-        .reply(200, {vulnerabilities: []});
-    server.setNextResponse({vulnerabilities: []});
-    return cli.test('j', {registry: 'npm'})
-      .then(function () {
-        t.ok(!httpsProxy.isDone(), 'proxy not called');
-        process.env.http_proxy = '';
-        process.env.no_proxy = '';
-      });
-  });
-});
-
 test('`test --insecure`', function (t) {
   t.plan(2);
   chdirWorkspaces('npm-package');
@@ -1512,9 +1459,6 @@ after('teardown', function (t) {
   delete process.env.SNYK_API;
   delete process.env.SNYK_HOST;
   delete process.env.SNYK_PORT;
-  delete process.env.http_proxy;
-  delete process.env.HTTP_PROXY;
-  delete process.env.no_proxy;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
   server.close(function () {

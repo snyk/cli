@@ -7,7 +7,7 @@ var timeout = false;
 var switchAfterFailure = true;
 var analyticsEvent;
 
-var PROXY_HOST = 'my.proxy.dot.com';
+var PROXY_HOST = 'my.proxy.com';
 var PROXY_PORT = 4242;
 var PATCH_URL = 'https://s3.amazonaws.com/snyk-rules-pre-repository/' +
                 'snapshots/master/patches/npm/qs/20170213/603_604.patch';
@@ -53,7 +53,7 @@ test('Fetch gets patches with no proxy', function (t) {
   t.plan(1);
   return getPatchFile(PATCH_URL, 'unused')
     .then(() => {
-      t.is(spy.getCall(0).args[1].proxy, undefined, 'no proxy url found');
+      t.is(spy.getCall(0).args[1].agent, undefined, 'no proxy agent found');
     })
     .catch(err => t.fail(err.message));
 });
@@ -67,23 +67,23 @@ test('proxy environment variables', function (t) {
   t.plan(3);
 
   t.test('https_proxy', function (t) {
-    var proxyUrl = 'http://' + PROXY_HOST + ':' + PROXY_PORT;
-    process.env.https_proxy = proxyUrl;
+    var proxyUri = 'http://' + PROXY_HOST + ':' + PROXY_PORT;
+    process.env.https_proxy = proxyUri;
     return getPatchFile(PATCH_URL, 'unused')
-      .then(() => {
-        t.is(spy.getCall(1).args[1].proxy, proxyUrl, 'proxy url found');
-      })
+    .then(() => {
+      t.is(spy.getCall(1).args[1].agent.proxyUri, proxyUri, 'proxy url found');
+    })
     .catch(err => t.fail(err.message))
     .then(() => delete process.env.https_proxy);
   });
 
   t.test('HTTPS_PROXY', function (t) {
-    var proxyUrl = 'http://' + PROXY_HOST + ':' + PROXY_PORT;
-    process.env.HTTPS_PROXY = proxyUrl;
+    var proxyUri = 'http://' + PROXY_HOST + ':' + PROXY_PORT;
+    process.env.HTTPS_PROXY = proxyUri;
     return getPatchFile(PATCH_URL, 'unused')
-      .then(() => {
-        t.is(spy.getCall(2).args[1].proxy, proxyUrl, 'proxy url found');
-      })
+    .then(() => {
+      t.is(spy.getCall(2).args[1].agent.proxyUri, proxyUri, 'proxy url found');
+    })
     .catch(err => t.fail(err.message))
     .then(() => delete process.env.HTTPS_PROXY);
   });
@@ -93,7 +93,7 @@ test('proxy environment variables', function (t) {
     process.env.no_proxy = '*';
     return getPatchFile(PATCH_URL, 'unused')
       .then(() => {
-        t.is(spy.getCall(3).args[1].proxy, undefined, 'no proxy url found');
+        t.is(spy.getCall(3).args[1].agent, undefined, 'no proxy agent found');
       })
       .catch(err => t.fail(err.message))
       .then(() => {
