@@ -10,7 +10,7 @@ test('api token', function (t) {
   if (fromConfig !== undefined) {
     snyk.config.set('api', fromConfig);
   } else {
-    snyk.config.del('api');
+    snyk.config.delete('api');
   }
   t.end();
 });
@@ -24,7 +24,7 @@ test('api token via env value', function (t) {
   if (fromConfig !== undefined) {
     snyk.config.set('api', fromConfig);
   } else {
-    snyk.config.del('api');
+    snyk.config.delete('api');
   }
   t.end();
 });

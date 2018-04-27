@@ -46,16 +46,6 @@ The package argument is optional. If no package is given, Snyk will run the comm
 - **Prevent** new vulnerable dependencies from being added to your project by running `snyk test` as part of your CI to fail tests when vulnerable Node.js or Ruby dependencies are added.
 
 
-## Build
-
-If using this package from the repo directly, you'll need to first build the custom lodash by running:
-```
-npm run build
-```
-This will create a `dist` directory with the minimal lodash file.
-When using the package via npm, the build is not needed as the `dist` directory is already included in the npm package.
-
-
 ## Docker
 
 Snyk is also provided as a set of Docker images that carry the runtime environment of each package manager. For example, the npm image will carry all of the needed setup to run `npm install` on the currently running container. Currently there are images for npm, Ruby, Maven, Gradle and SBT.

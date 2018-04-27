@@ -46,7 +46,7 @@ test('bad patch file does not apply', function (t) {
     t.fail('clean up failed');
   }).then(function () {
     if (old === undefined) {
-      snyk.config.del('disable-analytics');
+      snyk.config.delete('disable-analytics');
     } else {
       snyk.config.set('disable-analytics', old);
     }

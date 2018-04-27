@@ -5,7 +5,7 @@ var chalk = require('chalk');
 var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;
-var _ = require('../../dist/lodash-min');
+var _ = require('lodash');
 var debug = require('debug')('snyk');
 var SEVERITIES = require('../../lib/snyk-test/common').SEVERITIES;
 

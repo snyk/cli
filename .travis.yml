@@ -22,7 +22,6 @@ before_install:
 before_script:
   - npm prune
 script:
-  - npm run build
   - npm run snyk-auth
   - npm test
 after_success:

@@ -1,7 +1,7 @@
 module.exports = answersToTasks;
 
 var debug = require('debug')('snyk');
-var _ = require('../../../dist/lodash-min');
+var _ = require('lodash');
 
 function answersToTasks(answers) {
   var tasks = {
