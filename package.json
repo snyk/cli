@@ -55,7 +55,7 @@
     "snyk-mvn-plugin": "1.1.1",
     "snyk-nuget-plugin": "1.3.9",
     "snyk-php-plugin": "1.3.2",
-    "snyk-policy": "^1.10.2",
+    "snyk-policy": "1.11.0",
     "snyk-python-plugin": "1.5.8",
     "snyk-resolve": "1.0.0",
     "snyk-resolve-deps": "2.0.0",
