@@ -177,7 +177,7 @@ function getPatchPrompts(vulns, policy, options) {
     if (curr.patches && curr.patches.length) {
       // TODO allow for cross over patches on modules (i.e. patch can work
       // on A-1 and A-2)
-      var last = curr.id;
+      var last;
 
       if (acc[curr.id]) {
         last = curr.id;
@@ -313,7 +313,7 @@ function getIgnorePrompts(vulns, policy, options) {
     // remove all patches and updates
 
     // if there's any upgrade available
-    if (canBeUpgraded(vuln, options)) {
+    if (canBeUpgraded(vuln)) {
       return false;
     }
 
