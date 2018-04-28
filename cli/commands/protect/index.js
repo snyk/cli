@@ -1,5 +1,3 @@
-module.exports = protect;
-
 var debug = require('debug')('snyk');
 var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
@@ -17,7 +15,8 @@ var unsupportedPackageManagers = {
   composer: 'Composer',
 };
 
-function protect(options) {
+
+function protectFunc(options) {
   if (!options) {
     options = {};
   }
@@ -86,3 +85,5 @@ function patch(policy, options) {
     throw e;
   });
 }
+
+module.exports = protectFunc;
