@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 
+// assert supported node runtime version
+var runtime = require('./runtime');
+if (!runtime.isSupported(process.versions.node)) {
+  console.error(process.versions.node +
+    ' is an unsupported nodejs runtime! Supported runtime range is \'' +
+    runtime.supportedRange + '\'');
+  console.error('Please upgrade your nodejs runtime version ' +
+    'and try again.');
+  process.exit(1);
+};
+
 // require analytics as soon as possible to start measuring execution time
 var analytics = require('../lib/analytics');
 var args = require('./args')(process.argv);
