@@ -16,7 +16,6 @@ matrix:
     - node_js: "8"
     - node_js: "6"
     - node_js: "4"
-      env: BABEL=true
 before_install:
   # tests are failing on npm@5, remove this once this is not an issue
   - npm i -g npm@^3.0.0
@@ -25,7 +24,7 @@ before_script:
 script:
   - npm run build
   - npm run snyk-auth
-  - "[[ $BABEL == true ]] && npm run test:babel || npm test"
+  - npm test
 after_success:
   - npm run travis-coverage
   - python scripts/travis_after_all.py
