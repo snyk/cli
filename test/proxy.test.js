@@ -76,10 +76,10 @@ test('request respects proxy environment variables', function (t) {
     var proxy = http.createServer();
     proxy.setTimeout(1000);
     proxy.on('connect', (req, cltSocket, head) => {
-      const {hostname, port} = url.parse(`https://${req.url}`);
-      t.equal(hostname, url.parse(httpsRequestHost).hostname,
+      const proxiedUrl = url.parse(`https://${req.url}`);
+      t.equal(proxiedUrl.hostname, url.parse(httpsRequestHost).hostname,
         'https_proxy url hostname ok');
-      t.equal(port, url.parse(httpsRequestHost).port,
+      t.equal(proxiedUrl.port, url.parse(httpsRequestHost).port,
         'https_proxy url port ok');
       cltSocket.write('HTTP/1.1 200 Connection Established\r\n' +
                       'Proxy-agent: Node.js-Proxy\r\n' +
@@ -102,10 +102,10 @@ test('request respects proxy environment variables', function (t) {
     var proxy = http.createServer();
     proxy.setTimeout(1000);
     proxy.on('connect', (req, cltSocket, head) => {
-      const {hostname, port} = url.parse(`https://${req.url}`);
-      t.equal(hostname, url.parse(httpsRequestHost).hostname,
+      const proxiedUrl = url.parse(`https://${req.url}`);
+      t.equal(proxiedUrl.hostname, url.parse(httpsRequestHost).hostname,
         'HTTPS_PROXY url hostname ok');
-      t.equal(port, url.parse(httpsRequestHost).port,
+      t.equal(proxiedUrl.port, url.parse(httpsRequestHost).port,
         'HTTPS_PROXY url port ok');
       cltSocket.write('HTTP/1.1 200 Connection Established\r\n' +
                       'Proxy-agent: Node.js-Proxy\r\n' +
