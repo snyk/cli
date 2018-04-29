@@ -440,6 +440,23 @@ function (t) {
   });
 });
 
+test('`test npm-package` sends pkg info', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package')
+  .then(function () {
+    var req = server.popRequest();
+    var pkg = req.body;
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/npm', 'posts to correct url');
+    t.ok(pkg.dependencies['to-array'], 'dependency');
+    t.notOk(pkg.dependencies['object-assign'],
+      'no dev dependency');
+    t.notOk(pkg.from, 'no "from" array on root');
+    t.notOk(pkg.dependencies['to-array'].from,
+      'no "from" array on dep');
+  });
+});
+
 test('`test` on a yarn package does work and displays appropriate text',
 function (t) {
   chdirWorkspaces('yarn-app');
@@ -451,8 +468,13 @@ function (t) {
     t.match(req.url, '/vuln/npm', 'posts to correct url');
     t.equal(pkg.name, 'yarn-app-one', 'specifies package name');
     t.ok(pkg.dependencies.marked, 'specifies dependency');
-    t.equal(pkg.dependencies.marked.full, 'marked@0.3.6',
-      'specifies dependency full name');
+    t.equal(pkg.dependencies.marked.name,
+      'marked', 'marked dep name');
+    t.equal(pkg.dependencies.marked.version,
+      '0.3.6', 'marked dep version');
+    t.notOk(pkg.from, 'no "from" array on root');
+    t.notOk(pkg.dependencies.marked.from,
+      'no "from" array on dep');
   });
 });
 
@@ -1030,11 +1052,15 @@ test('`monitor npm-package`', function (t) {
   return cli.monitor('npm-package')
   .then(function () {
     var req = server.popRequest();
+    var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
-    t.ok(req.body.package.dependencies['to-array'], 'dependency');
-    t.notOk(req.body.package.dependencies['object-assign'],
+    t.ok(pkg.dependencies['to-array'], 'dependency');
+    t.notOk(pkg.dependencies['object-assign'],
       'no dev dependency');
+    t.notOk(pkg.from, 'no "from" array on root');
+    t.notOk(pkg.dependencies['to-array'].from,
+      'no "from" array on dep');
   });
 });
 
@@ -1085,19 +1111,12 @@ test('`monitor maven-app`', function (t) {
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/maven', 'puts at correct url');
     t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
-    t.equal(pkg.from[0],
-      'com.mycompany.app:maven-app@1.0-SNAPSHOT',
-      'specifies "from" path for root package');
     t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
     t.equal(pkg.dependencies['junit:junit'].artifactId,
       'junit',
       'specifies dependency artifactId');
-    t.equal(pkg.dependencies['junit:junit'].from[0],
-      'com.mycompany.app:maven-app@1.0-SNAPSHOT',
-      'specifies "from" path for dependencies');
-    t.equal(pkg.dependencies['junit:junit'].from[1],
-      'junit:junit@3.8.2',
-      'specifies "from" path for dependencies');
+    t.notOk(pkg.from, 'no "from" array on root');
+    t.notOk(pkg.dependencies['junit:junit'].from, 'no "from" array on dep');
   });
 });
 
@@ -1111,16 +1130,11 @@ test('`monitor maven-multi-app`', function (t) {
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/maven', 'puts at correct url');
     t.equal(pkg.artifactId, 'maven-multi-app', 'specifies artifactId');
-    t.equal(pkg.from[0],
-      'com.mycompany.app:maven-multi-app@1.0-SNAPSHOT',
-      'specifies "from" path for root package');
     t.ok(pkg.dependencies['com.mycompany.app:simple-child'],
       'specifies dependency');
-    t.equal(pkg.dependencies['com.mycompany.app:simple-child'].artifactId,
-      'simple-child', 'specifies dependency artifactId');
-    t.equal(pkg.dependencies['com.mycompany.app:simple-child'].from[0],
-      'com.mycompany.app:maven-multi-app@1.0-SNAPSHOT',
-      'specifies root module as first element of "from" path for dependencies');
+    t.notOk(pkg.from, 'no "from" array on root');
+    t.notOk(pkg.dependencies['com.mycompany.app:simple-child'].from,
+      'no "from" array on dep');
   });
 });
 
@@ -1133,18 +1147,14 @@ test('`monitor yarn-app`', function (t) {
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
     t.equal(pkg.name, 'yarn-app-one', 'specifies name');
-    t.equal(pkg.from[0],
-      'yarn-app-one@1.0.0',
-      'specifies "from" path for root package');
     t.ok(pkg.dependencies.marked, 'specifies dependency');
-    t.equal(pkg.dependencies.marked.full,
-      'marked@0.3.6', 'specifies dependency full name');
-    t.equal(pkg.dependencies.marked.from[0],
-      'yarn-app-one@1.0.0',
-      'specifies root module as first element of "from" path for dependencies');
-    t.equal(pkg.dependencies.marked.from[1],
-      'marked@0.3.6',
-      'specifies dep module as second element of "from" path for dependencies');
+    t.equal(pkg.dependencies.marked.name,
+      'marked', 'marked dep name');
+    t.equal(pkg.dependencies.marked.version,
+      '0.3.6', 'marked dep version');
+    t.notOk(pkg.from, 'no "from" array on root');
+    t.notOk(pkg.dependencies.marked.from,
+      'no "from" array on dep');
   });
 });
 
