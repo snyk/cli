@@ -113,52 +113,73 @@ function test() {
 
     var response = results.map(function (unused, i) {
       return displayResult(results[i], resultOptions[i]);
-    }).join('\n');
+    }).join('\n----------------------------------------\n');
 
-    var vulnerableResults = results.filter(function (res) { return !res.ok; });
-    var paths = vulnerableResults.length === 1 ? 'path' : 'paths';
-    var projects = results.length === 1 ? ' project' : ' projects';
-    var testedMessage = '\n\nTested ' + results.length + projects;
-    if (vulnerableResults.length > 0) {
-      if (options.showVulnPaths) {
-        testedMessage +=  ', ' + vulnerableResults.length +
-                          ' contained vulnerable ' + paths;
-      }
-      testedMessage += '.';
+    var vulnerableResults = results.filter(res => {
+      return res.vulnerabilities && res.vulnerabilities.length;
+    });
+    var errorResults =
+      results.filter(res => (res instanceof Error));
 
-      // only summarise for multiple test paths
-      if (results.length > 1) {
-        response += chalk.bold.red(testedMessage);
-      }
+    var summaryMessage = '';
 
+    if (results.length > 1) {
+      var projects = results.length === 1 ? ' project' : ' projects';
+      summaryMessage = '\n\nTested ' + results.length + projects +
+        summariseVulnerableResults(vulnerableResults, options) +
+        summariseErrorResults(errorResults);
+    }
+
+    var notSuccess = vulnerableResults.length > 0 || errorResults.length > 0;
+
+    if (notSuccess) {
+      response += chalk.bold.red(summaryMessage);
       const error = new Error(response);
       // take the code of the first problem to go through error translation
-      error.code = vulnerableResults[0].code;
+      // HACK as there can be different errors, and we pass only the first one
+      error.code = (vulnerableResults[0] || errorResults[0]).code;
       throw error;
-    } else {
-      if (options.showVulnPaths) {
-        testedMessage += ', no vulnerable paths were found.';
-      } else {
-        testedMessage += ', no issues were found.';
-      }
-      // only summarise for multiple test paths
-      if (results.length > 1) {
-        response += chalk.green(testedMessage);
-      }
-
-      return response;
     }
+
+    response += chalk.bold.green(summaryMessage);
+    return response;
   });
+}
+
+function summariseVulnerableResults(vulnerableResults, options) {
+  if (vulnerableResults.length) {
+    if (options.showVulnPaths) {
+      return ', ' + vulnerableResults.length + ' contained vulnerable paths.';
+    }
+    return ', ' + vulnerableResults.length + ' had issues.';
+  }
+
+  if (options.showVulnPaths) {
+    return ', no vulnerable paths were found.';
+  }
+
+  return ', no issues were found.';
+}
+
+function summariseErrorResults(errorResults) {
+  const projects = errorResults.length > 1 ? ' projects' :  ' project';
+  if (errorResults.length > 0) {
+    return ' Failed to test ' + errorResults.length + projects +
+      '.\nRun with `-d` for debug output and contact support@snyk.io';
+  }
+
+  return '';
 }
 
 function displayResult(res, options) {
   var meta = metaForDisplay(res, options) + '\n\n';
   var packageManager = options.packageManager;
+  var prefix = '\nTesting ' + options.path + '...\n';
   var summary = 'Tested ';
 
   // handle errors by extracting their message
   if (res instanceof Error) {
-    return res.message;
+    return prefix + res.message;
   }
 
   // real `test` result object, let's describe it
@@ -181,7 +202,7 @@ function displayResult(res, options) {
         'about new related vulnerabilities.\n- Run `snyk test` as part of ' +
         'your CI/test.';
     }
-    return chalk.bold('\nTesting ' + options.path + '...\n') + meta + summary;
+    return prefix + meta + summary;
   }
 
   var vulnLength = res.vulnerabilities && res.vulnerabilities.length;
@@ -299,16 +320,17 @@ function displayResult(res, options) {
     return res;
   }).filter(Boolean).join(sep) + sep + meta + summary;
 
-  return chalk.bold('\nTesting ' + options.path + '...\n') + body;
+  return prefix + body;
 }
 
 function metaForDisplay(res, options) {
   var meta = [
-    chalk.bold('Organisation: ') + res.org,
+    chalk.bold('Organisation:    ') + res.org,
     chalk.bold('Package manager: ') +
       (options.packageManager || res.packageManager),
-    chalk.bold('Target file: ') + options.file,
-    chalk.bold('Open source: ') + (res.isPrivate ? 'no' : 'yes'),
+    chalk.bold('Target file:     ') + options.file,
+    chalk.bold('Open source:     ') + (res.isPrivate ? 'no' : 'yes'),
+    chalk.bold('Project path:    ') + options.path,
   ];
   if (res.filesystemPolicy) {
     meta.push('Local Snyk policy found');
