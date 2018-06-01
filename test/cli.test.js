@@ -57,7 +57,7 @@ before('prime config', function (t) {
 });
 
 test('cli tests for online repos', function (t) {
-  t.plan(2);
+  t.plan(4);
 
   cli.test('semver@2').then(function (res) {
     t.fail(res);
@@ -71,9 +71,9 @@ test('cli tests for online repos', function (t) {
   cli.test('semver@2', {json: true}).then(function (res) {
     t.fail(res);
   }).catch(function (error) {
-    var res = error.message;
+    var res = JSON.parse(error.message);
     var vuln = res.vulnerabilities[0];
-    t.pass(res);
+    t.pass(vuln.title);
     t.equal(vuln.id, 'npm:semver:20150403',
       'correctly found vulnerability: ' + vuln.id);
   });
@@ -131,8 +131,7 @@ test('multiple test arguments', function (t) {
 
   cli.test('semver@4', 'qs@6').then(function (res) {
     var lastLine = res.trim().split('\n').pop();
-    t.equals(
-      lastLine.indexOf('Tested 2 projects, no vulnerable paths were found.'), 0,
+    t.equals(lastLine, 'Tested 2 projects, no vulnerable paths were found.',
       'successfully tested semver@4, qs@6');
   }).catch(function (error) {
     t.fail(error);
@@ -143,8 +142,7 @@ test('multiple test arguments', function (t) {
   }).catch(function (error) {
     var res = error.message;
     var lastLine = res.trim().split('\n').pop();
-    t.equals(
-      lastLine.indexOf('Tested 2 projects, 1 contained vulnerable path.'), 0,
+    t.equals(lastLine, 'Tested 2 projects, 1 contained vulnerable paths.',
       'successfully tested semver@4, qs@1');
   });
 
@@ -153,8 +151,7 @@ test('multiple test arguments', function (t) {
   }).catch(function (error) {
     var res = error.message;
     var lastLine = res.trim().split('\n').pop();
-    t.equals(
-      lastLine.indexOf('Tested 2 projects, 1 contained vulnerable path.'), 0,
+    t.equals(lastLine, 'Tested 2 projects, 1 contained vulnerable paths.',
       'successfully tested semver@2, qs@6');
   });
 
@@ -163,8 +160,7 @@ test('multiple test arguments', function (t) {
   }).catch(function (error) {
     var res = error.message;
     var lastLine = res.trim().split('\n').pop();
-    t.equals(
-      lastLine.indexOf('Tested 2 projects, 2 contained vulnerable paths.'), 0,
+    t.equals(lastLine, 'Tested 2 projects, 2 contained vulnerable paths.',
       'successfully tested semver@2, qs@1');
   });
 });
