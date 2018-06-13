@@ -1,9 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "doesnt_matter", "nuget-app\doesnt_matter.csproj", "{26B9B59B-C5AC-49CE-9BD6-4C72940DAC89}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "doesnt_matter", "../workspaces/nuget-app-2.1\doesnt_matter.csproj", "{9A79CF26-C7E8-47A3-B718-C5E654AA2701}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonExistantProject", "NoSuchFolder/NoSuchFile.csproj", "{9A79CF26-C7E8-47A3-B718-C5E654AA2701}"
 EndProject
 Global
