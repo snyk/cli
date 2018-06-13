@@ -1,0 +1,21 @@
+{
+    "version": 3,
+    "targets": {
+        "Microsoft.NETCore.App/2.0.0": {
+            "Knockout.Validation/1.0.1": {
+                "dependencies": {
+                    "knockoutjs": "2.3.0",
+                    "jQuery": "1.10.2"
+                }
+            }
+        }
+    },
+    "libraries": {
+        "knockoutjs/2.3.0": {},
+        "Knockout.Validation/1.0.1": {},
+        "jQuery/1.10.2": {}
+    },
+    "project": {
+        "version": "2.2.2"
+    }
+}
