@@ -1446,6 +1446,133 @@ test('`monitor composer-app ruby-app` works on multiple params', function (t) {
   });
 });
 
+test('`monitor foo:latest --docker`',
+function (t) {
+  var dockerImageId = 'sha256:' +
+    '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'rpm',
+          dockerImageId: dockerImageId,
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  return cli.monitor('foo:latest', {
+    docker: true,
+    org: 'explicit-org',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/rpm',
+      'puts at correct url (uses package manager from plugin response)');
+    t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
+    t.same(plugin.inspect.getCall(0).args,
+      ['foo:latest', null, {
+        args: null,
+        docker: true,
+        org: 'explicit-org',
+      }], 'calls docker plugin with expected arguments');
+  });
+});
+
+test('`monitor foo:latest --docker` doesnt send policy from cwd',
+function (t) {
+  chdirWorkspaces('npm-package-policy');
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'rpm',
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  return cli.monitor('foo:latest', {
+    docker: true,
+    org: 'explicit-org',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/rpm',
+      'puts at correct url (uses package manager from plugin response)');
+    t.same(plugin.inspect.getCall(0).args,
+      ['foo:latest', null, {
+        args: null,
+        docker: true,
+        org: 'explicit-org',
+      }], 'calls docker plugin with expected arguments');
+
+    return snykPolicy.create().then(function (emptyPolicy) {
+      t.same(req.body.policy, emptyPolicy.toString(), 'empty policy is sent');
+    });
+  });
+});
+
+test('`monitor foo:latest --docker` with custom policy path',
+function (t) {
+  chdirWorkspaces('npm-package-policy');
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'rpm',
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  return cli.monitor('foo:latest', {
+    docker: true,
+    org: 'explicit-org',
+    'policy-path': 'custom-location',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.match(req.url, '/monitor/rpm',
+      'puts at correct url (uses package manager from plugin response)');
+    t.same(plugin.inspect.getCall(0).args,
+      ['foo:latest', null, {
+        args: null,
+        docker: true,
+        org: 'explicit-org',
+        'policy-path': 'custom-location',
+      }], 'calls docker plugin with expected arguments');
+    var expected = fs.readFileSync(
+      path.join('custom-location', '.snyk'),
+      'utf8');
+    var policyString = req.body.policy;
+    t.equal(policyString, expected, 'sends correct policy');
+  });
+});
 
 test('`wizard` for unsupported package managers', function (t) {
   chdirWorkspaces();

@@ -38,28 +38,32 @@ function monitor() {
     return args.reduce(function (acc, path) {
       return acc.then(function () {
         return fs.exists(path).then(function (exists) {
-          if (!exists) {
+          if (!exists && !options.docker) {
             throw new Error(
               'snyk monitor should be pointed at an existing project');
           }
+
           var packageManager = detect.detectPackageManager(path, options);
-          var targetFile = options.file || detect.detectPackageFile(path);
-          var meta = {
-            method: 'cli',
-            packageManager: packageManager,
-            'policy-path': options['policy-path'],
-            'project-name': options['project-name'] || config['PROJECT_NAME'],
-          };
-          var plugin = plugins.loadPlugin(packageManager);
+
+          var targetFile = options.docker
+            ? undefined
+            : (options.file || detect.detectPackageFile(path));
+
+
+          var plugin = plugins.loadPlugin(packageManager, options);
+
           var moduleInfo = ModuleInfo(plugin, options.policy);
 
-          var relativeTargetPath =
-            pathUtil.relative('.', pathUtil.join(path, targetFile));
+          var displayPath = pathUtil.relative(
+            '.', pathUtil.join(path, targetFile || ''));
+
+          var analysisType = options.docker ? 'docker' : packageManager;
+
           var analyzingDepsSpinnerLabel =
-            'Analyzing ' + packageManager + ' dependencies for ' +
-            relativeTargetPath;
+            'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
+
           var postingMonitorSpinnerLabel =
-            'Posting monitor snapshot for ' + relativeTargetPath + ' ...';
+            'Posting monitor snapshot for ' + displayPath + ' ...';
 
           return spinner(analyzingDepsSpinnerLabel)
             .then(function () {
@@ -71,6 +75,17 @@ function monitor() {
               .then(function () { return info });
             })
             .then(function (info) {
+              if (_.get(info, 'plugin.packageManager')) {
+                packageManager = info.plugin.packageManager;
+              }
+              var meta = {
+                method: 'cli',
+                packageManager: packageManager,
+                'policy-path': options['policy-path'],
+                'project-name':
+                  options['project-name'] || config['PROJECT_NAME'],
+                isDocker: !!options.docker,
+              };
               return snyk.monitor(path, meta, info);
             })
             .then(spinner.clear(postingMonitorSpinnerLabel))
