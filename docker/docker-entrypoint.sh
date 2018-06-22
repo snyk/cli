@@ -1,6 +1,7 @@
 #!/bin/bash
 
 OUTPUT_FILE=snyk-result.json
+MONITOR_OUTPUT_FILE=snyk-monitor-result.json
 ERROR_FILE=snyk-error.log
 HTML_FILE=snyk_report.html
 SNYK_COMMAND="$1"
@@ -76,7 +77,7 @@ fi
 
 cd "$PROJECT_PATH/$PROJECT_FOLDER/$PROJECT_SUBDIR" || exitWithMsg "Can't cd to $PROJECT_PATH/$PROJECT_FOLDER/$PROJECT_SUBDIR" 1
 
-runCmdAsDockerUser "PATH=$PATH snyk $SNYK_COMMAND $SNYK_PARAMS $ADDITIONAL_ENV > $OUTPUT_FILE 2>$ERROR_FILE"
+runCmdAsDockerUser "PATH=$PATH snyk --json $SNYK_COMMAND $SNYK_PARAMS $ADDITIONAL_ENV > $OUTPUT_FILE 2>$ERROR_FILE"
 
 RC=$?
 
@@ -91,15 +92,13 @@ fi
 # - `GENERATE_REPORT` - [OPTIONAL] if set, this will generate the HTML report with a summary of the vulnerabilities detected by snyk.
 #
 # if [ ! -z $GENERATE_REPORT ]; then
-runCmdAsDockerUser "touch $PROJECT_PATH/$PROJECT_FOLDER/$HTML_FILE"
+runCmdAsDockerUser "cat $OUTPUT_FILE | jq '.vulnerabilities|= map(. + {severity_numeric: (if(.severity) == \"high\" then 1 else (if(.severity) == \"medium\" then 2 else (if(.severity) == \"low\" then 3 else 4 end) end) end)}) |.vulnerabilities |= sort_by(.severity_numeric) | del(.vulnerabilities[].severity_numeric)' | snyk-to-html | sed 's/<\/head>/  <link rel=\"stylesheet\" href=\"snyk_report.css\"><\/head>/' > $PROJECT_PATH/$PROJECT_FOLDER/$HTML_FILE"
+runCmdAsDockerUser "cat /home/node/snyk_report.css > $PROJECT_PATH/$PROJECT_FOLDER/snyk_report.css"
 
 if [ ! -z "$MONITOR" ]; then
-  runCmdAsDockerUser "PATH=$PATH snyk monitor --json $SNYK_PARAMS -- $ADDITIONAL_ENV | jq -r \".uri\" | awk '{print \"<center><a target=\\\"_blank\\\" href=\\\"\" \$0 \"\\\">View On Snyk.io</a></center>\"}' > $PROJECT_PATH/$PROJECT_FOLDER/$HTML_FILE 2>$ERROR_FILE"
+  runCmdAsDockerUser "PATH=$PATH snyk monitor --json $SNYK_PARAMS -- $ADDITIONAL_ENV > $MONITOR_OUTPUT_FILE 2>$ERROR_FILE"
+  runCmdAsDockerUser "cat $MONITOR_OUTPUT_FILE | jq -r \".uri\" | awk '{print \"<center><a target=\\\"_blank\\\" href=\\\"\" \$0 \"\\\">View On Snyk.io</a></center>\"}' >> $PROJECT_PATH/$PROJECT_FOLDER/$HTML_FILE 2>$ERROR_FILE"
 fi
-
-
-runCmdAsDockerUser "cat $OUTPUT_FILE | jq '.vulnerabilities|= map(. + {severity_numeric: (if(.severity) == \"high\" then 1 else (if(.severity) == \"medium\" then 2 else (if(.severity) == \"low\" then 3 else 4 end) end) end)}) |.vulnerabilities |= sort_by(.severity_numeric) | del(.vulnerabilities[].severity_numeric)' | snyk-to-html | sed 's/<\/head>/  <link rel=\"stylesheet\" href=\"snyk_report.css\"><\/head>/' >> $PROJECT_PATH/$PROJECT_FOLDER/$HTML_FILE"
-runCmdAsDockerUser "cat /home/node/snyk_report.css > $PROJECT_PATH/$PROJECT_FOLDER/snyk_report.css"
 # fi
 #
 
