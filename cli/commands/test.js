@@ -248,6 +248,14 @@ function displayResult(res, options) {
       res += '- from: ' + vuln.from.join(' > ') + '\n';
     }
 
+    const verRegExp = /^<\S+$/;
+    if ((options.docker) &&
+      (verRegExp.test(vuln.semver.vulnerable[0]))) {
+      // removing the first char from the version. For example: <7.50.1-1
+      res += '- fixed in: ' + vuln.name + '@' +
+        vuln.semver.vulnerable[0].substr(1) + '\n';
+    }
+
     if (vuln.note) {
       res += vuln.note + '\n';
     }
