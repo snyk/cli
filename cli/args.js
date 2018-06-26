@@ -122,6 +122,7 @@ function args(processargv) {
   [
     'package-manager',
     'packages-folder',
+    'severity-threshold',
   ].forEach(function (dashedArg) {
     if (argv[dashedArg]) {
       var camelCased = dashToCamelCase(dashedArg);

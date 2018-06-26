@@ -205,7 +205,7 @@ test('`test ruby-app` returns correct meta', function (t) {
     t.equal(meta[2], 'Target file:     Gemfile', 'target file displayed');
     t.equal(meta[3], 'Open source:     no', 'open source displayed');
     t.equal(meta[4], 'Project path:    ruby-app', 'path displayed');
-    t.notEqual(meta[5], 'Local Snyk policy found',
+    t.notEqual(meta[5], 'Local Snyk policy: found',
       'local policy not displayed');
   });
 });
@@ -248,7 +248,7 @@ test('`test` returns correct meta for a vulnerable result', function (t) {
     t.equal(meta[2], 'Target file:     Gemfile', 'target file displayed');
     t.equal(meta[3], 'Open source:     no', 'open source displayed');
     t.equal(meta[4], 'Project path:    ruby-app', 'path displayed');
-    t.notEqual(meta[5], 'Local Snyk policy found',
+    t.notEqual(meta[5], 'Local Snyk policy: found',
       'local policy not displayed');
   });
 });
@@ -272,7 +272,7 @@ test('`test npm-package-policy` returns correct meta', function (t) {
     t.equal(meta[2], 'Target file:     package.json', 'target file displayed');
     t.equal(meta[3], 'Open source:     no', 'open source displayed');
     t.equal(meta[4], 'Project path:    npm-package-policy', 'path displayed');
-    t.equal(meta[5], 'Local Snyk policy found', 'local policy displayed');
+    t.equal(meta[5], 'Local Snyk policy: found', 'local policy displayed');
   });
 });
 
