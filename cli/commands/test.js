@@ -137,6 +137,7 @@ function test() {
       // take the code of the first problem to go through error translation
       // HACK as there can be different errors, and we pass only the first one
       error.code = (vulnerableResults[0] || errorResults[0]).code;
+      error.cliMessage = (vulnerableResults[0] || errorResults[0]).cliMessage;
       throw error;
     }
 

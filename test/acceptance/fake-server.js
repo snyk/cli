@@ -62,6 +62,14 @@ module.exports = function (root, apikey) {
 
   server.post(root + '/vuln/:registry', function (req, res, next) {
     var vulnerabilities = [];
+    if (req.query.org && req.query.org === 'missing-org') {
+      res.status(404);
+      res.send({
+        code: 404,
+        cliMessage: 'cli error message',
+      });
+      return next();
+    }
     if (req.query.org && req.query.org === 'org-with-vulns') {
       vulnerabilities.push({
         title: 'XML External Entity (XXE) Injection',
