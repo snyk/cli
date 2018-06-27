@@ -69,6 +69,16 @@ test('test cli with multiple params: good and bad', function (t) {
   });
 });
 
+test('test cli with non existence org', function (t) {
+  t.plan(1);
+  return cli.test({org: 'missing-org'})
+    .then(function () {
+      t.fail('expect to error');
+    }).catch(function (error) {
+      t.equal(error.cliMessage, 'cli error message', 'got correct error message');
+    });
+});
+
 /**
  * Remote package `test`
  */
