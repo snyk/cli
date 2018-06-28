@@ -39,6 +39,8 @@ Options:
                        to true). Applicable to `snyk test`.
   --project-name=<string>
                        Specify a custom Snyk project name (`snyk monitor` only).
+  --docker ........... Test or monitor a local docker image for Linux
+                       vulnerabilities (entitled orgs only).
   --insecure ......... Ignore unknown certificate authorities.
   --json ............. Return results in JSON format.
   --dry-run .......... Don't apply updates or patches during protect.
@@ -56,6 +58,7 @@ Examples:
   $ snyk test --show-vulnerable-paths=false
   $ snyk monitor --org=my-team
   $ snyk monitor --project-name=my-project
+  $ snyk test --docker ubuntu:18.04 --org=my-team
 
 Pro tip: use `snyk test` in your test scripts, if a vulnerability is
 found, the process will exit with a non-zero exit code.
