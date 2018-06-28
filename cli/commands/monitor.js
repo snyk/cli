@@ -137,7 +137,7 @@ function monitor() {
           return res.data;
         }
         if (res.data && res.data.cliMessage) {
-          return chalk.red(res.data.cliMessage)
+          return chalk.bold.red(res.data.cliMessage)
         }
         return 'For path `' + res.path + '`, ' + res.data.message;
       }).join('\n');
