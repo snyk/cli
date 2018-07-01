@@ -6,11 +6,16 @@ var _ = require('lodash');
 var spy = sinon.spy();
 var wizard = proxyquire('../cli/commands/protect/wizard', {
   inquirer: {
-    prompt: function (q, cb) {
+    prompt: function (qs, cb) {
       if (!cb) {
         cb = Promise.resolve.bind(Promise);
       }
-      return cb(spy(q));
+      qs.forEach(function(q) {
+        if (q.name.indexOf('.') > -1) {
+          throw Error('Dots are not allowed in answer names');
+        }
+      });
+      return cb(spy(qs));
     },
   }
 });
@@ -44,6 +49,16 @@ function run(t, offset, filename) {
     t.bail(e);
   });
 }
+
+test('dots in id', function (t) {
+  run(t, './fixtures/underscore.string.json').then(function (prompts) {
+    t.ok(contains(prompts[0], 'ignore'));
+    t.ok(contains(prompts[0], 'skip'));
+    t.ok(!contains(prompts[0], 'patch'));
+    t.ok(!contains(prompts[0], 'update'));
+    t.end();
+  });
+});
 
 test('review patches', function (t) {
   run(t, 2, './fixtures/uglify-patch-only.json').then(function (prompts) {
@@ -180,7 +195,6 @@ test('humpback - checks related groups and subitems', function (t) {
     t.end();
   }).catch(t.threw);
 });
-
 
 function contains(question, value, patchWithUpdate) {
   var positions = {

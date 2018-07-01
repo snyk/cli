@@ -216,9 +216,20 @@ function inquire(prompts, answers) {
   if (prompts.length === 0) {
     return Promise.resolve(answers);
   }
+  // inquirer will handle dots in name as path in hash (CSUP-272)
+  prompts.forEach(function (prompt) {
+    prompt.name = prompt.name.replace(/\./g, '--DOT--');
+  });
   return new Promise(function (resolve) {
     inquirer.prompt(prompts).then(function (theseAnswers) {
       _.extend(answers, theseAnswers);
+      Object.keys(answers).forEach(function (answerName) {
+        if (answerName.indexOf('--DOT--') > -1) {
+          var newName = answerName.replace(/--DOT--/g, '.');
+          answers[newName] = answers[answerName];
+          delete this[answerName];
+        }
+      });
       resolve(answers);
     });
   });
