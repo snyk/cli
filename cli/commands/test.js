@@ -323,11 +323,16 @@ function createRemediationText(vuln, packageManager) {
       'one of your dependencies may be bundling outdated modules.',
       rubygems: '\n    Try running `bundle update ' + packageName + '` ' +
       'and running `snyk test` again.',
+      yarn: '\n    Try deleting node_modules, reinstalling ' +
+      'and running `snyk test` again. If the problem persists, ' +
+      'one of your dependencies may be bundling outdated modules.',
     };
+
     return chalk.bold(
       '\n  Remediation:\n    Your dependencies are out of date, ' +
       'otherwise you would be using a newer version of ' +
-      packageName + ' . ' + packageManagerOutdatedText[packageManager] || '');
+      packageName + '. ' +
+      _.get(packageManagerOutdatedText, packageManager, ''));
   }
 
   if (vuln.isFixable == true) {
