@@ -223,13 +223,13 @@ function inquire(prompts, answers) {
   return new Promise(function (resolve) {
     inquirer.prompt(prompts).then(function (theseAnswers) {
       _.extend(answers, theseAnswers);
-      for (var answerName in answers) {
+      Object.keys(answers).forEach(function (answerName) {
         if (answerName.indexOf('--DOT--') > -1) {
           var newName = answerName.replace(/--DOT--/g, '.');
           answers[newName] = answers[answerName];
           delete this[answerName];
         }
-      }
+      });
       resolve(answers);
     });
   });

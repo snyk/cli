@@ -12,7 +12,7 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
       }
       qs.forEach(function(q) {
         if (q.name.indexOf('.') > -1) {
-          throw Error('no dots in question name');
+          throw Error('Dots are not allowed in answer names');
         }
       });
       return cb(spy(qs));
