@@ -73,7 +73,7 @@ function processPackageManager(options) {
       type: 'confirm',
       default: true,
     };
-    return inquire(prompt, {})
+    return inquire([prompt], {})
     .then(function (answer) {
       if (answer['choose-yarn']) {
         options.packageManager = packageManager;
