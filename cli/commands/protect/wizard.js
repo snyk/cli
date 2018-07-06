@@ -66,16 +66,18 @@ function processPackageManager(options) {
       ' projects is not currently supported');
   }
   if (packageManager === 'yarn') {
-    var prompt = {
-      name: 'choose-yarn',
-      message: 'A yarn.lock file was detected.\n' +
-        '  Should the wizard use Yarn [Y] or npm [n] when applying updates?',
-      type: 'confirm',
-      default: true,
-    };
-    return inquire(prompt, {})
-    .then(function (answer) {
-      if (answer['choose-yarn']) {
+    var prompts = [
+      {
+        name: 'choose-yarn',
+        message: 'A yarn.lock file was detected.\n' +
+          '  Should the wizard use Yarn [Y] or npm [n] when applying updates?',
+        type: 'confirm',
+        default: true,
+      },
+    ];
+    return inquire(prompts, {})
+    .then(function (answers) {
+      if (answers['choose-yarn']) {
         options.packageManager = packageManager;
         return Promise.resolve(options);
       }
