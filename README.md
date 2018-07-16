@@ -96,7 +96,7 @@ docker run -it
   snyk/snyk-cli:rubygems test --org=my-org-name
 ```
 
-### Maven 3.5.2
+### Maven 3.5.4
 
 We will need to mount the project root folder when running the image so that Snyk can access the code within the container and mount the local .m2 and .ivy2 folders. The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds. Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Maven:
 
@@ -108,7 +108,7 @@ docker run -it
     -v "<PROJECT_DIRECTORY>:/project"
     -v "/home/user/.m2:/home/node/.m2"
     -v "/home/user/.ivy2:/home/node/.ivy2"
-  snyk/snyk-cli:mvn-3.5.2 test --org=my-org-name
+  snyk/snyk-cli:mvn-3.5.4 test --org=my-org-name
 ```
 
 ### SBT 0.13.16 / SBT 1.0.4
