@@ -16,7 +16,7 @@ RUN apt-get install -y oracle-java8-installer oracle-java8-set-default
 #Install sbt
 RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list && \
     apt-get install -y apt-transport-https && \
-    curl -L -o sbt.deb http://dl.bintray.com/sbt/debian/sbt-1.0.4.deb && \
+    curl -L -o sbt.deb https://dl.bintray.com/sbt/debian/sbt-1.0.4.deb && \
     dpkg -i sbt.deb
 
 RUN echo "docker-user ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers  && \
