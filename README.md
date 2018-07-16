@@ -108,7 +108,7 @@ docker run -it
     -v "<PROJECT_DIRECTORY>:/project"
     -v "/home/user/.m2:/home/node/.m2"
     -v "/home/user/.ivy2:/home/node/.ivy2"
-  snyk/snyk-cli:mvn-3.5.4 test --org=my-org-name
+  snyk/snyk-cli:maven-3.5.4 test --org=my-org-name
 ```
 
 ### SBT 0.13.16 / SBT 1.0.4
