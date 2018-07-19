@@ -7,6 +7,7 @@ var unsupportedPackageManagers = {
   rubygems: 'RubyGems',
   maven: 'Maven',
   pip: 'Python',
+  pipenv: 'Python',
   sbt: 'SBT',
   gradle: 'Gradle',
   golangdep: 'Golang/Dep',
