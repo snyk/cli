@@ -543,6 +543,41 @@ function (t) {
   });
 });
 
+test('`test pipenv-app --file=Pipfile`',
+function (t) {
+  chdirWorkspaces();
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({package: {}});
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin');
+  t.teardown(plugins.loadPlugin.restore);
+  plugins.loadPlugin
+  .withArgs('pip')
+  .returns(plugin);
+
+  return cli.test('pipenv-app', {
+    file: 'Pipfile',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/pip', 'posts to correct url');
+    t.same(plugin.inspect.getCall(0).args,
+      ['pipenv-app', 'Pipfile', {
+        args: null,
+        file: 'Pipfile',
+        org: null,
+        packageManager: 'pip',
+        path: 'pipenv-app',
+        showVulnPaths: true,
+      }], 'calls python plugin');
+  });
+});
+
 test('`test nuget-app --file=project.assets.json`', function (t) {
   chdirWorkspaces();
   var plugin = {
