@@ -145,8 +145,8 @@ function stripInvalidPatches(vulns) {
 
 function getPrompts(vulns, policy) {
   return getUpdatePrompts(vulns, policy)
-                  .concat(getPatchPrompts(vulns, policy))
-                  .concat(getIgnorePrompts(vulns, policy));
+    .concat(getPatchPrompts(vulns, policy))
+    .concat(getIgnorePrompts(vulns, policy));
 }
 
 function getPatchPrompts(vulns, policy, options) {
@@ -157,9 +157,8 @@ function getPatchPrompts(vulns, policy, options) {
 
   var res = stripInvalidPatches(_.cloneDeep(vulns)).filter(function (vuln) {
     // if there's any upgrade available, then remove it
-    return canBeUpgraded(vuln) ? false : true;
+    return (canBeUpgraded(vuln) || vuln.type === 'license') ? false : true;
   });
-
   // sort by vulnerable package and the largest version
   res.sort(sortPatchPrompts);
 
@@ -465,8 +464,8 @@ function generatePrompt(vulns, policy, prefix, options) {
     },
     short: 'Ignore',
     name: options && options.ignoreDisabled ?
-          ignoreDisabledReasons[options.ignoreDisabled.reasonCode] :
-          'Set to ignore for 30 days (updates policy)',
+      ignoreDisabledReasons[options.ignoreDisabled.reasonCode] :
+      'Set to ignore for 30 days (updates policy)',
   };
 
   var patchAction = {
@@ -504,12 +503,9 @@ function generatePrompt(vulns, policy, prefix, options) {
 
     var from = vuln.from.slice(1).filter(Boolean).shift();
 
-    // FIXME this should be handled a litle more gracefully
+    // FIXME this should be handled a little more gracefully
     if (vuln.from.length === 1) {
-      console.log('');
-      var error = new Error(vuln.upgradePath[0]);
-      error.code = 'updatepackage';
-      throw error;
+      debug('Skipping issues in core package with no upgrade path: ' + id)
     }
     var vulnIn = vuln.from.slice(-1).pop();
     var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
@@ -534,7 +530,7 @@ function generatePrompt(vulns, policy, prefix, options) {
         severity, vuln.type === 'license' ? 'issue' : 'vuln', vulnIn, from);
       messageIntro += '\n- desc: ' + vuln.title;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
-          '- from: ' + vuln.from.slice(1).join(' > ') : '');
+        '- from: ' + vuln.from.slice(1).join(' > ') : '');
     }
 
     var note = false;
@@ -560,7 +556,7 @@ function generatePrompt(vulns, policy, prefix, options) {
               // associated with this review group.
               if (answers[key].meta.groupId === vuln.grouped.requires) {
                 if (answers[key].choice === 'ignore' &&
-                    answers[key].meta.review) {
+                  answers[key].meta.review) {
                   answers[key].meta.vulnsInGroup.push({
                     id: vuln.id,
                     from: vuln.from,
@@ -784,8 +780,8 @@ function generatePrompt(vulns, policy, prefix, options) {
       defaultAnswer = rule.reason;
     }
     var issue = curr.choices[0].value.vuln &&
-          curr.choices[0].value.vuln.type === 'license' ?
-          'issue' : 'vulnerability';
+      curr.choices[0].value.vuln.type === 'license' ?
+      'issue' : 'vulnerability';
     acc.push({
       name: curr.name + '-reason',
       message: '[audit] Reason for ignoring ' + issue + '?',
