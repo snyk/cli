@@ -141,8 +141,12 @@ test('`test /` test for non-existent with path specified', function (t) {
   })
   .catch(function (error) {
     t.pass('throws error');
-    t.match(error.message, 'Could not autodetect package manager for /',
-      'shows error message');
+    t.match(error.message, 'Could not detect supported target files in /.' +
+    '\nPlease see our documentation for supported' +
+    ' languages and target files: ' +
+    'https://support.snyk.io/getting-started/languages-support' +
+    ' and make sure you' +
+    ' are in the right directory.');
   });
 });
 
