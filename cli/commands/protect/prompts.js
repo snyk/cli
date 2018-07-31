@@ -16,6 +16,7 @@ var moduleToObject = require('snyk-module');
 var undefsafe = require('undefsafe');
 var config = require('../../../lib/config');
 var snykPolicy = require('snyk-policy');
+var chalk = require('chalk');
 
 var ignoreDisabledReasons = {
   notAdmin: 'Set to ignore (only administrators can ignore issues)',
@@ -35,6 +36,22 @@ function sort(prop) {
     var result = (a[prop] < b[prop]) ? -1 : (a[prop] > b[prop]) ? 1 : 0;
     return result * sortOrder;
   };
+}
+
+function createSeverityBasedIssueHeading(msg, severity) {
+  // Example: ✗ Medium severity vulnerability found in xmldom
+  var severitiesColourMapping = {
+    low: {
+      colorFunc: function (text) { return chalk.bold.blue(text)},
+    },
+    medium: {
+      colorFunc: function (text) { return chalk.bold.yellow(text)},
+    },
+    high: {
+      colorFunc: function (text) { return chalk.bold.red(text)},
+    },
+  };
+  return severitiesColourMapping[severity].colorFunc(msg);
 }
 
 function sortUpgradePrompts(a, b) {
@@ -342,7 +359,6 @@ function getUpdatePrompts(vulns, policy, options) {
 
   // sort by vulnerable package and the largest version
   res.sort(sortUpgradePrompts);
-
   var copy = null;
   var offset = 0;
   // mutate our objects so we can try to group them
@@ -510,27 +526,36 @@ function generatePrompt(vulns, policy, prefix, options) {
     var vulnIn = vuln.from.slice(-1).pop();
     var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
 
-    var infoLink = '- info: ' + config.ROOT;
+    var infoLink = '    Info: ' + chalk.underline(config.ROOT)
+
     var messageIntro;
     var fromText = false;
     var group = vuln.grouped && vuln.grouped.main ? vuln.grouped : false;
 
     if (group) {
-      infoLink += '/package/npm/' + group.affected.name + '/' +
-        group.affected.version;
+      infoLink += chalk.underline('/package/npm/' + group.affected.name + '/' +
+        group.affected.version);
       var joiningText = group.patch ? 'in' : 'via';
       var issues = vuln.type === 'license' ? 'issues' : 'vulnerabilities';
       messageIntro = fmt(
-        '%s %s introduced %s %s',
-        group.count, issues, joiningText, group.affected.full);
+        '✗ %s %s %s introduced %s %s',
+        group.count, severity, issues, joiningText, group.affected.full);
+      messageIntro = createSeverityBasedIssueHeading(
+        messageIntro,
+        vuln.severity
+      );
     } else {
-      infoLink += '/vuln/' + vuln.id;
+      infoLink += chalk.underline('/vuln/' + vuln.id);
       messageIntro = fmt(
-        '%s severity %s found in %s, introduced via',
+        '✗ %s severity %s found in %s, introduced via',
         severity, vuln.type === 'license' ? 'issue' : 'vuln', vulnIn, from);
-      messageIntro += '\n- desc: ' + vuln.title;
+      messageIntro = createSeverityBasedIssueHeading(
+        messageIntro,
+        vuln.severity
+        );
+      messageIntro += '\n    Description: ' + vuln.title;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
-        '- from: ' + vuln.from.slice(1).join(' > ') : '');
+        '    From: ' + vuln.from.slice(1).join(' > ') : '');
     }
 
     var note = false;
@@ -538,7 +563,7 @@ function generatePrompt(vulns, policy, prefix, options) {
       if (group && group.patch) {
 
       } else {
-        note = '- note: ' + vuln.note;
+        note = '   Note: ' + vuln.note;
       }
     }
 
@@ -602,7 +627,13 @@ function generatePrompt(vulns, policy, prefix, options) {
       },
       name: id,
       type: 'list',
-      message: [messageIntro, infoLink, fromText, note, '  Remediation options']
+      message: [
+        messageIntro,
+        infoLink,
+        fromText,
+        note,
+        chalk.green('\n  Remediation options'),
+        ]
         .filter(Boolean).join('\n'),
     };
 
@@ -629,7 +660,7 @@ function generatePrompt(vulns, policy, prefix, options) {
       var toPackageVersion = moduleToObject(toPackage).version;
       var diff = semver.diff(moduleToObject(from).version, toPackageVersion);
       var lead = '';
-      var breaking = 'potentially breaking change';
+      var breaking = chalk.red('potentially breaking change');
       if (diff === 'major') {
         lead = ' (' + breaking + ', ';
       } else {
