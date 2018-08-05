@@ -12,14 +12,11 @@
     "node": ">=4"
   },
   "scripts": {
-    "coverage": "tap --cov --coverage-report=lcov test/*.test.js",
-    "tap": "COVERALLS_REPO_TOKEN=0 tap --timeout=180 --cov --coverage-report=text-summary test/*.test.js",
+    "tap": "tap test/*.test.js -R spec --timeout=180",
     "test": "npm run test-common && npm run tap",
     "test-common": "npm run check-tests && npm run lint && node cli/index.js test --org=snyk",
-    "windows-tests": "tap -R spec test/*.test.js --timeout=120",
     "lint": "jscs `find ./cli -name '*.js'` -v && jscs `find ./lib -name '*.js'` -v",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
     "snyk-auth": "node cli auth $SNYK_API_KEY",
     "snyk-auth-windows": "node cli auth %SNYK_API_KEY%"
   },
@@ -70,7 +67,6 @@
     "nock": "^9.2.5",
     "proxyquire": "^1.7.4",
     "restify": "^4.1.1",
-    "semantic-release": "^8",
     "sinon": "^1.17.2",
     "strip-ansi": "^4.0.0",
     "tap": "^5.7.1",
@@ -80,14 +76,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/snyk/snyk.git"
-  },
-  "nyc": {
-    "exclude": [
-      "test",
-      "test{,-*}.js",
-      "**/*.test.js",
-      "**/__tests__/**"
-    ]
   },
   "pkg": {
     "scripts": [

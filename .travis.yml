@@ -1,5 +1,9 @@
 sudo: false
 language: node_js
+node_js:
+  - "8"
+  - "6"
+  - "4"
 cache:
   directories:
     - node_modules
@@ -11,26 +15,23 @@ notifications:
     on_pull_requests: false
     rooms:
       secure: mWzYwXXkaPJ/t24kG9gz6hYyRGoGX+zsjKDa+IzjhY4NeMJyzgHyN3x1vWwSXhfG1jQuBTFyT5RTWN8Jfo2Za/XDKYfMXXP5gCMtNkeWdflYWaUC7sAZepRANUB3gzkCTvkc/DOY/FI07xCcLMJoZ7jGiADNakTaWvzdExJUBs6NuhGdIUmOT+chbip02yN7mSPeqyU7/vFqpCxxEoPeNzaNshLufbZUEWgmLm0bm5Uxdo7Yi5rL0/nA7oqXUzzWTtgQEu0mOG4Oqu7oXAki2rLISw8enZwt5/fUbxGgK1J3UB86vgnDrxbTAhuNUuddaSxUuDsg1+3xyRzU74cyKUWnWqL10Tyy9KgDR0A+48w2v8DH/pOvnvfXA+FL0zLtDJ9jPuSK0dFbceRYmolEGMDF53Q/s2W+waC13Bi3nHRQJKYmT+bOnoLABLpfm5fbV/2br4LVTQwiP80HJ+19Vy4lriF55zu1yjESUBzdvvX1Dhp5E3AXZZv6xB0v4gyZZeOoIv6BxqinLauZiS3nM7O9vu1QnFvbo4HH0Df651fyy1kOU5UAAD+CNRgpZ8GMc+EegvnLbS3nzbNOPlkACmhxMNcpEvD6MomcB4UV2dPWAYIQSfrRV5h+iZlNSqCkA2pl3p6TTZhLMvoSxziRzUZZx7GQe/cnUGN6GbzyyRk=
-matrix:
-  include:
-    - node_js: "8"
-    - node_js: "6"
-    - node_js: "4"
-before_install:
-  # tests are failing on npm@5, remove this once this is not an issue
-  - npm i -g npm@^3.0.0
 before_script:
   - npm prune
 script:
   - npm run snyk-auth
+  # tests are failing on npm@5, downgrade to npm@3 if >3 is installed
+  - test "$(npm -v | cut -d'.' -f1)" -le 3 || npm i -g npm@^3.0.0
   - npm test
-after_success:
-  - npm run travis-coverage
-  - python scripts/travis_after_all.py
-  - export $(cat .to_export_back)
-  - npm run semantic-release
-  - bash scripts/travis_after_success.sh
+jobs:
+  include:
+    - stage: Release
+      node_js: "8"
+      script:
+        # run only if this is a 'push' build
+        # 1. grab and run semantic-release
+        # (not used as a dev dep because it pulls in new `npm` and breaks our tests)
+        # 2. run post-release actions
+        - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then npx semantic-release && bash scripts/travis_after_success.sh; fi'
 branches:
-  except:
-    - "/^v\\d+\\.\\d+\\.\\d+$/"
-    - /^released-/
+  only:
+    - "master"
