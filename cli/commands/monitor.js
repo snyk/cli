@@ -34,115 +34,119 @@ function monitor() {
   }
 
   return apiTokenExists('snyk monitor')
-  .then(function () {
-    return args.reduce(function (acc, path) {
-      return acc.then(function () {
-        return fs.exists(path).then(function (exists) {
-          if (!exists && !options.docker) {
-            throw new Error(
-              'snyk monitor should be pointed at an existing project');
-          }
+    .then(function () {
+      return args.reduce(function (acc, path) {
+        return acc.then(function () {
+          return fs.exists(path).then(function (exists) {
+            if (!exists && !options.docker) {
+              throw new Error(
+                'snyk monitor should be pointed at an existing project');
+            }
 
-          var packageManager = detect.detectPackageManager(path, options);
+            var packageManager = detect.detectPackageManager(path, options);
 
-          var targetFile = options.docker
-            ? undefined
-            : (options.file || detect.detectPackageFile(path));
+            var targetFile = options.docker
+              ? undefined
+              : (options.file || detect.detectPackageFile(path));
 
 
-          var plugin = plugins.loadPlugin(packageManager, options);
+            var plugin = plugins.loadPlugin(packageManager, options);
 
-          var moduleInfo = ModuleInfo(plugin, options.policy);
+            var moduleInfo = ModuleInfo(plugin, options.policy);
 
-          var displayPath = pathUtil.relative(
-            '.', pathUtil.join(path, targetFile || ''));
+            var displayPath = pathUtil.relative(
+              '.', pathUtil.join(path, targetFile || ''));
 
-          var analysisType = options.docker ? 'docker' : packageManager;
+            var analysisType = options.docker ? 'docker' : packageManager;
 
-          var analyzingDepsSpinnerLabel =
+            var analyzingDepsSpinnerLabel =
             'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
 
-          var postingMonitorSpinnerLabel =
+            var postingMonitorSpinnerLabel =
             'Posting monitor snapshot for ' + displayPath + ' ...';
 
-          return spinner(analyzingDepsSpinnerLabel)
-            .then(function () {
-              return moduleInfo.inspect(path, targetFile, options)
-            })
-            .then(spinner.clear(analyzingDepsSpinnerLabel))
-            .then(function (info) {
-              return spinner(postingMonitorSpinnerLabel)
-              .then(function () { return info });
-            })
-            .then(function (info) {
-              if (_.get(info, 'plugin.packageManager')) {
-                packageManager = info.plugin.packageManager;
-              }
-              var meta = {
-                method: 'cli',
-                packageManager: packageManager,
-                'policy-path': options['policy-path'],
-                'project-name':
+            return spinner(analyzingDepsSpinnerLabel)
+              .then(function () {
+                return moduleInfo.inspect(path, targetFile, options);
+              })
+              .then(spinner.clear(analyzingDepsSpinnerLabel))
+              .then(function (info) {
+                return spinner(postingMonitorSpinnerLabel)
+                  .then(function () {
+                    return info;
+                  });
+              })
+              .then(function (info) {
+                if (_.get(info, 'plugin.packageManager')) {
+                  packageManager = info.plugin.packageManager;
+                }
+                var meta = {
+                  method: 'cli',
+                  packageManager: packageManager,
+                  'policy-path': options['policy-path'],
+                  'project-name':
                   options['project-name'] || config['PROJECT_NAME'],
-                isDocker: !!options.docker,
-              };
-              return snyk.monitor(path, meta, info);
-            })
-            .then(spinner.clear(postingMonitorSpinnerLabel))
-            .then(function (res) {
-              res.path = path;
-              var endpoint = url.parse(config.API);
-              var leader = '';
-              if (res.org) {
-                leader = '/org/' + res.org;
-              }
-              endpoint.pathname = leader + '/manage';
-              var manageUrl = url.format(endpoint);
+                  isDocker: !!options.docker,
+                };
+                return snyk.monitor(path, meta, info);
+              })
+              .then(spinner.clear(postingMonitorSpinnerLabel))
+              .then(function (res) {
+                res.path = path;
+                var endpoint = url.parse(config.API);
+                var leader = '';
+                if (res.org) {
+                  leader = '/org/' + res.org;
+                }
+                endpoint.pathname = leader + '/manage';
+                var manageUrl = url.format(endpoint);
 
-              endpoint.pathname = leader + '/monitor/' + res.id;
-              var output = formatMonitorOutput(
-                packageManager, res,
-                manageUrl, options.json
-              );
-              // push a good result
-              results.push({ok: true, data: output, path: path});
-            });
-        }).catch(function (err) {
+                endpoint.pathname = leader + '/monitor/' + res.id;
+                var output = formatMonitorOutput(
+                  packageManager, res,
+                  manageUrl, options.json
+                );
+                // push a good result
+                results.push({ok: true, data: output, path: path});
+              });
+          }).catch(function (err) {
           // push this error so the promise chain continues
-          results.push({ok: false, data: err, path: path});
+            results.push({ok: false, data: err, path: path});
+          });
         });
-      });
-    }, Promise.resolve())
-    .then(function () {
-      if (options.json) {
-        var dataToSend = results.map(function (result) {
-          if (result.ok) {
-            return JSON.parse(result.data)
+      }, Promise.resolve())
+        .then(function () {
+          if (options.json) {
+            var dataToSend = results.map(function (result) {
+              if (result.ok) {
+                return JSON.parse(result.data);
+              }
+              return {ok: false, error: result.data.message, path: result.path};
+            });
+            // backwards compat - strip array if only one result
+            dataToSend = dataToSend.length === 1 ? dataToSend[0] : dataToSend;
+            var json = JSON.stringify(dataToSend, null, 2);
+
+            if (results.every(function (res) {
+              return res.ok;
+            })) {
+              return json;
+            }
+
+            throw new Error(json);
           }
-          return {ok: false, error: result.data.message, path: result.path}
+
+          return results.map(function (res) {
+            if (res.ok) {
+              return res.data;
+            }
+            if (res.data && res.data.cliMessage) {
+              return chalk.bold.red(res.data.cliMessage);
+            }
+            return 'For path `' + res.path + '`, ' + res.data.message;
+          }).join('\n');
         });
-        // backwards compat - strip array if only one result
-        dataToSend = dataToSend.length === 1 ? dataToSend[0] : dataToSend;
-        var json = JSON.stringify(dataToSend, null, 2);
-
-        if (results.every(function (res) { return res.ok; })) {
-          return json
-        }
-
-        throw new Error(json);
-      }
-
-      return results.map(function (res) {
-        if (res.ok) {
-          return res.data;
-        }
-        if (res.data && res.data.cliMessage) {
-          return chalk.bold.red(res.data.cliMessage)
-        }
-        return 'For path `' + res.path + '`, ' + res.data.message;
-      }).join('\n');
     });
-  });
 }
 
 function formatMonitorOutput(packageManager, res, manageUrl, isJson) {

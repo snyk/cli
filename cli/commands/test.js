@@ -41,117 +41,121 @@ function test() {
   }
 
   return apiTokenExists('snyk test')
-  .then(function () {
+    .then(function () {
     // Promise waterfall to test all other paths sequentially
-    var testsPromises = args.reduce(function (acc, path) {
-      return acc.then(function (res) {
+      var testsPromises = args.reduce(function (acc, path) {
+        return acc.then(function () {
         // Create a copy of the options so a specific test can
         // modify them i.e. add `options.file` etc. We'll need
         // these options later.
-        var testOpts = _.cloneDeep(options);
-        testOpts.path = path;
-        resultOptions.push(testOpts);
+          var testOpts = _.cloneDeep(options);
+          testOpts.path = path;
+          resultOptions.push(testOpts);
 
-        // run the actual test
-        return snyk.test(path, testOpts)
-        .catch(function (error) {
-          // Possible error cases:
-          // - the test found some vulns. `error.message` is a
-          // JSON-stringified
-          //   test result.
-          // - the flow failed, `error` is a real Error object.
-          // - the flow failed, `error` is a number or string
-          // describing the problem.
-          //
-          // To standardise this, make sure we use the best _object_ to
-          // describe the error.
-          if (error instanceof Error) {
-            return error;
-          }
+          // run the actual test
+          return snyk.test(path, testOpts)
+            .catch(function (error) {
+              // Possible error cases:
+              // - the test found some vulns. `error.message` is a
+              // JSON-stringified
+              //   test result.
+              // - the flow failed, `error` is a real Error object.
+              // - the flow failed, `error` is a number or string
+              // describing the problem.
+              //
+              // To standardise this, make sure we use the best _object_ to
+              // describe the error.
+              if (error instanceof Error) {
+                return error;
+              }
 
-          if (typeof error !== 'object') {
-            return new Error(error);
-          }
+              if (typeof error !== 'object') {
+                return new Error(error);
+              }
 
-          try {
-            return JSON.parse(error.message);
-          } catch (unused) {
-            return error;
-          }
-        })
-        .then(function (res) {
-          // add the tested path to the result of the test (or error)
-          results.push(_.assign(res, {path: path}));
+              try {
+                return JSON.parse(error.message);
+              } catch (unused) {
+                return error;
+              }
+            })
+            .then(function (res) {
+              // add the tested path to the result of the test (or error)
+              results.push(_.assign(res, {path: path}));
+            });
         });
-      });
-    }, Promise.resolve());
+      }, Promise.resolve());
 
-    return testsPromises;
-  }).then(function () {
+      return testsPromises;
+    }).then(function () {
     // resultOptions is now an array of 1 or more options used for
     // the tests results is now an array of 1 or more test results
     // values depend on `options.json` value - string or object
-    if (options.json) {
-      results = results.map(function (result) {
+      if (options.json) {
+        results = results.map(function (result) {
         // add json for when thrown exception
-        if (result instanceof Error) {
-          return {
-            ok: false,
-            error: result.message,
-            path: result.path,
-          };
+          if (result instanceof Error) {
+            return {
+              ok: false,
+              error: result.message,
+              path: result.path,
+            };
+          }
+          return result;
+        });
+
+        // backwards compat - strip array IFF only one result
+        var dataToSend = results.length === 1 ? results[0] : results;
+        var json = JSON.stringify(dataToSend, '', 2);
+
+        if (results.every(function (res) {
+          return res.ok;
+        })) {
+          return json;
         }
-        return result;
-      });
 
-      // backwards compat - strip array IFF only one result
-      var dataToSend = results.length === 1 ? results[0] : results;
-      var json = JSON.stringify(dataToSend, '', 2);
-
-      if (results.every(function (res) { return res.ok; })) {
-        return json;
+        throw new Error(json);
       }
 
-      throw new Error(json);
-    }
+      var response = results.map(function (unused, i) {
+        return displayResult(results[i], resultOptions[i]);
+      }).join('\n' + SEPARATOR);
 
-    var response = results.map(function (unused, i) {
-      return displayResult(results[i], resultOptions[i]);
-    }).join('\n' + SEPARATOR);
+      var vulnerableResults = results.filter(res => {
+        return res.vulnerabilities && res.vulnerabilities.length;
+      });
+      var errorResults =
+      results.filter(function (res) {
+        return res instanceof Error;
+      });
 
-    var vulnerableResults = results.filter(res => {
-      return res.vulnerabilities && res.vulnerabilities.length;
-    });
-    var errorResults =
-      results.filter(function (res) { return res instanceof Error });
+      var summaryMessage = '';
 
-    var summaryMessage = '';
-
-    if (results.length > 1) {
-      var projects = results.length === 1 ? ' project' : ' projects';
-      summaryMessage = '\n\n' + '\nTested ' + results.length + projects +
+      if (results.length > 1) {
+        var projects = results.length === 1 ? ' project' : ' projects';
+        summaryMessage = '\n\n' + '\nTested ' + results.length + projects +
         summariseVulnerableResults(vulnerableResults, options) +
         summariseErrorResults(errorResults) + '\n';
-    }
+      }
 
-    var notSuccess = vulnerableResults.length > 0
+      var notSuccess = vulnerableResults.length > 0
       || errorResults.length > 0;
 
-    if (notSuccess) {
-      response += chalk.bold.red(summaryMessage);
-      const error = new Error(response);
-      // take the code of the first problem to go through error
-      // translation
-      // HACK as there can be different errors, and we pass only the
-      // first one
-      error.code = (vulnerableResults[0] || errorResults[0]).code;
-      error.cliMessage = (vulnerableResults[0] || errorResults[0]).cliMessage;
-      throw error;
-    }
+      if (notSuccess) {
+        response += chalk.bold.red(summaryMessage);
+        const error = new Error(response);
+        // take the code of the first problem to go through error
+        // translation
+        // HACK as there can be different errors, and we pass only the
+        // first one
+        error.code = (vulnerableResults[0] || errorResults[0]).code;
+        error.cliMessage = (vulnerableResults[0] || errorResults[0]).cliMessage;
+        throw error;
+      }
 
-    response += chalk.bold.green(summaryMessage);
-    return response;
-  });
+      response += chalk.bold.green(summaryMessage);
+      return response;
+    });
 }
 
 function summariseVulnerableResults(vulnerableResults, options) {
@@ -204,8 +208,8 @@ function displayResult(res, options) {
   // OK  => no vulns found, return
   if (res.ok && res.vulnerabilities.length === 0) {
     var vulnPathsText = options.showVulnPaths ?
-          ', no vulnerable paths found.' :
-          ', none were found.';
+      ', no vulnerable paths found.' :
+      ', none were found.';
     var summaryOKText = chalk.green(
       '✓ ' + testedInfoText + vulnPathsText
     );
@@ -316,7 +320,7 @@ function createRemediationText(vuln, packageManager) {
     wizardHintText = 'Run `snyk wizard` to explore remediation options.';
   }
 
-  if (vuln.isOutdated == true) {
+  if (vuln.isOutdated === true) {
     var packageManagerOutdatedText = {
       npm: '\n    Try deleting node_modules, reinstalling ' +
       'and running `snyk test` again. If the problem persists, ' +
@@ -335,9 +339,8 @@ function createRemediationText(vuln, packageManager) {
       _.get(packageManagerOutdatedText, packageManager, ''));
   }
 
-  if (vuln.isFixable == true) {
+  if (vuln.isFixable === true) {
     var upgradePathsArray = _.uniq(vuln.list.map(function (v) {
-      var upgradeSuggestionText = '';
       var shouldUpgradeItself = !!v.upgradePath[0];
       var shouldUpgradeDirectDep = !!v.upgradePath[1];
 
@@ -345,13 +348,13 @@ function createRemediationText(vuln, packageManager) {
         // If we are testing a library/package like express
         // Then we can suggest they get the latest version
         // Example command: snyk test express@3
-        var upgradeTextInfo = (v.upgradePath.length > 0)
+        var selfUpgradeInfo = (v.upgradePath.length > 0)
           ? ' (triggers upgrades to ' + v.upgradePath.join(' > ') + ')'
           : '';
         var testedPackageName = v.upgradePath[0].split('@');
-        return upgradeSuggestionText =
-        'You\'ve tested an outdated version of ' + testedPackageName[0] +
-        '. Upgrade to ' + v.upgradePath[0] + upgradeTextInfo;
+        return 'You\'ve tested an outdated version of ' +
+          testedPackageName[0] + '. Upgrade to ' +
+          v.upgradePath[0] + selfUpgradeInfo;
       }
       if (shouldUpgradeDirectDep) {
         var formattedUpgradePath = v.upgradePath.slice(1).join(' > ');
@@ -359,8 +362,8 @@ function createRemediationText(vuln, packageManager) {
           ? ' (triggers upgrades to ' + formattedUpgradePath + ')'
           : '';
 
-        return upgradeSuggestionText = 'Upgrade direct dependency ' +
-          v.from[1] + ' to ' + v.upgradePath[1] + upgradeTextInfo;
+        return 'Upgrade direct dependency ' + v.from[1] + ' to ' +
+          v.upgradePath[1] + upgradeTextInfo;
       }
 
       return 'Some paths have no direct dependency upgrade that' +
@@ -378,13 +381,19 @@ function createSeverityBasedIssueHeading(severity, type, packageName, isNew) {
   var vulnTypeText = type === 'license' ? 'issue' : 'vulnerability';
   var severitiesColourMapping = {
     low: {
-      colorFunc: function (text) { return chalk.bold.blue(text)},
+      colorFunc: function (text) {
+        return chalk.bold.blue(text);
+      },
     },
     medium: {
-      colorFunc: function (text) { return chalk.bold.yellow(text)},
+      colorFunc: function (text) {
+        return chalk.bold.yellow(text);
+      },
     },
     high: {
-      colorFunc: function (text) { return chalk.bold.red(text)},
+      colorFunc: function (text) {
+        return chalk.bold.red(text);
+      },
     },
   };
   return severitiesColourMapping[severity].colorFunc(
@@ -454,7 +463,9 @@ function metaForDisplay(res, options) {
 
 function validateSeverityThreshold(severityThreshold) {
   return SEVERITIES
-    .map(function (s) { return s.verboseName })
+    .map(function (s) {
+      return s.verboseName;
+    })
     .indexOf(severityThreshold) > -1;
 }
 
