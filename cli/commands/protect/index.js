@@ -49,18 +49,18 @@ function protectFunc(options) {
   }
 
   return snyk.policy.load(options['policy-path'])
-  .catch(function (error) {
-    if (error.code === 'ENOENT') {
-      error.code = 'MISSING_DOTFILE';
-    }
+    .catch(function (error) {
+      if (error.code === 'ENOENT') {
+        error.code = 'MISSING_DOTFILE';
+      }
 
-    throw error;
-  }).then(function (policy) {
-    if (policy.patch) {
-      return patch(policy, options);
-    }
-    return 'Nothing to do';
-  });
+      throw error;
+    }).then(function (policy) {
+      if (policy.patch) {
+        return patch(policy, options);
+      }
+      return 'Nothing to do';
+    });
 }
 
 function patch(policy, options) {

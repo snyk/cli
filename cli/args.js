@@ -9,7 +9,9 @@ alias.t = 'test';
 function dashToCamelCase(dash) {
   return dash.indexOf('-') < 0
     ? dash
-    : dash.replace(/-[a-z]/g, function (m) {return m[1].toUpperCase()})
+    : dash.replace(/-[a-z]/g, function (m) {
+      return m[1].toUpperCase();
+    });
 }
 
 function args(processargv) {
@@ -43,7 +45,7 @@ function args(processargv) {
     }
 
     return acc;
-  }, { _: [] });
+  }, {_: []});
 
   // by passing `-d` to the cli, we enable the debugging output, but this must
   // be as early as possible in the cli logic to capture all the output

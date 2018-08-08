@@ -15,7 +15,7 @@
     "tap": "tap test/*.test.js -R spec --timeout=180",
     "test": "npm run test-common && npm run tap",
     "test-common": "npm run check-tests && npm run lint && node cli/index.js test --org=snyk",
-    "lint": "jscs `find ./cli -name '*.js'` -v && jscs `find ./lib -name '*.js'` -v",
+    "lint": "eslint -c .eslintrc cli lib",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "snyk-auth": "node cli auth $SNYK_API_KEY",
     "snyk-auth-windows": "node cli auth %SNYK_API_KEY%"
@@ -63,7 +63,7 @@
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "jscs": "^3.0.0",
+    "eslint": "^4.11.0",
     "nock": "^9.2.5",
     "proxyquire": "^1.7.4",
     "restify": "^4.1.1",

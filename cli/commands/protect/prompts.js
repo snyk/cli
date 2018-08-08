@@ -22,7 +22,7 @@ var ignoreDisabledReasons = {
   notAdmin: 'Set to ignore (only administrators can ignore issues)',
   disregardFilesystemIgnores:
     'Set to ignore (ignoring via the CLI is not enabled for this organisation)',
-}
+};
 
 // via http://stackoverflow.com/a/4760279/22617
 function sort(prop) {
@@ -42,13 +42,19 @@ function createSeverityBasedIssueHeading(msg, severity) {
   // Example: ✗ Medium severity vulnerability found in xmldom
   var severitiesColourMapping = {
     low: {
-      colorFunc: function (text) { return chalk.bold.blue(text)},
+      colorFunc: function (text) {
+        return chalk.bold.blue(text);
+      },
     },
     medium: {
-      colorFunc: function (text) { return chalk.bold.yellow(text)},
+      colorFunc: function (text) {
+        return chalk.bold.yellow(text);
+      },
     },
     high: {
-      colorFunc: function (text) { return chalk.bold.red(text)},
+      colorFunc: function (text) {
+        return chalk.bold.red(text);
+      },
     },
   };
   return severitiesColourMapping[severity].colorFunc(msg);
@@ -249,7 +255,7 @@ function getPatchPrompts(vulns, policy, options) {
             filename: acc[last].__filename,
             patches: acc[last].patches,
             version: acc[last].version,
-          },],
+          }],
           patch: true,
         };
 
@@ -521,12 +527,12 @@ function generatePrompt(vulns, policy, prefix, options) {
 
     // FIXME this should be handled a little more gracefully
     if (vuln.from.length === 1) {
-      debug('Skipping issues in core package with no upgrade path: ' + id)
+      debug('Skipping issues in core package with no upgrade path: ' + id);
     }
     var vulnIn = vuln.from.slice(-1).pop();
     var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
 
-    var infoLink = '    Info: ' + chalk.underline(config.ROOT)
+    var infoLink = '    Info: ' + chalk.underline(config.ROOT);
 
     var messageIntro;
     var fromText = false;
@@ -552,7 +558,7 @@ function generatePrompt(vulns, policy, prefix, options) {
       messageIntro = createSeverityBasedIssueHeading(
         messageIntro,
         vuln.severity
-        );
+      );
       messageIntro += '\n    Description: ' + vuln.title;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
         '    From: ' + vuln.from.slice(1).join(' > ') : '');
@@ -633,7 +639,7 @@ function generatePrompt(vulns, policy, prefix, options) {
         fromText,
         note,
         chalk.green('\n  Remediation options'),
-        ]
+      ]
         .filter(Boolean).join('\n'),
     };
 
@@ -771,10 +777,10 @@ function generatePrompt(vulns, policy, prefix, options) {
     // updating their policy options, then we select the choice they had
     // before, otherwise we select the default
     res.default = (choices.map(function (choice, i) {
-      return { i: i, default: choice.default };
+      return {i: i, default: choice.default};
     }).filter(function (choice) {
       return choice.default;
-    }).shift() || { i: 0 }).i;
+    }).shift() || {i: 0}).i;
 
     // kludge to make sure that we get the vuln in the user selection
     res.choices = choices.map(function (choice) {

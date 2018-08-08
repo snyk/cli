@@ -13,8 +13,8 @@ module.exports = function (cwd) {
 
   var packages = fs.readFileSync(__dirname + '/package-list.txt', 'utf8')
     .split('\n').map(function (s) {
-    return s.trim();
-  });
+      return s.trim();
+    });
 
   var tail = fs.readFileSync(__dirname + '/tail.txt', 'utf8');
   var lbl = fs.readFileSync(__dirname + '/head.txt', 'utf8');
@@ -22,7 +22,7 @@ module.exports = function (cwd) {
   spinner.sticky();
 
   return spinner(lbl).then(function () {
-    return resolve(cwd, { dev: true, disk: true }).then(function (res) {
+    return resolve(cwd, {dev: true, disk: true}).then(function (res) {
       prune(res, function (p) {
         // console.log(p.name, packages.indexOf(p.name) === -1);
         return packages.indexOf(p.name) === -1;

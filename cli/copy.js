@@ -8,5 +8,5 @@ var program = {
 }[process.platform];
 
 function copy(str) {
-  return cp.execSync(program, { input: str });
+  return cp.execSync(program, {input: str});
 }

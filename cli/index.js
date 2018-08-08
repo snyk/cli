@@ -14,7 +14,6 @@ if (!runtime.isSupported(process.versions.node)) {
 // require analytics as soon as possible to start measuring execution time
 var analytics = require('../lib/analytics');
 var args = require('./args')(process.argv);
-var debug = require('debug')('snyk');
 var copy = require('./copy');
 var alerts = require('../lib/alerts');
 var sln = require('../lib/sln');

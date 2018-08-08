@@ -3,7 +3,6 @@ module.exports = ignore;
 var debug = require('debug')('snyk');
 var policy = require('snyk-policy');
 var chalk = require('chalk');
-var snyk = require('../../lib');
 var authorization = require('../../lib/authorization');
 var auth = require('./auth');
 
@@ -39,23 +38,23 @@ function ignore(options) {
       options.id, options.reason, options.expiry
     );
     return policy.load(options['policy-path'])
-    .catch(function (error) {
-      if (error.code === 'ENOENT') {    // file does not exist - create it
-        return policy.create();
-      }
-      throw Error('policyFile');
-    })
-    .then(function ignoreIssue(pol) {
-      pol.ignore[options.id] = [
-        {
-          '*':
+      .catch(function (error) {
+        if (error.code === 'ENOENT') {    // file does not exist - create it
+          return policy.create();
+        }
+        throw Error('policyFile');
+      })
+      .then(function ignoreIssue(pol) {
+        pol.ignore[options.id] = [
+          {
+            '*':
           {
             reason: options.reason,
             expires: options.expiry,
           },
-        },
-      ];
-      policy.save(pol, options['policy-path']);
-    });
-  })
+          },
+        ];
+        policy.save(pol, options['policy-path']);
+      });
+  });
 }
