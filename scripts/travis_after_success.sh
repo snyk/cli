@@ -21,5 +21,6 @@ npx pkg . # create standalone binaries based on the latest `pkg`
 export SNYK_VERSION=$(./cli/index.js -v)
 
 # upload assets built by `pkg`
+npm i -g github-release
 # GH_TOKEN is set as Travis env var
-GITHUB_TOKEN=$GH_TOKEN npx github-release upload --owner snyk --repo snyk --tag "v${SNYK_VERSION}" --name "v${SNYK_VERSION}" ./snyk-linux ./snyk-macos ./snyk-win.exe
+github-release upload --token "${GH_TOKEN}" --owner snyk --repo snyk --tag "v${SNYK_VERSION}" ./snyk-linux ./snyk-macos ./snyk-win.exe
