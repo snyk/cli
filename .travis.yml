@@ -27,11 +27,7 @@ jobs:
     - stage: Release
       node_js: "8"
       script:
-        # run only if this is a 'push' build
-        # 1. grab and run semantic-release
-        # (not used as a dev dep because it pulls in new `npm` and breaks our tests)
-        # 2. run post-release actions
-        - 'if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then npx semantic-release && bash scripts/travis_after_success.sh; fi'
+      - test "${TRAVIS_PULL_REQUEST}" = "true" || npx semantic-release
 branches:
   only:
     - "master"
