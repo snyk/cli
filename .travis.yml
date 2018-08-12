@@ -27,7 +27,7 @@ jobs:
     - stage: Release
       node_js: "8"
       script:
-      - test "${TRAVIS_PULL_REQUEST}" = "true" || npx semantic-release
+      - test "${TRAVIS_PULL_REQUEST}" != "false" || npx semantic-release
 branches:
   only:
     - "master"
