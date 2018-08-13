@@ -504,6 +504,15 @@ test('`test npm-package --file=package-lock.json ` sends pkg info', function (t)
     });
 });
 
+test.only('`test npm-package-shrinkwrap --file=package-lock.json ` with npm-shrinkwrap errors', function (t) {
+  t.plan(1);
+  chdirWorkspaces();
+  return cli.test('npm-package-shrinkwrap', {file: 'package-lock.json'})
+    .catch((e) => {
+      t.includes(e.message, '--file=npm-shrinkwrap.json', 'Contains enough info about error');
+    });
+});
+
 test('`test` on a yarn package does work and displays appropriate text',
 function (t) {
   chdirWorkspaces('yarn-app');
