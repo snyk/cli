@@ -487,6 +487,23 @@ test('`test npm-package` sends pkg info', function (t) {
   });
 });
 
+test('`test npm-package --file=package-lock.json ` sends pkg info', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package', {file: 'package-lock.json'})
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.match(req.url, '/vuln/npm', 'posts to correct url');
+      t.ok(pkg.dependencies['to-array'], 'dependency');
+      t.notOk(pkg.dependencies['object-assign'],
+        'no dev dependency');
+      t.notOk(pkg.from, 'no "from" array on root');
+      t.notOk(pkg.dependencies['to-array'].from,
+        'no "from" array on dep');
+    });
+});
+
 test('`test` on a yarn package does work and displays appropriate text',
 function (t) {
   chdirWorkspaces('yarn-app');
