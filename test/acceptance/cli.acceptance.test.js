@@ -513,6 +513,28 @@ test.only('`test npm-package-shrinkwrap --file=package-lock.json ` with npm-shri
     });
 });
 
+test('`test npm-package-with-subfolder --file=package-lock.json ` picks top-level files', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package-with-subfolder', {file: 'package-lock.json'})
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(pkg.name, 'npm-package-top-level', 'correct package is taken');
+      t.ok(pkg.dependencies['to-array'], 'dependency');
+    });
+});
+
+test('`test npm-package-with-subfolder --file=subfolder/package-lock.json ` picks subfolder files', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package-with-subfolder', {file: 'subfolder/package-lock.json'})
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(pkg.name, 'npm-package-subfolder', 'correct package is taken');
+      t.ok(pkg.dependencies['to-array'], 'dependency');
+    });
+});
+
 test('`test` on a yarn package does work and displays appropriate text',
 function (t) {
   chdirWorkspaces('yarn-app');
