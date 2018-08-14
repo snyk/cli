@@ -478,11 +478,12 @@ test('`test npm-package` sends pkg info', function (t) {
     var pkg = req.body;
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/npm', 'posts to correct url');
-    t.ok(pkg.dependencies['to-array'], 'dependency');
+    t.ok(pkg.dependencies['debug'], 'dependency');
+    t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
     t.notOk(pkg.dependencies['object-assign'],
       'no dev dependency');
     t.notOk(pkg.from, 'no "from" array on root');
-    t.notOk(pkg.dependencies['to-array'].from,
+    t.notOk(pkg.dependencies['debug'].from,
       'no "from" array on dep');
   });
 });
@@ -495,11 +496,12 @@ test('`test npm-package --file=package-lock.json ` sends pkg info', function (t)
       var pkg = req.body;
       t.equal(req.method, 'POST', 'makes POST request');
       t.match(req.url, '/vuln/npm', 'posts to correct url');
-      t.ok(pkg.dependencies['to-array'], 'dependency');
+      t.ok(pkg.dependencies['debug'], 'dependency');
+      t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
       t.notOk(pkg.dependencies['object-assign'],
         'no dev dependency');
       t.notOk(pkg.from, 'no "from" array on root');
-      t.notOk(pkg.dependencies['to-array'].from,
+      t.notOk(pkg.dependencies['debug'].from,
         'no "from" array on dep');
     });
 });
@@ -1314,11 +1316,11 @@ test('`monitor npm-package`', function (t) {
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
-    t.ok(pkg.dependencies['to-array'], 'dependency');
+    t.ok(pkg.dependencies['debug'], 'dependency');
     t.notOk(pkg.dependencies['object-assign'],
       'no dev dependency');
     t.notOk(pkg.from, 'no "from" array on root');
-    t.notOk(pkg.dependencies['to-array'].from,
+    t.notOk(pkg.dependencies['debug'].from,
       'no "from" array on dep');
   });
 });
@@ -1341,7 +1343,7 @@ test('`monitor npm-package with dev dep flag`', function (t) {
     var req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
-    t.ok(req.body.package.dependencies['to-array'], 'dependency');
+    t.ok(req.body.package.dependencies['debug'], 'dependency');
     t.ok(req.body.package.dependencies['object-assign'],
       'includes dev dependency');
   });

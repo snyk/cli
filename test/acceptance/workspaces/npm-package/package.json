@@ -9,7 +9,7 @@
   "author": "snyk",
   "license": "ISC",
   "dependencies": {
-    "to-array": "0.1.4"
+    "debug": "2.2.0"
   },
   "devDependencies": {
     "object-assign": "4.1.1"
