@@ -537,6 +537,33 @@ test('`test npm-package-with-subfolder --file=subfolder/package-lock.json ` pick
     });
 });
 
+test('`test npm-package-missing-dep --file=package-lock.json ` with missing dep errors', function (t) {
+  t.plan(1);
+  chdirWorkspaces();
+  return cli.test('npm-package-missing-dep', {file: 'package-lock.json'})
+    .catch((e) => {
+      t.includes(e.message, 'out of sync', 'Contains enough info about error');
+    });
+});
+
+test('`test npm-package-missing-dep ` in package-lock works', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package-missing-dep')
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.match(req.url, '/vuln/npm', 'posts to correct url');
+      t.ok(pkg.dependencies['debug'], 'dependency');
+      t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+      t.notOk(pkg.dependencies['object-assign'],
+        'no dev dependency');
+      t.notOk(pkg.from, 'no "from" array on root');
+      t.notOk(pkg.dependencies['debug'].from,
+        'no "from" array on dep');
+    });
+});
+
 test('`test` on a yarn package does work and displays appropriate text',
 function (t) {
   chdirWorkspaces('yarn-app');
