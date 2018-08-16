@@ -1,5 +1,5 @@
 {
-  "name": "npm-package",
+  "name": "npm-package-top-level",
   "version": "1.0.0",
   "description": "Simple NPM package",
   "main": "index.js",
@@ -9,7 +9,7 @@
   "author": "snyk",
   "license": "ISC",
   "dependencies": {
-    "debug": "2.2.0"
+    "to-array": "0.1.4"
   },
   "devDependencies": {
     "object-assign": "4.1.1"

@@ -478,13 +478,90 @@ test('`test npm-package` sends pkg info', function (t) {
     var pkg = req.body;
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/npm', 'posts to correct url');
-    t.ok(pkg.dependencies['to-array'], 'dependency');
+    t.ok(pkg.dependencies['debug'], 'dependency');
+    t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
     t.notOk(pkg.dependencies['object-assign'],
       'no dev dependency');
     t.notOk(pkg.from, 'no "from" array on root');
-    t.notOk(pkg.dependencies['to-array'].from,
+    t.notOk(pkg.dependencies['debug'].from,
       'no "from" array on dep');
   });
+});
+
+test('`test npm-package --file=package-lock.json ` sends pkg info', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package', {file: 'package-lock.json'})
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.match(req.url, '/vuln/npm', 'posts to correct url');
+      t.ok(pkg.dependencies['debug'], 'dependency');
+      t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+      t.notOk(pkg.dependencies['object-assign'],
+        'no dev dependency');
+      t.notOk(pkg.from, 'no "from" array on root');
+      t.notOk(pkg.dependencies['debug'].from,
+        'no "from" array on dep');
+    });
+});
+
+test('`test npm-package-shrinkwrap --file=package-lock.json ` with npm-shrinkwrap errors', function (t) {
+  t.plan(1);
+  chdirWorkspaces();
+  return cli.test('npm-package-shrinkwrap', {file: 'package-lock.json'})
+    .catch((e) => {
+      t.includes(e.message, '--file=package-lock.json', 'Contains enough info about error');
+    });
+});
+
+test('`test npm-package-with-subfolder --file=package-lock.json ` picks top-level files', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package-with-subfolder', {file: 'package-lock.json'})
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(pkg.name, 'npm-package-top-level', 'correct package is taken');
+      t.ok(pkg.dependencies['to-array'], 'dependency');
+    });
+});
+
+test('`test npm-package-with-subfolder --file=subfolder/package-lock.json ` picks subfolder files', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package-with-subfolder', {file: 'subfolder/package-lock.json'})
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(pkg.name, 'npm-package-subfolder', 'correct package is taken');
+      t.ok(pkg.dependencies['to-array'], 'dependency');
+    });
+});
+
+test('`test npm-package-missing-dep --file=package-lock.json ` with missing dep errors', function (t) {
+  t.plan(1);
+  chdirWorkspaces();
+  return cli.test('npm-package-missing-dep', {file: 'package-lock.json'})
+    .catch((e) => {
+      t.includes(e.message, 'out of sync', 'Contains enough info about error');
+    });
+});
+
+test('`test npm-package-missing-dep ` in package-lock works', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package-missing-dep')
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.match(req.url, '/vuln/npm', 'posts to correct url');
+      t.ok(pkg.dependencies['debug'], 'dependency');
+      t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+      t.notOk(pkg.dependencies['object-assign'],
+        'no dev dependency');
+      t.notOk(pkg.from, 'no "from" array on root');
+      t.notOk(pkg.dependencies['debug'].from,
+        'no "from" array on dep');
+    });
 });
 
 test('`test` on a yarn package does work and displays appropriate text',
@@ -1266,11 +1343,11 @@ test('`monitor npm-package`', function (t) {
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
-    t.ok(pkg.dependencies['to-array'], 'dependency');
+    t.ok(pkg.dependencies['debug'], 'dependency');
     t.notOk(pkg.dependencies['object-assign'],
       'no dev dependency');
     t.notOk(pkg.from, 'no "from" array on root');
-    t.notOk(pkg.dependencies['to-array'].from,
+    t.notOk(pkg.dependencies['debug'].from,
       'no "from" array on dep');
   });
 });
@@ -1293,7 +1370,7 @@ test('`monitor npm-package with dev dep flag`', function (t) {
     var req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
-    t.ok(req.body.package.dependencies['to-array'], 'dependency');
+    t.ok(req.body.package.dependencies['debug'], 'dependency');
     t.ok(req.body.package.dependencies['object-assign'],
       'includes dev dependency');
   });
