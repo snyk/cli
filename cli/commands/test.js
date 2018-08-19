@@ -431,31 +431,42 @@ function createTruncatedVulnsPathsText(vulnList) {
   }
 }
 
+function rightPadWithSpaces(s, desiredLength) {
+  var padLength = desiredLength - s.length;
+  if (padLength <= 0) {
+    return s;
+  }
+
+  var padding = Array.from({length: padLength + 1}).join(' ');
+  return s + padding;
+}
+
 function metaForDisplay(res, options) {
+  var padToLength = 19; // chars to align
   var packageManager = options.packageManager || res.packageManager;
   var openSource = res.isPrivate ? 'no' : 'yes';
   var meta = [
-    chalk.bold('Organisation:    ') + res.org,
-    chalk.bold('Package manager: ') + packageManager,
+    chalk.bold(rightPadWithSpaces('Organisation: ', padToLength)) + res.org,
+    chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) + packageManager,
   ];
   if (options.file) {
-    meta.push(chalk.bold('Target file:     ') + options.file);
+    meta.push(chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + options.file);
   }
   if (options.docker) {
-    meta.push(chalk.bold('Docker image:    ') + options.path);
+    meta.push(chalk.bold(rightPadWithSpaces('Docker image: ', padToLength)) + options.path);
   } else {
-    meta.push(chalk.bold('Open source:     ') + openSource);
-    meta.push(chalk.bold('Project path:    ') + options.path);
+    meta.push(chalk.bold(rightPadWithSpaces('Open source: ', padToLength)) + openSource);
+    meta.push(chalk.bold(rightPadWithSpaces('Project path: ', padToLength)) + options.path);
   }
 
   if (res.filesystemPolicy) {
-    meta.push(chalk.bold('Local Snyk policy: ') + chalk.green('found'));
+    meta.push(chalk.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) + chalk.green('found'));
     if (res.ignoreSettings && res.ignoreSettings.disregardFilesystemIgnores) {
-      meta.push(chalk.bold('Local Snyk policy ignored: ') + chalk.red('yes'));
+      meta.push(chalk.bold(rightPadWithSpaces('Local Snyk policy ignored: ', padToLength)) + chalk.red('yes'));
     }
   }
   if (res.licensesPolicy) {
-    meta.push(chalk.bold('Licenses:    ') + chalk.green('enabled'));
+    meta.push(chalk.bold(rightPadWithSpaces('Licenses: ', padToLength)) + chalk.green('enabled'));
   }
 
   return meta.join('\n');
