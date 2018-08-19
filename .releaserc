@@ -1,0 +1,32 @@
+{
+  "prepare": [
+    "@semantic-release/npm",
+    {
+      "path": "@semantic-release/exec",
+      "cmd": "npm i -g pkg && pkg ."
+    }
+  ],
+  "publish": [
+    "@semantic-release/npm",
+    {
+      "path": "@semantic-release/github",
+      "assets": [
+        {
+          "path": "./snyk-linux",
+          "name": "snyk-linux",
+          "label": "snyk-linux"
+        },
+        {
+          "path": "./snyk-macos",
+          "name": "snyk-macos",
+          "label": "snyk-macos"
+        },
+        {
+          "path": "./snyk-win.exe",
+          "name": "snyk-win.exe",
+          "label": "snyk-win.exe"
+        }
+      ]
+    }
+  ]
+}
