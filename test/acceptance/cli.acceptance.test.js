@@ -506,6 +506,24 @@ test('`test npm-package --file=package-lock.json ` sends pkg info', function (t)
     });
 });
 
+test('`test npm-package --file=package-lock.json --dev` sends pkg info', function (t) {
+  chdirWorkspaces();
+  return cli.test('npm-package', {file: 'package-lock.json', dev: true})
+    .then(function () {
+      var req = server.popRequest();
+      var pkg = req.body;
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.match(req.url, '/vuln/npm', 'posts to correct url');
+      t.ok(pkg.dependencies['debug'], 'dependency');
+      t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+      t.ok(pkg.dependencies['object-assign'],
+        'dev dependency included');
+      t.notOk(pkg.from, 'no "from" array on root');
+      t.notOk(pkg.dependencies['debug'].from,
+        'no "from" array on dep');
+    });
+});
+
 test('`test npm-package-shrinkwrap --file=package-lock.json ` with npm-shrinkwrap errors', function (t) {
   t.plan(1);
   chdirWorkspaces();
