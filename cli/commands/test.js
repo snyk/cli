@@ -437,8 +437,7 @@ function rightPadWithSpaces(s, desiredLength) {
     return s;
   }
 
-  var padding = Array.from({length: padLength + 1}).join(' ');
-  return s + padding;
+  return s + ' '.repeat(padLength);
 }
 
 function metaForDisplay(res, options) {
