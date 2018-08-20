@@ -213,13 +213,13 @@ test('`test ruby-app` returns correct meta', function (t) {
   return cli.test('ruby-app')
   .then(function (res) {
     var meta = res.slice(res.indexOf('Organisation:')).split('\n');
-    t.equal(meta[0], 'Organisation:    test-org', 'organisation displayed');
-    t.equal(meta[1], 'Package manager: rubygems',
+    t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+    t.match(meta[1], /Package manager:\s+rubygems/,
       'package manager displayed');
-    t.equal(meta[2], 'Target file:     Gemfile', 'target file displayed');
-    t.equal(meta[3], 'Open source:     no', 'open source displayed');
-    t.equal(meta[4], 'Project path:    ruby-app', 'path displayed');
-    t.notEqual(meta[5], 'Local Snyk policy: found',
+    t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
+    t.match(meta[3], /Open source:\s+no/, 'open source displayed');
+    t.match(meta[4], /Project path:\s+ruby-app/, 'path displayed');
+    t.notMatch(meta[5], /Local Snyk policy:\s+found/,
       'local policy not displayed');
   });
 });
@@ -239,13 +239,13 @@ test('`test gradle-app` returns correct meta', function (t) {
   return cli.test('gradle-app')
   .then(function (res) {
     var meta = res.slice(res.indexOf('Organisation:')).split('\n');
-    t.equal(meta[0], 'Organisation:    test-org', 'organisation displayed');
-    t.equal(meta[1], 'Package manager: gradle',
+    t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+    t.match(meta[1], /Package manager:\s+gradle/,
       'package manager displayed');
-    t.equal(meta[2], 'Target file:     build.gradle', 'target file displayed');
-    t.equal(meta[3], 'Open source:     no', 'open source displayed');
-    t.equal(meta[4], 'Project path:    gradle-app', 'path displayed');
-    t.notEqual(meta[5], 'Local Snyk policy found',
+    t.match(meta[2], /Target file:\s+build.gradle/, 'target file displayed');
+    t.match(meta[3], /Open source:\s+no/, 'open source displayed');
+    t.match(meta[4], /Project path:\s+gradle-app/, 'path displayed');
+    t.notMatch(meta[5], /Local Snyk policy:\s+found/,
       'local policy not displayed');
   });
 });
@@ -256,13 +256,13 @@ test('`test` returns correct meta for a vulnerable result', function (t) {
   .catch(function (res) {
     var meta = res.message.slice(res.message.indexOf('Organisation:'))
       .split('\n');
-    t.equal(meta[0], 'Organisation:    test-org', 'organisation displayed');
-    t.equal(meta[1], 'Package manager: rubygems',
+    t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+    t.match(meta[1], /Package manager:\s+rubygems/,
       'package manager displayed');
-    t.equal(meta[2], 'Target file:     Gemfile', 'target file displayed');
-    t.equal(meta[3], 'Open source:     no', 'open source displayed');
-    t.equal(meta[4], 'Project path:    ruby-app', 'path displayed');
-    t.notEqual(meta[5], 'Local Snyk policy: found',
+    t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
+    t.match(meta[3], /Open source:\s+no/, 'open source displayed');
+    t.match(meta[4], /Project path:\s+ruby-app/, 'path displayed');
+    t.notMatch(meta[5], /Local Snyk policy:\s+found/,
       'local policy not displayed');
   });
 });
@@ -272,7 +272,7 @@ test('`test` returns correct meta when target file specified', function (t) {
   return cli.test('ruby-app', {file: 'Gemfile.lock'})
   .then(function (res) {
     var meta = res.slice(res.indexOf('Organisation:')).split('\n');
-    t.equal(meta[2], 'Target file:     Gemfile.lock', 'target file displayed');
+    t.match(meta[2], /Target file:\s+Gemfile.lock/, 'target file displayed');
   });
 });
 
@@ -281,12 +281,12 @@ test('`test npm-package-policy` returns correct meta', function (t) {
   return cli.test('npm-package-policy')
   .then(function (res) {
     var meta = res.slice(res.indexOf('Organisation:')).split('\n');
-    t.equal(meta[0], 'Organisation:    test-org', 'organisation displayed');
-    t.equal(meta[1], 'Package manager: npm', 'package manager displayed');
-    t.equal(meta[2], 'Target file:     package.json', 'target file displayed');
-    t.equal(meta[3], 'Open source:     no', 'open source displayed');
-    t.equal(meta[4], 'Project path:    npm-package-policy', 'path displayed');
-    t.equal(meta[5], 'Local Snyk policy: found', 'local policy displayed');
+    t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+    t.match(meta[1], /Package manager:\s+npm/, 'package manager displayed');
+    t.match(meta[2], /Target file:\s+package.json/, 'target file displayed');
+    t.match(meta[3], /Open source:\s+no/, 'open source displayed');
+    t.match(meta[4], /Project path:\s+npm-package-policy/, 'path displayed');
+    t.match(meta[5], /Local Snyk policy:\s+found/, 'local policy displayed');
   });
 });
 
