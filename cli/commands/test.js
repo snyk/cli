@@ -1,11 +1,12 @@
 module.exports = test;
 
-var snyk = require('../../');
+var _ = require('lodash');
 var chalk = require('chalk');
+var debug = require('debug')('snyk');
+var snyk = require('../../');
 var config = require('../../lib/config');
 var isCI = require('../../lib/is-ci');
 var apiTokenExists = require('../../lib/api-token').exists;
-var _ = require('lodash');
 var SEVERITIES = require('../../lib/snyk-test/common').SEVERITIES;
 var WIZARD_SUPPORTED_PMS =
   require('../../lib/snyk-test/common').WIZARD_SUPPORTED_PMS;
@@ -124,10 +125,17 @@ function test() {
       var vulnerableResults = results.filter(res => {
         return res.vulnerabilities && res.vulnerabilities.length;
       });
-      var errorResults =
-      results.filter(function (res) {
+      var errorResults = results.filter(function (res) {
         return res instanceof Error;
       });
+
+      if (errorResults.length > 0) {
+        debug('Failed to test ' + errorResults.length + ' projects, errors:');
+        errorResults.forEach(function (err) {
+          var errString = err.stack ? err.stack.toString() : err.toString();
+          debug('error: %s', errString);
+        });
+      }
 
       var summaryMessage = '';
 
@@ -138,8 +146,7 @@ function test() {
         summariseErrorResults(errorResults) + '\n';
       }
 
-      var notSuccess = vulnerableResults.length > 0
-      || errorResults.length > 0;
+      var notSuccess = vulnerableResults.length > 0 || errorResults.length > 0;
 
       if (notSuccess) {
         response += chalk.bold.red(summaryMessage);
