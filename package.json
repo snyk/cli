@@ -2,6 +2,16 @@
   "name": "snyk",
   "description": "snyk library and cli utility",
   "main": "lib/index.js",
+  "files": [
+    "cli",
+    "help",
+    "lib",
+    "config.default.json",
+    "SECURITY.md",
+    "README.md",
+    "Contributor-Agreement.md",
+    ".snyk"
+  ],
   "directories": {
     "test": "test"
   },
