@@ -54,7 +54,7 @@ var patch = proxyquire('../lib/protect/patch', {
 });
 
 test('if two patches for same package selected, only newest runs', function (t) {
-  var latestId = 'uglify-js:20151024';
+  var latestId = 'uglify-js-20151024';
   var tasks = toTasks(answers).patch;
   return patch(tasks, true).then(function (res) {
     t.equal(Object.keys(res.patch).length, tasks.length, 'two vulns went in, two came out');
