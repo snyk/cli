@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -v
+
 OUTPUT_FILE=snyk-result.json
 ERROR_FILE=snyk-error.log
 HTML_FILE=snyk_report.html
