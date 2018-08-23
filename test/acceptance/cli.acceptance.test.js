@@ -1848,8 +1848,8 @@ test('`test --insecure`', function (t) {
   chdirWorkspaces('npm-package');
 
   t.test('default (insecure false)', function (t) {
-    sinon.stub(needle, 'request', function () {
-      throw 'bail';
+    sinon.stub(needle, 'request', function (a, b, c, d, cb) {
+      cb(new Error('bail'));
     });
     t.teardown(needle.request.restore);
     return cli.test('npm-package')
@@ -1865,8 +1865,8 @@ test('`test --insecure`', function (t) {
     // by `args`, so we simply set the global here.
     // NOTE: due to this we add tests to `args.test.js`
     global.ignoreUnknownCA = true;
-    sinon.stub(needle, 'request', function () {
-      throw 'bail';
+    sinon.stub(needle, 'request', function (a, b, c, d, cb) {
+      cb(new Error('bail'));
     });
     t.teardown(function () {
       delete global.ignoreUnknownCA;
