@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -v
+set -x
 
 OUTPUT_FILE=snyk-result.json
 ERROR_FILE=snyk-error.log
