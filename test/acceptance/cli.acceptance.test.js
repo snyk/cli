@@ -1345,10 +1345,20 @@ test('`monitor non-existing --json`', function (t) {
   .catch(function (error) {
     var errObj = JSON.parse(error.message);
     t.notOk(errObj.ok, 'ok object should be false');
-    t.match(errObj.error,
-      'snyk monitor should be pointed at an existing project',
-      'show err message');
+    t.match(errObj.error, 'is not a valid path', 'show err message');
     t.match(errObj.path, 'non-existing', 'should show specified path');
+    t.pass('throws error');
+  });
+});
+
+test('`monitor non-existing`', function (t) {
+  chdirWorkspaces();
+  return cli.monitor('non-existing', {json: false})
+  .then(function () {
+    t.fail('should have failed');
+  })
+  .catch(function (error) {
+    t.match(error.message, 'is not a valid path', 'show err message');
     t.pass('throws error');
   });
 });

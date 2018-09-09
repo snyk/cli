@@ -14,6 +14,8 @@ var detect = require('../../lib/detect');
 var plugins = require('../../lib/plugins');
 var ModuleInfo = require('../../lib/module-info');
 
+var SEPARATOR = '\n-------------------------------------------------------\n';
+
 function monitor() {
   var args = [].slice.call(arguments, 0);
   var options = {};
@@ -40,7 +42,7 @@ function monitor() {
           return fs.exists(path).then(function (exists) {
             if (!exists && !options.docker) {
               throw new Error(
-                'snyk monitor should be pointed at an existing project');
+                '"' + path + '" is not a valid path for "snyk monitor"');
             }
 
             var packageManager = detect.detectPackageManager(path, options);
@@ -60,16 +62,16 @@ function monitor() {
             var analysisType = options.docker ? 'docker' : packageManager;
 
             var analyzingDepsSpinnerLabel =
-            'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
+          'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
 
             var postingMonitorSpinnerLabel =
-            'Posting monitor snapshot for ' + displayPath + ' ...';
+          'Posting monitor snapshot for ' + displayPath + ' ...';
 
             return spinner(analyzingDepsSpinnerLabel)
               .then(function () {
                 return moduleInfo.inspect(path, targetFile, options);
               })
-              // clear spinner in case of success or failure
+            // clear spinner in case of success or failure
               .then(spinner.clear(analyzingDepsSpinnerLabel))
               .catch(function (error) {
                 spinner.clear(analyzingDepsSpinnerLabel)();
@@ -90,12 +92,12 @@ function monitor() {
                   packageManager: packageManager,
                   'policy-path': options['policy-path'],
                   'project-name':
-                  options['project-name'] || config['PROJECT_NAME'],
+                options['project-name'] || config['PROJECT_NAME'],
                   isDocker: !!options.docker,
                 };
                 return snyk.monitor(path, meta, info);
               })
-              // clear spinner in case of success or failure
+            // clear spinner in case of success or failure
               .then(spinner.clear(postingMonitorSpinnerLabel))
               .catch(function (error) {
                 spinner.clear(postingMonitorSpinnerLabel)();
@@ -146,29 +148,39 @@ function monitor() {
             throw new Error(json);
           }
 
-          return results.map(function (res) {
+          const output = results.map(function (res) {
             if (res.ok) {
               return res.data;
             }
-            if (res.data && res.data.cliMessage) {
-              return chalk.bold.red(res.data.cliMessage);
-            }
-            return 'For path `' + res.path + '`, ' + res.data.message;
-          }).join('\n');
+
+            var errorMessage = (res.data && res.data.cliMessage) ?
+              chalk.bold.red(res.data.cliMessage) :
+              (res.data ? res.data.message : 'Unknown error occurred.');
+
+            return chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
+              errorMessage;
+          }).join('\n' + SEPARATOR);
+
+          if (results.every(function (res) {
+            return res.ok;
+          })) {
+            return output;
+          }
+
+          throw new Error(output);
         });
     });
 }
 
 function formatMonitorOutput(packageManager, res, manageUrl, isJson) {
   var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-  var strOutput = (packageManager === 'yarn' ?
-    'A yarn.lock file was detected - continuing as a Yarn project.\n\n' : '') +
-    '\n\nProject path: ' + res.path +
-    '\nCaptured a snapshot of this project\'s dependencies.\n' +
-    'Explore this snapshot at ' + res.uri + '\n\n' +
+  var strOutput = chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
+    (packageManager === 'yarn' ?
+      'A yarn.lock file was detected - continuing as a Yarn project.\n' : '') +
+      'Explore this snapshot at ' + res.uri + '\n\n' +
     (res.isMonitored ?
-      'Notifications about newly disclosed ' + issues + ' related\n' +
-      'to these dependencies will be emailed to you.' :
+      'Notifications about newly disclosed ' + issues + ' related ' +
+      'to these dependencies will be emailed to you.\n' :
       chalk.bold.red('Project is inactive, so notifications are turned ' +
         'off.\nActivate this project here: ' + manageUrl + '\n\n')) +
     (res.trialStarted ?
