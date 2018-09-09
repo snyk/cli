@@ -69,7 +69,12 @@ function monitor() {
               .then(function () {
                 return moduleInfo.inspect(path, targetFile, options);
               })
+              // clear spinner in case of success or failure
               .then(spinner.clear(analyzingDepsSpinnerLabel))
+              .catch(function (error) {
+                spinner.clear(analyzingDepsSpinnerLabel)();
+                throw error;
+              })
               .then(function (info) {
                 return spinner(postingMonitorSpinnerLabel)
                   .then(function () {
@@ -90,7 +95,12 @@ function monitor() {
                 };
                 return snyk.monitor(path, meta, info);
               })
+              // clear spinner in case of success or failure
               .then(spinner.clear(postingMonitorSpinnerLabel))
+              .catch(function (error) {
+                spinner.clear(postingMonitorSpinnerLabel)();
+                throw error;
+              })
               .then(function (res) {
                 res.path = path;
                 var endpoint = url.parse(config.API);

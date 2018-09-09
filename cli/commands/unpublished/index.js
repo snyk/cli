@@ -51,5 +51,11 @@ module.exports = function (cwd) {
         'shed-packages/\n');
       });
     });
-  }).then(spinner.clear(lbl));
+  })
+    // clear spinner in case of success or failure
+    .then(spinner.clear(lbl))
+    .catch(function (error) {
+      spinner.clear(lbl)();
+      throw error;
+    });
 };
