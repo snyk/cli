@@ -40,7 +40,7 @@ function monitor() {
           return fs.exists(path).then(function (exists) {
             if (!exists && !options.docker) {
               throw new Error(
-                'snyk monitor should be pointed at an existing project');
+                '"' + path + '" is not a valid path for "snyk monitor"');
             }
 
             var packageManager = detect.detectPackageManager(path, options);
@@ -60,16 +60,16 @@ function monitor() {
             var analysisType = options.docker ? 'docker' : packageManager;
 
             var analyzingDepsSpinnerLabel =
-            'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
+          'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
 
             var postingMonitorSpinnerLabel =
-            'Posting monitor snapshot for ' + displayPath + ' ...';
+          'Posting monitor snapshot for ' + displayPath + ' ...';
 
             return spinner(analyzingDepsSpinnerLabel)
               .then(function () {
                 return moduleInfo.inspect(path, targetFile, options);
               })
-              // clear spinner in case of success or failure
+            // clear spinner in case of success or failure
               .then(spinner.clear(analyzingDepsSpinnerLabel))
               .catch(function (error) {
                 spinner.clear(analyzingDepsSpinnerLabel)();
@@ -90,12 +90,12 @@ function monitor() {
                   packageManager: packageManager,
                   'policy-path': options['policy-path'],
                   'project-name':
-                  options['project-name'] || config['PROJECT_NAME'],
+                options['project-name'] || config['PROJECT_NAME'],
                   isDocker: !!options.docker,
                 };
                 return snyk.monitor(path, meta, info);
               })
-              // clear spinner in case of success or failure
+            // clear spinner in case of success or failure
               .then(spinner.clear(postingMonitorSpinnerLabel))
               .catch(function (error) {
                 spinner.clear(postingMonitorSpinnerLabel)();
@@ -146,15 +146,23 @@ function monitor() {
             throw new Error(json);
           }
 
-          return results.map(function (res) {
+          const output = results.map(function (res) {
             if (res.ok) {
               return res.data;
             }
             if (res.data && res.data.cliMessage) {
               return chalk.bold.red(res.data.cliMessage);
             }
-            return 'For path `' + res.path + '`, ' + res.data.message;
+            return '\nFor path `' + res.path + '`, ' + res.data.message;
           }).join('\n');
+
+          if (results.every(function (res) {
+            return res.ok;
+          })) {
+            return output;
+          }
+
+          throw new Error(output);
         });
     });
 }
