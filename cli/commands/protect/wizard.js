@@ -469,7 +469,12 @@ function processAnswers(answers, policy, options) {
                           options.packageTrailing;
         return spinner(lbl)
           .then(fs.writeFile(packageFile, packageString))
-          .then(spinner.clear(lbl));
+          // clear spinner in case of success or failure
+          .then(spinner.clear(lbl))
+          .catch(function (error) {
+            spinner.clear(lbl)();
+            throw error;
+          });
       }
     })
     .then(function () {
@@ -479,7 +484,12 @@ function processAnswers(answers, policy, options) {
         var lbl = 'Updating npm-shrinkwrap.json...';
         return spinner(lbl)
           .then(npm.bind(null, 'shrinkwrap', null, live, cwd, null))
-          .then(spinner.clear(lbl));
+          // clear spinner in case of success or failure
+          .then(spinner.clear(lbl))
+          .catch(function (error) {
+            spinner.clear(lbl)();
+            throw error;
+          });
       }
     })
     .then(function () {
@@ -501,7 +511,12 @@ function processAnswers(answers, policy, options) {
       return info.inspect(cwd, targetFile, options)
         .then(spinner(lbl))
         .then(snyk.monitor.bind(null, cwd, meta))
-        .then(spinner.clear(lbl));
+        // clear spinner in case of success or failure
+        .then(spinner.clear(lbl))
+        .catch(function (error) {
+          spinner.clear(lbl)();
+          throw error;
+        });
     })
     .then(function (monitorRes) {
       var endpoint = url.parse(config.API);

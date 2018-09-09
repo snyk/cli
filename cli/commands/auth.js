@@ -55,8 +55,14 @@ function githubAuth(via) {
     }, 2000);
     // start checking the token immediately in case they've already
     // opened the url manually
-    return testAuthComplete(token).then(spinner.clear(lbl));
-  });
+    return testAuthComplete(token);
+  })
+    // clear spinnger in case of success or failure
+    .then(spinner.clear(lbl))
+    .catch(function (error) {
+      spinner.clear(lbl)();
+      throw error;
+    });
 }
 
 function testAuthComplete(token) {
