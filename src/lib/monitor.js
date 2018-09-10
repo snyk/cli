@@ -47,6 +47,7 @@ function monitor(root, meta, info) {
               pluginName: pluginMeta.name,
               pluginRuntime: pluginMeta.runtime,
               dockerImageId: pluginMeta.dockerImageId,
+              dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
               projectName: meta['project-name'],
             },
             policy: policy.toString(),

@@ -1162,6 +1162,54 @@ function (t) {
   });
 });
 
+test('`test foo:latest --docker --file=Dockerfile`',
+function (t) {
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'deb',
+        },
+        package: {
+          docker: {
+            baseImage: 'ubuntu:14.04',
+          },
+        },
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  return cli.test('foo:latest', {
+    docker: true,
+    org: 'explicit-org',
+    file: 'Dockerfile',
+  })
+  .then(function () {
+    var req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/deb',
+      'posts to correct url (uses package manager from plugin response)');
+    t.equal(req.body.docker.baseImage, 'ubuntu:14.04',
+      'posts docker baseImage');
+    t.same(plugin.inspect.getCall(0).args,
+      ['foo:latest', 'Dockerfile', {
+        args: null,
+        file: 'Dockerfile',
+        docker: true,
+        org: 'explicit-org',
+        packageManager: null,
+        path: 'foo:latest',
+        showVulnPaths: true,
+      }], 'calls docker plugin with expected arguments');
+  });
+});
+
 test('`test foo:latest --docker` doesnt collect policy from cwd',
 function (t) {
   chdirWorkspaces('npm-package-policy');

@@ -140,6 +140,10 @@ function assembleLocalPayload(root, options, policyLocations) {
       if (_.get(info, 'plugin.packageManager')) {
         options.packageManager = info.plugin.packageManager;
       }
+      if (!_.get(pkg, 'docker.baseImage') && options['base-image']) {
+        pkg.docker = pkg.docker || {};
+        pkg.docker.baseImage = options['base-image'];
+      }
       analytics.add('policies', policyLocations.length);
       analytics.add('packageManager', options.packageManager);
       analytics.add('packageName', pkg.name);
