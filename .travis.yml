@@ -1,7 +1,7 @@
 sudo: false
 language: node_js
 node_js:
-  - "8"
+  - "8.11.4"
   - "6"
   - "4"
 cache:
@@ -27,7 +27,7 @@ script:
 jobs:
   include:
     - stage: Release
-      node_js: "8"
+      node_js: "8.11.4"
       script:
       - test "${TRAVIS_PULL_REQUEST}" != "false" || (npm i -g semantic-release @semantic-release/exec && semantic-release)
 branches:
