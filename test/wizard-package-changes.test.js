@@ -8,7 +8,7 @@ var writeSpy = sinon.spy();
 
 var mockPackage;
 
-var wizard = proxyquire('../cli/commands/protect/wizard', {
+var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   'then-fs': {
     writeFile: function (filename, content) {
       if (filename.includes('package.json')) {

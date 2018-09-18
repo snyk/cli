@@ -2,7 +2,7 @@ module.exports = captureRequires;
 
 var path = require('path');
 var modules = [];
-var snyk = require('..');
+var snyk = require('../lib');
 
 function captureRequires() {
   var timer = null;

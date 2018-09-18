@@ -1,9 +1,9 @@
-var applyPatch = require('../lib/protect/apply-patch');
+var applyPatch = require('../src/lib/protect/apply-patch');
 var path = require('path');
 var fs = require('fs');
 var thenfs = require('then-fs');
 var test = require('tape');
-var snyk = require('../lib');
+var snyk = require('../src/lib');
 
 test('bad patch file does not apply', function (t) {
   // check the target file first

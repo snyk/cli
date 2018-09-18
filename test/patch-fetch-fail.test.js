@@ -5,7 +5,7 @@ var timeout = false;
 var switchAfterFailure = true;
 var analyticsEvent;
 
-var getPatchFile = proxyquire('../lib/protect/fetch-patch', {
+var getPatchFile = proxyquire('../src/lib/protect/fetch-patch', {
   'then-fs': {
     createWriteStream: function () {},
   },

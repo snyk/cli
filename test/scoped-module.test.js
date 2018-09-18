@@ -1,6 +1,6 @@
 var test = require('tape');
 var path = require('path');
-var snyk = require('../lib');
+var snyk = require('../src/lib');
 
 var dir = path.resolve(__dirname, 'fixtures', 'qs-package');
 

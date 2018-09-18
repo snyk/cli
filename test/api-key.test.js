@@ -1,5 +1,5 @@
 var test = require('tape');
-var snyk = require('../lib');
+var snyk = require('../src/lib');
 
 test('api token', function (t) {
   var fromConfig = snyk.config.get('api');

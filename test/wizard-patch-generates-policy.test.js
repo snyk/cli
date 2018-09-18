@@ -1,7 +1,7 @@
 var tap = require('tap');
 var test = tap.test;
 var debug = require('debug')('snyk');
-var wizard = require('../cli/commands/protect/wizard');
+var wizard = require('../src/cli/commands/protect/wizard');
 var policy = require('snyk-policy');
 var mockPolicy;
 var path = require('path');

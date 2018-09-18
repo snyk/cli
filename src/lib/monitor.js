@@ -1,6 +1,6 @@
 module.exports = monitor;
 
-var snyk = require('..');
+var snyk = require('../lib');
 var apiTokenExists = require('./api-token').exists;
 var request = require('./request');
 var config = require('./config');

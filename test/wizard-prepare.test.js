@@ -7,7 +7,7 @@ var fixture = require('./fixtures/protect-via-snyk/package.json');
 
 var snyk = require('../');
 
-var wizard = proxyquire('../cli/commands/protect/wizard', {
+var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   inquirer: {
     prompt: function (q, cb) {
       cb(q);

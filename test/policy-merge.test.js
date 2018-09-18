@@ -1,6 +1,6 @@
 var test = require('tap-only');
 var policy = require('snyk-policy');
-var snyk = require('../lib');
+var snyk = require('../src/lib');
 var dir1 = __dirname + '/fixtures/qs-package';
 var dir2 = __dirname + '/fixtures/qs-package/node_modules/@remy/protect-test';
 var dir3 = __dirname + '/fixtures/uglify-package';

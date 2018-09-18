@@ -2,7 +2,7 @@ var policy = require('snyk-policy');
 var test = require('tap').test;
 var fs = require('then-fs');
 const stripAnsi = require('strip-ansi');
-var display = require('../lib/display-policy');
+var display = require('../src/lib/display-policy');
 
 test('test sensibly bails if gets an old .snyk format', function (t) {
 

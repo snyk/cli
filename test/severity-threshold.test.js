@@ -3,7 +3,7 @@ var needle = require('needle');
 var tap = require('tap');
 var test = tap.test;
 
-var cli = require('../cli/commands');
+var cli = require('../src/cli/commands');
 
 test('"snyk test --severity-threshold=high"', function(t) {
 

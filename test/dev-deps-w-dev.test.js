@@ -7,7 +7,7 @@ var dir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
 
 var oldValue = null;
 test('setup', function (t) {
-  var config = require('../lib/config');
+  var config = require('../src/lib/config');
   oldValue = config.devDeps;
   config.devDeps = true;
   t.pass('config primed');
@@ -67,7 +67,7 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
 
 var oldValue = null;
 test('teardown', function (t) {
-  var config = require('../lib/config');
+  var config = require('../src/lib/config');
   config.devDeps = oldValue;
   t.pass('config restored');
   t.end();

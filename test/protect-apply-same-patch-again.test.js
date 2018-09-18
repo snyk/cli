@@ -3,9 +3,9 @@ const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const fs = require('then-fs');
 
-const toTasks = require('../cli/commands/protect/tasks');
-const writePatchFlag = require('../lib/protect/write-patch-flag');
-const applyPatch = require('../lib/protect/apply-patch');
+const toTasks = require('../src/cli/commands/protect/tasks');
+const writePatchFlag = require('../src/lib/protect/write-patch-flag');
+const applyPatch = require('../src/lib/protect/apply-patch');
 const debugNodeFileFixture = 'node-fixture.js';
 const policy = require('snyk-policy');
 
@@ -23,7 +23,7 @@ const writePatchFlagSpy = sinon.spy(writePatchFlag);
 const applyPatchSpy = sinon.spy(applyPatch);
 
 //main proxy
-const patch = proxyquire('../lib/protect/patch', {
+const patch = proxyquire('../src/lib/protect/patch', {
   './get-vuln-source': () => {
     return fixturesBaseFolder;
   },

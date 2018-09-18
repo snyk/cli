@@ -1,4 +1,4 @@
-var config = require('snyk-config')(__dirname + '/..');
+var config = require('snyk-config')(__dirname + '/../..');
 
 var DEFAULT_TIMEOUT = 5 * 60; // in seconds
 

@@ -38,7 +38,7 @@ tap.beforeEach(done => {
 });
 
 // proxies
-var getVulnSource = proxyquire('../lib/protect/get-vuln-source', {
+var getVulnSource = proxyquire('../src/lib/protect/get-vuln-source', {
   'fs': {
     statSync: function () {
       return true;
@@ -62,26 +62,26 @@ var thenfs = {
   },
 };
 
-var wizard = proxyquire('../cli/commands/protect/wizard', {
+var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   '../../../lib/npm': function (cmd) {
     execSpy(cmd);
     return Promise.resolve(true);
   },
   'then-fs': thenfs,
-  '../../../lib/protect': proxyquire('../lib/protect', {
+  '../../../src/lib/protect': proxyquire('../src/lib/protect', {
     'fs': {
       statSync: function () {
         return true;
       }
     },
     './get-vuln-source': getVulnSource,
-    './patch': proxyquire('../lib/protect/patch', {
-      './write-patch-flag': proxyquire('../lib/protect/write-patch-flag', {
+    './patch': proxyquire('../src/lib/protect/patch', {
+      './write-patch-flag': proxyquire('../src/lib/protect/write-patch-flag', {
         'then-fs': thenfs,
       }),
       './get-vuln-source': getVulnSource,
       'then-fs': thenfs,
-      './apply-patch': proxyquire('../lib/protect/apply-patch', {
+      './apply-patch': proxyquire('../src/lib/protect/apply-patch', {
         'child_process': {
           exec: function (a, b, callback) {
             callback(null, '', ''); // successful patch
@@ -89,7 +89,7 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
         }
       })
     }),
-    './update': proxyquire('../lib/protect/update', {
+    './update': proxyquire('../src/lib/protect/update', {
       '../npm': function (cmd, packages, live, cwd, flags) {
         execSpy(cmd, packages, live, cwd, flags);
         return Promise.resolve(true);

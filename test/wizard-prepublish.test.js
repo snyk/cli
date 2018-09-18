@@ -6,13 +6,13 @@ var fixture = require(__dirname + '/fixtures/protect-via-snyk/package.json');
 
 var snyk = require('../');
 
-var wizard = proxyquire('../cli/commands/protect/wizard', {
+var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   inquirer: {
     prompt: function (q, cb) {
       cb(q);
     },
   },
-  '../../../lib/npm': {
+  '../../../src/lib/npm': {
     getVersion: function() {
       return new Promise(function(resolve) {
         return resolve('4.9.9');

@@ -1,5 +1,5 @@
 var policy = require('snyk-policy');
-var getPrompts = require('../cli/commands/protect/prompts').getPrompts;
+var getPrompts = require('../src/cli/commands/protect/prompts').getPrompts;
 var test = require('tape');
 
 test('policy file populates ignore reasons', function (t) {

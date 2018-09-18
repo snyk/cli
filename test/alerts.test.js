@@ -1,6 +1,6 @@
 var test = require('tap-only');
 var testUtils = require('./utils');
-var alerts = require('../lib/alerts');
+var alerts = require('../src/lib/alerts');
 
 var exampleAlert = function (id, type) {
   type = type || 'info';

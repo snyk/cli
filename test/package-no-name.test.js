@@ -1,5 +1,5 @@
 var test = require('tape');
-var snyk = require('../lib');
+var snyk = require('../src/lib');
 
 test('packages with no name read dir', function (t) {
   t.plan(1);
