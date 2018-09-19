@@ -4,7 +4,7 @@ var proxyquire = require('proxyquire');
 var path = require('path');
 var sinon = require('sinon');
 var noop = function () {};
-var snyk = require('../');
+var snyk = require('../src/lib');
 
 // spies
 var policySaveSpy;

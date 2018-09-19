@@ -2,7 +2,7 @@
 var test = require('tape');
 // var util = require('util');
 var path = require('path');
-var snyk = require('..');
+var snyk = require('../src/lib');
 
 var osDir = path.resolve(__dirname, 'fixtures', 'demo-private');
 

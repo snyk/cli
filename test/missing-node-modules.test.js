@@ -9,7 +9,7 @@ before('setup: ensure node_modules does not exist', t => {
 });
 
 test('throws when missing node_modules', t => {
-  var snyk = require('../');
+  var snyk = require('../src/lib');
   return snyk.test(dir).then(() => {
     t.fail('should have thrown');
   }).catch(e => {
@@ -18,7 +18,7 @@ test('throws when missing node_modules', t => {
 });
 
 test('is able to test root level vulns', t => {
-  var snyk = require('../');
+  var snyk = require('../src/lib');
   process.chdir(dir);
   return fs.mkdir('node_modules').then(() => {
     return snyk.test(process.cwd()).then(res => {
