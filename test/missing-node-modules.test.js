@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var fs = require('then-fs');
 var dir = __dirname + '/fixtures/bugs/SC-1615/';
 var before = test;

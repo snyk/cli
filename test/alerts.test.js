@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var testUtils = require('./utils');
 var alerts = require('../src/lib/alerts');
 

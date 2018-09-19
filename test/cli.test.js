@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var test = require('tap-only');
+var test = require('tap').test;
 var testUtils = require('./utils');
 var apiKey = '123456789';
 var notAuthorizedApiKey = 'notAuthorized';

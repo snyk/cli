@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var proxyquire = require('proxyquire');
 
 var hasPatch = true;

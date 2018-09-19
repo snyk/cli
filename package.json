@@ -88,7 +88,6 @@
     "sinon": "^1.17.2",
     "strip-ansi": "^4.0.0",
     "tap": "github:snyk/node-tap#alternative-runtimes",
-    "tap-only": "0.0.5",
     "tape": "^4.0.0",
     "ts-node": "^7.0.1",
     "tslint": "^5.11.0",

@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var fs = require('fs');
 
 var policy = require('snyk-policy');

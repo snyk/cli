@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var path = require('path');
 var fs = require('fs');
 var sinon = require('sinon');
