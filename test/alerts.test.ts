@@ -1,5 +1,4 @@
-import tap = require('tap');
-const test = tap.test;
+import {test} from 'tap';
 import alerts = require('../src/lib/alerts');
 
 const exampleAlert = (id, type = 'info') => {

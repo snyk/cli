@@ -3,6 +3,18 @@ import 'source-map-support/register';
 
 // assert supported node runtime version
 import * as runtime from './runtime';
+// require analytics as soon as possible to start measuring execution time
+import * as analytics from '../lib/analytics';
+import * as alerts from '../lib/alerts';
+import * as sln from '../lib/sln';
+import argsLib = require('./args');
+import copy = require('./copy');
+import spinner = require('../lib/spinner');
+import errors = require('../lib/error');
+import ansiEscapes = require('ansi-escapes');
+
+const args = argsLib(process.argv);
+
 if (!runtime.isSupported(process.versions.node)) {
   console.error(process.versions.node +
     ' is an unsupported nodejs runtime! Supported runtime range is \'' +
@@ -11,14 +23,6 @@ if (!runtime.isSupported(process.versions.node)) {
     'and try again.');
   process.exit(1);
 }
-
-// require analytics as soon as possible to start measuring execution time
-import * as analytics from '../lib/analytics';
-import * as alerts from '../lib/alerts';
-import * as sln from '../lib/sln';
-import argsImport = require('./args');
-import copy = require('./copy');
-const args = argsImport(process.argv);
 let exitcode = 0;
 
 if (args.options.file && args.options.file.match(/\.sln$/)) {
@@ -40,7 +44,6 @@ const cli = args.method.apply(null, args.options._).then((result) => {
   }
   return res;
 }).catch((error) => {
-  const spinner = require('../lib/spinner');
   spinner.clearAll();
   let command = 'bad-command';
 
@@ -73,7 +76,6 @@ const cli = args.method.apply(null, args.options._).then((result) => {
   if (args.options.debug) {
     console.log(error.stack);
   } else {
-    const errors = require('../lib/error');
     if (!args.options.quiet) {
 
       const result = errors.message(error);
@@ -82,7 +84,6 @@ const cli = args.method.apply(null, args.options._).then((result) => {
         console.log('Result copied to clipboard');
       } else {
         if ((error.code + '').indexOf('AUTH_') === 0) {
-          const ansiEscapes = require('ansi-escapes');
           // remove the last few lines
           const erase = ansiEscapes.eraseLines(4);
           process.stdout.write(erase);
