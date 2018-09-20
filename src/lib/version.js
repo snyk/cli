@@ -1,6 +1,6 @@
 var path = require('path');
 var command = require('./exec');
-var root = path.resolve(__dirname, '..');
+var root = path.resolve(__dirname, '../..');
 
 module.exports = function () {
   return new Promise(function (resolve) {

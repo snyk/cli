@@ -1,5 +1,5 @@
 var test = require('tap').test;
-var runtime = require('../cli/runtime');
+var runtime = require('../src/cli/runtime');
 
 test('nodejs runtime versions support ', function (t) {
   t.ok(runtime.isSupported(process.versions.node),

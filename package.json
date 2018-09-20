@@ -1,11 +1,10 @@
 {
   "name": "snyk",
   "description": "snyk library and cli utility",
-  "main": "lib/index.js",
+  "main": "src/lib/index.js",
   "files": [
-    "cli",
+    "src",
     "help",
-    "lib",
     "config.default.json",
     "SECURITY.md",
     "README.md",
@@ -16,7 +15,7 @@
     "test": "test"
   },
   "bin": {
-    "snyk": "./cli/index.js"
+    "snyk": "./src/cli/index.js"
   },
   "engines": {
     "node": ">=4"
@@ -24,11 +23,11 @@
   "scripts": {
     "tap": "tap test/*.test.js -R spec --timeout=180",
     "test": "npm run test-common && npm run tap",
-    "test-common": "npm run check-tests && npm run lint && node cli/index.js test --org=snyk",
-    "lint": "eslint -c .eslintrc cli lib",
+    "test-common": "npm run check-tests && npm run lint && node src/cli/index.js test --org=snyk",
+    "lint": "eslint -c .eslintrc src",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
-    "snyk-auth": "node cli auth $SNYK_API_KEY",
-    "snyk-auth-windows": "node cli auth %SNYK_API_KEY%"
+    "snyk-auth": "node src/cli auth $SNYK_API_KEY",
+    "snyk-auth-windows": "node src/cli auth %SNYK_API_KEY%"
   },
   "keywords": [
     "security",
@@ -90,8 +89,7 @@
   },
   "pkg": {
     "scripts": [
-      "cli/**/*.js",
-      "lib/**/*.js"
+      "src/**/*.js"
     ],
     "assets": [
       "config.default.json",

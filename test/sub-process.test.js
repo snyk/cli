@@ -1,7 +1,7 @@
 var path = require('path');
 var test = require('tap').test;
 
-var subProcess = require('../lib/sub-process');
+var subProcess = require('../src/lib/sub-process');
 
 var scriptDir;
 var scriptExtension;

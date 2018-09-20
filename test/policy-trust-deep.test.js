@@ -1,5 +1,5 @@
 var test = require('tap-only');
-var cli = require('../cli/commands');
+var cli = require('../src/cli/commands');
 var dir = __dirname + '/fixtures/qs-package';
 
 var originalVulnCount;

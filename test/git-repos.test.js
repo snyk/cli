@@ -1,4 +1,4 @@
-var cli = require('../cli/commands/');
+var cli = require('../src/cli/commands/');
 var test = require('tap').test;
 
 var urls = [

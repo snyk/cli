@@ -1,7 +1,7 @@
 module.exports = analytics;
 module.exports.single = postAnalytics;
 
-var snyk = require('./');
+var snyk = require('../lib');
 var config = require('./config');
 var version = require('./version');
 var request = require('./request');

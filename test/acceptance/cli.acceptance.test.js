@@ -10,20 +10,20 @@ process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = 0;
 var server = require('./fake-server')(process.env.SNYK_API, apiKey);
-var subProcess = require('../../lib/sub-process');
-var plugins = require('../../lib/plugins');
+var subProcess = require('../../src/lib/sub-process');
+var plugins = require('../../src/lib/plugins');
 var needle = require('needle');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
-var cli = require('../../cli/commands');
+var cli = require('../../src/cli/commands');
 var snykPolicy = require('snyk-policy');
 
 var before = test;
 var after = test;
 
 // @later: remove this config stuff.
-// Was copied straight from ../cli-server.js
+// Was copied straight from ../src/cli-server.js
 before('setup', function (t) {
   t.plan(3);
   cli.config('get', 'api').then(function (key) {
@@ -42,7 +42,7 @@ before('setup', function (t) {
 });
 
 // @later: remove this config stuff.
-// Was copied straight from ../cli-server.js
+// Was copied straight from ../src/cli-server.js
 before('prime config', function (t) {
   cli.config('set', 'api=' + apiKey).then(function () {
     t.pass('api token set');
@@ -1905,7 +1905,7 @@ function stubExec(t, execOutputFile) {
 }
 
 // @later: try and remove this config stuff
-// Was copied straight from ../cli-server.js
+// Was copied straight from ../src/cli-server.js
 after('teardown', function (t) {
   t.plan(4);
 

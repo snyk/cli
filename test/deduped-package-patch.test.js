@@ -1,5 +1,5 @@
 var test = require('tap').test;
-var protect = require('../lib/protect');
+var protect = require('../src/lib/protect');
 var answers = require('./fixtures/deduped-dep/answers.json');
 
 test('npm deduped packages are found and patched correctly', function (t) {

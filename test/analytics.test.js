@@ -2,7 +2,7 @@ var tap = require('tap');
 var test = require('tap-only');
 var proxyquire = require('proxyquire').noPreserveCache();
 var sinon = require('sinon');
-var snyk = require('../lib');
+var snyk = require('../src/lib');
 var old;
 var iswindows = require('os-name')().toLowerCase().indexOf('windows') === 0;
 
@@ -24,7 +24,7 @@ tap.afterEach(function (done) {
 test('analytics disabled', function (t) {
   var spy = sinon.spy();
   snyk.config.set('disable-analytics', '1');
-  var analytics = proxyquire('../lib/analytics', {
+  var analytics = proxyquire('../src/lib/analytics', {
     './request': spy,
   });
 
@@ -35,7 +35,7 @@ test('analytics disabled', function (t) {
 
 test('analytics', function (t) {
   var spy = sinon.spy();
-  var analytics = proxyquire('../lib/analytics', {
+  var analytics = proxyquire('../src/lib/analytics', {
     './request': spy,
   });
 
@@ -53,8 +53,8 @@ test('analytics', function (t) {
 test('bad command', function (t) {
   var spy = sinon.spy();
   process.argv = ['node', 'script.js', 'random command', '-q'];
-  var cli = proxyquire('../cli', {
-    '../lib/analytics': proxyquire('../lib/analytics', {
+  var cli = proxyquire('../src/cli', {
+    '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     })
   });
@@ -73,14 +73,14 @@ test('bad command', function (t) {
 test('bad command with string error', function (t) {
   var spy = sinon.spy();
   process.argv = ['node', 'script.js', 'test', '-q'];
-  var cli = proxyquire('../cli', {
-    '../lib/analytics': proxyquire('../lib/analytics', {
+  var cli = proxyquire('../src/cli', {
+    '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
 
-    './args': proxyquire('../cli/args', {
-      './commands': proxyquire('../cli/commands', {
-        '../../lib/hotload': proxyquire('../lib/hotload', {
+    './args': proxyquire('../src/cli/args', {
+      './commands': proxyquire('../src/cli/commands', {
+        '../../lib/hotload': proxyquire('../src/lib/hotload', {
           // windows-based testing uses windows path separator
           '..\\cli\\commands\\test': function() {
             return Promise.reject('string error');
@@ -107,17 +107,17 @@ test('test includes data', { skip: iswindows }, function (t) {
   var spy = sinon.spy();
   process.argv = ['node', 'script.js', 'test', 'snyk-demo-app', '-q'];
 
-  var analytics = proxyquire('../lib/analytics', {
+  var analytics = proxyquire('../src/lib/analytics', {
     './request': spy,
   });
 
-  var cli = proxyquire('../cli', {
+  var cli = proxyquire('../src/cli', {
     '../lib/analytics': analytics,
-    './args': proxyquire('../cli/args', {
-      './commands': proxyquire('../cli/commands', {
-        '../../lib/hotload': proxyquire('../lib/hotload', {
-          '../cli/commands/test': proxyquire('../lib/snyk-test', {
-            './npm': proxyquire('../lib/snyk-test/npm', {
+    './args': proxyquire('../src/cli/args', {
+      './commands': proxyquire('../src/cli/commands', {
+        '../../lib/hotload': proxyquire('../src/lib/hotload', {
+          '../cli/commands/test': proxyquire('../src/lib/snyk-test', {
+            './npm': proxyquire('../src/lib/snyk-test/npm', {
               '../../analytics': analytics,
             })
           })

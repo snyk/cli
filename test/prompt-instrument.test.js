@@ -1,7 +1,7 @@
 var test = require('tap-only');
 var tryRequire = require('snyk-try-require');
 var interactive = require('./wizard-instrumented');
-var answersToTasks = require('../cli/commands/protect/tasks');
+var answersToTasks = require('../src/cli/commands/protect/tasks');
 
 test('wizard prompts as expected', function (t) {
   t.plan(3);
@@ -139,7 +139,7 @@ test('patch grouped vuln should run multiple patches (SC-1109)', function (t) {
     t.notEqual(filenames[0], filenames[1], 'filenames should not be the same');
 
     // now it should only patch those files
-    var patches = require('../lib/protect/dedupe-patches')(tasks.patch);
+    var patches = require('../src/lib/protect/dedupe-patches')(tasks.patch);
 
     t.equal(patches.packages.length, 2, '2 patches remain');
     t.equal(patches.packages[0].patches.id, 'patch:npm:request:20160119:0');

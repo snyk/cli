@@ -1,9 +1,9 @@
 var test = require('tap-only');
 var interactive = require('./wizard-instrumented');
-var answersToTasks = require('../cli/commands/protect/tasks');
+var answersToTasks = require('../src/cli/commands/protect/tasks');
 var snykPolicy = require('snyk-policy');
 var proxyquire = require('proxyquire');
-var patch = proxyquire('../lib/protect/patch', {
+var patch = proxyquire('../src/lib/protect/patch', {
   './apply-patch': function () {
     return Promise.resolve(true);
   }

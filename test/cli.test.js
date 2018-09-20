@@ -24,7 +24,7 @@ var server = require('./cli-server')(
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
-var cli = require('../cli/commands');
+var cli = require('../src/cli/commands');
 
 var before = test;
 var after = test;
@@ -207,7 +207,7 @@ test('snyk ignore - no ID', function (t) {
   }).then(function (res) {
     t.fail('should not succeed with missing ID');
   }).catch(function (e) {
-    var errors = require('../lib/error');
+    var errors = require('../src/lib/error');
     var message = stripAnsi(errors.message(e));
     t.equal(message.toLowerCase().indexOf('id is a required field'), 0,
             'captured failed ignore (no --id given)');
@@ -274,7 +274,7 @@ test('auth via key', function (t) {
 test('auth via invalid key', function (t) {
   t.plan(1);
 
-  var errors = require('../lib/error');
+  var errors = require('../src/lib/error');
 
   cli.auth('_____________').then(function (res) {
     t.fail('auth should not succeed: ' + res);
@@ -292,7 +292,7 @@ test('auth via github', function (t) {
     tokenRequest.token = tokenRequest.query.split('=').pop();
   });
 
-  var auth = proxyquire('../cli/commands/auth', {
+  var auth = proxyquire('../src/cli/commands/auth', {
     open: openSpy,
     '../../lib/is-ci': false,
   });

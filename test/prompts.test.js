@@ -4,7 +4,7 @@ var proxyquire = require('proxyquire');
 var sinon = require('sinon');
 var _ = require('lodash');
 var spy = sinon.spy();
-var wizard = proxyquire('../cli/commands/protect/wizard', {
+var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   inquirer: {
     prompt: function (qs, cb) {
       if (!cb) {

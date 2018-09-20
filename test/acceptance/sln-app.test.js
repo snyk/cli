@@ -1,6 +1,6 @@
 var test = require('tap-only');
 var path = require('path');
-var sln = require('../../lib/sln');
+var sln = require('../../src/lib/sln');
 
 test('parseFoldersFromSln when passed an existant filename', function (t) {
   var slnFile = 'test/acceptance/workspaces/sln-example-app/mySolution.sln'; 

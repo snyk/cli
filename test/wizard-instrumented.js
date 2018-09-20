@@ -3,7 +3,7 @@ module.exports = interactive;
 var proxyquire = require('proxyquire');
 var sinon = require('sinon');
 var spy;
-var wizard = proxyquire('../cli/commands/protect/wizard', {
+var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   inquirer: {
     prompt: function (q, cb) {
       if (!cb) {

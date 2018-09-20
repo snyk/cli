@@ -1,6 +1,6 @@
 var test = require('tap').test;
 var fs = require('then-fs');
-var scenario = require('../cli/commands/scenario');
+var scenario = require('../src/cli/commands/scenario');
 
 test('ensure scenarios work', function (t) {
   var setups = ['case-1', 'case-2', 'case-3'];

@@ -2,7 +2,7 @@ var test = require('tape');
 var proxyquire = require('proxyquire');
 
 test('snyk required', function (t) {
-  var snyk = proxyquire('../lib', {});
+  var snyk = proxyquire('../src/lib', {});
   snyk({
     api: '123456',
     id: '__test__',

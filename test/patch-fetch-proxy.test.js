@@ -12,7 +12,7 @@ var PROXY_PORT = 4242;
 var PATCH_URL = 'https://s3.amazonaws.com/snyk-rules-pre-repository/' +
                 'snapshots/master/patches/npm/qs/20170213/603_604.patch';
 
-var getPatchFile = proxyquire('../lib/protect/fetch-patch', {
+var getPatchFile = proxyquire('../src/lib/protect/fetch-patch', {
   'then-fs': {
     createWriteStream: function () {},
   },

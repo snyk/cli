@@ -1,5 +1,5 @@
 var test = require('tape');
-var prompts = require('../cli/commands/protect/prompts').nextSteps;
+var prompts = require('../src/cli/commands/protect/prompts').nextSteps;
 
 test('wizard next steps include protect correctly', function (t) {
 
