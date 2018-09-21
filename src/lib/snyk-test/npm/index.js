@@ -54,7 +54,8 @@ function test(root, options) {
       options.file = options.file || 'package.json';
       return Promise.resolve()
         .then(() => {
-          if (options.file.endsWith('package-lock.json')) {
+          if (options.file.endsWith('package-lock.json')
+            || options.file.endsWith('yarn.lock')) {
             return generateDependenciesFromLockfile(root, options);
           }
           return getDependenciesFromNodeModules(root, options)
@@ -104,9 +105,10 @@ function test(root, options) {
 
 function generateDependenciesFromLockfile(root, options) {
   debug('Lockfile detected, generating dependency tree from lockfile');
-  var lockFileFullPath = path.resolve(root, options.file);
+  const fileName = options.file;
+  var lockFileFullPath = path.resolve(root, fileName);
   if (!fileSystem.existsSync(lockFileFullPath)) {
-    throw new Error('LockFile package-lock.json not found at location: ' +
+    throw new Error('Lockfile ' + fileName + ' not found at location: ' +
     lockFileFullPath);
   }
 
@@ -124,22 +126,25 @@ function generateDependenciesFromLockfile(root, options) {
     + lockFileFullPath + '\n However the package.json is missing!');
   }
 
-  if (options.file.endsWith('package-lock.json') && fileSystem.existsSync(shrinkwrapFullPath)) {
-    throw new Error('`npm-shrinkwrap.json` was found while using package-lock.json.\n'
-    + 'Please run your command again without `--file=package-lock.json` flag.');
+  if (fileSystem.existsSync(shrinkwrapFullPath)) {
+    throw new Error('`npm-shrinkwrap.json` was found while using lockfile.\n'
+    + 'Please run your command again without `--file=' + fileName + '` flag.');
   }
 
   var manifestFile = fileSystem.readFileSync(manifestFileFullPath);
-  var lockFile = fileSystem.readFileSync(lockFileFullPath);
+  var lockFile = fileSystem.readFileSync(lockFileFullPath, 'utf-8');
 
   analytics.add('local', true);
-  analytics.add('using package-lock.json to get dependency tree', true);
+  analytics.add('using lockfile (' + fileName + ') package-lock.json to get dependency tree', true);
+
+  const lockFileType = fileName.endsWith('yarn.lock') ?
+    lockFileParser.LockfileType.yarn : lockFileParser.LockfileType.npm;
 
   var resolveModuleSpinnerLabel = `Analyzing npm dependencies for ${lockFileFullPath}`;
   debug(resolveModuleSpinnerLabel);
   return spinner(resolveModuleSpinnerLabel)
     .then(function () {
-      return lockFileParser.buildDepTree(manifestFile, lockFile, options.dev);
+      return lockFileParser.buildDepTree(manifestFile, lockFile, options.dev, lockFileType);
     })
     // clear spinner in case of success or failure
     .then(spinner.clear(resolveModuleSpinnerLabel))
