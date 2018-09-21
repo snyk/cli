@@ -99,7 +99,7 @@
   },
   "pkg": {
     "scripts": [
-      "src/**/*.js"
+      "dist/**/*.js"
     ],
     "assets": [
       "config.default.json",
