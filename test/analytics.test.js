@@ -1,5 +1,5 @@
 var tap = require('tap');
-var test = require('tap-only');
+var test = require('tap').test;
 var proxyquire = require('proxyquire').noPreserveCache();
 var sinon = require('sinon');
 var snyk = require('../src/lib');

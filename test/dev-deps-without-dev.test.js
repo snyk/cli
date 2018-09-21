@@ -1,7 +1,7 @@
 'use strict';
 var test = require('tap').test;
 var path = require('path');
-var snyk = require('..');
+var snyk = require('../src/lib');
 
 var dir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
 

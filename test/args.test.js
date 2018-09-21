@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var args = require('../src/cli/args');
 
 test('test command line arguments', function(t) {

@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var path = require('path');
 var fs = require('fs');
 var sinon = require('sinon');
@@ -59,7 +59,7 @@ test('test cli with multiple params: good and bad', function (t) {
   .then(function () {
     t.fail('expect to error');
   }).catch(function (error) {
-    errObj = JSON.parse(error.message);
+    var errObj = JSON.parse(error.message);
     t.ok(errObj.length == 2, 'expecting two results');
     t.notOk(errObj[0].ok, 'first object shouldnt be ok');
     t.ok(errObj[1].ok, 'second object should be ok');

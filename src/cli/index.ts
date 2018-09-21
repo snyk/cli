@@ -1,7 +1,20 @@
 #!/usr/bin/env node
+import 'source-map-support/register';
 
 // assert supported node runtime version
-var runtime = require('./runtime');
+import * as runtime from './runtime';
+// require analytics as soon as possible to start measuring execution time
+import * as analytics from '../lib/analytics';
+import * as alerts from '../lib/alerts';
+import * as sln from '../lib/sln';
+import argsLib = require('./args');
+import copy = require('./copy');
+import spinner = require('../lib/spinner');
+import errors = require('../lib/error');
+import ansiEscapes = require('ansi-escapes');
+
+const args = argsLib(process.argv);
+
 if (!runtime.isSupported(process.versions.node)) {
   console.error(process.versions.node +
     ' is an unsupported nodejs runtime! Supported runtime range is \'' +
@@ -9,24 +22,17 @@ if (!runtime.isSupported(process.versions.node)) {
   console.error('Please upgrade your nodejs runtime version ' +
     'and try again.');
   process.exit(1);
-};
-
-// require analytics as soon as possible to start measuring execution time
-var analytics = require('../lib/analytics');
-var args = require('./args')(process.argv);
-var copy = require('./copy');
-var alerts = require('../lib/alerts');
-var sln = require('../lib/sln');
-var exitcode = 0;
+}
+let exitcode = 0;
 
 if (args.options.file && args.options.file.match(/\.sln$/)) {
   sln.updateArgs(args);
 }
 
-var cli = args.method.apply(null, args.options._).then(function (result) {
-  var res = analytics({
-    command: args.command,
+const cli = args.method.apply(null, args.options._).then((result) => {
+  const res = analytics({
     args: args.options._,
+    command: args.command,
   });
   if (result && !args.options.quiet) {
     if (args.options.copy) {
@@ -37,10 +43,9 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
     }
   }
   return res;
-}).catch(function (error) {
-  var spinner = require('../lib/spinner');
+}).catch((error) => {
   spinner.clearAll();
-  var command = 'bad-command';
+  let command = 'bad-command';
 
   if (error.code === 'VULNS') {
     // this isn't a bad command, so we won't record it as such
@@ -63,26 +68,24 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
     analytics.add('command', args.command);
   }
 
-  var res = analytics({
-    command: command,
+  const res = analytics({
     args: args.options._,
+    command,
   });
 
   if (args.options.debug) {
     console.log(error.stack);
   } else {
-    var errors = require('../lib/error');
     if (!args.options.quiet) {
 
-      var result = errors.message(error);
+      const result = errors.message(error);
       if (args.options.copy) {
         copy(result);
         console.log('Result copied to clipboard');
       } else {
         if ((error.code + '').indexOf('AUTH_') === 0) {
-          var ansiEscapes = require('ansi-escapes');
           // remove the last few lines
-          var erase = ansiEscapes.eraseLines(4);
+          const erase = ansiEscapes.eraseLines(4);
           process.stdout.write(erase);
         }
         console.log(result);
@@ -92,9 +95,9 @@ var cli = args.method.apply(null, args.options._).then(function (result) {
 
   exitcode = 1;
   return res;
-}).catch(function (e) {
+}).catch((e) => {
   console.log('super fail', e.stack);
-}).then(function (res) {
+}).then((res) => {
   if (!args.options.json) {
     console.log(alerts.displayAlerts());
   }

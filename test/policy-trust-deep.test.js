@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var cli = require('../src/cli/commands');
 var dir = __dirname + '/fixtures/qs-package';
 

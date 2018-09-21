@@ -1,5 +1,5 @@
 var toTasks = require('../src/cli/commands/protect/tasks');
-var test = require('tap-only');
+var test = require('tap').test;
 var answers = require(__dirname + '/fixtures/patch-same-package-answers.json');
 var proxyquire = require('proxyquire');
 var sinon = require('sinon');

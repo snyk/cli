@@ -5,8 +5,6 @@ var spy = sinon.spy();
 var _ = require('lodash');
 var fixture = require('./fixtures/protect-via-snyk/package.json');
 
-var snyk = require('../');
-
 var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   inquirer: {
     prompt: function (q, cb) {

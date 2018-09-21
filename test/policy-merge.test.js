@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var policy = require('snyk-policy');
 var snyk = require('../src/lib');
 var dir1 = __dirname + '/fixtures/qs-package';

@@ -1,4 +1,4 @@
-const test = require('tap-only');
+const test = require('tap').test;
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const fs = require('then-fs');

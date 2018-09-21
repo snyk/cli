@@ -1,4 +1,4 @@
-var test = require('tap-only');
+var test = require('tap').test;
 var tryRequire = require('snyk-try-require');
 var interactive = require('./wizard-instrumented');
 var answersToTasks = require('../src/cli/commands/protect/tasks');
