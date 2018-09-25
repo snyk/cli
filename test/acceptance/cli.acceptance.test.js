@@ -461,11 +461,11 @@ function (t) {
     var pkg = req.body;
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/vuln/maven', 'posts to correct url');
-    t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
+    t.equal(pkg.name, 'com.mycompany.app:maven-app', 'specifies name');
     t.ok(pkg.dependencies['axis:axis'], 'specifies dependency');
     t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
-    t.equal(pkg.dependencies['junit:junit'].artifactId, 'junit',
-            'specifies dependency artifactId');
+    t.equal(pkg.dependencies['junit:junit'].name, 'junit:junit',
+            'specifies dependency name');
     t.equal(req.query.org, 'nobelprize.org', 'org sent as a query in request');
   });
 });
@@ -1515,11 +1515,11 @@ test('`monitor maven-app`', function (t) {
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/maven', 'puts at correct url');
-    t.equal(pkg.artifactId, 'maven-app', 'specifies artifactId');
+    t.equal(pkg.name, 'com.mycompany.app:maven-app', 'specifies name');
     t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
-    t.equal(pkg.dependencies['junit:junit'].artifactId,
-      'junit',
-      'specifies dependency artifactId');
+    t.equal(pkg.dependencies['junit:junit'].name,
+      'junit:junit',
+      'specifies dependency name');
     t.notOk(pkg.from, 'no "from" array on root');
     t.notOk(pkg.dependencies['junit:junit'].from, 'no "from" array on dep');
   });
@@ -1534,7 +1534,7 @@ test('`monitor maven-multi-app`', function (t) {
     var pkg = req.body.package;
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/maven', 'puts at correct url');
-    t.equal(pkg.artifactId, 'maven-multi-app', 'specifies artifactId');
+    t.equal(pkg.name, 'com.mycompany.app:maven-multi-app', 'specifies name');
     t.ok(pkg.dependencies['com.mycompany.app:simple-child'],
       'specifies dependency');
     t.notOk(pkg.from, 'no "from" array on root');
