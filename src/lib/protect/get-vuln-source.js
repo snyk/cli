@@ -32,6 +32,11 @@ function getVulnSource(vuln, cwd, live) {
     try {
       source = resolve.sync(from.slice(-1).pop(), viaPath);
     } catch (e) {
+      if (e.code === 'NO_PACKAGE_FOUND') {
+        e = 'Error: `' +e.message + '`\nWe can\'t patch without ' +
+          'dependencies installed. Please run `npm ' +
+          'install` or  `yarn install` first.';
+      }
       if (live) {
         throw e;
       }
