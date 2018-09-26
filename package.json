@@ -21,8 +21,9 @@
     "node": ">=4"
   },
   "scripts": {
-    "build": "tsc",
-    "build-watch": "tsc -w",
+    "build": "tsc && npm run copytxt",
+    "build-watch": "tsc -w && npm run copytxt",
+    "copytxt": "rsync -a --include=\"*/\" --include=\"*.txt\" --exclude=\"*\" src/ dist/",
     "eslint": "eslint -c .eslintrc src",
     "tslint": "tslint --project tsconfig.json --format stylish --exclude **/src/**/*.js",
     "prepare": "npm run build",
@@ -99,7 +100,8 @@
   },
   "pkg": {
     "scripts": [
-      "dist/**/*.js"
+      "dist/**/*.js",
+      "dist/**/*.txt"
     ],
     "assets": [
       "config.default.json",
