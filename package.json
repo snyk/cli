@@ -6,6 +6,7 @@
     "help",
     "dist",
     "config.default.json",
+    "unpublished-package-list.txt",
     "SECURITY.md",
     "README.md",
     "Contributor-Agreement.md",
@@ -21,9 +22,8 @@
     "node": ">=4"
   },
   "scripts": {
-    "build": "tsc && npm run copytxt",
-    "build-watch": "tsc -w && npm run copytxt",
-    "copytxt": "rsync -a --include=\"*/\" --include=\"*.txt\" --exclude=\"*\" src/ dist/",
+    "build": "tsc",
+    "build-watch": "tsc -w",
     "eslint": "eslint -c .eslintrc src",
     "tslint": "tslint --project tsconfig.json --format stylish --exclude **/src/**/*.js",
     "prepare": "npm run build",
@@ -100,12 +100,12 @@
   },
   "pkg": {
     "scripts": [
-      "dist/**/*.js",
-      "dist/**/*.txt"
+      "dist/**/*.js"
     ],
     "assets": [
       "config.default.json",
-      "help/**/*.txt"
+      "help/**/*.txt",
+      "unpublished-package-list.txt"
     ]
   },
   "snyk": true
