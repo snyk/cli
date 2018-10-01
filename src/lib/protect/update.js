@@ -1,4 +1,5 @@
-module.exports = update;
+module.exports.update = update;
+module.exports.install = install;
 
 var debug = require('debug')('snyk');
 var chalk = require('chalk');
@@ -15,6 +16,7 @@ function update(packages, live, pkgManager) {
   pkgManager = pkgManager || 'npm';
   var lbl = 'Applying updates using ' + pkgManager + '...';
   var error = false;
+  debug("===== pkgManager", pkgManager);
 
   return spinner(lbl).then(function () {
     var upgrade = packages

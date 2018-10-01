@@ -1,33 +1,32 @@
-var protect = module.exports = {
+const protect = module.exports = {
   ignore: require('./ignore'),
-  update: require('./update'),
+  update: require('./update').update,
   patch: require('./patch'),
   patchesForPackage: require('./patches-for-package'),
-  generatePolicy: generatePolicy,
+  generatePolicy,
 };
 
-var debug = require('debug')('snyk');
-var _ = require('lodash');
+const debug = require('debug')('snyk');
+const _ = require('lodash');
 
 function generatePolicy(policy, tasks, live, packageManager) {
-  var promises = ['ignore', 'update', 'patch'].filter(function (task) {
-    return tasks[task].length;
-  }).map(function (task) {
-    return protect[task](tasks[task], live, packageManager);
-  });
+  const promises = ['patch', 'ignore', 'update']
+    .filter((task) => tasks[task].length)
+    .map((task) => protect[task](tasks[task], live, packageManager));
 
-  return Promise.all(promises).then(function (res) {
-    // we're squashing the arrays of arrays into a flat structure
-    // with only non-false values
-    var results = _.flattenDeep(res).filter(Boolean);
+  return Promise.all(promises)
+    .then((res) => {
+      // we're squashing the arrays of arrays into a flat structure
+      // with only non-false values
+      const results = _.flattenDeep(res).filter(Boolean);
 
-    // then we merge the configs together using the original config
-    // as the baseline (this lets us retain the user's existing config)
-    results.unshift(policy);
-    var newPolicy = _.merge.apply(_, results);
+      // then we merge the configs together using the original config
+      // as the baseline (this lets us retain the user's existing config)
+      results.unshift(policy);
+      const newPolicy = _.merge.apply(_, results);
 
-    debug(JSON.stringify(newPolicy, '', 2));
+      debug(JSON.stringify(newPolicy, '', 2));
 
-    return newPolicy;
-  });
+      return newPolicy;
+    });
 }

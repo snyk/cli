@@ -9,6 +9,7 @@ package information.
 When ommitted Snyk will try to detect the appropriate file for your project by
 looking for files in following order:
   yarn.lock
+  package-lock.json
   package.json
   Gemfile
   Gemfile.lock
