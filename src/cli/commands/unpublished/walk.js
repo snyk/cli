@@ -11,7 +11,7 @@ function walk(deps, filter) {
       deps = deps.dependencies;
     }
 
-    var promises = Object.keys(deps).map(function (name) {
+    const promises = Object.keys(deps).map(function (name) {
       return new Promise(function (resolve) {
         return resolve(filter(deps[name], name, deps));
       }).then(function (res) {
