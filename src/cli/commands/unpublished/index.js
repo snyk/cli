@@ -1,27 +1,24 @@
-var resolve = require('snyk-resolve-deps');
-var tree = require('snyk-tree');
-var prune = require('./prune');
-var walk = require('./walk');
-var spinner = require('../../../lib/spinner');
-var fs = require('fs');
-var chalk = require('chalk');
+const resolve = require('snyk-resolve-deps');
+const tree = require('snyk-tree');
+const prune = require('./prune');
+const walk = require('./walk');
+const spinner = require('../../../lib/spinner');
+const fs = require('fs');
+const chalk = require('chalk');
 
 module.exports = function (cwd) {
   if (!cwd) {
     cwd = process.cwd();
   }
 
-  var packages = fs.readFileSync(__dirname + '/package-list.txt', 'utf8')
-    .split('\n').map(function (s) {
-      return s.trim();
-    });
-
-  var tail = fs.readFileSync(__dirname + '/tail.txt', 'utf8');
-  var lbl = fs.readFileSync(__dirname + '/head.txt', 'utf8');
+  const config = JSON.parse(
+    fs.readFileSync(__dirname + '/../../../../test-unpublished.json', 'utf8')
+  );
+  const {packages, tail, head} = config;
 
   spinner.sticky();
 
-  return spinner(lbl).then(function () {
+  return spinner(head).then(function () {
     return resolve(cwd, {dev: true, disk: true}).then(function (res) {
       prune(res, function (p) {
         // console.log(p.name, packages.indexOf(p.name) === -1);
@@ -40,7 +37,7 @@ module.exports = function (cwd) {
         }
       }).then(function () {
         return tree(res, function (leaf) {
-          var label = leaf.full;
+          let label = leaf.full;
 
           if (leaf.warning) {
             label += ' ' + chalk.bgRed.white(leaf.warning);
@@ -53,9 +50,9 @@ module.exports = function (cwd) {
     });
   })
     // clear spinner in case of success or failure
-    .then(spinner.clear(lbl))
+    .then(spinner.clear(head))
     .catch(function (error) {
-      spinner.clear(lbl)();
+      spinner.clear(head)();
       throw error;
     });
 };
