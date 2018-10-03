@@ -6,6 +6,7 @@
     "help",
     "dist",
     "config.default.json",
+    "unpublished-package-list.txt",
     "SECURITY.md",
     "README.md",
     "Contributor-Agreement.md",
@@ -103,7 +104,8 @@
     ],
     "assets": [
       "config.default.json",
-      "help/**/*.txt"
+      "help/**/*.txt",
+      "unpublished-package-list.txt"
     ]
   },
   "snyk": true

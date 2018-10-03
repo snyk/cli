@@ -11,13 +11,23 @@ module.exports = function (cwd) {
     cwd = process.cwd();
   }
 
-  var packages = fs.readFileSync(__dirname + '/package-list.txt', 'utf8')
+  var packages = fs.readFileSync(__dirname
+    + '/../../../../unpublished-package-list.txt', 'utf8')
     .split('\n').map(function (s) {
       return s.trim();
     });
 
-  var tail = fs.readFileSync(__dirname + '/tail.txt', 'utf8');
-  var lbl = fs.readFileSync(__dirname + '/head.txt', 'utf8');
+  const lbl = 'Checking for unpublished packages created by @azer...';
+  const tail = 'The flagged packages have been unpublished from npm.\n'
+    + 'An unpublished package can be republished by anyone, not\n'
+    + 'just the original author, including a malicious entity.\n\n'
+    + 'Please inspect those packages to ensure they include the\n'
+    + 'content you expected.\n\n'
+    + 'As the test is currently limited to packages unpublished\n'
+    + 'by Azer, you can also compare their content to the\n'
+    + 'repositories on Azer\'s GitHub account:\n'
+    + 'https://github.com/azer?tab=repositories\n\n'
+    + 'To learn more, see:\n';
 
   spinner.sticky();
 
