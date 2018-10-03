@@ -11,13 +11,13 @@ module.exports = function (cwd) {
     cwd = process.cwd();
   }
 
-  var packages = fs.readFileSync(__dirname + '/package-list.txt', 'utf8')
-    .split('\n').map(function (s) {
-      return s.trim();
-    });
+  var config = JSON.parse(
+    fs.readFileSync(__dirname + '/../../../../test-unpublished.json', 'utf8')
+  );
 
-  var tail = fs.readFileSync(__dirname + '/tail.txt', 'utf8');
-  var lbl = fs.readFileSync(__dirname + '/head.txt', 'utf8');
+  var packages = config.packages;
+  var tail = config.tail;
+  var lbl = config.head;
 
   spinner.sticky();
 
