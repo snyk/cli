@@ -7,33 +7,20 @@ import * as runtime from './runtime';
 import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
-import argsLib = require('./args');
-import copy = require('./copy');
+import argsLib from './args';
+import copy from './copy';
 import spinner = require('../lib/spinner');
 import errors = require('../lib/error');
 import ansiEscapes = require('ansi-escapes');
 
-const args = argsLib(process.argv);
+async function runCommand(args) {
+  const result = await args.method(...args.options._);
 
-if (!runtime.isSupported(process.versions.node)) {
-  console.error(process.versions.node +
-    ' is an unsupported nodejs runtime! Supported runtime range is \'' +
-    runtime.supportedRange + '\'');
-  console.error('Please upgrade your nodejs runtime version ' +
-    'and try again.');
-  process.exit(1);
-}
-let exitcode = 0;
-
-if (args.options.file && args.options.file.match(/\.sln$/)) {
-  sln.updateArgs(args);
-}
-
-const cli = args.method.apply(null, args.options._).then((result) => {
   const res = analytics({
     args: args.options._,
     command: args.command,
   });
+
   if (result && !args.options.quiet) {
     if (args.options.copy) {
       copy(result);
@@ -42,8 +29,11 @@ const cli = args.method.apply(null, args.options._).then((result) => {
       console.log(result);
     }
   }
+
   return res;
-}).catch((error) => {
+}
+
+async function handleError(args, error) {
   spinner.clearAll();
   let command = 'bad-command';
 
@@ -83,7 +73,7 @@ const cli = args.method.apply(null, args.options._).then((result) => {
         copy(result);
         console.log('Result copied to clipboard');
       } else {
-        if ((error.code + '').indexOf('AUTH_') === 0) {
+        if (`${error.code}`.indexOf('AUTH_') === 0) {
           // remove the last few lines
           const erase = ansiEscapes.eraseLines(4);
           process.stdout.write(erase);
@@ -93,18 +83,51 @@ const cli = args.method.apply(null, args.options._).then((result) => {
     }
   }
 
-  exitcode = 1;
   return res;
-}).catch((e) => {
-  console.log('super fail', e.stack);
-}).then((res) => {
+}
+
+function checkRuntime() {
+  if (!runtime.isSupported(process.versions.node)) {
+    console.error(`${process.versions.node} is an unsupported nodejs ` +
+      `runtime! Supported runtime range is '${runtime.supportedRange}'`);
+    console.error('Please upgrade your nodejs runtime version and try again.');
+    process.exit(1);
+  }
+}
+
+async function main() {
+  checkRuntime();
+
+  const args = argsLib(process.argv);
+
+  if (args.options.file && args.options.file.match(/\.sln$/)) {
+    sln.updateArgs(args);
+  }
+
+  let res = null;
+  let failed = false;
+
+  try {
+    res = await runCommand(args);
+  } catch (error) {
+    failed = true;
+    res = await handleError(args, error);
+  }
+
   if (!args.options.json) {
     console.log(alerts.displayAlerts());
   }
-  if (!process.env.TAP && exitcode) {
-    return process.exit(1);
+
+  if (!process.env.TAP && failed) {
+    process.exit(1);
   }
+
   return res;
+}
+
+const cli = main().catch((e) => {
+  console.log('super fail', e.stack);
+  process.exit(1);
 });
 
 if (module.parent) {

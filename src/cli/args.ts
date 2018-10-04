@@ -1,25 +1,27 @@
-module.exports = args;
+import * as abbrev from 'abbrev';
 
-var abbrev = require('abbrev');
-var alias = abbrev('copy', 'version', 'debug', 'help', 'quiet', 'interactive',
-  'dev');
+declare interface Global extends NodeJS.Global {
+  ignoreUnknownCA: boolean;
+}
+
+declare const global: Global;
+
+const alias = abbrev('copy', 'version', 'debug', 'help', 'quiet', 'interactive', 'dev');
 alias.d = 'debug'; // always make `-d` debug
 alias.t = 'test';
 
 function dashToCamelCase(dash) {
   return dash.indexOf('-') < 0
     ? dash
-    : dash.replace(/-[a-z]/g, function (m) {
-      return m[1].toUpperCase();
-    });
+    : dash.replace(/-[a-z]/g, (m) => m[1].toUpperCase());
 }
 
-function args(processargv) {
+export default function args(processargv) {
   // all arguments after a '--' are taken as is and passed to the next process
   // (see the snyk-mvn-plugin or snyk-gradle-plugin)
   // these agrs are split by spaces and sent as an array of strings
   // allows us to support flags with true or false only
-  var argv = processargv.slice(2).reduce(function reduce(acc, arg) {
+  const argv = processargv.slice(2).reduce((acc, arg) => {
     if (acc._doubleDashArgs) {
       acc._doubleDashArgs.push(arg);
     } else if (arg === '--') {
@@ -34,7 +36,7 @@ function args(processargv) {
         if (arg.indexOf('=') === -1) {
           acc[arg] = true;
         } else {
-          var parts = arg.split('=');
+          const parts = arg.split('=');
           acc[parts.shift()] = parts.join('=');
         }
       } else {
@@ -50,22 +52,22 @@ function args(processargv) {
   // by passing `-d` to the cli, we enable the debugging output, but this must
   // be as early as possible in the cli logic to capture all the output
   if (argv.debug) {
-    var enable = 'snyk';
+    let enable = 'snyk';
     if (process.env.DEBUG) {
       enable += ',' + process.env.DEBUG;
     }
     require('debug').enable(enable);
   }
 
-  var debug = require('debug')('snyk');
+  const debug = require('debug')('snyk');
 
   // this is done after the debug activation line above because we want to see
   // the debug messaging when we use the `-d` flag
-  var cli = require('./commands');
+  const cli = require('./commands');
 
   // the first argument is the command we'll execute, everything else will be
   // an argument to our command, like `snyk help protect`
-  var command = argv._.shift();
+  let command: string = argv._.shift();
 
   // alias switcheroo - allows us to have
   if (cli.aliases[command]) {
@@ -94,12 +96,12 @@ function args(processargv) {
     // so we need to mangle the commands into this format:
     // snyk.config('set', 'api=x')
     // snyk.config('get', 'api') // etc
-    var tmp = command.split(':');
-    command = tmp.shift();
+    const tmp = command.split(':');
+    command = tmp.shift()!;
     argv._.unshift(tmp.shift());
   }
 
-  var method = cli[command];
+  let method: () => Promise<string> = cli[command];
 
   if (!method) {
     // if we failed to find a command, then default to an error
@@ -108,30 +110,32 @@ function args(processargv) {
   }
 
   // TODO decide why we can't do this cart blanche...
-  if (command === 'protect' ||
-      command === 'test' ||
-      command === 'modules' ||
-      command === 'scenario' ||
-      command === 'monitor' ||
-      command === 'wizard' ||
-      command === 'ignore') {
+  if ([
+    'protect',
+    'test',
+    'modules',
+    'scenario',
+    'monitor',
+    'wizard',
+    'ignore',
+  ].indexOf(command) !== -1) {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
   }
 
   // arguments that needs transformation from dash-case to camelCase
   // should be added here
-  [
+  for (const dashedArg of [
     'package-manager',
     'packages-folder',
     'severity-threshold',
-  ].forEach(function (dashedArg) {
+  ]) {
     if (argv[dashedArg]) {
-      var camelCased = dashToCamelCase(dashedArg);
+      const camelCased = dashToCamelCase(dashedArg);
       argv[camelCased] = argv[dashedArg];
       delete argv[dashedArg];
     }
-  });
+  }
 
   if (argv.insecure) {
     global.ignoreUnknownCA = true;
@@ -140,8 +144,8 @@ function args(processargv) {
   debug(command, argv);
 
   return {
-    method: method,
-    command: command,
+    command,
+    method,
     options: argv,
   };
 }
