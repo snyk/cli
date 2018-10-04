@@ -3,6 +3,7 @@ var request = require('./request');
 var config = require('./config');
 
 function actionAllowed(action, options) {
+  const org = options.org || config.org || null;
   return new Promise(function (resolve, reject) {
     request({
       method: 'GET',
@@ -11,7 +12,7 @@ function actionAllowed(action, options) {
       headers: {
         authorization: 'token ' + snyk.api,
       },
-      qs: options.org && {org: options.org},
+      qs: org && {org},
     }, function (error, res, body) {
       if (error) {
         return reject(error);

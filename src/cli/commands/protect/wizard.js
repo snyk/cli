@@ -44,7 +44,7 @@ var unsupportedPackageManagers = {
 };
 
 function wizard(options = {}) {
-  options.org = config.org || null;
+  options.org = options.org || config.org || null;
 
   return processPackageManager(options)
     .then(processWizardFlow)

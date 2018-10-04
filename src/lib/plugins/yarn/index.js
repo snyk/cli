@@ -4,7 +4,7 @@ const fs = require('then-fs');
 const path = require('path');
 const lockFileParser = require('snyk-nodejs-lockfile-parser');
 const debug = require('debug')('snyk');
-const getRuntimeVersion = '../get-node-runtime-version';
+const getRuntimeVersion = require('../get-node-runtime-version');
 
 module.exports = {
   inspect,
