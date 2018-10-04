@@ -4,34 +4,34 @@ module.exports.processAnswers = processAnswers;
 module.exports.inquire = inquire;
 module.exports.interactive = interactive;
 
-var debug = require('debug')('snyk');
-var path = require('path');
-var inquirer = require('inquirer');
-var fs = require('then-fs');
-var tryRequire = require('snyk-try-require');
-var chalk = require('chalk');
-var url = require('url');
-var _ = require('lodash');
-var exec = require('child_process').exec;
-var undefsafe = require('undefsafe');
-var auth = require('../auth');
-var getVersion = require('../version');
-var allPrompts = require('./prompts');
-var answersToTasks = require('./tasks');
-var snyk = require('../../../lib/');
-var isCI = require('../../../lib/is-ci');
-var protect = require('../../../lib/protect');
-var authorization = require('../../../lib/authorization');
-var config = require('../../../lib/config');
-var spinner = require('../../../lib/spinner');
-var analytics = require('../../../lib/analytics');
-var alerts = require('../../../lib/alerts');
-var npm = require('../../../lib/npm');
-var cwd = process.cwd();
-var detect = require('../../../lib/detect');
-var plugins = require('../../../lib/plugins');
-var moduleInfo = require('../../../lib/module-info');
-var unsupportedPackageManagers = {
+const debug = require('debug')('snyk');
+const path = require('path');
+const inquirer = require('inquirer');
+const fs = require('then-fs');
+const tryRequire = require('snyk-try-require');
+const chalk = require('chalk');
+const url = require('url');
+const _ = require('lodash');
+const exec = require('child_process').exec;
+const undefsafe = require('undefsafe');
+const auth = require('../auth');
+const getVersion = require('../version');
+const allPrompts = require('./prompts');
+const answersToTasks = require('./tasks');
+const snyk = require('../../../lib/');
+const isCI = require('../../../lib/is-ci');
+const protect = require('../../../lib/protect');
+const authorization = require('../../../lib/authorization');
+const config = require('../../../lib/config');
+const spinner = require('../../../lib/spinner');
+const analytics = require('../../../lib/analytics');
+const alerts = require('../../../lib/alerts');
+const npm = require('../../../lib/npm');
+const cwd = process.cwd();
+const detect = require('../../../lib/detect');
+const plugins = require('../../../lib/plugins');
+const moduleInfo = require('../../../lib/module-info');
+const unsupportedPackageManagers = {
   rubygems: 'RubyGems',
   maven: 'Maven',
   pip: 'Python',
@@ -102,7 +102,7 @@ function processWizardFlow(options) {
           if (options.ignoreDisabled) {
             debug('ignore disabled');
           }
-          var intro = __dirname + '/../../../../help/wizard-intro.txt';
+          const intro = __dirname + '/../../../../help/wizard-intro.txt';
           return fs.readFile(intro, 'utf8').then(function (str) {
             if (!isCI) {
               console.log(str);
