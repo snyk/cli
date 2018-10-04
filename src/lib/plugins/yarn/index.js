@@ -4,7 +4,6 @@ const fs = require('then-fs');
 const path = require('path');
 const lockFileParser = require('snyk-nodejs-lockfile-parser');
 const debug = require('debug')('snyk');
-const getRuntimeVersion = require('../../get-node-runtime-version');
 
 module.exports = {
   inspect,
@@ -80,3 +79,6 @@ async function generateDependenciesFromLockfile(root, options, targetFile) {
     .buildDepTree(manifestFile, lockFile, options.dev, lockFileParser.LockfileType.yarn);
 }
 
+function getRuntimeVersion() {
+  parseInt(process.version.slice(1).split('.')[0], 10);
+}

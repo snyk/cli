@@ -10,8 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "qs": "0.6.6",
-    "tap": "3.1.2"
+    "debug": "4.0.1"
   },
   "dependencies": {
     "minimatch": "3.0.0"

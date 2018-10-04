@@ -53,10 +53,11 @@ function wizard(options = {}) {
 
 async function processPackageManager(options) {
   const packageManager = detect.detectPackageManager(cwd, options);
-  const unsupportedPackageManager = unsupportedPackageManagers[packageManager];
-  if (unsupportedPackageManager) {
+
+  const usupportedPackageManager = unsupportedPackageManagers[packageManager];
+  if (usupportedPackageManager) {
     return Promise.reject(
-      `Snyk wizard for ${unsupportedPackageManager} projects is not currently supported`);
+      `Snyk wizard for ${usupportedPackageManager} projects is not currently supported`);
   }
 
   return fs.exists(path.join('.', 'node_modules'))

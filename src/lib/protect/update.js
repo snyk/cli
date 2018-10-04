@@ -16,7 +16,6 @@ function update(packages, live, pkgManager) {
   pkgManager = pkgManager || 'npm';
   var lbl = 'Applying updates using ' + pkgManager + '...';
   var error = false;
-  debug("===== pkgManager", pkgManager);
 
   return spinner(lbl).then(function () {
     var upgrade = packages
