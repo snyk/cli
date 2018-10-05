@@ -133,6 +133,19 @@ test('`test empty --file=Gemfile`', function (t) {
   });
 });
 
+test('`test --file=fixtures/protect/package.json`', function (t) {
+  return cli.test(
+    path.resolve(__dirname, '..'),
+    {file: 'fixtures/protect/package.json'}
+  ).then(function (res) {
+    t.match(
+      res,
+      /Tested 1 dependencies for known vulnerabilities/,
+      'should succeed in a folder',
+    );
+  }).catch((err) => t.throws(err, 'should succeed'));
+});
+
 test('`test /` test for non-existent with path specified', function (t) {
   chdirWorkspaces();
   return cli.test('/')

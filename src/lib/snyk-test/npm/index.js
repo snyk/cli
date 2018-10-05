@@ -155,7 +155,12 @@ function generateDependenciesFromLockfile(root, options) {
 }
 
 function getDependenciesFromNodeModules(root, options) {
-  return fs.exists(path.join(root, 'node_modules'))
+  var nodeModulesPath = path.join(
+    path.dirname(path.resolve(root, options.file || '')),
+    'node_modules'
+  );
+
+  return fs.exists(nodeModulesPath)
     .then(function (nodeModulesExist) {
       if (!nodeModulesExist) {
         // throw a custom error
