@@ -604,15 +604,6 @@ test('`test npm-package --file=yarn.lock --dev` sends pkg info', function (t) {
     });
 });
 
-test('`test npm-package-shrinkwrap --file=yarn.lock ` with npm-shrinkwrap errors', function (t) {
-  t.plan(1);
-  chdirWorkspaces();
-  return cli.test('npm-package-shrinkwrap', {file: 'yarn.lock'})
-    .catch((e) => {
-      t.includes(e.message, '--file=yarn.lock', 'Contains enough info about error');
-    });
-});
-
 test('`test npm-package-with-subfolder --file=yarn.lock ` picks top-level files', function (t) {
   chdirWorkspaces();
   return cli.test('npm-package-with-subfolder', {file: 'yarn.lock'})
@@ -634,16 +625,6 @@ test('`test npm-package-with-subfolder --file=subfolder/yarn.lock ` picks subfol
       t.ok(pkg.dependencies['to-array'], 'dependency');
     });
 });
-
-test('`test npm-package-missing-dep --file=yarn.lock ` with missing dep errors', function (t) {
-  t.plan(1);
-  chdirWorkspaces();
-  return cli.test('npm-package-missing-dep', {file: 'yarn.lock'})
-    .catch((e) => {
-      t.includes(e.message, 'out of sync', 'Contains enough info about error');
-    });
-});
-
 
 test('`test` on a yarn package does work and displays appropriate text',
 function (t) {

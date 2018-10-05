@@ -286,7 +286,6 @@ function processAnswers(answers, policy, options) {
   // bypass lockfile test for wizard
   if (targetFile.endsWith('yarn.lock')) {
     options.traverseNodeModules = true;
-    debug('');
   }
 
   var pkg = {};

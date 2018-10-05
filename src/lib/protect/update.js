@@ -20,7 +20,7 @@ function update(packages, live, pkgManager) {
   return spinner(lbl).then(function () {
     var upgrade = packages
       .map(function (vuln) {
-        var remediation = vuln.upgradePath[1];
+        var remediation = vuln.upgradePath && vuln.upgradePath[1];
         if (!remediation) {
         // this vuln holds an unreachable upgrade path - send this to analytics
         // and return an empty object to be filtered

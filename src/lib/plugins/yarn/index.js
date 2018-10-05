@@ -80,5 +80,5 @@ async function generateDependenciesFromLockfile(root, options, targetFile) {
 }
 
 function getRuntimeVersion() {
-  parseInt(process.version.slice(1).split('.')[0], 10);
+  return parseInt(process.version.slice(1).split('.')[0], 10);
 }

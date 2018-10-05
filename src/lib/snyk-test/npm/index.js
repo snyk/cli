@@ -55,9 +55,13 @@ function test(root, options) {
       const targetFile = options.file || detect.detectPackageFile(root);
       // this is used for Meta
       options.file = targetFile;
+      debug('*** targetFile = ', targetFile);
 
       return Promise.resolve()
         .then(() => {
+          if (getRuntimeVersion() < 6) {
+            options.traverseNodeModules = true;
+          }
           if (targetFile.endsWith('package-lock.json')
             || targetFile.endsWith('yarn.lock') && !options.traverseNodeModules) {
             return generateDependenciesFromLockfile(root, options, targetFile);
@@ -308,4 +312,8 @@ function pluckPolicies(pkg) {
   return _.flatten(Object.keys(pkg.dependencies).map(function (name) {
     return pluckPolicies(pkg.dependencies[name]);
   }).filter(Boolean));
+}
+
+function getRuntimeVersion() {
+  return parseInt(process.version.slice(1).split('.')[0], 10);
 }
