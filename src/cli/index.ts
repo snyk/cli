@@ -12,6 +12,7 @@ import {copy} from './copy';
 import spinner = require('../lib/spinner');
 import errors = require('../lib/error');
 import ansiEscapes = require('ansi-escapes');
+import {isPathToPackageFile} from '../lib/detect';
 
 async function runCommand(args) {
   const result = await args.method(...args.options._);
@@ -95,6 +96,17 @@ function checkRuntime() {
   }
 }
 
+// Check if user specify package file name as part of path
+// and throw error if so.
+function checkPaths(args) {
+  for (const path of args.options._) {
+    if (typeof path === 'string' && isPathToPackageFile(path)) {
+      throw new Error(`Path "${path}" contains package file name, ` +
+        'please use --file=<string> instead.');
+    }
+  }
+}
+
 async function main() {
   checkRuntime();
 
@@ -108,6 +120,7 @@ async function main() {
   let failed = false;
 
   try {
+    checkPaths(args);
     res = await runCommand(args);
   } catch (error) {
     failed = true;

@@ -1,7 +1,8 @@
 import * as fs from 'then-fs';
-import * as path from 'path';
+import * as pathLib from 'path';
 import * as debugLib from 'debug';
 import chalk from 'chalk';
+import * as _ from 'lodash';
 
 const debug = debugLib('snyk');
 
@@ -46,6 +47,15 @@ const DETECTABLE_PACKAGE_MANAGERS = {
   'composer.lock': 'composer',
 };
 /*tslint:enable object-literal-sort-keys*/
+
+export function isPathToPackageFile(path) {
+  for (const fileName of DETECTABLE_FILES) {
+    if (_.endsWith(path, fileName)) {
+      return true;
+    }
+  }
+  return false;
+}
 
 export function detectPackageManager(root, options) {
   // If user specified a package manager let's use it.
@@ -95,7 +105,7 @@ export function detectPackageManager(root, options) {
 // User supplied a "local" file, but that file doesn't exist
 function localFileSuppliedButNotFound(root, file) {
   return file && fs.existsSync(root) &&
-    !fs.existsSync(path.resolve(root, file));
+    !fs.existsSync(pathLib.resolve(root, file));
 }
 
 function isLocalFolder(root) {
@@ -108,7 +118,7 @@ function isLocalFolder(root) {
 
 export function detectPackageFile(root) {
   for (const file of DETECTABLE_FILES) {
-    if (fs.existsSync(path.resolve(root, file))) {
+    if (fs.existsSync(pathLib.resolve(root, file))) {
       debug('found package file ' + file + ' in ' + root);
       return file;
     }
@@ -118,7 +128,7 @@ export function detectPackageFile(root) {
 }
 
 function detectPackageManagerFromFile(file) {
-  let key = path.basename(file);
+  let key = pathLib.basename(file);
 
   if (/\.gemspec$/.test(key)) {
     key = '.gemspec';
