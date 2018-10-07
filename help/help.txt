@@ -46,6 +46,9 @@ Options:
   --dry-run .......... Don't apply updates or patches during protect.
   --severity-threshold=<low|medium|high>
                        Only report vulnerabilities of provided level or higher.
+  --gradle-sub-project=<string>
+                       For Gradle "multi project" configurations,
+                       test a specific sub-project.
   -q, --quiet ........ Silence all output.
   -h, --help ......... This help information.
   -v, --version ...... The CLI version.
