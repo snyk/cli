@@ -1,4 +1,5 @@
-module.exports = update;
+module.exports.update = update;
+module.exports.install = install;
 
 var debug = require('debug')('snyk');
 var chalk = require('chalk');
@@ -19,7 +20,7 @@ function update(packages, live, pkgManager) {
   return spinner(lbl).then(function () {
     var upgrade = packages
       .map(function (vuln) {
-        var remediation = vuln.upgradePath[1];
+        var remediation = vuln.upgradePath && vuln.upgradePath[1];
         if (!remediation) {
         // this vuln holds an unreachable upgrade path - send this to analytics
         // and return an empty object to be filtered
@@ -66,9 +67,11 @@ function update(packages, live, pkgManager) {
         var devToUninstall = (upgrade.dev && upgrade.dev.map(stripVersion)) ||
                            [];
         var toUninstall = _.uniq(prodToUninstall.concat(devToUninstall));
-
         debug('to uninstall', toUninstall);
-        return uninstall(pkgManager, toUninstall, live);
+
+        if (!_.isEmpty(toUninstall)) {
+          return  uninstall(pkgManager, toUninstall, live);
+        }
       })
       .then(function () {
         var prodUpdate = (upgrade.prod ?

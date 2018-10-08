@@ -2,7 +2,7 @@ var debug = require('debug')('snyk');
 var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
 var analytics = require('../../../lib/analytics');
-var detectPackageManager = require('../../../lib/detect').detectPackageManager;
+var detect = require('../../../lib/detect');
 var unsupportedPackageManagers = {
   rubygems: 'RubyGems',
   maven: 'Maven',
@@ -16,16 +16,21 @@ var unsupportedPackageManagers = {
 };
 
 
-function protectFunc(options) {
-  if (!options) {
-    options = {};
-  }
-
+function protectFunc(options = {}) {
   options.loose = true; // replace missing policies with empty ones
   options.vulnEndpoint = '/vuln/npm/patches';
+  // TODO: fix this by providing better patch support for yarn
+  // yarn hoists packages up a tree so we can't assume their location
+  // on disk without traversing node_modules
+  // currently the npm@2 nd npm@3 plugin resolve-deps can do this
+  // but not the latest node-lockfile-parser
+  // HACK: if yarn set traverseNodeModules option to
+  // bypass lockfile test for wizard
+  options.traverseNodeModules = true;
+
 
   try {
-    var packageManager = detectPackageManager(process.cwd(), options);
+    var packageManager = detect.detectPackageManager(process.cwd(), options);
     var unsupported = unsupportedPackageManagers[packageManager];
     if (unsupported) {
       throw new Error(

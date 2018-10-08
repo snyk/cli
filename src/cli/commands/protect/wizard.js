@@ -4,34 +4,34 @@ module.exports.processAnswers = processAnswers;
 module.exports.inquire = inquire;
 module.exports.interactive = interactive;
 
-var debug = require('debug')('snyk');
-var path = require('path');
-var inquirer = require('inquirer');
-var fs = require('then-fs');
-var tryRequire = require('snyk-try-require');
-var chalk = require('chalk');
-var url = require('url');
-var _ = require('lodash');
-var exec = require('child_process').exec;
-var undefsafe = require('undefsafe');
-var auth = require('../auth');
-var getVersion = require('../version');
-var allPrompts = require('./prompts');
-var answersToTasks = require('./tasks');
-var snyk = require('../../../lib/');
-var isCI = require('../../../lib/is-ci');
-var protect = require('../../../lib/protect');
-var authorization = require('../../../lib/authorization');
-var config = require('../../../lib/config');
-var spinner = require('../../../lib/spinner');
-var analytics = require('../../../lib/analytics');
-var alerts = require('../../../lib/alerts');
-var npm = require('../../../lib/npm');
-var cwd = process.cwd();
-var detect = require('../../../lib/detect');
-var plugins = require('../../../lib/plugins');
-var moduleInfo = require('../../../lib/module-info');
-var unsupportedPackageManagers = {
+const debug = require('debug')('snyk');
+const path = require('path');
+const inquirer = require('inquirer');
+const fs = require('then-fs');
+const tryRequire = require('snyk-try-require');
+const chalk = require('chalk');
+const url = require('url');
+const _ = require('lodash');
+const exec = require('child_process').exec;
+const undefsafe = require('undefsafe');
+const auth = require('../auth');
+const getVersion = require('../version');
+const allPrompts = require('./prompts');
+const answersToTasks = require('./tasks');
+const snyk = require('../../../lib/');
+const isCI = require('../../../lib/is-ci');
+const protect = require('../../../lib/protect');
+const authorization = require('../../../lib/authorization');
+const config = require('../../../lib/config');
+const spinner = require('../../../lib/spinner');
+const analytics = require('../../../lib/analytics');
+const alerts = require('../../../lib/alerts');
+const npm = require('../../../lib/npm');
+const cwd = process.cwd();
+const detect = require('../../../lib/detect');
+const plugins = require('../../../lib/plugins');
+const moduleInfo = require('../../../lib/module-info');
+const unsupportedPackageManagers = {
   rubygems: 'RubyGems',
   maven: 'Maven',
   pip: 'Python',
@@ -43,63 +43,42 @@ var unsupportedPackageManagers = {
   composer: 'Composer',
 };
 
-function wizard(options) {
-  if (!options) {
-    options = {};
-  }
-  if (config.org) {
-    options.org = config.org;
-  }
+function wizard(options = {}) {
+  options.org = options.org || config.org || null;
+
   return processPackageManager(options)
     .then(processWizardFlow)
-    .catch(function (error) {
-      return Promise.reject(error);
-    });
+    .catch((error) => Promise.reject(error));
 }
 
-function processPackageManager(options) {
-  var packageManager = detect.detectPackageManager(cwd, options);
-  var unsupported = unsupportedPackageManagers[packageManager];
-  if (unsupported) {
+async function processPackageManager(options) {
+  const packageManager = detect.detectPackageManager(cwd, options);
+
+  const usupportedPackageManager = unsupportedPackageManagers[packageManager];
+  if (usupportedPackageManager) {
     return Promise.reject(
-      'Snyk wizard for ' + unsupported +
-      ' projects is not currently supported');
+      `Snyk wizard for ${usupportedPackageManager} projects is not currently supported`);
   }
-  if (packageManager === 'yarn') {
-    var prompts = [
-      {
-        name: 'choose-yarn',
-        message: 'A yarn.lock file was detected.\n' +
-          '  Should the wizard use Yarn [Y] or npm [n] when applying updates?',
-        type: 'confirm',
-        default: true,
-      },
-    ];
-    return inquire(prompts, {})
-      .then(function (answers) {
-        if (answers['choose-yarn']) {
-          options.packageManager = packageManager;
-          return Promise.resolve(options);
-        }
-        options.packageManager = 'npm';
-        return Promise.resolve(options);
-      });
-  }
-  options.packageManager = packageManager;
-  return Promise.resolve(options);
+
+  return fs.exists(path.join('.', 'node_modules'))
+    .then((nodeModulesExist) => {
+      if (!nodeModulesExist) {
+        // throw a custom error
+        throw new Error(
+          'Missing node_modules folder: we can\'t patch without having installed packages.' +
+          `\nPlease run '${packageManager} install' first.`);
+      }
+      return options;
+    });
 }
 
 function processWizardFlow(options) {
   spinner.sticky();
-
-  if (options['dry-run']) {
-    debug('*** dry run ****');
-  } else {
-    debug('~~~~ LIVE RUN ~~~~');
-  }
+  const message = options['dry-run'] ? '*** dry run ****' : '~~~~ LIVE RUN ~~~~';
+  debug(message);
 
   return snyk.policy.load(options['policy-path'], options)
-    .catch(function (error) {
+    .catch((error) => {
     // if we land in the catch, but we're in interactive mode, then it means
     // the file hasn't been created yet, and that's fine, so we'll resolve
     // with an empty object
@@ -109,77 +88,78 @@ function processWizardFlow(options) {
       }
 
       throw error;
-    }).then(function (cliPolicy) {
-      return auth.isAuthed().then(function (authed) {
+    })
+    .then((cliPolicy) => {
+      return auth.isAuthed().then((authed) => {
         analytics.add('inline-auth', !authed);
         if (!authed) {
           return auth(null, 'wizard');
         }
-      }).then(function () {
-        return authorization.actionAllowed('cliIgnore', options);
-      }).then(function (cliIgnoreAuthorization) {
-        options.ignoreDisabled = cliIgnoreAuthorization.allowed ?
-          false : cliIgnoreAuthorization;
-        if (options.ignoreDisabled) {
-          debug('ignore disabled');
-        }
-        var intro = __dirname + '/../../../../help/wizard-intro.txt';
-        return fs.readFile(intro, 'utf8').then(function (str) {
-          if (!isCI) {
-            console.log(str);
+      })
+        .then(() => authorization.actionAllowed('cliIgnore', options))
+        .then((cliIgnoreAuthorization) => {
+          options.ignoreDisabled = cliIgnoreAuthorization.allowed ?
+            false : cliIgnoreAuthorization;
+          if (options.ignoreDisabled) {
+            debug('ignore disabled');
           }
-        }).then(function () {
-          return new Promise(function (resolve) {
-            if (options.newPolicy) {
-              return resolve(); // don't prompt to start over
+          const intro = __dirname + '/../../../../help/wizard-intro.txt';
+          return fs.readFile(intro, 'utf8').then(function (str) {
+            if (!isCI) {
+              console.log(str);
             }
-            inquirer.prompt(allPrompts.startOver()).then(function (answers) {
-              analytics.add('start-over', answers['misc-start-over']);
-              if (answers['misc-start-over']) {
-                options['ignore-policy'] = true;
-              }
-              resolve();
-            });
-          });
-        }).then(function () {
-          return snyk.test(cwd, options).then(function (res) {
-            if (alerts.hasAlert('tests-reached') && res.isPrivate) {
-              return;
-            }
-            var packageFile = path.resolve(cwd, 'package.json');
-            if (!res.ok) {
-              var vulns = res.vulnerabilities;
-              var paths = vulns.length === 1 ? 'path' : 'paths';
-              var ies = vulns.length === 1 ? 'y' : 'ies';
-              // echo out the deps + vulns found
-              console.log('Tested %s dependencies for known vulnerabilities, %s',
-                res.dependencyCount,
-                chalk.bold.red('found ' +
-                res.uniqueCount +
-                ' vulnerabilit' + ies +
-                ', ' + vulns.length +
-                ' vulnerable ' +
-                paths + '.'));
-            } else {
-              console.log(chalk.green('✓ Tested %s dependencies for known ' +
-              'vulnerabilities, no vulnerable paths found.'),
-              res.dependencyCount);
-            }
-
-            return snyk.policy.loadFromText(res.policy)
-              .then(function (combinedPolicy) {
-                return tryRequire(packageFile).then(function (pkg) {
-                  options.packageLeading = pkg.prefix;
-                  options.packageTrailing = pkg.suffix;
-                  return interactive(res, pkg, combinedPolicy, options)
-                    .then(function (answers) {
-                      return processAnswers(answers, cliPolicy, options);
-                    });
+          })
+            .then(() => {
+              return new Promise((resolve) => {
+                if (options.newPolicy) {
+                  return resolve(); // don't prompt to start over
+                }
+                inquirer.prompt(allPrompts.startOver()).then(function (answers) {
+                  analytics.add('start-over', answers['misc-start-over']);
+                  if (answers['misc-start-over']) {
+                    options['ignore-policy'] = true;
+                  }
+                  resolve();
                 });
               });
-          });
+            })
+            .then(() => {
+              return snyk.test(cwd, options).then((res) => {
+                if (alerts.hasAlert('tests-reached') && res.isPrivate) {
+                  return;
+                }
+                var packageFile = path.resolve(cwd, 'package.json');
+                if (!res.ok) {
+                  var vulns = res.vulnerabilities;
+                  var paths = vulns.length === 1 ? 'path' : 'paths';
+                  var ies = vulns.length === 1 ? 'y' : 'ies';
+                  // echo out the deps + vulns found
+                  console.log('Tested %s dependencies for known vulnerabilities, %s',
+                    res.dependencyCount,
+                    chalk.bold.red('found ' +
+                    res.uniqueCount +
+                    ' vulnerabilit' + ies +
+                    ', ' + vulns.length +
+                    ' vulnerable ' +
+                    paths + '.'));
+                } else {
+                  console.log(chalk.green('✓ Tested %s dependencies for known ' +
+                  'vulnerabilities, no vulnerable paths found.'),
+                  res.dependencyCount);
+                }
+
+                return snyk.policy.loadFromText(res.policy)
+                  .then((combinedPolicy) => {
+                    return tryRequire(packageFile).then(function (pkg) {
+                      options.packageLeading = pkg.prefix;
+                      options.packageTrailing = pkg.suffix;
+                      return interactive(res, pkg, combinedPolicy, options)
+                        .then((answers) => processAnswers(answers, cliPolicy, options));
+                    });
+                  });
+              });
+            });
         });
-      });
     });
 }
 
@@ -291,9 +271,22 @@ function processAnswers(answers, policy, options) {
   if (options.json) {
     return Promise.resolve(JSON.stringify(answers, '', 2));
   }
-
   var cwd = process.cwd();
   var packageFile = path.resolve(cwd, 'package.json');
+  var packageManager = detect.detectPackageManager(cwd, options);
+  var targetFile = options.file || detect.detectPackageFile(cwd);
+  const isLockFileBased = targetFile.endsWith('package-lock.json') || targetFile.endsWith('yarn.lock');
+
+  // TODO: fix this by providing better patch support for yarn
+  // yarn hoists packages up a tree so we can't assume their location
+  // on disk without traversing node_modules
+  // currently the npm@2 nd npm@3 plugin resolve-deps can do this
+  // but not the latest node-lockfile-parser
+  // HACK: if yarn set traverseNodeModules option to
+  // bypass lockfile test for wizard
+  if (targetFile.endsWith('yarn.lock')) {
+    options.traverseNodeModules = true;
+  }
 
   var pkg = {};
 
@@ -469,6 +462,13 @@ function processAnswers(answers, policy, options) {
                           options.packageTrailing;
         return spinner(lbl)
           .then(fs.writeFile(packageFile, packageString))
+          .then(() => {
+            if (isLockFileBased) {
+              // we need to trigger a lockfile update after adding snyk
+              // as a dep
+              return protect.update(['snyk'], live, packageManager);
+            }
+          })
           // clear spinner in case of success or failure
           .then(spinner.clear(lbl))
           .catch(function (error) {
@@ -502,9 +502,7 @@ function processAnswers(answers, policy, options) {
       debug('running monitor');
       var lbl = 'Remembering current dependencies for future ' +
       'notifications...';
-      var packageManager = detect.detectPackageManager(cwd, options);
-      var targetFile = options.file || detect.detectPackageFile(cwd);
-      var meta = {method: 'wizard', packageManager: packageManager};
+      var meta = {method: 'wizard', packageManager};
       var plugin = plugins.loadPlugin(packageManager);
       var info = moduleInfo(plugin, options.policy);
 
@@ -513,12 +511,12 @@ function processAnswers(answers, policy, options) {
         .then(snyk.monitor.bind(null, cwd, meta))
         // clear spinner in case of success or failure
         .then(spinner.clear(lbl))
-        .catch(function (error) {
+        .catch((error) => {
           spinner.clear(lbl)();
           throw error;
         });
     })
-    .then(function (monitorRes) {
+    .then((monitorRes) => {
       var endpoint = url.parse(config.API);
       var leader = '';
       if (monitorRes.org) {
@@ -549,7 +547,7 @@ function processAnswers(answers, policy, options) {
       'View plans here: ' + manageUrl + '\n\n') :
         '');
     })
-    .catch(function (error) {
+    .catch((error) => {
     // if it's a dry run - exit with 0 status
       if (error.code === 'DRYRUN') {
         return error.message;

@@ -145,7 +145,7 @@ test('wizard updates vulns without changing dep type', function (t) {
   execSpy = sinon.spy();
   var cwd = process.cwd();
   process.chdir(__dirname + '/fixtures/pkg-SC-1472/');
-  var answers = require(__dirname + '/fixtures/SC-1472.json');
+  var answers = require(__dirname + '/fixtures/pkg-SC-1472/SC-1472.json');
   answers['misc-test-no-monitor'] = true;
   wizard.processAnswers(answers, mockPolicy).then(function () {
     t.equal(execSpy.callCount, 3, 'uninstall, install prod, install dev');

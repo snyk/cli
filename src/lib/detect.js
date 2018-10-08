@@ -10,6 +10,7 @@ var chalk = require('chalk');
 
 var DETECTABLE_FILES = [
   'yarn.lock',
+  'package-lock.json',
   'package.json',
   'Gemfile',
   'Gemfile.lock',
@@ -31,12 +32,12 @@ var DETECTABLE_PACKAGE_MANAGERS = {
   Gemfile: 'rubygems',
   'Gemfile.lock': 'rubygems',
   '.gemspec': 'rubygems',
-  'package.json': 'npm',
   'package-lock.json': 'npm',
   'pom.xml': 'maven',
   'build.gradle': 'gradle',
   'build.sbt': 'sbt',
   'yarn.lock': 'yarn',
+  'package.json': 'npm',
   Pipfile: 'pip',
   'requirements.txt': 'pip',
   'Gopkg.lock': 'golangdep',

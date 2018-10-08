@@ -3,6 +3,7 @@ var proxyquire = require('proxyquire');
 var sinon = require('sinon');
 var spy = sinon.spy();
 var _ = require('lodash');
+var dir =  __dirname + '/fixtures/protect-via-snyk/';
 var fixture = require('./fixtures/protect-via-snyk/package.json');
 
 var wizard = proxyquire('../src/cli/commands/protect/wizard', {
@@ -31,6 +32,8 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
 
 test('npm - prepare is added and postinstall is removed', function (t) {
   var expectedResults = _.cloneDeep(fixture);
+  process.chdir(dir);
+
   return wizard.processAnswers({
     // answers
     'misc-test-no-monitor': true,
@@ -51,6 +54,7 @@ test('npm - prepare is added and postinstall is removed', function (t) {
 
 test('yarn - prepare is added and postinstall is removed', function (t) {
   var expectedResults = _.cloneDeep(fixture);
+  process.chdir(dir);
   spy.reset();
   return wizard.processAnswers({
     // answers

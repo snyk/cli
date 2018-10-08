@@ -1,9 +1,11 @@
+const config = require('../config');
 
 module.exports.assembleQueryString = function (options) {
-  var qs = {};
-  if (options.org) {
-    qs.org = options.org;
-  }
+  const org = options.org || config.org || null;
+  const qs = {
+    org,
+  };
+
   if (options.severityThreshold) {
     qs.severityThreshold = options.severityThreshold;
   }

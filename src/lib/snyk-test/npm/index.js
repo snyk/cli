@@ -1,27 +1,28 @@
 module.exports = test;
 
-var debug = require('debug')('snyk');
-var request = require('../../request');
-var path = require('path');
-var fs = require('then-fs');
-var snyk = require('../..');
-var spinner = require('../../spinner');
-var moduleToObject = require('snyk-module');
-var isCI = require('../../is-ci');
-var _ = require('lodash');
-var analytics = require('../../analytics');
-var common = require('../common');
-var fileSystem = require('fs');
-var lockFileParser = require('snyk-nodejs-lockfile-parser');
+const debug = require('debug')('snyk');
+const request = require('../../request');
+const path = require('path');
+const fs = require('then-fs');
+const snyk = require('../..');
+const spinner = require('../../spinner');
+const moduleToObject = require('snyk-module');
+const isCI = require('../../is-ci');
+const _ = require('lodash');
+const analytics = require('../../analytics');
+const common = require('../common');
+const fileSystem = require('fs');
+const lockFileParser = require('snyk-nodejs-lockfile-parser');
+const detect = require('../../detect');
 
 module.exports = test;
 
 // important: this is different from ./config (which is the *user's* config)
-var config = require('../../config');
+const config = require('../../config');
 
 function test(root, options) {
-  var modules = null;
-  var payload = {
+  const modules = null;
+  const payload = {
     // options.vulnEndpoint is only used for file system tests
     url: config.API + (options.vulnEndpoint || '/vuln/npm'),
     json: true,
@@ -30,7 +31,7 @@ function test(root, options) {
       authorization: 'token ' + snyk.api,
     },
   };
-  var hasDevDependencies = false;
+  const hasDevDependencies = false;
 
   // if the file exists, let's read the package files and post
   // the dependency tree to the server.
@@ -39,7 +40,7 @@ function test(root, options) {
   return fs.exists(root)
     .then((exists) => {
       if (!exists) {
-        var module = moduleToObject(root);
+        const module = moduleToObject(root);
         debug('testing remote: %s', module.name + '@' + module.version);
         payload.method = 'GET';
         payload.url += '/' +
@@ -50,15 +51,21 @@ function test(root, options) {
           payload: payload,
         };
       }
-      var policyLocations = [options['policy-path'] || root];
-      options.file = options.file || 'package.json';
+      let policyLocations = [options['policy-path'] || root];
+      const targetFile = options.file || detect.detectPackageFile(root);
+      // this is used for Meta
+      options.file = targetFile;
+
       return Promise.resolve()
         .then(() => {
-          if (options.file.endsWith('package-lock.json')
-            || options.file.endsWith('yarn.lock')) {
-            return generateDependenciesFromLockfile(root, options);
+          if (getRuntimeVersion() < 6) {
+            options.traverseNodeModules = true;
           }
-          return getDependenciesFromNodeModules(root, options)
+          if (targetFile.endsWith('package-lock.json')
+            || targetFile.endsWith('yarn.lock') && !options.traverseNodeModules) {
+            return generateDependenciesFromLockfile(root, options, targetFile);
+          }
+          return getDependenciesFromNodeModules(root, options, targetFile)
             .then((pkg) => {
               // HACK: using side effect (outer-scope variable mutation)
               // In this case, `pkg` is an object with methods (as opposed to a dependency tree)
@@ -80,18 +87,18 @@ function test(root, options) {
           payload.qs = common.assembleQueryString(options);
           // load all relevant policies, apply relevant options
           return snyk.policy.load(policyLocations, options)
-            .then(function (policy) {
+            .then((policy) => {
               payload.body.policy = policy.toString();
               return {
                 package: pkg,
-                payload: payload,
+                payload,
               };
-            }, function (error) { // note: inline catch, to handle error from .load
+            },(error) => { // note: inline catch, to handle error from .load
             // the .snyk file wasn't found, which is fine, so we'll return
               if (error.code === 'ENOENT') {
                 return {
                   package: pkg,
-                  payload: payload,
+                  payload,
                 };
               }
               throw error;
@@ -103,18 +110,16 @@ function test(root, options) {
     });
 }
 
-function generateDependenciesFromLockfile(root, options) {
-  debug('Lockfile detected, generating dependency tree from lockfile');
-  const fileName = options.file;
-  var lockFileFullPath = path.resolve(root, fileName);
+function generateDependenciesFromLockfile(root, options, targetFile) {
+  const lockFileFullPath = path.resolve(root, targetFile);
   if (!fileSystem.existsSync(lockFileFullPath)) {
-    throw new Error('Lockfile ' + fileName + ' not found at location: ' +
+    throw new Error('Lockfile ' + targetFile + ' not found at location: ' +
     lockFileFullPath);
   }
 
-  var fullPath = path.parse(lockFileFullPath);
-  var manifestFileFullPath = path.resolve(fullPath.dir, 'package.json');
-  var shrinkwrapFullPath = path.resolve(fullPath.dir, 'npm-shrinkwrap.json');
+  const fullPath = path.parse(lockFileFullPath);
+  const manifestFileFullPath = path.resolve(fullPath.dir, 'package.json');
+  const shrinkwrapFullPath = path.resolve(fullPath.dir, 'npm-shrinkwrap.json');
 
   if (!fileSystem.existsSync(manifestFileFullPath)) {
     throw new Error('Manifest file package.json not found at location: ' +
@@ -128,58 +133,64 @@ function generateDependenciesFromLockfile(root, options) {
 
   if (fileSystem.existsSync(shrinkwrapFullPath)) {
     throw new Error('`npm-shrinkwrap.json` was found while using lockfile.\n'
-    + 'Please run your command again without `--file=' + fileName + '` flag.');
+    + 'Please run your command again without `--file=' + targetFile + '` flag.');
   }
 
-  var manifestFile = fileSystem.readFileSync(manifestFileFullPath);
-  var lockFile = fileSystem.readFileSync(lockFileFullPath, 'utf-8');
+  const manifestFile = fileSystem.readFileSync(manifestFileFullPath);
+  const lockFile = fileSystem.readFileSync(lockFileFullPath, 'utf-8');
 
   analytics.add('local', true);
-  analytics.add('using lockfile (' + fileName + ') package-lock.json to get dependency tree', true);
+  analytics.add('using lockfile (' + targetFile + ') to get dependency tree', true);
 
-  const lockFileType = fileName.endsWith('yarn.lock') ?
+  const lockFileType = targetFile.endsWith('yarn.lock') ?
     lockFileParser.LockfileType.yarn : lockFileParser.LockfileType.npm;
 
-  var resolveModuleSpinnerLabel = `Analyzing npm dependencies for ${lockFileFullPath}`;
+  const resolveModuleSpinnerLabel = `Analyzing npm dependencies for ${lockFileFullPath}`;
   debug(resolveModuleSpinnerLabel);
   return spinner(resolveModuleSpinnerLabel)
-    .then(function () {
+    .then(() => {
       return lockFileParser.buildDepTree(manifestFile, lockFile, options.dev, lockFileType);
     })
     // clear spinner in case of success or failure
     .then(spinner.clear(resolveModuleSpinnerLabel))
-    .catch(function (error) {
+    .catch((error) => {
       spinner.clear(resolveModuleSpinnerLabel)();
       throw error;
     });
 }
 
-function getDependenciesFromNodeModules(root, options) {
-  var nodeModulesPath = path.join(
-    path.dirname(path.resolve(root, options.file || '')),
+function getDependenciesFromNodeModules(root, options, targetFile) {
+  const nodeModulesPath = path.join(
+    path.dirname(path.resolve(root, targetFile)),
     'node_modules'
   );
 
+  const packageManager = detect.detectPackageManager(root, options);
+
   return fs.exists(nodeModulesPath)
-    .then(function (nodeModulesExist) {
+    .then((nodeModulesExist) => {
       if (!nodeModulesExist) {
         // throw a custom error
         throw new Error('Missing node_modules folder: we can\'t test ' +
-          'without dependencies.\nPlease run `npm install` first.');
+          `without dependencies.\nPlease run '${packageManager} install' first.`);
       }
       analytics.add('local', true);
       analytics.add('using node_modules to get dependency tree', true);
       options.root = root;
-      var resolveModuleSpinnerLabel = 'Analyzing npm dependencies for ' +
-        path.relative('.', path.join(root, options.file));
+      const resolveModuleSpinnerLabel = 'Analyzing npm dependencies for ' +
+        path.dirname(path.resolve(root, targetFile));
       return spinner(resolveModuleSpinnerLabel)
-        .then(function () {
+        .then(() => {
+          // yarn projects fall back to node_module traversal if node < 6
+          if (targetFile.endsWith('yarn.lock')) {
+            options.file = options.file.replace('yarn.lock', 'package.json');
+          }
           return snyk.modules(
             root, Object.assign({}, options, {noFromArrays: true}));
         })
         // clear spinner in case of success or failure
         .then(spinner.clear(resolveModuleSpinnerLabel))
-        .catch(function (error) {
+        .catch((error) => {
           spinner.clear(resolveModuleSpinnerLabel)();
           throw error;
         });
@@ -187,11 +198,11 @@ function getDependenciesFromNodeModules(root, options) {
 }
 
 function queryForVulns(data, modules, hasDevDependencies, root, options) {
-  var lbl = 'Querying vulnerabilities database...';
+  const lbl = 'Querying vulnerabilities database...';
 
   return spinner(lbl)
     .then(function () {
-      var filesystemPolicy = data.payload.body && !!data.payload.body.policy;
+      const filesystemPolicy = data.payload.body && !!data.payload.body.policy;
       analytics.add('packageManager', 'npm');
       analytics.add('packageName', data.package.name);
       analytics.add('packageVersion', data.package.version);
@@ -204,7 +215,7 @@ function queryForVulns(data, modules, hasDevDependencies, root, options) {
           }
 
           if (res.statusCode !== 200) {
-            var err = new Error(body && body.error ?
+            const err = new Error(body && body.error ?
               body.error :
               res.statusCode);
 
@@ -230,7 +241,7 @@ function queryForVulns(data, modules, hasDevDependencies, root, options) {
           resolve(body);
         });
       });
-    }).then(function (res) {
+    }).then((res) => {
       // This branch is valid for node modules flow only
       if (modules) {
         res.dependencyCount = modules.numDependencies;
@@ -255,7 +266,7 @@ function queryForVulns(data, modules, hasDevDependencies, root, options) {
         }
       }
       return res;
-    }).then(function (res) {
+    }).then((res) => {
       analytics.add('vulns-pre-policy', res.vulnerabilities.length);
       return Promise.resolve().then(function () {
         if (options['ignore-policy']) {
@@ -263,16 +274,14 @@ function queryForVulns(data, modules, hasDevDependencies, root, options) {
         }
 
         return snyk.policy.loadFromText(res.policy)
-          .then(function (policy) {
-            return policy.filter(res, root);
-          });
-      }).then(function (res) {
+          .then((policy) => policy.filter(res, root));
+      }).then((res) => {
         analytics.add('vulns', res.vulnerabilities.length);
 
         // add the unique count of vulnerabilities found
         res.uniqueCount = 0;
-        var seen = {};
-        res.uniqueCount = res.vulnerabilities.reduce(function (acc, curr) {
+        const seen = {};
+        res.uniqueCount = res.vulnerabilities.reduce((acc, curr) => {
           if (!seen[curr.id]) {
             seen[curr.id] = true;
             acc++;
@@ -285,7 +294,7 @@ function queryForVulns(data, modules, hasDevDependencies, root, options) {
     })
     // clear spinner in case of success or failure
     .then(spinner.clear(lbl))
-    .catch(function (error) {
+    .catch((error) => {
       spinner.clear(lbl)();
       throw error;
     });
@@ -307,4 +316,8 @@ function pluckPolicies(pkg) {
   return _.flatten(Object.keys(pkg.dependencies).map(function (name) {
     return pluckPolicies(pkg.dependencies[name]);
   }).filter(Boolean));
+}
+
+function getRuntimeVersion() {
+  return parseInt(process.version.slice(1).split('.')[0], 10);
 }
