@@ -55,7 +55,6 @@ function test(root, options) {
       const targetFile = options.file || detect.detectPackageFile(root);
       // this is used for Meta
       options.file = targetFile;
-      debug('*** targetFile = ', targetFile);
 
       return Promise.resolve()
         .then(() => {
@@ -162,9 +161,10 @@ function generateDependenciesFromLockfile(root, options, targetFile) {
 
 function getDependenciesFromNodeModules(root, options, targetFile) {
   const nodeModulesPath = path.join(
-    path.dirname(path.resolve(root, options.file || '')),
+    path.dirname(path.resolve(root, targetFile)),
     'node_modules'
   );
+
   const packageManager = detect.detectPackageManager(root, options);
 
   return fs.exists(nodeModulesPath)
@@ -178,7 +178,7 @@ function getDependenciesFromNodeModules(root, options, targetFile) {
       analytics.add('using node_modules to get dependency tree', true);
       options.root = root;
       const resolveModuleSpinnerLabel = 'Analyzing npm dependencies for ' +
-        path.relative('.', path.join(root, targetFile));
+        path.dirname(path.resolve(root, targetFile));
       return spinner(resolveModuleSpinnerLabel)
         .then(() => {
           return snyk.modules(
