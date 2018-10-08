@@ -26,7 +26,6 @@ const DETECTABLE_FILES = [
 ];
 
 // when file is specified with --file, we look it up here
-/*tslint:disable object-literal-sort-keys*/
 const DETECTABLE_PACKAGE_MANAGERS = {
   'Gemfile': 'rubygems',
   'Gemfile.lock': 'rubygems',
@@ -46,7 +45,6 @@ const DETECTABLE_PACKAGE_MANAGERS = {
   'project.json': 'nuget',
   'composer.lock': 'composer',
 };
-/*tslint:enable object-literal-sort-keys*/
 
 export function isPathToPackageFile(path) {
   for (const fileName of DETECTABLE_FILES) {
