@@ -67,9 +67,11 @@ function update(packages, live, pkgManager) {
         var devToUninstall = (upgrade.dev && upgrade.dev.map(stripVersion)) ||
                            [];
         var toUninstall = _.uniq(prodToUninstall.concat(devToUninstall));
-
         debug('to uninstall', toUninstall);
-        return uninstall(pkgManager, toUninstall, live);
+
+        if (!_.isEmpty(toUninstall)) {
+          return  uninstall(pkgManager, toUninstall, live);
+        }
       })
       .then(function () {
         var prodUpdate = (upgrade.prod ?

@@ -54,7 +54,7 @@ function test(root, options) {
       let policyLocations = [options['policy-path'] || root];
       const targetFile = options.file || detect.detectPackageFile(root);
       // this is used for Meta
-      options.file = targetFile;
+      options.testedFile = targetFile;
 
       return Promise.resolve()
         .then(() => {
