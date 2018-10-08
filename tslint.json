@@ -13,6 +13,7 @@
         "ordered-imports": false,
         "quotemark": [true, "single", "avoid-escape", "avoid-template"],
         "semicolon": [true, "always"],
-        "no-console": [false]
+        "no-console": [false],
+        "no-default-export": true
     }
 }

@@ -1,5 +1,5 @@
 var test = require('tap').test;
-var args = require('../src/cli/args').default;
+var args = require('../src/cli/args').args;
 
 test('test command line arguments', function(t) {
   t.plan(1);
