@@ -10,6 +10,7 @@
         "indent": [true, "spaces", 2],
         "interface-name": false,
         "no-use-before-declare": true,
+        "object-literal-sort-keys": false,
         "ordered-imports": false,
         "quotemark": [true, "single", "avoid-escape", "avoid-template"],
         "semicolon": [true, "always"],

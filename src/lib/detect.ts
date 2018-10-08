@@ -1,14 +1,12 @@
-module.exports = {
-  detectPackageManager: detectPackageManager,
-  detectPackageFile: detectPackageFile,
-};
+import * as fs from 'then-fs';
+import * as pathLib from 'path';
+import * as debugLib from 'debug';
+import chalk from 'chalk';
+import * as _ from 'lodash';
 
-var fs = require('then-fs');
-var path = require('path');
-var debug = require('debug')('snyk');
-var chalk = require('chalk');
+const debug = debugLib('snyk');
 
-var DETECTABLE_FILES = [
+const DETECTABLE_FILES = [
   'yarn.lock',
   'package-lock.json',
   'package.json',
@@ -28,8 +26,8 @@ var DETECTABLE_FILES = [
 ];
 
 // when file is specified with --file, we look it up here
-var DETECTABLE_PACKAGE_MANAGERS = {
-  Gemfile: 'rubygems',
+const DETECTABLE_PACKAGE_MANAGERS = {
+  'Gemfile': 'rubygems',
   'Gemfile.lock': 'rubygems',
   '.gemspec': 'rubygems',
   'package-lock.json': 'npm',
@@ -38,7 +36,7 @@ var DETECTABLE_PACKAGE_MANAGERS = {
   'build.sbt': 'sbt',
   'yarn.lock': 'yarn',
   'package.json': 'npm',
-  Pipfile: 'pip',
+  'Pipfile': 'pip',
   'requirements.txt': 'pip',
   'Gopkg.lock': 'golangdep',
   'vendor.json': 'govendor',
@@ -48,7 +46,16 @@ var DETECTABLE_PACKAGE_MANAGERS = {
   'composer.lock': 'composer',
 };
 
-function detectPackageManager(root, options) {
+export function isPathToPackageFile(path) {
+  for (const fileName of DETECTABLE_FILES) {
+    if (_.endsWith(path, fileName)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function detectPackageManager(root, options) {
   // If user specified a package manager let's use it.
   if (options.packageManager) {
     return options.packageManager;
@@ -58,7 +65,8 @@ function detectPackageManager(root, options) {
     return undefined;
   }
 
-  var packageManager, file;
+  let packageManager;
+  let file;
   if (isLocalFolder(root)) {
     if (options.file) {
       if (localFileSuppliedButNotFound(root, options.file)) {
@@ -77,17 +85,17 @@ function detectPackageManager(root, options) {
     }
   } else {
     debug('specified paramater is not a folder, trying to lookup as repo');
-    var registry = options.registry || 'npm';
+    const registry = options.registry || 'npm';
     packageManager = detectPackageManagerFromRegistry(registry);
   }
   if (!packageManager) {
     throw new Error('Could not detect supported target files in ' + root +
-    '.\nPlease see our documentation for supported languages and ' +
-    'target files: ' +
-    chalk.underline(
-      'https://support.snyk.io/getting-started/languages-support'
-    ) +
-    ' and make sure you are in the right directory.');
+      '.\nPlease see our documentation for supported languages and ' +
+      'target files: ' +
+      chalk.underline(
+        'https://support.snyk.io/getting-started/languages-support',
+      ) +
+      ' and make sure you are in the right directory.');
   }
   return packageManager;
 }
@@ -95,20 +103,20 @@ function detectPackageManager(root, options) {
 // User supplied a "local" file, but that file doesn't exist
 function localFileSuppliedButNotFound(root, file) {
   return file && fs.existsSync(root) &&
-    !fs.existsSync(path.resolve(root, file));
+    !fs.existsSync(pathLib.resolve(root, file));
 }
 
 function isLocalFolder(root) {
   try {
     return fs.lstatSync(root).isDirectory();
-  } catch (e) {}
-  return false;
+  } catch (e) {
+    return false;
+  }
 }
 
-function detectPackageFile(root) {
-  for (var i = 0; i < DETECTABLE_FILES.length; i++) {
-    var file = DETECTABLE_FILES[i];
-    if (fs.existsSync(path.resolve(root, file))) {
+export function detectPackageFile(root) {
+  for (const file of DETECTABLE_FILES) {
+    if (fs.existsSync(pathLib.resolve(root, file))) {
       debug('found package file ' + file + ' in ' + root);
       return file;
     }
@@ -118,7 +126,8 @@ function detectPackageFile(root) {
 }
 
 function detectPackageManagerFromFile(file) {
-  var key = path.basename(file);
+  let key = pathLib.basename(file);
+
   if (/\.gemspec$/.test(key)) {
     key = '.gemspec';
   }
