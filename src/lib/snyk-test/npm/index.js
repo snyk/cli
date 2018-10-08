@@ -54,7 +54,7 @@ function test(root, options) {
       let policyLocations = [options['policy-path'] || root];
       const targetFile = options.file || detect.detectPackageFile(root);
       // this is used for Meta
-      options.testedFile = targetFile;
+      options.file = targetFile;
 
       return Promise.resolve()
         .then(() => {
@@ -181,6 +181,10 @@ function getDependenciesFromNodeModules(root, options, targetFile) {
         path.dirname(path.resolve(root, targetFile));
       return spinner(resolveModuleSpinnerLabel)
         .then(() => {
+          // yarn projects fall back to node_module traversal if node < 6
+          if (targetFile.endsWith('yarn.lock')) {
+            options.file = options.file.replace('yarn.lock', 'package.json');
+          }
           return snyk.modules(
             root, Object.assign({}, options, {noFromArrays: true}));
         })

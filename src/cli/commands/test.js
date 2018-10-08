@@ -455,8 +455,8 @@ function metaForDisplay(res, options) {
     chalk.bold(rightPadWithSpaces('Organisation: ', padToLength)) + res.org,
     chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) + packageManager,
   ];
-  if (options.file || options.testedFile) {
-    meta.push(chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + options.file || options.testedFile);
+  if (options.file) {
+    meta.push(chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + options.file);
   }
   if (options.docker) {
     meta.push(chalk.bold(rightPadWithSpaces('Docker image: ', padToLength)) + options.path);
