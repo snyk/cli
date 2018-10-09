@@ -194,6 +194,7 @@ function summariseErrorResults(errorResults) {
 
 function displayResult(res, options) {
   var meta = metaForDisplay(res, options) + '\n\n';
+  var dockerAdvice = dockerRemediationForDisplay(res);
   var packageManager = options.packageManager;
   var prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
 
@@ -227,7 +228,7 @@ function displayResult(res, options) {
         '\n- Run `snyk test` as part of ' +
         'your CI/test.';
     return (
-      prefix + meta + summaryOKText + (isCI ? nextStepsText : '')
+      prefix + meta + summaryOKText + (isCI ? '' : dockerAdvice + nextStepsText)
     );
   }
 
@@ -308,7 +309,7 @@ function displayResult(res, options) {
   });
 
   var body = groupedVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
-  return prefix + body;
+  return prefix + body + dockerAdvice;
 }
 
 function createFixedInText(groupedVuln) {
@@ -464,6 +465,9 @@ function metaForDisplay(res, options) {
     meta.push(chalk.bold(rightPadWithSpaces('Open source: ', padToLength)) + openSource);
     meta.push(chalk.bold(rightPadWithSpaces('Project path: ', padToLength)) + options.path);
   }
+  if (res.docker && res.docker.baseImage) {
+    meta.push(chalk.bold(rightPadWithSpaces('Base image: ', padToLength)) + res.docker.baseImage);
+  }
 
   if (res.filesystemPolicy) {
     meta.push(chalk.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) + chalk.green('found'));
@@ -476,6 +480,26 @@ function metaForDisplay(res, options) {
   }
 
   return meta.join('\n');
+}
+
+function dockerRemediationForDisplay(res) {
+  if (!res.docker || !res.docker.baseImageRemediation) {
+    return '';
+  }
+  const {advice, message} = res.docker.baseImageRemediation;
+  const out = [];
+
+  if (advice) {
+    for (const item of advice) {
+      out.push(item.bold ? chalk.bold(item.message) : item.message);
+    }
+  } else if (message) {
+    out.push(message);
+  } else {
+    return '';
+  }
+
+  return '\n\n' + out.join('\n');
 }
 
 function validateSeverityThreshold(severityThreshold) {
