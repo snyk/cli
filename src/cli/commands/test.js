@@ -489,7 +489,7 @@ function dockerRemediationForDisplay(res) {
   const {advice, message} = res.docker.baseImageRemediation;
   const out = [];
 
-  if (advice) {
+  if (advice && advice.length) {
     for (const item of advice) {
       out.push(item.bold ? chalk.bold(item.message) : item.message);
     }
