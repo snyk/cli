@@ -26,3 +26,8 @@ If more than one file exists it will use the first order-wise. If you wish to sp
   point the --file parameter to force using what you specify, for example:
 
   $ snyk test --file=Gemfile
+
+When used alongside `--docker`, and passed the appropriate Dockerfile, Snyk will
+offer more detailed remediation advice for your image:
+
+  $ snyk test --docker myapp:latest --file=./myapp/Dockerfile
