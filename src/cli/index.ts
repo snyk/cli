@@ -101,8 +101,8 @@ function checkRuntime() {
 function checkPaths(args) {
   for (const path of args.options._) {
     if (typeof path === 'string' && isPathToPackageFile(path)) {
-      throw new Error(`Path "${path}" contains package file name, ` +
-        'please use --file=<string> instead.');
+      throw new Error(`Not a recognised option did you mean --file=${path}. ` +
+        'Check other options by running snyk --help');
     }
   }
 }
