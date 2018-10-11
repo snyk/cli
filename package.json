@@ -69,7 +69,7 @@
     "snyk-policy": "1.12.0",
     "snyk-python-plugin": "1.8.2",
     "snyk-resolve": "1.0.1",
-    "snyk-resolve-deps": "4.0.1",
+    "snyk-resolve-deps": "4.0.2",
     "snyk-sbt-plugin": "2.0.0",
     "snyk-tree": "^1.0.0",
     "snyk-try-require": "1.3.1",
