@@ -209,7 +209,7 @@ function inquire(prompts, answers) {
         if (answerName.indexOf('--DOT--') > -1) {
           var newName = answerName.replace(/--DOT--/g, '.');
           answers[newName] = answers[answerName];
-          delete this[answerName];
+          delete answers[answerName];
         }
       });
       resolve(answers);
