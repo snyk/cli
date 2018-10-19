@@ -30,7 +30,7 @@ function run(t, offset, filename) {
   // because the answers passed back from the inquirer.prompt will next actually
   // say if the user chose to patch
   offset += 1;
-  spy.reset();
+  spy.resetHistory();
   var vulns = require(filename);
   return getPrompts(vulns).then(function (a) {
     t.ok(!!a, 'prompts loaded');
