@@ -242,7 +242,8 @@ function displayResult(res, options) {
   var vulnCountText = 'found ' + res.uniqueCount + ' '
     + (res.uniqueCount === 1 ? singleVulnText : multipleVulnsText);
 
-  if (options.showVulnPaths) {
+  // Docker is currently not supported as num of paths is inaccurate due to trimming of paths to reduce size.
+  if (options.showVulnPaths && !options.docker) {
     vulnCountText += ', ' + vulnCount + ' vulnerable ';
 
     if (vulnCount === 1) {
