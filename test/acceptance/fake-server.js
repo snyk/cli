@@ -66,7 +66,7 @@ module.exports = function (root, apikey) {
       res.status(404);
       res.send({
         code: 404,
-        cliMessage: 'cli error message',
+        userMessage: 'cli error message',
       });
       return next();
     }

@@ -42,7 +42,7 @@ function runTest(packageManager, root, options) {
                 body.error :
                 res.statusCode);
 
-              err.cliMessage = body && body.cliMessage;
+              err.userMessage = body && body.userMessage;
               // this is the case where a local module has been tested, but
               // doesn't have any production deps, but we've noted that they
               // have dep deps, so we'll error with a more useful message

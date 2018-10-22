@@ -69,23 +69,23 @@ test('test cli with multiple params: good and bad', function (t) {
   });
 });
 
-test('cliMessage correctly bubbles with npm', function (t) {
+test('userMessage correctly bubbles with npm', function (t) {
   chdirWorkspaces();
   return cli.test('npm-package', {org: 'missing-org'})
     .then(function () {
       t.fail('expect to error');
     }).catch(function (error) {
-      t.equal(error.cliMessage, 'cli error message', 'got correct error message');
+      t.equal(error.userMessage, 'cli error message', 'got correct error message');
     });
 });
 
-test('cliMessage correctly bubbles with everything other than npm', function (t) {
+test('userMessage correctly bubbles with everything other than npm', function (t) {
   chdirWorkspaces();
   return cli.test('ruby-app', { org: 'missing-org' })
     .then(function () {
       t.fail('expect to error');
     }).catch(function (error) {
-      t.equal(error.cliMessage, 'cli error message', 'got correct error message');
+      t.equal(error.userMessage, 'cli error message', 'got correct error message');
     });
 });
 

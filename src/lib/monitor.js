@@ -74,7 +74,7 @@ function monitor(root, meta, info) {
           } else {
             var e = new Error('unexpected error: ' + body.message);
             e.code = res.statusCode;
-            e.cliMessage = body && body.cliMessage;
+            e.userMessage = body && body.userMessage;
             reject(e);
           }
         });

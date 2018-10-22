@@ -81,7 +81,7 @@ module.exports.message = function (error) {
     // try to lookup the error string based either on the error code OR
     // the actual error.message (which can be "Unauthorized" for instance),
     // otherwise send the error message back
-    message = error.cliMessage ||
+    message = error.userMessage ||
       codes[error.code || error.message] ||
       errors[error.code || error.message];
     if (message) {
