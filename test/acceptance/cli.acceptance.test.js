@@ -1162,6 +1162,39 @@ function (t) {
   });
 });
 
+test('`test foo:latest --docker vulnerable paths`',
+function (t) {
+  var plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'deb',
+        },
+        package: {},
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  var vulns = require('./fixtures/docker/vulns.json');
+  server.setNextResponse(vulns);
+
+  return cli.test('foo:latest', {
+    docker: true,
+    org: 'explicit-org',
+  })
+  .catch(function (res) {
+    var req = server.popRequest();
+    t.false(res.message.includes('vulnerable paths'),
+     'docker should not includes number of vulnerable paths');
+  });
+});
+
 test('`test foo:latest --docker --file=Dockerfile`',
 function (t) {
   var plugin = {
