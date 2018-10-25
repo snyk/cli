@@ -106,6 +106,4 @@ if [ $RC -ne "0" ]; then
   exitWithMsg "$OUTPUT_FILE" "$RC"
 fi
 
-cat "$OUTPUT_FILE"
-
 exit "$RC"
