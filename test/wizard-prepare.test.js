@@ -19,6 +19,10 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
       });
     },
   },
+  '../../../lib/protect': {
+    install: () => new Promise((resolve) => resolve()),
+    installDev: () => new Promise((resolve) => resolve()),
+  },
   'then-fs': {
     readFile: function () {
       return Promise.resolve(JSON.stringify(fixture));

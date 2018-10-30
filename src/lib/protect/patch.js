@@ -20,16 +20,13 @@ var analytics = require('../analytics');
 var getPatchFile = require('./fetch-patch');
 var ensurePatchUtilExists = require('./ensure-patch');
 
-// note: cwd is optional and mostly used for testing
-function patch(vulns, live, cwd) {
+function patch(vulns, live) {
   var lbl = 'Applying patches...';
   var errorList = [];
 
   return ensurePatchUtilExists().then(spinner(lbl)).then(function () {
     // the target directory where our module name will live
-    vulns.forEach(function (vuln) {
-      vuln.source = getVulnSource(vuln, cwd, live);
-    });
+    vulns.forEach((vuln) => vuln.source = getVulnSource(vuln, live));
 
     var deduped = dedupe(vulns);
     debug('patching %s vulns after dedupe', deduped.packages.length);
