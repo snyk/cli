@@ -18,8 +18,8 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
     },
     readFile: function (filename) {
       return Promise.resolve(JSON.stringify(mockPackage));
-    }
-  }
+    },
+  },
 });
 
 var save = p => {
@@ -53,29 +53,31 @@ tap.beforeEach(done => {
 
 test('user deps are left alone if they do not test or protect', t => {
   return wizard.processAnswers({
-    'misc-test-no-monitor': true
+    'misc-test-no-monitor': true,
   }, mockPolicy).then(res => {
     t.equal(writeSpy.called, false, 'the package is not touched');
   });
 });
 
-test('snyk adds to devDeps when test only is selected', t => {
-  return wizard.processAnswers({
+test('snyk adds to devDeps when test only is selected', async (t) => {
+  const res = await wizard.processAnswers({
     'misc-add-test': true,
-    'misc-test-no-monitor': true
-  }, mockPolicy).then(res => {
-    var pkg = writeSpy.args[0][0];
-    t.equal(writeSpy.called, true, 'the package was updated');
-    t.equal(pkg.scripts.test.includes('snyk test'), true, 'snyk test found in npm test');
-    t.equal(pkg.dependencies.snyk, undefined, 'snyk not in production deps');
-    t.notEqual(pkg.devDependencies.snyk, undefined, 'snyk IS in dev deps');
-  });
+    'misc-test-no-monitor': true,
+  }, mockPolicy);
+
+  var pkg = writeSpy.args[0][0];
+  console.log('PACKAGE', pkg)
+
+  t.equal(writeSpy.called, true, 'the package was updated');
+  t.equal(pkg.scripts.test.includes('snyk test'), true, 'snyk test found in npm test');
+  t.equal(pkg.dependencies.snyk, undefined, 'snyk not in production deps');
+  t.notEqual(pkg.devDependencies.snyk, undefined, 'snyk IS in dev deps');
 });
 
 test('snyk adds to prod deps when protect only is selected', t => {
   return wizard.processAnswers({
     'misc-add-protect': true,
-    'misc-test-no-monitor': true
+    'misc-test-no-monitor': true,
   }, mockPolicy).then(res => {
     var pkg = writeSpy.args[0][0];
 

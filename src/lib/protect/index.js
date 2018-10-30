@@ -1,6 +1,8 @@
 var protect = module.exports = {
   ignore: require('./ignore'),
   update: require('./update').update,
+  install: require('./update').install,
+  installDev: require('./update').installDev,
   patch: require('./patch'),
   patchesForPackage: require('./patches-for-package'),
   generatePolicy: generatePolicy,

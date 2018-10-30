@@ -47,6 +47,7 @@ function patch(vulns, live, cwd) {
         }
 
         analytics.add('patch', vuln.from.slice(1).join(' > '));
+        debug(`Patching vuln: ${vuln.id} ${vuln.from}`);
 
         // the colon doesn't like Windows, ref: https://git.io/vw2iO
         var fileSafeId = vuln.id.replace(/:/g, '-');

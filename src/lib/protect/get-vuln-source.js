@@ -12,7 +12,9 @@ function getVulnSource(vuln, cwd, live) {
   });
 
   var viaPath = path.resolve(
-    cwd || process.cwd(),
+    // cwd is optional and mostly used for testing
+    // according to an old note in the code in patch
+    process.cwd() || cwd,
     'node_modules',
     from.join('/node_modules/')
   );
