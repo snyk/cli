@@ -7,7 +7,7 @@ var cli = require('../src/cli/commands');
 
 test('"snyk test --severity-threshold=high"', function(t) {
 
-  var requestStub = sinon.stub(needle, 'request', function (a, b, c, d, cb) {
+  var requestStub = sinon.stub(needle, 'request').callsFake(function (a, b, c, d, cb) {
     cb(new Error('bail'));
   });
   t.teardown(() => {

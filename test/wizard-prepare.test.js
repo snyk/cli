@@ -55,7 +55,7 @@ test('npm - prepare is added and postinstall is removed', function (t) {
 test('yarn - prepare is added and postinstall is removed', function (t) {
   var expectedResults = _.cloneDeep(fixture);
   process.chdir(dir);
-  spy.reset();
+  spy.resetHistory();
   return wizard.processAnswers({
     // answers
     'misc-test-no-monitor': true,

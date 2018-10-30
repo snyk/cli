@@ -86,7 +86,7 @@
     "nock": "^9.2.5",
     "proxyquire": "^1.7.4",
     "restify": "^4.1.1",
-    "sinon": "^1.17.2",
+    "sinon": "^4.0.0",
     "strip-ansi": "^4.0.0",
     "tap": "github:snyk/node-tap#alternative-runtimes",
     "tape": "^4.0.0",

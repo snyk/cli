@@ -1983,7 +1983,7 @@ test('`test --insecure`', function (t) {
   chdirWorkspaces('npm-package');
 
   t.test('default (insecure false)', function (t) {
-    sinon.stub(needle, 'request', function (a, b, c, d, cb) {
+    sinon.stub(needle, 'request').callsFake(function(a, b, c, d, cb) {
       cb(new Error('bail'));
     });
     t.teardown(needle.request.restore);
@@ -2000,7 +2000,7 @@ test('`test --insecure`', function (t) {
     // by `args`, so we simply set the global here.
     // NOTE: due to this we add tests to `args.test.js`
     global.ignoreUnknownCA = true;
-    sinon.stub(needle, 'request', function (a, b, c, d, cb) {
+    sinon.stub(needle, 'request').callsFake(function (a, b, c, d, cb) {
       cb(new Error('bail'));
     });
     t.teardown(function () {
@@ -2020,7 +2020,7 @@ test('`test --insecure`', function (t) {
  * So, hijack the system exec call and return the expected output
  */
 function stubExec(t, execOutputFile) {
-  var stub = sinon.stub(subProcess, 'execute', function () {
+  var stub = sinon.stub(subProcess, 'execute').callsFake(function () {
     var stdout = fs.readFileSync(path.join(execOutputFile), 'utf8');
     return Promise.resolve(stdout);
   });
