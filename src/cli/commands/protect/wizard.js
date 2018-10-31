@@ -13,7 +13,6 @@ const chalk = require('chalk');
 const url = require('url');
 const _ = require('lodash');
 const exec = require('child_process').exec;
-const undefsafe = require('undefsafe');
 const auth = require('../auth');
 const getVersion = require('../version');
 const allPrompts = require('./prompts');
@@ -276,7 +275,6 @@ function processAnswers(answers, policy, options) {
   var packageManager = detect.detectPackageManager(cwd, options);
   var targetFile = options.file || detect.detectPackageFile(cwd);
   const isLockFileBased = targetFile.endsWith('package-lock.json') || targetFile.endsWith('yarn.lock');
-
   // TODO: fix this by providing better patch support for yarn
   // yarn hoists packages up a tree so we can't assume their location
   // on disk without traversing node_modules
@@ -423,19 +421,25 @@ function processAnswers(answers, policy, options) {
       pkg.snyk = true;
     })
     .then(function () {
-      var lbl = 'Updating package.json...';
-      if (answers['misc-add-test'] || answers['misc-add-protect']) {
+      let lbl = 'Updating package.json...';
+      const addSnykToDependencies = answers['misc-add-test'] || answers['misc-add-protect'];
+      let updateSnykFunc = () => protect.install(packageManager, ['snyk'], live);
+
+      if (addSnykToDependencies) {
         debug('updating %s', packageFile);
 
-        if (undefsafe(pkg, 'dependencies.snyk') ||
-          undefsafe(pkg, 'peerDependencies.snyk') ||
-          undefsafe(pkg, 'optionalDependencies.snyk')) {
+        if (_.get(pkg, 'dependencies.snyk') ||
+          _.get(pkg, 'peerDependencies.snyk') ||
+          _.get(pkg, 'optionalDependencies.snyk')) {
         // nothing to do as the user already has Snyk
         // TODO decide whether we should update the version being used
         // and how do we reconcile if the global install is older
         // than the local version?
         } else {
-          if (answers['misc-add-protect']) {
+          const addSnykToProdDeps = answers['misc-add-protect'];
+          const snykIsInDevDeps = _.get(pkg, 'devDependencies.snyk');
+
+          if (addSnykToProdDeps) {
             if (!pkg.dependencies) {
               pkg.dependencies = {};
             }
@@ -444,20 +448,22 @@ function processAnswers(answers, policy, options) {
                 '(used by snyk protect)';
 
             // but also check if we should remove it from devDependencies
-            if (undefsafe(pkg, 'devDependencies.snyk')) {
+            if (snykIsInDevDeps) {
               delete pkg.devDependencies.snyk;
             }
-          } else if (!undefsafe(pkg, 'devDependencies.snyk')) {
+          } else if (!snykIsInDevDeps) {
             if (!pkg.devDependencies) {
               pkg.devDependencies = {};
             }
             lbl = 'Adding Snyk to devDependencies (used by npm test)';
             pkg.devDependencies.snyk = snykVersion;
+            updateSnykFunc = () => protect.installDev(packageManager, ['snyk'], live);
+
           }
         }
       }
 
-      if (answers['misc-add-test'] || answers['misc-add-protect'] ||
+      if (addSnykToDependencies ||
           tasks.update.length) {
         var packageString = options.packageLeading + JSON.stringify(pkg, '', 2) +
                           options.packageTrailing;
@@ -467,7 +473,7 @@ function processAnswers(answers, policy, options) {
             if (isLockFileBased) {
               // we need to trigger a lockfile update after adding snyk
               // as a dep
-              return protect.update(['snyk'], live, packageManager);
+              return updateSnykFunc();
             }
           })
           // clear spinner in case of success or failure

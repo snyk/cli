@@ -1,8 +1,8 @@
-var test = require('tap').test;
-var proxyquire = require('proxyquire');
-var sinon = require('sinon');
-var spy = sinon.spy();
-var fixture = require(__dirname + '/fixtures/protect-via-snyk/package.json');
+const test = require('tap').test;
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
+const spy = sinon.spy();
+const fixture = require(__dirname + '/fixtures/protect-via-snyk/package.json');
 
 var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   inquirer: {
@@ -10,12 +10,16 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
       cb(q);
     },
   },
-  '../../../src/lib/npm': {
+  '../../../lib/npm': {
     getVersion: function() {
       return new Promise(function(resolve) {
         return resolve('4.9.9');
       });
     },
+  },
+  '../../../lib/protect': {
+    install: () => new Promise((resolve) => resolve()),
+    installDev: () => new Promise((resolve) => resolve()),
   },
   'then-fs': {
     readFile: function () {
@@ -25,8 +29,9 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
       spy(body);
       return Promise.resolve();
     },
-  }
+  },
 });
+
 
 test('prepublish is added and postinstall is removed', function (t) {
   return wizard.processAnswers({
@@ -34,7 +39,7 @@ test('prepublish is added and postinstall is removed', function (t) {
     'misc-test-no-monitor': true,
     'misc-add-protect': true,
   }, {
-    save: () => Promise.resolve()
+    save: () => Promise.resolve(),
   }).then(function () {
     t.equal(spy.callCount, 1, 'write function was only called once');
     var pkg = JSON.parse(spy.args[0][0]);

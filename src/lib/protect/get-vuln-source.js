@@ -6,13 +6,13 @@ var path = require('path');
 var statSync = require('fs').statSync;
 var moduleToObject = require('snyk-module');
 
-function getVulnSource(vuln, cwd, live) {
+function getVulnSource(vuln, live) {
   var from = vuln.from.slice(1).map(function (pkg) {
     return moduleToObject(pkg).name;
   });
 
   var viaPath = path.resolve(
-    cwd || process.cwd(),
+    process.cwd(),
     'node_modules',
     from.join('/node_modules/')
   );

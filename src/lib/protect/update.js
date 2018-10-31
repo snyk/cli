@@ -1,5 +1,6 @@
 module.exports.update = update;
 module.exports.install = install;
+module.exports.installDev = installDev;
 
 var debug = require('debug')('snyk');
 var chalk = require('chalk');
