@@ -261,6 +261,11 @@ function displayResult(res, options) {
       '\n\nRun `snyk wizard` to address these issues.'
     );
   }
+  if (options.docker && !options.file) {
+    summary += chalk.bold.white('\n\n Pro tip: use `--file` option to get base image remediation advice.' +
+     `\n Example: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`);
+  }
+
 
   var vulns = res.vulnerabilities || [];
   var groupedVulns = groupVulnerabilities(vulns);
