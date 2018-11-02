@@ -14,8 +14,7 @@ function inspect(root, targetFile, options) {
   const isShrinkwrapPresent = fileSystem.existsSync(
     path.resolve(root, targetFile).dir, 'npm-shrinkwrap.json'
   );
-
-  if (isLockFileBased && !isShrinkwrapPresent) {
+  if (isLockFileBased && !isShrinkwrapPresent && !options.traverseNodeModules) {
     return generateDependenciesFromLockfile(root, options, targetFile)
       .then((modules) => ({
         plugin: {
