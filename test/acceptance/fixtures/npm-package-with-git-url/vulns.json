@@ -158,7 +158,7 @@
   "licensesPolicy": null,
   "isPrivate": true,
   "packageManager": "npm",
-  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.12.0\nignore: {}\n# patches apply the minimum changes required to fix a vulnerability\npatch:\n  'npm:qs:20170213':\n    - npm-package-with-git-url > qs:\n        patched: '2018-11-04T12:47:13.696Z'\n",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\nignore: {}\n# patches apply the minimum changes required to fix a vulnerability\npatch:\n  'npm:qs:20170213':\n    - npm-package-with-git-url > qs:\n        patched: '2018-11-04T12:47:13.696Z'\n",
   "ignoreSettings": null,
   "summary": "1 vulnerable dependency path"
 }
