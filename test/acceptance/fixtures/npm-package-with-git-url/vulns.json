@@ -1,0 +1,164 @@
+{
+  "ok": false,
+  "vulnerabilities": [
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N",
+      "alternativeIds": [
+        "SNYK-JS-QS-10407"
+      ],
+      "creationTime": "2017-02-14T11:44:54.163000Z",
+      "credit": [
+        "Snyk Security Research Team"
+      ],
+      "cvssScore": 7.4,
+      "description": "## Overview\r\n[`qs`](https://www.npmjs.com/package/qs) is a querystring parser that supports nesting and arrays, with a depth limit.\r\n\r\nBy default `qs` protects against attacks that attempt to overwrite an object's existing prototype properties, such as `toString()`, `hasOwnProperty()`,etc.\r\n\r\nFrom [`qs` documentation](https://github.com/ljharb/qs):\r\n> By default parameters that would overwrite properties on the object prototype are ignored, if you wish to keep the data from those fields either use plainObjects as mentioned above, or set allowPrototypes to true which will allow user input to overwrite those properties. WARNING It is generally a bad idea to enable this option as it can cause problems when attempting to use the properties that have been overwritten. Always be careful with this option.\r\n\r\nOverwriting these properties can impact application logic, potentially allowing attackers to work around security controls, modify data, make the application unstable and more.\r\n\r\nIn versions of the package affected by this vulnerability, it is possible to circumvent this protection and overwrite prototype properties and functions by prefixing the name of the parameter with `[` or `]`. e.g. `qs.parse(\"]=toString\")` will return `{toString = true}`, as a result, calling `toString()` on the object will throw an exception.\r\n\r\n**Example:**\r\n```js\r\nqs.parse('toString=foo', { allowPrototypes: false })\r\n// {}\r\n\r\nqs.parse(\"]=toString\", { allowPrototypes: false })\r\n// {toString = true} <== prototype overwritten\r\n```\r\n\r\nFor more information, you can check out our [blog](https://snyk.io/blog/high-severity-vulnerability-qs/).\r\n\r\n## Disclosure Timeline\r\n- February 13th, 2017 - Reported the issue to package owner.\r\n- February 13th, 2017 - Issue acknowledged by package owner.\r\n- February 16th, 2017 - Partial fix released in versions `6.0.3`, `6.1.1`, `6.2.2`, `6.3.1`.\r\n- March 6th, 2017     - Final fix released in versions `6.4.0`,`6.3.2`, `6.2.3`, `6.1.2` and `6.0.4`\r\n\r\n## Remediation\r\nUpgrade `qs` to version `6.4.0` or higher.\r\n**Note:** The fix was backported to the following versions `6.3.2`, `6.2.3`, `6.1.2`, `6.0.4`.\r\n\r\n## References\r\n- [GitHub Commit](https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d)\r\n- [Report of an insufficient fix](https://github.com/ljharb/qs/issues/200)",
+      "disclosureTime": "2017-02-13T00:00:00Z",
+      "id": "npm:qs:20170213",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-JS-QS-10407"
+        ],
+        "CVE": [
+          "CVE-2017-1000048"
+        ],
+        "CWE": [
+          "CWE-20"
+        ]
+      },
+      "language": "js",
+      "methods": [
+        {
+          "methodId": {
+            "className": "nan",
+            "filePath": "lib/parse.js",
+            "methodName": "parseObject"
+          },
+          "version": [
+            "<6.3.2 >=6.3.0",
+            "<6.2.3 >=6.2.0",
+            "<6.1.2 >=6.1.0",
+            "<6.0.4"
+          ]
+        }
+      ],
+      "modificationTime": "2018-10-10T14:56:55.142935Z",
+      "moduleName": "qs",
+      "packageManager": "npm",
+      "packageName": "qs",
+      "patches": [
+        {
+          "comments": [],
+          "id": "patch:npm:qs:20170213:7",
+          "modificationTime": "2018-09-04T11:57:08.692963Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/603_604.patch"
+          ],
+          "version": "=6.0.3"
+        },
+        {
+          "comments": [],
+          "id": "patch:npm:qs:20170213:6",
+          "modificationTime": "2018-09-04T11:57:08.691571Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/602_604.patch"
+          ],
+          "version": "=6.0.2"
+        },
+        {
+          "comments": [],
+          "id": "patch:npm:qs:20170213:5",
+          "modificationTime": "2018-09-04T11:57:08.690235Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/611_612.patch"
+          ],
+          "version": "=6.1.1"
+        },
+        {
+          "comments": [],
+          "id": "patch:npm:qs:20170213:4",
+          "modificationTime": "2018-09-04T11:57:08.688957Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/610_612.patch"
+          ],
+          "version": "=6.1.0"
+        },
+        {
+          "comments": [],
+          "id": "patch:npm:qs:20170213:3",
+          "modificationTime": "2018-09-04T11:57:08.687714Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/622_623.patch"
+          ],
+          "version": "=6.2.2"
+        },
+        {
+          "comments": [],
+          "id": "patch:npm:qs:20170213:2",
+          "modificationTime": "2018-09-04T11:57:08.686294Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/621_623.patch"
+          ],
+          "version": "=6.2.1"
+        },
+        {
+          "comments": [],
+          "id": "patch:npm:qs:20170213:1",
+          "modificationTime": "2018-09-04T11:57:08.684986Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/631_632.patch"
+          ],
+          "version": "=6.3.1"
+        },
+        {
+          "comments": [],
+          "id": "patch:npm:qs:20170213:0",
+          "modificationTime": "2018-09-04T11:57:08.683816Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20170213/630_632.patch"
+          ],
+          "version": "=6.3.0"
+        }
+      ],
+      "publicationTime": "2017-03-01T10:00:54Z",
+      "references": [
+        {
+          "title": "Report of an insufficient fix",
+          "url": "https://github.com/ljharb/qs/issues/200"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<6.3.2 >=6.3.0 || <6.2.3 >=6.2.0 || <6.1.2 >=6.1.0 || <6.0.4"
+        ]
+      },
+      "severity": "high",
+      "title": "Prototype Override Protection Bypass",
+      "from": [
+        "npm-package-with-git-url@1.0.0",
+        "patchable-vuln@git+ssh://git@github.com/snyk-fixtures/patchable-vuln.git#0501eb27f798a2383eb999c7ce37a2cb3c5fa776",
+        "qs@6.0.3"
+      ],
+      "upgradePath": [
+        false,
+        false,
+        "qs@6.0.4"
+      ],
+      "version": "6.0.3",
+      "name": "qs",
+      "isUpgradable": false,
+      "isPatchable": true
+    }
+  ],
+  "dependencyCount": 2,
+  "org": "darmalovan",
+  "licensesPolicy": null,
+  "isPrivate": true,
+  "packageManager": "npm",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.12.0\nignore: {}\n# patches apply the minimum changes required to fix a vulnerability\npatch:\n  'npm:qs:20170213':\n    - npm-package-with-git-url > qs:\n        patched: '2018-11-04T12:47:13.696Z'\n",
+  "ignoreSettings": null,
+  "summary": "1 vulnerable dependency path"
+}

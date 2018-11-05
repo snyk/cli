@@ -1428,6 +1428,22 @@ test('`test --policy-path`', function (t) {
   });
 });
 
+test('`test npm-package-with-git-url ` handles git url with patch policy', function (t) {
+  chdirWorkspaces('npm-package-with-git-url');
+  var vulns = require('./fixtures/npm-package-with-git-url/vulns.json');
+  server.setNextResponse(vulns);
+  return cli.test()
+    .catch(res => {
+      server.popRequest();
+
+      t.match(res.message, 'for known vulnerabilities', 'found results');
+
+      t.match(res.message,
+        'Local Snyk policy: found',
+        'found policy file');
+    });
+});
+
 /**
  * `monitor`
  */
