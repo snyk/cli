@@ -4,11 +4,11 @@
 
 <p align="center">
   <a href="https://snyk.io/docs/?utm_campaign=docs&utm_medium=github&utm_source=full_docs">Documentation</a> |
-  <a href="https://snyk.io/test/">Test your project</a> 
+  <a href="https://snyk.io/test/">Test your project</a>
 </p>
 
 <p align="center">
-  Snyk helps you find, fix and monitor known vulnerabilities in open source 
+  Snyk helps you find, fix and monitor known vulnerabilities in open source
 </p>
 
 <p align="center">
@@ -78,7 +78,7 @@ Docker images are tagged according to the package manager runtime they include, 
 The general format of tags is [snyk-version]-[package-manager]-[package-manager-version] or just [package-manager]-[package-manager-version] if we want to use the latest version of snyk. Please see available tags to see the available options.
 
 [snyk-version] - The version of snyk that is installed in the image, if version is omitted it will use the latest version.
-[package-manager] - One of the available package managers (e.g: npm, mvn, gradle, etc...).  
+[package-manager] - One of the available package managers (e.g: npm, mvn, gradle, etc...).
 [package-manager-version] - The version of the package manager that is installed inside the image.
 
 Please see the following examples on how to run Snyk inside docker:
