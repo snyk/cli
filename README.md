@@ -168,7 +168,7 @@ docker run -it
 
 ### Docker
 
-We will need to mount the project root folder when running the image so that Snyk can access the code within the container and Docker socket so that Snyk can access Docker image. The host project folder will be mounted to `/project` on the container and will be used to read the Docker file (with --file) and write results for CI builds. Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Docker:
+We will need to mount the project root folder when running the image so that Snyk can access the code within the container and Docker socket so that Snyk can access Docker daemon. The host project folder will be mounted to `/project` on the container and will be used to read the Docker file (with --file). Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Docker:
 
 ```
 docker run -it
