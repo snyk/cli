@@ -1,0 +1,14 @@
+{
+  "name": "npm-package-with-git-url",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "patchable-vuln": "git+ssh://git@github.com/snyk-fixtures/patchable-vuln.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "snyk": true
+}

@@ -4,5 +4,5 @@ ignore: {}
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:qs:20170213':
-    - qs:
-        patched: '2018-01-23T15:00:40.026Z'
+    - npm-package-with-git-url > qs:
+        patched: '2018-11-04T12:47:13.696Z'
