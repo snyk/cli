@@ -31,7 +31,6 @@ function test() {
 
   // org fallback to config unless specified
   options.org = options.org || config.org;
-
   // making `show-vulnerable-paths` true by default.
   options.showVulnPaths = (options['show-vulnerable-paths'] || '')
     .toLowerCase() !== 'false';

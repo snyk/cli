@@ -58,11 +58,12 @@ function test(root, options) {
 
       return Promise.resolve()
         .then(() => {
-          if (getRuntimeVersion() < 6) {
+          const isLockFilebased = (targetFile.endsWith('package-lock.json')
+          || targetFile.endsWith('yarn.lock'));
+          if (targetFile.endsWith('yarn.lock') && getRuntimeVersion() < 6) {
             options.traverseNodeModules = true;
           }
-          if (targetFile.endsWith('package-lock.json')
-            || targetFile.endsWith('yarn.lock') && !options.traverseNodeModules) {
+          if (isLockFilebased && !options.traverseNodeModules) {
             return generateDependenciesFromLockfile(root, options, targetFile);
           }
           return getDependenciesFromNodeModules(root, options, targetFile)
