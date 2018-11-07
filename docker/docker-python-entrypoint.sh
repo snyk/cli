@@ -7,6 +7,8 @@ if [ -f $PIPENV_FILE ]; then
     cd $PROJECT_PATH
     pipenv lock --requirements --keep-outdated > $REQUIREMENTS_FILE
     cd $CURRENT_PATH
+elif [ ! -z "$TARGET_FILE" ]; then
+    REQUIREMENTS_FILE=$PROJECT_PATH/$TARGET_FILE
 fi
 
 virtualenv -p python$PYTHON_VERSION snyk
