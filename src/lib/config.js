@@ -8,6 +8,11 @@ if (endpoint) {
   config.API = endpoint;
 }
 
+var disableSuggestions = require('./user-config').get('disableSuggestions');
+if (disableSuggestions) {
+  config.disableSuggestions = disableSuggestions;
+}
+
 var org = require('./user-config').get('org');
 if (!config.org && org) {
   config.org = org;

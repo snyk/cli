@@ -13,7 +13,7 @@ var spinner = require('../../lib/spinner');
 var detect = require('../../lib/detect');
 var plugins = require('../../lib/plugins');
 var ModuleInfo = require('../../lib/module-info');
-
+var docker = require('../../lib/docker');
 var SEPARATOR = '\n-------------------------------------------------------\n';
 
 function monitor() {
@@ -115,8 +115,10 @@ function monitor() {
 
                 endpoint.pathname = leader + '/monitor/' + res.id;
                 var output = formatMonitorOutput(
-                  packageManager, res,
-                  manageUrl, options.json
+                  packageManager,
+                  res,
+                  manageUrl,
+                  options
                 );
                 // push a good result
                 results.push({ok: true, data: output, path: path});
@@ -172,7 +174,7 @@ function monitor() {
     });
 }
 
-function formatMonitorOutput(packageManager, res, manageUrl, isJson) {
+function formatMonitorOutput(packageManager, res, manageUrl, options) {
   var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
   var strOutput = chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
     (packageManager === 'yarn' ?
@@ -189,7 +191,11 @@ function formatMonitorOutput(packageManager, res, manageUrl, isJson) {
         'View plans here: ' + manageUrl + '\n\n') :
       '');
 
-  return isJson ?
+  if (docker.shouldSuggestDocker(options)) {
+    strOutput += chalk.bold.white(docker.suggestionText);
+  }
+
+  return options.json ?
     JSON.stringify(_.assign({}, res, {
       manageUrl: manageUrl,
       packageManager: packageManager,
