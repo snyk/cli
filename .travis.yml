@@ -25,9 +25,10 @@ script:
 jobs:
   include:
     - stage: Release
+      if: branch = master AND type != pull_request
       node_js: "8"
       script:
-      - test "${TRAVIS_PULL_REQUEST}" != "false" || (npm i -g semantic-release @semantic-release/exec && semantic-release)
+      - npm i -g semantic-release @semantic-release/exec && semantic-release
 branches:
   only:
     - "master"
