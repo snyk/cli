@@ -13,7 +13,7 @@ var spinner = require('../../lib/spinner');
 var detect = require('../../lib/detect');
 var plugins = require('../../lib/plugins');
 var ModuleInfo = require('../../lib/module-info');
-var docker = require('../../lib/docker');
+var docker = require('../../lib/docker-promotion');
 var SEPARATOR = '\n-------------------------------------------------------\n';
 
 function monitor() {

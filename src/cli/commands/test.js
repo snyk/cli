@@ -10,7 +10,7 @@ var apiTokenExists = require('../../lib/api-token').exists;
 var SEVERITIES = require('../../lib/snyk-test/common').SEVERITIES;
 var WIZARD_SUPPORTED_PMS =
   require('../../lib/snyk-test/common').WIZARD_SUPPORTED_PMS;
-var docker = require('../../lib/docker');
+var docker = require('../../lib/docker-promotion');
 var SEPARATOR = '\n-------------------------------------------------------\n';
 
 // arguments array is 0 or more `path` strings followed by
@@ -269,11 +269,13 @@ function displayResult(res, options) {
 
   if (options.docker &&
       !options.file &&
-      (!config.disableSuggestions || config.disableSuggestions !== 'true')) {
-    summary += chalk.bold.white('\n\n Pro tip: use `--file` option to get base image remediation advice.' +
-    `\n Example: $ snyk test --docker ${options.path} --file=path/to/Dockerfile` +
+      (config.disableSuggestions !== 'true')) {
+    summary += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
+    `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile` +
     '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`');
   }
+
+  summary += dockerSuggestion;
 
   var vulns = res.vulnerabilities || [];
   var groupedVulns = groupVulnerabilities(vulns);
