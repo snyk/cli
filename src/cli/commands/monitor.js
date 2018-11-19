@@ -47,7 +47,7 @@ function monitor() {
 
             var packageManager = detect.detectPackageManager(path, options);
 
-            var targetFile = options.docker
+            var targetFile = options.docker && !options.file // snyk monitor --docker (without --file)
               ? undefined
               : (options.file || detect.detectPackageFile(path));
 

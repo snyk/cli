@@ -1792,6 +1792,50 @@ function (t) {
   });
 });
 
+test('`monitor foo:latest --docker --file=Dockerfile`',
+  function (t) {
+    var dockerImageId = 'sha256:' +
+      '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
+    var plugin = {
+      inspect: function () {
+        return Promise.resolve({
+          plugin: {
+            packageManager: 'rpm',
+            dockerImageId: dockerImageId,
+          },
+          package: {docker: 'base-image-name'},
+        });
+      },
+    };
+    sinon.spy(plugin, 'inspect');
+
+    sinon.stub(plugins, 'loadPlugin')
+      .withArgs(sinon.match.any, sinon.match({docker: true}))
+      .returns(plugin);
+    t.teardown(plugins.loadPlugin.restore);
+
+    return cli.monitor('foo:latest', {
+      docker: true,
+      org: 'explicit-org',
+      file: 'Dockerfile',
+    })
+      .then(function () {
+        var req = server.popRequest();
+        t.equal(req.method, 'PUT', 'makes PUT request');
+        t.match(req.url, '/monitor/rpm',
+          'puts at correct url (uses package manager from plugin response)');
+        t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
+        t.equal(req.body.package.docker, 'base-image-name', 'sends base image');
+        t.same(plugin.inspect.getCall(0).args,
+          ['foo:latest', 'Dockerfile', {
+            args: null,
+            docker: true,
+            file: 'Dockerfile',
+            org: 'explicit-org',
+          }], 'calls docker plugin with expected arguments');
+      });
+  });
+
 test('`monitor foo:latest --docker` doesnt send policy from cwd',
 function (t) {
   chdirWorkspaces('npm-package-policy');
