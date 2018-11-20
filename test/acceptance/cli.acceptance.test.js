@@ -13,6 +13,7 @@ var server = require('./fake-server')(process.env.SNYK_API, apiKey);
 var subProcess = require('../../src/lib/sub-process');
 var plugins = require('../../src/lib/plugins');
 var needle = require('needle');
+var config = require('../../src/lib/config');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
