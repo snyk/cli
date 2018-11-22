@@ -186,6 +186,11 @@ function getDependenciesFromNodeModules(root, options, targetFile) {
           if (targetFile.endsWith('yarn.lock')) {
             options.file = options.file.replace('yarn.lock', 'package.json');
           }
+
+          //package-lock.json falls back to package.json (used in wizard code)
+          if (targetFile.endsWith('package-lock.json')) {
+            options.file = options.file.replace('package-lock.json', 'package.json');
+          }
           return snyk.modules(
             root, Object.assign({}, options, {noFromArrays: true}));
         })
