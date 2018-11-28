@@ -42,7 +42,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/dep-graph": "1.1.1",
+    "@snyk/dep-graph": "1.1.2",
     "@snyk/gemfile": "1.1.0",
     "abbrev": "^1.1.1",
     "ansi-escapes": "^3.1.0",
