@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
 import fs = require('then-fs');
-import moduleToObject = require('snyk-module');
 import pathUtil = require('path');
+import moduleToObject = require('snyk-module');
+import * as depGraphLib from '@snyk/dep-graph';
 
 import analytics = require('../analytics');
 import config = require('../config');
@@ -13,6 +14,8 @@ import request = require('../request');
 import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
+import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
+import {convertTestDepGraphResultToLegacy} from './legacy';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -28,10 +31,14 @@ async function runTest(packageManager: string, root: string , options): Promise<
   try {
     const payload = await assemblePayload(root, options, policyLocations);
     const filesystemPolicy = payload.body && !!payload.body.policy;
+    const depGraph = payload.body && payload.body.depGraph;
 
     await spinner(spinnerLbl);
-
     let res = await sendPayload(payload, hasDevDependencies);
+
+    if (depGraph) {
+      res = convertTestDepGraphResultToLegacy(res, depGraph, packageManager, options.severityThreshold);
+    }
 
     analytics.add('vulns-pre-policy', res.vulnerabilities.length);
     res.filesystemPolicy = filesystemPolicy;
@@ -67,7 +74,11 @@ interface Payload {
     authorization: string;
   };
   body?: {
+    depGraph: depGraphLib.DepGraph,
     policy: string;
+    targetFile?: string;
+    projectNameOverride?: string;
+    docker?: any;
   };
   qs?: object | null;
 }
@@ -126,7 +137,7 @@ function assemblePayload(root: string, options, policyLocations: string[]): Prom
   return assembleRemotePayload(root, options);
 }
 
-async function assembleLocalPayload(root, options, policyLocations) {
+async function assembleLocalPayload(root, options, policyLocations): Promise<Payload> {
   options.file = options.file || detect.detectPackageFile(root);
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
@@ -146,27 +157,26 @@ async function assembleLocalPayload(root, options, policyLocations) {
       pkg.docker = pkg.docker || {};
       pkg.docker.baseImage = options['base-image'];
     }
+
+    if (_.get(pkg, 'files.gemfileLock.contents')) {
+      const gemfileLockBase64 = pkg.files.gemfileLock.contents;
+      const gemfileLockContents = Buffer.from(gemfileLockBase64, 'base64').toString();
+      pkg.dependencies = gemfileLockToDependencies(gemfileLockContents);
+    }
+
+    const depGraph = await depGraphLib.legacy.depTreeToGraph(
+      pkg, options.packageManager);
+
     analytics.add('policies', policyLocations.length);
     analytics.add('packageManager', options.packageManager);
     analytics.add('packageName', pkg.name);
     analytics.add('packageVersion', pkg.version);
     analytics.add('package', pkg.name + '@' + pkg.version);
-    const payload: Payload = {
-      method: 'POST',
-      url: vulnUrl(options.packageManager),
-      json: true,
-      headers: {
-        'x-is-ci': isCI,
-        'authorization': 'token ' + (snyk as any).api,
-      },
-      body: pkg,
-    };
-    payload.qs = common.assembleQueryString(options);
 
+    let policy;
     if (policyLocations.length > 0) {
       try {
-        const policy = await snyk.policy.load(policyLocations, options);
-        (payload.body as any).policy = policy.toString();
+        policy = await snyk.policy.load(policyLocations, options);
       } catch (err) {
         // note: inline catch, to handle error from .load
         //   if the .snyk file wasn't found, it is fine
@@ -175,23 +185,42 @@ async function assembleLocalPayload(root, options, policyLocations) {
         }
       }
     }
+
+    const payload: Payload = {
+      method: 'POST',
+      url: config.API + '/test-dep-graph',
+      json: true,
+      headers: {
+        'x-is-ci': isCI,
+        'authorization': 'token ' + (snyk as any).api,
+      },
+      qs: common.assembleQueryString(options),
+      body: {
+        depGraph,
+        targetFile: pkg.targetFile || options.file,
+        projectNameOverride: options.projectName,
+        policy: policy && policy.toString(),
+        docker: pkg.docker,
+      },
+    };
+
     return payload;
   } finally {
     spinner.clear(spinnerLbl)();
   }
 }
 
-async function assembleRemotePayload(root, options) {
+async function assembleRemotePayload(root, options): Promise<Payload> {
   const pkg = moduleToObject(root);
-  const encodedName = encodeURIComponent(pkg.name + '@' + pkg.version);
   debug('testing remote: %s', pkg.name + '@' + pkg.version);
   analytics.add('packageName', pkg.name);
   analytics.add('packageVersion', pkg.version);
   analytics.add('packageManager', options.packageManager);
   analytics.add('package', pkg.name + '@' + pkg.version);
+  const encodedName = encodeURIComponent(pkg.name + '@' + pkg.version);
   const payload: Payload = {
     method: 'GET',
-    url: vulnUrl(options.packageManager) + '/' + encodedName,
+    url: `${config.API}/vuln/${options.packageManager}/${encodedName}`,
     json: true,
     headers: {
       'x-is-ci': isCI,
@@ -200,8 +229,4 @@ async function assembleRemotePayload(root, options) {
   };
   payload.qs = common.assembleQueryString(options);
   return payload;
-}
-
-function vulnUrl(packageManager) {
-  return config.API + '/vuln/' + packageManager;
 }

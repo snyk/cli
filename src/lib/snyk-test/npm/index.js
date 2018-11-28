@@ -79,6 +79,7 @@ function test(root, options) {
           if (!pkg.name) {
             pkg.name = path.basename(path.resolve(root));
           }
+
           policyLocations = policyLocations.concat(pluckPolicies(pkg));
           debug('policies found', policyLocations);
           analytics.add('policies', policyLocations.length);

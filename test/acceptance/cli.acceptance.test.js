@@ -1,7 +1,13 @@
-var test = require('tap').test;
+var tap = require('tap');
+var {test, only} = tap;
+tap.runOnly = false; // <- for debug. set to true, and replace a test to only(..)
+
 var path = require('path');
 var fs = require('fs');
 var sinon = require('sinon');
+var depGraphLib = require('@snyk/dep-graph');
+var _ = require('lodash');
+
 var apiKey = '123456789';
 var oldkey;
 var oldendpoint;
@@ -13,15 +19,14 @@ var server = require('./fake-server')(process.env.SNYK_API, apiKey);
 var subProcess = require('../../src/lib/sub-process');
 var plugins = require('../../src/lib/plugins');
 var needle = require('needle');
-var config = require('../../src/lib/config');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
 var cli = require('../../src/cli/commands');
 var snykPolicy = require('snyk-policy');
 
-var before = test;
-var after = test;
+var before = tap.runOnly ? only : test;
+var after = tap.runOnly ? only : test;
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -205,37 +210,301 @@ test('`test ruby-app-no-lockfile --file=Gemfile`', function (t) {
   });
 });
 
-test('`test ruby-app --file=Gemfile.lock` sends Gemfile and Lockfile',
-function (t) {
+test('`test ruby-app --file=Gemfile.lock`', async (t) => {
   chdirWorkspaces();
-  return cli.test('ruby-app', {file: 'Gemfile.lock'})
-  .then(function () {
-    var req = server.popRequest();
-    var files = req.body.files;
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/rubygems', 'posts to correct url');
-    t.equal(req.body.targetFile, 'Gemfile.lock', 'specifies target');
-    t.match(decode64(files.gemfile.contents),
-      'source :rubygems', 'attaches Gemfile');
-    t.match(decode64(files.gemfileLock.contents),
-      'remote: http://rubygems.org/', 'attaches Gemfile.lock');
-  });
+  await cli.test('ruby-app', {file: 'Gemfile.lock'});
+
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+
+  const depGraph = req.body.depGraph;
+  t.equal(depGraph.pkgManager.name, 'rubygems');
+  t.same(
+    depGraph.pkgs.map((p) => p.id).sort(),
+    ['ruby-app@', 'json@2.0.2', 'lynx@0.4.0'].sort(),
+    'depGraph looks fine');
 });
 
-test('`test ruby-app` returns correct meta', function (t) {
+test('`test ruby-app` meta when no vulns',  async (t) => {
   chdirWorkspaces();
-  return cli.test('ruby-app')
-  .then(function (res) {
+  const res = await cli.test('ruby-app');
+
+  var meta = res.slice(res.indexOf('Organisation:')).split('\n');
+  t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+  t.match(meta[1], /Package manager:\s+rubygems/,
+    'package manager displayed');
+  t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
+  t.match(meta[3], /Open source:\s+no/, 'open source displayed');
+  t.match(meta[4], /Project path:\s+ruby-app/, 'path displayed');
+  t.notMatch(meta[5], /Local Snyk policy:\s+found/,
+    'local policy not displayed');
+});
+
+test('`test ruby-app-thresholds`', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-thresholds/test-graph-result.json'));
+
+  try {
+    await cli.test('ruby-app-thresholds');
+    t.fail('should have thrown');
+  } catch (err) {
+    const res = err.message;
+
+    t.match(res,
+      'Tested 7 dependencies for known vulnerabilities, found 6 vulnerabilities, 7 vulnerable paths',
+      '6 vulns');
+
     var meta = res.slice(res.indexOf('Organisation:')).split('\n');
     t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
     t.match(meta[1], /Package manager:\s+rubygems/,
       'package manager displayed');
     t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
     t.match(meta[3], /Open source:\s+no/, 'open source displayed');
-    t.match(meta[4], /Project path:\s+ruby-app/, 'path displayed');
+    t.match(meta[4], /Project path:\s+ruby-app-thresholds/, 'path displayed');
     t.notMatch(meta[5], /Local Snyk policy:\s+found/,
       'local policy not displayed');
+  }
+});
+
+test('`test ruby-app-thresholds --severity-threshold=low --json`', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-thresholds/test-graph-result-low-severity.json'));
+
+  try {
+    await cli.test('ruby-app-thresholds', {
+      severityThreshold: 'low',
+      json: true,
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    var req = server.popRequest();
+    t.is(req.query.severityThreshold, 'low');
+
+    const res = JSON.parse(err.message);
+
+    const expected =
+      require('./workspaces/ruby-app-thresholds/legacy-res-json-low-severity.json');
+
+    t.deepEqual(
+      _.omit(res, ['vulnerabilities']),
+      _.omit(expected, ['vulnerabilities']),
+      'metadata is ok');
+    t.deepEqual(
+      _.sortBy(res.vulnerabilities, 'id'),
+      _.sortBy(expected.vulnerabilities, 'id'),
+      'vulns are the same');
+  }
+});
+
+test('`test ruby-app-thresholds --severity-threshold=medium`', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-thresholds/test-graph-result-medium-severity.json'));
+
+  try {
+    await cli.test('ruby-app-thresholds', {
+      severityThreshold: 'medium',
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    var req = server.popRequest();
+    t.is(req.query.severityThreshold, 'medium');
+
+    const res = err.message;
+
+    t.match(res,
+      'Tested 7 dependencies for known vulnerabilities, found 5 vulnerabilities, 6 vulnerable paths',
+      '5 vulns');
+  }
+});
+
+test('`test ruby-app-thresholds --severity-threshold=medium --json`', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-thresholds/test-graph-result-medium-severity.json'));
+
+  try {
+    await cli.test('ruby-app-thresholds', {
+      severityThreshold: 'medium',
+      json: true,
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    var req = server.popRequest();
+    t.is(req.query.severityThreshold, 'medium');
+
+    const res = JSON.parse(err.message);
+
+    const expected =
+      require('./workspaces/ruby-app-thresholds/legacy-res-json-medium-severity.json');
+
+    t.deepEqual(
+      _.omit(res, ['vulnerabilities']),
+      _.omit(expected, ['vulnerabilities']),
+      'metadata is ok');
+    t.deepEqual(
+      _.sortBy(res.vulnerabilities, 'id'),
+      _.sortBy(expected.vulnerabilities, 'id'),
+      'vulns are the same');
+  }
+});
+
+test('`test ruby-app-thresholds --severity-threshold=high', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-thresholds/test-graph-result-high-severity.json'));
+
+  try {
+    await cli.test('ruby-app-thresholds', {
+      severityThreshold: 'high',
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    var req = server.popRequest();
+    t.is(req.query.severityThreshold, 'high');
+
+    const res = err.message;
+
+    t.match(res,
+      'Tested 7 dependencies for known vulnerabilities, found 3 vulnerabilities, 4 vulnerable paths',
+      '3 vulns');
+  }
+});
+
+test('`test ruby-app-thresholds --severity-threshold=high --json`', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-thresholds/test-graph-result-high-severity.json'));
+
+  try {
+    await cli.test('ruby-app-thresholds', {
+      severityThreshold: 'high',
+      json: true,
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    var req = server.popRequest();
+    t.is(req.query.severityThreshold, 'high');
+
+    const res = JSON.parse(err.message);
+
+    const expected =
+      require('./workspaces/ruby-app-thresholds/legacy-res-json-high-severity.json');
+
+    t.deepEqual(
+      _.omit(res, ['vulnerabilities']),
+      _.omit(expected, ['vulnerabilities']),
+      'metadata is ok');
+    t.deepEqual(
+      _.sortBy(res.vulnerabilities, 'id'),
+      _.sortBy(expected.vulnerabilities, 'id'),
+      'vulns are the same');
+  }
+});
+
+test('`test ruby-app-policy`', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-policy/test-graph-result.json'));
+
+  try {
+    await cli.test('ruby-app-policy', {
+      json: true,
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    const res = JSON.parse(err.message);
+
+    const expected =
+      require('./workspaces/ruby-app-policy/legacy-res-json.json');
+
+    t.deepEqual(
+      _.omit(res, ['vulnerabilities']),
+      _.omit(expected, ['vulnerabilities']),
+      'metadata is ok');
+    t.deepEqual(
+      _.sortBy(res.vulnerabilities, 'id'),
+      _.sortBy(expected.vulnerabilities, 'id'),
+      'vulns are the same');
+  }
+});
+
+test('`test ruby-app-policy` with cloud ignores', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-policy/test-graph-result-cloud-ignore.json'));
+
+  try {
+    await cli.test('ruby-app-policy', {
+      json: true,
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    const res = JSON.parse(err.message);
+
+    const expected =
+      require('./workspaces/ruby-app-policy/legacy-res-json-cloud-ignore.json');
+
+    t.deepEqual(
+      _.omit(res, ['vulnerabilities']),
+      _.omit(expected, ['vulnerabilities']),
+      'metadata is ok');
+    t.deepEqual(
+      _.sortBy(res.vulnerabilities, 'id'),
+      _.sortBy(expected.vulnerabilities, 'id'),
+      'vulns are the same');
+  }
+});
+
+test('`test ruby-app-no-vulns`', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-no-vulns/test-graph-result.json'));
+
+  const outText = await cli.test('ruby-app-no-vulns', {
+    json: true,
   });
+
+  const res = JSON.parse(outText);
+
+  const expected =
+    require('./workspaces/ruby-app-no-vulns/legacy-res-json.json');
+
+  t.deepEqual(res, expected, '--json output is the same');
+});
+
+test('`test ruby-app-no-vulns`', async (t) => {
+  chdirWorkspaces();
+
+  const apiResponse = Object.assign(
+    {}, require('./workspaces/ruby-app-no-vulns/test-graph-result.json'));
+  apiResponse.meta.isPublic = true;
+  server.setNextResponse(apiResponse);
+
+  const outText = await cli.test('ruby-app-no-vulns', {
+    json: true,
+  });
+
+  const res = JSON.parse(outText);
+
+  const expected = Object.assign(
+    {},
+    require('./workspaces/ruby-app-no-vulns/legacy-res-json.json'),
+    {isPrivate: false});
+
+  t.deepEqual(res, expected, '--json output is the same');
 });
 
 test('`test gradle-app` returns correct meta', function (t) {
@@ -259,23 +528,6 @@ test('`test gradle-app` returns correct meta', function (t) {
     t.match(meta[2], /Target file:\s+build.gradle/, 'target file displayed');
     t.match(meta[3], /Open source:\s+no/, 'open source displayed');
     t.match(meta[4], /Project path:\s+gradle-app/, 'path displayed');
-    t.notMatch(meta[5], /Local Snyk policy:\s+found/,
-      'local policy not displayed');
-  });
-});
-
-test('`test` returns correct meta for a vulnerable result', function (t) {
-  chdirWorkspaces();
-  return cli.test('ruby-app', { org: 'org-with-vulns' })
-  .catch(function (res) {
-    var meta = res.message.slice(res.message.indexOf('Organisation:'))
-      .split('\n');
-    t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
-    t.match(meta[1], /Package manager:\s+rubygems/,
-      'package manager displayed');
-    t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
-    t.match(meta[3], /Open source:\s+no/, 'open source displayed');
-    t.match(meta[4], /Project path:\s+ruby-app/, 'path displayed');
     t.notMatch(meta[5], /Local Snyk policy:\s+found/,
       'local policy not displayed');
   });
@@ -305,52 +557,55 @@ test('`test npm-package-policy` returns correct meta', function (t) {
 });
 
 
-test('`test ruby-gem-no-lockfile --file=ruby-gem.gemspec` sends gemspec',
-function (t) {
+test('`test ruby-gem-no-lockfile --file=ruby-gem.gemspec`', async (t) => {
   chdirWorkspaces();
-  return cli.test('ruby-gem-no-lockfile', {file: 'ruby-gem.gemspec'})
-  .then(function () {
-    var req = server.popRequest();
-    var files = req.body.files;
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/rubygems', 'posts to correct url');
-    t.equal(req.body.targetFile, 'ruby-gem.gemspec', 'specifies target');
-    t.match(decode64(files.gemspec.contents),
-      'Example Gemspec', 'attaches gemspec file');
-  });
+  await cli.test('ruby-gem-no-lockfile', {file: 'ruby-gem.gemspec'});
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+
+  const depGraph = req.body.depGraph;
+  t.equal(depGraph.pkgManager.name, 'rubygems');
+  t.same(depGraph.pkgs.map((p) => p.id),
+    ['ruby-gem-no-lockfile@'],
+    'no deps as we dont really support gemspecs yet');
 });
 
-test('`test ruby-gem --file=ruby-gem.gemspec` sends gemspec and Lockfile',
-function (t) {
+test('`test ruby-gem --file=ruby-gem.gemspec`', async (t) => {
   chdirWorkspaces();
-  return cli.test('ruby-gem', {file: 'ruby-gem.gemspec'})
-  .then(function () {
-    var req = server.popRequest();
-    var files = req.body.files;
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/rubygems', 'posts to correct url');
-    t.equal(req.body.targetFile, 'ruby-gem.gemspec', 'specifies target');
-    t.match(decode64(files.gemspec.contents),
-      'Example Gemspec', 'attaches gemspec file');
-    t.match(decode64(files.gemfileLock.contents),
-      'ruby-gem (0.1.0)', 'attaches Gemfile.lock');
-  });
+  await cli.test('ruby-gem', {file: 'ruby-gem.gemspec'});
+
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+
+  const depGraph = req.body.depGraph;
+  t.equal(depGraph.pkgManager.name, 'rubygems');
+  t.same(
+    depGraph.pkgs.map((p) => p.id).sort(),
+    ['ruby-gem@', 'ruby-gem@0.1.0', 'rake@10.5.0'].sort(),
+    'depGraph looks fine');
 });
 
 test('`test ruby-app` auto-detects Gemfile', function (t) {
   chdirWorkspaces();
   return cli.test('ruby-app')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/rubygems', 'posts to correct url');
-    t.equal(req.body.targetFile, 'Gemfile', 'specifies target');
-  });
+    .then(function () {
+      var req = server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+
+      const depGraph = req.body.depGraph;
+      t.equal(depGraph.pkgManager.name, 'rubygems');
+      t.same(
+        depGraph.pkgs.map((p) => p.id).sort(),
+        ['ruby-app@', 'json@2.0.2', 'lynx@0.4.0'].sort(),
+        'depGraph looks fine');
+      t.equal(req.body.targetFile, 'Gemfile', 'specifies target');
+    });
 });
 
-
-test('`test nuget-app-2 auto-detects project.assets.json`',
-function (t) {
+test('`test nuget-app-2 auto-detects project.assets.json`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -362,28 +617,27 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
+    .withArgs('nuget')
+    .returns(plugin);
 
-  return cli.test('nuget-app-2')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app-2', 'project.assets.json', {
-        args: null,
-        file: 'project.assets.json',
-        org: null,
-        packageManager: 'nuget',
-        path: 'nuget-app-2',
-        showVulnPaths: true,
-      },], 'calls nuget plugin');
-  });
+  await cli.test('nuget-app-2');
+
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'nuget');
+  t.same(plugin.inspect.getCall(0).args,
+    ['nuget-app-2', 'project.assets.json', {
+      args: null,
+      file: 'project.assets.json',
+      org: null,
+      packageManager: 'nuget',
+      path: 'nuget-app-2',
+      showVulnPaths: true,
+    }], 'calls nuget plugin');
 });
 
-test('`test nuget-app-2.1 auto-detects obj/project.assets.json`',
-function (t) {
+test('`test nuget-app-2.1 auto-detects obj/project.assets.json`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -395,29 +649,27 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
+    .withArgs('nuget')
+    .returns(plugin);
 
-  return cli.test('nuget-app-2.1')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app-2.1', 'obj/project.assets.json', {
-        args: null,
-        file: 'obj/project.assets.json',
-        org: null,
-        packageManager: 'nuget',
-        path: 'nuget-app-2.1',
-        showVulnPaths: true,
-      },], 'calls nuget plugin');
-  });
+  await cli.test('nuget-app-2.1');
+
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'nuget');
+  t.same(plugin.inspect.getCall(0).args,
+    ['nuget-app-2.1', 'obj/project.assets.json', {
+      args: null,
+      file: 'obj/project.assets.json',
+      org: null,
+      packageManager: 'nuget',
+      path: 'nuget-app-2.1',
+      showVulnPaths: true,
+    }], 'calls nuget plugin');
 });
 
-
-test('`test nuget-app-4 auto-detects packages.config`',
-function (t) {
+test('`test nuget-app-4 auto-detects packages.config`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -429,59 +681,61 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
+    .withArgs('nuget')
+    .returns(plugin);
 
-  return cli.test('nuget-app-4')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app-4', 'packages.config', {
-        args: null,
-        file: 'packages.config',
-        org: null,
-        packageManager: 'nuget',
-        path: 'nuget-app-4',
-        showVulnPaths: true,
-      },], 'calls nuget plugin');
-  });
+  await cli.test('nuget-app-4');
+
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'nuget');
+  t.same(plugin.inspect.getCall(0).args,
+    ['nuget-app-4', 'packages.config', {
+      args: null,
+      file: 'packages.config',
+      org: null,
+      packageManager: 'nuget',
+      path: 'nuget-app-4',
+      showVulnPaths: true,
+    }], 'calls nuget plugin');
 });
 
-test('`test monorepo --file=sub-ruby-app/Gemfile`', function (t) {
+test('`test monorepo --file=sub-ruby-app/Gemfile`', async (t) => {
   chdirWorkspaces();
-  return cli.test('monorepo', {file: 'sub-ruby-app/Gemfile'})
-  .then(function () {
-    var req = server.popRequest();
-    var files = req.body.files;
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/rubygems', 'posts to correct url');
-    t.equal(req.body.targetFile, path.join('sub-ruby-app', 'Gemfile'),
-      'specifies target');
-    t.equal(files.gemfile.name, path.join('sub-ruby-app', 'Gemfile'),
-    'specifies name');
-  });
+  await cli.test('monorepo', {file: 'sub-ruby-app/Gemfile'});
+
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+
+  const depGraph = req.body.depGraph;
+  t.equal(depGraph.pkgManager.name, 'rubygems');
+  t.same(
+    depGraph.pkgs.map((p) => p.id).sort(),
+    ['monorepo@', 'json@2.0.2', 'lynx@0.4.0'].sort(),
+    'depGraph looks fine');
+
+  t.equal(req.body.targetFile, path.join('sub-ruby-app', 'Gemfile'),
+    'specifies target');
 });
 
-test('`test maven-app --file=pom.xml --dev` sends package info',
-function (t) {
+test('`test maven-app --file=pom.xml --dev` sends package info', async (t) => {
   chdirWorkspaces();
   stubExec(t, 'maven-app/mvn-dep-tree-stdout.txt');
-  return cli.test('maven-app',
-    {file: 'pom.xml', org: 'nobelprize.org', dev: true})
-  .then(function () {
-    var req = server.popRequest();
-    var pkg = req.body;
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/maven', 'posts to correct url');
-    t.equal(pkg.name, 'com.mycompany.app:maven-app', 'specifies name');
-    t.ok(pkg.dependencies['axis:axis'], 'specifies dependency');
-    t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
-    t.equal(pkg.dependencies['junit:junit'].name, 'junit:junit',
-            'specifies dependency name');
-    t.equal(req.query.org, 'nobelprize.org', 'org sent as a query in request');
-  });
+  await cli.test('maven-app', {file: 'pom.xml', org: 'nobelprize.org', dev: true});
+
+  const req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.query.org, 'nobelprize.org', 'org sent as a query in request');
+
+  const depGraph = depGraphLib.createFromJSON(req.body.depGraph);
+  t.equal(depGraph.rootPkg.name, 'com.mycompany.app:maven-app', 'root name');
+  const pkgs = depGraph.getPkgs().map((x) => `${x.name}@${x.version}`);
+  t.ok(pkgs.indexOf('com.mycompany.app:maven-app@1.0-SNAPSHOT') >= 0);
+  t.ok(pkgs.indexOf('axis:axis@1.4') >= 0);
+  t.ok(pkgs.indexOf('junit:junit@3.8.2') >= 0);
 });
 
 test('`test npm-package` sends pkg info', function (t) {
@@ -648,8 +902,7 @@ function (t) {
   });
 });
 
-test('`test pip-app --file=requirements.txt`',
-function (t) {
+test('`test pip-app --file=requirements.txt`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -661,30 +914,28 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('pip')
-  .returns(plugin);
+    .withArgs('pip')
+    .returns(plugin);
 
-  return cli.test('pip-app', {
+  await cli.test('pip-app', {
     file: 'requirements.txt',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/pip', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['pip-app', 'requirements.txt', {
-        args: null,
-        file: 'requirements.txt',
-        org: null,
-        packageManager: 'pip',
-        path: 'pip-app',
-        showVulnPaths: true,
-      }], 'calls python plugin');
   });
+  const req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'pip');
+  t.same(plugin.inspect.getCall(0).args,
+    ['pip-app', 'requirements.txt', {
+      args: null,
+      file: 'requirements.txt',
+      org: null,
+      packageManager: 'pip',
+      path: 'pip-app',
+      showVulnPaths: true,
+    }], 'calls python plugin');
 });
 
-test('`test pipenv-app --file=Pipfile`',
-function (t) {
+test('`test pipenv-app --file=Pipfile`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -696,29 +947,28 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('pip')
-  .returns(plugin);
+    .withArgs('pip')
+    .returns(plugin);
 
-  return cli.test('pipenv-app', {
+  await cli.test('pipenv-app', {
     file: 'Pipfile',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/pip', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['pipenv-app', 'Pipfile', {
-        args: null,
-        file: 'Pipfile',
-        org: null,
-        packageManager: 'pip',
-        path: 'pipenv-app',
-        showVulnPaths: true,
-      }], 'calls python plugin');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'pip');
+  t.same(plugin.inspect.getCall(0).args,
+    ['pipenv-app', 'Pipfile', {
+      args: null,
+      file: 'Pipfile',
+      org: null,
+      packageManager: 'pip',
+      path: 'pipenv-app',
+      showVulnPaths: true,
+    }], 'calls python plugin');
 });
 
-test('`test nuget-app --file=project.assets.json`', function (t) {
+test('`test nuget-app --file=project.assets.json`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -730,29 +980,28 @@ test('`test nuget-app --file=project.assets.json`', function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
+    .withArgs('nuget')
+    .returns(plugin);
 
-  return cli.test('nuget-app', {
+  await cli.test('nuget-app', {
     file: 'project.assets.json',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app', 'project.assets.json', {
-        args: null,
-        file: 'project.assets.json',
-        org: null,
-        packageManager: 'nuget',
-        path: 'nuget-app',
-        showVulnPaths: true,
-      },], 'calls nuget plugin');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'nuget');
+  t.same(plugin.inspect.getCall(0).args,
+    ['nuget-app', 'project.assets.json', {
+      args: null,
+      file: 'project.assets.json',
+      org: null,
+      packageManager: 'nuget',
+      path: 'nuget-app',
+      showVulnPaths: true,
+    }], 'calls nuget plugin');
 });
 
-test('`test nuget-app --file=packages.config`', function (t) {
+test('`test nuget-app --file=packages.config`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -764,29 +1013,28 @@ test('`test nuget-app --file=packages.config`', function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
+    .withArgs('nuget')
+    .returns(plugin);
 
-  return cli.test('nuget-app', {
+  await cli.test('nuget-app', {
     file: 'packages.config',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app', 'packages.config', {
-        args: null,
-        file: 'packages.config',
-        org: null,
-        packageManager: 'nuget',
-        path: 'nuget-app',
-        showVulnPaths: true,
-      },], 'calls nuget plugin');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'nuget');
+  t.same(plugin.inspect.getCall(0).args,
+    ['nuget-app', 'packages.config', {
+      args: null,
+      file: 'packages.config',
+      org: null,
+      packageManager: 'nuget',
+      path: 'nuget-app',
+      showVulnPaths: true,
+    }], 'calls nuget plugin');
 });
 
-test('`test nuget-app --file=project.json`', function (t) {
+test('`test nuget-app --file=project.json`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -798,30 +1046,28 @@ test('`test nuget-app --file=project.json`', function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('nuget')
-  .returns(plugin);
+    .withArgs('nuget')
+    .returns(plugin);
 
-  return cli.test('nuget-app', {
+  await cli.test('nuget-app', {
     file: 'project.json',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/nuget', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['nuget-app', 'project.json', {
-        args: null,
-        file: 'project.json',
-        org: null,
-        packageManager: 'nuget',
-        path: 'nuget-app',
-        showVulnPaths: true,
-      },], 'calls nuget plugin');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'nuget');
+  t.same(plugin.inspect.getCall(0).args,
+    ['nuget-app', 'project.json', {
+      args: null,
+      file: 'project.json',
+      org: null,
+      packageManager: 'nuget',
+      path: 'nuget-app',
+      showVulnPaths: true,
+    }], 'calls nuget plugin');
 });
 
-test('`test golang-app --file=Gopkg.lock`',
-function (t) {
+test('`test golang-app --file=Gopkg.lock`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -833,30 +1079,28 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('golangdep')
-  .returns(plugin);
+    .withArgs('golangdep')
+    .returns(plugin);
 
-  return cli.test('golang-app', {
+  await cli.test('golang-app', {
     file: 'Gopkg.lock',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/golangdep', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['golang-app', 'Gopkg.lock', {
-        args: null,
-        file: 'Gopkg.lock',
-        org: null,
-        packageManager: 'golangdep',
-        path: 'golang-app',
-        showVulnPaths: true,
-      },], 'calls golang plugin');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'golangdep');
+  t.same(plugin.inspect.getCall(0).args,
+    ['golang-app', 'Gopkg.lock', {
+      args: null,
+      file: 'Gopkg.lock',
+      org: null,
+      packageManager: 'golangdep',
+      path: 'golang-app',
+      showVulnPaths: true,
+    }], 'calls golang plugin');
 });
 
-test('`test golang-app --file=vendor/vendor.json`',
-function (t) {
+test('`test golang-app --file=vendor/vendor.json`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -868,30 +1112,28 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('govendor')
-  .returns(plugin);
+    .withArgs('govendor')
+    .returns(plugin);
 
-  return cli.test('golang-app', {
+  await cli.test('golang-app', {
     file: 'vendor/vendor.json',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/govendor', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['golang-app', 'vendor/vendor.json', {
-        args: null,
-        file: 'vendor/vendor.json',
-        org: null,
-        packageManager: 'govendor',
-        path: 'golang-app',
-        showVulnPaths: true,
-      },], 'calls golang plugin');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'govendor');
+  t.same(plugin.inspect.getCall(0).args,
+    ['golang-app', 'vendor/vendor.json', {
+      args: null,
+      file: 'vendor/vendor.json',
+      org: null,
+      packageManager: 'govendor',
+      path: 'golang-app',
+      showVulnPaths: true,
+    }], 'calls golang plugin');
 });
 
-test('`test golang-app` auto-detects golang/dep',
-function (t) {
+test('`test golang-app` auto-detects golang/dep', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -903,28 +1145,26 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('golangdep')
-  .returns(plugin);
+    .withArgs('golangdep')
+    .returns(plugin);
 
-  return cli.test('golang-app')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/golangdep', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['golang-app', 'Gopkg.lock', {
-        args: null,
-        file: 'Gopkg.lock',
-        org: null,
-        packageManager: 'golangdep',
-        path: 'golang-app',
-        showVulnPaths: true,
-      },], 'calls golang plugin');
-  });
+  await cli.test('golang-app');
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'golangdep');
+  t.same(plugin.inspect.getCall(0).args,
+    ['golang-app', 'Gopkg.lock', {
+      args: null,
+      file: 'Gopkg.lock',
+      org: null,
+      packageManager: 'golangdep',
+      path: 'golang-app',
+      showVulnPaths: true,
+    }], 'calls golang plugin');
 });
 
-test('`test golang-app-govendor` auto-detects govendor',
-function (t) {
+test('`test golang-app-govendor` auto-detects govendor', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -936,28 +1176,26 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('govendor')
-  .returns(plugin);
+    .withArgs('govendor')
+    .returns(plugin);
 
-  return cli.test('golang-app-govendor')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/govendor', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['golang-app-govendor', 'vendor/vendor.json', {
-        args: null,
-        file: 'vendor/vendor.json',
-        org: null,
-        packageManager: 'govendor',
-        path: 'golang-app-govendor',
-        showVulnPaths: true,
-      },], 'calls golang plugin');
-  });
+  await cli.test('golang-app-govendor');
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'govendor');
+  t.same(plugin.inspect.getCall(0).args,
+    ['golang-app-govendor', 'vendor/vendor.json', {
+      args: null,
+      file: 'vendor/vendor.json',
+      org: null,
+      packageManager: 'govendor',
+      path: 'golang-app-govendor',
+      showVulnPaths: true,
+    }], 'calls golang plugin');
 });
 
-test('`test composer-app --file=composer.lock`',
-function (t) {
+test('`test composer-app --file=composer.lock`', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -969,29 +1207,28 @@ function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('composer')
-  .returns(plugin);
+    .withArgs('composer')
+    .returns(plugin);
 
-  return cli.test('composer-app', {
+  await cli.test('composer-app', {
     file: 'composer.lock',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/composer', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['composer-app', 'composer.lock', {
-        args: null,
-        file: 'composer.lock',
-        org: null,
-        packageManager: 'composer',
-        path: 'composer-app',
-        showVulnPaths: true,
-      },], 'calls composer plugin');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'composer');
+  t.same(plugin.inspect.getCall(0).args,
+    ['composer-app', 'composer.lock', {
+      args: null,
+      file: 'composer.lock',
+      org: null,
+      packageManager: 'composer',
+      path: 'composer-app',
+      showVulnPaths: true,
+    }], 'calls composer plugin');
 });
 
-test('`test composer-app` auto-detects composer.lock', function (t) {
+test('`test composer-app` auto-detects composer.lock', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -1003,61 +1240,26 @@ test('`test composer-app` auto-detects composer.lock', function (t) {
   sinon.stub(plugins, 'loadPlugin');
   t.teardown(plugins.loadPlugin.restore);
   plugins.loadPlugin
-  .withArgs('composer')
-  .returns(plugin);
+    .withArgs('composer')
+    .returns(plugin);
 
-  return cli.test('composer-app')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/composer', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['composer-app', 'composer.lock', {
-        args: null,
-        file: 'composer.lock',
-        org: null,
-        packageManager: 'composer',
-        path: 'composer-app',
-        showVulnPaths: true,
-      },], 'calls composer plugin');
-  });
+  await cli.test('composer-app');
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'composer');
+  t.same(plugin.inspect.getCall(0).args,
+    ['composer-app', 'composer.lock', {
+      args: null,
+      file: 'composer.lock',
+      org: null,
+      packageManager: 'composer',
+      path: 'composer-app',
+      showVulnPaths: true,
+    }], 'calls composer plugin');
 });
 
-test('`test composer-app` auto-detects composer.lock',
-function (t) {
-  chdirWorkspaces();
-  var plugin = {
-    inspect: function () {
-      return Promise.resolve({package: {}});
-    },
-  };
-  sinon.spy(plugin, 'inspect');
-
-  sinon.stub(plugins, 'loadPlugin');
-  t.teardown(plugins.loadPlugin.restore);
-  plugins.loadPlugin
-  .withArgs('composer')
-  .returns(plugin);
-
-  return cli.test('composer-app')
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/composer', 'posts to correct url');
-    t.same(plugin.inspect.getCall(0).args,
-      ['composer-app', 'composer.lock', {
-        args: null,
-        file: 'composer.lock',
-        org: null,
-        packageManager: 'composer',
-        path: 'composer-app',
-        showVulnPaths: true,
-      },], 'calls composer plugin');
-  });
-});
-
-test('`test composer-app golang-app nuget-app` auto-detects all three projects',
-function (t) {
+test('`test composer-app golang-app nuget-app` auto-detects all three projects', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -1072,58 +1274,59 @@ function (t) {
   plugins.loadPlugin.withArgs('golangdep').returns(plugin);
   plugins.loadPlugin.withArgs('nuget').returns(plugin);
 
-  return cli.test('composer-app', 'golang-app', 'nuget-app', {org: 'test-org'})
-  .then(function () {
-    // assert three API calls made, each with a different url
-    var reqs = Array.from({length:3})
-      .map(function () { return server.popRequest(); });
+  await cli.test('composer-app', 'golang-app', 'nuget-app', {org: 'test-org'});
+  // assert three API calls made, each with a different url
+  var reqs = Array.from({length: 3})
+    .map(() => server.popRequest());
 
-    t.same(reqs.map(function (r) { return r.method; }),
-      ['POST', 'POST', 'POST'], 'all post requests');
+  t.same(reqs.map((r) => r.method),
+    ['POST', 'POST', 'POST'], 'all post requests');
 
-    t.same(reqs.map(function (r) { return r.url; }).sort(), [
-      '/api/v1/vuln/composer?org=test-org',
-      '/api/v1/vuln/golangdep?org=test-org',
-      '/api/v1/vuln/nuget?org=test-org',
-    ], 'all urls are present');
+  t.same(reqs.map((r) => r.url), [
+    '/api/v1/test-dep-graph?org=test-org',
+    '/api/v1/test-dep-graph?org=test-org',
+    '/api/v1/test-dep-graph?org=test-org',
+  ], 'all urls are present');
 
-    // assert three plugin.inspect calls, each with a different app
-    var calls = plugin.inspect.getCalls().sort(function (call1, call2) {
-      return call1.args[0] < call2.args[1] ? -1 :
-              (call1.args[0] > call2.args[0] ? 1 : 0);
-    });
-    t.same(calls[0].args,
-      ['composer-app', 'composer.lock', {
-        args: null,
-        org: 'test-org',
-        file: 'composer.lock',
-        packageManager: 'composer',
-        path: 'composer-app',
-        showVulnPaths: true,
-      },], 'calls composer plugin');
-    t.same(calls[1].args,
-      ['golang-app', 'Gopkg.lock', {
-        args: null,
-        org: 'test-org',
-        file: 'Gopkg.lock',
-        packageManager: 'golangdep',
-        path: 'golang-app',
-        showVulnPaths: true,
-      },], 'calls golangdep plugin');
-    t.same(calls[2].args,
-      ['nuget-app', 'project.assets.json', {
-        args: null,
-        org: 'test-org',
-        file: 'project.assets.json',
-        packageManager: 'nuget',
-        path: 'nuget-app',
-        showVulnPaths: true,
-      },], 'calls nuget plugin');
+  t.same(reqs.map((r) => r.body.depGraph.pkgManager.name).sort(),
+    ['composer', 'golangdep', 'nuget'],
+    'all urls are present');
+
+  // assert three plugin.inspect calls, each with a different app
+  var calls = plugin.inspect.getCalls().sort(function (call1, call2) {
+    return call1.args[0] < call2.args[1] ? -1 :
+      (call1.args[0] > call2.args[0] ? 1 : 0);
   });
+  t.same(calls[0].args,
+    ['composer-app', 'composer.lock', {
+      args: null,
+      org: 'test-org',
+      file: 'composer.lock',
+      packageManager: 'composer',
+      path: 'composer-app',
+      showVulnPaths: true,
+    }], 'calls composer plugin');
+  t.same(calls[1].args,
+    ['golang-app', 'Gopkg.lock', {
+      args: null,
+      org: 'test-org',
+      file: 'Gopkg.lock',
+      packageManager: 'golangdep',
+      path: 'golang-app',
+      showVulnPaths: true,
+    }], 'calls golangdep plugin');
+  t.same(calls[2].args,
+    ['nuget-app', 'project.assets.json', {
+      args: null,
+      org: 'test-org',
+      file: 'project.assets.json',
+      packageManager: 'nuget',
+      path: 'nuget-app',
+      showVulnPaths: true,
+    }], 'calls nuget plugin');
 });
 
-test('`test foo:latest --docker`',
-function (t) {
+test('`test foo:latest --docker`', async (t) => {
   var plugin = {
     inspect: function () {
       return Promise.resolve({
@@ -1141,37 +1344,49 @@ function (t) {
     .returns(plugin);
   t.teardown(plugins.loadPlugin.restore);
 
-  return cli.test('foo:latest', {
+  await cli.test('foo:latest', {
     docker: true,
     org: 'explicit-org',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/deb',
-      'posts to correct url (uses package manager from plugin response)');
-    t.same(plugin.inspect.getCall(0).args,
-      ['foo:latest', null, {
-        args: null,
-        file: null,
-        docker: true,
-        org: 'explicit-org',
-        packageManager: null,
-        path: 'foo:latest',
-        showVulnPaths: true,
-      }], 'calls docker plugin with expected arguments');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'deb');
+  t.same(plugin.inspect.getCall(0).args,
+    ['foo:latest', null, {
+      args: null,
+      file: null,
+      docker: true,
+      org: 'explicit-org',
+      packageManager: null,
+      path: 'foo:latest',
+      showVulnPaths: true,
+    }], 'calls docker plugin with expected arguments');
 });
 
-test('`test foo:latest --docker vulnerable paths`',
-function (t) {
-  var plugin = {
+test('`test foo:latest --docker vulnerable paths`', async (t) => {
+  const plugin = {
     inspect: function () {
       return Promise.resolve({
         plugin: {
           packageManager: 'deb',
         },
-        package: {},
+        package: {
+          name: 'docker-image',
+          dependencies: {
+            'apt/libapt-pkg5.0': {
+              version: '1.6.3ubuntu0.1',
+              dependencies: {
+                'bzip2/libbz2-1.0': {
+                  version: '1.0.6-8.1',
+                },
+              },
+            },
+            'bzip2/libbz2-1.0': {
+              version: '1.0.6-8.1',
+            },
+          },
+        },
       });
     },
   };
@@ -1182,22 +1397,26 @@ function (t) {
     .returns(plugin);
   t.teardown(plugins.loadPlugin.restore);
 
-  var vulns = require('./fixtures/docker/vulns.json');
+  const vulns = require('./fixtures/docker/find-result.json');
   server.setNextResponse(vulns);
 
-  return cli.test('foo:latest', {
-    docker: true,
-    org: 'explicit-org',
-  })
-  .catch(function (res) {
-    var req = server.popRequest();
-    t.false(res.message.includes('vulnerable paths'),
-     'docker should not includes number of vulnerable paths');
-  });
+  try {
+    await cli.test('foo:latest', {
+      docker: true,
+      org: 'explicit-org',
+    });
+    t.fail('should have found vuln');
+  } catch (err) {
+    const msg = err.message;
+    t.match(msg, 'Tested 2 dependencies for known vulnerabilities, found 1 vulnerability');
+    t.match(msg, 'From: bzip2/libbz2-1.0@1.0.6-8.1');
+    t.match(msg, 'From: apt/libapt-pkg5.0@1.6.3ubuntu0.1 > bzip2/libbz2-1.0@1.0.6-8.1');
+    t.false(msg.includes('vulnerable paths'),
+      'docker should not includes number of vulnerable paths');
+  }
 });
 
-test('`test foo:latest --docker --file=Dockerfile`',
-function (t) {
+test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
   var plugin = {
     inspect: function () {
       return Promise.resolve({
@@ -1219,33 +1438,84 @@ function (t) {
     .returns(plugin);
   t.teardown(plugins.loadPlugin.restore);
 
-  return cli.test('foo:latest', {
+  await cli.test('foo:latest', {
     docker: true,
     org: 'explicit-org',
     file: 'Dockerfile',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/deb',
-      'posts to correct url (uses package manager from plugin response)');
-    t.equal(req.body.docker.baseImage, 'ubuntu:14.04',
-      'posts docker baseImage');
-    t.same(plugin.inspect.getCall(0).args,
-      ['foo:latest', 'Dockerfile', {
-        args: null,
-        file: 'Dockerfile',
-        docker: true,
-        org: 'explicit-org',
-        packageManager: null,
-        path: 'foo:latest',
-        showVulnPaths: true,
-      }], 'calls docker plugin with expected arguments');
   });
+
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'deb');
+  t.equal(req.body.docker.baseImage, 'ubuntu:14.04',
+    'posts docker baseImage');
+  t.same(plugin.inspect.getCall(0).args,
+    ['foo:latest', 'Dockerfile', {
+      args: null,
+      file: 'Dockerfile',
+      docker: true,
+      org: 'explicit-org',
+      packageManager: null,
+      path: 'foo:latest',
+      showVulnPaths: true,
+    }], 'calls docker plugin with expected arguments');
 });
 
-test('`test foo:latest --docker` doesnt collect policy from cwd',
-function (t) {
+test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t) => {
+  const plugin = {
+    inspect: function () {
+      return Promise.resolve({
+        plugin: {
+          packageManager: 'deb',
+        },
+        package: {
+          name: 'docker-image',
+          docker: {
+            baseImage: 'ubuntu:14.04',
+          },
+          dependencies: {
+            'apt/libapt-pkg5.0': {
+              version: '1.6.3ubuntu0.1',
+              dependencies: {
+                'bzip2/libbz2-1.0': {
+                  version: '1.0.6-8.1',
+                },
+              },
+            },
+            'bzip2/libbz2-1.0': {
+              version: '1.0.6-8.1',
+            },
+          },
+        },
+      });
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+
+  sinon.stub(plugins, 'loadPlugin')
+    .withArgs(sinon.match.any, sinon.match({docker: true}))
+    .returns(plugin);
+  t.teardown(plugins.loadPlugin.restore);
+
+  const vulns = require('./fixtures/docker/find-result-remediation.json');
+  server.setNextResponse(vulns);
+
+  try {
+    await cli.test('foo:latest', {
+      docker: true,
+      org: 'explicit-org',
+      file: 'Dockerfile',
+    });
+    t.fail('should have found vuln');
+  } catch (err) {
+    const msg = err.message;
+    t.match(msg, 'Base Image');
+    t.match(msg, 'Recommendations for base image upgrade');
+  }
+});
+
+test('`test foo:latest --docker` doesnt collect policy from cwd', async (t) => {
   chdirWorkspaces('npm-package-policy');
   var plugin = {
     inspect: function () {
@@ -1264,32 +1534,29 @@ function (t) {
     .returns(plugin);
   t.teardown(plugins.loadPlugin.restore);
 
-  return cli.test('foo:latest', {
+  await cli.test('foo:latest', {
     docker: true,
     org: 'explicit-org',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/deb',
-      'posts to correct url (uses package manager from plugin response)');
-    t.same(plugin.inspect.getCall(0).args,
-      ['foo:latest', null, {
-        args: null,
-        file: null,
-        docker: true,
-        org: 'explicit-org',
-        packageManager: null,
-        path: 'foo:latest',
-        showVulnPaths: true,
-      }], 'calls docker plugin with expected arguments');
-    var policyString = req.body.policy;
-    t.false(policyString, 'policy not sent');
   });
+  var req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'deb');
+  t.same(plugin.inspect.getCall(0).args,
+    ['foo:latest', null, {
+      args: null,
+      file: null,
+      docker: true,
+      org: 'explicit-org',
+      packageManager: null,
+      path: 'foo:latest',
+      showVulnPaths: true,
+    }], 'calls docker plugin with expected arguments');
+  var policyString = req.body.policy;
+  t.false(policyString, 'policy not sent');
 });
 
-test('`test foo:latest --docker` supports custom policy',
-function (t) {
+test('`test foo:latest --docker` supports custom policy', async (t) => {
   chdirWorkspaces();
   var plugin = {
     inspect: function () {
@@ -1308,34 +1575,31 @@ function (t) {
     .returns(plugin);
   t.teardown(plugins.loadPlugin.restore);
 
-  return cli.test('foo:latest', {
+  await cli.test('foo:latest', {
     docker: true,
     org: 'explicit-org',
     'policy-path': 'npm-package-policy/custom-location',
-  })
-  .then(function () {
-    var req = server.popRequest();
-    t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/deb',
-      'posts to correct url (uses package manager from plugin response)');
-    t.same(plugin.inspect.getCall(0).args,
-      ['foo:latest', null, {
-        args: null,
-        file: null,
-        docker: true,
-        org: 'explicit-org',
-        packageManager: null,
-        path: 'foo:latest',
-        showVulnPaths: true,
-        'policy-path': 'npm-package-policy/custom-location',
-      }], 'calls docker plugin with expected arguments');
-
-    var expected = fs.readFileSync(
-      path.join('npm-package-policy/custom-location', '.snyk'),
-      'utf8');
-    var policyString = req.body.policy;
-    t.equal(policyString, expected, 'sends correct policy');
   });
+  var req = server.popRequest();
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'deb');
+  t.same(plugin.inspect.getCall(0).args,
+    ['foo:latest', null, {
+      args: null,
+      file: null,
+      docker: true,
+      org: 'explicit-org',
+      packageManager: null,
+      path: 'foo:latest',
+      showVulnPaths: true,
+      'policy-path': 'npm-package-policy/custom-location',
+    }], 'calls docker plugin with expected arguments');
+
+  var expected = fs.readFileSync(
+    path.join('npm-package-policy/custom-location', '.snyk'),
+    'utf8');
+  var policyString = req.body.policy;
+  t.equal(policyString, expected, 'sends correct policy');
 });
 
 test('`test --policy-path`', function (t) {
@@ -1444,6 +1708,52 @@ test('`test npm-package-with-git-url ` handles git url with patch policy', funct
         'found policy file');
     });
 });
+
+test('`test sbt-simple-struts`', async (t) => {
+  chdirWorkspaces();
+
+  const plugin = {
+    inspect: () => {
+      return Promise.resolve({
+        plugin: {},
+        package: require('./workspaces/sbt-simple-struts/dep-tree.json'),
+      });
+    },
+  };
+  sinon.stub(plugins, 'loadPlugin').returns(plugin);
+
+  t.teardown(() => {
+    plugins.loadPlugin.restore();
+  });
+
+  server.setNextResponse(
+    require('./workspaces/sbt-simple-struts/test-graph-result.json'));
+
+  try {
+    await cli.test('sbt-simple-struts', {json: true});
+
+    t.fail('should have thrown');
+
+  } catch (err) {
+    const res = JSON.parse(err.message);
+
+    const expected =
+      require('./workspaces/sbt-simple-struts/legacy-res-json.json');
+
+    t.deepEqual(
+      _.omit(res, ['vulnerabilities', 'packageManager']),
+      _.omit(expected, ['vulnerabilities', 'packageManager']),
+      'metadata is ok');
+    // NOTE: decided to keep this discrepancy
+    t.is(res.packageManager, 'sbt',
+      'pacakgeManager is sbt, altough it was mavn with the legacy api');
+    t.deepEqual(
+      _.sortBy(res.vulnerabilities, 'id'),
+      _.sortBy(expected.vulnerabilities, 'id'),
+      'vulns are the same');
+  }
+});
+
 
 /**
  * `monitor`
