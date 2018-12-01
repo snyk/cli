@@ -1,6 +1,6 @@
 # Reporting Security Issues
 
-We at snyk value the security community and believe that responsible disclosure of security vulnerabilities in open source packages helps us ensure the security and privacy of the users.
+We at Snyk value the security community and believe that responsible disclosure of security vulnerabilities in open source packages helps us ensure the security and privacy of the users.
 
 If you believe you have found a security vulnerability on Snyk, we encourage you to let us know right away. We will investigate all legitimate reports and do our best to quickly fix the problem. Before reporting though, please review our responsible disclosure policy, and those things that should not be reported.
 
