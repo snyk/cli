@@ -2306,7 +2306,7 @@ test('`protect` for unsupported package managers', function (t) {
     { file: 'pip-app/requirements.txt', type: 'Python' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
-    { file: 'gradle-kotlin-dsl-app/build.gradle', type: 'Gradle' },
+    { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
     { file: 'golang-app/Gopkg.lock', type: 'Golang/Dep' },
     { file: 'golang-app/vendor/vendor.json', type: 'Govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
