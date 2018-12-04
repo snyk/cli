@@ -60,7 +60,7 @@
     "recursive-readdir": "^2.2.2",
     "semver": "^5.5.0",
     "snyk-config": "2.2.0",
-    "snyk-docker-plugin": "1.13.0",
+    "snyk-docker-plugin": "1.13.1",
     "snyk-go-plugin": "1.6.0",
     "snyk-gradle-plugin": "2.1.1",
     "snyk-module": "1.9.1",
