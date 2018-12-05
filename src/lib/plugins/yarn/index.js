@@ -74,9 +74,10 @@ async function generateDependenciesFromLockfile(root, options, targetFile) {
 
   const manifestFile = await fs.readFile(manifestFileFullPath, 'utf-8');
   const lockFile = await fs.readFile(lockFileFullPath, 'utf-8');
+  const defaultManifestFileName = path.relative(root, manifestFileFullPath);
 
-  return lockFileParser
-    .buildDepTree(manifestFile, lockFile, options.dev, lockFileParser.LockfileType.yarn);
+  return lockFileParser.buildDepTree(manifestFile, lockFile, options.dev,
+    lockFileParser.LockfileType.yarn, true, defaultManifestFileName);
 }
 
 function getRuntimeVersion() {
