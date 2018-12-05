@@ -3,7 +3,7 @@
     "@semantic-release/npm",
     {
       "path": "@semantic-release/exec",
-      "cmd": "npm i -g pkg && pkg ."
+      "cmd": "npm i -g pkg && pkg . && shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256"
     }
   ],
   "publish": [
@@ -17,14 +17,29 @@
           "label": "snyk-linux"
         },
         {
+          "path": "./snyk-linux.sha256",
+          "name": "snyk-linux.sha256",
+          "label": "snyk-linux.sha256"
+        },
+        {
           "path": "./snyk-macos",
           "name": "snyk-macos",
           "label": "snyk-macos"
         },
         {
+          "path": "./snyk-macos.sha256",
+          "name": "snyk-macos.sha256",
+          "label": "snyk-macos.sha256"
+        },
+        {
           "path": "./snyk-win.exe",
           "name": "snyk-win.exe",
           "label": "snyk-win.exe"
+        }
+        {
+          "path": "./snyk-win.exe.sha256",
+          "name": "snyk-win.exe.sha256",
+          "label": "snyk-win.exe.sha256"
         }
       ]
     }
