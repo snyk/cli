@@ -79,6 +79,7 @@
     "tempfile": "^2.0.0",
     "then-fs": "^2.0.0",
     "undefsafe": "^2.0.0",
+    "update-notifier": "^2.5.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {

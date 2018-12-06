@@ -13,6 +13,32 @@ import spinner = require('../lib/spinner');
 import errors = require('../lib/error');
 import ansiEscapes = require('ansi-escapes');
 import {isPathToPackageFile} from '../lib/detect';
+import * as updateNotifier from 'update-notifier';
+import * as fs from 'fs';
+import * as p from 'path';
+
+function updateCheck() {
+    const root = p.resolve(__dirname, p.normalize('../..'));
+    const pkgPath = p.resolve(root, 'package.json');
+    const isPkgFilePresent = fs.existsSync(pkgPath);
+
+    if (!isPkgFilePresent) {
+      return;
+    }
+
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+
+    // if there's no version (f.e. during tests) - do not proceed
+    if (!pkg.version) {
+      return;
+    }
+
+    // Checks for available update and returns an instance
+    // Default updateCheckInterval is once a day
+    const notifier = updateNotifier({pkg});
+    notifier.notify();
+    return;
+}
 
 async function runCommand(args) {
   const result = await args.method(...args.options._);
@@ -108,6 +134,7 @@ function checkPaths(args) {
 }
 
 async function main() {
+  updateCheck();
   checkRuntime();
 
   const args = argsLib(process.argv);
