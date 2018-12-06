@@ -49,7 +49,7 @@ exitWithMsg () {
 TEST_SETTINGS="";
 PROJECT_SUBDIR=""
 
-if [ ! -z "${TARGET_FILE}" ]; then
+if [ -n "${TARGET_FILE}" ]; then
   if [ ! -f "${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}" ]; then
     exitWithMsg "\"${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}\" does not exist" 1
   fi
@@ -59,7 +59,7 @@ if [ ! -z "${TARGET_FILE}" ]; then
   TEST_SETTINGS="--file=${MANIFEST_NAME} "
 fi
 
-if [ ! -z "${ORGANIZATION}" ]; then
+if [ -n "${ORGANIZATION}" ]; then
   TEST_SETTINGS="${TEST_SETTINGS} --org=${ORGANIZATION}"
 fi
 
@@ -73,7 +73,7 @@ if [ -z "${SNYK_TOKEN}" ]; then
   exitWithMsg "Missing \${SNYK_TOKEN}" 1
 fi
 
-if [ ! -z "${ENV_FLAGS}" ]; then
+if [ -n "${ENV_FLAGS}" ]; then
   ADDITIONAL_ENV="-- ${ENV_FLAGS}"
 fi
 
@@ -93,10 +93,10 @@ fi
 #
 # - `GENERATE_REPORT` - [OPTIONAL] if set, this will generate the HTML report with a summary of the vulnerabilities detected by snyk.
 #
-# if [ ! -z $GENERATE_REPORT ]; then
+# if [ -n $GENERATE_REPORT ]; then
 runCmdAsDockerUser "touch \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\""
 
-if [ ! -z "$MONITOR" ]; then
+if [ -n "$MONITOR" ]; then
   runCmdAsDockerUser "PATH=${PATH} snyk monitor --json ${SNYK_PARAMS} ${ADDITIONAL_ENV} | jq -r \".uri\" | awk '{print \"<center><a target=\\\"_blank\\\" href=\\\"\" \$0 \"\\\">View On Snyk.io</a></center>\"}' > \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\" 2>\"${ERROR_FILE}\""
 fi
 
