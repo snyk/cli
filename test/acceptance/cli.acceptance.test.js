@@ -1815,6 +1815,30 @@ test('`monitor non-existing`', function (t) {
   });
 });
 
+test('monitor for package with no name', function (t) {
+  t.plan(1);
+  return cli.monitor({
+    file: __dirname + '/../fixtures/package-sans-name/package.json',
+  })
+    .then(function () {
+      t.pass('succeed');
+    }).catch(function (e) {
+      t.fail('Failed with: ' + e.message);
+    });
+});
+
+test('monitor for package with no name in lockfile', function (t) {
+  t.plan(1);
+  return cli.monitor({
+    file: __dirname + '/../fixtures/package-sans-name-lockfile/package-lock.json',
+  })
+    .then(function () {
+      t.pass('succeed');
+    }).catch(function (e) {
+      t.fail('Failed with: ' + e.message);
+    });
+});
+
 test('`monitor npm-package`', function (t) {
   chdirWorkspaces();
   return cli.monitor('npm-package')

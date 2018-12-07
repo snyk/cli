@@ -9,3 +9,12 @@ test('packages with no name read dir', function (t) {
     t.fail('Failed with: ' + e.message);
   });
 });
+
+test('packages with no name read dir with a lockfile', function (t) {
+  t.plan(1);
+  snyk.test(__dirname + '/fixtures/package-sans-name-lockfile').then(function () {
+    t.pass('succeed');
+  }).catch(function (e) {
+    t.fail('Failed with: ' + e.message);
+  });
+});

@@ -75,11 +75,6 @@ function test(root, options) {
               return pkg;
             });
         }).then((pkg) => {
-          // if there's no package name, let's get it from the root dir
-          if (!pkg.name) {
-            pkg.name = path.basename(path.resolve(root));
-          }
-
           policyLocations = policyLocations.concat(pluckPolicies(pkg));
           debug('policies found', policyLocations);
           analytics.add('policies', policyLocations.length);
