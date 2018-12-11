@@ -1,1 +1,1 @@
-require('./acceptance/cli.acceptance.test.js');
+require('./acceptance/cli.acceptance.test');
