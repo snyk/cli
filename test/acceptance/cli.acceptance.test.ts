@@ -1332,8 +1332,8 @@ test('`test foo:latest --docker`', async (t) => {
 
 test('`test foo:latest --docker vulnerable paths`', async (t) => {
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           packageManager: 'deb',
         },
@@ -1353,7 +1353,7 @@ test('`test foo:latest --docker vulnerable paths`', async (t) => {
             },
           },
         },
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1383,8 +1383,8 @@ test('`test foo:latest --docker vulnerable paths`', async (t) => {
 
 test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           packageManager: 'deb',
         },
@@ -1393,7 +1393,7 @@ test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
             baseImage: 'ubuntu:14.04',
           },
         },
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1428,8 +1428,8 @@ test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
 
 test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t) => {
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           packageManager: 'deb',
         },
@@ -1452,7 +1452,7 @@ test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t
             },
           },
         },
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1481,13 +1481,13 @@ test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t
 test('`test foo:latest --docker` doesnt collect policy from cwd', async (t) => {
   chdirWorkspaces('npm-package-policy');
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           packageManager: 'deb',
         },
         package: {},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1521,13 +1521,13 @@ test('`test foo:latest --docker` doesnt collect policy from cwd', async (t) => {
 test('`test foo:latest --docker` supports custom policy', async (t) => {
   chdirWorkspaces();
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           packageManager: 'deb',
         },
         package: {},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1668,11 +1668,11 @@ test('`test sbt-simple-struts`', async (t) => {
   chdirWorkspaces();
 
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {},
         package: require('./workspaces/sbt-simple-struts/dep-tree.json'),
-      });
+      };
     },
   };
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
@@ -1881,11 +1881,11 @@ test('`monitor yarn-app`', async (t) => {
 test('`monitor pip-app --file=requirements.txt`', async (t) => {
   chdirWorkspaces();
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {},
         package: {},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1910,13 +1910,13 @@ test('`monitor pip-app --file=requirements.txt`', async (t) => {
 test('`monitor golang-app --file=Gopkg.lock', async (t) => {
   chdirWorkspaces();
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           targetFile: 'Gopkg.lock',
         },
         package: {},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1942,13 +1942,13 @@ test('`monitor golang-app --file=Gopkg.lock', async (t) => {
 test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
   chdirWorkspaces();
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           targetFile: 'vendor/vendor.json',
         },
         package: {},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -2000,14 +2000,14 @@ test('`monitor foo:latest --docker`', async (t) => {
   const dockerImageId = 'sha256:' +
     '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return{
         plugin: {
           packageManager: 'rpm',
           dockerImageId: dockerImageId,
         },
         package: {},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -2037,14 +2037,14 @@ test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
   const dockerImageId = 'sha256:' +
     '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           packageManager: 'rpm',
           dockerImageId: dockerImageId,
         },
         package: {docker: 'base-image-name'},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -2076,13 +2076,13 @@ test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
 test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
   chdirWorkspaces('npm-package-policy');
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return {
         plugin: {
           packageManager: 'rpm',
         },
         package: {},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -2113,13 +2113,13 @@ test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
 test('`monitor foo:latest --docker` with custom policy path', async (t) => {
   chdirWorkspaces('npm-package-policy');
   const plugin = {
-    inspect: () => {
-      return Promise.resolve({
+    async inspect() {
+      return{
         plugin: {
           packageManager: 'rpm',
         },
         package: {},
-      });
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');

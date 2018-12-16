@@ -1,5 +1,5 @@
-const test = require('tape');
-const snyk = require('../src/lib');
+import * as test from 'tape';
+import * as snyk from '../src/lib';
 
 test('packages with no name read dir', async (t) => {
   await snyk.test(__dirname + '/fixtures/package-sans-name');
