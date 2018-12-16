@@ -32,12 +32,14 @@ async function runTest(packageManager: string, root: string , options): Promise<
     const payload = await assemblePayload(root, options, policyLocations);
     const filesystemPolicy = payload.body && !!payload.body.policy;
     const depGraph = payload.body && payload.body.depGraph;
-
     await spinner(spinnerLbl);
     let res = await sendPayload(payload, hasDevDependencies);
-
     if (depGraph) {
-      res = convertTestDepGraphResultToLegacy(res, depGraph, packageManager, options.severityThreshold);
+      res = convertTestDepGraphResultToLegacy(
+        res,
+        depGraph,
+        packageManager,
+        options.severityThreshold);
     }
 
     analytics.add('vulns-pre-policy', res.vulnerabilities.length);
@@ -186,6 +188,8 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
       }
     }
 
+    const dockerInfo = createDockerInfo(pkg);
+
     const payload: Payload = {
       method: 'POST',
       url: config.API + '/test-dep-graph',
@@ -200,7 +204,7 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
         targetFile: pkg.targetFile || options.file,
         projectNameOverride: options.projectName,
         policy: policy && policy.toString(),
-        docker: pkg.docker,
+        docker: dockerInfo,
       },
     };
 
@@ -208,6 +212,26 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
   } finally {
     spinner.clear(spinnerLbl)();
   }
+}
+
+function createDockerInfo(pkg: any) {
+  let objectChanged = false;
+
+  const dockerInfo = {
+    baseImage: undefined,
+    binaries: undefined,
+  };
+
+  if (pkg.docker && pkg.docker.baseImage) {
+    dockerInfo.baseImage = pkg.docker.baseImage;
+    objectChanged = true;
+  }
+  if (pkg.docker && pkg.docker.binaries) {
+    dockerInfo.binaries = pkg.docker.binaries.Analysis;
+    objectChanged = true;
+  }
+
+  return objectChanged ? dockerInfo : undefined;
 }
 
 async function assembleRemotePayload(root, options): Promise<Payload> {

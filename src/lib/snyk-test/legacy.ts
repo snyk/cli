@@ -151,6 +151,27 @@ function convertTestDepGraphResultToLegacy(
     }
   }
 
+  const dockerRes = result.docker as any;
+
+  if (dockerRes && dockerRes.binariesVulns) {
+    const binariesVulns = dockerRes.binariesVulns;
+    for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
+      for (const pkgIssue of _.values(pkgInfo.issues)) {
+        const pkgAndVersion =
+          pkgInfo.pkg.name + '@' + pkgInfo.pkg.version as string;
+        const annotatedIssue = Object.assign({}, binariesVulns.issuesData[pkgIssue.issueId], {
+          from: ['Upstream', pkgAndVersion],
+          upgradePath: [],
+          isUpgradable: false,
+          isPatchable: false,
+          name: pkgInfo.pkg.name,
+          version: pkgInfo.pkg.version as string,
+        });
+        vulns.push(annotatedIssue);
+      }
+    }
+  }
+
   const meta = res.meta || {};
 
   severityThreshold = (severityThreshold === 'low') ? undefined : severityThreshold;
