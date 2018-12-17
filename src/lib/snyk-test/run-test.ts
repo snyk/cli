@@ -32,6 +32,12 @@ async function runTest(packageManager: string, root: string , options): Promise<
     const payload = await assemblePayload(root, options, policyLocations);
     const filesystemPolicy = payload.body && !!payload.body.policy;
     const depGraph = payload.body && payload.body.depGraph;
+
+    let dockerfilePackages;
+    if (payload.body && payload.body.docker && payload.body.docker.dockerfilePackages) {
+      dockerfilePackages = payload.body.docker.dockerfilePackages;
+    }
+
     await spinner(spinnerLbl);
     let res = await sendPayload(payload, hasDevDependencies);
     if (depGraph) {
@@ -60,6 +66,17 @@ async function runTest(packageManager: string, root: string , options): Promise<
       }
       return acc;
     }, 0);
+
+    if (res.docker && dockerfilePackages) {
+      res.vulnerabilities = res.vulnerabilities.map((vuln) => {
+        const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
+        if (dockerfilePackage) {
+          vuln.dockerfileInstruction = dockerfilePackage.instruction;
+        }
+        vuln.dockerBaseImage = res.docker.baseImage;
+        return vuln;
+      });
+    }
 
     return res;
   } finally {
@@ -188,8 +205,6 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
       }
     }
 
-    const dockerInfo = createDockerInfo(pkg);
-
     const payload: Payload = {
       method: 'POST',
       url: config.API + '/test-dep-graph',
@@ -204,7 +219,7 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
         targetFile: pkg.targetFile || options.file,
         projectNameOverride: options.projectName,
         policy: policy && policy.toString(),
-        docker: dockerInfo,
+        docker: pkg.docker,
       },
     };
 
@@ -212,26 +227,6 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
   } finally {
     spinner.clear(spinnerLbl)();
   }
-}
-
-function createDockerInfo(pkg: any) {
-  let objectChanged = false;
-
-  const dockerInfo = {
-    baseImage: undefined,
-    binaries: undefined,
-  };
-
-  if (pkg.docker && pkg.docker.baseImage) {
-    dockerInfo.baseImage = pkg.docker.baseImage;
-    objectChanged = true;
-  }
-  if (pkg.docker && pkg.docker.binaries) {
-    dockerInfo.binaries = pkg.docker.binaries.Analysis;
-    objectChanged = true;
-  }
-
-  return objectChanged ? dockerInfo : undefined;
 }
 
 async function assembleRemotePayload(root, options): Promise<Payload> {
