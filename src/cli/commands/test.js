@@ -26,7 +26,7 @@ function test() {
   }
 
   // populate with default path (cwd) if no path given
-  if (args.length ===  0) {
+  if (args.length === 0) {
     args.unshift(process.cwd());
   }
 
@@ -43,12 +43,12 @@ function test() {
 
   return apiTokenExists('snyk test')
     .then(function () {
-    // Promise waterfall to test all other paths sequentially
+      // Promise waterfall to test all other paths sequentially
       var testsPromises = args.reduce(function (acc, path) {
         return acc.then(function () {
-        // Create a copy of the options so a specific test can
-        // modify them i.e. add `options.file` etc. We'll need
-        // these options later.
+          // Create a copy of the options so a specific test can
+          // modify them i.e. add `options.file` etc. We'll need
+          // these options later.
           var testOpts = _.cloneDeep(options);
           testOpts.path = path;
           resultOptions.push(testOpts);
@@ -89,12 +89,12 @@ function test() {
 
       return testsPromises;
     }).then(function () {
-    // resultOptions is now an array of 1 or more options used for
-    // the tests results is now an array of 1 or more test results
-    // values depend on `options.json` value - string or object
+      // resultOptions is now an array of 1 or more options used for
+      // the tests results is now an array of 1 or more test results
+      // values depend on `options.json` value - string or object
       if (options.json) {
         results = results.map(function (result) {
-        // add json for when thrown exception
+          // add json for when thrown exception
           if (result instanceof Error) {
             return {
               ok: false,
@@ -142,8 +142,8 @@ function test() {
       if (results.length > 1) {
         var projects = results.length === 1 ? ' project' : ' projects';
         summaryMessage = '\n\n' + '\nTested ' + results.length + projects +
-        summariseVulnerableResults(vulnerableResults, options) +
-        summariseErrorResults(errorResults) + '\n';
+          summariseVulnerableResults(vulnerableResults, options) +
+          summariseErrorResults(errorResults) + '\n';
       }
 
       var notSuccess = vulnerableResults.length > 0 || errorResults.length > 0;
@@ -183,7 +183,7 @@ function summariseVulnerableResults(vulnerableResults, options) {
 
 function summariseErrorResults(errorResults) {
   const projects =
-    errorResults.length > 1 ? ' projects' :  ' project';
+    errorResults.length > 1 ? ' projects' : ' project';
   if (errorResults.length > 0) {
     return ' Failed to test ' + errorResults.length + projects +
       '.\nRun with `-d` for debug output and contact support@snyk.io';
@@ -227,13 +227,17 @@ function displayResult(res, options) {
       '✓ ' + testedInfoText + vulnPathsText
     );
     var nextStepsText =
-        '\n\nNext steps:' +
-        '\n- Run `snyk monitor` to be notified ' +
-        'about new related vulnerabilities.' +
-        '\n- Run `snyk test` as part of ' +
-        'your CI/test.';
+      '\n\nNext steps:' +
+      '\n- Run `snyk monitor` to be notified ' +
+      'about new related vulnerabilities.' +
+      '\n- Run `snyk test` as part of ' +
+      'your CI/test.';
     return (
-      prefix + meta + summaryOKText + (isCI ? '' : dockerAdvice + nextStepsText + dockerSuggestion)
+      prefix + meta + summaryOKText + (
+        isCI ? '' :
+          dockerAdvice +
+          nextStepsText +
+          dockerSuggestion)
     );
   }
 
@@ -268,11 +272,11 @@ function displayResult(res, options) {
   }
 
   if (options.docker &&
-      !options.file &&
-      (config.disableSuggestions !== 'true')) {
+    !options.file &&
+    (config.disableSuggestions !== 'true')) {
     summary += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
-    `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile` +
-    '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`');
+      `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile` +
+      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`');
   }
 
   summary += dockerSuggestion;
@@ -294,6 +298,7 @@ function displayResult(res, options) {
         return i.from;
       }))
       .join(', ');
+
     var vulnOutput = {
       issueHeading: createSeverityBasedIssueHeading(
         vuln.metadata.severity,
@@ -326,7 +331,7 @@ function displayResult(res, options) {
 
   var body = groupedVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
   return prefix + body + dockerAdvice;
-}
+};
 
 function createFixedInText(groupedVuln) {
   var vulnerableRange = groupedVuln.list[0].semver.vulnerable[0];
@@ -347,13 +352,13 @@ function createRemediationText(vuln, packageManager) {
   if (vuln.isOutdated === true) {
     var packageManagerOutdatedText = {
       npm: '\n    Try deleting node_modules, reinstalling ' +
-      'and running `snyk test` again. If the problem persists, ' +
-      'one of your dependencies may be bundling outdated modules.',
+        'and running `snyk test` again. If the problem persists, ' +
+        'one of your dependencies may be bundling outdated modules.',
       rubygems: '\n    Try running `bundle update ' + packageName + '` ' +
-      'and running `snyk test` again.',
+        'and running `snyk test` again.',
       yarn: '\n    Try deleting node_modules, reinstalling ' +
-      'and running `snyk test` again. If the problem persists, ' +
-      'one of your dependencies may be bundling outdated modules.',
+        'and running `snyk test` again. If the problem persists, ' +
+        'one of your dependencies may be bundling outdated modules.',
     };
 
     return chalk.bold(
@@ -535,7 +540,7 @@ function getSeverityValue(severity) {
 }
 
 function titleCaseText(text) {
-  return text[0].toUpperCase() + text.slice(1) ;
+  return text[0].toUpperCase() + text.slice(1);
 }
 
 // This is all a copy from Registry snapshots/index
@@ -566,11 +571,11 @@ function groupVulnerabilities(vulns) {
     }
 
     if (!map[curr.id].isOutdated) {
-      map[curr.id].isOutdated = !!curr.isOutdated ;
+      map[curr.id].isOutdated = !!curr.isOutdated;
     }
 
     if (!map[curr.id].note) {
-      map[curr.id].note = !!curr.note ;
+      map[curr.id].note = !!curr.note;
     }
 
     return map;
