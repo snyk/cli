@@ -5,8 +5,8 @@ ignore:
   'npm:mem:20180117':
     - nyc > yargs > os-locale > mem:
         reason: DoS vulnerability is not valid for CLI tool
-        expires: '2018-12-19T10:35:25.346Z'
+        expires: '2019-12-19T10:35:25.346Z'
     - tap > nyc > yargs > os-locale > mem:
         reason: DoS vulnerability is not valid for CLI tool
-        expires: '2018-12-19T10:35:25.346Z'
+        expires: '2019-12-19T10:35:25.346Z'
 patch: {}
