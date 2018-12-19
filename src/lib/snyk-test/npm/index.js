@@ -137,7 +137,10 @@ function generateDependenciesFromLockfile(root, options, targetFile) {
   const lockFile = fileSystem.readFileSync(lockFileFullPath, 'utf-8');
 
   analytics.add('local', true);
-  analytics.add('using lockfile (' + targetFile + ') to get dependency tree', true);
+  analytics.add('generating-node-dependency-tree', {
+    lockFile: true,
+    targetFile,
+  });
 
   const lockFileType = targetFile.endsWith('yarn.lock') ?
     lockFileParser.LockfileType.yarn : lockFileParser.LockfileType.npm;
@@ -172,7 +175,10 @@ function getDependenciesFromNodeModules(root, options, targetFile) {
           `without dependencies.\nPlease run '${packageManager} install' first.`);
       }
       analytics.add('local', true);
-      analytics.add('using node_modules to get dependency tree', true);
+      analytics.add('generating-node-dependency-tree', {
+        lockFile: false,
+        targetFile,
+      });
       options.root = root;
       const resolveModuleSpinnerLabel = 'Analyzing npm dependencies for ' +
         path.dirname(path.resolve(root, targetFile));
