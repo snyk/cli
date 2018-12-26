@@ -195,6 +195,7 @@ function summariseErrorResults(errorResults) {
 function displayResult(res, options) {
   var meta = metaForDisplay(res, options) + '\n\n';
   var dockerAdvice = dockerRemediationForDisplay(res);
+  var binariesIssues = binariesIssuesForDisplay(res);
   var packageManager = options.packageManager;
   var prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
 
@@ -235,6 +236,7 @@ function displayResult(res, options) {
     return (
       prefix + meta + summaryOKText + (
         isCI ? '' :
+          binariesIssues +
           dockerAdvice +
           nextStepsText +
           dockerSuggestion)
@@ -274,12 +276,10 @@ function displayResult(res, options) {
   if (options.docker &&
     !options.file &&
     (config.disableSuggestions !== 'true')) {
-    summary += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
+    dockerSuggestion += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
       `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile` +
       '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`');
   }
-
-  summary += dockerSuggestion;
 
   var vulns = res.vulnerabilities || [];
   var groupedVulns = groupVulnerabilities(vulns);
@@ -328,9 +328,9 @@ function displayResult(res, options) {
       vulnOutput.extraInfo
     );
   });
-
-  var body = groupedVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
-  return prefix + body + dockerAdvice;
+  var body =
+    groupedVulnInfoOutput.join('\n\n') + '\n\n\n' + binariesIssues + '\n\n' + meta + summary;
+  return prefix + body + dockerAdvice + dockerSuggestion;
 };
 
 function createFixedInText(groupedVuln) {
@@ -521,6 +521,34 @@ function dockerRemediationForDisplay(res) {
   }
 
   return '\n\n' + out.join('\n');
+}
+
+function binariesIssuesForDisplay(res) {
+  const issues = [];
+  const dockerRes = res.docker;
+  if (dockerRes && dockerRes.binariesVulns) {
+    const binariesVulns = dockerRes.binariesVulns;
+    for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
+      issues.push(chalk.bold.white(
+        `------------ Detected ${_.values(pkgInfo.issues).length} vulnerabilities`+
+        ` for ${pkgInfo.pkg.name}@${pkgInfo.pkg.version} ------------`, '\n'));
+      for (const pkgIssue of _.values(pkgInfo.issues)) {
+        const issueID = pkgIssue.issueId;
+        const issueData = binariesVulns.issuesData[issueID];
+        const issueHeading = createSeverityBasedIssueHeading(
+          issueData.severity,
+          issueData.type,
+          issueData.packageName
+        );
+        issues.push(
+          issueHeading +
+          '\n  Description: ' + issueData.title +
+          '\n  Info: ' + chalk.underline(config.ROOT + '/vuln/' + issueID) + '\n'
+        );
+      }
+    }
+  }
+  return issues.join('\n');
 }
 
 function validateSeverityThreshold(severityThreshold) {
