@@ -1582,11 +1582,11 @@ test('`test foo:latest --docker with binaries`', async (t) => {
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
 
-   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
   t.teardown(loadPlugin.restore);
 
-   const res = await cli.test('foo:latest', {
+  const res = await cli.test('foo:latest', {
     docker: true,
     org: 'explicit-org',
   });
@@ -1656,13 +1656,14 @@ test('`test foo:latest --docker with binaries vulnerabilities`', async (t) => {
     t.fail('should have found vuln');
   } catch (err) {
     const msg = err.message;
-    console.log(msg);
     t.match(msg, 'Tested 2 dependencies for known vulnerabilities, found 2 vulnerabilities');
     t.match(msg, 'From: bzip2/libbz2-1.0@1.0.6-8.1');
     t.match(msg, 'From: apt/libapt-pkg5.0@1.6.3ubuntu0.1 > bzip2/libbz2-1.0@1.0.6-8.1');
     t.match(msg, 'Info: http://localhost:12345/vuln/SNYK-UPSTREAM-NODE-72359');
     t.false(msg.includes('vulnerable paths'),
       'docker should not includes number of vulnerable paths');
+    t.match(msg, 'Detected 1 vulnerabilities for node@5.10.1');
+    t.match(msg, 'High severity vulnerability found in node');
   }
 });
 
