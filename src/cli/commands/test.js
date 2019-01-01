@@ -1,6 +1,7 @@
 module.exports = test;
 
 var _ = require('lodash');
+var semver = require('semver');
 var chalk = require('chalk');
 var debug = require('debug')('snyk');
 var snyk = require('../../lib/');
@@ -195,7 +196,6 @@ function summariseErrorResults(errorResults) {
 function displayResult(res, options) {
   var meta = metaForDisplay(res, options) + '\n\n';
   var dockerAdvice = dockerRemediationForDisplay(res);
-  var binariesIssues = binariesIssuesForDisplay(res);
   var packageManager = options.packageManager;
   var prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
 
@@ -236,7 +236,6 @@ function displayResult(res, options) {
     return (
       prefix + meta + summaryOKText + (
         isCI ? '' :
-          binariesIssues +
           dockerAdvice +
           nextStepsText +
           dockerSuggestion)
@@ -288,58 +287,118 @@ function displayResult(res, options) {
     ['metadata.severityValue', 'metadata.name'],
     ['asc', 'desc']
   );
-  var groupedVulnInfoOutput = sortedGroupedVulns.map(function (vuln) {
-    var vulnID = vuln.list[0].id;
-    var uniquePackages = _.uniq(
-      vuln.list.map(function (i) {
-        if (i.from[1]) {
-          return i.from && i.from[1];
-        }
-        return i.from;
-      }))
-      .join(', ');
-
-    var vulnOutput = {
-      issueHeading: createSeverityBasedIssueHeading(
-        vuln.metadata.severity,
-        vuln.metadata.type,
-        vuln.metadata.name
-      ),
-      introducedThrough: '  Introduced through: ' + uniquePackages,
-      description: '  Description: ' + vuln.title,
-      info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
-      fromPaths: options.showVulnPaths
-        ? createTruncatedVulnsPathsText(vuln.list) : '',
-      extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
-      remediationInfo: vuln.metadata.type !== 'license'
-        ? createRemediationText(vuln, packageManager)
-        : '',
-      fixedIn: options.docker ? createFixedInText(vuln) : '',
-    };
-    return (
-      vulnOutput.issueHeading + '\n' +
-      vulnOutput.description + '\n' +
-      vulnOutput.info + '\n' +
-      vulnOutput.introducedThrough + '\n' +
-      vulnOutput.fromPaths +
-      // Optional - not always there
-      vulnOutput.remediationInfo +
-      vulnOutput.fixedIn +
-      vulnOutput.extraInfo
-    );
+  var filteredSortedGroupedVulns = sortedGroupedVulns.filter(function (vuln) {
+    return (vuln.metadata.packageManager !== 'upstream');
   });
+  var binariesSortedGroupedVulns = sortedGroupedVulns.filter(function (vuln) {
+    return (vuln.metadata.packageManager === 'upstream');
+  });
+  var groupedVulnInfoOutput = filteredSortedGroupedVulns.map(vuln => formatIssues(vuln, options));
+  var groupedDockerBinariesVulnInfoOutput = (res.docker && res.docker.binariesVulns) ?
+    formatDockerBinariesIssues(binariesSortedGroupedVulns, res.docker.binariesVulns, options) : [];
   var body =
-    groupedVulnInfoOutput.join('\n\n') + '\n\n\n' + binariesIssues + '\n\n' + meta + summary;
+    groupedVulnInfoOutput.join('\n\n') + '\n\n\n' +
+    groupedDockerBinariesVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
   return prefix + body + dockerAdvice + dockerSuggestion;
 };
 
-function createFixedInText(groupedVuln) {
-  var vulnerableRange = groupedVuln.list[0].semver.vulnerable[0];
-  if (/^<\S+$/.test(vulnerableRange)) {
-    // removing the first char from the version. For example: <7.50.1-1
-    return chalk.bold('\n  Fixed in: ' + vulnerableRange.substr(1));
+function formatDockerBinariesIssues(dockerBinariesSortedGroupedVulns, binariesVulns, options) {
+  const binariesIssuesOutput = [];
+  for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
+    binariesIssuesOutput.push(createDockerBinaryHeading(pkgInfo));
+    let binaryIssues = dockerBinariesSortedGroupedVulns.filter(function (vuln) {
+      return (vuln.metadata.name === pkgInfo.pkg.name);
+    });
+    const formattedBinaryIssues = binaryIssues.map(vuln => formatIssues(vuln, options));
+    binariesIssuesOutput.push(formattedBinaryIssues.join('\n\n'));
   }
-  return '';
+  return binariesIssuesOutput;
+}
+
+function createDockerBinaryHeading(pkgInfo) {
+  const binaryName = pkgInfo.pkg.name;
+  const binaryVersion = pkgInfo.pkg.version;
+  const numOfVulns = _.values(pkgInfo.issues).length;
+  return numOfVulns ?
+    chalk.bold.white(`------------ Detected ${numOfVulns} vulnerabilities`+
+    ` for ${binaryName}@${binaryVersion} ------------`, '\n') : '';
+}
+
+function formatIssues(vuln, options) {
+  var vulnID = vuln.list[0].id;
+  var packageManager = options.packageManager;
+  var uniquePackages = _.uniq(
+    vuln.list.map(function (i) {
+      if (i.from[1]) {
+        return i.from && i.from[1];
+      }
+      return i.from;
+    }))
+    .join(', ');
+
+  var version = undefined;
+  var vulnerableRange = vuln.list[0].semver.vulnerable;
+  if (vuln.metadata.packageManager.toLowerCase() === 'upstream') {
+    version = vuln.metadata.version;
+  };
+
+  var vulnOutput = {
+    issueHeading: createSeverityBasedIssueHeading(
+      vuln.metadata.severity,
+      vuln.metadata.type,
+      vuln.metadata.name
+    ),
+    introducedThrough: '  Introduced through: ' + uniquePackages,
+    description: '  Description: ' + vuln.title,
+    info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
+    fromPaths: options.showVulnPaths
+      ? createTruncatedVulnsPathsText(vuln.list) : '',
+    extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
+    remediationInfo: vuln.metadata.type !== 'license'
+      ? createRemediationText(vuln, packageManager)
+      : '',
+    fixedIn: options.docker ? createFixedInText(vulnerableRange, version) : '',
+  };
+  return (
+    vulnOutput.issueHeading + '\n' +
+    vulnOutput.description + '\n' +
+    vulnOutput.info + '\n' +
+    vulnOutput.introducedThrough + '\n' +
+    vulnOutput.fromPaths +
+    // Optional - not always there
+    vulnOutput.remediationInfo +
+    vulnOutput.fixedIn +
+    vulnOutput.extraInfo
+  );
+}
+
+function createFixedInText(versionRangeList, pkgVersion) {
+  let fixedVersion = '';
+  let fixedVersionCandidate = '';
+  const lesserThan = /^<\S+$/;
+  // pkgVersion is undefined for OS packages vulns
+  if (!pkgVersion) {
+    if (versionRangeList && versionRangeList.length) {
+      // OS packages vulns versionRangeList includes a single upper bound version
+      fixedVersionCandidate = versionRangeList[0];
+      // trim relational operator `<` from first version in list
+      fixedVersion = lesserThan.test(fixedVersionCandidate) ?
+        fixedVersionCandidate.substr(1) : '';
+    }
+  } else {
+    for (const versionRange of versionRangeList) {
+      if (!semver.valid(pkgVersion) || !semver.satisfies(pkgVersion, versionRange)) {
+        continue;
+      }
+      // e.g. extract '5.1.0' from version range: '>=4.1.0 <5.1.0'
+      fixedVersionCandidate = versionRange.split(' ')[1];
+      if (lesserThan.test(fixedVersionCandidate)) {
+        fixedVersion = fixedVersionCandidate.substr(1);
+        break;
+      }
+    }
+  }
+  return fixedVersion ? chalk.bold('\n  Fixed in: ' + fixedVersion): '';
 }
 
 function createRemediationText(vuln, packageManager) {
@@ -523,34 +582,6 @@ function dockerRemediationForDisplay(res) {
   return '\n\n' + out.join('\n');
 }
 
-function binariesIssuesForDisplay(res) {
-  const issues = [];
-  const dockerRes = res.docker;
-  if (dockerRes && dockerRes.binariesVulns) {
-    const binariesVulns = dockerRes.binariesVulns;
-    for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
-      issues.push(chalk.bold.white(
-        `------------ Detected ${_.values(pkgInfo.issues).length} vulnerabilities`+
-        ` for ${pkgInfo.pkg.name}@${pkgInfo.pkg.version} ------------`, '\n'));
-      for (const pkgIssue of _.values(pkgInfo.issues)) {
-        const issueID = pkgIssue.issueId;
-        const issueData = binariesVulns.issuesData[issueID];
-        const issueHeading = createSeverityBasedIssueHeading(
-          issueData.severity,
-          issueData.type,
-          issueData.packageName
-        );
-        issues.push(
-          issueHeading +
-          '\n  Description: ' + issueData.title +
-          '\n  Info: ' + chalk.underline(config.ROOT + '/vuln/' + issueID) + '\n'
-        );
-      }
-    }
-  }
-  return issues.join('\n');
-}
-
 function validateSeverityThreshold(severityThreshold) {
   return SEVERITIES
     .map(function (s) {
@@ -626,5 +657,7 @@ function metadataForVuln(vuln) {
     severity: vuln.severity,
     severityValue: getSeverityValue(vuln.severity),
     isNew: isNewVuln(vuln),
+    version: vuln.version,
+    packageManager: vuln.packageManager,
   };
 }
