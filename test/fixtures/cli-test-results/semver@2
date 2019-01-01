@@ -45,7 +45,8 @@
         "semver@4.3.2"
       ],
       "version": "2.3.2",
-      "name": "semver"
+      "name": "semver",
+      "packageManager": "npm"
     }
   ]
 }
