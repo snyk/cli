@@ -5,7 +5,7 @@ Usage:
 
 The package argument is optional. If no package is given, Snyk will
 run the command against the current working directory allowing you
-test you non-public applications.
+to test your non-public applications.
 
 Commands:
 
