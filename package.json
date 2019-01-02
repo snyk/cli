@@ -37,7 +37,14 @@
   },
   "keywords": [
     "security",
-    "snyk"
+    "vulnerabilities",
+    "advisories",
+    "audit",
+    "snyk",
+    "scan",
+    "docker",
+    "container",
+    "scanning"
   ],
   "author": "snyk.io",
   "license": "Apache-2.0",
