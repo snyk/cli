@@ -1,6 +1,6 @@
 ![Snyk logo](https://snyk.io/style/asset/logo/snyk-print.svg)
 
-***
+---
 
 [![Known Vulnerabilities](https://snyk.io/test/npm/snyk/badge.svg)](https://snyk.io/test/npm/snyk)
 
@@ -36,8 +36,8 @@ Run `snyk --help` to get a quick overview of all commands or for full details on
 
 The package argument is optional. If no package is given, Snyk will run the command against the current working directory allowing you test you non-public applications.
 
-
 ## Features
+
 - **Find** known vulnerabilities by running `snyk test` on a project either as a one off or as part of your CI process.
 - **Fix** vulnerabilities using `snyk wizard` and `snyk protect`.
   - `snyk wizard` walks you through finding and fixing known vulnerabilities in your project. Remediation options include configuring your policy file to update, auto patch and ignore vulnerabilities. (npm only)
@@ -45,13 +45,11 @@ The package argument is optional. If no package is given, Snyk will run the comm
 - **Alert** `snyk monitor` records the state of dependencies and any vulnerabilities on snyk.io so you can be alerted when new vulnerabilities or updates/patches are disclosed that affect your repositories.
 - **Prevent** new vulnerable dependencies from being added to your project by running `snyk test` as part of your CI to fail tests when vulnerable Node.js or Ruby dependencies are added.
 
-
 ## Docker
 
 Snyk is also provided as a set of Docker images that carry the runtime environment of each package manager. For example, the npm image will carry all of the needed setup to run `npm install` on the currently running container. Currently there are images for npm, Ruby, Maven, Gradle and SBT.
 
 The images can perform `snyk test` by default on the specified project which is mounted to the container as a read/write volume, and `snyk monitor` if the `MONITOR` environment variable is set when running the docker container. When running `snyk monitor` with the `GENERATE_REPORT` environment variable set, an HTML file called `snyk_report.html` and a CSS file called `snyk_report.css` will be generated. The image also writes a file called `snyk-res.json` for internal use and `snyk-error.log` for errors that we can look at if something goes wrong.
-
 
 The following environment variables can be used when running the container on docker:
 
@@ -68,9 +66,9 @@ The general format of tags is [snyk-version]-[package-manager]-[package-manager-
 [package-manager] - One of the available package managers (e.g: npm, mvn, gradle, etc...).  
 [package-manager-version] - The version of the package manager that is installed inside the image.
 
-Please see the following examples on how to run Snyk inside docker:  
+Please see the following examples on how to run Snyk inside docker:
 
-### NodeJS (npm)
+### Node.js (npm)
 
 We will need to mount the project root folder when running the image so that Snyk can access the code within the container. The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds. Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for npm:
 
@@ -116,7 +114,6 @@ docker run -it
 We will need to mount the project root folder when running the image so that Snyk can access the code within the container and mount the local .m2 and .ivy2 folders. The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds. Here are examples of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for SBT:
 
 NOTE: the `dependency-tree` module is required for `snyk` to process Scala projects. Use [version 0.8.2](https://github.com/jrudolph/sbt-dependency-graph/tree/v0.8.2) for SBT 0.13.16 and [version 0.9.0](https://github.com/jrudolph/sbt-dependency-graph/tree/v0.9.0) for version SBT 1.0.4.
-
 
 ```
 docker run -it
@@ -192,7 +189,4 @@ Markdown:
 [![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name)
 ```
 
-
 [![Analytics](https://ga-beacon.appspot.com/UA-69111857-2/Snyk/snyk?pixel)](https://snyk.io/)
-
-
