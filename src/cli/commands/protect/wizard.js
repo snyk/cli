@@ -9,7 +9,7 @@ const path = require('path');
 const inquirer = require('inquirer');
 const fs = require('then-fs');
 const tryRequire = require('snyk-try-require');
-const chalk = require('chalk');
+const ansiColors = require('ansi-colors');
 const url = require('url');
 const _ = require('lodash');
 const exec = require('child_process').exec;
@@ -137,14 +137,14 @@ function processWizardFlow(options) {
                   // echo out the deps + vulns found
                   console.log('Tested %s dependencies for known vulnerabilities, %s',
                     res.dependencyCount,
-                    chalk.bold.red('found ' +
+                    ansiColors.bold.red('found ' +
                     res.uniqueCount +
                     ' vulnerabilit' + ies +
                     ', ' + vulns.length +
                     ' vulnerable ' +
                     paths + '.'));
                 } else {
-                  console.log(chalk.green('✓ Tested %s dependencies for known ' +
+                  console.log(ansiColors.green('✓ Tested %s dependencies for known ' +
                   'vulnerabilities, no vulnerable paths found.'),
                   res.dependencyCount);
                 }
@@ -549,10 +549,10 @@ function processAnswers(answers, policy, options) {
       (monitorRes.isMonitored ?
         'We\'ll notify you when relevant new vulnerabilities are ' +
       'disclosed.\n\n' :
-        chalk.bold.red('Project is inactive, so notifications are turned off.\n' +
+        ansiColors.bold.red('Project is inactive, so notifications are turned off.\n' +
       'Activate this project here: ' + manageUrl + '\n')) +
       (monitorRes.trialStarted ?
-        chalk.yellow('You\'re over the free plan usage limit, \n' +
+        ansiColors.yellow('You\'re over the free plan usage limit, \n' +
       'and are now on a free 14-day premium trial.\n' +
       'View plans here: ' + manageUrl + '\n\n') :
         '');

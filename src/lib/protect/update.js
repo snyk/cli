@@ -3,7 +3,7 @@ module.exports.install = install;
 module.exports.installDev = installDev;
 
 var debug = require('debug')('snyk');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 var _ = require('lodash');
 var moduleToObject = require('snyk-module');
 var semver = require('semver');
@@ -51,7 +51,7 @@ function update(packages, live, pkgManager) {
 
     // warn if extraneous packages were selected for update
     if (upgrade.extraneous) {
-      console.error(chalk.yellow('Extraneous packages were selected for ' +
+      console.error(ansiColors.yellow('Extraneous packages were selected for ' +
         'update, but will be skipped. These dependencies introduce ' +
         'vulnerabilities. Please remove the dependencies with `npm prune`, ' +
         'or install properly as prod or dev dependencies:',
@@ -104,7 +104,7 @@ function update(packages, live, pkgManager) {
     })
     .then(function (res) {
       if (error) {
-        console.error(chalk.red(errors.message(error)));
+        console.error(ansiColors.red(errors.message(error)));
       }
       return res;
     });

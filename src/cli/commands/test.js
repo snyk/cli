@@ -2,7 +2,7 @@ module.exports = test;
 
 var _ = require('lodash');
 var semver = require('semver');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 var debug = require('debug')('snyk');
 var snyk = require('../../lib/');
 var config = require('../../lib/config');
@@ -150,7 +150,7 @@ function test() {
       var notSuccess = vulnerableResults.length > 0 || errorResults.length > 0;
 
       if (notSuccess) {
-        response += chalk.bold.red(summaryMessage);
+        response += ansiColors.bold.red(summaryMessage);
         const error = new Error(response);
         // take the code of the first problem to go through error
         // translation
@@ -161,7 +161,7 @@ function test() {
         throw error;
       }
 
-      response += chalk.bold.green(summaryMessage);
+      response += ansiColors.bold.green(summaryMessage);
       return response;
     });
 }
@@ -197,7 +197,7 @@ function displayResult(res, options) {
   var meta = metaForDisplay(res, options) + '\n\n';
   var dockerAdvice = dockerRemediationForDisplay(res);
   var packageManager = options.packageManager;
-  var prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
+  var prefix = ansiColors.bold.white('\nTesting ' + options.path + '...\n\n');
 
   // handle errors by extracting their message
   if (res instanceof Error) {
@@ -216,7 +216,7 @@ function displayResult(res, options) {
 
   let dockerSuggestion = '';
   if (docker.shouldSuggestDocker(options)) {
-    dockerSuggestion += chalk.bold.white(docker.suggestionText);
+    dockerSuggestion += ansiColors.bold.white(docker.suggestionText);
   }
 
   // OK  => no vulns found, return
@@ -224,7 +224,7 @@ function displayResult(res, options) {
     var vulnPathsText = options.showVulnPaths ?
       ', no vulnerable paths found.' :
       ', none were found.';
-    var summaryOKText = chalk.green(
+    var summaryOKText = ansiColors.green(
       '✓ ' + testedInfoText + vulnPathsText
     );
     var nextStepsText =
@@ -264,10 +264,10 @@ function displayResult(res, options) {
   } else {
     vulnCountText += '.';
   }
-  var summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
+  var summary = testedInfoText + ', ' + ansiColors.red.bold(vulnCountText);
 
   if (WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
-    summary += chalk.bold.green(
+    summary += ansiColors.bold.green(
       '\n\nRun `snyk wizard` to address these issues.'
     );
   }
@@ -275,7 +275,7 @@ function displayResult(res, options) {
   if (options.docker &&
     !options.file &&
     (config.disableSuggestions !== 'true')) {
-    dockerSuggestion += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
+    dockerSuggestion += ansiColors.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
       `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile` +
       '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`');
   }
@@ -320,7 +320,7 @@ function createDockerBinaryHeading(pkgInfo) {
   const binaryVersion = pkgInfo.pkg.version;
   const numOfVulns = _.values(pkgInfo.issues).length;
   return numOfVulns ?
-    chalk.bold.white(`------------ Detected ${numOfVulns} vulnerabilities`+
+    ansiColors.bold.white(`------------ Detected ${numOfVulns} vulnerabilities`+
     ` for ${binaryName}@${binaryVersion} ------------`, '\n') : '';
 }
 
@@ -350,10 +350,10 @@ function formatIssues(vuln, options) {
     ),
     introducedThrough: '  Introduced through: ' + uniquePackages,
     description: '  Description: ' + vuln.title,
-    info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
+    info: '  Info: ' + ansiColors.underline(config.ROOT + '/vuln/' + vulnID),
     fromPaths: options.showVulnPaths
       ? createTruncatedVulnsPathsText(vuln.list) : '',
-    extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
+    extraInfo: vuln.note ? ansiColors.bold('\n  Note: ' + vuln.note) : '',
     remediationInfo: vuln.metadata.type !== 'license'
       ? createRemediationText(vuln, packageManager)
       : '',
@@ -398,7 +398,7 @@ function createFixedInText(versionRangeList, pkgVersion) {
       }
     }
   }
-  return fixedVersion ? chalk.bold('\n  Fixed in: ' + fixedVersion): '';
+  return fixedVersion ? ansiColors.bold('\n  Fixed in: ' + fixedVersion): '';
 }
 
 function createRemediationText(vuln, packageManager) {
@@ -420,7 +420,7 @@ function createRemediationText(vuln, packageManager) {
         'one of your dependencies may be bundling outdated modules.',
     };
 
-    return chalk.bold(
+    return ansiColors.bold(
       '\n  Remediation:\n    Your dependencies are out of date, ' +
       'otherwise you would be using a newer version of ' +
       packageName + '. ' +
@@ -457,7 +457,7 @@ function createRemediationText(vuln, packageManager) {
       return 'Some paths have no direct dependency upgrade that' +
         ' can address this issue. ' + wizardHintText;
     }));
-    return chalk.bold('\n  Remediation: \n    ' +
+    return ansiColors.bold('\n  Remediation: \n    ' +
       upgradePathsArray.join('\n    '));
   }
 
@@ -470,24 +470,24 @@ function createSeverityBasedIssueHeading(severity, type, packageName, isNew) {
   var severitiesColourMapping = {
     low: {
       colorFunc: function (text) {
-        return chalk.bold.blue(text);
+        return ansiColors.bold.blue(text);
       },
     },
     medium: {
       colorFunc: function (text) {
-        return chalk.bold.yellow(text);
+        return ansiColors.bold.yellow(text);
       },
     },
     high: {
       colorFunc: function (text) {
-        return chalk.bold.red(text);
+        return ansiColors.bold.red(text);
       },
     },
   };
   return severitiesColourMapping[severity].colorFunc(
     '✗ ' + titleCaseText(severity) + ' severity ' + vulnTypeText
-    + ' found in ' + chalk.underline(packageName)) +
-    chalk.bold.magenta(isNew ? ' (new)' : '');
+    + ' found in ' + ansiColors.underline(packageName)) +
+    ansiColors.bold.magenta(isNew ? ' (new)' : '');
 }
 
 function createTruncatedVulnsPathsText(vulnList) {
@@ -533,30 +533,31 @@ function metaForDisplay(res, options) {
   var packageManager = options.packageManager || res.packageManager;
   var openSource = res.isPrivate ? 'no' : 'yes';
   var meta = [
-    chalk.bold(rightPadWithSpaces('Organisation: ', padToLength)) + res.org,
-    chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) + packageManager,
+    ansiColors.bold(rightPadWithSpaces('Organisation: ', padToLength)) + res.org,
+    ansiColors.bold(rightPadWithSpaces('Package manager: ', padToLength)) + packageManager,
   ];
   if (options.file) {
-    meta.push(chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + options.file);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Target file: ', padToLength)) + options.file);
   }
   if (options.docker) {
-    meta.push(chalk.bold(rightPadWithSpaces('Docker image: ', padToLength)) + options.path);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Docker image: ', padToLength)) + options.path);
   } else {
-    meta.push(chalk.bold(rightPadWithSpaces('Open source: ', padToLength)) + openSource);
-    meta.push(chalk.bold(rightPadWithSpaces('Project path: ', padToLength)) + options.path);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Open source: ', padToLength)) + openSource);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Project path: ', padToLength)) + options.path);
   }
   if (res.docker && res.docker.baseImage) {
-    meta.push(chalk.bold(rightPadWithSpaces('Base image: ', padToLength)) + res.docker.baseImage);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Base image: ', padToLength)) + res.docker.baseImage);
   }
 
   if (res.filesystemPolicy) {
-    meta.push(chalk.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) + chalk.green('found'));
+    meta.push(ansiColors.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) + ansiColors.green('found'));
     if (res.ignoreSettings && res.ignoreSettings.disregardFilesystemIgnores) {
-      meta.push(chalk.bold(rightPadWithSpaces('Local Snyk policy ignored: ', padToLength)) + chalk.red('yes'));
+      meta.push(ansiColors.bold(rightPadWithSpaces('Local Snyk policy ignored: ', padToLength)) +
+      ansiColors.red('yes'));
     }
   }
   if (res.licensesPolicy) {
-    meta.push(chalk.bold(rightPadWithSpaces('Licenses: ', padToLength)) + chalk.green('enabled'));
+    meta.push(ansiColors.bold(rightPadWithSpaces('Licenses: ', padToLength)) + ansiColors.green('enabled'));
   }
 
   return meta.join('\n');
@@ -571,7 +572,7 @@ function dockerRemediationForDisplay(res) {
 
   if (advice) {
     for (const item of advice) {
-      out.push(item.bold ? chalk.bold(item.message) : item.message);
+      out.push(item.bold ? ansiColors.bold(item.message) : item.message);
     }
   } else if (message) {
     out.push(message);

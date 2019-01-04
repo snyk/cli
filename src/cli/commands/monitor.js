@@ -6,7 +6,7 @@ var apiTokenExists = require('../../lib/api-token').exists;
 var snyk = require('../../lib/');
 var config = require('../../lib/config');
 var url = require('url');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 var pathUtil = require('path');
 var spinner = require('../../lib/spinner');
 
@@ -156,10 +156,10 @@ function monitor() {
             }
 
             var errorMessage = (res.data && res.data.userMessage) ?
-              chalk.bold.red(res.data.userMessage) :
+              ansiColors.bold.red(res.data.userMessage) :
               (res.data ? res.data.message : 'Unknown error occurred.');
 
-            return chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
+            return ansiColors.bold.white('\nMonitoring ' + res.path + '...\n\n') +
               errorMessage;
           }).join('\n' + SEPARATOR);
 
@@ -176,23 +176,23 @@ function monitor() {
 
 function formatMonitorOutput(packageManager, res, manageUrl, options) {
   var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-  var strOutput = chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
+  var strOutput = ansiColors.bold.white('\nMonitoring ' + res.path + '...\n\n') +
     (packageManager === 'yarn' ?
       'A yarn.lock file was detected - continuing as a Yarn project.\n' : '') +
       'Explore this snapshot at ' + res.uri + '\n\n' +
     (res.isMonitored ?
       'Notifications about newly disclosed ' + issues + ' related ' +
       'to these dependencies will be emailed to you.\n' :
-      chalk.bold.red('Project is inactive, so notifications are turned ' +
+      ansiColors.bold.red('Project is inactive, so notifications are turned ' +
         'off.\nActivate this project here: ' + manageUrl + '\n\n')) +
     (res.trialStarted ?
-      chalk.yellow('You\'re over the free plan usage limit, \n' +
+      ansiColors.yellow('You\'re over the free plan usage limit, \n' +
         'and are now on a free 14-day premium trial.\n' +
         'View plans here: ' + manageUrl + '\n\n') :
       '');
 
   if (docker.shouldSuggestDocker(options)) {
-    strOutput += chalk.bold.white(docker.suggestionText);
+    strOutput += ansiColors.bold.white(docker.suggestionText);
   }
 
   return options.json ?

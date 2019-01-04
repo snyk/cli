@@ -2,7 +2,7 @@ module.exports = ensurePatchExists;
 
 var hasbin = require('hasbin');
 var analytics = require('../analytics');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 
 function ensurePatchExists() {
   return new Promise(function (resolve, reject) {
@@ -15,7 +15,7 @@ function ensurePatchExists() {
           'available. Please install \'patch\' ' +
           'and try again. \n For more information ' +
           'please see our support page: '
-          + chalk.underline(
+          + ansiColors.underline(
             'https://support.snyk.io' +
             '/snyk-cli/snyk-protect-requires-the-patch-binary.'
           ));

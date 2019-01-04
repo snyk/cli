@@ -1,6 +1,6 @@
 module.exports = display;
 
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 var demunge = require('snyk-policy').demunge;
 var config = require('./config');
 
@@ -8,7 +8,7 @@ function display(policy) {
   return new Promise(function (resolve) {
     var p = demunge(policy, config.ROOT);
 
-    var res = chalk.bold('Current Snyk policy, read from ' + policy.__filename +
+    var res = ansiColors.bold('Current Snyk policy, read from ' + policy.__filename +
       ' file') + '\n';
     res += 'Modified: ' + policy.__modified + '\n';
     res += 'Created:  ' + policy.__created + '\n';
@@ -26,7 +26,7 @@ function display(policy) {
 function displayRule(title) {
   return function (rule, i) {
     i += 1;
-    return chalk.bold('\n#' + i + ' ' + title + ' ' + rule.url) +
+    return ansiColors.bold('\n#' + i + ' ' + title + ' ' + rule.url) +
       ' in the following paths:\n' +
       (rule.paths.map(function (p) {
         return p.path +

@@ -4,7 +4,7 @@ const prune = require('./prune');
 const walk = require('./walk');
 const spinner = require('../../../lib/spinner');
 const fs = require('fs');
-const chalk = require('chalk');
+const ansiColors = require('ansi-colors');
 
 module.exports = function (cwd) {
   if (!cwd) {
@@ -40,11 +40,11 @@ module.exports = function (cwd) {
           let label = leaf.full;
 
           if (leaf.warning) {
-            label += ' ' + chalk.bgRed.white(leaf.warning);
+            label += ' ' + ansiColors.bgRed.white(leaf.warning);
           }
 
           return label;
-        }) + tail + chalk.bold('👉  https://snyk.io/blog/testing-for-unpubli' +
+        }) + tail + ansiColors.bold('👉  https://snyk.io/blog/testing-for-unpubli' +
         'shed-packages/\n');
       });
     });

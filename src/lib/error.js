@@ -1,5 +1,5 @@
 var config = require('../lib/config');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 var SEVERITIES = require('./snyk-test/common').SEVERITIES;
 
 var errors = {
@@ -86,7 +86,7 @@ module.exports.message = function (error) {
       errors[error.code || error.message];
     if (message) {
       message = message.replace(/(%s)/g, error.message).trim();
-      message = chalk.bold.red(message);
+      message = ansiColors.bold.red(message);
     } else if (error.code) { // means it's a code error
       message = 'An unknown error occurred. Please include the trace below ' +
                 'when reporting to Snyk:\n\n' + error.stack;

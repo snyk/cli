@@ -1,4 +1,4 @@
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 
 var registeredAlerts = [];
 
@@ -30,9 +30,9 @@ function displayAlerts() {
   registeredAlerts.forEach(function (alert) {
     res += sep;
     if (alert.type === 'warning') {
-      res += chalk.bold.red(alert.msg);
+      res += ansiColors.bold.red(alert.msg);
     } else {
-      res += chalk.yellow(alert.msg);
+      res += ansiColors.yellow(alert.msg);
     }
   });
 
