@@ -7,7 +7,7 @@ import snyk = require('../../lib/'); // TODO(kyegupov): fix import
 import {monitor as snykMonitor} from '../../lib/monitor';
 import * as config from '../../lib/config';
 import * as url from 'url';
-import chalk from 'chalk';
+import * as ansiColors from 'ansi-colors';
 import * as pathUtil from 'path';
 import * as spinner from '../../lib/spinner';
 
@@ -215,10 +215,10 @@ async function monitor(...args0: any[]): Promise<any> {
     }
 
     const errorMessage = (res.data && res.data.userMessage) ?
-      chalk.bold.red(res.data.userMessage) :
+      ansiColors.bold.red(res.data.userMessage) :
       (res.data ? res.data.message : 'Unknown error occurred.');
 
-    return chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
+    return ansiColors.bold.white('\nMonitoring ' + res.path + '...\n\n') +
       errorMessage;
   }).join('\n' + SEPARATOR);
 
@@ -234,27 +234,27 @@ function formatMonitorOutput(
   ) {
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
   const humanReadableName = subProjectName ? `${res.path} (${subProjectName})` : res.path;
-  let strOutput = chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
+  let strOutput = ansiColors.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
     (packageManager === 'yarn' ?
       'A yarn.lock file was detected - continuing as a Yarn project.\n' : '') +
       'Explore this snapshot at ' + res.uri + '\n\n' +
     (advertiseSubprojectsCount ?
-      chalk.bold.white(`This project has multiple sub-projects (${advertiseSubprojectsCount}), ` +
+      ansiColors.bold.white(`This project has multiple sub-projects (${advertiseSubprojectsCount}), ` +
       'use --all-sub-projects flag to scan all sub-projects.\n\n') :
       '') +
     (res.isMonitored ?
       'Notifications about newly disclosed ' + issues + ' related ' +
       'to these dependencies will be emailed to you.\n' :
-      chalk.bold.red('Project is inactive, so notifications are turned ' +
+      ansiColors.bold.red('Project is inactive, so notifications are turned ' +
         'off.\nActivate this project here: ' + manageUrl + '\n\n')) +
     (res.trialStarted ?
-      chalk.yellow('You\'re over the free plan usage limit, \n' +
+      ansiColors.yellow('You\'re over the free plan usage limit, \n' +
         'and are now on a free 14-day premium trial.\n' +
         'View plans here: ' + manageUrl + '\n\n') :
       '');
 
   if (docker.shouldSuggestDocker(options)) {
-    strOutput += chalk.bold.white(docker.suggestionText);
+    strOutput += ansiColors.bold.white(docker.suggestionText);
   }
 
   return options.json ?

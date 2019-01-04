@@ -1,7 +1,7 @@
 import * as fs from 'then-fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
-import chalk from 'chalk';
+import * as ansiColors from 'ansi-colors';
 import * as _ from 'lodash';
 
 const debug = debugLib('snyk');
@@ -96,7 +96,7 @@ export function detectPackageManager(root, options) {
     throw new Error('Could not detect supported target files in ' + root +
       '.\nPlease see our documentation for supported languages and ' +
       'target files: ' +
-      chalk.underline(
+      ansiColors.underline(
         'https://support.snyk.io/hc/en-us/articles/360000911957-Language-support',
       ) +
       ' and make sure you are in the right directory.');

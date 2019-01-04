@@ -5,7 +5,6 @@ var apiKey = '123456789';
 var notAuthorizedApiKey = 'notAuthorized';
 var oldkey;
 var oldendpoint;
-var chalk = require('chalk');
 var port = process.env.PORT = process.env.SNYK_PORT = 12345;
 var sinon = require('sinon');
 var proxyquire = require('proxyquire');

@@ -1,7 +1,7 @@
 module.exports = test;
 
 import * as _ from 'lodash';
-import chalk from 'chalk';
+import * as ansiColors from 'ansi-colors';
 import * as snyk from '../../lib/';
 import * as config from '../../lib/config';
 import * as isCI from '../../lib/is-ci';
@@ -156,7 +156,7 @@ async function test(...args): Promise<string> {
   const notSuccess = vulnerableResults.length > 0 || errorResults.length > 0;
 
   if (notSuccess) {
-    response += chalk.bold.red(summaryMessage);
+    response += ansiColors.bold.red(summaryMessage);
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
     // translation
@@ -167,7 +167,7 @@ async function test(...args): Promise<string> {
     throw error;
   }
 
-  response += chalk.bold.green(summaryMessage);
+  response += ansiColors.bold.green(summaryMessage);
   return response;
 }
 
@@ -202,7 +202,7 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
   const dockerAdvice = dockerRemediationForDisplay(res);
   const packageManager = options.packageManager;
   options.canSuggestRemediation = isLocalFolder(options.path);
-  const prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
+  const prefix = ansiColors.bold.white('\nTesting ' + options.path + '...\n\n');
 
   // handle errors by extracting their message
   if (res instanceof Error) {
@@ -220,13 +220,13 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
 
   let dockerSuggestion = '';
   if (docker.shouldSuggestDocker(options)) {
-    dockerSuggestion += chalk.bold.white(docker.suggestionText);
+    dockerSuggestion += ansiColors.bold.white(docker.suggestionText);
   }
 
   let multiProjAdvice = '';
 
   if (options.advertiseSubprojectsCount) {
-    multiProjAdvice = chalk.bold.white(
+    multiProjAdvice = ansiColors.bold.white(
       `\n\nThis project has multiple sub-projects (${options.advertiseSubprojectsCount}), ` +
       'use --all-sub-projects flag to scan all sub-projects.');
   }
@@ -236,7 +236,7 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
     const vulnPathsText = options.showVulnPaths ?
       'no vulnerable paths found.' :
       'none were found.';
-    const summaryOKText = chalk.green(`✓ ${testedInfoText}, ${vulnPathsText}`);
+    const summaryOKText = ansiColors.green(`✓ ${testedInfoText}, ${vulnPathsText}`);
     const nextStepsText =
       '\n\nNext steps:' +
       '\n- Run `snyk monitor` to be notified ' +
@@ -274,10 +274,10 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
   } else {
     vulnCountText += '.';
   }
-  let summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
+  let summary = testedInfoText + ', ' + ansiColors.red.bold(vulnCountText);
 
   if (options.canSuggestRemediation && WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
-    summary += chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
+    summary += ansiColors.bold.green('\n\nRun `snyk wizard` to address these issues.');
   }
 
   if (options.docker &&
@@ -285,11 +285,11 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
     const optOutSuggestions =
       '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`';
     if (!options.file) {
-      dockerSuggestion += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
+      dockerSuggestion += ansiColors.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
         `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`) + optOutSuggestions;
     } else if (!options['exclude-base-image-vulns']) {
       dockerSuggestion +=
-        chalk.bold.white(
+        ansiColors.bold.white(
           '\n\nPro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.') +
           optOutSuggestions;
     }
@@ -339,7 +339,7 @@ function createDockerBinaryHeading(pkgInfo) {
   const numOfVulns = _.values(pkgInfo.issues).length;
   const vulnCountText = numOfVulns > 1 ? 'vulnerabilities' : 'vulnerability';
   return numOfVulns ?
-    chalk.bold.white(`------------ Detected ${numOfVulns} ${vulnCountText}` +
+    ansiColors.bold.white(`------------ Detected ${numOfVulns} ${vulnCountText}` +
       ` for ${binaryName}@${binaryVersion} ------------`, '\n') : '';
 }
 
@@ -369,10 +369,10 @@ function formatIssues(vuln, options: TestOptions & OptionsAtDisplayStage) {
     ),
     introducedThrough: '  Introduced through: ' + uniquePackages,
     description: '  Description: ' + vuln.title,
-    info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
+    info: '  Info: ' + ansiColors.underline(config.ROOT + '/vuln/' + vulnID),
     fromPaths: options.showVulnPaths
       ? createTruncatedVulnsPathsText(vuln.list) : '',
-    extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
+    extraInfo: vuln.note ? ansiColors.bold('\n  Note: ' + vuln.note) : '',
     remediationInfo: vuln.metadata.type !== 'license' && options.canSuggestRemediation
       ? createRemediationText(vuln, packageManager)
       : '',
@@ -408,7 +408,7 @@ function dockerfileInstructionText(vuln) {
 
 function createFixedInText(vuln: any): string {
   return vuln.nearestFixedInVersion ?
-    chalk.bold('\n  Fixed in: ' + vuln.nearestFixedInVersion )
+    ansiColors.bold('\n  Fixed in: ' + vuln.nearestFixedInVersion )
     : '';
 }
 
@@ -431,7 +431,7 @@ function createRemediationText(vuln, packageManager) {
         'one of your dependencies may be bundling outdated modules.',
     };
 
-    return chalk.bold(
+    return ansiColors.bold(
       '\n  Remediation:\n    Your dependencies are out of date, ' +
       'otherwise you would be using a newer version of ' +
       packageName + '. ' +
@@ -466,7 +466,7 @@ function createRemediationText(vuln, packageManager) {
       return 'Some paths have no direct dependency upgrade that' +
         ` can address this issue. ${wizardHintText}`;
     }));
-    return chalk.bold(`\n  Remediation: \n    ${upgradePathsArray.join('\n    ')}`);
+    return ansiColors.bold(`\n  Remediation: \n    ${upgradePathsArray.join('\n    ')}`);
   }
 
   return '';
@@ -478,24 +478,24 @@ function createSeverityBasedIssueHeading(severity, type, packageName, isNew) {
   const severitiesColourMapping = {
     low: {
       colorFunc(text) {
-        return chalk.bold.blue(text);
+        return ansiColors.bold.blue(text);
       },
     },
     medium: {
       colorFunc(text) {
-        return chalk.bold.yellow(text);
+        return ansiColors.bold.yellow(text);
       },
     },
     high: {
       colorFunc(text) {
-        return chalk.bold.red(text);
+        return ansiColors.bold.red(text);
       },
     },
   };
   return severitiesColourMapping[severity].colorFunc(
     '✗ ' + titleCaseText(severity) + ' severity ' + vulnTypeText
-    + ' found in ' + chalk.underline(packageName)) +
-    chalk.bold.magenta(isNew ? ' (new)' : '');
+    + ' found in ' + ansiColors.underline(packageName)) +
+    ansiColors.bold.magenta(isNew ? ' (new)' : '');
 }
 
 function createTruncatedVulnsPathsText(vulnList) {
@@ -538,33 +538,33 @@ function metaForDisplay(res, options) {
   const packageManager = options.packageManager || res.packageManager;
   const openSource = res.isPrivate ? 'no' : 'yes';
   const meta = [
-    chalk.bold(rightPadWithSpaces('Organisation: ', padToLength)) + res.org,
-    chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) + packageManager,
+    ansiColors.bold(rightPadWithSpaces('Organisation: ', padToLength)) + res.org,
+    ansiColors.bold(rightPadWithSpaces('Package manager: ', padToLength)) + packageManager,
   ];
   if (options.file) {
-    meta.push(chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + options.file);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Target file: ', padToLength)) + options.file);
   }
   if (options.subProjectName) {
-    meta.push(chalk.bold(rightPadWithSpaces('Sub project: ', padToLength)) + options.subProjectName);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Sub project: ', padToLength)) + options.subProjectName);
   }
   if (options.docker) {
-    meta.push(chalk.bold(rightPadWithSpaces('Docker image: ', padToLength)) + options.path);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Docker image: ', padToLength)) + options.path);
   } else {
-    meta.push(chalk.bold(rightPadWithSpaces('Open source: ', padToLength)) + openSource);
-    meta.push(chalk.bold(rightPadWithSpaces('Project path: ', padToLength)) + options.path);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Open source: ', padToLength)) + openSource);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Project path: ', padToLength)) + options.path);
   }
   if (res.docker && res.docker.baseImage) {
-    meta.push(chalk.bold(rightPadWithSpaces('Base image: ', padToLength)) + res.docker.baseImage);
+    meta.push(ansiColors.bold(rightPadWithSpaces('Base image: ', padToLength)) + res.docker.baseImage);
   }
 
   if (res.filesystemPolicy) {
-    meta.push(chalk.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) + chalk.green('found'));
+    meta.push(ansiColors.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) + ansiColors.green('found'));
     if (res.ignoreSettings && res.ignoreSettings.disregardFilesystemIgnores) {
-      meta.push(chalk.bold(rightPadWithSpaces('Local Snyk policy ignored: ', padToLength)) + chalk.red('yes'));
+      meta.push(ansiColors.bold(rightPadWithSpaces('Local Snyk policy ignored: ', padToLength)) + ansiColors.red('yes'));
     }
   }
   if (res.licensesPolicy) {
-    meta.push(chalk.bold(rightPadWithSpaces('Licenses: ', padToLength)) + chalk.green('enabled'));
+    meta.push(ansiColors.bold(rightPadWithSpaces('Licenses: ', padToLength)) + ansiColors.green('enabled'));
   }
 
   return meta.join('\n');
@@ -579,7 +579,7 @@ function dockerRemediationForDisplay(res) {
 
   if (advice) {
     for (const item of advice) {
-      out.push(item.bold ? chalk.bold(item.message) : item.message);
+      out.push(item.bold ? ansiColors.bold(item.message) : item.message);
     }
   } else if (message) {
     out.push(message);

@@ -2,7 +2,7 @@ module.exports = ignore;
 
 var debug = require('debug')('snyk');
 var policy = require('snyk-policy');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 var authorization = require('../../lib/authorization');
 var auth = require('./auth');
 
@@ -17,7 +17,7 @@ function ignore(options) {
   }).then(function (cliIgnoreAuthorization) {
     if (!cliIgnoreAuthorization.allowed) {
       debug('snyk ignore called when disallowed');
-      console.log(chalk.bold.red(cliIgnoreAuthorization.reason));
+      console.log(ansiColors.bold.red(cliIgnoreAuthorization.reason));
       return;
     }
 

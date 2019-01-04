@@ -3,7 +3,7 @@ module.exports = patch;
 var now = new Date();
 
 var debug = require('debug')('snyk');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 var glob = require('glob');
 var tempfile = require('tempfile');
 var fs = require('then-fs');
@@ -173,7 +173,7 @@ function patch(vulns, live) {
     .then(function (res) {
       if (errorList.length) {
         errorList.forEach(function (error) {
-          console.log(chalk.red(errors.message(error)));
+          console.log(ansiColors.red(errors.message(error)));
         });
         throw new Error('Please email support@snyk.io if this problem persists.');
       }

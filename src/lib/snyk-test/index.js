@@ -2,7 +2,8 @@ module.exports = test;
 
 var detect = require('../detect');
 var runTest = require('./run-test');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
+var nodejs = require('./nodejs');
 
 function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -41,7 +42,7 @@ function executeTest(root, options) {
         return results;
       });
   } catch (error) {
-    return Promise.reject(chalk.red.bold(error));
+    return Promise.reject(ansiColors.red.bold(error));
   }
 }
 

@@ -15,7 +15,7 @@ var protect = require('../../../lib/protect');
 var moduleToObject = require('snyk-module');
 var config = require('../../../lib/config');
 var snykPolicy = require('snyk-policy');
-var chalk = require('chalk');
+var ansiColors = require('ansi-colors');
 
 var ignoreDisabledReasons = {
   notAdmin: 'Set to ignore (only administrators can ignore issues)',
@@ -42,17 +42,17 @@ function createSeverityBasedIssueHeading(msg, severity) {
   var severitiesColourMapping = {
     low: {
       colorFunc: function (text) {
-        return chalk.bold.blue(text);
+        return ansiColors.bold.blue(text);
       },
     },
     medium: {
       colorFunc: function (text) {
-        return chalk.bold.yellow(text);
+        return ansiColors.bold.yellow(text);
       },
     },
     high: {
       colorFunc: function (text) {
-        return chalk.bold.red(text);
+        return ansiColors.bold.red(text);
       },
     },
   };
@@ -531,14 +531,14 @@ function generatePrompt(vulns, policy, prefix, options) {
     var vulnIn = vuln.from.slice(-1).pop();
     var severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
 
-    var infoLink = '    Info: ' + chalk.underline(config.ROOT);
+    var infoLink = '    Info: ' + ansiColors.underline(config.ROOT);
 
     var messageIntro;
     var fromText = false;
     var group = vuln.grouped && vuln.grouped.main ? vuln.grouped : false;
 
     if (group) {
-      infoLink += chalk.underline('/package/npm/' + group.affected.name + '/' +
+      infoLink += ansiColors.underline('/package/npm/' + group.affected.name + '/' +
         group.affected.version);
       var joiningText = group.patch ? 'in' : 'via';
       var issues = vuln.type === 'license' ? 'issues' : 'vulnerabilities';
@@ -550,7 +550,7 @@ function generatePrompt(vulns, policy, prefix, options) {
         vuln.severity
       );
     } else {
-      infoLink += chalk.underline('/vuln/' + vuln.id);
+      infoLink += ansiColors.underline('/vuln/' + vuln.id);
       messageIntro = fmt(
         '✗ %s severity %s found in %s, introduced via',
         severity, vuln.type === 'license' ? 'issue' : 'vuln', vulnIn, from);
@@ -637,7 +637,7 @@ function generatePrompt(vulns, policy, prefix, options) {
         infoLink,
         fromText,
         note,
-        chalk.green('\n  Remediation options'),
+        ansiColors.green('\n  Remediation options'),
       ]
         .filter(Boolean).join('\n'),
     };
@@ -665,7 +665,7 @@ function generatePrompt(vulns, policy, prefix, options) {
       var toPackageVersion = moduleToObject(toPackage).version;
       var diff = semver.diff(moduleToObject(from).version, toPackageVersion);
       var lead = '';
-      var breaking = chalk.red('potentially breaking change');
+      var breaking = ansiColors.red('potentially breaking change');
       if (diff === 'major') {
         lead = ' (' + breaking + ', ';
       } else {
