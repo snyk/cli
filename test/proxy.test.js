@@ -3,7 +3,7 @@ var test = tap.test;
 var url = require('url');
 var http = require('http');
 var nock = require('nock');
-var request = require('../lib/request');
+var request = require('../src/lib/request');
 
 var proxyPort = 4242;
 var httpRequestHost = 'http://localhost:8000';

@@ -1,6 +1,6 @@
 'use strict';
 var debug = require('debug')('snyk');
-var protect = require('../lib/protect');
+var protect = require('../src/lib/protect');
 var path = require('path');
 var test = require('tape');
 var vulns = require('./fixtures/semver-vuln.json').vulnerabilities;

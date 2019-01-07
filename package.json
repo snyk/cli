@@ -1,35 +1,56 @@
 {
   "name": "snyk",
   "description": "snyk library and cli utility",
-  "main": "lib/index.js",
+  "main": "dist/lib/index.js",
+  "files": [
+    "help",
+    "dist",
+    "config.default.json",
+    "test-unpublished.json",
+    "SECURITY.md",
+    "README.md",
+    "Contributor-Agreement.md",
+    ".snyk"
+  ],
   "directories": {
     "test": "test"
   },
   "bin": {
-    "snyk": "./cli/index.js"
+    "snyk": "dist/cli/index.js"
   },
   "engines": {
     "node": ">=4"
   },
   "scripts": {
-    "coverage": "tap --cov --coverage-report=lcov test/*.test.js",
-    "tap": "COVERALLS_REPO_TOKEN=0 tap --timeout=180 --cov --coverage-report=text-summary test/*.test.js",
+    "build": "tsc",
+    "build-watch": "tsc -w",
+    "eslint": "eslint -c .eslintrc src",
+    "tslint": "tslint --project tsconfig.json --format stylish --exclude **/src/**/*.js",
+    "prepare": "npm run build",
+    "tap": "tap test/*.test.* -Rspec --timeout=300 --node-path ts-node --test-file-pattern '/\\.[tj]s$/'",
     "test": "npm run test-common && npm run tap",
-    "test-common": "npm run check-tests && npm run lint && node cli/index.js test --org=snyk",
-    "windows-tests": "tap -R spec test/*.test.js --timeout=120",
-    "lint": "jscs `find ./cli -name '*.js'` -v && jscs `find ./lib -name '*.js'` -v",
+    "test-common": "npm run check-tests && npm run lint && node --require ts-node/register src/cli test --org=snyk",
+    "lint": "npm run eslint && npm run tslint",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
-    "snyk-auth": "node cli auth $SNYK_API_KEY",
-    "snyk-auth-windows": "node cli auth %SNYK_API_KEY%"
+    "snyk-auth": "node --require ts-node/register src/cli auth $SNYK_API_KEY",
+    "snyk-auth-windows": "node --require ts-node/register src/cli auth %SNYK_API_KEY%"
   },
   "keywords": [
     "security",
-    "snyk"
+    "vulnerabilities",
+    "advisories",
+    "audit",
+    "snyk",
+    "scan",
+    "docker",
+    "container",
+    "scanning"
   ],
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
+    "@snyk/dep-graph": "1.1.2",
+    "@snyk/gemfile": "1.1.0",
     "abbrev": "^1.1.1",
     "ansi-escapes": "^3.1.0",
     "chalk": "^2.4.1",
@@ -38,63 +59,62 @@
     "hasbin": "^1.2.3",
     "inquirer": "^3.0.0",
     "lodash": "^4.17.5",
-    "needle": "^2.0.1",
+    "needle": "^2.2.4",
     "opn": "^5.2.0",
     "os-name": "^2.0.1",
-    "proxy-agent": "^3.0.0",
+    "proxy-agent": "^2.0.0",
     "proxy-from-env": "^1.0.0",
     "recursive-readdir": "^2.2.2",
     "semver": "^5.5.0",
-    "snyk-config": "2.1.0",
-    "snyk-go-plugin": "1.5.1",
-    "snyk-gradle-plugin": "1.3.0",
-    "snyk-module": "1.8.2",
-    "snyk-mvn-plugin": "1.2.0",
-    "snyk-nuget-plugin": "1.6.2",
+    "snyk-config": "2.2.0",
+    "snyk-docker-plugin": "1.14.0",
+    "snyk-go-plugin": "1.6.1",
+    "snyk-gradle-plugin": "2.1.2",
+    "snyk-module": "1.9.1",
+    "snyk-mvn-plugin": "2.0.1",
+    "snyk-nodejs-lockfile-parser": "1.10.1",
+    "snyk-nuget-plugin": "1.6.5",
     "snyk-php-plugin": "1.5.1",
-    "snyk-policy": "1.12.0",
-    "snyk-python-plugin": "1.6.1",
+    "snyk-policy": "1.13.3",
+    "snyk-python-plugin": "1.9.1",
     "snyk-resolve": "1.0.1",
-    "snyk-resolve-deps": "3.1.0",
-    "snyk-sbt-plugin": "1.3.0",
+    "snyk-resolve-deps": "4.0.2",
+    "snyk-sbt-plugin": "2.0.1",
     "snyk-tree": "^1.0.0",
     "snyk-try-require": "1.3.1",
+    "source-map-support": "^0.5.9",
     "tempfile": "^2.0.0",
     "then-fs": "^2.0.0",
     "undefsafe": "^2.0.0",
+    "update-notifier": "^2.5.0",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
-    "jscs": "^3.0.0",
+    "@types/lodash": "^4.14.116",
+    "@types/node": "^10.10.0",
+    "eslint": "^4.11.0",
     "nock": "^9.2.5",
     "proxyquire": "^1.7.4",
     "restify": "^4.1.1",
-    "semantic-release": "^8",
-    "sinon": "^1.17.2",
+    "sinon": "^4.0.0",
     "strip-ansi": "^4.0.0",
-    "tap": "^5.7.1",
-    "tap-only": "0.0.5",
-    "tape": "^4.0.0"
+    "tap": "github:snyk/node-tap#alternative-runtimes",
+    "tape": "^4.0.0",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
+    "typescript": "^3.0.3"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/snyk/snyk.git"
   },
-  "nyc": {
-    "exclude": [
-      "test",
-      "test{,-*}.js",
-      "**/*.test.js",
-      "**/__tests__/**"
-    ]
-  },
   "pkg": {
     "scripts": [
-      "cli/**/*.js",
-      "lib/**/*.js"
+      "dist/**/*.js"
     ],
     "assets": [
       "config.default.json",
+      "test-unpublished.json",
       "help/**/*.txt"
     ]
   },

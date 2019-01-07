@@ -1,0 +1,52 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
+  "env": {
+    "node": true,
+    "es6": true
+  },
+  "rules": {
+    "array-bracket-spacing": [2, "never"],
+    "block-scoped-var": 2,
+    "brace-style": 2,
+    "camelcase": 1,
+    "comma-dangle": ["error", "always-multiline"],
+    "computed-property-spacing": [2, "never"],
+    "curly": 2,
+    "eol-last": 2,
+    "eqeqeq": [2, "smart"],
+    "guard-for-in": 2,
+    "indent": [
+      2,
+      2,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "max-depth": [1, 5],
+    "max-len": [1, 120],
+    "max-statements": [1, 100],
+    "new-cap": 0,
+    "no-caller": 2,
+    "no-else-return": 2,
+    "no-extend-native": 2,
+    "no-mixed-spaces-and-tabs": 2,
+    "no-trailing-spaces": 2,
+    "no-undef": 2,
+    "no-unused-vars": 1,
+    "no-use-before-define": [2, "nofunc"],
+    "object-curly-spacing": [2, "never"],
+    "quotes": [2, "single", "avoid-escape"],
+    "semi": [2, "always"],
+    "keyword-spacing": [2, {"before": true, "after": true}],
+    "space-before-function-paren": [
+      2,
+      {
+        "anonymous": "ignore",
+        "named": "never"
+      }
+    ],
+    "space-unary-ops": 2
+  }
+}

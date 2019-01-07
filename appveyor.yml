@@ -47,4 +47,4 @@ install:
 # Post-install test scripts.
 test_script:
   - npm run snyk-auth-windows
-  - npm run windows-tests
+  - npm run tap

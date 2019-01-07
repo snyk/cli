@@ -3,11 +3,10 @@ var proxyquire = require('proxyquire');
 var sinon = require('sinon');
 var spy = sinon.spy();
 var _ = require('lodash');
+var dir =  __dirname + '/fixtures/protect-via-snyk/';
 var fixture = require('./fixtures/protect-via-snyk/package.json');
 
-var snyk = require('../');
-
-var wizard = proxyquire('../cli/commands/protect/wizard', {
+var wizard = proxyquire('../src/cli/commands/protect/wizard', {
   inquirer: {
     prompt: function (q, cb) {
       cb(q);
@@ -19,6 +18,10 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
         return resolve('5.0.1');
       });
     },
+  },
+  '../../../lib/protect': {
+    install: () => new Promise((resolve) => resolve()),
+    installDev: () => new Promise((resolve) => resolve()),
   },
   'then-fs': {
     readFile: function () {
@@ -33,6 +36,8 @@ var wizard = proxyquire('../cli/commands/protect/wizard', {
 
 test('npm - prepare is added and postinstall is removed', function (t) {
   var expectedResults = _.cloneDeep(fixture);
+  process.chdir(dir);
+
   return wizard.processAnswers({
     // answers
     'misc-test-no-monitor': true,
@@ -53,7 +58,8 @@ test('npm - prepare is added and postinstall is removed', function (t) {
 
 test('yarn - prepare is added and postinstall is removed', function (t) {
   var expectedResults = _.cloneDeep(fixture);
-  spy.reset();
+  process.chdir(dir);
+  spy.resetHistory();
   return wizard.processAnswers({
     // answers
     'misc-test-no-monitor': true,

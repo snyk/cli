@@ -1,5 +1,5 @@
 var test = require('tape');
-var config = require('../cli/commands/config');
+var config = require('../src/cli/commands/config');
 
 test('can unset config values', function (t) {
   var before = null;

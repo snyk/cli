@@ -1,7 +1,7 @@
 'use strict';
 var test = require('tape');
 var path = require('path');
-var snyk = require('..');
+var snyk = require('../src/lib');
 
 var cwd = process.cwd();
 var osDir = path.resolve(__dirname, 'fixtures', 'demo-private');

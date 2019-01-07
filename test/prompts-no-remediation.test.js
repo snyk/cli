@@ -1,5 +1,5 @@
 var test = require('tape');
-var getPrompts = require('../cli/commands/protect/prompts').getPrompts;
+var getPrompts = require('../src/cli/commands/protect/prompts').getPrompts;
 var vulns = require('./fixtures/test-jsbin-vulns-updated.json').vulnerabilities;
 
 test('ensure that when there is not remediation, prompt text is correct',

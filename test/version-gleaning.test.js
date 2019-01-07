@@ -1,7 +1,7 @@
 'use strict';
 var test = require('tape');
 var path = require('path');
-var snyk = require('..');
+var snyk = require('../src/lib');
 
 // this test checks we're collecting the *local* installed version *not* the
 // version that's stated in the package. i.e. handlebars@~2.0.0-alpha.2 is not

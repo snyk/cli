@@ -3,16 +3,18 @@ var needle = require('needle');
 var tap = require('tap');
 var test = tap.test;
 
-var cli = require('../cli/commands');
+var cli = require('../src/cli/commands');
 
 test('"snyk test --severity-threshold=high"', function(t) {
 
-  var requestStub = sinon.stub(needle, 'request', function () {throw 'bail'});
+  var requestStub = sinon.stub(needle, 'request').callsFake(function (a, b, c, d, cb) {
+    cb(new Error('bail'));
+  });
   t.teardown(() => {
     requestStub.restore();
   })
 
-  var options = { 'severity-threshold': 'high' };
+  var options = { 'severityThreshold': 'high' };
   return cli.test('ionic@1.6.5', options)
     .catch(function (error) {
       // stub is throwing an error as we need to check query params only
@@ -22,7 +24,7 @@ test('"snyk test --severity-threshold=high"', function(t) {
 });
 
 test('"snyk test --severity-threshold=non-sense"', function(t) {
-  var options = { 'severity-threshold': 'non-sense' };
+  var options = { 'severityThreshold': 'non-sense' };
   return cli.test('ionic@1.6.5', options)
     .catch(function (error) {
       t.equal(error.message, 'INVALID_SEVERITY_THRESHOLD', 'non-existing severity level is caught');

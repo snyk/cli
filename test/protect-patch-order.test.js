@@ -1,4 +1,4 @@
-var dedupe = require('../lib/protect/dedupe-patches');
+var dedupe = require('../src/lib/protect/dedupe-patches');
 var test = require('tap').test;
 var policy = require('snyk-policy');
 var dir = __dirname + '/fixtures/bugs/SC-1076';
