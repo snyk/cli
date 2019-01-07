@@ -58,11 +58,12 @@ function test(root, options) {
 
       return Promise.resolve()
         .then(() => {
-          if (getRuntimeVersion() < 6) {
+          const isLockFilebased = (targetFile.endsWith('package-lock.json')
+          || targetFile.endsWith('yarn.lock'));
+          if (targetFile.endsWith('yarn.lock') && getRuntimeVersion() < 6) {
             options.traverseNodeModules = true;
           }
-          if (targetFile.endsWith('package-lock.json')
-            || targetFile.endsWith('yarn.lock') && !options.traverseNodeModules) {
+          if (isLockFilebased && !options.traverseNodeModules) {
             return generateDependenciesFromLockfile(root, options, targetFile);
           }
           return getDependenciesFromNodeModules(root, options, targetFile)
@@ -74,10 +75,6 @@ function test(root, options) {
               return pkg;
             });
         }).then((pkg) => {
-          // if there's no package name, let's get it from the root dir
-          if (!pkg.name) {
-            pkg.name = path.basename(path.resolve(root));
-          }
           policyLocations = policyLocations.concat(pluckPolicies(pkg));
           debug('policies found', policyLocations);
           analytics.add('policies', policyLocations.length);
@@ -140,7 +137,10 @@ function generateDependenciesFromLockfile(root, options, targetFile) {
   const lockFile = fileSystem.readFileSync(lockFileFullPath, 'utf-8');
 
   analytics.add('local', true);
-  analytics.add('using lockfile (' + targetFile + ') to get dependency tree', true);
+  analytics.add('generating-node-dependency-tree', {
+    lockFile: true,
+    targetFile,
+  });
 
   const lockFileType = targetFile.endsWith('yarn.lock') ?
     lockFileParser.LockfileType.yarn : lockFileParser.LockfileType.npm;
@@ -175,7 +175,10 @@ function getDependenciesFromNodeModules(root, options, targetFile) {
           `without dependencies.\nPlease run '${packageManager} install' first.`);
       }
       analytics.add('local', true);
-      analytics.add('using node_modules to get dependency tree', true);
+      analytics.add('generating-node-dependency-tree', {
+        lockFile: false,
+        targetFile,
+      });
       options.root = root;
       const resolveModuleSpinnerLabel = 'Analyzing npm dependencies for ' +
         path.dirname(path.resolve(root, targetFile));
@@ -184,6 +187,11 @@ function getDependenciesFromNodeModules(root, options, targetFile) {
           // yarn projects fall back to node_module traversal if node < 6
           if (targetFile.endsWith('yarn.lock')) {
             options.file = options.file.replace('yarn.lock', 'package.json');
+          }
+
+          //package-lock.json falls back to package.json (used in wizard code)
+          if (targetFile.endsWith('package-lock.json')) {
+            options.file = options.file.replace('package-lock.json', 'package.json');
           }
           return snyk.modules(
             root, Object.assign({}, options, {noFromArrays: true}));

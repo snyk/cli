@@ -14,8 +14,7 @@ function inspect(root, targetFile, options) {
   const isShrinkwrapPresent = fileSystem.existsSync(
     path.resolve(root, targetFile).dir, 'npm-shrinkwrap.json'
   );
-
-  if (isLockFileBased && !isShrinkwrapPresent) {
+  if (isLockFileBased && !isShrinkwrapPresent && !options.traverseNodeModules) {
     return generateDependenciesFromLockfile(root, options, targetFile)
       .then((modules) => ({
         plugin: {
@@ -61,8 +60,9 @@ async function generateDependenciesFromLockfile(root, options, targetFile) {
 
   const manifestFile = await fs.readFile(manifestFileFullPath, 'utf-8');
   const lockFile = await fs.readFile(lockFileFullPath, 'utf-8');
+  const defaultManifestFileName = path.relative(root, manifestFileFullPath);
 
-  return lockFileParser
-    .buildDepTree(manifestFile, lockFile, options.dev, lockFileParser.LockfileType.npm);
+  return lockFileParser.buildDepTree(manifestFile, lockFile, options.dev,
+    lockFileParser.LockfileType.npm, true, defaultManifestFileName);
 }
 

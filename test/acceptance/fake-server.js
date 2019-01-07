@@ -70,33 +70,6 @@ module.exports = function (root, apikey) {
       });
       return next();
     }
-    if (req.query.org && req.query.org === 'org-with-vulns') {
-      vulnerabilities.push({
-        title: 'XML External Entity (XXE) Injection',
-        credit: [],
-        description: '',
-        moduleName: 'nokogiri',
-        language: 'ruby',
-        packageManager: 'rubygems',
-        semver: { unaffected: {}, vulnerable: {} },
-        identifiers: { CWE: [], CVE: [] },
-        CVSSv3: 'CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L',
-        severity: 'high',
-        creationTime: '2017-01-12T12:37:00.000Z',
-        modificationTime: '2017-01-12T12:37:00.000Z',
-        publicationTime: '2017-01-16T21:00:00.000Z',
-        disclosureTime: '2017-01-11T21:00:00.000Z',
-        id: 'SNYK-RUBY-NOKOGIRI-20299',
-        packageName: 'nokogiri',
-        cvssScore: 7.3,
-        from: [ 'nokogiri@1.8.1' ],
-        upgradePath: [],
-        version: '1.8.1',
-        name: 'nokogiri',
-        isUpgradable: false,
-        isPatchable: false,
-      });
-    }
     res.send({
       vulnerabilities: vulnerabilities,
       org: 'test-org',
@@ -108,6 +81,29 @@ module.exports = function (root, apikey) {
   server.post(root + '/vuln/:registry/patches', function (req, res, next) {
     res.send({
       vulnerabilities: [],
+    });
+    return next();
+  });
+
+  server.post(root + '/test-dep-graph', function (req, res, next) {
+    if (req.query.org && req.query.org === 'missing-org') {
+      res.status(404);
+      res.send({
+        code: 404,
+        userMessage: 'cli error message',
+      });
+      return next();
+    }
+
+    res.send({
+      result: {
+        issuesData: {},
+        affectedPkgs: {},
+      },
+      meta: {
+        org: 'test-org',
+        isPublic: false,
+      },
     });
     return next();
   });

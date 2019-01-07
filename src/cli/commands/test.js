@@ -1,6 +1,7 @@
 module.exports = test;
 
 var _ = require('lodash');
+var semver = require('semver');
 var chalk = require('chalk');
 var debug = require('debug')('snyk');
 var snyk = require('../../lib/');
@@ -10,6 +11,7 @@ var apiTokenExists = require('../../lib/api-token').exists;
 var SEVERITIES = require('../../lib/snyk-test/common').SEVERITIES;
 var WIZARD_SUPPORTED_PMS =
   require('../../lib/snyk-test/common').WIZARD_SUPPORTED_PMS;
+var docker = require('../../lib/docker-promotion');
 var SEPARATOR = '\n-------------------------------------------------------\n';
 
 // arguments array is 0 or more `path` strings followed by
@@ -25,13 +27,12 @@ function test() {
   }
 
   // populate with default path (cwd) if no path given
-  if (args.length ===  0) {
+  if (args.length === 0) {
     args.unshift(process.cwd());
   }
 
   // org fallback to config unless specified
   options.org = options.org || config.org;
-
   // making `show-vulnerable-paths` true by default.
   options.showVulnPaths = (options['show-vulnerable-paths'] || '')
     .toLowerCase() !== 'false';
@@ -43,12 +44,12 @@ function test() {
 
   return apiTokenExists('snyk test')
     .then(function () {
-    // Promise waterfall to test all other paths sequentially
+      // Promise waterfall to test all other paths sequentially
       var testsPromises = args.reduce(function (acc, path) {
         return acc.then(function () {
-        // Create a copy of the options so a specific test can
-        // modify them i.e. add `options.file` etc. We'll need
-        // these options later.
+          // Create a copy of the options so a specific test can
+          // modify them i.e. add `options.file` etc. We'll need
+          // these options later.
           var testOpts = _.cloneDeep(options);
           testOpts.path = path;
           resultOptions.push(testOpts);
@@ -89,12 +90,12 @@ function test() {
 
       return testsPromises;
     }).then(function () {
-    // resultOptions is now an array of 1 or more options used for
-    // the tests results is now an array of 1 or more test results
-    // values depend on `options.json` value - string or object
+      // resultOptions is now an array of 1 or more options used for
+      // the tests results is now an array of 1 or more test results
+      // values depend on `options.json` value - string or object
       if (options.json) {
         results = results.map(function (result) {
-        // add json for when thrown exception
+          // add json for when thrown exception
           if (result instanceof Error) {
             return {
               ok: false,
@@ -142,8 +143,8 @@ function test() {
       if (results.length > 1) {
         var projects = results.length === 1 ? ' project' : ' projects';
         summaryMessage = '\n\n' + '\nTested ' + results.length + projects +
-        summariseVulnerableResults(vulnerableResults, options) +
-        summariseErrorResults(errorResults) + '\n';
+          summariseVulnerableResults(vulnerableResults, options) +
+          summariseErrorResults(errorResults) + '\n';
       }
 
       var notSuccess = vulnerableResults.length > 0 || errorResults.length > 0;
@@ -183,7 +184,7 @@ function summariseVulnerableResults(vulnerableResults, options) {
 
 function summariseErrorResults(errorResults) {
   const projects =
-    errorResults.length > 1 ? ' projects' :  ' project';
+    errorResults.length > 1 ? ' projects' : ' project';
   if (errorResults.length > 0) {
     return ' Failed to test ' + errorResults.length + projects +
       '.\nRun with `-d` for debug output and contact support@snyk.io';
@@ -213,6 +214,11 @@ function displayResult(res, options) {
   var testedInfoText =
     'Tested ' + pathOrDepsText + ' for known ' + issuesText;
 
+  let dockerSuggestion = '';
+  if (docker.shouldSuggestDocker(options)) {
+    dockerSuggestion += chalk.bold.white(docker.suggestionText);
+  }
+
   // OK  => no vulns found, return
   if (res.ok && res.vulnerabilities.length === 0) {
     var vulnPathsText = options.showVulnPaths ?
@@ -222,13 +228,17 @@ function displayResult(res, options) {
       '✓ ' + testedInfoText + vulnPathsText
     );
     var nextStepsText =
-        '\n\nNext steps:' +
-        '\n- Run `snyk monitor` to be notified ' +
-        'about new related vulnerabilities.' +
-        '\n- Run `snyk test` as part of ' +
-        'your CI/test.';
+      '\n\nNext steps:' +
+      '\n- Run `snyk monitor` to be notified ' +
+      'about new related vulnerabilities.' +
+      '\n- Run `snyk test` as part of ' +
+      'your CI/test.';
     return (
-      prefix + meta + summaryOKText + (isCI ? '' : dockerAdvice + nextStepsText)
+      prefix + meta + summaryOKText + (
+        isCI ? '' :
+          dockerAdvice +
+          nextStepsText +
+          dockerSuggestion)
     );
   }
 
@@ -261,11 +271,14 @@ function displayResult(res, options) {
       '\n\nRun `snyk wizard` to address these issues.'
     );
   }
-  if (options.docker && !options.file) {
-    summary += chalk.bold.white('\n\n Pro tip: use `--file` option to get base image remediation advice.' +
-     `\n Example: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`);
-  }
 
+  if (options.docker &&
+    !options.file &&
+    (config.disableSuggestions !== 'true')) {
+    dockerSuggestion += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
+      `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile` +
+      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`');
+  }
 
   var vulns = res.vulnerabilities || [];
   var groupedVulns = groupVulnerabilities(vulns);
@@ -274,57 +287,118 @@ function displayResult(res, options) {
     ['metadata.severityValue', 'metadata.name'],
     ['asc', 'desc']
   );
-  var groupedVulnInfoOutput = sortedGroupedVulns.map(function (vuln) {
-    var vulnID = vuln.list[0].id;
-    var uniquePackages = _.uniq(
-      vuln.list.map(function (i) {
-        if (i.from[1]) {
-          return i.from && i.from[1];
-        }
-        return i.from;
-      }))
-      .join(', ');
-    var vulnOutput = {
-      issueHeading: createSeverityBasedIssueHeading(
-        vuln.metadata.severity,
-        vuln.metadata.type,
-        vuln.metadata.name
-      ),
-      introducedThrough: '  Introduced through: ' + uniquePackages,
-      description: '  Description: ' + vuln.title,
-      info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
-      fromPaths: options.showVulnPaths
-        ? createTruncatedVulnsPathsText(vuln.list) : '',
-      extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
-      remediationInfo: vuln.metadata.type !== 'license'
-        ? createRemediationText(vuln, packageManager)
-        : '',
-      fixedIn: options.docker ? createFixedInText(vuln) : '',
-    };
-    return (
-      vulnOutput.issueHeading + '\n' +
-      vulnOutput.description + '\n' +
-      vulnOutput.info + '\n' +
-      vulnOutput.introducedThrough + '\n' +
-      vulnOutput.fromPaths +
-      // Optional - not always there
-      vulnOutput.remediationInfo +
-      vulnOutput.fixedIn +
-      vulnOutput.extraInfo
-    );
+  var filteredSortedGroupedVulns = sortedGroupedVulns.filter(function (vuln) {
+    return (vuln.metadata.packageManager !== 'upstream');
   });
+  var binariesSortedGroupedVulns = sortedGroupedVulns.filter(function (vuln) {
+    return (vuln.metadata.packageManager === 'upstream');
+  });
+  var groupedVulnInfoOutput = filteredSortedGroupedVulns.map(vuln => formatIssues(vuln, options));
+  var groupedDockerBinariesVulnInfoOutput = (res.docker && res.docker.binariesVulns) ?
+    formatDockerBinariesIssues(binariesSortedGroupedVulns, res.docker.binariesVulns, options) : [];
+  var body =
+    groupedVulnInfoOutput.join('\n\n') + '\n\n\n' +
+    groupedDockerBinariesVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
+  return prefix + body + dockerAdvice + dockerSuggestion;
+};
 
-  var body = groupedVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
-  return prefix + body + dockerAdvice;
+function formatDockerBinariesIssues(dockerBinariesSortedGroupedVulns, binariesVulns, options) {
+  const binariesIssuesOutput = [];
+  for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
+    binariesIssuesOutput.push(createDockerBinaryHeading(pkgInfo));
+    let binaryIssues = dockerBinariesSortedGroupedVulns.filter(function (vuln) {
+      return (vuln.metadata.name === pkgInfo.pkg.name);
+    });
+    const formattedBinaryIssues = binaryIssues.map(vuln => formatIssues(vuln, options));
+    binariesIssuesOutput.push(formattedBinaryIssues.join('\n\n'));
+  }
+  return binariesIssuesOutput;
 }
 
-function createFixedInText(groupedVuln) {
-  var vulnerableRange = groupedVuln.list[0].semver.vulnerable[0];
-  if (/^<\S+$/.test(vulnerableRange)) {
-    // removing the first char from the version. For example: <7.50.1-1
-    return chalk.bold('\n  Fixed in: ' + vulnerableRange.substr(1));
+function createDockerBinaryHeading(pkgInfo) {
+  const binaryName = pkgInfo.pkg.name;
+  const binaryVersion = pkgInfo.pkg.version;
+  const numOfVulns = _.values(pkgInfo.issues).length;
+  return numOfVulns ?
+    chalk.bold.white(`------------ Detected ${numOfVulns} vulnerabilities`+
+    ` for ${binaryName}@${binaryVersion} ------------`, '\n') : '';
+}
+
+function formatIssues(vuln, options) {
+  var vulnID = vuln.list[0].id;
+  var packageManager = options.packageManager;
+  var uniquePackages = _.uniq(
+    vuln.list.map(function (i) {
+      if (i.from[1]) {
+        return i.from && i.from[1];
+      }
+      return i.from;
+    }))
+    .join(', ');
+
+  var version = undefined;
+  var vulnerableRange = vuln.list[0].semver.vulnerable;
+  if (vuln.metadata.packageManager.toLowerCase() === 'upstream') {
+    version = vuln.metadata.version;
+  };
+
+  var vulnOutput = {
+    issueHeading: createSeverityBasedIssueHeading(
+      vuln.metadata.severity,
+      vuln.metadata.type,
+      vuln.metadata.name
+    ),
+    introducedThrough: '  Introduced through: ' + uniquePackages,
+    description: '  Description: ' + vuln.title,
+    info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
+    fromPaths: options.showVulnPaths
+      ? createTruncatedVulnsPathsText(vuln.list) : '',
+    extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
+    remediationInfo: vuln.metadata.type !== 'license'
+      ? createRemediationText(vuln, packageManager)
+      : '',
+    fixedIn: options.docker ? createFixedInText(vulnerableRange, version) : '',
+  };
+  return (
+    vulnOutput.issueHeading + '\n' +
+    vulnOutput.description + '\n' +
+    vulnOutput.info + '\n' +
+    vulnOutput.introducedThrough + '\n' +
+    vulnOutput.fromPaths +
+    // Optional - not always there
+    vulnOutput.remediationInfo +
+    vulnOutput.fixedIn +
+    vulnOutput.extraInfo
+  );
+}
+
+function createFixedInText(versionRangeList, pkgVersion) {
+  let fixedVersion = '';
+  let fixedVersionCandidate = '';
+  const lesserThan = /^<\S+$/;
+  // pkgVersion is undefined for OS packages vulns
+  if (!pkgVersion) {
+    if (versionRangeList && versionRangeList.length) {
+      // OS packages vulns versionRangeList includes a single upper bound version
+      fixedVersionCandidate = versionRangeList[0];
+      // trim relational operator `<` from first version in list
+      fixedVersion = lesserThan.test(fixedVersionCandidate) ?
+        fixedVersionCandidate.substr(1) : '';
+    }
+  } else {
+    for (const versionRange of versionRangeList) {
+      if (!semver.valid(pkgVersion) || !semver.satisfies(pkgVersion, versionRange)) {
+        continue;
+      }
+      // e.g. extract '5.1.0' from version range: '>=4.1.0 <5.1.0'
+      fixedVersionCandidate = versionRange.split(' ')[1];
+      if (lesserThan.test(fixedVersionCandidate)) {
+        fixedVersion = fixedVersionCandidate.substr(1);
+        break;
+      }
+    }
   }
-  return '';
+  return fixedVersion ? chalk.bold('\n  Fixed in: ' + fixedVersion): '';
 }
 
 function createRemediationText(vuln, packageManager) {
@@ -337,13 +411,13 @@ function createRemediationText(vuln, packageManager) {
   if (vuln.isOutdated === true) {
     var packageManagerOutdatedText = {
       npm: '\n    Try deleting node_modules, reinstalling ' +
-      'and running `snyk test` again. If the problem persists, ' +
-      'one of your dependencies may be bundling outdated modules.',
+        'and running `snyk test` again. If the problem persists, ' +
+        'one of your dependencies may be bundling outdated modules.',
       rubygems: '\n    Try running `bundle update ' + packageName + '` ' +
-      'and running `snyk test` again.',
+        'and running `snyk test` again.',
       yarn: '\n    Try deleting node_modules, reinstalling ' +
-      'and running `snyk test` again. If the problem persists, ' +
-      'one of your dependencies may be bundling outdated modules.',
+        'and running `snyk test` again. If the problem persists, ' +
+        'one of your dependencies may be bundling outdated modules.',
     };
 
     return chalk.bold(
@@ -525,7 +599,7 @@ function getSeverityValue(severity) {
 }
 
 function titleCaseText(text) {
-  return text[0].toUpperCase() + text.slice(1) ;
+  return text[0].toUpperCase() + text.slice(1);
 }
 
 // This is all a copy from Registry snapshots/index
@@ -556,11 +630,11 @@ function groupVulnerabilities(vulns) {
     }
 
     if (!map[curr.id].isOutdated) {
-      map[curr.id].isOutdated = !!curr.isOutdated ;
+      map[curr.id].isOutdated = !!curr.isOutdated;
     }
 
     if (!map[curr.id].note) {
-      map[curr.id].note = !!curr.note ;
+      map[curr.id].note = !!curr.note;
     }
 
     return map;
@@ -583,5 +657,7 @@ function metadataForVuln(vuln) {
     severity: vuln.severity,
     severityValue: getSeverityValue(vuln.severity),
     isNew: isNewVuln(vuln),
+    version: vuln.version,
+    packageManager: vuln.packageManager,
   };
 }

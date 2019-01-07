@@ -13,6 +13,7 @@ import spinner = require('../lib/spinner');
 import errors = require('../lib/error');
 import ansiEscapes = require('ansi-escapes');
 import {isPathToPackageFile} from '../lib/detect';
+import {updateCheck} from '../lib/updater';
 
 async function runCommand(args) {
   const result = await args.method(...args.options._);
@@ -108,6 +109,7 @@ function checkPaths(args) {
 }
 
 async function main() {
+  updateCheck();
   checkRuntime();
 
   const args = argsLib(process.argv);

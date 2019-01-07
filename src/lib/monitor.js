@@ -75,6 +75,9 @@ function monitor(root, meta, info) {
             var e = new Error('unexpected error: ' + body.message);
             e.code = res.statusCode;
             e.userMessage = body && body.userMessage;
+            if (!e.userMessage && res.statusCode === 504) {
+              e.userMessage = 'Connection Timeout';
+            }
             reject(e);
           }
         });

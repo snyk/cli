@@ -123,6 +123,8 @@ function processWizardFlow(options) {
               });
             })
             .then(() => {
+              options.traverseNodeModules = true;
+
               return snyk.test(cwd, options).then((res) => {
                 if (alerts.hasAlert('tests-reached') && res.isPrivate) {
                   return;
@@ -275,17 +277,6 @@ function processAnswers(answers, policy, options) {
   var packageManager = detect.detectPackageManager(cwd, options);
   var targetFile = options.file || detect.detectPackageFile(cwd);
   const isLockFileBased = targetFile.endsWith('package-lock.json') || targetFile.endsWith('yarn.lock');
-  // TODO: fix this by providing better patch support for yarn
-  // yarn hoists packages up a tree so we can't assume their location
-  // on disk without traversing node_modules
-  // currently the npm@2 nd npm@3 plugin resolve-deps can do this
-  // but not the latest node-lockfile-parser
-  // HACK: for yarn set traverseNodeModules option to true
-  // bypass lockfile test for wizard
-  // it is set back to false just before the monitor test
-  if (targetFile.endsWith('yarn.lock')) {
-    options.traverseNodeModules = true;
-  }
 
   var pkg = {};
 
@@ -513,7 +504,7 @@ function processAnswers(answers, policy, options) {
       var plugin = plugins.loadPlugin(packageManager);
       var info = moduleInfo(plugin, options.policy);
 
-      if (targetFile.endsWith('yarn.lock')) {
+      if (isLockFileBased) {
         // TODO: fix this by providing better patch support for yarn
         // yarn hoists packages up a tree so we can't assume their location
         // on disk without traversing node_modules
@@ -524,6 +515,7 @@ function processAnswers(answers, policy, options) {
         // before we monitor
         options.traverseNodeModules = false;
       }
+
       return info.inspect(cwd, targetFile, options)
         .then(spinner(lbl))
         .then(snyk.monitor.bind(null, cwd, meta))
