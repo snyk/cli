@@ -172,9 +172,16 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
     if (_.get(inspectRes, 'plugin.packageManager')) {
       options.packageManager = inspectRes.plugin.packageManager;
     }
-    if (!_.get(pkg, 'docker.baseImage') && options['base-image']) {
+
+    const baseImageFromDockerfile = _.get(pkg, 'docker.baseImage');
+    if (!baseImageFromDockerfile && options['base-image']) {
       pkg.docker = pkg.docker || {};
       pkg.docker.baseImage = options['base-image'];
+    }
+
+    if (baseImageFromDockerfile && inspectRes.plugin.imageLayers) {
+      analytics.add('BaseImage', baseImageFromDockerfile);
+      analytics.add('imageLayers', inspectRes.plugin.imageLayers);
     }
 
     if (_.get(pkg, 'files.gemfileLock.contents')) {
