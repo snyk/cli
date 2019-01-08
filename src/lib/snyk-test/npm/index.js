@@ -21,7 +21,7 @@ module.exports = test;
 const config = require('../../config');
 
 function test(root, options) {
-  const modules = null;
+  let modules = null;
   const packageManager = detect.detectPackageManager(root, options);
   const payload = {
     // options.vulnEndpoint is only used for file system tests
@@ -32,7 +32,7 @@ function test(root, options) {
       authorization: 'token ' + snyk.api,
     },
   };
-  const hasDevDependencies = false;
+  let hasDevDependencies = false;
 
   // if the file exists, let's read the package files and post
   // the dependency tree to the server.

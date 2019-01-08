@@ -2,8 +2,8 @@ const tap = require('tap');
 const test = require('tap').test;
 const sinon = require('sinon').createSandbox();
 const proxyquire = require('proxyquire');
-const policySpy = sinon.spy();
-const writeSpy = sinon.spy();
+let policySpy = sinon.spy();
+let writeSpy = sinon.spy();
 const detect = require('../src/lib/detect');
 
 sinon.stub(detect, 'detectPackageManager')
