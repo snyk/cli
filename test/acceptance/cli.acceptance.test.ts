@@ -1572,9 +1572,7 @@ test('`test foo:latest --docker with binaries`', async (t) => {
         },
         package: {
           docker: {
-            binaries: {
-              Analysis: [{name: 'node', version: '5.10.1'}],
-            },
+            binaries: [{name: 'node', version: '5.10.1'}],
           },
         },
       });
@@ -1594,7 +1592,7 @@ test('`test foo:latest --docker with binaries`', async (t) => {
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'deb');
-  t.match(req.body.docker.binaries, [{name: 'node', version: '5.10.1'}],
+  t.same(req.body.docker.binaries, [{name: 'node', version: '5.10.1'}],
     'posts docker binaries');
   t.same(spyPlugin.getCall(0).args,
     ['foo:latest', null, {
