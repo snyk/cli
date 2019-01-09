@@ -358,9 +358,7 @@ function formatIssues(vuln, options) {
       ? createRemediationText(vuln, packageManager)
       : '',
     fixedIn: options.docker ? createFixedInText(vulnerableRange, version) : '',
-    dockerfilePackage: options.docker && vuln.dockerfileInstruction
-      ? `\n  Introduced in your Dockerfile by '${ vuln.dockerfileInstruction }'`
-      : `\n  Introduced by your base image (${ vuln.dockerBaseImage })`,
+    dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
   };
 
   return (
@@ -375,6 +373,18 @@ function formatIssues(vuln, options) {
     vulnOutput.fixedIn +
     vulnOutput.extraInfo
   );
+}
+
+function dockerfileInstructionText(vuln) {
+  if (vuln.dockerfileInstruction) {
+    return `\n  Introduced in your Dockerfile by '${ vuln.dockerfileInstruction }'`;
+  }
+
+  if (vuln.dockerBaseImage) {
+    return `\n  Introduced by your base image (${ vuln.dockerBaseImage })`;
+  }
+
+  return '';
 }
 
 function createFixedInText(versionRangeList, pkgVersion) {
