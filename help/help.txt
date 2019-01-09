@@ -27,8 +27,8 @@ Options:
 
   --dev .............. Include devDependencies (defaults to production only).
   --file=<File> ...... Sets package file. For more help run `snyk help file`.
-  --org=<org-name> ... Run snyk with a specific organisation. For more help
-                       run `snyk help orgs`.
+  --org=<org-name> ... Specify the org machine-name to run Snyk with a specific
+                       organisation. For more help run `snyk help orgs`.
   --ignore-policy .... Ignores and resets the state of your policy file.
   --trust-policies ... Applies and uses ignore rules from your dependencies's
                        Snyk policies, otherwise ignore policies are only
