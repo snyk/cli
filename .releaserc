@@ -3,7 +3,7 @@
     "@semantic-release/npm",
     {
       "path": "@semantic-release/exec",
-      "cmd": "npm i -g pkg && pkg . && shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256"
+      "cmd": "npm i -g https://github.com/randallknutson/pkg.git#build && pkg . && shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256"
     }
   ],
   "publish": [
