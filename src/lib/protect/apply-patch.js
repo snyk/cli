@@ -16,7 +16,7 @@ function applyPatch(patch, vuln, live) {
     }
 
     var relative = path.relative(process.cwd(), cwd);
-    debug('DRY RUN: relative: %s cmd + test: %s', relative, cmd + test);
+    debug('DRY RUN: relative: %s', relative);
 
     try {
       var packageJson = fs.readFileSync(path.resolve(relative, 'package.json'));
@@ -47,14 +47,14 @@ function applyPatch(patch, vuln, live) {
       },
       complete: function (error) {
         if (error) {
-          debug('patch command failed', relative, error, out);
+          debug('patch command failed', relative, error);
           return patchError(error, relative, vuln).catch(reject);
         }
 
         debug('patch succeed');
 
         resolve();
-      }
+      },
     });
   });
 }
