@@ -51,11 +51,13 @@
   "dependencies": {
     "@snyk/dep-graph": "1.1.2",
     "@snyk/gemfile": "1.1.0",
+    "@types/diff": "^3.5.2",
     "abbrev": "^1.1.1",
     "ansi-escapes": "^3.1.0",
     "chalk": "^2.4.1",
     "configstore": "^3.1.2",
     "debug": "^3.1.0",
+    "diff": "^4.0.1",
     "hasbin": "^1.2.3",
     "inquirer": "^3.0.0",
     "lodash": "^4.17.5",
