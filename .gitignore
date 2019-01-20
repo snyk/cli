@@ -8,3 +8,8 @@ tmp
 .DS_Store
 package-lock.json
 !/test/fixtures/**/package-lock.json
+snyk-error.log
+snyk-result.json
+snyk_report.css
+snyk_report.html
+!/docker/snyk_report.css
