@@ -177,7 +177,7 @@ docker run -it
     -e "MONITOR=true"
     -v "<PROJECT_DIRECTORY>:/project"
     -v "/var/run/docker.sock:/var/run/docker.sock"
-  snyk/snyk-cli:docker test --docker myapp:mytag
+  snyk/snyk-cli:docker test --docker myapp:mytag --file=<DOCKERFILE>
 ```
 
 ## Badge
