@@ -10,3 +10,8 @@ tmp
 !/test/fixtures/**/package-lock.json
 .idea
 .eslintcache
+snyk-error.log
+snyk-result.json
+snyk_report.css
+snyk_report.html
+!/docker/snyk_report.css
