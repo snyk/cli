@@ -1,7 +1,6 @@
 module.exports = test;
 
 import * as _ from 'lodash';
-import * as semver from 'semver';
 import chalk from 'chalk';
 import * as snyk from '../../lib/';
 import * as config from '../../lib/config';
@@ -318,7 +317,6 @@ function formatIssues(vuln, options) {
     .join(', ');
 
   let version;
-  const vulnerableRange = vuln.list[0].semver.vulnerable;
   if (vuln.metadata.packageManager.toLowerCase() === 'upstream') {
     version = vuln.metadata.version;
   }
@@ -339,7 +337,7 @@ function formatIssues(vuln, options) {
     remediationInfo: vuln.metadata.type !== 'license'
       ? createRemediationText(vuln, packageManager)
       : '',
-    fixedIn: options.docker ? createFixedInText(vulnerableRange, version) : '',
+    fixedIn: options.docker ? createFixedInText(vuln, version) : '',
     dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
   };
 
@@ -369,30 +367,23 @@ function dockerfileInstructionText(vuln) {
   return '';
 }
 
-function createFixedInText(versionRangeList, pkgVersion) {
+function createFixedInText(vuln, pkgVersion) {
   let fixedVersion = '';
-  let fixedVersionCandidate = '';
-  const lesserThan = /^<\S+$/;
-  // pkgVersion is undefined for OS packages vulns
-  if (!pkgVersion) {
+  if (vuln.nearestFixedInVersion) {
+    fixedVersion = vuln.nearestFixedInVersion;
+  // pkgVersion is undefined for OS packages vuln
+  // TODO move this logic to vuln
+  } else if (!pkgVersion) {
+    const versionRangeList = vuln.list[0].semver.vulnerable;
+    let fixedVersionCandidate = '';
+    const lesserThan = /^<\S+$/;
+
     if (versionRangeList && versionRangeList.length) {
       // OS packages vulns versionRangeList includes a single upper bound version
       fixedVersionCandidate = versionRangeList[0];
       // trim relational operator `<` from first version in list
       fixedVersion = lesserThan.test(fixedVersionCandidate) ?
         fixedVersionCandidate.substr(1) : '';
-    }
-  } else {
-    for (const versionRange of versionRangeList) {
-      if (!semver.valid(pkgVersion) || !semver.satisfies(pkgVersion, versionRange)) {
-        continue;
-      }
-      // e.g. extract '5.1.0' from version range: '>=4.1.0 <5.1.0'
-      fixedVersionCandidate = versionRange.split(' ')[1];
-      if (lesserThan.test(fixedVersionCandidate)) {
-        fixedVersion = fixedVersionCandidate.substr(1);
-        break;
-      }
     }
   }
   return fixedVersion ? chalk.bold('\n  Fixed in: ' + fixedVersion) : '';
@@ -607,6 +598,7 @@ function groupVulnerabilities(vulns) {
       map[curr.id].isNew = isNewVuln(curr);
       map[curr.id].dockerfileInstruction = curr.dockerfileInstruction;
       map[curr.id].dockerBaseImage = curr.dockerBaseImage;
+      map[curr.id].nearestFixedInVersion = curr.nearestFixedInVersion;
     }
     if (curr.upgradePath) {
       curr.isOutdated = curr.upgradePath[1] === curr.from[1];

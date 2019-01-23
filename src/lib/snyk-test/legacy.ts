@@ -32,6 +32,7 @@ interface AnnotatedIssue extends IssueData {
   upgradePath: Array<string | boolean>;
   isUpgradable: boolean;
   isPatchable: boolean;
+  nearestFixedInVersion?: string;
 }
 
 interface LegacyVulnApiResult {
@@ -63,6 +64,7 @@ interface UpgradePath {
 interface FixInfo {
   upgradePaths: UpgradePath[];
   isPatchable: boolean;
+  nearestFixedInVersion?: string;
 }
 
 interface TestDepGraphResult {
@@ -166,6 +168,7 @@ function convertTestDepGraphResultToLegacy(
           isPatchable: false,
           name: pkgInfo.pkg.name,
           version: pkgInfo.pkg.version as string,
+          nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
         });
         vulns.push(annotatedIssue);
       }
