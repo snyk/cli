@@ -15,7 +15,6 @@ Snyk helps you find, fix and monitor known vulnerabilities in Node.js npm, Ruby 
 - [Installation](#installation)
 - [CLI](#cli)
 - [Features](#features)
-- [Build](#build)
 - [Docker](#docker)
 - [Badge](#badge)
 
