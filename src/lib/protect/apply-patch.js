@@ -26,37 +26,81 @@ function applyPatch(patch, vuln, live) {
       debug('Failed loading package.json of package about to be patched', err);
     }
 
-    diff.applyPatches(patch, {
+    var patchContent = fs.readFileSync(path.resolve(relative, patch), 'utf8');
+
+    jsDiff(patchContent, relative, live).then(function () {
+      debug('patch succeed');
+      resolve();
+    }).catch(function (error) {
+      debug('patch command failed', relative, error);
+      patchError(error, relative, vuln).catch(reject);
+    });
+  });
+}
+
+function jsDiff(patchContent, relative, live) {
+  const files = {};
+  return new Promise(function (resolve, reject) {
+    diff.applyPatches(patchContent, {
       loadFile: function (index, callback) {
         try {
-          var content = fs.readFileSync(path.resolve(relative, index.oldFileName), 'utf8');
+          var fileName = stripFirstSlash(index.oldFileName);
+          if (files[fileName]) {
+            return callback(null, files[fileName]);
+          }
+          var content = fs.readFileSync(path.resolve(relative, fileName), 'utf8');
           callback(null, content);
         } catch (err) {
           callback(err);
         }
       },
       patched: function (index, content, callback) {
-        if (live) {
-          try {
-            fs.writeFileSync(index.newFileName, content);
-            callback();
-          } catch (err) {
-            callback(err);
+        try {
+          if (content === false) {
+            throw new Error('Found a mismatching patch\n' + JSON.stringify(index, null, 2));
           }
+          var newFileName = stripFirstSlash(index.newFileName);
+          var oldFileName = stripFirstSlash(index.oldFileName);
+          if (newFileName !== oldFileName) {
+            files[oldFileName] = null;
+          }
+          files[newFileName] = content;
+          callback();
+        } catch (err) {
+          callback(err);
         }
+      },
+      compareLine: function (_, line, operation, patchContent) {
+        if (operation === ' ') {
+          return true;
+        }
+        return line === patchContent;
       },
       complete: function (error) {
         if (error) {
-          debug('patch command failed', relative, error);
-          return patchError(error, relative, vuln).catch(reject);
+          return reject(error);
         }
-
-        debug('patch succeed');
-
-        resolve();
+        if (!live) {
+          return resolve();
+        }
+        try {
+          for (var fileName of files) {
+            if (files[fileName] === null) {
+              fs.unlinkSync(path.resolve(relative, fileName));
+            }
+            fs.writeFileSync(path.resolve(relative, fileName), files[fileName]);
+          }
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
       },
     });
   });
+}
+
+function stripFirstSlash(fileName) {
+  return fileName.replace(/^[^\/]+\//, '');
 }
 
 function patchError(error, dir, vuln) {
@@ -90,7 +134,7 @@ function patchError(error, dir, vuln) {
 
       // this is a general "patch failed", since we already check if the
       // patch was applied via a flag, this means something else went
-      // wrong, so we'll ask the user for help to diganose.
+      // wrong, so we'll ask the user for help to diagnose.
       var filename = path.relative(process.cwd(), dir);
       error = new Error('"' + filename + '" (' + id + ')');
       error.code = 'FAIL_PATCH';
