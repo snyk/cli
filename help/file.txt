@@ -21,6 +21,7 @@ looking for files in following order:
   vendor/vendor.json
   obj/project.assets.json
   packages.config
+  composer.lock
 
 If more than one file exists it will use the first order-wise. If you wish to specify manually, you can
   point the --file parameter to force using what you specify, for example:
