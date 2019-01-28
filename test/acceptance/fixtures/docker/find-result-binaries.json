@@ -245,16 +245,18 @@
                       "issueId": "SNYK-UPSTREAM-BZIP2-106947",
                       "fixInfo": {
                           "upgradePaths": [],
-                          "isPatchable": false
+                          "isPatchable": false,
+                          "nearestFixedInVersion": "5.13.1"
                       }
                   },
-                  "SNYK-LINUX-BZR-133048": {
-                    "issueId": "SNYK-LINUX-BZR-133048",
+                  "SNYK-UPSTREAM-NODE-72328": {
+                    "issueId": "SNYK-UPSTREAM-NODE-72328",
                     "fixInfo": {
-                        "upgradePaths": [],
-                        "isPatchable": false
+                      "upgradePaths": [],
+                      "isPatchable": false,
+                      "nearestFixedInVersion": "5.15.1"
                     }
-                }
+                  }
                 }
               }
             },
@@ -300,14 +302,14 @@
                   ],
                   "semver": {
                     "vulnerable": [
-                      ">=4.0.0 <4.2.3",
-                      ">=5.0.0 <5.13.1"
+                      "[4.0.0, 4.2.3)",
+                      "[5.0.0, 5.13.1)"
                     ]
                   },
                   "severity": "high",
                   "title": "Denial of Service"
                 },
-                "SNYK-LINUX-BZR-133048": {
+                "SNYK-UPSTREAM-NODE-72328": {
                   "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
                   "alternativeIds": [],
                   "creationTime": "2018-09-12T13:04:09.124530Z",
@@ -348,8 +350,8 @@
                   ],
                   "semver": {
                     "vulnerable": [
-                      ">=4.0.0 <4.2.3",
-                      ">=5.0.0 <5.15.1"
+                      "[4.0.0, 4.2.3)",
+                      "[5.0.0, 5.15.1)"
                     ]
                   },
                   "severity": "high",
