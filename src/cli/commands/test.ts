@@ -337,7 +337,7 @@ function formatIssues(vuln, options) {
     remediationInfo: vuln.metadata.type !== 'license'
       ? createRemediationText(vuln, packageManager)
       : '',
-    fixedIn: options.docker ? createFixedInText(vuln, version) : '',
+    fixedIn: options.docker ? createFixedInText(vuln) : '',
     dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
   };
 
@@ -367,26 +367,10 @@ function dockerfileInstructionText(vuln) {
   return '';
 }
 
-function createFixedInText(vuln, pkgVersion) {
-  let fixedVersion = '';
-  if (vuln.nearestFixedInVersion) {
-    fixedVersion = vuln.nearestFixedInVersion;
-  // pkgVersion is undefined for OS packages vuln
-  // TODO move this logic to vuln
-  } else if (!pkgVersion) {
-    const versionRangeList = vuln.list[0].semver.vulnerable;
-    let fixedVersionCandidate = '';
-    const lesserThan = /^<\S+$/;
-
-    if (versionRangeList && versionRangeList.length) {
-      // OS packages vulns versionRangeList includes a single upper bound version
-      fixedVersionCandidate = versionRangeList[0];
-      // trim relational operator `<` from first version in list
-      fixedVersion = lesserThan.test(fixedVersionCandidate) ?
-        fixedVersionCandidate.substr(1) : '';
-    }
-  }
-  return fixedVersion ? chalk.bold('\n  Fixed in: ' + fixedVersion) : '';
+function createFixedInText(vuln: any): string {
+  return vuln.nearestFixedInVersion ?
+    chalk.bold('\n  Fixed in: ' + vuln.nearestFixedInVersion )
+    : '';
 }
 
 function createRemediationText(vuln, packageManager) {

@@ -146,6 +146,7 @@ function convertTestDepGraphResultToLegacy(
           isPatchable: pkgIssue.fixInfo.isPatchable,
           name: pkgInfo.pkg.name,
           version: pkgInfo.pkg.version as string,
+          nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
         });
 
         vulns.push(annotatedIssue);
