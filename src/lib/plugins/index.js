@@ -38,6 +38,9 @@ function loadPlugin(packageManager, options) {
     case 'composer': {
       return require('snyk-php-plugin');
     }
+    case 'paket': {
+      return require('./paket');
+    }
     default: {
       throw new Error('Unsupported package manager: ' + packageManager);
     }

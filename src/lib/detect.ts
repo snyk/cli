@@ -23,6 +23,7 @@ const DETECTABLE_FILES = [
   'project.assets.json',
   'packages.config',
   'composer.lock',
+  'paket.dependencies',
 ];
 
 // when file is specified with --file, we look it up here
@@ -44,6 +45,7 @@ const DETECTABLE_PACKAGE_MANAGERS = {
   'packages.config': 'nuget',
   'project.json': 'nuget',
   'composer.lock': 'composer',
+  'paket.dependencies': 'paket',
 };
 
 export function isPathToPackageFile(path) {

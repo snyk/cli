@@ -53,6 +53,7 @@ function run(root, options) {
     'govendor',
     'nuget',
     'composer',
+    'paket',
   ].indexOf(packageManager) === -1) {
     throw new Error('Unsupported package manager: ' + packageManager);
   }
