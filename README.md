@@ -162,6 +162,20 @@ docker run -it
   snyk/snyk-cli:gradle-4.4 test --org=my-org-name
 ```
 
+### Docker
+
+We will need to mount the project root folder when running the image so that Snyk can access the code within the container and Docker socket so that Snyk can access Docker daemon. The host project folder will be mounted to `/project` on the container and will be used to read the Docker file (with --file). Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Docker:
+
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+    -v "/var/run/docker.sock:/var/run/docker.sock"
+  snyk/snyk-cli:docker test --docker myapp:mytag --file=<DOCKERFILE>
+```
+
 ## Badge
 
 Once you’re vulnerability-free, you can put a badge on your README showing your package has no known security holes. This will show your users you care about security, and tell them that they should care too.
