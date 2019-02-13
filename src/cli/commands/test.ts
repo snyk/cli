@@ -225,6 +225,10 @@ function displayResult(res, options) {
     );
   }
 
+  if (options.docker && options.file && options['exclude-base-image-vulns'] && res.vulnerabilities) {
+    res.uniqueCount = countExcludeBaseImageVulns(options, res);
+  }
+
   // NOT OK => We found some vulns, let's format the vulns info
   const vulnCount = res.vulnerabilities && res.vulnerabilities.length;
   const singleVulnText = res.licensesPolicy ? 'issue' : 'vulnerability';
@@ -248,8 +252,6 @@ function displayResult(res, options) {
     vulnCountText += '.';
   }
   let summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
-
-  summary += getDockerLayersVulnCount(options, res);
 
   if (WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
     summary += chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
@@ -637,10 +639,7 @@ function metadataForVuln(vuln) {
   };
 }
 
-function getDockerLayersVulnCount(options, res): string {
-  if (!options.docker || !options.file || !res.vulnerabilities) {
-    return '';
-  }
+function countExcludeBaseImageVulns(options, res): number {
   const nonBaseImageVulns = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
   if (options['exclude-base-image-vulns']) {
     res.vulnerabilities = nonBaseImageVulns;
@@ -654,8 +653,5 @@ function getDockerLayersVulnCount(options, res): string {
     }
     return acc;
   }, 0);
-  const layersVulnsCount = '\nVulnerabilities introduced by your base image: ' +
-    chalk.bold.red(`${res.uniqueCount - userUniqueCount}.`) +
-    '\nVulnerabilities introduced by other layers: ' + chalk.bold.red(`${userUniqueCount}.`);
-  return layersVulnsCount;
+  return userUniqueCount;
 }
