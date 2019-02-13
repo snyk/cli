@@ -43,6 +43,8 @@ Options:
                        vulnerabilities. Can be used alongside `--file` and a
                        path to the image's Dockerfile for more detailed
                        remediation advice.
+  --exclude-base-image-vulns
+                       Exclude from display Docker base image vulnerabilities.
   --policy-path....... Manually pass a path to a policy file.
   --insecure ......... Ignore unknown certificate authorities.
   --json ............. Return results in JSON format.

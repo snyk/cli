@@ -249,16 +249,25 @@ function displayResult(res, options) {
   }
   let summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
 
+  summary += getDockerLayersVulnCount(options, res);
+
   if (WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
     summary += chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
   }
 
   if (options.docker &&
-    !options.file &&
     (config.disableSuggestions !== 'true')) {
-    dockerSuggestion += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
-      `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile` +
-      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`');
+    const optOutSuggestions =
+      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`';
+    if (!options.file) {
+      dockerSuggestion += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
+        `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`) + optOutSuggestions;
+    } else if (!options['exclude-base-image-vulns']) {
+      dockerSuggestion +=
+        chalk.bold.white(
+          '\n\nPro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.') +
+          optOutSuggestions;
+    }
   }
 
   const vulns = res.vulnerabilities || [];
@@ -272,8 +281,9 @@ function displayResult(res, options) {
     .filter((vuln) => (vuln.metadata.packageManager !== 'upstream'));
   const binariesSortedGroupedVulns = sortedGroupedVulns
     .filter((vuln) => (vuln.metadata.packageManager === 'upstream'));
+
   const groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) => formatIssues(vuln, options));
-  const groupedDockerBinariesVulnInfoOutput = (res.docker && res.docker.binariesVulns) ?
+  const groupedDockerBinariesVulnInfoOutput = (res.docker && binariesSortedGroupedVulns.length) ?
     formatDockerBinariesIssues(binariesSortedGroupedVulns, res.docker.binariesVulns, options) : [];
 
   const body =
@@ -299,8 +309,9 @@ function createDockerBinaryHeading(pkgInfo) {
   const binaryName = pkgInfo.pkg.name;
   const binaryVersion = pkgInfo.pkg.version;
   const numOfVulns = _.values(pkgInfo.issues).length;
+  const vulnCountText = numOfVulns > 1 ? 'vulnerabilities' : 'vulnerability';
   return numOfVulns ?
-    chalk.bold.white(`------------ Detected ${numOfVulns} vulnerabilities` +
+    chalk.bold.white(`------------ Detected ${numOfVulns} ${vulnCountText}` +
       ` for ${binaryName}@${binaryVersion} ------------`, '\n') : '';
 }
 
@@ -624,4 +635,27 @@ function metadataForVuln(vuln) {
     version: vuln.version,
     packageManager: vuln.packageManager,
   };
+}
+
+function getDockerLayersVulnCount(options, res): string {
+  if (!options.docker || !options.file || !res.vulnerabilities) {
+    return '';
+  }
+  const nonBaseImageVulns = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
+  if (options['exclude-base-image-vulns']) {
+    res.vulnerabilities = nonBaseImageVulns;
+  }
+  let userUniqueCount = 0;
+  const seen = {};
+  userUniqueCount = nonBaseImageVulns.reduce((acc, curr) => {
+    if (!seen[curr.id]) {
+      seen[curr.id] = true;
+      acc++;
+    }
+    return acc;
+  }, 0);
+  const layersVulnsCount = '\nVulnerabilities introduced by your base image: ' +
+    chalk.bold.red(`${res.uniqueCount - userUniqueCount}.`) +
+    '\nVulnerabilities introduced by other layers: ' + chalk.bold.red(`${userUniqueCount}.`);
+  return layersVulnsCount;
 }
