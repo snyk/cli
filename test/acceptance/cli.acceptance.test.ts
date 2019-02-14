@@ -14,9 +14,11 @@ import * as needle from 'needle';
 // configure our fake configuration too
 import * as snykPolicy from 'snyk-policy';
 
+function getRuntimeVersion(): number {
+  return parseInt(process.version.slice(1).split('.')[0], 10);
+}
 const {test, only} = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
-
 
 const port = process.env.PORT = process.env.SNYK_PORT = '12345';
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
@@ -25,7 +27,7 @@ process.env.LOG_LEVEL = '0';
 const apiKey = '123456789';
 let oldkey;
 let oldendpoint;
-const server:any = fakeServer(process.env.SNYK_API, apiKey);
+const server: any = fakeServer(process.env.SNYK_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 
@@ -58,15 +60,14 @@ before('prime config', async (t) => {
   t.end();
 });
 
-
 test('test cli with multiple params: good and bad', async (t) => {
   t.plan(6);
   try {
     await cli.test('/', 'semver', {registry: 'npm', org: 'EFF', json: true});
     t.fail('expect to err');
-  } catch(err) {
+  } catch (err) {
     const errObj = JSON.parse(err.message);
-    t.ok(errObj.length == 2, 'expecting two results');
+    t.ok(errObj.length === 2, 'expecting two results');
     t.notOk(errObj[0].ok, 'first object shouldnt be ok');
     t.ok(errObj[1].ok, 'second object should be ok');
     t.ok(errObj[0].path.length > 0, 'should have path');
@@ -81,7 +82,7 @@ test('userMessage correctly bubbles with npm', async (t) => {
   try {
     await cli.test('npm-package', {org: 'missing-org'});
     t.fail('expect to err');
-  } catch(err) {
+  } catch (err) {
     t.equal(err.userMessage, 'cli error message', 'got correct err message');
   }
   t.end();
@@ -92,9 +93,9 @@ test('userMessage correctly bubbles with everything other than npm', async (t) =
   try {
     await cli.test('ruby-app', { org: 'missing-org' });
     t.fail('expect to err');
-  } catch(err) {
+  } catch (err) {
     t.equal(err.userMessage, 'cli error message', 'got correct err message');
-  };
+  }
   t.end();
 });
 
@@ -129,7 +130,7 @@ test('`test empty --file=Gemfile`', async (t) => {
   try {
     await cli.test('empty', {file: 'Gemfile'});
     t.fail('should have failed');
-  } catch(err) {
+  } catch (err) {
     t.pass('throws err');
     t.match(err.message, 'Could not find the specified file: Gemfile',
       'shows err');
@@ -139,7 +140,7 @@ test('`test empty --file=Gemfile`', async (t) => {
 test('`test --file=fixtures/protect/package.json`', async (t) => {
   const res = await cli.test(
     path.resolve(__dirname, '..'),
-    {file: 'fixtures/protect/package.json'}
+    {file: 'fixtures/protect/package.json'},
   );
   t.match(
     res,
@@ -148,13 +149,12 @@ test('`test --file=fixtures/protect/package.json`', async (t) => {
   );
 });
 
-
 test('`test /` test for non-existent with path specified', async (t) => {
   chdirWorkspaces();
   try {
     await cli.test('/');
     t.fail('should have failed');
-  } catch(err) {
+  } catch (err) {
     t.pass('throws err');
     t.match(err.message, 'Could not detect supported target files in /.' +
       '\nPlease see our documentation for supported' +
@@ -170,12 +170,12 @@ test('`test nuget-app --file=non_existent`', async (t) => {
   try {
     await cli.test('nuget-app', {file: 'non-existent'});
     t.fail('should have failed');
-  } catch(err) {
+  } catch (err) {
     t.pass('throws err');
     t.match(err.message, 'Could not find the specified file: non-existent',
-      'show first part of err message')
+      'show first part of err message');
     t.match(err.message, 'Please check that it exists and try again.',
-      'show second part of err message')
+      'show second part of err message');
   }
 });
 
@@ -184,7 +184,7 @@ test('`test empty --file=readme.md`', async (t) => {
   try {
     await cli.test('empty', {file: 'readme.md'});
     t.fail('should have failed');
-  } catch(err) {
+  } catch (err) {
     t.pass('throws err');
     t.match(err.message,
       'Could not detect package manager for file: readme.md',
@@ -197,7 +197,7 @@ test('`test ruby-app-no-lockfile --file=Gemfile`', async (t) => {
   try {
     await cli.test('ruby-app-no-lockfile', {file: 'Gemfile'});
     t.fail('should have failed');
-  } catch(err) {
+  } catch (err) {
     t.pass('throws err');
     t.match(err.message, 'Please run `bundle install`', 'shows err');
   }
@@ -544,7 +544,6 @@ test('`test npm-package-policy` returns correct meta', async (t) => {
   t.match(meta[5], /Local Snyk policy:\s+found/, 'local policy displayed');
 });
 
-
 test('`test ruby-gem-no-lockfile --file=ruby-gem.gemspec`', async (t) => {
   chdirWorkspaces();
   await cli.test('ruby-gem-no-lockfile', {file: 'ruby-gem.gemspec'});
@@ -795,12 +794,12 @@ test('`test npm-package` sends pkg info', async (t) => {
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/vuln/npm', 'posts to correct url');
-  t.ok(pkg.dependencies['debug'], 'dependency');
-  t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+  t.ok(pkg.dependencies.debug, 'dependency');
+  t.ok(pkg.dependencies.debug.dependencies.ms, 'transitive dependency');
   t.notOk(pkg.dependencies['object-assign'],
     'no dev dependency');
   t.notOk(pkg.from, 'no "from" array on root');
-  t.notOk(pkg.dependencies['debug'].from,
+  t.notOk(pkg.dependencies.debug.from,
     'no "from" array on dep');
 });
 
@@ -811,12 +810,12 @@ test('`test npm-package --file=package-lock.json ` sends pkg info', async (t) =>
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/vuln/npm', 'posts to correct url');
-  t.ok(pkg.dependencies['debug'], 'dependency');
-  t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+  t.ok(pkg.dependencies.debug, 'dependency');
+  t.ok(pkg.dependencies.debug.dependencies.ms, 'transitive dependency');
   t.notOk(pkg.dependencies['object-assign'],
     'no dev dependency');
   t.notOk(pkg.from, 'no "from" array on root');
-  t.notOk(pkg.dependencies['debug'].from,
+  t.notOk(pkg.dependencies.debug.from,
     'no "from" array on dep');
 });
 
@@ -827,13 +826,67 @@ test('`test npm-package --file=package-lock.json --dev` sends pkg info', async (
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/vuln/npm', 'posts to correct url');
-  t.ok(pkg.dependencies['debug'], 'dependency');
-  t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+  t.ok(pkg.dependencies.debug, 'dependency');
+  t.ok(pkg.dependencies.debug.dependencies.ms, 'transitive dependency');
   t.ok(pkg.dependencies['object-assign'],
     'dev dependency included');
   t.notOk(pkg.from, 'no "from" array on root');
-  t.notOk(pkg.dependencies['debug'].from,
+  t.notOk(pkg.dependencies.debug.from,
     'no "from" array on dep');
+});
+
+test('`test npm-out-of-sync` out of sync fails', async (t) => {
+  chdirWorkspaces();
+  try {
+    await cli.test('npm-out-of-sync', {dev: true});
+    t.fail('Should fail');
+  } catch (e) {
+    t.equal(e.message, '\nTesting npm-out-of-sync...\n\n' +
+    'Dependency snyk was not found in package-lock.json.' +
+    ' Your package.json and package-lock.json are probably out of sync.' +
+    ' Please run "npm install" and try again.', 'Contains enough info about err');
+  }
+});
+
+if (getRuntimeVersion() > 4) {
+  // yarn lockfile based testing is only supported for node 4+
+  test('`test yarn-out-of-sync` out of sync fails', async (t) => {
+    chdirWorkspaces();
+    try {
+      await cli.test('yarn-out-of-sync', {dev: true});
+      t.fail('Should fail');
+    } catch (e) {
+      t.equal(e.message, '\nTesting yarn-out-of-sync...\n\n' +
+      'Dependency snyk was not found in yarn.lock.' +
+      ' Your package.json and yarn.lock are probably out of sync.' +
+      ' Please run "yarn install" and try again.', 'Contains enough info about err');
+    }
+  });
+
+  test('`test yarn-out-of-sync --strictOutOfSync=false` passes', async (t) => {
+    chdirWorkspaces();
+    await cli.test('yarn-out-of-sync', { dev: true, strictOutOfSync: false});
+    const req = server.popRequest();
+    const pkg = req.body;
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/vuln/npm', 'posts to correct url');
+    t.ok(pkg.dependencies['to-array'], 'dependency');
+    t.ok(pkg.dependencies['object-assign'],
+      'dev dependency included');
+    t.ok(pkg.dependencies.rewire.dependencies.eslint, 'transitive dependency');
+  });
+}
+
+test('`test npm-out-of-sync --strictOutOfSync=false` passes', async (t) => {
+  chdirWorkspaces();
+  await cli.test('npm-out-of-sync', { dev: true, strictOutOfSync: false});
+  const req = server.popRequest();
+  const pkg = req.body;
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/vuln/npm', 'posts to correct url');
+  t.ok(pkg.dependencies['to-array'], 'dependency');
+  t.ok(pkg.dependencies['object-assign'],
+    'dev dependency included');
 });
 
 test('`test npm-package-shrinkwrap --file=package-lock.json ` with npm-shrinkwrap errors', async (t) => {
@@ -842,7 +895,7 @@ test('`test npm-package-shrinkwrap --file=package-lock.json ` with npm-shrinkwra
   try {
     await cli.test('npm-package-shrinkwrap', {file: 'package-lock.json'});
     t.fail('Should fail');
-  } catch(e) {
+  } catch (e) {
     t.includes(e.message, '--file=package-lock.json', 'Contains enough info about err');
   }
 });
@@ -872,12 +925,12 @@ test('`test npm-package --file=yarn.lock ` sends pkg info', async (t) => {
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/vuln/npm', 'posts to correct url');
-  t.ok(pkg.dependencies['debug'], 'dependency');
-  t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+  t.ok(pkg.dependencies.debug, 'dependency');
+  t.ok(pkg.dependencies.debug.dependencies.ms, 'transitive dependency');
   t.notOk(pkg.dependencies['object-assign'],
     'no dev dependency');
   t.notOk(pkg.from, 'no "from" array on root');
-  t.notOk(pkg.dependencies['debug'].from,
+  t.notOk(pkg.dependencies.debug.from,
     'no "from" array on dep');
 });
 
@@ -888,12 +941,12 @@ test('`test npm-package --file=yarn.lock --dev` sends pkg info', async (t) => {
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/vuln/npm', 'posts to correct url');
-  t.ok(pkg.dependencies['debug'], 'dependency');
-  t.ok(pkg.dependencies['debug'].dependencies['ms'], 'transitive dependency');
+  t.ok(pkg.dependencies.debug, 'dependency');
+  t.ok(pkg.dependencies.debug.dependencies.ms, 'transitive dependency');
   t.ok(pkg.dependencies['object-assign'],
     'dev dependency included');
   t.notOk(pkg.from, 'no "from" array on root');
-  t.notOk(pkg.dependencies['debug'].from,
+  t.notOk(pkg.dependencies.debug.from,
     'no "from" array on dep');
 });
 
@@ -1634,8 +1687,8 @@ test('`test foo:latest --docker` supports custom policy', async (t) => {
   t.teardown(loadPlugin.restore);
 
   await cli.test('foo:latest', {
-    docker: true,
-    org: 'explicit-org',
+    'docker': true,
+    'org': 'explicit-org',
     'policy-path': 'npm-package-policy/custom-location',
   });
   const req = server.popRequest();
@@ -1643,13 +1696,13 @@ test('`test foo:latest --docker` supports custom policy', async (t) => {
   t.equal(req.body.depGraph.pkgManager.name, 'deb');
   t.same(spyPlugin.getCall(0).args,
     ['foo:latest', null, {
-      args: null,
-      file: null,
-      docker: true,
-      org: 'explicit-org',
-      packageManager: null,
-      path: 'foo:latest',
-      showVulnPaths: true,
+      'args': null,
+      'file': null,
+      'docker': true,
+      'org': 'explicit-org',
+      'packageManager': null,
+      'path': 'foo:latest',
+      'showVulnPaths': true,
       'policy-path': 'npm-package-policy/custom-location',
     }], 'calls docker plugin with expected arguments');
 
@@ -1782,7 +1835,7 @@ test('`test --policy-path`', async (t) => {
         json: true,
       });
       t.fail('should have reported vulns');
-    } catch(res) {
+    } catch (res) {
       const req = server.popRequest();
       const policyString = req.body.policy;
       t.equal(policyString, expected, 'sends correct policy');
@@ -1808,7 +1861,7 @@ test('`test --policy-path`', async (t) => {
 
     const res = await cli.test('.', {
       'policy-path': 'custom-location',
-      json: true,
+      'json': true,
     });
     const req = server.popRequest();
     const policyString = req.body.policy;
@@ -1857,7 +1910,7 @@ test('`test npm-package-with-git-url ` handles git url with patch policy', async
   try {
     await cli.test();
     t.fail('should fail');
-  } catch(res) {
+  } catch (res) {
     server.popRequest();
 
     t.match(res.message, 'for known vulnerabilities', 'found results');
@@ -1914,7 +1967,6 @@ test('`test sbt-simple-struts`', async (t) => {
   }
 });
 
-
 /**
  * `monitor`
  */
@@ -1933,7 +1985,7 @@ test('`monitor --policy-path`', async (t) => {
   t.test('custom policy path', async (t) => {
     const res = await cli.monitor('.', {
       'policy-path': 'custom-location',
-      json: true,
+      'json': true,
     });
     const req = server.popRequest();
     const policyString = req.body.policy;
@@ -1948,7 +2000,7 @@ test('`monitor non-existing --json`', async (t) => {
   try {
     await cli.monitor('non-existing', {json: true});
     t.fail('should have failed');
-  } catch(err) {
+  } catch (err) {
     const errObj = JSON.parse(err.message);
     t.notOk(errObj.ok, 'ok object should be false');
     t.match(errObj.error, 'is not a valid path', 'show err message');
@@ -1962,7 +2014,7 @@ test('`monitor non-existing`', async (t) => {
   try {
     await cli.monitor('non-existing', {json: false});
     t.fail('should have failed');
-  } catch(err) {
+  } catch (err) {
     t.match(err.message, 'is not a valid path', 'show err message');
     t.pass('throws err');
   }
@@ -1992,11 +2044,11 @@ test('`monitor npm-package`', async (t) => {
   const pkg = req.body.package;
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm', 'puts at correct url');
-  t.ok(pkg.dependencies['debug'], 'dependency');
+  t.ok(pkg.dependencies.debug, 'dependency');
   t.notOk(pkg.dependencies['object-assign'],
     'no dev dependency');
   t.notOk(pkg.from, 'no "from" array on root');
-  t.notOk(pkg.dependencies['debug'].from,
+  t.notOk(pkg.dependencies.debug.from,
     'no "from" array on dep');
 });
 
@@ -2015,7 +2067,7 @@ test('`monitor npm-package with dev dep flag`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm', 'puts at correct url');
-  t.ok(req.body.package.dependencies['debug'], 'dependency');
+  t.ok(req.body.package.dependencies.debug, 'dependency');
   t.ok(req.body.package.dependencies['object-assign'],
     'includes dev dependency');
 });
@@ -2208,7 +2260,7 @@ test('`monitor foo:latest --docker`', async (t) => {
       return{
         plugin: {
           packageManager: 'rpm',
-          dockerImageId: dockerImageId,
+          dockerImageId,
         },
         package: {},
       };
@@ -2245,7 +2297,7 @@ test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
       return {
         plugin: {
           packageManager: 'rpm',
-          dockerImageId: dockerImageId,
+          dockerImageId,
         },
         package: {docker: 'base-image-name'},
       };
@@ -2333,8 +2385,8 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
   t.teardown(loadPlugin.restore);
 
   await cli.monitor('foo:latest', {
-    docker: true,
-    org: 'explicit-org',
+    'docker': true,
+    'org': 'explicit-org',
     'policy-path': 'custom-location',
   });
   const req = server.popRequest();
@@ -2343,9 +2395,9 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
     'puts at correct url (uses package manager from plugin response)');
   t.same(spyPlugin.getCall(0).args,
     ['foo:latest', null, {
-      args: null,
-      docker: true,
-      org: 'explicit-org',
+      'args': null,
+      'docker': true,
+      'org': 'explicit-org',
       'policy-path': 'custom-location',
     }], 'calls docker plugin with expected arguments');
   const expected = fs.readFileSync(
@@ -2361,7 +2413,7 @@ test('`wizard` for unsupported package managers', async (t) => {
     try {
       await cli.wizard({file: data.file});
       t.fail('should fail');
-    } catch(e) {
+    } catch (e) {
       return e;
     }
   }
@@ -2389,7 +2441,7 @@ test('`protect` for unsupported package managers', async (t) => {
     try {
       await cli.protect({file: data.file});
       t.fail('should fail');
-    } catch(e) {
+    } catch (e) {
       return e;
     }
   }
@@ -2423,7 +2475,7 @@ test('`protect --policy-path`', async (t) => {
     try {
       await cli.protect();
       t.fail('should fail');
-    } catch(err) {
+    } catch (err) {
       const req = server.popRequest();
       const policyString = req.body.policy;
       t.equal(policyString, expected, 'sends correct policy');
@@ -2475,7 +2527,7 @@ test('`test --insecure`', async (t) => {
     try {
       await cli.test('npm-package');
       t.fail('should fail');
-    } catch(e) {
+    } catch (e) {
       t.notOk(requestStub.firstCall.args[3].rejectUnauthorized,
         'rejectUnauthorized not present (same as true)');
     }
@@ -2487,17 +2539,17 @@ test('`test --insecure`', async (t) => {
     // by `args`, so we simply set the global here.
     // NOTE: due to this we add tests to `args.test.js`
       (global as any).ignoreUnknownCA = true;
-    const requestStub = sinon.stub(needle, 'request').callsFake((a, b, c, d, cb) => {
+      const requestStub = sinon.stub(needle, 'request').callsFake((a, b, c, d, cb) => {
       cb(new Error('bail'));
     });
-    t.teardown(() => {
+      t.teardown(() => {
       delete (global as any).ignoreUnknownCA;
       requestStub.restore();
     });
-    try {
+      try {
       await cli.test('npm-package');
       t.fail('should fail');
-    } catch(e)  {
+    } catch (e)  {
       t.false(requestStub.firstCall.args[3].rejectUnauthorized,
         'rejectUnauthorized false');
     }

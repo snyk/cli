@@ -149,7 +149,8 @@ function generateDependenciesFromLockfile(root, options, targetFile) {
   debug(resolveModuleSpinnerLabel);
   return spinner(resolveModuleSpinnerLabel)
     .then(() => {
-      return lockFileParser.buildDepTree(manifestFile, lockFile, options.dev, lockFileType);
+      const strictOutOfSync = _.get(options, 'strictOutOfSync', true);
+      return lockFileParser.buildDepTree(manifestFile, lockFile, options.dev, lockFileType, strictOutOfSync);
     })
     // clear spinner in case of success or failure
     .then(spinner.clear(resolveModuleSpinnerLabel))

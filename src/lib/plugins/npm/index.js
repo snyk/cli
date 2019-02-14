@@ -3,6 +3,7 @@ const fileSystem = require('fs');
 const fs = require('then-fs');
 const path = require('path');
 const lockFileParser = require('snyk-nodejs-lockfile-parser');
+const _ = require('lodash');
 
 module.exports = {
   inspect,
@@ -62,7 +63,8 @@ async function generateDependenciesFromLockfile(root, options, targetFile) {
   const lockFile = await fs.readFile(lockFileFullPath, 'utf-8');
   const defaultManifestFileName = path.relative(root, manifestFileFullPath);
 
+  const strictOutOfSync = _.get(options, 'strictOutOfSync', true);
   return lockFileParser.buildDepTree(manifestFile, lockFile, options.dev,
-    lockFileParser.LockfileType.npm, true, defaultManifestFileName);
+    lockFileParser.LockfileType.npm, strictOutOfSync, defaultManifestFileName);
 }
 
