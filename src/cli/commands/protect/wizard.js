@@ -39,6 +39,7 @@ const unsupportedPackageManagers = {
   golangdep: 'Golang/Dep',
   govendor: 'Govendor',
   nuget: 'NuGet',
+  paket: 'Paket',
   composer: 'Composer',
 };
 

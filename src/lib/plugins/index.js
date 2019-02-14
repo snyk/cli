@@ -35,6 +35,9 @@ function loadPlugin(packageManager, options) {
     case 'nuget': {
       return require('snyk-nuget-plugin');
     }
+    case 'paket': {
+      return require('snyk-nuget-plugin');
+    }
     case 'composer': {
       return require('snyk-php-plugin');
     }
