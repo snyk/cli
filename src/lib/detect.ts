@@ -22,6 +22,7 @@ const DETECTABLE_FILES = [
   'obj/project.assets.json',
   'project.assets.json',
   'packages.config',
+  'paket.dependencies',
   'composer.lock',
 ];
 
@@ -43,6 +44,7 @@ const DETECTABLE_PACKAGE_MANAGERS = {
   'project.assets.json': 'nuget',
   'packages.config': 'nuget',
   'project.json': 'nuget',
+  'paket.dependencies': 'paket',
   'composer.lock': 'composer',
 };
 

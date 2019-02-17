@@ -52,6 +52,7 @@ function run(root, options) {
     'golangdep',
     'govendor',
     'nuget',
+    'paket',
     'composer',
   ].indexOf(packageManager) === -1) {
     throw new Error('Unsupported package manager: ' + packageManager);

@@ -687,6 +687,70 @@ test('`test nuget-app-4 auto-detects packages.config`', async (t) => {
     }], 'calls nuget plugin');
 });
 
+test('`test paket-app auto-detects paket.dependencies`', async (t) => {
+    chdirWorkspaces();
+    const plugin = {
+        async inspect() {
+            return {package: {}};
+        },
+    };
+    const spyPlugin = sinon.spy(plugin, 'inspect');
+
+    const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+    t.teardown(loadPlugin.restore);
+    loadPlugin
+        .withArgs('paket')
+        .returns(plugin);
+
+    await cli.test('paket-app');
+
+    const req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/test-dep-graph', 'posts to correct url');
+    t.equal(req.body.depGraph.pkgManager.name, 'paket');
+    t.same(spyPlugin.getCall(0).args,
+        ['paket-app', 'paket.dependencies', {
+            args: null,
+            file: 'paket.dependencies',
+            org: null,
+            packageManager: 'paket',
+            path: 'paket-app',
+            showVulnPaths: true,
+        }], 'calls nuget plugin');
+});
+
+test('`test paket-obj-app auto-detects obj/project.assets.json if exists`', async (t) => {
+    chdirWorkspaces();
+    const plugin = {
+        async inspect() {
+            return {package: {}};
+        },
+    };
+    const spyPlugin = sinon.spy(plugin, 'inspect');
+
+    const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+    t.teardown(loadPlugin.restore);
+    loadPlugin
+        .withArgs('nuget')
+        .returns(plugin);
+
+    await cli.test('paket-obj-app');
+
+    const req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/test-dep-graph', 'posts to correct url');
+    t.equal(req.body.depGraph.pkgManager.name, 'nuget');
+    t.same(spyPlugin.getCall(0).args,
+        ['paket-obj-app', 'obj/project.assets.json', {
+            args: null,
+            file: 'obj/project.assets.json',
+            org: null,
+            packageManager: 'nuget',
+            path: 'paket-obj-app',
+            showVulnPaths: true,
+        }], 'calls nuget plugin');
+});
+
 test('`test monorepo --file=sub-ruby-app/Gemfile`', async (t) => {
   chdirWorkspaces();
   await cli.test('monorepo', {file: 'sub-ruby-app/Gemfile'});
@@ -1032,6 +1096,39 @@ test('`test nuget-app --file=project.json`', async (t) => {
       path: 'nuget-app',
       showVulnPaths: true,
     }], 'calls nuget plugin');
+});
+
+test('`test paket-app --file=paket.dependencies`', async (t) => {
+    chdirWorkspaces();
+    const plugin = {
+        async inspect() {
+            return {package: {}};
+        },
+    };
+    const spyPlugin = sinon.spy(plugin, 'inspect');
+
+    const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+    t.teardown(loadPlugin.restore);
+    loadPlugin
+        .withArgs('paket')
+        .returns(plugin);
+
+    await cli.test('paket-app', {
+        file: 'paket.dependencies',
+    });
+    const req = server.popRequest();
+    t.equal(req.method, 'POST', 'makes POST request');
+    t.match(req.url, '/test-dep-graph', 'posts to correct url');
+    t.equal(req.body.depGraph.pkgManager.name, 'paket');
+    t.same(spyPlugin.getCall(0).args,
+        ['paket-app', 'paket.dependencies', {
+            args: null,
+            file: 'paket.dependencies',
+            org: null,
+            packageManager: 'paket',
+            path: 'paket-app',
+            showVulnPaths: true,
+        }], 'calls nuget plugin');
 });
 
 test('`test golang-app --file=Gopkg.lock`', async (t) => {
