@@ -81,9 +81,13 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
       }),
       './get-vuln-source': getVulnSource,
       'then-fs': thenfs,
-      './apply-patch': function () {
-        return Promise.resolve();
-      }
+      './apply-patch': proxyquire('../src/lib/protect/apply-patch', {
+        'child_process': {
+          exec: function (a, b, callback) {
+            callback(null, '', ''); // successful patch
+          }
+        }
+      })
     }),
     './update': proxyquire('../src/lib/protect/update', {
       '../npm': function (cmd, packages, live, cwd, flags) {
