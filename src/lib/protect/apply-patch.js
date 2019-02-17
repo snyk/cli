@@ -1,6 +1,7 @@
 module.exports = applyPatch;
 
 var debug = require('debug')('snyk');
+var diff = require('diff');
 var exec = require('child_process').exec;
 var path = require('path');
 var fs = require('fs');
@@ -10,16 +11,12 @@ function applyPatch(patch, vuln, live) {
   var cwd = vuln.source;
 
   return new Promise(function (resolve, reject) {
-
-    var cmd = 'patch -p1 --backup --verbose < ' + patch;
-    var test = ' --dry-run';
-
     if (!cwd) {
       cwd = process.cwd();
     }
 
     var relative = path.relative(process.cwd(), cwd);
-    debug('DRY RUN: relative: %s cmd + test: %s', relative, cmd + test);
+    debug('DRY RUN: relative: %s', relative);
 
     try {
       var packageJson = fs.readFileSync(path.resolve(relative, 'package.json'));
@@ -29,48 +26,88 @@ function applyPatch(patch, vuln, live) {
       debug('Failed loading package.json of package about to be patched', err);
     }
 
-    // default is 200K, we increase it as we've seen
-    //  "stdout maxBuffer exceeded" erros in some user debug logs
-    var STDOUT_BUFFER_SIZE = 5 * 1024 * 1024;
+    var patchContent = fs.readFileSync(path.resolve(relative, patch), 'utf8');
 
-    // do a dry run first, otherwise the patch can "succeed" (exit 0) if it
-    // only manages to patch *some* of the chunks (and leave the file partly
-    // patched).
-    exec(cmd + test, {
-      cwd: cwd,
-      env: process.env,
-      maxBuffer: STDOUT_BUFFER_SIZE,
-    }, function (error, stdout) { // stderr is ignored
-      var out = stdout.trim();
-      if (error || out.indexOf('FAILED') !== -1) {
-        debug('patch command failed', relative, error, out);
-        return patchError(error, out, relative, vuln).catch(reject);
-      }
-      if (!live) {
-        return resolve();
-      }
-
-      // if it was okay, and it wasn't a dry-run, then let's do it for real
-      exec(cmd, {
-        cwd: cwd,
-        env: process.env,
-        maxBuffer: STDOUT_BUFFER_SIZE,
-      }, function (error, stdout) {
-        var out = stdout.trim();
-        if (error || out.indexOf('FAILED') !== -1) {
-          debug('patch command failed', relative, error, out);
-          return patchError(error, out, relative, vuln).catch(reject);
-        }
-
-        debug('patch succeed', out);
-
-        resolve();
-      });
+    jsDiff(patchContent, relative, live).then(function () {
+      debug('patch succeed');
+      resolve();
+    }).catch(function (error) {
+      debug('patch command failed', relative, error);
+      patchError(error, relative, vuln).catch(reject);
     });
   });
 }
 
-function patchError(error, stdout, dir, vuln) {
+function jsDiff(patchContent, relative, live) {
+  const patchedFiles = {};
+  return new Promise(function (resolve, reject) {
+    diff.applyPatches(patchContent, {
+      loadFile: function (index, callback) {
+        try {
+          var fileName = trimUpToFirstSlash(index.oldFileName);
+          if (patchedFiles[fileName]) {
+            return callback(null, patchedFiles[fileName]);
+          }
+          var content = fs.readFileSync(path.resolve(relative, fileName), 'utf8');
+          callback(null, content);
+        } catch (err) {
+          callback(err);
+        }
+      },
+      patched: function (index, content, callback) {
+        try {
+          if (content === false) {
+            // `false` means the patch does not match the original content.
+            throw new Error('Found a mismatching patch\n' + JSON.stringify(index, null, 2));
+          }
+          var newFileName = trimUpToFirstSlash(index.newFileName);
+          var oldFileName = trimUpToFirstSlash(index.oldFileName);
+          if (newFileName !== oldFileName) {
+            patchedFiles[oldFileName] = null;
+          }
+          patchedFiles[newFileName] = content;
+          callback();
+        } catch (err) {
+          callback(err);
+        }
+      },
+      compareLine: function (_, line, operation, patchContent) {
+        if (operation === ' ') {
+          // Ignore when no patch operators as GNU patch does
+          return true;
+        }
+        return line === patchContent;
+      },
+      complete: function (error) {
+        if (error) {
+          return reject(error);
+        }
+        if (!live) {
+          return resolve();
+        }
+        try {
+          for (var fileName of patchedFiles) {
+            if (patchedFiles[fileName] === null) {
+              fs.unlinkSync(path.resolve(relative, fileName));
+            }
+            fs.writeFileSync(path.resolve(relative, fileName), patchedFiles[fileName]);
+          }
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      },
+    });
+  });
+}
+
+// diff data compares the same file with a dummy path (a/path/to/real.file vs b/path/to/real.file)
+// skipping the dummy folder name by trimming up to the first slash
+function trimUpToFirstSlash(fileName) {
+  return fileName.replace(/^[^\/]+\//, '');
+}
+
+function patchError(error, dir, vuln) {
   if (error && error.code === 'ENOENT') {
     error.message = 'Failed to patch: the target could not be found.';
     return Promise.reject(error);
@@ -79,13 +116,11 @@ function patchError(error, stdout, dir, vuln) {
   return new Promise(function (resolve, reject) {
     var id = vuln.id;
 
-    // sneaky trick to do two sys calls in one.
-    exec('npm -v && patch -v', {
+    exec('npm -v', {
       env: process.env,
     }, function (patchVError, versions) { // stderr is ignored
       var parts = versions.split('\n');
       var npmVersion = parts.shift();
-      var patchVersion = parts.shift();
 
       // post the raw error to help diagnose
       errorAnalytics({
@@ -97,15 +132,13 @@ function patchError(error, stdout, dir, vuln) {
           packageVersion: vuln.version,
           package: vuln.name + '@' + vuln.version,
           error: error,
-          stdout: stdout,
-          'patch-version': patchVersion,
           'npm-version': npmVersion,
         },
       });
 
       // this is a general "patch failed", since we already check if the
       // patch was applied via a flag, this means something else went
-      // wrong, so we'll ask the user for help to diganose.
+      // wrong, so we'll ask the user for help to diagnose.
       var filename = path.relative(process.cwd(), dir);
       error = new Error('"' + filename + '" (' + id + ')');
       error.code = 'FAIL_PATCH';
