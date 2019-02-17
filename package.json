@@ -57,8 +57,6 @@
     "configstore": "^3.1.2",
     "debug": "^3.1.0",
     "diff": "^4.0.1",
-    "get-uri": "2.0.2",
-    "hasbin": "^1.2.3",
     "inquirer": "^3.0.0",
     "lodash": "^4.17.5",
     "needle": "^2.2.4",
