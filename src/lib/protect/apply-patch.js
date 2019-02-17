@@ -131,7 +131,11 @@ function patchError(error, dir, vuln) {
           packageName: vuln.name,
           packageVersion: vuln.version,
           package: vuln.name + '@' + vuln.version,
-          error: error,
+          patchError: Object.assign({}, {
+            message: error.message,
+            stack: error.stack,
+            name: error.name,
+          }, error),
           'npm-version': npmVersion,
         },
       });
