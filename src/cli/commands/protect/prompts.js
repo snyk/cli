@@ -13,7 +13,6 @@ var fmt = require('util').format;
 var debug = require('debug')('snyk');
 var protect = require('../../../lib/protect');
 var moduleToObject = require('snyk-module');
-var undefsafe = require('undefsafe');
 var config = require('../../../lib/config');
 var snykPolicy = require('snyk-policy');
 var chalk = require('chalk');
@@ -851,7 +850,7 @@ function nextSteps(pkg, prevAnswers) {
   var prompts = [];
   var i;
 
-  i = (undefsafe(pkg, 'scripts.test') || '').indexOf('snyk test');
+  i = _.get(pkg, 'scripts.test', '').indexOf('snyk test');
   if (i === -1) {
     prompts.push({
       name: 'misc-add-test',
@@ -868,7 +867,7 @@ function nextSteps(pkg, prevAnswers) {
     return prompts;
   }
 
-  i = (undefsafe(pkg, 'scripts.prepublish') || '').indexOf('snyk-pro');
+  i = _.get(pkg, 'scripts.prepublish', '').indexOf('snyk-pro');
 
   // if `snyk protect` doesn't already appear, then check if we need to add it
   if (i === -1) {
