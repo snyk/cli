@@ -5,9 +5,10 @@ var diff = require('diff');
 var exec = require('child_process').exec;
 var path = require('path');
 var fs = require('fs');
+var uuid = require('uuid/v4');
 var errorAnalytics = require('../analytics').single;
 
-function applyPatch(patch, vuln, live) {
+function applyPatch(patch, vuln, live, patchUrl) {
   var cwd = vuln.source;
 
   return new Promise(function (resolve, reject) {
@@ -33,13 +34,13 @@ function applyPatch(patch, vuln, live) {
       resolve();
     }).catch(function (error) {
       debug('patch command failed', relative, error);
-      patchError(error, relative, vuln).catch(reject);
+      patchError(error, relative, vuln, patchUrl).catch(reject);
     });
   });
 }
 
 function jsDiff(patchContent, relative, live) {
-  const patchedFiles = {};
+  var patchedFiles = {};
   return new Promise(function (resolve, reject) {
     diff.applyPatches(patchContent, {
       loadFile: function (index, callback) {
@@ -51,6 +52,8 @@ function jsDiff(patchContent, relative, live) {
           var content = fs.readFileSync(path.resolve(relative, fileName), 'utf8');
           callback(null, content);
         } catch (err) {
+          // collect patch metadata for error analysis
+          err.patchIndex = index;
           callback(err);
         }
       },
@@ -58,7 +61,9 @@ function jsDiff(patchContent, relative, live) {
         try {
           if (content === false) {
             // `false` means the patch does not match the original content.
-            throw new Error('Found a mismatching patch\n' + JSON.stringify(index, null, 2));
+            var error = new Error('Found a mismatching patch');
+            error.patchIssue = JSON.stringify(index, null, 2);
+            throw error;
           }
           var newFileName = trimUpToFirstSlash(index.newFileName);
           var oldFileName = trimUpToFirstSlash(index.oldFileName);
@@ -104,10 +109,10 @@ function jsDiff(patchContent, relative, live) {
 // diff data compares the same file with a dummy path (a/path/to/real.file vs b/path/to/real.file)
 // skipping the dummy folder name by trimming up to the first slash
 function trimUpToFirstSlash(fileName) {
-  return fileName.replace(/^[^\/]+\//, '');
+  return fileName && fileName.replace(/^[^\/]+\//, '');
 }
 
-function patchError(error, dir, vuln) {
+function patchError(error, dir, vuln, patchUrl) {
   if (error && error.code === 'ENOENT') {
     error.message = 'Failed to patch: the target could not be found.';
     return Promise.reject(error);
@@ -118,11 +123,16 @@ function patchError(error, dir, vuln) {
 
     exec('npm -v', {
       env: process.env,
-    }, function (patchVError, versions) { // stderr is ignored
-      var parts = versions.split('\n');
-      var npmVersion = parts.shift();
+    }, function (npmVError, versions) { // stderr is ignored
+      var npmVersion = versions && versions.split('\n').shift();
+      var referenceId = uuid();
 
-      // post the raw error to help diagnose
+      // this is a general "patch failed", since we already check if the
+      // patch was applied via a flag, this means something else went
+      // wrong, so we'll ask the user for help to diagnose.
+      var filename = path.relative(process.cwd(), dir);
+
+      // post metadata to help diagnose
       errorAnalytics({
         command: 'patch-fail',
         metadata: {
@@ -137,14 +147,16 @@ function patchError(error, dir, vuln) {
             name: error.name,
           }, error),
           'npm-version': npmVersion,
+          referenceId: referenceId,
+          patchUrl: patchUrl,
+          filename: filename,
         },
       });
 
-      // this is a general "patch failed", since we already check if the
-      // patch was applied via a flag, this means something else went
-      // wrong, so we'll ask the user for help to diagnose.
-      var filename = path.relative(process.cwd(), dir);
-      error = new Error('"' + filename + '" (' + id + ')');
+      var msg = id + ' on ' + vuln.name + '@' + vuln.version + ' at "' + filename + '"\n' +
+                error + ', ' + 'reference ID: ' + referenceId + '\n';
+
+      error = new Error(msg);
       error.code = 'FAIL_PATCH';
 
       reject(error);

@@ -12,7 +12,7 @@ var errors = {
   oldsnyk: 'You have an alpha format Snyk policy file in this directory. ' +
     'Please remove it, and re-create using `snyk wizard`',
   notfound: 'The package could not be found or does not exist',
-  patchfail: 'The patch against %s failed.',
+  patchfail: 'Failed to apply patch against %s',
   updatefail: 'Encountered errors while updating dependencies.' +
     'If the issue persists please try removing your node_modules ' +
     'and re-installing the dependencies then trying again.' +

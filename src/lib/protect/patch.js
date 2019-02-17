@@ -91,7 +91,7 @@ function patch(vulns, live) {
 
             debug('applying patch file for %s: \n%s\n%s', vuln.id, url, patch);
 
-            return applyPatch(patch, vuln, live)
+            return applyPatch(patch, vuln, live, url)
               .then(function () {
                 return true;
               }, function (e) {
