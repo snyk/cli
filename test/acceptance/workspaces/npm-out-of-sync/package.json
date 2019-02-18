@@ -1,0 +1,19 @@
+{
+  "name": "npm-package",
+  "version": "1.0.0",
+  "description": "Simple NPM package",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "snyk",
+  "license": "ISC",
+  "dependencies": {
+    "to-array": "0.1.4",
+    "snyk": "*"
+  },
+  "devDependencies": {
+    "object-assign": "4.1.1",
+    "rewire": "^4.0.1"
+  }
+}

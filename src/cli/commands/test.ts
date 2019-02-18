@@ -30,7 +30,6 @@ async function test(...args) {
   if (args.length === 0) {
     args.unshift(process.cwd());
   }
-
   // org fallback to config unless specified
   options.org = options.org || config.org;
   // making `show-vulnerable-paths` true by default.

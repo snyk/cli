@@ -6,6 +6,6 @@ local.log
 /dist
 tmp
 .DS_Store
-package-lock.json
+/package-lock.json
 !/test/fixtures/**/package-lock.json
 .idea
