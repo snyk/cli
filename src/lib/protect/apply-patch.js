@@ -53,7 +53,7 @@ function jsDiff(patchContent, relative, live) {
           callback(null, content);
         } catch (err) {
           // collect patch metadata for error analysis
-          err.patchIndex = index;
+          err.patchIssue = JSON.stringify(index);
           callback(err);
         }
       },
@@ -62,7 +62,7 @@ function jsDiff(patchContent, relative, live) {
           if (content === false) {
             // `false` means the patch does not match the original content.
             var error = new Error('Found a mismatching patch');
-            error.patchIssue = JSON.stringify(index, null, 2);
+            error.patchIssue = JSON.stringify(index);
             throw error;
           }
           var newFileName = trimUpToFirstSlash(index.newFileName);
