@@ -93,6 +93,7 @@
     "@types/diff": "^3.5.2",
     "@types/lodash": "^4.14.121",
     "@types/node": "^10.10.0",
+    "@types/needle": "^2.0.4",
     "eslint": "^4.11.0",
     "nock": "^9.2.5",
     "proxyquire": "^1.7.4",
