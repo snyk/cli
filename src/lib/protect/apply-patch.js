@@ -91,11 +91,13 @@ function jsDiff(patchContent, relative, live) {
           return resolve();
         }
         try {
+          // write patched files back to disk, unlink files completely removed by patching
           for (var fileName of patchedFiles) {
-            if (patchedFiles[fileName] === null) {
+            if (typeof patchedFiles[fileName] === 'string') {
+              fs.writeFileSync(path.resolve(relative, fileName), patchedFiles[fileName]);
+            } else {
               fs.unlinkSync(path.resolve(relative, fileName));
             }
-            fs.writeFileSync(path.resolve(relative, fileName), patchedFiles[fileName]);
           }
           resolve();
         } catch (err) {

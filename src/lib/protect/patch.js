@@ -53,7 +53,7 @@ function patch(vulns, live) {
         // get the patches on the local fs
         var promises = patches.urls.map(function (url) {
           var filename = tempfile('.' + fileSafeId + '.snyk-patch');
-          return getPatchFile(url, filename, 1).then(function (patch) {
+          return getPatchFile(url, filename).then(function (patch) {
             // check whether there's a trace of us having patched before
             return fs.exists(flag).then(function (exists) {
               // if the file doesn't exist, look for the old style filename
