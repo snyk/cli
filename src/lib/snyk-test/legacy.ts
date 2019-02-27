@@ -1,10 +1,6 @@
 import * as _ from 'lodash';
 import * as depGraphLib from '@snyk/dep-graph';
 
-export {
-  convertTestDepGraphResultToLegacy,
-};
-
 interface Pkg {
   name: string;
   version?: string;
@@ -263,3 +259,8 @@ function pl(word, count) {
 
   return word;
 }
+
+export {
+  convertTestDepGraphResultToLegacy,
+  AnnotatedIssue,
+};

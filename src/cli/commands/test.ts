@@ -224,10 +224,6 @@ function displayResult(res, options) {
     );
   }
 
-  if (options.docker && options.file && options['exclude-base-image-vulns'] && res.vulnerabilities) {
-    res.uniqueCount = countExcludeBaseImageVulns(options, res);
-  }
-
   // NOT OK => We found some vulns, let's format the vulns info
   const vulnCount = res.vulnerabilities && res.vulnerabilities.length;
   const singleVulnText = res.licensesPolicy ? 'issue' : 'vulnerability';
@@ -636,21 +632,4 @@ function metadataForVuln(vuln) {
     version: vuln.version,
     packageManager: vuln.packageManager,
   };
-}
-
-function countExcludeBaseImageVulns(options, res): number {
-  const nonBaseImageVulns = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
-  if (options['exclude-base-image-vulns']) {
-    res.vulnerabilities = nonBaseImageVulns;
-  }
-  let userUniqueCount = 0;
-  const seen = {};
-  userUniqueCount = nonBaseImageVulns.reduce((acc, curr) => {
-    if (!seen[curr.id]) {
-      seen[curr.id] = true;
-      acc++;
-    }
-    return acc;
-  }, 0);
-  return userUniqueCount;
 }
