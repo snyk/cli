@@ -56,17 +56,6 @@ async function runTest(packageManager: string, root: string , options): Promise<
     }
     analytics.add('vulns', res.vulnerabilities.length);
 
-    // add the unique count of vulnerabilities found
-    res.uniqueCount = 0;
-    const seen = {};
-    res.uniqueCount = res.vulnerabilities.reduce((acc, curr) => {
-      if (!seen[curr.id]) {
-        seen[curr.id] = true;
-        acc++;
-      }
-      return acc;
-    }, 0);
-
     if (res.docker && dockerfilePackages) {
       res.vulnerabilities = res.vulnerabilities.map((vuln) => {
         const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
@@ -77,6 +66,23 @@ async function runTest(packageManager: string, root: string , options): Promise<
         return vuln;
       });
     }
+
+    if (options.docker && options.file && options['exclude-base-image-vulns'] && res.vulnerabilities) {
+      if (options['exclude-base-image-vulns']) {
+        res.vulnerabilities = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
+      }
+    }
+
+    // add the unique count of vulnerabilities found
+    res.uniqueCount = 0;
+    const seen = {};
+    res.uniqueCount = res.vulnerabilities.reduce((acc, curr) => {
+      if (!seen[curr.id]) {
+        seen[curr.id] = true;
+        acc++;
+      }
+      return acc;
+    }, 0);
 
     return res;
   } finally {
