@@ -4,6 +4,7 @@ set -v
 set -x
 
 OUTPUT_FILE=snyk-result.json
+MONITOR_OUTPUT_FILE=snyk-monitor-result.json
 ERROR_FILE=snyk-error.log
 HTML_FILE=snyk_report.html
 SNYK_COMMAND="$1"
@@ -103,8 +104,8 @@ fi
 runCmdAsDockerUser "touch \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\""
 
 if [ -n "$MONITOR" ]; then
-  runCmdAsDockerUser "PATH=${PATH} snyk monitor --json ${SNYK_PARAMS} \
-  ${ADDITIONAL_ENV} | jq -r \".uri\" | awk '{print \"<center><a target=\\\"_blank\\\" href=\\\"\" \$0 \"\\\">View On Snyk.io</a></center>\"}' > \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\" 2>\"${ERROR_FILE}\""
+  runCmdAsDockerUser "PATH=$PATH snyk monitor --json ${SNYK_PARAMS} ${ADDITIONAL_ENV} > ${MONITOR_OUTPUT_FILE} 2>$ERROR_FILE"
+  runCmdAsDockerUser "cat ${MONITOR_OUTPUT_FILE} | jq -r \".uri\" | awk '{print \"<center><a target=\\\"_blank\\\" href=\\\"\" \$0 \"\\\">View On Snyk.io</a></center>\"}' > \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\" 2>>\"${ERROR_FILE}\""
 fi
 
 
