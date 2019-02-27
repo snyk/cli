@@ -33,7 +33,7 @@ function githubAuth(via) {
   }
 
   var msg =
-    '\nNow redirecting you to our github auth page, go ahead and log in,\n' +
+    '\nNow redirecting you to our auth page, go ahead and log in,\n' +
     'and once the auth is complete, return to this prompt and you\'ll\n' +
     'be ready to start using snyk.\n\nIf you can\'t wait use this url:\n' +
     url + '\n';
