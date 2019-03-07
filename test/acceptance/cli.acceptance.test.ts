@@ -7,7 +7,6 @@ import * as _ from 'lodash';
 import * as cli from '../../src/cli/commands';
 import * as fakeServer from './fake-server';
 import * as subProcess from '../../src/lib/sub-process';
-import * as plugins from '../../src/lib/plugins';
 import * as needle from 'needle';
 
 // ensure this is required *after* the demo server, since this will
@@ -30,6 +29,9 @@ let oldendpoint;
 const server: any = fakeServer(process.env.SNYK_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
+
+// Should be after `process.env` setup.
+import * as plugins from '../../src/lib/plugins';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
