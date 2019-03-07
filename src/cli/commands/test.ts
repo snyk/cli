@@ -206,9 +206,9 @@ function displayResult(res, options) {
   // OK  => no vulns found, return
   if (res.ok && res.vulnerabilities.length === 0) {
     const vulnPathsText = options.showVulnPaths ?
-      ', no vulnerable paths found.' :
-      ', none were found.';
-    const summaryOKText = chalk.green(`✓ ${testedInfoText} ${vulnPathsText}`);
+      'no vulnerable paths found.' :
+      'none were found.';
+    const summaryOKText = chalk.green(`✓ ${testedInfoText}, ${vulnPathsText}`);
     const nextStepsText =
       '\n\nNext steps:' +
       '\n- Run `snyk monitor` to be notified ' +
