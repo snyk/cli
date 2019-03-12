@@ -22,7 +22,7 @@ interface Options {
   docker?: boolean;
   traverseNodeModules?: boolean;
   dev?: boolean;
-  strictOutOfSync?: boolean;
+  strictOutOfSync?: boolean | 'true' | 'false';
 }
 
 interface Plugin {

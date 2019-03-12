@@ -7,7 +7,7 @@ import * as snyk from '../../';
 interface Options {
   traverseNodeModules?: boolean;
   dev?: boolean;
-  strictOutOfSync?: boolean;
+  strictOutOfSync?: boolean | 'true' | 'false';
 }
 
 interface InspectResult {
@@ -67,7 +67,7 @@ async function generateDependenciesFromLockfile(root: string, targetFile: string
   ]);
 
   const defaultManifestFileName = path.relative(root, manifestFileFullPath);
-  const strictOutOfSync = _.get(options, 'strictOutOfSync', true);
+  const strictOutOfSync = _.get(options, 'strictOutOfSync') !== 'false';
 
   return await buildDepTree(
     manifestFile,
