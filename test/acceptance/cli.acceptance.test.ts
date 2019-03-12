@@ -867,7 +867,7 @@ if (getRuntimeVersion() > 4) {
 
   test('`test yarn-out-of-sync --strictOutOfSync=false` passes', async (t) => {
     chdirWorkspaces();
-    await cli.test('yarn-out-of-sync', { dev: true, strictOutOfSync: false});
+    await cli.test('yarn-out-of-sync', { dev: true, strictOutOfSync: 'false'});
     const req = server.popRequest();
     const pkg = req.body;
     t.equal(req.method, 'POST', 'makes POST request');
@@ -881,7 +881,7 @@ if (getRuntimeVersion() > 4) {
 
 test('`test npm-out-of-sync --strictOutOfSync=false` passes', async (t) => {
   chdirWorkspaces();
-  await cli.test('npm-out-of-sync', { dev: true, strictOutOfSync: false});
+  await cli.test('npm-out-of-sync', { dev: true, strictOutOfSync: 'false' });
   const req = server.popRequest();
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');

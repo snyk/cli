@@ -10,7 +10,7 @@ const debug = Debug('snyk');
 interface Options {
   traverseNodeModules?: boolean;
   dev?: boolean;
-  strictOutOfSync?: boolean;
+  strictOutOfSync?: boolean | 'true' | 'false';
 }
 
 interface InspectResult {
@@ -85,7 +85,7 @@ async function generateDependenciesFromLockfile(root, options, targetFile): Prom
   ]);
 
   const defaultManifestFileName = path.relative(root, manifestFileFullPath);
-  const strictOutOfSync = _.get(options, 'strictOutOfSync', true);
+  const strictOutOfSync = _.get(options, 'strictOutOfSync') !== 'false';
 
   return buildDepTree(
     manifestFile,
