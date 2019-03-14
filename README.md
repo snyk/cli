@@ -1,14 +1,30 @@
-![Snyk logo](https://snyk.io/style/asset/logo/snyk-print.svg)
+<p align="center">
+  <img src="https://snyk.io/style/asset/logo/snyk-print.svg" />
+</p>
+
+<p align="center">
+  <a href="https://snyk.io/docs/?utm_campaign=docs&utm_medium=github&utm_source=full_docs">Documentation</a> |
+  <a href="https://snyk.io/test/">Test your project</a> 
+</p>
+
+<p align="center">
+  Snyk helps you find, fix and monitor known vulnerabilities in open source 
+</p>
+
+<p align="center">
+  <a href="https://snyk.io/test/npm/snyk"><img src="https://snyk.io/test/npm/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
+  <a href="https://snyk.io/features/"><img src="https://badgen.net/npm/dm/snyk" alt="Monthly Downloads"/></a>
+</p>
 
 ---
 
-[![Known Vulnerabilities](https://snyk.io/test/npm/snyk/badge.svg)](https://snyk.io/test/npm/snyk)
+## What is Snyk?
 
-Snyk helps you find, fix and monitor known vulnerabilities in Node.js npm, Ruby and Java dependencies, both on an ad hoc basis and as part of your CI (Build) system.
-
-## Documentation
-
-[Full documentation is available on snyk.io](https://snyk.io/docs/using-snyk/?utm_campaign=docs&utm_medium=github&utm_source=full_docs)
+<p align="center">
+  <a href="https://youtu.be/4ng5usM6fd8">
+    <img alt="What is Snyk?" src="https://i3.ytimg.com/vi/4ng5usM6fd8/maxresdefault.jpg" width="75%" height="75%" />
+  </a>
+</p>
 
 ## Table Of Contents:
 
@@ -178,28 +194,12 @@ docker run -it
 
 ## Badge
 
-Once you’re vulnerability-free, you can put a badge on your README showing your package has no known security holes. This will show your users you care about security, and tell them that they should care too.
+You can put a badge on your README showing your package has no known security holes. This will show your users you care about security, and tell them that they should care too.
 
-If there are no vulnerabilities, this is indicated by a green badge.
-
-[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name)
-
-If vulnerabilities have been found, the red badge will show the number of vulnerabilities.
-
-[![Known Vulnerabilities](https://snyk.io/package/npm/jsbin/badge.svg)](https://snyk.io/package/npm/jsbin)
-
-Get the badge by copying the relevant snippet below and replacing "name" with the name of your package.
-
-HTML:
+<a href="https://snyk.io/test/npm/snyk"><img src="https://snyk.io/test/npm/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
 
 ```
-<img src="https://snyk.io/package/npm/name/badge.svg" alt="Known Vulnerabilities" data-canonical-src="https://snyk.io/package/npm/name" style="max-width:100%;">
-```
-
-Markdown:
-
-```
-[![Known Vulnerabilities](https://snyk.io/package/npm/name/badge.svg)](https://snyk.io/package/npm/name)
+[![Known Vulnerabilities](https://snyk.io/package/npm/snyk/badge.svg)](https://snyk.io/package/npm/snyk)
 ```
 
 [![Analytics](https://ga-beacon.appspot.com/UA-69111857-2/Snyk/snyk?pixel)](https://snyk.io/)
