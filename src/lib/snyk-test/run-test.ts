@@ -15,7 +15,7 @@ import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
-import {convertTestDepGraphResultToLegacy} from './legacy';
+import {convertTestDepGraphResultToLegacy, AnnotatedIssue} from './legacy';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -71,16 +71,7 @@ async function runTest(packageManager: string, root: string , options): Promise<
       res.vulnerabilities = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
     }
 
-    // add the unique count of vulnerabilities found
-    res.uniqueCount = 0;
-    const seen = {};
-    res.uniqueCount = res.vulnerabilities.reduce((acc, curr) => {
-      if (!seen[curr.id]) {
-        seen[curr.id] = true;
-        acc++;
-      }
-      return acc;
-    }, 0);
+    res.uniqueCount = countUniqueVulns(res.vulnerabilities);
 
     return res;
   } finally {
@@ -259,4 +250,17 @@ async function assembleRemotePayload(root, options): Promise<Payload> {
   };
   payload.qs = common.assembleQueryString(options);
   return payload;
+}
+
+function countUniqueVulns(vulns: AnnotatedIssue[]): number {
+  const seen = {};
+  const count = vulns.reduce((acc, curr) => {
+    if (!seen[curr.id]) {
+      seen[curr.id] = true;
+      acc++;
+    }
+    return acc;
+  }, 0);
+
+  return count;
 }
