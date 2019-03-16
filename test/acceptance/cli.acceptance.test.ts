@@ -895,7 +895,7 @@ if (getRuntimeVersion() > 4) {
     const req = server.popRequest();
     const pkg = req.body;
     t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, '/vuln/npm', 'posts to correct url');
+    t.match(req.url, '/vuln/yarn', 'posts to correct url');
     t.ok(pkg.dependencies['to-array'], 'dependency');
     t.ok(pkg.dependencies['object-assign'],
       'dev dependency included');
@@ -944,13 +944,13 @@ test('`test npm-package-with-subfolder --file=subfolder/package-lock.json ` pick
   t.ok(pkg.dependencies['to-array'], 'dependency');
 });
 
-test('`test npm-package --file=yarn.lock ` sends pkg info', async (t) => {
+test('`test yarn-package --file=yarn.lock ` sends pkg info', async (t) => {
   chdirWorkspaces();
-  await cli.test('npm-package', {file: 'yarn.lock'});
+  await cli.test('yarn-package', {file: 'yarn.lock'});
   const req = server.popRequest();
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');
-  t.match(req.url, '/vuln/npm', 'posts to correct url');
+  t.match(req.url, '/vuln/yarn', 'posts to correct url');
   t.ok(pkg.dependencies.debug, 'dependency');
   t.ok(pkg.dependencies.debug.dependencies.ms, 'transitive dependency');
   t.notOk(pkg.dependencies['object-assign'],
@@ -960,13 +960,13 @@ test('`test npm-package --file=yarn.lock ` sends pkg info', async (t) => {
     'no "from" array on dep');
 });
 
-test('`test npm-package --file=yarn.lock --dev` sends pkg info', async (t) => {
+test('`test yarn-package --file=yarn.lock --dev` sends pkg info', async (t) => {
   chdirWorkspaces();
-  await cli.test('npm-package', {file: 'yarn.lock', dev: true});
+  await cli.test('yarn-package', {file: 'yarn.lock', dev: true});
   const req = server.popRequest();
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');
-  t.match(req.url, '/vuln/npm', 'posts to correct url');
+  t.match(req.url, '/vuln/yarn', 'posts to correct url');
   t.ok(pkg.dependencies.debug, 'dependency');
   t.ok(pkg.dependencies.debug.dependencies.ms, 'transitive dependency');
   t.ok(pkg.dependencies['object-assign'],
@@ -976,21 +976,21 @@ test('`test npm-package --file=yarn.lock --dev` sends pkg info', async (t) => {
     'no "from" array on dep');
 });
 
-test('`test npm-package-with-subfolder --file=yarn.lock ` picks top-level files', async (t) => {
+test('`test yarn-package-with-subfolder --file=yarn.lock ` picks top-level files', async (t) => {
   chdirWorkspaces();
-  await cli.test('npm-package-with-subfolder', {file: 'yarn.lock'});
+  await cli.test('yarn-package-with-subfolder', {file: 'yarn.lock'});
   const req = server.popRequest();
   const pkg = req.body;
-  t.equal(pkg.name, 'npm-package-top-level', 'correct package is taken');
+  t.equal(pkg.name, 'yarn-package-top-level', 'correct package is taken');
   t.ok(pkg.dependencies['to-array'], 'dependency');
 });
 
-test('`test npm-package-with-subfolder --file=subfolder/yarn.lock ` picks subfolder files', async (t) => {
+test('`test yarn-package-with-subfolder --file=subfolder/yarn.lock ` picks subfolder files', async (t) => {
   chdirWorkspaces();
-  await cli.test('npm-package-with-subfolder', {file: 'subfolder/yarn.lock'});
+  await cli.test('yarn-package-with-subfolder', {file: 'subfolder/yarn.lock'});
   const req = server.popRequest();
   const pkg = req.body;
-  t.equal(pkg.name, 'npm-package-subfolder', 'correct package is taken');
+  t.equal(pkg.name, 'yarn-package-subfolder', 'correct package is taken');
   t.ok(pkg.dependencies['to-array'], 'dependency');
 });
 
@@ -1000,7 +1000,7 @@ test('`test` on a yarn package does work and displays appropriate text', async (
   const req = server.popRequest();
   const pkg = req.body;
   t.equal(req.method, 'POST', 'makes POST request');
-  t.match(req.url, '/vuln/npm', 'posts to correct url');
+  t.match(req.url, '/vuln/yarn', 'posts to correct url');
   t.equal(pkg.name, 'yarn-app-one', 'specifies package name');
   t.ok(pkg.dependencies.marked, 'specifies dependency');
   t.equal(pkg.dependencies.marked.name,
@@ -2078,6 +2078,21 @@ test('`monitor npm-package`', async (t) => {
     'no "from" array on dep');
 });
 
+test('`monitor yarn-package`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('yarn-package');
+  const req = server.popRequest();
+  const pkg = req.body.package;
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/yarn', 'puts at correct url');
+  t.ok(pkg.dependencies.debug, 'dependency');
+  t.notOk(pkg.dependencies['object-assign'],
+    'no dev dependency');
+  t.notOk(pkg.from, 'no "from" array on root');
+  t.notOk(pkg.dependencies.debug.from,
+    'no "from" array on dep');
+});
+
 test('`monitor npm-package with custom --project-name`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('npm-package', {
@@ -2093,6 +2108,17 @@ test('`monitor npm-package with dev dep flag`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm', 'puts at correct url');
+  t.ok(req.body.package.dependencies.debug, 'dependency');
+  t.ok(req.body.package.dependencies['object-assign'],
+    'includes dev dependency');
+});
+
+test('`monitor yarn-package with dev dep flag`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('yarn-package', { dev: true });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/yarn', 'puts at correct url');
   t.ok(req.body.package.dependencies.debug, 'dependency');
   t.ok(req.body.package.dependencies['object-assign'],
     'includes dev dependency');
@@ -2148,7 +2174,7 @@ test('`monitor yarn-app`', async (t) => {
   const req = server.popRequest();
   const pkg = req.body.package;
   t.equal(req.method, 'PUT', 'makes PUT request');
-  t.match(req.url, '/monitor/npm', 'puts at correct url');
+  t.match(req.url, '/monitor/yarn', 'puts at correct url');
   t.equal(pkg.name, 'yarn-app-one', 'specifies name');
   t.ok(pkg.dependencies.marked, 'specifies dependency');
   t.equal(pkg.dependencies.marked.name,

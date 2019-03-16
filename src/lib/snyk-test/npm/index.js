@@ -22,9 +22,10 @@ const config = require('../../config');
 
 function test(root, options) {
   const modules = null;
+  const packageManager = detect.detectPackageManager(root, options);
   const payload = {
     // options.vulnEndpoint is only used for file system tests
-    url: config.API + (options.vulnEndpoint || '/vuln/npm'),
+    url: config.API + (options.vulnEndpoint || `/vuln/${packageManager}`),
     json: true,
     headers: {
       'x-is-ci': isCI,

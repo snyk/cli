@@ -28,8 +28,6 @@ function monitor(root, meta, info) {
       return snyk.policy.load(policyLocations, opts);
     }).then(function (policy) {
       analytics.add('packageManager', packageManager);
-      // YARN temporary fix to avoid BE changes
-      packageManager = packageManager === 'yarn' ? 'npm' : packageManager;
       return new Promise(function (resolve, reject) {
         request({
           body: {
