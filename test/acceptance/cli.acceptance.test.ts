@@ -1605,34 +1605,10 @@ test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
 test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t) => {
   const plugin = {
     async inspect() {
-      return {
-        plugin: {
-          packageManager: 'deb',
-        },
-        package: {
-          name: 'docker-image',
-          docker: {
-            baseImage: 'ubuntu:14.04',
-          },
-          dependencies: {
-            'apt/libapt-pkg5.0': {
-              version: '1.6.3ubuntu0.1',
-              dependencies: {
-                'bzip2/libbz2-1.0': {
-                  version: '1.0.6-8.1',
-                },
-              },
-            },
-            'bzip2/libbz2-1.0': {
-              version: '1.0.6-8.1',
-            },
-          },
-        },
-      };
+      return require('./fixtures/docker/plugin-multiple-deps');
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
-
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
   t.teardown(loadPlugin.restore);
@@ -1651,6 +1627,35 @@ test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t
     const msg = err.message;
     t.match(msg, 'Base Image');
     t.match(msg, 'Recommendations for base image upgrade');
+  }
+});
+
+test('`test foo:latest --docker --file=Dockerfile --exclude-base-image-vulns`', async (t) => {
+  const plugin = {
+    async inspect() {
+      return require('./fixtures/docker/plugin-multiple-deps');
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
+  t.teardown(loadPlugin.restore);
+
+  const vulns = require('./fixtures/docker/find-result-remediation.json');
+  server.setNextResponse(vulns);
+
+  try {
+    await cli.test('foo:latest', {
+      docker: true,
+      org: 'explicit-org',
+      file: 'Dockerfile',
+      'exclude-base-image-vulns': true,
+    });
+    t.fail('should have found vuln');
+
+  } catch (err) {
+    t.notMatch(err.message, /introduced by your base image/i, 'should exclude base image vulns');
+    t.match(err.message, /introduced in your dockerfile/i, 'should include vulns introduced by dockerfile');
   }
 });
 
