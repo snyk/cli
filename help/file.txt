@@ -16,6 +16,7 @@ looking for files in following order:
   pom.xml
   requirements.txt
   build.gradle
+  build.gradle.kts
   build.sbt
   Gopkg.lock
   vendor/vendor.json
