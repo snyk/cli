@@ -502,6 +502,30 @@ test('`test ruby-app-no-vulns`', async (t) => {
   t.deepEqual(res, expected, '--json output is the same');
 });
 
+test('`test gradle-kotlin-dsl-app` returns correct meta', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {package: {}};
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  const res = await cli.test('gradle-kotlin-dsl-app');
+  const meta = res.slice(res.indexOf('Organisation:')).split('\n');
+  t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+  t.match(meta[1], /Package manager:\s+gradle/,
+    'package manager displayed');
+  t.match(meta[2], /Target file:\s+build.gradle.kts/, 'target file displayed');
+  t.match(meta[3], /Open source:\s+no/, 'open source displayed');
+  t.match(meta[4], /Project path:\s+gradle-kotlin-dsl-app/, 'path displayed');
+  t.notMatch(meta[5], /Local Snyk policy:\s+found/,
+    'local policy not displayed');
+});
+
 test('`test gradle-app` returns correct meta', async (t) => {
   chdirWorkspaces();
   const plugin = {
@@ -2425,6 +2449,7 @@ test('`wizard` for unsupported package managers', async (t) => {
     { file: 'pip-app/requirements.txt', type: 'Python' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
+    { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
     { file: 'golang-app/Gopkg.lock', type: 'Golang/Dep' },
     { file: 'golang-app/vendor/vendor.json', type: 'Govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
@@ -2453,6 +2478,7 @@ test('`protect` for unsupported package managers', async (t) => {
     { file: 'pip-app/requirements.txt', type: 'Python' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
+    { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
     { file: 'golang-app/Gopkg.lock', type: 'Golang/Dep' },
     { file: 'golang-app/vendor/vendor.json', type: 'Govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
