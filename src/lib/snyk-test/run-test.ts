@@ -15,14 +15,14 @@ import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
-import {convertTestDepGraphResultToLegacy} from './legacy';
+import {convertTestDepGraphResultToLegacy, AnnotatedIssue} from './legacy';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
 
 export = runTest;
 
-async function runTest(packageManager: string, root: string , options): Promise<object> {
+async function runTest(packageManager: string, root: string, options): Promise<object> {
   const policyLocations = [options['policy-path'] || root];
   // TODO: why hasDevDependencies is always false?
   const hasDevDependencies = false;
@@ -56,17 +56,6 @@ async function runTest(packageManager: string, root: string , options): Promise<
     }
     analytics.add('vulns', res.vulnerabilities.length);
 
-    // add the unique count of vulnerabilities found
-    res.uniqueCount = 0;
-    const seen = {};
-    res.uniqueCount = res.vulnerabilities.reduce((acc, curr) => {
-      if (!seen[curr.id]) {
-        seen[curr.id] = true;
-        acc++;
-      }
-      return acc;
-    }, 0);
-
     if (res.docker && dockerfilePackages) {
       res.vulnerabilities = res.vulnerabilities.map((vuln) => {
         const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
@@ -77,6 +66,12 @@ async function runTest(packageManager: string, root: string , options): Promise<
         return vuln;
       });
     }
+
+    if (options.docker && options.file && options['exclude-base-image-vulns']) {
+      res.vulnerabilities = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
+    }
+
+    res.uniqueCount = countUniqueVulns(res.vulnerabilities);
 
     return res;
   } finally {
@@ -255,4 +250,17 @@ async function assembleRemotePayload(root, options): Promise<Payload> {
   };
   payload.qs = common.assembleQueryString(options);
   return payload;
+}
+
+function countUniqueVulns(vulns: AnnotatedIssue[]): number {
+  const seen = {};
+  const count = vulns.reduce((acc, curr) => {
+    if (!seen[curr.id]) {
+      seen[curr.id] = true;
+      acc++;
+    }
+    return acc;
+  }, 0);
+
+  return count;
 }

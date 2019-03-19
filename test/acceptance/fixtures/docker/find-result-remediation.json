@@ -33,6 +33,21 @@
             }
           }
         }
+      },
+      "curl@7.38.0-4+deb8u11": {
+        "pkg": {
+          "name": "curl",
+          "version": "7.38.0-4+deb8u11"
+        },
+        "issues": {
+          "SNYK-LINUX-CURL-100548": {
+            "issueId": "SNYK-LINUX-CURL-100548",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": []
+            }
+          }
+        }
       }
     },
     "issuesData": {
@@ -134,6 +149,91 @@
         },
         "severity": "low",
         "title": "Denial of Service (DoS)"
+      },
+      "SNYK-LINUX-CURL-100548": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:H/A:N",
+        "alternativeIds": [],
+        "creationTime": "2019-02-06T14:28:30.599712Z",
+        "credit": [
+          ""
+        ],
+        "cvssScore": 5.3,
+        "description": "## Overview\nThe (1) mbed_connect_step1 function in lib/vtls/mbedtls.c and (2) polarssl_connect_step1 function in lib/vtls/polarssl.c in cURL and libcurl before 7.49.0, when using SSLv3 or making a TLS connection to a URL that uses a numerical IP address, allow remote attackers to spoof servers via an arbitrary valid certificate.\n\n## References\n- [BID](http://www.securityfocus.com/bid/90726)\n- [CONFIRM](https://curl.haxx.se/CVE-2016-3739.patch)\n- [CONFIRM](https://curl.haxx.se/changes.html#7_49_0)\n- [CONFIRM](https://curl.haxx.se/docs/adv_20160518.html)\n- [CONFIRM](https://h20566.www2.hpe.com/portal/site/hpsc/public/kb/docDisplay?docId=emr_na-c05320149)\n- [CONFIRM](https://h20566.www2.hpe.com/portal/site/hpsc/public/kb/docDisplay?docId=emr_na-c05390722)\n- [GENTOO](https://security.gentoo.org/glsa/201701-47)\n- [SECTRACK](http://www.securitytracker.com/id/1035907)\n- [SLACKWARE](http://www.slackware.com/security/viewer.php?l=slackware-security&y=2016&m=slackware-security.495349)\n",
+        "disclosureTime": null,
+        "id": "SNYK-LINUX-CURL-100548",
+        "identifiers": {
+          "CVE": [
+            "CVE-2016-3739"
+          ],
+          "CWE": [
+            "CWE-20"
+          ]
+        },
+        "language": "linux",
+        "modificationTime": "2019-03-17T06:12:22.801004Z",
+        "packageManager": "linux",
+        "packageName": "curl",
+        "patches": [],
+        "publicationTime": "2016-05-20T14:59:00Z",
+        "references": [
+          {
+            "title": "BID",
+            "url": "http://www.securityfocus.com/bid/90726"
+          },
+          {
+            "title": "SECTRACK",
+            "url": "http://www.securitytracker.com/id/1035907"
+          },
+          {
+            "title": "SLACKWARE",
+            "url": "http://www.slackware.com/security/viewer.php?l=slackware-security&y=2016&m=slackware-security.495349"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://curl.haxx.se/changes.html#7_49_0"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://curl.haxx.se/CVE-2016-3739.patch"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://curl.haxx.se/docs/adv_20160518.html"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://h20566.www2.hpe.com/portal/site/hpsc/public/kb/docDisplay?docId=emr_na-c05320149"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://h20566.www2.hpe.com/portal/site/hpsc/public/kb/docDisplay?docId=emr_na-c05390722"
+          },
+          {
+            "title": "GENTOO",
+            "url": "https://security.gentoo.org/glsa/201701-47"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": [
+              "<7.50.1-1"
+            ],
+            "debian:8": [
+              "*"
+            ],
+            "debian:9": [
+              "<7.50.1-1"
+            ],
+            "debian:unstable": [
+              "<7.50.1-1"
+            ]
+          },
+          "vulnerable": [
+            "*"
+          ]
+        },
+        "severity": "medium",
+        "title": "Improper Input Validation"
       }
     }
   },
