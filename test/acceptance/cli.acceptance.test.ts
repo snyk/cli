@@ -1470,21 +1470,12 @@ test('`test composer-app golang-app nuget-app` auto-detects all three projects',
 });
 
 test('`test foo:latest --docker`', async (t) => {
-  const plugin = {
-    async inspect() {
-      return {
-        plugin: {
-          packageManager: 'deb',
-        },
-        package: {},
-      };
+  const spyPlugin = stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'deb',
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+    package: {},
+  }, t);
 
   await cli.test('foo:latest', {
     docker: true,
@@ -1507,36 +1498,27 @@ test('`test foo:latest --docker`', async (t) => {
 });
 
 test('`test foo:latest --docker vulnerable paths`', async (t) => {
-  const plugin = {
-    async inspect() {
-      return {
-        plugin: {
-          packageManager: 'deb',
-        },
-        package: {
-          name: 'docker-image',
+  stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'deb',
+    },
+    package: {
+      name: 'docker-image',
+      dependencies: {
+        'apt/libapt-pkg5.0': {
+          version: '1.6.3ubuntu0.1',
           dependencies: {
-            'apt/libapt-pkg5.0': {
-              version: '1.6.3ubuntu0.1',
-              dependencies: {
-                'bzip2/libbz2-1.0': {
-                  version: '1.0.6-8.1',
-                },
-              },
-            },
             'bzip2/libbz2-1.0': {
               version: '1.0.6-8.1',
             },
           },
         },
-      };
+        'bzip2/libbz2-1.0': {
+          version: '1.0.6-8.1',
+        },
+      },
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+  }, t);
 
   const vulns = require('./fixtures/docker/find-result.json');
   server.setNextResponse(vulns);
@@ -1558,25 +1540,16 @@ test('`test foo:latest --docker vulnerable paths`', async (t) => {
 });
 
 test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
-  const plugin = {
-    async inspect() {
-      return {
-        plugin: {
-          packageManager: 'deb',
-        },
-        package: {
-          docker: {
-            baseImage: 'ubuntu:14.04',
-          },
-        },
-      };
+  const spyPlugin = stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'deb',
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+    package: {
+      docker: {
+        baseImage: 'ubuntu:14.04',
+      },
+    },
+  }, t);
 
   await cli.test('foo:latest', {
     docker: true,
@@ -1603,16 +1576,7 @@ test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
 });
 
 test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t) => {
-  const plugin = {
-    async inspect() {
-      return require('./fixtures/docker/plugin-multiple-deps');
-    },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
-
+  stubDockerPluginResponse('./fixtures/docker/plugin-multiple-deps', t);
   const vulns = require('./fixtures/docker/find-result-remediation.json');
   server.setNextResponse(vulns);
 
@@ -1631,16 +1595,7 @@ test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t
 });
 
 test('`test foo:latest --docker --file=Dockerfile --exclude-base-image-vulns`', async (t) => {
-  const plugin = {
-    async inspect() {
-      return require('./fixtures/docker/plugin-multiple-deps');
-    },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
-
+  stubDockerPluginResponse('./fixtures/docker/plugin-multiple-deps', t);
   const vulns = require('./fixtures/docker/find-result-remediation.json');
   server.setNextResponse(vulns);
 
@@ -1661,21 +1616,12 @@ test('`test foo:latest --docker --file=Dockerfile --exclude-base-image-vulns`', 
 
 test('`test foo:latest --docker` doesnt collect policy from cwd', async (t) => {
   chdirWorkspaces('npm-package-policy');
-  const plugin = {
-    async inspect() {
-      return {
-        plugin: {
-          packageManager: 'deb',
-        },
-        package: {},
-      };
+  const spyPlugin = stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'deb',
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+    package: {},
+  }, t);
 
   await cli.test('foo:latest', {
     docker: true,
@@ -1701,21 +1647,12 @@ test('`test foo:latest --docker` doesnt collect policy from cwd', async (t) => {
 
 test('`test foo:latest --docker` supports custom policy', async (t) => {
   chdirWorkspaces();
-  const plugin = {
-    async inspect() {
-      return {
-        plugin: {
-          packageManager: 'deb',
-        },
-        package: {},
-      };
+  const spyPlugin = stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'deb',
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+    package: {},
+  }, t);
 
   await cli.test('foo:latest', {
     'docker': true,
@@ -1745,25 +1682,16 @@ test('`test foo:latest --docker` supports custom policy', async (t) => {
 });
 
 test('`test foo:latest --docker with binaries`', async (t) => {
-  const plugin = {
-    inspect: () => {
-      return Promise.resolve({
-        plugin: {
-          packageManager: 'deb',
-        },
-        package: {
-          docker: {
-            binaries: [{name: 'node', version: '5.10.1'}],
-          },
-        },
-      });
+  const spyPlugin = stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'deb',
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+    package: {
+      docker: {
+        binaries: [{name: 'node', version: '5.10.1'}],
+      },
+    },
+  }, t);
 
   const res = await cli.test('foo:latest', {
     docker: true,
@@ -1788,44 +1716,35 @@ test('`test foo:latest --docker with binaries`', async (t) => {
 });
 
 test('`test foo:latest --docker with binaries vulnerabilities`', async (t) => {
-  const plugin = {
-    inspect: () => {
-      return Promise.resolve({
-        plugin: {
-          packageManager: 'deb',
-        },
-        package: {
-          name: 'docker-image',
+  stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'deb',
+    },
+    package: {
+      name: 'docker-image',
+      dependencies: {
+        'apt/libapt-pkg5.0': {
+          version: '1.6.3ubuntu0.1',
           dependencies: {
-            'apt/libapt-pkg5.0': {
-              version: '1.6.3ubuntu0.1',
-              dependencies: {
-                'bzip2/libbz2-1.0': {
-                  version: '1.0.6-8.1',
-                },
-              },
-            },
             'bzip2/libbz2-1.0': {
               version: '1.0.6-8.1',
             },
-            'bzr/libbz2-1.0': {
-              version: '1.0.6-8.1',
-            },
-          },
-          docker: {
-            binaries: {
-              Analysis: [{name: 'node', version: '5.10.1'}],
-            },
           },
         },
-      });
+        'bzip2/libbz2-1.0': {
+          version: '1.0.6-8.1',
+        },
+        'bzr/libbz2-1.0': {
+          version: '1.0.6-8.1',
+        },
+      },
+      docker: {
+        binaries: {
+          Analysis: [{name: 'node', version: '5.10.1'}],
+        },
+      },
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+  }, t);
 
   const vulns = require('./fixtures/docker/find-result-binaries.json');
   server.setNextResponse(vulns);
@@ -2286,22 +2205,13 @@ test('`monitor composer-app ruby-app` works on multiple params', async (t) => {
 test('`monitor foo:latest --docker`', async (t) => {
   const dockerImageId = 'sha256:' +
     '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
-  const plugin = {
-    async inspect() {
-      return{
-        plugin: {
-          packageManager: 'rpm',
-          dockerImageId,
-        },
-        package: {},
-      };
+  const spyPlugin = stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'rpm',
+      dockerImageId,
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+    package: {},
+  }, t);
 
   await cli.monitor('foo:latest', {
     docker: true,
@@ -2323,22 +2233,13 @@ test('`monitor foo:latest --docker`', async (t) => {
 test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
   const dockerImageId = 'sha256:' +
     '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
-  const plugin = {
-    async inspect() {
-      return {
-        plugin: {
-          packageManager: 'rpm',
-          dockerImageId,
-        },
-        package: {docker: 'base-image-name'},
-      };
+  const spyPlugin = stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'rpm',
+      dockerImageId,
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+    package: {docker: 'base-image-name'},
+  }, t);
 
   await cli.monitor('foo:latest', {
     docker: true,
@@ -2362,21 +2263,12 @@ test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
 
 test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
   chdirWorkspaces('npm-package-policy');
-  const plugin = {
-    async inspect() {
-      return {
-        plugin: {
-          packageManager: 'rpm',
-        },
-        package: {},
-      };
+  const spyPlugin = stubDockerPluginResponse({
+    plugin: {
+      packageManager: 'rpm',
     },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
-  t.teardown(loadPlugin.restore);
+    package: {},
+  }, t);
 
   await cli.monitor('foo:latest', {
     docker: true,
@@ -2641,4 +2533,19 @@ function chdirWorkspaces(subdir: string = '') {
 
 function decode64(str) {
   return new Buffer(str, 'base64').toString('utf8');
+}
+
+// fixture can be fixture path or object
+function stubDockerPluginResponse(fixture: string | object, t) {
+  const plugin = {
+    async inspect() {
+      return (typeof fixture === 'object') ? fixture : require(fixture);
+    }
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  loadPlugin.withArgs(sinon.match.any, sinon.match({docker: true})).returns(plugin);
+  t.teardown(loadPlugin.restore);
+
+  return spyPlugin;
 }
