@@ -509,7 +509,7 @@ test('`test gradle-kotlin-dsl-app` returns correct meta', async (t) => {
       return {package: {}};
     },
   };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
+  sinon.spy(plugin, 'inspect');
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('gradle').returns(plugin);
@@ -540,6 +540,7 @@ test('`test gradle-app` returns correct meta', async (t) => {
 
   const res = await cli.test('gradle-app');
   const meta = res.slice(res.indexOf('Organisation:')).split('\n');
+  t.false(spyPlugin.args[0][2].multiDepRoots, '`multiDepRoots` option is not sent');
   t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
   t.match(meta[1], /Package manager:\s+gradle/,
     'package manager displayed');
@@ -548,6 +549,95 @@ test('`test gradle-app` returns correct meta', async (t) => {
   t.match(meta[4], /Project path:\s+gradle-app/, 'path displayed');
   t.notMatch(meta[5], /Local Snyk policy:\s+found/,
     'local policy not displayed');
+});
+
+test('`test gradle-app --all-sub-projects` returns sends `multiDepRoots` argument to plugin', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {plugin: {}, package: {}};
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  const res = await cli.test('gradle-app', {
+    'all-sub-projects': true,
+  });
+  const meta = res.slice(res.indexOf('Organisation:')).split('\n');
+  t.true(spyPlugin.args[0][2].multiDepRoots);
+});
+
+test('`test gradle-app` plugin fails to return package or depRoots', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {plugin: {}};
+    },
+  };
+  sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  try {
+    await cli.test('gradle-app', {});
+    t.fail('expected error');
+  } catch (error) {
+    t.match(error,
+      /error getting dependencies from gradle plugin: neither 'package' nor 'depRoots' were found/,
+      'error found');
+  }
+});
+
+test('`test gradle-app --all-sub-projects` returns correct multi tree meta', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {},
+        depRoots: [
+          {
+            depTree: {
+              name: 'tree1',
+              version: '1.0.0',
+              dependencies: {dep1: {name: 'dep1', version: '1'}},
+            },
+          }, {
+            depTree: {
+              name: 'tree2',
+              version: '2.0.0',
+              dependencies: {dep1: {name: 'dep2', version: '2'}},
+            },
+          },
+        ],
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  const res = await cli.test('gradle-app', {'all-sub-projects': true});
+  t.true(spyPlugin.args[0][2].multiDepRoots, '`multiDepRoots` option is sent');
+
+  const tests = res.split('Testing gradle-app...').filter((s) => !!s.trim());
+  t.equals(tests.length, 2, 'two projects tested independently');
+  t.match(res, /Tested 2 projects/, 'number projects tested displayed properly');
+  for (const tst of tests) {
+    const meta = tst.slice(tst.indexOf('Organisation:')).split('\n');
+    t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+    t.match(meta[1], /Package manager:\s+gradle/,
+      'package manager displayed');
+    t.match(meta[2], /Target file:\s+build.gradle/, 'target file displayed');
+    t.match(meta[3], /Open source:\s+no/, 'open source displayed');
+    t.match(meta[4], /Project path:\s+gradle-app/, 'path displayed');
+    t.notMatch(meta[5], /Local Snyk policy:\s+found/,
+      'local policy not displayed');
+  }
 });
 
 test('`test` returns correct meta when target file specified', async (t) => {
@@ -2194,6 +2284,56 @@ test('`monitor pip-app --file=requirements.txt`', async (t) => {
       args: null,
       file: 'requirements.txt',
     }], 'calls python plugin');
+});
+
+test('`monitor gradle-app`', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {},
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  await cli.monitor('gradle-app');
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/gradle', 'puts at correct url');
+  t.same(spyPlugin.getCall(0).args,
+    ['gradle-app', 'build.gradle', {
+      args: null,
+    }], 'calls gradle plugin');
+});
+
+test('`monitor gradle-app --all-sub-projects`', async (t) => {
+  t.plan(2);
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {},
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  try {
+    await cli.monitor('gradle-app', {'all-sub-projects': true});
+  } catch (e) {
+    t.contains(e, /not supported/);
+  }
+
+  t.true(spyPlugin.notCalled, "`inspect` method wasn't called");
 });
 
 test('`monitor golang-app --file=Gopkg.lock', async (t) => {

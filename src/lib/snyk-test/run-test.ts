@@ -69,7 +69,7 @@ interface DepRoot {
 
 interface Package {
   plugin: PluginMetadata;
-  depRoots: DepRoot[]; // currently only returned by gradle
+  depRoots?: DepRoot[]; // currently only returned by gradle
   package?: DepTree;
 }
 
@@ -188,23 +188,34 @@ function assemblePayload(root: string, options, policyLocations: string[]): Prom
   return assembleRemotePayload(root, options);
 }
 
-async function getDepsFromPlugin(root, options): Promise<Package> {
+// Force getDepsFromPlugin to return depRoots for processing in assembleLocalPayload
+interface MultiRootsPackage extends Package {
+  depRoots: DepRoot[];
+}
+
+async function getDepsFromPlugin(root, options): Promise<MultiRootsPackage> {
   options.file = options.file || detect.detectPackageFile(root);
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
-  const inspectRes: Package = await moduleInfo.inspect(root, options.file, options);
+  const pluginOptions = plugins.getPluginOptions(options.packageManager, options);
+  const inspectRes: Package = await moduleInfo.inspect(root, options.file, { ...options, ...pluginOptions });
 
   if (!inspectRes.depRoots) {
     if (!inspectRes.package) {
       // something went wrong if both are not present...
-      throw Error('Error getting deps from plugin');
+      throw Error(`error getting dependencies from ${options.packageManager} ` +
+                  'plugin: neither \'package\' nor \'depRoots\' were found');
     }
     if (!inspectRes.package.targetFile && inspectRes.plugin) {
       inspectRes.package.targetFile = inspectRes.plugin.targetFile;
     }
     inspectRes.depRoots = [{depTree: inspectRes.package}];
   }
-  return inspectRes;
+
+  return {
+    depRoots: inspectRes.depRoots,
+    plugin: inspectRes.plugin,
+  };
 }
 
 async function assembleLocalPayload(root, options, policyLocations): Promise<Payload[]> {

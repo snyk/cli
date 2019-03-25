@@ -35,6 +35,13 @@ function monitor() {
     snyk.id = options.id;
   }
 
+
+  // This is a temporary check for gradual rollout of subprojects scanning
+  // TODO: delete once supported for monitor
+  if (options['all-sub-projects']) {
+    throw new Error('`--all-sub-projects` is currently not supported for `snyk monitor`');
+  }
+
   return apiTokenExists('snyk monitor')
     .then(function () {
       return args.reduce(function (acc, path) {

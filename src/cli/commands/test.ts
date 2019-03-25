@@ -79,13 +79,15 @@ async function test(...args) {
       }
     }
 
-    // add the tested path to the result of the test (or error)
+    // Not all test results are arrays in order to be backwards compatible
+    // with sctripts that use a callback with test. Coerce results/errors to be arrays
+    // and add the result options to each to be displayed
     if (!Array.isArray(res)) {
       res = [res];
     }
     for (const r of res) {
       results.push(_.assign(r, {path}));
-      resultOptions.push(testOpts); // doesnt this put testOps in there too many times? line:53
+      resultOptions.push(testOpts);
     }
   }
 
