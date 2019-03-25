@@ -23,6 +23,8 @@ interface Options {
   traverseNodeModules?: boolean;
   dev?: boolean;
   strictOutOfSync?: boolean | 'true' | 'false';
+  // multiDepRoots tells plugin to return multiple dependency trees
+  // current support: gradle via --scan-all-subprojects options
   multiDepRoots?: boolean;
 }
 

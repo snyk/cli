@@ -35,6 +35,9 @@ function monitor() {
     snyk.id = options.id;
   }
 
+
+  // This is a temporary check for gradual rollout of subprojects scanning
+  // TODO: delete once supported for monitor
   if (options['scan-all-subprojects']) {
     throw new Error('`--scan-all-subprojects` is currently not supported for `snyk monitor`');
   }
