@@ -161,7 +161,8 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
 
   try {
     await spinner(spinnerLbl);
-    const inspectRes = await moduleInfo.inspect(root, options.file, options);
+    const defaultPluginOptions = plugins.getDefaultPluginOptions(options.packageManager);
+    const inspectRes = await moduleInfo.inspect(root, options.file, { ...options, ...defaultPluginOptions});
 
     const pkg = inspectRes.package;
     if (_.get(inspectRes, 'plugin.packageManager')) {

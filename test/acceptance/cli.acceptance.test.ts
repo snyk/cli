@@ -540,6 +540,7 @@ test('`test gradle-app` returns correct meta', async (t) => {
 
   const res = await cli.test('gradle-app');
   const meta = res.slice(res.indexOf('Organisation:')).split('\n');
+  t.true(spyPlugin.args[0][2].multiDepRoots);
   t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
   t.match(meta[1], /Package manager:\s+gradle/,
     'package manager displayed');

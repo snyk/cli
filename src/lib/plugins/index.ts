@@ -23,6 +23,7 @@ interface Options {
   traverseNodeModules?: boolean;
   dev?: boolean;
   strictOutOfSync?: boolean | 'true' | 'false';
+  multiDepRoots?: boolean;
 }
 
 interface Plugin {
@@ -71,6 +72,17 @@ export function loadPlugin(packageManager: string, options: Options = {}): Plugi
     }
     default: {
       throw new Error(`Unsupported package manager: ${packageManager}`);
+    }
+  }
+}
+
+export function getDefaultPluginOptions(packageManager: string): Options {
+  switch (packageManager) {
+    case 'gradle': {
+      return { multiDepRoots: true};
+    }
+    default: {
+      return {};
     }
   }
 }
