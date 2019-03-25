@@ -81,7 +81,12 @@ async function test(...args) {
     }
 
     // add the tested path to the result of the test (or error)
-    results.push(_.assign(res, {path}));
+    if (!Array.isArray(res)) {
+      res = [res];
+    }
+    for (const r of res) {
+      results.push(_.assign(r, {path}));
+    }
   }
 
   // resultOptions is now an array of 1 or more options used for

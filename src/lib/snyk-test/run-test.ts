@@ -22,58 +22,62 @@ const debug = require('debug')('snyk');
 
 export = runTest;
 
-async function runTest(packageManager: string, root: string, options): Promise<object> {
+async function runTest(packageManager: string, root: string, options): Promise<object[]> {
   const policyLocations = [options['policy-path'] || root];
   // TODO: why hasDevDependencies is always false?
   const hasDevDependencies = false;
 
+  const results: object[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
-    const payload = await assemblePayload(root, options, policyLocations);
-    const filesystemPolicy = payload.body && !!payload.body.policy;
-    const depGraph = payload.body && payload.body.depGraph;
+    const payloads = await assemblePayload(root, options, policyLocations);
+    for (const payload of payloads) {
+      const filesystemPolicy = payload.body && !!payload.body.policy;
+      const depGraph = payload.body && payload.body.depGraph;
 
-    let dockerfilePackages;
-    if (payload.body && payload.body.docker && payload.body.docker.dockerfilePackages) {
-      dockerfilePackages = payload.body.docker.dockerfilePackages;
+      let dockerfilePackages;
+      if (payload.body && payload.body.docker && payload.body.docker.dockerfilePackages) {
+        dockerfilePackages = payload.body.docker.dockerfilePackages;
+      }
+
+      await spinner(spinnerLbl);
+      let res = await sendPayload(payload, hasDevDependencies);
+      if (depGraph) {
+        res = convertTestDepGraphResultToLegacy(
+          res,
+          depGraph,
+          packageManager,
+          options.severityThreshold);
+      }
+
+      analytics.add('vulns-pre-policy', res.vulnerabilities.length);
+      res.filesystemPolicy = filesystemPolicy;
+      if (!options['ignore-policy']) {
+        const policy = await snyk.policy.loadFromText(res.policy);
+        res = policy.filter(res, root);
+      }
+      analytics.add('vulns', res.vulnerabilities.length);
+
+      if (res.docker && dockerfilePackages) {
+        res.vulnerabilities = res.vulnerabilities.map((vuln) => {
+          const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
+          if (dockerfilePackage) {
+            vuln.dockerfileInstruction = dockerfilePackage.instruction;
+          }
+          vuln.dockerBaseImage = res.docker.baseImage;
+          return vuln;
+        });
+      }
+
+      if (options.docker && options.file && options['exclude-base-image-vulns']) {
+        res.vulnerabilities = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
+      }
+
+      res.uniqueCount = countUniqueVulns(res.vulnerabilities);
+
+      results.push(res);
     }
-
-    await spinner(spinnerLbl);
-    let res = await sendPayload(payload, hasDevDependencies);
-    if (depGraph) {
-      res = convertTestDepGraphResultToLegacy(
-        res,
-        depGraph,
-        packageManager,
-        options.severityThreshold);
-    }
-
-    analytics.add('vulns-pre-policy', res.vulnerabilities.length);
-    res.filesystemPolicy = filesystemPolicy;
-    if (!options['ignore-policy']) {
-      const policy = await snyk.policy.loadFromText(res.policy);
-      res = policy.filter(res, root);
-    }
-    analytics.add('vulns', res.vulnerabilities.length);
-
-    if (res.docker && dockerfilePackages) {
-      res.vulnerabilities = res.vulnerabilities.map((vuln) => {
-        const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
-        if (dockerfilePackage) {
-          vuln.dockerfileInstruction = dockerfilePackage.instruction;
-        }
-        vuln.dockerBaseImage = res.docker.baseImage;
-        return vuln;
-      });
-    }
-
-    if (options.docker && options.file && options['exclude-base-image-vulns']) {
-      res.vulnerabilities = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
-    }
-
-    res.uniqueCount = countUniqueVulns(res.vulnerabilities);
-
-    return res;
+    return results;
   } finally {
     spinner.clear(spinnerLbl)();
   }
@@ -134,7 +138,7 @@ function sendPayload(payload, hasDevDependencies): Promise<any> {
   });
 }
 
-function assemblePayload(root: string, options, policyLocations: string[]): Promise<Payload> {
+function assemblePayload(root: string, options, policyLocations: string[]): Promise<Payload[]> {
   let isLocal;
   if (options.docker) {
     isLocal = true;
@@ -151,7 +155,34 @@ function assemblePayload(root: string, options, policyLocations: string[]): Prom
   return assembleRemotePayload(root, options);
 }
 
-async function assembleLocalPayload(root, options, policyLocations): Promise<Payload> {
+interface PluginMetadata {
+  name: string;
+  packageFormatVersion?: string;
+  packageManager: string;
+  imageLayers?: any;
+}
+
+interface DepDict {
+  [name: string]: DepTree;
+}
+
+interface DepTree {
+  name: string;
+  version: string;
+  dependencies?: DepDict;
+  packageFormatVersion?: string;
+  docker?: any;
+  files?: any;
+  targetFile?: string;
+}
+
+interface Package {
+  plugin: PluginMetadata;
+  package?: DepTree;
+  depRoots: DepTree[];
+}
+
+async function assembleLocalPayload(root, options, policyLocations): Promise<Payload[]> {
   options.file = options.file || detect.detectPackageFile(root);
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
@@ -160,78 +191,84 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
     pathUtil.relative('.', pathUtil.join(root, options.file || ''));
 
   try {
+    const payloads: Payload[] = [];
+
     await spinner(spinnerLbl);
-    const inspectRes = await moduleInfo.inspect(root, options.file, options);
+    const inspectRes: Package = await moduleInfo.inspect(root, options.file, options);
 
-    const pkg = inspectRes.package;
-    if (_.get(inspectRes, 'plugin.packageManager')) {
-      options.packageManager = inspectRes.plugin.packageManager;
-    }
+    const pkgs: DepTree[] = inspectRes.depRoots || [inspectRes.package];
 
-    const baseImageFromDockerfile = _.get(pkg, 'docker.baseImage');
-    if (!baseImageFromDockerfile && options['base-image']) {
-      pkg.docker = pkg.docker || {};
-      pkg.docker.baseImage = options['base-image'];
-    }
+    for (const pkg of pkgs) {
+      if (_.get(inspectRes, 'plugin.packageManager')) {
+        options.packageManager = inspectRes.plugin.packageManager;
+      }
 
-    if (baseImageFromDockerfile && inspectRes.plugin.imageLayers) {
-      analytics.add('BaseImage', baseImageFromDockerfile);
-      analytics.add('imageLayers', inspectRes.plugin.imageLayers);
-    }
+      const baseImageFromDockerfile = _.get(pkg, 'docker.baseImage');
+      if (!baseImageFromDockerfile && options['base-image']) {
+        pkg.docker = pkg.docker || {};
+        pkg.docker.baseImage = options['base-image'];
+      }
 
-    if (_.get(pkg, 'files.gemfileLock.contents')) {
-      const gemfileLockBase64 = pkg.files.gemfileLock.contents;
-      const gemfileLockContents = Buffer.from(gemfileLockBase64, 'base64').toString();
-      pkg.dependencies = gemfileLockToDependencies(gemfileLockContents);
-    }
+      if (baseImageFromDockerfile && inspectRes.plugin.imageLayers) {
+        analytics.add('BaseImage', baseImageFromDockerfile);
+        analytics.add('imageLayers', inspectRes.plugin.imageLayers);
+      }
 
-    const depGraph = await depGraphLib.legacy.depTreeToGraph(
-      pkg, options.packageManager);
+      if (_.get(pkg, 'files.gemfileLock.contents')) {
+        const gemfileLockBase64 = pkg.files.gemfileLock.contents;
+        const gemfileLockContents = Buffer.from(gemfileLockBase64, 'base64').toString();
+        pkg.dependencies = gemfileLockToDependencies(gemfileLockContents);
+      }
 
-    analytics.add('policies', policyLocations.length);
-    analytics.add('packageManager', options.packageManager);
-    analytics.add('packageName', pkg.name);
-    analytics.add('packageVersion', pkg.version);
-    analytics.add('package', pkg.name + '@' + pkg.version);
+      const depGraph = await depGraphLib.legacy.depTreeToGraph(
+        pkg, options.packageManager);
 
-    let policy;
-    if (policyLocations.length > 0) {
-      try {
-        policy = await snyk.policy.load(policyLocations, options);
-      } catch (err) {
-        // note: inline catch, to handle error from .load
-        //   if the .snyk file wasn't found, it is fine
-        if (err.code !== 'ENOENT') {
-          throw err;
+      analytics.add('policies', policyLocations.length);
+      analytics.add('packageManager', options.packageManager);
+      analytics.add('packageName', pkg.name);
+      analytics.add('packageVersion', pkg.version);
+      analytics.add('package', pkg.name + '@' + pkg.version);
+
+      let policy;
+      if (policyLocations.length > 0) {
+        try {
+          policy = await snyk.policy.load(policyLocations, options);
+        } catch (err) {
+          // note: inline catch, to handle error from .load
+          //   if the .snyk file wasn't found, it is fine
+          if (err.code !== 'ENOENT') {
+            throw err;
+          }
         }
       }
+
+      const payload: Payload = {
+        method: 'POST',
+        url: config.API + '/test-dep-graph',
+        json: true,
+        headers: {
+          'x-is-ci': isCI,
+          'authorization': 'token ' + (snyk as any).api,
+        },
+        qs: common.assembleQueryString(options),
+        body: {
+          depGraph,
+          targetFile: pkg.targetFile || options.file,
+          projectNameOverride: options.projectName,
+          policy: policy && policy.toString(),
+          docker: pkg.docker,
+        },
+      };
+
+      payloads.push(payload);
     }
-
-    const payload: Payload = {
-      method: 'POST',
-      url: config.API + '/test-dep-graph',
-      json: true,
-      headers: {
-        'x-is-ci': isCI,
-        'authorization': 'token ' + (snyk as any).api,
-      },
-      qs: common.assembleQueryString(options),
-      body: {
-        depGraph,
-        targetFile: pkg.targetFile || options.file,
-        projectNameOverride: options.projectName,
-        policy: policy && policy.toString(),
-        docker: pkg.docker,
-      },
-    };
-
-    return payload;
+    return payloads;
   } finally {
     spinner.clear(spinnerLbl)();
   }
 }
 
-async function assembleRemotePayload(root, options): Promise<Payload> {
+async function assembleRemotePayload(root, options): Promise<Payload[]> {
   const pkg = moduleToObject(root);
   debug('testing remote: %s', pkg.name + '@' + pkg.version);
   analytics.add('packageName', pkg.name);
@@ -249,7 +286,7 @@ async function assembleRemotePayload(root, options): Promise<Payload> {
     },
   };
   payload.qs = common.assembleQueryString(options);
-  return payload;
+  return [payload];
 }
 
 function countUniqueVulns(vulns: AnnotatedIssue[]): number {
