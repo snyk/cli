@@ -2140,6 +2140,56 @@ test('`monitor pip-app --file=requirements.txt`', async (t) => {
     }], 'calls python plugin');
 });
 
+test('`monitor gradle-app`', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {},
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  await cli.monitor('gradle-app');
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/gradle', 'puts at correct url');
+  t.same(spyPlugin.getCall(0).args,
+    ['gradle-app', 'build.gradle', {
+      args: null,
+    }], 'calls gradle plugin');
+});
+
+test('`monitor gradle-app --scan-all-subprojects`', async (t) => {
+  t.plan(2);
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {},
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  try {
+    await cli.monitor('gradle-app', {'scan-all-subprojects': true});
+  } catch (e) {
+    t.contains(e, /not supported/);
+  }
+
+  t.true(spyPlugin.notCalled, "`inspect` method wasn't called");
+});
+
 test('`monitor golang-app --file=Gopkg.lock', async (t) => {
   chdirWorkspaces();
   const plugin = {

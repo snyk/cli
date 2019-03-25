@@ -35,6 +35,10 @@ function monitor() {
     snyk.id = options.id;
   }
 
+  if (options['scan-all-subprojects']) {
+    throw new Error('`--scan-all-subprojects` is currently not supported for `snyk monitor`');
+  }
+
   return apiTokenExists('snyk monitor')
     .then(function () {
       return args.reduce(function (acc, path) {
