@@ -1594,26 +1594,6 @@ test('`test foo:latest --docker --file=Dockerfile remediation advice`', async (t
   }
 });
 
-test('`test foo:latest --docker --file=Dockerfile --exclude-base-image-vulns`', async (t) => {
-  stubDockerPluginResponse('./fixtures/docker/plugin-multiple-deps', t);
-  const vulns = require('./fixtures/docker/find-result-remediation.json');
-  server.setNextResponse(vulns);
-
-  try {
-    await cli.test('foo:latest', {
-      docker: true,
-      org: 'explicit-org',
-      file: 'Dockerfile',
-      'exclude-base-image-vulns': true,
-    });
-    t.fail('should have found vuln');
-
-  } catch (err) {
-    t.notMatch(err.message, /introduced by your base image/i, 'should exclude base image vulns');
-    t.match(err.message, /introduced in your dockerfile/i, 'should include vulns introduced by dockerfile');
-  }
-});
-
 test('`test foo:latest --docker` doesnt collect policy from cwd', async (t) => {
   chdirWorkspaces('npm-package-policy');
   const spyPlugin = stubDockerPluginResponse({
