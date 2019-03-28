@@ -620,7 +620,13 @@ test('`test nuget-app-2 auto-detects project.assets.json`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+        return {
+          package: {},
+          plugin: {
+            name: 'snyk-nuget-plugin',
+            targetFile: 'project.assets.json',
+          },
+        };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -652,7 +658,13 @@ test('`test nuget-app-2.1 auto-detects obj/project.assets.json`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+        return {
+          package: {},
+          plugin: {
+            name: 'snyk-nuget-plugin',
+            targetFile: 'obj/project.assets.json',
+          },
+        };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -684,7 +696,14 @@ test('`test nuget-app-4 auto-detects packages.config`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+        return {
+          package: {},
+          plugin: {
+            name: 'snyk-nuget-plugin',
+            targetFile: 'paket.dependencies',
+            targetRuntime: 'net465s',
+          },
+        };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -716,7 +735,14 @@ test('`test paket-app auto-detects paket.dependencies`', async (t) => {
     chdirWorkspaces();
     const plugin = {
         async inspect() {
-            return {package: {}};
+            return {
+              package: {},
+              plugin: {
+                name: 'snyk-nuget-plugin',
+                targetFile: 'paket.dependencies',
+                targetRuntime: 'net465s',
+              },
+            };
         },
     };
     const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -747,9 +773,16 @@ test('`test paket-app auto-detects paket.dependencies`', async (t) => {
 test('`test paket-obj-app auto-detects obj/project.assets.json if exists`', async (t) => {
     chdirWorkspaces();
     const plugin = {
-        async inspect() {
-            return {package: {}};
-        },
+      async inspect() {
+          return {
+            package: {},
+            plugin: {
+              name: 'snyk-nuget-plugin',
+              targetFile: 'paket.dependencies',
+              targetRuntime: 'net465s',
+            },
+          };
+      },
     };
     const spyPlugin = sinon.spy(plugin, 'inspect');
 
@@ -1049,7 +1082,14 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {
+        plugin: {
+          targetFile: 'Pipfile',
+          name: 'snyk-python-plugin',
+          runtime: 'Python',
+        },
+        package: {},
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1066,6 +1106,7 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.targetFile, 'Pipfile', 'specifies target');
   t.equal(req.body.depGraph.pkgManager.name, 'pip');
   t.same(spyPlugin.getCall(0).args,
     ['pipenv-app', 'Pipfile', {
@@ -1082,7 +1123,14 @@ test('`test nuget-app --file=project.assets.json`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+        return {
+          package: {},
+          plugin: {
+            name: 'snyk-nuget-plugin',
+            targetFile: 'project.assets.json',
+            targetRuntime: 'net465s',
+          },
+        };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1099,6 +1147,7 @@ test('`test nuget-app --file=project.assets.json`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.targetFile, 'project.assets.json', 'specifies target');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
   t.same(spyPlugin.getCall(0).args,
     ['nuget-app', 'project.assets.json', {
@@ -1115,7 +1164,14 @@ test('`test nuget-app --file=packages.config`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+        return {
+          package: {},
+          plugin: {
+            name: 'snyk-nuget-plugin',
+            targetFile: 'packages.config',
+            targetRuntime: 'net465s',
+          },
+        };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1132,6 +1188,7 @@ test('`test nuget-app --file=packages.config`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.targetFile, 'packages.config', 'specifies target');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
   t.same(spyPlugin.getCall(0).args,
     ['nuget-app', 'packages.config', {
@@ -1165,6 +1222,7 @@ test('`test nuget-app --file=project.json`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.targetFile, 'project.json', 'specifies target');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
   t.same(spyPlugin.getCall(0).args,
     ['nuget-app', 'project.json', {
@@ -1180,9 +1238,16 @@ test('`test nuget-app --file=project.json`', async (t) => {
 test('`test paket-app --file=paket.dependencies`', async (t) => {
     chdirWorkspaces();
     const plugin = {
-        async inspect() {
-            return {package: {}};
-        },
+      async inspect() {
+          return {
+            package: {},
+            plugin: {
+              name: 'snyk-nuget-plugin',
+              targetFile: 'paket.dependencies',
+              targetRuntime: 'net465s',
+            },
+          };
+      },
     };
     const spyPlugin = sinon.spy(plugin, 'inspect');
 
@@ -1199,6 +1264,7 @@ test('`test paket-app --file=paket.dependencies`', async (t) => {
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, '/test-dep-graph', 'posts to correct url');
     t.equal(req.body.depGraph.pkgManager.name, 'paket');
+    t.equal(req.body.targetFile, 'paket.dependencies', 'specifies target');
     t.same(spyPlugin.getCall(0).args,
         ['paket-app', 'paket.dependencies', {
             args: null,
@@ -1232,6 +1298,7 @@ test('`test golang-app --file=Gopkg.lock`', async (t) => {
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'golangdep');
+  t.equal(req.body.targetFile, 'Gopkg.lock', 'specifies target');
   t.same(spyPlugin.getCall(0).args,
     ['golang-app', 'Gopkg.lock', {
       args: null,
@@ -1265,6 +1332,7 @@ test('`test golang-app --file=vendor/vendor.json`', async (t) => {
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'govendor');
+  t.equal(req.body.targetFile, 'vendor/vendor.json', 'specifies target');
   t.same(spyPlugin.getCall(0).args,
     ['golang-app', 'vendor/vendor.json', {
       args: null,
@@ -1296,6 +1364,7 @@ test('`test golang-app` auto-detects golang/dep', async (t) => {
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'golangdep');
+  t.equal(req.body.targetFile, 'Gopkg.lock', 'specifies target');
   t.same(spyPlugin.getCall(0).args,
     ['golang-app', 'Gopkg.lock', {
       args: null,
@@ -1995,6 +2064,7 @@ test('`monitor npm-package`', async (t) => {
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm', 'puts at correct url');
   t.ok(pkg.dependencies.debug, 'dependency');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.notOk(pkg.dependencies['object-assign'],
     'no dev dependency');
   t.notOk(pkg.from, 'no "from" array on root');
@@ -2010,6 +2080,7 @@ test('`monitor yarn-package`', async (t) => {
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/yarn', 'puts at correct url');
   t.ok(pkg.dependencies.debug, 'dependency');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.notOk(pkg.dependencies['object-assign'],
     'no dev dependency');
   t.notOk(pkg.from, 'no "from" array on root');
@@ -2043,6 +2114,7 @@ test('`monitor yarn-package with dev dep flag`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/yarn', 'puts at correct url');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.ok(req.body.package.dependencies.debug, 'dependency');
   t.ok(req.body.package.dependencies['object-assign'],
     'includes dev dependency');
@@ -2054,7 +2126,7 @@ test('`monitor ruby-app`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/rubygems', 'puts at correct url');
-  t.equal(req.body.package.targetFile, 'Gemfile', 'specifies target');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.match(decode64(req.body.package.files.gemfileLock.contents),
     'remote: http://rubygems.org/', 'attaches Gemfile.lock');
 });
@@ -2105,6 +2177,7 @@ test('`monitor yarn-app`', async (t) => {
     'marked', 'marked dep name');
   t.equal(pkg.dependencies.marked.version,
     '0.3.6', 'marked dep version');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.notOk(pkg.from, 'no "from" array on root');
   t.notOk(pkg.dependencies.marked.from,
     'no "from" array on dep');
@@ -2115,7 +2188,10 @@ test('`monitor pip-app --file=requirements.txt`', async (t) => {
   const plugin = {
     async inspect() {
       return {
-        plugin: {},
+        plugin: {
+          name: 'snyk-python-plugin',
+          runtime: 'Python',
+        },
         package: {},
       };
     },
@@ -2132,6 +2208,7 @@ test('`monitor pip-app --file=requirements.txt`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/pip', 'puts at correct url');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.same(spyPlugin.getCall(0).args,
     ['pip-app', 'requirements.txt', {
       args: null,
@@ -2146,6 +2223,8 @@ test('`monitor golang-app --file=Gopkg.lock', async (t) => {
       return {
         plugin: {
           targetFile: 'Gopkg.lock',
+          name: 'snyk-go-plugin',
+          runtime: 'go',
         },
         package: {},
       };
@@ -2178,6 +2257,8 @@ test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
       return {
         plugin: {
           targetFile: 'vendor/vendor.json',
+          name: 'snyk-go-plugin',
+          runtime: 'go',
         },
         package: {},
       };
