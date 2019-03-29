@@ -67,10 +67,6 @@ async function runTest(packageManager: string, root: string, options): Promise<o
       });
     }
 
-    if (options.docker && options.file && options['exclude-base-image-vulns']) {
-      res.vulnerabilities = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
-    }
-
     res.uniqueCount = countUniqueVulns(res.vulnerabilities);
 
     return res;
