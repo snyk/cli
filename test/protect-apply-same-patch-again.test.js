@@ -32,8 +32,8 @@ const patch = proxyquire('../src/lib/protect/patch', {
 });
 
 test('setup', (t) => {
-  fs.createReadStream(fixturesModuleFolder + '/node-fixture.js')
-  .pipe(fs.createWriteStream(fixturesModuleFolder + '/node.js'));
+  var fixture = fs.readFileSync(fixturesModuleFolder + '/node-fixture.js');
+  fs.writeFileSync(fixturesModuleFolder + '/node.js', fixture);
   t.pass();
   t.end();
 });
@@ -44,13 +44,13 @@ test('Same patch is applied multiple times without issue', (t) => {
     fs.readdir(fixturesBaseFolder, (err, fileNames) => {
       const fixturesBaseFolderFiles = fileNames || [];
 
-      if (err || fixturesBaseFolderFiles.length == 0) {
+      if (err || fixturesBaseFolderFiles.length === 0) {
         console.log(`ERROR: Could not remove the .snyk-***.flag | ${err}`);
         return;
       }
 
       fixturesBaseFolderFiles.forEach((file) => {
-        const flagMatch = file.match(/\.snyk.*\.flag/)
+        const flagMatch = file.match(/\.snyk.*\.flag/);
         if (flagMatch) {
           fs.unlink(fixturesBaseFolder + file);
         }
@@ -60,7 +60,7 @@ test('Same patch is applied multiple times without issue', (t) => {
     fs.readdir(fixturesModuleFolder, (err, fileNames) => {
       const fixturesModuleFolderFiles = fileNames || [];
 
-      if (err || fixturesModuleFolderFiles.length == 0) {
+      if (err || fixturesModuleFolderFiles.length === 0) {
         return;
       }
 
@@ -100,5 +100,5 @@ test('Same patch is applied multiple times without issue', (t) => {
       t.pass();
       t.end();
     })
-    .catch(t.threw);
+    .catch(t.fail);
 });

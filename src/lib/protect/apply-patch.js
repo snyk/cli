@@ -8,7 +8,7 @@ var fs = require('fs');
 var uuid = require('uuid/v4');
 var errorAnalytics = require('../analytics').single;
 
-function applyPatch(patch, vuln, live, patchUrl) {
+function applyPatch(patchFileName, vuln, live, patchUrl) {
   var cwd = vuln.source;
 
   return new Promise(function (resolve, reject) {
@@ -27,7 +27,7 @@ function applyPatch(patch, vuln, live, patchUrl) {
       debug('Failed loading package.json of package about to be patched', err);
     }
 
-    var patchContent = fs.readFileSync(path.resolve(relative, patch), 'utf8');
+    var patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
 
     jsDiff(patchContent, relative, live).then(function () {
       debug('patch succeed');
@@ -49,7 +49,15 @@ function jsDiff(patchContent, relative, live) {
           if (patchedFiles[fileName]) {
             return callback(null, patchedFiles[fileName]);
           }
-          var content = fs.readFileSync(path.resolve(relative, fileName), 'utf8');
+
+          var filePath = path.resolve(relative, fileName);
+          var content = fs.readFileSync(filePath, 'utf8');
+
+          // create an `.orig` copy of the file prior to patching it
+          // used in case we need to revert a patch
+          var origFilePath = filePath + '.orig';
+          fs.writeFileSync(origFilePath, content);
+
           callback(null, content);
         } catch (err) {
           // collect patch metadata for error analysis
@@ -92,7 +100,7 @@ function jsDiff(patchContent, relative, live) {
         }
         try {
           // write patched files back to disk, unlink files completely removed by patching
-          for (var fileName of patchedFiles) {
+          for (var fileName in patchedFiles) {
             if (typeof patchedFiles[fileName] === 'string') {
               fs.writeFileSync(path.resolve(relative, fileName), patchedFiles[fileName]);
             } else {
