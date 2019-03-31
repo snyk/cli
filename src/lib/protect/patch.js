@@ -72,15 +72,17 @@ function patch(vulns, live) {
                     return reject(error);
                   }
 
-                  resolve(Promise.all(files.filter(function (file) {
+                  var origFiles = files.filter(function (file) {
                     return file.slice(-5) === '.orig';
-                  }).map(function (file) {
-                    return fs.rename(file, path.dirname(file) + '/' +
+                  });
+
+                  for (var file of origFiles) {
+                    fs.renameSync(file, path.dirname(file) + '/' +
                       path.basename(file).slice(0, -5));
-                  })));
+                  }
+
+                  resolve(patch);
                 });
-              }).then(function () {
-                return patch;
               });
             });
           }).then(function (patch) {
