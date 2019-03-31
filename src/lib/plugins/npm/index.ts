@@ -3,22 +3,10 @@ import * as fs from 'then-fs';
 import * as _ from 'lodash';
 import {buildDepTree, PkgTree, LockfileType} from 'snyk-nodejs-lockfile-parser';
 import * as snyk from '../../';
+import * as types from '../types';
 
-interface Options {
-  traverseNodeModules?: boolean;
-  dev?: boolean;
-  strictOutOfSync?: boolean | 'true' | 'false';
-}
-
-interface InspectResult {
-  plugin: {
-    name: string;
-    runtime: string;
-  };
-  package: PkgTree;
-}
-
-export async function inspect(root: string, targetFile: string, options: Options = {}): Promise<InspectResult> {
+export async function inspect(root: string, targetFile: string, options: types.Options = {}):
+  Promise<types.InspectResult> {
   const isLockFileBased = targetFile.endsWith('package-lock.json');
   const targetFileFullPath = path.resolve(root, targetFile);
   const isShrinkwrapPresent = await fs.exists(path.join(path.dirname(targetFileFullPath), 'npm-shrinkwrap.json'));
@@ -43,7 +31,8 @@ export async function inspect(root: string, targetFile: string, options: Options
   };
 }
 
-async function generateDependenciesFromLockfile(root: string, targetFile: string, options: Options): Promise<PkgTree> {
+async function generateDependenciesFromLockfile(root: string, targetFile: string, options: types.Options):
+  Promise<PkgTree> {
   const lockFileFullPath = path.resolve(root, targetFile);
 
   if (!await fs.exists(lockFileFullPath)) {

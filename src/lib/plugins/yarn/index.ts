@@ -4,24 +4,11 @@ import * as _ from 'lodash';
 import * as Debug from 'debug';
 import {buildDepTree, PkgTree, LockfileType} from 'snyk-nodejs-lockfile-parser';
 import * as snyk from '../../';
+import * as types from '../types';
 
 const debug = Debug('snyk');
 
-interface Options {
-  traverseNodeModules?: boolean;
-  dev?: boolean;
-  strictOutOfSync?: boolean | 'true' | 'false';
-}
-
-interface InspectResult {
-  plugin: {
-    name: string;
-    runtime: string;
-  };
-  package: PkgTree;
-}
-
-export async function inspect(root, targetFile, options: Options = {}): Promise<InspectResult> {
+export async function inspect(root, targetFile, options: types.Options = {}): Promise<types.InspectResult> {
   const isLockFileBased = targetFile.endsWith('yarn.lock');
   const targetFileFullPath = path.resolve(root, targetFile);
   const isShrinkwrapPresent = await fs.exists(path.join(path.dirname(targetFileFullPath), 'npm-shrinkwrap.json'));

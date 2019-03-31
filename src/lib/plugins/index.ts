@@ -9,27 +9,9 @@ import * as pythonPlugin from 'snyk-python-plugin';
 import * as goPlugin from 'snyk-go-plugin';
 import * as nugetPlugin from 'snyk-nuget-plugin';
 import * as phpPlugin from 'snyk-php-plugin';
+import * as types from './types';
 
-interface InspectResult {
-  plugin: {
-    name: string;
-    runtime: string;
-  };
-  package: any;
-}
-
-interface Options {
-  docker?: boolean;
-  traverseNodeModules?: boolean;
-  dev?: boolean;
-  strictOutOfSync?: boolean | 'true' | 'false';
-}
-
-interface Plugin {
-  inspect: (root: string, targetFile: string, options?: Options) => Promise<InspectResult>;
-}
-
-export function loadPlugin(packageManager: string, options: Options = {}): Plugin {
+export function loadPlugin(packageManager: string, options: types.Options = {}): types.Plugin {
   if (options.docker) {
     return dockerPlugin;
   }
