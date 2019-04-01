@@ -1,9 +1,12 @@
 sudo: false
 language: node_js
+os:
+  - linux
+  - windows
 node_js:
-  - "10"
+  # - "10"
   - "8"
-  - "6"
+  # - "6"
 cache:
   directories:
     - node_modules
@@ -27,6 +30,7 @@ jobs:
     - stage: Release
       if: branch = master AND type != pull_request
       node_js: "8"
+      os: linux
       script:
       - npm i -g semantic-release @semantic-release/exec && semantic-release
 branches:
