@@ -1,10 +1,7 @@
 import {inspectors, Spec} from './inspectors';
+import * as types from '../types';
 
-interface InspectResult {
-  plugin: {
-    name: string;
-    runtime: string;
-  };
+interface RubyGemsInspectResult extends types.InspectResult {
   package: {
     name: string;
     targetFile: string;
@@ -12,7 +9,7 @@ interface InspectResult {
   };
 }
 
-export async function inspect(root: string, targetFile: string): Promise<InspectResult> {
+export async function inspect(root: string, targetFile: string): Promise<RubyGemsInspectResult> {
   const specs = await gatherSpecs(root, targetFile);
 
   return {
