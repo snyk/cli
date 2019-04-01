@@ -109,32 +109,6 @@ test('`docker suggestion: with Dockerfile + disableSuggestions=true`', function 
     });
 });
 
-test('`docker suggestion: with Dockerfile + no disableSuggestions`', function (t) {
-  delete config.disableSuggestions;
-  chdirWorkspaces('dockerfile-dir');
-  return cli.test('empty', {file: 'Gemfile'})
-    .then(function (ret) {
-      t.pass('test passed');
-      t.includes(ret, 'Consider using Snyk to scan your docker images.',
-        'shows suggestion');
-    }).catch(function () {
-      t.fail('should not have failed');
-    });
-});
-
-test('`docker suggestion: with Dockerfile + disableSuggestions=false`', function (t) {
-  config.disableSuggestions = 'false';
-  chdirWorkspaces('dockerfile-dir');
-  return cli.test('empty', {file: 'Gemfile'})
-    .then(function (ret) {
-      t.pass('test passed');
-      t.includes(ret, 'Consider using Snyk to scan your docker images.',
-        'shows suggestion');
-    }).catch(function () {
-      t.fail('should not have failed');
-    });
-});
-
 // @later: try and remove this config stuff
 // Was copied straight from ../src/cli-server.js
 after('teardown', function (t) {
