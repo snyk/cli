@@ -551,7 +551,7 @@ test('`test gradle-app` returns correct meta', async (t) => {
     'local policy not displayed');
 });
 
-test('`test gradle-app --all-sub-projects` returns sends `multiDepRoots` argument to plugin', async (t) => {
+test('`test gradle-app --all-sub-projects` sends `multiDepRoots` argument to plugin', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -601,13 +601,13 @@ test('`test gradle-app --all-sub-projects` returns correct multi tree meta', asy
         depRoots: [
           {
             depTree: {
-              name: 'tree1',
+              name: 'tree0',
               version: '1.0.0',
               dependencies: {dep1: {name: 'dep1', version: '1'}},
             },
           }, {
             depTree: {
-              name: 'tree2',
+              name: 'tree1',
               version: '2.0.0',
               dependencies: {dep1: {name: 'dep2', version: '2'}},
             },
@@ -627,15 +627,17 @@ test('`test gradle-app --all-sub-projects` returns correct multi tree meta', asy
   const tests = res.split('Testing gradle-app...').filter((s) => !!s.trim());
   t.equals(tests.length, 2, 'two projects tested independently');
   t.match(res, /Tested 2 projects/, 'number projects tested displayed properly');
-  for (const tst of tests) {
-    const meta = tst.slice(tst.indexOf('Organisation:')).split('\n');
+  for (let i = 0; i < tests.length; i++) {
+    const meta = tests[i].slice(tests[i].indexOf('Organisation:')).split('\n');
     t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
     t.match(meta[1], /Package manager:\s+gradle/,
       'package manager displayed');
     t.match(meta[2], /Target file:\s+build.gradle/, 'target file displayed');
-    t.match(meta[3], /Open source:\s+no/, 'open source displayed');
-    t.match(meta[4], /Project path:\s+gradle-app/, 'path displayed');
-    t.notMatch(meta[5], /Local Snyk policy:\s+found/,
+    t.match(meta[3], /Sub project:\s+tree/, 'subproject displayed');
+    t.includes(meta[3], `tree${i}`, 'subproject displayed');
+    t.match(meta[4], /Open source:\s+no/, 'open source displayed');
+    t.match(meta[5], /Project path:\s+gradle-app/, 'path displayed');
+    t.notMatch(meta[6], /Local Snyk policy:\s+found/,
       'local policy not displayed');
   }
 });

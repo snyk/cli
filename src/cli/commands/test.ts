@@ -80,14 +80,20 @@ async function test(...args) {
     }
 
     // Not all test results are arrays in order to be backwards compatible
-    // with sctripts that use a callback with test. Coerce results/errors to be arrays
+    // with scripts that use a callback with test. Coerce results/errors to be arrays
     // and add the result options to each to be displayed
-    if (!Array.isArray(res)) {
-      res = [res];
-    }
-    for (const r of res) {
-      results.push(_.assign(r, {path}));
-      resultOptions.push(testOpts);
+    const resArray: any[] = Array.isArray(res) ? res : [res];
+
+    for (let i = 0; i < resArray.length; i++) {
+      results.push(_.assign(resArray[i], {path}));
+      // currently testOpts are identical for each test result returned even if it's for multiple projects.
+      // we want to return the project names, so will need to be crafty in a way that makes sense.
+      if (!testOpts.subProjectNames) {
+        resultOptions.push(testOpts);
+      } else {
+        resultOptions.push(_.assign(_.cloneDeep(testOpts),
+          {subProjectName: testOpts.subProjectNames[i]}));
+      }
     }
   }
 
@@ -519,6 +525,9 @@ function metaForDisplay(res, options) {
   ];
   if (options.file) {
     meta.push(chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + options.file);
+  }
+  if (options.subProjectName) {
+    meta.push(chalk.bold(rightPadWithSpaces('Sub project: ', padToLength)) + options.subProjectName);
   }
   if (options.docker) {
     meta.push(chalk.bold(rightPadWithSpaces('Docker image: ', padToLength)) + options.path);

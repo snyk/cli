@@ -48,7 +48,7 @@ function executeTest(root, options) {
 function run(root, options) {
   var packageManager = options.packageManager;
   if (['npm', 'yarn'].indexOf(packageManager) >= 0) {
-    return require('./npm')(root, options);
+    return require('./npm')(root, options).then((res) => [res]);
   }
   if (!options.docker && [
     'rubygems',

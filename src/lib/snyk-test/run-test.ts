@@ -125,7 +125,6 @@ async function runTest(packageManager: string, root: string, options): Promise<o
       }
 
       res.uniqueCount = countUniqueVulns(res.vulnerabilities);
-
       results.push(res);
     }
     return results;
@@ -210,6 +209,8 @@ async function getDepsFromPlugin(root, options): Promise<MultiRootsPackage> {
       inspectRes.package.targetFile = inspectRes.plugin.targetFile;
     }
     inspectRes.depRoots = [{depTree: inspectRes.package}];
+  } else {
+    options.subProjectNames = inspectRes.depRoots.map((depRoot) => depRoot.depTree.name);
   }
 
   return {
@@ -289,6 +290,7 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
           projectNameOverride: options.projectName,
           policy: policy && policy.toString(),
           docker: pkg.docker,
+
         },
       };
 
