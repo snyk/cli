@@ -67,15 +67,16 @@ function patch(vulns, live) {
               ' | Restoring file back to original to apply the patch again');
               // else revert the patch
               return new Promise(function (resolve, reject) {
-                glob('**/*.orig', {cwd: vuln.source}, function (error, files) {
+                // find all backup files that do not belong to transitive deps
+                glob('**/*.orig', {cwd: vuln.source, ignore: '**/node_modules/**'}, function (error, files) {
                   if (error) {
                     return reject(error);
                   }
 
                   // copy '.orig' backups over the patched files
-                  for (var file of files) {
-                    var backupFile = path.resolve(vuln.source, file);
-                    var sourceFile = backupFile.slice(0, -'.orig'.length);
+                  for (const file of files) {
+                    const backupFile = path.resolve(vuln.source, file);
+                    const sourceFile = backupFile.slice(0, -'.orig'.length);
                     debug('restoring', backupFile, sourceFile);
                     fs.renameSync(backupFile, sourceFile);
                   }
