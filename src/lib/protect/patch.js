@@ -4,7 +4,7 @@ var now = new Date();
 
 var debug = require('debug')('snyk');
 var chalk = require('chalk');
-var recursive = require('recursive-readdir');
+var glob = require('glob');
 var tempfile = require('tempfile');
 var fs = require('then-fs');
 var path = require('path');
@@ -67,18 +67,17 @@ function patch(vulns, live) {
               ' | Restoring file back to original to apply the patch again');
               // else revert the patch
               return new Promise(function (resolve, reject) {
-                recursive(vuln.source, function (error, files) {
+                glob('**/*.orig', {cwd: vuln.source}, function (error, files) {
                   if (error) {
                     return reject(error);
                   }
 
-                  var origFiles = files.filter(function (file) {
-                    return file.slice(-5) === '.orig';
-                  });
-
-                  for (var file of origFiles) {
-                    fs.renameSync(file, path.dirname(file) + '/' +
-                      path.basename(file).slice(0, -5));
+                  // copy '.orig' backups over the patched files
+                  for (var file of files) {
+                    var backupFile = path.resolve(vuln.source, file);
+                    var sourceFile = backupFile.slice(0, -'.orig'.length);
+                    debug('restoring', backupFile, sourceFile);
+                    fs.renameSync(backupFile, sourceFile);
                   }
 
                   resolve(patch);

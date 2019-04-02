@@ -12,7 +12,7 @@ var writeSpy = sinon.spy();
 
 // main proxy
 var patch = proxyquire('../src/lib/protect/patch', {
-  'recursive-readdir': function (source, cb) {
+  'glob': function (pattern, options, cb) {
     cb(null, ['uglify.js.orig']);
   },
   './get-vuln-source': function () {
