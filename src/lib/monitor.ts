@@ -1,34 +1,67 @@
 module.exports = monitor;
 
-var snyk = require('../lib');
-var apiTokenExists = require('./api-token').exists;
-var request = require('./request');
-var config = require('./config');
-var os = require('os');
-var _ = require('lodash');
-var isCI = require('./is-ci');
-var analytics = require('./analytics');
+import * as snyk from '../lib';
+import {exists as apiTokenExists} from './api-token';
+import * as request from './request';
+import * as config from './config';
+import * as os from 'os';
+import * as _ from 'lodash';
+import * as isCI from './is-ci';
+import * as analytics from './analytics';
+
+export class MonitorError extends Error {
+  public code?: number;
+  public userMessage?: string;
+}
+
+// TODO(kyegupov): clean up the type, move to snyk-cli-interface repository
+
+interface MonitorBody {
+  meta: Meta;
+  policy: string;
+  package: {}; // TODO(kyegupov): DepTree
+  targetFile: string;
+}
+
+interface Meta {
+  method?: string;
+  hostname: string;
+  id: string;
+  ci: boolean;
+  pid: number;
+  node: string;
+  master: boolean;
+  name: string;
+  version: string;
+  org?: string;
+  pluginName: string;
+  pluginRuntime: string;
+  dockerImageId?: string;
+  dockerBaseImage?: string;
+  projectName: string;
+}
 
 function monitor(root, meta, info) {
-  var pkg = info.package;
-  var pluginMeta = info.plugin;
-  var policyPath = meta['policy-path'];
+  const pkg = info.package;
+  const pluginMeta = info.plugin;
+  let policyPath = meta['policy-path'];
   if (!meta.isDocker) {
     policyPath = policyPath || root;
   }
-  var policyLocations = [policyPath].concat(pluckPolicies(pkg))
+  const policyLocations = [policyPath].concat(pluckPolicies(pkg))
     .filter(Boolean);
-  var opts = {loose: true};
-  var packageManager = meta.packageManager || 'npm';
+  const opts = {loose: true};
+  const packageManager = meta.packageManager || 'npm';
   return apiTokenExists('snyk monitor')
-    .then(function () {
+    .then(() => {
       if (policyLocations.length === 0) {
         return snyk.policy.create();
       }
       return snyk.policy.load(policyLocations, opts);
-    }).then(function (policy) {
+    }).then((policy) => {
       analytics.add('packageManager', packageManager);
-      return new Promise(function (resolve, reject) {
+      // TODO(kyegupov): async/await
+      return new Promise((resolve, reject) => {
         request({
           body: {
             meta: {
@@ -53,16 +86,16 @@ function monitor(root, meta, info) {
             // we take the targetFile from the plugin,
             // because we want to send it only for specific package-managers
             targetFile: pluginMeta.targetFile,
-          },
+          } as MonitorBody,
           gzip: true,
           method: 'PUT',
           headers: {
-            authorization: 'token ' + snyk.api,
+            'authorization': 'token ' + snyk.api,
             'content-encoding': 'gzip',
           },
           url: config.API + '/monitor/' + packageManager,
           json: true,
-        }, function (error, res, body) {
+        }, (error, res, body) => {
           if (error) {
             return reject(error);
           }
@@ -70,7 +103,7 @@ function monitor(root, meta, info) {
           if (res.statusCode === 200 || res.statusCode === 201) {
             resolve(body);
           } else {
-            var e = new Error('unexpected error: ' + body.message);
+            const e = new MonitorError('unexpected error: ' + body.message);
             e.code = res.statusCode;
             e.userMessage = body && body.userMessage;
             if (!e.userMessage && res.statusCode === 504) {
@@ -96,7 +129,7 @@ function pluckPolicies(pkg) {
     return null;
   }
 
-  return _.flatten(Object.keys(pkg.dependencies).map(function (name) {
+  return _.flatten(Object.keys(pkg.dependencies).map((name) => {
     return pluckPolicies(pkg.dependencies[name]);
   }).filter(Boolean));
 }

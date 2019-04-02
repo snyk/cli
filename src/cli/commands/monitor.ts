@@ -1,27 +1,49 @@
 module.exports = monitor;
 
-var _ = require('lodash');
-var fs = require('then-fs');
-var apiTokenExists = require('../../lib/api-token').exists;
-var snyk = require('../../lib/');
-var config = require('../../lib/config');
-var url = require('url');
-var chalk = require('chalk');
-var pathUtil = require('path');
-var spinner = require('../../lib/spinner');
+import * as _ from 'lodash';
+import * as fs from 'then-fs';
+import {exists as apiTokenExists} from '../../lib/api-token';
+import snyk = require('../../lib/'); // TODO(kyegupov): fix import
+import * as config from '../../lib/config';
+import * as url from 'url';
+import chalk from 'chalk';
+import * as pathUtil from 'path';
+import * as spinner from '../../lib/spinner';
 
-var detect = require('../../lib/detect');
-var plugins = require('../../lib/plugins');
-var ModuleInfo = require('../../lib/module-info');
-var docker = require('../../lib/docker-promotion');
-var SEPARATOR = '\n-------------------------------------------------------\n';
+import * as detect from '../../lib/detect';
+import * as plugins from '../../lib/plugins';
+import ModuleInfo = require('../../lib/module-info'); // TODO(kyegupov): fix import
+import * as docker from '../../lib/docker-promotion';
+import { MonitorError } from '../../lib/monitor';
+const SEPARATOR = '\n-------------------------------------------------------\n';
 
-function monitor() {
-  var args = [].slice.call(arguments, 0);
-  var options = {};
-  var results = [];
+interface MonitorOptions {
+  id?: string;
+  docker?: boolean;
+  file?: string;
+  policy?: string;
+  json?: boolean;
+  'all-sub-projects'?: boolean;
+}
+
+interface GoodResult {
+  ok: true;
+  data: string;
+  path: string;
+}
+
+interface BadResult {
+  ok: false;
+  data: MonitorError;
+  path: string;
+}
+
+function monitor(...args0: any[]) {
+  let args = [...args0];
+  let options: MonitorOptions = {};
+  const results: Array<GoodResult | BadResult> = [];
   if (typeof args[args.length - 1] === 'object') {
-    options = args.pop();
+    options = args.pop() as any as MonitorOptions;
   }
 
   args = args.filter(Boolean);
@@ -35,7 +57,6 @@ function monitor() {
     snyk.id = options.id;
   }
 
-
   // This is a temporary check for gradual rollout of subprojects scanning
   // TODO: delete once supported for monitor
   if (options['all-sub-projects']) {
@@ -43,102 +64,101 @@ function monitor() {
   }
 
   return apiTokenExists('snyk monitor')
-    .then(function () {
-      return args.reduce(function (acc, path) {
-        return acc.then(function () {
-          return fs.exists(path).then(function (exists) {
+    .then(() => {
+      return args.reduce((acc, path) => {
+        return acc.then(() => {
+          return fs.exists(path).then((exists) => {
             if (!exists && !options.docker) {
               throw new Error(
                 '"' + path + '" is not a valid path for "snyk monitor"');
             }
 
-            var packageManager = detect.detectPackageManager(path, options);
+            let packageManager = detect.detectPackageManager(path, options);
 
-            var targetFile = options.docker && !options.file // snyk monitor --docker (without --file)
+            const targetFile = options.docker && !options.file // snyk monitor --docker (without --file)
               ? undefined
               : (options.file || detect.detectPackageFile(path));
 
+            const plugin = plugins.loadPlugin(packageManager, options);
 
-            var plugin = plugins.loadPlugin(packageManager, options);
+            const moduleInfo = ModuleInfo(plugin, options.policy);
 
-            var moduleInfo = ModuleInfo(plugin, options.policy);
-
-            var displayPath = pathUtil.relative(
+            const displayPath = pathUtil.relative(
               '.', pathUtil.join(path, targetFile || ''));
 
-            var analysisType = options.docker ? 'docker' : packageManager;
+            const analysisType = options.docker ? 'docker' : packageManager;
 
-            var analyzingDepsSpinnerLabel =
+            const analyzingDepsSpinnerLabel =
           'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
 
-            var postingMonitorSpinnerLabel =
+            const postingMonitorSpinnerLabel =
           'Posting monitor snapshot for ' + displayPath + ' ...';
 
             return spinner(analyzingDepsSpinnerLabel)
-              .then(function () {
+              .then(() => {
                 return moduleInfo.inspect(path, targetFile, options);
               })
             // clear spinner in case of success or failure
               .then(spinner.clear(analyzingDepsSpinnerLabel))
-              .catch(function (error) {
+              .catch((error) => {
                 spinner.clear(analyzingDepsSpinnerLabel)();
                 throw error;
               })
-              .then(function (info) {
+              .then((info) => {
                 return spinner(postingMonitorSpinnerLabel)
-                  .then(function () {
+                  .then(() => {
                     return info;
                   });
               })
-              .then(function (info) {
+              .then((info) => {
                 if (_.get(info, 'plugin.packageManager')) {
                   packageManager = info.plugin.packageManager;
                 }
-                var meta = {
-                  method: 'cli',
-                  packageManager: packageManager,
+                const meta = {
+                  'method': 'cli',
+                  'packageManager': packageManager,
                   'policy-path': options['policy-path'],
                   'project-name':
-                options['project-name'] || config['PROJECT_NAME'],
-                  isDocker: !!options.docker,
+                options['project-name'] || config.PROJECT_NAME,
+                  'isDocker': !!options.docker,
                 };
-                return snyk.monitor(path, meta, info);
+                return (snyk.monitor as any as (path, meta, info) => Promise<any>)(path, meta, info);
               })
             // clear spinner in case of success or failure
               .then(spinner.clear(postingMonitorSpinnerLabel))
-              .catch(function (error) {
+              .catch((error) => {
                 spinner.clear(postingMonitorSpinnerLabel)();
                 throw error;
               })
-              .then(function (res) {
+              .then((res) => {
                 res.path = path;
-                var endpoint = url.parse(config.API);
-                var leader = '';
+                const endpoint = url.parse(config.API);
+                let leader = '';
                 if (res.org) {
                   leader = '/org/' + res.org;
                 }
                 endpoint.pathname = leader + '/manage';
-                var manageUrl = url.format(endpoint);
+                const manageUrl = url.format(endpoint);
 
                 endpoint.pathname = leader + '/monitor/' + res.id;
-                var output = formatMonitorOutput(
+                const output = formatMonitorOutput(
                   packageManager,
                   res,
                   manageUrl,
-                  options
+                  options,
                 );
                 // push a good result
-                results.push({ok: true, data: output, path: path});
+                results.push({ok: true, data: output, path});
               });
-          }).catch(function (err) {
+          }).catch((err) => {
           // push this error so the promise chain continues
-            results.push({ok: false, data: err, path: path});
+            results.push({ok: false, data: err, path});
           });
         });
       }, Promise.resolve())
-        .then(function () {
+        .then(() => {
           if (options.json) {
-            var dataToSend = results.map(function (result) {
+            let dataToSend = results.map((result) => {
               if (result.ok) {
                 return JSON.parse(result.data);
               }
@@ -146,9 +166,9 @@ function monitor() {
             });
             // backwards compat - strip array if only one result
             dataToSend = dataToSend.length === 1 ? dataToSend[0] : dataToSend;
-            var json = JSON.stringify(dataToSend, null, 2);
+            const json = JSON.stringify(dataToSend, null, 2);
 
-            if (results.every(function (res) {
+            if (results.every((res) => {
               return res.ok;
             })) {
               return json;
@@ -157,12 +177,12 @@ function monitor() {
             throw new Error(json);
           }
 
-          const output = results.map(function (res) {
+          const output = results.map((res) => {
             if (res.ok) {
               return res.data;
             }
 
-            var errorMessage = (res.data && res.data.userMessage) ?
+            const errorMessage = (res.data && res.data.userMessage) ?
               chalk.bold.red(res.data.userMessage) :
               (res.data ? res.data.message : 'Unknown error occurred.');
 
@@ -170,7 +190,7 @@ function monitor() {
               errorMessage;
           }).join('\n' + SEPARATOR);
 
-          if (results.every(function (res) {
+          if (results.every((res) => {
             return res.ok;
           })) {
             return output;
@@ -182,8 +202,8 @@ function monitor() {
 }
 
 function formatMonitorOutput(packageManager, res, manageUrl, options) {
-  var issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-  var strOutput = chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
+  const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+  let strOutput = chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
     (packageManager === 'yarn' ?
       'A yarn.lock file was detected - continuing as a Yarn project.\n' : '') +
       'Explore this snapshot at ' + res.uri + '\n\n' +
@@ -204,7 +224,7 @@ function formatMonitorOutput(packageManager, res, manageUrl, options) {
 
   return options.json ?
     JSON.stringify(_.assign({}, res, {
-      manageUrl: manageUrl,
-      packageManager: packageManager,
+      manageUrl,
+      packageManager,
     })) : strOutput;
 }
