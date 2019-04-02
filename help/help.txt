@@ -54,6 +54,8 @@ Options:
   --gradle-sub-project=<string>
                        For Gradle "multi project" configurations,
                        test a specific sub-project.
+  --all-sub-projects   For "multi project" configurations, test all
+                       sub-projects.
   -q, --quiet ........ Silence all output.
   -h, --help ......... This help information.
   -v, --version ...... The CLI version.

@@ -11,6 +11,7 @@ export interface Options {
   traverseNodeModules?: boolean;
   dev?: boolean;
   strictOutOfSync?: boolean | 'true' | 'false';
+  multiDepRoots?: boolean;
 }
 
 export interface Plugin {

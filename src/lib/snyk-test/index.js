@@ -27,11 +27,18 @@ function executeTest(root, options) {
     var packageManager = detect.detectPackageManager(root, options);
     options.packageManager = packageManager;
     return run(root, options)
-      .then(function (res) {
-        if (!res.packageManager) {
-          res.packageManager = packageManager;
+      .then(function (results) {
+        for (const res of results) {
+          if (!res.packageManager) {
+            res.packageManager = packageManager;
+          }
         }
-        return res;
+        if (results.length === 1) {
+          // Return only one result if only one found as this is the default usecase
+          return results[0];
+        }
+        // For gradle and yarnWorkspaces we may be returning more than one result
+        return results;
       });
   } catch (error) {
     return Promise.reject(chalk.red.bold(error));
@@ -41,7 +48,7 @@ function executeTest(root, options) {
 function run(root, options) {
   var packageManager = options.packageManager;
   if (['npm', 'yarn'].indexOf(packageManager) >= 0) {
-    return require('./npm')(root, options);
+    return require('./npm')(root, options).then((res) => [res]);
   }
   if (!options.docker && [
     'rubygems',

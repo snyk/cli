@@ -56,3 +56,18 @@ export function loadPlugin(packageManager: string, options: types.Options = {}):
     }
   }
 }
+
+export function getPluginOptions(packageManager: string, options: types.Options): types.Options {
+  const pluginOptions: types.Options = {};
+  switch (packageManager) {
+    case 'gradle': {
+      if (options['all-sub-projects']) {
+        pluginOptions.multiDepRoots = true;
+      }
+      return pluginOptions;
+    }
+    default: {
+      return pluginOptions;
+    }
+  }
+}
