@@ -52,7 +52,7 @@ test('npm - prepare is added and postinstall is removed', function (t) {
     expectedResults.scripts.postinstall = 'true';
     expectedResults.scripts.prepare = 'npm run snyk-protect';
 
-    t.deepEqual(expectedResults, pkg, 'package is correct');
+    t.deepEqual(pkg, expectedResults, 'package is correct');
   });
 });
 
@@ -76,6 +76,6 @@ test('yarn - prepare is added and postinstall is removed', function (t) {
     expectedResults.scripts.postinstall = 'true';
     expectedResults.scripts.prepare = 'yarn run snyk-protect';
 
-    t.deepEqual(expectedResults, pkg, 'package is correct');
+    t.deepEqual(pkg, expectedResults, 'package is correct');
   });
 });
