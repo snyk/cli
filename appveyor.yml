@@ -49,4 +49,8 @@ install:
 # Post-install test scripts.
 test_script:
   - npm run snyk-auth-windows
+  # some tests are failing on npm@5, downgrade to npm@3
+  # namely: protect-patch.test.js, wizard-prepare.test.js, wizard-prepublish.test.js
+  - npm i -g npm@^3.10.10
+  - npm --version
   - npm run tap

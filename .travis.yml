@@ -19,7 +19,8 @@ install:
   - npm install
 script:
   - npm run snyk-auth
-  # tests are failing on npm@5, downgrade to npm@3 if >3 is installed
+  # some tests are failing on npm@5, downgrade to npm@3 if >3 is installed
+  # namely: protect-patch.test.js, wizard-prepare.test.js, wizard-prepublish.test.js
   - test "$(npm -v | cut -d'.' -f1)" -le 3 || npm i -g npm@^3.0.0
   - npm test
 jobs:
