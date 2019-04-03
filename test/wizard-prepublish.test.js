@@ -48,6 +48,6 @@ test('prepublish is added and postinstall is removed', function (t) {
     fixture.scripts.postinstall = 'true';
     fixture.scripts.prepublish = 'npm run snyk-protect';
 
-    t.deepEqual(fixture, pkg, 'package is correct');
+    t.deepEqual(pkg, fixture, 'package is correct');
   });
 });
