@@ -89,6 +89,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@types/chalk": "^2.2.0",
     "@types/diff": "^3.5.2",
     "@types/lodash": "^4.14.123",
     "@types/needle": "^2.0.4",
