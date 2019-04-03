@@ -8,6 +8,7 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import * as isCI from './is-ci';
 import * as analytics from './analytics';
+import { SingleDepRootResult } from './types';
 
 export class MonitorError extends Error {
   public code?: number;
@@ -41,7 +42,7 @@ interface Meta {
   projectName: string;
 }
 
-function monitor(root, meta, info) {
+function monitor(root, meta, info: SingleDepRootResult) {
   const pkg = info.package;
   const pluginMeta = info.plugin;
   let policyPath = meta['policy-path'];

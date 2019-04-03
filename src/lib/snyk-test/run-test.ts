@@ -16,6 +16,7 @@ import spinner = require('../spinner');
 import common = require('./common');
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {convertTestDepGraphResultToLegacy, AnnotatedIssue} from './legacy';
+import {Package, DepRoot} from '../types';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -38,39 +39,6 @@ interface Payload {
     docker?: any;
   };
   qs?: object | null;
-}
-
-interface PluginMetadata {
-  name: string;
-  packageFormatVersion?: string;
-  packageManager: string;
-  imageLayers?: any;
-  targetFile?: string; // this is wrong (because Shaun said it)
-}
-
-interface DepDict {
-  [name: string]: DepTree;
-}
-
-interface DepTree {
-  name: string;
-  version: string;
-  dependencies?: DepDict;
-  packageFormatVersion?: string;
-  docker?: any;
-  files?: any;
-  targetFile?: string;
-}
-
-interface DepRoot {
-  depTree: DepTree; // to be soon replaced with depGraph
-  targetFile?: string;
-}
-
-interface Package {
-  plugin: PluginMetadata;
-  depRoots?: DepRoot[]; // currently only returned by gradle
-  package?: DepTree;
 }
 
 async function runTest(packageManager: string, root: string, options): Promise<object[]> {
