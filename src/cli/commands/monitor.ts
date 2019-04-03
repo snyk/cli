@@ -15,21 +15,26 @@ import * as plugins from '../../lib/plugins';
 import ModuleInfo = require('../../lib/module-info'); // TODO(kyegupov): fix import
 import * as docker from '../../lib/docker-promotion';
 import { MonitorError } from '../../lib/monitor';
+import {SingleDepRootResult, MultiDepRootsResult} from '../../lib/types';
+
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
+// TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
 interface MonitorOptions {
   id?: string;
   docker?: boolean;
   file?: string;
   policy?: string;
   json?: boolean;
-  'all-sub-projects'?: boolean;
+  'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
+  'project-name'?: string;
 }
 
 interface GoodResult {
   ok: true;
   data: string;
   path: string;
+  subProjectName?: string;
 }
 
 interface BadResult {
@@ -38,7 +43,9 @@ interface BadResult {
   path: string;
 }
 
-async function monitor(...args0: any[]) {
+// Returns an array of Registry responses (one per every sub-project scanned), a single response,
+// or an error message.
+async function monitor(...args0: any[]): Promise<any> {
   let args = [...args0];
   let options: MonitorOptions = {};
   const results: Array<GoodResult | BadResult> = [];
@@ -57,14 +64,12 @@ async function monitor(...args0: any[]) {
     snyk.id = options.id;
   }
 
-  // This is a temporary check for gradual rollout of subprojects scanning
-  // TODO: delete once supported for monitor
-  if (options['all-sub-projects']) {
-    throw new Error('`--all-sub-projects` is currently not supported for `snyk monitor`');
+  if (options['all-sub-projects'] && options['project-name']) {
+    throw new Error('`--all-sub-projects` is currently not compatible with `--project-name`');
   }
 
   await apiTokenExists('snyk monitor');
-  // Part 1: every argument is a scan target; run scans sequentially
+  // Part 1: every argument is a scan target; process them sequentially
   for (const path of args) {
     try {
       const exists = await fs.exists(path);
@@ -96,17 +101,20 @@ async function monitor(...args0: any[]) {
 
       await spinner(analyzingDepsSpinnerLabel);
 
-      let info;
-      try {
-        info = await moduleInfo.inspect(path, targetFile, options);
-        await spinner.clear(analyzingDepsSpinnerLabel)(info);
-      } catch (error) {
-        spinner.clear(analyzingDepsSpinnerLabel)();
-        throw error;
-      }
+      // Scan the project dependencies via a plugin
+
+      const pluginOptions = plugins.getPluginOptions(packageManager, options);
+
+      // TODO: the type should depend on multiDepRoots flag
+      const inspectResult: SingleDepRootResult|MultiDepRootsResult =
+        await moduleInfo.inspect(path, targetFile, { ...options, ...pluginOptions })
+        .catch((e) => { spinner.clear(analyzingDepsSpinnerLabel)(); throw e; });
+
+      await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
+
       await spinner(postingMonitorSpinnerLabel);
-      if (_.get(info, 'plugin.packageManager')) {
-        packageManager = info.plugin.packageManager;
+      if (inspectResult.plugin.packageManager) {
+        packageManager = inspectResult.plugin.packageManager;
       }
       const meta = {
         'method': 'cli',
@@ -115,38 +123,56 @@ async function monitor(...args0: any[]) {
         'project-name': options['project-name'] || config.PROJECT_NAME,
         'isDocker': !!options.docker,
       };
-      let res;
-      try {
-        res = await (snyk.monitor as any as (path, meta, info) => Promise<any>)(path, meta, info);
-        spinner.clear(postingMonitorSpinnerLabel)(res);
-      } catch (error) {
-        spinner.clear(postingMonitorSpinnerLabel)();
-        throw error;
-      }
-      res.path = path;
-      const endpoint = url.parse(config.API);
-      let leader = '';
-      if (res.org) {
-        leader = '/org/' + res.org;
-      }
-      endpoint.pathname = leader + '/manage';
-      const manageUrl = url.format(endpoint);
 
-      endpoint.pathname = leader + '/monitor/' + res.id;
-      const monOutput = formatMonitorOutput(
-        packageManager,
-        res,
-        manageUrl,
-        options,
-      );
+      // We send results from "all-sub-projects" scanning as different Monitor objects
+
+      // SingleDepRootResult is a legacy format understood by Registry, so we have to convert
+      // a MultiDepRootsResult to an array of these.
+
+      const perDepRootResults: SingleDepRootResult[] = (inspectResult as MultiDepRootsResult).depRoots
+        ? (inspectResult as MultiDepRootsResult).depRoots
+          .map((depRoot) => ({plugin: inspectResult.plugin, package: depRoot.depTree}))
+        : [inspectResult as SingleDepRootResult];
+
+      // Post the project dependencies to the Registry
+      const monOutputs: string[] = [];
+      for (const depRootDeps of perDepRootResults) {
+        // TODO(kyegupov): make snyk.monitor typed by converting src/lib/index.js to TS
+        const snykMonitor = snyk.monitor as any as (path, meta, depRootDeps) => Promise<any>;
+        const res = await snykMonitor(path, meta, depRootDeps)
+          .catch((e) => { spinner.clear(postingMonitorSpinnerLabel)(); throw e; });
+
+        await spinner.clear(postingMonitorSpinnerLabel)(res);
+
+        res.path = path;
+        const endpoint = url.parse(config.API);
+        let leader = '';
+        if (res.org) {
+          leader = '/org/' + res.org;
+        }
+        endpoint.pathname = leader + '/manage';
+        const manageUrl = url.format(endpoint);
+
+        endpoint.pathname = leader + '/monitor/' + res.id;
+        const subProjectName = ((inspectResult as MultiDepRootsResult).depRoots)
+          ? depRootDeps.package.name
+          : undefined;
+        const monOutput = formatMonitorOutput(
+          packageManager,
+          res,
+          manageUrl,
+          options,
+          subProjectName,
+        );
+        results.push({ok: true, data: monOutput, path, subProjectName});
+      }
       // push a good result
-      results.push({ok: true, data: monOutput, path});
     } catch (err) {
       // push this error, the loop continues
       results.push({ok: false, data: err, path});
     }
   }
-  // Part 2: having collected the results, format them for shipping to the Registry
+  // Part 2: process the output from the Registry
   if (options.json) {
     let dataToSend = results.map((result) => {
       if (result.ok) {
@@ -185,9 +211,10 @@ async function monitor(...args0: any[]) {
   throw new Error(output);
 }
 
-function formatMonitorOutput(packageManager, res, manageUrl, options) {
+function formatMonitorOutput(packageManager, res, manageUrl, options, subProjectName?: string) {
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-  let strOutput = chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
+  const humanReadableName = subProjectName ? `${res.path} (${subProjectName})` : res.path;
+  let strOutput = chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
     (packageManager === 'yarn' ?
       'A yarn.lock file was detected - continuing as a Yarn project.\n' : '') +
       'Explore this snapshot at ' + res.uri + '\n\n' +
