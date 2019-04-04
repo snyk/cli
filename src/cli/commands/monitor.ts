@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 import * as fs from 'then-fs';
 import {exists as apiTokenExists} from '../../lib/api-token';
 import snyk = require('../../lib/'); // TODO(kyegupov): fix import
+import {monitor as snykMonitor} from '../../lib/monitor';
 import * as config from '../../lib/config';
 import * as url from 'url';
 import chalk from 'chalk';
@@ -14,8 +15,7 @@ import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import ModuleInfo = require('../../lib/module-info'); // TODO(kyegupov): fix import
 import * as docker from '../../lib/docker-promotion';
-import { MonitorError } from '../../lib/monitor';
-import {SingleDepRootResult, MultiDepRootsResult, isMultiResult} from '../../lib/types';
+import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorError } from '../../lib/types';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -146,8 +146,6 @@ async function monitor(...args0: any[]): Promise<any> {
       // Post the project dependencies to the Registry
       const monOutputs: string[] = [];
       for (const depRootDeps of perDepRootResults) {
-        // TODO(kyegupov): make snyk.monitor typed by converting src/lib/index.js to TS
-        const snykMonitor = snyk.monitor as any as (path, meta, depRootDeps) => Promise<any>;
         const res = await promiseOrCleanup(
           snykMonitor(path, meta, depRootDeps),
           spinner.clear(postingMonitorSpinnerLabel));

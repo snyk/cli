@@ -3,6 +3,7 @@ module.exports = captureRequires;
 var path = require('path');
 var modules = [];
 var snyk = require('../lib');
+var snykMonitor = require('../lib/monitor').monitor;
 
 function captureRequires() {
   var timer = null;
@@ -42,7 +43,7 @@ function resolve() {
 
   // then collect all the package deps and post a monitor
   var cwd = path.resolve(candidate, '..');
-  snyk.modules(cwd).then(snyk.monitor.bind(null, cwd, {
+  snyk.modules(cwd).then(snykMonitor.bind(null, cwd, {
     method: 'require',
   }));
 }

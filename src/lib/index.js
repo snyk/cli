@@ -3,6 +3,14 @@ module.exports = snyk;
 var cluster = require('cluster');
 var snykConfig = require('./config');
 
+// This module exports a function with properties attached.
+// The properties represent other modules - so, it's some kind of "world object"
+// that is used to indirectly import modules.
+// The function modifies the object and returns it.
+// This also introduces some circular imports.
+
+// TODO(kyegupov): untangle this, resolve circular imports, convert to Typescript
+
 function snyk(options) {
   if (!options) {
     options = {};
@@ -50,7 +58,6 @@ Object.defineProperty(snyk, 'api', {
 
 snyk.modules = require('./modules');
 snyk.test = require('./snyk-test');
-snyk.monitor = require('./monitor');
 snyk.bus = require('./bus');
 snyk.policy = require('snyk-policy');
 snyk.isRequired = true; // changed to false when loaded via cli
