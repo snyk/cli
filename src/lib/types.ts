@@ -52,3 +52,8 @@ export interface MultiDepRootsResult {
 export function isMultiResult(pet: SingleDepRootResult | MultiDepRootsResult): pet is MultiDepRootsResult {
   return !!(pet as MultiDepRootsResult).depRoots;
 }
+
+export class MonitorError extends Error {
+  public code?: number;
+  public userMessage?: string;
+}

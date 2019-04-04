@@ -50,7 +50,6 @@ Object.defineProperty(snyk, 'api', {
 
 snyk.modules = require('./modules');
 snyk.test = require('./snyk-test');
-snyk.monitor = require('./monitor');
 snyk.bus = require('./bus');
 snyk.policy = require('snyk-policy');
 snyk.isRequired = true; // changed to false when loaded via cli
