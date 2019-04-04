@@ -222,7 +222,8 @@ async function getDepsFromPlugin(root, options): Promise<MultiRootsPackage> {
 async function assembleLocalPayload(root, options, policyLocations): Promise<Payload[]> {
   const analysisType = options.docker ? 'docker' : options.packageManager;
   const spinnerLbl = 'Analyzing ' + analysisType + ' dependencies for ' +
-    pathUtil.relative('.', pathUtil.join(root, options.file || ''));
+     (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
+       (pathUtil.relative('..', '.') + ' project dir'));
 
   try {
     const payloads: Payload[] = [];
