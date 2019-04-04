@@ -14,7 +14,7 @@ import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import ModuleInfo = require('../../lib/module-info'); // TODO(kyegupov): fix import
 import * as docker from '../../lib/docker-promotion';
-import { MonitorError } from '../../lib/monitor';
+import { MonitorError } from '../../lib/types';
 import {SingleDepRootResult, MultiDepRootsResult} from '../../lib/types';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -137,9 +137,7 @@ async function monitor(...args0: any[]): Promise<any> {
       // Post the project dependencies to the Registry
       const monOutputs: string[] = [];
       for (const depRootDeps of perDepRootResults) {
-        // TODO(kyegupov): make snyk.monitor typed by converting src/lib/index.js to TS
-        const snykMonitor = snyk.monitor as any as (path, meta, depRootDeps) => Promise<any>;
-        const res = await snykMonitor(path, meta, depRootDeps)
+        const res = await snyk.monitor(path, meta, depRootDeps)
           .catch((e) => { spinner.clear(postingMonitorSpinnerLabel)(); throw e; });
 
         await spinner.clear(postingMonitorSpinnerLabel)(res);

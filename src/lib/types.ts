@@ -47,3 +47,8 @@ export interface MultiDepRootsResult {
   plugin: PluginMetadata;
   depRoots: DepRoot[];
 }
+
+export class MonitorError extends Error {
+  public code?: number;
+  public userMessage?: string;
+}
