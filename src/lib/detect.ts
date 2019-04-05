@@ -97,7 +97,7 @@ export function detectPackageManager(root, options) {
       '.\nPlease see our documentation for supported languages and ' +
       'target files: ' +
       chalk.underline(
-        'https://support.snyk.io/getting-started/languages-support',
+        'https://support.snyk.io/hc/en-us/articles/360000911957-Language-support',
       ) +
       ' and make sure you are in the right directory.');
   }
