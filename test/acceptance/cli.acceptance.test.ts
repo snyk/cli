@@ -161,7 +161,7 @@ test('`test /` test for non-existent with path specified', async (t) => {
     t.match(err.message, 'Could not detect supported target files in /.' +
       '\nPlease see our documentation for supported' +
       ' languages and target files: ' +
-      'https://support.snyk.io/getting-started/languages-support' +
+      'https://support.snyk.io/hc/en-us/articles/360000911957-Language-support' +
       ' and make sure you' +
       ' are in the right directory.');
   }
