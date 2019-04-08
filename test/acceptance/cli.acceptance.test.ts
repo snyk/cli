@@ -566,7 +566,6 @@ test('`test gradle-app --all-sub-projects` sends `multiDepRoots` argument to plu
   const res = await cli.test('gradle-app', {
     'all-sub-projects': true,
   });
-  const meta = res.slice(res.indexOf('Organisation:')).split('\n');
   t.true(spyPlugin.args[0][2].multiDepRoots);
 });
 
@@ -2314,6 +2313,77 @@ test('`monitor gradle-app`', async (t) => {
 });
 
 test('`monitor gradle-app --all-sub-projects`', async (t) => {
+  t.plan(4);
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {},
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  await cli.monitor('gradle-app', {'all-sub-projects': true});
+  t.true(spyPlugin.args[0][2].multiDepRoots);
+
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/gradle', 'puts at correct url');
+  t.same(spyPlugin.getCall(0).args,
+    ['gradle-app', 'build.gradle', {
+      "all-sub-projects": true,
+      "multiDepRoots": true,
+      "args": null,
+    }], 'calls gradle plugin');
+});
+
+test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
+  t.plan(7);
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {},
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+  loadPlugin.withArgs('pip').returns(plugin);
+
+  await cli.monitor('gradle-app', 'pip-app', {'all-sub-projects': true});
+  t.true(spyPlugin.args[0][2].multiDepRoots);
+
+  let req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request for pip');
+  t.match(req.url, '/monitor/pip', 'puts at correct url');
+  req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request for gradle');
+  t.match(req.url, '/monitor/gradle', 'puts at correct url');
+
+  t.same(spyPlugin.getCall(0).args,
+    ['gradle-app', 'build.gradle', {
+      "all-sub-projects": true,
+      "multiDepRoots": true,
+      "args": null,
+    }], 'calls plugin for the 1st path');
+  t.same(spyPlugin.getCall(1).args,
+  ['pip-app', 'requirements.txt', {
+    "all-sub-projects": true,
+    // No multiDepRoots, because only Gradle plugin loader sets it
+    "args": null,
+  }], 'calls plugin for the 2nd path');
+});
+
+test('`monitor gradle-app --all-sub-projects --project-name`', async (t) => {
   t.plan(2);
   chdirWorkspaces();
   const plugin = {
@@ -2330,9 +2400,9 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
   loadPlugin.withArgs('gradle').returns(plugin);
 
   try {
-    await cli.monitor('gradle-app', {'all-sub-projects': true});
+    await cli.monitor('gradle-app', {'all-sub-projects': true, 'project-name': 'frumpus'});
   } catch (e) {
-    t.contains(e, /not supported/);
+    t.contains(e, /is currently not compatible/);
   }
 
   t.true(spyPlugin.notCalled, "`inspect` method wasn't called");
