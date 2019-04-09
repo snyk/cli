@@ -1,5 +1,3 @@
-module.exports = monitor;
-
 import * as snyk from '../lib';
 import {exists as apiTokenExists} from './api-token';
 import * as request from './request';
@@ -8,12 +6,7 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import * as isCI from './is-ci';
 import * as analytics from './analytics';
-import { SingleDepRootResult } from './types';
-
-export class MonitorError extends Error {
-  public code?: number;
-  public userMessage?: string;
-}
+import { SingleDepRootResult, MonitorError } from './types';
 
 // TODO(kyegupov): clean up the type, move to snyk-cli-interface repository
 
@@ -42,7 +35,7 @@ interface Meta {
   projectName: string;
 }
 
-function monitor(root, meta, info: SingleDepRootResult) {
+export function monitor(root, meta, info: SingleDepRootResult): Promise<any> {
   const pkg = info.package;
   const pluginMeta = info.plugin;
   let policyPath = meta['policy-path'];

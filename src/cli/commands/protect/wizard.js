@@ -18,6 +18,7 @@ const getVersion = require('../version');
 const allPrompts = require('./prompts');
 const answersToTasks = require('./tasks');
 const snyk = require('../../../lib/');
+const snykMonitor = require('../../../lib/monitor').monitor;
 const isCI = require('../../../lib/is-ci');
 const protect = require('../../../lib/protect');
 const authorization = require('../../../lib/authorization');
@@ -519,7 +520,7 @@ function processAnswers(answers, policy, options) {
 
       return info.inspect(cwd, targetFile, options)
         .then(spinner(lbl))
-        .then(snyk.monitor.bind(null, cwd, meta))
+        .then(snykMonitor.bind(null, cwd, meta))
         // clear spinner in case of success or failure
         .then(spinner.clear(lbl))
         .catch((error) => {
