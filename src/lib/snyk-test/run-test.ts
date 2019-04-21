@@ -222,8 +222,10 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
         pkg.dependencies = gemfileLockToDependencies(gemfileLockContents);
       }
 
+      debug('converting dep-tree to dep-graph', {name: pkg.name, targetFile: depRoot.targetFile || options.file});
       const depGraph = await depGraphLib.legacy.depTreeToGraph(
         pkg, options.packageManager);
+      debug('done converting dep-tree to dep-graph', {uniquePkgsCount: depGraph.getPkgs().length});
 
       analytics.add('policies', policyLocations.length);
       analytics.add('packageManager', options.packageManager);
