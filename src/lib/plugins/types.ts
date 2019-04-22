@@ -1,7 +1,7 @@
 export interface InspectResult {
   plugin: {
     name: string;
-    runtime: string;
+    runtime?: string;
   };
   package: any;
 }
@@ -12,6 +12,7 @@ export interface Options {
   dev?: boolean;
   strictOutOfSync?: boolean | 'true' | 'false';
   multiDepRoots?: boolean;
+  debug?: boolean;
 }
 
 export interface Plugin {
