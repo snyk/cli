@@ -28,7 +28,7 @@ function makeRequest(payload) {
       }
 
       // always compress going upstream
-      data = zlib.gzipSync(json);
+      data = zlib.gzipSync(json, {level: 9});
 
       snykDebug('sending request to:', payload.url);
       snykDebug('request body size:', json.length);
