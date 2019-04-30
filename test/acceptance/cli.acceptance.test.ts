@@ -106,13 +106,15 @@ test('userMessage correctly bubbles with everything other than npm', async (t) =
  */
 
 test('`test semver` sends remote NPM request:', async (t) => {
-  t.plan(3);
   // We care about the request here, not the response
-  await cli.test('semver', {registry: 'npm', org: 'EFF'});
+  let output = await cli.test('semver', {registry: 'npm', org: 'EFF'});
   const req = server.popRequest();
   t.equal(req.method, 'GET', 'makes GET request');
   t.match(req.url, '/vuln/npm/semver', 'gets from correct url');
   t.equal(req.query.org, 'EFF', 'org sent as a query in request');
+  t.match(output, 'Testing semver', 'has "Testing semver" message');
+  t.notMatch(output, 'Remediation', 'shows no remediation advice');
+  t.notMatch(output, 'snyk wizard', 'does not suggest `snyk wizard`');
 });
 
 test('`test sinatra --registry=rubygems` sends remote Rubygems request:', async (t) => {
