@@ -506,7 +506,7 @@ test('`test gradle-kotlin-dsl-app` returns correct meta', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   sinon.spy(plugin, 'inspect');
@@ -530,7 +530,7 @@ test('`test gradle-app` returns correct meta', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1140,7 +1140,7 @@ test('`test pip-app --file=requirements.txt`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1296,7 +1296,7 @@ test('`test nuget-app --file=project.json`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1371,7 +1371,7 @@ test('`test golang-app --file=Gopkg.lock`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1405,7 +1405,7 @@ test('`test golang-app --file=vendor/vendor.json`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1439,7 +1439,7 @@ test('`test golang-app` auto-detects golang/dep', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1471,7 +1471,7 @@ test('`test golang-app-govendor` auto-detects govendor', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1502,7 +1502,7 @@ test('`test composer-app --file=composer.lock`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1535,7 +1535,7 @@ test('`test composer-app` auto-detects composer.lock', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1566,7 +1566,7 @@ test('`test composer-app golang-app nuget-app` auto-detects all three projects',
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}};
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -2292,7 +2292,13 @@ test('`monitor gradle-app`', async (t) => {
   const plugin = {
     async inspect() {
       return {
-        plugin: {},
+        plugin: {
+          name: 'testplugin',
+          runtime: 'testruntime',
+          meta: {
+            allDepRootNames: ['foo', 'bar'],
+          },
+        },
         package: {},
       };
     },
@@ -2302,7 +2308,8 @@ test('`monitor gradle-app`', async (t) => {
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('gradle').returns(plugin);
 
-  await cli.monitor('gradle-app');
+  let output = await cli.monitor('gradle-app');
+  t.match(output, /use --all-sub-projects flag to scan all sub-projects/, "all-sub-projects flag is suggested");
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/gradle', 'puts at correct url');

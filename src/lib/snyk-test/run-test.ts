@@ -16,7 +16,7 @@ import spinner = require('../spinner');
 import common = require('./common');
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {convertTestDepGraphResultToLegacy, AnnotatedIssue} from './legacy';
-import {Package, DepRoot} from '../types';
+import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, TestOptions} from '../types';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -156,18 +156,15 @@ function assemblePayload(root: string, options, policyLocations: string[]): Prom
 }
 
 // Force getDepsFromPlugin to return depRoots for processing in assembleLocalPayload
-interface MultiRootsPackage extends Package {
-  depRoots: DepRoot[];
-}
-
-async function getDepsFromPlugin(root, options): Promise<MultiRootsPackage> {
+async function getDepsFromPlugin(root, options: TestOptions): Promise<MultiDepRootsResult> {
   options.file = options.file || detect.detectPackageFile(root);
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
   const pluginOptions = plugins.getPluginOptions(options.packageManager, options);
-  const inspectRes: Package = await moduleInfo.inspect(root, options.file, { ...options, ...pluginOptions });
+  const inspectRes: SingleDepRootResult | MultiDepRootsResult =
+    await moduleInfo.inspect(root, options.file, { ...options, ...pluginOptions });
 
-  if (!inspectRes.depRoots) {
+  if (!isMultiResult(inspectRes)) {
     if (!inspectRes.package) {
       // something went wrong if both are not present...
       throw Error(`error getting dependencies from ${options.packageManager} ` +
@@ -176,15 +173,25 @@ async function getDepsFromPlugin(root, options): Promise<MultiRootsPackage> {
     if (!inspectRes.package.targetFile && inspectRes.plugin) {
       inspectRes.package.targetFile = inspectRes.plugin.targetFile;
     }
-    inspectRes.depRoots = [{depTree: inspectRes.package}];
+    // We are using "options" to store some information returned from plugin that we need to use later,
+    // but don't want to send to Registry in the Payload.
+    // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
+    if (inspectRes.plugin.meta
+      && inspectRes.plugin.meta.allDepRootNames
+      && inspectRes.plugin.meta.allDepRootNames.length > 1) {
+      options.advertiseSubprojectsCount = inspectRes.plugin.meta.allDepRootNames.length;
+    }
+    return {
+      plugin: inspectRes.plugin,
+      depRoots: [{depTree: inspectRes.package}],
+    };
   } else {
+    // We are using "options" to store some information returned from plugin that we need to use later,
+    // but don't want to send to Registry in the Payload.
+    // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
     options.subProjectNames = inspectRes.depRoots.map((depRoot) => depRoot.depTree.name);
+    return inspectRes;
   }
-
-  return {
-    depRoots: inspectRes.depRoots,
-    plugin: inspectRes.plugin,
-  };
 }
 
 async function assembleLocalPayload(root, options, policyLocations): Promise<Payload[]> {
