@@ -9,16 +9,21 @@ import {exists as apiTokenExists} from '../../lib/api-token';
 import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../lib/snyk-test/common';
 import * as docker from '../../lib/docker-promotion';
 import * as Debug from 'debug';
-import { TestOptions } from '../../lib/types';
+import {TestOptions} from '../../lib/types';
+import {isLocalFolder} from '../../lib/detect';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
+
+interface OptionsAtDisplayStage {
+  canSuggestRemediation: boolean;
+}
 
 // TODO: avoid using `as any` whenever it's possible
 
 // arguments array is 0 or more `path` strings followed by
 // an optional `option` object
-async function test(...args) {
+async function test(...args): Promise<string> {
   const resultOptions = [] as any[];
   let results = [] as any[];
   let options = {} as any as TestOptions;
@@ -192,10 +197,11 @@ function summariseErrorResults(errorResults) {
   return '';
 }
 
-function displayResult(res, options: TestOptions) {
+function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
   const meta = metaForDisplay(res, options) + '\n\n';
   const dockerAdvice = dockerRemediationForDisplay(res);
   const packageManager = options.packageManager;
+  options.canSuggestRemediation = isLocalFolder(options.path);
   const prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
 
   // handle errors by extracting their message
@@ -270,7 +276,7 @@ function displayResult(res, options: TestOptions) {
   }
   let summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
 
-  if (WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
+  if (options.canSuggestRemediation && WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
     summary += chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
   }
 
@@ -312,7 +318,10 @@ function displayResult(res, options: TestOptions) {
   return prefix + body + multiProjAdvice + dockerAdvice + dockerSuggestion;
 }
 
-function formatDockerBinariesIssues(dockerBinariesSortedGroupedVulns, binariesVulns, options) {
+function formatDockerBinariesIssues(
+    dockerBinariesSortedGroupedVulns,
+    binariesVulns,
+    options: TestOptions & OptionsAtDisplayStage) {
   const binariesIssuesOutput = [] as string[];
   for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
     binariesIssuesOutput.push(createDockerBinaryHeading(pkgInfo));
@@ -334,7 +343,7 @@ function createDockerBinaryHeading(pkgInfo) {
       ` for ${binaryName}@${binaryVersion} ------------`, '\n') : '';
 }
 
-function formatIssues(vuln, options) {
+function formatIssues(vuln, options: TestOptions & OptionsAtDisplayStage) {
   const vulnID = vuln.list[0].id;
   const packageManager = options.packageManager;
   const uniquePackages = _.uniq(
@@ -364,7 +373,7 @@ function formatIssues(vuln, options) {
     fromPaths: options.showVulnPaths
       ? createTruncatedVulnsPathsText(vuln.list) : '',
     extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
-    remediationInfo: vuln.metadata.type !== 'license'
+    remediationInfo: vuln.metadata.type !== 'license' && options.canSuggestRemediation
       ? createRemediationText(vuln, packageManager)
       : '',
     fixedIn: options.docker ? createFixedInText(vuln) : '',

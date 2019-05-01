@@ -110,7 +110,7 @@ function localFileSuppliedButNotFound(root, file) {
     !fs.existsSync(pathLib.resolve(root, file));
 }
 
-function isLocalFolder(root) {
+export function isLocalFolder(root) {
   try {
     return fs.lstatSync(root).isDirectory();
   } catch (e) {
