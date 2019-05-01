@@ -221,8 +221,8 @@ function displayResult(res, options: TestOptions) {
 
   if (options.advertiseSubprojectsCount) {
     multiProjAdvice = chalk.bold.white(
-      `This project has multiple sub-projects (${options.advertiseSubprojectsCount}), ` +
-      'use --all-sub-projects flag to scan all sub-projects.\n\n');
+      `\n\nThis project has multiple sub-projects (${options.advertiseSubprojectsCount}), ` +
+      'use --all-sub-projects flag to scan all sub-projects.');
   }
 
   // OK  => no vulns found, return
