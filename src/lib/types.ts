@@ -10,6 +10,9 @@ export interface PluginMetadata {
   targetFile?: string; // this is wrong (because Shaun said it)
   runtime?: any;
   dockerImageId: any;
+  meta?: {
+    allDepRootNames: string[]; // To warn the user about subprojects not being scanned
+  };
 }
 
 export interface DepDict {
@@ -31,12 +34,6 @@ export interface DepRoot {
   targetFile?: string;
 }
 
-export interface Package {
-  plugin: PluginMetadata;
-  depRoots?: DepRoot[]; // currently only returned by gradle
-  package?: DepTree;
-}
-
 // Legacy result type. Will be deprecated soon.
 export interface SingleDepRootResult {
   plugin: PluginMetadata;
@@ -56,4 +53,21 @@ export function isMultiResult(pet: SingleDepRootResult | MultiDepRootsResult): p
 export class MonitorError extends Error {
   public code?: number;
   public userMessage?: string;
+}
+
+export interface TestOptions {
+  org: string;
+  path: string;
+  docker?: boolean;
+  file?: string;
+  policy?: string;
+  json?: boolean;
+  'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
+  'project-name'?: string;
+  'show-vulnerable-paths'?: string;
+  showVulnPaths?: boolean;
+  packageManager: string;
+  advertiseSubprojectsCount?: number;
+  subProjectNames?: string[];
+  severityThreshold?: string;
 }

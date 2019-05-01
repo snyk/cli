@@ -136,15 +136,21 @@ async function monitor(...args0: any[]): Promise<any> {
       // a MultiDepRootsResult to an array of these.
 
       let perDepRootResults: SingleDepRootResult[] = [];
+      let advertiseSubprojectsCount: number | null = null;
       if (isMultiResult(inspectResult)) {
         perDepRootResults = inspectResult.depRoots.map(
           (depRoot) => ({plugin: inspectResult.plugin, package: depRoot.depTree}));
       } else {
+        if (!options['gradle-sub-project']
+          && inspectResult.plugin.meta
+          && inspectResult.plugin.meta.allDepRootNames
+          && inspectResult.plugin.meta.allDepRootNames.length > 1) {
+          advertiseSubprojectsCount = inspectResult.plugin.meta.allDepRootNames.length;
+        }
         perDepRootResults = [inspectResult];
       }
 
       // Post the project dependencies to the Registry
-      const monOutputs: string[] = [];
       for (const depRootDeps of perDepRootResults) {
         const res = await promiseOrCleanup(
           snykMonitor(path, meta, depRootDeps),
@@ -171,6 +177,7 @@ async function monitor(...args0: any[]): Promise<any> {
           manageUrl,
           options,
           subProjectName,
+          advertiseSubprojectsCount,
         );
         results.push({ok: true, data: monOutput, path, subProjectName});
       }
@@ -223,13 +230,19 @@ async function monitor(...args0: any[]): Promise<any> {
   throw new Error(output);
 }
 
-function formatMonitorOutput(packageManager, res, manageUrl, options, subProjectName?: string) {
+function formatMonitorOutput(
+    packageManager, res, manageUrl, options, subProjectName?: string, advertiseSubprojectsCount?: number|null,
+  ) {
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
   const humanReadableName = subProjectName ? `${res.path} (${subProjectName})` : res.path;
   let strOutput = chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
     (packageManager === 'yarn' ?
       'A yarn.lock file was detected - continuing as a Yarn project.\n' : '') +
       'Explore this snapshot at ' + res.uri + '\n\n' +
+    (advertiseSubprojectsCount ?
+      chalk.bold.white(`This project has multiple sub-projects (${advertiseSubprojectsCount}), ` +
+      'use --all-sub-projects flag to scan all sub-projects.\n\n') :
+      '') +
     (res.isMonitored ?
       'Notifications about newly disclosed ' + issues + ' related ' +
       'to these dependencies will be emailed to you.\n' :

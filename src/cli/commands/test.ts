@@ -9,6 +9,7 @@ import {exists as apiTokenExists} from '../../lib/api-token';
 import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../lib/snyk-test/common';
 import * as docker from '../../lib/docker-promotion';
 import * as Debug from 'debug';
+import { TestOptions } from '../../lib/types';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -20,7 +21,7 @@ const SEPARATOR = '\n-------------------------------------------------------\n';
 async function test(...args) {
   const resultOptions = [] as any[];
   let results = [] as any[];
-  let options = {} as any;
+  let options = {} as any as TestOptions;
 
   if (typeof args[args.length - 1] === 'object') {
     options = args.pop();
@@ -191,7 +192,7 @@ function summariseErrorResults(errorResults) {
   return '';
 }
 
-function displayResult(res, options) {
+function displayResult(res, options: TestOptions) {
   const meta = metaForDisplay(res, options) + '\n\n';
   const dockerAdvice = dockerRemediationForDisplay(res);
   const packageManager = options.packageManager;
@@ -216,6 +217,14 @@ function displayResult(res, options) {
     dockerSuggestion += chalk.bold.white(docker.suggestionText);
   }
 
+  let multiProjAdvice = '';
+
+  if (options.advertiseSubprojectsCount) {
+    multiProjAdvice = chalk.bold.white(
+      `This project has multiple sub-projects (${options.advertiseSubprojectsCount}), ` +
+      'use --all-sub-projects flag to scan all sub-projects.\n\n');
+  }
+
   // OK  => no vulns found, return
   if (res.ok && res.vulnerabilities.length === 0) {
     const vulnPathsText = options.showVulnPaths ?
@@ -229,7 +238,7 @@ function displayResult(res, options) {
       '\n- Run `snyk test` as part of ' +
       'your CI/test.';
     return (
-      prefix + meta + summaryOKText + (
+      prefix + meta + summaryOKText + multiProjAdvice + (
         isCI ? '' :
           dockerAdvice +
           nextStepsText +
@@ -300,7 +309,7 @@ function displayResult(res, options) {
     groupedVulnInfoOutput.join('\n\n') + '\n\n\n' +
     groupedDockerBinariesVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
 
-  return prefix + body + dockerAdvice + dockerSuggestion;
+  return prefix + body + multiProjAdvice + dockerAdvice + dockerSuggestion;
 }
 
 function formatDockerBinariesIssues(dockerBinariesSortedGroupedVulns, binariesVulns, options) {
