@@ -1,14 +1,14 @@
 import * as baseDebug from 'debug';
 const debug = baseDebug('snyk');
 import * as path from 'path';
-import * as snyk from '../..';
 import * as spinner from '../../spinner';
 import * as _ from 'lodash';
 import * as analytics from '../../analytics';
 import * as fs from 'fs';
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
+import {PkgTree} from 'snyk-nodejs-lockfile-parser';
 
-export async function parse(root, targetFile, options) {
+export async function parse(root, targetFile, options): Promise<PkgTree> {
   const lockFileFullPath = path.resolve(root, targetFile);
   if (!fs.existsSync(lockFileFullPath)) {
     throw new Error('Lockfile ' + targetFile + ' not found at location: ' +
@@ -20,13 +20,8 @@ export async function parse(root, targetFile, options) {
   const shrinkwrapFullPath = path.resolve(fullPath.dir, 'npm-shrinkwrap.json');
 
   if (!fs.existsSync(manifestFileFullPath)) {
-    throw new Error('Manifest file package.json not found at location: ' +
-      manifestFileFullPath);
-  }
-
-  if (!manifestFileFullPath && lockFileFullPath) {
-    throw new Error('Detected a lockfile at location: '
-      + lockFileFullPath + '\n However the package.json is missing!');
+    throw new Error(`Could not find package.json at ${manifestFileFullPath} `
+      + `(lockfile found at ${targetFile})`);
   }
 
   if (fs.existsSync(shrinkwrapFullPath)) {
@@ -34,7 +29,7 @@ export async function parse(root, targetFile, options) {
       + 'Please run your command again without `--file=' + targetFile + '` flag.');
   }
 
-  const manifestFile = fs.readFileSync(manifestFileFullPath);
+  const manifestFile = fs.readFileSync(manifestFileFullPath, 'utf-8');
   const lockFile = fs.readFileSync(lockFileFullPath, 'utf-8');
 
   analytics.add('local', true);
@@ -52,7 +47,7 @@ export async function parse(root, targetFile, options) {
     await spinner(resolveModuleSpinnerLabel);
     const strictOutOfSync = _.get(options, 'strictOutOfSync') !== 'false';
     return lockFileParser
-      .buildDepTree(manifestFile.toString(), lockFile, options.dev, lockFileType, strictOutOfSync);
+      .buildDepTree(manifestFile, lockFile, options.dev, lockFileType, strictOutOfSync);
   } finally {
     await spinner.clear(resolveModuleSpinnerLabel);
   }

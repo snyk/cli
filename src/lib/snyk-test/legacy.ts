@@ -78,7 +78,9 @@ interface TestDepGraphResult {
       };
     };
   };
-  docker: object;
+  docker: {
+    binariesVulns?: TestDepGraphResult;
+  };
 }
 
 interface TestDepGraphMeta {
@@ -94,13 +96,13 @@ interface TestDepGraphMeta {
   org: string;
 }
 
-interface TestDeGraphResponse {
+interface TestDepGraphResponse {
   result: TestDepGraphResult;
   meta: TestDepGraphMeta;
 }
 
 function convertTestDepGraphResultToLegacy(
-    res: TestDeGraphResponse,
+    res: TestDepGraphResponse,
     depGraph: depGraphLib.DepGraph,
     packageManager: string,
     severityThreshold?: string): LegacyVulnApiResult {
@@ -150,7 +152,7 @@ function convertTestDepGraphResultToLegacy(
     }
   }
 
-  const dockerRes = result.docker as any;
+  const dockerRes = result.docker;
 
   if (dockerRes && dockerRes.binariesVulns) {
     const binariesVulns = dockerRes.binariesVulns;
