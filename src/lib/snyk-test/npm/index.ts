@@ -11,7 +11,8 @@ import * as analytics from '../../analytics';
 import * as common from '../common';
 import * as detect from '../../detect';
 import * as npmPlugin from '../npm-plugin';
-import {AnnotatedIssue} from '../legacy';
+import * as depGraphLib from '@snyk/dep-graph';
+import {AnnotatedIssue, convertTestDepGraphResultToLegacy} from '../legacy';
 
 // important: this is different from ./config (which is the *user's* config)
 import * as config from '../../config';
@@ -27,6 +28,7 @@ interface Payload {
     authorization: string;
   };
   body?: {
+    depGraph?: depGraphLib.DepGraph,
     policy: string;
     targetFile?: string;
     projectNameOverride?: string;
@@ -45,17 +47,26 @@ async function runTest(packageManager: string, root: string, options): Promise<o
 
   try {
     const payload: Payload = await assemblePayload(root, options);
-    const filesystemPolicy = payload.body && !!payload.body.policy;
+    const depGraph = payload.body && payload.body.depGraph;
+    const payloadPolicy = payload.body && payload.body.policy;
     await spinner(spinnerLbl);
     let res = await sendPayload(payload);
 
+    if (depGraph) {
+      res = convertTestDepGraphResultToLegacy(
+        res,
+        depGraph,
+        options.packageManager,
+        options.severityThreshold);
+    }
+
     analytics.add('vulns-pre-policy', res.vulnerabilities.length);
 
-    res.filesystemPolicy = filesystemPolicy;
+    res.filesystemPolicy = !!payloadPolicy;
     if (!options['ignore-policy']) {
+      res.policy = res.policy || payloadPolicy;
       const policy = await snyk.policy.loadFromText(res.policy);
       res = policy.filter(res, root);
-      res.policy = payload.body && payload.body.policy;
     }
     analytics.add('vulns', res.vulnerabilities.length);
 
@@ -126,11 +137,36 @@ async function assembleLocalPayload(root: string, options): Promise<Payload> {
 
   analytics.add('policies', policyLocations.length);
   addPackageAnalytics(pkg);
+  if (options.vulnEndpoint) {
+    return {
+      method: 'POST',
+      // options.vulnEndpoint is only used for file system tests
+      url: config.API + options.vulnEndpoint,
+      qs: common.assembleQueryString(options),
+      json: true,
+      headers: {
+        'x-is-ci': isCI,
+        'authorization': 'token ' + snyk.api,
+      },
+      body: {
+        ...pkg,
+        targetFile: pkg.targetFile || options.file,
+        projectNameOverride: options.projectName,
+        policy: policy && policy.toString(),
+        hasDevDependencies: pkg.hasDevDependencies,
+      },
+      modules: getLockFileDeps ? undefined : pkg,
+    };
+  }
+
+  debug('converting dep-tree to dep-graph', {name: pkg.name, targetFile: pkg.targetFile || options.file});
+  const depGraph = await depGraphLib.legacy.depTreeToGraph(pkg, options.packageManager);
+  debug('done converting dep-tree to dep-graph', {uniquePkgsCount: depGraph.getPkgs().length});
 
   return {
     method: 'POST',
     // options.vulnEndpoint is only used for file system tests
-    url: config.API + (options.vulnEndpoint || `/vuln/${options.packageManager}`),
+    url: config.API + '/test-dep-graph',
     qs: common.assembleQueryString(options),
     json: true,
     headers: {
@@ -138,7 +174,7 @@ async function assembleLocalPayload(root: string, options): Promise<Payload> {
       'authorization': 'token ' + snyk.api,
     },
     body: {
-      ...pkg,
+      depGraph,
       targetFile: pkg.targetFile || options.file,
       projectNameOverride: options.projectName,
       policy: policy && policy.toString(),
