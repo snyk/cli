@@ -2345,9 +2345,9 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
   t.match(req.url, '/monitor/gradle', 'puts at correct url');
   t.same(spyPlugin.getCall(0).args,
     ['gradle-app', 'build.gradle', {
-      "all-sub-projects": true,
-      "multiDepRoots": true,
-      "args": null,
+      'all-sub-projects': true,
+      'multiDepRoots': true,
+      'args': null,
     }], 'calls gradle plugin');
 });
 
@@ -2380,15 +2380,15 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
 
   t.same(spyPlugin.getCall(0).args,
     ['gradle-app', 'build.gradle', {
-      "all-sub-projects": true,
-      "multiDepRoots": true,
-      "args": null,
+      'all-sub-projects': true,
+      'multiDepRoots': true,
+      'args': null,
     }], 'calls plugin for the 1st path');
   t.same(spyPlugin.getCall(1).args,
   ['pip-app', 'requirements.txt', {
-    "all-sub-projects": true,
+    'all-sub-projects': true,
     // No multiDepRoots, because only Gradle plugin loader sets it
-    "args": null,
+    'args': null,
   }], 'calls plugin for the 2nd path');
 });
 
@@ -2848,7 +2848,7 @@ function stubDockerPluginResponse(fixture: string | object, t) {
   const plugin = {
     async inspect() {
       return (typeof fixture === 'object') ? fixture : require(fixture);
-    }
+    },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
