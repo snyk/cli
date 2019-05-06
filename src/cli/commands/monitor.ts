@@ -73,7 +73,6 @@ async function monitor(...args0: any[]): Promise<any> {
   if (options['all-sub-projects'] && options['project-name']) {
     throw new Error('`--all-sub-projects` is currently not compatible with `--project-name`');
   }
-
   await apiTokenExists('snyk monitor');
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args) {
@@ -153,7 +152,7 @@ async function monitor(...args0: any[]): Promise<any> {
       // Post the project dependencies to the Registry
       for (const depRootDeps of perDepRootResults) {
         const res = await promiseOrCleanup(
-          snykMonitor(path, meta, depRootDeps),
+          snykMonitor(path, meta, depRootDeps, targetFile),
           spinner.clear(postingMonitorSpinnerLabel));
 
         await spinner.clear(postingMonitorSpinnerLabel)(res);

@@ -7,6 +7,8 @@ import * as _ from 'lodash';
 import * as isCI from './is-ci';
 import * as analytics from './analytics';
 import { SingleDepRootResult, MonitorError } from './types';
+import * as projectMetadata from './project-metadata';
+import * as path from 'path';
 
 // TODO(kyegupov): clean up the type, move to snyk-cli-interface repository
 
@@ -14,6 +16,8 @@ interface MonitorBody {
   meta: Meta;
   policy: string;
   package: {}; // TODO(kyegupov): DepTree
+  target: {};
+  targetFileRelativePath: string;
   targetFile: string;
 }
 
@@ -35,7 +39,7 @@ interface Meta {
   projectName: string;
 }
 
-export function monitor(root, meta, info: SingleDepRootResult): Promise<any> {
+export function monitor(root, meta, info: SingleDepRootResult, targetFile): Promise<any> {
   const pkg = info.package;
   const pluginMeta = info.plugin;
   let policyPath = meta['policy-path'];
@@ -52,8 +56,12 @@ export function monitor(root, meta, info: SingleDepRootResult): Promise<any> {
         return snyk.policy.create();
       }
       return snyk.policy.load(policyLocations, opts);
-    }).then((policy) => {
+    }).then(async (policy) => {
       analytics.add('packageManager', packageManager);
+
+      const target = await projectMetadata.getInfo(pkg);
+      const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
+
       // TODO(kyegupov): async/await
       return new Promise((resolve, reject) => {
         request({
@@ -79,7 +87,9 @@ export function monitor(root, meta, info: SingleDepRootResult): Promise<any> {
             package: pkg,
             // we take the targetFile from the plugin,
             // because we want to send it only for specific package-managers
+            target,
             targetFile: pluginMeta.targetFile,
+            targetFileRelativePath,
           } as MonitorBody,
           gzip: true,
           method: 'PUT',
