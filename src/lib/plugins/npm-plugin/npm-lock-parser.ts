@@ -1,7 +1,7 @@
 import * as baseDebug from 'debug';
 const debug = baseDebug('snyk');
 import * as path from 'path';
-import * as snyk from '../..';
+import * as snyk from '../../index';
 import * as spinner from '../../spinner';
 import * as _ from 'lodash';
 import * as analytics from '../../analytics';

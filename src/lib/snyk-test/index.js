@@ -1,8 +1,8 @@
 module.exports = test;
 
-var detect = require('../detect');
-var runTest = require('./run-test');
-var chalk = require('chalk');
+const detect = require('../detect');
+const runTest = require('./run-test');
+const chalk = require('chalk');
 
 function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -13,9 +13,9 @@ function test(root, options, callback) {
     options = {};
   }
 
-  var promise = executeTest(root, options);
+  const promise = executeTest(root, options);
   if (callback) {
-    promise.then(function (res) {
+    promise.then((res) => {
       callback(null, res);
     }).catch(callback);
   }
@@ -24,7 +24,7 @@ function test(root, options, callback) {
 
 function executeTest(root, options) {
   try {
-    var packageManager = detect.detectPackageManager(root, options);
+    const packageManager = detect.detectPackageManager(root, options);
     options.packageManager = packageManager;
     return run(root, options)
       .then(function (results) {
@@ -41,16 +41,15 @@ function executeTest(root, options) {
         return results;
       });
   } catch (error) {
-    return Promise.reject(chalk.red.bold(error));
+    throw chalk.default.red.bold(error);
   }
 }
 
 function run(root, options) {
-  var packageManager = options.packageManager;
-  if (['npm', 'yarn'].indexOf(packageManager) >= 0) {
-    return require('./npm')(packageManager, root, options).then((res) => [res]);
-  }
+  const packageManager = options.packageManager;
   if (!options.docker && [
+    'npm',
+    'yarn',
     'rubygems',
     'maven',
     'gradle',
