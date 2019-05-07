@@ -97,7 +97,8 @@ export function monitor(root, meta, info: SingleDepRootResult): Promise<any> {
           if (res.statusCode === 200 || res.statusCode === 201) {
             resolve(body);
           } else {
-            const e = new MonitorError('unexpected error: ' + body.message);
+            const e = new MonitorError('Server returned unexpected error for the monitor request. ' +
+              `Status code: ${res.statusCode}, response: ${res.body.userMessage || res.body.message}`);
             e.code = res.statusCode;
             e.userMessage = body && body.userMessage;
             if (!e.userMessage && res.statusCode === 504) {
