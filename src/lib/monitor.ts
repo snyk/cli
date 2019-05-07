@@ -7,13 +7,14 @@ import * as _ from 'lodash';
 import * as isCI from './is-ci';
 import * as analytics from './analytics';
 import { SingleDepRootResult, MonitorError } from './types';
+import * as depGraphLib from '@snyk/dep-graph';
 
 // TODO(kyegupov): clean up the type, move to snyk-cli-interface repository
 
 interface MonitorBody {
   meta: Meta;
   policy: string;
-  package: {}; // TODO(kyegupov): DepTree
+  depGraph: depGraphLib.DepGraph;
   targetFile: string;
 }
 
@@ -35,8 +36,11 @@ interface Meta {
   projectName: string;
 }
 
-export function monitor(root, meta, info: SingleDepRootResult): Promise<any> {
+export async function monitor(root, meta, info: SingleDepRootResult): Promise<any> {
   const pkg = info.package;
+
+  const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(pkg, meta.packageManager);
+
   const pluginMeta = info.plugin;
   let policyPath = meta['policy-path'];
   if (!meta.isDocker) {
@@ -46,68 +50,67 @@ export function monitor(root, meta, info: SingleDepRootResult): Promise<any> {
     .filter(Boolean);
   const opts = {loose: true};
   const packageManager = meta.packageManager || 'npm';
-  return apiTokenExists('snyk monitor')
-    .then(() => {
-      if (policyLocations.length === 0) {
-        return snyk.policy.create();
-      }
-      return snyk.policy.load(policyLocations, opts);
-    }).then((policy) => {
-      analytics.add('packageManager', packageManager);
-      // TODO(kyegupov): async/await
-      return new Promise((resolve, reject) => {
-        request({
-          body: {
-            meta: {
-              method: meta.method,
-              hostname: os.hostname(),
-              id: meta.id || snyk.id || pkg.name,
-              ci: isCI,
-              pid: process.pid,
-              node: process.version,
-              master: snyk.config.isMaster,
-              name: pkg.name,
-              version: pkg.version,
-              org: config.org ? decodeURIComponent(config.org) : undefined,
-              pluginName: pluginMeta.name,
-              pluginRuntime: pluginMeta.runtime,
-              dockerImageId: pluginMeta.dockerImageId,
-              dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-              projectName: meta['project-name'],
-            },
-            policy: policy.toString(),
-            package: pkg,
-            // we take the targetFile from the plugin,
-            // because we want to send it only for specific package-managers
-            targetFile: pluginMeta.targetFile,
-          } as MonitorBody,
-          gzip: true,
-          method: 'PUT',
-          headers: {
-            'authorization': 'token ' + snyk.api,
-            'content-encoding': 'gzip',
-          },
-          url: config.API + '/monitor/' + packageManager,
-          json: true,
-        }, (error, res, body) => {
-          if (error) {
-            return reject(error);
-          }
 
-          if (res.statusCode === 200 || res.statusCode === 201) {
-            resolve(body);
-          } else {
-            const e = new MonitorError('unexpected error: ' + body.message);
-            e.code = res.statusCode;
-            e.userMessage = body && body.userMessage;
-            if (!e.userMessage && res.statusCode === 504) {
-              e.userMessage = 'Connection Timeout';
-            }
-            reject(e);
-          }
-        });
-      });
+  await apiTokenExists('snyk monitor');
+
+  if (policyLocations.length === 0) {
+    return snyk.policy.create();
+  }
+  const policy = snyk.policy.load(policyLocations, opts);
+  analytics.add('packageManager', packageManager);
+  // TODO(kyegupov): async/await
+  return new Promise((resolve, reject) => {
+    request({
+      body: {
+        meta: {
+          method: meta.method,
+          hostname: os.hostname(),
+          id: meta.id || snyk.id || pkg.name,
+          ci: isCI,
+          pid: process.pid,
+          node: process.version,
+          master: snyk.config.isMaster,
+          name: pkg.name,
+          version: pkg.version,
+          org: config.org ? decodeURIComponent(config.org) : undefined,
+          pluginName: pluginMeta.name,
+          pluginRuntime: pluginMeta.runtime,
+          dockerImageId: pluginMeta.dockerImageId,
+          dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
+          projectName: meta['project-name'],
+        },
+        policy: policy.toString(),
+        depGraph,
+        // we take the targetFile from the plugin,
+        // because we want to send it only for specific package-managers
+        targetFile: pluginMeta.targetFile,
+      } as MonitorBody,
+      gzip: true,
+      method: 'PUT',
+      headers: {
+        'authorization': 'token ' + snyk.api,
+        'content-encoding': 'gzip',
+      },
+      url: config.API + '/monitor/' + packageManager,
+      json: true,
+    }, (error, res, body) => {
+      if (error) {
+        return reject(error);
+      }
+
+      if (res.statusCode === 200 || res.statusCode === 201) {
+        resolve(body);
+      } else {
+        const e = new MonitorError('unexpected error: ' + body.message);
+        e.code = res.statusCode;
+        e.userMessage = body && body.userMessage;
+        if (!e.userMessage && res.statusCode === 504) {
+          e.userMessage = 'Connection Timeout';
+        }
+        reject(e);
+      }
     });
+  });
 }
 
 function pluckPolicies(pkg) {
