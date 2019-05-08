@@ -114,8 +114,6 @@ async function assembleLocalPayload(root: string, options): Promise<Payload> {
   if (policyLocations.length > 0) {
     try {
       policy = await snyk.policy.load(policyLocations, options);
-      // TODO(kyegupov): is this logging required?
-      console.log('POLICY: ', JSON.stringify({...pkg, policy}));
     } catch (error) {
       // note: inline catch, to handle error from .load
       // the .snyk file wasn't found, which is fine, so we'll return
