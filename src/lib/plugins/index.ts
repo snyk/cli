@@ -1,14 +1,13 @@
 import * as dockerPlugin from 'snyk-docker-plugin';
-import * as npmPlugin from './npm';
 import * as rubygemsPlugin from './rubygems';
 import * as mvnPlugin from 'snyk-mvn-plugin';
 import * as gradlePlugin from 'snyk-gradle-plugin';
 import * as sbtPlugin from 'snyk-sbt-plugin';
-import * as yarnPlugin from './yarn';
 import * as pythonPlugin from 'snyk-python-plugin';
 import * as goPlugin from 'snyk-go-plugin';
 import * as nugetPlugin from 'snyk-nuget-plugin';
 import * as phpPlugin from 'snyk-php-plugin';
+import * as nodejsPlugin from './nodejs-plugin';
 import * as types from './types';
 
 export function loadPlugin(packageManager: string, options: types.Options = {}): types.Plugin {
@@ -18,7 +17,7 @@ export function loadPlugin(packageManager: string, options: types.Options = {}):
 
   switch (packageManager) {
     case 'npm': {
-      return npmPlugin;
+      return nodejsPlugin;
     }
     case 'rubygems': {
       return rubygemsPlugin;
@@ -33,7 +32,7 @@ export function loadPlugin(packageManager: string, options: types.Options = {}):
       return sbtPlugin;
     }
     case 'yarn': {
-      return yarnPlugin;
+      return nodejsPlugin;
     }
     case 'pip': {
       return pythonPlugin;
