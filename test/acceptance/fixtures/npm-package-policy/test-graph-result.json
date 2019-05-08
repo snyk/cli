@@ -1,0 +1,128 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "marked@0.3.6": {
+        "pkg": {
+          "name": "marked",
+          "version": "0.3.6"
+        },
+        "issues": {
+          "SNYK-JS-MARKED-10377": {
+            "issueId": "SNYK-JS-MARKED-10377",
+            "fixInfo": {
+              "isPatchable": true,
+              "upgradePaths": []
+            }
+          },
+          "SNYK-JS-MARKED-10782": {
+            "issueId": "SNYK-JS-MARKED-10782",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": []
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-JS-MARKED-10377": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+        "alternativeIds": [
+          "SNYK-JS-MARKED-10377"
+        ],
+        "creationTime": "2017-01-12T00:00:00.780Z",
+        "credit": [
+          "Snyk Security Research Team"
+        ],
+        "cvssScore": 7.5,
+        "description": "description",
+        "disclosureTime": "2017-01-12T00:00:00.780Z",
+        "functions": [],
+        "id": "npm:marked:20170112",
+        "identifiers": {
+          "CWE": [
+            "CWE-79"
+          ],
+          "CVE": [],
+          "ALTERNATIVE": [
+            "SNYK-JS-MARKED-10377"
+          ]
+        },
+        "language": "js",
+        "methods": [],
+        "modificationTime": "2017-01-12T00:00:00.780Z",
+        "moduleName": "marked",
+        "packageManager": "npm",
+        "packageName": "marked",
+        "patches": [
+          {
+            "urls": [
+              "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/marked/20170112/marked_20170112_0_0_cd2f6f5b7091154c5526e79b5f3bfb4d15995a51.patch"
+            ],
+            "version": "<=0.3.6 >0.3.3",
+            "modificationTime": "2017-02-06T00:00:00.000Z",
+            "comments": [],
+            "id": "patch:npm:marked:20170112:0"
+          }
+        ],
+        "publicationTime": "2017-01-30T18:00:00.780Z",
+        "semver": {
+          "vulnerable": [
+            "<=0.3.6",
+            ">0.3.6"
+          ]
+        },
+        "severity": "high",
+        "title": "Cross-site Scripting (XSS) via Data URIs"
+      },
+      "SNYK-JS-MARKED-10782": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [
+          "SNYK-JS-MARKED-10782"
+        ],
+        "creationTime": "2017-01-12T00:00:00.780Z",
+        "credit": [
+          "Cristian-Alexandru Staicu"
+        ],
+        "cvssScore": 7.5,
+        "description": "description",
+        "disclosureTime": "2017-01-12T00:00:00.780Z",
+        "functions": [],
+        "id": "npm:marked:20170907",
+        "identifiers": {
+          "NSP": 531,
+          "CWE": [
+            "CWE-400"
+          ],
+          "CVE": [],
+          "ALTERNATIVE": [
+            "SNYK-JS-MARKED-10782"
+          ]
+        },
+        "language": "js",
+        "methods": [],
+        "modificationTime": "2017-01-12T00:00:00.780Z",
+        "moduleName": "marked",
+        "packageManager": "npm",
+        "packageName": "marked",
+        "patches": [],
+        "publicationTime": "2017-01-30T18:00:00.780Z",
+        "semver": {
+          "vulnerable": [
+            "*"
+          ]
+        },
+        "severity": "high",
+        "title": "Regular Expression Denial of Service (ReDoS)"
+      }
+    }
+  },
+  "meta": {
+    "isPublic": false,
+    "isLicensesEnabled": false,
+    "licensesPolicy": null,
+    "ignoreSettings": null,
+    "org": "test-org"
+  },
+  "filesystemPolicy": true
+}
