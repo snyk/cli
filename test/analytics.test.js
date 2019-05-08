@@ -117,7 +117,7 @@ test('test includes data', { skip: iswindows }, function (t) {
       './commands': proxyquire('../src/cli/commands', {
         '../../lib/hotload': proxyquire('../src/lib/hotload', {
           '../cli/commands/test': proxyquire('../src/lib/snyk-test', {
-            './npm': proxyquire('../src/lib/snyk-test/npm', {
+            './nodejs': proxyquire('../src/lib/snyk-test/nodejs', {
               '../../analytics': analytics,
             })
           })

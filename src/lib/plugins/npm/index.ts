@@ -5,6 +5,8 @@ import {buildDepTree, PkgTree, LockfileType} from 'snyk-nodejs-lockfile-parser';
 import * as snyk from '../../';
 import * as types from '../types';
 
+// TODO(kyegupov): how does it relate to src/lib/snyk-test/nodejs-plugin ?
+
 export async function inspect(root: string, targetFile: string, options: types.Options = {}):
   Promise<types.InspectResult> {
   const isLockFileBased = targetFile.endsWith('package-lock.json');
