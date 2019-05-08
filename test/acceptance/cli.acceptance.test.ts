@@ -565,7 +565,7 @@ test('`test gradle-app --all-sub-projects` sends `multiDepRoots` argument to plu
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('gradle').returns(plugin);
 
-  const res = await cli.test('gradle-app', {
+  await cli.test('gradle-app', {
     'all-sub-projects': true,
   });
   t.true(spyPlugin.args[0][2].multiDepRoots);

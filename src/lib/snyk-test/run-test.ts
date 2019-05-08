@@ -42,14 +42,13 @@ interface Payload {
 }
 
 async function runTest(packageManager: string, root: string, options): Promise<object[]> {
-  const policyLocations = [options['policy-path'] || root];
   // TODO: why hasDevDependencies is always false?
   const hasDevDependencies = false;
 
   const results: object[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
-    const payloads = await assemblePayload(root, options, policyLocations);
+    const payloads = await assemblePayload(root, options);
     for (const payload of payloads) {
       const filesystemPolicy = payload.body && !!payload.body.policy;
       const depGraph = payload.body && payload.body.depGraph;
@@ -138,7 +137,8 @@ function sendPayload(payload: Payload, hasDevDependencies: boolean): Promise<any
   });
 }
 
-function assemblePayload(root: string, options, policyLocations: string[]): Promise<Payload[]> {
+function assemblePayload(root: string, options): Promise<Payload[]> {
+  let policyLocations: string[] = [options['policy-path'] || root];
   let isLocal;
   if (options.docker) {
     isLocal = true;
