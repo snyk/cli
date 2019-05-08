@@ -11,8 +11,7 @@ export async function parse(root, targetFile, options): Promise<PkgTree> {
     'node_modules',
   );
 
-  const nodeModulesExist = await fs.exists(nodeModulesPath);
-  if (!nodeModulesExist) {
+  if (!fs.existsSync(nodeModulesPath)) {
     // throw a custom error
     throw new Error('Missing node_modules folder: we can\'t test ' +
       `without dependencies.\nPlease run '${options.packageManager} install' first.`);
@@ -27,7 +26,6 @@ export async function parse(root, targetFile, options): Promise<PkgTree> {
     path.dirname(path.resolve(root, targetFile));
   try {
     await spinner(resolveModuleSpinnerLabel);
-    // yarn projects fall back to node_module traversal if node < 6
     if (targetFile.endsWith('yarn.lock')) {
       options.file = options.file.replace('yarn.lock', 'package.json');
     }
@@ -36,9 +34,8 @@ export async function parse(root, targetFile, options): Promise<PkgTree> {
     if (targetFile.endsWith('package-lock.json')) {
       options.file = options.file.replace('package-lock.json', 'package.json');
     }
-    const modules = snyk.modules(
+    return snyk.modules(
       root, Object.assign({}, options, {noFromArrays: true}));
-    return modules;
   } finally {
     spinner.clear(resolveModuleSpinnerLabel)();
   }

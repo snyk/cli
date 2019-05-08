@@ -15,7 +15,7 @@ import * as depGraphLib from '@snyk/dep-graph';
 import {AnnotatedIssue, convertTestDepGraphResultToLegacy} from '../legacy';
 
 // important: this is different from ./config (which is the *user's* config)
-import * as config from '../../config';
+import * as snykConfig from '../../config';
 
 export = runTest;
 
@@ -37,7 +37,7 @@ interface Payload {
   qs?: object | null;
   modules?: {
     numDependencies: number;
-    pluck: any;
+    pluck: any; // function asisting in traversal of node_modules (snyk-resolve-deps/lib/pluck.js)
   };
 }
 
@@ -93,7 +93,7 @@ async function assemblePayload(root: string, options): Promise<Payload> {
 
 function assembleRemotePayload(root: string, options): Payload {
   // options.vulnEndpoint is only used for file system tests
-  const url = `${config.API}${(options.vulnEndpoint || `/vuln/${options.packageManager}`)}`;
+  const url = `${snykConfig.API}${(options.vulnEndpoint || `/vuln/${options.packageManager}`)}`;
   const module = moduleToObject(root);
   debug('testing remote: %s', module.name + '@' + module.version);
 
@@ -141,7 +141,7 @@ async function assembleLocalPayload(root: string, options): Promise<Payload> {
     return {
       method: 'POST',
       // options.vulnEndpoint is only used for file system tests
-      url: config.API + options.vulnEndpoint,
+      url: snykConfig.API + options.vulnEndpoint,
       qs: common.assembleQueryString(options),
       json: true,
       headers: {
@@ -166,7 +166,7 @@ async function assembleLocalPayload(root: string, options): Promise<Payload> {
   return {
     method: 'POST',
     // options.vulnEndpoint is only used for file system tests
-    url: config.API + '/test-dep-graph',
+    url: snykConfig.API + '/test-dep-graph',
     qs: common.assembleQueryString(options),
     json: true,
     headers: {
@@ -200,6 +200,7 @@ async function sendPayload(payload: Payload): Promise<any> {
   const hasDevDependencies = payload && payload.body && payload.body.hasDevDependencies;
   const filesystemPolicy = payload.body && !!payload.body.policy;
 
+  // TODO switch to request-native-promise (orsagie)
   return await new Promise((resolve, reject) => {
     request(payload, (error, result, body) => {
       if (error) {

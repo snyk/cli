@@ -3,6 +3,7 @@ module.exports = test;
 var detect = require('../detect');
 var runTest = require('./run-test');
 var chalk = require('chalk');
+var npm = require('./npm');
 
 function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -48,7 +49,7 @@ function executeTest(root, options) {
 function run(root, options) {
   var packageManager = options.packageManager;
   if (['npm', 'yarn'].indexOf(packageManager) >= 0) {
-    return require('./npm')(packageManager, root, options).then((res) => [res]);
+    return npm(packageManager, root, options).then((res) => [res]);
   }
   if (!options.docker && [
     'rubygems',
