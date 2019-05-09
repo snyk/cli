@@ -86,7 +86,6 @@ async function runTest(packageManager: string, root: string, options): Promise<o
       }
     }
 
-
     analytics.add('vulns-pre-policy', res.vulnerabilities.length);
 
     res.filesystemPolicy = !!payloadPolicy;

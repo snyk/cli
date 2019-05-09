@@ -124,7 +124,7 @@ function trimUpToFirstSlash(fileName) {
 
 function patchError(error, dir, vuln, patchUrl) {
   if (error && error.code === 'ENOENT') {
-    error.message = 'Failed to patch: the target could not be found.';
+    error.message = 'Failed to patch: the target could not be found (' + error.message + ').';
     return Promise.reject(error);
   }
 
