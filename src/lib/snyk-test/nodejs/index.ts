@@ -60,6 +60,32 @@ async function runTest(packageManager: string, root: string, options): Promise<o
         options.severityThreshold);
     }
 
+    // For Node.js: inject additional information (for remediation etc.) into the response.
+    if (payload.modules) {
+      res.dependencyCount = payload.modules.numDependencies;
+      if (res.vulnerabilities) {
+        res.vulnerabilities.forEach((vuln) => {
+          if (payload.modules && payload.modules.pluck) {
+            const plucked = payload.modules.pluck(vuln.from, vuln.name, vuln.version);
+            vuln.__filename = plucked.__filename;
+            vuln.shrinkwrap = plucked.shrinkwrap;
+            vuln.bundled = plucked.bundled;
+
+            // this is an edgecase when we're testing the directly vuln pkg
+            if (vuln.from.length === 1) {
+              return;
+            }
+
+            const parentPkg = moduleToObject(vuln.from[1]);
+            const parent = payload.modules.pluck(vuln.from.slice(0, 2),
+              parentPkg.name,
+              parentPkg.version);
+            vuln.parentDepType = parent.depType;
+          }
+        });
+      }
+    }
+
     analytics.add('vulns-pre-policy', res.vulnerabilities.length);
 
     res.filesystemPolicy = !!payloadPolicy;
@@ -234,32 +260,6 @@ async function sendPayload(payload: Payload): Promise<any> {
       }
 
       body.filesystemPolicy = filesystemPolicy;
-
-      // This branch is valid for node modules flow only
-      if (payload.modules) {
-        body.dependencyCount = payload.modules.numDependencies;
-        if (body.vulnerabilities) {
-          body.vulnerabilities.forEach((vuln) => {
-            if (payload.modules && payload.modules.pluck) {
-              const plucked = payload.modules.pluck(vuln.from, vuln.name, vuln.version);
-              vuln.__filename = plucked.__filename;
-              vuln.shrinkwrap = plucked.shrinkwrap;
-              vuln.bundled = plucked.bundled;
-
-              // this is an edgecase when we're testing the directly vuln pkg
-              if (vuln.from.length === 1) {
-                return;
-              }
-
-              const parentPkg = moduleToObject(vuln.from[1]);
-              const parent = payload.modules.pluck(vuln.from.slice(0, 2),
-                parentPkg.name,
-                parentPkg.version);
-              vuln.parentDepType = parent.depType;
-            }
-          });
-        }
-      }
 
       resolve(body);
     });
