@@ -32,25 +32,28 @@ interface Payload {
     authorization: string;
   };
   body?: {
-    depGraph: depGraphLib.DepGraph,
+    depGraph?: depGraphLib.DepGraph, // missing for legacy endpoint (options.vulnEndpoint)
     policy: string;
     targetFile?: string;
     projectNameOverride?: string;
+    hasDevDependencies?: boolean;
     docker?: any;
   };
   qs?: object | null;
+  modules?: {
+    numDependencies: number;
+    pluck: any;
+  };
 }
 
-async function runTest(packageManager: string, root: string, options): Promise<object[]> {
-  // TODO: why hasDevDependencies is always false?
-  const hasDevDependencies = false;
-
+async function runTest(packageManager: string, root: string, options): Promise<any[]> {
   const results: object[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
-    const payloads = await assemblePayload(root, options);
+    const payloads = await assemblePayloads(root, options);
     for (const payload of payloads) {
-      const filesystemPolicy = payload.body && !!payload.body.policy;
+      const hasDevDependencies = payload.body && !!payload.body.hasDevDependencies || false;
+      const payloadPolicy = payload.body && payload.body.policy;
       const depGraph = payload.body && payload.body.depGraph;
 
       let dockerfilePackages;
@@ -66,11 +69,38 @@ async function runTest(packageManager: string, root: string, options): Promise<o
           depGraph,
           packageManager,
           options.severityThreshold);
+
+        // For Node.js: inject additional information (for remediation etc.) into the response.
+        if (payload.modules) {
+          res.dependencyCount = payload.modules.numDependencies;
+          if (res.vulnerabilities) {
+            res.vulnerabilities.forEach((vuln) => {
+              if (payload.modules && payload.modules.pluck) {
+                const plucked = payload.modules.pluck(vuln.from, vuln.name, vuln.version);
+                vuln.__filename = plucked.__filename;
+                vuln.shrinkwrap = plucked.shrinkwrap;
+                vuln.bundled = plucked.bundled;
+
+                // this is an edgecase when we're testing the directly vuln pkg
+                if (vuln.from.length === 1) {
+                  return;
+                }
+
+                const parentPkg = moduleToObject(vuln.from[1]);
+                const parent = payload.modules.pluck(vuln.from.slice(0, 2),
+                  parentPkg.name,
+                  parentPkg.version);
+                vuln.parentDepType = parent.depType;
+              }
+            });
+          }
+        }
       }
 
       analytics.add('vulns-pre-policy', res.vulnerabilities.length);
-      res.filesystemPolicy = filesystemPolicy;
+      res.filesystemPolicy = !!payloadPolicy;
       if (!options['ignore-policy']) {
+        res.policy = res.policy || payloadPolicy;
         const policy = await snyk.policy.loadFromText(res.policy);
         res = policy.filter(res, root);
       }
@@ -137,22 +167,18 @@ function sendPayload(payload: Payload, hasDevDependencies: boolean): Promise<any
   });
 }
 
-function assemblePayload(root: string, options): Promise<Payload[]> {
-  let policyLocations: string[] = [options['policy-path'] || root];
+function assemblePayloads(root: string, options): Promise<Payload[]> {
   let isLocal;
   if (options.docker) {
     isLocal = true;
-    policyLocations = policyLocations.filter((loc) => {
-      return loc !== root;
-    });
   } else {
     isLocal = fs.existsSync(root);
   }
   analytics.add('local', isLocal);
   if (isLocal) {
-    return assembleLocalPayload(root, options, policyLocations);
+    return assembleLocalPayloads(root, options);
   }
-  return assembleRemotePayload(root, options);
+  return assembleRemotePayloads(root, options);
 }
 
 // Force getDepsFromPlugin to return depRoots for processing in assembleLocalPayload
@@ -194,7 +220,8 @@ async function getDepsFromPlugin(root, options: TestOptions): Promise<MultiDepRo
   }
 }
 
-async function assembleLocalPayload(root, options, policyLocations): Promise<Payload[]> {
+// Payload to send to the Registry for scanning a package from the local filesystem.
+async function assembleLocalPayloads(root, options): Promise<Payload[]> {
   const analysisType = options.docker ? 'docker' : options.packageManager;
   const spinnerLbl = 'Analyzing ' + analysisType + ' dependencies for ' +
      (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
@@ -212,15 +239,16 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
         options.packageManager = deps.plugin.packageManager;
       }
 
-      const baseImageFromDockerfile = _.get(pkg, 'docker.baseImage');
-      if (!baseImageFromDockerfile && options['base-image']) {
-        pkg.docker = pkg.docker || {};
-        pkg.docker.baseImage = options['base-image'];
-      }
+      if (pkg.docker) {
+        const baseImageFromDockerfile = pkg.docker.baseImage;
+        if (!baseImageFromDockerfile && options['base-image']) {
+          pkg.docker.baseImage = options['base-image'];
+        }
 
-      if (baseImageFromDockerfile && deps.plugin && deps.plugin.imageLayers) {
-        analytics.add('BaseImage', baseImageFromDockerfile);
-        analytics.add('imageLayers', deps.plugin.imageLayers);
+        if (baseImageFromDockerfile && deps.plugin && deps.plugin.imageLayers) {
+          analytics.add('BaseImage', baseImageFromDockerfile);
+          analytics.add('imageLayers', deps.plugin.imageLayers);
+        }
       }
 
       if (_.get(pkg, 'files.gemfileLock.contents')) {
@@ -229,16 +257,18 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
         pkg.dependencies = gemfileLockToDependencies(gemfileLockContents);
       }
 
-      debug('converting dep-tree to dep-graph', {name: pkg.name, targetFile: depRoot.targetFile || options.file});
-      const depGraph = await depGraphLib.legacy.depTreeToGraph(
-        pkg, options.packageManager);
-      debug('done converting dep-tree to dep-graph', {uniquePkgsCount: depGraph.getPkgs().length});
+      let policyLocations: string[] = [options['policy-path'] || root];
+      if (options.docker) {
+        policyLocations = policyLocations.filter((loc) => {
+          return loc !== root;
+        });
+      } else if (['npm', 'yarn'].indexOf(options.packageManager) > -1) {
+        policyLocations = policyLocations.concat(pluckPolicies(pkg));
+      }
+      debug('policies found', policyLocations);
 
       analytics.add('policies', policyLocations.length);
-      analytics.add('packageManager', options.packageManager);
-      analytics.add('packageName', pkg.name);
-      analytics.add('packageVersion', pkg.version);
-      analytics.add('package', pkg.name + '@' + pkg.version);
+      addPackageAnalytics(pkg);
 
       let policy;
       if (policyLocations.length > 0) {
@@ -253,23 +283,44 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
         }
       }
 
+      let body: any = {
+        targetFile: pkg.targetFile || options.file,
+        projectNameOverride: options.projectName,
+        policy: policy && policy.toString(),
+        docker: pkg.docker,
+        hasDevDependencies: (pkg as any).hasDevDependencies,
+      };
+
+      if (options.vulnEndpoint) {
+        // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests).
+        body = {...body, ...pkg};
+      } else {
+        // Graphs are more compact and robust representations.
+        // Legacy parts of the code are still using trees, but will eventually be fully migrated.
+        debug('converting dep-tree to dep-graph', {name: pkg.name, targetFile: depRoot.targetFile || options.file});
+        const depGraph = await depGraphLib.legacy.depTreeToGraph(
+          pkg, options.packageManager);
+        debug('done converting dep-tree to dep-graph', {uniquePkgsCount: depGraph.getPkgs().length});
+        body.depGraph = depGraph;
+      }
+
+      if (['yarn', 'npm'].indexOf(options.packageManager) !== -1) {
+        const isLockFileBased = options.file.endsWith('package-lock.json') || options.file.endsWith('yarn.lock');
+        if (isLockFileBased && !options.traverseNodeModules) {
+          body.modules = pkg;
+        }
+      }
+
       const payload: Payload = {
         method: 'POST',
-        url: config.API + '/test-dep-graph',
+        url: config.API + (options.vulnEndpoint || '/test-dep-graph'),
         json: true,
         headers: {
           'x-is-ci': isCI,
           'authorization': 'token ' + (snyk as any).api,
         },
         qs: common.assembleQueryString(options),
-        body: {
-          depGraph,
-          targetFile: pkg.targetFile || options.file,
-          projectNameOverride: options.projectName,
-          policy: policy && policy.toString(),
-          docker: pkg.docker,
-
-        },
+        body,
       };
 
       payloads.push(payload);
@@ -280,36 +331,55 @@ async function assembleLocalPayload(root, options, policyLocations): Promise<Pay
   }
 }
 
-async function assembleRemotePayload(root, options): Promise<Payload[]> {
+// Payload to send to the Registry for scanning a remote package.
+async function assembleRemotePayloads(root, options): Promise<Payload[]> {
   const pkg = moduleToObject(root);
   debug('testing remote: %s', pkg.name + '@' + pkg.version);
-  analytics.add('packageName', pkg.name);
-  analytics.add('packageVersion', pkg.version);
-  analytics.add('packageManager', options.packageManager);
-  analytics.add('package', pkg.name + '@' + pkg.version);
+  addPackageAnalytics(pkg);
   const encodedName = encodeURIComponent(pkg.name + '@' + pkg.version);
-  const payload: Payload = {
+  // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests)
+  const url = `${config.API}${(options.vulnEndpoint || `/vuln/${options.packageManager}`)}/${encodedName}`;
+  return [{
     method: 'GET',
-    url: `${config.API}/vuln/${options.packageManager}/${encodedName}`,
+    url,
+    qs: common.assembleQueryString(options),
     json: true,
     headers: {
       'x-is-ci': isCI,
-      'authorization': 'token ' + (snyk as any).api,
+      'authorization': 'token ' + snyk.api,
     },
-  };
-  payload.qs = common.assembleQueryString(options);
-  return [payload];
+  }];
+}
+
+function addPackageAnalytics(module): void {
+  analytics.add('packageManager', 'npm');
+  analytics.add('packageName', module.name);
+  analytics.add('packageVersion', module.version);
+  analytics.add('package', module.name + '@' + module.version);
 }
 
 function countUniqueVulns(vulns: AnnotatedIssue[]): number {
   const seen = {};
-  const count = vulns.reduce((acc, curr) => {
-    if (!seen[curr.id]) {
-      seen[curr.id] = true;
-      acc++;
-    }
-    return acc;
-  }, 0);
+  for (const curr of vulns) {
+    seen[curr.id] = true;
+  }
+  return Object.keys(seen).length;
+}
 
-  return count;
+function pluckPolicies(pkg) {
+  if (!pkg) {
+    return null;
+  }
+
+  if (pkg.snyk) {
+    return pkg.snyk;
+  }
+
+  if (!pkg.dependencies) {
+    return null;
+  }
+
+  return _.flatten(Object.keys(pkg.dependencies).map((name) => {
+    return pluckPolicies(pkg.dependencies[name]);
+  }).filter(Boolean));
 }

@@ -7,12 +7,14 @@ export interface InspectResult {
 }
 
 export interface Options {
+  file?: string;
   docker?: boolean;
   traverseNodeModules?: boolean;
   dev?: boolean;
   strictOutOfSync?: boolean | 'true' | 'false';
   multiDepRoots?: boolean;
   debug?: boolean;
+  packageManager?: string;
 }
 
 export interface Plugin {

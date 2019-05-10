@@ -7,8 +7,9 @@ import * as analytics from '../../analytics';
 import * as fs from 'fs';
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
 import {PkgTree} from 'snyk-nodejs-lockfile-parser';
+import {Options} from '../types';
 
-export async function parse(root, targetFile, options): Promise<PkgTree> {
+export async function parse(root: string, targetFile: string, options: Options): Promise<PkgTree> {
   const lockFileFullPath = path.resolve(root, targetFile);
   if (!fs.existsSync(lockFileFullPath)) {
     throw new Error('Lockfile ' + targetFile + ' not found at location: ' +
