@@ -14,14 +14,29 @@ import request = require('../request');
 import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
+import {DepTree} from '../types';
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
-import {convertTestDepGraphResultToLegacy, AnnotatedIssue} from './legacy';
+import {convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult, TestDepGraphResponse} from './legacy';
 import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, TestOptions} from '../types';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
 
 export = runTest;
+
+interface DepTreeFromResolveDeps extends DepTree {
+  numDependencies: number;
+  pluck: any;
+}
+
+interface PayloadBody {
+  depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
+  policy: string;
+  targetFile?: string;
+  projectNameOverride?: string;
+  hasDevDependencies?: boolean;
+  docker?: any;
+}
 
 interface Payload {
   method: string;
@@ -31,23 +46,13 @@ interface Payload {
     'x-is-ci': boolean;
     authorization: string;
   };
-  body?: {
-    depGraph?: depGraphLib.DepGraph, // missing for legacy endpoint (options.vulnEndpoint)
-    policy: string;
-    targetFile?: string;
-    projectNameOverride?: string;
-    hasDevDependencies?: boolean;
-    docker?: any;
-  };
+  body?: PayloadBody;
   qs?: object | null;
-  modules?: {
-    numDependencies: number;
-    pluck: any;
-  };
+  modules?: DepTreeFromResolveDeps;
 }
 
-async function runTest(packageManager: string, root: string, options): Promise<any[]> {
-  const results: object[] = [];
+async function runTest(packageManager: string, root: string, options): Promise<LegacyVulnApiResult[]> {
+  const results: LegacyVulnApiResult[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     const payloads = await assemblePayloads(root, options);
@@ -62,10 +67,11 @@ async function runTest(packageManager: string, root: string, options): Promise<a
       }
 
       await spinner(spinnerLbl);
-      let res = await sendPayload(payload, hasDevDependencies);
+      // Type assertion might be a lie, but we are correcting that below
+      let res = await sendPayload(payload, hasDevDependencies) as LegacyVulnApiResult;
       if (depGraph) {
         res = convertTestDepGraphResultToLegacy(
-          res,
+          res as any as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
           depGraph,
           packageManager,
           options.severityThreshold);
@@ -100,7 +106,7 @@ async function runTest(packageManager: string, root: string, options): Promise<a
       analytics.add('vulns-pre-policy', res.vulnerabilities.length);
       res.filesystemPolicy = !!payloadPolicy;
       if (!options['ignore-policy']) {
-        res.policy = res.policy || payloadPolicy;
+        res.policy = res.policy || payloadPolicy as string;
         const policy = await snyk.policy.loadFromText(res.policy);
         res = policy.filter(res, root);
       }
@@ -112,7 +118,7 @@ async function runTest(packageManager: string, root: string, options): Promise<a
           if (dockerfilePackage) {
             vuln.dockerfileInstruction = dockerfilePackage.instruction;
           }
-          vuln.dockerBaseImage = res.docker.baseImage;
+          vuln.dockerBaseImage = res.docker!.baseImage;
           return vuln;
         });
       }
@@ -130,7 +136,8 @@ async function runTest(packageManager: string, root: string, options): Promise<a
   }
 }
 
-function sendPayload(payload: Payload, hasDevDependencies: boolean): Promise<any> {
+function sendPayload(payload: Payload, hasDevDependencies: boolean):
+    Promise<LegacyVulnApiResult | TestDepGraphResponse> {
   const filesystemPolicy = payload.body && !!payload.body.policy;
   return new Promise((resolve, reject) => {
     request(payload, (error, res, body) => {
@@ -283,7 +290,7 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
         }
       }
 
-      let body: any = {
+      let body: PayloadBody = {
         targetFile: pkg.targetFile || options.file,
         projectNameOverride: options.projectName,
         policy: policy && policy.toString(),
@@ -304,13 +311,6 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
         body.depGraph = depGraph;
       }
 
-      if (['yarn', 'npm'].indexOf(options.packageManager) !== -1) {
-        const isLockFileBased = options.file.endsWith('package-lock.json') || options.file.endsWith('yarn.lock');
-        if (isLockFileBased && !options.traverseNodeModules) {
-          body.modules = pkg;
-        }
-      }
-
       const payload: Payload = {
         method: 'POST',
         url: config.API + (options.vulnEndpoint || '/test-dep-graph'),
@@ -322,6 +322,13 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
         qs: common.assembleQueryString(options),
         body,
       };
+
+      if (['yarn', 'npm'].indexOf(options.packageManager) !== -1) {
+        const isLockFileBased = options.file.endsWith('package-lock.json') || options.file.endsWith('yarn.lock');
+        if (!isLockFileBased || options.traverseNodeModules) {
+          payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
+        }
+      }
 
       payloads.push(payload);
     }

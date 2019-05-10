@@ -125,6 +125,7 @@ function processWizardFlow(options) {
               });
             })
             .then(() => {
+              // We need to have modules information for remediation. See Payload.modules
               options.traverseNodeModules = true;
 
               return snyk.test(cwd, options).then((res) => {
