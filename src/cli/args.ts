@@ -87,7 +87,7 @@ export function args(processargv) {
     command = 'help';
 
     if (!argv._.length) {
-      argv._.unshift(argv.help || 'usage');
+      argv._.unshift(argv.help || 'help');
     }
   }
 

@@ -5,7 +5,7 @@ var path = require('path');
 
 function help(item) {
   if (!item || item === true || typeof item !== 'string') {
-    item = 'usage';
+    item = 'help';
   }
 
   // cleanse the filename to only contain letters
