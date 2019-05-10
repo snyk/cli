@@ -989,6 +989,7 @@ test('`test npm-out-of-sync` out of sync fails', async (t) => {
   }
 });
 
+// TODO(kyegupov): drop this check, we're on node > 4
 if (getRuntimeVersion() > 4) {
   // yarn lockfile based testing is only supported for node 4+
   test('`test yarn-out-of-sync` out of sync fails', async (t) => {

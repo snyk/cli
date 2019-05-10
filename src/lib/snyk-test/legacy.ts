@@ -29,9 +29,18 @@ interface AnnotatedIssue extends IssueData {
   isUpgradable: boolean;
   isPatchable: boolean;
   nearestFixedInVersion?: string;
+
+  // These fields present for "node_module" based scans to allow remediation
+  bundled?: any;
+  shrinkwrap?: any;
+  __filename?: string;
+  parentDepType: string;
+
+  dockerfileInstruction?: any;
+  dockerBaseImage?: any;
 }
 
-interface LegacyVulnApiResult {
+export interface LegacyVulnApiResult {
   vulnerabilities: AnnotatedIssue[];
   ok: boolean;
   dependencyCount: number;
@@ -42,8 +51,11 @@ interface LegacyVulnApiResult {
   packageManager: string;
   ignoreSettings: object | null;
   summary: string;
-  docker?: object;
+  docker?: {baseImage?: any};
   severityThreshold?: string;
+
+  filesystemPolicy?: boolean;
+  uniqueCount?: any;
 }
 
 interface UpgradePathItem {
@@ -80,6 +92,7 @@ interface TestDepGraphResult {
   };
   docker: {
     binariesVulns?: TestDepGraphResult;
+    baseImage?: any;
   };
 }
 
@@ -96,7 +109,7 @@ interface TestDepGraphMeta {
   org: string;
 }
 
-interface TestDepGraphResponse {
+export interface TestDepGraphResponse {
   result: TestDepGraphResult;
   meta: TestDepGraphMeta;
 }
@@ -145,7 +158,7 @@ function convertTestDepGraphResultToLegacy(
           name: pkgInfo.pkg.name,
           version: pkgInfo.pkg.version as string,
           nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
-        });
+        }) as AnnotatedIssue;  // TODO(kyegupov): get rid of type assertion
 
         vulns.push(annotatedIssue);
       }
@@ -168,7 +181,7 @@ function convertTestDepGraphResultToLegacy(
           name: pkgInfo.pkg.name,
           version: pkgInfo.pkg.version as string,
           nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
-        });
+        }) as any as AnnotatedIssue; // TODO(kyegupov): get rid of forced type assertion
         vulns.push(annotatedIssue);
       }
     }
