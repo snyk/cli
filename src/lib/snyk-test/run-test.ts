@@ -18,6 +18,7 @@ import {DepTree} from '../types';
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult, TestDepGraphResponse} from './legacy';
 import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, TestOptions} from '../types';
+import { NoSupportedManifestsFoundError } from '../errors';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -191,6 +192,9 @@ function assemblePayloads(root: string, options): Promise<Payload[]> {
 // Force getDepsFromPlugin to return depRoots for processing in assembleLocalPayload
 async function getDepsFromPlugin(root, options: TestOptions): Promise<MultiDepRootsResult> {
   options.file = options.file || detect.detectPackageFile(root);
+  if (!options.docker && !(options.file || options.packageManager)) {
+    throw NoSupportedManifestsFoundError([...root]);
+  }
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
   const pluginOptions = plugins.getPluginOptions(options.packageManager, options);
@@ -324,7 +328,8 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
       };
 
       if (['yarn', 'npm'].indexOf(options.packageManager) !== -1) {
-        const isLockFileBased = options.file.endsWith('package-lock.json') || options.file.endsWith('yarn.lock');
+        const isLockFileBased = options.file
+        && options.file.endsWith('package-lock.json') || options.file.endsWith('yarn.lock');
         if (!isLockFileBased || options.traverseNodeModules) {
           payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
         }

@@ -15,7 +15,7 @@ var getVulnSource = require('./get-vuln-source');
 var dedupe = require('./dedupe-patches');
 var writePatchFlag = require('./write-patch-flag');
 var spinner = require('../spinner');
-var errors = require('../error');
+var errors = require('../errors/legacy-errors');
 var analytics = require('../analytics');
 var getPatchFile = require('./fetch-patch');
 
