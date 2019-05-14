@@ -1,5 +1,6 @@
 import {inspectors, Spec} from './inspectors';
 import * as types from '../types';
+import {MissingTargetFileError} from '../../errors/missing-targetfile-error';
 
 interface RubyGemsInspectResult extends types.InspectResult {
   package: {
@@ -10,6 +11,9 @@ interface RubyGemsInspectResult extends types.InspectResult {
 }
 
 export async function inspect(root: string, targetFile: string): Promise<RubyGemsInspectResult> {
+  if (!targetFile ) {
+    throw MissingTargetFileError(root);
+  }
   const specs = await gatherSpecs(root, targetFile);
 
   return {

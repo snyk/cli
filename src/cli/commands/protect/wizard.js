@@ -31,6 +31,8 @@ const cwd = process.cwd();
 const detect = require('../../../lib/detect');
 const plugins = require('../../../lib/plugins');
 const moduleInfo = require('../../../lib/module-info');
+const {MissingTargetFileError} = require('../../../lib/errors/missing-targetfile-error');
+
 const unsupportedPackageManagers = {
   rubygems: 'RubyGems',
   maven: 'Maven',
@@ -279,6 +281,9 @@ function processAnswers(answers, policy, options) {
   var packageFile = path.resolve(cwd, 'package.json');
   var packageManager = detect.detectPackageManager(cwd, options);
   var targetFile = options.file || detect.detectPackageFile(cwd);
+  if (!targetFile) {
+    throw MissingTargetFileError(cwd);
+  }
   const isLockFileBased = targetFile.endsWith('package-lock.json') || targetFile.endsWith('yarn.lock');
 
   var pkg = {};

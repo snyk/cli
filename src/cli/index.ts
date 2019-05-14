@@ -14,6 +14,7 @@ import errors = require('../lib/errors/legacy-errors');
 import ansiEscapes = require('ansi-escapes');
 import {isPathToPackageFile} from '../lib/detect';
 import {updateCheck} from '../lib/updater';
+import { MissingTargetFileError } from '../lib/errors/missing-targetfile-error';
 
 async function runCommand(args) {
   const result = await args.method(...args.options._);
@@ -102,8 +103,7 @@ function checkRuntime() {
 function checkPaths(args) {
   for (const path of args.options._) {
     if (typeof path === 'string' && isPathToPackageFile(path)) {
-      throw new Error(`Not a recognised option did you mean --file=${path}. ` +
-        'Check other options by running snyk --help');
+      throw MissingTargetFileError(path);
     }
   }
 }

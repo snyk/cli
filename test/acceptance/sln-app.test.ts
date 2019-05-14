@@ -77,6 +77,20 @@ test('sln.updateArgs for sln with no relevant projects', (t) => {
   t.end();
 });
 
+test('sln.updateArgs for sln without --file', (t) => {
+  const args = {options: {
+    'test/acceptance/workspaces/emptySolution.sln': ''}};
+
+  try {
+    sln.updateArgs(args);
+    t.fail('should have exploded');
+  } catch (e) {
+    t.equal(e.message, 'No relevant projects found in Solution',
+      'Error thrown on solution with no valid projects');
+  }
+  t.end();
+});
+
 test('sln.updateArgs for non-existing sln', (t) => {
   const args = {options: {file: 'non_existent', _: []}};
 
