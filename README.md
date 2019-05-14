@@ -194,7 +194,7 @@ docker run -it
 
 ## Badge
 
-Add a badge to your site showing it has no known security holes.  This will make users feel more confident in using your platform.
+Make users feel more confident in using your website by adding your Snyk badge!
 
 <a href="https://snyk.io/test/npm/snyk"><img src="https://snyk.io/test/npm/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
 
