@@ -1,8 +1,9 @@
-var config = require('../lib/config');
-var chalk = require('chalk');
-var SEVERITIES = require('./snyk-test/common').SEVERITIES;
 
-var errors = {
+const config = require('../config');
+const chalk = require('chalk');
+const {SEVERITIES} = require('../snyk-test/common');
+
+const errors = {
   connect: 'Check your network connection, failed to connect to Snyk API',
   endpoint: 'The Snyk API is not available on ' + config.API,
   auth: 'Unauthorized: please ensure you are logged in using `snyk auth`',
@@ -37,12 +38,12 @@ var errors = {
   idRequired: 'id is a required field for `snyk ignore`',
   unknownCommand: '%s\n\nRun `snyk --help` for a list of available commands.',
   invalidSeverityThreshold: 'Invalid severity threshold, please use one of ' +
-    SEVERITIES.map(s => s.verboseName).join(' | '),
+    SEVERITIES.map((s) => s.verboseName).join(' | '),
 };
 
 // a key/value pair of error.code (or error.message) as the key, and our nice
 // strings as the value.
-var codes = {
+const codes = {
   ECONNREFUSED: errors.connect,
   ENOTFOUND: errors.connect,
   NOT_FOUND: errors.notfound,
@@ -66,13 +67,13 @@ var codes = {
 };
 
 module.exports = function error(command) {
-  var e = new Error('Unknown command "' + command + '"');
+  const e = new Error('Unknown command "' + command + '"');
   e.code = 'UNKNOWN_COMMAND';
   return Promise.reject(e);
 };
 
-module.exports.message = function (error) {
-  var message = error; // defaults to a string (which is super unlikely)
+module.exports.message = function(error) {
+  let message = error; // defaults to a string (which is super unlikely)
   if (error instanceof Error) {
     if (error.code === 'VULNS') {
       return error.message;

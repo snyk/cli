@@ -105,7 +105,7 @@ export function args(processargv) {
 
   if (!method) {
     // if we failed to find a command, then default to an error
-    method = require('../lib/error');
+    method = require('../lib/errors/legacy-errors');
     argv._.push(command);
   }
 

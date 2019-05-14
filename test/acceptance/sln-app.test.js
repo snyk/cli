@@ -3,7 +3,7 @@ var path = require('path');
 var sln = require('../../src/lib/sln');
 
 test('parseFoldersFromSln when passed an existant filename', function (t) {
-  var slnFile = 'test/acceptance/workspaces/sln-example-app/mySolution.sln'; 
+  var slnFile = 'test/acceptance/workspaces/sln-example-app/mySolution.sln';
   var expected = JSON.stringify([
     "dotnet2_new_mvc_project/new_mvc_project.csproj",
     "WebApplication2/WebApplication2.csproj"
@@ -15,12 +15,25 @@ test('parseFoldersFromSln when passed an existant filename', function (t) {
 
 test('parseFoldersFromSln when non existant filename', function (t) {
   var response;
-  var slnFile = 'test/acceptance/workspaces/sln-example-app/mySolution1.sln'; 
+  var slnFile = 'test/acceptance/workspaces/sln-example-app/mySolution1.sln';
   try {
     response = sln.parsePathsFromSln(slnFile);
     t.fail('an exception should be thrown');
   }
   catch (e) {
+    t.match(e.message, 'File not found: ', 'should throw exception');
+    t.equal(response, undefined, 'shouldnt return');
+  }
+  t.end();
+});
+
+test('parseFoldersFromSln when no supported files found', function (t) {
+  let response;
+  const slnFile = 'test/acceptance/workspaces/sln-no-supported-files/mySolution1.sln';
+  try {
+    response = sln.parsePathsFromSln(slnFile);
+    t.fail('an exception should be thrown');
+  } catch (e) {
     t.match(e.message, 'File not found: ', 'should throw exception');
     t.equal(response, undefined, 'shouldnt return');
   }

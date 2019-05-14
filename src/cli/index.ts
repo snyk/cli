@@ -10,7 +10,7 @@ import * as sln from '../lib/sln';
 import {args as argsLib} from './args';
 import {copy} from './copy';
 import spinner = require('../lib/spinner');
-import errors = require('../lib/error');
+import errors = require('../lib/errors/legacy-errors');
 import ansiEscapes = require('ansi-escapes');
 import {isPathToPackageFile} from '../lib/detect';
 import {updateCheck} from '../lib/updater';
@@ -113,15 +113,13 @@ async function main() {
   checkRuntime();
 
   const args = argsLib(process.argv);
-
-  if (args.options.file && args.options.file.match(/\.sln$/)) {
-    sln.updateArgs(args);
-  }
-
   let res = null;
   let failed = false;
 
   try {
+    if (args.options.file && args.options.file.match(/\.sln$/)) {
+      sln.updateArgs(args);
+    }
     checkPaths(args);
     res = await runCommand(args);
   } catch (error) {

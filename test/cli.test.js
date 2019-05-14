@@ -207,7 +207,7 @@ test('snyk ignore - no ID', function (t) {
   }).then(function (res) {
     t.fail('should not succeed with missing ID');
   }).catch(function (e) {
-    var errors = require('../src/lib/error');
+    var errors = require('../src/lib/errors/legacy-errors');
     var message = stripAnsi(errors.message(e));
     t.equal(message.toLowerCase().indexOf('id is a required field'), 0,
             'captured failed ignore (no --id given)');
@@ -274,7 +274,7 @@ test('auth via key', function (t) {
 test('auth via invalid key', function (t) {
   t.plan(1);
 
-  var errors = require('../src/lib/error');
+  var errors = require('../src/lib/errors/legacy-errors');
 
   cli.auth('_____________').then(function (res) {
     t.fail('auth should not succeed: ' + res);
