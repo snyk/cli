@@ -1,57 +1,57 @@
-module.exports = auth;
-module.exports.isAuthed = isAuthed;
+import * as Debug from 'debug';
+import * as open from 'opn';
+import * as snyk from '../../lib/';
+import * as config from '../../lib/config';
+import * as isCI from '../../lib/is-ci';
+import * as request from '../../lib/request';
+import * as url from 'url';
+import * as uuid from 'uuid';
+import * as spinner from '../../lib/spinner';
+import { CustomError } from '@snyk/dep-graph/dist/core/errors/custom-error';
 
-var debug = require('debug')('snyk');
-var open = require('opn');
-var snyk = require('../../lib/');
-var config = require('../../lib/config');
-var isCI = require('../../lib/is-ci');
-var request = require('../../lib/request');
-var url = require('url');
-var uuid = require('uuid');
-var spinner = require('../../lib/spinner');
-var apiUrl = url.parse(config.API);
-var authUrl = apiUrl.protocol + '//' + apiUrl.host;
-var attemptsLeft = 0;
+const apiUrl = url.parse(config.API);
+const authUrl = apiUrl.protocol + '//' + apiUrl.host;
+const debug = Debug('snyk-auth');
+let attemptsLeft = 0;
 
 function resetAttempts() {
   attemptsLeft = 30;
 }
 
 function githubAuth(via) {
-  var token = uuid.v4(); // generate a random key
-  var redirects = {
+  const token = uuid.v4(); // generate a random key
+  const redirects = {
     wizard: '/authenticated',
   };
 
-  var url = authUrl + '/login?token=' + token;
+  let urlStr = authUrl + '/login?token=' + token;
 
   // validate that via comes from our code, and not from user & CLI
   // currently only support `wizard` but we'll add more over time.
   if (redirects[via]) {
-    url += '&redirectUri=' + new Buffer(redirects[via]).toString('base64');
+    urlStr += '&redirectUri=' + new Buffer(redirects[via]).toString('base64');
   }
 
-  var msg =
+  const msg =
     '\nNow redirecting you to our auth page, go ahead and log in,\n' +
     'and once the auth is complete, return to this prompt and you\'ll\n' +
     'be ready to start using snyk.\n\nIf you can\'t wait use this url:\n' +
-    url + '\n';
+    urlStr + '\n';
 
   // suppress this message in CI
   if (!isCI) {
     console.log(msg);
   } else {
-    var error = new Error('noAuthInCI');
+    const error = new CustomError('noAuthInCI');
     error.code = 'AUTH_IN_CI';
     return Promise.reject(error);
   }
 
-  var lbl = 'Waiting...';
+  const lbl = 'Waiting...';
 
-  return spinner(lbl).then(function () {
-    setTimeout(function () {
-      open(url, {wait: false});
+  return spinner(lbl).then(() => {
+    setTimeout(() => {
+      open(urlStr, {wait: false});
     }, 2000);
     // start checking the token immediately in case they've already
     // opened the url manually
@@ -59,33 +59,32 @@ function githubAuth(via) {
   })
     // clear spinnger in case of success or failure
     .then(spinner.clear(lbl))
-    .catch(function (error) {
+    .catch((error) => {
       spinner.clear(lbl)();
       throw error;
     });
 }
 
 function testAuthComplete(token) {
-  var payload = {
+  const payload = {
     body: {
-      token: token,
+      token,
     },
     url: config.API + '/verify/callback',
     json: true,
     method: 'post',
   };
 
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     debug(payload);
-    request(payload, function (error, res, body) {
+    request(payload, (error, res, body) => {
       debug(error, (res || {}).statusCode, body);
       if (error) {
         return reject(error);
       }
 
-
       if (res.statusCode !== 200) {
-        var e = new Error(body.message);
+        const e = new Error(body.message);
         e.code = res.statusCode;
         return reject(e);
       }
@@ -93,19 +92,19 @@ function testAuthComplete(token) {
       // we have success
       if (body.api) {
         return resolve({
-          res: res,
-          body: body,
+          res,
+          body,
         });
       }
 
       // we need to wait and poll again in a moment
-      setTimeout(function () {
+      setTimeout(() => {
         attemptsLeft--;
         if (attemptsLeft > 0) {
           return resolve(testAuthComplete(token));
         }
 
-        var error = new Error('Sorry, but your authentication token has now' +
+        const error = new CustomError('Sorry, but your authentication token has now' +
           ' expired.\nPlease try to authenticate again.');
         error.code = 'AUTH_TIMEOUT';
         reject(error);
@@ -114,39 +113,39 @@ function testAuthComplete(token) {
   });
 }
 
-function isAuthed() {
-  var token = snyk.config.get('api');
-  return verifyAPI(token).then(function (res) {
+export function isAuthed() {
+  const token = snyk.config.get('api');
+  return verifyAPI(token).then((res) => {
     return res.body.ok;
   });
 }
 
 function verifyAPI(api) {
-  var payload = {
+  const payload = {
     body: {
-      api: api,
+      api,
     },
     method: 'POST',
     url: config.API + '/verify/token',
     json: true,
   };
 
-  return new Promise(function (resolve, reject) {
-    request(payload, function (error, res, body) {
+  return new Promise((resolve, reject) => {
+    request(payload, (error, res, body) => {
       if (error) {
         return reject(error);
       }
 
       resolve({
-        res: res,
-        body: body,
+        res,
+        body,
       });
     });
   });
 }
 
-function auth(api, via) {
-  var promise;
+export function auth(api, via) {
+  let promise;
   resetAttempts();
   if (api) {
     // user is manually setting the API token on the CLI - let's trust them
@@ -155,9 +154,9 @@ function auth(api, via) {
     promise = githubAuth(via);
   }
 
-  return promise.then(function (data) {
-    var res = data.res;
-    var body = res.body;
+  return promise.then((data) => {
+    const res = data.res;
+    const body = res.body;
     debug(body);
 
     if (res.statusCode === 200 || res.statusCode === 201) {
@@ -167,11 +166,11 @@ function auth(api, via) {
     }
 
     if (body.message) {
-      var error = new Error(body.message);
+      const error = new CustomError(body.message);
       error.code = res.statusCode;
       throw error;
     }
 
-    throw new Error('authfail');
+    throw new CustomError('authfail');
   });
 }
