@@ -88,7 +88,7 @@ export function detectPackageManager(root, options) {
       }
     }
   } else {
-    debug('specified paramater is not a folder, trying to lookup as repo');
+    debug('specified parameter is not a folder, trying to lookup as repo');
     const registry = options.registry || 'npm';
     packageManager = detectPackageManagerFromRegistry(registry);
   }
