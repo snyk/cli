@@ -6,7 +6,7 @@ require('../../lib/spinner').isRequired = false;
 // time as low as possible
 
 var commands = {
-  auth: hotload('./auth'),
+  auth: (hotload('./auth')),
   config: hotload('./config'),
   help: hotload('./help'),
   ignore: hotload('./ignore'),

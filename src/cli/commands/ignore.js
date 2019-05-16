@@ -4,13 +4,14 @@ var debug = require('debug')('snyk');
 var policy = require('snyk-policy');
 var chalk = require('chalk');
 var authorization = require('../../lib/authorization');
-var auth = require('./auth');
+var auth = require('./auth/is-authed');
+var authenticate = require('./auth');
 
 function ignore(options) {
   debug('snyk ignore called with options: %O', options);
   return auth.isAuthed().then(function (authed) {
     if (!authed) {
-      return auth(null, 'ignore');
+      return authenticate(null, 'ignore');
     }
   }).then(function () {
     return authorization.actionAllowed('cliIgnore', options);

@@ -6,7 +6,7 @@ var fs = require('then-fs');
 var semver = require('semver');
 var _ = require('lodash');
 var snyk = require('../../lib');
-var auth = require('./auth');
+var auth = require('./auth/is-authed');
 var wizard = require('./protect/wizard');
 
 function scenario(casefile, options) {

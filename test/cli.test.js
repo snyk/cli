@@ -5,8 +5,7 @@ var apiKey = '123456789';
 var notAuthorizedApiKey = 'notAuthorized';
 var oldkey;
 var oldendpoint;
-var chalk = require('chalk');
-var port = process.env.PORT = process.env.SNYK_PORT = 12345;
+var port = process.env.PORT || process.env.SNYK_PORT || '12345';
 var sinon = require('sinon');
 var proxyquire = require('proxyquire');
 var parse = require('url').parse;
@@ -15,7 +14,7 @@ const stripAnsi = require('strip-ansi');
 
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
-process.env.LOG_LEVEL = 0;
+process.env.LOG_LEVEL = '0';
 
 
 var server = require('./cli-server')(

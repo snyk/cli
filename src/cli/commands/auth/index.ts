@@ -1,13 +1,18 @@
 import * as Debug from 'debug';
 import * as open from 'opn';
-import * as snyk from '../../lib/';
-import * as config from '../../lib/config';
-import * as isCI from '../../lib/is-ci';
-import * as request from '../../lib/request';
+import * as snyk from '../../../lib';
+import * as config from '../../../lib/config';
+import * as isCI from '../../../lib/is-ci';
+import * as request from '../../../lib/request';
 import * as url from 'url';
 import * as uuid from 'uuid';
-import * as spinner from '../../lib/spinner';
-import { CustomError } from '@snyk/dep-graph/dist/core/errors/custom-error';
+import * as spinner from '../../../lib/spinner';
+import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
+import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
+import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
+import {verifyAPI} from './is-authed';
+
+module.exports = auth;
 
 const apiUrl = url.parse(config.API);
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;
@@ -18,7 +23,7 @@ function resetAttempts() {
   attemptsLeft = 30;
 }
 
-function githubAuth(via) {
+function webAuth(via) {
   const token = uuid.v4(); // generate a random key
   const redirects = {
     wizard: '/authenticated',
@@ -42,9 +47,7 @@ function githubAuth(via) {
   if (!isCI) {
     console.log(msg);
   } else {
-    const error = new CustomError('noAuthInCI');
-    error.code = 'AUTH_IN_CI';
-    return Promise.reject(error);
+    return Promise.reject(MisconfiguredAuthInCI());
   }
 
   const lbl = 'Waiting...';
@@ -84,9 +87,7 @@ function testAuthComplete(token) {
       }
 
       if (res.statusCode !== 200) {
-        const e = new Error(body.message);
-        e.code = res.statusCode;
-        return reject(e);
+        return reject(AuthFailedError(body.message, res.statusCode));
       }
 
       // we have success
@@ -104,54 +105,20 @@ function testAuthComplete(token) {
           return resolve(testAuthComplete(token));
         }
 
-        const error = new CustomError('Sorry, but your authentication token has now' +
-          ' expired.\nPlease try to authenticate again.');
-        error.code = 'AUTH_TIMEOUT';
-        reject(error);
+        reject(TokenExpiredError());
       }, 1000);
     });
   });
 }
 
-export function isAuthed() {
-  const token = snyk.config.get('api');
-  return verifyAPI(token).then((res) => {
-    return res.body.ok;
-  });
-}
-
-function verifyAPI(api) {
-  const payload = {
-    body: {
-      api,
-    },
-    method: 'POST',
-    url: config.API + '/verify/token',
-    json: true,
-  };
-
-  return new Promise((resolve, reject) => {
-    request(payload, (error, res, body) => {
-      if (error) {
-        return reject(error);
-      }
-
-      resolve({
-        res,
-        body,
-      });
-    });
-  });
-}
-
-export function auth(api, via) {
+function auth(api, via) {
   let promise;
   resetAttempts();
   if (api) {
     // user is manually setting the API token on the CLI - let's trust them
     promise = verifyAPI(api);
   } else {
-    promise = githubAuth(via);
+    promise = webAuth(via);
   }
 
   return promise.then((data) => {
@@ -164,13 +131,6 @@ export function auth(api, via) {
       return '\nYour account has been authenticated. Snyk is now ready to ' +
         'be used.\n';
     }
-
-    if (body.message) {
-      const error = new CustomError(body.message);
-      error.code = res.statusCode;
-      throw error;
-    }
-
-    throw new CustomError('authfail');
+    throw AuthFailedError(body.message, res.statusCode);
   });
 }

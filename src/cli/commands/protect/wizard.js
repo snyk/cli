@@ -13,7 +13,8 @@ const chalk = require('chalk');
 const url = require('url');
 const _ = require('lodash');
 const exec = require('child_process').exec;
-const auth = require('../auth');
+const authenticate = require('../auth');
+const auth = require('../auth/is-authed');
 const getVersion = require('../version');
 const allPrompts = require('./prompts');
 const answersToTasks = require('./tasks');
@@ -94,7 +95,7 @@ function processWizardFlow(options) {
       return auth.isAuthed().then((authed) => {
         analytics.add('inline-auth', !authed);
         if (!authed) {
-          return auth(null, 'wizard');
+          return authenticate(null, 'wizard');
         }
       })
         .then(() => authorization.actionAllowed('cliIgnore', options))
