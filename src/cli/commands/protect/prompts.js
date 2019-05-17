@@ -838,8 +838,7 @@ function generatePrompt(vulns, policy, prefix, options) {
 function startOver() {
   return {
     name: 'misc-start-over',
-    message: 'Do you want to revisit your existing policy [y] or only update ' +
-      'it [N]?',
+    message: 'Existing .snyk policy found. Ignore it and start from scratch [y] or update it [N]?',
     type: 'confirm',
     default: false,
   };
