@@ -8,7 +8,7 @@ import analytics = require('../analytics');
 import config = require('../config');
 import detect = require('../../lib/detect');
 import plugins = require('../plugins');
-import ModuleInfo = require('../module-info');
+import {ModuleInfo} from '../module-info';
 import {isCI} from '../is-ci';
 import request = require('../request');
 import snyk = require('../');

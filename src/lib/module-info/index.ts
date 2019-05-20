@@ -1,12 +1,12 @@
-var _ = require('lodash');
-const debug = require('debug')('snyk');
+import * as _ from 'lodash';
+import * as Debug from 'debug';
 
-module.exports = ModuleInfo;
+const debug = Debug('snyk-module-info');
 
-function ModuleInfo(plugin, policy) {
+export function ModuleInfo(plugin, policy) {
   return {
-    inspect: async function (root, targetFile, options) {
-      var pluginOptions = _.merge({
+    async inspect(root, targetFile, options) {
+      const pluginOptions = _.merge({
         args: options._doubleDashArgs,
       }, options);
 

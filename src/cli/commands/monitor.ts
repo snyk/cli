@@ -13,7 +13,7 @@ import * as spinner from '../../lib/spinner';
 
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
-import ModuleInfo = require('../../lib/module-info'); // TODO(kyegupov): fix import
+import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
 import * as docker from '../../lib/docker-promotion';
 import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorError } from '../../lib/types';
 
