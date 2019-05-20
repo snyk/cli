@@ -13,13 +13,14 @@ const chalk = require('chalk');
 const url = require('url');
 const _ = require('lodash');
 const exec = require('child_process').exec;
-const auth = require('../auth');
+const authenticate = require('../auth');
+const auth = require('../auth/is-authed');
 const getVersion = require('../version');
 const allPrompts = require('./prompts');
 const answersToTasks = require('./tasks');
 const snyk = require('../../../lib/');
 const snykMonitor = require('../../../lib/monitor').monitor;
-const isCI = require('../../../lib/is-ci');
+const isCI = require('../../../lib/is-ci').isCI;
 const protect = require('../../../lib/protect');
 const authorization = require('../../../lib/authorization');
 const config = require('../../../lib/config');
@@ -96,7 +97,7 @@ function processWizardFlow(options) {
       return auth.isAuthed().then((authed) => {
         analytics.add('inline-auth', !authed);
         if (!authed) {
-          return auth(null, 'wizard');
+          return authenticate(null, 'wizard');
         }
       })
         .then(() => authorization.actionAllowed('cliIgnore', options))
@@ -108,7 +109,7 @@ function processWizardFlow(options) {
           }
           const intro = __dirname + '/../../../../help/wizard-intro.txt';
           return fs.readFile(intro, 'utf8').then(function (str) {
-            if (!isCI) {
+            if (!isCI()) {
               console.log(str);
             }
           })
@@ -334,7 +335,7 @@ function processAnswers(answers, policy, options) {
 
       return policy.save(cwd, spinner).then(function () {
       // don't do this during testing
-        if (isCI || process.env.TAP) {
+        if (isCI() || process.env.TAP) {
           return Promise.resolve();
         }
 

@@ -5,7 +5,7 @@ var snyk = require('../lib');
 var config = require('./config');
 var version = require('./version');
 var request = require('./request');
-var isCI = require('./is-ci');
+var isCI = require('./is-ci').isCI;
 var debug = require('debug')('snyk');
 var os = require('os');
 var osName = require('os-name');
@@ -57,7 +57,7 @@ function postAnalytics(data) {
       headers.authorization = 'token ' + snyk.api;
     }
 
-    data.ci = isCI;
+    data.ci = isCI();
     data.durationMs = Date.now() - startTime;
 
     debug('analytics', data);

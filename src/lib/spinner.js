@@ -2,7 +2,7 @@ module.exports = createSpinner;
 module.exports.isRequired = true;
 
 var debug = require('debug')('snyk:spinner');
-var isCI = require('./is-ci');
+var isCI = require('./is-ci').isCI;
 var spinners = {};
 var sticky = false;
 var handleExit = false;
@@ -60,7 +60,7 @@ createSpinner.clearAll = function () {
 
 // taken from http://git.io/vWdUm and modified
 function spinner(opt) {
-  if (module.exports.isRequired || isCI) {
+  if (module.exports.isRequired || isCI()) {
     return false;
   }
   debug('creating spinner');

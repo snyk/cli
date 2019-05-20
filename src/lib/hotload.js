@@ -12,7 +12,6 @@ function hotload(dir) {
       if (module === null) {
         module = require(path.relative(__dirname, path.resolve(dir, name)));
       }
-
       return module.apply(null, arguments);
     };
   };

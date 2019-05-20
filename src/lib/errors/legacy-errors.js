@@ -8,8 +8,6 @@ const errors = {
   endpoint: 'The Snyk API is not available on ' + config.API,
   auth: 'Unauthorized: please ensure you are logged in using `snyk auth`',
   dotfile: 'Try running `snyk wizard` to define a Snyk protect policy',
-  authfail: 'Authentication failed. Please check the API token on ' +
-    config.ROOT,
   oldsnyk: 'You have an alpha format Snyk policy file in this directory. ' +
     'Please remove it, and re-create using `snyk wizard`',
   notfound: 'The package could not be found or does not exist',
@@ -27,8 +25,6 @@ const errors = {
     're-run your snyk command.',
   tryDevDeps: 'Snyk only tests production dependencies by default (which ' +
     'this project had none). Try re-running with the `--dev` flag.',
-  noAuthInCI: 'Github auth cannot be used whilst inside CI. You must include ' +
-    'your API token as an environment value: `API=12345678`',
   noApiToken: '%s requires an authenticated account. Please run `snyk auth` ' +
     'and try again.',
   timeout: 'The request has timed out on the server side.\nPlease re-run ' +
