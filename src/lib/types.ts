@@ -1,4 +1,5 @@
 import * as depGraphLib from '@snyk/dep-graph';
+import { SupportedPackageManagers } from './package-managers';
 
 // TODO(kyegupov): use a shared repository snyk-cli-interface
 
@@ -66,7 +67,7 @@ export interface TestOptions {
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
   showVulnPaths?: boolean;
-  packageManager: string;
+  packageManager: SupportedPackageManagers;
   advertiseSubprojectsCount?: number;
   subProjectNames?: string[];
   severityThreshold?: string;

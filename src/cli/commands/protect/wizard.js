@@ -33,8 +33,7 @@ const detect = require('../../../lib/detect');
 const plugins = require('../../../lib/plugins');
 const moduleInfo = require('../../../lib/module-info');
 const {MissingTargetFileError} = require('../../../lib/errors/missing-targetfile-error');
-
-const wizardSupportedPackageManagers = ['npm', 'yarn'];
+const pm = require('../../../lib/package-managers');
 
 function wizard(options = {}) {
   options.org = options.org || config.org || null;
@@ -47,10 +46,11 @@ function wizard(options = {}) {
 async function processPackageManager(options) {
   const packageManager = detect.detectPackageManager(cwd, options);
 
-  const supportsWizard = wizardSupportedPackageManagers.includes(packageManager);
+  const supportsWizard = pm.WIZARD_SUPPORTED_PACKAGE_MANAGERS
+    .includes(packageManager);
   if (!supportsWizard) {
     return Promise.reject(
-      `Snyk wizard for ${packageManager} projects is not currently supported`);
+      `Snyk wizard for ${pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager]} projects is not currently supported`);
   }
 
   return fs.exists(path.join('.', 'node_modules'))
