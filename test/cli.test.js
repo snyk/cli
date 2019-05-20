@@ -1,6 +1,7 @@
 var _ = require('lodash');
 var test = require('tap').test;
 var testUtils = require('./utils');
+var ciChecker = require('../src/lib/is-ci');
 var apiKey = '123456789';
 var notAuthorizedApiKey = 'notAuthorized';
 var oldkey;
@@ -293,8 +294,8 @@ test('auth via github', function (t) {
 
   var auth = proxyquire('../src/cli/commands/auth', {
     open: openSpy,
-    '../../lib/is-ci': false,
   });
+  sinon.stub(ciChecker, 'isCI').returns(false);
 
   var unhook = testUtils.silenceLog();
 

@@ -1,4 +1,4 @@
-var ciEnvs = [
+const ciEnvs = new Set([
   'SNYK_CI',
   'CI',
   'CONTINUOUS_INTEGRATION',
@@ -14,8 +14,8 @@ var ciEnvs = [
   'GOCD_SERVER_HOST',
   'BUILDKITE',
   'TF_BUILD',
-];
+]);
 
-module.exports = !!Object.keys(process.env).filter(function (env) {
-  return ciEnvs.indexOf(env) !== -1;
-}).length;
+export function isCI(): boolean {
+  return Object.keys(process.env).some((key) => ciEnvs.has(key));
+}

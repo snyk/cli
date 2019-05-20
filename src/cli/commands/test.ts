@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as snyk from '../../lib/';
 import * as config from '../../lib/config';
-import * as isCI from '../../lib/is-ci';
+import {isCI} from '../../lib/is-ci';
 import {exists as apiTokenExists} from '../../lib/api-token';
 import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../lib/snyk-test/common';
 import * as docker from '../../lib/docker-promotion';
@@ -245,7 +245,7 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
       'your CI/test.';
     return (
       prefix + meta + summaryOKText + multiProjAdvice + (
-        isCI ? '' :
+        isCI() ? '' :
           dockerAdvice +
           nextStepsText +
           dockerSuggestion)

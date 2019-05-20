@@ -9,7 +9,7 @@ import config = require('../config');
 import detect = require('../../lib/detect');
 import plugins = require('../plugins');
 import ModuleInfo = require('../module-info');
-import isCI = require('../is-ci');
+import {isCI} from '../is-ci';
 import request = require('../request');
 import snyk = require('../');
 import spinner = require('../spinner');
@@ -320,7 +320,7 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
         url: config.API + (options.vulnEndpoint || '/test-dep-graph'),
         json: true,
         headers: {
-          'x-is-ci': isCI,
+          'x-is-ci': isCI(),
           'authorization': 'token ' + (snyk as any).api,
         },
         qs: common.assembleQueryString(options),
@@ -357,7 +357,7 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
     qs: common.assembleQueryString(options),
     json: true,
     headers: {
-      'x-is-ci': isCI,
+      'x-is-ci': isCI(),
       'authorization': 'token ' + snyk.api,
     },
   }];

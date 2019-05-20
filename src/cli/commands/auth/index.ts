@@ -2,7 +2,7 @@ import * as Debug from 'debug';
 import * as open from 'opn';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
-import * as isCI from '../../../lib/is-ci';
+import {isCI} from '../../../lib/is-ci';
 import * as request from '../../../lib/request';
 import * as url from 'url';
 import * as uuid from 'uuid';
@@ -23,7 +23,9 @@ function resetAttempts() {
   attemptsLeft = 30;
 }
 
-function webAuth(via) {
+type AuthCliCommands = 'wizard' | 'ignore';
+
+async function webAuth(via: AuthCliCommands) {
   const token = uuid.v4(); // generate a random key
   const redirects = {
     wizard: '/authenticated',
@@ -32,7 +34,6 @@ function webAuth(via) {
   let urlStr = authUrl + '/login?token=' + token;
 
   // validate that via comes from our code, and not from user & CLI
-  // currently only support `wizard` but we'll add more over time.
   if (redirects[via]) {
     urlStr += '&redirectUri=' + new Buffer(redirects[via]).toString('base64');
   }
@@ -44,7 +45,7 @@ function webAuth(via) {
     urlStr + '\n';
 
   // suppress this message in CI
-  if (!isCI) {
+  if (!isCI()) {
     console.log(msg);
   } else {
     return Promise.reject(MisconfiguredAuthInCI());
@@ -68,7 +69,7 @@ function webAuth(via) {
     });
 }
 
-function testAuthComplete(token) {
+async function testAuthComplete(token: string) {
   const payload = {
     body: {
       token,
@@ -111,12 +112,12 @@ function testAuthComplete(token) {
   });
 }
 
-function auth(api, via) {
+async function auth(apiToken: string, via: AuthCliCommands) {
   let promise;
   resetAttempts();
-  if (api) {
+  if (apiToken) {
     // user is manually setting the API token on the CLI - let's trust them
-    promise = verifyAPI(api);
+    promise = verifyAPI(apiToken);
   } else {
     promise = webAuth(via);
   }

@@ -12,7 +12,6 @@ var plugins = require('../../src/lib/plugins');
 var config = require('../../src/lib/config');
 const origTravisVal = process.env.TRAVIS;
 delete process.env.TRAVIS;
-var isCI = require('../../src/lib/is-ci');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too

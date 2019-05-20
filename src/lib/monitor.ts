@@ -4,7 +4,7 @@ import * as request from './request';
 import * as config from './config';
 import * as os from 'os';
 import * as _ from 'lodash';
-import * as isCI from './is-ci';
+import {isCI} from './is-ci';
 import * as analytics from './analytics';
 import { SingleDepRootResult, MonitorError } from './types';
 import * as projectMetadata from './project-metadata';
@@ -70,7 +70,7 @@ export function monitor(root, meta, info: SingleDepRootResult, targetFile): Prom
               method: meta.method,
               hostname: os.hostname(),
               id: meta.id || snyk.id || pkg.name,
-              ci: isCI,
+              ci: isCI(),
               pid: process.pid,
               node: process.version,
               master: snyk.config.isMaster,
