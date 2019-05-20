@@ -38,12 +38,9 @@ async function runCommand(args) {
 
 async function handleError(args, error) {
   spinner.clearAll();
-  let command = 'bad-command';
+  const command = 'bad-command';
 
-  if (error.code === 'VULNS') {
-    // this isn't a bad command, so we won't record it as such
-    command = args.command;
-  } else if (!error.stack) { // log errors that are not error objects
+  if (!error.stack) { // log errors that are not error objects
     analytics.add('error', JSON.stringify(error));
     analytics.add('command', args.command);
   } else {
@@ -55,6 +52,10 @@ async function handleError(args, error) {
     if (error.message && error.message.vulnerabilities) {
       delete error.message.vulnerabilities;
     }
+    if (error.vulnerabilities) {
+      delete error.message.vulnerabilities;
+    }
+
     analytics.add('error-message', error.message);
     analytics.add('error', error.stack);
     analytics.add('error-code', error.code);
@@ -117,7 +118,7 @@ async function main() {
   let failed = false;
 
   try {
-    if (args.options.file && args.options.file.match(/\.sln$/)) {
+    if (args.options && args.options.file && args.options.file.match(/\.sln$/)) {
       sln.updateArgs(args);
     }
     checkPaths(args);
@@ -132,7 +133,7 @@ async function main() {
   }
 
   if (!process.env.TAP && failed) {
-    process.exit(1);
+    process.exit(2);
   }
 
   return res;
@@ -140,7 +141,7 @@ async function main() {
 
 const cli = main().catch((e) => {
   console.log('super fail', e.stack);
-  process.exit(1);
+  process.exit(2);
 });
 
 if (module.parent) {

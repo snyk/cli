@@ -153,7 +153,8 @@ async function test(...args): Promise<string> {
       summariseErrorResults(errorResults) + '\n';
   }
 
-  const notSuccess = vulnerableResults.length > 0 || errorResults.length > 0;
+  const notSuccess = errorResults.length > 0;
+  const foundVulnerabilities = vulnerableResults.length > 0;
 
   if (notSuccess) {
     response += chalk.bold.red(summaryMessage);
@@ -162,9 +163,15 @@ async function test(...args): Promise<string> {
     // translation
     // HACK as there can be different errors, and we pass only the
     // first one
-    error.code = (vulnerableResults[0] || errorResults[0]).code;
-    error.userMessage = (vulnerableResults[0] || errorResults[0]).userMessage;
+    error.code = errorResults[0].code;
+    error.userMessage = errorResults[0].userMessage;
     throw error;
+  }
+
+  if (foundVulnerabilities) {
+    response += chalk.bold.red(summaryMessage);
+    console.error(response);
+    process.exit(1);
   }
 
   response += chalk.bold.green(summaryMessage);

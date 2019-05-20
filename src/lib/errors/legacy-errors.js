@@ -71,10 +71,6 @@ module.exports = function error(command) {
 module.exports.message = function(error) {
   let message = error; // defaults to a string (which is super unlikely)
   if (error instanceof Error) {
-    if (error.code === 'VULNS') {
-      return error.message;
-    }
-
     // try to lookup the error string based either on the error code OR
     // the actual error.message (which can be "Unauthorized" for instance),
     // otherwise send the error message back
