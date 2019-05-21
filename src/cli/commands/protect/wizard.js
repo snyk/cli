@@ -31,7 +31,7 @@ const npm = require('../../../lib/npm');
 const cwd = process.cwd();
 const detect = require('../../../lib/detect');
 const plugins = require('../../../lib/plugins');
-const moduleInfo = require('../../../lib/module-info');
+const moduleInfo = require('../../../lib/module-info').ModuleInfo;
 const {MissingTargetFileError} = require('../../../lib/errors/missing-targetfile-error');
 const pm = require('../../../lib/package-managers');
 
