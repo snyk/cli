@@ -3,10 +3,11 @@ import * as pathLib from 'path';
 import * as debugLib from 'debug';
 import * as _ from 'lodash';
 import { NoSupportedManifestsFoundError } from './errors';
+import { SupportedPackageManagers } from './package-managers';
 
-const debug = debugLib('snyk');
+const debug = debugLib('snyk-detect');
 
-const DETECTABLE_FILES = [
+const DETECTABLE_FILES: string[] = [
   'yarn.lock',
   'package-lock.json',
   'package.json',
@@ -28,7 +29,9 @@ const DETECTABLE_FILES = [
 ];
 
 // when file is specified with --file, we look it up here
-const DETECTABLE_PACKAGE_MANAGERS = {
+const DETECTABLE_PACKAGE_MANAGERS: {
+  [name: string]: SupportedPackageManagers;
+} = {
   'Gemfile': 'rubygems',
   'Gemfile.lock': 'rubygems',
   '.gemspec': 'rubygems',

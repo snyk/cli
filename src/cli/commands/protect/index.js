@@ -3,17 +3,7 @@ var snyk = require('../../../lib/');
 var protect = require('../../../lib/protect');
 var analytics = require('../../../lib/analytics');
 var detect = require('../../../lib/detect');
-var unsupportedPackageManagers = {
-  rubygems: 'RubyGems',
-  maven: 'Maven',
-  pip: 'Python',
-  sbt: 'SBT',
-  gradle: 'Gradle',
-  golangdep: 'Golang/Dep',
-  govendor: 'Govendor',
-  nuget: 'NuGet',
-  composer: 'Composer',
-};
+var pm = require('../../../lib/package-managers');
 
 
 function protectFunc(options = {}) {
@@ -31,10 +21,11 @@ function protectFunc(options = {}) {
 
   try {
     var packageManager = detect.detectPackageManager(process.cwd(), options);
-    var unsupported = unsupportedPackageManagers[packageManager];
-    if (unsupported) {
+    var supportsProtect = pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS
+      .includes(packageManager);
+    if (!supportsProtect) {
       throw new Error(
-        'Snyk protect for ' + unsupported +
+        'Snyk protect for ' + pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager] +
         ' projects is not currently supported');
     }
   } catch (error) {

@@ -3,6 +3,7 @@ module.exports = test;
 var detect = require('../detect');
 var runTest = require('./run-test');
 var chalk = require('chalk');
+var pm = require('../package-managers');
 
 function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -47,20 +48,7 @@ function executeTest(root, options) {
 
 function run(root, options) {
   var packageManager = options.packageManager;
-  if (!options.docker && [
-    'npm',
-    'yarn',
-    'rubygems',
-    'maven',
-    'gradle',
-    'sbt',
-    'pip',
-    'golangdep',
-    'govendor',
-    'nuget',
-    'paket',
-    'composer',
-  ].indexOf(packageManager) === -1) {
+  if (!(options.docker || pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager])) {
     throw new Error('Unsupported package manager: ' + packageManager);
   }
   return runTest(packageManager, root, options);

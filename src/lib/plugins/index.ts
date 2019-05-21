@@ -9,8 +9,10 @@ import * as nugetPlugin from 'snyk-nuget-plugin';
 import * as phpPlugin from 'snyk-php-plugin';
 import * as nodejsPlugin from './nodejs-plugin';
 import * as types from './types';
+import {SupportedPackageManagers} from '../package-managers';
 
-export function loadPlugin(packageManager: string, options: types.Options = {}): types.Plugin {
+export function loadPlugin(packageManager: SupportedPackageManagers,
+                           options: types.Options = {}): types.Plugin {
   if (options.docker) {
     return dockerPlugin;
   }

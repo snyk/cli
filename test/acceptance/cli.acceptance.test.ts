@@ -2663,18 +2663,18 @@ test('`wizard` for unsupported package managers', async (t) => {
   const cases = [
     { file: 'ruby-app/Gemfile.lock', type: 'RubyGems' },
     { file: 'maven-app/pom.xml', type: 'Maven' },
-    { file: 'pip-app/requirements.txt', type: 'Python' },
+    { file: 'pip-app/requirements.txt', type: 'pip' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
-    { file: 'golang-app/Gopkg.lock', type: 'Golang/Dep' },
-    { file: 'golang-app/vendor/vendor.json', type: 'Govendor' },
+    { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
+    { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
   ];
   const results = await Promise.all(cases.map(testUnsupported));
   results.map((result, i) => {
     const type = cases[i].type;
-    t.match(result, 'Snyk wizard for ' + type +
+    t.equal(result, 'Snyk wizard for ' + type +
       ' projects is not currently supported', type);
   });
 });
@@ -2692,18 +2692,18 @@ test('`protect` for unsupported package managers', async (t) => {
   const cases = [
     { file: 'ruby-app/Gemfile.lock', type: 'RubyGems' },
     { file: 'maven-app/pom.xml', type: 'Maven' },
-    { file: 'pip-app/requirements.txt', type: 'Python' },
+    { file: 'pip-app/requirements.txt', type: 'pip' },
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
-    { file: 'golang-app/Gopkg.lock', type: 'Golang/Dep' },
-    { file: 'golang-app/vendor/vendor.json', type: 'Govendor' },
+    { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
+    { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
   ];
   const results = await Promise.all(cases.map(testUnsupported));
   results.map((result, i) => {
     const type = cases[i].type;
-    t.match(result.message, 'Snyk protect for ' + type +
+    t.equal(result.message, 'Snyk protect for ' + type +
       ' projects is not currently supported', type);
   });
 });
