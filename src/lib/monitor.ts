@@ -81,6 +81,7 @@ export function monitor(root, meta, info: SingleDepRootResult, targetFile): Prom
               pluginRuntime: pluginMeta.runtime,
               dockerImageId: pluginMeta.dockerImageId,
               dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
+              dockerfileLayers: pkg.docker ? pkg.docker.dockerfileLayers : undefined,
               projectName: meta['project-name'],
             },
             policy: policy.toString(),
