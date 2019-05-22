@@ -194,7 +194,7 @@ docker run -it
 
 ## Badge
 
-You can put a badge on your README showing your package has no known security holes. This will show your users you care about security, and tell them that they should care too.
+Make users feel more confident in using your website by adding your Snyk badge!
 
 <a href="https://snyk.io/test/npm/snyk"><img src="https://snyk.io/test/npm/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
 
