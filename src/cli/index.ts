@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
+import * as Debug from 'debug';
 
 // assert supported node runtime version
 import * as runtime from './runtime';
@@ -16,9 +17,14 @@ import {isPathToPackageFile} from '../lib/detect';
 import {updateCheck} from '../lib/updater';
 import { MissingTargetFileError } from '../lib/errors/missing-targetfile-error';
 
+const debug = Debug('snyk');
+const EXIT_CODES = {
+  VULNS_FOUND: 1,
+  ERROR: 2,
+};
+
 async function runCommand(args) {
   const result = await args.method(...args.options._);
-
   const res = analytics({
     args: args.options._,
     command: args.command,
@@ -39,38 +45,22 @@ async function runCommand(args) {
 async function handleError(args, error) {
   spinner.clearAll();
   let command = 'bad-command';
+  let exitCode = EXIT_CODES.ERROR;
 
-  if (error.code === 'VULNS') {
+  const vulnsFound = (error.code === 'VULNS');
+  if (vulnsFound) {
     // this isn't a bad command, so we won't record it as such
     command = args.command;
-  } else if (!error.stack) { // log errors that are not error objects
-    analytics.add('error', JSON.stringify(error));
-    analytics.add('command', args.command);
-  } else {
-    // remove vulnerabilities from the errors
-    // to keep the logs small
-    if (error.stack && error.stack.vulnerabilities) {
-      delete error.vulnerabilities;
-    }
-    if (error.message && error.message.vulnerabilities) {
-      delete error.message.vulnerabilities;
-    }
-    analytics.add('error-message', error.message);
-    analytics.add('error', error.stack);
-    analytics.add('error-code', error.code);
-    analytics.add('command', args.command);
+    exitCode = EXIT_CODES.VULNS_FOUND;
   }
 
-  const res = analytics({
-    args: args.options._,
-    command,
-  });
-
-  if (args.options.debug) {
-    console.log(error.stack);
+  if (args.options.debug && !args.options.json) {
+    const output = vulnsFound ? error.message : error.stack;
+    console.log(output);
+  } else if (args.options.json) {
+    console.log(error.json || error.stack);
   } else {
     if (!args.options.quiet) {
-
       const result = errors.message(error);
       if (args.options.copy) {
         copy(result);
@@ -86,7 +76,32 @@ async function handleError(args, error) {
     }
   }
 
-  return res;
+  const analyticsError = vulnsFound ? {
+    stack: error.jsonNoVulns,
+    code: error.code,
+    message: 'Vulnerabilities found',
+   } : {
+    stack: error.stack,
+    code: error.code,
+    message: error.message,
+   };
+
+  if (!vulnsFound && !error.stack) { // log errors that are not error objects
+    analytics.add('error', JSON.stringify(analyticsError));
+    analytics.add('command', args.command);
+  } else {
+    analytics.add('error-message', analyticsError.message);
+    analytics.add('error', analyticsError.stack);
+    analytics.add('error-code', error.code);
+    analytics.add('command', args.command);
+  }
+
+  const res = analytics({
+    args: args.options._,
+    command,
+  });
+
+  return { res, exitCode };
 }
 
 function checkRuntime() {
@@ -94,7 +109,7 @@ function checkRuntime() {
     console.error(`${process.versions.node} is an unsupported nodejs ` +
       `runtime! Supported runtime range is '${runtime.supportedRange}'`);
     console.error('Please upgrade your nodejs runtime version and try again.');
-    process.exit(1);
+    process.exit(EXIT_CODES.ERROR);
   }
 }
 
@@ -113,9 +128,9 @@ async function main() {
   checkRuntime();
 
   const args = argsLib(process.argv);
-  let res = null;
+  let res;
   let failed = false;
-
+  let exitCode = EXIT_CODES.ERROR;
   try {
     if (args.options.file && args.options.file.match(/\.sln$/)) {
       sln.updateArgs(args);
@@ -124,7 +139,10 @@ async function main() {
     res = await runCommand(args);
   } catch (error) {
     failed = true;
-    res = await handleError(args, error);
+
+    const response = await handleError(args, error);
+    res = response.res;
+    exitCode = response.exitCode;
   }
 
   if (!args.options.json) {
@@ -132,15 +150,17 @@ async function main() {
   }
 
   if (!process.env.TAP && failed) {
-    process.exit(1);
+    debug('Exit code: ' + exitCode);
+    process.exitCode = exitCode;
   }
 
   return res;
 }
 
 const cli = main().catch((e) => {
-  console.log('super fail', e.stack);
-  process.exit(1);
+  console.error('Something unexpected went wrong: ', e.stack);
+  console.error('Exit code: ' + EXIT_CODES.ERROR);
+  process.exit(EXIT_CODES.ERROR);
 });
 
 if (module.parent) {
