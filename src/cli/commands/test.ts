@@ -579,15 +579,25 @@ function dockerRemediationForDisplay(res) {
 
   if (advice) {
     for (const item of advice) {
-      out.push(item.bold ? chalk.bold(item.message) : item.message);
+      out.push(getTerminalStringFormatter(item)(item.message));
     }
   } else if (message) {
     out.push(message);
   } else {
     return '';
   }
-
   return `\n\n${out.join('\n')}`;
+}
+
+function getTerminalStringFormatter({ color, bold }) {
+  let formatter = chalk;
+  if (color && formatter[color]) {
+    formatter = formatter[color];
+  }
+  if (bold) {
+    formatter = formatter.bold;
+  }
+  return formatter;
 }
 
 function validateSeverityThreshold(severityThreshold) {
