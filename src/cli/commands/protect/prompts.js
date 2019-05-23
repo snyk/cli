@@ -184,8 +184,6 @@ function getPatchPrompts(vulns, policy, options) {
   // sort by vulnerable package and the largest version
   res.sort(sortPatchPrompts);
 
-  // console.log(res.map(_ => `${_.name}@${_.version}`));
-
   var copy = {};
   var offset = 0;
   // mutate our objects so we can try to group them
@@ -316,7 +314,6 @@ function getPatchPrompts(vulns, policy, options) {
     return true;
   });
 
-  // console.log(res.map(_ => _.grouped));
   var prompts = generatePrompt(res, policy, 'p', options);
 
 
@@ -809,7 +806,6 @@ function generatePrompt(vulns, policy, prefix, options) {
   // in this case, we always show if the user choses to ignore.
   prompts = prompts.reduce(function (acc, curr) {
     acc.push(curr);
-    // console.log(curr.choices[0].value.vuln);
     var rule = snykPolicy.getByVuln(policy, curr.choices[0].value.vuln);
     var defaultAnswer = 'None given';
     if (rule && rule.type === 'ignore') {

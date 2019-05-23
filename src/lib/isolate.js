@@ -46,7 +46,6 @@ function instrumentProps(id, key, obj) {
   if (type === 'function') {
     obj = function instrumented() {
       console.log('NOTIFY: %s@%s', key || id, id);
-      // snyk.notify(key, id);
       original.apply(this, arguments);
     };
   }

@@ -242,7 +242,6 @@ function parseScenario(source) {
   }
 
   vulnerabilities = vulnerabilities.filter(function (vuln) {
-    // console.log(vuln);
     debug('checking new vuln: %s', vuln.id);
     var p;
     var i;

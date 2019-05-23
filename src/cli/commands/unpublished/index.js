@@ -21,7 +21,6 @@ module.exports = function (cwd) {
   return spinner(head).then(function () {
     return resolve(cwd, {dev: true, disk: true}).then(function (res) {
       prune(res, function (p) {
-        // console.log(p.name, packages.indexOf(p.name) === -1);
         return packages.indexOf(p.name) === -1;
       });
 
