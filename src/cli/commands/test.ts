@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import * as snyk from '../../lib/';
 import * as config from '../../lib/config';
 import {isCI} from '../../lib/is-ci';
-import {exists as apiTokenExists} from '../../lib/api-token';
+import {apiTokenExists} from '../../lib/api-token';
 import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../lib/snyk-test/common';
 import * as docker from '../../lib/docker-promotion';
 import * as Debug from 'debug';
@@ -47,7 +47,7 @@ async function test(...args): Promise<string> {
     return Promise.reject(new Error('INVALID_SEVERITY_THRESHOLD'));
   }
 
-  await apiTokenExists('snyk test');
+  apiTokenExists();
 
   // Promise waterfall to test all other paths sequentially
   for (const path of args) {

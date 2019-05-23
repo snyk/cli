@@ -25,8 +25,6 @@ const errors = {
     're-run your snyk command.',
   tryDevDeps: 'Snyk only tests production dependencies by default (which ' +
     'this project had none). Try re-running with the `--dev` flag.',
-  noApiToken: '%s requires an authenticated account. Please run `snyk auth` ' +
-    'and try again.',
   timeout: 'The request has timed out on the server side.\nPlease re-run ' +
     'this command with the `-d` flag and send the output to support@snyk.io.',
   policyFile: 'Bad policy file, please use --path=PATH to specify a ' +
@@ -55,7 +53,6 @@ const codes = {
   FAIL_PATCH: errors.patchfail,
   FAIL_UPDATE: errors.updatefail,
   NOT_FOUND_HAS_DEV_DEPS: errors.tryDevDeps,
-  NO_API_TOKEN: errors.noApiToken,
   502: errors.timeout,
   504: errors.timeout,
   UNKNOWN_COMMAND: errors.unknownCommand,
