@@ -1,19 +1,31 @@
-var config = require('snyk-config')(__dirname + '/../..');
+import * as snykConfig from 'snyk-config';
+import * as userConfig from './user-config';
+import * as url from 'url';
 
-var DEFAULT_TIMEOUT = 5 * 60; // in seconds
+const DEFAULT_TIMEOUT = 5 * 60; // in seconds
+interface Config {
+  API: string;
+  disableSuggestions: string;
+  org: string;
+  ROOT: string;
+  timeout: number;
+  PROJECT_NAME: string;
+}
+
+const config: Config = snykConfig(__dirname + '/../..');
 
 // allow user config override of the api end point
-var endpoint = require('./user-config').get('endpoint');
+const endpoint = userConfig.get('endpoint');
 if (endpoint) {
   config.API = endpoint;
 }
 
-var disableSuggestions = require('./user-config').get('disableSuggestions');
+const disableSuggestions = userConfig.get('disableSuggestions');
 if (disableSuggestions) {
   config.disableSuggestions = disableSuggestions;
 }
 
-var org = require('./user-config').get('org');
+const org = userConfig.get('org');
 if (!config.org && org) {
   config.org = org;
 }
@@ -21,7 +33,7 @@ if (!config.org && org) {
 // client request timeout
 // to change, set this config key to the desired value in seconds
 // invalid (non-numeric) value will fallback to the default
-var timeout = require('./user-config').get('timeout');
+const timeout = userConfig.get('timeout');
 if (!config.timeout) {
   config.timeout = +timeout ? +timeout : DEFAULT_TIMEOUT;
 }
@@ -29,9 +41,8 @@ if (!config.timeout) {
 // this is a bit of an assumption that our web site origin is the same
 // as our API origin, but for now it's okay - RS 2015-10-16
 if (!config.ROOT) {
-  var url = require('url');
-  var apiUrl = url.parse(config.API);
+  const apiUrl = url.parse(config.API);
   config.ROOT = apiUrl.protocol + '//' + apiUrl.host;
 }
 
-module.exports = config;
+export = config;

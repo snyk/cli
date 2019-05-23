@@ -5,7 +5,7 @@ import moduleToObject = require('snyk-module');
 import * as depGraphLib from '@snyk/dep-graph';
 
 import analytics = require('../analytics');
-import config = require('../config');
+import * as config from '../config';
 import detect = require('../../lib/detect');
 import plugins = require('../plugins');
 import {ModuleInfo} from '../module-info';
