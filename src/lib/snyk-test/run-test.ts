@@ -279,6 +279,7 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
       debug('policies found', policyLocations);
 
       analytics.add('policies', policyLocations.length);
+      analytics.add('packageManager', options.packageManager);
       addPackageAnalytics(pkg);
 
       let policy;
@@ -364,7 +365,6 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
 }
 
 function addPackageAnalytics(module): void {
-  analytics.add('packageManager', 'npm');
   analytics.add('packageName', module.name);
   analytics.add('packageVersion', module.version);
   analytics.add('package', module.name + '@' + module.version);
