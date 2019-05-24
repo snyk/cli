@@ -1,20 +1,20 @@
 module.exports = analytics;
 module.exports.single = postAnalytics;
 
-var snyk = require('../lib');
-var config = require('./config');
-var version = require('./version');
-var request = require('./request');
-var isCI = require('./is-ci').isCI;
-var debug = require('debug')('snyk');
-var os = require('os');
-var osName = require('os-name');
-var crypto = require('crypto');
-var uuid = require('uuid');
+const snyk = require('../lib');
+const config = require('./config');
+const version = require('./version');
+const request = require('./request');
+const isCI = require('./is-ci').isCI;
+const debug = require('debug')('snyk');
+const os = require('os');
+const osName = require('os-name');
+const crypto = require('crypto');
+const uuid = require('uuid');
 
-var metadata = {};
+const metadata = {};
 // analytics module is required at the beginning of the CLI run cycle
-var startTime = Date.now();
+const startTime = Date.now();
 
 function analytics(data) {
   if (!data) {
@@ -48,11 +48,11 @@ function postAnalytics(data) {
     data.os = osName(os.platform(), os.release());
     data.nodeVersion = process.version;
 
-    var seed = uuid.v4();
-    var shasum = crypto.createHash('sha1');
+    const seed = uuid.v4();
+    const shasum = crypto.createHash('sha1');
     data.id = shasum.update(seed).digest('hex');
 
-    var headers = {};
+    const headers = {};
     if (snyk.api) {
       headers.authorization = 'token ' + snyk.api;
     }
@@ -76,12 +76,8 @@ function postAnalytics(data) {
   });
 }
 
-analytics.reset = function () {
-  metadata = {};
-};
-
 analytics.add = function (key, value) {
-  debug('analytics add', key, value);
+  debug('analytics adding to metadata: ', key, value);
   if (metadata[key]) {
     if (!Array.isArray(metadata[key])) {
       metadata[key] = [metadata[key]];
