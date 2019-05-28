@@ -1,5 +1,7 @@
 import * as abbrev from 'abbrev';
 
+import debugModule = require('debug');
+
 declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
 }
@@ -9,6 +11,10 @@ declare const global: Global;
 const alias = abbrev('copy', 'version', 'debug', 'help', 'quiet', 'interactive', 'dev');
 alias.d = 'debug'; // always make `-d` debug
 alias.t = 'test';
+
+// The -d flag enables printing the messages for predefined namespaces.
+// Additional ones can be specified (comma-separated) in the DEBUG environment variable.
+const DEBUG_DEFAULT_NAMESPACES = ['snyk', 'snyk-gradle-plugin'];
 
 function dashToCamelCase(dash) {
   return dash.indexOf('-') < 0
@@ -49,20 +55,27 @@ export function args(processargv) {
     return acc;
   }, {_: []});
 
-  // by passing `-d` to the cli, we enable the debugging output, but this must
-  // be as early as possible in the cli logic to capture all the output
+  // By passing `-d` to the CLI, we enable the debugging output.
+  // It needs to happen BEFORE any of the `debug(namespace)` calls needed to create loggers.
+  // Therefore, the code used by the CLI should create the loggers in a lazy fashion
+  // or be `require`d after this code.
+  // TODO(BST-648): sort this out reliably
   if (argv.debug) {
-    let enable = 'snyk';
+    let enable = DEBUG_DEFAULT_NAMESPACES.join(',');
     if (process.env.DEBUG) {
       enable += ',' + process.env.DEBUG;
     }
-    require('debug').enable(enable);
+
+    // Storing in the global state, because just "debugModule.enable" call won't affect different instances of `debug`
+    // module imported by plugins, libraries etc.
+    process.env.DEBUG = enable;
+
+    debugModule.enable(enable);
   }
 
-  const debug = require('debug')('snyk');
+  const debug = debugModule('snyk');
 
-  // this is done after the debug activation line above because we want to see
-  // the debug messaging when we use the `-d` flag
+  // Late require, see the note re "debug" option above.
   const cli = require('./commands');
 
   // the first argument is the command we'll execute, everything else will be

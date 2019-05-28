@@ -77,7 +77,6 @@ function postAnalytics(data) {
 }
 
 analytics.add = function (key, value) {
-  debug('analytics adding to metadata: ', key, value);
   if (metadata[key]) {
     if (!Array.isArray(metadata[key])) {
       metadata[key] = [metadata[key]];
