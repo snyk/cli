@@ -103,6 +103,11 @@ async function test(...args): Promise<string> {
     }
   }
 
+  const vulnerableResults = results.filter((res) => res.vulnerabilities && res.vulnerabilities.length);
+  const errorResults = results.filter((res) => res instanceof Error);
+  const notSuccess = errorResults.length > 0;
+  const foundVulnerabilities = vulnerableResults.length > 0;
+
   // resultOptions is now an array of 1 or more options used for
   // the tests results is now an array of 1 or more test results
   // values depend on `options.json` value - string or object
@@ -121,22 +126,27 @@ async function test(...args): Promise<string> {
 
     // backwards compat - strip array IFF only one result
     const dataToSend = results.length === 1 ? results[0] : results;
-    const json = JSON.stringify(dataToSend, null, 2);
+    const stringifiedError = JSON.stringify(dataToSend, null, 2);
 
     if (results.every((res) => res.ok)) {
-      return json;
+      return stringifiedError;
+    }
+    const err = new Error(stringifiedError) as any;
+    if (foundVulnerabilities) {
+      err.code = 'VULNS';
+      const dataToSendNoVulns = dataToSend;
+      delete dataToSendNoVulns.vulnerabilities;
+      err.jsonNoVulns = dataToSendNoVulns;
     }
 
-    throw new Error(json);
+    err.json = stringifiedError;
+    throw err;
   }
 
   let response = results.map((unused, i) => displayResult(results[i], resultOptions[i]))
     .join(`\n${SEPARATOR}`);
 
-  const vulnerableResults = results.filter((res) => res.vulnerabilities && res.vulnerabilities.length);
-  const errorResults = results.filter((res) => res instanceof Error);
-
-  if (errorResults.length > 0) {
+  if (notSuccess) {
     debug(`Failed to test ${errorResults.length} projects, errors:`);
     errorResults.forEach((err) => {
       const errString = err.stack ? err.stack.toString() : err.toString();
@@ -153,8 +163,6 @@ async function test(...args): Promise<string> {
       summariseErrorResults(errorResults) + '\n';
   }
 
-  const notSuccess = vulnerableResults.length > 0 || errorResults.length > 0;
-
   if (notSuccess) {
     response += chalk.bold.red(summaryMessage);
     const error = new Error(response) as any;
@@ -162,8 +170,20 @@ async function test(...args): Promise<string> {
     // translation
     // HACK as there can be different errors, and we pass only the
     // first one
-    error.code = (vulnerableResults[0] || errorResults[0]).code;
-    error.userMessage = (vulnerableResults[0] || errorResults[0]).userMessage;
+    error.code = errorResults[0].code;
+    error.userMessage = errorResults[0].userMessage;
+    throw error;
+  }
+
+  if (foundVulnerabilities) {
+    response += chalk.bold.red(summaryMessage);
+    const error = new Error(response) as any;
+    // take the code of the first problem to go through error
+    // translation
+    // HACK as there can be different errors, and we pass only the
+    // first one
+    error.code = vulnerableResults[0].code || 'VULNS';
+    error.userMessage = vulnerableResults[0].userMessage;
     throw error;
   }
 
