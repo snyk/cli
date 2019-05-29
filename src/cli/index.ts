@@ -91,6 +91,8 @@ async function handleError(args, error) {
     analytics.add('command', args.command);
   } else {
     analytics.add('error-message', analyticsError.message);
+    // Note that error.stack would also contain the error message
+    // (see https://nodejs.org/api/errors.html#errors_error_stack)
     analytics.add('error', analyticsError.stack);
     analytics.add('error-code', error.code);
     analytics.add('command', args.command);
