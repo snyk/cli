@@ -11,6 +11,7 @@ import * as docker from '../../lib/docker-promotion';
 import * as Debug from 'debug';
 import {TestOptions} from '../../lib/types';
 import {isLocalFolder} from '../../lib/detect';
+import { MethodArgs, ArgsOptions } from '../args';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -21,15 +22,13 @@ interface OptionsAtDisplayStage {
 
 // TODO: avoid using `as any` whenever it's possible
 
-// arguments array is 0 or more `path` strings followed by
-// an optional `option` object
-async function test(...args): Promise<string> {
+async function test(...args: MethodArgs): Promise<string> {
   const resultOptions = [] as any[];
   let results = [] as any[];
   let options = {} as any as TestOptions;
 
   if (typeof args[args.length - 1] === 'object') {
-    options = args.pop();
+    options = args.pop() as any as TestOptions;
   }
 
   // populate with default path (cwd) if no path given
@@ -50,7 +49,7 @@ async function test(...args): Promise<string> {
   await apiTokenExists('snyk test');
 
   // Promise waterfall to test all other paths sequentially
-  for (const path of args) {
+  for (const path of args as string[]) {
     // Create a copy of the options so a specific test can
     // modify them i.e. add `options.file` etc. We'll need
     // these options later.

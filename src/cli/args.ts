@@ -22,38 +22,55 @@ function dashToCamelCase(dash) {
     : dash.replace(/-[a-z]/g, (m) => m[1].toUpperCase());
 }
 
-export function args(processargv) {
+// Last item is ArgsOptions, the rest are strings (positional arguments, e.g. paths)
+export type MethodArgs = Array<string | ArgsOptions>;
+
+export type Method = (...args: MethodArgs) => Promise<string>;
+
+export interface Args {
+  command: string;
+  method: Method; // command resolved to a function
+  options: ArgsOptions;
+}
+
+export interface ArgsOptions {
   // all arguments after a '--' are taken as is and passed to the next process
   // (see the snyk-mvn-plugin or snyk-gradle-plugin)
-  // these agrs are split by spaces and sent as an array of strings
-  // allows us to support flags with true or false only
-  const argv = processargv.slice(2).reduce((acc, arg) => {
-    if (acc._doubleDashArgs) {
-      acc._doubleDashArgs.push(arg);
+  _doubleDashArgs: string[];
+  _: MethodArgs;
+  [key: string]: boolean | string | MethodArgs | string[]; // The two last types are for compatibility only
+}
+
+export function args(rawArgv: string[]): Args {
+  const argv = {
+    _: [] as string[],
+  } as ArgsOptions;
+
+  for (let arg of rawArgv.slice(2)) {
+    if (argv._doubleDashArgs) {
+      argv._doubleDashArgs.push(arg);
     } else if (arg === '--') {
-      acc._doubleDashArgs = [];
-    } else if (arg.indexOf('-') === 0) {
+      argv._doubleDashArgs = [];
+    } else if (arg[0] === '-') {
       arg = arg.slice(1);
 
       if (alias[arg] !== undefined) {
-        acc[alias[arg]] = true;
-      } else if (arg.indexOf('-') === 0) {
+        argv[alias[arg]] = true;
+      } else if (arg[0] === '-') {
         arg = arg.slice(1);
         if (arg.indexOf('=') === -1) {
-          acc[arg] = true;
+          argv[arg] = true;
         } else {
           const parts = arg.split('=');
-          acc[parts.shift()] = parts.join('=');
+          argv[parts.shift()!] = parts.join('=');
         }
       } else {
-        acc[arg] = true;
+        argv[arg] = true;
       }
     } else {
-      acc._.push(arg);
+      argv._.push(arg);
     }
-
-    return acc;
-  }, {_: []});
+  }
 
   // By passing `-d` to the CLI, we enable the debugging output.
   // It needs to happen BEFORE any of the `debug(namespace)` calls needed to create loggers.
@@ -80,7 +97,7 @@ export function args(processargv) {
 
   // the first argument is the command we'll execute, everything else will be
   // an argument to our command, like `snyk help protect`
-  let command: string = argv._.shift();
+  let command = argv._.shift() as string; // can actually be undefined
 
   // alias switcheroo - allows us to have
   if (cli.aliases[command]) {
@@ -100,7 +117,7 @@ export function args(processargv) {
     command = 'help';
 
     if (!argv._.length) {
-      argv._.unshift(argv.help || 'usage');
+      argv._.unshift(argv.help as string || 'usage');
     }
   }
 
@@ -111,7 +128,7 @@ export function args(processargv) {
     // snyk.config('get', 'api') // etc
     const tmp = command.split(':');
     command = tmp.shift()!;
-    argv._.unshift(tmp.shift());
+    argv._.unshift(tmp.shift()!);
   }
 
   let method: () => Promise<string> = cli[command];
