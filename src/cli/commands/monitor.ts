@@ -16,6 +16,7 @@ import * as plugins from '../../lib/plugins';
 import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
 import * as docker from '../../lib/docker-promotion';
 import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorError } from '../../lib/types';
+import { MethodArgs, ArgsOptions } from '../args';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -51,12 +52,12 @@ async function promiseOrCleanup<T>(p: Promise<T>, cleanup: () => void): Promise<
 
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
 // or an error message.
-async function monitor(...args0: any[]): Promise<any> {
+async function monitor(...args0: MethodArgs): Promise<any> {
   let args = [...args0];
   let options: MonitorOptions = {};
   const results: Array<GoodResult | BadResult> = [];
   if (typeof args[args.length - 1] === 'object') {
-    options = args.pop() as any as MonitorOptions;
+    options = args.pop() as ArgsOptions as MonitorOptions;
   }
 
   args = args.filter(Boolean);
@@ -75,7 +76,7 @@ async function monitor(...args0: any[]): Promise<any> {
   }
   await apiTokenExists('snyk monitor');
   // Part 1: every argument is a scan target; process them sequentially
-  for (const path of args) {
+  for (const path of args as string[]) {
     try {
       const exists = await fs.exists(path);
       if (!exists && !options.docker) {

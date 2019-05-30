@@ -8,7 +8,7 @@ import * as runtime from './runtime';
 import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
-import {args as argsLib} from './args';
+import {args as argsLib, Args} from './args';
 import {copy} from './copy';
 import spinner = require('../lib/spinner');
 import errors = require('../lib/errors/legacy-errors');
@@ -23,7 +23,7 @@ const EXIT_CODES = {
   ERROR: 2,
 };
 
-async function runCommand(args) {
+async function runCommand(args: Args) {
   const result = await args.method(...args.options._);
   const res = analytics({
     args: args.options._,
@@ -134,7 +134,7 @@ async function main() {
   let failed = false;
   let exitCode = EXIT_CODES.ERROR;
   try {
-    if (args.options.file && args.options.file.match(/\.sln$/)) {
+    if (args.options.file && (args.options.file as string).match(/\.sln$/)) {
       sln.updateArgs(args);
     }
     checkPaths(args);
