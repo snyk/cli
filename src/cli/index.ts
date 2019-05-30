@@ -15,7 +15,7 @@ import errors = require('../lib/errors/legacy-errors');
 import ansiEscapes = require('ansi-escapes');
 import {isPathToPackageFile} from '../lib/detect';
 import {updateCheck} from '../lib/updater';
-import { MissingTargetFileError } from '../lib/errors/missing-targetfile-error';
+import { MissingTargetFileError, FileFlagBadInputError } from '../lib/errors';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -134,9 +134,12 @@ async function main() {
   let failed = false;
   let exitCode = EXIT_CODES.ERROR;
   try {
-    if (args.options.file && (args.options.file as string).match(/\.sln$/)) {
+    if (args.options.file && typeof args.options.file === 'string' && (args.options.file as string).match(/\.sln$/)) {
       sln.updateArgs(args);
+    } else if (typeof args.options.file === 'boolean') {
+      throw new FileFlagBadInputError();
     }
+
     checkPaths(args);
     res = await runCommand(args);
   } catch (error) {
