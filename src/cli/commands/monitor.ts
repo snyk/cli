@@ -2,7 +2,7 @@ module.exports = monitor;
 
 import * as _ from 'lodash';
 import * as fs from 'then-fs';
-import {exists as apiTokenExists} from '../../lib/api-token';
+import {apiTokenExists} from '../../lib/api-token';
 import snyk = require('../../lib/'); // TODO(kyegupov): fix import
 import {monitor as snykMonitor} from '../../lib/monitor';
 import * as config from '../../lib/config';
@@ -74,7 +74,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   if (options['all-sub-projects'] && options['project-name']) {
     throw new Error('`--all-sub-projects` is currently not compatible with `--project-name`');
   }
-  await apiTokenExists('snyk monitor');
+  apiTokenExists();
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
     try {

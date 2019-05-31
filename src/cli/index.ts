@@ -66,6 +66,7 @@ async function handleError(args, error) {
         copy(result);
         console.log('Result copied to clipboard');
       } else {
+        console.log('error', error);
         if (`${error.code}`.indexOf('AUTH_') === 0) {
           // remove the last few lines
           const erase = ansiEscapes.eraseLines(4);
