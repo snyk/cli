@@ -7,7 +7,6 @@ import * as config from '../../lib/config';
 import {isCI} from '../../lib/is-ci';
 import {apiTokenExists} from '../../lib/api-token';
 import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../lib/snyk-test/common';
-import * as docker from '../../lib/docker-promotion';
 import * as Debug from 'debug';
 import {TestOptions} from '../../lib/types';
 import {isLocalFolder} from '../../lib/detect';
@@ -237,11 +236,6 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
   }
   const testedInfoText = `Tested ${pathOrDepsText} for known ${issuesText}`;
 
-  let dockerSuggestion = '';
-  if (docker.shouldSuggestDocker(options)) {
-    dockerSuggestion += chalk.bold.white(docker.suggestionText);
-  }
-
   let multiProjAdvice = '';
 
   if (options.advertiseSubprojectsCount) {
@@ -266,8 +260,7 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
       prefix + meta + summaryOKText + multiProjAdvice + (
         isCI() ? '' :
           dockerAdvice +
-          nextStepsText +
-          dockerSuggestion)
+          nextStepsText)
     );
   }
 
@@ -298,7 +291,7 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
   if (options.canSuggestRemediation && WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
     summary += chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
   }
-
+  let dockerSuggestion = '';
   if (options.docker &&
     (config.disableSuggestions !== 'true')) {
     const optOutSuggestions =
