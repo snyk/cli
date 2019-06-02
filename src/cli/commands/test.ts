@@ -10,7 +10,7 @@ import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../lib/snyk-test/common';
 import * as Debug from 'debug';
 import {TestOptions} from '../../lib/types';
 import {isLocalFolder} from '../../lib/detect';
-import { MethodArgs, ArgsOptions } from '../args';
+import { MethodArgs } from '../args';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
