@@ -17,7 +17,7 @@ Object.defineProperty(snyk, 'api', {
   enumerable: true,
   configurable: true,
   get: function () {
-    return apiToken.apiTokenExists();
+    return apiToken();
   },
   set: function (value) {
     snykConfig.api = value;

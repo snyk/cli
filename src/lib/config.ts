@@ -4,14 +4,12 @@ import * as url from 'url';
 
 const DEFAULT_TIMEOUT = 5 * 60; // in seconds
 interface Config {
-  API: string; // api url
-  api: string; // token
+  API: string;
   disableSuggestions: string;
   org: string;
   ROOT: string;
   timeout: number;
   PROJECT_NAME: string;
-  TOKEN: string;
 }
 
 const config: Config = snykConfig(__dirname + '/../..');
