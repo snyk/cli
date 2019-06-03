@@ -1,5 +1,5 @@
 import * as snyk from '../lib';
-import {apiTokenExists} from './api-token';
+import {exists as apiTokenExists} from './api-token';
 import * as request from './request';
 import * as config from './config';
 import * as os from 'os';
@@ -39,87 +39,91 @@ interface Meta {
   projectName: string;
 }
 
-export async function monitor(root, meta, info: SingleDepRootResult, targetFile): Promise<any> {
-  apiTokenExists();
+export function monitor(root, meta, info: SingleDepRootResult, targetFile): Promise<any> {
   const pkg = info.package;
   const pluginMeta = info.plugin;
-  let policy;
-  const policyPath = meta['policy-path'] || root;
+  let policyPath = meta['policy-path'];
+  if (!meta.isDocker) {
+    policyPath = policyPath || root;
+  }
   const policyLocations = [policyPath].concat(pluckPolicies(pkg))
     .filter(Boolean);
-  // docker doesn't have a policy as it can be run from anywhere
-  if (!meta.isDocker || !policyLocations.length) {
-      await snyk.policy.create();
-  }
-  policy = await snyk.policy.load(policyLocations, {loose: true});
+  const opts = {loose: true};
+  const packageManager = meta.packageManager || 'npm';
+  return apiTokenExists('snyk monitor')
+    .then(() => {
+      if (policyLocations.length === 0) {
+        return snyk.policy.create();
+      }
+      return snyk.policy.load(policyLocations, opts);
+    }).then(async (policy) => {
+      analytics.add('packageManager', packageManager);
 
-  const packageManager = meta.packageManager;
-  analytics.add('packageManager', packageManager);
+      const target = await projectMetadata.getInfo(pkg);
+      const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
 
-  const target = await projectMetadata.getInfo(pkg);
-  const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
-
-  if (target && target.branch) {
-    analytics.add('targetBranch', target.branch);
-  }
-
-  // TODO(kyegupov): async/await
-  return new Promise((resolve, reject) => {
-    request({
-      body: {
-        meta: {
-          method: meta.method,
-          hostname: os.hostname(),
-          id: meta.id || snyk.id || pkg.name,
-          ci: isCI(),
-          pid: process.pid,
-          node: process.version,
-          master: snyk.config.isMaster,
-          name: pkg.name,
-          version: pkg.version,
-          org: config.org ? decodeURIComponent(config.org) : undefined,
-          pluginName: pluginMeta.name,
-          pluginRuntime: pluginMeta.runtime,
-          dockerImageId: pluginMeta.dockerImageId,
-          dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-          dockerfileLayers: pkg.docker ? pkg.docker.dockerfileLayers : undefined,
-          projectName: meta['project-name'],
-        },
-        policy: policy ? policy.toString() : undefined,
-        package: pkg,
-        // we take the targetFile from the plugin,
-        // because we want to send it only for specific package-managers
-        target,
-        targetFile: pluginMeta.targetFile,
-        targetFileRelativePath,
-      } as MonitorBody,
-      gzip: true,
-      method: 'PUT',
-      headers: {
-        'authorization': 'token ' + snyk.api,
-        'content-encoding': 'gzip',
-      },
-      url: config.API + '/monitor/' + packageManager,
-      json: true,
-    }, (error, res, body) => {
-      if (error) {
-        return reject(error);
+      if (target && target.branch) {
+        analytics.add('targetBranch', target.branch);
       }
 
-      if (res.statusCode === 200 || res.statusCode === 201) {
-        resolve(body);
-      } else {
-        const e = new MonitorError('Server returned unexpected error for the monitor request. ' +
-          `Status code: ${res.statusCode}, response: ${res.body.userMessage || res.body.message}`);
-        e.code = res.statusCode;
-        e.userMessage = body && body.userMessage;
-        if (!e.userMessage && res.statusCode === 504) {
-          e.userMessage = 'Connection Timeout';
-        }
-        reject(e);
-      }
+      // TODO(kyegupov): async/await
+      return new Promise((resolve, reject) => {
+        request({
+          body: {
+            meta: {
+              method: meta.method,
+              hostname: os.hostname(),
+              id: meta.id || snyk.id || pkg.name,
+              ci: isCI(),
+              pid: process.pid,
+              node: process.version,
+              master: snyk.config.isMaster,
+              name: pkg.name,
+              version: pkg.version,
+              org: config.org ? decodeURIComponent(config.org) : undefined,
+              pluginName: pluginMeta.name,
+              pluginRuntime: pluginMeta.runtime,
+              dockerImageId: pluginMeta.dockerImageId,
+              dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
+              dockerfileLayers: pkg.docker ? pkg.docker.dockerfileLayers : undefined,
+              projectName: meta['project-name'],
+            },
+            policy: policy ? policy.toString() : undefined,
+            package: pkg,
+            // we take the targetFile from the plugin,
+            // because we want to send it only for specific package-managers
+            target,
+            targetFile: pluginMeta.targetFile,
+            targetFileRelativePath,
+          } as MonitorBody,
+          gzip: true,
+          method: 'PUT',
+          headers: {
+            'authorization': 'token ' + snyk.api,
+            'content-encoding': 'gzip',
+          },
+          url: config.API + '/monitor/' + packageManager,
+          json: true,
+        }, (error, res, body) => {
+          if (error) {
+            return reject(error);
+          }
+
+          if (res.statusCode === 200 || res.statusCode === 201) {
+            resolve(body);
+          } else {
+            const e = new MonitorError('Server returned unexpected error for the monitor request. ' +
+              `Status code: ${res.statusCode}, response: ${res.body.userMessage || res.body.message}`);
+            e.code = res.statusCode;
+            e.userMessage = body && body.userMessage;
+            if (!e.userMessage && res.statusCode === 504) {
+              e.userMessage = 'Connection Timeout';
+            }
+            reject(e);
+          }
+        });
+      });
     });
-  });
 }
 
 function pluckPolicies(pkg) {
