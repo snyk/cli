@@ -249,19 +249,18 @@ test('snyk ignore - not authorized', function (t) {
     .catch((err) => t.pass('no policy file saved'));
 });
 
-test('test without authentication', async (t) => {
-  t.plan(2);
-  await cli.config('unset', 'api');
-  try {
-    await cli.test('semver@2');
+test('test without authentication', function (t) {
+  t.plan(1);
+  return cli.config('unset', 'api').then(function () {
+    return cli.test('semver@2');
+  }).then(function (res) {
     t.fail('test should not pass if not authenticated');
-  } catch (error) {
-    t.deepEquals(error.strCode, 'NO_API_TOKEN', 'string code is as expected');
-    t.match(error.message,
-      '`snyk` requires an authenticated account. Please run `snyk auth` and try again.',
-      'error message is shown as expected');
-  }
-  await cli.config('set', 'api=' + apiKey);
+  }).catch(function (error) {
+    t.equals(error.code, 'NO_API_TOKEN', 'test requires authentication');
+  })
+  .then(function () {
+    return cli.config('set', 'api=' + apiKey);
+  });
 });
 
 test('auth via key', function (t) {
