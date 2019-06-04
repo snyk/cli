@@ -14,7 +14,7 @@ alias.t = 'test';
 
 // The -d flag enables printing the messages for predefined namespaces.
 // Additional ones can be specified (comma-separated) in the DEBUG environment variable.
-const DEBUG_DEFAULT_NAMESPACES = ['snyk', 'snyk-gradle-plugin'];
+const DEBUG_DEFAULT_NAMESPACES = ['snyk', 'snyk-gradle-plugin', 'snyk-sbt-plugin'];
 
 function dashToCamelCase(dash) {
   return dash.indexOf('-') < 0

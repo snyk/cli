@@ -32,6 +32,7 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../src/lib/plugins';
+import {Options} from '../../src/lib/plugins/types';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
