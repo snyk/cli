@@ -12,32 +12,24 @@ import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in
 import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
 import {verifyAPI} from './is-authed';
 
+module.exports = auth;
+
 const apiUrl = url.parse(config.API);
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;
 const debug = Debug('snyk-auth');
 let attemptsLeft = 0;
-
-module.exports = auth;
 
 function resetAttempts() {
   attemptsLeft = 30;
 }
 
 type AuthCliCommands = 'wizard' | 'ignore';
-interface WebAuthResponse {
-  res: object;
-  body: object;
-}
 
-async function webAuth(via: AuthCliCommands): Promise<WebAuthResponse> {
+async function webAuth(via: AuthCliCommands) {
   const token = uuid.v4(); // generate a random key
   const redirects = {
     wizard: '/authenticated',
   };
-
-  if (isCI()) {
-    throw MisconfiguredAuthInCI();
-  }
 
   let urlStr = authUrl + '/login?token=' + token;
 
@@ -46,22 +38,35 @@ async function webAuth(via: AuthCliCommands): Promise<WebAuthResponse> {
     urlStr += '&redirectUri=' + new Buffer(redirects[via]).toString('base64');
   }
 
-  console.log(
+  const msg =
     '\nNow redirecting you to our auth page, go ahead and log in,\n' +
     'and once the auth is complete, return to this prompt and you\'ll\n' +
     'be ready to start using snyk.\n\nIf you can\'t wait use this url:\n' +
-    urlStr + '\n');
+    urlStr + '\n';
 
-  try {
+  // suppress this message in CI
+  if (!isCI()) {
+    console.log(msg);
+  } else {
+    return Promise.reject(MisconfiguredAuthInCI());
+  }
+
+  const lbl = 'Waiting...';
+
+  return spinner(lbl).then(() => {
     setTimeout(() => {
       open(urlStr, {wait: false});
     }, 2000);
     // start checking the token immediately in case they've already
     // opened the url manually
     return testAuthComplete(token);
-  } catch (error) {
-    throw error;
-  }
+  })
+    // clear spinnger in case of success or failure
+    .then(spinner.clear(lbl))
+    .catch((error) => {
+      spinner.clear(lbl)();
+      throw error;
+    });
 }
 
 async function testAuthComplete(token: string) {
@@ -74,57 +79,59 @@ async function testAuthComplete(token: string) {
     method: 'post',
   };
 
-  debug(payload);
-  const callBackRes = await request(payload);
-  const {error, res, body} = callBackRes;
-  debug(error, (res || {}).statusCode, body);
-
-  if (error) {
-    throw error;
-  }
-
-  if (res.statusCode !== 200) {
-    throw AuthFailedError(body.message, res.statusCode);
-  }
-
-  if (!body.api) {
-    // retry request
-    setTimeout(() => {
-      attemptsLeft--;
-      if (attemptsLeft > 0) {
-        return testAuthComplete(token);
+  return new Promise((resolve, reject) => {
+    debug(payload);
+    request(payload, (error, res, body) => {
+      debug(error, (res || {}).statusCode, body);
+      if (error) {
+        return reject(error);
       }
 
-      throw TokenExpiredError();
-    }, 1000);
-  }
+      if (res.statusCode !== 200) {
+        return reject(AuthFailedError(body.message, res.statusCode));
+      }
 
-  return {
-    res,
-    body,
-  };
+      // we have success
+      if (body.api) {
+        return resolve({
+          res,
+          body,
+        });
+      }
+
+      // we need to wait and poll again in a moment
+      setTimeout(() => {
+        attemptsLeft--;
+        if (attemptsLeft > 0) {
+          return resolve(testAuthComplete(token));
+        }
+
+        reject(TokenExpiredError());
+      }, 1000);
+    });
+  });
 }
 
 async function auth(apiToken: string, via: AuthCliCommands) {
-  let authPromise;
+  let promise;
   resetAttempts();
   if (apiToken) {
     // user is manually setting the API token on the CLI - let's trust them
-    authPromise = verifyAPI(apiToken);
+    promise = verifyAPI(apiToken);
   } else {
-    authPromise = webAuth(via);
+    promise = webAuth(via);
   }
 
-  const authResponse = await authPromise;
-  const res = authResponse.res;
-  const body = res.body;
-  debug(body);
+  return promise.then((data) => {
+    const res = data.res;
+    const body = res.body;
+    debug(body);
 
-  if (!(res.statusCode === 200 || res.statusCode === 201)) {
+    if (res.statusCode === 200 || res.statusCode === 201) {
+      snyk.config.set('api', body.api);
+      return '\nYour account has been authenticated. Snyk is now ready to ' +
+        'be used.\n';
+    }
     throw AuthFailedError(body.message, res.statusCode);
-  }
-
-  snyk.config.set('api', body.api);
-  return '\nYour account has been authenticated. Snyk is now ready to ' +
-    'be used.\n';
+  });
 }
