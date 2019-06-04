@@ -10,14 +10,14 @@ module.exports = snyk;
 
 snyk.id = snykConfig.id;
 
-var apiToken = require('./api-token');
+const apiToken = require('./api-token');
 
 // make snyk.api *always* get the latest api token from the config store
 Object.defineProperty(snyk, 'api', {
   enumerable: true,
   configurable: true,
   get: function () {
-    return apiToken();
+    return apiToken.api();
   },
   set: function (value) {
     snykConfig.api = value;
