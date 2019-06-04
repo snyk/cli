@@ -2606,7 +2606,7 @@ test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
     }], 'calls docker plugin with expected arguments');
 
   const emptyPolicy = await snykPolicy.create();
-  t.same(req.body.policy, emptyPolicy.toString(), 'empty policy is sent');
+  t.deepEqual(req.body.policy, emptyPolicy.toString(), 'empty policy is sent');
 });
 
 test('`monitor foo:latest --docker` with custom policy path', async (t) => {
@@ -2647,7 +2647,7 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
     path.join('custom-location', '.snyk'),
     'utf8');
   const policyString = req.body.policy;
-  t.equal(policyString, expected, 'sends correct policy');
+  t.deepEqual(policyString, expected, 'sends correct policy');
 });
 
 test('`wizard` for unsupported package managers', async (t) => {
