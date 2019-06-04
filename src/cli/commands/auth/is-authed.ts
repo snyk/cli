@@ -2,30 +2,33 @@ import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import * as request from '../../../lib/request';
 
-export async function isAuthed() {
+export function isAuthed() {
   const token = snyk.config.get('api');
-  const res = await verifyAPI(token);
-  return res.body.ok;
+  return verifyAPI(token).then((res: any) => {
+    return res.body.ok;
+  });
 }
 
-export async function verifyAPI(apiToken) {
+export function verifyAPI(api) {
   const payload = {
     body: {
-      api: apiToken,
+      api,
     },
     method: 'POST',
     url: config.API + '/verify/token',
     json: true,
   };
 
-  const verifyTokenRes = await request(payload);
-  const {error, res, body} = verifyTokenRes;
-  if (error) {
-    throw error;
-  }
+  return new Promise((resolve, reject) => {
+    request(payload, (error, res, body) => {
+      if (error) {
+        return reject(error);
+      }
 
-  return {
-    res,
-    body,
-  };
+      resolve({
+        res,
+        body,
+      });
+    });
+  });
 }
