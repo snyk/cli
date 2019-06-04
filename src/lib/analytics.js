@@ -11,6 +11,7 @@ const os = require('os');
 const osName = require('os-name');
 const crypto = require('crypto');
 const uuid = require('uuid');
+const stripAnsi = require('strip-ansi');
 
 const metadata = {};
 // analytics module is required at the beginning of the CLI run cycle
@@ -77,6 +78,9 @@ function postAnalytics(data) {
 }
 
 analytics.add = function (key, value) {
+  if (typeof value === 'string') {
+    value = stripAnsi(value);
+  }
   if (metadata[key]) {
     if (!Array.isArray(metadata[key])) {
       metadata[key] = [metadata[key]];
