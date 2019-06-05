@@ -55,11 +55,20 @@ Gradle options:
                        test a specific sub-project.
   --all-sub-projects   For "multi project" configurations, test all
                        sub-projects.
+  --configuration-matching=<string>
+                       Resolve dependencies using only configuration(s) that
+                       match the provided Java regular expression, e.g.
+                       '^releaseRuntimeClasspath$'.
+  --configuration-attributes=<string>
+                       Select certain values of configuration attributes to
+                       resolve the dependencies. E.g.:
+                       'buildtype:release,usage:java-runtime'
 
 .Net (Nuget) options:
   --assets-project-name
-                       When monitoring a .NET project using NuGet PackageReference use
-                       the project name in project.assets.json, if found.
+                       When monitoring a .NET project using NuGet
+                       PackageReference use the project name in
+                       project.assets.json, if found.
 
 Docker options:
   --docker ........... Test or monitor a local docker image for Linux
