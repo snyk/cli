@@ -63,6 +63,7 @@ Gradle options:
                        Select certain values of configuration attributes to
                        resolve the dependencies. E.g.:
                        'buildtype:release,usage:java-runtime'
+  More information: https://snyk.io/docs/cli-advanced-gradle-testing/
 
 .Net (Nuget) options:
   --assets-project-name
