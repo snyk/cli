@@ -132,6 +132,14 @@ async function runTest(packageManager: string, root: string, options): Promise<L
       results.push(res);
     }
     return results;
+  } catch (err) {
+    // handling denial from registry because of the feature flag
+    // currently done for go.mod
+    if (err.code === 403 && err.message.includes('Feature not allowed')) {
+      throw NoSupportedManifestsFoundError([root]);
+    }
+
+    throw err;
   } finally {
     spinner.clear(spinnerLbl)();
   }
@@ -180,6 +188,7 @@ function assemblePayloads(root: string, options): Promise<Payload[]> {
   if (options.docker) {
     isLocal = true;
   } else {
+    // TODO: Refactor this check so we don't require files when tests are using mocks
     isLocal = fs.existsSync(root);
   }
   analytics.add('local', isLocal);

@@ -1381,6 +1381,59 @@ test('`test paket-app --file=paket.dependencies`', async (t) => {
         }], 'calls nuget plugin');
 });
 
+test('`test golang-mod --file=go.mod`', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin
+    .withArgs('gomod')
+    .returns(plugin);
+
+  await cli.test('golang-mod', {
+    file: 'go.mod',
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'gomod');
+  t.equal(req.body.targetFile, 'go.mod', 'specifies target');
+  t.same(spyPlugin.getCall(0).args,
+    ['golang-mod', 'go.mod', {
+      args: null,
+      file: 'go.mod',
+      org: null,
+      packageManager: 'gomod',
+      path: 'golang-mod',
+      showVulnPaths: true,
+    }], 'calls golang plugin');
+});
+
+test('`test golang-app` does not auto-detects golang-mod', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return { package: {}, plugin: { name: 'testplugin', runtime: 'testruntime' } };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin
+    .withArgs('gomod')
+    .returns(plugin);
+
+  t.rejects(cli.test('golang-mod'), /Could not detect supported target files/,
+    'NoSupportedManifestsFoundError error is shown');
+});
+
 test('`test golang-app --file=Gopkg.lock`', async (t) => {
   chdirWorkspaces();
   const plugin = {
@@ -2429,6 +2482,31 @@ test('`monitor gradle-app --all-sub-projects --project-name`', async (t) => {
   t.true(spyPlugin.notCalled, "`inspect` method wasn't called");
 });
 
+test('`monitor golang-mod --file=go.mod', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {
+          targetFile: 'go.mod',
+          name: 'snyk-go-plugin',
+          runtime: 'go',
+        },
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gomod').returns(plugin);
+
+  t.rejects(cli.monitor('golang-mod', {
+    file: 'go.mod',
+  }), /is not supported yet/, 'not supported message is shown');
+});
+
 test('`monitor golang-app --file=Gopkg.lock', async (t) => {
   chdirWorkspaces();
   const plugin = {
@@ -2667,6 +2745,7 @@ test('`wizard` for unsupported package managers', async (t) => {
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
+    { file: 'golang-mod/go.mod', type: 'Go Modules' },
     { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
     { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
@@ -2696,6 +2775,7 @@ test('`protect` for unsupported package managers', async (t) => {
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
+    { file: 'golang-mod/go.mod', type: 'Go Modules' },
     { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
     { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
