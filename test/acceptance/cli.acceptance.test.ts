@@ -2310,7 +2310,7 @@ test('`monitor gradle-app`', async (t) => {
           name: 'testplugin',
           runtime: 'testruntime',
           meta: {
-            allDepRootNames: ['foo', 'bar'],
+            allSubProjectNames: ['foo', 'bar'],
           },
         },
         package: {},

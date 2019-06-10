@@ -144,9 +144,9 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       } else {
         if (!options['gradle-sub-project']
           && inspectResult.plugin.meta
-          && inspectResult.plugin.meta.allDepRootNames
-          && inspectResult.plugin.meta.allDepRootNames.length > 1) {
-          advertiseSubprojectsCount = inspectResult.plugin.meta.allDepRootNames.length;
+          && inspectResult.plugin.meta.allSubProjectNames
+          && inspectResult.plugin.meta.allSubProjectNames.length > 1) {
+          advertiseSubprojectsCount = inspectResult.plugin.meta.allSubProjectNames.length;
         }
         perDepRootResults = [inspectResult];
       }

@@ -12,7 +12,7 @@ export interface PluginMetadata {
   runtime?: any;
   dockerImageId: any;
   meta?: {
-    allDepRootNames: string[]; // To warn the user about subprojects not being scanned
+    allSubProjectNames: string[]; // To warn the user about subprojects not being scanned
   };
 }
 
