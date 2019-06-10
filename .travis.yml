@@ -26,7 +26,6 @@ script:
 jobs:
   include:
     - stage: Release
-      if: branch = master AND type != pull_request
       node_js: "8"
       script:
       - npm i -g semantic-release @semantic-release/exec && semantic-release
