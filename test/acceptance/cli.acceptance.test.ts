@@ -2801,6 +2801,10 @@ test('`test --insecure`', async (t) => {
   });
 });
 
+test("snyk help doesn't crash", async (t) => {
+  t.match(await cli.help(), /Usage/);
+});
+
 /**
  * We can't expect all test environments to have Maven installed
  * So, hijack the system exec call and return the expected output
