@@ -52,6 +52,7 @@
   "dependencies": {
     "@snyk/dep-graph": "1.4.1",
     "@snyk/gemfile": "1.2.0",
+    "@types/agent-base": "^4.2.0",
     "abbrev": "^1.1.1",
     "ansi-escapes": "^4.1.0",
     "chalk": "^2.4.2",

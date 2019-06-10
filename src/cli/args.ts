@@ -2,7 +2,7 @@ import * as abbrev from 'abbrev';
 
 import debugModule = require('debug');
 
-declare interface Global extends NodeJS.Global {
+export declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
 }
 
