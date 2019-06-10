@@ -1,21 +1,30 @@
 module.exports = ignore;
 
-var debug = require('debug')('snyk');
-var policy = require('snyk-policy');
-var chalk = require('chalk');
-var authorization = require('../../lib/authorization');
-var auth = require('./auth/is-authed');
-var authenticate = require('./auth');
+import * as policy from 'snyk-policy';
+import chalk from 'chalk';
+import * as authorization from '../../lib/authorization';
+import * as auth from './auth/is-authed';
+import {apiTokenExists} from '../../lib/api-token';
+import {isCI} from '../../lib/is-ci';
+
+import * as Debug from 'debug';
+const debug = Debug('snyk');
+
+import {MisconfiguredAuthInCI} from '../../lib/errors/misconfigured-auth-in-ci-error';
 
 function ignore(options) {
   debug('snyk ignore called with options: %O', options);
-  return auth.isAuthed().then(function (authed) {
+
+  return auth.isAuthed().then((authed) => {
     if (!authed) {
-      return authenticate(null, 'ignore');
+      if (isCI()) {
+        throw MisconfiguredAuthInCI();
+      }
     }
-  }).then(function () {
+    apiTokenExists();
+  }).then(() => {
     return authorization.actionAllowed('cliIgnore', options);
-  }).then(function (cliIgnoreAuthorization) {
+  }).then((cliIgnoreAuthorization) => {
     if (!cliIgnoreAuthorization.allowed) {
       debug('snyk ignore called when disallowed');
       console.log(chalk.bold.red(cliIgnoreAuthorization.reason));
@@ -36,10 +45,10 @@ function ignore(options) {
 
     debug(
       'changing policy: ignore "%s", for all paths, reason: "%s", until: %o',
-      options.id, options.reason, options.expiry
+      options.id, options.reason, options.expiry,
     );
     return policy.load(options['policy-path'])
-      .catch(function (error) {
+      .catch((error) => {
         if (error.code === 'ENOENT') {    // file does not exist - create it
           return policy.create();
         }
@@ -49,10 +58,10 @@ function ignore(options) {
         pol.ignore[options.id] = [
           {
             '*':
-          {
-            reason: options.reason,
-            expires: options.expiry,
-          },
+              {
+                reason: options.reason,
+                expires: options.expiry,
+              },
           },
         ];
         policy.save(pol, options['policy-path']);
