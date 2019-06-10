@@ -1,9 +1,11 @@
+module.exports = help;
+
 import * as fs from 'then-fs';
 import * as path from 'path';
 import * as Debug from 'debug';
 const debug = Debug('snyk');
 
-export async function help(item: string | boolean) {
+async function help(item?: string | boolean) {
   if (!item || item === true || typeof item !== 'string') {
     item = 'usage';
   }
@@ -14,7 +16,7 @@ export async function help(item: string | boolean) {
 
   const filename = path.resolve(__dirname, '../../../help', item + '.txt');
   try {
-    await fs.readFile(filename, 'utf8');
+    return await fs.readFile(filename, 'utf8');
   } catch (error) {
     debug(error);
     return `'${item}' help can't be found at location: ${filename}`;
