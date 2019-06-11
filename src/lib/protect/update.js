@@ -105,6 +105,7 @@ function update(packages, live, pkgManager) {
     .then(function (res) {
       if (error) {
         console.error(chalk.red(errors.message(error)));
+        debug(error.stack);
       }
       return res;
     });
