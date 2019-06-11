@@ -55,6 +55,15 @@ Gradle options:
                        test a specific sub-project.
   --all-sub-projects   For "multi project" configurations, test all
                        sub-projects.
+  --configuration-matching=<string>
+                       Resolve dependencies using only configuration(s) that
+                       match the provided Java regular expression, e.g.
+                       '^releaseRuntimeClasspath$'.
+  --configuration-attributes=<string>
+                       Select certain values of configuration attributes to
+                       resolve the dependencies. E.g.:
+                       'buildtype:release,usage:java-runtime'
+  More information: https://snyk.io/docs/cli-advanced-gradle-testing/
 
 .Net (Nuget) options:
   --assets-project-name

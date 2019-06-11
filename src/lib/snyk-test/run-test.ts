@@ -214,9 +214,9 @@ async function getDepsFromPlugin(root, options: TestOptions): Promise<MultiDepRo
     // but don't want to send to Registry in the Payload.
     // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
     if (inspectRes.plugin.meta
-      && inspectRes.plugin.meta.allDepRootNames
-      && inspectRes.plugin.meta.allDepRootNames.length > 1) {
-      options.advertiseSubprojectsCount = inspectRes.plugin.meta.allDepRootNames.length;
+      && inspectRes.plugin.meta.allSubProjectNames
+      && inspectRes.plugin.meta.allSubProjectNames.length > 1) {
+      options.advertiseSubprojectsCount = inspectRes.plugin.meta.allSubProjectNames.length;
     }
     return {
       plugin: inspectRes.plugin,
