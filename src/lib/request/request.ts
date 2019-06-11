@@ -1,30 +1,32 @@
-/* jscs:disable requireCamelCaseOrUpperCaseIdentifiers */
-/* jshint camelcase: false */
-module.exports = makeRequest;
+import { debug as debugModule } from 'debug';
+import * as needle from 'needle';
+import { parse, format } from 'url';
+import * as querystring from 'querystring';
+import * as zlib from 'zlib';
+import * as config from '../config';
+import { getProxyForUrl } from 'proxy-from-env';
+import * as ProxyAgent from 'proxy-agent';
+import * as analytics from '../analytics';
+import { Agent } from 'http';
+import { Global } from '../../cli/args';
+import { Payload } from './types';
 
-var debug = require('debug')('snyk:req');
-var snykDebug = require('debug')('snyk');
-var needle = require('needle');
-var parse = require('url').parse;
-var format = require('url').format;
-var querystring = require('querystring');
-var zlib = require('zlib');
-var config = require('../config');
-var getProxyForUrl = require('proxy-from-env').getProxyForUrl;
-var ProxyAgent = require('proxy-agent');
-var analytics = require('../analytics');
+const debug = debugModule('snyk:req');
+const snykDebug = debugModule('snyk');
 
-function makeRequest(payload) {
-  return new Promise(function (resolve, reject) {
-    var body = payload.body;
-    var data;
+declare const global: Global;
+
+export = function makeRequest(payload: Payload) {
+  return new Promise((resolve, reject) => {
+    const body = payload.body;
+    let data;
 
     delete payload.body;
 
     if (body) {
-      var json = JSON.stringify(body);
+      const json = JSON.stringify(body);
       if (json.length < 1e4) {
-        debug(JSON.stringify(body, '', 2));
+        debug(JSON.stringify(body, null, 2));
       }
 
       // always compress going upstream
@@ -46,12 +48,12 @@ function makeRequest(payload) {
       payload.headers['content-length'] = data.length;
     }
 
-    var url = parse(payload.url);
+    const parsedUrl = parse(payload.url);
 
-    if (url.protocol === 'http:' && url.hostname !== 'localhost') {
+    if (parsedUrl.protocol === 'http:' && parsedUrl.hostname !== 'localhost') {
       debug('forcing api request to https');
-      url.protocol = 'https:';
-      payload.url = format(url);
+      parsedUrl.protocol = 'https:';
+      payload.url = format(parsedUrl);
     }
 
     // prefer config timeout unless payload specified
@@ -61,25 +63,25 @@ function makeRequest(payload) {
 
     debug('request payload: ', JSON.stringify(payload));
 
-    var method = (payload.method || 'get').toLowerCase();
-    url = payload.url;
+    const method = (payload.method || 'get').toLowerCase() as needle.NeedleHttpVerbs;
+    let url = payload.url;
 
     if (payload.qs) {
       url = url + '?' + querystring.stringify(payload.qs);
       delete payload.qs;
     }
 
-    var options = {
+    const options: needle.NeedleOptions = {
       json: payload.json,
       headers: payload.headers,
       timeout: payload.timeout,
-      'follow_max': 5,
+      follow_max: 5,
     };
 
-    var proxyUri = getProxyForUrl(url);
+    const proxyUri = getProxyForUrl(url);
     if (proxyUri) {
       snykDebug('using proxy:', proxyUri);
-      options.agent = new ProxyAgent(proxyUri);
+      options.agent = new ProxyAgent(proxyUri) as unknown as Agent;
     } else {
       snykDebug('not using proxy');
     }
@@ -89,14 +91,14 @@ function makeRequest(payload) {
       options.rejectUnauthorized = false;
     }
 
-    needle.request(method, url, data, options, function (err, res, body) {
+    needle.request(method, url, data, options, (err, res, respBody) => {
       debug(err);
-      debug('response (%s): ', (res || {}).statusCode, JSON.stringify(body));
+      debug('response (%s): ', (res || {}).statusCode, JSON.stringify(respBody));
       if (err) {
         return reject(err);
       }
 
-      resolve({res: res, body: body});
+      resolve({res, body: respBody});
     });
   });
-}
+};
