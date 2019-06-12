@@ -2,6 +2,7 @@
 const config = require('../config');
 const chalk = require('chalk');
 const {SEVERITIES} = require('../snyk-test/common');
+const analytics = require('../analytics');
 
 const errors = {
   connect: 'Check your network connection, failed to connect to Snyk API',
@@ -85,8 +86,9 @@ module.exports.message = function(error) {
       message = message.replace(/(%s)/g, error.message).trim();
       message = chalk.bold.red(message);
     } else if (error.code) { // means it's a code error
-      message = 'An unknown error occurred. Please include the trace below ' +
-                'when reporting to Snyk:\n\n' + error.stack;
+      message = 'An unknown error occurred. Please run with `-d` and include full trace ' +
+                'when reporting to Snyk';
+      analytics.add('unknown-error-code', JSON.stringify(error));
     } else { // should be one of ours
       message = error.message;
     }

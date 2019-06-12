@@ -174,6 +174,7 @@ function patch(vulns, live) {
       if (errorList.length) {
         errorList.forEach(function (error) {
           console.log(chalk.red(errors.message(error)));
+          debug(error.stack);
         });
         throw new Error('Please email support@snyk.io if this problem persists.');
       }
