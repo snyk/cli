@@ -1415,7 +1415,7 @@ test('`test golang-mod --file=go.mod`', async (t) => {
     }], 'calls golang plugin');
 });
 
-test('`test golang-app` does not auto-detects golang-mod', async (t) => {
+test('`test golang-app` does not auto-detect golang-mod', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {

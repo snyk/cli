@@ -18,6 +18,7 @@ const DETECTABLE_FILES: string[] = [
   'build.gradle.kts',
   'build.sbt',
   'Pipfile',
+  'requirements.txt',
   'Gopkg.lock',
   'vendor/vendor.json',
   'obj/project.assets.json',
@@ -25,9 +26,6 @@ const DETECTABLE_FILES: string[] = [
   'packages.config',
   'paket.dependencies',
   'composer.lock',
-  // Python has the lowest priority. Python scripts are sometimes included in projects written in
-  // more "heavyweight" languages, so we should prefer those.
-  'requirements.txt',
 ];
 
 // when file is specified with --file, we look it up here
