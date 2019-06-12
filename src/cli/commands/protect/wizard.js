@@ -1,10 +1,11 @@
 module.exports = wizard;
+
 // used for testing
 module.exports.processAnswers = processAnswers;
 module.exports.inquire = inquire;
 module.exports.interactive = interactive;
-
 const debug = require('debug')('snyk');
+
 const path = require('path');
 const inquirer = require('inquirer');
 const fs = require('then-fs');
@@ -13,7 +14,7 @@ const chalk = require('chalk');
 const url = require('url');
 const _ = require('lodash');
 const exec = require('child_process').exec;
-const authenticate = require('../auth');
+const {apiTokenExists} = require ('../../../lib/api-token');
 const auth = require('../auth/is-authed');
 const getVersion = require('../version');
 const allPrompts = require('./prompts');
@@ -32,6 +33,7 @@ const cwd = process.cwd();
 const detect = require('../../../lib/detect');
 const plugins = require('../../../lib/plugins');
 const moduleInfo = require('../../../lib/module-info').ModuleInfo;
+const {MisconfiguredAuthInCI} = require('../../../lib/errors/misconfigured-auth-in-ci-error');
 const {MissingTargetFileError} = require('../../../lib/errors/missing-targetfile-error');
 const pm = require('../../../lib/package-managers');
 
@@ -86,8 +88,11 @@ function processWizardFlow(options) {
       return auth.isAuthed().then((authed) => {
         analytics.add('inline-auth', !authed);
         if (!authed) {
-          return authenticate(null, 'wizard');
+          if (isCI()) {
+            throw MisconfiguredAuthInCI();
+          }
         }
+        apiTokenExists();
       })
         .then(() => authorization.actionAllowed('cliIgnore', options))
         .then((cliIgnoreAuthorization) => {
