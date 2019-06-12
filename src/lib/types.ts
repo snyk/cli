@@ -71,4 +71,17 @@ export interface TestOptions {
   advertiseSubprojectsCount?: number;
   subProjectNames?: string[];
   severityThreshold?: string;
+  'print-deps'?: boolean;
+}
+
+// TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
+export interface MonitorOptions {
+  id?: string;
+  docker?: boolean;
+  file?: string;
+  policy?: string;
+  json?: boolean;
+  'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
+  'project-name'?: string;
+  'print-deps'?: boolean;
 }

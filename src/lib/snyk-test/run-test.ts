@@ -19,6 +19,7 @@ import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-l
 import {convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult, TestDepGraphResponse} from './legacy';
 import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, TestOptions} from '../types';
 import { NoSupportedManifestsFoundError } from '../errors';
+import { maybePrintDeps } from '../print-deps';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -255,6 +256,10 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
 
     for (const depRoot of deps.depRoots) {
       const pkg = depRoot.depTree;
+      if (options['print-deps']) {
+        await spinner.clear(spinnerLbl)();
+        maybePrintDeps(options, pkg);
+      }
       if (deps.plugin && deps.plugin.packageManager) {
         options.packageManager = deps.plugin.packageManager;
       }
@@ -349,7 +354,7 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
     }
     return payloads;
   } finally {
-    spinner.clear(spinnerLbl)();
+    await spinner.clear(spinnerLbl)();
   }
 }
 

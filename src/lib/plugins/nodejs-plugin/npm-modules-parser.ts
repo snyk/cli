@@ -38,6 +38,6 @@ export async function parse(root: string, targetFile: string, options: Options):
     return snyk.modules(
       root, Object.assign({}, options, {noFromArrays: true}));
   } finally {
-    spinner.clear(resolveModuleSpinnerLabel)();
+    await spinner.clear(resolveModuleSpinnerLabel)();
   }
 }
