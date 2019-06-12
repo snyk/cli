@@ -15,6 +15,9 @@ export interface Options {
   multiDepRoots?: boolean;
   debug?: boolean;
   packageManager?: string;
+  composerIsFine?: boolean;
+  composerPharIsFine?: boolean;
+  systemVersions?: object;
 }
 
 export interface Plugin {
