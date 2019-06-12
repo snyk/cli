@@ -6,7 +6,7 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import {isCI} from './is-ci';
 import * as analytics from './analytics';
-import { SingleDepRootResult, MonitorError } from './types';
+import { SingleDepRootResult, MonitorError, DepTree } from './types';
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
 
@@ -15,7 +15,7 @@ import * as path from 'path';
 interface MonitorBody {
   meta: Meta;
   policy: string;
-  package: {}; // TODO(kyegupov): DepTree
+  package: DepTree;
   target: {};
   targetFileRelativePath: string;
   targetFile: string;
@@ -39,6 +39,19 @@ interface Meta {
   projectName: string;
 }
 
+function dropEmptyDeps(node: DepTree) {
+  if (node.dependencies) {
+    const keys = Object.keys(node.dependencies);
+    if (keys.length === 0) {
+      delete node.dependencies;
+    } else {
+      for (const k of keys) {
+        dropEmptyDeps(node.dependencies[k]);
+      }
+    }
+  }
+}
+
 export async function monitor(root, meta, info: SingleDepRootResult, targetFile): Promise<any> {
   apiTokenExists();
   const pkg = info.package;
@@ -58,6 +71,8 @@ export async function monitor(root, meta, info: SingleDepRootResult, targetFile)
 
   const target = await projectMetadata.getInfo(pkg);
   const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
+
+  dropEmptyDeps(pkg);
 
   // TODO(kyegupov): async/await
   return new Promise((resolve, reject) => {
