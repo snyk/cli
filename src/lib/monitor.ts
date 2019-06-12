@@ -67,7 +67,7 @@ export async function monitor(root, meta, info: SingleDepRootResult, targetFile)
   policy = await snyk.policy.load(policyLocations, {loose: true});
 
   const packageManager = meta.packageManager;
-  if (packageManager === 'gomod') {
+  if (packageManager === 'gomodules') {
     throw new Error('Monitoring go.mod files is not supported yet.');
   }
   analytics.add('packageManager', packageManager);

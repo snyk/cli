@@ -1394,7 +1394,7 @@ test('`test golang-mod --file=go.mod`', async (t) => {
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
   loadPlugin
-    .withArgs('gomod')
+    .withArgs('gomodules')
     .returns(plugin);
 
   await cli.test('golang-mod', {
@@ -1403,14 +1403,14 @@ test('`test golang-mod --file=go.mod`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
-  t.equal(req.body.depGraph.pkgManager.name, 'gomod');
+  t.equal(req.body.depGraph.pkgManager.name, 'gomodules');
   t.equal(req.body.targetFile, 'go.mod', 'specifies target');
   t.same(spyPlugin.getCall(0).args,
     ['golang-mod', 'go.mod', {
       args: null,
       file: 'go.mod',
       org: null,
-      packageManager: 'gomod',
+      packageManager: 'gomodules',
       path: 'golang-mod',
       showVulnPaths: true,
     }], 'calls golang plugin');
@@ -1428,7 +1428,7 @@ test('`test golang-app` does not auto-detect golang-mod', async (t) => {
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
   loadPlugin
-    .withArgs('gomod')
+    .withArgs('gomodules')
     .returns(plugin);
 
   t.rejects(cli.test('golang-mod'), /Could not detect supported target files/,
@@ -2501,7 +2501,7 @@ test('`monitor golang-mod --file=go.mod', async (t) => {
 
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
-  loadPlugin.withArgs('gomod').returns(plugin);
+  loadPlugin.withArgs('gomodules').returns(plugin);
 
   t.rejects(cli.monitor('golang-mod', {
     file: 'go.mod',
