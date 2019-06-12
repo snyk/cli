@@ -3,7 +3,8 @@ export interface InspectResult {
     name: string;
     runtime?: string;
   };
-  package: any;
+  package?: any;
+  depRoots?: any;
 }
 
 export interface Options {

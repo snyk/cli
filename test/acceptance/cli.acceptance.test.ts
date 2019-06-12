@@ -32,7 +32,6 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../src/lib/plugins';
-import {Options} from '../../src/lib/plugins/types';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -108,7 +107,7 @@ test('userMessage correctly bubbles with everything other than npm', async (t) =
 
 test('`test semver` sends remote NPM request:', async (t) => {
   // We care about the request here, not the response
-  let output = await cli.test('semver', {registry: 'npm', org: 'EFF'});
+  const output = await cli.test('semver', {registry: 'npm', org: 'EFF'});
   const req = server.popRequest();
   t.equal(req.method, 'GET', 'makes GET request');
   t.match(req.url, '/vuln/npm/semver', 'gets from correct url');
@@ -543,7 +542,8 @@ test('`test gradle-app` returns correct meta', async (t) => {
 
   const res = await cli.test('gradle-app');
   const meta = res.slice(res.indexOf('Organisation:')).split('\n');
-  t.false(spyPlugin.args[0][2].multiDepRoots, '`multiDepRoots` option is not sent');
+
+  t.false(((spyPlugin.args[0] as any)[2] as any).multiDepRoots, '`multiDepRoots` option is not sent');
   t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
   t.match(meta[1], /Package manager:\s+gradle/,
     'package manager displayed');
@@ -558,7 +558,7 @@ test('`test gradle-app --all-sub-projects` sends `multiDepRoots` argument to plu
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {plugin: {}, package: {}};
+      return {plugin: {name: 'gradle'}, package: {}};
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -569,14 +569,14 @@ test('`test gradle-app --all-sub-projects` sends `multiDepRoots` argument to plu
   await cli.test('gradle-app', {
     'all-sub-projects': true,
   });
-  t.true(spyPlugin.args[0][2].multiDepRoots);
+  t.true(((spyPlugin.args[0] as any)[2] as any).multiDepRoots);
 });
 
 test('`test gradle-app` plugin fails to return package or depRoots', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {plugin: {}};
+      return {plugin: {name: 'gradle'}};
     },
   };
   sinon.spy(plugin, 'inspect');
@@ -599,7 +599,7 @@ test('`test gradle-app --all-sub-projects` returns correct multi tree meta', asy
   const plugin = {
     async inspect() {
       return {
-        plugin: {},
+        plugin: {name: 'gradle'},
         depRoots: [
           {
             depTree: {
@@ -624,7 +624,7 @@ test('`test gradle-app --all-sub-projects` returns correct multi tree meta', asy
   loadPlugin.withArgs('gradle').returns(plugin);
 
   const res = await cli.test('gradle-app', {'all-sub-projects': true});
-  t.true(spyPlugin.args[0][2].multiDepRoots, '`multiDepRoots` option is sent');
+  t.true(((spyPlugin.args[0] as any)[2] as any).multiDepRoots, '`multiDepRoots` option is sent');
 
   const tests = res.split('Testing gradle-app...').filter((s) => !!s.trim());
   t.equals(tests.length, 2, 'two projects tested independently');
@@ -1423,7 +1423,7 @@ test('`test golang-app` does not auto-detect golang-mod', async (t) => {
       return { package: {}, plugin: { name: 'testplugin', runtime: 'testruntime' } };
     },
   };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
+  sinon.spy(plugin, 'inspect');
 
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
@@ -1664,7 +1664,7 @@ test('`test composer-app golang-app nuget-app` auto-detects all three projects',
     'all urls are present');
 
   // assert three spyPlugin calls, each with a different app
-  const calls = spyPlugin.getCalls().sort( (call1, call2) => {
+  const calls = spyPlugin.getCalls().sort( (call1: any, call2: any) => {
     return call1.args[0] < call2.args[1] ? -1 :
       (call1.args[0] > call2.args[0] ? 1 : 0);
   });
@@ -1901,7 +1901,7 @@ test('`test foo:latest --docker with binaries`', async (t) => {
     },
   }, t);
 
-  const res = await cli.test('foo:latest', {
+  await cli.test('foo:latest', {
     docker: true,
     org: 'explicit-org',
   });
@@ -1978,10 +1978,10 @@ test('`test foo:latest --docker with binaries vulnerabilities`', async (t) => {
   }
 });
 
-test('`test --policy-path`', async (t) => {
-  t.plan(3);
+test('`test --policy-path`', async (tt) => {
+  tt.plan(3);
 
-  t.test('default policy', async (t) => {
+  tt.test('default policy', async (t) => {
     chdirWorkspaces('npm-package-policy');
     const expected = fs.readFileSync(path.join('.snyk'), 'utf8');
     const vulns = require('./fixtures/npm-package-policy/test-graph-result.json');
@@ -2008,7 +2008,7 @@ test('`test --policy-path`', async (t) => {
     }
   });
 
-  t.test('custom policy path', async (t) => {
+  tt.test('custom policy path', async (t) => {
     chdirWorkspaces('npm-package-policy');
 
     const expected = fs.readFileSync(path.join('custom-location', '.snyk'),
@@ -2034,7 +2034,7 @@ test('`test --policy-path`', async (t) => {
     t.equal(vulnerabilities.length, 0, 'all vulns ignored');
   });
 
-  t.test('api ignores policy', async (t) => {
+  tt.test('api ignores policy', async (t) => {
     chdirWorkspaces('npm-package-policy');
     const expected = fs.readFileSync(path.join('.snyk'), 'utf8');
     const policy = await snykPolicy.loadFromText(expected);
@@ -2085,7 +2085,7 @@ test('`test sbt-simple-struts`', async (t) => {
   const plugin = {
     async inspect() {
       return {
-        plugin: {},
+        plugin: {name: 'sbt'},
         package: require('./workspaces/sbt-simple-struts/dep-tree.json'),
       };
     },
@@ -2128,20 +2128,20 @@ test('`test sbt-simple-struts`', async (t) => {
 /**
  * `monitor`
  */
-test('`monitor --policy-path`', async (t) => {
-  t.plan(2);
+test('`monitor --policy-path`', async (tt) => {
+  tt.plan(2);
   chdirWorkspaces('npm-package-policy');
 
-  t.test('default policy', async (t) => {
-    const res = await cli.monitor('.');
+  tt.test('default policy', async (t) => {
+    await cli.monitor('.');
     const req = server.popRequest();
     const policyString = req.body.policy;
     const expected = fs.readFileSync(path.join('.snyk'), 'utf8');
     t.equal(policyString, expected, 'sends correct policy');
   });
 
-  t.test('custom policy path', async (t) => {
-    const res = await cli.monitor('.', {
+  tt.test('custom policy path', async (t) => {
+    await cli.monitor('.', {
       'policy-path': 'custom-location',
       'json': true,
     });
@@ -2376,8 +2376,8 @@ test('`monitor gradle-app`', async (t) => {
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('gradle').returns(plugin);
 
-  let output = await cli.monitor('gradle-app');
-  t.match(output, /use --all-sub-projects flag to scan all sub-projects/, "all-sub-projects flag is suggested");
+  const output = await cli.monitor('gradle-app');
+  t.match(output, /use --all-sub-projects flag to scan all sub-projects/, 'all-sub-projects flag is suggested');
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/gradle', 'puts at correct url');
@@ -2393,7 +2393,7 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
   const plugin = {
     async inspect() {
       return {
-        plugin: {},
+        plugin: {name: 'gradle'},
         package: {},
       };
     },
@@ -2404,7 +2404,7 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
   loadPlugin.withArgs('gradle').returns(plugin);
 
   await cli.monitor('gradle-app', {'all-sub-projects': true});
-  t.true(spyPlugin.args[0][2].multiDepRoots);
+  t.true(((spyPlugin.args[0] as any)[2] as any).multiDepRoots);
 
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
@@ -2423,7 +2423,7 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
   const plugin = {
     async inspect() {
       return {
-        plugin: {},
+        plugin: {name: 'gradle'},
         package: {},
       };
     },
@@ -2435,7 +2435,7 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
   loadPlugin.withArgs('pip').returns(plugin);
 
   await cli.monitor('gradle-app', 'pip-app', {'all-sub-projects': true});
-  t.true(spyPlugin.args[0][2].multiDepRoots);
+  t.true(((spyPlugin.args[0] as any)[2] as any).multiDepRoots);
 
   let req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request for pip');
@@ -2464,7 +2464,7 @@ test('`monitor gradle-app --all-sub-projects --project-name`', async (t) => {
   const plugin = {
     async inspect() {
       return {
-        plugin: {},
+        plugin: {name: 'gradle'},
         package: {},
       };
     },
@@ -2497,7 +2497,7 @@ test('`monitor golang-mod --file=go.mod', async (t) => {
       };
     },
   };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
+  sinon.spy(plugin, 'inspect');
 
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
@@ -2695,6 +2695,7 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
       return{
         plugin: {
           packageManager: 'rpm',
+          name: 'docker',
         },
         package: {},
       };
@@ -2789,11 +2790,11 @@ test('`protect` for unsupported package managers', async (t) => {
   });
 });
 
-test('`protect --policy-path`', async (t) => {
-  t.plan(2);
+test('`protect --policy-path`', async (tt) => {
+  tt.plan(2);
   chdirWorkspaces('npm-package-policy');
 
-  t.test('default policy', async (t) => {
+  tt.test('default policy', async (t) => {
     const expected = fs.readFileSync(path.join('.snyk'), 'utf8');
     const vulns = require('./fixtures/npm-package-policy/test-graph-result.json');
     vulns.policy = expected;
@@ -2808,7 +2809,7 @@ test('`protect --policy-path`', async (t) => {
     }
   });
 
-  t.test('custom policy path', async (t) => {
+  tt.test('custom policy path', async (t) => {
     const expected = fs.readFileSync(path.join('custom-location', '.snyk'),
       'utf8');
     const vulns = require('./fixtures/npm-package-policy/vulns.json');
@@ -2841,33 +2842,39 @@ test('`protect` with no policy', async (t) => {
   t.end();
  });
 
-test('`test --insecure`', async (t) => {
-  t.plan(2);
+test('`test --insecure`', async (tt) => {
+  tt.plan(2);
   chdirWorkspaces('npm-package');
 
-  t.test('default (insecure false)', async (t) => {
+  tt.test('default (insecure false)', async (t) => {
     const requestStub = sinon.stub(needle, 'request').callsFake((a, b, c, d, cb) => {
-      cb(new Error('bail'));
+      if (cb) {
+        cb(new Error('bail'), {} as any, null);
+      }
+      return {} as any;
     });
     t.teardown(requestStub.restore);
     try {
       await cli.test('npm-package');
       t.fail('should fail');
     } catch (e) {
-      t.notOk(requestStub.firstCall.args[3].rejectUnauthorized,
+      t.notOk((requestStub.firstCall.args[3] as any).rejectUnauthorized,
         'rejectUnauthorized not present (same as true)');
     }
   });
 
-  t.test('insecure true', async (t) => {
+  tt.test('insecure true', async (t) => {
     // Unfortunately, all acceptance tests run through cli/commands
     // which bypasses `args`, and `ignoreUnknownCA` is a global set
     // by `args`, so we simply set the global here.
     // NOTE: due to this we add tests to `args.test.js`
       (global as any).ignoreUnknownCA = true;
       const requestStub = sinon.stub(needle, 'request').callsFake((a, b, c, d, cb) => {
-      cb(new Error('bail'));
-    });
+        if (cb) {
+          cb(new Error('bail'), {} as any, null);
+        }
+        return {} as any;
+      });
       t.teardown(() => {
       delete (global as any).ignoreUnknownCA;
       requestStub.restore();
@@ -2876,7 +2883,7 @@ test('`test --insecure`', async (t) => {
       await cli.test('npm-package');
       t.fail('should fail');
     } catch (e)  {
-      t.false(requestStub.firstCall.args[3].rejectUnauthorized,
+      t.false((requestStub.firstCall.args[3] as any).rejectUnauthorized,
         'rejectUnauthorized false');
     }
   });
