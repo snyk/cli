@@ -45,6 +45,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   'Pipfile': 'pip',
   'requirements.txt': 'pip',
   'Gopkg.lock': 'golangdep',
+  'go.mod': 'gomod',
   'vendor.json': 'govendor',
   'project.assets.json': 'nuget',
   'packages.config': 'nuget',

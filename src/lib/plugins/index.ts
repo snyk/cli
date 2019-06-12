@@ -40,6 +40,7 @@ export function loadPlugin(packageManager: SupportedPackageManagers,
       return pythonPlugin;
     }
     case 'golangdep':
+    case 'gomod':
     case 'govendor': {
       return goPlugin;
     }

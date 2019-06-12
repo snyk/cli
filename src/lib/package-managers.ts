@@ -1,5 +1,5 @@
 export type SupportedPackageManagers = 'rubygems' | 'npm' | 'yarn' |
-'maven' | 'pip' | 'sbt' | 'gradle' | 'golangdep' | 'govendor' |
+'maven' | 'pip' | 'sbt' | 'gradle' | 'golangdep' | 'govendor' | 'gomod' |
 'nuget' | 'paket' | 'composer';
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
@@ -13,6 +13,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   sbt: 'SBT',
   gradle: 'Gradle',
   golangdep: 'dep (Go)',
+  gomod: 'Go Modules',
   govendor: 'govendor',
   nuget: 'NuGet',
   paket: 'Paket',
