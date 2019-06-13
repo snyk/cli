@@ -2497,15 +2497,25 @@ test('`monitor golang-mod --file=go.mod', async (t) => {
       };
     },
   };
-  sinon.spy(plugin, 'inspect');
+  const spyPlugin = sinon.spy(plugin, 'inspect');
 
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('gomodules').returns(plugin);
 
-  t.rejects(cli.monitor('golang-mod', {
+  await cli.monitor('golang-mod', {
     file: 'go.mod',
-  }), /is not supported yet/, 'not supported message is shown');
+  });
+
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/gomodules', 'puts at correct url');
+  t.equal(req.body.targetFile, 'go.mod', 'sends the targetFile');
+  t.same(spyPlugin.getCall(0).args,
+    ['golang-mod', 'go.mod', {
+      args: null,
+      file: 'go.mod',
+    }], 'calls golang plugin');
 });
 
 test('`monitor golang-app --file=Gopkg.lock', async (t) => {
