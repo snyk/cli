@@ -45,6 +45,7 @@ Options:
   --dry-run .......... Don't apply updates or patches during protect.
   --severity-threshold=<low|medium|high>
                        Only report vulnerabilities of provided level or higher.
+  --print-deps ....... (experimental) Print the dependency tree.
   -q, --quiet ........ Silence all output.
   -h, --help ......... This help information.
   -v, --version ...... The CLI version.

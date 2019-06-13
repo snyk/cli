@@ -14,21 +14,11 @@ import * as spinner from '../../lib/spinner';
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
-import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorError } from '../../lib/types';
+import { SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorError, MonitorOptions } from '../../lib/types';
 import { MethodArgs, ArgsOptions } from '../args';
+import { maybePrintDeps } from '../../lib/print-deps';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
-
-// TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
-interface MonitorOptions {
-  id?: string;
-  docker?: boolean;
-  file?: string;
-  policy?: string;
-  json?: boolean;
-  'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
-  'project-name'?: string;
-}
 
 interface GoodResult {
   ok: true;
@@ -153,6 +143,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Post the project dependencies to the Registry
       for (const depRootDeps of perDepRootResults) {
+        maybePrintDeps(options, depRootDeps.package);
+
         const res = await promiseOrCleanup(
           snykMonitor(path, meta, depRootDeps, targetFile),
           spinner.clear(postingMonitorSpinnerLabel));
