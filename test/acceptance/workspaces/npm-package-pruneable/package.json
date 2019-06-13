@@ -1,0 +1,14 @@
+{
+  "name": "npm-package",
+  "version": "1.0.0",
+  "description": "Simple NPM package",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "snyk",
+  "license": "ISC",
+  "dependencies": {
+    "a": "1.0.0"
+  }
+}

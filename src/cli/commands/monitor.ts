@@ -14,7 +14,14 @@ import * as spinner from '../../lib/spinner';
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
-import { SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorOptions } from '../../lib/types';
+import {
+  SingleDepRootResult,
+  MultiDepRootsResult,
+  isMultiResult,
+  MonitorOptions,
+  MonitorMeta,
+  MonitorResult,
+} from '../../lib/types';
 import { MethodArgs, ArgsOptions } from '../args';
 import { maybePrintDeps } from '../../lib/print-deps';
 import * as analytics from '../../lib/analytics';
@@ -117,12 +124,13 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       if (inspectResult.plugin.packageManager) {
         packageManager = inspectResult.plugin.packageManager;
       }
-      const meta = {
+      const meta: MonitorMeta = {
         'method': 'cli',
         'packageManager': packageManager,
         'policy-path': options['policy-path'],
         'project-name': options['project-name'] || config.PROJECT_NAME,
         'isDocker': !!options.docker,
+        'prune': !!options['prune-repeated-subdependencies'],
       };
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
@@ -228,7 +236,12 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 }
 
 function formatMonitorOutput(
-    packageManager, res, manageUrl, options, subProjectName?: string, advertiseSubprojectsCount?: number|null,
+    packageManager,
+    res: MonitorResult,
+    manageUrl,
+    options,
+    subProjectName?: string,
+    advertiseSubprojectsCount?: number|null,
   ) {
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
   const humanReadableName = subProjectName ? `${res.path} (${subProjectName})` : res.path;

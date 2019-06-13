@@ -50,7 +50,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/dep-graph": "1.4.1",
+    "@snyk/dep-graph": "1.8.1",
     "@snyk/gemfile": "1.2.0",
     "@types/agent-base": "^4.2.0",
     "abbrev": "^1.1.1",

@@ -27,6 +27,14 @@ export interface DepTree {
   docker?: any;
   files?: any;
   targetFile?: string;
+
+  labels?: {
+    [key: string]: string;
+
+    // Known keys:
+    // pruned: identical subtree already presents in the parent node.
+    //         See --prune-repeated-subdependencies flag.
+  };
 }
 
 export interface DepRoot {
@@ -87,4 +95,26 @@ export interface MonitorOptions {
   'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
   'project-name'?: string;
   'print-deps'?: boolean;
+
+  // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
+  'prune-repeated-subdependencies'?: boolean;
+}
+
+export interface MonitorMeta {
+  'method': 'cli';
+  'packageManager': SupportedPackageManagers;
+  'policy-path': string;
+  'project-name': string;
+  'isDocker': boolean;
+  'prune': boolean;
+}
+
+export interface MonitorResult {
+  org?: string;
+  id: string;
+  path: string;
+  licensesPolicy: any;
+  uri: string;
+  isMonitored: boolean;
+  trialStarted: boolean;
 }

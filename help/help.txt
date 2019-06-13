@@ -45,10 +45,18 @@ Options:
   --dry-run .......... Don't apply updates or patches during protect.
   --severity-threshold=<low|medium|high>
                        Only report vulnerabilities of provided level or higher.
-  --print-deps ....... (experimental) Print the dependency tree.
   -q, --quiet ........ Silence all output.
   -h, --help ......... This help information.
   -v, --version ...... The CLI version.
+
+Experimental options:
+  --print-deps ....... (test and monitor commands only)
+                       Print the dependency tree before sending it for analysis.
+  --prune-repeated-subdependencies
+                       (monitor command only)
+                       Prune dependency trees, removing duplicate sub-dependencies.
+                       Will still find all vulnerabilities, but potentially not all
+                       of the vulnerable paths.
 
 Gradle options:
   --gradle-sub-project=<string>
