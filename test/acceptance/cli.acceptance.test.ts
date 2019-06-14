@@ -1382,7 +1382,7 @@ test('`test paket-app --file=paket.dependencies`', async (t) => {
         }], 'calls nuget plugin');
 });
 
-test('`test golang-mod --file=go.mod`', async (t) => {
+test('`test golang-gomodules --file=go.mod`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -1394,29 +1394,29 @@ test('`test golang-mod --file=go.mod`', async (t) => {
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
   loadPlugin
-    .withArgs('gomod')
+    .withArgs('gomodules')
     .returns(plugin);
 
-  await cli.test('golang-mod', {
+  await cli.test('golang-gomodules', {
     file: 'go.mod',
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
-  t.equal(req.body.depGraph.pkgManager.name, 'gomod');
+  t.equal(req.body.depGraph.pkgManager.name, 'gomodules');
   t.equal(req.body.targetFile, 'go.mod', 'specifies target');
   t.same(spyPlugin.getCall(0).args,
-    ['golang-mod', 'go.mod', {
+    ['golang-gomodules', 'go.mod', {
       args: null,
       file: 'go.mod',
       org: null,
-      packageManager: 'gomod',
-      path: 'golang-mod',
+      packageManager: 'gomodules',
+      path: 'golang-gomodules',
       showVulnPaths: true,
     }], 'calls golang plugin');
 });
 
-test('`test golang-app` does not auto-detect golang-mod', async (t) => {
+test('`test golang-app` does not auto-detect golang-gomodules', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -1428,10 +1428,10 @@ test('`test golang-app` does not auto-detect golang-mod', async (t) => {
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
   loadPlugin
-    .withArgs('gomod')
+    .withArgs('gomodules')
     .returns(plugin);
 
-  t.rejects(cli.test('golang-mod'), /Could not detect supported target files/,
+  t.rejects(cli.test('golang-gomodules'), /Could not detect supported target files/,
     'NoSupportedManifestsFoundError error is shown');
 });
 
@@ -2483,7 +2483,7 @@ test('`monitor gradle-app --all-sub-projects --project-name`', async (t) => {
   t.true(spyPlugin.notCalled, "`inspect` method wasn't called");
 });
 
-test('`monitor golang-mod --file=go.mod', async (t) => {
+test('`monitor golang-gomodules --file=go.mod', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -2497,15 +2497,25 @@ test('`monitor golang-mod --file=go.mod', async (t) => {
       };
     },
   };
-  sinon.spy(plugin, 'inspect');
+  const spyPlugin = sinon.spy(plugin, 'inspect');
 
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
-  loadPlugin.withArgs('gomod').returns(plugin);
+  loadPlugin.withArgs('gomodules').returns(plugin);
 
-  t.rejects(cli.monitor('golang-mod', {
+  await cli.monitor('golang-gomodules', {
     file: 'go.mod',
-  }), /is not supported yet/, 'not supported message is shown');
+  });
+
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/gomodules', 'puts at correct url');
+  t.equal(req.body.targetFile, 'go.mod', 'sends the targetFile');
+  t.same(spyPlugin.getCall(0).args,
+    ['golang-gomodules', 'go.mod', {
+      args: null,
+      file: 'go.mod',
+    }], 'calls golang plugin');
 });
 
 test('`monitor golang-app --file=Gopkg.lock', async (t) => {
@@ -2747,7 +2757,7 @@ test('`wizard` for unsupported package managers', async (t) => {
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
-    { file: 'golang-mod/go.mod', type: 'Go Modules' },
+    { file: 'golang-gomodules/go.mod', type: 'Go Modules' },
     { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
     { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
@@ -2777,7 +2787,7 @@ test('`protect` for unsupported package managers', async (t) => {
     { file: 'sbt-app/build.sbt', type: 'SBT' },
     { file: 'gradle-app/build.gradle', type: 'Gradle' },
     { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
-    { file: 'golang-mod/go.mod', type: 'Go Modules' },
+    { file: 'golang-gomodules/go.mod', type: 'Go Modules' },
     { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
     { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
