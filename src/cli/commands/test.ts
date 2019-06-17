@@ -220,7 +220,7 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
   // one test result at a time
   // tslint:disable
   const remediationInfohack = require('./remediation-result-data') as RemediationResult;
-  const results = [ 'new remediation stuff'];
+  const results = [chalk.bgBlueBright('Remediation advice:')];
   // for each upgrade
   // Upgrade adm-zip@0.4.7 to adm-zip@0.4.11`
   // This fixes the following vulnerabilities:
@@ -232,11 +232,13 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
   for (const ui of remediationInfohack.unresolved) {
   }
 
+  const patchedTextArray = [chalk.bgCyan('The following packages can be patched:\n')];
   for (let id in remediationInfohack.patch) {
     const vulnToPatch = remediationInfohack.patch[id];
-    let patchedText = `Patch ${vulnToPatch.package} to fix ${id}`;
-    results.push[patchedText];
+    const patchedText = '  Patch ' + chalk.bold(vulnToPatch.package || 'unknown') + ` to fix ${id.trim()}`;
+    patchedTextArray.push(patchedText);
   }
+  results.push(patchedTextArray.join('\n'));
 
   return results;
 }
