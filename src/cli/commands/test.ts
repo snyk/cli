@@ -219,7 +219,7 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
                                      options: TestOptions & OptionsAtDisplayStage): string[] {
   // one test result at a time
   // tslint:disable
-  const remediationInfohack = require('remediation-result-data') as RemediationResult;
+  const remediationInfohack = require('./remediation-result-data') as RemediationResult;
   const results = [ 'new remediation stuff'];
   // for each upgrade
   // Upgrade adm-zip@0.4.7 to adm-zip@0.4.11`
@@ -230,6 +230,12 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
 
 
   for (const ui of remediationInfohack.unresolved) {
+  }
+
+  for (let id in remediationInfohack.patch) {
+    const vulnToPatch = remediationInfohack.patch[id];
+    let patchedText = `Patch ${vulnToPatch.package} to fix ${id}`;
+    results.push[patchedText];
   }
 
   return results;
@@ -349,7 +355,7 @@ function displayResult(res: LegacyVulnApiResult, options: TestOptions & OptionsA
   const groupedDockerBinariesVulnInfoOutput = (res.docker && binariesSortedGroupedVulns.length) ?
     formatDockerBinariesIssues(binariesSortedGroupedVulns, res.docker.binariesVulns, options) : [];
 
-  const body = groupedVulnInfoOutput
+  const body = groupedVulnInfoOutput.join('\n\n') + '\n\n' +
     groupedDockerBinariesVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
 
   return prefix + body + multiProjAdvice + dockerAdvice + dockerSuggestion;
