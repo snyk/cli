@@ -141,7 +141,7 @@ async function test(...args: MethodArgs): Promise<string> {
     throw err;
   }
 
-  let response = results.map((unused, i) => displayActionableResult(results[i], resultOptions[i]))
+  let response = results.map((unused, i) => displayResult(results[i], resultOptions[i]))
     .join(`\n${SEPARATOR}`);
 
   if (notSuccess) {
