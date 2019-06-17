@@ -51,11 +51,13 @@ export interface LegacyVulnApiResult {
   packageManager: string;
   ignoreSettings: object | null;
   summary: string;
-  docker?: {baseImage?: any};
+  docker?: {baseImage?: any; binariesVulns?: any;};
   severityThreshold?: string;
 
   filesystemPolicy?: boolean;
   uniqueCount?: any;
+
+  remediationResult?: RemediationResult;
 }
 
 interface UpgradePathItem {
@@ -97,7 +99,7 @@ interface TestDepGraphResult {
   remediationRec?: RemediationResult; // only present when options['grouped-remediation']
 }
 
-interface RemediationResult {
+export interface RemediationResult {
   unresolved: IssueData[];
   upgrade: {[pkg: string]: { // pkg@version
     upgradeTo: string; // pkg@version
@@ -114,6 +116,7 @@ interface RemediationResult {
     paths: Array<{ // Always array of 1 object?
       [path: string]: {reason: string; expires: Date;}
     }>,
+    package: string;
   }};
 }
 
@@ -225,6 +228,7 @@ function convertTestDepGraphResultToLegacy(
     docker: result.docker,
     summary: getSummary(vulns, severityThreshold),
     severityThreshold,
+    remediationResult: result.remediationRec,
   };
 
   return legacyRes;
