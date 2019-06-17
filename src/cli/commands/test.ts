@@ -227,12 +227,14 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
   // Upgrade adm-zip@0.4.7 to adm-zip@0.4.11`
   // This fixes the following vulnerabilities:
   // - vuln id
-
+  const upgradeTextArray = [chalk.bgGreen('The following packages require upgrading:\n')]
   for (const upgrade of Object.keys(remediationInfohack.upgrade)) {
     const upgradeDepTo = _.get(remediationInfohack, ['upgrade', upgrade, 'upgradeTo'], {});
-    const vulnId = _.get(remediationInfohack ,['upgrade', upgrade, 'vulns'])
-    results.push(`- Upgrade: ` + chalk.bold(upgrade) + ' to ' + chalk.bold(upgradeDepTo) + '\n- Vulnerability ID: ' + vulnId)
+    const vulnId = _.get(remediationInfohack ,['upgrade', upgrade, 'vulns']) 
+    const upgradeText = `- Upgrade: ` + chalk.bold(upgrade) + ' to ' + chalk.bold(upgradeDepTo) + '\n- Vulnerability ID: ' + vulnId
+    upgradeTextArray.push(upgradeText)
   }
+  results.push(upgradeTextArray.join('\n'));
 
   // for each patch
 
