@@ -108,13 +108,14 @@ export interface RemediationResult {
   }};
   // below: path is "pkg1 > pkg2 > pkg3"
   patch: {[vulnId: string]: {
+    package?: string;
     paths: Array<{ // Always array of 1 object?
-      [path: string]: {patched: Date;}
+      [path: string]: {patched: string; /* Date */}
     }>,
   }};
   ignore: {[vulnId: string]: {
     paths: Array<{ // Always array of 1 object?
-      [path: string]: {reason: string; expires: Date;}
+      [path: string]: {reason: string; expires: string; /* Date */}
     }>,
     package: string;
   }};
