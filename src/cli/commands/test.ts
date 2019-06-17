@@ -221,7 +221,7 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
                                      options: TestOptions & OptionsAtDisplayStage): string[] {
   // one test result at a time
   // tslint:disable
-  const remediationInfohack = require('./remediation-result-data') as RemediationResult;
+  const remediationInfohack = remediationInfo!; // require('./remediation-result-data') as RemediationResult;
   const results = [chalk.bgBlueBright('Remediation advice:')];
   // for each upgrade
   // Upgrade adm-zip@0.4.7 to adm-zip@0.4.11`
@@ -230,7 +230,7 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
   const upgradeTextArray = [chalk.bgGreen('The following packages require upgrading:\n')]
   for (const upgrade of Object.keys(remediationInfohack.upgrade)) {
     const upgradeDepTo = _.get(remediationInfohack, ['upgrade', upgrade, 'upgradeTo'], {});
-    const vulnId = _.get(remediationInfohack ,['upgrade', upgrade, 'vulns']) 
+    const vulnId = _.get(remediationInfohack ,['upgrade', upgrade, 'vulns'])
     const upgradeText = `- Upgrade: ` + chalk.bold(upgrade) + ' to ' + chalk.bold(upgradeDepTo) + '\n- Vulnerability ID: ' + vulnId
     upgradeTextArray.push(upgradeText)
   }
