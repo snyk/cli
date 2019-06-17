@@ -6,7 +6,7 @@ interface Pkg {
   version?: string;
 }
 
-interface IssueData {
+export interface IssueData {
   id: string;
   packageName: string;
   moduleName?: string;

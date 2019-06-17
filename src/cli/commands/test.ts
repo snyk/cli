@@ -12,6 +12,7 @@ import {TestOptions} from '../../lib/types';
 import {isLocalFolder} from '../../lib/detect';
 import { MethodArgs } from '../args';
 import { RemediationResult, LegacyVulnApiResult } from '../../lib/snyk-test/legacy';
+import { fstat } from 'fs';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -215,6 +216,7 @@ function summariseErrorResults(errorResults) {
 
   return '';
 }
+
 function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult | undefined,
                                      options: TestOptions & OptionsAtDisplayStage): string[] {
   // one test result at a time
@@ -234,8 +236,10 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
 
   // for each patch
 
-
-  for (const ui of remediationInfohack.unresolved) {
+  for (const issue of remediationInfohack.unresolved) {
+    results.push(chalk.redBright('Unresolved issue: ' + issue.id));
+    results.push('  affects ' + chalk.bold(issue.packageName + ' @ ' + (issue.semver.vulnerable)));
+    results.push('  via: ' + issue['from'].join(' > '));
   }
 
   const patchedTextArray = [chalk.bgCyan('The following packages can be patched:\n')];
@@ -342,6 +346,7 @@ function displayResult(res: LegacyVulnApiResult, options: TestOptions & OptionsA
   }
 
   const vulns = res.vulnerabilities || [];
+  require('fs').writeFileSync('vulns.json', JSON.stringify(vulns), 'utf-8');
   const groupedVulns = groupVulnerabilities(vulns);
   const sortedGroupedVulns = _.orderBy(
     groupedVulns,
@@ -355,7 +360,7 @@ function displayResult(res: LegacyVulnApiResult, options: TestOptions & OptionsA
 
   let groupedVulnInfoOutput;
   if (res.remediationResult || options['grouped-remediation']) {
-    groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediationResult, options);
+    groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediationResult, options).join('\n');
   } else {
     groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) => formatIssues(vuln, options));
   }
