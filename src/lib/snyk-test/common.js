@@ -10,6 +10,10 @@ module.exports.assembleQueryString = function (options) {
     qs.severityThreshold = options.severityThreshold;
   }
 
+  if (options['grouped-remediation']) {
+    qs.groupedRemediation = 1;
+  }
+
   return Object.keys(qs).length !== 0 ? qs : null;
 };
 

@@ -94,6 +94,27 @@ interface TestDepGraphResult {
     binariesVulns?: TestDepGraphResult;
     baseImage?: any;
   };
+  remediationRec?: RemediationResult; // only present when options['grouped-remediation']
+}
+
+interface RemediationResult {
+  unresolved: IssueData[];
+  upgrade: {[pkg: string]: { // pkg@version
+    upgradeTo: string; // pkg@version
+    upgrades: string[]; // pkg@version
+    vulns: string[]; // pkg@version
+  }};
+  // below: path is "pkg1 > pkg2 > pkg3"
+  patch: {[vulnId: string]: {
+    paths: Array<{ // Always array of 1 object?
+      [path: string]: {patched: Date;}
+    }>,
+  }};
+  ignore: {[vulnId: string]: {
+    paths: Array<{ // Always array of 1 object?
+      [path: string]: {reason: string; expires: Date;}
+    }>,
+  }};
 }
 
 interface TestDepGraphMeta {
