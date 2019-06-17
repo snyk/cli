@@ -226,6 +226,12 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
   // This fixes the following vulnerabilities:
   // - vuln id
 
+  for (const upgrade of Object.keys(remediationInfohack.upgrade)) {
+    const upgradeDepTo = _.get(remediationInfohack, ['upgrade', upgrade, 'upgradeTo'], {});
+    const vulnId = _.get(remediationInfohack ,['upgrade', upgrade, 'vulns']) 
+    results.push(`- Upgrade: ` + chalk.bold(upgrade) + ' to ' + chalk.bold(upgradeDepTo) + '\n- Vulnerability ID: ' + vulnId)
+  }
+
   // for each patch
 
 
