@@ -226,6 +226,8 @@ function formatIssuesWithRemediation(vulns, options) {
 
   // for each patch
 
+  return '';
+
 }
 
 function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
