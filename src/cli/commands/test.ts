@@ -230,16 +230,16 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult |
 
   for (const upgrade of Object.keys(remediationInfohack.upgrade)) {
     const upgradeDepTo = _.get(remediationInfohack, ['upgrade', upgrade, 'upgradeTo'], {});
-    const vulnId = _.get(remediationInfohack ,['upgrade', upgrade, 'vulns']) 
+    const vulnId = _.get(remediationInfohack ,['upgrade', upgrade, 'vulns'])
     results.push(`- Upgrade: ` + chalk.bold(upgrade) + ' to ' + chalk.bold(upgradeDepTo) + '\n- Vulnerability ID: ' + vulnId)
   }
 
   // for each patch
 
   for (const issue of remediationInfohack.unresolved) {
-    results.push(chalk.redBright('Unresolved issue: ' + issue.id));
-    results.push('  affects ' + chalk.bold(issue.packageName + ' @ ' + (issue.semver.vulnerable)));
-    results.push('  via: ' + issue['from'].join(' > '));
+    results.push(chalk.redBright('Unresolved issue: ' + issue.id) +
+    '\n  affects ' + chalk.bold(issue.packageName + ' @ ' + (issue.semver.vulnerable))
+    + '\n  via: ' + issue['from'].join(' > '));
   }
 
   const patchedTextArray = [chalk.bgCyan('The following packages can be patched:\n')];
@@ -360,7 +360,7 @@ function displayResult(res: LegacyVulnApiResult, options: TestOptions & OptionsA
 
   let groupedVulnInfoOutput;
   if (res.remediationResult || options['grouped-remediation']) {
-    groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediationResult, options).join('\n');
+    groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediationResult, options);
   } else {
     groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) => formatIssues(vuln, options));
   }
