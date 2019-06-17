@@ -339,7 +339,7 @@ function displayResult(res: LegacyVulnApiResult, options: TestOptions & OptionsA
     .filter((vuln) => (vuln.metadata.packageManager === 'upstream'));
 
   let groupedVulnInfoOutput;
-  if (res.remediationResult) {
+  if (res.remediationResult || options['grouped-remediation']) {
     groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediationResult, options);
   } else {
     groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) => formatIssues(vuln, options));

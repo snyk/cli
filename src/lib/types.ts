@@ -65,6 +65,7 @@ export interface TestOptions {
   json?: boolean;
   'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
   'project-name'?: string;
+  'grouped-remediation'?: string;
   'show-vulnerable-paths'?: string;
   showVulnPaths?: boolean;
   packageManager: SupportedPackageManagers;
