@@ -217,40 +217,93 @@ function summariseErrorResults(errorResults) {
   return '';
 }
 
-function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult | undefined,
+function getSeverityColour(severity) {
+  switch (severity) {
+    case 'low':
+      return chalk.bold.blue('L');
+    case 'medium':
+      return chalk.bold.yellow('M');
+    case 'high':
+      return chalk.bold.red('H');
+    default:
+      return ;
+  }
+
+}
+
+function severityColouredLetter(severity) {
+  console.log(typeof severity);
+  let colorFunc;
+  switch (severity.toString()) {
+    case 'low':
+      colorFunc = () => chalk.bold.blue(' L ');
+    case 'medium':
+      colorFunc = () => chalk.bgYellow(' M ');
+    case 'high':
+      colorFunc = () => chalk.bgRed(' H ');
+    default:
+        colorFunc = () => chalk.bgWhite(' D ');
+  }
+
+  return colorFunc;
+}
+
+function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult,
                                      options: TestOptions & OptionsAtDisplayStage): string[] {
   // one test result at a time
-  // tslint:disable
-  const remediationInfohack = remediationInfo!; // require('./remediation-result-data') as RemediationResult;
+
+  const basicVulnInfo = {};
+  vulns.map((vuln) => {
+    return _.set(basicVulnInfo, vuln.metadata.id, {
+      title: vuln.title,
+      severity: vuln.severity,
+      isNew: vuln.isNew,
+    });
+  });
   const results = [chalk.bgBlueBright('Remediation advice:')];
   // for each upgrade
   // Upgrade adm-zip@0.4.7 to adm-zip@0.4.11`
   // This fixes the following vulnerabilities:
   // - vuln id
-  const upgradeTextArray = [chalk.bgGreen('The following packages require upgrading:\n')]
-  for (const upgrade of Object.keys(remediationInfohack.upgrade)) {
-    const upgradeDepTo = _.get(remediationInfohack, ['upgrade', upgrade, 'upgradeTo'], {});
-    const vulnId = _.get(remediationInfohack ,['upgrade', upgrade, 'vulns'])
-    const upgradeText = `- Upgrade: ` + chalk.bold(upgrade) + ' to ' + chalk.bold(upgradeDepTo) + '\n- Vulnerability ID: ' + vulnId
-    upgradeTextArray.push(upgradeText)
-  }
-  results.push(upgradeTextArray.join('\n'));
+  const upgradeTextArray = [chalk.bold.greenBright('↑ Upgrade:\n')];
+  for (const upgrade of Object.keys(remediationInfo.upgrade)) {
+    const upgradeDepTo = _.get(remediationInfo, ['upgrade', upgrade, 'upgradeTo'], {});
+    const vulnIds = _.get(remediationInfo, ['upgrade', upgrade, 'vulns']);
+    const upgradeText = `\n  ${chalk.bold(upgrade)} > ${chalk.bold(upgradeDepTo)} \n`;
+    const fixedIssues = vulnIds.map(id =>
+      `    • [${severityColouredLetter(chalk.bold(basicVulnInfo[id].severity))()}] `
+      + `${chalk.bold(basicVulnInfo[id].title)} [https://snyk.io/vuln/${id}] `).join('\n');
+    const thisUpgradeFixes =  `  To fix: \n${fixedIssues}`;
 
-  // for each patch
-
-  for (const issue of remediationInfohack.unresolved) {
-    results.push(chalk.redBright('Unresolved issue: ' + issue.id) +
-    '\n  affects ' + chalk.bold(issue.packageName + ' @ ' + (issue.semver.vulnerable))
-    + '\n  via: ' + issue['from'].join(' > '));
+    upgradeTextArray.push(upgradeText + thisUpgradeFixes);
   }
 
-  const patchedTextArray = [chalk.bgCyan('The following packages can be patched:\n')];
-  for (let id in remediationInfohack.patch) {
-    const vulnToPatch = remediationInfohack.patch[id];
-    const patchedText = '  Patch ' + chalk.bold(vulnToPatch.package || 'unknown') + ` to fix ${id.trim()}`;
-    patchedTextArray.push(patchedText);
+  if (upgradeTextArray.length > 1) {
+    results.push(upgradeTextArray.join('\n'));
   }
-  results.push(patchedTextArray.join('\n'));
+
+  const patchedTextArray = [chalk.bold.green('⍗ Patch:\n')];
+  for (const id of Object.keys(remediationInfo.patch)) {
+    const vulnToPatch = remediationInfo.patch[id];
+    const patchedText = `${id}\n  ${chalk.bold(vulnToPatch.package || 'unknown')}\n`;
+    const thisPatchFixes =  '  To fix: \n' +
+    `    • [${getSeverityColour(chalk.bold(basicVulnInfo[id].severity))}] ${chalk.bold(basicVulnInfo[id].title)} ` +
+    '[https://snyk.io/vuln/${id}]';
+
+    patchedTextArray.push(patchedText + thisPatchFixes);
+  }
+  if (patchedTextArray.length > 1) {
+    results.push(patchedTextArray.join('\n'));
+  }
+
+  const unfixableIssuesTextArray = [chalk.bold.red('✗ No fix available:\n')]
+  for (const issue of remediationInfo.unresolved) {
+    unfixableIssuesTextArray.push('  ' + chalk.bold(issue.id) +
+    '\n    Affects ' + chalk.bold(issue.packageName) + ' versions: ' + issue.semver.vulnerable);
+  }
+  if (unfixableIssuesTextArray.length > 1) {
+    results.push(unfixableIssuesTextArray.join('\n'));
+  }
 
   return results;
 }
@@ -361,7 +414,7 @@ function displayResult(res: LegacyVulnApiResult, options: TestOptions & OptionsA
     .filter((vuln) => (vuln.metadata.packageManager === 'upstream'));
 
   let groupedVulnInfoOutput;
-  if (res.remediationResult || options['grouped-remediation']) {
+  if (res.remediationResult) {
     groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediationResult, options);
   } else {
     groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) => formatIssues(vuln, options));
