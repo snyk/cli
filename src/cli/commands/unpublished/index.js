@@ -18,9 +18,9 @@ module.exports = function (cwd) {
 
   spinner.sticky();
 
-  return spinner(head).then(function () {
-    return resolve(cwd, {dev: true, disk: true}).then(function (res) {
-      prune(res, function (p) {
+  return spinner(head).then(() => {
+    return resolve(cwd, {dev: true, disk: true}).then((res) => {
+      prune(res, (p) => {
         return packages.indexOf(p.name) === -1;
       });
 
@@ -30,12 +30,12 @@ module.exports = function (cwd) {
       }
 
       // now check the specific version
-      return walk(res, function (p) {
+      return walk(res, (p) => {
         if (packages.indexOf(p.name) !== -1) {
           p.warning = '! package has been unpublished';
         }
-      }).then(function () {
-        return tree(res, function (leaf) {
+      }).then(() => {
+        return tree(res, (leaf) => {
           let label = leaf.full;
 
           if (leaf.warning) {
@@ -50,7 +50,7 @@ module.exports = function (cwd) {
   })
     // clear spinner in case of success or failure
     .then(spinner.clear(head))
-    .catch(function (error) {
+    .catch((error) => {
       spinner.clear(head)();
       throw error;
     });

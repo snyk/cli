@@ -17,7 +17,7 @@ function createSpinner(label) {
   }
 
   // helper...
-  return new Promise(function (resolve) {
+  return new Promise(((resolve) => {
     debug('spinner: %s', label);
     spinners[label].push(spinner({
       // string: '◐◓◑◒',
@@ -27,7 +27,7 @@ function createSpinner(label) {
     }));
 
     resolve();
-  });
+  }));
 }
 
 createSpinner.sticky = function (s) {
@@ -53,7 +53,7 @@ createSpinner.clear = function (label) {
 };
 
 createSpinner.clearAll = function () {
-  Object.keys(spinners).map(function (lbl) {
+  Object.keys(spinners).map((lbl) => {
     createSpinner.clear(lbl)();
   });
 };
@@ -86,7 +86,7 @@ function spinner(opt) {
 
   var delay = typeof opt.delay === 'number' ? opt.delay : 2;
 
-  var interval = setInterval(function () {
+  var interval = setInterval(() => {
     if (--delay >= 0) {
       return;
     }
@@ -104,7 +104,7 @@ function spinner(opt) {
   var cleanup = typeof opt.cleanup === 'boolean' ? opt.cleanup : true;
   if (cleanup && !handleExit) {
     handleExit = true;
-    process.on('exit', function () {
+    process.on('exit', () => {
       if (wrote) {
         str.write(CLEAR);
       }

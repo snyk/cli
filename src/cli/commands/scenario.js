@@ -17,14 +17,14 @@ function scenario(casefile, options) {
   auth.isAuthed = function () {
     return Promise.resolve(true);
   };
-  return loadScenario(casefile).then(function (data) {
+  return loadScenario(casefile).then((data) => {
     snyk.test = scenarioTest(data);
     options['dry-run'] = true;
     console.log(data.title || 'Unknown case');
     debug(JSON.stringify(data, '', 2));
     // process.exit(1);
     return wizard(options);
-  }).then(function (res) {
+  }).then((res) => {
     snyk.test = cache.test;
     auth.isAuthed = cache.isAuthed;
     return res;
@@ -41,12 +41,12 @@ function loadScenario(casefile) {
 
 function scenarioTest(data) {
   return function () {
-    return new Promise(function (resolve) {
+    return new Promise(((resolve) => {
       resolve({
         ok: false,
         vulnerabilities: data.vulnerabilities.slice(0),
       });
-    });
+    }));
   };
 }
 
@@ -98,7 +98,7 @@ function parseScenario(source) {
       if ((m = uses.exec(line)) !== null) {
         if (m[1] === 'App') {
           debug('App uses...', line);
-          m.slice(2).filter(Boolean).map(function (module) {
+          m.slice(2).filter(Boolean).map((module) => {
             var p = module.split('-');
             p[1] = cleanVersion(p[1]);
             pkg.dependencies[p[0]] = {
@@ -122,7 +122,7 @@ function parseScenario(source) {
         }
         debug('packages', packages, full);
 
-        m.slice(2).filter(Boolean).map(function (module) {
+        m.slice(2).filter(Boolean).map((module) => {
           var p = module.split('-');
           p[1] = cleanVersion(p[1]);
           debug('package module: %s', module, p.join('@'));
@@ -146,7 +146,7 @@ function parseScenario(source) {
       debug('vulns found? ', vulns);
       if ((m = patches.exec(line)) !== null) {
         for (k = 0; k < vulns.length; k++) {
-          vulnerabilities.forEach(function (vuln) {
+          vulnerabilities.forEach((vuln) => {
             if (vuln.id === vulns[k]) {
               if (!vuln.patches) {
                 vuln.patches = [];
@@ -192,7 +192,7 @@ function parseScenario(source) {
           var v = m[k];
 
           // first check if the vuln exists
-          var match = vulnerabilities.filter(function (vuln) {
+          var match = vulnerabilities.filter((vuln) => {
             return vuln.id === v;
           }); // jshint ignore:line
 
@@ -241,7 +241,7 @@ function parseScenario(source) {
     cleanDepTree(deps, pkg, packages);
   }
 
-  vulnerabilities = vulnerabilities.filter(function (vuln) {
+  vulnerabilities = vulnerabilities.filter((vuln) => {
     debug('checking new vuln: %s', vuln.id);
     var p;
     var i;
@@ -319,7 +319,7 @@ function parseScenario(source) {
 }
 
 function cleanDepTree(deps, pkg, packages) {
-  deps.forEach(function (curr) {
+  deps.forEach((curr) => {
     var full = pkg.dependencies[curr].full;
     debug('push on %s with %s', pkg.dependencies[curr].path, pkg.full);
     pkg.dependencies[curr].path = pkg.path.concat(pkg.dependencies[curr].path);
@@ -377,7 +377,7 @@ function matchDep(module, deps) {
 function patchDate(s) {
   s = (s || '').toLowerCase();
   var d = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep',
-    'oct', 'nov', 'dec'].map(function (d, i) {
+    'oct', 'nov', 'dec'].map((d, i) => {
     return s.indexOf(d) === 0 ? i : false;
   }).filter(Boolean);
   var date = new Date();

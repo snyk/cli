@@ -3,7 +3,7 @@ var command = require('./exec');
 var root = path.resolve(__dirname, '../..');
 
 module.exports = function () {
-  return new Promise(function (resolve) {
+  return new Promise(((resolve) => {
     var filename = path.resolve(root, 'package.json');
     var version = require(filename).version;
 
@@ -19,10 +19,10 @@ module.exports = function () {
       dirty(),
     ];
 
-    resolve(Promise.all(promises).catch(function () {
+    resolve(Promise.all(promises).catch(() => {
       // handle any point where the git based lookup fails
       return ['unknown', '', '0'];
-    }).then(function (res) {
+    }).then((res) => {
       var branch = res[0];
       var commit = res[1];
       var dirtyCount = parseInt(res[2], 10);
@@ -33,7 +33,7 @@ module.exports = function () {
 
       return curr;
     }));
-  });
+  }));
 };
 
 function commit() {

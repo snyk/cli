@@ -1,7 +1,7 @@
 module.exports = walk;
 
 function walk(deps, filter) {
-  return new Promise(function (resolve) {
+  return new Promise(((resolve) => {
     if (!deps) {
 
       return resolve([]);
@@ -11,10 +11,10 @@ function walk(deps, filter) {
       deps = deps.dependencies;
     }
 
-    const promises = Object.keys(deps).map(function (name) {
-      return new Promise(function (resolve) {
+    const promises = Object.keys(deps).map((name) => {
+      return new Promise(((resolve) => {
         return resolve(filter(deps[name], name, deps));
-      }).then(function (res) {
+      })).then((res) => {
         if (!res && deps[name] && deps[name].dep) {
           return walk(deps[name].dependencies, filter);
         }
@@ -22,5 +22,5 @@ function walk(deps, filter) {
     });
 
     resolve(Promise.all(promises));
-  });
+  }));
 }

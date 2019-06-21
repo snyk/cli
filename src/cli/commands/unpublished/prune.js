@@ -9,7 +9,7 @@ function prune(pkg, shouldPrune) {
   const deps = Object.keys(pkg.dependencies || {});
 
   if (deps.length) {
-    remove = deps.filter(function (name) {
+    remove = deps.filter((name) => {
       if (prune(pkg.dependencies[name], shouldPrune)) {
         delete pkg.dependencies[name];
         return false;

@@ -44,7 +44,7 @@ function postAnalytics(data) {
   }
 
   // get snyk version
-  return version().then(function (version) {
+  return version().then((version) => {
     data.version = version;
     data.os = osName(os.platform(), os.release());
     data.nodeVersion = process.version;
@@ -72,7 +72,7 @@ function postAnalytics(data) {
       method: 'post',
       headers: headers,
     });
-  }).catch(function (error) {
+  }).catch((error) => {
     debug('analytics', error); // this swallows the analytics error
   });
 }

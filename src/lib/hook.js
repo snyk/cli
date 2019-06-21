@@ -35,7 +35,7 @@ function registerExtension(ext) {
 
 
 function hookExtensions(_exts) {
-  forEach(oldHandlers, function (old, ext) {
+  forEach(oldHandlers, (old, ext) => {
     if (old === undefined) {
       delete require.extensions[ext];
     } else {
@@ -45,7 +45,7 @@ function hookExtensions(_exts) {
 
   oldHandlers = {};
 
-  forEach(_exts, function (ext) {
+  forEach(_exts, (ext) => {
     oldHandlers[ext] = require.extensions[ext];
     registerExtension(ext);
   });

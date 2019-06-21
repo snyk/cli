@@ -45,13 +45,13 @@ function protectFunc(options = {}) {
   }
 
   return snyk.policy.load(options['policy-path'])
-    .catch(function (error) {
+    .catch((error) => {
       if (error.code === 'ENOENT') {
         error.code = 'MISSING_DOTFILE';
       }
 
       throw error;
-    }).then(function (policy) {
+    }).then((policy) => {
       if (policy.patch) {
         return patch(policy, options);
       }
@@ -60,17 +60,17 @@ function protectFunc(options = {}) {
 }
 
 function patch(policy, options) {
-  return snyk.test(process.cwd(), options).then(function (res) {
+  return snyk.test(process.cwd(), options).then((res) => {
     if (!res.vulnerabilities) {
       var e = new Error('Code is already patched');
       e.code = 'ALREADY_PATCHED';
       throw e;
     }
     return protect.patch(res.vulnerabilities, !options['dry-run']);
-  }).then(function () {
+  }).then(() => {
     analytics.add('success', true);
     return 'Successfully applied Snyk patches';
-  }).catch(function (e) {
+  }).catch((e) => {
     if (e.code === 'ALREADY_PATCHED') {
       analytics.add('success', true);
       return e.message + ', nothing to do';

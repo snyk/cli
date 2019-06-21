@@ -6,7 +6,7 @@ function registerAlerts(alerts) {
   if (!alerts) {
     return;
   }
-  alerts.forEach(function (alert) {
+  alerts.forEach((alert) => {
     if (!hasAlert(alert.name)) {
       registeredAlerts.push(alert);
     }
@@ -27,7 +27,7 @@ function hasAlert(name) {
 function displayAlerts() {
   var res = '';
   var sep = '\n';
-  registeredAlerts.forEach(function (alert) {
+  registeredAlerts.forEach((alert) => {
     res += sep;
     if (alert.type === 'warning') {
       res += chalk.bold.red(alert.msg);

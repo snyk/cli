@@ -5,7 +5,7 @@ var demunge = require('snyk-policy').demunge;
 var config = require('./config');
 
 function display(policy) {
-  return new Promise(function (resolve) {
+  return new Promise(((resolve) => {
     var p = demunge(policy, config.ROOT);
 
     var res = chalk.bold('Current Snyk policy, read from ' + policy.__filename +
@@ -20,7 +20,7 @@ function display(policy) {
     res += p.ignore.map(displayRule('Ignore')).join('\n');
 
     resolve(res);
-  });
+  }));
 }
 
 function displayRule(title) {
@@ -28,7 +28,7 @@ function displayRule(title) {
     i += 1;
     return chalk.bold('\n#' + i + ' ' + title + ' ' + rule.url) +
       ' in the following paths:\n' +
-      (rule.paths.map(function (p) {
+      (rule.paths.map((p) => {
         return p.path +
                (p.reason ? '\nReason: ' + p.reason +
                '\nExpires: ' + p.expires.toUTCString() + '\n': '')  + '\n';

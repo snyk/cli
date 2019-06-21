@@ -5,9 +5,9 @@ var stripVersions = require('./strip-versions');
 var oneDay = 1000 * 60 * 60 * 24;
 
 function ignore(data) {
-  return new Promise(function (resolve) {
+  return new Promise(((resolve) => {
     var config = {};
-    config.ignore = data.map(function (res) {
+    config.ignore = data.map((res) => {
       var vuln = res.vuln;
       var days = res.meta.days || 30;
       var ignoreRule = {};
@@ -17,7 +17,7 @@ function ignore(data) {
       };
       ignoreRule.vulnId = vuln.id;
       return ignoreRule;
-    }).reduce(function (acc, curr) {
+    }).reduce((acc, curr) => {
       if (!acc[curr.vulnId]) {
         acc[curr.vulnId] = [];
       }
@@ -33,5 +33,5 @@ function ignore(data) {
     debug('ignore config', config);
 
     resolve(config);
-  });
+  }));
 }

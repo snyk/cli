@@ -23,7 +23,7 @@ function patch(vulns, live) {
   var lbl = 'Applying patches...';
   var errorList = [];
 
-  return spinner(lbl).then(function () {
+  return spinner(lbl).then(() => {
     // the target directory where our module name will live
     vulns.forEach((vuln) => vuln.source = getVulnSource(vuln, live));
 
@@ -32,8 +32,8 @@ function patch(vulns, live) {
 
     // find the patches, pull them down off the web, save them in a temp file
     // then apply each individual patch - but do it one at a time (via reduce)
-    var promises = deduped.packages.reduce(function (acc, vuln) {
-      return acc.then(function (res) {
+    var promises = deduped.packages.reduce((acc, vuln) => {
+      return acc.then((res) => {
         var patches = vuln.patches; // this is also deduped in `dedupe`
 
         if (patches === null) {
@@ -51,24 +51,24 @@ function patch(vulns, live) {
         var oldFlag = path.resolve(vuln.source, '.snyk-' + vuln.id + '.flag');
 
         // get the patches on the local fs
-        var promises = patches.urls.map(function (url) {
+        var promises = patches.urls.map((url) => {
           var filename = tempfile('.' + fileSafeId + '.snyk-patch');
-          return getPatchFile(url, filename).then(function (patch) {
+          return getPatchFile(url, filename).then((patch) => {
             // check whether there's a trace of us having patched before
-            return fs.exists(flag).then(function (exists) {
+            return fs.exists(flag).then((exists) => {
               // if the file doesn't exist, look for the old style filename
               // in case and for backwards compatability
               return exists || fs.exists(oldFlag);
-            }).then(function (exists) {
+            }).then((exists) => {
               if (!exists) {
                 return patch;
               }
               debug('Previous flag found = ' + exists +
               ' | Restoring file back to original to apply the patch again');
               // else revert the patch
-              return new Promise(function (resolve, reject) {
+              return new Promise(((resolve, reject) => {
                 // find all backup files that do not belong to transitive deps
-                glob('**/*.orig', {cwd: vuln.source, ignore: '**/node_modules/**'}, function (error, files) {
+                glob('**/*.orig', {cwd: vuln.source, ignore: '**/node_modules/**'}, (error, files) => {
                   if (error) {
                     return reject(error);
                   }
@@ -83,9 +83,9 @@ function patch(vulns, live) {
 
                   resolve(patch);
                 });
-              });
+              }));
             });
-          }).then(function (patch) {
+          }).then((patch) => {
             if (patch === false) {
               debug('already patched %s', vuln.id);
               return vuln;
@@ -94,27 +94,27 @@ function patch(vulns, live) {
             debug('applying patch file for %s: \n%s\n%s', vuln.id, url, patch);
 
             return applyPatch(patch, vuln, live, url)
-              .then(function () {
+              .then(() => {
                 return true;
-              }, function (e) {
+              }, (e) => {
                 errorList.push(e);
                 return false;
               })
               .then(writePatchFlag(now, vuln))
-              .then(function (ok) {
+              .then((ok) => {
                 return ok ? vuln : false;
               });
           });
         });
 
-        return Promise.all(promises).then(function (result) {
+        return Promise.all(promises).then((result) => {
           res.push(result);
           return res; // this is what makes the waterfall reduce chain work
         });
       });
     }, Promise.resolve(deduped.removed));
 
-    var promise = promises.then(function (res) {
+    var promise = promises.then((res) => {
       var patched = _.flatten(res).filter(Boolean);
 
       if (!live) {
@@ -122,7 +122,7 @@ function patch(vulns, live) {
         return patched;
       }
       return Promise.all(patched);
-    }).then(function (patched) {
+    }).then((patched) => {
       var config = {};
 
       // this reduce function will look to see if the patch actually resolves
@@ -130,10 +130,10 @@ function patch(vulns, live) {
       // patch rule against the *other* vuln.ids. This will happen when the user
       // runs the wizard and selects to apply a patch that fixes more than one
       // vuln.
-      var mapped = patched.map(patchRule).reduce(function (acc, curr, i) {
+      var mapped = patched.map(patchRule).reduce((acc, curr, i) => {
         var vuln = patched[i];
         if (vuln.grouped && vuln.grouped.includes) {
-          vuln.grouped.includes.forEach(function (id) {
+          vuln.grouped.includes.forEach((id) => {
             var rule = _.cloneDeep(curr);
             rule.vulnId = id;
             acc.push(rule);
@@ -145,7 +145,7 @@ function patch(vulns, live) {
         return acc;
       }, []);
 
-      config.patch = mapped.reduce(function (acc, curr) {
+      config.patch = mapped.reduce((acc, curr) => {
         if (!acc[curr.vulnId]) {
           acc[curr.vulnId] = [];
         }
@@ -166,13 +166,13 @@ function patch(vulns, live) {
   })
     // clear spinner in case of success or failure
     .then(spinner.clear(lbl))
-    .catch(function (error) {
+    .catch((error) => {
       spinner.clear(lbl)();
       throw error;
     })
-    .then(function (res) {
+    .then((res) => {
       if (errorList.length) {
-        errorList.forEach(function (error) {
+        errorList.forEach((error) => {
           console.log(chalk.red(errors.message(error)));
           debug(error.stack);
         });

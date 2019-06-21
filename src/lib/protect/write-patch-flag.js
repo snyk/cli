@@ -18,7 +18,7 @@ function writePatchFlag(now, vuln) {
   if (vuln.grouped && vuln.grouped.includes) {
     debug('found addition vulns to write flag files for');
     var writePromises = [fs.writeFile(flag, now.toJSON(), 'utf8')];
-    vuln.grouped.includes.forEach(function () {
+    vuln.grouped.includes.forEach(() => {
       var fileSafeId = vuln.id.replace(/:/g, '-');
       var flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
       debug('Writing flag for grouped vulns', flag);
@@ -29,7 +29,7 @@ function writePatchFlag(now, vuln) {
     debug('Writing flag for single vuln', flag);
     promise = fs.writeFile(flag, now.toJSON(), 'utf8');
   }
-  return promise.then(function () {
+  return promise.then(() => {
     return vuln;
   });
 }

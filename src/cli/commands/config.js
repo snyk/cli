@@ -4,12 +4,12 @@ module.exports = function config(method) {
   var args = [].slice.call(arguments, 1);
   var key = args[0];
 
-  return new Promise(function (resolve) {
+  return new Promise((resolve) => {
     var res = '';
     if (method === 'set') {
-      args.map(function (item) {
+      args.map((item) => {
         return item.split('=');
-      }).forEach(function (pair) {
+      }).forEach((pair) => {
         res += pair[0] + ' updated\n';
         snyk.config.set.apply(snyk.config, pair);
 
@@ -40,12 +40,12 @@ module.exports = function config(method) {
       snyk.api = null;
       res = 'config cleared';
     } else if (!method) {
-      res = Object.keys(snyk.config.all).sort(function (a, b) {
-        return a.toLowerCase() < b.toLowerCase();
-      }).reduce(function (acc, curr) {
-        acc += curr + ': ' + snyk.config.all[curr] + '\n';
-        return acc;
-      }, '').trim();
+      res = Object.keys(snyk.config.all)
+        .sort((a, b) => (a.toLowerCase() < b.toLowerCase()))
+        .reduce((acc, curr) => {
+          acc += curr + ': ' + snyk.config.all[curr] + '\n';
+          return acc;
+        }, '').trim();
     } else {
       throw new Error('Unknown config command "' + method + '"');
     }

@@ -3,7 +3,7 @@ var alerts = require('../alerts');
 
 module.exports = function (payload, callback) {
   return request(payload)
-    .then(function (result) {
+    .then((result) => {
       if (result.body.alerts) {
         alerts.registerAlerts(result.body.alerts);
       }
@@ -13,7 +13,7 @@ module.exports = function (payload, callback) {
       }
       return result;
     })
-    .catch(function (error) {
+    .catch((error) => {
       if (callback) {
         return callback(error);
       }
