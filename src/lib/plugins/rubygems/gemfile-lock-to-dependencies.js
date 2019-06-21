@@ -30,7 +30,7 @@ const gemfileReducer = (lockFile, allDeps, ancestors) => (deps, dep) => {
       allDeps.set(dep, deps[dep]);
       deps[dep].dependencies = Object
         .keys(gemspec)
-        .filter(k => k !== 'version')
+        .filter((k) => k !== 'version')
         .reduce(gemfileReducer(lockFile, allDeps, ancestors.concat([dep])), {});
     }
   }
@@ -44,6 +44,6 @@ function gemfileLockToDependencies(fileContents) {
     .keys(lockFile.dependencies || {})
     // this is required to sanitise git deps with no exact version
     // listed as `rspec!`
-    .map(dep => dep.match(/[^!]+/)[0])
+    .map((dep) => dep.match(/[^!]+/)[0])
     .reduce(gemfileReducer(lockFile, new Map(), []), {});
 }

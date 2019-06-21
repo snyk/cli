@@ -4,7 +4,7 @@ module.exports = function (path, options) {
   if (!options) {
     options = {};
   }
-  return snyk.modules(path || process.cwd()).then(function (modules) {
+  return snyk.modules(path || process.cwd()).then((modules) => {
 
     var parent = '';
     if (modules.parent) {
@@ -15,8 +15,8 @@ module.exports = function (path, options) {
       return JSON.stringify(modules, '', 2);
     }
 
-    return parent + Object.keys(modules.dependencies).map(function (key) {
-      return modules.dependencies[key].full;
-    }).join('\n');
+    return parent + Object.keys(modules.dependencies)
+      .map((key) => modules.dependencies[key].full)
+      .join('\n');
   });
 };

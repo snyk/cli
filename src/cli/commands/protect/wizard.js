@@ -102,7 +102,7 @@ function processWizardFlow(options) {
             debug('ignore disabled');
           }
           const intro = __dirname + '/../../../../help/wizard-intro.txt';
-          return fs.readFile(intro, 'utf8').then(function (str) {
+          return fs.readFile(intro, 'utf8').then((str) => {
             if (!isCI()) {
               console.log(str);
             }
@@ -112,7 +112,7 @@ function processWizardFlow(options) {
                 if (options.newPolicy) {
                   return resolve(); // don't prompt to start over
                 }
-                inquirer.prompt(allPrompts.startOver()).then(function (answers) {
+                inquirer.prompt(allPrompts.startOver()).then((answers) => {
                   analytics.add('start-over', answers['misc-start-over']);
                   if (answers['misc-start-over']) {
                     options['ignore-policy'] = true;
@@ -151,7 +151,7 @@ function processWizardFlow(options) {
 
                 return snyk.policy.loadFromText(res.policy)
                   .then((combinedPolicy) => {
-                    return tryRequire(packageFile).then(function (pkg) {
+                    return tryRequire(packageFile).then((pkg) => {
                       options.packageLeading = pkg.prefix;
                       options.packageTrailing = pkg.suffix;
                       return interactive(res, pkg, combinedPolicy, options)
@@ -174,20 +174,20 @@ function interactive(test, pkg, policy, options) {
     pkg = {};
   }
 
-  return new Promise(function (resolve) {
+  return new Promise(((resolve) => {
     debug('starting questions');
     var prompts = allPrompts.getUpdatePrompts(vulns, policy, options);
     resolve(inquire(prompts, {}));
-  }).then(function (answers) {
+  })).then((answers) => {
     var prompts = allPrompts.getPatchPrompts(vulns, policy, options);
     return inquire(prompts, answers);
-  }).then(function (answers) {
+  }).then((answers) => {
     var prompts = allPrompts.getIgnorePrompts(vulns, policy, options);
     return inquire(prompts, answers);
-  }).then(function (answers) {
+  }).then((answers) => {
     var prompts = allPrompts.nextSteps(pkg, test.ok ? false : answers);
     return inquire(prompts, answers);
-  }).then(function (answers) {
+  }).then((answers) => {
     if (pkg.shrinkwrap) {
       answers['misc-build-shrinkwrap'] = true;
     }
@@ -200,13 +200,13 @@ function inquire(prompts, answers) {
     return Promise.resolve(answers);
   }
   // inquirer will handle dots in name as path in hash (CSUP-272)
-  prompts.forEach(function (prompt) {
+  prompts.forEach((prompt) => {
     prompt.name = prompt.name.replace(/\./g, '--DOT--');
   });
-  return new Promise(function (resolve) {
-    inquirer.prompt(prompts).then(function (theseAnswers) {
+  return new Promise(((resolve) => {
+    inquirer.prompt(prompts).then((theseAnswers) => {
       _.extend(answers, theseAnswers);
-      Object.keys(answers).forEach(function (answerName) {
+      Object.keys(answers).forEach((answerName) => {
         if (answerName.indexOf('--DOT--') > -1) {
           var newName = answerName.replace(/--DOT--/g, '.');
           answers[newName] = answers[answerName];
@@ -215,7 +215,7 @@ function inquire(prompts, answers) {
       });
       resolve(answers);
     });
-  });
+  }));
 }
 
 function getNewScriptContent(scriptContent, cmd) {
@@ -283,7 +283,7 @@ function processAnswers(answers, policy, options) {
 
   var pkg = {};
 
-  analytics.add('answers', Object.keys(answers).map(function (key) {
+  analytics.add('answers', Object.keys(answers).map((key) => {
     // if we're looking at a reason, skip it
     if (key.indexOf('-reason') !== -1) {
       return;
@@ -316,7 +316,7 @@ function processAnswers(answers, policy, options) {
   var snykVersion = '*';
 
   var res = protect.generatePolicy(policy, tasks, live, options.packageManager)
-    .then(function (policy) {
+    .then((policy) => {
       if (!live) {
       // if this was a dry run, we'll throw an error to bail out of the
       // promise chain, then in the catch, check the error.code and if
@@ -327,16 +327,16 @@ function processAnswers(answers, policy, options) {
         throw e;
       }
 
-      return policy.save(cwd, spinner).then(function () {
+      return policy.save(cwd, spinner).then(() => {
       // don't do this during testing
         if (isCI() || process.env.TAP) {
           return Promise.resolve();
         }
 
-        return new Promise(function (resolve) {
+        return new Promise(((resolve) => {
           exec('git add .snyk', {
             cwd: cwd,
-          }, function (error, stdout, stderr) {
+          }, (error, stdout, stderr) => {
             if (error) {
               debug('error adding .snyk to git', error);
             }
@@ -348,20 +348,20 @@ function processAnswers(answers, policy, options) {
             // resolve either way
             resolve();
           });
-        });
+        }));
       });
     })
-    .then(function () {
+    .then(() => {
     // re-read the package.json - because the generatePolicy can apply
     // an `npm install` which will change the deps
       return fs.readFile(packageFile, 'utf8')
         .then(JSON.parse)
-        .then(function (updatedPkg) {
+        .then((updatedPkg) => {
           pkg = updatedPkg;
         });
     })
     .then(getVersion)
-    .then(function (v) {
+    .then((v) => {
       debug('snyk version: %s', v);
       // little hack to circumvent local testing where the version will
       // be the git branch + commit
@@ -372,7 +372,7 @@ function processAnswers(answers, policy, options) {
       }
       snykVersion = v;
     })
-    .then(function () {
+    .then(() => {
       analytics.add('add-snyk-test', answers['misc-add-test']);
       if (!answers['misc-add-test']) {
         return;
@@ -395,10 +395,10 @@ function processAnswers(answers, policy, options) {
         pkg.scripts.test = cmd;
       }
     })
-    .then(function () {
+    .then(() => {
       return npm.getVersion();
     })
-    .then(function (npmVersion) {
+    .then((npmVersion) => {
       analytics.add('add-snyk-protect', answers['misc-add-protect']);
       if (!answers['misc-add-protect']) {
         return;
@@ -414,7 +414,7 @@ function processAnswers(answers, policy, options) {
 
       pkg.snyk = true;
     })
-    .then(function () {
+    .then(() => {
       let lbl = 'Updating package.json...';
       const addSnykToDependencies = answers['misc-add-test'] || answers['misc-add-protect'];
       let updateSnykFunc = () => protect.install(packageManager, ['snyk'], live);
@@ -472,13 +472,13 @@ function processAnswers(answers, policy, options) {
           })
           // clear spinner in case of success or failure
           .then(spinner.clear(lbl))
-          .catch(function (error) {
+          .catch((error) => {
             spinner.clear(lbl)();
             throw error;
           });
       }
     })
-    .then(function () {
+    .then(() => {
       if (answers['misc-build-shrinkwrap'] && tasks.update.length) {
         debug('updating shrinkwrap');
 
@@ -487,13 +487,13 @@ function processAnswers(answers, policy, options) {
           .then(npm.bind(null, 'shrinkwrap', null, live, cwd, null))
           // clear spinner in case of success or failure
           .then(spinner.clear(lbl))
-          .catch(function (error) {
+          .catch((error) => {
             spinner.clear(lbl)();
             throw error;
           });
       }
     })
-    .then(function () {
+    .then(() => {
       if (answers['misc-test-no-monitor']) { // allows us to automate tests
         return {
           id: 'test',

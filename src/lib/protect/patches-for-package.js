@@ -3,7 +3,7 @@ module.exports = patchesForPackage;
 var semver = require('semver');
 
 function patchesForPackage(vuln) {
-  return vuln.patches.filter(function (patch) {
+  return vuln.patches.filter((patch) => {
     if (semver.satisfies(vuln.version, patch.version)) {
       return (patch.urls || []).length ? patch : false;
     }

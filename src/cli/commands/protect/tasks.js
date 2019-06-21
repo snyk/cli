@@ -11,7 +11,7 @@ function answersToTasks(answers) {
     skip: [],
   };
 
-  Object.keys(answers).forEach(function (key) {
+  Object.keys(answers).forEach((key) => {
     // if we're looking at a reason, skip it
     if (key.indexOf('-reason') !== -1) {
       return;
@@ -39,7 +39,7 @@ function answersToTasks(answers) {
 
       var additional = vuln.grouped.upgrades.slice(1);
 
-      additional.forEach(function (upgrade) {
+      additional.forEach((upgrade) => {
         var copy = _.cloneDeep(vuln);
         copy.from = upgrade.from;
         copy.__filename = upgrade.filename;
@@ -53,7 +53,7 @@ function answersToTasks(answers) {
       answer.meta.reason = answers[key + '-reason'];
       if (answer.meta.vulnsInGroup) {
         // also ignore any in the group
-        answer.meta.vulnsInGroup.forEach(function (vuln) {
+        answer.meta.vulnsInGroup.forEach((vuln) => {
           tasks[task].push({
             meta: answer.meta,
             vuln: vuln,

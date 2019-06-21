@@ -21,7 +21,7 @@ function npm(method, packages, live, cwd, flags) {
 
   method += ' ' + flags.join(' ');
 
-  return new Promise(function (resolve, reject) {
+  return new Promise(((resolve, reject) => {
     var cmd = 'npm ' + method + ' ' + packages.join(' ');
     if (!cwd) {
       cwd = process.cwd();
@@ -35,7 +35,7 @@ function npm(method, packages, live, cwd, flags) {
 
     exec(cmd, {
       cwd: cwd,
-    }, function (error, stdout, stderr) {
+    }, (error, stdout, stderr) => {
       if (error) {
         return reject(error);
       }
@@ -51,18 +51,18 @@ function npm(method, packages, live, cwd, flags) {
 
       resolve();
     });
-  });
+  }));
 }
 
 npm.getVersion = function () {
-  return new Promise(function (resolve, reject) {
+  return new Promise(((resolve, reject) => {
     exec('npm --version', {
       cwd: process.cwd(),
-    }, function (error, stdout) {
+    }, (error, stdout) => {
       if (error) {
         return reject(error);
       }
       return resolve(stdout);
     });
-  });
+  }));
 };

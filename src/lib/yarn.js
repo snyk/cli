@@ -15,7 +15,7 @@ function yarn(method, packages, live, cwd, flags) {
 
   method += ' ' + flags.join(' ');
 
-  return new Promise(function (resolve, reject) {
+  return new Promise(((resolve, reject) => {
     var cmd = 'yarn ' + method + ' ' + packages.join(' ');
     if (!cwd) {
       cwd = process.cwd();
@@ -29,7 +29,7 @@ function yarn(method, packages, live, cwd, flags) {
 
     exec(cmd, {
       cwd: cwd,
-    }, function (error, stdout, stderr) {
+    }, (error, stdout, stderr) => {
       if (error) {
         return reject(error);
       }
@@ -45,5 +45,5 @@ function yarn(method, packages, live, cwd, flags) {
 
       resolve();
     });
-  });
+  }));
 }

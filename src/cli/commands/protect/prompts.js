@@ -139,18 +139,18 @@ function sortPatchPrompts(a, b) {
 function stripInvalidPatches(vulns) {
   // strip the irrelevant patches from the vulns at the same time, collect
   // the unique package vulns
-  return vulns.map(function (vuln) {
+  return vulns.map((vuln) => {
     // strip verbose meta
     delete vuln.description;
     delete vuln.credit;
 
     if (vuln.patches) {
-      vuln.patches = vuln.patches.filter(function (patch) {
+      vuln.patches = vuln.patches.filter((patch) => {
         return semver.satisfies(vuln.version, patch.version);
       });
 
       // sort by patchModification, then pick the latest one
-      vuln.patches = vuln.patches.sort(function (a, b) {
+      vuln.patches = vuln.patches.sort((a, b) => {
         return b.modificationTime < a.modificationTime ? -1 : 1;
       }).slice(0, 1);
 
@@ -177,7 +177,7 @@ function getPatchPrompts(vulns, policy, options) {
     return [];
   }
 
-  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter(function (vuln) {
+  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
     // if there's any upgrade available, then remove it
     return (canBeUpgraded(vuln) || vuln.type === 'license') ? false : true;
   });
@@ -190,7 +190,7 @@ function getPatchPrompts(vulns, policy, options) {
   // note that I use slice first becuase the `res` array will change length
   // and `reduce` _really_ doesn't like when you change the array under
   // it's feet
-  res.slice(0).reduce(function (acc, curr, i, all) {
+  res.slice(0).reduce((acc, curr, i, all) => {
     // var upgrades = curr.upgradePath[1];
     // otherwise it's a patch and that's hidden for now
     if (curr.patches && curr.patches.length) {
@@ -202,7 +202,7 @@ function getPatchPrompts(vulns, policy, options) {
         last = curr.id;
       } else {
         // try to find the right vuln id based on the publication times
-        last = (all.filter(function (vuln) {
+        last = (all.filter((vuln) => {
           var patch = vuln.patches[0];
 
           // don't select the one we're looking at
@@ -277,7 +277,7 @@ function getPatchPrompts(vulns, policy, options) {
       };
 
       // add the from path to our group upgrades if we don't have it already
-      var have = !!acc[last].grouped.upgrades.filter(function (upgrade) {
+      var have = !!acc[last].grouped.upgrades.filter((upgrade) => {
         return upgrade.from.join(' ') === curr.from.join(' ');
       }).length;
 
@@ -302,7 +302,7 @@ function getPatchPrompts(vulns, policy, options) {
   // FIXME this should not just strip those that have an upgrade path, but
   // take into account the previous answers, and if the package has been
   // upgraded, it should be left *out* of our list.
-  res = res.filter(function (curr) {
+  res = res.filter((curr) => {
     // if (curr.upgradePath[1]) {
     //   return false;
     // }
@@ -327,7 +327,7 @@ function getIgnorePrompts(vulns, policy, options) {
     return [];
   }
 
-  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter(function (vuln) {
+  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
     // remove all patches and updates
 
     // if there's any upgrade available
@@ -354,7 +354,7 @@ function getUpdatePrompts(vulns, policy, options) {
     return [];
   }
 
-  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter(function (vuln) {
+  var res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
     // only keep upgradeable
     return canBeUpgraded(vuln);
   });
@@ -367,7 +367,7 @@ function getUpdatePrompts(vulns, policy, options) {
   // note that I use slice first becuase the `res` array will change length
   // and `reduce` _really_ doesn't like when you change the array under
   // it's feet
-  res.slice(0).reduce(function (acc, curr, i) {
+  res.slice(0).reduce((acc, curr, i) => {
     var from = curr.from[1];
 
     if (!acc[from]) {
@@ -421,7 +421,7 @@ function getUpdatePrompts(vulns, policy, options) {
   }, {});
 
   // now strip anything that doesn't have an upgrade path
-  res = res.filter(function (curr) {
+  res = res.filter((curr) => {
     return !!curr.upgradePath[1];
   });
 
@@ -443,7 +443,7 @@ function canBeUpgraded(vuln) {
     return false;
   }
 
-  return vuln.upgradePath.some(function (pkg, i) {
+  return vuln.upgradePath.some((pkg, i) => {
     // if the upgade path is to upgrade the module to the same range the
     // user already asked for, then it means we need to just blow that
     // module away and re-install
@@ -501,7 +501,7 @@ function generatePrompt(vulns, policy, prefix, options) {
     name: null, // updated below to the name of the package to update
   };
 
-  var prompts = vulns.map(function (vuln, i) {
+  var prompts = vulns.map((vuln, i) => {
     var id = vuln.id || ('node-' + vuln.name + '@' + vuln.below);
 
     id += '-' + prefix + i;
@@ -576,7 +576,7 @@ function generatePrompt(vulns, policy, prefix, options) {
         // of the vuln
         if (vuln.grouped && !vuln.grouped.main) {
           // find how they answered on the top level question
-          var groupAnswer = Object.keys(answers).map(function (key) {
+          var groupAnswer = Object.keys(answers).map((key) => {
             if (answers[key].meta) {
               // this meta.groupId only appears on a "review" choice, and thus
               // this map will pick out those vulns that are specifically
@@ -604,7 +604,7 @@ function generatePrompt(vulns, policy, prefix, options) {
 
           // if we've upgraded, then stop asking
           var updatedTo = null;
-          res = groupAnswer.filter(function (answer) {
+          res = groupAnswer.filter((answer) => {
             if (answer.choice === 'update') {
               updatedTo = answer;
               return true;
@@ -772,14 +772,14 @@ function generatePrompt(vulns, policy, prefix, options) {
     // choice and whether it was supposed to be a default. If the user is
     // updating their policy options, then we select the choice they had
     // before, otherwise we select the default
-    res.default = (choices.map(function (choice, i) {
+    res.default = (choices.map((choice, i) => {
       return {i: i, default: choice.default};
-    }).filter(function (choice) {
+    }).filter((choice) => {
       return choice.default;
     }).shift() || {i: 0}).i;
 
     // kludge to make sure that we get the vuln in the user selection
-    res.choices = choices.map(function (choice) {
+    res.choices = choices.map((choice) => {
       var value = choice.value;
       // this allows us to pass more data into the inquirer results
       if (vuln.grouped && !vuln.grouped.main) {
@@ -804,7 +804,7 @@ function generatePrompt(vulns, policy, prefix, options) {
   // zip together every prompt and a prompt asking "why", note that the `when`
   // callback controls whether not to prompt the user with this question,
   // in this case, we always show if the user choses to ignore.
-  prompts = prompts.reduce(function (acc, curr) {
+  prompts = prompts.reduce((acc, curr) => {
     acc.push(curr);
     var rule = snykPolicy.getByVuln(policy, curr.choices[0].value.vuln);
     var defaultAnswer = 'None given';
@@ -866,7 +866,7 @@ function nextSteps(pkg, prevAnswers) {
 
   // if `snyk protect` doesn't already appear, then check if we need to add it
   if (i === -1) {
-    skipProtect = Object.keys(prevAnswers).every(function (key) {
+    skipProtect = Object.keys(prevAnswers).every((key) => {
       return prevAnswers[key].choice !== 'patch';
     });
   } else {

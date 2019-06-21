@@ -6,7 +6,7 @@ var patchesForPackage = require('./patches-for-package');
 function dedupe(source) {
   var removed = [];
 
-  var names = source.reduce(function (acc, vuln) {
+  var names = source.reduce((acc, vuln) => {
     if (Array.isArray(vuln.patches)) {
       // strip down to the only paches that can be applied
       vuln.patches = patchesForPackage(vuln);
@@ -32,7 +32,7 @@ function dedupe(source) {
   }, {});
 
   // turn back into an array
-  var packages = Object.keys(names).map(function (key) {
+  var packages = Object.keys(names).map((key) => {
     return names[key];
   });
 

@@ -11,7 +11,7 @@ var errorAnalytics = require('../analytics').single;
 function applyPatch(patchFileName, vuln, live, patchUrl) {
   var cwd = vuln.source;
 
-  return new Promise(function (resolve, reject) {
+  return new Promise(((resolve, reject) => {
     if (!cwd) {
       cwd = process.cwd();
     }
@@ -29,19 +29,19 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
 
     var patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
 
-    jsDiff(patchContent, relative, live).then(function () {
+    jsDiff(patchContent, relative, live).then(() => {
       debug('patch succeed');
       resolve();
-    }).catch(function (error) {
+    }).catch((error) => {
       debug('patch command failed', relative, error);
       patchError(error, relative, vuln, patchUrl).catch(reject);
     });
-  });
+  }));
 }
 
 function jsDiff(patchContent, relative, live) {
   var patchedFiles = {};
-  return new Promise(function (resolve, reject) {
+  return new Promise(((resolve, reject) => {
     diff.applyPatches(patchContent, {
       loadFile: function (index, callback) {
         try {
@@ -113,7 +113,7 @@ function jsDiff(patchContent, relative, live) {
         }
       },
     });
-  });
+  }));
 }
 
 // diff data compares the same file with a dummy path (a/path/to/real.file vs b/path/to/real.file)
@@ -128,12 +128,12 @@ function patchError(error, dir, vuln, patchUrl) {
     return Promise.reject(error);
   }
 
-  return new Promise(function (resolve, reject) {
+  return new Promise(((resolve, reject) => {
     var id = vuln.id;
 
     exec('npm -v', {
       env: process.env,
-    }, function (npmVError, versions) { // stderr is ignored
+    }, (npmVError, versions) => { // stderr is ignored
       var npmVersion = versions && versions.split('\n').shift();
       var referenceId = uuid();
 
@@ -171,5 +171,5 @@ function patchError(error, dir, vuln, patchUrl) {
 
       reject(error);
     });
-  });
+  }));
 }

@@ -18,9 +18,9 @@ function update(packages, live, pkgManager) {
   var lbl = 'Applying updates using ' + pkgManager + '...';
   var error = false;
 
-  return spinner(lbl).then(function () {
+  return spinner(lbl).then(() => {
     var upgrade = packages
-      .map(function (vuln) {
+      .map((vuln) => {
         var remediation = vuln.upgradePath && vuln.upgradePath[1];
         if (!remediation) {
         // this vuln holds an unreachable upgrade path - send this to analytics
@@ -35,7 +35,7 @@ function update(packages, live, pkgManager) {
         };
       })
       .filter(Boolean)
-      .reduce(function (ups, vuln) {
+      .reduce((ups, vuln) => {
         if (!ups[vuln.type]) {
           ups[vuln.type] = [];
         }
@@ -60,7 +60,7 @@ function update(packages, live, pkgManager) {
     }
 
     var promise = Promise.resolve()
-      .then(function () {
+      .then(() => {
       // create list of unique package names _without versions_ for uninstall
       // skip extraneous packages, if any
         var prodToUninstall = (upgrade.prod && upgrade.prod.map(stripVersion)) ||
@@ -74,23 +74,23 @@ function update(packages, live, pkgManager) {
           return  uninstall(pkgManager, toUninstall, live);
         }
       })
-      .then(function () {
+      .then(() => {
         var prodUpdate = (upgrade.prod ?
           install(pkgManager, findUpgrades(upgrade.prod), live) :
           Promise.resolve(true))
-          .catch(function (e) {
+          .catch((e) => {
             error = e;
             return false;
           });
         var devUpdate = (upgrade.dev ?
           installDev(pkgManager, findUpgrades(upgrade.dev), live) :
           Promise.resolve(true))
-          .catch(function (e) {
+          .catch((e) => {
             error = e;
             return false;
           });
         return Promise.all([prodUpdate, devUpdate])
-          .then(function (results) {
+          .then((results) => {
             return results[0] && results[1];
           });
       });
@@ -98,11 +98,11 @@ function update(packages, live, pkgManager) {
   })
     // clear spinner in case of success or failure
     .then(spinner.clear(lbl))
-    .catch(function (error) {
+    .catch((error) => {
       spinner.clear(lbl)();
       throw error;
     })
-    .then(function (res) {
+    .then((res) => {
       if (error) {
         console.error(chalk.red(errors.message(error)));
         debug(error.stack);
@@ -132,8 +132,8 @@ function uninstall(pkgManager, toUninstall, live) {
 function findUpgrades(packages) {
   return packages
     .map(moduleToObject)
-    .reduce(function (acc, curr) {
-      var have = acc.filter(function (pkg) {
+    .reduce((acc, curr) => {
+      var have = acc.filter((pkg) => {
         return pkg.name === curr.name;
       }).pop();
 
@@ -147,7 +147,7 @@ function findUpgrades(packages) {
 
       return acc;
     }, [])
-    .map(function (pkg) {
+    .map((pkg) => {
       return pkg.name + '@' + pkg.version;
     });
 }

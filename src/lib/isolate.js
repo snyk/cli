@@ -14,19 +14,19 @@ function isolate(options) {
   }
 
   if (Array.isArray(options.isolate)) {
-    potentialBlacklist = options.isolate.map(function (pkg) {
+    potentialBlacklist = options.isolate.map((pkg) => {
       var i = pkg.lastIndexOf('@');
       return {
         name: pkg.slice(0, i),
         version: pkg.slice(i + 1),
       };
-    }).reduce(function (acc, curr) {
+    }).reduce((acc, curr) => {
       acc[curr.name] = curr;
       return acc;
     }, {});
   }
 
-  snyk.bus.on('after:module', function (module) {
+  snyk.bus.on('after:module', (module) => {
     instrumentProps(module.id, module.id, module.exports);
   });
 }
@@ -51,7 +51,7 @@ function instrumentProps(id, key, obj) {
   }
 
   if (type === 'object' || type === 'function') {
-    Object.keys(original).forEach(function (key) {
+    Object.keys(original).forEach((key) => {
       var prop = original[key];
       if (key === '__snyked') {
         return;

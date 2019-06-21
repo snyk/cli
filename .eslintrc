@@ -7,6 +7,8 @@
     "es6": true
   },
   "rules": {
+    "arrow-parens": 2,
+    "arrow-spacing": 2,
     "array-bracket-spacing": [2, "never"],
     "block-scoped-var": 2,
     "brace-style": 2,
@@ -28,6 +30,7 @@
     "max-len": [1, 120],
     "max-statements": [1, 100],
     "new-cap": 0,
+    "no-confusing-arrow": 2,
     "no-const-assign": "error",
     "no-caller": 2,
     "no-else-return": 2,
@@ -38,6 +41,7 @@
     "no-unused-vars": 1,
     "no-use-before-define": [2, "nofunc"],
     "object-curly-spacing": [2, "never"],
+    "prefer-arrow-callback": 2,
     "quotes": [2, "single", "avoid-escape"],
     "semi": [2, "always"],
     "keyword-spacing": [2, {"before": true, "after": true}],

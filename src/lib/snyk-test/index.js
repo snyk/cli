@@ -16,7 +16,7 @@ function test(root, options, callback) {
 
   var promise = executeTest(root, options);
   if (callback) {
-    promise.then(function (res) {
+    promise.then((res) => {
       callback(null, res);
     }).catch(callback);
   }
@@ -28,7 +28,7 @@ function executeTest(root, options) {
     var packageManager = detect.detectPackageManager(root, options);
     options.packageManager = packageManager;
     return run(root, options)
-      .then(function (results) {
+      .then((results) => {
         for (const res of results) {
           if (!res.packageManager) {
             res.packageManager = packageManager;

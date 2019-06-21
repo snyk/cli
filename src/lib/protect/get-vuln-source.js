@@ -7,7 +7,7 @@ var statSync = require('fs').statSync;
 var moduleToObject = require('snyk-module');
 
 function getVulnSource(vuln, live) {
-  var from = vuln.from.slice(1).map(function (pkg) {
+  var from = vuln.from.slice(1).map((pkg) => {
     return moduleToObject(pkg).name;
   });
 

@@ -4,7 +4,7 @@ var config = require('./config');
 
 function actionAllowed(action, options) {
   const org = options.org || config.org || null;
-  return new Promise(function (resolve, reject) {
+  return new Promise(((resolve, reject) => {
     request({
       method: 'GET',
       url: config.API + '/authorization/' + action,
@@ -13,7 +13,7 @@ function actionAllowed(action, options) {
         authorization: 'token ' + snyk.api,
       },
       qs: org && {org},
-    }, function (error, res, body) {
+    }, (error, res, body) => {
       if (error) {
         return reject(error);
       }
@@ -22,7 +22,7 @@ function actionAllowed(action, options) {
       }
       resolve(body.result);
     });
-  });
+  }));
 }
 
 module.exports = {
