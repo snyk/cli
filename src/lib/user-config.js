@@ -1,5 +1,5 @@
-var Configstore = require('configstore');
-var pkg = require(__dirname + '/../../package.json');
-var config = new Configstore(pkg.name);
+const Configstore = require('configstore');
+const pkg = require(__dirname + '/../../package.json');
+const config = new Configstore(pkg.name);
 
 module.exports = config;

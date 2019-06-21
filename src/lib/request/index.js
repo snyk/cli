@@ -1,5 +1,5 @@
-var request = require('./request');
-var alerts = require('../alerts');
+const request = require('./request');
+const alerts = require('../alerts');
 
 module.exports = function (payload, callback) {
   return request(payload)

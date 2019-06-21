@@ -1,11 +1,11 @@
-var snykConfig = require('./config');
+const snykConfig = require('./config');
 
 // This module is kind of "world object" that is used to indirectly import modules.
 // This also introduces some circular imports.
 
 // TODO(kyegupov): untangle this, resolve circular imports, convert to Typescript
 
-var snyk = {};
+const snyk = {};
 module.exports = snyk;
 
 snyk.id = snykConfig.id;

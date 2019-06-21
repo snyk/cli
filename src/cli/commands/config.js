@@ -1,11 +1,11 @@
-var snyk = require('../../lib');
+const snyk = require('../../lib');
 
 module.exports = function config(method) {
-  var args = [].slice.call(arguments, 1);
-  var key = args[0];
+  const args = [].slice.call(arguments, 1);
+  const key = args[0];
 
   return new Promise((resolve) => {
-    var res = '';
+    let res = '';
     if (method === 'set') {
       args.map((item) => {
         return item.split('=');

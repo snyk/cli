@@ -1,9 +1,9 @@
-var debug = require('debug')('snyk');
-var snyk = require('../../../lib/');
-var protect = require('../../../lib/protect');
-var analytics = require('../../../lib/analytics');
-var detect = require('../../../lib/detect');
-var pm = require('../../../lib/package-managers');
+const debug = require('debug')('snyk');
+const snyk = require('../../../lib/');
+const protect = require('../../../lib/protect');
+const analytics = require('../../../lib/analytics');
+const detect = require('../../../lib/detect');
+const pm = require('../../../lib/package-managers');
 
 
 function protectFunc(options = {}) {
@@ -20,8 +20,8 @@ function protectFunc(options = {}) {
 
 
   try {
-    var packageManager = detect.detectPackageManager(process.cwd(), options);
-    var supportsProtect = pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS
+    const packageManager = detect.detectPackageManager(process.cwd(), options);
+    const supportsProtect = pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS
       .includes(packageManager);
     if (!supportsProtect) {
       throw new Error(
@@ -62,7 +62,7 @@ function protectFunc(options = {}) {
 function patch(policy, options) {
   return snyk.test(process.cwd(), options).then((res) => {
     if (!res.vulnerabilities) {
-      var e = new Error('Code is already patched');
+      const e = new Error('Code is already patched');
       e.code = 'ALREADY_PATCHED';
       throw e;
     }

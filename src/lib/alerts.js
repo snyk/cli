@@ -1,6 +1,6 @@
-var chalk = require('chalk');
+const chalk = require('chalk');
 
-var registeredAlerts = [];
+const registeredAlerts = [];
 
 function registerAlerts(alerts) {
   if (!alerts) {
@@ -14,8 +14,8 @@ function registerAlerts(alerts) {
 }
 
 function hasAlert(name) {
-  var alertFound = false;
-  for (var i = 0; i < registeredAlerts.length; i++) {
+  let alertFound = false;
+  for (let i = 0; i < registeredAlerts.length; i++) {
     if (registeredAlerts[i].name === name) {
       alertFound = true;
       break;
@@ -25,8 +25,8 @@ function hasAlert(name) {
 }
 
 function displayAlerts() {
-  var res = '';
-  var sep = '\n';
+  let res = '';
+  const sep = '\n';
   registeredAlerts.forEach((alert) => {
     res += sep;
     if (alert.type === 'warning') {

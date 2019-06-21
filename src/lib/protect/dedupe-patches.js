@@ -1,20 +1,20 @@
 module.exports = dedupe;
 
-var debug = require('debug')('snyk:patch');
-var patchesForPackage = require('./patches-for-package');
+const debug = require('debug')('snyk:patch');
+const patchesForPackage = require('./patches-for-package');
 
 function dedupe(source) {
-  var removed = [];
+  const removed = [];
 
-  var names = source.reduce((acc, vuln) => {
+  const names = source.reduce((acc, vuln) => {
     if (Array.isArray(vuln.patches)) {
       // strip down to the only paches that can be applied
       vuln.patches = patchesForPackage(vuln);
     }
 
-    var key = vuln.name + vuln.version + vuln.from.join('>');
+    const key = vuln.name + vuln.version + vuln.from.join('>');
 
-    var other = acc[key];
+    const other = acc[key];
     if (other) {
       debug('dupe found on %s & %s', vuln.id, other.id);
       if (vuln.publicationTime > other.publicationTime) {
@@ -32,7 +32,7 @@ function dedupe(source) {
   }, {});
 
   // turn back into an array
-  var packages = Object.keys(names).map((key) => {
+  const packages = Object.keys(names).map((key) => {
     return names[key];
   });
 

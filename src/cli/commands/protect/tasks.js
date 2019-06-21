@@ -1,10 +1,10 @@
 module.exports = answersToTasks;
 
-var debug = require('debug')('snyk');
-var _ = require('lodash');
+const debug = require('debug')('snyk');
+const _ = require('lodash');
 
 function answersToTasks(answers) {
-  var tasks = {
+  const tasks = {
     ignore: [],
     update: [],
     patch: [],
@@ -22,14 +22,14 @@ function answersToTasks(answers) {
       return;
     }
 
-    var answer = answers[key];
-    var task = answer.choice;
+    const answer = answers[key];
+    const task = answer.choice;
     if (task === 'review' || task === 'skip') {
       // task = 'skip';
       return;
     }
 
-    var vuln = answer.vuln;
+    const vuln = answer.vuln;
 
     if (task === 'patch' && vuln.grouped && vuln.grouped.upgrades) {
       // ignore the first as it's the same one as this particular answer
@@ -37,10 +37,10 @@ function answersToTasks(answers) {
         vuln.grouped.count - 1,
         vuln.grouped);
 
-      var additional = vuln.grouped.upgrades.slice(1);
+      const additional = vuln.grouped.upgrades.slice(1);
 
       additional.forEach((upgrade) => {
-        var copy = _.cloneDeep(vuln);
+        const copy = _.cloneDeep(vuln);
         copy.from = upgrade.from;
         copy.__filename = upgrade.filename;
         copy.patches = upgrade.patches;

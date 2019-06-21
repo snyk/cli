@@ -1,40 +1,40 @@
 module.exports = patch;
 
-var now = new Date();
+const now = new Date();
 
-var debug = require('debug')('snyk');
-var chalk = require('chalk');
-var glob = require('glob');
-var tempfile = require('tempfile');
-var fs = require('then-fs');
-var path = require('path');
-var _ = require('lodash');
-var applyPatch = require('./apply-patch');
-var stripVersions = require('./strip-versions');
-var getVulnSource = require('./get-vuln-source');
-var dedupe = require('./dedupe-patches');
-var writePatchFlag = require('./write-patch-flag');
-var spinner = require('../spinner');
-var errors = require('../errors/legacy-errors');
-var analytics = require('../analytics');
-var getPatchFile = require('./fetch-patch');
+const debug = require('debug')('snyk');
+const chalk = require('chalk');
+const glob = require('glob');
+const tempfile = require('tempfile');
+const fs = require('then-fs');
+const path = require('path');
+const _ = require('lodash');
+const applyPatch = require('./apply-patch');
+const stripVersions = require('./strip-versions');
+const getVulnSource = require('./get-vuln-source');
+const dedupe = require('./dedupe-patches');
+const writePatchFlag = require('./write-patch-flag');
+const spinner = require('../spinner');
+const errors = require('../errors/legacy-errors');
+const analytics = require('../analytics');
+const getPatchFile = require('./fetch-patch');
 
 function patch(vulns, live) {
-  var lbl = 'Applying patches...';
-  var errorList = [];
+  const lbl = 'Applying patches...';
+  const errorList = [];
 
   return spinner(lbl).then(() => {
     // the target directory where our module name will live
     vulns.forEach((vuln) => vuln.source = getVulnSource(vuln, live));
 
-    var deduped = dedupe(vulns);
+    const deduped = dedupe(vulns);
     debug('patching %s vulns after dedupe', deduped.packages.length);
 
     // find the patches, pull them down off the web, save them in a temp file
     // then apply each individual patch - but do it one at a time (via reduce)
-    var promises = deduped.packages.reduce((acc, vuln) => {
+    const promises = deduped.packages.reduce((acc, vuln) => {
       return acc.then((res) => {
-        var patches = vuln.patches; // this is also deduped in `dedupe`
+        const patches = vuln.patches; // this is also deduped in `dedupe`
 
         if (patches === null) {
           debug('no patch available for ' + vuln.id);
@@ -46,13 +46,13 @@ function patch(vulns, live) {
         debug(`Patching vuln: ${vuln.id} ${vuln.from}`);
 
         // the colon doesn't like Windows, ref: https://git.io/vw2iO
-        var fileSafeId = vuln.id.replace(/:/g, '-');
-        var flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
-        var oldFlag = path.resolve(vuln.source, '.snyk-' + vuln.id + '.flag');
+        const fileSafeId = vuln.id.replace(/:/g, '-');
+        const flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
+        const oldFlag = path.resolve(vuln.source, '.snyk-' + vuln.id + '.flag');
 
         // get the patches on the local fs
-        var promises = patches.urls.map((url) => {
-          var filename = tempfile('.' + fileSafeId + '.snyk-patch');
+        const promises = patches.urls.map((url) => {
+          const filename = tempfile('.' + fileSafeId + '.snyk-patch');
           return getPatchFile(url, filename).then((patch) => {
             // check whether there's a trace of us having patched before
             return fs.exists(flag).then((exists) => {
@@ -114,8 +114,8 @@ function patch(vulns, live) {
       });
     }, Promise.resolve(deduped.removed));
 
-    var promise = promises.then((res) => {
-      var patched = _.flatten(res).filter(Boolean);
+    const promise = promises.then((res) => {
+      const patched = _.flatten(res).filter(Boolean);
 
       if (!live) {
         debug('[skipping - dry run]');
@@ -123,18 +123,18 @@ function patch(vulns, live) {
       }
       return Promise.all(patched);
     }).then((patched) => {
-      var config = {};
+      const config = {};
 
       // this reduce function will look to see if the patch actually resolves
       // more than one vulnerability, and if it does, it'll replicate the
       // patch rule against the *other* vuln.ids. This will happen when the user
       // runs the wizard and selects to apply a patch that fixes more than one
       // vuln.
-      var mapped = patched.map(patchRule).reduce((acc, curr, i) => {
-        var vuln = patched[i];
+      const mapped = patched.map(patchRule).reduce((acc, curr, i) => {
+        const vuln = patched[i];
         if (vuln.grouped && vuln.grouped.includes) {
           vuln.grouped.includes.forEach((id) => {
-            var rule = _.cloneDeep(curr);
+            const rule = _.cloneDeep(curr);
             rule.vulnId = id;
             acc.push(rule);
           });
@@ -150,7 +150,7 @@ function patch(vulns, live) {
           acc[curr.vulnId] = [];
         }
 
-        var id = curr.vulnId;
+        const id = curr.vulnId;
         delete curr.vulnId;
         acc[id].push(curr);
 
@@ -184,7 +184,7 @@ function patch(vulns, live) {
 }
 
 function patchRule(vuln) {
-  var rule = {
+  const rule = {
     vulnId: vuln.id,
   };
   rule[stripVersions(vuln.from.slice(1)).join(' > ')] = {

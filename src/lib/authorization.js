@@ -1,6 +1,6 @@
-var snyk = require('./');
-var request = require('./request');
-var config = require('./config');
+const snyk = require('./');
+const request = require('./request');
+const config = require('./config');
 
 function actionAllowed(action, options) {
   const org = options.org || config.org || null;

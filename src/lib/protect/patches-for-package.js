@@ -1,6 +1,6 @@
 module.exports = patchesForPackage;
 
-var semver = require('semver');
+const semver = require('semver');
 
 function patchesForPackage(vuln) {
   return vuln.patches.filter((patch) => {

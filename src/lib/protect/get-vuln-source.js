@@ -1,23 +1,23 @@
 module.exports = getVulnSource;
 
-var debug = require('debug')('snyk');
-var resolve = require('snyk-resolve');
-var path = require('path');
-var statSync = require('fs').statSync;
-var moduleToObject = require('snyk-module');
+const debug = require('debug')('snyk');
+const resolve = require('snyk-resolve');
+const path = require('path');
+const statSync = require('fs').statSync;
+const moduleToObject = require('snyk-module');
 
 function getVulnSource(vuln, live) {
-  var from = vuln.from.slice(1).map((pkg) => {
+  const from = vuln.from.slice(1).map((pkg) => {
     return moduleToObject(pkg).name;
   });
 
-  var viaPath = path.resolve(
+  const viaPath = path.resolve(
     process.cwd(),
     'node_modules',
     from.join('/node_modules/')
   );
 
-  var source = vuln.__filename ?
+  let source = vuln.__filename ?
     path.dirname(vuln.__filename) :
     viaPath;
 

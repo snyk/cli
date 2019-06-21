@@ -1,7 +1,7 @@
 module.exports = npm;
 
-var debug = require('debug')('snyk');
-var exec = require('child_process').exec;
+const debug = require('debug')('snyk');
+const exec = require('child_process').exec;
 
 function npm(method, packages, live, cwd, flags) {
   flags = flags || [];
@@ -22,7 +22,7 @@ function npm(method, packages, live, cwd, flags) {
   method += ' ' + flags.join(' ');
 
   return new Promise(((resolve, reject) => {
-    var cmd = 'npm ' + method + ' ' + packages.join(' ');
+    const cmd = 'npm ' + method + ' ' + packages.join(' ');
     if (!cwd) {
       cwd = process.cwd();
     }
@@ -42,7 +42,7 @@ function npm(method, packages, live, cwd, flags) {
 
       if (stderr.indexOf('ERR!') !== -1) {
         console.error(stderr.trim());
-        var e = new Error('npm update issues: ' + stderr.trim());
+        const e = new Error('npm update issues: ' + stderr.trim());
         e.code = 'FAIL_UPDATE';
         return reject(e);
       }

@@ -1,16 +1,16 @@
 module.exports = scenario;
 module.exports.loadScenario = loadScenario;
 
-var debug = require('debug')('snyk');
-var fs = require('then-fs');
-var semver = require('semver');
-var _ = require('lodash');
-var snyk = require('../../lib');
-var auth = require('./auth/is-authed');
-var wizard = require('./protect/wizard');
+const debug = require('debug')('snyk');
+const fs = require('then-fs');
+const semver = require('semver');
+const _ = require('lodash');
+const snyk = require('../../lib');
+const auth = require('./auth/is-authed');
+const wizard = require('./protect/wizard');
 
 function scenario(casefile, options) {
-  var cache = {
+  const cache = {
     isAuthed: auth.isAuthed,
     test: snyk.test,
   };
@@ -51,18 +51,18 @@ function scenarioTest(data) {
 }
 
 function parseScenario(source) {
-  var pkg = {};
-  var data = {};
-  var vulnerabilities = [];
-  var title = /^title:\s+(.*)$/im;
-  var vuln = /([A-Za-z]\-\d+) has.*vuln(?:.*in ([A-Za-z]\-\d+))?/mgi;
-  var vulnIds = /([Vv]\d+)/mgi;
+  const pkg = {};
+  const data = {};
+  let vulnerabilities = [];
+  const title = /^title:\s+(.*)$/im;
+  const vuln = /([A-Za-z]\-\d+) has.*vuln(?:.*in ([A-Za-z]\-\d+))?/mgi;
+  const vulnIds = /([Vv]\d+)/mgi;
   // jscs:disable
-  var uses = /([A-Za-z]\-\d+|App|app) uses ([A-Za-z]\-\d+)(?: and ([A-Za-z]\-\d+))*/mgi;
+  const uses = /([A-Za-z]\-\d+|App|app) uses ([A-Za-z]\-\d+)(?: and ([A-Za-z]\-\d+))*/mgi;
   // jscs:enable
-  var module = /([A-Za-z]\-\d+|App)/gi;
-  var patches = /([Pp]\d+) fixes (?:.*([Vv]\d+)+.*in (\w+))?/mgi;
-  var m;
+  const module = /([A-Za-z]\-\d+|App)/gi;
+  const patches = /([Pp]\d+) fixes (?:.*([Vv]\d+)+.*in (\w+))?/mgi;
+  let m;
 
   pkg.name = 'app';
   pkg.version = '0.0.0';
@@ -70,15 +70,15 @@ function parseScenario(source) {
   pkg.dependencies = {};
   pkg.path = [pkg.full];
 
-  var packages = {};
-  var k;
-  var p;
-  var i;
-  var path;
+  const packages = {};
+  let k;
+  let p;
+  let i;
+  let path;
 
-  var lines = source.trim().split('\n').map(trim);
+  const lines = source.trim().split('\n').map(trim);
   for (i = 0; i < lines.length; i++) {
-    var line = lines[i];
+    const line = lines[i];
     debug('>>> %s', line);
 
     // reset all the indicies of the regexp
@@ -99,7 +99,7 @@ function parseScenario(source) {
         if (m[1] === 'App') {
           debug('App uses...', line);
           m.slice(2).filter(Boolean).map((module) => {
-            var p = module.split('-');
+            const p = module.split('-');
             p[1] = cleanVersion(p[1]);
             pkg.dependencies[p[0]] = {
               name: p[0],
@@ -114,7 +114,7 @@ function parseScenario(source) {
 
         p = m[1].split('-');
         p[1] = cleanVersion(p[1]);
-        var full = p.join('@');
+        const full = p.join('@');
         if (!packages[full]) {
           packages[full] = {
             dependencies: {},
@@ -123,7 +123,7 @@ function parseScenario(source) {
         debug('packages', packages, full);
 
         m.slice(2).filter(Boolean).map((module) => {
-          var p = module.split('-');
+          const p = module.split('-');
           p[1] = cleanVersion(p[1]);
           debug('package module: %s', module, p.join('@'));
           packages[full].dependencies[p[0]] = {
@@ -142,7 +142,7 @@ function parseScenario(source) {
     if (line.indexOf(' fixes ') !== -1) {
       debug('found fixes...');
 
-      var vulns = line.match(vulnIds) || [, 'V1'];
+      const vulns = line.match(vulnIds) || [, 'V1'];
       debug('vulns found? ', vulns);
       if ((m = patches.exec(line)) !== null) {
         for (k = 0; k < vulns.length; k++) {
@@ -171,9 +171,9 @@ function parseScenario(source) {
       debug('vuln found');
       vuln.lastIndex = 0;
       if ((m = vuln.exec(line)) !== null) {
-        var vulnIn = (m[1]).split('-');
+        const vulnIn = (m[1]).split('-');
         vulnIn[1] = cleanVersion(vulnIn[1]);
-        var fixedIn = (m[2] || '-<0.0.0').split('-'); // there is no fix
+        const fixedIn = (m[2] || '-<0.0.0').split('-'); // there is no fix
         fixedIn[1] = cleanVersion(fixedIn[1]);
 
         if (!packages[fixedIn.join('@')]) {
@@ -189,10 +189,10 @@ function parseScenario(source) {
         debug('vulnIds', m, line);
 
         for (k = 0; k < m.length; k++) {
-          var v = m[k];
+          const v = m[k];
 
           // first check if the vuln exists
-          var match = vulnerabilities.filter((vuln) => {
+          const match = vulnerabilities.filter((vuln) => {
             return vuln.id === v;
           }); // jshint ignore:line
 
@@ -207,7 +207,7 @@ function parseScenario(source) {
             continue;
           }
 
-          var vulnerability = {
+          const vulnerability = {
             moduleName: vulnIn[0],
             id: v,
             name: vulnIn[0],
@@ -221,7 +221,7 @@ function parseScenario(source) {
             info: ['https://example.com/vuln/' + v],
           };
 
-          var fullfrom = pkg.name + '@' + pkg.version;
+          const fullfrom = pkg.name + '@' + pkg.version;
           vulnerability.from = [fullfrom, vulnIn.join('@')];
           path = !fixedIn[0] ? false : fixedIn.join('@');
           vulnerability.upgradePath = [false, path];
@@ -233,7 +233,7 @@ function parseScenario(source) {
     }
   }
 
-  var deps = Object.keys(pkg.dependencies);
+  const deps = Object.keys(pkg.dependencies);
   if (deps.length === 0) {
     pkg.dependencies = false;
   } else {
@@ -243,24 +243,24 @@ function parseScenario(source) {
 
   vulnerabilities = vulnerabilities.filter((vuln) => {
     debug('checking new vuln: %s', vuln.id);
-    var p;
-    var i;
-    var match = matchDep(vuln.name + '@' + vuln.version, pkg.dependencies);
+    let p;
+    let i;
+    const match = matchDep(vuln.name + '@' + vuln.version, pkg.dependencies);
     if (match) {
       vuln.from = match.path.slice(0);
       vuln.upgradePath = [];
-      var name = vuln.name;
-      var dirty = false;
-      var target = vuln.name + '@' + vuln.semver.patched;
+      let name = vuln.name;
+      let dirty = false;
+      let target = vuln.name + '@' + vuln.semver.patched;
 
-      var packagesFull = Object.keys(packages);
+      const packagesFull = Object.keys(packages);
       for (i = 0; i < packagesFull.length; i++) {
         p = packagesFull[i];
         debug('checking for deep %s ~ %s', p, name);
 
         if (packages[p].dependencies[name]) {
           debug('found matching package %s', name);
-          var v = target.split('@').pop();
+          const v = target.split('@').pop();
           debug('semver.satisfies(%s, %s) === %s',
             packages[p].dependencies[name].version,
             v,
@@ -300,7 +300,7 @@ function parseScenario(source) {
       }
 
       // now match the lengths
-      var length = vuln.from.length - vuln.upgradePath.length;
+      const length = vuln.from.length - vuln.upgradePath.length;
       for (i = 0; i < length; i++) {
         vuln.upgradePath.unshift(false);
       }
@@ -320,7 +320,7 @@ function parseScenario(source) {
 
 function cleanDepTree(deps, pkg, packages) {
   deps.forEach((curr) => {
-    var full = pkg.dependencies[curr].full;
+    const full = pkg.dependencies[curr].full;
     debug('push on %s with %s', pkg.dependencies[curr].path, pkg.full);
     pkg.dependencies[curr].path = pkg.path.concat(pkg.dependencies[curr].path);
     pkg.dependencies[curr].path.push(pkg.dependencies[curr].full);
@@ -346,7 +346,7 @@ function cleanVersion(s) {
   if (!s) {
     s = '0';
   }
-  var version = s.split('.');
+  const version = s.split('.');
   if (version.length === 1) {
     return s + '.0.0';
   }
@@ -359,9 +359,9 @@ function cleanVersion(s) {
 }
 
 function matchDep(module, deps) {
-  var keys = Object.keys(deps);
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i];
+  const keys = Object.keys(deps);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i];
     if (deps[key].full === module) {
       return deps[key];
     }
@@ -376,11 +376,11 @@ function matchDep(module, deps) {
 
 function patchDate(s) {
   s = (s || '').toLowerCase();
-  var d = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep',
+  const d = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep',
     'oct', 'nov', 'dec'].map((d, i) => {
     return s.indexOf(d) === 0 ? i : false;
   }).filter(Boolean);
-  var date = new Date();
+  const date = new Date();
 
   if (d.length) {
     date.setMonth(d[0]);

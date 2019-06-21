@@ -1,11 +1,11 @@
-var path = require('path');
-var command = require('./exec');
-var root = path.resolve(__dirname, '../..');
+const path = require('path');
+const command = require('./exec');
+const root = path.resolve(__dirname, '../..');
 
 module.exports = function () {
   return new Promise(((resolve) => {
-    var filename = path.resolve(root, 'package.json');
-    var version = require(filename).version;
+    const filename = path.resolve(root, 'package.json');
+    const version = require(filename).version;
 
     if (version && version !== '0.0.0') {
       return resolve(version);
@@ -13,7 +13,7 @@ module.exports = function () {
 
     // else we're in development, give the commit out
     // get the last commit and whether the working dir is dirty
-    var promises = [
+    const promises = [
       branch(),
       commit(),
       dirty(),
@@ -23,10 +23,10 @@ module.exports = function () {
       // handle any point where the git based lookup fails
       return ['unknown', '', '0'];
     }).then((res) => {
-      var branch = res[0];
-      var commit = res[1];
-      var dirtyCount = parseInt(res[2], 10);
-      var curr = branch + ': ' + commit;
+      const branch = res[0];
+      const commit = res[1];
+      const dirtyCount = parseInt(res[2], 10);
+      let curr = branch + ': ' + commit;
       if (dirtyCount !== 0) {
         curr += ' (' + dirtyCount + ' dirty files)';
       }

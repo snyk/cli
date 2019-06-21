@@ -1,33 +1,33 @@
 module.exports = applyPatch;
 
-var debug = require('debug')('snyk');
-var diff = require('diff');
-var exec = require('child_process').exec;
-var path = require('path');
-var fs = require('fs');
-var uuid = require('uuid/v4');
-var errorAnalytics = require('../analytics').single;
+const debug = require('debug')('snyk');
+const diff = require('diff');
+const exec = require('child_process').exec;
+const path = require('path');
+const fs = require('fs');
+const uuid = require('uuid/v4');
+const errorAnalytics = require('../analytics').single;
 
 function applyPatch(patchFileName, vuln, live, patchUrl) {
-  var cwd = vuln.source;
+  let cwd = vuln.source;
 
   return new Promise(((resolve, reject) => {
     if (!cwd) {
       cwd = process.cwd();
     }
 
-    var relative = path.relative(process.cwd(), cwd);
+    const relative = path.relative(process.cwd(), cwd);
     debug('DRY RUN: relative: %s', relative);
 
     try {
-      var packageJson = fs.readFileSync(path.resolve(relative, 'package.json'));
-      var pkg = JSON.parse(packageJson);
+      const packageJson = fs.readFileSync(path.resolve(relative, 'package.json'));
+      const pkg = JSON.parse(packageJson);
       debug('package at patch target location: %s@%s', pkg.name, pkg.version);
     } catch (err) {
       debug('Failed loading package.json of package about to be patched', err);
     }
 
-    var patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
+    const patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
 
     jsDiff(patchContent, relative, live).then(() => {
       debug('patch succeed');
@@ -40,22 +40,22 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
 }
 
 function jsDiff(patchContent, relative, live) {
-  var patchedFiles = {};
+  const patchedFiles = {};
   return new Promise(((resolve, reject) => {
     diff.applyPatches(patchContent, {
       loadFile: function (index, callback) {
         try {
-          var fileName = trimUpToFirstSlash(index.oldFileName);
+          const fileName = trimUpToFirstSlash(index.oldFileName);
           if (patchedFiles[fileName]) {
             return callback(null, patchedFiles[fileName]);
           }
 
-          var filePath = path.resolve(relative, fileName);
-          var content = fs.readFileSync(filePath, 'utf8');
+          const filePath = path.resolve(relative, fileName);
+          const content = fs.readFileSync(filePath, 'utf8');
 
           // create an `.orig` copy of the file prior to patching it
           // used in case we need to revert a patch
-          var origFilePath = filePath + '.orig';
+          const origFilePath = filePath + '.orig';
           fs.writeFileSync(origFilePath, content);
 
           callback(null, content);
@@ -69,12 +69,12 @@ function jsDiff(patchContent, relative, live) {
         try {
           if (content === false) {
             // `false` means the patch does not match the original content.
-            var error = new Error('Found a mismatching patch');
+            const error = new Error('Found a mismatching patch');
             error.patchIssue = JSON.stringify(index);
             throw error;
           }
-          var newFileName = trimUpToFirstSlash(index.newFileName);
-          var oldFileName = trimUpToFirstSlash(index.oldFileName);
+          const newFileName = trimUpToFirstSlash(index.newFileName);
+          const oldFileName = trimUpToFirstSlash(index.oldFileName);
           if (newFileName !== oldFileName) {
             patchedFiles[oldFileName] = null;
           }
@@ -100,7 +100,7 @@ function jsDiff(patchContent, relative, live) {
         }
         try {
           // write patched files back to disk, unlink files completely removed by patching
-          for (var fileName in patchedFiles) {
+          for (const fileName in patchedFiles) {
             if (typeof patchedFiles[fileName] === 'string') {
               fs.writeFileSync(path.resolve(relative, fileName), patchedFiles[fileName]);
             } else {
@@ -129,18 +129,18 @@ function patchError(error, dir, vuln, patchUrl) {
   }
 
   return new Promise(((resolve, reject) => {
-    var id = vuln.id;
+    const id = vuln.id;
 
     exec('npm -v', {
       env: process.env,
     }, (npmVError, versions) => { // stderr is ignored
-      var npmVersion = versions && versions.split('\n').shift();
-      var referenceId = uuid();
+      const npmVersion = versions && versions.split('\n').shift();
+      const referenceId = uuid();
 
       // this is a general "patch failed", since we already check if the
       // patch was applied via a flag, this means something else went
       // wrong, so we'll ask the user for help to diagnose.
-      var filename = path.relative(process.cwd(), dir);
+      const filename = path.relative(process.cwd(), dir);
 
       // post metadata to help diagnose
       errorAnalytics({
@@ -163,7 +163,7 @@ function patchError(error, dir, vuln, patchUrl) {
         },
       });
 
-      var msg = id + ' on ' + vuln.name + '@' + vuln.version + ' at "' + filename + '"\n' +
+      const msg = id + ' on ' + vuln.name + '@' + vuln.version + ' at "' + filename + '"\n' +
                 error + ', ' + 'reference ID: ' + referenceId + '\n';
 
       error = new Error(msg);

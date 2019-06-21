@@ -1,7 +1,7 @@
 module.exports = displayPolicy;
 
-var policy = require('snyk-policy');
-var display = require('../../lib/display-policy');
+const policy = require('snyk-policy');
+const display = require('../../lib/display-policy');
 
 function displayPolicy(path) {
   return policy.load(path || process.cwd())
