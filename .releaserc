@@ -3,7 +3,15 @@
     "@semantic-release/npm",
     {
       "path": "@semantic-release/exec",
-      "cmd": "npm i -g pkg && pkg . && shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256"
+      "cmd": "npm i -g pkg"
+    },
+    {
+      "path": "@semantic-release/exec",
+      "cmd": "pkg . --targets node10-linux-x64,node10-macos-x64,node10-win-x64,node10-alpine-x64"
+    },
+    {
+      "path": "@semantic-release/exec",
+      "cmd": "shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256 && shasum -a 256 snyk-alpine > snyk-alpine.sha256"
     }
   ],
   "publish": [
@@ -40,6 +48,16 @@
           "path": "./snyk-win.exe.sha256",
           "name": "snyk-win.exe.sha256",
           "label": "snyk-win.exe.sha256"
+        },
+        {
+          "path": "./snyk-alpine",
+          "name": "snyk-alpine",
+          "label": "snyk-alpine"
+        },
+        {
+          "path": "./snyk-alpine.sha256",
+          "name": "snyk-alpine.sha256",
+          "label": "snyk-alpine.sha256"
         }
       ]
     }
