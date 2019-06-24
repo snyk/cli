@@ -11,11 +11,12 @@ export async function parse(root: string, targetFile: string, options: Options):
     path.dirname(path.resolve(root, targetFile)),
     'node_modules',
   );
+  const packageManager = options.packageManager || 'npm';
 
   if (!fs.existsSync(nodeModulesPath)) {
     // throw a custom error
     throw new Error('Missing node_modules folder: we can\'t test ' +
-      `without dependencies.\nPlease run '${options.packageManager} install' first.`);
+      `without dependencies.\nPlease run '${packageManager} install' first.`);
   }
   analytics.add('local', true);
   analytics.add('generating-node-dependency-tree', {
