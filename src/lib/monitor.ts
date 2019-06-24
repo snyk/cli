@@ -72,6 +72,10 @@ export async function monitor(root, meta, info: SingleDepRootResult, targetFile)
   const target = await projectMetadata.getInfo(pkg);
   const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
 
+  if (target && target.branch) {
+    analytics.add('targetBranch', target.branch);
+  }
+
   dropEmptyDeps(pkg);
 
   // TODO(kyegupov): async/await
