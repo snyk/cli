@@ -17,6 +17,7 @@ import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
 import { SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorError, MonitorOptions } from '../../lib/types';
 import { MethodArgs, ArgsOptions } from '../args';
 import { maybePrintDeps } from '../../lib/print-deps';
+import * as analytics from '../../lib/analytics';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -101,6 +102,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       // Scan the project dependencies via a plugin
 
       const pluginOptions = plugins.getPluginOptions(packageManager, options);
+      analytics.add('packageManager', packageManager);
+      analytics.add('pluginOptions', pluginOptions);
 
       // TODO: the type should depend on multiDepRoots flag
       const inspectResult: SingleDepRootResult|MultiDepRootsResult = await promiseOrCleanup(
