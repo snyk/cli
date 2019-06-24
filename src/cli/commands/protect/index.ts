@@ -1,12 +1,17 @@
-const debug = require('debug')('snyk');
-const snyk = require('../../../lib/');
-const protect = require('../../../lib/protect');
-const analytics = require('../../../lib/analytics');
-const detect = require('../../../lib/detect');
-const pm = require('../../../lib/package-managers');
+import * as debugModule from 'debug';
+import * as snyk from '../../../lib/';
+import * as types from '../../../lib/types';
+import * as protect from '../../../lib/protect';
+import * as analytics from '../../../lib/analytics';
+import * as detect from '../../../lib/detect';
+import * as pm from '../../../lib/package-managers';
+import { CustomError } from '../../../lib/errors';
+import { Options } from '../../../lib/plugins/types';
+import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 
+const debug = debugModule('snyk');
 
-function protectFunc(options = {}) {
+function protectFunc(options: types.ProtectOptions & types.Options & types.TestOptions) {
   options.loose = true; // replace missing policies with empty ones
   options.vulnEndpoint = '/vuln/npm/patches';
   // TODO: fix this by providing better patch support for yarn
@@ -18,9 +23,8 @@ function protectFunc(options = {}) {
   // bypass lockfile test for wizard
   options.traverseNodeModules = true;
 
-
   try {
-    const packageManager = detect.detectPackageManager(process.cwd(), options);
+    const packageManager: pm.SupportedPackageManagers = detect.detectPackageManager(process.cwd(), options);
     const supportsProtect = pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS
       .includes(packageManager);
     if (!supportsProtect) {
@@ -59,18 +63,22 @@ function protectFunc(options = {}) {
     });
 }
 
-function patch(policy, options) {
-  return snyk.test(process.cwd(), options).then((res) => {
-    if (!res.vulnerabilities) {
-      const e = new Error('Code is already patched');
-      e.code = 'ALREADY_PATCHED';
+async function patch(policy, options: Options) {
+  try {
+    const response = await snyk.test(process.cwd(), options) as LegacyVulnApiResult;
+    // TODO: need to add support for multiple test results being returned
+    // from test (for example gradle modules)
+
+    if (!response.vulnerabilities) {
+      const e = new CustomError('Code is already patched');
+      e.strCode = 'ALREADY_PATCHED';
+      e.code = 204;
       throw e;
     }
-    return protect.patch(res.vulnerabilities, !options['dry-run']);
-  }).then(() => {
+    await protect.patch(response.vulnerabilities, !options['dry-run']);
     analytics.add('success', true);
     return 'Successfully applied Snyk patches';
-  }).catch((e) => {
+  } catch (e) {
     if (e.code === 'ALREADY_PATCHED') {
       analytics.add('success', true);
       return e.message + ', nothing to do';
@@ -79,7 +87,7 @@ function patch(policy, options) {
     analytics.add('success', false);
 
     throw e;
-  });
+  }
 }
 
 module.exports = protectFunc;

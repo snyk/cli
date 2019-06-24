@@ -14,12 +14,13 @@ import request = require('../request');
 import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
-import {DepTree} from '../types';
+import {DepTree, TestOptions} from '../types';
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult, TestDepGraphResponse} from './legacy';
-import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, TestOptions} from '../types';
+import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, Options} from '../types';
 import { NoSupportedManifestsFoundError } from '../errors';
 import { maybePrintDeps } from '../print-deps';
+import { SupportedPackageManagers } from '../package-managers';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -53,7 +54,8 @@ interface Payload {
   modules?: DepTreeFromResolveDeps;
 }
 
-async function runTest(packageManager: string, root: string, options): Promise<LegacyVulnApiResult[]> {
+async function runTest(packageManager: SupportedPackageManagers,
+                       root: string, options: Options & TestOptions): Promise<LegacyVulnApiResult[]> {
   const results: LegacyVulnApiResult[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
@@ -184,7 +186,7 @@ function sendPayload(payload: Payload, hasDevDependencies: boolean):
   });
 }
 
-function assemblePayloads(root: string, options): Promise<Payload[]> {
+function assemblePayloads(root: string, options: Options & TestOptions): Promise<Payload[]> {
   let isLocal;
   if (options.docker) {
     isLocal = true;
@@ -200,7 +202,7 @@ function assemblePayloads(root: string, options): Promise<Payload[]> {
 }
 
 // Force getDepsFromPlugin to return depRoots for processing in assembleLocalPayload
-async function getDepsFromPlugin(root, options: TestOptions): Promise<MultiDepRootsResult> {
+async function getDepsFromPlugin(root, options: Options): Promise<MultiDepRootsResult> {
   options.file = options.file || detect.detectPackageFile(root);
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
@@ -242,7 +244,7 @@ async function getDepsFromPlugin(root, options: TestOptions): Promise<MultiDepRo
 }
 
 // Payload to send to the Registry for scanning a package from the local filesystem.
-async function assembleLocalPayloads(root, options): Promise<Payload[]> {
+async function assembleLocalPayloads(root, options: Options & TestOptions): Promise<Payload[]> {
   const analysisType = options.docker ? 'docker' : options.packageManager;
   const spinnerLbl = 'Analyzing ' + analysisType + ' dependencies for ' +
      (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
@@ -344,7 +346,7 @@ async function assembleLocalPayloads(root, options): Promise<Payload[]> {
 
       if (['yarn', 'npm'].indexOf(options.packageManager) !== -1) {
         const isLockFileBased = options.file
-        && options.file.endsWith('package-lock.json') || options.file.endsWith('yarn.lock');
+        && (options.file.endsWith('package-lock.json') || options.file.endsWith('yarn.lock'));
         if (!isLockFileBased || options.traverseNodeModules) {
           payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
         }
