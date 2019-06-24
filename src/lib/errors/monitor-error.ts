@@ -5,9 +5,11 @@ export class MonitorError extends CustomError {
         'Server returned unexpected error for the monitor request. ';
 
     constructor(errorCode, message) {
-        super(MonitorError.ERROR_MESSAGE +
-          `Status code: ${errorCode}, response: ${message}`);
-        this.code = errorCode;
-        this.userMessage = message;
+      const errorMessage = message ? `, response: ${message}` : '';
+      const code = errorCode || 500;
+      super(MonitorError.ERROR_MESSAGE +
+          `Status code: ${code}${errorMessage}`);
+      this.code = errorCode;
+      this.userMessage = message;
     }
 }
