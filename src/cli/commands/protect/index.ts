@@ -12,8 +12,9 @@ import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 const debug = debugModule('snyk');
 
 function protectFunc(options: types.ProtectOptions & types.Options & types.TestOptions) {
-  options.loose = true; // replace missing policies with empty ones
-  options.vulnEndpoint = '/vuln/npm/patches';
+  const protectOptions = {...options};
+  protectOptions.loose = true; // replace missing policies with empty ones
+  protectOptions.vulnEndpoint = '/vuln/npm/patches';
   // TODO: fix this by providing better patch support for yarn
   // yarn hoists packages up a tree so we can't assume their location
   // on disk without traversing node_modules
@@ -21,10 +22,10 @@ function protectFunc(options: types.ProtectOptions & types.Options & types.TestO
   // but not the latest node-lockfile-parser
   // HACK: if yarn set traverseNodeModules option to
   // bypass lockfile test for wizard
-  options.traverseNodeModules = true;
+  protectOptions.traverseNodeModules = true;
 
   try {
-    const packageManager: pm.SupportedPackageManagers = detect.detectPackageManager(process.cwd(), options);
+    const packageManager: pm.SupportedPackageManagers = detect.detectPackageManager(process.cwd(), protectOptions);
     const supportsProtect = pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS
       .includes(packageManager);
     if (!supportsProtect) {
@@ -36,19 +37,19 @@ function protectFunc(options: types.ProtectOptions & types.Options & types.TestO
     return Promise.reject(error);
   }
 
-  if (options.interactive) {
+  if (protectOptions.interactive) {
     // silently fail
     return Promise.reject(new Error('Snyk protect interactive mode ' +
       'has moved. Please run `snyk wizard`'));
   }
 
-  if (options['dry-run']) {
+  if (protectOptions['dry-run']) {
     debug('*** dry run ****');
   } else {
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.policy.load(options['policy-path'])
+  return snyk.policy.load(protectOptions['policy-path'])
     .catch((error) => {
       if (error.code === 'ENOENT') {
         error.code = 'MISSING_DOTFILE';
@@ -57,7 +58,7 @@ function protectFunc(options: types.ProtectOptions & types.Options & types.TestO
       throw error;
     }).then((policy) => {
       if (policy.patch) {
-        return patch(policy, options);
+        return patch(policy, protectOptions);
       }
       return 'Nothing to do';
     });
