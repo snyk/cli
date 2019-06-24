@@ -1,9 +1,9 @@
 module.exports = test;
 
-var detect = require('../detect');
-var runTest = require('./run-test');
-var chalk = require('chalk');
-var pm = require('../package-managers');
+const detect = require('../detect');
+const runTest = require('./run-test');
+const chalk = require('chalk');
+const pm = require('../package-managers');
 
 function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -14,7 +14,7 @@ function test(root, options, callback) {
     options = {};
   }
 
-  var promise = executeTest(root, options);
+  const promise = executeTest(root, options);
   if (callback) {
     promise.then((res) => {
       callback(null, res);
@@ -25,7 +25,7 @@ function test(root, options, callback) {
 
 function executeTest(root, options) {
   try {
-    var packageManager = detect.detectPackageManager(root, options);
+    const packageManager = detect.detectPackageManager(root, options);
     options.packageManager = packageManager;
     return run(root, options)
       .then((results) => {
@@ -47,7 +47,7 @@ function executeTest(root, options) {
 }
 
 function run(root, options) {
-  var packageManager = options.packageManager;
+  const packageManager = options.packageManager;
   if (!(options.docker || pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager])) {
     throw new Error('Unsupported package manager: ' + packageManager);
   }

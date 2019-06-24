@@ -1,16 +1,16 @@
-var childProcess = require('child_process');
+const childProcess = require('child_process');
 
 module.exports.execute = function (command, args, options) {
-  var spawnOptions = {shell: true};
+  const spawnOptions = {shell: true};
   if (options && options.cwd) {
     spawnOptions.cwd = options.cwd;
   }
 
   return new Promise(((resolve, reject) => {
-    var stdout = '';
-    var stderr = '';
+    let stdout = '';
+    let stderr = '';
 
-    var proc = childProcess.spawn(command, args, spawnOptions);
+    const proc = childProcess.spawn(command, args, spawnOptions);
     proc.stdout.on('data', (data) => {
       stdout = stdout + data;
     });

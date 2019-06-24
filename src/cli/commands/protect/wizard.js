@@ -129,11 +129,11 @@ function processWizardFlow(options) {
                 if (alerts.hasAlert('tests-reached') && res.isPrivate) {
                   return;
                 }
-                var packageFile = path.resolve(cwd, 'package.json');
+                const packageFile = path.resolve(cwd, 'package.json');
                 if (!res.ok) {
-                  var vulns = res.vulnerabilities;
-                  var paths = vulns.length === 1 ? 'path' : 'paths';
-                  var ies = vulns.length === 1 ? 'y' : 'ies';
+                  const vulns = res.vulnerabilities;
+                  const paths = vulns.length === 1 ? 'path' : 'paths';
+                  const ies = vulns.length === 1 ? 'y' : 'ies';
                   // echo out the deps + vulns found
                   console.log('Tested %s dependencies for known vulnerabilities, %s',
                     res.dependencyCount,
@@ -165,7 +165,7 @@ function processWizardFlow(options) {
 }
 
 function interactive(test, pkg, policy, options) {
-  var vulns = test.vulnerabilities;
+  const vulns = test.vulnerabilities;
   if (!policy) {
     policy = {};
   }
@@ -176,16 +176,16 @@ function interactive(test, pkg, policy, options) {
 
   return new Promise(((resolve) => {
     debug('starting questions');
-    var prompts = allPrompts.getUpdatePrompts(vulns, policy, options);
+    const prompts = allPrompts.getUpdatePrompts(vulns, policy, options);
     resolve(inquire(prompts, {}));
   })).then((answers) => {
-    var prompts = allPrompts.getPatchPrompts(vulns, policy, options);
+    const prompts = allPrompts.getPatchPrompts(vulns, policy, options);
     return inquire(prompts, answers);
   }).then((answers) => {
-    var prompts = allPrompts.getIgnorePrompts(vulns, policy, options);
+    const prompts = allPrompts.getIgnorePrompts(vulns, policy, options);
     return inquire(prompts, answers);
   }).then((answers) => {
-    var prompts = allPrompts.nextSteps(pkg, test.ok ? false : answers);
+    const prompts = allPrompts.nextSteps(pkg, test.ok ? false : answers);
     return inquire(prompts, answers);
   }).then((answers) => {
     if (pkg.shrinkwrap) {
@@ -208,7 +208,7 @@ function inquire(prompts, answers) {
       _.extend(answers, theseAnswers);
       Object.keys(answers).forEach((answerName) => {
         if (answerName.indexOf('--DOT--') > -1) {
-          var newName = answerName.replace(/--DOT--/g, '.');
+          const newName = answerName.replace(/--DOT--/g, '.');
           answers[newName] = answers[answerName];
           delete answers[answerName];
         }
@@ -231,14 +231,14 @@ function getNewScriptContent(scriptContent, cmd) {
 
 function addProtectScripts(existingScripts, npmVersion, options) {
   console.log('addProtect', npmVersion);
-  var scripts = existingScripts ? _.cloneDeep(existingScripts) : {};
+  const scripts = existingScripts ? _.cloneDeep(existingScripts) : {};
   scripts['snyk-protect'] = 'snyk protect';
 
-  var cmd = 'npm run snyk-protect';
+  let cmd = 'npm run snyk-protect';
 
   // legacy check for `postinstall`, if `npm run snyk-protect` is in there
   // we'll replace it with `true` so it can be cleanly swapped out
-  var postinstall = scripts.postinstall;
+  const postinstall = scripts.postinstall;
   if (postinstall && postinstall.indexOf(cmd) !== -1) {
     scripts.postinstall = postinstall.replace(cmd, 'true');
   }
@@ -249,8 +249,8 @@ function addProtectScripts(existingScripts, npmVersion, options) {
     return scripts;
   }
 
-  var npmVersion = parseInt(npmVersion.split('.')[0]);
-  if (npmVersion >= 5) {
+  const npmVersionMajor = parseInt(npmVersion.split('.')[0]);
+  if (npmVersionMajor >= 5) {
     scripts.prepare = getNewScriptContent(scripts.prepare, cmd);
 
     return scripts;
@@ -272,16 +272,16 @@ function processAnswers(answers, policy, options) {
   if (options.json) {
     return Promise.resolve(JSON.stringify(answers, '', 2));
   }
-  var cwd = process.cwd();
-  var packageFile = path.resolve(cwd, 'package.json');
-  var packageManager = detect.detectPackageManager(cwd, options);
-  var targetFile = options.file || detect.detectPackageFile(cwd);
+  const cwd = process.cwd();
+  const packageFile = path.resolve(cwd, 'package.json');
+  const packageManager = detect.detectPackageManager(cwd, options);
+  const targetFile = options.file || detect.detectPackageFile(cwd);
   if (!targetFile) {
     throw MissingTargetFileError(cwd);
   }
   const isLockFileBased = targetFile.endsWith('package-lock.json') || targetFile.endsWith('yarn.lock');
 
-  var pkg = {};
+  let pkg = {};
 
   analytics.add('answers', Object.keys(answers).map((key) => {
     // if we're looking at a reason, skip it
@@ -294,8 +294,8 @@ function processAnswers(answers, policy, options) {
       return;
     }
 
-    var answer = answers[key];
-    var res = {
+    const answer = answers[key];
+    const res = {
       vulnId: answer.vuln.id,
       choice: answer.choice,
       from: answer.vuln.from.slice(1),
@@ -309,20 +309,20 @@ function processAnswers(answers, policy, options) {
     return res;
   }).filter(Boolean));
 
-  var tasks = answersToTasks(answers);
+  const tasks = answersToTasks(answers);
   debug(tasks);
 
-  var live = !options['dry-run'];
-  var snykVersion = '*';
+  const live = !options['dry-run'];
+  let snykVersion = '*';
 
-  var res = protect.generatePolicy(policy, tasks, live, options.packageManager)
+  const res = protect.generatePolicy(policy, tasks, live, options.packageManager)
     .then((policy) => {
       if (!live) {
       // if this was a dry run, we'll throw an error to bail out of the
       // promise chain, then in the catch, check the error.code and if
       // it matches `DRYRUN` we'll return the text and not an error
       // (which avoids the exit code 1).
-        var e = new Error('This was a dry run: nothing changed');
+        const e = new Error('This was a dry run: nothing changed');
         e.code = 'DRYRUN';
         throw e;
       }
@@ -384,8 +384,8 @@ function processAnswers(answers, policy, options) {
         pkg.scripts = {};
       }
 
-      var test = pkg.scripts.test;
-      var cmd = 'snyk test';
+      const test = pkg.scripts.test;
+      const cmd = 'snyk test';
       if (test && test !== 'echo "Error: no test specified" && exit 1') {
       // only add the test if it's not already in the test
         if (test.indexOf(cmd) === -1) {
@@ -459,7 +459,7 @@ function processAnswers(answers, policy, options) {
 
       if (addSnykToDependencies ||
           tasks.update.length) {
-        var packageString = options.packageLeading + JSON.stringify(pkg, '', 2) +
+        const packageString = options.packageLeading + JSON.stringify(pkg, '', 2) +
                           options.packageTrailing;
         return spinner(lbl)
           .then(fs.writeFile(packageFile, packageString))
@@ -482,7 +482,7 @@ function processAnswers(answers, policy, options) {
       if (answers['misc-build-shrinkwrap'] && tasks.update.length) {
         debug('updating shrinkwrap');
 
-        var lbl = 'Updating npm-shrinkwrap.json...';
+        const lbl = 'Updating npm-shrinkwrap.json...';
         return spinner(lbl)
           .then(npm.bind(null, 'shrinkwrap', null, live, cwd, null))
           // clear spinner in case of success or failure
@@ -501,11 +501,11 @@ function processAnswers(answers, policy, options) {
       }
 
       debug('running monitor');
-      var lbl = 'Remembering current dependencies for future ' +
+      const lbl = 'Remembering current dependencies for future ' +
       'notifications...';
-      var meta = {method: 'wizard', packageManager};
-      var plugin = plugins.loadPlugin(packageManager);
-      var info = moduleInfo(plugin, options.policy);
+      const meta = {method: 'wizard', packageManager};
+      const plugin = plugins.loadPlugin(packageManager);
+      const info = moduleInfo(plugin, options.policy);
 
       if (isLockFileBased) {
         // TODO: fix this by providing better patch support for yarn
@@ -530,15 +530,15 @@ function processAnswers(answers, policy, options) {
         });
     })
     .then((monitorRes) => {
-      var endpoint = url.parse(config.API);
-      var leader = '';
+      const endpoint = url.parse(config.API);
+      let leader = '';
       if (monitorRes.org) {
         leader = '/org/' + monitorRes.org;
       }
       endpoint.pathname = leader + '/monitor/' + monitorRes.id;
-      var monitorUrl = url.format(endpoint);
+      const monitorUrl = url.format(endpoint);
       endpoint.pathname = leader + '/manage';
-      var manageUrl = url.format(endpoint);
+      const manageUrl = url.format(endpoint);
 
       return (options.newPolicy ?
       // if it's a newly created file

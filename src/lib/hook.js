@@ -2,10 +2,10 @@ module.exports = function () {
   hookExtensions(['.js']);
 };
 
-var forEach = require('lodash').forEach;
-var fs = require('fs');
-var oldHandlers = {};
-var snyk = require('..');
+const forEach = require('lodash').forEach;
+const fs = require('fs');
+let oldHandlers = {};
+const snyk = require('..');
 
 // source: https://github.com/joyent/node/blob/master/lib/module.js#L466
 function stripBOM(content) {
@@ -20,7 +20,7 @@ function stripBOM(content) {
 
 function loader(module, filename) {
   snyk.bus.emit('before:module', filename);
-  var content = fs.readFileSync(filename, 'utf8');
+  const content = fs.readFileSync(filename, 'utf8');
   module._compile(stripBOM(content), filename);
   snyk.bus.emit('after:module', module);
 }

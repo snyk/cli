@@ -1,8 +1,8 @@
 module.exports = writePatchFlag;
 
-var debug = require('debug')('snyk');
-var fs = require('then-fs');
-var path = require('path');
+const debug = require('debug')('snyk');
+const fs = require('then-fs');
+const path = require('path');
 
 function writePatchFlag(now, vuln) {
   if (!vuln) {
@@ -11,16 +11,16 @@ function writePatchFlag(now, vuln) {
   }
 
   debug('writing flag for %s', vuln.id);
-  var promise;
+  let promise;
   // the colon doesn't like Windows, ref: https://git.io/vw2iO
-  var fileSafeId = vuln.id.replace(/:/g, '-');
-  var flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
+  const fileSafeId = vuln.id.replace(/:/g, '-');
+  const flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
   if (vuln.grouped && vuln.grouped.includes) {
     debug('found addition vulns to write flag files for');
-    var writePromises = [fs.writeFile(flag, now.toJSON(), 'utf8')];
+    const writePromises = [fs.writeFile(flag, now.toJSON(), 'utf8')];
     vuln.grouped.includes.forEach(() => {
-      var fileSafeId = vuln.id.replace(/:/g, '-');
-      var flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
+      const fileSafeId = vuln.id.replace(/:/g, '-');
+      const flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
       debug('Writing flag for grouped vulns', flag);
       writePromises.push(fs.writeFile(flag, now.toJSON(), 'utf8'));
     });

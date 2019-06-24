@@ -1,4 +1,4 @@
-var protect = module.exports = {
+const protect = module.exports = {
   ignore: require('./ignore'),
   update: require('./update').update,
   install: require('./update').install,
@@ -8,11 +8,11 @@ var protect = module.exports = {
   generatePolicy: generatePolicy,
 };
 
-var debug = require('debug')('snyk');
-var _ = require('lodash');
+const debug = require('debug')('snyk');
+const _ = require('lodash');
 
 function generatePolicy(policy, tasks, live, packageManager) {
-  var promises = ['ignore', 'update', 'patch'].filter((task) => {
+  const promises = ['ignore', 'update', 'patch'].filter((task) => {
     return tasks[task].length;
   }).map((task) => {
     return protect[task](tasks[task], live, packageManager);
@@ -21,12 +21,12 @@ function generatePolicy(policy, tasks, live, packageManager) {
   return Promise.all(promises).then((res) => {
     // we're squashing the arrays of arrays into a flat structure
     // with only non-false values
-    var results = _.flattenDeep(res).filter(Boolean);
+    const results = _.flattenDeep(res).filter(Boolean);
 
     // then we merge the configs together using the original config
     // as the baseline (this lets us retain the user's existing config)
     results.unshift(policy);
-    var newPolicy = _.merge.apply(_, results);
+    const newPolicy = _.merge.apply(_, results);
 
     debug(JSON.stringify(newPolicy, '', 2));
 

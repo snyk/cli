@@ -1,11 +1,11 @@
 module.exports = createSpinner;
 module.exports.isRequired = true;
 
-var debug = require('debug')('snyk:spinner');
-var isCI = require('./is-ci').isCI;
-var spinners = {};
-var sticky = false;
-var handleExit = false;
+const debug = require('debug')('snyk:spinner');
+const isCI = require('./is-ci').isCI;
+const spinners = {};
+let sticky = false;
+let handleExit = false;
 
 function createSpinner(label) {
   if (!label) {
@@ -43,7 +43,7 @@ createSpinner.clear = function (label) {
 
     debug('clearing %s (%s)', label, spinners[label].length);
     if (spinners[label].length) {
-      var s = spinners[label].pop();
+      const s = spinners[label].pop();
       if (s) {
         s.clear();
       }
@@ -67,41 +67,41 @@ function spinner(opt) {
   if (!opt) {
     opt = {};
   }
-  var str = opt.stream || process.stderr;
-  var tty = typeof opt.tty === 'boolean' ? opt.tty : true;
-  var string = opt.string || '/-\\|';
-  var ms = typeof opt.interval === 'number' ? opt.interval : 50;
+  const str = opt.stream || process.stderr;
+  const tty = typeof opt.tty === 'boolean' ? opt.tty : true;
+  const string = opt.string || '/-\\|';
+  let ms = typeof opt.interval === 'number' ? opt.interval : 50;
   if (ms < 0) {
     ms = 0;
   }
   if (tty && !str.isTTY) {
     return false;
   }
-  var CR = str.isTTY ? '\u001b[0G' : '\u000d';
-  var CLEAR = str.isTTY ? '\u001b[2K' : '\u000d \u000d';
+  const CR = str.isTTY ? '\u001b[0G' : '\u000d';
+  const CLEAR = str.isTTY ? '\u001b[2K' : '\u000d \u000d';
 
-  var s = 0;
-  var sprite = string.split('');
-  var wrote = false;
+  let s = 0;
+  const sprite = string.split('');
+  let wrote = false;
 
-  var delay = typeof opt.delay === 'number' ? opt.delay : 2;
+  let delay = typeof opt.delay === 'number' ? opt.delay : 2;
 
-  var interval = setInterval(() => {
+  const interval = setInterval(() => {
     if (--delay >= 0) {
       return;
     }
     s = ++s % sprite.length;
-    var c = sprite[s];
+    const c = sprite[s];
     str.write(c + ' ' + (opt.label || '') + CR);
     wrote = true;
   }, ms);
 
-  var unref = typeof opt.unref === 'boolean' ? opt.unref : true;
+  const unref = typeof opt.unref === 'boolean' ? opt.unref : true;
   if (unref && typeof interval.unref === 'function') {
     interval.unref();
   }
 
-  var cleanup = typeof opt.cleanup === 'boolean' ? opt.cleanup : true;
+  const cleanup = typeof opt.cleanup === 'boolean' ? opt.cleanup : true;
   if (cleanup && !handleExit) {
     handleExit = true;
     process.on('exit', () => {

@@ -1,4 +1,4 @@
-var snyk = require('../../lib');
+const snyk = require('../../lib');
 
 module.exports = function (path, options) {
   if (!options) {
@@ -6,7 +6,7 @@ module.exports = function (path, options) {
   }
   return snyk.modules(path || process.cwd()).then((modules) => {
 
-    var parent = '';
+    let parent = '';
     if (modules.parent) {
       parent = modules.parent.full;
     }

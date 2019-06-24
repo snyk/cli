@@ -1,12 +1,12 @@
 module.exports = isolate;
 module.exports.okay = okay;
 
-var snyk = require('..');
-var semver = require('semver');
-var fs = require('fs');
+const snyk = require('..');
+const semver = require('semver');
+const fs = require('fs');
 
-var modules = {};
-var potentialBlacklist = {};
+const modules = {};
+let potentialBlacklist = {};
 
 function isolate(options) {
   if (!options) {
@@ -15,7 +15,7 @@ function isolate(options) {
 
   if (Array.isArray(options.isolate)) {
     potentialBlacklist = options.isolate.map((pkg) => {
-      var i = pkg.lastIndexOf('@');
+      const i = pkg.lastIndexOf('@');
       return {
         name: pkg.slice(0, i),
         version: pkg.slice(i + 1),
@@ -40,8 +40,8 @@ function instrumentProps(id, key, obj) {
   }
 
   obj.__snyked = true;
-  var type = typeof obj;
-  var original = obj;
+  const type = typeof obj;
+  const original = obj;
 
   if (type === 'function') {
     obj = function instrumented() {
@@ -52,7 +52,7 @@ function instrumentProps(id, key, obj) {
 
   if (type === 'object' || type === 'function') {
     Object.keys(original).forEach((key) => {
-      var prop = original[key];
+      const prop = original[key];
       if (key === '__snyked') {
         return;
       }
@@ -70,17 +70,17 @@ function okay(filename) {
 }
 
 function checkIsolation(filename) {
-  var parts = filename.split('node_modules/');
-  var module = parts.slice(-1)[0].split('/')[0];
+  const parts = filename.split('node_modules/');
+  const module = parts.slice(-1)[0].split('/')[0];
   if (!modules[module] && module) {
     modules[module] = true;
 
-    var check = potentialBlacklist[module];
+    const check = potentialBlacklist[module];
 
     if (check) {
-      var pkgFilename = filename.split(module)[0];
-      var pkg = fs.readFileSync(pkgFilename + module + '/package.json');
-      var version;
+      const pkgFilename = filename.split(module)[0];
+      const pkg = fs.readFileSync(pkgFilename + module + '/package.json');
+      let version;
       try {
         version = JSON.parse(pkg).version;
       } catch (e) {}

@@ -1,14 +1,14 @@
 module.exports = display;
 
-var chalk = require('chalk');
-var demunge = require('snyk-policy').demunge;
-var config = require('./config');
+const chalk = require('chalk');
+const demunge = require('snyk-policy').demunge;
+const config = require('./config');
 
 function display(policy) {
   return new Promise(((resolve) => {
-    var p = demunge(policy, config.ROOT);
+    const p = demunge(policy, config.ROOT);
 
-    var res = chalk.bold('Current Snyk policy, read from ' + policy.__filename +
+    let res = chalk.bold('Current Snyk policy, read from ' + policy.__filename +
       ' file') + '\n';
     res += 'Modified: ' + policy.__modified + '\n';
     res += 'Created:  ' + policy.__created + '\n';

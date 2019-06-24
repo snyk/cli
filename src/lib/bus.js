@@ -1,5 +1,5 @@
-var events = require('events');
-var util = require('util');
+const events = require('events');
+const util = require('util');
 
 function Bus() {
   events.EventEmitter.call(this);

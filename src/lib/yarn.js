@@ -1,7 +1,7 @@
 module.exports = yarn;
 
-var debug = require('debug')('snyk');
-var exec = require('child_process').exec;
+const debug = require('debug')('snyk');
+const exec = require('child_process').exec;
 
 function yarn(method, packages, live, cwd, flags) {
   flags = flags || [];
@@ -16,7 +16,7 @@ function yarn(method, packages, live, cwd, flags) {
   method += ' ' + flags.join(' ');
 
   return new Promise(((resolve, reject) => {
-    var cmd = 'yarn ' + method + ' ' + packages.join(' ');
+    const cmd = 'yarn ' + method + ' ' + packages.join(' ');
     if (!cwd) {
       cwd = process.cwd();
     }
@@ -36,7 +36,7 @@ function yarn(method, packages, live, cwd, flags) {
 
       if (stderr.indexOf('ERR!') !== -1) {
         console.error(stderr.trim());
-        var e = new Error('Yarn update issues: ' + stderr.trim());
+        const e = new Error('Yarn update issues: ' + stderr.trim());
         e.code = 'FAIL_UPDATE';
         return reject(e);
       }
