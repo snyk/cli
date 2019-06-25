@@ -8,7 +8,7 @@ import {isCI} from '../../lib/is-ci';
 import {apiTokenExists} from '../../lib/api-token';
 import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../lib/snyk-test/common';
 import * as Debug from 'debug';
-import {TestOptions} from '../../lib/types';
+import {Options} from '../../lib/types';
 import {isLocalFolder} from '../../lib/detect';
 import { MethodArgs } from '../args';
 
@@ -24,10 +24,10 @@ interface OptionsAtDisplayStage {
 async function test(...args: MethodArgs): Promise<string> {
   const resultOptions = [] as any[];
   let results = [] as any[];
-  let options = {} as any as TestOptions;
+  let options = {} as any as Options;
 
   if (typeof args[args.length - 1] === 'object') {
-    options = args.pop() as any as TestOptions;
+    options = args.pop() as any as Options;
   }
 
   // populate with default path (cwd) if no path given
@@ -215,7 +215,7 @@ function summariseErrorResults(errorResults) {
   return '';
 }
 
-function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
+function displayResult(res, options: Options & OptionsAtDisplayStage) {
   const meta = metaForDisplay(res, options) + '\n\n';
   const dockerAdvice = dockerRemediationForDisplay(res);
   const packageManager = options.packageManager;
@@ -333,7 +333,7 @@ function displayResult(res, options: TestOptions & OptionsAtDisplayStage) {
 function formatDockerBinariesIssues(
     dockerBinariesSortedGroupedVulns,
     binariesVulns,
-    options: TestOptions & OptionsAtDisplayStage) {
+    options: Options & OptionsAtDisplayStage) {
   const binariesIssuesOutput = [] as string[];
   for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
     binariesIssuesOutput.push(createDockerBinaryHeading(pkgInfo));
@@ -355,7 +355,7 @@ function createDockerBinaryHeading(pkgInfo) {
       ` for ${binaryName}@${binaryVersion} ------------`, '\n') : '';
 }
 
-function formatIssues(vuln, options: TestOptions & OptionsAtDisplayStage) {
+function formatIssues(vuln, options: Options & OptionsAtDisplayStage) {
   const vulnID = vuln.list[0].id;
   const packageManager = options.packageManager;
   const uniquePackages = _.uniq(
