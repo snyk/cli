@@ -14,10 +14,11 @@ import * as spinner from '../../lib/spinner';
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
-import { SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorError, MonitorOptions } from '../../lib/types';
+import { SingleDepRootResult, MultiDepRootsResult, isMultiResult, MonitorOptions } from '../../lib/types';
 import { MethodArgs, ArgsOptions } from '../args';
 import { maybePrintDeps } from '../../lib/print-deps';
 import * as analytics from '../../lib/analytics';
+import {MonitorError} from '../../lib/errors';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 

@@ -6,9 +6,10 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import {isCI} from './is-ci';
 import * as analytics from './analytics';
-import { SingleDepRootResult, MonitorError, DepTree } from './types';
+import { SingleDepRootResult, DepTree } from './types';
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
+import {MonitorError, ConnectionTimeoutError} from './errors';
 
 // TODO(kyegupov): clean up the type, move to snyk-cli-interface repository
 
@@ -125,14 +126,14 @@ export async function monitor(root, meta, info: SingleDepRootResult, targetFile)
       if (res.statusCode === 200 || res.statusCode === 201) {
         resolve(body);
       } else {
-        const e = new MonitorError('Server returned unexpected error for the monitor request. ' +
-            `Status code: ${res.statusCode}, response: ${res.body.userMessage || res.body.message}`);
-        e.code = res.statusCode;
-        e.userMessage = body && body.userMessage;
-        if (!e.userMessage && res.statusCode === 504) {
-          e.userMessage = 'Connection Timeout';
+        let err;
+        const userMessage = body && body.userMessage;
+        if (!userMessage && res.statusCode === 504) {
+          err = new ConnectionTimeoutError();
+        } else {
+          err = new MonitorError(res.statusCode, userMessage);
         }
-        reject(e);
+        reject(err);
       }
     });
   });

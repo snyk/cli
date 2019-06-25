@@ -50,11 +50,6 @@ export function isMultiResult(pet: SingleDepRootResult | MultiDepRootsResult): p
   return !!(pet as MultiDepRootsResult).depRoots;
 }
 
-export class MonitorError extends Error {
-  public code?: number;
-  public userMessage?: string;
-}
-
 export interface TestOptions {
   traverseNodeModules: boolean;
   interactive: boolean;
