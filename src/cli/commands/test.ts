@@ -431,25 +431,6 @@ function createRemediationText(vuln, packageManager) {
     wizardHintText = 'Run `snyk wizard` to explore remediation options.';
   }
 
-  if (vuln.isOutdated === true) {
-    const packageManagerOutdatedText = {
-      npm: '\n    Try deleting node_modules, reinstalling ' +
-        'and running `snyk test` again. If the problem persists, ' +
-        'one of your dependencies may be bundling outdated modules.',
-      rubygems: '\n    Try running `bundle update ' + packageName + '` ' +
-        'and running `snyk test` again.',
-      yarn: '\n    Try deleting node_modules, reinstalling ' +
-        'and running `snyk test` again. If the problem persists, ' +
-        'one of your dependencies may be bundling outdated modules.',
-    };
-
-    return chalk.bold(
-      '\n  Remediation:\n    Your dependencies are out of date, ' +
-      'otherwise you would be using a newer version of ' +
-      packageName + '. ' +
-      _.get(packageManagerOutdatedText, packageManager, ''));
-  }
-
   if (vuln.isFixable === true) {
     const upgradePathsArray = _.uniq(vuln.list.map((v) => {
       const shouldUpgradeItself = !!v.upgradePath[0];
@@ -628,7 +609,7 @@ function titleCaseText(text) {
 
 // This is all a copy from Registry snapshots/index
 function isVulnFixable(vuln) {
-  return (vuln.isUpgradable || vuln.isPatchable) && !vuln.isOutdated;
+  return vuln.isUpgradable || vuln.isPatchable;
 }
 
 function groupVulnerabilities(vulns) {
@@ -648,16 +629,10 @@ function groupVulnerabilities(vulns) {
       map[curr.id].dockerBaseImage = curr.dockerBaseImage;
       map[curr.id].nearestFixedInVersion = curr.nearestFixedInVersion;
     }
-    if (curr.upgradePath) {
-      curr.isOutdated = curr.upgradePath[1] === curr.from[1];
-    }
+
     map[curr.id].list.push(curr);
     if (!map[curr.id].isFixable) {
       map[curr.id].isFixable = isVulnFixable(curr);
-    }
-
-    if (!map[curr.id].isOutdated) {
-      map[curr.id].isOutdated = !!curr.isOutdated;
     }
 
     if (!map[curr.id].note) {
