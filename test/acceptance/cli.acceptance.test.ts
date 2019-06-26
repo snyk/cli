@@ -2209,6 +2209,19 @@ test('`monitor npm-package`', async (t) => {
   t.notOk(pkg.from, 'no "from" array on root');
   t.notOk(pkg.dependencies.debug.from,
     'no "from" array on dep');
+  t.notOk(req.body.meta.prePruneDepCount, "doesn't send meta.prePruneDepCount");
+});
+
+test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('npm-package-pruneable', {'prune-repeated-subdependencies': true});
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/npm', 'puts at correct url');
+  t.ok(req.body.meta.prePruneDepCount, 'sends meta.prePruneDepCount');
+  const adc = req.body.package.dependencies.a.dependencies.d.dependencies.c;
+  t.ok(adc.labels.pruned, 'a.d.c is pruned');
+  t.notOk(adc.dependencies, 'a.d.c has no dependencies');
 });
 
 test('`monitor yarn-package`', async (t) => {
