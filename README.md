@@ -152,7 +152,7 @@ docker run -it
   snyk/snyk-cli:sbt-1.0.4 test --org=my-org-name
 ```
 
-### Gradle 2.8 / Gradle 4.4
+### Gradle 2.8 / Gradle 4.4 / Gradle 5.4
 
 We will need to mount the project root folder when running the image so that Snyk can access the code within the container and mount the local .m2 and .ivy2 folders. The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds. Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Gradle:
 
@@ -176,6 +176,17 @@ docker run -it
     -v "/home/user/.m2:/home/node/.m2"
     -v "/home/user/.ivy2:/home/node/.ivy2"
   snyk/snyk-cli:gradle-4.4 test --org=my-org-name
+```
+
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+    -v "/home/user/.m2:/home/node/.m2"
+    -v "/home/user/.ivy2:/home/node/.ivy2"
+  snyk/snyk-cli:gradle-5.4 test --org=my-org-name
 ```
 
 ### Docker

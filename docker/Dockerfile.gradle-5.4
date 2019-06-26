@@ -8,8 +8,8 @@ WORKDIR /home/node
 # Install gradle, node, cli
 RUN apt-get update && \
   apt-get install -y curl unzip && \
-  curl -L https://services.gradle.org/distributions/gradle-4.4-bin.zip -o gradle-4.4-bin.zip && \
-  unzip gradle-4.4-bin.zip -d /home/node/ && \
+  curl -L https://services.gradle.org/distributions/gradle-5.4-bin.zip -o gradle-5.4-bin.zip && \
+  unzip gradle-5.4-bin.zip -d /home/node/ && \
   curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
   apt-get install -y nodejs jq && \
   npm install --global snyk snyk-to-html && \
@@ -19,7 +19,7 @@ RUN apt-get update && \
 
 ENV HOME /home/node
 ENV M2 /home/node/.m2
-ENV GRADLE_HOME=/home/node/gradle-4.4
+ENV GRADLE_HOME=/home/node/gradle-5.4
 ENV PATH=$PATH:$GRADLE_HOME/bin
 
 # The path at which the project is mounted (-v runtime arg)
