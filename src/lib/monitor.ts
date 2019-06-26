@@ -77,18 +77,10 @@ async function pruneTree(tree: DepTree, packageManagerName: string): Promise<Dep
   const graph = await depGraphLib.legacy.depTreeToGraph(tree, packageManagerName);
   const prunedTree: DepTree = await depGraphLib.legacy
     .graphToDepTree(graph, packageManagerName, {deduplicateWithinTopLevelDeps: true}) as DepTree;
-  // Transplant metadata not preserved by the transformation:
-  if (tree.docker) {
-    prunedTree.docker = tree.docker;
-  }
-  if (tree.packageFormatVersion) {
-    prunedTree.packageFormatVersion = tree.packageFormatVersion;
-  }
-  if (tree.targetFile) {
-    prunedTree.targetFile = tree.targetFile;
-  }
+  // Transplant pruned dependencies in the original tree (we want to keep all other fields):
+  tree.dependencies = prunedTree.dependencies;
   debug('finished pruning dep tree');
-  return prunedTree;
+  return tree;
 }
 
 export async function monitor(
