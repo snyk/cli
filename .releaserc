@@ -9,7 +9,7 @@
     {
       "//": "build the regular macos, linux and windows binaries",
       "path": "@semantic-release/exec",
-      "cmd": "npm i -g pkg && pkg ."
+      "cmd": "npm i -g pkg && pkg . -t node8-linux-x64,node8-macos-x64,node8-win-x64"
     },
     {
       "//": "shasum all binaries",
