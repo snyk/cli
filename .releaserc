@@ -2,8 +2,19 @@
   "prepare": [
     "@semantic-release/npm",
     {
+      "//": "build alpine binary inside an alpine container, or else the binary is broken",
       "path": "@semantic-release/exec",
-      "cmd": "npm i -g pkg && pkg . && shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256"
+      "cmd": "docker run --rm -ti -v `pwd`:/snyk node:alpine sh /snyk/scripts/alpine-build.sh"
+    },
+    {
+      "//": "build the regular macos, linux and windows binaries",
+      "path": "@semantic-release/exec",
+      "cmd": "npm i -g pkg && pkg ."
+    },
+    {
+      "//": "shasum all binaries",
+      "path": "@semantic-release/exec",
+      "cmd": "shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256 && shasum -a 256 snyk-alpine > snyk-alpine.sha256"
     }
   ],
   "publish": [
@@ -40,6 +51,16 @@
           "path": "./snyk-win.exe.sha256",
           "name": "snyk-win.exe.sha256",
           "label": "snyk-win.exe.sha256"
+        },
+        {
+          "path": "./snyk-alpine",
+          "name": "snyk-alpine",
+          "label": "snyk-alpine"
+        },
+        {
+          "path": "./snyk-alpine.sha256",
+          "name": "snyk-alpine.sha256",
+          "label": "snyk-alpine.sha256"
         }
       ]
     }
