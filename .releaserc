@@ -4,7 +4,7 @@
     {
       "//": "build alpine binary inside an alpine container, or else the binary is broken",
       "path": "@semantic-release/exec",
-      "cmd": "docker run --rm -ti -v `pwd`:/snyk node:alpine sh /snyk/scripts/alpine-build.sh"
+      "cmd": "docker run --rm -i -v `pwd`:/snyk node:alpine sh /snyk/scripts/alpine-build.sh"
     },
     {
       "//": "build the regular macos, linux and windows binaries",
