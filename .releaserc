@@ -2,14 +2,9 @@
   "prepare": [
     "@semantic-release/npm",
     {
-      "//": "build alpine binary inside an alpine container, or else the binary is broken",
+      "//": "build the alpine, macos, linux and windows binaries",
       "path": "@semantic-release/exec",
-      "cmd": "docker run --rm -i -v `pwd`:/snyk node:alpine sh /snyk/scripts/alpine-build.sh"
-    },
-    {
-      "//": "build the regular macos, linux and windows binaries",
-      "path": "@semantic-release/exec",
-      "cmd": "npm i -g pkg && pkg ."
+      "cmd": "npm i -g pkg && pkg . -t node8-alpine-x64,node8-linux-x64,node8-macos-x64,node8-win-x64"
     },
     {
       "//": "shasum all binaries",
