@@ -7,6 +7,7 @@ import * as detect from '../../../lib/detect';
 import * as pm from '../../../lib/package-managers';
 import { CustomError } from '../../../lib/errors';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
+import * as errors from '../../../lib/errors';
 
 const debug = debugModule('snyk');
 
@@ -54,11 +55,14 @@ async function protectFunc(options: types.ProtectOptions & types.Options & types
       return patch(protectOptions);
     }
     return 'Nothing to do';
-  } catch (error) {
-    if (error.code === 'ENOENT') {
-      error.code = 'MISSING_DOTFILE';
+  } catch (e) {
+    let error;
+    if (e.code === 'ENOENT') {
+      error = new errors.PolicyNotFoundError();
+    } else {
+      error = new errors.FailedToLoadPolicyError();
+      error.innerError = e;
     }
-
     throw error;
   }
 }

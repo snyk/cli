@@ -8,7 +8,6 @@ const errors = {
   connect: 'Check your network connection, failed to connect to Snyk API',
   endpoint: 'The Snyk API is not available on ' + config.API,
   auth: 'Unauthorized: please ensure you are logged in using `snyk auth`',
-  dotfile: 'Try running `snyk wizard` to define a Snyk protect policy',
   oldsnyk: 'You have an alpha format Snyk policy file in this directory. ' +
     'Please remove it, and re-create using `snyk wizard`',
   notfound: 'The package could not be found or does not exist',
@@ -50,7 +49,6 @@ const codes = {
   401: errors.auth,
   400: errors.invalidSeverityThreshold,
   Unauthorized: errors.auth,
-  MISSING_DOTFILE: errors.dotfile,
   MISSING_NODE_MODULES: errors.nodeModules,
   OLD_DOTFILE_FORMAT: errors.oldsnyk,
   FAIL_PATCH: errors.patchfail,
