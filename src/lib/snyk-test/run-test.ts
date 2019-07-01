@@ -255,6 +255,7 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
 
     await spinner(spinnerLbl);
     const deps = await getDepsFromPlugin(root, options);
+    analytics.add('pluginName', deps.plugin.name);
 
     for (const depRoot of deps.depRoots) {
       const pkg = depRoot.depTree;
