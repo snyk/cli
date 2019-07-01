@@ -157,8 +157,9 @@ export function args(rawArgv: string[]): Args {
   // should be added here
   for (const dashedArg of [
     'package-manager',
-    'packages-folder',
+    'packages-folder', // TODO(kyegupov): find out where it is used
     'severity-threshold',
+    'all-sub-projects',
   ]) {
     if (argv[dashedArg]) {
       const camelCased = dashToCamelCase(dashedArg);

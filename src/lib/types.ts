@@ -1,4 +1,5 @@
 import { SupportedPackageManagers } from './package-managers';
+import { DepTree } from '@snyk/cli-interface/dist/legacy/common';
 
 // TODO(kyegupov): use a shared repository snyk-cli-interface
 
@@ -19,43 +20,11 @@ export interface DepDict {
   [name: string]: DepTree;
 }
 
-export interface DepTree {
-  name: string;
-  version: string;
-  dependencies?: DepDict;
-  packageFormatVersion?: string;
-  docker?: any;
-  files?: any;
-  targetFile?: string;
-
-  labels?: {
-    [key: string]: string;
-
-    // Known keys:
-    // pruned: identical subtree already presents in the parent node.
-    //         See --prune-repeated-subdependencies flag.
-  };
-}
+export { DepTree };
 
 export interface DepRoot {
   depTree: DepTree; // to be soon replaced with depGraph
   targetFile?: string;
-}
-
-// Legacy result type. Will be deprecated soon.
-export interface SingleDepRootResult {
-  plugin: PluginMetadata;
-  package: DepTree;
-}
-
-export interface MultiDepRootsResult {
-  plugin: PluginMetadata;
-  depRoots: DepRoot[];
-}
-
-// https://www.typescriptlang.org/docs/handbook/advanced-types.html#user-defined-type-guards
-export function isMultiResult(pet: SingleDepRootResult | MultiDepRootsResult): pet is MultiDepRootsResult {
-  return !!(pet as MultiDepRootsResult).depRoots;
 }
 
 export interface TestOptions {
@@ -79,14 +48,14 @@ export interface Options {
   'ignore-policy'?: boolean;
   'trust-policies'?: boolean; // used in snyk/policy lib
   'policy-path'?: boolean;
-  'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
+  allSubProjects?: boolean; // Converted from dash case in args.ts
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
   showVulnPaths?: boolean;
-  packageManager: SupportedPackageManagers;
+  packageManager: SupportedPackageManagers; // Converted from dash case in args.ts
   advertiseSubprojectsCount?: number;
   subProjectNames?: string[];
-  severityThreshold?: string;
+  severityThreshold?: string; // Converted from dash case in args.ts
   dev?: boolean;
   'print-deps'?: boolean;
 }

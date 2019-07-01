@@ -10,66 +10,54 @@ import * as phpPlugin from 'snyk-php-plugin';
 import * as nodejsPlugin from './nodejs-plugin';
 import * as types from './types';
 import {SupportedPackageManagers} from '../package-managers';
+import { Plugin, adaptSingleProjectPlugin, SingleSubprojectPlugin } from '@snyk/cli-interface/dist/legacy/plugin';
 
 export function loadPlugin(packageManager: SupportedPackageManagers,
-                           options: types.Options = {}): types.Plugin {
+                           options: types.Options = {}): Plugin {
   if (options.docker) {
     return dockerPlugin;
   }
 
   switch (packageManager) {
     case 'npm': {
-      return nodejsPlugin;
+      return adaptSingleProjectPlugin(nodejsPlugin);
     }
     case 'rubygems': {
-      return rubygemsPlugin;
+      return adaptSingleProjectPlugin(rubygemsPlugin);
     }
     case 'maven': {
-      return mvnPlugin;
+      return adaptSingleProjectPlugin(mvnPlugin);
     }
     case 'gradle': {
-      return gradlePlugin;
+      return gradlePlugin as any as Plugin; // TODO(kyegupov): remove the cast once gradle plugin is updated
     }
     case 'sbt': {
-      return sbtPlugin;
+      return adaptSingleProjectPlugin(sbtPlugin);
     }
     case 'yarn': {
-      return nodejsPlugin;
+      return adaptSingleProjectPlugin(nodejsPlugin); // will become a full Plugin when Yarn Workspaces are supported
     }
     case 'pip': {
-      return pythonPlugin;
+      return adaptSingleProjectPlugin(pythonPlugin);
     }
     case 'golangdep':
     case 'gomodules':
     case 'govendor': {
-      return goPlugin;
+      // this plugin needs an updrade of the types
+      return adaptSingleProjectPlugin(goPlugin as SingleSubprojectPlugin);
     }
     case 'nuget': {
-      return nugetPlugin;
+      return adaptSingleProjectPlugin(nugetPlugin);
     }
     case 'paket': {
-      return nugetPlugin;
+      return adaptSingleProjectPlugin(nugetPlugin);
     }
     case 'composer': {
-      return phpPlugin;
+      // this plugin needs an updrade of the types;
+      return adaptSingleProjectPlugin(phpPlugin as SingleSubprojectPlugin);
     }
     default: {
       throw new Error(`Unsupported package manager: ${packageManager}`);
-    }
-  }
-}
-
-export function getPluginOptions(packageManager: string, options: types.Options): types.Options {
-  const pluginOptions: types.Options = {};
-  switch (packageManager) {
-    case 'gradle': {
-      if (options['all-sub-projects']) {
-        pluginOptions.multiDepRoots = true;
-      }
-      return pluginOptions;
-    }
-    default: {
-      return pluginOptions;
     }
   }
 }

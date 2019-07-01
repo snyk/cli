@@ -8,10 +8,11 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import {isCI} from './is-ci';
 import * as analytics from './analytics';
-import { SingleDepRootResult, DepTree, MonitorMeta, MonitorResult } from './types';
+import { DepTree, MonitorMeta, MonitorResult } from './types';
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
 import {MonitorError, ConnectionTimeoutError} from './errors';
+import { SinglePackageResult } from '@snyk/cli-interface/dist/legacy/plugin';
 
 const debug = Debug('snyk');
 
@@ -87,7 +88,7 @@ async function pruneTree(tree: DepTree, packageManagerName: string): Promise<Dep
 export async function monitor(
     root: string,
     meta: MonitorMeta,
-    info: SingleDepRootResult,
+    info: SinglePackageResult,
     targetFile?: string,
     ): Promise<MonitorResult> {
   apiTokenExists();
@@ -194,7 +195,7 @@ export async function monitor(
 export async function monitorGraph(
     root: string,
     meta: MonitorMeta,
-    info: SingleDepRootResult,
+    info: SinglePackageResult,
     targetFile?: string,
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;

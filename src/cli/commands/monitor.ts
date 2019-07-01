@@ -16,9 +16,6 @@ import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
 import {
-  SingleDepRootResult,
-  MultiDepRootsResult,
-  isMultiResult,
   MonitorOptions,
   MonitorMeta,
   MonitorResult,
@@ -30,6 +27,9 @@ import {
   MonitorError,
   UnsupportedFeatureFlagError,
 } from '../../lib/errors';
+import {
+  InspectResult, SinglePackageResult, isMultiResult, MultiProjectResult, InspectOptions,
+} from '@snyk/cli-interface/dist/legacy/plugin';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -61,10 +61,10 @@ async function promiseOrCleanup<T>(p: Promise<T>, cleanup: () => void): Promise<
 // or an error message.
 async function monitor(...args0: MethodArgs): Promise<any> {
   let args = [...args0];
-  let options: MonitorOptions = {};
+  let options = {} as ArgsOptions & MonitorOptions;
   const results: Array<GoodResult | BadResult> = [];
   if (typeof args[args.length - 1] === 'object') {
-    options = args.pop() as ArgsOptions as MonitorOptions;
+    options = args.pop() as ArgsOptions & MonitorOptions;
   }
 
   args = args.filter(Boolean);
@@ -78,7 +78,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     snyk.id = options.id;
   }
 
-  if (options['all-sub-projects'] && options['project-name']) {
+  if (options.allSubProjects && options['project-name']) {
     throw new Error('`--all-sub-projects` is currently not compatible with `--project-name`');
   }
 
@@ -126,13 +126,11 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Scan the project dependencies via a plugin
 
-      const pluginOptions = plugins.getPluginOptions(packageManager, options);
       analytics.add('packageManager', packageManager);
-      analytics.add('pluginOptions', pluginOptions);
 
-      // TODO: the type should depend on multiDepRoots flag
-      const inspectResult: SingleDepRootResult|MultiDepRootsResult = await promiseOrCleanup(
-          moduleInfo.inspect(path, targetFile, { ...options, ...pluginOptions }),
+      // TODO: the type should depend on allSubProjects flag
+      const inspectResult: InspectResult = await promiseOrCleanup(
+          moduleInfo.inspect(path, targetFile!, { ...options } as ArgsOptions & InspectOptions),
           spinner.clear(analyzingDepsSpinnerLabel));
 
       analytics.add('pluginName', inspectResult.plugin.name);
@@ -146,7 +144,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       const meta: MonitorMeta = {
         'method': 'cli',
         'packageManager': packageManager,
-        'policy-path': options['policy-path'],
+        'policy-path': options['policy-path'] as string,
         'project-name': options['project-name'] || config.PROJECT_NAME,
         'isDocker': !!options.docker,
         'prune': !!options['prune-repeated-subdependencies'],
@@ -158,10 +156,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       // SingleDepRootResult is a legacy format understood by Registry, so we have to convert
       // a MultiDepRootsResult to an array of these.
 
-      let perDepRootResults: SingleDepRootResult[] = [];
+      let perDepRootResults: SinglePackageResult[] = [];
       let advertiseSubprojectsCount: number | null = null;
       if (isMultiResult(inspectResult)) {
-        perDepRootResults = inspectResult.depRoots.map(
+        perDepRootResults = inspectResult.scannedProjects.map(
           (depRoot) => ({plugin: inspectResult.plugin, package: depRoot.depTree}));
       } else {
         if (!options['gradle-sub-project']
@@ -193,7 +191,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         const manageUrl = url.format(endpoint);
 
         endpoint.pathname = leader + '/monitor/' + res.id;
-        const subProjectName = ((inspectResult as MultiDepRootsResult).depRoots)
+        const subProjectName = isMultiResult(inspectResult)
           ? depRootDeps.package.name
           : undefined;
         const monOutput = formatMonitorOutput(

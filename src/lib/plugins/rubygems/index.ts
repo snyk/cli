@@ -1,17 +1,17 @@
 import {inspectors, Spec} from './inspectors';
-import * as types from '../types';
 import {MissingTargetFileError} from '../../errors/missing-targetfile-error';
+import { SinglePackageResult, SingleSubprojectInspectOptions } from '@snyk/cli-interface/dist/legacy/plugin';
 
-interface RubyGemsInspectResult extends types.InspectResult {
-  package: {
-    name: string;
-    targetFile: string;
-    files: any
-  };
+export function pluginName(): string {
+  return 'rubygems';
 }
 
-export async function inspect(root: string, targetFile: string): Promise<RubyGemsInspectResult> {
-  if (!targetFile ) {
+export async function inspect(
+    root: string,
+    targetFile: string,
+    options?: SingleSubprojectInspectOptions,
+  ): Promise<SinglePackageResult> {
+  if (!targetFile) {
     throw MissingTargetFileError(root);
   }
   const specs = await gatherSpecs(root, targetFile);

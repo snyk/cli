@@ -16,7 +16,7 @@ import common = require('./common');
 import {DepTree, TestOptions} from '../types';
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult, TestDepGraphResponse} from './legacy';
-import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, Options} from '../types';
+import {Options} from '../types';
 import {
   NoSupportedManifestsFoundError,
   InternalServerError,
@@ -24,6 +24,10 @@ import {
 } from '../errors';
 import { maybePrintDeps } from '../print-deps';
 import { SupportedPackageManagers } from '../package-managers';
+import {
+  InspectResult, isMultiResult, MultiProjectResult, InspectOptions,
+} from '@snyk/cli-interface/dist/legacy/plugin';
+import { ArgsOptions } from '../../cli/args';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -202,23 +206,22 @@ function assemblePayloads(root: string, options: Options & TestOptions): Promise
   return assembleRemotePayloads(root, options);
 }
 
-// Force getDepsFromPlugin to return depRoots for processing in assembleLocalPayload
-async function getDepsFromPlugin(root, options: Options): Promise<MultiDepRootsResult> {
+// Force getDepsFromPlugin to return scannedProjects for processing in assembleLocalPayload
+async function getDepsFromPlugin(root, options: Options): Promise<MultiProjectResult> {
   options.file = options.file || detect.detectPackageFile(root);
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
-  const pluginOptions = plugins.getPluginOptions(options.packageManager, options);
-  const inspectRes: SingleDepRootResult | MultiDepRootsResult =
-    await moduleInfo.inspect(root, options.file, { ...options, ...pluginOptions });
+  const inspectRes: InspectResult =
+    await moduleInfo.inspect(root, options.file, { ...options } as unknown as ArgsOptions & InspectOptions);
 
   if (!isMultiResult(inspectRes)) {
     if (!inspectRes.package) {
       // something went wrong if both are not present...
       throw Error(`error getting dependencies from ${options.packageManager} ` +
-                  'plugin: neither \'package\' nor \'depRoots\' were found');
+                  'plugin: neither \'package\' nor \'scannedProjects\' were found');
     }
     if (!inspectRes.package.targetFile && inspectRes.plugin) {
       inspectRes.package.targetFile = inspectRes.plugin.targetFile;
@@ -233,13 +236,13 @@ async function getDepsFromPlugin(root, options: Options): Promise<MultiDepRootsR
     }
     return {
       plugin: inspectRes.plugin,
-      depRoots: [{depTree: inspectRes.package}],
+      scannedProjects: [{depTree: inspectRes.package}],
     };
   } else {
     // We are using "options" to store some information returned from plugin that we need to use later,
     // but don't want to send to Registry in the Payload.
     // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    options.subProjectNames = inspectRes.depRoots.map((depRoot) => depRoot.depTree.name);
+    options.subProjectNames = inspectRes.scannedProjects.map((proj) => proj.depTree.name!);
     return inspectRes;
   }
 }
@@ -258,7 +261,7 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
 
-    for (const depRoot of deps.depRoots) {
+    for (const depRoot of deps.scannedProjects) {
       const pkg = depRoot.depTree;
       if (options['print-deps']) {
         await spinner.clear(spinnerLbl)();

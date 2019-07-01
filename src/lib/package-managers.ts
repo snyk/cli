@@ -1,6 +1,6 @@
-export type SupportedPackageManagers = 'rubygems' | 'npm' | 'yarn' |
-'maven' | 'pip' | 'sbt' | 'gradle' | 'golangdep' | 'govendor' | 'gomodules' |
-'nuget' | 'paket' | 'composer';
+import { SupportedPackageManagers } from '@snyk/cli-interface/dist/legacy/common';
+
+export { SupportedPackageManagers };
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   readonly [packageManager in SupportedPackageManagers]: string;
@@ -18,6 +18,12 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   nuget: 'NuGet',
   paket: 'Paket',
   composer: 'Composer',
+
+  // Docker
+  rpm: 'rpm (Linux)',
+  deb: 'deb (Linux)',
+  apk: 'apk (Linux)',
+  dockerfile: 'Dockerfile',
 };
 
 export const WIZARD_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]
