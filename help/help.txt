@@ -99,6 +99,12 @@ Examples:
   $ snyk test --docker ubuntu:18.04 --org=my-team
   $ snyk test --docker app:latest --file=Dockerfile --policy-path=.snyk
 
+Possible exit statuses and their meaning:
+
+  - 0: success, no vulns found
+  - 1: action_needed, vulns found
+  - 2: failure, try to re-run command
+
 Pro tip: use `snyk test` in your test scripts, if a vulnerability is
 found, the process will exit with a non-zero exit code.
 
