@@ -23,8 +23,6 @@ const errors = {
     'contents of the node_modules directory.' +
     '\n Please run `npm install` or `yarn install` and ' +
     're-run your snyk command.',
-  tryDevDeps: 'Snyk only tests production dependencies by default (which ' +
-    'this project had none). Try re-running with the `--dev` flag.',
   noApiToken: '%s requires an authenticated account. Please run `snyk auth` ' +
     'and try again.',
   timeout: 'The request has timed out on the server side.\nPlease re-run ' +
@@ -53,7 +51,6 @@ const codes = {
   OLD_DOTFILE_FORMAT: errors.oldsnyk,
   FAIL_PATCH: errors.patchfail,
   FAIL_UPDATE: errors.updatefail,
-  NOT_FOUND_HAS_DEV_DEPS: errors.tryDevDeps,
   NO_API_TOKEN: errors.noApiToken,
   502: errors.timeout,
   504: errors.timeout,

@@ -246,17 +246,23 @@ function displayResult(res, options: Options & TestOptions) {
       'no vulnerable paths found.' :
       'none were found.';
     const summaryOKText = chalk.green(`✓ ${testedInfoText}, ${vulnPathsText}`);
-    const nextStepsText =
+    const nextStepsText = localPackageTest ?
       '\n\nNext steps:' +
       '\n- Run `snyk monitor` to be notified ' +
       'about new related vulnerabilities.' +
       '\n- Run `snyk test` as part of ' +
-      'your CI/test.';
+      'your CI/test.' : '';
+    // user tested a package@version and got 0 vulns back, but there were dev deps
+    // to consider
+    const snykPackageTestTip: string = !(localPackageTest || options.dev) ?
+      '\n\nTip: Snyk only tests production dependencies by default (which ' +
+      'this project had none). Try re-running with the `--dev` flag.' : '';
     return (
       prefix + meta + summaryOKText + multiProjAdvice + (
         isCI() ? '' :
           dockerAdvice +
-          nextStepsText)
+          nextStepsText +
+          snykPackageTestTip)
     );
   }
 

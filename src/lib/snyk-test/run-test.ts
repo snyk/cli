@@ -3,7 +3,6 @@ import fs = require('then-fs');
 import pathUtil = require('path');
 import moduleToObject = require('snyk-module');
 import * as depGraphLib from '@snyk/dep-graph';
-
 import analytics = require('../analytics');
 import * as config from '../config';
 import detect = require('../../lib/detect');
@@ -18,7 +17,11 @@ import {DepTree, TestOptions} from '../types';
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult, TestDepGraphResponse} from './legacy';
 import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, Options} from '../types';
-import { NoSupportedManifestsFoundError } from '../errors';
+import {
+  NoSupportedManifestsFoundError,
+  InternalServerError,
+  FailedToGetVulnerabilitiesError,
+} from '../errors';
 import { maybePrintDeps } from '../print-deps';
 import { SupportedPackageManagers } from '../package-managers';
 
@@ -61,7 +64,6 @@ async function runTest(packageManager: SupportedPackageManagers,
   try {
     const payloads = await assemblePayloads(root, options);
     for (const payload of payloads) {
-      const hasDevDependencies = payload.body && !!payload.body.hasDevDependencies || false;
       const payloadPolicy = payload.body && payload.body.policy;
       const depGraph = payload.body && payload.body.depGraph;
 
@@ -74,7 +76,7 @@ async function runTest(packageManager: SupportedPackageManagers,
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', (payload.body && payload.body.docker) || false);
       // Type assertion might be a lie, but we are correcting that below
-      let res = await sendPayload(payload, hasDevDependencies) as LegacyVulnApiResult;
+      let res = await sendTestPayload(payload) as LegacyVulnApiResult;
       if (depGraph) {
         res = convertTestDepGraphResultToLegacy(
           res as any as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
@@ -150,7 +152,7 @@ async function runTest(packageManager: SupportedPackageManagers,
   }
 }
 
-function sendPayload(payload: Payload, hasDevDependencies: boolean):
+function sendTestPayload(payload: Payload):
     Promise<LegacyVulnApiResult | TestDepGraphResponse> {
   const filesystemPolicy = payload.body && !!payload.body.policy;
   return new Promise((resolve, reject) => {
@@ -158,26 +160,8 @@ function sendPayload(payload: Payload, hasDevDependencies: boolean):
       if (error) {
         return reject(error);
       }
-
       if (res.statusCode !== 200) {
-        const err = new Error(body && body.error ?
-          body.error :
-          res.statusCode);
-
-        (err as any).userMessage = body && body.userMessage;
-        // this is the case where a local module has been tested, but
-        // doesn't have any production deps, but we've noted that they
-        // have dep deps, so we'll error with a more useful message
-        if (res.statusCode === 404 && hasDevDependencies) {
-          (err as any).code = 'NOT_FOUND_HAS_DEV_DEPS';
-        } else {
-          (err as any).code = res.statusCode;
-        }
-
-        if (res.statusCode === 500) {
-          debug('Server error', body.stack);
-        }
-
+        const err = handleTestHttpErrorResponse(res, body);
         return reject(err);
       }
 
@@ -186,6 +170,21 @@ function sendPayload(payload: Payload, hasDevDependencies: boolean):
       resolve(body);
     });
   });
+}
+
+function handleTestHttpErrorResponse(res, body) {
+  const {statusCode} = res;
+  let err;
+  const userMessage = body && body.userMessage;
+  switch (statusCode) {
+    case (statusCode === 500):
+      err = new InternalServerError(userMessage);
+      err.innerError = body.stack;
+    default:
+      err = new FailedToGetVulnerabilitiesError(userMessage, statusCode);
+      err.innerError = body.error;
+  }
+  return err;
 }
 
 function assemblePayloads(root: string, options: Options & TestOptions): Promise<Payload[]> {
