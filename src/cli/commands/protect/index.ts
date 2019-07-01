@@ -6,12 +6,11 @@ import * as analytics from '../../../lib/analytics';
 import * as detect from '../../../lib/detect';
 import * as pm from '../../../lib/package-managers';
 import { CustomError } from '../../../lib/errors';
-import { Options } from '../../../lib/plugins/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 
 const debug = debugModule('snyk');
 
-function protectFunc(options: types.ProtectOptions & types.Options & types.TestOptions) {
+async function protectFunc(options: types.ProtectOptions & types.Options & types.TestOptions) {
   const protectOptions = {...options};
   protectOptions.loose = true; // replace missing policies with empty ones
   protectOptions.vulnEndpoint = '/vuln/npm/patches';
@@ -49,22 +48,22 @@ function protectFunc(options: types.ProtectOptions & types.Options & types.TestO
     debug('~~~~ LIVE RUN ~~~~');
   }
 
-  return snyk.policy.load(protectOptions['policy-path'])
-    .catch((error) => {
-      if (error.code === 'ENOENT') {
-        error.code = 'MISSING_DOTFILE';
-      }
+  try {
+    const policy = await snyk.policy.load(protectOptions['policy-path']);
+    if (policy.patch) {
+      return patch(protectOptions);
+    }
+    return 'Nothing to do';
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      error.code = 'MISSING_DOTFILE';
+    }
 
-      throw error;
-    }).then((policy) => {
-      if (policy.patch) {
-        return patch(policy, protectOptions);
-      }
-      return 'Nothing to do';
-    });
+    throw error;
+  }
 }
 
-async function patch(policy, options: Options) {
+async function patch(options: types.ProtectOptions & types.Options) {
   try {
     const response = await snyk.test(process.cwd(), options) as LegacyVulnApiResult;
     // TODO: need to add support for multiple test results being returned
