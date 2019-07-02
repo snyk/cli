@@ -118,6 +118,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           moduleInfo.inspect(path, targetFile, { ...options, ...pluginOptions }),
           spinner.clear(analyzingDepsSpinnerLabel));
 
+      analytics.add('pluginName', inspectResult.plugin.name);
+
       await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
 
       await spinner(postingMonitorSpinnerLabel);
