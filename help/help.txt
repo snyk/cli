@@ -48,8 +48,6 @@ Options:
   -q, --quiet ........ Silence all output.
   -h, --help ......... This help information.
   -v, --version ...... The CLI version.
-
-Experimental options:
   --print-deps ....... (test and monitor commands only)
                        Print the dependency tree before sending it for analysis.
   --prune-repeated-subdependencies
@@ -79,6 +77,8 @@ Gradle options:
                        When monitoring a .NET project using NuGet
                        PackageReference use the project name in
                        project.assets.json, if found.
+  --packages-folder    Custom path to packages folder
+
 
 Docker options:
   --docker ........... Test or monitor a local docker image for Linux
