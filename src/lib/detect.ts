@@ -20,6 +20,7 @@ const DETECTABLE_FILES: string[] = [
   'Pipfile',
   'requirements.txt',
   'Gopkg.lock',
+  'go.mod',
   'vendor/vendor.json',
   'obj/project.assets.json',
   'project.assets.json',

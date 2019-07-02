@@ -1416,14 +1416,14 @@ test('`test golang-gomodules --file=go.mod`', async (t) => {
     }], 'calls golang plugin');
 });
 
-test('`test golang-app` does not auto-detect golang-gomodules', async (t) => {
+test('`test golang-app` auto-detects golang-gomodules', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return { package: {}, plugin: { name: 'testplugin', runtime: 'testruntime' } };
+      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
     },
   };
-  sinon.spy(plugin, 'inspect');
+  const spyPlugin = sinon.spy(plugin, 'inspect');
 
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
@@ -1431,8 +1431,21 @@ test('`test golang-app` does not auto-detect golang-gomodules', async (t) => {
     .withArgs('gomodules')
     .returns(plugin);
 
-  t.rejects(cli.test('golang-gomodules'), /Could not detect supported target files/,
-    'NoSupportedManifestsFoundError error is shown');
+  await cli.test('golang-gomodules');
+  const req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'gomodules');
+  t.equal(req.body.targetFile, 'go.mod', 'specifies target');
+  t.same(spyPlugin.getCall(0).args,
+    ['golang-gomodules', 'go.mod', {
+      args: null,
+      file: 'go.mod',
+      org: null,
+      packageManager: 'gomodules',
+      path: 'golang-gomodules',
+      showVulnPaths: true,
+    }], 'calls golang-gomodules plugin');
 });
 
 test('`test golang-app --file=Gopkg.lock`', async (t) => {
