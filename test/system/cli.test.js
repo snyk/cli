@@ -1,7 +1,7 @@
 var _ = require('lodash');
 var test = require('tap').test;
-var testUtils = require('./utils');
-var ciChecker = require('../src/lib/is-ci');
+var testUtils = require('../utils');
+var ciChecker = require('../../src/lib/is-ci');
 var apiKey = '123456789';
 var notAuthorizedApiKey = 'notAuthorized';
 var oldkey;
@@ -18,13 +18,13 @@ process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 
 
-var server = require('./cli-server')(
+var server = require('../cli-server')(
   process.env.SNYK_API, apiKey, notAuthorizedApiKey
 );
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
-var cli = require('../src/cli/commands');
+var cli = require('../../src/cli/commands');
 
 var before = test;
 var after = test;
@@ -54,29 +54,6 @@ before('prime config', function (t) {
       t.pass('endpoint removed');
     });
   }).catch(t.bailout).then(t.end);
-});
-
-test('cli tests for online repos', function (t) {
-  t.plan(4);
-
-  cli.test('semver@2').then(function (res) {
-    t.fail(res);
-  }).catch(function (error) {
-    var res = error.message;
-    var pos = res.toLowerCase().indexOf('vulnerability found');
-    t.pass(res);
-    t.notEqual(pos, -1, 'correctly found vulnerability: ' + res);
-  });
-
-  cli.test('semver@2', {json: true}).then(function (res) {
-    t.fail(res);
-  }).catch(function (error) {
-    var res = JSON.parse(error.message);
-    var vuln = res.vulnerabilities[0];
-    t.pass(vuln.title);
-    t.equal(vuln.id, 'npm:semver:20150403',
-      'correctly found vulnerability: ' + vuln.id);
-  });
 });
 
 test('cli tests erroring paths', {timeout: 3000}, function (t) {
@@ -126,55 +103,6 @@ test('monitor --json', function (t) {
   });
 });
 
-test('multiple test arguments', function (t) {
-  t.plan(4);
-
-  cli.test('semver@4', 'qs@6').then(function (res) {
-    var lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine, 'Tested 2 projects, no vulnerable paths were found.',
-      'successfully tested semver@4, qs@6');
-  }).catch(function (error) {
-    t.fail(error);
-  });
-
-  cli.test('semver@4', 'qs@1').then(function (res) {
-    t.fail(res);
-  }).catch(function (error) {
-    var res = error.message;
-    var lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine, 'Tested 2 projects, 1 contained vulnerable paths.',
-      'successfully tested semver@4, qs@1');
-  });
-
-  cli.test('semver@2', 'qs@6').then(function (res) {
-    t.fail(res);
-  }).catch(function (error) {
-    var res = error.message;
-    var lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine, 'Tested 2 projects, 1 contained vulnerable paths.',
-      'successfully tested semver@2, qs@6');
-  });
-
-  cli.test('semver@2', 'qs@1').then(function (res) {
-    t.fail(res);
-  }).catch(function (error) {
-    var res = error.message;
-    var lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine, 'Tested 2 projects, 2 contained vulnerable paths.',
-      'successfully tested semver@2, qs@1');
-  });
-});
-
-test('test for non-existing', function (t) {
-  t.plan(1);
-
-  cli.test('@123').then(function (res) {
-    t.fails('should fail, instead received ' + res);
-  }).catch(function (error) {
-    t.match(error.message, '500', 'expected error ' + error.message)
-  });
-});
-
 test('snyk ignore - all options', function (t) {
   t.plan(1);
   var fullPolicy = {ID: [
@@ -207,7 +135,7 @@ test('snyk ignore - no ID', function (t) {
   }).then(function (res) {
     t.fail('should not succeed with missing ID');
   }).catch(function (e) {
-    var errors = require('../src/lib/errors/legacy-errors');
+    var errors = require('../../src/lib/errors/legacy-errors');
     var message = stripAnsi(errors.message(e));
     t.equal(message.toLowerCase().indexOf('id is a required field'), 0,
             'captured failed ignore (no --id given)');
@@ -274,7 +202,7 @@ test('auth via key', function (t) {
 test('auth via invalid key', function (t) {
   t.plan(1);
 
-  var errors = require('../src/lib/errors/legacy-errors');
+  var errors = require('../../src/lib/errors/legacy-errors');
 
   cli.auth('_____________').then(function (res) {
     t.fail('auth should not succeed: ' + res);
