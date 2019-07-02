@@ -1,89 +1,89 @@
-var _ = require('lodash');
-var test = require('tap').test;
-var testUtils = require('../utils');
-var ciChecker = require('../../src/lib/is-ci');
-var apiKey = '123456789';
-var notAuthorizedApiKey = 'notAuthorized';
-var oldkey;
-var oldendpoint;
-var port = process.env.PORT || process.env.SNYK_PORT || '12345';
-var sinon = require('sinon');
-var proxyquire = require('proxyquire');
-var parse = require('url').parse;
-var policy = require('snyk-policy');
-const stripAnsi = require('strip-ansi');
+import * as _ from 'lodash';
+import {test} from 'tap';
+import * as testUtils from '../utils';
+import * as ciChecker from '../../src/lib/is-ci';
+import * as sinon from 'sinon';
+import * as proxyquire from 'proxyquire';
+import {parse} from 'url';
+import * as policy from 'snyk-policy';
+import stripAnsi from 'strip-ansi';
+const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
+const apiKey = '123456789';
+const notAuthorizedApiKey = 'notAuthorized';
+let oldkey;
+let oldendpoint;
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 
-
-var server = require('../cli-server')(
-  process.env.SNYK_API, apiKey, notAuthorizedApiKey
+ // tslint:disable-next-line:no-var-requires
+const server = require('../cli-server')(
+  process.env.SNYK_API, apiKey, notAuthorizedApiKey,
 );
 
-// ensure this is required *after* the demo server, since this will
+ // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
-var cli = require('../../src/cli/commands');
+import * as cli from '../../src/cli/commands';
 
-var before = test;
-var after = test;
+const before = test;
+const after = test;
 
-before('setup', function (t) {
+before('setup', (t) => {
   t.plan(3);
-  cli.config('get', 'api').then(function (key) {
+  cli.config('get', 'api').then((key) => {
     oldkey = key; // just in case
     t.pass('existing user config captured');
   });
 
-  cli.config('get', 'endpoint').then(function (key) {
+  cli.config('get', 'endpoint').then((key) => {
     oldendpoint = key; // just in case
     t.pass('existing user endpoint captured');
   });
 
-  server.listen(port, function () {
+  server.listen(port, () => {
     t.pass('started demo server');
   });
 });
 
-before('prime config', function (t) {
-  cli.config('set', 'api=' + apiKey).then(function () {
+before('prime config', (t) => {
+  cli.config('set', 'api=' + apiKey).then(() => {
     t.pass('api token set');
-  }).then(function () {
-    return cli.config('unset', 'endpoint').then(function () {
+  }).then(() => {
+    return cli.config('unset', 'endpoint').then(() => {
       t.pass('endpoint removed');
     });
   }).catch(t.bailout).then(t.end);
 });
 
-test('cli tests erroring paths', {timeout: 3000}, function (t) {
+test('cli tests erroring paths', {timeout: 3000}, (t) => {
   t.plan(3);
 
-  cli.test('/', {json: true}).then(function (res) {
+  cli.test('/', {json: true}).then((res) => {
     t.fail(res);
-  }).catch(function (error) {
-    var errObj = JSON.parse(error.message);
+  }).catch((error) => {
+    const errObj = JSON.parse(error.message);
     t.ok(errObj.error.length > 1, 'should display error message');
-    t.match(errObj.path, '/', 'path property should be populated')
+    t.match(errObj.path, '/', 'path property should be populated');
     t.pass('error json with correct output when one bad project specified');
     t.end();
   });
 });
 
-test('monitor', function (t) {
+test('monitor', (t) => {
   t.plan(1);
 
-  cli.monitor().then(function (res) {
+  cli.monitor().then((res) => {
     t.pass('monitor captured');
-  }).catch(function (error) {
+  }).catch((error) => {
     t.fail(error);
   });
 });
 
-test('monitor --json', function (t) {
+test('monitor --json', (t) => {
   t.plan(3);
 
-  cli.monitor(undefined, { json: true }).then(function (res) {
+  cli.monitor(undefined, {json: true}).then((res) => {
     res = JSON.parse(res);
 
     if (_.isObject(res)) {
@@ -92,81 +92,81 @@ test('monitor --json', function (t) {
       t.fail('Failed parsing monitor JSON output');
     }
 
-    var keyList = [ 'packageManager', 'manageUrl' ];
+    const keyList = ['packageManager', 'manageUrl'];
 
-    keyList.forEach(k => {
+    keyList.forEach((k) => {
       !_.get(res, k) ? t.fail(k + 'not found') :
         t.pass(k + ' found');
     });
-  }).catch(function (error) {
+  }).catch((error) => {
     t.fail(error);
   });
 });
 
-test('snyk ignore - all options', function (t) {
+test('snyk ignore - all options', (t) => {
   t.plan(1);
-  var fullPolicy = {ID: [
+  const fullPolicy = {ID: [
     {'*': {
       reason: 'REASON',
-      expires: new Date('2017-10-07T00:00:00.000Z'), },
+      expires: new Date('2017-10-07T00:00:00.000Z')},
     },
   ],
-                   };
-  var dir = testUtils.tmpdir();
+  };
+  const dir = testUtils.tmpdir();
   cli.ignore({
-    id: 'ID',
-    reason: 'REASON',
-    expiry: new Date('2017-10-07'),
+    'id': 'ID',
+    'reason': 'REASON',
+    'expiry': new Date('2017-10-07'),
     'policy-path': dir,
   }).catch((err) => t.throws(err, 'ignore should succeed'))
     .then(() => policy.load(dir))
-    .then(pol => {
+    .then((pol) => {
       t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
     });
 });
 
-test('snyk ignore - no ID', function (t) {
+test('snyk ignore - no ID', (t) => {
   t.plan(1);
-  var dir = testUtils.tmpdir();
+  const dir = testUtils.tmpdir();
   cli.ignore({
-    reason: 'REASON',
-    expiry: new Date('2017-10-07'),
+    'reason': 'REASON',
+    'expiry': new Date('2017-10-07'),
     'policy-path': dir,
-  }).then(function (res) {
+  }).then((res) => {
     t.fail('should not succeed with missing ID');
-  }).catch(function (e) {
-    var errors = require('../../src/lib/errors/legacy-errors');
-    var message = stripAnsi(errors.message(e));
+  }).catch((e) => {
+    const errors = require('../../src/lib/errors/legacy-errors');
+    const message = stripAnsi(errors.message(e));
     t.equal(message.toLowerCase().indexOf('id is a required field'), 0,
-            'captured failed ignore (no --id given)');
+      'captured failed ignore (no --id given)');
   });
 });
 
-test('snyk ignore - default options', function (t) {
+test('snyk ignore - default options', (t) => {
   t.plan(3);
-  var dir = testUtils.tmpdir();
+  const dir = testUtils.tmpdir();
   cli.ignore({
-    id: 'ID3',
+    'id': 'ID3',
     'policy-path': dir,
   }).catch(() => t.fail('ignore should succeed'))
     .then(() => policy.load(dir))
-    .then(pol => {
+    .then((pol) => {
       t.true(pol.ignore.ID3, 'policy ID written correctly');
       t.is(pol.ignore.ID3[0]['*'].reason, 'None Given',
-           'policy (default) reason written correctly');
-      var expiryFromNow = pol.ignore.ID3[0]['*'].expires - Date.now();
+        'policy (default) reason written correctly');
+      const expiryFromNow = pol.ignore.ID3[0]['*'].expires - Date.now();
       // not more than 30 days ahead, not less than (30 days - 1 minute)
       t.true(expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
              expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
-             'policy (default) expiry wirtten correctly');
+      'policy (default) expiry wirtten correctly');
     });
 });
 
-test('snyk ignore - not authorized', function (t) {
+test('snyk ignore - not authorized', (t) => {
   t.plan(1);
-  var dir = testUtils.tmpdir();
+  const dir = testUtils.tmpdir();
   cli.config('set', 'api=' + notAuthorizedApiKey)
-    .then(function () {
+    .then(() => {
       return cli.ignore({
         id: 'ID3',
         'policy-path': dir,
@@ -191,51 +191,51 @@ test('test without authentication', async (t) => {
   await cli.config('set', 'api=' + apiKey);
 });
 
-test('auth via key', function (t) {
+test('auth via key', (t) => {
   t.plan(1);
 
-  cli.auth(apiKey).then(function (res) {
+  cli.auth(apiKey).then((res) => {
     t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
   }).catch(t.threw);
 });
 
-test('auth via invalid key', function (t) {
+test('auth via invalid key', (t) => {
   t.plan(1);
 
-  var errors = require('../../src/lib/errors/legacy-errors');
+  const errors = require('../../src/lib/errors/legacy-errors');
 
-  cli.auth('_____________').then(function (res) {
+  cli.auth('_____________').then((res) => {
     t.fail('auth should not succeed: ' + res);
-  }).catch(function (e) {
-    var message = stripAnsi(errors.message(e));
+  }).catch((e) => {
+    const message = stripAnsi(errors.message(e));
     t.equal(message.toLowerCase().indexOf('authentication failed'), 0, 'captured failed auth');
   });
 });
 
-test('auth via github', function (t) {
-  var tokenRequest = null;
+test('auth via github', (t) => {
+  let tokenRequest = null;
 
-  var openSpy = sinon.spy(function (url) {
+  const openSpy = sinon.spy((url) => {
     tokenRequest = parse(url);
     tokenRequest.token = tokenRequest.query.split('=').pop();
   });
 
-  var auth = proxyquire('../src/cli/commands/auth', {
+  const auth = proxyquire('../src/cli/commands/auth', {
     open: openSpy,
   });
   sinon.stub(ciChecker, 'isCI').returns(false);
 
-  var unhook = testUtils.silenceLog();
+  const unhook = testUtils.silenceLog();
 
-  auth().then(function (res) {
+  auth().then((res) => {
     t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
-  }).catch(t.threw).then(function () {
+  }).catch(t.threw).then(() => {
     unhook();
     t.end();
   });
 });
 
-after('teardown', function (t) {
+after('teardown', (t) => {
   t.plan(4);
 
   delete process.env.SNYK_API;
@@ -243,18 +243,18 @@ after('teardown', function (t) {
   delete process.env.SNYK_PORT;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-  server.close(function () {
+  server.close(() => {
     t.pass('server shutdown');
-    var key = 'set';
-    var value = 'api=' + oldkey;
+    let key = 'set';
+    let value = 'api=' + oldkey;
     if (!oldkey) {
       key = 'unset';
       value = 'api';
     }
-    cli.config(key, value).then(function () {
+    cli.config(key, value).then(() => {
       t.pass('user config restored');
       if (oldendpoint) {
-        cli.config('endpoint', oldendpoint).then(function () {
+        cli.config('endpoint', oldendpoint).then(() => {
           t.pass('user endpoint restored');
           t.end();
         });
@@ -263,7 +263,5 @@ after('teardown', function (t) {
         t.end();
       }
     });
-
-
   });
 });
