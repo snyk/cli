@@ -255,8 +255,7 @@ function displayResult(res, options: Options & TestOptions) {
     // user tested a package@version and got 0 vulns back, but there were dev deps
     // to consider
     const snykPackageTestTip: string = !(localPackageTest || options.dev) ?
-      '\n\nTip: Snyk only tests production dependencies by default (which ' +
-      'this project had none). Try re-running with the `--dev` flag.' : '';
+      '\n\nTip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag.' : '';
     return (
       prefix + meta + summaryOKText + multiProjAdvice + (
         isCI() ? '' :
@@ -290,7 +289,7 @@ function displayResult(res, options: Options & TestOptions) {
   }
   let summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
 
-  if (localPackageTest && WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
+  if (localPackageTest && WIZARD_SUPPORTED_PMS.includes(packageManager)) {
     summary += chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
   }
   let dockerSuggestion = '';
@@ -429,7 +428,7 @@ function createFixedInText(vuln: any): string {
 
 function createRemediationText(vuln, packageManager) {
   let wizardHintText = '';
-  if (WIZARD_SUPPORTED_PMS.indexOf(packageManager) > -1) {
+  if (WIZARD_SUPPORTED_PMS.includes(packageManager)) {
     wizardHintText = 'Run `snyk wizard` to explore remediation options.';
   }
 
