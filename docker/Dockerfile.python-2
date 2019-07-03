@@ -6,7 +6,7 @@ RUN mkdir /home/node
 WORKDIR /home/node
 
 # Install Python utilities, node, Snyk CLI
-RUN pip3 install pip pipenv virtualenv -U && \
+RUN pip install pip pipenv virtualenv -U && \
     apt-get update && \
     apt-get install -y curl && \
     curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
