@@ -1,18 +1,22 @@
-FROM node:8-slim
+FROM python:2.7-slim
 
 MAINTAINER Snyk Ltd
 
+RUN mkdir /home/node
 WORKDIR /home/node
-ENV HOME /home/node
 
-# Install python, virtualenv, cli
-RUN apt-get update && \
-    apt-get install -y python python-dev python-pip libssl-dev jq && \
-    pip install pip virtualenv -U && \
+# Install Python utilities, node, Snyk CLI
+RUN pip3 install pip pipenv virtualenv -U && \
+    apt-get update && \
+    apt-get install -y curl && \
+    curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
+    apt-get install -y nodejs jq && \
     npm install --global snyk snyk-to-html && \
     apt-get autoremove -y && \
     apt-get clean && \
     chmod -R a+wrx /home/node
+
+ENV HOME /home/node
 
 # The path at which the project is mounted (-v runtime arg)
 ENV PROJECT_PATH /project
