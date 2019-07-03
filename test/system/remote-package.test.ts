@@ -112,8 +112,33 @@ test('multiple test arguments', (t) => {
   });
 });
 
+test('test for existing remote package with dev-deps only with --dev', async (t) => {
+  t.plan(1);
+  try {
+    const res = await cli.test('lodash@4.17.11', {dev: true});
+    const lastLine = res.trim().split('\n').pop();
+    t.deepEqual(lastLine, '✓ Tested lodash@4.17.11 for known vulnerabilities, no vulnerable paths found.',
+      'successfully tested lodash@4.17.11');
+  } catch (error) {
+    t.fail('should not throw, instead received error: ' + error);
+  }
+});
+
+test('test for existing remote package with dev-deps only', async (t) => {
+  t.plan(1);
+  try {
+    const res = await cli.test('lodash@4.17.11');
+    const lastLine = res.trim().split('\n').pop();
+    t.deepEqual(lastLine, 'Tip: Snyk only tests production dependencies by default ' +
+    '(which this project had none). Try re-running with the `--dev` flag.',
+    'tip text as expected');
+  } catch (error) {
+    t.fail('should not throw, instead received error: ' + error);
+  }
+});
+
 test('test for non-existing', (t) => {
-  t.plan(2);
+  t.plan(1);
 
   cli.test('@123').then((res) => {
     t.fails('should fail, instead received ' + res);
