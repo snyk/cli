@@ -113,12 +113,14 @@ test('multiple test arguments', (t) => {
 });
 
 test('test for non-existing', (t) => {
-  t.plan(1);
+  t.plan(2);
 
   cli.test('@123').then((res) => {
     t.fails('should fail, instead received ' + res);
   }).catch((error) => {
-    t.match(error.message, '500', 'expected error ' + error.message);
+    const res = error.message;
+    const lastLine = res.trim().split('\n').pop();
+    t.deepEqual(lastLine, 'Failed to get vulns', 'expected error: Failed to get vulns');
   });
 });
 
