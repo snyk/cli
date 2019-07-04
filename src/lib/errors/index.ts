@@ -7,3 +7,5 @@ export {MonitorError} from './monitor-error';
 export {ConnectionTimeoutError} from './connection-timeout-error';
 export {FailedToLoadPolicyError} from './failed-to-load-policy-error';
 export {PolicyNotFoundError} from './policy-not-found-error';
+export {InternalServerError} from './internal-server-error';
+export {FailedToGetVulnerabilitiesError} from './failed-to-get-vulnerabilities-error';

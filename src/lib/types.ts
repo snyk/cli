@@ -74,6 +74,11 @@ export interface Options {
   json?: boolean;
   vulnEndpoint?: string;
   projectName?: string;
+  insecure?: boolean;
+  'dry-run'?: boolean;
+  'ignore-policy'?: boolean;
+  'trust-policies'?: boolean; // used in snyk/policy lib
+  'policy-path'?: boolean;
   'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
@@ -82,6 +87,7 @@ export interface Options {
   advertiseSubprojectsCount?: number;
   subProjectNames?: string[];
   severityThreshold?: string;
+  dev?: boolean;
   'print-deps'?: boolean;
 }
 

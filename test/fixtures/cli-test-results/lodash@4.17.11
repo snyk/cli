@@ -1,0 +1,16 @@
+{
+  "ok": true,
+  "vulnerabilities": [],
+  "numDependencies": 0,
+  "severityMap": {
+    "high": 0,
+    "medium": 0,
+    "low": 0
+  },
+  "org": "adrukh",
+  "packageManager": "npm",
+  "licenseEnabled": true,
+  "hasDevDependencies": true,
+  "summary": "No known vulnerabilities",
+  "uniqueCount": 0
+}

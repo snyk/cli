@@ -168,7 +168,7 @@ test('snyk ignore - not authorized', (t) => {
   cli.config('set', 'api=' + notAuthorizedApiKey)
     .then(() => {
       return cli.ignore({
-        id: 'ID3',
+        'id': 'ID3',
         'policy-path': dir,
       });
     })
