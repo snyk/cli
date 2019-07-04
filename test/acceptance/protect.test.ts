@@ -1,18 +1,24 @@
 import {test} from 'tap';
 import {exec} from 'child_process';
 import * as userConfig from '../../src/lib/user-config';
+import { sep } from 'path';
 
-test('`protect` should not fail for unauthorized users', (t) => {
-  t.plan(1);
+const main = './dist/cli/index.js'.replace(/\//g, sep);
 
-  const apiUserConfig = userConfig.get('api');
-  // temporally remove api param in userConfig to test for unauthenticated users
-  userConfig.delete('api');
+// TODO(kyegupov): make these work in Windows
+if (sep === '/') {
+  test('`protect` should not fail for unauthorized users', (t) => {
+    t.plan(1);
 
-  exec('node ./dist/cli/index.js protect', (_, stdout) => {
-    t.equal(stdout.trim(), 'Successfully applied Snyk patches', 'correct output for unauthenticated user');
+    const apiUserConfig = userConfig.get('api');
+    // temporally remove api param in userConfig to test for unauthenticated users
+    userConfig.delete('api');
 
-    // Restore api param
-    userConfig.set('api', apiUserConfig);
+    exec(`node ${main} protect`, (_, stdout) => {
+      t.equal(stdout.trim(), 'Successfully applied Snyk patches', 'correct output for unauthenticated user');
+
+      // Restore api param
+      userConfig.set('api', apiUserConfig);
+    });
   });
-});
+}

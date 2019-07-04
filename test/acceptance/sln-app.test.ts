@@ -5,8 +5,8 @@ import * as sln from '../../src/lib/sln';
 test('parseFoldersFromSln when passed an existent filename', (t) => {
   const slnFile = 'test/acceptance/workspaces/sln-example-app/mySolution.sln';
   const expected = JSON.stringify([
-    'dotnet2_new_mvc_project/new_mvc_project.csproj',
-    'WebApplication2/WebApplication2.csproj',
+    'dotnet2_new_mvc_project' + path.sep + 'new_mvc_project.csproj',
+    'WebApplication2' + path.sep + 'WebApplication2.csproj',
   ]);
   const actual = JSON.stringify(sln.parsePathsFromSln(slnFile));
   t.equal(actual, expected, 'should parse & extract csproj folders');
@@ -71,7 +71,7 @@ test('sln.updateArgs for sln with no relevant projects', (t) => {
     sln.updateArgs(args);
     t.fail('should have exploded');
   } catch (e) {
-    t.equal(e.message, 'No relevant projects found in Solution',
+    t.match(e.message, /Could not detect supported target files in/,
       'Error thrown on solution with no valid projects');
   }
   t.end();
@@ -85,7 +85,7 @@ test('sln.updateArgs for sln without --file', (t) => {
     sln.updateArgs(args);
     t.fail('should have exploded');
   } catch (e) {
-    t.equal(e.message, 'No relevant projects found in Solution',
+    t.match(e.message, /Empty --file argument/,
       'Error thrown on solution with no valid projects');
   }
   t.end();

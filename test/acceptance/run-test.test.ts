@@ -17,6 +17,7 @@ const after = tap.runOnly ? only : test;
 
 // Import has to happen after setting SNYK_API
 import runTest = require('../../src/lib/snyk-test/run-test');
+import { TestOptions, Options } from '../../src/lib/types';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -43,7 +44,7 @@ test('runTest annotates results with remediation data when using node_modules', 
   server.setNextResponse(vulns);
 
   let result = await runTest('npm', 'test/acceptance/workspaces/npm-package-with-git-url',
-    {packageManager: 'npm'});
+    { packageManager: 'npm' } as Options & TestOptions);
   t.ok(result[0].vulnerabilities[0].parentDepType, 'has parentDepType');
 });
 
@@ -52,7 +53,7 @@ test('runTest annotates results with remediation data when traverseNodeModules',
   server.setNextResponse(vulns);
 
   let result = await runTest('npm', 'test/acceptance/workspaces/npm-package',
-    {packageManager: 'npm', traverseNodeModules: true});
+    {packageManager: 'npm', traverseNodeModules: true} as Options & TestOptions);
   t.ok(result[0].vulnerabilities[0].parentDepType, 'has parentDepType');
 });
 

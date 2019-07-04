@@ -1,5 +1,7 @@
 import * as _ from 'lodash';
 import {test} from 'tap';
+import * as ciChecker from '../../src/lib/is-ci';
+import * as sinon from 'sinon';
 
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
@@ -125,11 +127,17 @@ test('test for existing remote package with dev-deps only with --dev', async (t)
 
 test('test for existing remote package with dev-deps only', async (t) => {
   try {
-    const res = await cli.test('lodash@4.17.11');
+    const ciCheckerStub = sinon.stub(ciChecker, 'isCI')
+    ciCheckerStub.returns(false);
+    t.teardown(ciCheckerStub.restore);
+
+    const res = await cli.test('lodash@4.17.11', {dev: false});
     const lastLine = res.trim().split('\n').pop();
-    t.deepEqual(lastLine, 'Tip: Snyk only tests production dependencies by default ' +
-    '(which this project had none). Try re-running with the `--dev` flag.',
-    'tip text as expected');
+
+    t.deepEqual(
+      lastLine,
+      'Tip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag.',
+      'tip text as expected');
   } catch (error) {
     t.fail('should not throw, instead received error: ' + error);
   }
