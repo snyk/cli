@@ -114,7 +114,7 @@ export async function monitor(
 
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
-  analytics.add('isDocker', meta.isDocker);
+  analytics.add('isDocker', !!meta.isDocker);
 
   const target = await projectMetadata.getInfo(pkg);
   const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';

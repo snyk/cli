@@ -213,14 +213,14 @@ test('auth via invalid key', (t) => {
 });
 
 test('auth via github', (t) => {
-  let tokenRequest = null;
+  let tokenRequest: any = null;
 
   const openSpy = sinon.spy((url) => {
     tokenRequest = parse(url);
     tokenRequest.token = tokenRequest.query.split('=').pop();
   });
 
-  const auth = proxyquire('../src/cli/commands/auth', {
+  const auth = proxyquire('../../src/cli/commands/auth', {
     open: openSpy,
   });
   sinon.stub(ciChecker, 'isCI').returns(false);

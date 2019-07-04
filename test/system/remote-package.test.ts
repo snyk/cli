@@ -127,8 +127,8 @@ test('test for existing remote package with dev-deps only', async (t) => {
   try {
     const res = await cli.test('lodash@4.17.11');
     const lastLine = res.trim().split('\n').pop();
-    t.deepEqual(lastLine, 'Tip: Snyk only tests production dependencies by default ' +
-    '(which this project had none). Try re-running with the `--dev` flag.',
+    t.deepEqual(lastLine, 'Tip: Snyk only tests production dependencies by default. '
+    + 'You can try re-running with the `--dev` flag.',
     'tip text as expected');
   } catch (error) {
     t.fail('should not throw, instead received error: ' + error);
