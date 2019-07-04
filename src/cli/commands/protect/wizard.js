@@ -101,7 +101,7 @@ function processWizardFlow(options) {
           if (options.ignoreDisabled) {
             debug('ignore disabled');
           }
-          const intro = __dirname + '/../../../../help/wizard-intro.txt';
+          const intro = __dirname + '/../../../../help/wizard.txt';
           return fs.readFile(intro, 'utf8').then((str) => {
             if (!isCI()) {
               console.log(str);
