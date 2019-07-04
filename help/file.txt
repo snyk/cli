@@ -20,6 +20,7 @@ looking for files in following order:
   Pipfile
   requirements.txt
   Gopkg.lock
+  go.mod
   vendor/vendor.json
   project.assets.json
   packages.config
