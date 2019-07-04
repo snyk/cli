@@ -64,12 +64,12 @@ async function webAuth(via: AuthCliCommands) {
     // clear spinnger in case of success or failure
     .then(spinner.clear(lbl))
     .catch((error) => {
-      spinner.clear(lbl)();
+      spinner.clear<void>(lbl)();
       throw error;
     });
 }
 
-async function testAuthComplete(token: string) {
+async function testAuthComplete(token: string): Promise<{res; body}> {
   const payload = {
     body: {
       token,

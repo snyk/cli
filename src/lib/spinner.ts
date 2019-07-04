@@ -1,13 +1,16 @@
-module.exports = createSpinner;
-module.exports.isRequired = true;
+import { SpinnerOptions } from './types';
 
-const debug = require('debug')('snyk:spinner');
-const isCI = require('./is-ci').isCI;
+export = createSpinner;
+createSpinner.isRequired = true;
+
+import debugModule = require('debug');
+const debug = debugModule('snyk:spinner');
+import {isCI} from './is-ci';
 const spinners = {};
 let sticky = false;
 let handleExit = false;
 
-function createSpinner(label) {
+function createSpinner(label: string): Promise<void> {
   if (!label) {
     throw new Error('spinner requires a label');
   }
@@ -23,19 +26,19 @@ function createSpinner(label) {
       // string: '◐◓◑◒',
       stream: sticky ? process.stdout : process.stderr,
       interval: 75,
-      label: label,
+      label,
     }));
 
     resolve();
   }));
 }
 
-createSpinner.sticky = function (s) {
+createSpinner.sticky = (s?: any) => {
   sticky = s === undefined ? true : s;
 };
 
-createSpinner.clear = function (label) {
-  return function (res) {
+createSpinner.clear = <T>(label): (valueToPassThrough: T) => T => {
+  return ((res: T) => {
     if (spinners[label] === undefined) {
       // clearing a non-existend spinner is ok by default
       return res;
@@ -49,17 +52,17 @@ createSpinner.clear = function (label) {
       }
     }
     return res;
-  };
+  });
 };
 
-createSpinner.clearAll = function () {
+createSpinner.clearAll = () => {
   Object.keys(spinners).map((lbl) => {
-    createSpinner.clear(lbl)();
+    createSpinner.clear<void>(lbl)();
   });
 };
 
 // taken from http://git.io/vWdUm and modified
-function spinner(opt) {
+function spinner(opt: SpinnerOptions) {
   if (module.exports.isRequired || isCI()) {
     return false;
   }
@@ -69,7 +72,7 @@ function spinner(opt) {
   }
   const str = opt.stream || process.stderr;
   const tty = typeof opt.tty === 'boolean' ? opt.tty : true;
-  const string = opt.string || '/-\\|';
+  const stringOpt = opt.string || '/-\\|';
   let ms = typeof opt.interval === 'number' ? opt.interval : 50;
   if (ms < 0) {
     ms = 0;
@@ -81,7 +84,7 @@ function spinner(opt) {
   const CLEAR = str.isTTY ? '\u001b[2K' : '\u000d \u000d';
 
   let s = 0;
-  const sprite = string.split('');
+  const sprite = stringOpt.split('');
   let wrote = false;
 
   let delay = typeof opt.delay === 'number' ? opt.delay : 2;
@@ -111,7 +114,7 @@ function spinner(opt) {
     });
   }
 
-  spinner.clear = function () {
+  (spinner as any).clear = () => {
     clearInterval(interval);
     // debug('spinner cleared');
     if (sticky) {
@@ -123,6 +126,6 @@ function spinner(opt) {
   };
 
   return {
-    clear: spinner.clear,
+    clear: (spinner as any).clear,
   };
 }

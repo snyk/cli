@@ -1,43 +1,48 @@
-module.exports = wizard;
+export = wizard;
 
 // used for testing
-module.exports.processAnswers = processAnswers;
-module.exports.inquire = inquire;
-module.exports.interactive = interactive;
-const debug = require('debug')('snyk');
+Object.assign(wizard, {
+  processAnswers,
+  inquire,
+  interactive,
+});
+import * as debugModule from 'debug';
+const debug = debugModule('snyk');
 
-const path = require('path');
-const inquirer = require('inquirer');
-const fs = require('then-fs');
-const tryRequire = require('snyk-try-require');
-const chalk = require('chalk');
-const url = require('url');
-const _ = require('lodash');
-const exec = require('child_process').exec;
-const {apiTokenExists} = require ('../../../lib/api-token');
-const auth = require('../auth/is-authed');
-const getVersion = require('../version');
-const allPrompts = require('./prompts');
-const answersToTasks = require('./tasks');
-const snyk = require('../../../lib/');
-const snykMonitor = require('../../../lib/monitor').monitor;
-const isCI = require('../../../lib/is-ci').isCI;
-const protect = require('../../../lib/protect');
-const authorization = require('../../../lib/authorization');
-const config = require('../../../lib/config');
-const spinner = require('../../../lib/spinner');
-const analytics = require('../../../lib/analytics');
-const alerts = require('../../../lib/alerts');
-const npm = require('../../../lib/npm');
-const cwd = process.cwd();
-const detect = require('../../../lib/detect');
-const plugins = require('../../../lib/plugins');
-const moduleInfo = require('../../../lib/module-info').ModuleInfo;
-const {MisconfiguredAuthInCI} = require('../../../lib/errors/misconfigured-auth-in-ci-error');
-const {MissingTargetFileError} = require('../../../lib/errors/missing-targetfile-error');
-const pm = require('../../../lib/package-managers');
+import * as path from 'path';
+import * as inquirer from 'inquirer';
+import * as fs from 'then-fs';
+import * as tryRequire from 'snyk-try-require';
+import chalk from 'chalk';
+import * as url from 'url';
+import * as _ from 'lodash';
+import { exec } from 'child_process';
+import { apiTokenExists } from '../../../lib/api-token';
+import * as auth from '../auth/is-authed';
+import * as getVersion from '../version';
+import * as allPrompts from './prompts';
+import answersToTasks = require('./tasks');
+import * as snyk from '../../../lib/';
+import { monitor as snykMonitor } from '../../../lib/monitor';
+import { isCI } from '../../../lib/is-ci';
+import * as protect from '../../../lib/protect';
+import * as authorization from '../../../lib/authorization';
+import * as config from '../../../lib/config';
+import * as spinner from '../../../lib/spinner';
+import * as analytics from '../../../lib/analytics';
+import * as alerts from '../../../lib/alerts';
+import npm = require('../../../lib/npm');
+import * as detect from '../../../lib/detect';
+import * as plugins from '../../../lib/plugins';
+import { ModuleInfo as moduleInfo } from '../../../lib/module-info';
+import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
+import { MissingTargetFileError } from '../../../lib/errors/missing-targetfile-error';
+import * as pm from '../../../lib/package-managers';
+import { Options, MonitorMeta, MonitorResult } from '../../../lib/types';
+import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 
-function wizard(options = {}) {
+function wizard(options?: Options) {
+  options = options || {} as Options;
   options.org = options.org || config.org || null;
 
   return processPackageManager(options)
@@ -45,8 +50,8 @@ function wizard(options = {}) {
     .catch((error) => Promise.reject(error));
 }
 
-async function processPackageManager(options) {
-  const packageManager = detect.detectPackageManager(cwd, options);
+async function processPackageManager(options: Options) {
+  const packageManager = detect.detectPackageManager(process.cwd(), options);
 
   const supportsWizard = pm.WIZARD_SUPPORTED_PACKAGE_MANAGERS
     .includes(packageManager);
@@ -125,11 +130,15 @@ function processWizardFlow(options) {
               // We need to have modules information for remediation. See Payload.modules
               options.traverseNodeModules = true;
 
-              return snyk.test(cwd, options).then((res) => {
+              return snyk.test(process.cwd(), options).then((oneOrManyRes) => {
+                if (oneOrManyRes[0]) {
+                  throw new Error('Multiple subprojects are not yet supported by snyk wizard');
+                }
+                const res = oneOrManyRes as LegacyVulnApiResult;
                 if (alerts.hasAlert('tests-reached') && res.isPrivate) {
                   return;
                 }
-                const packageFile = path.resolve(cwd, 'package.json');
+                const packageFile = path.resolve(process.cwd(), 'package.json');
                 if (!res.ok) {
                   const vulns = res.vulnerabilities;
                   const paths = vulns.length === 1 ? 'path' : 'paths';
@@ -195,7 +204,7 @@ function interactive(test, pkg, policy, options) {
   });
 }
 
-function inquire(prompts, answers) {
+function inquire(prompts, answers): Promise<{}> {
   if (prompts.length === 0) {
     return Promise.resolve(answers);
   }
@@ -249,7 +258,7 @@ function addProtectScripts(existingScripts, npmVersion, options) {
     return scripts;
   }
 
-  const npmVersionMajor = parseInt(npmVersion.split('.')[0]);
+  const npmVersionMajor = parseInt(npmVersion.split('.')[0], 10);
   if (npmVersionMajor >= 5) {
     scripts.prepare = getNewScriptContent(scripts.prepare, cmd);
 
@@ -261,6 +270,13 @@ function addProtectScripts(existingScripts, npmVersion, options) {
   return scripts;
 }
 
+interface Pkg {
+  scripts: any;
+  snyk: boolean;
+  dependencies: any;
+  devDependencies: any;
+}
+
 function processAnswers(answers, policy, options) {
   if (!options) {
     options = {};
@@ -270,7 +286,7 @@ function processAnswers(answers, policy, options) {
   // allow us to capture the answers the users gave so we can combine this
   // the scenario running
   if (options.json) {
-    return Promise.resolve(JSON.stringify(answers, '', 2));
+    return Promise.resolve(JSON.stringify(answers, null, 2));
   }
   const cwd = process.cwd();
   const packageFile = path.resolve(cwd, 'package.json');
@@ -281,7 +297,7 @@ function processAnswers(answers, policy, options) {
   }
   const isLockFileBased = targetFile.endsWith('package-lock.json') || targetFile.endsWith('yarn.lock');
 
-  let pkg = {};
+  let pkg = {} as Pkg;
 
   analytics.add('answers', Object.keys(answers).map((key) => {
     // if we're looking at a reason, skip it
@@ -295,18 +311,18 @@ function processAnswers(answers, policy, options) {
     }
 
     const answer = answers[key];
-    const res = {
+    const entry = {
       vulnId: answer.vuln.id,
       choice: answer.choice,
       from: answer.vuln.from.slice(1),
-    };
+    } as any;
 
     if (answer.vuln.grouped) {
-      res.batchMain = !!answer.vuln.grouped.main;
-      res.batch = true;
+      entry.batchMain = !!answer.vuln.grouped.main;
+      entry.batch = true;
     }
 
-    return res;
+    return entry;
   }).filter(Boolean));
 
   const tasks = answersToTasks(answers);
@@ -316,18 +332,18 @@ function processAnswers(answers, policy, options) {
   let snykVersion = '*';
 
   const res = protect.generatePolicy(policy, tasks, live, options.packageManager)
-    .then((policy) => {
+    .then((policy2) => {
       if (!live) {
       // if this was a dry run, we'll throw an error to bail out of the
       // promise chain, then in the catch, check the error.code and if
       // it matches `DRYRUN` we'll return the text and not an error
       // (which avoids the exit code 1).
         const e = new Error('This was a dry run: nothing changed');
-        e.code = 'DRYRUN';
+        (e as any).code = 'DRYRUN';
         throw e;
       }
 
-      return policy.save(cwd, spinner).then(() => {
+      return policy2.save(cwd, spinner).then(() => {
       // don't do this during testing
         if (isCI() || process.env.TAP) {
           return Promise.resolve();
@@ -335,7 +351,7 @@ function processAnswers(answers, policy, options) {
 
         return new Promise(((resolve) => {
           exec('git add .snyk', {
-            cwd: cwd,
+            cwd,
           }, (error, stdout, stderr) => {
             if (error) {
               debug('error adding .snyk to git', error);
@@ -459,7 +475,7 @@ function processAnswers(answers, policy, options) {
 
       if (addSnykToDependencies ||
           tasks.update.length) {
-        const packageString = options.packageLeading + JSON.stringify(pkg, '', 2) +
+        const packageString = options.packageLeading + JSON.stringify(pkg, null, 2) +
                           options.packageTrailing;
         return spinner(lbl)
           .then(fs.writeFile(packageFile, packageString))
@@ -471,9 +487,9 @@ function processAnswers(answers, policy, options) {
             }
           })
           // clear spinner in case of success or failure
-          .then(spinner.clear(lbl))
+          .then(spinner.clear<void>(lbl))
           .catch((error) => {
-            spinner.clear(lbl)();
+            spinner.clear<void>(lbl)();
             throw error;
           });
       }
@@ -484,11 +500,11 @@ function processAnswers(answers, policy, options) {
 
         const lbl = 'Updating npm-shrinkwrap.json...';
         return spinner(lbl)
-          .then(npm.bind(null, 'shrinkwrap', null, live, cwd, null))
+          .then(() => npm('shrinkwrap', null, live, cwd, null))
           // clear spinner in case of success or failure
           .then(spinner.clear(lbl))
           .catch((error) => {
-            spinner.clear(lbl)();
+            spinner.clear<void>(lbl)();
             throw error;
           });
       }
@@ -497,7 +513,7 @@ function processAnswers(answers, policy, options) {
       if (answers['misc-test-no-monitor']) { // allows us to automate tests
         return {
           id: 'test',
-        };
+        } as MonitorResult;
       }
 
       debug('running monitor');
@@ -520,12 +536,12 @@ function processAnswers(answers, policy, options) {
       }
 
       return info.inspect(cwd, targetFile, options)
-        .then(spinner(lbl))
-        .then(snykMonitor.bind(null, cwd, meta))
+        .then((inspectRes) => spinner(lbl).then(() => inspectRes))
+        .then((inspectRes) => snykMonitor(cwd, meta as MonitorMeta, inspectRes))
         // clear spinner in case of success or failure
         .then(spinner.clear(lbl))
         .catch((error) => {
-          spinner.clear(lbl)();
+          spinner.clear<void>(lbl)();
           throw error;
         });
     })

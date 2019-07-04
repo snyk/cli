@@ -1,9 +1,16 @@
-module.exports = npm;
+export = npm;
 
-const debug = require('debug')('snyk');
-const exec = require('child_process').exec;
+import debugModule = require('debug');
+const debug = debugModule('snyk');
+import { exec } from 'child_process';
 
-function npm(method, packages, live, cwd, flags) {
+function npm(
+  method: string,
+  packages: string[] | null,
+  live: boolean,
+  cwd: string | null,
+  flags: string[] | null,
+  ): Promise<void> {
   flags = flags || [];
   if (!packages) {
     packages = [];
@@ -22,7 +29,7 @@ function npm(method, packages, live, cwd, flags) {
   method += ' ' + flags.join(' ');
 
   return new Promise(((resolve, reject) => {
-    const cmd = 'npm ' + method + ' ' + packages.join(' ');
+    const cmd = 'npm ' + method + ' ' + (packages as string[]).join(' ');
     if (!cwd) {
       cwd = process.cwd();
     }
@@ -34,7 +41,7 @@ function npm(method, packages, live, cwd, flags) {
     }
 
     exec(cmd, {
-      cwd: cwd,
+      cwd,
     }, (error, stdout, stderr) => {
       if (error) {
         return reject(error);
@@ -43,7 +50,7 @@ function npm(method, packages, live, cwd, flags) {
       if (stderr.indexOf('ERR!') !== -1) {
         console.error(stderr.trim());
         const e = new Error('npm update issues: ' + stderr.trim());
-        e.code = 'FAIL_UPDATE';
+        (e as any).code = 'FAIL_UPDATE';
         return reject(e);
       }
 
@@ -54,7 +61,7 @@ function npm(method, packages, live, cwd, flags) {
   }));
 }
 
-npm.getVersion = function () {
+npm.getVersion = () => {
   return new Promise(((resolve, reject) => {
     exec('npm --version', {
       cwd: process.cwd(),

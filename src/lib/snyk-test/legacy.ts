@@ -6,10 +6,18 @@ interface Pkg {
   version?: string;
 }
 
+interface Patch {
+  version: string;
+  id: string;
+  urls: string[];
+  modificationTime: string;
+}
+
 interface IssueData {
   id: string;
   packageName: string;
   moduleName?: string;
+  below: string; // Vulnerable below version
   semver: {
     vulnerable: string | string[];
     vulnerableHashes?: string[];
@@ -17,11 +25,14 @@ interface IssueData {
       [distroNameAndVersion: string]: string[];
     }
   };
-  patches: object[];
+  patches: Patch[];
   description: string;
 }
 
+type Severity = 'low' | 'medium' | 'high';
+
 interface AnnotatedIssue extends IssueData {
+  credit: any;
   name: string;
   version: string;
   from: Array<string | boolean>;
@@ -29,6 +40,7 @@ interface AnnotatedIssue extends IssueData {
   isUpgradable: boolean;
   isPatchable: boolean;
   nearestFixedInVersion?: string;
+  severity: Severity;
 
   // These fields present for "node_module" based scans to allow remediation
   bundled?: any;
@@ -38,6 +50,12 @@ interface AnnotatedIssue extends IssueData {
 
   dockerfileInstruction?: any;
   dockerBaseImage?: any;
+
+  type?: 'license';
+  title?: string;
+  patch?: any;
+  note?: any;
+  publicationTime?: string;
 }
 
 export interface LegacyVulnApiResult {

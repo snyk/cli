@@ -1,11 +1,12 @@
 import * as _ from 'lodash';
 import * as Debug from 'debug';
+import { SingleDepRootResult } from '../types';
 
 const debug = Debug('snyk-module-info');
 
 export function ModuleInfo(plugin, policy) {
   return {
-    async inspect(root, targetFile, options) {
+    async inspect(root, targetFile, options): Promise<SingleDepRootResult> {
       const pluginOptions = _.merge({
         args: options._doubleDashArgs,
       }, options);
