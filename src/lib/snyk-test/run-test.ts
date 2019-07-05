@@ -74,7 +74,7 @@ async function runTest(packageManager: SupportedPackageManagers,
 
       await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
-      analytics.add('isDocker', (payload.body && payload.body.docker) || false);
+      analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
       let res = await sendTestPayload(payload) as LegacyVulnApiResult;
       if (depGraph) {
