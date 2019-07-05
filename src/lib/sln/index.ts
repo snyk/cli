@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as detect from '../detect';
 import {NoSupportedManifestsFoundError} from '../errors/no-supported-manifests-found';
 import * as Debug from 'debug';
+import { FileFlagBadInputError } from '../errors';
 
 const debug = Debug('snyk');
 
@@ -32,6 +33,11 @@ export const parsePathsFromSln = (slnFile) => {
 };
 
 export const updateArgs = (args) => {
+
+  if (!args.options.file || typeof args.options.file !== 'string') {
+    throw new FileFlagBadInputError();
+  }
+
   // save the path if --file=path/file.sln
   const slnFilePath = path.dirname(args.options.file);
 

@@ -3,8 +3,8 @@ import {test} from 'tap';
 import * as testUtils from '../utils';
 import * as ciChecker from '../../src/lib/is-ci';
 import * as sinon from 'sinon';
-import * as proxyquire from 'proxyquire';
-import {parse} from 'url';
+import proxyquire = require('proxyquire');
+import { parse, Url } from 'url';
 import * as policy from 'snyk-policy';
 import stripAnsi from 'strip-ansi';
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
@@ -213,14 +213,14 @@ test('auth via invalid key', (t) => {
 });
 
 test('auth via github', (t) => {
-  let tokenRequest = null;
+  let tokenRequest: Url & {token?: string} | null = null;
 
   const openSpy = sinon.spy((url) => {
     tokenRequest = parse(url);
     tokenRequest.token = tokenRequest.query.split('=').pop();
   });
 
-  const auth = proxyquire('../src/cli/commands/auth', {
+  const auth = proxyquire('../../src/cli/commands/auth', {
     open: openSpy,
   });
   sinon.stub(ciChecker, 'isCI').returns(false);
