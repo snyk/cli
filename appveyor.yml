@@ -54,4 +54,5 @@ test_script:
   # namely: protect-patch.test.js, wizard-prepare.test.js, wizard-prepublish.test.js
   - npm i -g npm@^3.10.10
   - npm --version
+  - npm run build
   - npm run tap
