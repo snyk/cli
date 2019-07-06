@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://snyk.io/test/npm/snyk"><img src="https://snyk.io/test/npm/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
+  <a href="https://snyk.io/test/github/snyk/snyk"><img src="https://snyk.io/test/github/snyk/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
   <a href="https://snyk.io/features/"><img src="https://badgen.net/npm/dm/snyk" alt="Monthly Downloads"/></a>
 </p>
 
