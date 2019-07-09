@@ -7,7 +7,7 @@ WORKDIR /home/node
 
 # Install maven, node, cli
 RUN apt-get update && \
-  apt-get install -y curl && \
+  apt-get install -y curl git && \
   curl -L -o apache-maven-3.5.4-bin.tar.gz https://www-eu.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz && \
   tar -xvzf apache-maven-3.5.4-bin.tar.gz && \
   rm -f apache-maven-3.5.4-bin.tar.gz && \

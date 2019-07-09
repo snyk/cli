@@ -7,7 +7,7 @@ WORKDIR /home/node
 
 # Install gradle, node, cli
 RUN apt-get update && \
-  apt-get install -y curl unzip && \
+  apt-get install -y curl unzip git && \
   curl -L https://services.gradle.org/distributions/gradle-5.4-bin.zip -o gradle-5.4-bin.zip && \
   unzip gradle-5.4-bin.zip -d /home/node/ && \
   curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
