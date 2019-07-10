@@ -6,6 +6,7 @@ const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
 const uuid = require('uuid/v4');
+const semver = require("semver");
 const errorAnalytics = require('../analytics').single;
 
 function applyPatch(patchFileName, vuln, live, patchUrl) {
@@ -19,14 +20,31 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
     const relative = path.relative(process.cwd(), cwd);
     debug('DRY RUN: relative: %s', relative);
 
+    let pkg;
     try {
       const packageJson = fs.readFileSync(path.resolve(relative, 'package.json'));
-      const pkg = JSON.parse(packageJson);
+      pkg = JSON.parse(packageJson);
       debug('package at patch target location: %s@%s', pkg.name, pkg.version);
     } catch (err) {
       debug('Failed loading package.json of package about to be patched', err);
     }
 
+    const versionOfPackageToPatch = pkg.version;
+
+    const vulnerableVersions = vuln.semver.vulnerable;
+    let foundVersionMatchToPatch = false;
+    vulnerableVersions.forEach(versionRange => {
+      debug(`comparing versions: ${versionOfPackageToPatch} - ${versionRange}`);
+      if (semver.satisfies(versionOfPackageToPatch, versionRange)) {
+        foundVersionMatchToPatch = true;
+      }
+    });
+    
+    if (!foundVersionMatchToPatch) {
+      debug('could not find package on disk that satisfies the vuln to patch, nothing to do');
+      return resolve();
+    }
+    
     const patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
 
     jsDiff(patchContent, relative, live).then(() => {
