@@ -20,25 +20,25 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
     const relative = path.relative(process.cwd(), cwd);
     debug('DRY RUN: relative: %s', relative);
 
-    let pkg;
+    let pkg = {};
+    const packageJsonPath = path.resolve(relative, 'package.json');
     try {
-      const packageJson = fs.readFileSync(path.resolve(relative, 'package.json'));
+      const packageJson = fs.readFileSync(packageJsonPath);
       pkg = JSON.parse(packageJson);
       debug('package at patch target location: %s@%s', pkg.name, pkg.version);
     } catch (err) {
-      debug('Failed loading package.json of package about to be patched', err);
+      debug('Failed loading package.json at %s. Skipping patch!', packageJsonPath, err);
+      return resolve();
     }
 
-    let foundVersionMatchToPatch;
     const versionOfPackageToPatch = pkg.version;
     const patchableVersionsRange = vuln.patches.version;
     if (semver.satisfies(versionOfPackageToPatch, patchableVersionsRange)) {
-      debug(`found patchable version range ${patchableVersionsRange}`);
-      foundVersionMatchToPatch = true;
-    }
-
-    if (!foundVersionMatchToPatch) {
-      debug('could not find package on disk that satisfies the vuln to patch, nothing to do');
+      debug('Patch version range %s matches package version %s',
+        patchableVersionsRange, versionOfPackageToPatch);
+    } else {
+      debug('Patch version range %s does not match package version %s. Skipping patch!',
+        patchableVersionsRange, versionOfPackageToPatch);
       return resolve();
     }
 
