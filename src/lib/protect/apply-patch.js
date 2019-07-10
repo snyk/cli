@@ -20,37 +20,39 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
     const relative = path.relative(process.cwd(), cwd);
     debug('DRY RUN: relative: %s', relative);
 
-    let pkg = {};
-    const packageJsonPath = path.resolve(relative, 'package.json');
     try {
-      const packageJson = fs.readFileSync(packageJsonPath);
-      pkg = JSON.parse(packageJson);
-      debug('package at patch target location: %s@%s', pkg.name, pkg.version);
-    } catch (err) {
-      debug('Failed loading package.json at %s. Skipping patch!', packageJsonPath, err);
-      return resolve();
-    }
+      let pkg = {};
+      const packageJsonPath = path.resolve(relative, 'package.json');
+      try {
+        const packageJson = fs.readFileSync(packageJsonPath);
+        pkg = JSON.parse(packageJson);
+        debug('package at patch target location: %s@%s', pkg.name, pkg.version);
+      } catch (err) {
+        debug('Failed loading package.json at %s. Skipping patch!', packageJsonPath, err);
+        return resolve();
+      }
 
-    const versionOfPackageToPatch = pkg.version;
-    const patchableVersionsRange = vuln.patches.version;
-    if (semver.satisfies(versionOfPackageToPatch, patchableVersionsRange)) {
-      debug('Patch version range %s matches package version %s',
-        patchableVersionsRange, versionOfPackageToPatch);
-    } else {
-      debug('Patch version range %s does not match package version %s. Skipping patch!',
-        patchableVersionsRange, versionOfPackageToPatch);
-      return resolve();
-    }
+      const versionOfPackageToPatch = pkg.version;
+      const patchableVersionsRange = vuln.patches.version;
+      if (semver.satisfies(versionOfPackageToPatch, patchableVersionsRange)) {
+        debug('Patch version range %s matches package version %s',
+          patchableVersionsRange, versionOfPackageToPatch);
+      } else {
+        debug('Patch version range %s does not match package version %s. Skipping patch!',
+          patchableVersionsRange, versionOfPackageToPatch);
+        return resolve();
+      }
 
-    const patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
+      const patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
 
-    jsDiff(patchContent, relative, live).then(() => {
-      debug('patch succeed');
-      resolve();
-    }).catch((error) => {
+      jsDiff(patchContent, relative, live).then(() => {
+        debug('patch succeed');
+        resolve();
+      });
+    } catch (error) {
       debug('patch command failed', relative, error);
       patchError(error, relative, vuln, patchUrl).catch(reject);
-    });
+    };
   }));
 }
 
