@@ -6,6 +6,7 @@ const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
 const uuid = require('uuid/v4');
+const semver = require('semver');
 const errorAnalytics = require('../analytics').single;
 
 function applyPatch(patchFileName, vuln, live, patchUrl) {
@@ -20,22 +21,38 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
     debug('DRY RUN: relative: %s', relative);
 
     try {
-      const packageJson = fs.readFileSync(path.resolve(relative, 'package.json'));
-      const pkg = JSON.parse(packageJson);
-      debug('package at patch target location: %s@%s', pkg.name, pkg.version);
-    } catch (err) {
-      debug('Failed loading package.json of package about to be patched', err);
-    }
+      let pkg = {};
+      const packageJsonPath = path.resolve(relative, 'package.json');
+      try {
+        const packageJson = fs.readFileSync(packageJsonPath);
+        pkg = JSON.parse(packageJson);
+        debug('package at patch target location: %s@%s', pkg.name, pkg.version);
+      } catch (err) {
+        debug('Failed loading package.json at %s. Skipping patch!', packageJsonPath, err);
+        return resolve();
+      }
 
-    const patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
+      const versionOfPackageToPatch = pkg.version;
+      const patchableVersionsRange = semver.coerce(vuln.patches.version);
+      if (semver.satisfies(versionOfPackageToPatch, patchableVersionsRange)) {
+        debug('Patch version range %s matches package version %s',
+          patchableVersionsRange, versionOfPackageToPatch);
+      } else {
+        debug('Patch version range %s does not match package version %s. Skipping patch!',
+          patchableVersionsRange, versionOfPackageToPatch);
+        return resolve();
+      }
 
-    jsDiff(patchContent, relative, live).then(() => {
-      debug('patch succeed');
-      resolve();
-    }).catch((error) => {
+      const patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
+
+      jsDiff(patchContent, relative, live).then(() => {
+        debug('patch succeed');
+        resolve();
+      });
+    } catch (error) {
       debug('patch command failed', relative, error);
       patchError(error, relative, vuln, patchUrl).catch(reject);
-    });
+    };
   }));
 }
 
