@@ -29,16 +29,13 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
       debug('Failed loading package.json of package about to be patched', err);
     }
 
+    let foundVersionMatchToPatch;
     const versionOfPackageToPatch = pkg.version;
-
-    const vulnerableVersions = vuln.semver.vulnerable;
-    let foundVersionMatchToPatch = false;
-    vulnerableVersions.forEach((versionRange) => {
-      debug(`comparing versions: ${versionOfPackageToPatch} - ${versionRange}`);
-      if (semver.satisfies(versionOfPackageToPatch, versionRange)) {
-        foundVersionMatchToPatch = true;
-      }
-    });
+    const patchableVersionsRange = vuln.patches.version;
+    if (semver.satisfies(versionOfPackageToPatch, patchableVersionsRange)) {
+      debug(`found patchable version range ${patchableVersionsRange}`);
+      foundVersionMatchToPatch = true;
+    }
 
     if (!foundVersionMatchToPatch) {
       debug('could not find package on disk that satisfies the vuln to patch, nothing to do');
