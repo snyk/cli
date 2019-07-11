@@ -1,0 +1,118 @@
+{
+  "vulnerabilities": [
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "alternativeIds": [],
+      "creationTime": "2019-06-19T12:04:21.040000Z",
+      "credit": [
+        "Snyk Security Team"
+      ],
+      "cvssScore": 7.3,
+      "description": "## Overview\n\n[lodash](https://www.npmjs.com/package/lodash) is a modern JavaScript utility library delivering modularity, performance, & extras.\n\n\nAffected versions of this package are vulnerable to Prototype Pollution.\nThe function `defaultsDeep` could be tricked into adding or modifying properties of `Object.prototype` using a `constructor` payload.\r\n\r\n## PoC by Snyk\r\n```\r\nconst mergeFn = require('lodash').defaultsDeep;\r\nconst payload = '{\"constructor\": {\"prototype\": {\"a0\": true}}}'\r\n\r\nfunction check() {\r\n    mergeFn({}, JSON.parse(payload));\r\n    if (({})[`a0`] === true) {\r\n        console.log(`Vulnerable to Prototype Pollution via ${payload}`);\r\n    }\r\n  }\r\n\r\ncheck();\r\n```\r\n\r\nFor more information, check out our [blog post](https://snyk.io/blog/snyk-research-team-discovers-severe-prototype-pollution-security-vulnerabilities-affecting-all-versions-of-lodash/)\n\n## Details\nPrototype Pollution is a vulnerability affecting JavaScript. Prototype Pollution refers to the ability to inject properties into existing JavaScript language construct prototypes, such as objects. JavaScript allows all Object attributes to be altered, including their magical attributes such as `_proto_`, `constructor` and `prototype`. An attacker manipulates these attributes to overwrite, or pollute, a JavaScript application object prototype of the base object by injecting other values.  Properties on the `Object.prototype` are then inherited by all the JavaScript objects through the prototype chain. When that happens, this leads to either denial of service by triggering JavaScript exceptions, or it tampers with the application source code to force the code path that the attacker injects, thereby leading to remote code execution.\r\n\r\nThere are two main ways in which the pollution of prototypes occurs:\r\n\r\n-   Unsafe `Object` recursive merge\r\n    \r\n-   Property definition by path\r\n    \r\n\r\n### Unsafe Object recursive merge\r\n\r\nThe logic of a vulnerable recursive merge function follows the following high-level model:\r\n```\r\nmerge (target, source)\r\n\r\n  foreach property of source\r\n\r\n    if property exists and is an object on both the target and the source\r\n\r\n      merge(target[property], source[property])\r\n\r\n    else\r\n\r\n      target[property] = source[property]\r\n```\r\n<br>  \r\n\r\nWhen the source object contains a property named `_proto_` defined with `Object.defineProperty()` , the condition that checks if the property exists and is an object on both the target and the source passes and the merge recurses with the target, being the prototype of `Object` and the source of `Object` as defined by the attacker. Properties are then copied on the `Object` prototype.\r\n\r\nClone operations are a special sub-class of unsafe recursive merges, which occur when a recursive merge is conducted on an empty object: `merge({},source)`.\r\n\r\n`lodash` and `Hoek` are examples of libraries susceptible to recursive merge attacks.\r\n\r\n### Property definition by path\r\n\r\nThere are a few JavaScript libraries that use an API to define property values on an object based on a given path. The function that is generally affected contains this signature: `theFunction(object, path, value)`\r\n\r\nIf the attacker can control the value of “path”, they can set this value to `_proto_.myValue`. `myValue` is then assigned to the prototype of the class of the object.\r\n\r\n## Types of attacks\r\n\r\nThere are a few methods by which Prototype Pollution can be manipulated:\r\n\r\n| Type |Origin  |Short description |\r\n|--|--|--|\r\n| **Denial of service (DoS)**|Client  |This is the most likely attack. <br>DoS occurs when `Object` holds generic functions that are implicitly called for various operations (for example, `toString` and `valueOf`). <br> The attacker pollutes `Object.prototype.someattr` and alters its state to an unexpected value such as `Int` or `Object`. In this case, the code fails and is likely to cause a denial of service.  <br>**For example:** if an attacker pollutes `Object.prototype.toString` by defining it as an integer, if the codebase at any point was reliant on `someobject.toString()` it would fail. |\r\n |**Remote Code Execution**|Client|Remote code execution is generally only possible in cases where the codebase evaluates a specific attribute of an object, and then executes that evaluation.<br>**For example:** `eval(someobject.someattr)`. In this case, if the attacker pollutes `Object.prototype.someattr` they are likely to be able to leverage this in order to execute code.|\r\n|**Property Injection**|Client|The attacker pollutes properties that the codebase relies on for their informative value, including security properties such as cookies or tokens.<br>  **For example:** if a codebase checks privileges for `someuser.isAdmin`, then when the attacker pollutes `Object.prototype.isAdmin` and sets it to equal `true`, they can then achieve admin privileges.|\r\n\r\n## Affected environments\r\n\r\nThe following environments are susceptible to a Prototype Pollution attack:\r\n\r\n-   Application server\r\n    \r\n-   Web server\r\n    \r\n\r\n## How to prevent\r\n\r\n1.  Freeze the prototype— use `Object.freeze (Object.prototype)`.\r\n    \r\n2.  Require schema validation of JSON input.\r\n    \r\n3.  Avoid using unsafe recursive merge functions.\r\n    \r\n4.  Consider using objects without prototypes (for example, `Object.create(null)`), breaking the prototype chain and preventing pollution.\r\n    \r\n5.  As a best practice use `Map` instead of `Object`.\r\n\r\n### For more information on this vulnerability type:\r\n\r\n[Arteau, Oliver. “JavaScript prototype pollution attack in NodeJS application.” GitHub, 26 May 2018](https://github.com/HoLyVieR/prototype-pollution-nsec18/blob/master/paper/JavaScript_prototype_pollution_attack_in_NodeJS.pdf)\n\n## Remediation\n\nUpgrade `lodash` to version 4.17.12 or higher.\n\n\n## References\n\n- [Github Issue](https://github.com/lodash/lodash/issues/4348)\n\n- [GitHub PR](https://github.com/lodash/lodash/pull/4336)\n\n- [Snyk Blog](https://snyk.io/blog/snyk-research-team-discovers-severe-prototype-pollution-security-vulnerabilities-affecting-all-versions-of-lodash/)\n",
+      "disclosureTime": "2019-06-19T11:45:02Z",
+      "fixedIn": [
+        "4.17.12"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-JS-LODASH-450202",
+      "identifiers": {
+        "CVE": [
+          "CVE-2019-10744"
+        ],
+        "CWE": [
+          "CWE-400"
+        ]
+      },
+      "language": "js",
+      "modificationTime": "2019-07-10T08:12:59.719272Z",
+      "moduleName": "lodash",
+      "packageManager": "npm",
+      "packageName": "lodash",
+      "patches": [
+        {
+          "comments": [],
+          "id": "patch:SNYK-JS-LODASH-450202:0",
+          "modificationTime": "2019-07-03T13:52:26.362878Z",
+          "urls": [
+            "https://snyk-rules-pre-repository.s3.amazonaws.com/snapshots/master/patches/npm/lodash/20190702/lodash_20190702_0_0_1f8ea07746963a535385a5befc19fa687a627d2b.patch"
+          ],
+          "version": "=4.17.11"
+        }
+      ],
+      "publicationTime": "2019-07-02T11:45:01Z",
+      "references": [
+        {
+          "title": "Github Issue",
+          "url": "https://github.com/lodash/lodash/issues/4348"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/lodash/lodash/pull/4336"
+        },
+        {
+          "title": "Snyk Blog",
+          "url": "https://snyk.io/blog/snyk-research-team-discovers-severe-prototype-pollution-security-vulnerabilities-affecting-all-versions-of-lodash/"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<4.17.12"
+        ]
+      },
+      "severity": "high",
+      "title": "Prototype Pollution",
+      "from": [
+        "test@1.0.0",
+        "lodash@4.17.11"
+      ],
+      "upgradePath": [
+        false,
+        "lodash@4.17.12"
+      ],
+      "isUpgradable": true,
+      "isPatchable": true,
+      "name": "lodash",
+      "version": "4.17.11"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 1,
+  "org": "adrukh",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {
+    "severities": {
+      "MS-RL": "medium",
+      "EPL-1.0": "medium",
+      "GPL-2.0": "high",
+      "GPL-3.0": "high",
+      "MPL-1.1": "medium",
+      "MPL-2.0": "medium",
+      "Unknown": "medium",
+      "AGPL-1.0": "high",
+      "AGPL-3.0": "high",
+      "CDDL-1.0": "medium",
+      "LGPL-2.0": "medium",
+      "LGPL-2.1": "medium",
+      "LGPL-3.0": "medium",
+      "CPOL-1.02": "high",
+      "LGPL-2.1+": "medium",
+      "LGPL-3.0+": "medium",
+      "SimPL-2.0": "high",
+      "Unlicense": "medium",
+      "Artistic-1.0": "medium",
+      "Artistic-2.0": "medium"
+    }
+  },
+  "packageManager": "npm",
+  "ignoreSettings": null,
+  "summary": "1 vulnerable dependency path",
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 1,
+  "path": "/Users/anton/code/snyk/test"
+}
