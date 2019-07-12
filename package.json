@@ -136,7 +136,8 @@
     "assets": [
       "config.default.json",
       "test-unpublished.json",
-      "help/**/*.txt"
+      "help/**/*.txt",
+      "dist/STANDALONE"
     ]
   }
 }
