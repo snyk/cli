@@ -8,7 +8,7 @@ WORKDIR /home/node
 # Install Python utilities, node, Snyk CLI
 RUN pip install pip pipenv virtualenv -U && \
     apt-get update && \
-    apt-get install -y curl git && \
+    apt-get install -y build-essential curl git && \
     curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
     apt-get install -y nodejs jq && \
     npm install --global snyk snyk-to-html && \
