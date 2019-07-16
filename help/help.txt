@@ -38,7 +38,7 @@ Options:
                        dependencies, down to the vulnerable packages (defaults
                        to true). Applicable to `snyk test`.
   --project-name=<string>
-                       Specify a custom Snyk project name (`snyk monitor` only).
+                       Specify a custom Snyk project name.
   --policy-path ...... Manually pass a path to a policy file.
   --insecure ......... Ignore unknown certificate authorities.
   --json ............. Return results in JSON format.
