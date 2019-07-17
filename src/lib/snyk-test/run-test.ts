@@ -314,7 +314,7 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
       }
 
       let body: PayloadBody = {
-        targetFile: pkg.targetFile || options.file,
+        targetFile: pkg.targetFile,
         projectNameOverride: options.projectName,
         policy: policy && policy.toString(),
         docker: pkg.docker,

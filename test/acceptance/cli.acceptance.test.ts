@@ -129,13 +129,14 @@ test('`test sinatra --registry=rubygems` sends remote Rubygems request:', async 
  * Local source `test`
  */
 
-test('`test project with custom --project-name`', async (t) => {
+test('`test npm-package with custom --project-name`', async (t) => {
   chdirWorkspaces();
-  await cli.test('project', {
+  await cli.test('npm-package', {
     'project-name': 'custom-project-name',
   });
   const req = server.popRequest();
-  t.equal(req.body.projectNameOverride, 'custom-project-name');
+  t.match(req.body.projectNameOverride, 'custom-project-name', 'custom project name is passed');
+  t.match(req.targetFile, undefined, 'target is undefined');
 });
 
 test('`test empty --file=Gemfile`', async (t) => {
@@ -945,6 +946,7 @@ test('`test maven-app --file=pom.xml --dev` sends package info', async (t) => {
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.query.org, 'nobelprize.org', 'org sent as a query in request');
+  t.match(req.targetFile, undefined, 'target is undefined');
 
   const depGraph = depGraphLib.createFromJSON(req.body.depGraph);
   t.equal(depGraph.rootPkg.name, 'com.mycompany.app:maven-app', 'root name');
@@ -959,6 +961,7 @@ test('`test npm-package` sends pkg info', async (t) => {
   await cli.test('npm-package');
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.match(req.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
 
   t.same(
@@ -972,6 +975,7 @@ test('`test npm-package --file=package-lock.json ` sends pkg info', async (t) =>
   await cli.test('npm-package', {file: 'package-lock.json'});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.match(req.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -984,6 +988,7 @@ test('`test npm-package --file=package-lock.json --dev` sends pkg info', async (
   await cli.test('npm-package', {file: 'package-lock.json', dev: true});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.match(req.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -1108,6 +1113,7 @@ test('`test yarn-package --file=yarn.lock ` sends pkg info', async (t) => {
   await cli.test('yarn-package', {file: 'yarn.lock'});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.match(req.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -1120,6 +1126,7 @@ test('`test yarn-package --file=yarn.lock --dev` sends pkg info', async (t) => {
   await cli.test('yarn-package', {file: 'yarn.lock', dev: true});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.match(req.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -1155,6 +1162,7 @@ test('`test` on a yarn package does work and displays appropriate text', async (
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.match(req.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -1326,7 +1334,14 @@ test('`test nuget-app --file=project.json`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
+      return {
+        package: {},
+        plugin: {
+          name: 'testplugin',
+          runtime: 'testruntime',
+          targetFile: 'project.json',
+        }
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1403,7 +1418,14 @@ test('`test golang-gomodules --file=go.mod`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
+      return {
+        package: {},
+        plugin: {
+          name: 'testplugin',
+          runtime: 'testruntime',
+          targetFile: 'go.mod',
+        }
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1438,7 +1460,14 @@ test('`test golang-app` auto-detects golang-gomodules', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
+      return {
+        package: {},
+        plugin: {
+          name: 'testplugin',
+          runtime: 'testruntime',
+          targetFile: 'go.mod',
+        }
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1471,7 +1500,14 @@ test('`test golang-app --file=Gopkg.lock`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
+      return {
+        package: {},
+        plugin: {
+          name: 'testplugin',
+          runtime: 'testruntime',
+          targetFile: 'Gopkg.lock',
+        }
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1506,7 +1542,14 @@ test('`test golang-app --file=vendor/vendor.json`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
+      return {
+        package: {},
+        plugin: {
+          name: 'testplugin',
+          runtime: 'testruntime',
+          targetFile: 'vendor/vendor.json',
+        }
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
@@ -1541,7 +1584,14 @@ test('`test golang-app` auto-detects golang/dep', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
-      return {package: {}, plugin: {name: 'testplugin', runtime: 'testruntime'}};
+      return {
+        package: {},
+        plugin: {
+          name: 'testplugin',
+          runtime: 'testruntime',
+          targetFile: 'Gopkg.lock',
+        }
+      };
     },
   };
   const spyPlugin = sinon.spy(plugin, 'inspect');
