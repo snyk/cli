@@ -4,10 +4,11 @@ import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as depGraphLib from '@snyk/dep-graph';
 import * as _ from 'lodash';
+import * as needle from 'needle';
 import * as cli from '../../src/cli/commands';
 import * as fakeServer from './fake-server';
 import * as subProcess from '../../src/lib/sub-process';
-import * as needle from 'needle';
+import * as version from '../../src/lib/version';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -26,6 +27,7 @@ process.env.LOG_LEVEL = '0';
 const apiKey = '123456789';
 let oldkey;
 let oldendpoint;
+let versionNumber;
 const server: any = fakeServer(process.env.SNYK_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
@@ -36,6 +38,8 @@ import * as plugins from '../../src/lib/plugins';
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
+  versionNumber = await version();
+
   t.plan(3);
   let key = await cli.config('get', 'api');
   oldkey = key;
@@ -110,6 +114,7 @@ test('`test semver` sends remote NPM request:', async (t) => {
   const output = await cli.test('semver', {registry: 'npm', org: 'EFF'});
   const req = server.popRequest();
   t.equal(req.method, 'GET', 'makes GET request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/vuln/npm/semver', 'gets from correct url');
   t.equal(req.query.org, 'EFF', 'org sent as a query in request');
   t.match(output, 'Testing semver', 'has "Testing semver" message');
@@ -121,6 +126,7 @@ test('`test sinatra --registry=rubygems` sends remote Rubygems request:', async 
   await cli.test('sinatra', {registry: 'rubygems', org: 'ACME'});
   const req = server.popRequest();
   t.equal(req.method, 'GET', 'makes GET request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/vuln/rubygems/sinatra', 'gets from correct url');
   t.equal(req.query.org, 'ACME', 'org sent as a query in request');
 });
@@ -223,6 +229,7 @@ test('`test ruby-app --file=Gemfile.lock`', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
 
   const depGraph = req.body.depGraph;
@@ -679,6 +686,7 @@ test('`test ruby-gem-no-lockfile --file=ruby-gem.gemspec`', async (t) => {
   await cli.test('ruby-gem-no-lockfile', {file: 'ruby-gem.gemspec'});
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
 
   const depGraph = req.body.depGraph;
@@ -694,6 +702,7 @@ test('`test ruby-gem --file=ruby-gem.gemspec`', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
 
   const depGraph = req.body.depGraph;
@@ -709,6 +718,7 @@ test('`test ruby-app` auto-detects Gemfile', async (t) => {
   await cli.test('ruby-app');
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
 
   const depGraph = req.body.depGraph;
@@ -745,6 +755,7 @@ test('`test nuget-app-2 auto-detects project.assets.json`', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
   t.same(spyPlugin.getCall(0).args,
@@ -784,6 +795,7 @@ test('`test nuget-app-2.1 auto-detects obj/project.assets.json`', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
   t.same(spyPlugin.getCall(0).args,
@@ -824,6 +836,7 @@ test('`test nuget-app-4 auto-detects packages.config`', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
   t.same(spyPlugin.getCall(0).args,
@@ -864,6 +877,7 @@ test('`test paket-app auto-detects paket.dependencies`', async (t) => {
 
     const req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
+    t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
     t.match(req.url, '/test-dep-graph', 'posts to correct url');
     t.equal(req.body.depGraph.pkgManager.name, 'paket');
     t.same(spyPlugin.getCall(0).args,
@@ -904,6 +918,7 @@ test('`test paket-obj-app auto-detects obj/project.assets.json if exists`', asyn
 
     const req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
+    t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
     t.match(req.url, '/test-dep-graph', 'posts to correct url');
     t.equal(req.body.depGraph.pkgManager.name, 'nuget');
     t.same(spyPlugin.getCall(0).args,
@@ -924,6 +939,7 @@ test('`test monorepo --file=sub-ruby-app/Gemfile`', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
 
   const depGraph = req.body.depGraph;
@@ -944,6 +960,7 @@ test('`test maven-app --file=pom.xml --dev` sends package info', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.query.org, 'nobelprize.org', 'org sent as a query in request');
   t.match(req.targetFile, undefined, 'target is undefined');
@@ -1161,6 +1178,7 @@ test('`test` on a yarn package does work and displays appropriate text', async (
   await cli.test();
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.match(req.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
@@ -1190,6 +1208,7 @@ test('`test pip-app --file=requirements.txt`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'pip');
   t.same(spyPlugin.getCall(0).args,
@@ -1231,6 +1250,7 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.targetFile, 'Pipfile', 'specifies target');
   t.equal(req.body.depGraph.pkgManager.name, 'pip');
@@ -1273,6 +1293,7 @@ test('`test nuget-app --file=project.assets.json`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.targetFile, 'project.assets.json', 'specifies target');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
@@ -1315,6 +1336,7 @@ test('`test nuget-app --file=packages.config`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.targetFile, 'packages.config', 'specifies target');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
@@ -1357,6 +1379,7 @@ test('`test nuget-app --file=project.json`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.targetFile, 'project.json', 'specifies target');
   t.equal(req.body.depGraph.pkgManager.name, 'nuget');
@@ -1399,6 +1422,7 @@ test('`test paket-app --file=paket.dependencies`', async (t) => {
     });
     const req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
+    t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
     t.match(req.url, '/test-dep-graph', 'posts to correct url');
     t.equal(req.body.depGraph.pkgManager.name, 'paket');
     t.equal(req.body.targetFile, 'paket.dependencies', 'specifies target');
@@ -1441,6 +1465,7 @@ test('`test golang-gomodules --file=go.mod`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'gomodules');
   t.equal(req.body.targetFile, 'go.mod', 'specifies target');
@@ -1481,6 +1506,7 @@ test('`test golang-app` auto-detects golang-gomodules', async (t) => {
   await cli.test('golang-gomodules');
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'gomodules');
   t.equal(req.body.targetFile, 'go.mod', 'specifies target');
@@ -1523,6 +1549,7 @@ test('`test golang-app --file=Gopkg.lock`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'golangdep');
   t.equal(req.body.targetFile, 'Gopkg.lock', 'specifies target');
@@ -1565,6 +1592,7 @@ test('`test golang-app --file=vendor/vendor.json`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'govendor');
   t.equal(req.body.targetFile, 'vendor/vendor.json', 'specifies target');
@@ -1605,6 +1633,7 @@ test('`test golang-app` auto-detects golang/dep', async (t) => {
   await cli.test('golang-app');
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'golangdep');
   t.equal(req.body.targetFile, 'Gopkg.lock', 'specifies target');
@@ -1638,6 +1667,7 @@ test('`test golang-app-govendor` auto-detects govendor', async (t) => {
   await cli.test('golang-app-govendor');
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'govendor');
   t.same(spyPlugin.getCall(0).args,
@@ -1672,6 +1702,7 @@ test('`test composer-app --file=composer.lock`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'composer');
   t.same(spyPlugin.getCall(0).args,
@@ -1704,6 +1735,7 @@ test('`test composer-app` auto-detects composer.lock', async (t) => {
   await cli.test('composer-app');
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'composer');
   t.same(spyPlugin.getCall(0).args,
@@ -1740,6 +1772,12 @@ test('`test composer-app golang-app nuget-app` auto-detects all three projects',
 
   t.same(reqs.map((r) => r.method),
     ['POST', 'POST', 'POST'], 'all post requests');
+
+  t.same(
+    reqs.map(r => r.headers['x-snyk-cli-version']),
+    [versionNumber, versionNumber, versionNumber],
+    'all send version number'
+  );
 
   t.same(reqs.map((r) => r.url), [
     '/api/v1/test-dep-graph?org=test-org',
@@ -1802,6 +1840,7 @@ test('`test foo:latest --docker`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'deb');
   t.same(spyPlugin.getCall(0).args,
@@ -1879,6 +1918,7 @@ test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'deb');
   t.equal(req.body.docker.baseImage, 'ubuntu:14.04',
@@ -1930,6 +1970,7 @@ test('`test foo:latest --docker` doesnt collect policy from cwd', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'deb');
   t.same(spyPlugin.getCall(0).args,
@@ -2002,6 +2043,7 @@ test('`test foo:latest --docker with binaries`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.body.depGraph.pkgManager.name, 'deb');
   t.same(req.body.docker.binaries, [{name: 'node', version: '5.10.1'}],
@@ -2297,6 +2339,7 @@ test('`monitor npm-package`', async (t) => {
   const req = server.popRequest();
   const pkg = req.body.package;
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/npm', 'puts at correct url');
   t.ok(pkg.dependencies.debug, 'dependency');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
@@ -2313,6 +2356,7 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (
   await cli.monitor('npm-package-pruneable', {'prune-repeated-subdependencies': true});
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/npm', 'puts at correct url');
   t.ok(req.body.meta.prePruneDepCount, 'sends meta.prePruneDepCount');
   const adc = req.body.package.dependencies.a.dependencies.d.dependencies.c;
@@ -2326,6 +2370,7 @@ test('`monitor yarn-package`', async (t) => {
   const req = server.popRequest();
   const pkg = req.body.package;
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/yarn', 'puts at correct url');
   t.ok(pkg.dependencies.debug, 'dependency');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
@@ -2350,6 +2395,7 @@ test('`monitor npm-package with dev dep flag`', async (t) => {
   await cli.monitor('npm-package', { dev: true });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/npm', 'puts at correct url');
   t.ok(req.body.package.dependencies.debug, 'dependency');
   t.ok(req.body.package.dependencies['object-assign'],
@@ -2361,6 +2407,7 @@ test('`monitor yarn-package with dev dep flag`', async (t) => {
   await cli.monitor('yarn-package', { dev: true });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/yarn', 'puts at correct url');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.ok(req.body.package.dependencies.debug, 'dependency');
@@ -2373,6 +2420,7 @@ test('`monitor ruby-app`', async (t) => {
   await cli.monitor('ruby-app');
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/rubygems', 'puts at correct url');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.match(decode64(req.body.package.files.gemfileLock.contents),
@@ -2386,6 +2434,7 @@ test('`monitor maven-app`', async (t) => {
   const req = server.popRequest();
   const pkg = req.body.package;
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/maven', 'puts at correct url');
   t.equal(pkg.name, 'com.mycompany.app:maven-app', 'specifies name');
   t.ok(pkg.dependencies['junit:junit'], 'specifies dependency');
@@ -2403,6 +2452,7 @@ test('`monitor maven-multi-app`', async (t) => {
   const req = server.popRequest();
   const pkg = req.body.package;
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/maven', 'puts at correct url');
   t.equal(pkg.name, 'com.mycompany.app:maven-multi-app', 'specifies name');
   t.ok(pkg.dependencies['com.mycompany.app:simple-child'],
@@ -2418,6 +2468,7 @@ test('`monitor yarn-app`', async (t) => {
   const req = server.popRequest();
   const pkg = req.body.package;
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/yarn', 'puts at correct url');
   t.equal(pkg.name, 'yarn-app-one', 'specifies name');
   t.ok(pkg.dependencies.marked, 'specifies dependency');
@@ -2455,6 +2506,7 @@ test('`monitor pip-app --file=requirements.txt`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/pip', 'puts at correct url');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   t.same(spyPlugin.getCall(0).args,
@@ -2489,6 +2541,7 @@ test('`monitor gradle-app`', async (t) => {
   t.match(output, /use --all-sub-projects flag to scan all sub-projects/, 'all-sub-projects flag is suggested');
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/gradle', 'puts at correct url');
   t.same(spyPlugin.getCall(0).args,
     ['gradle-app', 'build.gradle', {
@@ -2497,7 +2550,7 @@ test('`monitor gradle-app`', async (t) => {
 });
 
 test('`monitor gradle-app --all-sub-projects`', async (t) => {
-  t.plan(4);
+  t.plan(5);
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -2517,6 +2570,7 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/gradle', 'puts at correct url');
   t.same(spyPlugin.getCall(0).args,
     ['gradle-app', 'build.gradle', {
@@ -2527,7 +2581,7 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
 });
 
 test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
-  t.plan(7);
+  t.plan(9);
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -2548,9 +2602,11 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
 
   let req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request for pip');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/pip', 'puts at correct url');
   req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request for gradle');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/gradle', 'puts at correct url');
 
   t.same(spyPlugin.getCall(0).args,
@@ -2618,6 +2674,7 @@ test('`monitor golang-gomodules --file=go.mod', async (t) => {
 
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/gomodules', 'puts at correct url');
   t.equal(req.body.targetFile, 'go.mod', 'sends the targetFile');
   t.same(spyPlugin.getCall(0).args,
@@ -2652,6 +2709,7 @@ test('`monitor golang-app --file=Gopkg.lock', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/golangdep', 'puts at correct url');
   t.equal(req.body.targetFile, 'Gopkg.lock', 'sends the targetFile');
   t.same(spyPlugin.getCall(0).args,
@@ -2688,6 +2746,7 @@ test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/govendor', 'puts at correct url');
   t.equal(req.body.targetFile, 'vendor/vendor.json', 'sends the targetFile');
   t.same(spyPlugin.getCall(0).args,
@@ -2737,6 +2796,7 @@ test('`monitor foo:latest --docker`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/rpm',
     'puts at correct url (uses package manager from plugin response)');
   t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
@@ -2766,6 +2826,7 @@ test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/rpm',
     'puts at correct url (uses package manager from plugin response)');
   t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
@@ -2794,6 +2855,7 @@ test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/rpm',
     'puts at correct url (uses package manager from plugin response)');
   t.same(spyPlugin.getCall(0).args,
@@ -2833,6 +2895,7 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
   });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/monitor/rpm',
     'puts at correct url (uses package manager from plugin response)');
   t.same(spyPlugin.getCall(0).args,
