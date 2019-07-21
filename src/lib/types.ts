@@ -101,6 +101,7 @@ export interface MonitorOptions {
   'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
   'project-name'?: string;
   'print-deps'?: boolean;
+  'experimental-dep-graph'?: boolean;
 
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
   'prune-repeated-subdependencies'?: boolean;
