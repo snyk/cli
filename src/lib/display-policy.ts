@@ -1,13 +1,9 @@
-module.exports = display;
+import chalk from 'chalk';
+import {demunge} from 'snyk-policy';
+import * as config from './config';
 
-const chalk = require('chalk');
-const demunge = require('snyk-policy').demunge;
-const config = require('./config');
-
-function display(policy) {
-  return new Promise(((resolve) => {
+export async function display(policy) {
     const p = demunge(policy, config.ROOT);
-
     let res = chalk.bold('Current Snyk policy, read from ' + policy.__filename +
       ' file') + '\n';
     res += 'Modified: ' + policy.__modified + '\n';
@@ -19,19 +15,18 @@ function display(policy) {
     }
     res += p.ignore.map(displayRule('Ignore')).join('\n');
 
-    resolve(res);
-  }));
+    return Promise.resolve(res);
 }
 
 function displayRule(title) {
-  return function (rule, i) {
+  return (rule, i) => {
     i += 1;
     return chalk.bold('\n#' + i + ' ' + title + ' ' + rule.url) +
       ' in the following paths:\n' +
       (rule.paths.map((p) => {
         return p.path +
                (p.reason ? '\nReason: ' + p.reason +
-               '\nExpires: ' + p.expires.toUTCString() + '\n': '')  + '\n';
+               '\nExpires: ' + p.expires.toUTCString() + '\n' : '')  + '\n';
       }).join('').replace(/\s*$/, ''));
   };
 }
