@@ -50,6 +50,7 @@ async function test(...args: MethodArgs): Promise<string> {
     // these options later.
     const testOpts = _.cloneDeep(options);
     testOpts.path = path;
+    testOpts.projectName = testOpts['project-name'];
 
     let res;
 
