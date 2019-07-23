@@ -150,7 +150,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         'project-name': options['project-name'] || config.PROJECT_NAME,
         'isDocker': !!options.docker,
         'prune': !!options['prune-repeated-subdependencies'],
-      };
+        'experimental-dep-graph': !!options['experimental-dep-graph'],
+    };
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
 
