@@ -1,5 +1,6 @@
 import * as Debug from 'debug';
 import * as depGraphLib from '@snyk/dep-graph';
+import {DepGraph} from '@snyk/dep-graph';
 import * as snyk from '../lib';
 import {apiTokenExists} from './api-token';
 import * as request from './request';
@@ -20,7 +21,8 @@ const debug = Debug('snyk');
 interface MonitorBody {
   meta: Meta;
   policy: string;
-  package: DepTree;
+  package?: DepTree;
+  depGraph?: DepGraph;
   target: {};
   targetFileRelativePath: string;
   targetFile: string;
@@ -90,16 +92,25 @@ export async function monitor(
     targetFile?: string,
     ): Promise<MonitorResult> {
   apiTokenExists();
+
+  const packageManager = meta.packageManager;
+  analytics.add('packageManager', packageManager);
+  analytics.add('isDocker', !!meta.isDocker);
+
+  if (meta['experimental-dep-graph'] && packageManager === 'npm') {
+    return await monitorGraph(root, meta, info, targetFile);
+  }
+
+  let pkg = info.package;
+
   let prePruneDepCount;
   if (meta.prune) {
     debug('prune used, counting total dependencies');
     prePruneDepCount = countTotalDependenciesInTree(info.package);
     analytics.add('prePruneDepCount', prePruneDepCount);
     debug('total dependencies: %d', prePruneDepCount);
+    pkg = await pruneTree(info.package, meta.packageManager);
   }
-  const pkg = meta.prune
-    ? await pruneTree(info.package, meta.packageManager)
-    : info.package;
 
   const pluginMeta = info.plugin;
   let policy;
@@ -111,10 +122,6 @@ export async function monitor(
     await snyk.policy.create();
   }
   policy = await snyk.policy.load(policyLocations, {loose: true});
-
-  const packageManager = meta.packageManager;
-  analytics.add('packageManager', packageManager);
-  analytics.add('isDocker', !!meta.isDocker);
 
   const target = await projectMetadata.getInfo(pkg);
   const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
@@ -163,6 +170,94 @@ export async function monitor(
         'content-encoding': 'gzip',
       },
       url: config.API + '/monitor/' + packageManager,
+      json: true,
+    }, (error, res, body) => {
+      if (error) {
+        return reject(error);
+      }
+
+      if (res.statusCode === 200 || res.statusCode === 201) {
+        resolve(body as MonitorResult);
+      } else {
+        let err;
+        const userMessage = body && body.userMessage;
+        if (!userMessage && res.statusCode === 504) {
+          err = new ConnectionTimeoutError();
+        } else {
+          err = new MonitorError(res.statusCode, userMessage);
+        }
+        reject(err);
+      }
+    });
+  });
+}
+
+export async function monitorGraph(
+    root: string,
+    meta: MonitorMeta,
+    info: SingleDepRootResult,
+    targetFile?: string,
+): Promise<MonitorResult> {
+  const packageManager = meta.packageManager;
+
+  let policy;
+  const pkg = info.package;
+  const pluginMeta = info.plugin;
+  const policyPath = meta['policy-path'] || root;
+  const policyLocations = [policyPath].concat(pluckPolicies(pkg)).filter(Boolean);
+
+  const depGraph = await depGraphLib.legacy.depTreeToGraph(info.package, packageManager);
+
+  // docker doesn't have a policy as it can be run from anywhere
+  if (!meta.isDocker || !policyLocations.length) {
+    await snyk.policy.create();
+  }
+  policy = await snyk.policy.load(policyLocations, {loose: true});
+
+  const target = await projectMetadata.getInfo(pkg);
+  const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
+
+  if (target && target.branch) {
+    analytics.add('targetBranch', target.branch);
+  }
+
+  return new Promise((resolve, reject) => {
+    request({
+      body: {
+        meta: {
+          method: meta.method,
+          hostname: os.hostname(),
+          id: snyk.id || pkg.name,
+          ci: isCI(),
+          pid: process.pid,
+          node: process.version,
+          master: snyk.config.isMaster,
+          name: depGraph.rootPkg.name,
+          version: depGraph.rootPkg.version,
+          org: config.org ? decodeURIComponent(config.org) : undefined,
+          pluginName: pluginMeta.name,
+          pluginRuntime: pluginMeta.runtime,
+          dockerImageId: pluginMeta.dockerImageId,
+          dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
+          dockerfileLayers: pkg.docker ? pkg.docker.dockerfileLayers : undefined,
+          projectName: meta['project-name'],
+          prePruneDepCount: undefined, // undefined unless 'prune' is used
+        },
+        policy: policy ? policy.toString() : undefined,
+        depGraph,
+        // we take the targetFile from the plugin,
+        // because we want to send it only for specific package-managers
+        target,
+        targetFile: pluginMeta.targetFile,
+        targetFileRelativePath,
+      } as MonitorBody,
+      gzip: true,
+      method: 'PUT',
+      headers: {
+        'authorization': 'token ' + snyk.api,
+        'content-encoding': 'gzip',
+      },
+      url: `${config.API}/monitor/${packageManager}/graph`,
       json: true,
     }, (error, res, body) => {
       if (error) {
