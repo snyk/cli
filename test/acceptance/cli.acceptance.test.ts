@@ -2378,6 +2378,24 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (
   t.notOk(adc.dependencies, 'a.d.c has no dependencies');
 });
 
+test('`monitor npm-package-pruneable --prune-repeated-subdependencies --experimental-dep-graph`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('npm-package-pruneable', {'prune-repeated-subdependencies': true});
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+  t.ok(req.body.depGraph, 'sends depGraph');
+});
+
+test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('npm-package-pruneable');
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+  t.ok(req.body.depGraph, 'sends depGraph');
+});
+
 test('`monitor yarn-package`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('yarn-package');
