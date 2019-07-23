@@ -26,7 +26,10 @@ import {
 import { MethodArgs, ArgsOptions } from '../args';
 import { maybePrintDeps } from '../../lib/print-deps';
 import * as analytics from '../../lib/analytics';
-import {MonitorError} from '../../lib/errors';
+import {
+  MonitorError,
+  UnsupportedFeatureFlagError,
+} from '../../lib/errors';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -85,7 +88,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     const isFFSupported = await isFeatureFlagSupportedForOrg(_.camelCase('experimental-dep-graph'));
 
     if (!isFFSupported.ok) {
-      throw new Error(isFFSupported.userMessage);
+      throw new UnsupportedFeatureFlagError('experimental-dep-graph', isFFSupported.userMessage);
     }
   }
 
