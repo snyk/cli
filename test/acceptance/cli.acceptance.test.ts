@@ -2386,7 +2386,7 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies --experime
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-  t.ok(req.body.depGraph, 'sends depGraph');
+  t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
 });
 
 test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
@@ -2396,7 +2396,7 @@ test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-  t.ok(req.body.depGraph, 'sends depGraph');
+  t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
 });
 
 test('`monitor yarn-package`', async (t) => {
