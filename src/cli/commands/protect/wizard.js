@@ -222,7 +222,7 @@ function getNewScriptContent(scriptContent, cmd) {
   if (scriptContent) {
     // only add the command if it's not already in the script
     if (scriptContent.indexOf(cmd) === -1) {
-      return cmd + '&& ' + scriptContent;
+      return cmd + '; ' + scriptContent;
     }
     return scriptContent;
   }
