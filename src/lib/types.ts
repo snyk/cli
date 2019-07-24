@@ -114,6 +114,7 @@ export interface MonitorMeta {
   'project-name': string;
   'isDocker': boolean;
   'prune': boolean;
+  'experimental-dep-graph'?: boolean;
 }
 
 export interface MonitorResult {
