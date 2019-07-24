@@ -1,6 +1,5 @@
 import * as Debug from 'debug';
 import * as depGraphLib from '@snyk/dep-graph';
-import {DepGraph} from '@snyk/dep-graph';
 import * as snyk from '../lib';
 import {apiTokenExists} from './api-token';
 import * as request from './request';
@@ -22,7 +21,7 @@ interface MonitorBody {
   meta: Meta;
   policy: string;
   package?: DepTree;
-  depGraph?: DepGraph;
+  depGraph?: depGraphLib.DepGraph;
   target: {};
   targetFileRelativePath: string;
   targetFile: string;
@@ -206,7 +205,7 @@ export async function monitorGraph(
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath].concat(pluckPolicies(pkg)).filter(Boolean);
 
-  const depGraph = await depGraphLib.legacy.depTreeToGraph(info.package, packageManager);
+  const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(info.package, packageManager);
 
   // docker doesn't have a policy as it can be run from anywhere
   if (!meta.isDocker || !policyLocations.length) {
@@ -244,7 +243,7 @@ export async function monitorGraph(
           prePruneDepCount: undefined, // undefined unless 'prune' is used
         },
         policy: policy ? policy.toString() : undefined,
-        depGraph,
+        depGraphJSON: depGraph, // depGraph will be auto serialized to JSON on send
         // we take the targetFile from the plugin,
         // because we want to send it only for specific package-managers
         target,
