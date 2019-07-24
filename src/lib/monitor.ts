@@ -176,7 +176,7 @@ export async function monitor(
         return reject(error);
       }
 
-      if (res.statusCode === 200 || res.statusCode === 201) {
+      if (res.statusCode >= 200 && res.statusCode <= 299) {
         resolve(body as MonitorResult);
       } else {
         let err;
@@ -264,7 +264,7 @@ export async function monitorGraph(
         return reject(error);
       }
 
-      if (res.statusCode === 200 || res.statusCode === 201) {
+      if (res.statusCode >= 200 && res.statusCode <= 299) {
         resolve(body as MonitorResult);
       } else {
         let err;
