@@ -14,9 +14,6 @@ import * as version from '../../src/lib/version';
 // configure our fake configuration too
 import * as snykPolicy from 'snyk-policy';
 
-function getRuntimeVersion(): number {
-  return parseInt(process.version.slice(1).split('.')[0], 10);
-}
 const {test, only} = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
 
@@ -1362,7 +1359,7 @@ test('`test nuget-app --file=project.json`', async (t) => {
           name: 'testplugin',
           runtime: 'testruntime',
           targetFile: 'project.json',
-        }
+        },
       };
     },
   };
@@ -1448,7 +1445,7 @@ test('`test golang-gomodules --file=go.mod`', async (t) => {
           name: 'testplugin',
           runtime: 'testruntime',
           targetFile: 'go.mod',
-        }
+        },
       };
     },
   };
@@ -1491,7 +1488,7 @@ test('`test golang-app` auto-detects golang-gomodules', async (t) => {
           name: 'testplugin',
           runtime: 'testruntime',
           targetFile: 'go.mod',
-        }
+        },
       };
     },
   };
@@ -1532,7 +1529,7 @@ test('`test golang-app --file=Gopkg.lock`', async (t) => {
           name: 'testplugin',
           runtime: 'testruntime',
           targetFile: 'Gopkg.lock',
-        }
+        },
       };
     },
   };
@@ -1575,7 +1572,7 @@ test('`test golang-app --file=vendor/vendor.json`', async (t) => {
           name: 'testplugin',
           runtime: 'testruntime',
           targetFile: 'vendor/vendor.json',
-        }
+        },
       };
     },
   };
@@ -1618,7 +1615,7 @@ test('`test golang-app` auto-detects golang/dep', async (t) => {
           name: 'testplugin',
           runtime: 'testruntime',
           targetFile: 'Gopkg.lock',
-        }
+        },
       };
     },
   };
@@ -1774,9 +1771,9 @@ test('`test composer-app golang-app nuget-app` auto-detects all three projects',
     ['POST', 'POST', 'POST'], 'all post requests');
 
   t.same(
-    reqs.map(r => r.headers['x-snyk-cli-version']),
+    reqs.map((r) => r.headers['x-snyk-cli-version']),
     [versionNumber, versionNumber, versionNumber],
-    'all send version number'
+    'all send version number',
   );
 
   t.same(reqs.map((r) => r.url), [
@@ -2007,14 +2004,14 @@ test('`test foo:latest --docker` supports custom policy', async (t) => {
   t.equal(req.body.depGraph.pkgManager.name, 'deb');
   t.same(spyPlugin.getCall(0).args,
     ['foo:latest', null, {
-      args: null,
-      file: null,
-      docker: true,
-      org: 'explicit-org',
-      projectName: null,
-      packageManager: null,
-      path: 'foo:latest',
-      showVulnPaths: true,
+      'args': null,
+      'file': null,
+      'docker': true,
+      'org': 'explicit-org',
+      'projectName': null,
+      'packageManager': null,
+      'path': 'foo:latest',
+      'showVulnPaths': true,
       'policy-path': 'npm-package-policy/custom-location',
     }], 'calls docker plugin with expected arguments');
 
@@ -2367,7 +2364,8 @@ test('`monitor npm-package`', async (t) => {
 
 test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
   chdirWorkspaces();
-  await cli.monitor('npm-package-pruneable', {'prune-repeated-subdependencies': true});
+
+  await cli.monitor('npm-package-pruneable', { 'prune-repeated-subdependencies': true });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
@@ -2380,7 +2378,11 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (
 
 test('`monitor npm-package-pruneable --prune-repeated-subdependencies --experimental-dep-graph`', async (t) => {
   chdirWorkspaces();
-  await cli.monitor('npm-package-pruneable', {'prune-repeated-subdependencies': true});
+
+  await cli.monitor('npm-package-pruneable', {
+    'prune-repeated-subdependencies': true,
+    'experimental-dep-graph': true,
+  });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
@@ -2389,7 +2391,8 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies --experime
 
 test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
   chdirWorkspaces();
-  await cli.monitor('npm-package-pruneable');
+
+  await cli.monitor('npm-package-pruneable', { 'experimental-dep-graph': true });
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
