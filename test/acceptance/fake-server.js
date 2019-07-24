@@ -108,6 +108,20 @@ module.exports = function (root, apikey) {
     return next();
   });
 
+  server.get(root + '/cli-config/feature-flags/:featureFlag', (req, res, next) => {
+    res.send({
+      ok: true,
+    });
+    return next();
+  });
+
+  server.put(root + '/monitor/:registry/graph', (req, res, next) => {
+    res.send({
+      id: 'test',
+    });
+    return next();
+  });
+
   server.put(root + '/monitor/:registry', function (req, res, next) {
     res.send({
       id: 'test',
