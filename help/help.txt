@@ -22,6 +22,8 @@ Commands:
   ignore ............. Modifies the .snyk policy to ignore stated issues.
                        For more information run `snyk help ignore`.
   help [topic] ....... Display detailed help about commands and options.
+  config ............. Manage Snyk's configuration, note that this configuration is stored
+                       on your machine and applies to all Snyk CLI calls.
 
 Options:
 
