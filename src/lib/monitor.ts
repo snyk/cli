@@ -81,6 +81,7 @@ async function pruneTree(tree: DepTree, packageManagerName: string): Promise<Dep
   // Transplant pruned dependencies in the original tree (we want to keep all other fields):
   tree.dependencies = prunedTree.dependencies;
   debug('finished pruning dep tree');
+
   return tree;
 }
 

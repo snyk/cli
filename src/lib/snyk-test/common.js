@@ -9,6 +9,9 @@ module.exports.assembleQueryString = function (options) {
   if (options.severityThreshold) {
     qs.severityThreshold = options.severityThreshold;
   }
+  if (options.actionableRemediation) {
+    qs.actionableRemediation = !!options.actionableRemediation;
+  }
 
   return Object.keys(qs).length !== 0 ? qs : null;
 };
