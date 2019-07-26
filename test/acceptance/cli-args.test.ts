@@ -15,3 +15,14 @@ test('snyk test command should fail when --file is not specified correctly', (t)
     t.equal(stdout.trim(), 'Empty --file argument. Did you mean --file=path/to/file ?', 'correct error output');
   });
 });
+
+test('snyk test command should fail when --packageManager is not specified correctly', (t) => {
+  t.plan(1);
+
+  exec(`node ${main} test --packageManager=hello`, (err, stdout, stderr) => {
+    if (err) {
+      throw err;
+    }
+    t.match(stdout.trim(), 'Unsupported package manager', 'correct error output');
+  });
+});

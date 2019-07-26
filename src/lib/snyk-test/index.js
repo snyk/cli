@@ -4,6 +4,7 @@ const detect = require('../detect');
 const runTest = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
+const {UnsupportedPackageManagerError} = require('../errors');
 
 function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -49,7 +50,7 @@ function executeTest(root, options) {
 function run(root, options) {
   const packageManager = options.packageManager;
   if (!(options.docker || pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager])) {
-    throw new Error('Unsupported package manager: ' + packageManager);
+    throw new UnsupportedPackageManagerError(packageManager);
   }
   return runTest(packageManager, root, options);
 }
