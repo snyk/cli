@@ -2333,14 +2333,19 @@ test('monitor for package with no name in lockfile', async (t) => {
 test('`monitor npm-package with experimental-dep-graph not enabled`', async (t) => {
   chdirWorkspaces();
 
+  const featureFlagRequestStub = sinon.stub(needle, 'request').yields(null, null, { ok: false });
+
   try {
     await cli.monitor('npm-package', { 'experimental-dep-graph': true });
+    t.fail('shoud have thrown an error');
   } catch (e) {
     t.equal(e.name, 'UnsupportedFeatureFlagError', 'correct error was thrown');
     t.equal(e.userMessage,
         'Feature flag \'experimental-dep-graph\' is not currently enabled for your org, ' +
         'to enable please contact snyk support',
         'correct default error message');
+
+    featureFlagRequestStub.restore();
   }
 });
 
