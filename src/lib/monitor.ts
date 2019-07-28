@@ -85,6 +85,29 @@ async function pruneTree(tree: DepTree, packageManagerName: string): Promise<Dep
   return tree;
 }
 
+function filterOutMissingDeps(depTree) {
+  const filteredDeps = {};
+  const missingDeps: string[] = [];
+
+  for (const depKey of Object.keys(depTree.dependencies)) {
+    const dep = depTree.dependencies[depKey];
+    if (dep.missingLockFileEntry) {
+      missingDeps.push(`${dep.name}@${dep.version}`);
+    } else {
+      filteredDeps[depKey] = dep;
+    }
+  }
+  const filteredDepTree = {
+    ...depTree,
+    dependencies: filteredDeps,
+  };
+
+  return {
+    filteredDepTree,
+    missingDeps,
+  };
+}
+
 export async function monitor(
     root: string,
     meta: MonitorMeta,
@@ -205,8 +228,9 @@ export async function monitorGraph(
   const pluginMeta = info.plugin;
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath].concat(pluckPolicies(pkg)).filter(Boolean);
+  const {filteredDepTree, missingDeps} = filterOutMissingDeps(info.package);
 
-  const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(info.package, packageManager);
+  const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(filteredDepTree, packageManager);
 
   // docker doesn't have a policy as it can be run from anywhere
   if (!meta.isDocker || !policyLocations.length) {
@@ -251,6 +275,7 @@ export async function monitorGraph(
           dockerfileLayers: pkg.docker ? pkg.docker.dockerfileLayers : undefined,
           projectName: meta['project-name'],
           prePruneDepCount, // undefined unless 'prune' is used
+          missingDeps,
         },
         policy: policy ? policy.toString() : undefined,
         depGraphJSON: prunedGraph, // depGraph will be auto serialized to JSON on send

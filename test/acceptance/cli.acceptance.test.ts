@@ -2362,6 +2362,17 @@ test('`monitor npm-package`', async (t) => {
   t.notOk(req.body.meta.prePruneDepCount, "doesn't send meta.prePruneDepCount");
 });
 
+test('`monitor npm-out-of-sync`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('npm-out-of-sync', { 'experimental-dep-graph': true, 'strict': false });
+  const req = server.popRequest();
+  t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+  t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
+  t.notOk(req.body.depGraphJSON.getPkgs().find(
+    (pkg) => pkg.name === 'body-parser'), 'filetered out missingLockFileEntry');
+  t.equals(req.body.meta.missingDeps, ['body-parser@1.18.2'], 'missingDeps passed');
+});
+
 test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
   chdirWorkspaces();
 
