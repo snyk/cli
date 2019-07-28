@@ -8,9 +8,12 @@ WORKDIR /home/node
 # Install sbt, node, cli
 RUN apt-get update && \
     apt-get install -y curl apt-transport-https git && \
-    echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list && \
-    curl -L -o sbt.deb https://dl.bintray.com/sbt/debian/sbt-1.0.4.deb && \
-    dpkg -i sbt.deb && \
+    curl -L -o sbt-1.0.4.deb https://dl.bintray.com/sbt/debian/sbt-1.0.4.deb && \
+    dpkg -i sbt-1.0.4.deb && \
+    rm sbt-1.0.4.deb && \
+    apt-get update && \
+    apt-get install -y sbt && \
+    sbt sbtVersion && \
     echo "docker-user ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers  && \
     mkdir -p /root/.sbt/1.0/plugins  && \
     mkdir -p /home/node/.sbt/1.0/plugins  && \
