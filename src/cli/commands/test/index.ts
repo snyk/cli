@@ -2,15 +2,16 @@ module.exports = test;
 
 import * as _ from 'lodash';
 import chalk from 'chalk';
-import * as snyk from '../../lib/';
-import * as config from '../../lib/config';
-import {isCI} from '../../lib/is-ci';
-import {apiTokenExists} from '../../lib/api-token';
-import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../lib/snyk-test/common';
+import * as snyk from '../../../lib';
+import * as config from '../../../lib/config';
+import {isCI} from '../../../lib/is-ci';
+import {apiTokenExists} from '../../../lib/api-token';
+import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
-import {Options, TestOptions} from '../../lib/types';
-import {isLocalFolder} from '../../lib/detect';
-import { MethodArgs } from '../args';
+import {Options, TestOptions} from '../../../lib/types';
+import {isLocalFolder} from '../../../lib/detect';
+import { MethodArgs } from '../../args';
+import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -55,7 +56,7 @@ async function test(...args: MethodArgs): Promise<string> {
     let res;
 
     try {
-      res = await snyk.test(path, testOpts);
+      res = await snyk.test(path, testOpts) as LegacyVulnApiResult;
     } catch (error) {
       // Possible error cases:
       // - the test found some vulns. `error.message` is a
@@ -138,7 +139,8 @@ async function test(...args: MethodArgs): Promise<string> {
     throw err;
   }
 
-  let response = results.map((unused, i) => displayResult(results[i], resultOptions[i]))
+  let response = results
+    .map((unused, i) => displayResult(results[i] as LegacyVulnApiResult, resultOptions[i]))
     .join(`\n${SEPARATOR}`);
 
   if (notSuccess) {
