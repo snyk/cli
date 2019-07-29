@@ -113,6 +113,7 @@ async function runTest(packageManager: SupportedPackageManagers,
 
       analytics.add('vulns-pre-policy', res.vulnerabilities.length);
       res.filesystemPolicy = !!payloadPolicy;
+      // TODO: is this needed? we filter on the other side already based on policy
       if (!options['ignore-policy']) {
         res.policy = res.policy || payloadPolicy as string;
         const policy = await snyk.policy.loadFromText(res.policy);

@@ -56,6 +56,7 @@ export interface LegacyVulnApiResult {
 
   filesystemPolicy?: boolean;
   uniqueCount?: any;
+  remediation?: RemediationChanges;
 }
 
 interface UpgradePathItem {
@@ -94,6 +95,7 @@ interface TestDepGraphResult {
     binariesVulns?: TestDepGraphResult;
     baseImage?: any;
   };
+  remediation?: RemediationChanges;
 }
 
 interface TestDepGraphMeta {
@@ -112,6 +114,47 @@ interface TestDepGraphMeta {
 export interface TestDepGraphResponse {
   result: TestDepGraphResult;
   meta: TestDepGraphMeta;
+}
+
+export interface Ignores {
+  [path: string]: {
+    paths: string[][];
+    meta: {
+      days?: number;
+      reason?: string;
+    };
+  };
+}
+
+export interface PatchObject {
+  [name: string]: {
+    patched: string;
+  };
+}
+
+export interface UpgradeRemediation {
+  upgradeTo: string;
+  upgrades: string[];
+  vulns: string[];
+}
+
+export interface PatchRemediation {
+  paths: PatchObject[];
+}
+
+export interface DependencyUpdates {
+  [from: string]: UpgradeRemediation;
+}
+
+// Remediation changes to be applied to the project,
+// including information on all and unresolved issues.
+export interface RemediationChanges {
+  unresolved: IssueData[];
+  upgrade: DependencyUpdates;
+  patch: {
+    [name: string]: PatchRemediation;
+  };
+  ignore: unknown;
 }
 
 function convertTestDepGraphResultToLegacy(
@@ -204,6 +247,7 @@ function convertTestDepGraphResultToLegacy(
     docker: result.docker,
     summary: getSummary(vulns, severityThreshold),
     severityThreshold,
+    remediation: result.remediation,
   };
 
   return legacyRes;
