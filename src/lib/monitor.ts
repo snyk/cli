@@ -12,6 +12,7 @@ import { SingleDepRootResult, DepTree, MonitorMeta, MonitorResult } from './type
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
 import {MonitorError, ConnectionTimeoutError} from './errors';
+import { SupportedPackageManagers } from './package-managers';
 
 const debug = Debug('snyk');
 
@@ -220,6 +221,15 @@ export async function monitorGraph(
     analytics.add('targetBranch', target.branch);
   }
 
+  let prunedGraph = depGraph;
+  let prePruneDepCount;
+  if (meta.prune) {
+    debug('Trying to prune the graph');
+    prePruneDepCount = countPathsToGraphRoot(depGraph);
+    debug('pre prunedPathsCount: ' +  prePruneDepCount);
+    prunedGraph = await pruneGraph(depGraph, packageManager);
+  }
+
   return new Promise((resolve, reject) => {
     request({
       body: {
@@ -240,10 +250,10 @@ export async function monitorGraph(
           dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
           dockerfileLayers: pkg.docker ? pkg.docker.dockerfileLayers : undefined,
           projectName: meta['project-name'],
-          prePruneDepCount: undefined, // undefined unless 'prune' is used
+          prePruneDepCount, // undefined unless 'prune' is used
         },
         policy: policy ? policy.toString() : undefined,
-        depGraphJSON: depGraph, // depGraph will be auto serialized to JSON on send
+        depGraphJSON: prunedGraph, // depGraph will be auto serialized to JSON on send
         // we take the targetFile from the plugin,
         // because we want to send it only for specific package-managers
         target,
@@ -277,6 +287,44 @@ export async function monitorGraph(
       }
     });
   });
+}
+
+function countPathsToGraphRoot(graph: depGraphLib.DepGraph): number {
+  return graph
+    .getPkgs()
+    .map((pkg) => graph.countPathsToRoot(pkg))
+    .reduce((acc, pathsToRoot) => acc + pathsToRoot, 0);
+}
+
+async function pruneGraph(
+    depGraph: depGraphLib.DepGraph,
+    packageManager: SupportedPackageManagers,
+  ): Promise<depGraphLib.DepGraph> {
+    try {
+    const threshold = config.PRUNE_DEPS_THRESHOLD; // Arbitrary threshold for maximum number of elements in the tree
+    const prunedTree: DepTree = (await depGraphLib.legacy.graphToDepTree(
+      depGraph,
+      packageManager,
+      { deduplicateWithinTopLevelDeps: true },
+    )) as DepTree;
+
+    const prunedGraph = await depGraphLib.legacy.depTreeToGraph(
+      prunedTree,
+      packageManager,
+    );
+    const count = countPathsToGraphRoot(prunedGraph);
+    debug('prunedPathsCount: ' +  count);
+
+    if (count < threshold) {
+      return prunedGraph;
+    }
+    debug('Too many vulnerable paths to monitor the project');
+    // TODO: create a custom error for this
+    throw new Error('Too many vulnerable paths to monitor the project');
+  } catch (e) {
+    debug('Failed to prune the graph, returning original:' + e);
+    return depGraph;
+  }
 }
 
 function pluckPolicies(pkg) {
