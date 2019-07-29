@@ -11,7 +11,7 @@ module.exports.assembleQueryString = function (options) {
   }
 
   if (options['grouped-remediation']) {
-    qs.groupedRemediation = 1;
+    qs.actionableRemediation = true;
   }
 
   return Object.keys(qs).length !== 0 ? qs : null;

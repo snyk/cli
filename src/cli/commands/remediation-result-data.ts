@@ -1014,6 +1014,6 @@ const data: RemediationResult = {
             ]
         }
     }, ignore: {}
-}
+};
 
 export = data;

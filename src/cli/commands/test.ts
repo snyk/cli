@@ -12,7 +12,6 @@ import {TestOptions} from '../../lib/types';
 import {isLocalFolder} from '../../lib/detect';
 import { MethodArgs } from '../args';
 import { RemediationResult, LegacyVulnApiResult } from '../../lib/snyk-test/legacy';
-import { fstat } from 'fs';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -270,7 +269,7 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult,
     const upgradeDepTo = _.get(remediationInfo, ['upgrade', upgrade, 'upgradeTo'], {});
     const vulnIds = _.get(remediationInfo, ['upgrade', upgrade, 'vulns']);
     const upgradeText = `\n  ${chalk.bold(upgrade)} > ${chalk.bold(upgradeDepTo)} \n`;
-    const fixedIssues = vulnIds.map(id =>
+    const fixedIssues = vulnIds.map((id) =>
       `    • [${severityColouredLetter(chalk.bold(basicVulnInfo[id].severity))()}] `
       + `${chalk.bold(basicVulnInfo[id].title)} [https://snyk.io/vuln/${id}] `).join('\n');
     const thisUpgradeFixes =  `  To fix: \n${fixedIssues}`;
@@ -296,7 +295,7 @@ function formatIssuesWithRemediation(vulns, remediationInfo: RemediationResult,
     results.push(patchedTextArray.join('\n'));
   }
 
-  const unfixableIssuesTextArray = [chalk.bold.red('✗ No fix available:\n')]
+  const unfixableIssuesTextArray = [chalk.bold.red('✗ No fix available:\n')];
   for (const issue of remediationInfo.unresolved) {
     unfixableIssuesTextArray.push('  ' + chalk.bold(issue.id) +
     '\n    Affects ' + chalk.bold(issue.packageName) + ' versions: ' + issue.semver.vulnerable);
@@ -393,7 +392,10 @@ function displayResult(res: LegacyVulnApiResult, options: TestOptions & OptionsA
       dockerSuggestion += chalk.bold.white('\n\nPro tip: use `--file` option to get base image remediation advice.' +
         `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`) + optOutSuggestions;
     } else if (!options['exclude-base-image-vulns']) {
-      dockerSuggestion +=
+      dockerSuggestion +
+
+
+
         chalk.bold.white(
           '\n\nPro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.') +
           optOutSuggestions;
@@ -414,8 +416,8 @@ function displayResult(res: LegacyVulnApiResult, options: TestOptions & OptionsA
     .filter((vuln) => (vuln.metadata.packageManager === 'upstream'));
 
   let groupedVulnInfoOutput;
-  if (res.remediationResult) {
-    groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediationResult, options);
+  if (res.remediation) {
+    groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediation, options);
   } else {
     groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) => formatIssues(vuln, options));
   }
