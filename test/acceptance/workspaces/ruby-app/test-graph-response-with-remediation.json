@@ -1,0 +1,654 @@
+{
+  "vulnerabilities": [
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+      "alternativeIds": [
+
+      ],
+      "creationTime": "2018-11-06T15:59:53.869247Z",
+      "credit": [
+        "Aaron Patterson"
+      ],
+      "cvssScore": 6.1,
+      "description": "## Overview\n[rack](https://rubygems.org/gems/rack) provides a minimal, modular and adaptable interface for developing web applications in Ruby.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Sicripting (XSS) attacks via the `scheme` method on `Rack::Request`.\r\n\r\n## Details\r\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\r\n\r\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\r\n\r\nֿInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\r\n\r\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\r\n \r\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \r\n\r\n### Types of attacks\r\nThere are a few methods by which XSS can be manipulated:\r\n\r\n|Type|Origin|Description|\r\n|--|--|--|\r\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\r\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \r\n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\r\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\r\n\r\n### Affected environments\r\nThe following environments are susceptible to an XSS attack:\r\n\r\n* Web servers\r\n* Application servers\r\n* Web application environments\r\n\r\n### How to prevent\r\nThis section describes the top best practices designed to specifically protect your code: \r\n\r\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \r\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \r\n* Give users the option to disable client-side scripts.\r\n* Redirect invalid requests.\r\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\r\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\r\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\r\n\r\n## Remediation\r\nUpgrade `rack` to version 1.6.11, 2.0.6 or higher.\n\n## References\n- [GitHub Commit](https://github.com/rack/rack/commit/313dd6a05a5924ed6c82072299c53fed09e39ae7)\n- [Google Security Forum](https://groups.google.com/forum/%23%21msg/rubyonrails-security/GKsAFT924Ag/DYtk-Xl6AAAJ)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1646818)\n",
+      "disclosureTime": "2018-08-22T15:56:49Z",
+      "fixedIn": [
+        "1.6.11",
+        "2.0.6"
+      ],
+      "functions": [
+
+      ],
+      "functions_new": [
+
+      ],
+      "id": "SNYK-RUBY-RACK-72567",
+      "identifiers": {
+        "CVE": [
+          "CVE-2018-16470"
+        ],
+        "CWE": [
+          "CWE-79"
+        ]
+      },
+      "language": "ruby",
+      "modificationTime": "2018-11-22T10:10:06.800213Z",
+      "moduleName": "rack",
+      "packageManager": "rubygems",
+      "packageName": "rack",
+      "patches": [
+
+      ],
+      "publicationTime": "2018-11-06T16:08:37Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/rack/rack/commit/313dd6a05a5924ed6c82072299c53fed09e39ae7"
+        },
+        {
+          "title": "Google Security Forum",
+          "url": "https://groups.google.com/forum/%23%21msg/rubyonrails-security/GKsAFT924Ag/DYtk-Xl6AAAJ"
+        },
+        {
+          "title": "RedHat Bugzilla Bug",
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1646818"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<1.6.11",
+          ">=2.0.0, <2.0.6"
+        ]
+      },
+      "severity": "medium",
+      "title": "Cross-site Scripting (XSS)",
+      "from": [
+        "bundler-app@*",
+        "rack@1.6.5"
+      ],
+      "upgradePath": [
+        false,
+        "rack@1.6.11"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "rack",
+      "version": "1.6.5"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+      "alternativeIds": [
+
+      ],
+      "creationTime": "2018-11-06T15:59:53.869247Z",
+      "credit": [
+        "Aaron Patterson"
+      ],
+      "cvssScore": 6.1,
+      "description": "## Overview\n[rack](https://rubygems.org/gems/rack) provides a minimal, modular and adaptable interface for developing web applications in Ruby.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Sicripting (XSS) attacks via the `scheme` method on `Rack::Request`.\r\n\r\n## Details\r\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\r\n\r\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\r\n\r\nֿInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\r\n\r\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\r\n \r\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \r\n\r\n### Types of attacks\r\nThere are a few methods by which XSS can be manipulated:\r\n\r\n|Type|Origin|Description|\r\n|--|--|--|\r\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\r\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \r\n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\r\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\r\n\r\n### Affected environments\r\nThe following environments are susceptible to an XSS attack:\r\n\r\n* Web servers\r\n* Application servers\r\n* Web application environments\r\n\r\n### How to prevent\r\nThis section describes the top best practices designed to specifically protect your code: \r\n\r\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \r\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \r\n* Give users the option to disable client-side scripts.\r\n* Redirect invalid requests.\r\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\r\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\r\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\r\n\r\n## Remediation\r\nUpgrade `rack` to version 1.6.11, 2.0.6 or higher.\n\n## References\n- [GitHub Commit](https://github.com/rack/rack/commit/313dd6a05a5924ed6c82072299c53fed09e39ae7)\n- [Google Security Forum](https://groups.google.com/forum/%23%21msg/rubyonrails-security/GKsAFT924Ag/DYtk-Xl6AAAJ)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1646818)\n",
+      "disclosureTime": "2018-08-22T15:56:49Z",
+      "fixedIn": [
+        "1.6.11",
+        "2.0.6"
+      ],
+      "functions": [
+
+      ],
+      "functions_new": [
+
+      ],
+      "id": "SNYK-RUBY-RACK-72567",
+      "identifiers": {
+        "CVE": [
+          "CVE-2018-16470"
+        ],
+        "CWE": [
+          "CWE-79"
+        ]
+      },
+      "language": "ruby",
+      "modificationTime": "2018-11-22T10:10:06.800213Z",
+      "moduleName": "rack",
+      "packageManager": "rubygems",
+      "packageName": "rack",
+      "patches": [
+
+      ],
+      "publicationTime": "2018-11-06T16:08:37Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/rack/rack/commit/313dd6a05a5924ed6c82072299c53fed09e39ae7"
+        },
+        {
+          "title": "Google Security Forum",
+          "url": "https://groups.google.com/forum/%23%21msg/rubyonrails-security/GKsAFT924Ag/DYtk-Xl6AAAJ"
+        },
+        {
+          "title": "RedHat Bugzilla Bug",
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1646818"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<1.6.11",
+          ">=2.0.0, <2.0.6"
+        ]
+      },
+      "severity": "medium",
+      "title": "Cross-site Scripting (XSS)",
+      "from": [
+        "bundler-app@*",
+        "rack-cache@1.1",
+        "rack@1.6.5"
+      ],
+      "upgradePath": [
+        false,
+        "rack-cache@1.1",
+        "rack@1.6.11"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "rack",
+      "version": "1.6.5"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+      "alternativeIds": [
+
+      ],
+      "creationTime": "2018-11-06T15:59:53.869247Z",
+      "credit": [
+        "Aaron Patterson"
+      ],
+      "cvssScore": 6.1,
+      "description": "## Overview\n[rack](https://rubygems.org/gems/rack) provides a minimal, modular and adaptable interface for developing web applications in Ruby.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Sicripting (XSS) attacks via the `scheme` method on `Rack::Request`.\r\n\r\n## Details\r\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\r\n\r\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\r\n\r\nֿInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\r\n\r\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\r\n \r\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \r\n\r\n### Types of attacks\r\nThere are a few methods by which XSS can be manipulated:\r\n\r\n|Type|Origin|Description|\r\n|--|--|--|\r\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\r\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \r\n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\r\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\r\n\r\n### Affected environments\r\nThe following environments are susceptible to an XSS attack:\r\n\r\n* Web servers\r\n* Application servers\r\n* Web application environments\r\n\r\n### How to prevent\r\nThis section describes the top best practices designed to specifically protect your code: \r\n\r\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \r\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \r\n* Give users the option to disable client-side scripts.\r\n* Redirect invalid requests.\r\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\r\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\r\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\r\n\r\n## Remediation\r\nUpgrade `rack` to version 1.6.11, 2.0.6 or higher.\n\n## References\n- [GitHub Commit](https://github.com/rack/rack/commit/313dd6a05a5924ed6c82072299c53fed09e39ae7)\n- [Google Security Forum](https://groups.google.com/forum/%23%21msg/rubyonrails-security/GKsAFT924Ag/DYtk-Xl6AAAJ)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1646818)\n",
+      "disclosureTime": "2018-08-22T15:56:49Z",
+      "fixedIn": [
+        "1.6.11",
+        "2.0.6"
+      ],
+      "functions": [
+
+      ],
+      "functions_new": [
+
+      ],
+      "id": "SNYK-RUBY-RACK-72567",
+      "identifiers": {
+        "CVE": [
+          "CVE-2018-16470"
+        ],
+        "CWE": [
+          "CWE-79"
+        ]
+      },
+      "language": "ruby",
+      "modificationTime": "2018-11-22T10:10:06.800213Z",
+      "moduleName": "rack",
+      "packageManager": "rubygems",
+      "packageName": "rack",
+      "patches": [
+
+      ],
+      "publicationTime": "2018-11-06T16:08:37Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/rack/rack/commit/313dd6a05a5924ed6c82072299c53fed09e39ae7"
+        },
+        {
+          "title": "Google Security Forum",
+          "url": "https://groups.google.com/forum/%23%21msg/rubyonrails-security/GKsAFT924Ag/DYtk-Xl6AAAJ"
+        },
+        {
+          "title": "RedHat Bugzilla Bug",
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1646818"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<1.6.11",
+          ">=2.0.0, <2.0.6"
+        ]
+      },
+      "severity": "medium",
+      "title": "Cross-site Scripting (XSS)",
+      "from": [
+        "bundler-app@*",
+        "rack-protection@1.5.3",
+        "rack@1.6.5"
+      ],
+      "upgradePath": [
+        false,
+        "rack-protection@1.5.3",
+        "rack@1.6.11"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "rack",
+      "version": "1.6.5"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "alternativeIds": [
+
+      ],
+      "creationTime": "2016-09-21T12:37:03Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 7.3,
+      "description": "## Overview\n[rack-cache](https://rubygems.org/gems/rack-cache) enables HTTP caching for Rack-based applications.\nAffected versions of this gem contain a flaw related to the rubygem caching sensitive HTTP headers. This will result in a weakness that may make it easier for an attacker to gain access to a user's session via a specially crafted header.\n\n## References\n- http://rubysec.com/advisories/CVE-2012-2671\n",
+      "disclosureTime": "2012-06-05T21:00:00Z",
+      "fixedIn": [
+        "1.2"
+      ],
+      "functions": [
+
+      ],
+      "functions_new": [
+
+      ],
+      "id": "SNYK-RUBY-RACKCACHE-20031",
+      "identifiers": {
+        "CVE": [
+          "CVE-2012-2671"
+        ],
+        "CWE": [
+          "CWE-444"
+        ],
+        "OSVDB": [
+          "OSVDB-83077"
+        ]
+      },
+      "language": "ruby",
+      "modificationTime": "2019-06-02T07:14:41.052919Z",
+      "moduleName": "rack-cache",
+      "packageManager": "rubygems",
+      "packageName": "rack-cache",
+      "patches": [
+
+      ],
+      "publicationTime": "2012-06-05T21:00:00Z",
+      "references": [
+        {
+          "title": "RUBYSEC.COM",
+          "url": "http://rubysec.com/advisories/CVE-2012-2671"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "< 1.2"
+        ]
+      },
+      "severity": "high",
+      "title": "HTTP Header Caching Weakness",
+      "from": [
+        "bundler-app@*",
+        "rack-cache@1.1"
+      ],
+      "upgradePath": [
+        false,
+        "rack-cache@1.2"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "rack-cache",
+      "version": "1.1"
+    },
+    {
+      "license": "Unknown",
+      "semver": {
+        "vulnerable": [
+          "< 1.3.0, >= 0.2.0"
+        ]
+      },
+      "id": "snyk:lic:rubygems:rack-cache:Unknown",
+      "type": "license",
+      "packageManager": "rubygems",
+      "language": "ruby",
+      "packageName": "rack-cache",
+      "title": "Unknown license",
+      "description": "Unknown license",
+      "publicationTime": "2019-07-29T23:06:51.012Z",
+      "creationTime": "2019-07-29T23:06:51.012Z",
+      "severity": "high",
+      "from": [
+        "bundler-app@*",
+        "rack-cache@1.1"
+      ],
+      "upgradePath": [
+        false,
+        "rack-cache@1.3.0"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "rack-cache",
+      "version": "1.1"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:N/A:N",
+      "alternativeIds": [
+
+      ],
+      "creationTime": "2017-04-27T08:33:28.014000Z",
+      "credit": [
+        "Louis Mullie"
+      ],
+      "cvssScore": 3.7,
+      "description": "## Overview\n[`rack-protection`](https://rubygems.org/gems/rack-protection) protects against typical web attacks.\n\nAffected versions of the package are vulnerable to Side-channel attacks.\n\n## Remediation\nUpgrade `rack-protection` to version 2.0.0.beta1 or higher.\n\n## References\n- [More info on Break Attacks](http://breachattack.com/)\n- [Github PR](https://github.com/sinatra/sinatra/pull/1171)\n- [Github Issue](https://github.com/sinatra/rack-protection/issues/64)\n- [Github Commit](https://github.com/sinatra/sinatra/commit/6aeaf645c0602816c61e19bab005ec01674951c7)\n",
+      "disclosureTime": "2013-08-03T21:00:00Z",
+      "fixedIn": [
+        "2.0.0.beta1"
+      ],
+      "functions": [
+
+      ],
+      "functions_new": [
+
+      ],
+      "id": "SNYK-RUBY-RACKPROTECTION-20394",
+      "identifiers": {
+        "CVE": [
+
+        ],
+        "CWE": [
+          "CWE-310"
+        ]
+      },
+      "language": "ruby",
+      "modificationTime": "2019-06-02T07:35:16.134738Z",
+      "moduleName": "rack-protection",
+      "packageManager": "rubygems",
+      "packageName": "rack-protection",
+      "patches": [
+
+      ],
+      "publicationTime": "2017-08-02T13:08:57.760000Z",
+      "references": [
+        {
+          "title": "Github Commit",
+          "url": "https://github.com/sinatra/sinatra/commit/6aeaf645c0602816c61e19bab005ec01674951c7"
+        },
+        {
+          "title": "Github Issue",
+          "url": "https://github.com/sinatra/rack-protection/issues/64"
+        },
+        {
+          "title": "Github PR",
+          "url": "https://github.com/sinatra/sinatra/pull/1171"
+        },
+        {
+          "title": "More info on Break Attacks",
+          "url": "http://breachattack.com/"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<2.0.0.beta1"
+        ]
+      },
+      "severity": "low",
+      "title": "Side-channel attack",
+      "from": [
+        "bundler-app@*",
+        "rack-protection@1.5.3"
+      ],
+      "upgradePath": [
+        false,
+        "rack-protection@2.0.0"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "rack-protection",
+      "version": "1.5.3"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "alternativeIds": [
+
+      ],
+      "creationTime": "2017-04-27T08:22:16.170000Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 5.9,
+      "description": "## Overview\n[`rack-protection`](https://rubygems.org/gems/rack-protection) helps protect against typical web attacks.\n\nAffected versions of the package are vulnerable to Timing Attack due to time-variable comparison of signatures. A malicious user can guess a valid signature one char at a time by considering the time it takes a signature validation to fail.\n\nYou can read more about timing attacks on our [blog](https://snyk.io/blog/node-js-timing-attack-ccc-ctf/)\n\n## Remediation\nUpgrade `rack-protection` to versions 1.5.5, 2.0.0 or higher.\n\n## References\n- [GitHub PR](https://github.com/sinatra/rack-protection/pull/98)\n- [GitHub Commit](https://github.com/sinatra/rack-protection/commit/d8068e872b0f19ef9de25265552cb1b835270901)\n- [NVD](https://nvd.nist.gov/vuln/detail/CVE-2018-1000119)\n",
+      "disclosureTime": "2015-05-24T21:00:00Z",
+      "fixedIn": [
+        "1.5.5",
+        "2.0.0"
+      ],
+      "functions": [
+
+      ],
+      "functions_new": [
+
+      ],
+      "id": "SNYK-RUBY-RACKPROTECTION-20395",
+      "identifiers": {
+        "CVE": [
+          "CVE-2018-1000119"
+        ],
+        "CWE": [
+          "CWE-208"
+        ]
+      },
+      "language": "ruby",
+      "modificationTime": "2019-06-02T07:35:16.839787Z",
+      "moduleName": "rack-protection",
+      "packageManager": "rubygems",
+      "packageName": "rack-protection",
+      "patches": [
+
+      ],
+      "publicationTime": "2017-08-02T13:08:58.095000Z",
+      "references": [
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/sinatra/rack-protection/commit/d8068e872b0f19ef9de25265552cb1b835270901"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/sinatra/rack-protection/pull/98"
+        },
+        {
+          "title": "NVD",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2018-1000119"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<1.5.5",
+          ">=2.0.0.beta1, <2.0.0"
+        ]
+      },
+      "severity": "medium",
+      "title": "Timing Attack",
+      "from": [
+        "bundler-app@*",
+        "rack-protection@1.5.3"
+      ],
+      "upgradePath": [
+        false,
+        "rack-protection@1.5.5"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "rack-protection",
+      "version": "1.5.3"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+      "alternativeIds": [
+
+      ],
+      "creationTime": "2018-02-28T08:56:11.448000Z",
+      "credit": [
+        "Unknown"
+      ],
+      "cvssScore": 5.3,
+      "description": "## Overview\n[rack-protection](https://rubygems.org/gems/rack-protection) helps protect against typical web attacks.\n\nAffected versions of this package are vulnerable to Directory Traversal via backslash characters.\n\n## Details\nA Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \"dot-dot-slash (../)\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.\r\n\r\nDirectory Traversal vulnerabilities can be generally divided into two types:\r\n\r\n- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.\r\n\r\n`st` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the `public` route.\r\n\r\nIf an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.\r\n\r\n```\r\ncurl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa\r\n```\r\n**Note** `%2e` is the URL encoded version of `.` (dot).\r\n\r\n- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as `Zip-Slip`. \r\n\r\nOne way to achieve this is by using a malicious `zip` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.\r\n\r\nThe following is an example of a `zip` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in `/root/.ssh/` overwriting the `authorized_keys` file:\r\n\r\n```\r\n2018-04-15 22:04:29 .....           19           19  good.txt\r\n2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys\r\n```\n\n\n## Remediation\nUpgrade `rack-protection` to version 2.0.1 or higher.\n\n## References\n- [GitHub PR](https://github.com/sinatra/sinatra/pull/1379)\n- [GitHub Commit](https://github.com/sinatra/sinatra/commit/6bcc6c3499b0fae52900ae31e63676a22d4e6a72)\n- [GitHub Change Log](https://github.com/sinatra/sinatra/blob/master/CHANGELOG.md#201--2018-02-17)\n- [NVD](https://nvd.nist.gov/vuln/detail/CVE-2018-7212)\n",
+      "disclosureTime": "2018-01-09T08:56:11.448000Z",
+      "fixedIn": [
+        "1.5.4",
+        "2.0.1"
+      ],
+      "functions": [
+
+      ],
+      "functions_new": [
+
+      ],
+      "id": "SNYK-RUBY-RACKPROTECTION-22019",
+      "identifiers": {
+        "CVE": [
+          "CVE-2018-7212"
+        ],
+        "CWE": [
+          "CWE-22"
+        ]
+      },
+      "language": "ruby",
+      "modificationTime": "2019-06-02T07:36:19.038585Z",
+      "moduleName": "rack-protection",
+      "packageManager": "rubygems",
+      "packageName": "rack-protection",
+      "patches": [
+
+      ],
+      "publicationTime": "2018-03-01T16:37:50.053000Z",
+      "references": [
+        {
+          "title": "GitHub Change Log",
+          "url": "https://github.com/sinatra/sinatra/blob/master/CHANGELOG.md%23201--2018-02-17"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/sinatra/sinatra/commit/6bcc6c3499b0fae52900ae31e63676a22d4e6a72"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/sinatra/sinatra/pull/1379"
+        },
+        {
+          "title": "NVD",
+          "url": "https://nvd.nist.gov/vuln/detail/CVE-2018-7212"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<1.5.4",
+          ">=2.0.0.beta1, <2.0.1"
+        ]
+      },
+      "severity": "medium",
+      "title": "Directory Traversal",
+      "from": [
+        "bundler-app@*",
+        "rack-protection@1.5.3"
+      ],
+      "upgradePath": [
+        false,
+        "rack-protection@1.5.4"
+      ],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "rack-protection",
+      "version": "1.5.3"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 3,
+  "org": "lili2311",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {
+    "severities": {
+      "MS-RL": "medium",
+      "EPL-1.0": "medium",
+      "GPL-2.0": "high",
+      "GPL-3.0": "high",
+      "MPL-1.1": "medium",
+      "MPL-2.0": "medium",
+      "Unknown": "high",
+      "AGPL-1.0": "high",
+      "AGPL-3.0": "high",
+      "CDDL-1.0": "medium",
+      "LGPL-2.0": "medium",
+      "LGPL-2.1": "medium",
+      "LGPL-3.0": "medium",
+      "CPOL-1.02": "high",
+      "LGPL-2.1+": "medium",
+      "LGPL-3.0+": "medium",
+      "SimPL-2.0": "high",
+      "Artistic-1.0": "medium",
+      "Artistic-2.0": "medium"
+    }
+  },
+  "packageManager": "rubygems",
+  "ignoreSettings": null,
+  "summary": "8 vulnerable dependency paths",
+  "remediation": {
+    "unresolved": [
+
+    ],
+    "upgrade": {
+      "rack@1.6.5": {
+        "upgradeTo": "rack@1.6.11",
+        "upgrades": [
+          "rack@1.6.5"
+        ],
+        "vulns": [
+          "SNYK-RUBY-RACK-72567"
+        ]
+      },
+      "rack-cache@1.1": {
+        "upgradeTo": "rack-cache@1.3.0",
+        "upgrades": [
+          "rack-cache@1.1",
+          "rack-cache@1.1",
+          "rack@1.6.5"
+        ],
+        "vulns": [
+          "snyk:lic:rubygems:rack-cache:Unknown",
+          "SNYK-RUBY-RACKCACHE-20031",
+          "SNYK-RUBY-RACK-72567"
+        ]
+      },
+      "rack-protection@1.5.3": {
+        "upgradeTo": "rack-protection@2.0.0",
+        "upgrades": [
+          "rack-protection@1.5.3",
+          "rack-protection@1.5.3",
+          "rack-protection@1.5.3",
+          "rack@1.6.5"
+        ],
+        "vulns": [
+          "SNYK-RUBY-RACKPROTECTION-20394",
+          "SNYK-RUBY-RACKPROTECTION-20395",
+          "SNYK-RUBY-RACKPROTECTION-22019",
+          "SNYK-RUBY-RACK-72567"
+        ]
+      }
+    },
+    "patch": {
+
+    },
+    "ignore": {
+
+    }
+  },
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [
+
+    ],
+    "patch": [
+
+    ]
+  },
+  "uniqueCount": 6,
+  "path": "bundler-app/"
+}
