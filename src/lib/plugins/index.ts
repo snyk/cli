@@ -10,6 +10,7 @@ import * as phpPlugin from 'snyk-php-plugin';
 import * as nodejsPlugin from './nodejs-plugin';
 import * as types from './types';
 import {SupportedPackageManagers} from '../package-managers';
+import { UnsupportedPackageManagerError } from '../errors';
 
 export function loadPlugin(packageManager: SupportedPackageManagers,
                            options: types.Options = {}): types.Plugin {
@@ -54,7 +55,7 @@ export function loadPlugin(packageManager: SupportedPackageManagers,
       return phpPlugin;
     }
     default: {
-      throw new Error(`Unsupported package manager: ${packageManager}`);
+      throw new UnsupportedPackageManagerError(packageManager);
     }
   }
 }

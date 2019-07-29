@@ -10,3 +10,4 @@ export {PolicyNotFoundError} from './policy-not-found-error';
 export {InternalServerError} from './internal-server-error';
 export {FailedToGetVulnerabilitiesError} from './failed-to-get-vulnerabilities-error';
 export {UnsupportedFeatureFlagError} from './unsupported-feature-flag-error';
+export {UnsupportedPackageManagerError} from './unsupported-package-manager-error';
