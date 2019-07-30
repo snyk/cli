@@ -11,3 +11,4 @@ export {InternalServerError} from './internal-server-error';
 export {FailedToGetVulnerabilitiesError} from './failed-to-get-vulnerabilities-error';
 export {UnsupportedFeatureFlagError} from './unsupported-feature-flag-error';
 export {UnsupportedPackageManagerError} from './unsupported-package-manager-error';
+export {FailedToRunTestError} from './failed-to-run-test-error';

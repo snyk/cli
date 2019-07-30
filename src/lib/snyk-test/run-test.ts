@@ -21,6 +21,7 @@ import {
   NoSupportedManifestsFoundError,
   InternalServerError,
   FailedToGetVulnerabilitiesError,
+  FailedToRunTestError,
 } from '../errors';
 import { maybePrintDeps } from '../print-deps';
 import { SupportedPackageManagers } from '../package-managers';
@@ -147,7 +148,10 @@ async function runTest(packageManager: SupportedPackageManagers,
       throw NoSupportedManifestsFoundError([root]);
     }
 
-    throw err;
+    throw new FailedToRunTestError(
+      err.userMessage || err.message || `Failed to test ${packageManager} project`,
+      err.code,
+    );
   } finally {
     spinner.clear(spinnerLbl)();
   }
