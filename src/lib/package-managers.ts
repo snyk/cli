@@ -24,3 +24,5 @@ export const WIZARD_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]
   = ['yarn', 'npm'];
 export const PROTECT_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]
   = ['yarn', 'npm'];
+export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]
+  = ['npm', 'sbt'];

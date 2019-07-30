@@ -12,7 +12,7 @@ import { SingleDepRootResult, DepTree, MonitorMeta, MonitorResult } from './type
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
 import {MonitorError, ConnectionTimeoutError} from './errors';
-import { SupportedPackageManagers } from './package-managers';
+import { SupportedPackageManagers, GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
 
 const debug = Debug('snyk');
 
@@ -97,7 +97,7 @@ export async function monitor(
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
 
-  if (meta['experimental-dep-graph'] && packageManager === 'npm') {
+  if (meta['experimental-dep-graph'] && GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     return await monitorGraph(root, meta, info, targetFile);
   }
 
