@@ -81,7 +81,12 @@ Gradle options:
                        project.assets.json, if found.
   --packages-folder    Custom path to packages folder
 
-
+Npm options:
+  --strict-out-of-sync=<true|false>
+                       Allow testing out of sync lockfile. Defauls to false.
+Yarn options:
+  --strict-out-of-sync=<true|false>
+                       Allow testing out of sync lockfile. Defauls to false.
 Docker options:
   --docker ........... Test or monitor a local docker image for Linux
                        vulnerabilities. Can be used alongside `--file` and a
