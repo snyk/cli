@@ -27,6 +27,7 @@ export interface DepTree {
   docker?: any;
   files?: any;
   targetFile?: string;
+  missingLockFileEntry?: boolean;
 
   labels?: {
     [key: string]: string;
@@ -108,12 +109,13 @@ export interface MonitorOptions {
 }
 
 export interface MonitorMeta {
-  'method': 'cli';
-  'packageManager': SupportedPackageManagers;
+  method: 'cli';
+  missingDeps?: string[];
+  packageManager: SupportedPackageManagers;
   'policy-path': string;
   'project-name': string;
-  'isDocker': boolean;
-  'prune': boolean;
+  isDocker: boolean;
+  prune: boolean;
   'experimental-dep-graph'?: boolean;
 }
 

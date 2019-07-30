@@ -1,0 +1,23 @@
+{
+  "name": "npm-out-of-sync-graph",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "4.1.0",
+    "undefsafe": "^1.0.0",
+    "aws-sdk": "^2.224.1",
+    "axios": "^0.18.0",
+    "bignumber.js": "^7.2.1",
+    "body-parser": "^1.18.2"
+  },
+  "devDependencies": {
+    "eslint": "5.9.0",
+    "ava": "^0.25.0"
+  }
+}
