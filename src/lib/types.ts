@@ -27,6 +27,7 @@ export interface DepTree {
   docker?: any;
   files?: any;
   targetFile?: string;
+  missingLockFileEntry?: boolean;
 
   labels?: {
     [key: string]: string;
