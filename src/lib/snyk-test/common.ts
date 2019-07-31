@@ -1,8 +1,13 @@
-const config = require('../config');
+import { SupportedPackageManagers } from '../package-managers';
 
-module.exports.assembleQueryString = function (options) {
+import * as config from '../config';
+
+export function assembleQueryString(options) {
   const org = options.org || config.org || null;
-  const qs = {
+  const qs: {
+    org: string;
+    severityThreshold?: boolean;
+  } = {
     org,
   };
 
@@ -11,9 +16,9 @@ module.exports.assembleQueryString = function (options) {
   }
 
   return Object.keys(qs).length !== 0 ? qs : null;
-};
+}
 
-module.exports.SEVERITIES = [
+export const SEVERITIES = [
   {
     verboseName: 'low',
     value: 1,
@@ -27,4 +32,4 @@ module.exports.SEVERITIES = [
     value: 3,
   },
 ];
-module.exports.WIZARD_SUPPORTED_PMS = ['npm', 'yarn'];
+export const WIZARD_SUPPORTED_PMS: SupportedPackageManagers[] = ['npm', 'yarn'];
