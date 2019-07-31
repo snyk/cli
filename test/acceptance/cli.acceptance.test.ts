@@ -2414,6 +2414,32 @@ test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
   t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
 });
 
+test('`monitor sbt package --experimental-dep-graph --sbt-graph`', async (t) => {
+  chdirWorkspaces();
+
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {name: 'sbt'},
+        package: require('./workspaces/sbt-simple-struts/monitor-graph-result.json'),
+      };
+    },
+  };
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  loadPlugin.returns(plugin);
+
+  t.teardown(() => {
+    loadPlugin.restore();
+  });
+
+  await cli.monitor('sbt-simple-struts', { 'experimental-dep-graph': true, 'sbt-graph': true });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/sbt/graph', 'puts at correct url');
+  t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
+});
+
 test('`monitor yarn-package`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('yarn-package');
