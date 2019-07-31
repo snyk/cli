@@ -6,13 +6,14 @@ import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import {isCI} from '../../../lib/is-ci';
 import {apiTokenExists} from '../../../lib/api-token';
-import {SEVERITIES, WIZARD_SUPPORTED_PMS} from '../../../lib/snyk-test/common';
+import {SEVERITIES} from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
 import {Options, TestOptions} from '../../../lib/types';
 import {isLocalFolder} from '../../../lib/detect';
 import { MethodArgs } from '../../args';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import { formatIssues } from './formatters/legacy-format-issue';
+import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../lib/package-managers';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -293,7 +294,7 @@ function displayResult(res, options: Options & TestOptions) {
   }
   let summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
 
-  if (localPackageTest && WIZARD_SUPPORTED_PMS.includes(packageManager)) {
+  if (localPackageTest && WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     summary += chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
   }
   let dockerSuggestion = '';

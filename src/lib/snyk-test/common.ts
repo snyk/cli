@@ -1,5 +1,3 @@
-import { SupportedPackageManagers } from '../package-managers';
-
 import * as config from '../config';
 
 export function assembleQueryString(options) {
@@ -7,12 +5,16 @@ export function assembleQueryString(options) {
   const qs: {
     org: string;
     severityThreshold?: boolean;
+    ignorePolicy?: boolean;
   } = {
     org,
   };
 
   if (options.severityThreshold) {
     qs.severityThreshold = options.severityThreshold;
+  }
+  if (options['ignore-policy']) {
+    qs.ignorePolicy = true;
   }
 
   return Object.keys(qs).length !== 0 ? qs : null;
@@ -32,4 +34,3 @@ export const SEVERITIES = [
     value: 3,
   },
 ];
-export const WIZARD_SUPPORTED_PMS: SupportedPackageManagers[] = ['npm', 'yarn'];

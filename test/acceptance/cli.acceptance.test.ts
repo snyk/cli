@@ -335,6 +335,24 @@ test('`test ruby-app-thresholds --severity-threshold=medium`', async (t) => {
   }
 });
 
+test('`test ruby-app-thresholds --ignore-policy`', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextResponse(
+    require('./workspaces/ruby-app-thresholds/test-graph-result-medium-severity.json'));
+
+  try {
+    await cli.test('ruby-app-thresholds', {
+      'ignore-policy': true,
+    });
+    t.fail('should have thrown');
+  } catch (err) {
+    const req = server.popRequest();
+    t.equal(req.query.ignorePolicy, 'true');
+    t.end();
+  }
+});
+
 test('`test ruby-app-thresholds --severity-threshold=medium --json`', async (t) => {
   chdirWorkspaces();
 
