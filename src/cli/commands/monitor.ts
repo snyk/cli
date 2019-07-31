@@ -53,7 +53,7 @@ interface BadResult {
 
 // This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
 // declaring the type of x as possibly undefined.
-async function promiseOrCleanup<T>(p: Promise<T>, cleanup: () => void): Promise<T> {
+async function promiseOrCleanup<T>(p: Promise<T>, cleanup: (x?) => void): Promise<T> {
   return p.catch((error) => { cleanup(); throw error; });
 }
 
@@ -193,7 +193,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         const manageUrl = url.format(endpoint);
 
         endpoint.pathname = leader + '/monitor/' + res.id;
-        const subProjectName = ((inspectResult as MultiDepRootsResult).depRoots)
+        const subProjectName = isMultiResult(inspectResult)
           ? depRootDeps.package.name
           : undefined;
         const monOutput = formatMonitorOutput(

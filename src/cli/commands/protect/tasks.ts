@@ -1,7 +1,8 @@
-module.exports = answersToTasks;
+export = answersToTasks;
 
-const debug = require('debug')('snyk');
-const _ = require('lodash');
+import * as debugModule from 'debug';
+const debug = debugModule('snyk');
+import * as _ from 'lodash';
 
 function answersToTasks(answers) {
   const tasks = {
@@ -53,10 +54,10 @@ function answersToTasks(answers) {
       answer.meta.reason = answers[key + '-reason'];
       if (answer.meta.vulnsInGroup) {
         // also ignore any in the group
-        answer.meta.vulnsInGroup.forEach((vuln) => {
+        answer.meta.vulnsInGroup.forEach((vulnInGroup) => {
           tasks[task].push({
             meta: answer.meta,
-            vuln: vuln,
+            vuln: vulnInGroup,
           });
         });
       } else {

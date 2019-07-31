@@ -1,21 +1,26 @@
-module.exports = {
-  getUpdatePrompts: getUpdatePrompts,
-  getPatchPrompts: getPatchPrompts,
-  getIgnorePrompts: getIgnorePrompts,
-  getPrompts: getPrompts,
-  nextSteps: nextSteps,
-  startOver: startOver,
+export {
+  getUpdatePrompts,
+  getPatchPrompts,
+  getIgnorePrompts,
+  getPrompts,
+  nextSteps,
+  startOver,
 };
 
-const _ = require('lodash');
-const semver = require('semver');
-const fmt = require('util').format;
-const debug = require('debug')('snyk');
-const protect = require('../../../lib/protect');
-const moduleToObject = require('snyk-module');
-const config = require('../../../lib/config');
-const snykPolicy = require('snyk-policy');
-const chalk = require('chalk');
+import * as _ from 'lodash';
+import * as semver from 'semver';
+import { format as fmt } from 'util';
+import * as debugModule from 'debug';
+const debug = debugModule('snyk');
+import * as protect from '../../../lib/protect';
+import * as moduleToObjectJs from 'snyk-module';
+import * as config from '../../../lib/config';
+import * as snykPolicy from 'snyk-policy';
+import chalk from 'chalk';
+import { AnnotatedIssue } from '../../../lib/snyk-test/legacy';
+
+const moduleToObject = moduleToObjectJs as
+  (name: string, version?: string, options?: {loose?: boolean}) => { name: string; version: string };
 
 const ignoreDisabledReasons = {
   notAdmin: 'Set to ignore (only administrators can ignore issues)',
@@ -31,7 +36,7 @@ function sort(prop) {
     prop = prop.substr(1);
   }
 
-  return function (a, b) {
+  return (a, b) => {
     const result = (a[prop] < b[prop]) ? -1 : (a[prop] > b[prop]) ? 1 : 0;
     return result * sortOrder;
   };
@@ -41,17 +46,17 @@ function createSeverityBasedIssueHeading(msg, severity) {
   // Example: ✗ Medium severity vulnerability found in xmldom
   const severitiesColourMapping = {
     low: {
-      colorFunc: function (text) {
+      colorFunc(text) {
         return chalk.bold.blue(text);
       },
     },
     medium: {
-      colorFunc: function (text) {
+      colorFunc(text) {
         return chalk.bold.yellow(text);
       },
     },
     high: {
-      colorFunc: function (text) {
+      colorFunc(text) {
         return chalk.bold.red(text);
       },
     },
@@ -136,7 +141,7 @@ function sortPatchPrompts(a, b) {
   return res;
 }
 
-function stripInvalidPatches(vulns) {
+function stripInvalidPatches<T extends AnnotatedIssue>(vulns: T[]): T[] {
   // strip the irrelevant patches from the vulns at the same time, collect
   // the unique package vulns
   return vulns.map((vuln) => {
@@ -156,7 +161,7 @@ function stripInvalidPatches(vulns) {
 
       // FIXME hack to give all the patches IDs if they don't already
       if (vuln.patches[0] && !vuln.patches[0].id) {
-        vuln.patches[0].id = vuln.patches[0].urls[0].split('/').slice(-1).pop();
+        vuln.patches[0].id = vuln.patches[0].urls[0].split('/').slice(-1).pop() as string;
       }
     }
 
@@ -171,7 +176,7 @@ function getPrompts(vulns, policy) {
     .concat(getIgnorePrompts(vulns, policy));
 }
 
-function getPatchPrompts(vulns, policy, options) {
+function getPatchPrompts(vulns: AnnotatedIssue[], policy, options?: PromptOptions): Prompt[] {
   debug('getPatchPrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -180,7 +185,7 @@ function getPatchPrompts(vulns, policy, options) {
   let res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
     // if there's any upgrade available, then remove it
     return (canBeUpgraded(vuln) || vuln.type === 'license') ? false : true;
-  });
+  }) as AnnotatedIssue[];
   // sort by vulnerable package and the largest version
   res.sort(sortPatchPrompts);
 
@@ -190,6 +195,7 @@ function getPatchPrompts(vulns, policy, options) {
   // note that I use slice first becuase the `res` array will change length
   // and `reduce` _really_ doesn't like when you change the array under
   // it's feet
+  // TODO(kyegupov): convert this reduce to a loop, make grouping logic more clear
   res.slice(0).reduce((acc, curr, i, all) => {
     // var upgrades = curr.upgradePath[1];
     // otherwise it's a patch and that's hidden for now
@@ -221,7 +227,7 @@ function getPatchPrompts(vulns, policy, options) {
 
             // finally make sure the publicationTime is newer than the curr
             // vulnerability
-            if (curr.publicationTime < vuln.publicationTime) {
+            if (curr.publicationTime! < vuln.publicationTime!) {
               debug('found alternative location for %s@%s (%s by %s) in %s',
                 curr.name, curr.version, patch.version, curr.id, vuln.id);
               return true;
@@ -271,7 +277,7 @@ function getPatchPrompts(vulns, policy, options) {
 
       acc[last].grouped.count++;
 
-      curr.grouped = {
+      (curr as AnnotatedIssueWithGrouping).grouped = {
         main: false,
         requires: acc[last].grouped.id,
       };
@@ -316,12 +322,11 @@ function getPatchPrompts(vulns, policy, options) {
 
   const prompts = generatePrompt(res, policy, 'p', options);
 
-
   return prompts;
 
 }
 
-function getIgnorePrompts(vulns, policy, options) {
+function getIgnorePrompts(vulns, policy, options?) {
   debug('getIgnorePrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -348,7 +353,21 @@ function getIgnorePrompts(vulns, policy, options) {
 
 }
 
-function getUpdatePrompts(vulns, policy, options) {
+// This type was deduced from analyzing the code.
+// Exact types of fields and the grouping logic still need investigation and documentation.
+interface AnnotatedIssueWithGrouping extends AnnotatedIssue {
+  grouped?: {
+    main;
+    requires;
+    affected?;
+    count?;
+    upgrades?;
+    patch?;
+    id?;
+  };
+}
+
+function getUpdatePrompts(vulns: AnnotatedIssue[], policy, options?): Prompt[] {
   debug('getUpdatePrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -357,18 +376,20 @@ function getUpdatePrompts(vulns, policy, options) {
   let res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
     // only keep upgradeable
     return canBeUpgraded(vuln);
-  });
+  }) as AnnotatedIssueWithGrouping[];
 
   // sort by vulnerable package and the largest version
   res.sort(sortUpgradePrompts);
-  let copy = null;
+  let copy: AnnotatedIssueWithGrouping | null = null;
   let offset = 0;
   // mutate our objects so we can try to group them
   // note that I use slice first becuase the `res` array will change length
   // and `reduce` _really_ doesn't like when you change the array under
   // it's feet
+  // TODO(kyegupov): rewrite this reduce into more readable loop, avoid mutating original list,
+  // understand and document the grouping logic
   res.slice(0).reduce((acc, curr, i) => {
-    const from = curr.from[1];
+    const from = curr.from[1] as string;
 
     if (!acc[from]) {
       // only copy the biggest change
@@ -377,7 +398,7 @@ function getUpdatePrompts(vulns, policy, options) {
       return acc;
     }
 
-    const upgrades = curr.upgradePath.slice(-1).shift();
+    const upgrades = curr.upgradePath.slice(-1).shift() as string;
     // otherwise it's a patch and that's hidden for now
     if (upgrades && curr.upgradePath[1]) {
       if (!acc[from].grouped) {
@@ -392,12 +413,12 @@ function getUpdatePrompts(vulns, policy, options) {
 
         // splice this vuln into the list again so if the user choses to review
         // they'll get this individual vuln and remediation
-        copy.grouped = {
+        copy!.grouped = {
           main: false,
           requires: acc[from].grouped.id,
         };
 
-        res.splice(i + offset, 0, copy);
+        res.splice(i + offset, 0, copy as AnnotatedIssueWithGrouping);
         offset++;
       }
 
@@ -460,7 +481,41 @@ function canBeUpgraded(vuln) {
   });
 }
 
-function generatePrompt(vulns, policy, prefix, options) {
+interface IgnoreMeta {
+  review: unknown;
+}
+
+interface Action {
+  value: {};
+  key?: string;
+  name: string;
+  short?: string;
+  default?: boolean;
+  meta?: any;
+}
+
+interface Prompt {
+  when?: (answers) => void;
+  name: string;
+  type?: string;
+  message: string;
+
+  // These fields are assigned later
+  default?: number | boolean | string;
+  choices?: any[];
+  vuln?: any;
+  patches?: any;
+}
+
+interface PromptOptions {
+  ignoreDisabled?: {reasonCode: string};
+  earlyExit?: boolean;
+  packageManager?: string;
+}
+
+function generatePrompt(
+    vulns: AnnotatedIssueWithGrouping[], policy, prefix: string,
+    options?: PromptOptions): Prompt[] {
   if (!prefix) {
     prefix = '';
   }
@@ -474,7 +529,7 @@ function generatePrompt(vulns, policy, prefix, options) {
     name: 'Skip', // the text the user sees
   };
 
-  const ignoreAction = {
+  const ignoreAction: Action = {
     value: options && options.ignoreDisabled ? 'skip' : 'ignore',
     key: 'i',
     meta: { // arbitrary data that we'll merged into the `value` later on
@@ -486,7 +541,7 @@ function generatePrompt(vulns, policy, prefix, options) {
       'Set to ignore for 30 days (updates policy)',
   };
 
-  const patchAction = {
+  const patchAction: Action = {
     value: 'patch',
     key: 'p',
     short: 'Patch',
@@ -494,11 +549,11 @@ function generatePrompt(vulns, policy, prefix, options) {
       'runs)',
   };
 
-  const updateAction = {
+  const updateAction: Action = {
     value: 'update',
     key: 'u',
     short: 'Upgrade',
-    name: null, // updated below to the name of the package to update
+    name: '', // updated below to the name of the package to update
   };
 
   let prompts = vulns.map((vuln, i) => {
@@ -511,13 +566,13 @@ function generatePrompt(vulns, policy, prefix, options) {
     const skip = _.cloneDeep(skipAction);
     const patch = _.cloneDeep(patchAction);
     const update = _.cloneDeep(updateAction);
-    const review = {
+    const review: Action = {
       value: 'review',
       short: 'Review',
       name: 'Review issues separately',
     };
 
-    const choices = [];
+    const choices: Action[] = [];
 
     const from = vuln.from.slice(1).filter(Boolean).shift();
 
@@ -531,7 +586,7 @@ function generatePrompt(vulns, policy, prefix, options) {
     let infoLink = '    Info: ' + chalk.underline(config.ROOT);
 
     let messageIntro;
-    let fromText = false;
+    let fromText: boolean | string = false;
     const group = vuln.grouped && vuln.grouped.main ? vuln.grouped : false;
 
     if (group) {
@@ -544,7 +599,7 @@ function generatePrompt(vulns, policy, prefix, options) {
         group.count, severity, issues, joiningText, group.affected.full);
       messageIntro = createSeverityBasedIssueHeading(
         messageIntro,
-        vuln.severity
+        vuln.severity,
       );
     } else {
       infoLink += chalk.underline('/vuln/' + vuln.id);
@@ -553,25 +608,25 @@ function generatePrompt(vulns, policy, prefix, options) {
         severity, vuln.type === 'license' ? 'issue' : 'vuln', vulnIn, from);
       messageIntro = createSeverityBasedIssueHeading(
         messageIntro,
-        vuln.severity
+        vuln.severity,
       );
       messageIntro += '\n    Description: ' + vuln.title;
       fromText = (from !== vuln.from.slice(1).join(' > ') ?
         '    From: ' + vuln.from.slice(1).join(' > ') : '');
     }
 
-    let note = false;
+    let note: boolean | string = false;
     if (vuln.note) {
       if (group && group.patch) {
-
+        // no-op
       } else {
         note = '   Note: ' + vuln.note;
       }
     }
 
-    const res = {
-      when: function (answers) {
-        let res = true;
+    const res: Prompt = {
+      when(answers) {
+        let haventUpgraded = true;
         // only show this question if the user choose to review the details
         // of the vuln
         if (vuln.grouped && !vuln.grouped.main) {
@@ -581,7 +636,7 @@ function generatePrompt(vulns, policy, prefix, options) {
               // this meta.groupId only appears on a "review" choice, and thus
               // this map will pick out those vulns that are specifically
               // associated with this review group.
-              if (answers[key].meta.groupId === vuln.grouped.requires) {
+              if (answers[key].meta.groupId === vuln.grouped!.requires) {
                 if (answers[key].choice === 'ignore' &&
                   answers[key].meta.review) {
                   answers[key].meta.vulnsInGroup.push({
@@ -603,23 +658,23 @@ function generatePrompt(vulns, policy, prefix, options) {
           }
 
           // if we've upgraded, then stop asking
-          let updatedTo = null;
-          res = groupAnswer.filter((answer) => {
+          let updatedTo: Prompt | null = null;
+          haventUpgraded = groupAnswer.filter((answer) => {
             if (answer.choice === 'update') {
               updatedTo = answer;
               return true;
             }
           }).length === 0;
 
-          if (!res) {
+          if (!haventUpgraded) {
             // echo out what would be upgraded
             const via = 'Fixed through previous upgrade instruction to ' +
-              updatedTo.vuln.upgradePath[1];
+              (updatedTo as unknown as Prompt).vuln.upgradePath[1];
             console.log(['', messageIntro, infoLink, via].join('\n'));
           }
         }
 
-        if (res) {
+        if (haventUpgraded) {
           console.log(''); // blank line between prompts...kinda lame, sorry
         }
 
@@ -659,8 +714,8 @@ function generatePrompt(vulns, policy, prefix, options) {
 
       update.short = word + toPackage;
       let out = word + toPackage;
-      const toPackageVersion = moduleToObject(toPackage).version;
-      const diff = semver.diff(moduleToObject(from).version, toPackageVersion);
+      const toPackageVersion = moduleToObject(toPackage as string).version;
+      const diff = semver.diff(moduleToObject(from as string).version, toPackageVersion);
       let lead = '';
       const breaking = chalk.red('potentially breaking change');
       if (diff === 'major') {
@@ -709,7 +764,7 @@ function generatePrompt(vulns, policy, prefix, options) {
     let patches = null;
 
     if (upgradeAvailable && group) {
-
+      // no-op
     } else {
       if (vuln.patches && vuln.patches.length) {
         // check that the version we have has a patch available
@@ -759,7 +814,6 @@ function generatePrompt(vulns, policy, prefix, options) {
       ignore.meta.vulnsInGroup = [];
     }
 
-
     if (patches === null && !upgradeAvailable) {
       ignore.default = true;
     }
@@ -772,8 +826,8 @@ function generatePrompt(vulns, policy, prefix, options) {
     // choice and whether it was supposed to be a default. If the user is
     // updating their policy options, then we select the choice they had
     // before, otherwise we select the default
-    res.default = (choices.map((choice, i) => {
-      return {i: i, default: choice.default};
+    res.default = (choices.map((choice, cIndex) => {
+      return {i: cIndex, default: choice.default};
     }).filter((choice) => {
       return choice.default;
     }).shift() || {i: 0}).i;
@@ -790,7 +844,7 @@ function generatePrompt(vulns, policy, prefix, options) {
       }
       choice.value = {
         meta: choice.meta,
-        vuln: vuln,
+        vuln,
         choice: value, // this is the string "update", "ignore", etc
       };
       return choice;
@@ -804,21 +858,21 @@ function generatePrompt(vulns, policy, prefix, options) {
   // zip together every prompt and a prompt asking "why", note that the `when`
   // callback controls whether not to prompt the user with this question,
   // in this case, we always show if the user choses to ignore.
-  prompts = prompts.reduce((acc, curr) => {
+  prompts = prompts.reduce((acc: Prompt[], curr) => {
     acc.push(curr);
-    const rule = snykPolicy.getByVuln(policy, curr.choices[0].value.vuln);
+    const rule = snykPolicy.getByVuln(policy, curr.choices![0].value.vuln);
     let defaultAnswer = 'None given';
     if (rule && rule.type === 'ignore') {
       defaultAnswer = rule.reason;
     }
-    const issue = curr.choices[0].value.vuln &&
-      curr.choices[0].value.vuln.type === 'license' ?
+    const issue = curr.choices![0].value.vuln &&
+      curr.choices![0].value.vuln.type === 'license' ?
       'issue' : 'vulnerability';
     acc.push({
       name: curr.name + '-reason',
       message: '[audit] Reason for ignoring ' + issue + '?',
       default: defaultAnswer,
-      when: function (answers) {
+      when(answers) {
         if (!answers[curr.name]) {
           return false;
         }
@@ -842,7 +896,7 @@ function startOver() {
 
 function nextSteps(pkg, prevAnswers) {
   let skipProtect = false;
-  const prompts = [];
+  const prompts: Prompt[] = [];
   let i;
 
   i = _.get(pkg, 'scripts.test', '').indexOf('snyk test');

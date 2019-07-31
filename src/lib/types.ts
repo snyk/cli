@@ -67,7 +67,7 @@ export interface ProtectOptions {
   loose: boolean;
 }
 export interface Options {
-  org: string;
+  org: string | null;
   path: string;
   docker?: boolean;
   file?: string;
@@ -109,7 +109,7 @@ export interface MonitorOptions {
 }
 
 export interface MonitorMeta {
-  method: 'cli';
+  method: 'cli' | 'wizard';
   missingDeps?: string[];
   packageManager: SupportedPackageManagers;
   'policy-path': string;
@@ -127,4 +127,15 @@ export interface MonitorResult {
   uri: string;
   isMonitored: boolean;
   trialStarted: boolean;
+}
+
+export interface SpinnerOptions {
+  stream?: NodeJS.WriteStream;
+  tty?: any;
+  string?: string;
+  interval?: any;
+  delay?: any;
+  label?: string;
+  unref?: any;
+  cleanup?: any;
 }

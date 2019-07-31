@@ -149,7 +149,7 @@ async function runTest(packageManager: SupportedPackageManagers,
 
     throw err;
   } finally {
-    spinner.clear(spinnerLbl)();
+    spinner.clear<void>(spinnerLbl)();
   }
 }
 
@@ -262,7 +262,7 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
     for (const depRoot of deps.depRoots) {
       const pkg = depRoot.depTree;
       if (options['print-deps']) {
-        await spinner.clear(spinnerLbl)();
+        await spinner.clear<void>(spinnerLbl)();
         maybePrintDeps(options, pkg);
       }
       if (deps.plugin && deps.plugin.packageManager) {
@@ -359,7 +359,7 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
     }
     return payloads;
   } finally {
-    await spinner.clear(spinnerLbl)();
+    await spinner.clear<void>(spinnerLbl)();
   }
 }
 
