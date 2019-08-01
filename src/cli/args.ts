@@ -159,6 +159,7 @@ export function args(rawArgv: string[]): Args {
     'package-manager',
     'packages-folder',
     'severity-threshold',
+    'strict-out-of-sync',
   ]) {
     if (argv[dashedArg]) {
       const camelCased = dashToCamelCase(dashedArg);
