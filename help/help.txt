@@ -31,7 +31,7 @@ Options:
   --file=<File> ...... Sets package file. For more help run `snyk help file`.
   --org=<org-name> ... Specify the org machine-name to run Snyk with a specific
                        organisation. For more help run `snyk help orgs`.
-  --ignore-policy .... Ignores and resets the state of your policy file.
+  --ignore-policy .... Ignores the current policy in .snyk file, org level ignores and project policy on snyk.io.
   --trust-policies ... Applies and uses ignore rules from your dependencies's
                        Snyk policies, otherwise ignore policies are only
                        shown as a suggestion.
