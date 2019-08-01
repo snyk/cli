@@ -1,19 +1,26 @@
-const config = require('../config');
+import * as config from '../config';
 
-module.exports.assembleQueryString = function (options) {
+export function assembleQueryString(options) {
   const org = options.org || config.org || null;
-  const qs = {
+  const qs: {
+    org: string;
+    severityThreshold?: boolean;
+    ignorePolicy?: boolean;
+  } = {
     org,
   };
 
   if (options.severityThreshold) {
     qs.severityThreshold = options.severityThreshold;
   }
+  if (options['ignore-policy']) {
+    qs.ignorePolicy = true;
+  }
 
   return Object.keys(qs).length !== 0 ? qs : null;
-};
+}
 
-module.exports.SEVERITIES = [
+export const SEVERITIES = [
   {
     verboseName: 'low',
     value: 1,
@@ -27,4 +34,3 @@ module.exports.SEVERITIES = [
     value: 3,
   },
 ];
-module.exports.WIZARD_SUPPORTED_PMS = ['npm', 'yarn'];

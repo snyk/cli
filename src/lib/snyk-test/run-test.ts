@@ -72,7 +72,7 @@ async function runTest(packageManager: SupportedPackageManagers,
       if (payload.body && payload.body.docker && payload.body.docker.dockerfilePackages) {
         dockerfilePackages = payload.body.docker.dockerfilePackages;
       }
-
+      await spinner.clear<void>(spinnerLbl)();
       await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));

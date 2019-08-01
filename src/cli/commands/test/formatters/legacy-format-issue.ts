@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as config from '../../../../lib/config';
-import {WIZARD_SUPPORTED_PMS} from '../../../../lib/snyk-test/common';
 import {Options, TestOptions} from '../../../../lib/types';
 import {isLocalFolder} from '../../../../lib/detect';
+import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
 
 export function formatIssues(vuln, options: Options & TestOptions) {
   const vulnID = vuln.list[0].id;
@@ -132,7 +132,7 @@ function createFixedInText(vuln: any): string {
 
 function createRemediationText(vuln, packageManager) {
   let wizardHintText = '';
-  if (WIZARD_SUPPORTED_PMS.includes(packageManager)) {
+  if (WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     wizardHintText = 'Run `snyk wizard` to explore remediation options.';
   }
 
