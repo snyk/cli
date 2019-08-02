@@ -25,6 +25,7 @@ import {
 } from '../errors';
 import { maybePrintDeps } from '../print-deps';
 import { SupportedPackageManagers } from '../package-managers';
+import { countPathsToGraphRoot, pruneGraph } from '../monitor';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -72,7 +73,6 @@ async function runTest(packageManager: SupportedPackageManagers,
       if (payload.body && payload.body.docker && payload.body.docker.dockerfilePackages) {
         dockerfilePackages = payload.body.docker.dockerfilePackages;
       }
-      await spinner.clear<void>(spinnerLbl)();
       await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
@@ -333,9 +333,22 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
         // Graphs are more compact and robust representations.
         // Legacy parts of the code are still using trees, but will eventually be fully migrated.
         debug('converting dep-tree to dep-graph', {name: pkg.name, targetFile: depRoot.targetFile || options.file});
-        const depGraph = await depGraphLib.legacy.depTreeToGraph(
+        let depGraph = await depGraphLib.legacy.depTreeToGraph(
           pkg, options.packageManager);
+
         debug('done converting dep-tree to dep-graph', {uniquePkgsCount: depGraph.getPkgs().length});
+        if (options['prune-repeated-subdependencies']) {
+          debug('Trying to prune the graph');
+          const prePruneDepCount = countPathsToGraphRoot(depGraph);
+          debug('pre prunedPathsCount: ' +  prePruneDepCount);
+
+          depGraph = await pruneGraph(depGraph, options.packageManager);
+
+          analytics.add('prePrunedPathsCount', prePruneDepCount);
+          const postPruneDepCount = countPathsToGraphRoot(depGraph);
+          debug('post prunedPathsCount: ' +  prePruneDepCount);
+          analytics.add('postPrunedPathsCount', postPruneDepCount);
+        }
         body.depGraph = depGraph;
       }
 

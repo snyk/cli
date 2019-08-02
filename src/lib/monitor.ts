@@ -332,14 +332,14 @@ export async function monitorGraph(
   });
 }
 
-function countPathsToGraphRoot(graph: depGraphLib.DepGraph): number {
+export function countPathsToGraphRoot(graph: depGraphLib.DepGraph): number {
   return graph
     .getPkgs()
     .map((pkg) => graph.countPathsToRoot(pkg))
     .reduce((acc, pathsToRoot) => acc + pathsToRoot, 0);
 }
 
-async function pruneGraph(
+export async function pruneGraph(
     depGraph: depGraphLib.DepGraph,
     packageManager: SupportedPackageManagers,
   ): Promise<depGraphLib.DepGraph> {
