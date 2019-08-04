@@ -25,7 +25,7 @@ import {
 } from '../errors';
 import { maybePrintDeps } from '../print-deps';
 import { SupportedPackageManagers } from '../package-managers';
-import { countPathsToGraphRoot, pruneGraph } from '../monitor';
+import { countPathsToGraphRoot, pruneGraph } from '../prune';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -346,7 +346,7 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
 
           analytics.add('prePrunedPathsCount', prePruneDepCount);
           const postPruneDepCount = countPathsToGraphRoot(depGraph);
-          debug('post prunedPathsCount: ' +  prePruneDepCount);
+          debug('post prunedPathsCount: ' +  postPruneDepCount);
           analytics.add('postPrunedPathsCount', postPruneDepCount);
         }
         body.depGraph = depGraph;

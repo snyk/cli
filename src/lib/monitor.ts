@@ -12,7 +12,8 @@ import { SingleDepRootResult, DepTree, MonitorMeta, MonitorResult } from './type
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
 import {MonitorError, ConnectionTimeoutError} from './errors';
-import { SupportedPackageManagers, GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
+import { countPathsToGraphRoot, pruneGraph } from './prune';
+import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
 
 const debug = Debug('snyk');
 
@@ -330,44 +331,6 @@ export async function monitorGraph(
       }
     });
   });
-}
-
-export function countPathsToGraphRoot(graph: depGraphLib.DepGraph): number {
-  return graph
-    .getPkgs()
-    .map((pkg) => graph.countPathsToRoot(pkg))
-    .reduce((acc, pathsToRoot) => acc + pathsToRoot, 0);
-}
-
-export async function pruneGraph(
-    depGraph: depGraphLib.DepGraph,
-    packageManager: SupportedPackageManagers,
-  ): Promise<depGraphLib.DepGraph> {
-    try {
-    const threshold = config.PRUNE_DEPS_THRESHOLD; // Arbitrary threshold for maximum number of elements in the tree
-    const prunedTree: DepTree = (await depGraphLib.legacy.graphToDepTree(
-      depGraph,
-      packageManager,
-      { deduplicateWithinTopLevelDeps: true },
-    )) as DepTree;
-
-    const prunedGraph = await depGraphLib.legacy.depTreeToGraph(
-      prunedTree,
-      packageManager,
-    );
-    const count = countPathsToGraphRoot(prunedGraph);
-    debug('prunedPathsCount: ' +  count);
-
-    if (count < threshold) {
-      return prunedGraph;
-    }
-    debug('Too many vulnerable paths to monitor the project');
-    // TODO: create a custom error for this
-    throw new Error('Too many vulnerable paths to monitor the project');
-  } catch (e) {
-    debug('Failed to prune the graph, returning original:' + e);
-    return depGraph;
-  }
 }
 
 function pluckPolicies(pkg) {
