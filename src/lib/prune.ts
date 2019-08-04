@@ -3,6 +3,7 @@ import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import { DepTree } from './types';
 import * as config from './config';
+import { TooManyVulnPaths } from './errors';
 import { SupportedPackageManagers } from './package-managers';
 
 const debug = _debug('snyk:prune');
@@ -35,7 +36,7 @@ export async function pruneGraph(
     }
 
     debug('Too many vulnerable paths to process the project');
-    throw new Error('Too many vulnerable paths to process the project');
+    throw new TooManyVulnPaths();
   } catch (e) {
     debug('Failed to prune the graph, returning original: ' + e);
     return depGraph;
