@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import * as depGraphLib from '@snyk/dep-graph';
+import { SupportedPackageManagers } from '../package-managers';
 
 interface Pkg {
   name: string;
@@ -13,9 +14,46 @@ interface Patch {
   modificationTime: string;
 }
 
-interface IssueData {
+export enum SEVERITY {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+}
+
+export interface VulnMetaData {
+  id: string;
+  title: string;
+  description: string;
+  type: 'license' | 'vuln';
+  name: string;
+  info: string;
+  severity: SEVERITY;
+  severityValue: number;
+  isNew: boolean;
+  version: string;
+  packageManager: SupportedPackageManagers | 'upstream';
+}
+
+export interface GroupedVuln {
+  list: AnnotatedIssue[];
+  metadata: VulnMetaData;
+  isIgnored: boolean;
+  title: string;
+  note: string;
+  severity: SEVERITY;
+  isNew: boolean;
+  name: string;
+  version: string;
+  fixedIn: string[];
+  dockerfileInstruction: string;
+  dockerBaseImage: string;
+  nearestFixedInVersion: string;
+}
+
+export interface IssueData {
   id: string;
   packageName: string;
+  version: string;
   moduleName?: string;
   below: string; // Vulnerable below version
   semver: {
@@ -26,10 +64,11 @@ interface IssueData {
     }
   };
   patches: Patch[];
+  isNew: boolean;
   description: string;
+  title: string;
+  severity: SEVERITY;
 }
-
-type Severity = 'low' | 'medium' | 'high';
 
 interface AnnotatedIssue extends IssueData {
   credit: any;
@@ -40,7 +79,7 @@ interface AnnotatedIssue extends IssueData {
   isUpgradable: boolean;
   isPatchable: boolean;
   nearestFixedInVersion?: string;
-  severity: Severity;
+  severity: SEVERITY;
 
   // These fields present for "node_module" based scans to allow remediation
   bundled?: any;
@@ -52,7 +91,7 @@ interface AnnotatedIssue extends IssueData {
   dockerBaseImage?: any;
 
   type?: 'license';
-  title?: string;
+  title: string;
   patch?: any;
   note?: any;
   publicationTime?: string;

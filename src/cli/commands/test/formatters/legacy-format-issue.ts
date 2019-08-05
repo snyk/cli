@@ -4,8 +4,9 @@ import * as config from '../../../../lib/config';
 import {Options, TestOptions} from '../../../../lib/types';
 import {isLocalFolder} from '../../../../lib/detect';
 import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
+import { GroupedVuln } from '../../../../lib/snyk-test/legacy';
 
-export function formatIssues(vuln, options: Options & TestOptions) {
+export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) {
   const vulnID = vuln.list[0].id;
   const packageManager = options.packageManager;
   const localPackageTest = isLocalFolder(options.path);

@@ -11,9 +11,10 @@ import * as Debug from 'debug';
 import {Options, TestOptions} from '../../../lib/types';
 import {isLocalFolder} from '../../../lib/detect';
 import { MethodArgs } from '../../args';
-import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
+import { LegacyVulnApiResult, SEVERITY, GroupedVuln, VulnMetaData } from '../../../lib/snyk-test/legacy';
 import { formatIssues } from './formatters/legacy-format-issue';
 import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../lib/package-managers';
+import { formatIssuesWithRemediation } from './formatters/remediation-based-format-issues';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -259,7 +260,7 @@ function displayResult(res, options: Options & TestOptions) {
       'your CI/test.' : '';
     // user tested a package@version and got 0 vulns back, but there were dev deps
     // to consider
-    const snykPackageTestTip: string = !(localPackageTest || options.dev) ?
+    const snykPackageTestTip: string = !(options.docker || localPackageTest || options.dev) ?
       '\n\nTip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag.' : '';
     return (
       prefix + meta + summaryOKText + multiProjAdvice + (
@@ -314,7 +315,7 @@ function displayResult(res, options: Options & TestOptions) {
   }
 
   const vulns = res.vulnerabilities || [];
-  const groupedVulns = groupVulnerabilities(vulns);
+  const groupedVulns: GroupedVuln[] = groupVulnerabilities(vulns);
   const sortedGroupedVulns = _.orderBy(
     groupedVulns,
     ['metadata.severityValue', 'metadata.name'],
@@ -325,7 +326,12 @@ function displayResult(res, options: Options & TestOptions) {
   const binariesSortedGroupedVulns = sortedGroupedVulns
     .filter((vuln) => (vuln.metadata.packageManager === 'upstream'));
 
-  const groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) => formatIssues(vuln, options));
+  let groupedVulnInfoOutput;
+  if (res.remediation) {
+    groupedVulnInfoOutput = formatIssuesWithRemediation(filteredSortedGroupedVulns, res.remediation, options);
+  } else {
+    groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) => formatIssues(vuln, options));
+  }
 
   const groupedDockerBinariesVulnInfoOutput = (res.docker && binariesSortedGroupedVulns.length) ?
     formatDockerBinariesIssues(binariesSortedGroupedVulns, res.docker.binariesVulns, options) : [];
@@ -334,7 +340,8 @@ function displayResult(res, options: Options & TestOptions) {
     groupedVulnInfoOutput.join('\n\n') + '\n\n' +
     groupedDockerBinariesVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
 
-  return prefix + body + multiProjAdvice + dockerAdvice + dockerSuggestion;
+  const ignoredIssues = '';
+  return prefix + body + multiProjAdvice + ignoredIssues + dockerAdvice + dockerSuggestion;
 }
 
 function formatDockerBinariesIssues(
@@ -453,7 +460,7 @@ function isVulnFixable(vuln) {
   return vuln.isUpgradable || vuln.isPatchable;
 }
 
-function groupVulnerabilities(vulns) {
+function groupVulnerabilities(vulns): GroupedVuln[] {
   return vulns.reduce((map, curr) => {
     if (!map[curr.id]) {
       map[curr.id] = {};
@@ -464,8 +471,11 @@ function groupVulnerabilities(vulns) {
       // Extra added fields for ease of handling
       map[curr.id].title = curr.title;
       map[curr.id].note = curr.note;
-      map[curr.id].severity = curr.severity;
+      map[curr.id].severity = curr.severity as SEVERITY;
       map[curr.id].isNew = isNewVuln(curr);
+      map[curr.id].name = curr.name;
+      map[curr.id].version = curr.version;
+      map[curr.id].fixedIn = curr.fixedIn;
       map[curr.id].dockerfileInstruction = curr.dockerfileInstruction;
       map[curr.id].dockerBaseImage = curr.dockerBaseImage;
       map[curr.id].nearestFixedInVersion = curr.nearestFixedInVersion;
@@ -490,7 +500,7 @@ function isNewVuln(vuln) {
   return publicationTime > Date.now() - MONTH;
 }
 
-function metadataForVuln(vuln) {
+function metadataForVuln(vuln): VulnMetaData {
   return {
     id: vuln.id,
     title: vuln.title,

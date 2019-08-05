@@ -1,0 +1,150 @@
+import * as _ from 'lodash';
+import chalk from 'chalk';
+import { TestOptions } from '../../../../lib/types';
+import { RemediationResult, PatchRemediation,
+  DependencyUpdates, IssueData, SEVERITY, GroupedVuln } from '../../../../lib/snyk-test/legacy';
+
+interface BasicVulnInfo {
+  title: string;
+  severity: SEVERITY;
+  isNew: boolean;
+  name: string;
+  version: string;
+  fixedIn: string[];
+}
+
+export function formatIssuesWithRemediation(
+  vulns: GroupedVuln[],
+  remediationInfo: RemediationResult,
+  options: TestOptions,
+  ): string[] {
+
+  const basicVulnInfo: {
+    [name: string]: BasicVulnInfo,
+  } = {};
+
+  for (const vuln of vulns) {
+    basicVulnInfo[vuln.metadata.id] = {
+      title: vuln.title,
+      severity: vuln.severity,
+      isNew: vuln.isNew,
+      name: vuln.name,
+      version: vuln.version,
+      fixedIn: vuln.fixedIn,
+    };
+  }
+  const results = [chalk.bold.white('Remediation advice')];
+
+  const upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo);
+  if (upgradeTextArray.length > 0) {
+    results.push(upgradeTextArray.join('\n'));
+  }
+
+  const patchedTextArray = constructPatchesText(remediationInfo.patch, basicVulnInfo);
+
+  if (patchedTextArray.length > 0) {
+    results.push(patchedTextArray.join('\n'));
+  }
+
+  const unfixableIssuesTextArray = constructUnfixableText(remediationInfo.unresolved);
+
+  if (unfixableIssuesTextArray.length > 0) {
+    results.push(unfixableIssuesTextArray.join('\n'));
+  }
+
+  return results;
+}
+
+function constructPatchesText(
+  patches: {
+    [name: string]: PatchRemediation;
+  },
+  basicVulnInfo: {
+    [name: string]: BasicVulnInfo;
+  },
+  ): string[] {
+
+  if (!(Object.keys(patches).length > 0)) {
+    return [];
+  }
+  const patchedTextArray = [chalk.bold.green('Patchable issues:')];
+  for (const id of Object.keys(patches)) {
+    // todo: add vulnToPatch package name
+    const packageAtVersion = `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`;
+    const patchedText = `\n  Patch available for ${chalk.bold.whiteBright(packageAtVersion)}\n`;
+    const thisPatchFixes =
+    formatIssue(id, basicVulnInfo[id].title, basicVulnInfo[id].severity, basicVulnInfo[id].isNew);
+    patchedTextArray.push(patchedText + thisPatchFixes);
+  }
+
+  return patchedTextArray;
+}
+
+function constructUpgradesText(
+  upgrades: DependencyUpdates,
+  basicVulnInfo: {
+    [name: string]: BasicVulnInfo;
+  },
+  ): string[] {
+
+  if (!(Object.keys(upgrades).length > 0)) {
+    return [];
+  }
+
+  const upgradeTextArray = [chalk.bold.green('Upgradable Issues:')];
+  for (const upgrade of Object.keys(upgrades)) {
+    const upgradeDepTo = _.get(upgrades, [upgrade, 'upgradeTo']);
+    const vulnIds = _.get(upgrades, [upgrade, 'vulns']);
+    const upgradeText =
+    `\n  Upgrade ${chalk.bold.whiteBright(upgrade)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
+    const thisUpgradeFixes = vulnIds
+      .map((id) => formatIssue(
+          id,
+          basicVulnInfo[id].title, basicVulnInfo[id].severity, basicVulnInfo[id].isNew))
+      .join('\n');
+    upgradeTextArray.push(upgradeText + thisUpgradeFixes);
+  }
+  return upgradeTextArray;
+}
+
+function constructUnfixableText(unresolved: IssueData[]) {
+  if (!(unresolved.length > 0)) {
+    return [];
+  }
+  const unfixableIssuesTextArray = [chalk.bold.white('Non-fixable issues:')];
+  for (const issue of unresolved) {
+    const packageNameAtVersion = chalk.bold.whiteBright(`\n  ${issue.packageName}@${issue.version} \n`);
+    unfixableIssuesTextArray
+      .push(packageNameAtVersion + formatIssue(issue.id, issue.title, issue.severity, issue.isNew));
+  }
+
+  return unfixableIssuesTextArray;
+}
+
+function formatIssue(id: string, title: string, severity: SEVERITY, isNew: boolean): string {
+  const severitiesColourMapping = {
+    low: {
+      colorFunc(text) {
+        return chalk.blueBright(text);
+      },
+    },
+    medium: {
+      colorFunc(text) {
+        return chalk.yellowBright(text);
+      },
+    },
+    high: {
+      colorFunc(text) {
+        return chalk.redBright(text);
+      },
+    },
+  };
+  const newBadge = isNew ? ' (new)' : '';
+  return severitiesColourMapping[severity].colorFunc(
+    `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
+    ) + `[${id}] `;
+}
+
+function titleCaseText(text) {
+  return text[0].toUpperCase() + text.slice(1);
+}

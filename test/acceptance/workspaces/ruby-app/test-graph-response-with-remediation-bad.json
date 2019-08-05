@@ -1,0 +1,171 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "lynx@0.4.0": {
+        "pkg": {
+          "name": "lynx",
+          "version": "0.4.0"
+        },
+        "issues": {
+          "SNYK-RUBY-LYNX-20160": {
+            "issueId": "SNYK-RUBY-LYNX-20160",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": []
+            }
+          },
+          "SNYK-RUBY-LYNX-20161": {
+            "issueId": "SNYK-RUBY-LYNX-20161",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": []
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-RUBY-LYNX-20160": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "alternativeIds": [],
+        "creationTime": "2016-09-21T12:36:57Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 5.6,
+        "description": "## Overview\n[`lynx`](https://rubygems.org/gems/lynx) is a command line wrapper for MySQL.\nAffected versions of this gem are vulnerable to arbitrary command executions due to a flaw in `lib/lynx/pipe/run.rb`.\n\n## References\n- http://rubysec.com/advisories/OSVDB-108579\n",
+        "disclosureTime": "2014-06-29T21:00:00Z",
+        "functions": [],
+        "id": "SNYK-RUBY-LYNX-20160",
+        "identifiers": {
+          "CVE": [],
+          "CWE": [
+            "CWE-77"
+          ],
+          "OSVDB": [
+            "OSVDB-108579"
+          ]
+        },
+        "language": "ruby",
+        "methods": [],
+        "modificationTime": "2018-11-18T11:50:42.661168Z",
+        "moduleName": "lynx",
+        "packageManager": "rubygems",
+        "packageName": "lynx",
+        "patches": [],
+        "publicationTime": "2014-06-29T21:00:00Z",
+        "references": [
+          {
+            "title": "RUBYSEC.COM",
+            "url": "http://rubysec.com/advisories/OSVDB-108579"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            ">= 0"
+          ]
+        },
+        "severity": "high",
+        "title": "Arbitrary Command Execution"
+      },
+      "SNYK-RUBY-LYNX-20161": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "alternativeIds": [],
+        "creationTime": "2016-09-21T12:36:57Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 4,
+        "description": "## Overview\n[`lynx`](https://rubygems.org/gems/lynx) is a command line wrapper for MySQL.\nAffected versions of this gem are vulnerable due to a flaw in `command/basic.rb` that exposes password information in plaintext in the process table. This may allow a local attacker to gain access to password information.\n\n## References\n- http://rubysec.com/advisories/CVE-2014-5002\n",
+        "disclosureTime": "2014-06-29T21:00:00Z",
+        "functions": [],
+        "id": "SNYK-RUBY-LYNX-20161",
+        "identifiers": {
+          "CVE": [
+            "CVE-2014-5002"
+          ],
+          "CWE": [
+            "CWE-200"
+          ],
+          "OSVDB": [
+            "OSVDB-108580"
+          ]
+        },
+        "language": "ruby",
+        "methods": [],
+        "modificationTime": "2018-11-18T11:50:42.664828Z",
+        "moduleName": "lynx",
+        "packageManager": "rubygems",
+        "packageName": "lynx",
+        "patches": [],
+        "publicationTime": "2014-06-29T21:00:00Z",
+        "references": [
+          {
+            "title": "RUBYSEC.COM",
+            "url": "http://rubysec.com/advisories/CVE-2014-5002"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            ">= 0"
+          ]
+        },
+        "severity": "medium",
+        "title": "Local Plaintext Password Disclosure"
+      }
+    }
+  },
+  "remediation": {
+    "unresolved": [],
+    "upgrade": {
+      "rack@1.6.5": {
+        "upgradeTo": "rack@1.6.11",
+        "upgrades": [
+          "rack@1.6.5"
+        ],
+        "vulns": [
+          "SNYK-RUBY-RACK-72567"
+        ]
+      },
+      "rack-cache@1.1": {
+        "upgradeTo": "rack-cache@1.3.0",
+        "upgrades": [
+          "rack-cache@1.1",
+          "rack-cache@1.1",
+          "rack@1.6.5"
+        ],
+        "vulns": [
+          "snyk:lic:rubygems:rack-cache:Unknown",
+          "SNYK-RUBY-RACKCACHE-20031",
+          "SNYK-RUBY-RACK-72567"
+        ]
+      },
+      "rack-protection@1.5.3": {
+        "upgradeTo": "rack-protection@2.0.0",
+        "upgrades": [
+          "rack-protection@1.5.3",
+          "rack-protection@1.5.3",
+          "rack-protection@1.5.3",
+          "rack@1.6.5"
+        ],
+        "vulns": [
+          "SNYK-RUBY-RACKPROTECTION-20394",
+          "SNYK-RUBY-RACKPROTECTION-20395",
+          "SNYK-RUBY-RACKPROTECTION-22019",
+          "SNYK-RUBY-RACK-72567"
+        ]
+      }
+    },
+    "patch": {},
+    "ignore": {}
+  },
+  "meta": {
+    "isPublic": false,
+    "isLicensesEnabled": true,
+    "licensesPolicy": null,
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "test-org"
+  },
+  "filesystemPolicy": false
+}
