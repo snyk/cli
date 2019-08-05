@@ -62,6 +62,7 @@ export function isMultiResult(pet: SingleDepRootResult | MultiDepRootsResult): p
 export interface TestOptions {
   traverseNodeModules: boolean;
   interactive: boolean;
+  'prune-repeated-subdependencies'?: boolean;
 }
 export interface ProtectOptions {
   loose: boolean;
