@@ -17,7 +17,7 @@ const snykDebug = debugModule('snyk');
 
 declare const global: Global;
 
-export = function makeRequest(payload: Payload) {
+export = function makeRequest(payload: Payload): Promise<{res: needle.NeedleResponse, body: any}> {
   return version().then((versionNumber) => (
     new Promise((resolve, reject) => {
       const body = payload.body;

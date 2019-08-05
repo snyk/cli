@@ -1,6 +1,6 @@
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
-import * as request from '../../../lib/request';
+import request = require('../../../lib/request');
 
 export function isAuthed() {
   const token = snyk.config.get('api');

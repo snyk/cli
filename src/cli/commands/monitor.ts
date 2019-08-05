@@ -11,7 +11,7 @@ import chalk from 'chalk';
 import * as pathUtil from 'path';
 import * as spinner from '../../lib/spinner';
 
-import * as request from '../../lib/request';
+import request = require('../../lib/request');
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
