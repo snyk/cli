@@ -76,7 +76,7 @@
     "snyk-module": "1.9.1",
     "snyk-mvn-plugin": "2.3.3",
     "snyk-nodejs-lockfile-parser": "1.16.0",
-    "snyk-nuget-plugin": "1.11.2",
+    "snyk-nuget-plugin": "1.11.3",
     "snyk-php-plugin": "1.6.4",
     "snyk-policy": "1.13.5",
     "snyk-python-plugin": "1.10.2",
