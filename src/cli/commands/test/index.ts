@@ -383,7 +383,7 @@ function metaForDisplay(res, options) {
   const packageManager = options.packageManager || res.packageManager;
   const openSource = res.isPrivate ? 'no' : 'yes';
   const meta = [
-    chalk.bold(rightPadWithSpaces('Organisation: ', padToLength)) + res.org,
+    chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org,
     chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) + packageManager,
   ];
   if (options.file) {

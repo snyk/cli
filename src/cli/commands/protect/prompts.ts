@@ -25,7 +25,7 @@ const moduleToObject = moduleToObjectJs as
 const ignoreDisabledReasons = {
   notAdmin: 'Set to ignore (only administrators can ignore issues)',
   disregardFilesystemIgnores:
-    'Set to ignore (ignoring via the CLI is not enabled for this organisation)',
+    'Set to ignore (ignoring via the CLI is not enabled for this organization)',
 };
 
 // via http://stackoverflow.com/a/4760279/22617

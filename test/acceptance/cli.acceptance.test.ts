@@ -241,8 +241,8 @@ test('`test ruby-app` meta when no vulns',  async (t) => {
   chdirWorkspaces();
   const res = await cli.test('ruby-app');
 
-  const meta = res.slice(res.indexOf('Organisation:')).split('\n');
-  t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+  const meta = res.slice(res.indexOf('Organization:')).split('\n');
+  t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
   t.match(meta[1], /Package manager:\s+rubygems/,
     'package manager displayed');
   t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
@@ -268,8 +268,8 @@ test('`test ruby-app-thresholds`', async (t) => {
       'Tested 7 dependencies for known vulnerabilities, found 6 vulnerabilities, 7 vulnerable paths',
       '6 vulns');
 
-    const meta = res.slice(res.indexOf('Organisation:')).split('\n');
-    t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+    const meta = res.slice(res.indexOf('Organization:')).split('\n');
+    t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
     t.match(meta[1], /Package manager:\s+rubygems/,
       'package manager displayed');
     t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
@@ -549,8 +549,8 @@ test('`test gradle-kotlin-dsl-app` returns correct meta', async (t) => {
   loadPlugin.withArgs('gradle').returns(plugin);
 
   const res = await cli.test('gradle-kotlin-dsl-app');
-  const meta = res.slice(res.indexOf('Organisation:')).split('\n');
-  t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+  const meta = res.slice(res.indexOf('Organization:')).split('\n');
+  t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
   t.match(meta[1], /Package manager:\s+gradle/,
     'package manager displayed');
   t.match(meta[2], /Target file:\s+build.gradle.kts/, 'target file displayed');
@@ -573,10 +573,10 @@ test('`test gradle-app` returns correct meta', async (t) => {
   loadPlugin.withArgs('gradle').returns(plugin);
 
   const res = await cli.test('gradle-app');
-  const meta = res.slice(res.indexOf('Organisation:')).split('\n');
+  const meta = res.slice(res.indexOf('Organization:')).split('\n');
 
   t.false(((spyPlugin.args[0] as any)[2] as any).multiDepRoots, '`multiDepRoots` option is not sent');
-  t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+  t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
   t.match(meta[1], /Package manager:\s+gradle/,
     'package manager displayed');
   t.match(meta[2], /Target file:\s+build.gradle/, 'target file displayed');
@@ -662,8 +662,8 @@ test('`test gradle-app --all-sub-projects` returns correct multi tree meta', asy
   t.equals(tests.length, 2, 'two projects tested independently');
   t.match(res, /Tested 2 projects/, 'number projects tested displayed properly');
   for (let i = 0; i < tests.length; i++) {
-    const meta = tests[i].slice(tests[i].indexOf('Organisation:')).split('\n');
-    t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+    const meta = tests[i].slice(tests[i].indexOf('Organization:')).split('\n');
+    t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
     t.match(meta[1], /Package manager:\s+gradle/,
       'package manager displayed');
     t.match(meta[2], /Target file:\s+build.gradle/, 'target file displayed');
@@ -679,7 +679,7 @@ test('`test gradle-app --all-sub-projects` returns correct multi tree meta', asy
 test('`test` returns correct meta when target file specified', async (t) => {
   chdirWorkspaces();
   const res = await cli.test('ruby-app', {file: 'Gemfile.lock'});
-  const meta = res.slice(res.indexOf('Organisation:')).split('\n');
+  const meta = res.slice(res.indexOf('Organization:')).split('\n');
   t.match(meta[2], /Target file:\s+Gemfile.lock/, 'target file displayed');
 
 });
@@ -687,8 +687,8 @@ test('`test` returns correct meta when target file specified', async (t) => {
 test('`test npm-package-policy` returns correct meta', async (t) => {
   chdirWorkspaces();
   const res = await cli.test('npm-package-policy');
-  const meta = res.slice(res.indexOf('Organisation:')).split('\n');
-  t.match(meta[0], /Organisation:\s+test-org/, 'organisation displayed');
+  const meta = res.slice(res.indexOf('Organization:')).split('\n');
+  t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
   t.match(meta[1], /Package manager:\s+npm/, 'package manager displayed');
   t.match(meta[2], /Target file:\s+package.json/, 'target file displayed');
   t.match(meta[3], /Open source:\s+no/, 'open source displayed');
