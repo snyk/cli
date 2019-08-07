@@ -111,11 +111,14 @@ function constructUnfixableText(unresolved: IssueData[]) {
   if (!(unresolved.length > 0)) {
     return [];
   }
-  const unfixableIssuesTextArray = [chalk.bold.white('\nIssues that cannot be fixed:')];
+  const unfixableIssuesTextArray = [chalk.bold.white('\nIssues with no direct upgrade or patch:')];
   for (const issue of unresolved) {
-    const packageNameAtVersion = chalk.bold.whiteBright(`\n  ${issue.packageName}@${issue.version} \n`);
+    const extraInfo = issue.fixedIn
+      ? `\n  This issue was fixed in versions: ${issue.fixedIn.join(', ')}`
+      : '\n  No upgrade or patch available';
+    const packageNameAtVersion = chalk.bold.whiteBright(`\n  ${issue.packageName}@${issue.version}\n`);
     unfixableIssuesTextArray
-      .push(packageNameAtVersion + formatIssue(issue.id, issue.title, issue.severity, issue.isNew));
+      .push(packageNameAtVersion + formatIssue(issue.id, issue.title, issue.severity, issue.isNew) + `${extraInfo}`);
   }
 
   return unfixableIssuesTextArray;
@@ -140,9 +143,10 @@ function formatIssue(id: string, title: string, severity: SEVERITY, isNew: boole
     },
   };
   const newBadge = isNew ? ' (new)' : '';
+
   return severitiesColourMapping[severity].colorFunc(
     `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
-    ) + `[${id}] `;
+    ) + `[${id}]`;
 }
 
 function titleCaseText(text) {

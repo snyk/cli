@@ -68,6 +68,7 @@ export interface IssueData {
   description: string;
   title: string;
   severity: SEVERITY;
+  fixedIn: string[];
 }
 
 interface AnnotatedIssue extends IssueData {
