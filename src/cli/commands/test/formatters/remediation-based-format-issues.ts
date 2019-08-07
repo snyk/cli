@@ -67,7 +67,7 @@ function constructPatchesText(
   if (!(Object.keys(patches).length > 0)) {
     return [];
   }
-  const patchedTextArray = [chalk.bold.green('Patchable issues:')];
+  const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
   for (const id of Object.keys(patches)) {
     // todo: add vulnToPatch package name
     const packageAtVersion = `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`;
@@ -91,7 +91,7 @@ function constructUpgradesText(
     return [];
   }
 
-  const upgradeTextArray = [chalk.bold.green('Upgradable Issues:')];
+  const upgradeTextArray = [chalk.bold.green('\nUpgradable Issues:')];
   for (const upgrade of Object.keys(upgrades)) {
     const upgradeDepTo = _.get(upgrades, [upgrade, 'upgradeTo']);
     const vulnIds = _.get(upgrades, [upgrade, 'vulns']);
@@ -111,7 +111,7 @@ function constructUnfixableText(unresolved: IssueData[]) {
   if (!(unresolved.length > 0)) {
     return [];
   }
-  const unfixableIssuesTextArray = [chalk.bold.white('Non-fixable issues:')];
+  const unfixableIssuesTextArray = [chalk.bold.white('\nIssues that cannot be fixed:')];
   for (const issue of unresolved) {
     const packageNameAtVersion = chalk.bold.whiteBright(`\n  ${issue.packageName}@${issue.version} \n`);
     unfixableIssuesTextArray
