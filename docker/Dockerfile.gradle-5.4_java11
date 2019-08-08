@@ -11,7 +11,8 @@ RUN apt-get update && \
   curl -L https://services.gradle.org/distributions/gradle-5.4-bin.zip -o gradle-5.4-bin.zip && \
   unzip gradle-5.4-bin.zip -d /home/node/ && \
   curl -sL https://deb.nodesource.com/setup_8.x | bash - && \
-  apt-get install -y nodejs jq && \
+  apt-get install -y nodejs jq npm && \
+  node -v && \
   npm install --global snyk snyk-to-html && \
   apt-get autoremove -y && \
   apt-get clean && \
