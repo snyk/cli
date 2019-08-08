@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import chalk from 'chalk';
+import * as config from '../../../../lib/config';
 import { TestOptions } from '../../../../lib/types';
 import { RemediationResult, PatchRemediation,
   DependencyUpdates, IssueData, SEVERITY, GroupedVuln } from '../../../../lib/snyk-test/legacy';
@@ -73,7 +74,12 @@ function constructPatchesText(
     const packageAtVersion = `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`;
     const patchedText = `\n  Patch available for ${chalk.bold.whiteBright(packageAtVersion)}\n`;
     const thisPatchFixes =
-    formatIssue(id, basicVulnInfo[id].title, basicVulnInfo[id].severity, basicVulnInfo[id].isNew);
+    formatIssue(
+      id,
+      basicVulnInfo[id].title,
+      basicVulnInfo[id].severity,
+      basicVulnInfo[id].isNew,
+      `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`);
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
 
@@ -100,7 +106,10 @@ function constructUpgradesText(
     const thisUpgradeFixes = vulnIds
       .map((id) => formatIssue(
           id,
-          basicVulnInfo[id].title, basicVulnInfo[id].severity, basicVulnInfo[id].isNew))
+          basicVulnInfo[id].title,
+          basicVulnInfo[id].severity,
+          basicVulnInfo[id].isNew,
+          `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`))
       .join('\n');
     upgradeTextArray.push(upgradeText + thisUpgradeFixes);
   }
@@ -114,7 +123,7 @@ function constructUnfixableText(unresolved: IssueData[]) {
   const unfixableIssuesTextArray = [chalk.bold.white('\nIssues with no direct upgrade or patch:')];
   for (const issue of unresolved) {
     const extraInfo = issue.fixedIn
-      ? `\n  This issue was fixed in versions: ${issue.fixedIn.join(', ')}`
+      ? `\n  This issue was fixed in versions: ${chalk.bold(issue.fixedIn.join(', '))}`
       : '\n  No upgrade or patch available';
     const packageNameAtVersion = chalk.bold.whiteBright(`\n  ${issue.packageName}@${issue.version}\n`);
     unfixableIssuesTextArray
@@ -124,7 +133,12 @@ function constructUnfixableText(unresolved: IssueData[]) {
   return unfixableIssuesTextArray;
 }
 
-function formatIssue(id: string, title: string, severity: SEVERITY, isNew: boolean): string {
+function formatIssue(
+  id: string,
+  title: string,
+  severity: SEVERITY,
+  isNew: boolean,
+  vulnerableModule?: string): string {
   const severitiesColourMapping = {
     low: {
       colorFunc(text) {
@@ -143,10 +157,11 @@ function formatIssue(id: string, title: string, severity: SEVERITY, isNew: boole
     },
   };
   const newBadge = isNew ? ' (new)' : '';
+  const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
 
   return severitiesColourMapping[severity].colorFunc(
     `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
-    ) + `[${id}]`;
+    ) + `[${config.ROOT}/vuln/${id}]` + name;
 }
 
 function titleCaseText(text) {
