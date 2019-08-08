@@ -126,9 +126,13 @@ function createTruncatedVulnsPathsText(vulnList) {
 }
 
 function createFixedInText(vuln: any): string {
-  return vuln.nearestFixedInVersion ?
-    chalk.bold('\n  Fixed in: ' + vuln.nearestFixedInVersion )
-    : '';
+  if (vuln.nearestFixedInVersion) {
+    return chalk.bold('\n  Fixed in: ' + vuln.nearestFixedInVersion);
+  } else if (vuln.fixedIn && vuln.fixedIn.length > 0) {
+    return chalk.bold('\n  Fixed in: ' + vuln.fixedIn.join(', '));
+  }
+
+  return '';
 }
 
 function createRemediationText(vuln, packageManager) {
@@ -166,6 +170,10 @@ function createRemediationText(vuln, packageManager) {
         ` can address this issue. ${wizardHintText}`;
     }));
     return chalk.bold(`\n  Remediation: \n    ${upgradePathsArray.join('\n    ')}`);
+  }
+
+  if (vuln.fixedIn && vuln.fixedIn.length > 0) {
+    return createFixedInText(vuln);
   }
 
   return '';
