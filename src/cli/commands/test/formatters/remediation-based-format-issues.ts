@@ -13,6 +13,7 @@ interface BasicVulnInfo {
   name: string;
   version: string;
   fixedIn: string[];
+  legalInstructions?: string;
 }
 
 export function formatIssuesWithRemediation(
@@ -33,6 +34,7 @@ export function formatIssuesWithRemediation(
       name: vuln.name,
       version: vuln.version,
       fixedIn: vuln.fixedIn,
+      legalInstructions: vuln.legalInstructions,
     };
   }
   const results = [chalk.bold.white('Remediation advice')];
@@ -85,7 +87,8 @@ function constructPatchesText(
       basicVulnInfo[id].title,
       basicVulnInfo[id].severity,
       basicVulnInfo[id].isNew,
-      `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`);
+      `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
+      basicVulnInfo[id].legalInstructions);
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
 
@@ -116,7 +119,8 @@ function constructUpgradesText(
           basicVulnInfo[id].title,
           basicVulnInfo[id].severity,
           basicVulnInfo[id].isNew,
-          `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`))
+          `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
+          basicVulnInfo[id].legalInstructions))
       .join('\n');
     upgradeTextArray.push(upgradeText + thisUpgradeFixes);
   }
@@ -140,8 +144,8 @@ function constructUnfixableText(unresolved: IssueData[]) {
         issue.id,
         issue.title,
         issue.severity,
-        issue.isNew) + `${extraInfo}`,
-      );
+        issue.isNew,
+        issue.legalInstructions) + `${extraInfo}`);
   }
 
   return unfixableIssuesTextArray;
@@ -152,7 +156,8 @@ function formatIssue(
   title: string,
   severity: SEVERITY,
   isNew: boolean,
-  vulnerableModule?: string): string {
+  vulnerableModule?: string,
+  legalInstructions?: string): string {
   const severitiesColourMapping = {
     low: {
       colorFunc(text) {
@@ -175,7 +180,8 @@ function formatIssue(
 
   return severitiesColourMapping[severity].colorFunc(
     `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
-    ) + `[${config.ROOT}/vuln/${id}]` + name;
+    ) + `[${config.ROOT}/vuln/${id}]` + name
+    + (legalInstructions ? `${chalk.bold('\nLegal instructions')}: ${legalInstructions}` : '') ;
 }
 
 function titleCaseText(text) {

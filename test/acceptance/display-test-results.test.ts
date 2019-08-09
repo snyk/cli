@@ -30,6 +30,41 @@ test('`test ruby-app` remediation displayed',  async (t) => {
   t.end();
 });
 
+
+test('`test ruby-app` legal instructions displayed',  async (t) => {
+  chdirWorkspaces();
+  const stubbedResponse = JSON.parse(
+    fs.readFileSync(__dirname + '/workspaces/ruby-app/test-graph-response-with-legal-instruction.json', 'utf8'),
+  );
+  const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
+  try {
+    await snykTest('ruby-app');
+  } catch (error) {
+    const res = error.message;
+    t.match(res, 'Legal instructions');
+  }
+
+  snykTestStub.restore();
+  t.end();
+});
+
+test('`test pip-app-license-issue` legal instructions displayed (legacy formatter)',  async (t) => {
+  chdirWorkspaces();
+  const stubbedResponse = JSON.parse(
+    fs.readFileSync(__dirname + '/workspaces/pip-app-license-issue/test-pip-stub-with-legal-instructions.json', 'utf8'),
+  );
+  const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
+  try {
+    await snykTest('pip-app-license-issue');
+  } catch (error) {
+    const res = error.message;
+    t.match(res, 'Legal instructions');
+  }
+
+  snykTestStub.restore();
+  t.end();
+});
+
 function chdirWorkspaces(subdir: string = '') {
   process.chdir(__dirname + '/workspaces' + (subdir ? '/' + subdir : ''));
 }

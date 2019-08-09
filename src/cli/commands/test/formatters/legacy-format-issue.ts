@@ -42,6 +42,7 @@ export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) 
       : '',
     fixedIn: options.docker ? createFixedInText(vuln) : '',
     dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
+    legalInstructions: vuln.legalInstructions ? chalk.bold('\n  Legal instructions: ' + vuln.legalInstructions) : '',
   };
 
   return (
@@ -54,7 +55,8 @@ export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) 
     vulnOutput.remediationInfo +
     vulnOutput.dockerfilePackage +
     vulnOutput.fixedIn +
-    vulnOutput.extraInfo
+    vulnOutput.extraInfo +
+    vulnOutput.legalInstructions
   );
 }
 
