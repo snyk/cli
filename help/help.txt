@@ -53,7 +53,7 @@ Options:
   --print-deps ....... (test and monitor commands only)
                        Print the dependency tree before sending it for analysis.
   --prune-repeated-subdependencies
-                       (monitor command only)
+                       (test and monitor command only)
                        Prune dependency trees, removing duplicate sub-dependencies.
                        Will still find all vulnerabilities, but potentially not all
                        of the vulnerable paths.
