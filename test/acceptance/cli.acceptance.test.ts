@@ -31,6 +31,7 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../src/lib/plugins';
+import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -575,7 +576,7 @@ test('`test gradle-app` returns correct meta', async (t) => {
   const res = await cli.test('gradle-app');
   const meta = res.slice(res.indexOf('Organization:')).split('\n');
 
-  t.false(((spyPlugin.args[0] as any)[2] as any).multiDepRoots, '`multiDepRoots` option is not sent');
+  t.false(((spyPlugin.args[0] as any)[2] as any).allSubProjects, '`allSubProjects` option is not sent');
   t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
   t.match(meta[1], /Package manager:\s+gradle/,
     'package manager displayed');
@@ -586,7 +587,7 @@ test('`test gradle-app` returns correct meta', async (t) => {
     'local policy not displayed');
 });
 
-test('`test gradle-app --all-sub-projects` sends `multiDepRoots` argument to plugin', async (t) => {
+test('`test gradle-app --all-sub-projects` sends `allSubProjects` argument to plugin', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -599,12 +600,12 @@ test('`test gradle-app --all-sub-projects` sends `multiDepRoots` argument to plu
   loadPlugin.withArgs('gradle').returns(plugin);
 
   await cli.test('gradle-app', {
-    'all-sub-projects': true,
+    allSubProjects: true,
   });
-  t.true(((spyPlugin.args[0] as any)[2] as any).multiDepRoots);
+  t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
 });
 
-test('`test gradle-app` plugin fails to return package or depRoots', async (t) => {
+test('`test gradle-app` plugin fails to return package or scannedProjects', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -621,7 +622,7 @@ test('`test gradle-app` plugin fails to return package or depRoots', async (t) =
     t.fail('expected error');
   } catch (error) {
     t.match(error,
-      /error getting dependencies from gradle plugin: neither 'package' nor 'depRoots' were found/,
+      /error getting dependencies from gradle plugin: neither 'package' nor 'scannedProjects' were found/,
       'error found');
   }
 });
@@ -629,10 +630,10 @@ test('`test gradle-app` plugin fails to return package or depRoots', async (t) =
 test('`test gradle-app --all-sub-projects` returns correct multi tree meta', async (t) => {
   chdirWorkspaces();
   const plugin = {
-    async inspect() {
+    async inspect(): Promise<pluginApi.MultiProjectResult> {
       return {
         plugin: {name: 'gradle'},
-        depRoots: [
+        scannedProjects: [
           {
             depTree: {
               name: 'tree0',
@@ -655,8 +656,8 @@ test('`test gradle-app --all-sub-projects` returns correct multi tree meta', asy
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('gradle').returns(plugin);
 
-  const res = await cli.test('gradle-app', {'all-sub-projects': true});
-  t.true(((spyPlugin.args[0] as any)[2] as any).multiDepRoots, '`multiDepRoots` option is sent');
+  const res = await cli.test('gradle-app', {allSubProjects: true});
+  t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects, '`allSubProjects` option is sent');
 
   const tests = res.split('Testing gradle-app...').filter((s) => !!s.trim());
   t.equals(tests.length, 2, 'two projects tested independently');
@@ -2659,8 +2660,8 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('gradle').returns(plugin);
 
-  await cli.monitor('gradle-app', {'all-sub-projects': true});
-  t.true(((spyPlugin.args[0] as any)[2] as any).multiDepRoots);
+  await cli.monitor('gradle-app', {allSubProjects: true});
+  t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
 
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
@@ -2668,8 +2669,7 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
   t.match(req.url, '/monitor/gradle', 'puts at correct url');
   t.same(spyPlugin.getCall(0).args,
     ['gradle-app', 'build.gradle', {
-      'all-sub-projects': true,
-      'multiDepRoots': true,
+      'allSubProjects': true,
       'args': null,
     }], 'calls gradle plugin');
 });
@@ -2691,8 +2691,8 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
   loadPlugin.withArgs('gradle').returns(plugin);
   loadPlugin.withArgs('pip').returns(plugin);
 
-  await cli.monitor('gradle-app', 'pip-app', {'all-sub-projects': true});
-  t.true(((spyPlugin.args[0] as any)[2] as any).multiDepRoots);
+  await cli.monitor('gradle-app', 'pip-app', {allSubProjects: true});
+  t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
 
   let req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request for pip');
@@ -2705,15 +2705,13 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
 
   t.same(spyPlugin.getCall(0).args,
     ['gradle-app', 'build.gradle', {
-      'all-sub-projects': true,
-      'multiDepRoots': true,
-      'args': null,
+      allSubProjects: true,
+      args: null,
     }], 'calls plugin for the 1st path');
   t.same(spyPlugin.getCall(1).args,
   ['pip-app', 'requirements.txt', {
-    'all-sub-projects': true,
-    // No multiDepRoots, because only Gradle plugin loader sets it
-    'args': null,
+    allSubProjects: true,
+    args: null,
   }], 'calls plugin for the 2nd path');
 });
 
@@ -2734,7 +2732,7 @@ test('`monitor gradle-app --all-sub-projects --project-name`', async (t) => {
   loadPlugin.withArgs('gradle').returns(plugin);
 
   try {
-    await cli.monitor('gradle-app', {'all-sub-projects': true, 'project-name': 'frumpus'});
+    await cli.monitor('gradle-app', {allSubProjects: true, 'project-name': 'frumpus'});
   } catch (e) {
     t.contains(e, /is currently not compatible/);
   }

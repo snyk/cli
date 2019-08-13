@@ -4,7 +4,7 @@ export interface InspectResult {
     runtime?: string;
   };
   package?: any;
-  depRoots?: any;
+  scannedProjects?: any;
 }
 
 export interface Options {
@@ -13,7 +13,7 @@ export interface Options {
   traverseNodeModules?: boolean;
   dev?: boolean;
   strictOutOfSync?: boolean | 'true' | 'false';
-  multiDepRoots?: boolean;
+  allSubProjects?: boolean;
   debug?: boolean;
   packageManager?: string;
   composerIsFine?: boolean;

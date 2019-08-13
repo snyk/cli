@@ -16,7 +16,7 @@ import common = require('./common');
 import {DepTree, TestOptions} from '../types';
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult, TestDepGraphResponse} from './legacy';
-import {SingleDepRootResult, MultiDepRootsResult, isMultiResult, Options} from '../types';
+import {Options} from '../types';
 import {
   NoSupportedManifestsFoundError,
   InternalServerError,
@@ -26,6 +26,7 @@ import {
 import { maybePrintDeps } from '../print-deps';
 import { SupportedPackageManagers } from '../package-managers';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
+import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -207,23 +208,22 @@ function assemblePayloads(root: string, options: Options & TestOptions): Promise
   return assembleRemotePayloads(root, options);
 }
 
-// Force getDepsFromPlugin to return depRoots for processing in assembleLocalPayload
-async function getDepsFromPlugin(root, options: Options): Promise<MultiDepRootsResult> {
+// Force getDepsFromPlugin to return scannedProjects for processing in assembleLocalPayload
+async function getDepsFromPlugin(root, options: Options): Promise<pluginApi.MultiProjectResult> {
   options.file = options.file || detect.detectPackageFile(root);
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
-  const pluginOptions = plugins.getPluginOptions(options.packageManager, options);
-  const inspectRes: SingleDepRootResult | MultiDepRootsResult =
-    await moduleInfo.inspect(root, options.file, { ...options, ...pluginOptions });
+  const inspectRes: pluginApi.InspectResult =
+    await moduleInfo.inspect(root, options.file, { ...options });
 
-  if (!isMultiResult(inspectRes)) {
+  if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package) {
       // something went wrong if both are not present...
       throw Error(`error getting dependencies from ${options.packageManager} ` +
-                  'plugin: neither \'package\' nor \'depRoots\' were found');
+                  'plugin: neither \'package\' nor \'scannedProjects\' were found');
     }
     if (!inspectRes.package.targetFile && inspectRes.plugin) {
       inspectRes.package.targetFile = inspectRes.plugin.targetFile;
@@ -238,13 +238,13 @@ async function getDepsFromPlugin(root, options: Options): Promise<MultiDepRootsR
     }
     return {
       plugin: inspectRes.plugin,
-      depRoots: [{depTree: inspectRes.package}],
+      scannedProjects: [{depTree: inspectRes.package}],
     };
   } else {
     // We are using "options" to store some information returned from plugin that we need to use later,
     // but don't want to send to Registry in the Payload.
     // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    options.subProjectNames = inspectRes.depRoots.map((depRoot) => depRoot.depTree.name);
+    (options as any).subProjectNames = inspectRes.scannedProjects.map((scannedProject) => scannedProject.depTree.name);
     return inspectRes;
   }
 }
@@ -263,14 +263,14 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
 
-    for (const depRoot of deps.depRoots) {
-      const pkg = depRoot.depTree;
+    for (const scannedProject of deps.scannedProjects) {
+      const pkg = scannedProject.depTree;
       if (options['print-deps']) {
         await spinner.clear<void>(spinnerLbl)();
         maybePrintDeps(options, pkg);
       }
       if (deps.plugin && deps.plugin.packageManager) {
-        options.packageManager = deps.plugin.packageManager;
+        (options as any).packageManager = deps.plugin.packageManager;
       }
 
       if (pkg.docker) {
@@ -332,7 +332,10 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
       } else {
         // Graphs are more compact and robust representations.
         // Legacy parts of the code are still using trees, but will eventually be fully migrated.
-        debug('converting dep-tree to dep-graph', {name: pkg.name, targetFile: depRoot.targetFile || options.file});
+        debug('converting dep-tree to dep-graph', {
+          name: pkg.name,
+          targetFile: scannedProject.targetFile || options.file,
+        });
         let depGraph = await depGraphLib.legacy.depTreeToGraph(
           pkg, options.packageManager);
 

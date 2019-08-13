@@ -16,9 +16,6 @@ import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
 import {
-  SingleDepRootResult,
-  MultiDepRootsResult,
-  isMultiResult,
   MonitorOptions,
   MonitorMeta,
   MonitorResult,
@@ -30,6 +27,7 @@ import {
   MonitorError,
   UnsupportedFeatureFlagError,
 } from '../../lib/errors';
+import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -78,7 +76,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     snyk.id = options.id;
   }
 
-  if (options['all-sub-projects'] && options['project-name']) {
+  if (options.allSubProjects && options['project-name']) {
     throw new Error('`--all-sub-projects` is currently not compatible with `--project-name`');
   }
 
@@ -126,13 +124,12 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Scan the project dependencies via a plugin
 
-      const pluginOptions = plugins.getPluginOptions(packageManager, options);
       analytics.add('packageManager', packageManager);
-      analytics.add('pluginOptions', pluginOptions);
+      analytics.add('pluginOptions', options);
 
-      // TODO: the type should depend on multiDepRoots flag
-      const inspectResult: SingleDepRootResult|MultiDepRootsResult = await promiseOrCleanup(
-          moduleInfo.inspect(path, targetFile, { ...options, ...pluginOptions }),
+      // TODO: the type should depend on allSubProjects flag
+      const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
+          moduleInfo.inspect(path, targetFile, { ...options }),
           spinner.clear(analyzingDepsSpinnerLabel));
 
       analytics.add('pluginName', inspectResult.plugin.name);
@@ -155,14 +152,14 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
 
-      // SingleDepRootResult is a legacy format understood by Registry, so we have to convert
-      // a MultiDepRootsResult to an array of these.
+      // SinglePackageResult is a legacy format understood by Registry, so we have to convert
+      // a MultiProjectResult to an array of these.
 
-      let perDepRootResults: SingleDepRootResult[] = [];
+      let perSubProjectResults: pluginApi.SinglePackageResult[] = [];
       let advertiseSubprojectsCount: number | null = null;
-      if (isMultiResult(inspectResult)) {
-        perDepRootResults = inspectResult.depRoots.map(
-          (depRoot) => ({plugin: inspectResult.plugin, package: depRoot.depTree}));
+      if (pluginApi.isMultiResult(inspectResult)) {
+        perSubProjectResults = inspectResult.scannedProjects.map(
+          (scannedProject) => ({plugin: inspectResult.plugin, package: scannedProject.depTree}));
       } else {
         if (!options['gradle-sub-project']
           && inspectResult.plugin.meta
@@ -170,15 +167,15 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           && inspectResult.plugin.meta.allSubProjectNames.length > 1) {
           advertiseSubprojectsCount = inspectResult.plugin.meta.allSubProjectNames.length;
         }
-        perDepRootResults = [inspectResult];
+        perSubProjectResults = [inspectResult];
       }
 
       // Post the project dependencies to the Registry
-      for (const depRootDeps of perDepRootResults) {
-        maybePrintDeps(options, depRootDeps.package);
+      for (const subProjDeps of perSubProjectResults) {
+        maybePrintDeps(options, subProjDeps.package);
 
         const res = await promiseOrCleanup(
-          snykMonitor(path, meta, depRootDeps, targetFile),
+          snykMonitor(path, meta, subProjDeps, targetFile),
           spinner.clear(postingMonitorSpinnerLabel));
 
         await spinner.clear(postingMonitorSpinnerLabel)(res);
@@ -193,8 +190,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         const manageUrl = url.format(endpoint);
 
         endpoint.pathname = leader + '/monitor/' + res.id;
-        const subProjectName = isMultiResult(inspectResult)
-          ? depRootDeps.package.name
+        const subProjectName = pluginApi.isMultiResult(inspectResult)
+          ? subProjDeps.package.name
           : undefined;
         const monOutput = formatMonitorOutput(
           packageManager,

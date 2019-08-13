@@ -1,8 +1,9 @@
-import { DepDict, Options, MonitorOptions, DepTree } from './types';
+import { DepDict, Options, MonitorOptions } from './types';
+import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 
 // This option is still experimental and might be deprecated.
 // It might be a better idea to convert it to a command (i.e. do not perform test/monitor).
-export function maybePrintDeps(options: Options | MonitorOptions, rootPackage: DepTree) {
+export function maybePrintDeps(options: Options | MonitorOptions, rootPackage: legacyApi.DepTree) {
   if (options['print-deps']) {
     if (options.json) {
       // Will produce 2 JSON outputs, one for the deps, one for the vuln scan.
