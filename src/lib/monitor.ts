@@ -8,12 +8,13 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import {isCI} from './is-ci';
 import * as analytics from './analytics';
-import { SingleDepRootResult, DepTree, MonitorMeta, MonitorResult } from './types';
+import { DepTree, MonitorMeta, MonitorResult } from './types';
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
 import {MonitorError, ConnectionTimeoutError} from './errors';
 import { countPathsToGraphRoot, pruneGraph } from './prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
+import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
 const debug = Debug('snyk');
 
@@ -104,7 +105,7 @@ function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
 
   for (const depKey of Object.keys(depTree.dependencies)) {
     const dep = depTree.dependencies[depKey];
-    if (dep.missingLockFileEntry) {
+    if ((dep as any).missingLockFileEntry) { // TODO(kyegupov): add field to the type
       missingDeps.push(`${dep.name}@${dep.version}`);
     } else {
       filteredDeps[depKey] = dep;
@@ -124,7 +125,7 @@ function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
 export async function monitor(
     root: string,
     meta: MonitorMeta,
-    info: SingleDepRootResult,
+    info: pluginApi.SinglePackageResult,
     targetFile?: string,
     ): Promise<MonitorResult> {
   apiTokenExists();
@@ -231,7 +232,7 @@ export async function monitor(
 export async function monitorGraph(
     root: string,
     meta: MonitorMeta,
-    info: SingleDepRootResult,
+    info: pluginApi.SinglePackageResult,
     targetFile?: string,
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;

@@ -1,6 +1,5 @@
 import { SupportedPackageManagers } from './package-managers';
-
-// TODO(kyegupov): use a shared repository snyk-cli-interface
+import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 
 export interface PluginMetadata {
   name: string;
@@ -19,45 +18,7 @@ export interface DepDict {
   [name: string]: DepTree;
 }
 
-export interface DepTree {
-  name: string;
-  version: string;
-  dependencies?: DepDict;
-  packageFormatVersion?: string;
-  docker?: any;
-  files?: any;
-  targetFile?: string;
-  missingLockFileEntry?: boolean;
-
-  labels?: {
-    [key: string]: string;
-
-    // Known keys:
-    // pruned: identical subtree already presents in the parent node.
-    //         See --prune-repeated-subdependencies flag.
-  };
-}
-
-export interface DepRoot {
-  depTree: DepTree; // to be soon replaced with depGraph
-  targetFile?: string;
-}
-
-// Legacy result type. Will be deprecated soon.
-export interface SingleDepRootResult {
-  plugin: PluginMetadata;
-  package: DepTree;
-}
-
-export interface MultiDepRootsResult {
-  plugin: PluginMetadata;
-  depRoots: DepRoot[];
-}
-
-// https://www.typescriptlang.org/docs/handbook/advanced-types.html#user-defined-type-guards
-export function isMultiResult(pet: SingleDepRootResult | MultiDepRootsResult): pet is MultiDepRootsResult {
-  return !!(pet as MultiDepRootsResult).depRoots;
-}
+export type DepTree = legacyApi.DepTree;
 
 export interface TestOptions {
   traverseNodeModules: boolean;
@@ -81,7 +42,7 @@ export interface Options {
   'ignore-policy'?: boolean;
   'trust-policies'?: boolean; // used in snyk/policy lib
   'policy-path'?: boolean;
-  'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
+  allSubProjects?: boolean;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
   showVulnPaths?: boolean;
@@ -100,7 +61,7 @@ export interface MonitorOptions {
   file?: string;
   policy?: string;
   json?: boolean;
-  'all-sub-projects'?: boolean; // Corresponds to multiDepRoot in plugins
+  allSubProjects?: boolean;
   'project-name'?: string;
   'print-deps'?: boolean;
   'experimental-dep-graph'?: boolean;
