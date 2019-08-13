@@ -59,7 +59,7 @@ Options:
                        of the vulnerable paths.
 
 Gradle options:
-  --gradle-sub-project=<string>
+  --sub-project=<string> (alias: --gradle-sub-project)
                        For Gradle "multi project" configurations,
                        test a specific sub-project.
   --all-sub-projects   For "multi project" configurations, test all

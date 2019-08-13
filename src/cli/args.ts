@@ -160,12 +160,21 @@ export function args(rawArgv: string[]): Args {
     'packages-folder',
     'severity-threshold',
     'strict-out-of-sync',
+    'all-sub-projects',
+    'sub-project',
+    'gradle-sub-project',
   ]) {
     if (argv[dashedArg]) {
       const camelCased = dashToCamelCase(dashedArg);
       argv[camelCased] = argv[dashedArg];
       delete argv[dashedArg];
     }
+  }
+
+  // Alias
+  if (argv.gradleSubProject) {
+    argv.subProject = argv.gradleSubProject;
+    delete argv.gradleSubProject;
   }
 
   if (argv.insecure) {
