@@ -50,6 +50,31 @@ test('test --insecure', function(t) {
     '--insecure',
   ];
   var result = args(cliArgs);
-  t.equal(global.ignoreUnknownCA, true, 'ignoreUnknownCA true');
+  t.equal(global.ignoreUnknownCA, true, 'ignoreUnknownCA true')
+  t.end();
+});
+
+
+test('test command line test --all-sub-projects', function(t) {
+  t.plan(1);
+  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--all-sub-projects',
+  ];
+  var result = args(cliArgs);
+  t.ok(result.options.allSubProjects);
+  t.end();
+});
+
+test('test command line test --gradle-sub-project=foo', function(t) {
+  t.plan(1);
+  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--gradle-sub-project=foo',
+  ];
+  var result = args(cliArgs);
+  t.equal(result.options.subProject, 'foo');
   t.end();
 });
