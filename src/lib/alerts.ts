@@ -1,8 +1,16 @@
-const chalk = require('chalk');
+import chalk from 'chalk';
 
-const registeredAlerts = [];
+export type AlertType = 'info' | 'warning' | 'error';
 
-function registerAlerts(alerts) {
+export interface Alert {
+  type: AlertType;
+  name: string;
+  msg: string;
+}
+
+const registeredAlerts: Alert[] = [];
+
+function registerAlerts(alerts: Alert[]) {
   if (!alerts) {
     return;
   }
@@ -13,15 +21,8 @@ function registerAlerts(alerts) {
   });
 }
 
-function hasAlert(name) {
-  let alertFound = false;
-  for (let i = 0; i < registeredAlerts.length; i++) {
-    if (registeredAlerts[i].name === name) {
-      alertFound = true;
-      break;
-    }
-  }
-  return alertFound;
+function hasAlert(name: string) {
+  return registeredAlerts.find((a) => a.name === name);
 }
 
 function displayAlerts() {
@@ -39,8 +40,8 @@ function displayAlerts() {
   return res;
 }
 
-module.exports = {
-  registerAlerts: registerAlerts,
-  hasAlert: hasAlert,
-  displayAlerts: displayAlerts,
+export {
+  registerAlerts,
+  hasAlert,
+  displayAlerts,
 };

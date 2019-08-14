@@ -2,7 +2,7 @@ import * as Debug from 'debug';
 import * as depGraphLib from '@snyk/dep-graph';
 import * as snyk from '../lib';
 import {apiTokenExists} from './api-token';
-import * as request from './request';
+import request = require('./request');
 import * as config from './config';
 import * as os from 'os';
 import * as _ from 'lodash';

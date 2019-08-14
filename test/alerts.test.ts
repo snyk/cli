@@ -1,7 +1,7 @@
 import {test} from 'tap';
 import alerts = require('../src/lib/alerts');
 
-const exampleAlert = (id, type = 'info') => {
+const exampleAlert = (id, type: alerts.AlertType = 'info') => {
   return {
     msg: 'Example alert ' + id,
     name: 'example-' + id,

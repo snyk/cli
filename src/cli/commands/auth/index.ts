@@ -3,7 +3,7 @@ import * as open from 'opn';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import {isCI} from '../../../lib/is-ci';
-import * as request from '../../../lib/request';
+import request = require('../../../lib/request');
 import * as url from 'url';
 import * as uuid from 'uuid';
 import * as spinner from '../../../lib/spinner';
