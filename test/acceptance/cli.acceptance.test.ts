@@ -2485,6 +2485,15 @@ test('`monitor npm-package with custom --project-name`', async (t) => {
   t.equal(req.body.meta.projectName, 'custom-project-name');
 });
 
+test('`monitor npm-package with custom --remote-repo-url`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('npm-package', {
+    'remote-repo-url': 'a-fake-remote',
+  });
+  const req = server.popRequest();
+  t.equal(req.body.target.remoteUrl, 'a-fake-remote');
+});
+
 test('`monitor npm-package with dev dep flag`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('npm-package', { dev: true });

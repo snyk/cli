@@ -80,6 +80,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error('`--all-sub-projects` is currently not compatible with `--project-name`');
   }
 
+  if (options.docker && options['remote-repo-url']) {
+    throw new Error('`--remote-repo-url` is not supported for container scans');
+  }
+
   apiTokenExists();
 
   if (options['experimental-dep-graph']) {
@@ -148,6 +152,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         'isDocker': !!options.docker,
         'prune': !!options['prune-repeated-subdependencies'],
         'experimental-dep-graph': !!options['experimental-dep-graph'],
+        'remote-repo-url': options['remote-repo-url'],
     };
 
       // We send results from "all-sub-projects" scanning as different Monitor objects

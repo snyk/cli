@@ -79,6 +79,7 @@ export interface MonitorMeta {
   isDocker: boolean;
   prune: boolean;
   'experimental-dep-graph'?: boolean;
+  'remote-repo-url'?: string;
 }
 
 export interface MonitorResult {
