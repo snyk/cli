@@ -45,10 +45,8 @@ export interface GroupedVuln {
   isNew: boolean;
   name: string;
   version: string;
+  isFixable: boolean;
   fixedIn: string[];
-  dockerfileInstruction: string;
-  dockerBaseImage: string;
-  nearestFixedInVersion: string;
   legalInstructions?: string;
 }
 
@@ -82,7 +80,6 @@ interface AnnotatedIssue extends IssueData {
   upgradePath: Array<string | boolean>;
   isUpgradable: boolean;
   isPatchable: boolean;
-  nearestFixedInVersion?: string;
   severity: SEVERITY;
 
   // These fields present for "node_module" based scans to allow remediation
@@ -91,14 +88,18 @@ interface AnnotatedIssue extends IssueData {
   __filename?: string;
   parentDepType: string;
 
-  dockerfileInstruction?: any;
-  dockerBaseImage?: any;
-
   type?: 'license';
   title: string;
   patch?: any;
   note?: any;
   publicationTime?: string;
+}
+
+// Mixin, to be added to GroupedVuln / AnnotatedIssue
+export interface DockerIssue {
+  nearestFixedInVersion?: string;
+  dockerfileInstruction?: any;
+  dockerBaseImage?: any;
 }
 
 export interface LegacyVulnApiResult {
@@ -112,12 +113,15 @@ export interface LegacyVulnApiResult {
   packageManager: string;
   ignoreSettings: object | null;
   summary: string;
-  docker?: {baseImage?: any};
+  docker?: {
+    baseImage?: any;
+    binariesVulns?: unknown;
+  };
   severityThreshold?: string;
 
   filesystemPolicy?: boolean;
   uniqueCount?: any;
-  remediation?: RemediationResult;
+  remediation?: RemediationChanges;
 }
 
 interface UpgradePathItem {
@@ -156,7 +160,7 @@ interface TestDepGraphResult {
     binariesVulns?: TestDepGraphResult;
     baseImage?: any;
   };
-  remediation?: RemediationResult;
+  remediation?: RemediationChanges;
 }
 
 interface TestDepGraphMeta {
@@ -207,15 +211,26 @@ export interface DependencyUpdates {
   [from: string]: UpgradeRemediation;
 }
 
+export interface PinRemediation {
+  upgradeTo: string;
+  issues: string[];
+  isTransitive: boolean;
+}
+
+export interface DependencyPins {
+  [name: string]: PinRemediation;
+}
+
 // Remediation changes to be applied to the project,
 // including information on all and unresolved issues.
-export interface RemediationResult {
+export interface RemediationChanges {
   unresolved: IssueData[];
   upgrade: DependencyUpdates;
   patch: {
     [name: string]: PatchRemediation;
   };
   ignore: unknown;
+  pin: DependencyPins;
 }
 
 function convertTestDepGraphResultToLegacy(
@@ -262,7 +277,7 @@ function convertTestDepGraphResultToLegacy(
           name: pkgInfo.pkg.name,
           version: pkgInfo.pkg.version as string,
           nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
-        }) as AnnotatedIssue;  // TODO(kyegupov): get rid of type assertion
+        }) as AnnotatedIssue & DockerIssue;  // TODO(kyegupov): get rid of type assertion
 
         vulns.push(annotatedIssue);
       }

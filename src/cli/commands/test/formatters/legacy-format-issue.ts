@@ -5,7 +5,7 @@ import * as config from '../../../../lib/config';
 import {Options, TestOptions, ShowVulnPaths} from '../../../../lib/types';
 import {isLocalFolder} from '../../../../lib/detect';
 import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
-import { GroupedVuln, AnnotatedIssue } from '../../../../lib/snyk-test/legacy';
+import { GroupedVuln, AnnotatedIssue, DockerIssue } from '../../../../lib/snyk-test/legacy';
 
 export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) {
   const vulnID = vuln.list[0].id;
@@ -132,8 +132,8 @@ function createTruncatedVulnsPathsText(vulnList: AnnotatedIssue[], show: ShowVul
 }
 
 function createFixedInText(vuln: GroupedVuln): string {
-  if (vuln.nearestFixedInVersion) {
-    return chalk.bold('\n  Fixed in: ' + vuln.nearestFixedInVersion);
+  if ((vuln as DockerIssue).nearestFixedInVersion) {
+    return chalk.bold('\n  Fixed in: ' + (vuln as DockerIssue).nearestFixedInVersion);
   } else if (vuln.fixedIn && vuln.fixedIn.length > 0) {
     return chalk.bold('\n  Fixed in: ' + vuln.fixedIn.join(', '));
   }
