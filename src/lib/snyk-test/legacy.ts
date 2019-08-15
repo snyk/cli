@@ -44,6 +44,7 @@ export interface GroupedVuln {
   isNew: boolean;
   name: string;
   version: string;
+  isFixable: boolean;
   fixedIn: string[];
   dockerfileInstruction: string;
   dockerBaseImage: string;
@@ -109,7 +110,10 @@ export interface LegacyVulnApiResult {
   packageManager: string;
   ignoreSettings: object | null;
   summary: string;
-  docker?: {baseImage?: any};
+  docker?: {
+    baseImage?: any;
+    binariesVulns?: unknown;
+  };
   severityThreshold?: string;
 
   filesystemPolicy?: boolean;
@@ -204,6 +208,16 @@ export interface DependencyUpdates {
   [from: string]: UpgradeRemediation;
 }
 
+export interface PinRemediation {
+  upgradeTo: string;
+  vulns: string[];
+  isTransitive: boolean;
+}
+
+export interface DependencyPins {
+  [name: string]: PinRemediation;
+}
+
 // Remediation changes to be applied to the project,
 // including information on all and unresolved issues.
 export interface RemediationResult {
@@ -213,6 +227,7 @@ export interface RemediationResult {
     [name: string]: PatchRemediation;
   };
   ignore: unknown;
+  pin: DependencyPins;
 }
 
 function convertTestDepGraphResultToLegacy(

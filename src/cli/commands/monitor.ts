@@ -11,7 +11,6 @@ import chalk from 'chalk';
 import * as pathUtil from 'path';
 import * as spinner from '../../lib/spinner';
 
-import request = require('../../lib/request');
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
 import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
@@ -28,13 +27,9 @@ import {
   UnsupportedFeatureFlagError,
 } from '../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
+import { isFeatureFlagSupportedForOrg } from '../../lib/feature-flags';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
-
-interface OrgFeatureFlagResponse {
-  ok: boolean;
-  userMessage?: string;
-}
 
 interface GoodResult {
   ok: true;
@@ -291,18 +286,4 @@ function formatMonitorOutput(
       manageUrl,
       packageManager,
     })) : strOutput;
-}
-
-async function isFeatureFlagSupportedForOrg(featureFlag: string): Promise<OrgFeatureFlagResponse> {
-  const response = await request({
-    method: 'GET',
-    headers: {
-      Authorization: `token ${snyk.api}`,
-    },
-    url: `${config.API}/cli-config/feature-flags/${featureFlag}`,
-    gzip: true,
-    json: true,
-  });
-
-  return (response as any).body;
 }

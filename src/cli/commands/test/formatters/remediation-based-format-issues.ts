@@ -1,9 +1,10 @@
-import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import { TestOptions } from '../../../../lib/types';
 import { RemediationResult, PatchRemediation,
-  DependencyUpdates, IssueData, SEVERITY, GroupedVuln } from '../../../../lib/snyk-test/legacy';
+  DependencyUpdates, IssueData, SEVERITY, GroupedVuln,
+  DependencyPins, PinRemediation,
+} from '../../../../lib/snyk-test/legacy';
 
 interface BasicVulnInfo {
   title: string;
@@ -18,7 +19,7 @@ export function formatIssuesWithRemediation(
   vulns: GroupedVuln[],
   remediationInfo: RemediationResult,
   options: TestOptions,
-  ): string[] {
+): string[] {
 
   const basicVulnInfo: {
     [name: string]: BasicVulnInfo,
@@ -36,9 +37,16 @@ export function formatIssuesWithRemediation(
   }
   const results = [chalk.bold.white('Remediation advice')];
 
-  const upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo);
-  if (upgradeTextArray.length > 0) {
-    results.push(upgradeTextArray.join('\n'));
+  if (remediationInfo.pin && Object.keys(remediationInfo.pin).length) {
+    const upgradeTextArray = constructUpgradesText(remediationInfo.pin, basicVulnInfo);
+    if (upgradeTextArray.length > 0) {
+      results.push(upgradeTextArray.join('\n'));
+    }
+  } else {
+    const upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo);
+    if (upgradeTextArray.length > 0) {
+      results.push(upgradeTextArray.join('\n'));
+    }
   }
 
   const patchedTextArray = constructPatchesText(remediationInfo.patch, basicVulnInfo);
@@ -87,7 +95,7 @@ function constructPatchesText(
 }
 
 function constructUpgradesText(
-  upgrades: DependencyUpdates,
+  upgrades: DependencyUpdates | DependencyPins,
   basicVulnInfo: {
     [name: string]: BasicVulnInfo;
   },
@@ -97,12 +105,14 @@ function constructUpgradesText(
     return [];
   }
 
-  const upgradeTextArray = [chalk.bold.green('\nUpgradable Issues:')];
+  const upgradeTextArray = [chalk.bold.green('\nIssues to fix by upgrading:')];
   for (const upgrade of Object.keys(upgrades)) {
-    const upgradeDepTo = _.get(upgrades, [upgrade, 'upgradeTo']);
-    const vulnIds = _.get(upgrades, [upgrade, 'vulns']);
+    const data = upgrades[upgrade];
+    const upgradeDepTo = data.upgradeTo;
+    const vulnIds = data.vulns;
+    const verb = (data as PinRemediation).isTransitive ? 'Pin' : 'Upgrade';
     const upgradeText =
-    `\n  Upgrade ${chalk.bold.whiteBright(upgrade)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
+    `\n  ${verb} ${chalk.bold.whiteBright(upgrade)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
     const thisUpgradeFixes = vulnIds
       .map((id) => formatIssue(
           id,

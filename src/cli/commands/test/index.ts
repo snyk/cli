@@ -15,6 +15,7 @@ import { LegacyVulnApiResult, SEVERITY, GroupedVuln, VulnMetaData } from '../../
 import { formatIssues } from './formatters/legacy-format-issue';
 import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../lib/package-managers';
 import { formatIssuesWithRemediation } from './formatters/remediation-based-format-issues';
+import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -142,8 +143,13 @@ async function test(...args: MethodArgs): Promise<string> {
     throw err;
   }
 
+  const pinningSupported = (await isFeatureFlagSupportedForOrg('pythonPinning')).ok;
+
   let response = results
-    .map((unused, i) => displayResult(results[i] as LegacyVulnApiResult, resultOptions[i]))
+    .map((unused, i) => {
+      resultOptions[i].pinningSupported = pinningSupported;
+      return displayResult(results[i] as LegacyVulnApiResult, resultOptions[i]);
+    })
     .join(`\n${SEPARATOR}`);
 
   if (notSuccess) {
@@ -217,7 +223,7 @@ function summariseErrorResults(errorResults) {
   return '';
 }
 
-function displayResult(res, options: Options & TestOptions) {
+function displayResult(res: LegacyVulnApiResult, options: Options & TestOptions) {
   const meta = metaForDisplay(res, options) + '\n\n';
   const dockerAdvice = dockerRemediationForDisplay(res);
   const packageManager = options.packageManager;

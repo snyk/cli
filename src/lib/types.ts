@@ -24,6 +24,7 @@ export interface TestOptions {
   traverseNodeModules: boolean;
   interactive: boolean;
   'prune-repeated-subdependencies'?: boolean;
+  pinningSupported?: boolean;
 }
 export interface ProtectOptions {
   loose: boolean;
