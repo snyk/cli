@@ -144,10 +144,10 @@ export function args(rawArgv: string[]): Args {
     'protect',
     'test',
     'modules',
-    'scenario',
     'monitor',
     'wizard',
     'ignore',
+    'woof',
   ].indexOf(command) !== -1) {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
