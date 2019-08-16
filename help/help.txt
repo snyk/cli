@@ -57,6 +57,9 @@ Options:
                        Prune dependency trees, removing duplicate sub-dependencies.
                        Will still find all vulnerabilities, but potentially not all
                        of the vulnerable paths.
+  --remote-repo-url=<string>
+                       (monitor command only)
+                       Set or override the remote URL for the repository that you would like to monitor.
 
 Gradle options:
   --sub-project=<string> (alias: --gradle-sub-project)
