@@ -25,6 +25,7 @@ const server = require('../cli-server')(
  // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
 import * as cli from '../../src/cli/commands';
+import {PolicyNotFoundError} from '../../src/lib/errors';
 
 const before = test;
 const after = test;
@@ -232,6 +233,18 @@ test('auth via github', (t) => {
   }).catch(t.threw).then(() => {
     unhook();
     t.end();
+  });
+});
+
+test('snyk policy', (t) => {
+  t.plan(2);
+
+  cli.policy().then(() => {
+    t.pass('policy called');
+  });
+
+  cli.policy('wrong/path').catch((error) => {
+    t.match(error, PolicyNotFoundError);
   });
 });
 
