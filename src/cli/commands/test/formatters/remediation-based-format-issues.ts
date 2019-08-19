@@ -42,6 +42,10 @@ export function formatIssuesWithRemediation(
     if (upgradeTextArray.length > 0) {
       results.push(upgradeTextArray.join('\n'));
     }
+    const allVulnIdsSet = {};
+    Object.keys(remediationInfo.pin).forEach(
+      (name) => remediationInfo.pin[name].vulns.forEach((vid) => allVulnIdsSet[vid] = true));
+    remediationInfo.unresolved = remediationInfo.unresolved.filter((issue) => !allVulnIdsSet[issue.id]);
   } else {
     const upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo);
     if (upgradeTextArray.length > 0) {
