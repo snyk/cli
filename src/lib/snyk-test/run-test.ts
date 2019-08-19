@@ -27,6 +27,7 @@ import { maybePrintDeps } from '../print-deps';
 import { SupportedPackageManagers } from '../package-managers';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
+import { AuthFailedError } from '../errors/authentication-failed-error';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -183,9 +184,15 @@ function handleTestHttpErrorResponse(res, body) {
   let err;
   const userMessage = body && body.userMessage;
   switch (statusCode) {
-    case (statusCode === 500):
+    case 401:
+    case 403:
+      err = AuthFailedError(userMessage, statusCode);
+      err.innerError = body.stack;
+      break;
+    case 500:
       err = new InternalServerError(userMessage);
       err.innerError = body.stack;
+      break;
     default:
       err = new FailedToGetVulnerabilitiesError(userMessage, statusCode);
       err.innerError = body.error;

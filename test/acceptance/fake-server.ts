@@ -1,14 +1,22 @@
-var restify = require('restify');
-var fs = require('fs');
+import * as restify from 'restify';
 
-module.exports = function (root, apikey) {
+interface FakeServer extends restify.Server {
+  _reqLog: restify.Request[];
+  _nextResponse?: restify.Response;
+  _nextStatusCode?: number;
+  popRequest: () => restify.Request;
+  setNextResponse: (r: any) => void;
+  setNextStatusCodeAndResponse: (c: number, r: any) => void;
+}
+
+export function fakeServer(root, apikey) {
   var server = restify.createServer({
     name: 'snyk-mock-server',
     version: '1.0.0',
-  });
+  }) as FakeServer;
   server._reqLog = [];
   server.popRequest = function () {
-    return server._reqLog.pop();
+    return server._reqLog.pop()!;
   };
   server.use(restify.acceptParser(server.acceptable));
   server.use(restify.queryParser());
@@ -45,12 +53,18 @@ module.exports = function (root, apikey) {
   });
 
   server.use(function (req, res, next) {
-    if (!server._nextResponse) {
+    if (!server._nextResponse && !server._nextStatusCode) {
       return next();
     }
     var response = server._nextResponse;
     delete server._nextResponse;
-    res.send(response);
+    if (server._nextStatusCode) {
+      const code = server._nextStatusCode;
+      delete server._nextStatusCode;
+      res.send(code, response);
+    } else {
+      res.send(response);
+    }
   });
 
   server.get(root + '/vuln/:registry/:module', function (req, res, next) {
@@ -131,6 +145,11 @@ module.exports = function (root, apikey) {
 
   server.setNextResponse = function (response) {
     server._nextResponse = response;
+  };
+
+  server.setNextStatusCodeAndResponse = (code, body) => {
+    server._nextStatusCode = code;
+    server._nextResponse = body;
   };
 
   return server;
