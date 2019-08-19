@@ -2,9 +2,9 @@ import * as policy from 'snyk-policy';
 import {display} from '../../lib/display-policy';
 import {FailedToLoadPolicyError, PolicyNotFoundError} from '../../lib/errors';
 
-export async function displayPolicy(path) {
+async function displayPolicy(path?: string): Promise<string> {
   try {
-    const loadedPolicy = await policy.load(path || process.cwd());
+    const loadedPolicy = await policy.load(path || process.cwd()) as Promise<string>;
     return await display(loadedPolicy);
   } catch (error) {
       if (error.code === 'ENOENT') {
@@ -16,3 +16,5 @@ export async function displayPolicy(path) {
       throw error;
     }
 }
+
+export = displayPolicy;
