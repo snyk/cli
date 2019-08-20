@@ -122,7 +122,7 @@ function constructUnfixableText(unresolved: IssueData[]) {
   }
   const unfixableIssuesTextArray = [chalk.bold.white('\nIssues with no direct upgrade or patch:')];
   for (const issue of unresolved) {
-    const extraInfo = issue.fixedIn
+    const extraInfo = issue.fixedIn && issue.fixedIn.length
       ? `\n  This issue was fixed in versions: ${chalk.bold(issue.fixedIn.join(', '))}`
       : '\n  No upgrade or patch available';
     const packageNameAtVersion = chalk.bold.whiteBright(`\n  ${issue.packageName}@${issue.version}\n`);

@@ -20,8 +20,10 @@ test('`test ruby-app` remediation displayed',  async (t) => {
     await snykTest('ruby-app');
   } catch (error) {
     const res = error.message;
-    t.match(res, 'Upgrade rack@1.6.5 to rack@1.6.11 to fix', 'upgrade advice displayed');
-    t.match(res, 'Tested 3 dependencies for known issues, found 6 issues, 8 vulnerable paths.');
+    t.match(res, 'Upgrade rails@5.2.3 to rails@5.2.3 to fix', 'upgrade advice displayed');
+    t.match(res, 'Tested 52 dependencies for known issues');
+    t.match(res, 'This issue was fixed in versions: 1.2.3', 'fixed in is shown');
+    t.match(res, 'No upgrade or patch available', 'some have no upgrade or patch');
   }
 
   snykTestStub.restore();
