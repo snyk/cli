@@ -101,9 +101,15 @@ function constructUpgradesText(
   for (const upgrade of Object.keys(upgrades)) {
     const upgradeDepTo = _.get(upgrades, [upgrade, 'upgradeTo']);
     const vulnIds = _.get(upgrades, [upgrade, 'vulns']);
+
     const upgradeText =
     `\n  Upgrade ${chalk.bold.whiteBright(upgrade)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
     const thisUpgradeFixes = vulnIds
+      .sort((vulnId1, vulnId2) => {
+        const order = [SEVERITY.HIGH, SEVERITY.MEDIUM, SEVERITY.LOW];
+        // sort from High to Low
+        return order.indexOf(basicVulnInfo[vulnId1].severity) - order.indexOf(basicVulnInfo[vulnId2].severity);
+      })
       .map((id) => formatIssue(
           id,
           basicVulnInfo[id].title,
