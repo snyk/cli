@@ -14,11 +14,11 @@ const commands = {
   monitor: hotload('./monitor'),
   policy: hotload('./policy'),
   protect: hotload('./protect'),
-  scenario: hotload('./scenario'),
   test: hotload('./test'),
   'test-unpublished': hotload('./unpublished'),
   version: hotload('./version'),
   wizard: hotload('./protect/wizard'),
+  woof: hotload('./woof'),
 };
 commands.aliases = abbrev(Object.keys(commands));
 commands.aliases.t = 'test';
