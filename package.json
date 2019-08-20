@@ -53,6 +53,7 @@
     "@snyk/dep-graph": "1.12.0",
     "@snyk/gemfile": "1.2.0",
     "@types/agent-base": "^4.2.0",
+    "@types/restify": "^4.3.6",
     "abbrev": "^1.1.1",
     "ansi-escapes": "3.2.0",
     "chalk": "^2.4.2",

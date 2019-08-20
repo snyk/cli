@@ -150,7 +150,7 @@ test('test for non-existing', async (t) => {
   } catch (error) {
     const res = error.message;
     const lastLine = res.trim().split('\n').pop();
-    t.deepEqual(lastLine, 'Failed to get vulns', 'expected error: Failed to get vulns');
+    t.deepEqual(lastLine, 'Internal server error', 'expected error: Internal server error');
   }
 });
 

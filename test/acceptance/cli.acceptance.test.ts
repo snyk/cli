@@ -6,7 +6,7 @@ import * as depGraphLib from '@snyk/dep-graph';
 import * as _ from 'lodash';
 import * as needle from 'needle';
 import * as cli from '../../src/cli/commands';
-import * as fakeServer from './fake-server';
+import {fakeServer} from './fake-server';
 import * as subProcess from '../../src/lib/sub-process';
 import * as version from '../../src/lib/version';
 
@@ -25,13 +25,15 @@ const apiKey = '123456789';
 let oldkey;
 let oldendpoint;
 let versionNumber;
-const server: any = fakeServer(process.env.SNYK_API, apiKey);
+const server = fakeServer(process.env.SNYK_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../src/lib/plugins';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
+import { AuthFailedError } from '../../src/lib/errors/authentication-failed-error';
+import { InternalServerError } from '../../src/lib/errors';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -140,7 +142,7 @@ test('`test npm-package with custom --project-name`', async (t) => {
   });
   const req = server.popRequest();
   t.match(req.body.projectNameOverride, 'custom-project-name', 'custom project name is passed');
-  t.match(req.targetFile, undefined, 'target is undefined');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
 });
 
 test('`test empty --file=Gemfile`', async (t) => {
@@ -979,7 +981,7 @@ test('`test maven-app --file=pom.xml --dev` sends package info', async (t) => {
   t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   t.equal(req.query.org, 'nobelprize.org', 'org sent as a query in request');
-  t.match(req.targetFile, undefined, 'target is undefined');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
 
   const depGraph = depGraphLib.createFromJSON(req.body.depGraph);
   t.equal(depGraph.rootPkg.name, 'com.mycompany.app:maven-app', 'root name');
@@ -994,7 +996,7 @@ test('`test npm-package` sends pkg info', async (t) => {
   await cli.test('npm-package');
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
-  t.match(req.targetFile, undefined, 'target is undefined');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
 
   t.same(
@@ -1008,7 +1010,7 @@ test('`test npm-package --file=package-lock.json ` sends pkg info', async (t) =>
   await cli.test('npm-package', {file: 'package-lock.json'});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
-  t.match(req.targetFile, undefined, 'target is undefined');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -1021,7 +1023,7 @@ test('`test npm-package --file=package-lock.json --dev` sends pkg info', async (
   await cli.test('npm-package', {file: 'package-lock.json', dev: true});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
-  t.match(req.targetFile, undefined, 'target is undefined');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -1146,7 +1148,7 @@ test('`test yarn-package --file=yarn.lock ` sends pkg info', async (t) => {
   await cli.test('yarn-package', {file: 'yarn.lock'});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
-  t.match(req.targetFile, undefined, 'target is undefined');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -1159,7 +1161,7 @@ test('`test yarn-package --file=yarn.lock --dev` sends pkg info', async (t) => {
   await cli.test('yarn-package', {file: 'yarn.lock', dev: true});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
-  t.match(req.targetFile, undefined, 'target is undefined');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -1196,7 +1198,7 @@ test('`test` on a yarn package does work and displays appropriate text', async (
   t.equal(req.method, 'POST', 'makes POST request');
   t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
-  t.match(req.targetFile, undefined, 'target is undefined');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
   const depGraph = req.body.depGraph;
   t.same(
     depGraph.pkgs.map((p) => p.id).sort(),
@@ -3189,6 +3191,45 @@ function stubExec(t, execOutputFile) {
     stub.restore();
   });
 }
+
+test('error 401 handling', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextStatusCodeAndResponse(401, {});
+
+  try {
+    await cli.test('ruby-app-thresholds');
+    t.fail('should have thrown');
+  } catch (err) {
+    t.match(err.message, /Authentication failed. Please check the API token on/);
+  }
+});
+
+test('error 403 handling', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextStatusCodeAndResponse(403, {});
+
+  try {
+    await cli.test('ruby-app-thresholds');
+    t.fail('should have thrown');
+  } catch (err) {
+    t.match(err.message, /Authentication failed. Please check the API token on/);
+  }
+});
+
+test('error 500 handling', async (t) => {
+  chdirWorkspaces();
+
+  server.setNextStatusCodeAndResponse(500, {});
+
+  try {
+    await cli.test('ruby-app-thresholds');
+    t.fail('should have thrown');
+  } catch (err) {
+    t.match(err.message, 'Internal server error');
+  }
+});
 
 // @later: try and remove this config stuff
 // Was copied straight from ../src/cli-server.js

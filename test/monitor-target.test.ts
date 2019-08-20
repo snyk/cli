@@ -1,5 +1,3 @@
-'use strict';
-
 const test = require('tape').test;
 const zlib = require('zlib');
 const requestLib = require('needle');
