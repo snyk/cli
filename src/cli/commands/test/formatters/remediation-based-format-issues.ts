@@ -163,24 +163,48 @@ function constructPinOrUpgradesText(
     return [];
   }
 
-  const upgradeTextArray = [chalk.bold.green('\nIssues to fix by upgrading:')];
-  for (const pin of Object.keys(pins)) {
-    const data = pins[pin];
-    const upgradeDepTo = data.upgradeTo;
-    const vulnIds = data.vulns;
-    const verb = data.isTransitive ? 'Pin' : 'Upgrade';
-    const upgradeText =
-      `\n  ${verb} ${chalk.bold.whiteBright(pin)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
-    let thisUpgradeFixes = vulnIds
-      .map((id) => formatIssue(
-        id,
-        basicVulnInfo[id].title,
-        basicVulnInfo[id].severity,
-        basicVulnInfo[id].isNew,
-        `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`))
-      .join('\n');
+  const thisUpgradeFixes = (vulnIds: string[]) => (
+    vulnIds.map((id) => formatIssue(
+      id,
+      basicVulnInfo[id].title,
+      basicVulnInfo[id].severity,
+      basicVulnInfo[id].isNew,
+      `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`))
+    .join('\n')
+  );
 
-    if (data.isTransitive) {
+  // First, direct upgrades
+  const upgradeTextArray: string[] = [];
+
+  const upgradeables = Object.keys(pins).filter((name) => !pins[name].isTransitive);
+  if (upgradeables.length) {
+    upgradeTextArray.push(chalk.bold.green('\nIssues to fix by upgrading existing dependencies:'));
+
+    for (const pin of upgradeables) {
+      const data = pins[pin];
+      const vulnIds = data.vulns;
+      const upgradeDepTo = data.upgradeTo;
+      const upgradeText =
+        `\n  Upgrade ${chalk.bold.whiteBright(pin)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
+      upgradeTextArray.push(upgradeText)
+      upgradeTextArray.push(thisUpgradeFixes(vulnIds));
+    }
+  }
+
+  // Second, pins
+  const pinables = Object.keys(pins).filter((name) => pins[name].isTransitive);
+
+  if (pinables.length) {
+    upgradeTextArray.push(chalk.bold.green('\nIssues to fix by pinning sub-dependencies:'));
+
+    for (const pin of pinables) {
+      const data = pins[pin];
+      const vulnIds = data.vulns;
+      const upgradeDepTo = data.upgradeTo;
+      const upgradeText =
+        `\n  Pin ${chalk.bold.whiteBright(pin)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
+      upgradeTextArray.push(upgradeText)
+      upgradeTextArray.push(thisUpgradeFixes(vulnIds));
       const topLevelUpgradesSet = new Set();
       for (const vid of vulnIds) {
         const maybeTopLevelUpgrades = upgradesByCulprit[pin + '@' + basicVulnInfo[vid].version];
@@ -189,15 +213,15 @@ function constructPinOrUpgradesText(
             const setKey = `${topLvlPkg.name}\n${topLvlPkg.version}`;
             if (!topLevelUpgradesSet.has(setKey)) {
               topLevelUpgradesSet.add(setKey);
-              thisUpgradeFixes += '\n  (the issues above can also be fixed by upgrading top-level dependency ' +
-                `${topLvlPkg.name} to ${topLvlPkg.version})`;
+              upgradeTextArray.push('\n  (the issues above can also be fixed by upgrading top-level dependency ' +
+                `${topLvlPkg.name} to ${topLvlPkg.version})`);
             }
           }
         }
       }
     }
-    upgradeTextArray.push(upgradeText + thisUpgradeFixes);
   }
+
   return upgradeTextArray;
 }
 
