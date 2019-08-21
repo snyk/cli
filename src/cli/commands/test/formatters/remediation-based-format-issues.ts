@@ -1,7 +1,8 @@
 import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import { TestOptions } from '../../../../lib/types';
-import { RemediationResult, PatchRemediation,
+import {
+  RemediationResult, PatchRemediation,
   DependencyUpdates, IssueData, SEVERITY, GroupedVuln,
   DependencyPins, PinRemediation,
 } from '../../../../lib/snyk-test/legacy';
@@ -13,6 +14,15 @@ interface BasicVulnInfo {
   name: string;
   version: string;
   fixedIn: string[];
+}
+
+interface TopLevelPackageUpgrade {
+  name: string;
+  version: string;
+}
+
+interface UpgradesByCulprit {
+  [culpritNameAndVersion: string]: TopLevelPackageUpgrade[];
 }
 
 export function formatIssuesWithRemediation(
@@ -38,7 +48,19 @@ export function formatIssuesWithRemediation(
   const results = [chalk.bold.white('Remediation advice')];
 
   if (remediationInfo.pin && Object.keys(remediationInfo.pin).length) {
-    const upgradeTextArray = constructUpgradesText(remediationInfo.pin, basicVulnInfo);
+    const upgragesByCulprit: UpgradesByCulprit = {};
+    for (const topLvlPkg of Object.keys(remediationInfo.upgrade)) {
+      for (const targetPkgStr of remediationInfo.upgrade[topLvlPkg].upgrades) {
+        if (!upgragesByCulprit[targetPkgStr]) {
+          upgragesByCulprit[targetPkgStr] = [];
+        }
+        upgragesByCulprit[targetPkgStr].push({
+          name: topLvlPkg,
+          version: remediationInfo.upgrade[topLvlPkg].upgradeTo,
+        });
+      }
+    }
+    const upgradeTextArray = constructPinOrUpgradesText(remediationInfo.pin, upgragesByCulprit, basicVulnInfo);
     if (upgradeTextArray.length > 0) {
       results.push(upgradeTextArray.join('\n'));
     }
@@ -75,7 +97,7 @@ function constructPatchesText(
   basicVulnInfo: {
     [name: string]: BasicVulnInfo;
   },
-  ): string[] {
+): string[] {
 
   if (!(Object.keys(patches).length > 0)) {
     return [];
@@ -86,12 +108,12 @@ function constructPatchesText(
     const packageAtVersion = `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`;
     const patchedText = `\n  Patch available for ${chalk.bold.whiteBright(packageAtVersion)}\n`;
     const thisPatchFixes =
-    formatIssue(
-      id,
-      basicVulnInfo[id].title,
-      basicVulnInfo[id].severity,
-      basicVulnInfo[id].isNew,
-      `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`);
+      formatIssue(
+        id,
+        basicVulnInfo[id].title,
+        basicVulnInfo[id].severity,
+        basicVulnInfo[id].isNew,
+        `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`);
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
 
@@ -99,11 +121,11 @@ function constructPatchesText(
 }
 
 function constructUpgradesText(
-  upgrades: DependencyUpdates | DependencyPins,
+  upgrades: DependencyUpdates,
   basicVulnInfo: {
     [name: string]: BasicVulnInfo;
   },
-  ): string[] {
+): string[] {
 
   if (!(Object.keys(upgrades).length > 0)) {
     return [];
@@ -114,17 +136,66 @@ function constructUpgradesText(
     const data = upgrades[upgrade];
     const upgradeDepTo = data.upgradeTo;
     const vulnIds = data.vulns;
-    const verb = (data as PinRemediation).isTransitive ? 'Pin' : 'Upgrade';
     const upgradeText =
-    `\n  ${verb} ${chalk.bold.whiteBright(upgrade)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
+      `\n  Upgrade ${chalk.bold.whiteBright(upgrade)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
     const thisUpgradeFixes = vulnIds
       .map((id) => formatIssue(
-          id,
-          basicVulnInfo[id].title,
-          basicVulnInfo[id].severity,
-          basicVulnInfo[id].isNew,
-          `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`))
+        id,
+        basicVulnInfo[id].title,
+        basicVulnInfo[id].severity,
+        basicVulnInfo[id].isNew,
+        `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`))
       .join('\n');
+    upgradeTextArray.push(upgradeText + thisUpgradeFixes);
+  }
+  return upgradeTextArray;
+}
+
+function constructPinOrUpgradesText(
+  pins: DependencyPins,
+  upgradesByCulprit: UpgradesByCulprit,
+  basicVulnInfo: {
+    [name: string]: BasicVulnInfo;
+  },
+): string[] {
+
+  if (!(Object.keys(pins).length)) {
+    return [];
+  }
+
+  const upgradeTextArray = [chalk.bold.green('\nIssues to fix by upgrading:')];
+  for (const pin of Object.keys(pins)) {
+    const data = pins[pin];
+    const upgradeDepTo = data.upgradeTo;
+    const vulnIds = data.vulns;
+    const verb = data.isTransitive ? 'Pin' : 'Upgrade';
+    const upgradeText =
+      `\n  ${verb} ${chalk.bold.whiteBright(pin)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
+    let thisUpgradeFixes = vulnIds
+      .map((id) => formatIssue(
+        id,
+        basicVulnInfo[id].title,
+        basicVulnInfo[id].severity,
+        basicVulnInfo[id].isNew,
+        `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`))
+      .join('\n');
+
+    if (data.isTransitive) {
+      const topLevelUpgradesSet = new Set();
+      for (const vid of vulnIds) {
+        const maybeTopLevelUpgrades = upgradesByCulprit[pin + '@' + basicVulnInfo[vid].version];
+        if (maybeTopLevelUpgrades) {
+          for (const topLvlPkg of maybeTopLevelUpgrades) {
+            const setKey = `${topLvlPkg.name}\n${topLvlPkg.version}`;
+            if (!topLevelUpgradesSet.has(setKey)) {
+              topLevelUpgradesSet.add(setKey);
+              thisUpgradeFixes += '\n  (the issues above can also be fixed by upgrading top-level dependency ' +
+                `${topLvlPkg.name} to ${topLvlPkg.version})`;
+            }
+          }
+        }
+      }
+    }
     upgradeTextArray.push(upgradeText + thisUpgradeFixes);
   }
   return upgradeTextArray;
@@ -175,7 +246,7 @@ function formatIssue(
 
   return severitiesColourMapping[severity].colorFunc(
     `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
-    ) + `[${config.ROOT}/vuln/${id}]` + name;
+  ) + `[${config.ROOT}/vuln/${id}]` + name;
 }
 
 function titleCaseText(text) {
