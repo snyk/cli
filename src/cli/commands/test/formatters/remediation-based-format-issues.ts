@@ -14,6 +14,7 @@ interface BasicVulnInfo {
   name: string;
   version: string;
   fixedIn: string[];
+  paths: string[][];
 }
 
 interface TopLevelPackageUpgrade {
@@ -43,6 +44,7 @@ export function formatIssuesWithRemediation(
       name: vuln.name,
       version: vuln.version,
       fixedIn: vuln.fixedIn,
+      paths: vuln.list.map((v) => v.from),
     };
   }
   const results = [chalk.bold.white('Remediation advice')];
@@ -205,6 +207,15 @@ function constructPinOrUpgradesText(
         `\n  Pin ${chalk.bold.whiteBright(pin)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
       upgradeTextArray.push(upgradeText)
       upgradeTextArray.push(thisUpgradeFixes(vulnIds));
+      const allPaths = new Set();
+      for (const vid of vulnIds) {
+        for (const path of basicVulnInfo[vid].paths) {
+          allPaths.add(path.slice(1).join(' > '));
+        }
+      }
+      upgradeTextArray.push(allPaths.size == 1
+        ? `  (introduced by ${allPaths.keys().next().value})`
+        : `  (introduced by ${allPaths.keys().next().value} and ${allPaths.size - 1} other path(s))`);
       const topLevelUpgradesSet = new Set();
       for (const vid of vulnIds) {
         const maybeTopLevelUpgrades = upgradesByCulprit[pin + '@' + basicVulnInfo[vid].version];
@@ -213,8 +224,8 @@ function constructPinOrUpgradesText(
             const setKey = `${topLvlPkg.name}\n${topLvlPkg.version}`;
             if (!topLevelUpgradesSet.has(setKey)) {
               topLevelUpgradesSet.add(setKey);
-              upgradeTextArray.push('\n  (the issues above can also be fixed by upgrading top-level dependency ' +
-                `${topLvlPkg.name} to ${topLvlPkg.version})`);
+              upgradeTextArray.push('  The issues above can also be fixed by upgrading top-level dependency ' +
+                `${topLvlPkg.name} to ${topLvlPkg.version}`);
             }
           }
         }

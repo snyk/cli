@@ -76,7 +76,7 @@ interface AnnotatedIssue extends IssueData {
   credit: any;
   name: string;
   version: string;
-  from: Array<string | boolean>;
+  from: string[];
   upgradePath: Array<string | boolean>;
   isUpgradable: boolean;
   isPatchable: boolean;
