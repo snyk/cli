@@ -14,7 +14,7 @@ import { MethodArgs } from '../../args';
 import { LegacyVulnApiResult, SEVERITY, GroupedVuln, VulnMetaData } from '../../../lib/snyk-test/legacy';
 import { formatIssues } from './formatters/legacy-format-issue';
 import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../lib/package-managers';
-import { formatIssuesWithRemediation } from './formatters/remediation-based-format-issues';
+import { formatIssuesWithRemediation, getSeverityValue } from './formatters/remediation-based-format-issues';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -449,10 +449,6 @@ function validateSeverityThreshold(severityThreshold) {
   return SEVERITIES
     .map((s) => s.verboseName)
     .indexOf(severityThreshold) > -1;
-}
-
-function getSeverityValue(severity) {
-  return SEVERITIES.find((severityObj) => severityObj.verboseName === severity)!.value;
 }
 
 // This is all a copy from Registry snapshots/index

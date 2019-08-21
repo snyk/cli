@@ -20,17 +20,25 @@ export function assembleQueryString(options) {
   return Object.keys(qs).length !== 0 ? qs : null;
 }
 
-export const SEVERITIES = [
+enum SEVERITY {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+}
+export const SEVERITIES: Array<{
+  verboseName: SEVERITY,
+  value: number,
+}> = [
   {
-    verboseName: 'low',
+    verboseName: SEVERITY.LOW,
     value: 1,
   },
   {
-    verboseName: 'medium',
+    verboseName: SEVERITY.MEDIUM,
     value: 2,
   },
   {
-    verboseName: 'high',
+    verboseName: SEVERITY.HIGH,
     value: 3,
   },
 ];

@@ -1,5 +1,6 @@
 import { SupportedPackageManagers } from './package-managers';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
+import { SEVERITY } from './snyk-test/legacy';
 
 export interface PluginMetadata {
   name: string;
@@ -49,7 +50,7 @@ export interface Options {
   packageManager: SupportedPackageManagers;
   advertiseSubprojectsCount?: number;
   subProjectNames?: string[];
-  severityThreshold?: string;
+  severityThreshold?: SEVERITY;
   dev?: boolean;
   'print-deps'?: boolean;
 }

@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import * as depGraphLib from '@snyk/dep-graph';
 import { SupportedPackageManagers } from '../package-managers';
+import { SEVERITIES } from './common';
 
 interface Pkg {
   name: string;
@@ -219,7 +220,7 @@ function convertTestDepGraphResultToLegacy(
     res: TestDepGraphResponse,
     depGraph: depGraphLib.DepGraph,
     packageManager: string,
-    severityThreshold?: string): LegacyVulnApiResult {
+    severityThreshold?: SEVERITY): LegacyVulnApiResult {
 
   const result = res.result;
 
@@ -290,7 +291,7 @@ function convertTestDepGraphResultToLegacy(
 
   const meta = res.meta || {};
 
-  severityThreshold = (severityThreshold === 'low') ? undefined : severityThreshold;
+  severityThreshold = (severityThreshold === SEVERITY.LOW) ? undefined : severityThreshold;
 
   const legacyRes: LegacyVulnApiResult = {
     vulnerabilities: vulns,
@@ -335,15 +336,15 @@ function toLegacyPkgId(pkg: Pkg) {
   return `${pkg.name}@${pkg.version || '*'}`;
 }
 
-function getSummary(vulns: object[], severityThreshold?: string): string {
+function getSummary(vulns: object[], severityThreshold?: SEVERITY): string {
   const count = vulns.length;
   let countText = '' + count;
   const severityFilters: string[] = [];
-
-  const SEVERITIES = ['low', 'medium', 'high'];
-
+  const severitiesArray = SEVERITIES.map((s) => s.verboseName);
   if (severityThreshold) {
-    SEVERITIES.slice(SEVERITIES.indexOf(severityThreshold)).forEach((sev) => {
+    severitiesArray
+    .slice(severitiesArray.indexOf(severityThreshold))
+    .forEach((sev) => {
       severityFilters.push(sev);
     });
   }
