@@ -32,8 +32,11 @@ const after = tap.runOnly ? only : test;
 // Should be after `process.env` setup.
 import * as plugins from '../../src/lib/plugins';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { AuthFailedError } from '../../src/lib/errors/authentication-failed-error';
-import { InternalServerError } from '../../src/lib/errors';
+import { fail } from 'assert';
+
+function loadJson(filename: string) {
+  return JSON.parse(fs.readFileSync(filename, 'utf-8'))
+}
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -1224,7 +1227,10 @@ test('`test pip-app --file=requirements.txt`', async (t) => {
   await cli.test('pip-app', {
     file: 'requirements.txt',
   });
-  const req = server.popRequest();
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(req.url, 'cli-config/feature-flags/pythonPinning', 'to correct url');
+  req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
@@ -1266,7 +1272,10 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
   await cli.test('pipenv-app', {
     file: 'Pipfile',
   });
-  const req = server.popRequest();
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(req.url, 'cli-config/feature-flags/pythonPinning', 'to correct url');
+  req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
@@ -1280,6 +1289,54 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
       projectName: null,
       packageManager: 'pip',
       path: 'pipenv-app',
+      showVulnPaths: true,
+    }], 'calls python plugin');
+});
+
+test('`test pip-app-transitive-vuln --file=requirements.txt`', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return loadJson('./pip-app-transitive-vuln/inspect-result.json');
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin
+    .withArgs('pip')
+    .returns(plugin);
+
+  server.setNextResponses([
+    {ok: true},
+    loadJson('./pip-app-transitive-vuln/response-with-remediation.json'),
+  ]);
+  t.teardown(() => server.setNextResponses([]));
+  try {
+    await cli.test('pip-app-transitive-vuln', {
+      file: 'requirements.txt',
+    });
+    t.fail('should throw, since there are vulns');
+  } catch (e) {
+    t.match(e.message, /Pin Jinja2 to 2.10.1 to fix/);
+  }
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(req.url, 'cli-config/feature-flags/pythonPinning', 'to correct url');
+  req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'pip');
+  t.same(spyPlugin.getCall(0).args,
+    ['pip-app-transitive-vuln', 'requirements.txt', {
+      args: null,
+      file: 'requirements.txt',
+      org: null,
+      projectName: null,
+      packageManager: 'pip',
+      path: 'pip-app-transitive-vuln',
       showVulnPaths: true,
     }], 'calls python plugin');
 });

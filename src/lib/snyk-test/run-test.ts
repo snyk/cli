@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import fs = require('then-fs');
+import * as fs from 'fs';
 import pathUtil = require('path');
 import moduleToObject = require('snyk-module');
 import * as depGraphLib from '@snyk/dep-graph';

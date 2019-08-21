@@ -143,7 +143,9 @@ async function test(...args: MethodArgs): Promise<string> {
     throw err;
   }
 
-  const pinningSupported = (await isFeatureFlagSupportedForOrg('pythonPinning')).ok;
+  const pinningSupported =
+      results.find((r) => (r as LegacyVulnApiResult).packageManager === 'pip') &&
+      (await isFeatureFlagSupportedForOrg('pythonPinning')).ok;
 
   let response = results
     .map((unused, i) => {
