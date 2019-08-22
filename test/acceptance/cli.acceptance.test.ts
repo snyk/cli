@@ -1319,7 +1319,8 @@ test('`test pip-app-transitive-vuln --file=requirements.txt`', async (t) => {
     });
     t.fail('should throw, since there are vulns');
   } catch (e) {
-    t.match(e.message, /Pin Jinja2 to 2.10.1 to fix/);
+    t.equals(e.message,
+      fs.readFileSync('pip-app-transitive-vuln/cli-output.txt', 'utf8'));
   }
   let req = server.popRequest();
   t.equal(req.method, 'GET', 'makes GET request');
