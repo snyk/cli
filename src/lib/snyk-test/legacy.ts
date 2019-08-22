@@ -118,7 +118,7 @@ export interface LegacyVulnApiResult {
 
   filesystemPolicy?: boolean;
   uniqueCount?: any;
-  remediation?: RemediationResult;
+  remediation?: RemediationChanges;
 }
 
 interface UpgradePathItem {
@@ -157,7 +157,7 @@ interface TestDepGraphResult {
     binariesVulns?: TestDepGraphResult;
     baseImage?: any;
   };
-  remediation?: RemediationResult;
+  remediation?: RemediationChanges;
 }
 
 interface TestDepGraphMeta {
@@ -210,7 +210,7 @@ export interface DependencyUpdates {
 
 export interface PinRemediation {
   upgradeTo: string;
-  vulns: string[];
+  issues: string[];
   isTransitive: boolean;
 }
 
@@ -220,7 +220,7 @@ export interface DependencyPins {
 
 // Remediation changes to be applied to the project,
 // including information on all and unresolved issues.
-export interface RemediationResult {
+export interface RemediationChanges {
   unresolved: IssueData[];
   upgrade: DependencyUpdates;
   patch: {

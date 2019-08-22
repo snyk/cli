@@ -1293,7 +1293,56 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
     }], 'calls python plugin');
 });
 
-test('`test pip-app-transitive-vuln --file=requirements.txt`', async (t) => {
+test('`test pip-app-transitive-vuln --file=requirements.txt (actionableCliRemediation=false)`', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return loadJson('./pip-app-transitive-vuln/inspect-result.json');
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin
+    .withArgs('pip')
+    .returns(plugin);
+
+  server.setNextResponses([
+    {ok: true},
+    loadJson('./pip-app-transitive-vuln/response-without-remediation.json'),
+  ]);
+  t.teardown(() => server.setNextResponses([]));
+  try {
+    await cli.test('pip-app-transitive-vuln', {
+      file: 'requirements.txt',
+    });
+    t.fail('should throw, since there are vulns');
+  } catch (e) {
+    t.equals(e.message,
+      fs.readFileSync('pip-app-transitive-vuln/cli-output.txt', 'utf8'));
+  }
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(req.url, 'cli-config/feature-flags/pythonPinning', 'to correct url');
+  req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'pip');
+  t.same(spyPlugin.getCall(0).args,
+    ['pip-app-transitive-vuln', 'requirements.txt', {
+      args: null,
+      file: 'requirements.txt',
+      org: null,
+      projectName: null,
+      packageManager: 'pip',
+      path: 'pip-app-transitive-vuln',
+      showVulnPaths: true,
+    }], 'calls python plugin');
+});
+
+test('`test pip-app-transitive-vuln --file=requirements.txt (actionableCliRemediation=true)`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -1320,7 +1369,7 @@ test('`test pip-app-transitive-vuln --file=requirements.txt`', async (t) => {
     t.fail('should throw, since there are vulns');
   } catch (e) {
     t.equals(e.message,
-      fs.readFileSync('pip-app-transitive-vuln/cli-output.txt', 'utf8'));
+      fs.readFileSync('pip-app-transitive-vuln/cli-output-actionable-remediation.txt', 'utf8'));
   }
   let req = server.popRequest();
   t.equal(req.method, 'GET', 'makes GET request');

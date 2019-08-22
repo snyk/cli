@@ -2,9 +2,9 @@ import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import { TestOptions } from '../../../../lib/types';
 import {
-  RemediationResult, PatchRemediation,
+  RemediationChanges, PatchRemediation,
   DependencyUpdates, IssueData, SEVERITY, GroupedVuln,
-  DependencyPins, PinRemediation,
+  DependencyPins,
 } from '../../../../lib/snyk-test/legacy';
 
 interface BasicVulnInfo {
@@ -28,7 +28,7 @@ interface UpgradesByCulprit {
 
 export function formatIssuesWithRemediation(
   vulns: GroupedVuln[],
-  remediationInfo: RemediationResult,
+  remediationInfo: RemediationChanges,
   options: TestOptions,
 ): string[] {
 
@@ -66,10 +66,10 @@ export function formatIssuesWithRemediation(
     if (upgradeTextArray.length > 0) {
       results.push(upgradeTextArray.join('\n'));
     }
-    const allVulnIdsSet = {};
+    const allVulnIds = new Set();
     Object.keys(remediationInfo.pin).forEach(
-      (name) => remediationInfo.pin[name].vulns.forEach((vid) => allVulnIdsSet[vid] = true));
-    remediationInfo.unresolved = remediationInfo.unresolved.filter((issue) => !allVulnIdsSet[issue.id]);
+      (name) => remediationInfo.pin[name].issues.forEach((vid) => allVulnIds.add(vid)));
+    remediationInfo.unresolved = remediationInfo.unresolved.filter((issue) => !allVulnIds.has(issue.id));
   } else {
     const upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo);
     if (upgradeTextArray.length > 0) {
@@ -184,11 +184,11 @@ function constructPinOrUpgradesText(
 
     for (const pin of upgradeables) {
       const data = pins[pin];
-      const vulnIds = data.vulns;
+      const vulnIds = data.issues;
       const upgradeDepTo = data.upgradeTo;
       const upgradeText =
         `\n  Upgrade ${chalk.bold.whiteBright(pin)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
-      upgradeTextArray.push(upgradeText)
+      upgradeTextArray.push(upgradeText);
       upgradeTextArray.push(thisUpgradeFixes(vulnIds));
     }
   }
@@ -201,11 +201,11 @@ function constructPinOrUpgradesText(
 
     for (const pin of pinables) {
       const data = pins[pin];
-      const vulnIds = data.vulns;
+      const vulnIds = data.issues;
       const upgradeDepTo = data.upgradeTo;
       const upgradeText =
         `\n  Pin ${chalk.bold.whiteBright(pin)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
-      upgradeTextArray.push(upgradeText)
+      upgradeTextArray.push(upgradeText);
       upgradeTextArray.push(thisUpgradeFixes(vulnIds));
       const allPaths = new Set();
       for (const vid of vulnIds) {
@@ -213,7 +213,7 @@ function constructPinOrUpgradesText(
           allPaths.add(path.slice(1).join(' > '));
         }
       }
-      upgradeTextArray.push(allPaths.size == 1
+      upgradeTextArray.push(allPaths.size === 1
         ? `  (introduced by ${allPaths.keys().next().value})`
         : `  (introduced by ${allPaths.keys().next().value} and ${allPaths.size - 1} other path(s))`);
       const topLevelUpgradesSet = new Set();
