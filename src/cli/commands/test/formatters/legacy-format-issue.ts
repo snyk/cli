@@ -8,6 +8,7 @@ import {
   SupportedPackageManagers,
   PINNING_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
 import { GroupedVuln } from '../../../../lib/snyk-test/legacy';
+import parsePackageNameVersion = require('snyk-module');
 
 export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) {
   const vulnID = vuln.list[0].id;
@@ -151,7 +152,6 @@ function createRemediationText(
     && (vuln.nearestFixedInVersion || vuln.fixedIn)
     && PINNING_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
   ) {
-    // TODO(kyegupov): filter "fixedIn" by semver to avoid downgrades
     const toVersion = vuln.nearestFixedInVersion || vuln.fixedIn.join(' or ');
     const transitive = vuln.list.every((i) => i.from.length > 2);
 
@@ -170,7 +170,7 @@ function createRemediationText(
         const selfUpgradeInfo = (v.upgradePath.length > 0)
           ? ` (triggers upgrades to ${ v.upgradePath.join(' > ')})`
           : '';
-        const testedPackageName = (v.upgradePath[0] as string).split('@');
+        const testedPackageName = parsePackageNameVersion(v.upgradePath[0] as string);
         return `You've tested an outdated version of ${testedPackageName[0]}.` +
            + ` Upgrade to ${v.upgradePath[0]}${selfUpgradeInfo}`;
       }

@@ -15,7 +15,7 @@ import * as version from '../../src/lib/version';
 import * as snykPolicy from 'snyk-policy';
 
 const {test, only} = tap;
-(tap as any).runOnly = true; // <- for debug. set to true, and replace a test to only(..)
+(tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
 
 const port = process.env.PORT = process.env.SNYK_PORT = '12345';
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
@@ -1293,7 +1293,7 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
     }], 'calls python plugin');
 });
 
-only('`test pip-app-transitive-vuln --file=requirements.txt`', async (t) => {
+test('`test pip-app-transitive-vuln --file=requirements.txt`', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
