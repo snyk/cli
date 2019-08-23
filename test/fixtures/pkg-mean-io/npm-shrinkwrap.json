@@ -1298,10 +1298,10 @@
           "from": "https://registry.npmjs.org/nopt/-/nopt-3.0.3.tgz",
           "resolved": "https://registry.npmjs.org/nopt/-/nopt-3.0.3.tgz"
         },
-        "opn": {
-          "version": "1.0.2",
-          "from": "https://registry.npmjs.org/opn/-/opn-1.0.2.tgz",
-          "resolved": "https://registry.npmjs.org/opn/-/opn-1.0.2.tgz"
+        "open": {
+          "version": "6.4.0",
+          "from": "https://registry.npmjs.org/open/-/open-6.4.0.tgz",
+          "resolved": "https://registry.npmjs.org/open/-/open-6.4.0.tgz"
         },
         "p-throttler": {
           "version": "0.1.1",
