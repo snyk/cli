@@ -4,6 +4,7 @@ import * as config from '../../../../lib/config';
 import { TestOptions } from '../../../../lib/types';
 import { RemediationResult, PatchRemediation,
   DependencyUpdates, IssueData, SEVERITY, GroupedVuln } from '../../../../lib/snyk-test/legacy';
+import { SEVERITIES } from '../../../../lib/snyk-test/common';
 
 interface BasicVulnInfo {
   title: string;
@@ -56,6 +57,10 @@ export function formatIssuesWithRemediation(
   return results;
 }
 
+export function getSeverityValue(severity: SEVERITY): number {
+  return SEVERITIES.find((s) => s.verboseName === severity)!.value;
+}
+
 function constructPatchesText(
   patches: {
     [name: string]: PatchRemediation;
@@ -69,6 +74,7 @@ function constructPatchesText(
     return [];
   }
   const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
+
   for (const id of Object.keys(patches)) {
     // todo: add vulnToPatch package name
     const packageAtVersion = `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`;
@@ -104,6 +110,7 @@ function constructUpgradesText(
     const upgradeText =
     `\n  Upgrade ${chalk.bold.whiteBright(upgrade)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
     const thisUpgradeFixes = vulnIds
+      .sort((a, b) => getSeverityValue(basicVulnInfo[a].severity) - getSeverityValue(basicVulnInfo[b].severity))
       .map((id) => formatIssue(
           id,
           basicVulnInfo[id].title,
@@ -125,9 +132,16 @@ function constructUnfixableText(unresolved: IssueData[]) {
     const extraInfo = issue.fixedIn && issue.fixedIn.length
       ? `\n  This issue was fixed in versions: ${chalk.bold(issue.fixedIn.join(', '))}`
       : '\n  No upgrade or patch available';
-    const packageNameAtVersion = chalk.bold.whiteBright(`\n  ${issue.packageName}@${issue.version}\n`);
+    const packageNameAtVersion = chalk.bold
+    .whiteBright(`\n  ${issue.packageName}@${issue.version}\n`);
     unfixableIssuesTextArray
-      .push(packageNameAtVersion + formatIssue(issue.id, issue.title, issue.severity, issue.isNew) + `${extraInfo}`);
+      .push(packageNameAtVersion +
+      formatIssue(
+        issue.id,
+        issue.title,
+        issue.severity,
+        issue.isNew) + `${extraInfo}`,
+      );
   }
 
   return unfixableIssuesTextArray;
