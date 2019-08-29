@@ -53,6 +53,10 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   'project.json': 'nuget',
   'paket.dependencies': 'paket',
   'composer.lock': 'composer',
+  'Podfile.lock': 'cocoapods',
+  'CocoaPods.podfile.yaml': 'cocoapods',
+  'CocoaPods.podfile': 'cocoapods',
+  'Podfile': 'cocoapods',
 };
 
 export function isPathToPackageFile(path) {

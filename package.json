@@ -48,6 +48,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
+    "@snyk/cli-interface": "^2.0.3",
     "@snyk/dep-graph": "1.12.0",
     "@snyk/gemfile": "1.2.0",
     "@types/agent-base": "^4.2.0",
@@ -69,6 +70,7 @@
     "proxy-from-env": "^1.0.0",
     "semver": "^6.0.0",
     "snyk-config": "^2.2.1",
+    "@snyk/snyk-cocoapods-plugin": "1.0.2",
     "snyk-docker-plugin": "1.29.1",
     "snyk-go-plugin": "1.11.0",
     "snyk-gradle-plugin": "^3.0.2",

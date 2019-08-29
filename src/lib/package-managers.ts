@@ -1,6 +1,6 @@
 export type SupportedPackageManagers = 'rubygems' | 'npm' | 'yarn' |
 'maven' | 'pip' | 'sbt' | 'gradle' | 'golangdep' | 'govendor' | 'gomodules' |
-'nuget' | 'paket' | 'composer';
+'nuget' | 'paket' | 'composer' | 'cocoapods';
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   readonly [packageManager in SupportedPackageManagers]: string;
@@ -18,6 +18,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   nuget: 'NuGet',
   paket: 'Paket',
   composer: 'Composer',
+  cocoapods: 'CocoaPods',
 };
 
 export const WIZARD_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]

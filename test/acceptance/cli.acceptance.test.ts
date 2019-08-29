@@ -2950,6 +2950,59 @@ test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
     }], 'calls golang plugin');
 });
 
+test('`monitor cocoapods-app`', async (t) => {
+  chdirWorkspaces();
+  try {
+    await cli.test('cocoapods-app');
+    t.fail('should have failed');
+  } catch (err) {
+    t.pass('throws err');
+    t.match(err.message, 'Could not detect supported target files in cocoapods-app.' +
+      '\nPlease see our documentation for supported' +
+      ' languages and target files: ' +
+      'https://support.snyk.io/hc/en-us/articles/360000911957-Language-support' +
+      ' and make sure you' +
+      ' are in the right directory.');
+  }
+});
+
+test('`monitor cocoapods-app --file=Podfile`', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {
+          targetFile: 'Podfile',
+          name: 'snyk-cocoapods-plugin',
+          runtime: 'cocoapods',
+        },
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin
+  .withArgs('cocoapods')
+  .returns(plugin);
+
+  await cli.monitor('cocoapods-app', {
+    file: 'Podfile',
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(req.headers['x-snyk-cli-version'], versionNumber, 'sends version number');
+  t.match(req.url, '/monitor/cocoapods', 'puts at correct url');
+  t.equal(req.body.targetFile, 'Podfile', 'sends the targetFile');
+  t.same(spyPlugin.getCall(0).args,
+    ['cocoapods-app', 'Podfile', {
+      args: null,
+      file: 'Podfile',
+    }], 'calls CocoaPods plugin');
+});
+
 test('`monitor composer-app ruby-app` works on multiple params', async (t) => {
   chdirWorkspaces();
   let results = await cli.monitor('composer-app', 'ruby-app', { json: true });
@@ -3127,6 +3180,7 @@ test('`wizard` for unsupported package managers', async (t) => {
     { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
     { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
+    { file: 'cocoapods-app/Podfile.lock', type: 'CocoaPods' },
   ];
   const results = await Promise.all(cases.map(testUnsupported));
   results.map((result, i) => {
@@ -3157,6 +3211,7 @@ test('`protect` for unsupported package managers', async (t) => {
     { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
     { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
     { file: 'composer-app/composer.lock', type: 'Composer' },
+    { file: 'cocoapods-app/Podfile.lock', type: 'CocoaPods' },
   ];
   const results = await Promise.all(cases.map(testUnsupported));
   results.map((result, i) => {
