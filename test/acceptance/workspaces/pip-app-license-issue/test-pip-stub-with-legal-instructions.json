@@ -1,0 +1,51 @@
+{
+  "vulnerabilities": [
+    {
+      "license": "LGPL-3.0",
+      "semver": {
+        "vulnerable": [
+          "[0,)"
+        ]
+      },
+      "id": "snyk:lic:pip:chardet:LGPL-3.0",
+      "type": "license",
+      "legalInstructions": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      "packageManager": "pip",
+      "language": "python",
+      "packageName": "chardet",
+      "title": "LGPL-3.0 license",
+      "description": "LGPL-3.0 license",
+      "publicationTime": "2019-04-11T10:30:09.818Z",
+      "creationTime": "2019-04-11T10:30:09.818Z",
+      "patches": [],
+      "licenseTemplateUrl": "https://raw.githubusercontent.com/spdx/license-list/master/LGPL-3.0.txt",
+      "severity": "medium",
+      "from": [
+        "python-pip3-app-no-policy@0.0.0",
+        "aiohttp@2.2.2",
+        "chardet@3.0.4"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "chardet",
+      "version": "3.0.4"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 6,
+  "org": "lwywoo",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": null,
+  "packageManager": "pip",
+  "ignoreSettings": null,
+  "summary": "1 vulnerable dependency path",
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 1,
+  "path": "/Users/snyk/laura/fixtures/python-pip3-app-no-policy"
+}

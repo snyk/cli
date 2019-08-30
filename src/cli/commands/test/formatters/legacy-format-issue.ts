@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import chalk from 'chalk';
+import * as wrap from 'wrap-ansi';
 import * as config from '../../../../lib/config';
 import {Options, TestOptions} from '../../../../lib/types';
 import {isLocalFolder} from '../../../../lib/detect';
@@ -42,6 +43,8 @@ export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) 
       : '',
     fixedIn: options.docker ? createFixedInText(vuln) : '',
     dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
+    legalInstructions: vuln.legalInstructions ? '\n  Legal instructions:\n  '
+    + wrap(vuln.legalInstructions, 100).split('\n').join('\n  ') : '',
   };
 
   return (
@@ -54,7 +57,8 @@ export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) 
     vulnOutput.remediationInfo +
     vulnOutput.dockerfilePackage +
     vulnOutput.fixedIn +
-    vulnOutput.extraInfo
+    vulnOutput.extraInfo +
+    vulnOutput.legalInstructions
   );
 }
 
