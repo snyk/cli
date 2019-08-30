@@ -88,8 +88,9 @@ function constructPatchesText(
       basicVulnInfo[id].title,
       basicVulnInfo[id].severity,
       basicVulnInfo[id].isNew,
+      basicVulnInfo[id].legalInstructions,
       `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
-      basicVulnInfo[id].legalInstructions);
+    );
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
 
@@ -120,8 +121,9 @@ function constructUpgradesText(
         basicVulnInfo[id].title,
         basicVulnInfo[id].severity,
         basicVulnInfo[id].isNew,
+        basicVulnInfo[id].legalInstructions,
         `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
-        basicVulnInfo[id].legalInstructions))
+      ))
       .join('\n');
     upgradeTextArray.push(upgradeText + thisUpgradeFixes);
   }
