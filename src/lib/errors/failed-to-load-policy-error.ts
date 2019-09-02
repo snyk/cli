@@ -1,9 +1,9 @@
 import {CustomError} from './custom-error';
 
 export class FailedToLoadPolicyError extends CustomError {
-    private static ERROR_CODE: number = 422;
-    private static ERROR_STRING_CODE: string = 'POLICY_LOAD_FAILED';
-    private static ERROR_MESSAGE: string =
+    private static ERROR_CODE = 422;
+    private static ERROR_STRING_CODE = 'POLICY_LOAD_FAILED';
+    private static ERROR_MESSAGE =
         'Could not load policy file.';
 
     constructor() {

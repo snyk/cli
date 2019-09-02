@@ -1,9 +1,9 @@
 import {CustomError} from './custom-error';
 
 export class MissingApiTokenError extends CustomError {
-    private static ERROR_CODE: number = 401;
-    private static ERROR_STRING_CODE: string = 'NO_API_TOKEN';
-    private static ERROR_MESSAGE: string =
+    private static ERROR_CODE = 401;
+    private static ERROR_STRING_CODE = 'NO_API_TOKEN';
+    private static ERROR_MESSAGE =
         '`snyk` requires an authenticated account. Please run `snyk auth` and try again.';
 
     constructor() {

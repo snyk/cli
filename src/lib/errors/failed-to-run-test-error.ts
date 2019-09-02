@@ -1,7 +1,7 @@
 import {CustomError} from './custom-error';
 
 export class FailedToRunTestError extends CustomError {
-    private static ERROR_MESSAGE: string =
+    private static ERROR_MESSAGE =
         'Failed to run a test';
 
     constructor(userMessage, errorCode?) {

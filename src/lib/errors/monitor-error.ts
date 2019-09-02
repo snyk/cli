@@ -1,7 +1,7 @@
 import {CustomError} from './custom-error';
 
 export class MonitorError extends CustomError {
-    private static ERROR_MESSAGE: string =
+    private static ERROR_MESSAGE =
         'Server returned unexpected error for the monitor request. ';
 
     constructor(errorCode, message) {

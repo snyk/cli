@@ -32,13 +32,14 @@ function getVulnSource(vuln, live) {
     try {
       source = resolve.sync(from.slice(-1).pop(), viaPath);
     } catch (e) {
+      let adaptedError = e;
       if (e.code === 'NO_PACKAGE_FOUND') {
-        e = 'Error: `' +e.message + '`\nWe can\'t patch without ' +
+        adaptedError = 'Error: `' +e.message + '`\nWe can\'t patch without ' +
           'dependencies installed. Please run `npm ' +
           'install` or  `yarn install` first.';
       }
       if (live) {
-        throw e;
+        throw adaptedError;
       }
 
       // otherwise this is a dry run so we don't mind that it won't be

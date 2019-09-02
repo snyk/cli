@@ -14,7 +14,7 @@ export function maybePrintDeps(options: Options | MonitorOptions, rootPackage: l
   }
 }
 
-function printDeps(depDict: DepDict, prefix: string = '') {
+function printDeps(depDict: DepDict, prefix = '') {
   let counter = 0;
   const keys = Object.keys(depDict);
   for (const name of keys) {

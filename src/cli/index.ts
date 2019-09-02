@@ -169,5 +169,6 @@ const cli = main().catch((e) => {
 });
 
 if (module.parent) {
+  // eslint-disable-next-line id-blacklist
   module.exports = cli;
 }

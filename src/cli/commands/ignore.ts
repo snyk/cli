@@ -1,4 +1,4 @@
-module.exports = ignore;
+export = ignore;
 
 import * as policy from 'snyk-policy';
 import chalk from 'chalk';

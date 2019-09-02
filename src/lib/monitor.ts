@@ -151,7 +151,6 @@ export async function monitor(
   }
 
   const pluginMeta = info.plugin;
-  let policy;
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath].concat(pluckPolicies(pkg))
       .filter(Boolean);
@@ -159,7 +158,7 @@ export async function monitor(
   if (!meta.isDocker || !policyLocations.length) {
     await snyk.policy.create();
   }
-  policy = await snyk.policy.load(policyLocations, {loose: true});
+  const policy = await snyk.policy.load(policyLocations, {loose: true});
 
   const target = await getTarget(pkg, meta);
   const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
@@ -238,7 +237,6 @@ export async function monitorGraph(
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
 
-  let policy;
   let treeMissingDeps: string[];
   let pkg = info.package;
   const pluginMeta = info.plugin;
@@ -257,7 +255,7 @@ export async function monitorGraph(
   if (!meta.isDocker || !policyLocations.length) {
     await snyk.policy.create();
   }
-  policy = await snyk.policy.load(policyLocations, {loose: true});
+  const policy = await snyk.policy.load(policyLocations, {loose: true});
 
   const target = await getTarget(pkg, meta);
   const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';

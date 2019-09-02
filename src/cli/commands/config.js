@@ -1,7 +1,6 @@
 const snyk = require('../../lib');
 
-module.exports = function config(method) {
-  const args = [].slice.call(arguments, 1);
+module.exports = function config(method, ...args) {
   const key = args[0];
 
   return new Promise((resolve) => {
@@ -11,7 +10,7 @@ module.exports = function config(method) {
         return item.split('=');
       }).forEach((pair) => {
         res += pair[0] + ' updated\n';
-        snyk.config.set.apply(snyk.config, pair);
+        snyk.config.set(...pair);
 
         // ensure we update the live library
         if (pair[0] === 'api') {

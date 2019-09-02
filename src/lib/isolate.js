@@ -44,9 +44,9 @@ function instrumentProps(id, key, obj) {
   const original = obj;
 
   if (type === 'function') {
-    obj = function instrumented() {
+    obj = function instrumented(...args) {
       console.log('NOTIFY: %s@%s', key || id, id);
-      original.apply(this, arguments);
+      original(...args);
     };
   }
 
@@ -83,7 +83,9 @@ function checkIsolation(filename) {
       let version;
       try {
         version = JSON.parse(pkg).version;
-      } catch (e) {}
+      } catch (e) {
+        // pass
+      }
       if (version) {
         if (semver.satisfies(version, check.version)) {
           throw new Error('Snyk: Isolated module "' + check.name +

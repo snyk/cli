@@ -136,7 +136,7 @@ function jsDiff(patchContent, relative, live) {
 // diff data compares the same file with a dummy path (a/path/to/real.file vs b/path/to/real.file)
 // skipping the dummy folder name by trimming up to the first slash
 function trimUpToFirstSlash(fileName) {
-  return fileName && fileName.replace(/^[^\/]+\//, '');
+  return fileName && fileName.replace(/^[^/]+\//, '');
 }
 
 function patchError(error, dir, vuln, patchUrl) {

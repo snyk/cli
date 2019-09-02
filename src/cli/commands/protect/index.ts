@@ -94,4 +94,4 @@ async function patch(options: types.ProtectOptions & types.Options) {
   }
 }
 
-module.exports = protectFunc;
+export = protectFunc;
