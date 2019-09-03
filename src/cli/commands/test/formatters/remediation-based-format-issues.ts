@@ -8,6 +8,7 @@ import { RemediationResult, PatchRemediation,
 import { SEVERITIES } from '../../../../lib/snyk-test/common';
 
 interface BasicVulnInfo {
+  type: string;
   title: string;
   severity: SEVERITY;
   isNew: boolean;
@@ -27,17 +28,29 @@ export function formatIssuesWithRemediation(
     [name: string]: BasicVulnInfo,
   } = {};
 
+  const basicLicenseInfo: {
+    [name: string]: BasicVulnInfo,
+  } = {};
+
   for (const vuln of vulns) {
-    basicVulnInfo[vuln.metadata.id] = {
+    const vulnData = {
       title: vuln.title,
       severity: vuln.severity,
       isNew: vuln.isNew,
       name: vuln.name,
+      type: vuln.metadata.type,
       version: vuln.version,
       fixedIn: vuln.fixedIn,
       legalInstructions: vuln.legalInstructions,
     };
+
+    basicVulnInfo[vuln.metadata.id] = vulnData;
+
+    if (vulnData.type === 'license') {
+      basicLicenseInfo[vuln.metadata.id] = vulnData;
+    }
   }
+
   const results = [chalk.bold.white('Remediation advice')];
 
   const upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo);
@@ -57,11 +70,41 @@ export function formatIssuesWithRemediation(
     results.push(unfixableIssuesTextArray.join('\n'));
   }
 
+  const licenseIssuesTextArray = constructLicenseText(basicLicenseInfo);
+
+  if (licenseIssuesTextArray.length > 0) {
+    results.push(licenseIssuesTextArray.join('\n'));
+  }
+
   return results;
 }
 
 export function getSeverityValue(severity: SEVERITY): number {
   return SEVERITIES.find((s) => s.verboseName === severity)!.value;
+}
+
+function constructLicenseText(
+  basicLicenseInfo: {
+    [name: string]: BasicVulnInfo;
+  },
+): string[] {
+
+  const licenseTextArray = [chalk.bold.green('\nLicense issues:')];
+
+  for (const id of Object.keys(basicLicenseInfo)) {
+
+    const licenseText =
+    formatIssue(
+      id,
+      basicLicenseInfo[id].title,
+      basicLicenseInfo[id].severity,
+      basicLicenseInfo[id].isNew,
+      basicLicenseInfo[id].legalInstructions,
+      `${basicLicenseInfo[id].name}@${basicLicenseInfo[id].version}`,
+    );
+    licenseTextArray.push('\n' + licenseText);
+  }
+  return licenseTextArray;
 }
 
 function constructPatchesText(
@@ -79,6 +122,11 @@ function constructPatchesText(
   const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
 
   for (const id of Object.keys(patches)) {
+
+    if (basicVulnInfo[id].type === 'license') {
+      continue;
+    }
+
     // todo: add vulnToPatch package name
     const packageAtVersion = `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`;
     const patchedText = `\n  Patch available for ${chalk.bold.whiteBright(packageAtVersion)}\n`;
@@ -88,7 +136,7 @@ function constructPatchesText(
       basicVulnInfo[id].title,
       basicVulnInfo[id].severity,
       basicVulnInfo[id].isNew,
-      basicVulnInfo[id].legalInstructions,
+      undefined,
       `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
@@ -116,12 +164,13 @@ function constructUpgradesText(
       `\n  Upgrade ${chalk.bold.whiteBright(upgrade)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
     const thisUpgradeFixes = vulnIds
       .sort((a, b) => getSeverityValue(basicVulnInfo[a].severity) - getSeverityValue(basicVulnInfo[b].severity))
+      .filter((id) => basicVulnInfo[id].type !== 'license')
       .map((id) => formatIssue(
         id,
         basicVulnInfo[id].title,
         basicVulnInfo[id].severity,
         basicVulnInfo[id].isNew,
-        basicVulnInfo[id].legalInstructions,
+        undefined,
         `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
       ))
       .join('\n');
@@ -147,8 +196,7 @@ function constructUnfixableText(unresolved: IssueData[]) {
         issue.id,
         issue.title,
         issue.severity,
-        issue.isNew,
-        issue.legalInstructions) + `${extraInfo}`);
+        issue.isNew) + `${extraInfo}`);
   }
 
   return unfixableIssuesTextArray;
@@ -186,7 +234,7 @@ function formatIssue(
   return severitiesColourMapping[severity].colorFunc(
     `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
   ) + `[${config.ROOT}/vuln/${id}]` + name
-    + (legalInstructions ? `${chalk.bold('\n    Legal instructions')}:\n    ${formatLegalText}` : '');
+    + (legalInstructions ? `${chalk.bold('\n  Legal instructions')}:\n  ${formatLegalText}` : '');
 }
 
 function titleCaseText(text) {
