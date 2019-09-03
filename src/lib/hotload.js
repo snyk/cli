@@ -8,11 +8,11 @@ const path = require('path');
 function hotload(dir) {
   return function (name) {
     let module = null;
-    return function () {
+    return function (...args) {
       if (module === null) {
         module = require(path.relative(__dirname, path.resolve(dir, name)));
       }
-      return module.apply(null, arguments);
+      return module(...args);
     };
   };
 }

@@ -50,4 +50,4 @@ async function getPatchFile(patchUrl: string, patchFilename: string): Promise<st
   return patchFilename;
 }
 
-module.exports = getPatchFile;
+export = getPatchFile;

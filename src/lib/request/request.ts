@@ -79,6 +79,7 @@ export = function makeRequest(payload: Payload): Promise<{res: needle.NeedleResp
         json: payload.json,
         headers: payload.headers,
         timeout: payload.timeout,
+        // eslint-disable-next-line @typescript-eslint/camelcase
         follow_max: 5,
       };
 

@@ -1,4 +1,4 @@
-module.exports = test;
+export = test;
 
 import * as _ from 'lodash';
 import chalk from 'chalk';

@@ -1,7 +1,7 @@
 import {CustomError} from './custom-error';
 
 export class ConnectionTimeoutError extends CustomError {
-    private static ERROR_MESSAGE: string =
+    private static ERROR_MESSAGE =
         'Connection timeout.';
 
     constructor() {

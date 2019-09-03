@@ -12,7 +12,7 @@ import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in
 import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
 import {verifyAPI} from './is-authed';
 
-module.exports = auth;
+export = auth;
 
 const apiUrl = url.parse(config.API);
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;

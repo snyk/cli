@@ -19,7 +19,7 @@ export const parsePathsFromSln = (slnFile) => {
   const paths = projectScopes.map((projectScope) => {
     const secondArg = projectScope.split(',')[1];
     // expected ` "path/to/manifest.file"`, clean it up
-    return secondArg && secondArg.trim().replace(/\"/g, '');
+    return secondArg && secondArg.trim().replace(/"/g, '');
   })
     // drop falsey values
     .filter(Boolean)

@@ -26,7 +26,7 @@ function generatePolicy(policy, tasks, live, packageManager) {
     // then we merge the configs together using the original config
     // as the baseline (this lets us retain the user's existing config)
     results.unshift(policy);
-    const newPolicy = _.merge.apply(_, results);
+    const newPolicy = _.merge(...results);
 
     debug(JSON.stringify(newPolicy, '', 2));
 

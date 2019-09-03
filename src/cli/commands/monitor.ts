@@ -1,4 +1,4 @@
-module.exports = monitor;
+export = monitor;
 
 import * as _ from 'lodash';
 import * as fs from 'then-fs';
