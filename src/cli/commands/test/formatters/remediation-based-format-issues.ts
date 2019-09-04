@@ -89,6 +89,10 @@ function constructLicenseText(
   },
 ): string[] {
 
+  if (!(Object.keys(basicLicenseInfo).length > 0)) {
+    return [];
+  }
+
   const licenseTextArray = [chalk.bold.green('\nLicense issues:')];
 
   for (const id of Object.keys(basicLicenseInfo)) {
