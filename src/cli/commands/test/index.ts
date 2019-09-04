@@ -8,7 +8,7 @@ import {isCI} from '../../../lib/is-ci';
 import {apiTokenExists} from '../../../lib/api-token';
 import {SEVERITIES} from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
-import {Options, TestOptions} from '../../../lib/types';
+import {Options, TestOptions, ShowVulnPaths} from '../../../lib/types';
 import {isLocalFolder} from '../../../lib/detect';
 import { MethodArgs } from '../../args';
 import { LegacyVulnApiResult, SEVERITY, GroupedVuln, VulnMetaData } from '../../../lib/snyk-test/legacy';
@@ -19,15 +19,23 @@ import { formatIssuesWithRemediation, getSeverityValue } from './formatters/reme
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
+const showVulnPathsMapping: Record<string, ShowVulnPaths> = {
+  'false': 'none',
+  'none': 'none',
+  'true': 'some',
+  'some': 'some',
+  'all': 'all',
+};
+
 // TODO: avoid using `as any` whenever it's possible
 
 async function test(...args: MethodArgs): Promise<string> {
   const resultOptions = [] as any[];
   let results = [] as any[];
-  let options = {} as any as Options;
+  let options = {} as any as Options & TestOptions;
 
   if (typeof args[args.length - 1] === 'object') {
-    options = args.pop() as any as Options;
+    options = args.pop() as any as Options & TestOptions;
   }
 
   // populate with default path (cwd) if no path given
@@ -36,9 +44,10 @@ async function test(...args: MethodArgs): Promise<string> {
   }
   // org fallback to config unless specified
   options.org = options.org || config.org;
-  // making `show-vulnerable-paths` true by default.
-  options.showVulnPaths = (options['show-vulnerable-paths'] || '')
-    .toLowerCase() !== 'false';
+
+  // making `show-vulnerable-paths` 'some' by default.
+  const svpSupplied = (options['show-vulnerable-paths'] || '').toLowerCase();
+  options.showVulnPaths = showVulnPathsMapping[svpSupplied] || 'some';
 
   if (options.severityThreshold
     && !validateSeverityThreshold(options.severityThreshold)) {
@@ -191,7 +200,7 @@ async function test(...args: MethodArgs): Promise<string> {
   return response;
 }
 
-function summariseVulnerableResults(vulnerableResults, options) {
+function summariseVulnerableResults(vulnerableResults, options: TestOptions) {
   const vulnsLength = vulnerableResults.length;
   if (vulnsLength) {
     if (options.showVulnPaths) {

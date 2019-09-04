@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as wrap from 'wrap-ansi';
 import * as config from '../../../../lib/config';
-import { TestOptions } from '../../../../lib/types';
+import { TestOptions, ShowVulnPaths } from '../../../../lib/types';
 import { RemediationResult, PatchRemediation,
   DependencyUpdates, IssueData, SEVERITY, GroupedVuln } from '../../../../lib/snyk-test/legacy';
 import { SEVERITIES } from '../../../../lib/snyk-test/common';
@@ -16,6 +16,7 @@ interface BasicVulnInfo {
   version: string;
   fixedIn: string[];
   legalInstructions?: string;
+  paths: string[][];
 }
 
 export function formatIssuesWithRemediation(
@@ -42,6 +43,7 @@ export function formatIssuesWithRemediation(
       version: vuln.version,
       fixedIn: vuln.fixedIn,
       legalInstructions: vuln.legalInstructions,
+      paths: vuln.list.map((v) => v.from),
     };
 
     basicVulnInfo[vuln.metadata.id] = vulnData;
@@ -53,24 +55,24 @@ export function formatIssuesWithRemediation(
 
   const results = [chalk.bold.white('Remediation advice')];
 
-  const upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo);
+  const upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo, options);
   if (upgradeTextArray.length > 0) {
     results.push(upgradeTextArray.join('\n'));
   }
 
-  const patchedTextArray = constructPatchesText(remediationInfo.patch, basicVulnInfo);
+  const patchedTextArray = constructPatchesText(remediationInfo.patch, basicVulnInfo, options);
 
   if (patchedTextArray.length > 0) {
     results.push(patchedTextArray.join('\n'));
   }
 
-  const unfixableIssuesTextArray = constructUnfixableText(remediationInfo.unresolved);
+  const unfixableIssuesTextArray = constructUnfixableText(remediationInfo.unresolved, basicVulnInfo, options);
 
   if (unfixableIssuesTextArray.length > 0) {
     results.push(unfixableIssuesTextArray.join('\n'));
   }
 
-  const licenseIssuesTextArray = constructLicenseText(basicLicenseInfo);
+  const licenseIssuesTextArray = constructLicenseText(basicLicenseInfo, options);
 
   if (licenseIssuesTextArray.length > 0) {
     results.push(licenseIssuesTextArray.join('\n'));
@@ -87,6 +89,7 @@ function constructLicenseText(
   basicLicenseInfo: {
     [name: string]: BasicVulnInfo;
   },
+  testOptions: TestOptions,
 ): string[] {
 
   if (!(Object.keys(basicLicenseInfo).length > 0)) {
@@ -105,6 +108,8 @@ function constructLicenseText(
       basicLicenseInfo[id].isNew,
       basicLicenseInfo[id].legalInstructions,
       `${basicLicenseInfo[id].name}@${basicLicenseInfo[id].version}`,
+      basicLicenseInfo[id].paths,
+      testOptions,
     );
     licenseTextArray.push('\n' + licenseText);
   }
@@ -118,6 +123,7 @@ function constructPatchesText(
   basicVulnInfo: {
     [name: string]: BasicVulnInfo;
   },
+  testOptions: TestOptions,
 ): string[] {
 
   if (!(Object.keys(patches).length > 0)) {
@@ -142,6 +148,8 @@ function constructPatchesText(
       basicVulnInfo[id].isNew,
       undefined,
       `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
+      basicVulnInfo[id].paths,
+      testOptions,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
@@ -154,6 +162,7 @@ function constructUpgradesText(
   basicVulnInfo: {
     [name: string]: BasicVulnInfo;
   },
+  testOptions: TestOptions,
 ): string[] {
 
   if (!(Object.keys(upgrades).length > 0)) {
@@ -176,6 +185,8 @@ function constructUpgradesText(
         basicVulnInfo[id].isNew,
         undefined,
         `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
+        basicVulnInfo[id].paths,
+        testOptions,
       ))
       .join('\n');
     upgradeTextArray.push(upgradeText + thisUpgradeFixes);
@@ -183,7 +194,7 @@ function constructUpgradesText(
   return upgradeTextArray;
 }
 
-function constructUnfixableText(unresolved: IssueData[]) {
+function constructUnfixableText(unresolved: IssueData[], basicVulnInfo: Record<string, BasicVulnInfo>, testOptions: TestOptions) {
   if (!(unresolved.length > 0)) {
     return [];
   }
@@ -192,18 +203,24 @@ function constructUnfixableText(unresolved: IssueData[]) {
     const extraInfo = issue.fixedIn && issue.fixedIn.length
       ? `\n  This issue was fixed in versions: ${chalk.bold(issue.fixedIn.join(', '))}`
       : '\n  No upgrade or patch available';
-    const packageNameAtVersion = chalk.bold
-    .whiteBright(`\n  ${issue.packageName}@${issue.version}\n`);
     unfixableIssuesTextArray
-      .push(packageNameAtVersion +
-      formatIssue(
+      .push(formatIssue(
         issue.id,
         issue.title,
         issue.severity,
-        issue.isNew) + `${extraInfo}`);
+        issue.isNew,
+        undefined,
+        `${issue.packageName}@${issue.version}`,
+        basicVulnInfo[issue.id].paths,
+        testOptions,
+      ) + `${extraInfo}`);
   }
 
   return unfixableIssuesTextArray;
+}
+
+function printPath(path: string[]) {
+  return path.slice(1).map((name, i) => chalk.cyan(name)).join(' > ');
 }
 
 function formatIssue(
@@ -211,8 +228,11 @@ function formatIssue(
   title: string,
   severity: SEVERITY,
   isNew: boolean,
-  legalInstructions?: string,
-  vulnerableModule?: string): string {
+  legalInstructions: string | undefined,
+  vulnerableModule: string,
+  paths: string[][],
+  testOptions: TestOptions,
+  ): string {
   const severitiesColourMapping = {
     low: {
       colorFunc(text) {
@@ -235,9 +255,24 @@ function formatIssue(
   const wrapLegalText = wrap(`${legalInstructions}`, 100);
   const formatLegalText = wrapLegalText.split('\n').join('\n    ');
 
+  let introducedBy = '';
+  if (testOptions.showVulnPaths === 'some' && paths && paths.find((p) => p.length > 2)) {
+    // In this mode, we show only one path by default, for compactness
+    const pathStr = printPath(paths[0]);
+    introducedBy = paths.length === 1
+      ? `\n    introduced by ${pathStr}`
+      : `\n    introduced by ${pathStr} and ${chalk.cyanBright('' + (paths.length - 1))} other path(s)`;
+  } else if (testOptions.showVulnPaths === 'all' && paths) {
+    introducedBy = `\n    introduced by:` + paths.slice(0, 1000).map((p) => `\n    ` + printPath(p)).join('');
+    if (paths.length > 1000) {
+      introducedBy += `\n    and ${chalk.cyanBright('' + (paths.length - 1))} other path(s)`
+    }
+  }
+
   return severitiesColourMapping[severity].colorFunc(
     `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
   ) + `[${config.ROOT}/vuln/${id}]` + name
+    + introducedBy
     + (legalInstructions ? `${chalk.bold('\n  Legal instructions')}:\n  ${formatLegalText}` : '');
 }
 

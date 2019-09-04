@@ -21,10 +21,13 @@ export interface DepDict {
 
 export type DepTree = legacyApi.DepTree;
 
+export type ShowVulnPaths = 'none' | 'some' | 'all';
+
 export interface TestOptions {
   traverseNodeModules: boolean;
   interactive: boolean;
   'prune-repeated-subdependencies'?: boolean;
+  showVulnPaths: ShowVulnPaths;
 }
 export interface ProtectOptions {
   loose: boolean;
@@ -46,7 +49,6 @@ export interface Options {
   allSubProjects?: boolean;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
-  showVulnPaths?: boolean;
   packageManager: SupportedPackageManagers;
   advertiseSubprojectsCount?: number;
   subProjectNames?: string[];

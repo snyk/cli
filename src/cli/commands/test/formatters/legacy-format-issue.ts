@@ -2,10 +2,10 @@ import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as wrap from 'wrap-ansi';
 import * as config from '../../../../lib/config';
-import {Options, TestOptions} from '../../../../lib/types';
+import {Options, TestOptions, ShowVulnPaths} from '../../../../lib/types';
 import {isLocalFolder} from '../../../../lib/detect';
 import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
-import { GroupedVuln } from '../../../../lib/snyk-test/legacy';
+import { GroupedVuln, AnnotatedIssue } from '../../../../lib/snyk-test/legacy';
 
 export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) {
   const vulnID = vuln.list[0].id;
@@ -35,8 +35,7 @@ export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) 
     introducedThrough: '  Introduced through: ' + uniquePackages,
     description: '  Description: ' + vuln.title,
     info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
-    fromPaths: options.showVulnPaths
-      ? createTruncatedVulnsPathsText(vuln.list) : '',
+    fromPaths: createTruncatedVulnsPathsText(vuln.list, options.showVulnPaths),
     extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
     remediationInfo: vuln.metadata.type !== 'license' && localPackageTest
       ? createRemediationText(vuln, packageManager)
@@ -103,8 +102,11 @@ function dockerfileInstructionText(vuln) {
 
   return '';
 }
-function createTruncatedVulnsPathsText(vulnList) {
-  const numberOfPathsToDisplay = 3;
+function createTruncatedVulnsPathsText(vulnList: AnnotatedIssue[], show: ShowVulnPaths) {
+  if (show === 'none') {
+    return '';
+  }
+  const numberOfPathsToDisplay = show === 'all' ? 1000 : 3;
   const fromPathsArray = vulnList.map((i) => i.from);
 
   const formatedFromPathsArray = fromPathsArray.map((i) => {
@@ -118,7 +120,7 @@ function createTruncatedVulnsPathsText(vulnList) {
   });
 
   const notShownPathsNumber = fromPathsArray.length - numberOfPathsToDisplay;
-  const shouldTruncatePaths = fromPathsArray.length > 3;
+  const shouldTruncatePaths = fromPathsArray.length > numberOfPathsToDisplay;
   const truncatedText = `\n  and ${notShownPathsNumber} more...`;
   const formattedPathsText = formatedFromPathsArray
     .slice(0, numberOfPathsToDisplay)
@@ -129,7 +131,7 @@ function createTruncatedVulnsPathsText(vulnList) {
   }
 }
 
-function createFixedInText(vuln: any): string {
+function createFixedInText(vuln: GroupedVuln): string {
   if (vuln.nearestFixedInVersion) {
     return chalk.bold('\n  Fixed in: ' + vuln.nearestFixedInVersion);
   } else if (vuln.fixedIn && vuln.fixedIn.length > 0) {
