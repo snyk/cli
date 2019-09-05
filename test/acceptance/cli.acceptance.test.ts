@@ -784,7 +784,7 @@ test('`test nuget-app-2 auto-detects project.assets.json`', async (t) => {
       projectName: null,
       packageManager: 'nuget',
       path: 'nuget-app-2',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls nuget plugin');
 });
 
@@ -824,7 +824,7 @@ test('`test nuget-app-2.1 auto-detects obj/project.assets.json`', async (t) => {
       projectName: null,
       packageManager: 'nuget',
       path: 'nuget-app-2.1',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls nuget plugin');
 });
 
@@ -865,7 +865,7 @@ test('`test nuget-app-4 auto-detects packages.config`', async (t) => {
       projectName: null,
       packageManager: 'nuget',
       path: 'nuget-app-4',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls nuget plugin');
 });
 
@@ -906,7 +906,7 @@ test('`test paket-app auto-detects paket.dependencies`', async (t) => {
             projectName: null,
             packageManager: 'paket',
             path: 'paket-app',
-            showVulnPaths: true,
+            showVulnPaths: "some",
         }], 'calls nuget plugin');
 });
 
@@ -947,7 +947,7 @@ test('`test paket-obj-app auto-detects obj/project.assets.json if exists`', asyn
             projectName: null,
             packageManager: 'nuget',
             path: 'paket-obj-app',
-            showVulnPaths: true,
+            showVulnPaths: "some",
         }], 'calls nuget plugin');
 });
 
@@ -1237,7 +1237,7 @@ test('`test pip-app --file=requirements.txt`', async (t) => {
       projectName: null,
       packageManager: 'pip',
       path: 'pip-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls python plugin');
 });
 
@@ -1280,7 +1280,7 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
       projectName: null,
       packageManager: 'pip',
       path: 'pipenv-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls python plugin');
 });
 
@@ -1323,7 +1323,7 @@ test('`test nuget-app --file=project.assets.json`', async (t) => {
       projectName: null,
       packageManager: 'nuget',
       path: 'nuget-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls nuget plugin');
 });
 
@@ -1366,7 +1366,7 @@ test('`test nuget-app --file=packages.config`', async (t) => {
       projectName: null,
       packageManager: 'nuget',
       path: 'nuget-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls nuget plugin');
 });
 
@@ -1409,7 +1409,7 @@ test('`test nuget-app --file=project.json`', async (t) => {
       projectName: null,
       packageManager: 'nuget',
       path: 'nuget-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls nuget plugin');
 });
 
@@ -1452,7 +1452,7 @@ test('`test paket-app --file=paket.dependencies`', async (t) => {
             projectName: null,
             packageManager: 'paket',
             path: 'paket-app',
-            showVulnPaths: true,
+            showVulnPaths: "some",
         }], 'calls nuget plugin');
 });
 
@@ -1495,7 +1495,7 @@ test('`test golang-gomodules --file=go.mod`', async (t) => {
       projectName: null,
       packageManager: 'gomodules',
       path: 'golang-gomodules',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls golang plugin');
 });
 
@@ -1536,7 +1536,7 @@ test('`test golang-app` auto-detects golang-gomodules', async (t) => {
       projectName: null,
       packageManager: 'gomodules',
       path: 'golang-gomodules',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls golang-gomodules plugin');
 });
 
@@ -1579,7 +1579,7 @@ test('`test golang-app --file=Gopkg.lock`', async (t) => {
       projectName: null,
       packageManager: 'golangdep',
       path: 'golang-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls golang plugin');
 });
 
@@ -1622,7 +1622,7 @@ test('`test golang-app --file=vendor/vendor.json`', async (t) => {
       projectName: null,
       packageManager: 'govendor',
       path: 'golang-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls golang plugin');
 });
 
@@ -1663,7 +1663,7 @@ test('`test golang-app` auto-detects golang/dep', async (t) => {
       projectName: null,
       packageManager: 'golangdep',
       path: 'golang-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls golang plugin');
 });
 
@@ -1696,7 +1696,7 @@ test('`test golang-app-govendor` auto-detects govendor', async (t) => {
       projectName: null,
       packageManager: 'govendor',
       path: 'golang-app-govendor',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls golang plugin');
 });
 
@@ -1731,7 +1731,7 @@ test('`test composer-app --file=composer.lock`', async (t) => {
       projectName: null,
       packageManager: 'composer',
       path: 'composer-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls composer plugin');
 });
 
@@ -1764,7 +1764,7 @@ test('`test composer-app` auto-detects composer.lock', async (t) => {
       projectName: null,
       packageManager: 'composer',
       path: 'composer-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls composer plugin');
 });
 
@@ -1820,7 +1820,7 @@ test('`test composer-app golang-app nuget-app` auto-detects all three projects',
       projectName: null,
       packageManager: 'composer',
       path: 'composer-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls composer plugin');
   t.same(calls[1].args,
     ['golang-app', 'Gopkg.lock', {
@@ -1830,7 +1830,7 @@ test('`test composer-app golang-app nuget-app` auto-detects all three projects',
       projectName: null,
       packageManager: 'golangdep',
       path: 'golang-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls golangdep plugin');
   t.same(calls[2].args,
     ['nuget-app', 'project.assets.json', {
@@ -1840,7 +1840,7 @@ test('`test composer-app golang-app nuget-app` auto-detects all three projects',
       projectName: null,
       packageManager: 'nuget',
       path: 'nuget-app',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls nuget plugin');
 });
 
@@ -1870,7 +1870,7 @@ test('`test foo:latest --docker`', async (t) => {
       projectName: null,
       packageManager: null,
       path: 'foo:latest',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls docker plugin with expected arguments');
 });
 
@@ -1950,7 +1950,7 @@ test('`test foo:latest --docker --file=Dockerfile`', async (t) => {
       projectName: null,
       packageManager: null,
       path: 'foo:latest',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls docker plugin with expected arguments');
 });
 
@@ -2000,7 +2000,7 @@ test('`test foo:latest --docker` doesnt collect policy from cwd', async (t) => {
       projectName: null,
       packageManager: null,
       path: 'foo:latest',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls docker plugin with expected arguments');
   const policyString = req.body.policy;
   t.false(policyString, 'policy not sent');
@@ -2032,7 +2032,7 @@ test('`test foo:latest --docker` supports custom policy', async (t) => {
       'projectName': null,
       'packageManager': null,
       'path': 'foo:latest',
-      'showVulnPaths': true,
+      'showVulnPaths': 'some',
       'policy-path': 'npm-package-policy/custom-location',
     }], 'calls docker plugin with expected arguments');
 
@@ -2075,7 +2075,7 @@ test('`test foo:latest --docker with binaries`', async (t) => {
       projectName: null,
       packageManager: null,
       path: 'foo:latest',
-      showVulnPaths: true,
+      showVulnPaths: "some",
     }], 'calls docker plugin with expected arguments');
 });
 
