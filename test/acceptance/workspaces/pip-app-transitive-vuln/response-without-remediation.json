@@ -1,0 +1,327 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "flask@0.12.2": {
+        "pkg": {
+          "name": "flask",
+          "version": "0.12.2"
+        },
+        "issues": {
+          "SNYK-PYTHON-FLASK-42185": {
+            "issueId": "SNYK-PYTHON-FLASK-42185",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [
+                {
+                  "path": [
+                    {
+                      "name": "pip-app-transitive-vuln",
+                      "version": "0.0.0"
+                    },
+                    {
+                      "name": "flask",
+                      "version": "0.12.2",
+                      "newVersion": "0.12.3"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "SNYK-PYTHON-FLASK-451637": {
+            "issueId": "SNYK-PYTHON-FLASK-451637",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [
+                {
+                  "path": [
+                    {
+                      "name": "pip-app-transitive-vuln",
+                      "version": "0.0.0"
+                    },
+                    {
+                      "name": "flask",
+                      "version": "0.12.2",
+                      "newVersion": "1.0"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Jinja2@2.9.6": {
+        "pkg": {
+          "name": "Jinja2",
+          "version": "2.9.6"
+        },
+        "issues": {
+          "SNYK-PYTHON-JINJA2-174126": {
+            "issueId": "SNYK-PYTHON-JINJA2-174126",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [
+                {
+                  "path": [
+                    {
+                      "name": "pip-app-transitive-vuln",
+                      "version": "0.0.0"
+                    },
+                    {
+                      "name": "flask",
+                      "version": "0.12.2",
+                      "newVersion": "0.12.2"
+                    },
+                    {
+                      "name": "Jinja2",
+                      "version": "2.9.6",
+                      "isDropped": true
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "Werkzeug@0.12.2": {
+        "pkg": {
+          "name": "Werkzeug",
+          "version": "0.12.2"
+        },
+        "issues": {
+          "SNYK-PYTHON-WERKZEUG-458931": {
+            "issueId": "SNYK-PYTHON-WERKZEUG-458931",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [
+                {
+                  "path": [
+                    {
+                      "name": "pip-app-transitive-vuln",
+                      "version": "0.0.0"
+                    },
+                    {
+                      "name": "flask",
+                      "version": "0.12.2",
+                      "newVersion": "0.12.2"
+                    },
+                    {
+                      "name": "Werkzeug",
+                      "version": "0.12.2",
+                      "isDropped": true
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-PYTHON-FLASK-42185": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [],
+        "creationTime": "2018-08-20T19:12:29.035000Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n[flask](https://pypi.org/project/Flask/) is a lightweight WSGI web application framework.\n\nAffected versions of this package are vulnerable to Improper Input Validation. It did not detect the encoding of incoming JSON data as one of the supported UTF encodings, and allowed arbitrary encodings from the request.\n\n## Remediation\nUpgrade `flask` to version 0.12.3 or higher.\n\n## References\n- [GitHub PR](https://github.com/pallets/flask/pull/2691)\n- [GitHub Release Tag](https://github.com/pallets/flask/releases/tag/0.12.3)\n",
+        "disclosureTime": "2018-04-10T19:12:29.035000Z",
+        "fixedIn": [
+          "0.12.3"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-FLASK-42185",
+        "identifiers": {
+          "CVE": [
+            "CVE-2018-1000656"
+          ],
+          "CWE": [
+            "CWE-20"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2019-06-02T11:58:23.863763Z",
+        "moduleName": "flask",
+        "packageManager": "pip",
+        "packageName": "flask",
+        "patches": [],
+        "publicationTime": "2018-08-21T14:16:13.738000Z",
+        "references": [
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/pallets/flask/pull/2691"
+          },
+          {
+            "title": "GitHub Release Tag",
+            "url": "https://github.com/pallets/flask/releases/tag/0.12.3"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,0.12.3)"
+          ]
+        },
+        "severity": "high",
+        "title": "Improper Input Validation"
+      },
+      "SNYK-PYTHON-FLASK-451637": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [],
+        "creationTime": "2019-07-17T15:17:46.764958Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n\n[Flask](https://pypi.org/project/Flask/) is a lightweight WSGI web application framework\n\n\nAffected versions of this package are vulnerable to Denial of Service (DOS).\nThe package allows for unsafe encoded JSON data to be decoded.\n\n## Remediation\n\nUpgrade `Flask` to version 1.0 or higher.\n\n\n## References\n\n- [GitHub PR](https://github.com/pallets/flask/pull/2691)\n\n- [Release Notes](https://www.palletsprojects.com/blog/flask-1-0-released/)\n",
+        "disclosureTime": "2019-07-17T14:56:51Z",
+        "fixedIn": [
+          "1.0"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-FLASK-451637",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-1010083"
+          ],
+          "CWE": [
+            "CWE-20"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2019-07-17T17:05:27.527509Z",
+        "moduleName": "flask",
+        "packageManager": "pip",
+        "packageName": "flask",
+        "patches": [],
+        "publicationTime": "2019-07-17T14:56:51Z",
+        "references": [
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/pallets/flask/pull/2691"
+          },
+          {
+            "title": "Release Notes",
+            "url": "https://www.palletsprojects.com/blog/flask-1-0-released/"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,1.0)"
+          ]
+        },
+        "severity": "high",
+        "title": "Denial of Service (DOS)"
+      },
+      "SNYK-PYTHON-JINJA2-174126": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:L/UI:N/S:C/C:L/I:L/A:L/RL:O",
+        "alternativeIds": [],
+        "creationTime": "2019-04-07T10:24:16.310959Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 6,
+        "description": "## Overview\n\n[jinja2](https://pypi.org/project/Jinja2/) is a template engine written in pure Python. It provides a Django inspired non-XML syntax but supports inline expressions and an optional sandboxed environment.\n\n\nAffected versions of this package are vulnerable to Sandbox Escape\nvia the `str.format_map`.\n\n## Remediation\n\nUpgrade `jinja2` to version 2.10.1 or higher.\n\n\n## References\n\n- [Release Notes](https://palletsprojects.com/blog/jinja-2-10-1-released)\n",
+        "disclosureTime": "2019-04-07T00:42:43Z",
+        "fixedIn": [
+          "2.10.1"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-JINJA2-174126",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-10906"
+          ],
+          "CWE": [
+            "CWE-265"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2019-04-07T13:13:03.054711Z",
+        "moduleName": "jinja2",
+        "packageManager": "pip",
+        "packageName": "Jinja2",
+        "patches": [],
+        "publicationTime": "2019-04-07T00:42:43Z",
+        "references": [
+          {
+            "title": "Release Notes",
+            "url": "https://palletsprojects.com/blog/jinja-2-10-1-released"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,2.10.1)"
+          ]
+        },
+        "severity": "medium",
+        "title": "Sandbox Escape"
+      },
+      "SNYK-PYTHON-WERKZEUG-458931": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+        "alternativeIds": [],
+        "creationTime": "2019-08-10T08:00:09.852965Z",
+        "credit": [
+          "Unknown"
+        ],
+        "cvssScore": 9.1,
+        "description": "## Overview\n\n[Werkzeug](https://werkzeug.palletsprojects.com/) is a WSGI web application library.\n\n\nAffected versions of this package are vulnerable to Insufficient Randomness\nwhen used with Docker, it has insufficient debugger PIN randomness because Docker containers share the same machine id.\n\n## Remediation\n\nUpgrade `Werkzeug` to version 0.15.3 or higher.\n\n\n## References\n\n- [GitHub Fix Commit](https://github.com/pallets/werkzeug/commit/00bc43b1672e662e5e3b8cecd79e67fc968fa246)\n\n- [Release Notes](https://palletsprojects.com/blog/werkzeug-0-15-3-released/)\n",
+        "disclosureTime": "2019-08-09T16:11:50Z",
+        "fixedIn": [
+          "0.15.3"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-WERKZEUG-458931",
+        "identifiers": {
+          "CVE": [
+            "CVE-2019-14806"
+          ],
+          "CWE": [
+            "CWE-310"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2019-08-11T08:49:08.544640Z",
+        "moduleName": "werkzeug",
+        "packageManager": "pip",
+        "packageName": "Werkzeug",
+        "patches": [],
+        "publicationTime": "2019-08-11T07:58:24Z",
+        "references": [
+          {
+            "title": "GitHub Fix Commit",
+            "url": "https://github.com/pallets/werkzeug/commit/00bc43b1672e662e5e3b8cecd79e67fc968fa246"
+          },
+          {
+            "title": "Release Notes",
+            "url": "https://palletsprojects.com/blog/werkzeug-0-15-3-released/"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[,0.15.3)"
+          ]
+        },
+        "severity": "high",
+        "title": "Insufficient Randomness"
+      }
+    }
+  },
+  "meta": {
+    "isPublic": false,
+    "isLicensesEnabled": false,
+    "licensesPolicy": null,
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "kyegupov"
+  },
+  "filesystemPolicy": false
+}

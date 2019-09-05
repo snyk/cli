@@ -1,0 +1,41 @@
+{
+  "plugin": {
+    "name": "snyk-python-plugin",
+    "runtime": "Python 2.7.16"
+  },
+  "package": {
+    "packageFormatVersion": "pip:0.0.1",
+    "version": "0.0.0",
+    "name": "pip-app-transitive-vuln",
+    "dependencies": {
+      "flask": {
+        "version": "0.12.2",
+        "name": "flask",
+        "dependencies": {
+          "itsdangerous": {
+            "version": "0.24",
+            "name": "itsdangerous"
+          },
+          "Jinja2": {
+            "version": "2.9.6",
+            "name": "Jinja2",
+            "dependencies": {
+              "MarkupSafe": {
+                "version": "1.0",
+                "name": "MarkupSafe"
+              }
+            }
+          },
+          "click": {
+            "version": "6.7",
+            "name": "click"
+          },
+          "Werkzeug": {
+            "version": "0.12.2",
+            "name": "Werkzeug"
+          }
+        }
+      }
+    }
+  }
+}

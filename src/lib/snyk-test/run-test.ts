@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import fs = require('then-fs');
+import * as fs from 'fs';
 import pathUtil = require('path');
 import moduleToObject = require('snyk-module');
 import * as depGraphLib from '@snyk/dep-graph';
@@ -15,7 +15,10 @@ import spinner = require('../spinner');
 import common = require('./common');
 import {DepTree, TestOptions} from '../types';
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
-import {convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult, TestDepGraphResponse} from './legacy';
+import {
+  convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult,
+  TestDepGraphResponse, DockerIssue,
+} from './legacy';
 import {Options} from '../types';
 import {
   NoSupportedManifestsFoundError,
@@ -128,15 +131,15 @@ async function runTest(packageManager: SupportedPackageManagers,
         res.vulnerabilities = res.vulnerabilities.map((vuln) => {
           const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
           if (dockerfilePackage) {
-            vuln.dockerfileInstruction = dockerfilePackage.instruction;
+            (vuln as DockerIssue).dockerfileInstruction = dockerfilePackage.instruction;
           }
-          vuln.dockerBaseImage = res.docker!.baseImage;
+          (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
           return vuln;
         });
       }
 
       if (options.docker && options.file && options['exclude-base-image-vulns']) {
-        res.vulnerabilities = res.vulnerabilities.filter((vuln) => (vuln.dockerfileInstruction));
+        res.vulnerabilities = res.vulnerabilities.filter((vuln) => ((vuln as DockerIssue).dockerfileInstruction));
       }
 
       res.uniqueCount = countUniqueVulns(res.vulnerabilities);

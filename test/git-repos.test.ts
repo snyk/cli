@@ -16,7 +16,7 @@ urls.forEach((url) => {
       await cli.test(url);
       t.pass('url worked');
     } catch (err) {
-      t.threw();
+      t.threw(err);
       t.end();
     }
   });
