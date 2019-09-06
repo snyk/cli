@@ -64,7 +64,7 @@ The package argument is optional. If no package is given, Snyk will run the comm
 
 Snyk is also provided as a set of Docker images that carry the runtime environment of each package manager. For example, the npm image will carry all of the needed setup to run `npm install` on the currently running container. Currently there are images for npm, Ruby, Maven, Gradle and SBT.
 
-The images can perform `snyk test` by default on the specified project which is mounted to the container as a read/write volume, and `snyk monitor` if the `MONITOR` environment variable is set when running the docker container. When running `snyk monitor` with the `GENERATE_REPORT` environment variable set, an HTML file called `snyk_report.html` and a CSS file called `snyk_report.css` will be generated. The image also writes a file called `snyk-res.json` for internal use and `snyk-error.log` for errors that we can look at if something goes wrong.
+The images can perform `snyk test` by default on the specified project which is mounted to the container as a read/write volume, and `snyk monitor` if the `MONITOR` environment variable is set when running the docker container. If you want an HTML report for `test` command, make sure `--json` parameter is provided. `monitor` command appends it automatically. An HTML file called `snyk_report.html` and a CSS file called `snyk_report.css` will be generated. The image also writes a file called `snyk-res.json` for internal use and `snyk-error.log` for errors that we can look at if something goes wrong.
 
 The following environment variables can be used when running the container on docker:
 
