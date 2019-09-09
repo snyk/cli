@@ -107,7 +107,7 @@ fi
 
 
 runCmdAsDockerUser "cat \"${OUTPUT_FILE}\" | \
-jq '.vulnerabilities|= map(. + {severity_numeric: (if(.severity) == \"high\" then 1 else (if(.severity) == \"medium\" then 2 else (if(.severity) == \"low\" then 3 else 4 end) end) end)}) |.vulnerabilities |= sort_by(.severity_numeric) | del(.vulnerabilities[].severity_numeric)' | \
+jq 'def sortBySeverity: .vulnerabilities|= map(. + {severity_numeric: (if(.severity) == \"high\" then 1 else (if(.severity) == \"medium\" then 2 else (if(.severity) == \"low\" then 3 else 4 end) end) end)}) |.vulnerabilities |= sort_by(.severity_numeric) | del(.vulnerabilities[].severity_numeric); if (. | type) == \"array\" then map(sortBySeverity) else sortBySeverity end'| \
 snyk-to-html | \
 sed 's/<\/head>/  <link rel=\"stylesheet\" href=\"snyk_report.css\"><\/head>/' \
 >> \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\""
