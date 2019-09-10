@@ -373,7 +373,7 @@ function formatIssue(
     `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
   ) + `[${config.ROOT}/vuln/${id}]` + name
     + introducedBy
-    + (legalInstructions ? `${chalk.bold('\n  Legal instructions')}:\n  ${formatLegalText}` : '');
+    + (legalInstructions ? `${chalk.bold('\n    Legal instructions')}:\n    ${formatLegalText}` : '');
 }
 
 function titleCaseText(text) {
