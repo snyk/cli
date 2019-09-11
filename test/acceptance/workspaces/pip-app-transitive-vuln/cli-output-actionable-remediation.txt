@@ -17,7 +17,7 @@ Issues to fix by pinning sub-dependencies:
     introduced by flask@0.12.2 > Jinja2@2.9.6
 
   Pin Werkzeug to 0.15.3 to fix
-  ✗ Insufficient Randomness (new) [High Severity][http://localhost:12345/vuln/SNYK-PYTHON-WERKZEUG-458931] in Werkzeug@0.12.2
+  ✗ Insufficient Randomness [High Severity][http://localhost:12345/vuln/SNYK-PYTHON-WERKZEUG-458931] in Werkzeug@0.12.2
     introduced by flask@0.12.2 > Werkzeug@0.12.2
 
 
