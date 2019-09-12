@@ -227,7 +227,7 @@ function summariseErrorResults(errorResults) {
 }
 
 function displayResult(res, options: Options & TestOptions) {
-  const meta = metaForDisplay(res, options) + '\n\n';
+  const meta = metaForDisplay(res, options);
   const dockerAdvice = dockerRemediationForDisplay(res);
   const packageManager = options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
@@ -272,7 +272,7 @@ function displayResult(res, options: Options & TestOptions) {
     const snykPackageTestTip: string = !(options.docker || localPackageTest || options.dev) ?
       '\n\nTip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag.' : '';
     return (
-      prefix + meta + summaryOKText + multiProjAdvice + (
+      prefix + meta + '\n\n' + summaryOKText + multiProjAdvice + (
         isCI() ? '' :
           dockerAdvice +
           nextStepsText +
@@ -302,10 +302,11 @@ function displayResult(res, options: Options & TestOptions) {
   } else {
     vulnCountText += '.';
   }
-  let summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
+  const summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
+  let wizardAdvice = '';
 
   if (localPackageTest && WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
-    summary += chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
+    wizardAdvice = chalk.bold.green('\n\nRun `snyk wizard` to address these issues.');
   }
   let dockerSuggestion = '';
   if (options.docker &&
@@ -345,9 +346,15 @@ function displayResult(res, options: Options & TestOptions) {
   const groupedDockerBinariesVulnInfoOutput = (res.docker && binariesSortedGroupedVulns.length) ?
     formatDockerBinariesIssues(binariesSortedGroupedVulns, res.docker.binariesVulns, options) : [];
 
-  const body =
+  let body =
     groupedVulnInfoOutput.join('\n\n') + '\n\n' +
-    groupedDockerBinariesVulnInfoOutput.join('\n\n') + '\n\n' + meta + summary;
+    groupedDockerBinariesVulnInfoOutput.join('\n\n') + '\n\n' + meta;
+
+  if (res.remediation) {
+    body = summary + body + wizardAdvice;
+  } else {
+    body = body + '\n\n' + summary + wizardAdvice;
+  }
 
   const ignoredIssues = '';
   return prefix + body + multiProjAdvice + ignoredIssues + dockerAdvice + dockerSuggestion;

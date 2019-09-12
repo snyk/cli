@@ -66,7 +66,7 @@ export function formatIssuesWithRemediation(
     }
   }
 
-  const results = [chalk.bold.white('Remediation advice')];
+  const results = [''];
 
   let upgradeTextArray: string[];
   if (remediationInfo.pin && Object.keys(remediationInfo.pin).length) {
