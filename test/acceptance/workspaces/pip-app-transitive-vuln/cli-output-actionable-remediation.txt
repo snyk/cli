@@ -1,7 +1,7 @@
 
 Testing pip-app-transitive-vuln...
 
-Remediation advice
+Tested 6 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vulnerable paths.
 
 
 Issues to fix by upgrading existing dependencies:
@@ -27,5 +27,3 @@ Package manager:   pip
 Target file:       requirements.txt
 Open source:       no
 Project path:      pip-app-transitive-vuln
-
-Tested 6 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vulnerable paths.
