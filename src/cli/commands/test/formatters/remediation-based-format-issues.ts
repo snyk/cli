@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as wrap from 'wrap-ansi';
 import * as config from '../../../../lib/config';
-import { TestOptions, ShowVulnPaths } from '../../../../lib/types';
+import { TestOptions } from '../../../../lib/types';
 import {
   RemediationChanges, PatchRemediation,
   DependencyUpdates, IssueData, SEVERITY, GroupedVuln,
@@ -192,6 +192,7 @@ function constructPatchesText(
 
 function thisUpgradeFixes(vulnIds: string[], basicVulnInfo: Record<string, BasicVulnInfo>, testOptions: TestOptions) {
   return vulnIds
+    .filter((id) => basicVulnInfo[id]) // basicVulnInfo only contains issues with the specified severity levels
     .sort((a, b) => getSeverityValue(basicVulnInfo[a].severity) - getSeverityValue(basicVulnInfo[b].severity))
     .filter((id) => basicVulnInfo[id].type !== 'license')
     .map((id) => formatIssue(
@@ -300,6 +301,12 @@ function constructUnfixableText(unresolved: IssueData[], basicVulnInfo: Record<s
   }
   const unfixableIssuesTextArray = [chalk.bold.white('\nIssues with no direct upgrade or patch:')];
   for (const issue of unresolved) {
+    const issueInfo = basicVulnInfo[issue.id];
+    if (!issueInfo) {
+      // basicVulnInfo only contains issues with the specified severity levels
+      continue;
+    }
+
     const extraInfo = issue.fixedIn && issue.fixedIn.length
       ? `\n  This issue was fixed in versions: ${chalk.bold(issue.fixedIn.join(', '))}`
       : '\n  No upgrade or patch available';
@@ -311,7 +318,7 @@ function constructUnfixableText(unresolved: IssueData[], basicVulnInfo: Record<s
         issue.isNew,
         undefined,
         `${issue.packageName}@${issue.version}`,
-        basicVulnInfo[issue.id].paths,
+        issueInfo.paths,
         testOptions,
       ) + `${extraInfo}`);
   }
