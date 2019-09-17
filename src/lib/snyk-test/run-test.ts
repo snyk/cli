@@ -146,16 +146,17 @@ async function runTest(packageManager: SupportedPackageManagers,
       results.push(res);
     }
     return results;
-  } catch (err) {
+  } catch (error) {
+    debug('Error running test', { error });
     // handling denial from registry because of the feature flag
     // currently done for go.mod
-    if (err.code === 403 && err.message.includes('Feature not allowed')) {
+    if (error.code === 403 && error.message.includes('Feature not allowed')) {
       throw NoSupportedManifestsFoundError([root]);
     }
 
     throw new FailedToRunTestError(
-      err.userMessage || err.message || `Failed to test ${packageManager} project`,
-      err.code,
+      error.userMessage || error.message || `Failed to test ${packageManager} project`,
+      error.code,
     );
   } finally {
     spinner.clear<void>(spinnerLbl)();
