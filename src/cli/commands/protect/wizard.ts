@@ -239,7 +239,6 @@ function getNewScriptContent(scriptContent, cmd) {
 }
 
 function addProtectScripts(existingScripts, npmVersion, options) {
-  console.log('addProtect', npmVersion);
   const scripts = existingScripts ? _.cloneDeep(existingScripts) : {};
   scripts['snyk-protect'] = 'snyk protect';
 
