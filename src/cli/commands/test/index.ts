@@ -112,12 +112,12 @@ async function test(...args: MethodArgs): Promise<string> {
       results.push(_.assign(resArray[i], { path }));
       // currently testOpts are identical for each test result returned even if it's for multiple projects.
       // we want to return the project names, so will need to be crafty in a way that makes sense.
-      if (!testOpts.subProjectNames) {
+      if (!testOpts.projectNames) {
         resultOptions.push(testOpts);
       } else {
         resultOptions.push(
           _.assign(_.cloneDeep(testOpts), {
-            subProjectName: testOpts.subProjectNames[i],
+            projectName: testOpts.projectNames[i],
           }),
         );
       }
@@ -478,10 +478,10 @@ function metaForDisplay(res, options) {
         options.file,
     );
   }
-  if (options.subProjectName) {
+  if (options.projectName) {
     meta.push(
-      chalk.bold(rightPadWithSpaces('Sub project: ', padToLength)) +
-        options.subProjectName,
+      chalk.bold(rightPadWithSpaces('Project name: ', padToLength)) +
+        options.projectName,
     );
   }
   if (options.docker) {

@@ -296,7 +296,7 @@ async function getDepsFromPlugin(
     // We are using "options" to store some information returned from plugin that we need to use later,
     // but don't want to send to Registry in the Payload.
     // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    (options as any).subProjectNames = inspectRes.scannedProjects.map(
+    (options as any).projectNames = inspectRes.scannedProjects.map(
       (scannedProject) => scannedProject.depTree.name,
     );
     return inspectRes;

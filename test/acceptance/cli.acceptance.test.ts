@@ -756,8 +756,8 @@ test('`test gradle-app --all-sub-projects` returns correct multi tree meta', asy
     t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
     t.match(meta[1], /Package manager:\s+gradle/, 'package manager displayed');
     t.match(meta[2], /Target file:\s+build.gradle/, 'target file displayed');
-    t.match(meta[3], /Sub project:\s+tree/, 'subproject displayed');
-    t.includes(meta[3], `tree${i}`, 'subproject displayed');
+    t.match(meta[3], /Project name:\s+tree/, 'sub-project displayed');
+    t.includes(meta[3], `tree${i}`, 'sub-project displayed');
     t.match(meta[4], /Open source:\s+no/, 'open source displayed');
     t.match(meta[5], /Project path:\s+gradle-app/, 'path displayed');
     t.notMatch(
@@ -782,9 +782,14 @@ test('`test npm-package-policy` returns correct meta', async (t) => {
   t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
   t.match(meta[1], /Package manager:\s+npm/, 'package manager displayed');
   t.match(meta[2], /Target file:\s+package.json/, 'target file displayed');
-  t.match(meta[3], /Open source:\s+no/, 'open source displayed');
-  t.match(meta[4], /Project path:\s+npm-package-policy/, 'path displayed');
-  t.match(meta[5], /Local Snyk policy:\s+found/, 'local policy displayed');
+  t.match(
+    meta[3],
+    /Project name:\s+custom-policy-location-package/,
+    'project name displayed',
+  );
+  t.match(meta[4], /Open source:\s+no/, 'open source displayed');
+  t.match(meta[5], /Project path:\s+npm-package-policy/, 'path displayed');
+  t.match(meta[6], /Local Snyk policy:\s+found/, 'local policy displayed');
 });
 
 test('`test ruby-gem-no-lockfile --file=ruby-gem.gemspec`', async (t) => {
