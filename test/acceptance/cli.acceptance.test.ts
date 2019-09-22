@@ -4311,7 +4311,7 @@ function chdirWorkspaces(subdir: string = '') {
 }
 
 function decode64(str) {
-  return new Buffer(str, 'base64').toString('utf8');
+  return Buffer.from(str, 'base64').toString('utf8');
 }
 
 // fixture can be fixture path or object

@@ -1,35 +1,38 @@
 import { inspectors, Spec } from './inspectors';
-import * as types from '../types';
 import { MissingTargetFileError } from '../../errors/missing-targetfile-error';
-
-interface RubyGemsInspectResult extends types.InspectResult {
-  package: {
-    name: string;
-    targetFile: string;
-    files: any;
-  };
-}
+import gemfileLockToDependencies = require('./gemfile-lock-to-dependencies');
+import _ = require('lodash');
+import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 
 export async function inspect(
   root: string,
   targetFile: string,
-): Promise<RubyGemsInspectResult> {
+): Promise<MultiProjectResult> {
   if (!targetFile) {
     throw MissingTargetFileError(root);
   }
   const specs = await gatherSpecs(root, targetFile);
+  const gemfileLockBase64 = _.get(specs, 'files.gemfileLock.contents');
+  const gemfileLockContents = Buffer.from(
+    gemfileLockBase64,
+    'base64',
+  ).toString();
+  const dependencies = gemfileLockToDependencies(gemfileLockContents);
 
   return {
     plugin: {
       name: 'bundled:rubygems',
       runtime: 'unknown',
     },
-    // TODO: must be a depTree!
-    package: {
-      name: specs.packageName,
-      targetFile: specs.targetFile,
-      files: specs.files,
-    },
+    scannedProjects: [
+      {
+        depTree: {
+          name: specs.packageName,
+          targetFile: specs.targetFile,
+          dependencies,
+        },
+      },
+    ],
   };
 }
 
