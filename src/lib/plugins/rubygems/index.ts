@@ -24,6 +24,7 @@ export async function inspect(
       name: 'bundled:rubygems',
       runtime: 'unknown',
     },
+    // TODO: must be a depTree!
     package: {
       name: specs.packageName,
       targetFile: specs.targetFile,
