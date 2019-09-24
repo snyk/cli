@@ -59,10 +59,10 @@ export function formatIssuesWithRemediation(
       paths: vuln.list.map((v) => v.from),
     };
 
-    basicVulnInfo[vuln.metadata.id] = vulnData;
-
     if (vulnData.type === 'license') {
       basicLicenseInfo[vuln.metadata.id] = vulnData;
+    } else {
+      basicVulnInfo[vuln.metadata.id] = vulnData;
     }
   }
 
@@ -320,6 +320,12 @@ function constructUnfixableText(unresolved: IssueData[], basicVulnInfo: Record<s
         issueInfo.paths,
         testOptions,
       ) + `${extraInfo}`);
+  }
+
+  if (unfixableIssuesTextArray.length === 1) {
+    // seems we still only have
+    // the initial section title, so nothing to return
+    return [];
   }
 
   return unfixableIssuesTextArray;
