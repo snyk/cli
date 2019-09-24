@@ -253,12 +253,13 @@ function constructPinText(
     return [];
   }
 
-  // First, direct upgrades
   const upgradeTextArray: string[] = [];
+  upgradeTextArray.push(chalk.bold.green('\nIssues to fix by upgrading dependencies:'));
+
+  // First, direct upgrades
 
   const upgradeables = Object.keys(pins).filter((name) => !pins[name].isTransitive);
   if (upgradeables.length) {
-    upgradeTextArray.push(chalk.bold.green('\nIssues to fix by upgrading existing dependencies:'));
     processUpgrades(upgradeTextArray, pins, upgradeables, basicVulnInfo, testOptions);
   }
 
@@ -266,8 +267,6 @@ function constructPinText(
   const pinables = Object.keys(pins).filter((name) => pins[name].isTransitive);
 
   if (pinables.length) {
-    upgradeTextArray.push(chalk.bold.green('\nIssues to fix by pinning sub-dependencies:'));
-
     for (const pkgName of pinables) {
       const data = pins[pkgName];
       const vulnIds = data.issues;
