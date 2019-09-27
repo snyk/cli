@@ -89,11 +89,11 @@ Gradle options:
 
 Npm options:
   --strict-out-of-sync=<true|false>
-                       Allow testing out of sync lockfile. Defauls to false.
+                       Allow testing out of sync lockfile. Defauls to true.
 
 Yarn options:
   --strict-out-of-sync=<true|false>
-                       Allow testing out of sync lockfile. Defauls to false.
+                       Allow testing out of sync lockfile. Defauls to true.
 
 Python options:
   --command=<string>   Python interpreter to use. Default: "python", set to
