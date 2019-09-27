@@ -1063,7 +1063,7 @@ test('`test yarn-out-of-sync` out of sync fails', async (t) => {
 
 test('`test yarn-out-of-sync --strict-out-of-sync=false` passes', async (t) => {
   chdirWorkspaces();
-  await cli.test('yarn-out-of-sync', { dev: true, strictOutOfSync: 'false'});
+  await cli.test('yarn-out-of-sync', { dev: true, strictOutOfSync: false});
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   const depGraph = req.body.depGraph;
@@ -1103,7 +1103,7 @@ test('`test yarn-out-of-sync --strict-out-of-sync=false` passes', async (t) => {
 
 test('`test npm-out-of-sync --strict-out-of-sync=false` passes', async (t) => {
   chdirWorkspaces();
-  await cli.test('npm-out-of-sync', { dev: true, strictOutOfSync: 'false' });
+  await cli.test('npm-out-of-sync', { dev: true, strictOutOfSync: false });
   const req = server.popRequest();
   t.match(req.url, '/test-dep-graph', 'posts to correct url');
   const depGraph = req.body.depGraph;
@@ -2481,7 +2481,7 @@ test('`monitor npm-package`', async (t) => {
 
 test('`monitor npm-out-of-sync`', async (t) => {
   chdirWorkspaces();
-  await cli.monitor('npm-out-of-sync-graph', { 'experimental-dep-graph': true, strictOutOfSync: 'false' });
+  await cli.monitor('npm-out-of-sync-graph', { 'experimental-dep-graph': true, strictOutOfSync: false });
   const req = server.popRequest();
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
   t.ok(req.body.depGraphJSON, 'sends depGraphJSON');

@@ -78,3 +78,39 @@ test('test command line test --gradle-sub-project=foo', function(t) {
   t.equal(result.options.subProject, 'foo');
   t.end();
 });
+
+test('test command line test --strict-out-of-sync', function(t) {
+  t.plan(1);
+  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--strict-out-of-sync',
+  ];
+  var result = args(cliArgs);
+  t.equal(result.options.strictOutOfSync, true);
+  t.end();
+});
+
+test('test command line test --strict-out-of-sync=true', function(t) {
+  t.plan(1);
+  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--strict-out-of-sync=true',
+  ];
+  var result = args(cliArgs);
+  t.equal(result.options.strictOutOfSync, true);
+  t.end();
+});
+
+test('test command line test --strict-out-of-sync=false', function(t) {
+  t.plan(1);
+  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--strict-out-of-sync=false',
+  ];
+  var result = args(cliArgs);
+  t.equal(result.options.strictOutOfSync, false);
+  t.end();
+});

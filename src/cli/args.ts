@@ -171,6 +171,14 @@ export function args(rawArgv: string[]): Args {
     }
   }
 
+  if (argv.strictOutOfSync !== undefined) {
+    if (argv.strictOutOfSync === 'false') {
+      argv.strictOutOfSync = false;
+    } else {
+      argv.strictOutOfSync = true;
+    }
+  }
+
   // Alias
   if (argv.gradleSubProject) {
     argv.subProject = argv.gradleSubProject;

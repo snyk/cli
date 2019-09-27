@@ -46,7 +46,7 @@ export async function parse(root: string, targetFile: string, options: Options):
   debug(resolveModuleSpinnerLabel);
   try {
     await spinner(resolveModuleSpinnerLabel);
-    const strictOutOfSync = _.get(options, 'strictOutOfSync') !== 'false';
+    const strictOutOfSync = _.get(options, 'strictOutOfSync') !== false;
     return lockFileParser
       .buildDepTree(manifestFile, lockFile, options.dev, lockFileType, strictOutOfSync);
   } finally {
