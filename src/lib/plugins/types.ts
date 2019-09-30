@@ -12,7 +12,7 @@ export interface Options {
   docker?: boolean;
   traverseNodeModules?: boolean;
   dev?: boolean;
-  strictOutOfSync?: boolean | 'true' | 'false';
+  strictOutOfSync?: boolean;
   allSubProjects?: boolean;
   debug?: boolean;
   packageManager?: string;

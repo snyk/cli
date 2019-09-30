@@ -2,7 +2,6 @@ import * as baseDebug from 'debug';
 const debug = baseDebug('snyk');
 import * as path from 'path';
 import * as spinner from '../../spinner';
-import * as _ from 'lodash';
 import * as analytics from '../../analytics';
 import * as fs from 'fs';
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
@@ -46,7 +45,7 @@ export async function parse(root: string, targetFile: string, options: Options):
   debug(resolveModuleSpinnerLabel);
   try {
     await spinner(resolveModuleSpinnerLabel);
-    const strictOutOfSync = _.get(options, 'strictOutOfSync') !== 'false';
+    const strictOutOfSync = options.strictOutOfSync !== false;
     return lockFileParser
       .buildDepTree(manifestFile, lockFile, options.dev, lockFileType, strictOutOfSync);
   } finally {
