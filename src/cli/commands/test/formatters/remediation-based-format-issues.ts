@@ -332,7 +332,7 @@ function constructUnfixableText(unresolved: IssueData[], basicVulnInfo: Record<s
 }
 
 function printPath(path: string[]) {
-  return path.slice(1).map((name, i) => chalk.cyan(name)).join(' > ');
+  return path.slice(1).join(' > ');
 }
 
 function formatIssue(
