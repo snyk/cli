@@ -1,12 +1,12 @@
 const childProcess = require('child_process');
 
-module.exports.execute = function (command, args, options) {
-  const spawnOptions = {shell: true};
+module.exports.execute = function(command, args, options) {
+  const spawnOptions = { shell: true };
   if (options && options.cwd) {
     spawnOptions.cwd = options.cwd;
   }
 
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     let stdout = '';
     let stderr = '';
 
@@ -24,5 +24,5 @@ module.exports.execute = function (command, args, options) {
       }
       resolve(stdout || stderr);
     });
-  }));
+  });
 };

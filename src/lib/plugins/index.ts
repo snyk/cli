@@ -10,11 +10,13 @@ import * as phpPlugin from 'snyk-php-plugin';
 import * as nodejsPlugin from './nodejs-plugin';
 import * as cocoapodsPlugin from '@snyk/snyk-cocoapods-plugin';
 import * as types from './types';
-import {SupportedPackageManagers} from '../package-managers';
+import { SupportedPackageManagers } from '../package-managers';
 import { UnsupportedPackageManagerError } from '../errors';
 
-export function loadPlugin(packageManager: SupportedPackageManagers,
-                           options: types.Options = {}): types.Plugin {
+export function loadPlugin(
+  packageManager: SupportedPackageManagers,
+  options: types.Options = {},
+): types.Plugin {
   if (options.docker) {
     return dockerPlugin;
   }

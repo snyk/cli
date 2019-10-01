@@ -1,4 +1,4 @@
-module.exports = function () {
+module.exports = function() {
   hookExtensions(['.js']);
 };
 
@@ -12,7 +12,7 @@ function stripBOM(content) {
   // Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
   // because the buffer-to-string conversion in `fs.readFileSync()`
   // translates it to FEFF, the UTF-16 BOM.
-  if (content.charCodeAt(0) === 0xFEFF) {
+  if (content.charCodeAt(0) === 0xfeff) {
     content = content.slice(1);
   }
   return content;
@@ -26,13 +26,12 @@ function loader(module, filename) {
 }
 
 function registerExtension(ext) {
-  require.extensions[ext] = function (m, filename) {
+  require.extensions[ext] = function(m, filename) {
     if (snyk.isolate.okay(filename)) {
       loader(m, filename);
     }
   };
 }
-
 
 function hookExtensions(_exts) {
   forEach(oldHandlers, (old, ext) => {

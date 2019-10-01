@@ -6,7 +6,7 @@ var snyk = require('../src/lib');
 var dir = path.resolve(__dirname, 'fixtures', 'dev-deps-demo');
 
 var oldValue = null;
-test('setup', function (t) {
+test('setup', function(t) {
   var config = require('../src/lib/config');
   oldValue = config.devDeps;
   config.devDeps = true;
@@ -14,7 +14,7 @@ test('setup', function (t) {
   t.end();
 });
 
-test('dev deps: dev-deps-demo, including dev deps', function (t) {
+test('dev deps: dev-deps-demo, including dev deps', function(t) {
   function runTests(t, error, modules) {
     var expectedDirectDeps = {
       'uglify-js': '2.3.6',
@@ -33,7 +33,7 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
     var count = keys.length;
     t.equal(count, 4, 'dep count');
 
-    keys.forEach(function (key) {
+    keys.forEach(function(key) {
       t.ok(expectedDirectDeps[key] !== undefined, key + ' was expected');
 
       // For kind-of, test that its child dependencies were properly included
@@ -43,19 +43,26 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
         t.equal(childKeys.length, 2, 'dep count of kind-of');
 
         // Check child dependencies
-        t.ok(childDeps['is-buffer'] !== undefined,
-          'is-buffer child dep was expected');
-        t.ok(childDeps['typeof'] !== undefined,
-          'typeof child dep was expected');
+        t.ok(
+          childDeps['is-buffer'] !== undefined,
+          'is-buffer child dep was expected',
+        );
+        t.ok(
+          childDeps['typeof'] !== undefined,
+          'typeof child dep was expected',
+        );
       } else {
-        t.equal(expectedDirectDeps[key], modules.dependencies[key].version,
-          key + ' version is correct');
+        t.equal(
+          expectedDirectDeps[key],
+          modules.dependencies[key].version,
+          key + ' version is correct',
+        );
       }
     });
     t.end();
   }
 
-  snyk.modules(dir, { dev: true }).then(function (modules) {
+  snyk.modules(dir, { dev: true }).then(function(modules) {
     var error = null;
     if (error) {
       console.log(error.stack);
@@ -64,9 +71,8 @@ test('dev deps: dev-deps-demo, including dev deps', function (t) {
   });
 });
 
-
 var oldValue = null;
-test('teardown', function (t) {
+test('teardown', function(t) {
   var config = require('../src/lib/config');
   config.devDeps = oldValue;
   t.pass('config restored');

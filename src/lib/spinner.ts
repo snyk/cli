@@ -5,7 +5,7 @@ createSpinner.isRequired = true;
 
 import debugModule = require('debug');
 const debug = debugModule('snyk:spinner');
-import {isCI} from './is-ci';
+import { isCI } from './is-ci';
 const spinners = {};
 let sticky = false;
 let handleExit = false;
@@ -20,25 +20,27 @@ function createSpinner(label: string): Promise<void> {
   }
 
   // helper...
-  return new Promise(((resolve) => {
+  return new Promise((resolve) => {
     debug('spinner: %s', label);
-    spinners[label].push(spinner({
-      // string: '◐◓◑◒',
-      stream: sticky ? process.stdout : process.stderr,
-      interval: 75,
-      label,
-    }));
+    spinners[label].push(
+      spinner({
+        // string: '◐◓◑◒',
+        stream: sticky ? process.stdout : process.stderr,
+        interval: 75,
+        label,
+      }),
+    );
 
     resolve();
-  }));
+  });
 }
 
 createSpinner.sticky = (s?: any) => {
   sticky = s === undefined ? true : s;
 };
 
-createSpinner.clear = <T>(label): (valueToPassThrough: T) => T => {
-  return ((res: T) => {
+createSpinner.clear = <T>(label): ((valueToPassThrough: T) => T) => {
+  return (res: T) => {
     if (spinners[label] === undefined) {
       // clearing a non-existend spinner is ok by default
       return res;
@@ -52,7 +54,7 @@ createSpinner.clear = <T>(label): (valueToPassThrough: T) => T => {
       }
     }
     return res;
-  });
+  };
 };
 
 createSpinner.clearAll = () => {

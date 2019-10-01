@@ -8,13 +8,25 @@ export declare interface Global extends NodeJS.Global {
 
 declare const global: Global;
 
-const alias = abbrev('copy', 'version', 'debug', 'help', 'quiet', 'interactive', 'dev');
+const alias = abbrev(
+  'copy',
+  'version',
+  'debug',
+  'help',
+  'quiet',
+  'interactive',
+  'dev',
+);
 alias.d = 'debug'; // always make `-d` debug
 alias.t = 'test';
 
 // The -d flag enables printing the messages for predefined namespaces.
 // Additional ones can be specified (comma-separated) in the DEBUG environment variable.
-const DEBUG_DEFAULT_NAMESPACES = ['snyk', 'snyk-gradle-plugin', 'snyk-sbt-plugin'];
+const DEBUG_DEFAULT_NAMESPACES = [
+  'snyk',
+  'snyk-gradle-plugin',
+  'snyk-sbt-plugin',
+];
 
 function dashToCamelCase(dash) {
   return dash.indexOf('-') < 0
@@ -117,7 +129,7 @@ export function args(rawArgv: string[]): Args {
     command = 'help';
 
     if (!argv._.length) {
-      argv._.unshift(argv.help as string || 'usage');
+      argv._.unshift((argv.help as string) || 'usage');
     }
   }
 
@@ -140,15 +152,17 @@ export function args(rawArgv: string[]): Args {
   }
 
   // TODO decide why we can't do this cart blanche...
-  if ([
-    'protect',
-    'test',
-    'modules',
-    'monitor',
-    'wizard',
-    'ignore',
-    'woof',
-  ].indexOf(command) !== -1) {
+  if (
+    [
+      'protect',
+      'test',
+      'modules',
+      'monitor',
+      'wizard',
+      'ignore',
+      'woof',
+    ].indexOf(command) !== -1
+  ) {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
   }

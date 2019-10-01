@@ -7,7 +7,7 @@ const detectCycles = (dep, chain) => {
     const error = Error('Cyclic dependency detected in lockfile');
     const UNPROCESSABLE_ENTITY = 422;
     error.code = UNPROCESSABLE_ENTITY;
-    error.meta = {dep, chain};
+    error.meta = { dep, chain };
     throw error;
   }
 };
@@ -28,8 +28,7 @@ const gemfileReducer = (lockFile, allDeps, ancestors) => (deps, dep) => {
         version: gemspec.version,
       };
       allDeps.set(dep, deps[dep]);
-      deps[dep].dependencies = Object
-        .keys(gemspec)
+      deps[dep].dependencies = Object.keys(gemspec)
         .filter((k) => k !== 'version')
         .reduce(gemfileReducer(lockFile, allDeps, ancestors.concat([dep])), {});
     }
@@ -40,10 +39,11 @@ const gemfileReducer = (lockFile, allDeps, ancestors) => (deps, dep) => {
 function gemfileLockToDependencies(fileContents) {
   const lockFile = gemfile.interpret(fileContents, true);
 
-  return Object
-    .keys(lockFile.dependencies || {})
-    // this is required to sanitise git deps with no exact version
-    // listed as `rspec!`
-    .map((dep) => dep.match(/[^!]+/)[0])
-    .reduce(gemfileReducer(lockFile, new Map(), []), {});
+  return (
+    Object.keys(lockFile.dependencies || {})
+      // this is required to sanitise git deps with no exact version
+      // listed as `rspec!`
+      .map((dep) => dep.match(/[^!]+/)[0])
+      .reduce(gemfileReducer(lockFile, new Map(), []), {})
+  );
 }

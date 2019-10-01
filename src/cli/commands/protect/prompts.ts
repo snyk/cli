@@ -19,8 +19,11 @@ import * as snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
 import { AnnotatedIssue } from '../../../lib/snyk-test/legacy';
 
-const moduleToObject = moduleToObjectJs as
-  (name: string, version?: string, options?: {loose?: boolean}) => { name: string; version: string };
+const moduleToObject = moduleToObjectJs as (
+  name: string,
+  version?: string,
+  options?: { loose?: boolean },
+) => { name: string; version: string };
 
 const ignoreDisabledReasons = {
   notAdmin: 'Set to ignore (only administrators can ignore issues)',
@@ -37,7 +40,7 @@ function sort(prop) {
   }
 
   return (a, b) => {
-    const result = (a[prop] < b[prop]) ? -1 : (a[prop] > b[prop]) ? 1 : 0;
+    const result = a[prop] < b[prop] ? -1 : a[prop] > b[prop] ? 1 : 0;
     return result * sortOrder;
   };
 }
@@ -155,19 +158,23 @@ function stripInvalidPatches<T extends AnnotatedIssue>(vulns: T[]): T[] {
       });
 
       // sort by patchModification, then pick the latest one
-      vuln.patches = vuln.patches.sort((a, b) => {
-        return b.modificationTime < a.modificationTime ? -1 : 1;
-      }).slice(0, 1);
+      vuln.patches = vuln.patches
+        .sort((a, b) => {
+          return b.modificationTime < a.modificationTime ? -1 : 1;
+        })
+        .slice(0, 1);
 
       // FIXME hack to give all the patches IDs if they don't already
       if (vuln.patches[0] && !vuln.patches[0].id) {
-        vuln.patches[0].id = vuln.patches[0].urls[0].split('/').slice(-1).pop() as string;
+        vuln.patches[0].id = vuln.patches[0].urls[0]
+          .split('/')
+          .slice(-1)
+          .pop() as string;
       }
     }
 
     return vuln;
   });
-
 }
 
 function getPrompts(vulns, policy) {
@@ -176,7 +183,11 @@ function getPrompts(vulns, policy) {
     .concat(getIgnorePrompts(vulns, policy));
 }
 
-function getPatchPrompts(vulns: AnnotatedIssue[], policy, options?: PromptOptions): Prompt[] {
+function getPatchPrompts(
+  vulns: AnnotatedIssue[],
+  policy,
+  options?: PromptOptions,
+): Prompt[] {
   debug('getPatchPrompts');
   if (!vulns || vulns.length === 0) {
     return [];
@@ -184,7 +195,7 @@ function getPatchPrompts(vulns: AnnotatedIssue[], policy, options?: PromptOption
 
   let res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
     // if there's any upgrade available, then remove it
-    return (canBeUpgraded(vuln) || vuln.type === 'license') ? false : true;
+    return canBeUpgraded(vuln) || vuln.type === 'license' ? false : true;
   }) as AnnotatedIssue[];
   // sort by vulnerable package and the largest version
   res.sort(sortPatchPrompts);
@@ -208,33 +219,41 @@ function getPatchPrompts(vulns: AnnotatedIssue[], policy, options?: PromptOption
         last = curr.id;
       } else {
         // try to find the right vuln id based on the publication times
-        last = (all.filter((vuln) => {
-          const patch = vuln.patches[0];
+        last = (
+          all
+            .filter((vuln) => {
+              const patch = vuln.patches[0];
 
-          // don't select the one we're looking at
+              // don't select the one we're looking at
 
-          if (curr.id === vuln.id) {
-            return false;
-          }
+              if (curr.id === vuln.id) {
+                return false;
+              }
 
-          // only look at packages with the same name
-          if (curr.name !== vuln.name || !patch) {
-            return false;
-          }
+              // only look at packages with the same name
+              if (curr.name !== vuln.name || !patch) {
+                return false;
+              }
 
-          // and ensure the patch can be applied to *our* module version
-          if (semver.satisfies(curr.version, patch.version)) {
-
-            // finally make sure the publicationTime is newer than the curr
-            // vulnerability
-            if (curr.publicationTime! < vuln.publicationTime!) {
-              debug('found alternative location for %s@%s (%s by %s) in %s',
-                curr.name, curr.version, patch.version, curr.id, vuln.id);
-              return true;
-            }
-          }
-        }).shift() || curr).id;
-
+              // and ensure the patch can be applied to *our* module version
+              if (semver.satisfies(curr.version, patch.version)) {
+                // finally make sure the publicationTime is newer than the curr
+                // vulnerability
+                if (curr.publicationTime! < vuln.publicationTime!) {
+                  debug(
+                    'found alternative location for %s@%s (%s by %s) in %s',
+                    curr.name,
+                    curr.version,
+                    patch.version,
+                    curr.id,
+                    vuln.id,
+                  );
+                  return true;
+                }
+              }
+            })
+            .shift() || curr
+        ).id;
       }
 
       if (!acc[last]) {
@@ -251,14 +270,16 @@ function getPatchPrompts(vulns: AnnotatedIssue[], policy, options?: PromptOption
           main: true,
           id: acc[last].id + '-' + i,
           count: 1,
-          upgrades: [{
-            // all this information is used when the user selects group patch
-            // specifically: in ./tasks.js~42
-            from: acc[last].from,
-            filename: acc[last].__filename,
-            patches: acc[last].patches,
-            version: acc[last].version,
-          }],
+          upgrades: [
+            {
+              // all this information is used when the user selects group patch
+              // specifically: in ./tasks.js~42
+              from: acc[last].from,
+              filename: acc[last].__filename,
+              patches: acc[last].patches,
+              version: acc[last].version,
+            },
+          ],
           patch: true,
         };
 
@@ -323,7 +344,6 @@ function getPatchPrompts(vulns: AnnotatedIssue[], policy, options?: PromptOption
   const prompts = generatePrompt(res, policy, 'p', options);
 
   return prompts;
-
 }
 
 function getIgnorePrompts(vulns, policy, options?) {
@@ -350,7 +370,6 @@ function getIgnorePrompts(vulns, policy, options?) {
   const prompts = generatePrompt(res, policy, 'i', options);
 
   return prompts;
-
 }
 
 // This type was deduced from analyzing the code.
@@ -430,9 +449,12 @@ function getUpdatePrompts(vulns: AnnotatedIssue[], policy, options?): Prompt[] {
       };
 
       const p = moduleToObject(upgrades);
-      if (p.name !== acc[from].grouped.affected.name &&
-        (' ' + acc[from].grouped.upgrades.join(' ') + ' ')
-          .indexOf(p.name + '@') === -1) {
+      if (
+        p.name !== acc[from].grouped.affected.name &&
+        (' ' + acc[from].grouped.upgrades.join(' ') + ' ').indexOf(
+          p.name + '@',
+        ) === -1
+      ) {
         debug('+ adding %s to upgrades', upgrades);
         acc[from].grouped.upgrades.push(upgrades);
       }
@@ -508,14 +530,17 @@ interface Prompt {
 }
 
 interface PromptOptions {
-  ignoreDisabled?: {reasonCode: string};
+  ignoreDisabled?: { reasonCode: string };
   earlyExit?: boolean;
   packageManager?: string;
 }
 
 function generatePrompt(
-    vulns: AnnotatedIssueWithGrouping[], policy, prefix: string,
-    options?: PromptOptions): Prompt[] {
+  vulns: AnnotatedIssueWithGrouping[],
+  policy,
+  prefix: string,
+  options?: PromptOptions,
+): Prompt[] {
   if (!prefix) {
     prefix = '';
   }
@@ -532,20 +557,23 @@ function generatePrompt(
   const ignoreAction: Action = {
     value: options && options.ignoreDisabled ? 'skip' : 'ignore',
     key: 'i',
-    meta: { // arbitrary data that we'll merged into the `value` later on
+    meta: {
+      // arbitrary data that we'll merged into the `value` later on
       days: 30,
     },
     short: 'Ignore',
-    name: options && options.ignoreDisabled ?
-      ignoreDisabledReasons[options.ignoreDisabled.reasonCode] :
-      'Set to ignore for 30 days (updates policy)',
+    name:
+      options && options.ignoreDisabled
+        ? ignoreDisabledReasons[options.ignoreDisabled.reasonCode]
+        : 'Set to ignore for 30 days (updates policy)',
   };
 
   const patchAction: Action = {
     value: 'patch',
     key: 'p',
     short: 'Patch',
-    name: 'Patch (modifies files locally, updates policy for `snyk protect` ' +
+    name:
+      'Patch (modifies files locally, updates policy for `snyk protect` ' +
       'runs)',
   };
 
@@ -557,7 +585,7 @@ function generatePrompt(
   };
 
   let prompts = vulns.map((vuln, i) => {
-    let id = vuln.id || ('node-' + vuln.name + '@' + vuln.below);
+    let id = vuln.id || 'node-' + vuln.name + '@' + vuln.below;
 
     id += '-' + prefix + i;
 
@@ -574,7 +602,10 @@ function generatePrompt(
 
     const choices: Action[] = [];
 
-    const from = vuln.from.slice(1).filter(Boolean).shift();
+    const from = vuln.from
+      .slice(1)
+      .filter(Boolean)
+      .shift();
 
     // FIXME this should be handled a little more gracefully
     if (vuln.from.length === 1) {
@@ -590,13 +621,19 @@ function generatePrompt(
     const group = vuln.grouped && vuln.grouped.main ? vuln.grouped : false;
 
     if (group) {
-      infoLink += chalk.underline('/package/npm/' + group.affected.name + '/' +
-        group.affected.version);
+      infoLink += chalk.underline(
+        '/package/npm/' + group.affected.name + '/' + group.affected.version,
+      );
       const joiningText = group.patch ? 'in' : 'via';
       const issues = vuln.type === 'license' ? 'issues' : 'vulnerabilities';
       messageIntro = fmt(
         '✗ %s %s %s introduced %s %s',
-        group.count, severity, issues, joiningText, group.affected.full);
+        group.count,
+        severity,
+        issues,
+        joiningText,
+        group.affected.full,
+      );
       messageIntro = createSeverityBasedIssueHeading(
         messageIntro,
         vuln.severity,
@@ -605,14 +642,20 @@ function generatePrompt(
       infoLink += chalk.underline('/vuln/' + vuln.id);
       messageIntro = fmt(
         '✗ %s severity %s found in %s, introduced via',
-        severity, vuln.type === 'license' ? 'issue' : 'vuln', vulnIn, from);
+        severity,
+        vuln.type === 'license' ? 'issue' : 'vuln',
+        vulnIn,
+        from,
+      );
       messageIntro = createSeverityBasedIssueHeading(
         messageIntro,
         vuln.severity,
       );
       messageIntro += '\n    Description: ' + vuln.title;
-      fromText = (from !== vuln.from.slice(1).join(' > ') ?
-        '    From: ' + vuln.from.slice(1).join(' > ') : '');
+      fromText =
+        from !== vuln.from.slice(1).join(' > ')
+          ? '    From: ' + vuln.from.slice(1).join(' > ')
+          : '';
     }
 
     let note: boolean | string = false;
@@ -631,26 +674,30 @@ function generatePrompt(
         // of the vuln
         if (vuln.grouped && !vuln.grouped.main) {
           // find how they answered on the top level question
-          const groupAnswer = Object.keys(answers).map((key) => {
-            if (answers[key].meta) {
-              // this meta.groupId only appears on a "review" choice, and thus
-              // this map will pick out those vulns that are specifically
-              // associated with this review group.
-              if (answers[key].meta.groupId === vuln.grouped!.requires) {
-                if (answers[key].choice === 'ignore' &&
-                  answers[key].meta.review) {
-                  answers[key].meta.vulnsInGroup.push({
-                    id: vuln.id,
-                    from: vuln.from,
-                  });
-                  return false;
-                }
+          const groupAnswer = Object.keys(answers)
+            .map((key) => {
+              if (answers[key].meta) {
+                // this meta.groupId only appears on a "review" choice, and thus
+                // this map will pick out those vulns that are specifically
+                // associated with this review group.
+                if (answers[key].meta.groupId === vuln.grouped!.requires) {
+                  if (
+                    answers[key].choice === 'ignore' &&
+                    answers[key].meta.review
+                  ) {
+                    answers[key].meta.vulnsInGroup.push({
+                      id: vuln.id,
+                      from: vuln.from,
+                    });
+                    return false;
+                  }
 
-                return answers[key];
+                  return answers[key];
+                }
               }
-            }
-            return false;
-          }).filter(Boolean);
+              return false;
+            })
+            .filter(Boolean);
 
           if (!groupAnswer.length) {
             debug('no group answer: show %s when %s', vuln.id, false);
@@ -659,17 +706,19 @@ function generatePrompt(
 
           // if we've upgraded, then stop asking
           let updatedTo: Prompt | null = null;
-          haventUpgraded = groupAnswer.filter((answer) => {
-            if (answer.choice === 'update') {
-              updatedTo = answer;
-              return true;
-            }
-          }).length === 0;
+          haventUpgraded =
+            groupAnswer.filter((answer) => {
+              if (answer.choice === 'update') {
+                updatedTo = answer;
+                return true;
+              }
+            }).length === 0;
 
           if (!haventUpgraded) {
             // echo out what would be upgraded
-            const via = 'Fixed through previous upgrade instruction to ' +
-              (updatedTo as unknown as Prompt).vuln.upgradePath[1];
+            const via =
+              'Fixed through previous upgrade instruction to ' +
+              ((updatedTo as unknown) as Prompt).vuln.upgradePath[1];
             console.log(['', messageIntro, infoLink, via].join('\n'));
           }
         }
@@ -691,7 +740,8 @@ function generatePrompt(
         note,
         chalk.green('\n  Remediation options'),
       ]
-        .filter(Boolean).join('\n'),
+        .filter(Boolean)
+        .join('\n'),
     };
 
     const upgradeAvailable = canBeUpgraded(vuln);
@@ -715,7 +765,10 @@ function generatePrompt(
       update.short = word + toPackage;
       let out = word + toPackage;
       const toPackageVersion = moduleToObject(toPackage as string).version;
-      const diff = semver.diff(moduleToObject(from as string).version, toPackageVersion);
+      const diff = semver.diff(
+        moduleToObject(from as string).version,
+        toPackageVersion,
+      );
       let lead = '';
       const breaking = chalk.red('potentially breaking change');
       if (diff === 'major') {
@@ -743,13 +796,21 @@ function generatePrompt(
       if (vuln.parentDepType === 'extraneous') {
         reason = fmt('extraneous package %s cannot be upgraded', vuln.from[1]);
       } else if (vuln.shrinkwrap) {
-        reason = fmt('upgrade unavailable as %s@%s is shrinkwrapped by %s',
-          vuln.name, vuln.version, vuln.shrinkwrap);
+        reason = fmt(
+          'upgrade unavailable as %s@%s is shrinkwrapped by %s',
+          vuln.name,
+          vuln.version,
+          vuln.shrinkwrap,
+        );
       } else if (vuln.bundled) {
-        reason = fmt('upgrade unavailable as %s is bundled in vulnerable %s',
-          vuln.bundled.slice(-1).pop(), vuln.name);
+        reason = fmt(
+          'upgrade unavailable as %s is bundled in vulnerable %s',
+          vuln.bundled.slice(-1).pop(),
+          vuln.name,
+        );
       } else {
-        reason = 'no sufficient upgrade available we\'ll notify you when ' +
+        reason =
+          "no sufficient upgrade available we'll notify you when " +
           'there is one';
       }
 
@@ -796,7 +857,8 @@ function generatePrompt(
           value: 'skip',
           key: 'p',
           short: 'Patch (none available)',
-          name: 'Patch (no patch available, we\'ll notify you when ' +
+          name:
+            "Patch (no patch available, we'll notify you when " +
             'there is one)',
         });
       }
@@ -826,11 +888,16 @@ function generatePrompt(
     // choice and whether it was supposed to be a default. If the user is
     // updating their policy options, then we select the choice they had
     // before, otherwise we select the default
-    res.default = (choices.map((choice, cIndex) => {
-      return {i: cIndex, default: choice.default};
-    }).filter((choice) => {
-      return choice.default;
-    }).shift() || {i: 0}).i;
+    res.default = (
+      choices
+        .map((choice, cIndex) => {
+          return { i: cIndex, default: choice.default };
+        })
+        .filter((choice) => {
+          return choice.default;
+        })
+        .shift() || { i: 0 }
+    ).i;
 
     // kludge to make sure that we get the vuln in the user selection
     res.choices = choices.map((choice) => {
@@ -865,9 +932,11 @@ function generatePrompt(
     if (rule && rule.type === 'ignore') {
       defaultAnswer = rule.reason;
     }
-    const issue = curr.choices![0].value.vuln &&
-      curr.choices![0].value.vuln.type === 'license' ?
-      'issue' : 'vulnerability';
+    const issue =
+      curr.choices![0].value.vuln &&
+      curr.choices![0].value.vuln.type === 'license'
+        ? 'issue'
+        : 'vulnerability';
     acc.push({
       name: curr.name + '-reason',
       message: '[audit] Reason for ignoring ' + issue + '?',
@@ -888,7 +957,8 @@ function generatePrompt(
 function startOver() {
   return {
     name: 'misc-start-over',
-    message: 'Existing .snyk policy found. Ignore it and start from scratch [y] or update it [N]?',
+    message:
+      'Existing .snyk policy found. Ignore it and start from scratch [y] or update it [N]?',
     type: 'confirm',
     default: false,
   };
@@ -903,7 +973,8 @@ function nextSteps(pkg, prevAnswers) {
   if (i === -1) {
     prompts.push({
       name: 'misc-add-test',
-      message: 'Add `snyk test` to package.json file to fail test on newly ' +
+      message:
+        'Add `snyk test` to package.json file to fail test on newly ' +
         'disclosed vulnerabilities?\n' +
         'This will require authentication via `snyk auth` when running tests.',
       type: 'confirm',
@@ -930,7 +1001,8 @@ function nextSteps(pkg, prevAnswers) {
   if (!skipProtect) {
     prompts.push({
       name: 'misc-add-protect',
-      message: 'Add `snyk protect` as a package.json installation hook to ' +
+      message:
+        'Add `snyk protect` as a package.json installation hook to ' +
         'apply chosen patches on install?',
       type: 'confirm',
       default: true,

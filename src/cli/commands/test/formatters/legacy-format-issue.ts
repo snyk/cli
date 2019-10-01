@@ -2,12 +2,19 @@ import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as wrap from 'wrap-ansi';
 import * as config from '../../../../lib/config';
-import {Options, TestOptions, ShowVulnPaths} from '../../../../lib/types';
-import {isLocalFolder} from '../../../../lib/detect';
+import { Options, TestOptions, ShowVulnPaths } from '../../../../lib/types';
+import { isLocalFolder } from '../../../../lib/detect';
 import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
-import { GroupedVuln, AnnotatedIssue, DockerIssue } from '../../../../lib/snyk-test/legacy';
+import {
+  GroupedVuln,
+  AnnotatedIssue,
+  DockerIssue,
+} from '../../../../lib/snyk-test/legacy';
 
-export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) {
+export function formatIssues(
+  vuln: GroupedVuln,
+  options: Options & TestOptions,
+) {
   const vulnID = vuln.list[0].id;
   const packageManager = options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
@@ -17,8 +24,8 @@ export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) 
         return i.from && i.from[1];
       }
       return i.from;
-    }))
-    .join(', ');
+    }),
+  ).join(', ');
 
   let version;
   if (vuln.metadata.packageManager.toLowerCase() === 'upstream') {
@@ -37,13 +44,18 @@ export function formatIssues(vuln: GroupedVuln, options: Options & TestOptions) 
     info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
     fromPaths: createTruncatedVulnsPathsText(vuln.list, options.showVulnPaths),
     extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
-    remediationInfo: vuln.metadata.type !== 'license' && localPackageTest
-      ? createRemediationText(vuln, packageManager)
-      : '',
+    remediationInfo:
+      vuln.metadata.type !== 'license' && localPackageTest
+        ? createRemediationText(vuln, packageManager)
+        : '',
     fixedIn: options.docker ? createFixedInText(vuln) : '',
     dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
-    legalInstructions: vuln.legalInstructions ? '\n  Legal instructions:\n  '
-    + wrap(vuln.legalInstructions, 100).split('\n').join('\n  ') : '',
+    legalInstructions: vuln.legalInstructions
+      ? '\n  Legal instructions:\n  ' +
+        wrap(vuln.legalInstructions, 100)
+          .split('\n')
+          .join('\n  ')
+      : '',
   };
 
   return (
@@ -81,10 +93,16 @@ function createSeverityBasedIssueHeading(severity, type, packageName, isNew) {
       },
     },
   };
-  return severitiesColourMapping[severity].colorFunc(
-    '✗ ' + titleCaseText(severity) + ' severity ' + vulnTypeText
-    + ' found in ' + chalk.underline(packageName)) +
-    chalk.bold.magenta(isNew ? ' (new)' : '');
+  return (
+    severitiesColourMapping[severity].colorFunc(
+      '✗ ' +
+        titleCaseText(severity) +
+        ' severity ' +
+        vulnTypeText +
+        ' found in ' +
+        chalk.underline(packageName),
+    ) + chalk.bold.magenta(isNew ? ' (new)' : '')
+  );
 }
 
 function titleCaseText(text) {
@@ -93,16 +111,19 @@ function titleCaseText(text) {
 
 function dockerfileInstructionText(vuln) {
   if (vuln.dockerfileInstruction) {
-    return `\n  Introduced in your Dockerfile by '${ vuln.dockerfileInstruction }'`;
+    return `\n  Introduced in your Dockerfile by '${vuln.dockerfileInstruction}'`;
   }
 
   if (vuln.dockerBaseImage) {
-    return `\n  Introduced by your base image (${ vuln.dockerBaseImage })`;
+    return `\n  Introduced by your base image (${vuln.dockerBaseImage})`;
   }
 
   return '';
 }
-function createTruncatedVulnsPathsText(vulnList: AnnotatedIssue[], show: ShowVulnPaths) {
+function createTruncatedVulnsPathsText(
+  vulnList: AnnotatedIssue[],
+  show: ShowVulnPaths,
+) {
   if (show === 'none') {
     return '';
   }
@@ -127,13 +148,19 @@ function createTruncatedVulnsPathsText(vulnList: AnnotatedIssue[], show: ShowVul
     .join('\n  From: ');
 
   if (fromPathsArray.length > 0) {
-    return '  From: ' + formattedPathsText + (shouldTruncatePaths ? truncatedText : '');
+    return (
+      '  From: ' +
+      formattedPathsText +
+      (shouldTruncatePaths ? truncatedText : '')
+    );
   }
 }
 
 function createFixedInText(vuln: GroupedVuln): string {
   if ((vuln as DockerIssue).nearestFixedInVersion) {
-    return chalk.bold('\n  Fixed in: ' + (vuln as DockerIssue).nearestFixedInVersion);
+    return chalk.bold(
+      '\n  Fixed in: ' + (vuln as DockerIssue).nearestFixedInVersion,
+    );
   } else if (vuln.fixedIn && vuln.fixedIn.length > 0) {
     return chalk.bold('\n  Fixed in: ' + vuln.fixedIn.join(', '));
   }
@@ -148,34 +175,43 @@ function createRemediationText(vuln, packageManager) {
   }
 
   if (vuln.isFixable === true) {
-    const upgradePathsArray = _.uniq(vuln.list.map((v) => {
-      const shouldUpgradeItself = !!v.upgradePath[0];
-      const shouldUpgradeDirectDep = !!v.upgradePath[1];
+    const upgradePathsArray = _.uniq(
+      vuln.list.map((v) => {
+        const shouldUpgradeItself = !!v.upgradePath[0];
+        const shouldUpgradeDirectDep = !!v.upgradePath[1];
 
-      if (shouldUpgradeItself) {
-        // If we are testing a library/package like express
-        // Then we can suggest they get the latest version
-        // Example command: snyk test express@3
-        const selfUpgradeInfo = (v.upgradePath.length > 0)
-          ? ` (triggers upgrades to ${ v.upgradePath.join(' > ')})`
-          : '';
-        const testedPackageName = v.upgradePath[0].split('@');
-        return `You've tested an outdated version of ${testedPackageName[0]}.` +
-           + ` Upgrade to ${v.upgradePath[0]}${selfUpgradeInfo}`;
-      }
-      if (shouldUpgradeDirectDep) {
-        const formattedUpgradePath = v.upgradePath.slice(1).join(' > ');
-        const upgradeTextInfo = (v.upgradePath.length)
-          ? ` (triggers upgrades to ${formattedUpgradePath})`
-          : '';
+        if (shouldUpgradeItself) {
+          // If we are testing a library/package like express
+          // Then we can suggest they get the latest version
+          // Example command: snyk test express@3
+          const selfUpgradeInfo =
+            v.upgradePath.length > 0
+              ? ` (triggers upgrades to ${v.upgradePath.join(' > ')})`
+              : '';
+          const testedPackageName = v.upgradePath[0].split('@');
+          return (
+            `You've tested an outdated version of ${testedPackageName[0]}.` +
+            +` Upgrade to ${v.upgradePath[0]}${selfUpgradeInfo}`
+          );
+        }
+        if (shouldUpgradeDirectDep) {
+          const formattedUpgradePath = v.upgradePath.slice(1).join(' > ');
+          const upgradeTextInfo = v.upgradePath.length
+            ? ` (triggers upgrades to ${formattedUpgradePath})`
+            : '';
 
-        return `Upgrade direct dependency ${v.from[1]} to ${v.upgradePath[1]}${upgradeTextInfo}`;
-      }
+          return `Upgrade direct dependency ${v.from[1]} to ${v.upgradePath[1]}${upgradeTextInfo}`;
+        }
 
-      return 'Some paths have no direct dependency upgrade that' +
-        ` can address this issue. ${wizardHintText}`;
-    }));
-    return chalk.bold(`\n  Remediation: \n    ${upgradePathsArray.join('\n    ')}`);
+        return (
+          'Some paths have no direct dependency upgrade that' +
+          ` can address this issue. ${wizardHintText}`
+        );
+      }),
+    );
+    return chalk.bold(
+      `\n  Remediation: \n    ${upgradePathsArray.join('\n    ')}`,
+    );
   }
 
   if (vuln.fixedIn && vuln.fixedIn.length > 0) {

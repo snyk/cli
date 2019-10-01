@@ -7,19 +7,22 @@ import analytics = require('../analytics');
 import * as config from '../config';
 import detect = require('../../lib/detect');
 import plugins = require('../plugins');
-import {ModuleInfo} from '../module-info';
-import {isCI} from '../is-ci';
+import { ModuleInfo } from '../module-info';
+import { isCI } from '../is-ci';
 import request = require('../request');
 import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
-import {DepTree, TestOptions} from '../types';
+import { DepTree, TestOptions } from '../types';
 import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {
-  convertTestDepGraphResultToLegacy, AnnotatedIssue, LegacyVulnApiResult,
-  TestDepGraphResponse, DockerIssue,
+  convertTestDepGraphResultToLegacy,
+  AnnotatedIssue,
+  LegacyVulnApiResult,
+  TestDepGraphResponse,
+  DockerIssue,
 } from './legacy';
-import {Options} from '../types';
+import { Options } from '../types';
 import {
   NoSupportedManifestsFoundError,
   InternalServerError,
@@ -64,8 +67,11 @@ interface Payload {
   modules?: DepTreeFromResolveDeps;
 }
 
-async function runTest(packageManager: SupportedPackageManagers,
-                       root: string, options: Options & TestOptions): Promise<LegacyVulnApiResult[]> {
+async function runTest(
+  packageManager: SupportedPackageManagers,
+  root: string,
+  options: Options & TestOptions,
+): Promise<LegacyVulnApiResult[]> {
   const results: LegacyVulnApiResult[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
@@ -75,20 +81,25 @@ async function runTest(packageManager: SupportedPackageManagers,
       const depGraph = payload.body && payload.body.depGraph;
 
       let dockerfilePackages;
-      if (payload.body && payload.body.docker && payload.body.docker.dockerfilePackages) {
+      if (
+        payload.body &&
+        payload.body.docker &&
+        payload.body.docker.dockerfilePackages
+      ) {
         dockerfilePackages = payload.body.docker.dockerfilePackages;
       }
       await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
-      let res = await sendTestPayload(payload) as LegacyVulnApiResult;
+      let res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
       if (depGraph) {
         res = convertTestDepGraphResultToLegacy(
-          res as any as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
+          (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
           depGraph,
           packageManager,
-          options.severityThreshold);
+          options.severityThreshold,
+        );
 
         // For Node.js: inject additional information (for remediation etc.) into the response.
         if (payload.modules) {
@@ -96,7 +107,11 @@ async function runTest(packageManager: SupportedPackageManagers,
           if (res.vulnerabilities) {
             res.vulnerabilities.forEach((vuln) => {
               if (payload.modules && payload.modules.pluck) {
-                const plucked = payload.modules.pluck(vuln.from, vuln.name, vuln.version);
+                const plucked = payload.modules.pluck(
+                  vuln.from,
+                  vuln.name,
+                  vuln.version,
+                );
                 vuln.__filename = plucked.__filename;
                 vuln.shrinkwrap = plucked.shrinkwrap;
                 vuln.bundled = plucked.bundled;
@@ -107,9 +122,11 @@ async function runTest(packageManager: SupportedPackageManagers,
                 }
 
                 const parentPkg = moduleToObject(vuln.from[1]);
-                const parent = payload.modules.pluck(vuln.from.slice(0, 2),
+                const parent = payload.modules.pluck(
+                  vuln.from.slice(0, 2),
                   parentPkg.name,
-                  parentPkg.version);
+                  parentPkg.version,
+                );
                 vuln.parentDepType = parent.depType;
               }
             });
@@ -121,7 +138,7 @@ async function runTest(packageManager: SupportedPackageManagers,
       analytics.add('vulns-pre-policy', res.vulnerabilities.length);
       res.filesystemPolicy = !!payloadPolicy;
       if (!options['ignore-policy']) {
-        res.policy = res.policy || payloadPolicy as string;
+        res.policy = res.policy || (payloadPolicy as string);
         const policy = await snyk.policy.loadFromText(res.policy);
         res = policy.filter(res, root);
       }
@@ -131,15 +148,22 @@ async function runTest(packageManager: SupportedPackageManagers,
         res.vulnerabilities = res.vulnerabilities.map((vuln) => {
           const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
           if (dockerfilePackage) {
-            (vuln as DockerIssue).dockerfileInstruction = dockerfilePackage.instruction;
+            (vuln as DockerIssue).dockerfileInstruction =
+              dockerfilePackage.instruction;
           }
           (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
           return vuln;
         });
       }
 
-      if (options.docker && options.file && options['exclude-base-image-vulns']) {
-        res.vulnerabilities = res.vulnerabilities.filter((vuln) => ((vuln as DockerIssue).dockerfileInstruction));
+      if (
+        options.docker &&
+        options.file &&
+        options['exclude-base-image-vulns']
+      ) {
+        res.vulnerabilities = res.vulnerabilities.filter(
+          (vuln) => (vuln as DockerIssue).dockerfileInstruction,
+        );
       }
 
       res.uniqueCount = countUniqueVulns(res.vulnerabilities);
@@ -155,7 +179,9 @@ async function runTest(packageManager: SupportedPackageManagers,
     }
 
     throw new FailedToRunTestError(
-      error.userMessage || error.message || `Failed to test ${packageManager} project`,
+      error.userMessage ||
+        error.message ||
+        `Failed to test ${packageManager} project`,
       error.code,
     );
   } finally {
@@ -163,8 +189,9 @@ async function runTest(packageManager: SupportedPackageManagers,
   }
 }
 
-function sendTestPayload(payload: Payload):
-    Promise<LegacyVulnApiResult | TestDepGraphResponse> {
+function sendTestPayload(
+  payload: Payload,
+): Promise<LegacyVulnApiResult | TestDepGraphResponse> {
   const filesystemPolicy = payload.body && !!payload.body.policy;
   return new Promise((resolve, reject) => {
     request(payload, (error, res, body) => {
@@ -184,7 +211,7 @@ function sendTestPayload(payload: Payload):
 }
 
 function handleTestHttpErrorResponse(res, body) {
-  const {statusCode} = res;
+  const { statusCode } = res;
   let err;
   const userMessage = body && body.userMessage;
   switch (statusCode) {
@@ -204,7 +231,10 @@ function handleTestHttpErrorResponse(res, body) {
   return err;
 }
 
-function assemblePayloads(root: string, options: Options & TestOptions): Promise<Payload[]> {
+function assemblePayloads(
+  root: string,
+  options: Options & TestOptions,
+): Promise<Payload[]> {
   let isLocal;
   if (options.docker) {
     isLocal = true;
@@ -220,21 +250,29 @@ function assemblePayloads(root: string, options: Options & TestOptions): Promise
 }
 
 // Force getDepsFromPlugin to return scannedProjects for processing in assembleLocalPayload
-async function getDepsFromPlugin(root, options: Options): Promise<pluginApi.MultiProjectResult> {
+async function getDepsFromPlugin(
+  root,
+  options: Options,
+): Promise<pluginApi.MultiProjectResult> {
   options.file = options.file || detect.detectPackageFile(root);
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
-  const inspectRes: pluginApi.InspectResult =
-    await moduleInfo.inspect(root, options.file, { ...options });
+  const inspectRes: pluginApi.InspectResult = await moduleInfo.inspect(
+    root,
+    options.file,
+    { ...options },
+  );
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package) {
       // something went wrong if both are not present...
-      throw Error(`error getting dependencies from ${options.packageManager} ` +
-                  'plugin: neither \'package\' nor \'scannedProjects\' were found');
+      throw Error(
+        `error getting dependencies from ${options.packageManager} ` +
+          "plugin: neither 'package' nor 'scannedProjects' were found",
+      );
     }
     if (!inspectRes.package.targetFile && inspectRes.plugin) {
       inspectRes.package.targetFile = inspectRes.plugin.targetFile;
@@ -242,30 +280,41 @@ async function getDepsFromPlugin(root, options: Options): Promise<pluginApi.Mult
     // We are using "options" to store some information returned from plugin that we need to use later,
     // but don't want to send to Registry in the Payload.
     // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    if (inspectRes.plugin.meta
-      && inspectRes.plugin.meta.allSubProjectNames
-      && inspectRes.plugin.meta.allSubProjectNames.length > 1) {
-      options.advertiseSubprojectsCount = inspectRes.plugin.meta.allSubProjectNames.length;
+    if (
+      inspectRes.plugin.meta &&
+      inspectRes.plugin.meta.allSubProjectNames &&
+      inspectRes.plugin.meta.allSubProjectNames.length > 1
+    ) {
+      options.advertiseSubprojectsCount =
+        inspectRes.plugin.meta.allSubProjectNames.length;
     }
     return {
       plugin: inspectRes.plugin,
-      scannedProjects: [{depTree: inspectRes.package}],
+      scannedProjects: [{ depTree: inspectRes.package }],
     };
   } else {
     // We are using "options" to store some information returned from plugin that we need to use later,
     // but don't want to send to Registry in the Payload.
     // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    (options as any).subProjectNames = inspectRes.scannedProjects.map((scannedProject) => scannedProject.depTree.name);
+    (options as any).subProjectNames = inspectRes.scannedProjects.map(
+      (scannedProject) => scannedProject.depTree.name,
+    );
     return inspectRes;
   }
 }
 
 // Payload to send to the Registry for scanning a package from the local filesystem.
-async function assembleLocalPayloads(root, options: Options & TestOptions): Promise<Payload[]> {
+async function assembleLocalPayloads(
+  root,
+  options: Options & TestOptions,
+): Promise<Payload[]> {
   const analysisType = options.docker ? 'docker' : options.packageManager;
-  const spinnerLbl = 'Analyzing ' + analysisType + ' dependencies for ' +
-     (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
-       (pathUtil.relative('..', '.') + ' project dir'));
+  const spinnerLbl =
+    'Analyzing ' +
+    analysisType +
+    ' dependencies for ' +
+    (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
+      pathUtil.relative('..', '.') + ' project dir');
 
   try {
     const payloads: Payload[] = [];
@@ -298,7 +347,10 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
 
       if (_.get(pkg, 'files.gemfileLock.contents')) {
         const gemfileLockBase64 = pkg.files.gemfileLock.contents;
-        const gemfileLockContents = Buffer.from(gemfileLockBase64, 'base64').toString();
+        const gemfileLockContents = Buffer.from(
+          gemfileLockBase64,
+          'base64',
+        ).toString();
         pkg.dependencies = gemfileLockToDependencies(gemfileLockContents);
       }
 
@@ -339,7 +391,7 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
 
       if (options.vulnEndpoint) {
         // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests).
-        body = {...body, ...pkg};
+        body = { ...body, ...pkg };
       } else {
         // Graphs are more compact and robust representations.
         // Legacy parts of the code are still using trees, but will eventually be fully migrated.
@@ -348,19 +400,23 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
           targetFile: scannedProject.targetFile || options.file,
         });
         let depGraph = await depGraphLib.legacy.depTreeToGraph(
-          pkg, options.packageManager);
+          pkg,
+          options.packageManager,
+        );
 
-        debug('done converting dep-tree to dep-graph', {uniquePkgsCount: depGraph.getPkgs().length});
+        debug('done converting dep-tree to dep-graph', {
+          uniquePkgsCount: depGraph.getPkgs().length,
+        });
         if (options['prune-repeated-subdependencies']) {
           debug('Trying to prune the graph');
           const prePruneDepCount = countPathsToGraphRoot(depGraph);
-          debug('pre prunedPathsCount: ' +  prePruneDepCount);
+          debug('pre prunedPathsCount: ' + prePruneDepCount);
 
           depGraph = await pruneGraph(depGraph, options.packageManager);
 
           analytics.add('prePrunedPathsCount', prePruneDepCount);
           const postPruneDepCount = countPathsToGraphRoot(depGraph);
-          debug('post prunedPathsCount: ' +  postPruneDepCount);
+          debug('post prunedPathsCount: ' + postPruneDepCount);
           analytics.add('postPrunedPathsCount', postPruneDepCount);
         }
         body.depGraph = depGraph;
@@ -372,15 +428,17 @@ async function assembleLocalPayloads(root, options: Options & TestOptions): Prom
         json: true,
         headers: {
           'x-is-ci': isCI(),
-          'authorization': 'token ' + (snyk as any).api,
+          authorization: 'token ' + (snyk as any).api,
         },
         qs: common.assembleQueryString(options),
         body,
       };
 
       if (['yarn', 'npm'].indexOf(options.packageManager) !== -1) {
-        const isLockFileBased = options.file
-        && (options.file.endsWith('package-lock.json') || options.file.endsWith('yarn.lock'));
+        const isLockFileBased =
+          options.file &&
+          (options.file.endsWith('package-lock.json') ||
+            options.file.endsWith('yarn.lock'));
         if (!isLockFileBased || options.traverseNodeModules) {
           payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
         }
@@ -401,17 +459,20 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
   addPackageAnalytics(pkg);
   const encodedName = encodeURIComponent(pkg.name + '@' + pkg.version);
   // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests)
-  const url = `${config.API}${(options.vulnEndpoint || `/vuln/${options.packageManager}`)}/${encodedName}`;
-  return [{
-    method: 'GET',
-    url,
-    qs: common.assembleQueryString(options),
-    json: true,
-    headers: {
-      'x-is-ci': isCI(),
-      'authorization': 'token ' + snyk.api,
+  const url = `${config.API}${options.vulnEndpoint ||
+    `/vuln/${options.packageManager}`}/${encodedName}`;
+  return [
+    {
+      method: 'GET',
+      url,
+      qs: common.assembleQueryString(options),
+      json: true,
+      headers: {
+        'x-is-ci': isCI(),
+        authorization: 'token ' + snyk.api,
+      },
     },
-  }];
+  ];
 }
 
 function addPackageAnalytics(module): void {
@@ -441,7 +502,11 @@ function pluckPolicies(pkg) {
     return null;
   }
 
-  return _.flatten(Object.keys(pkg.dependencies).map((name) => {
-    return pluckPolicies(pkg.dependencies[name]);
-  }).filter(Boolean));
+  return _.flatten(
+    Object.keys(pkg.dependencies)
+      .map((name) => {
+        return pluckPolicies(pkg.dependencies[name]);
+      })
+      .filter(Boolean),
+  );
 }

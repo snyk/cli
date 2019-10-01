@@ -1,6 +1,6 @@
 import * as path from 'path';
-import {Files, tryGetSpec} from './try-get-spec';
-import {Spec} from './index';
+import { Files, tryGetSpec } from './try-get-spec';
+import { Spec } from './index';
 
 const pattern = /^Gemfile(\.lock)*$/;
 
@@ -13,13 +13,18 @@ export async function gatherSpecs(root: string, target: string): Promise<Spec> {
   const targetDir = path.dirname(target);
   const files: Files = {};
 
-  const gemfileLock = await tryGetSpec(root, path.join(targetDir, 'Gemfile.lock'));
+  const gemfileLock = await tryGetSpec(
+    root,
+    path.join(targetDir, 'Gemfile.lock'),
+  );
 
   if (gemfileLock) {
     files.gemfileLock = gemfileLock;
   } else {
-    throw new Error('Missing Gemfile.lock file: we can\'t test ' +
-      'without dependencies.\nPlease run `bundle install` first.');
+    throw new Error(
+      "Missing Gemfile.lock file: we can't test " +
+        'without dependencies.\nPlease run `bundle install` first.',
+    );
   }
 
   const gemfile = await tryGetSpec(root, path.join(targetDir, 'Gemfile'));

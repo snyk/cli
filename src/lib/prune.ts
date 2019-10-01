@@ -8,10 +8,12 @@ import { SupportedPackageManagers } from './package-managers';
 
 const debug = _debug('snyk:prune');
 
-const {depTreeToGraph, graphToDepTree} = legacy;
+const { depTreeToGraph, graphToDepTree } = legacy;
 
 export function countPathsToGraphRoot(graph: DepGraph): number {
-  return graph.getPkgs().reduce((acc, pkg) => acc + graph.countPathsToRoot(pkg), 0);
+  return graph
+    .getPkgs()
+    .reduce((acc, pkg) => acc + graph.countPathsToRoot(pkg), 0);
 }
 
 export async function pruneGraph(
@@ -21,15 +23,13 @@ export async function pruneGraph(
   try {
     // Arbitrary threshold for maximum number of elements in the tree
     const threshold = config.PRUNE_DEPS_THRESHOLD;
-    const prunedTree = (await graphToDepTree(
-      depGraph,
-      packageManager,
-      { deduplicateWithinTopLevelDeps: true },
-    )) as DepTree;
+    const prunedTree = (await graphToDepTree(depGraph, packageManager, {
+      deduplicateWithinTopLevelDeps: true,
+    })) as DepTree;
 
     const prunedGraph = await depTreeToGraph(prunedTree, packageManager);
     const count = countPathsToGraphRoot(prunedGraph);
-    debug('prunedPathsCount: ' +  count);
+    debug('prunedPathsCount: ' + count);
 
     if (count < threshold) {
       return prunedGraph;

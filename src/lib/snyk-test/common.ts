@@ -26,8 +26,8 @@ enum SEVERITY {
   HIGH = 'high',
 }
 export const SEVERITIES: Array<{
-  verboseName: SEVERITY,
-  value: number,
+  verboseName: SEVERITY;
+  value: number;
 }> = [
   {
     verboseName: SEVERITY.LOW,

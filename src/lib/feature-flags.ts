@@ -7,7 +7,9 @@ interface OrgFeatureFlagResponse {
   userMessage?: string;
 }
 
-export async function isFeatureFlagSupportedForOrg(featureFlag: string): Promise<OrgFeatureFlagResponse> {
+export async function isFeatureFlagSupportedForOrg(
+  featureFlag: string,
+): Promise<OrgFeatureFlagResponse> {
   const response = await request({
     method: 'GET',
     headers: {

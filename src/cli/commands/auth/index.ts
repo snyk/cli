@@ -2,7 +2,7 @@ import * as Debug from 'debug';
 import * as open from 'opn';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
-import {isCI} from '../../../lib/is-ci';
+import { isCI } from '../../../lib/is-ci';
 import request = require('../../../lib/request');
 import * as url from 'url';
 import * as uuid from 'uuid';
@@ -10,7 +10,7 @@ import * as spinner from '../../../lib/spinner';
 import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
-import {verifyAPI} from './is-authed';
+import { verifyAPI } from './is-authed';
 
 export = auth;
 
@@ -40,9 +40,10 @@ async function webAuth(via: AuthCliCommands) {
 
   const msg =
     '\nNow redirecting you to our auth page, go ahead and log in,\n' +
-    'and once the auth is complete, return to this prompt and you\'ll\n' +
-    'be ready to start using snyk.\n\nIf you can\'t wait use this url:\n' +
-    urlStr + '\n';
+    "and once the auth is complete, return to this prompt and you'll\n" +
+    "be ready to start using snyk.\n\nIf you can't wait use this url:\n" +
+    urlStr +
+    '\n';
 
   // suppress this message in CI
   if (!isCI()) {
@@ -53,23 +54,26 @@ async function webAuth(via: AuthCliCommands) {
 
   const lbl = 'Waiting...';
 
-  return spinner(lbl).then(() => {
-    setTimeout(() => {
-      open(urlStr, {wait: false});
-    }, 2000);
-    // start checking the token immediately in case they've already
-    // opened the url manually
-    return testAuthComplete(token);
-  })
-    // clear spinnger in case of success or failure
-    .then(spinner.clear(lbl))
-    .catch((error) => {
-      spinner.clear<void>(lbl)();
-      throw error;
-    });
+  return (
+    spinner(lbl)
+      .then(() => {
+        setTimeout(() => {
+          open(urlStr, { wait: false });
+        }, 2000);
+        // start checking the token immediately in case they've already
+        // opened the url manually
+        return testAuthComplete(token);
+      })
+      // clear spinnger in case of success or failure
+      .then(spinner.clear(lbl))
+      .catch((error) => {
+        spinner.clear<void>(lbl)();
+        throw error;
+      })
+  );
 }
 
-async function testAuthComplete(token: string): Promise<{res; body}> {
+async function testAuthComplete(token: string): Promise<{ res; body }> {
   const payload = {
     body: {
       token,
@@ -129,8 +133,10 @@ async function auth(apiToken: string, via: AuthCliCommands) {
 
     if (res.statusCode === 200 || res.statusCode === 201) {
       snyk.config.set('api', body.api);
-      return '\nYour account has been authenticated. Snyk is now ready to ' +
-        'be used.\n';
+      return (
+        '\nYour account has been authenticated. Snyk is now ready to ' +
+        'be used.\n'
+      );
     }
     throw AuthFailedError(body.message, res.statusCode);
   });

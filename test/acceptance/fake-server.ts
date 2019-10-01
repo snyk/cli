@@ -15,7 +15,7 @@ export function fakeServer(root, apikey) {
     version: '1.0.0',
   }) as FakeServer;
   server._reqLog = [];
-  server.popRequest = function () {
+  server.popRequest = function() {
     return server._reqLog.pop()!;
   };
   server.use(restify.acceptParser(server.acceptable));
@@ -26,11 +26,8 @@ export function fakeServer(root, apikey) {
     next();
   });
 
-  [
-    root + '/verify/callback',
-    root + '/verify/token',
-  ].map(function (url) {
-    server.post(url, function (req, res) {
+  [root + '/verify/callback', root + '/verify/token'].map(function(url) {
+    server.post(url, function(req, res) {
       if (req.params.api && req.params.api === apikey) {
         return res.send({
           ok: true,
@@ -52,7 +49,7 @@ export function fakeServer(root, apikey) {
     });
   });
 
-  server.use(function (req, res, next) {
+  server.use(function(req, res, next) {
     if (!server._nextResponse && !server._nextStatusCode) {
       return next();
     }
@@ -67,14 +64,14 @@ export function fakeServer(root, apikey) {
     }
   });
 
-  server.get(root + '/vuln/:registry/:module', function (req, res, next) {
+  server.get(root + '/vuln/:registry/:module', function(req, res, next) {
     res.send({
       vulnerabilities: [],
     });
     return next();
   });
 
-  server.post(root + '/vuln/:registry', function (req, res, next) {
+  server.post(root + '/vuln/:registry', function(req, res, next) {
     var vulnerabilities = [];
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);
@@ -92,14 +89,14 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.post(root + '/vuln/:registry/patches', function (req, res, next) {
+  server.post(root + '/vuln/:registry/patches', function(req, res, next) {
     res.send({
       vulnerabilities: [],
     });
     return next();
   });
 
-  server.post(root + '/test-dep-graph', function (req, res, next) {
+  server.post(root + '/test-dep-graph', function(req, res, next) {
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);
       res.send({
@@ -122,12 +119,15 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.get(root + '/cli-config/feature-flags/:featureFlag', (req, res, next) => {
-    res.send({
-      ok: true,
-    });
-    return next();
-  });
+  server.get(
+    root + '/cli-config/feature-flags/:featureFlag',
+    (req, res, next) => {
+      res.send({
+        ok: true,
+      });
+      return next();
+    },
+  );
 
   server.put(root + '/monitor/:registry/graph', (req, res, next) => {
     res.send({
@@ -136,14 +136,14 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.put(root + '/monitor/:registry', function (req, res, next) {
+  server.put(root + '/monitor/:registry', function(req, res, next) {
     res.send({
       id: 'test',
     });
     return next();
   });
 
-  server.setNextResponse = function (response) {
+  server.setNextResponse = function(response) {
     server._nextResponse = response;
   };
 
@@ -153,4 +153,4 @@ export function fakeServer(root, apikey) {
   };
 
   return server;
-};
+}

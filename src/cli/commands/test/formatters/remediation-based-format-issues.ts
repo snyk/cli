@@ -3,8 +3,12 @@ import * as wrap from 'wrap-ansi';
 import * as config from '../../../../lib/config';
 import { TestOptions } from '../../../../lib/types';
 import {
-  RemediationChanges, PatchRemediation,
-  DependencyUpdates, IssueData, SEVERITY, GroupedVuln,
+  RemediationChanges,
+  PatchRemediation,
+  DependencyUpdates,
+  IssueData,
+  SEVERITY,
+  GroupedVuln,
   DependencyPins,
   UpgradeRemediation,
   PinRemediation,
@@ -37,13 +41,12 @@ export function formatIssuesWithRemediation(
   remediationInfo: RemediationChanges,
   options: TestOptions,
 ): string[] {
-
   const basicVulnInfo: {
-    [name: string]: BasicVulnInfo,
+    [name: string]: BasicVulnInfo;
   } = {};
 
   const basicLicenseInfo: {
-    [name: string]: BasicVulnInfo,
+    [name: string]: BasicVulnInfo;
   } = {};
 
   for (const vuln of vulns) {
@@ -72,7 +75,8 @@ export function formatIssuesWithRemediation(
   if (remediationInfo.pin && Object.keys(remediationInfo.pin).length) {
     const upgradesByAffected: UpgradesByAffectedPackage = {};
     for (const topLevelPkg of Object.keys(remediationInfo.upgrade)) {
-      for (const targetPkgStr of remediationInfo.upgrade[topLevelPkg].upgrades) {
+      for (const targetPkgStr of remediationInfo.upgrade[topLevelPkg]
+        .upgrades) {
         if (!upgradesByAffected[targetPkgStr]) {
           upgradesByAffected[targetPkgStr] = [];
         }
@@ -82,31 +86,54 @@ export function formatIssuesWithRemediation(
         });
       }
     }
-    upgradeTextArray = constructPinText(remediationInfo.pin, upgradesByAffected, basicVulnInfo, options);
+    upgradeTextArray = constructPinText(
+      remediationInfo.pin,
+      upgradesByAffected,
+      basicVulnInfo,
+      options,
+    );
     const allVulnIds = new Set();
-    Object.keys(remediationInfo.pin).forEach(
-      (name) => remediationInfo.pin[name].issues.forEach((vid) => allVulnIds.add(vid)));
-    remediationInfo.unresolved = remediationInfo.unresolved.filter((issue) => !allVulnIds.has(issue.id));
+    Object.keys(remediationInfo.pin).forEach((name) =>
+      remediationInfo.pin[name].issues.forEach((vid) => allVulnIds.add(vid)),
+    );
+    remediationInfo.unresolved = remediationInfo.unresolved.filter(
+      (issue) => !allVulnIds.has(issue.id),
+    );
   } else {
-    upgradeTextArray = constructUpgradesText(remediationInfo.upgrade, basicVulnInfo, options);
+    upgradeTextArray = constructUpgradesText(
+      remediationInfo.upgrade,
+      basicVulnInfo,
+      options,
+    );
   }
   if (upgradeTextArray.length > 0) {
     results.push(upgradeTextArray.join('\n'));
   }
 
-  const patchedTextArray = constructPatchesText(remediationInfo.patch, basicVulnInfo, options);
+  const patchedTextArray = constructPatchesText(
+    remediationInfo.patch,
+    basicVulnInfo,
+    options,
+  );
 
   if (patchedTextArray.length > 0) {
     results.push(patchedTextArray.join('\n'));
   }
 
-  const unfixableIssuesTextArray = constructUnfixableText(remediationInfo.unresolved, basicVulnInfo, options);
+  const unfixableIssuesTextArray = constructUnfixableText(
+    remediationInfo.unresolved,
+    basicVulnInfo,
+    options,
+  );
 
   if (unfixableIssuesTextArray.length > 0) {
     results.push(unfixableIssuesTextArray.join('\n'));
   }
 
-  const licenseIssuesTextArray = constructLicenseText(basicLicenseInfo, options);
+  const licenseIssuesTextArray = constructLicenseText(
+    basicLicenseInfo,
+    options,
+  );
 
   if (licenseIssuesTextArray.length > 0) {
     results.push(licenseIssuesTextArray.join('\n'));
@@ -125,7 +152,6 @@ function constructLicenseText(
   },
   testOptions: TestOptions,
 ): string[] {
-
   if (!(Object.keys(basicLicenseInfo).length > 0)) {
     return [];
   }
@@ -133,9 +159,7 @@ function constructLicenseText(
   const licenseTextArray = [chalk.bold.green('\nLicense issues:')];
 
   for (const id of Object.keys(basicLicenseInfo)) {
-
-    const licenseText =
-    formatIssue(
+    const licenseText = formatIssue(
       id,
       basicLicenseInfo[id].title,
       basicLicenseInfo[id].severity,
@@ -159,21 +183,21 @@ function constructPatchesText(
   },
   testOptions: TestOptions,
 ): string[] {
-
   if (!(Object.keys(patches).length > 0)) {
     return [];
   }
   const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
 
   for (const id of Object.keys(patches)) {
-
     if (basicVulnInfo[id].type === 'license') {
       continue;
     }
 
     // todo: add vulnToPatch package name
     const packageAtVersion = `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`;
-    const patchedText = `\n  Patch available for ${chalk.bold.whiteBright(packageAtVersion)}\n`;
+    const patchedText = `\n  Patch available for ${chalk.bold.whiteBright(
+      packageAtVersion,
+    )}\n`;
     const thisPatchFixes = formatIssue(
       id,
       basicVulnInfo[id].title,
@@ -190,21 +214,31 @@ function constructPatchesText(
   return patchedTextArray;
 }
 
-function thisUpgradeFixes(vulnIds: string[], basicVulnInfo: Record<string, BasicVulnInfo>, testOptions: TestOptions) {
+function thisUpgradeFixes(
+  vulnIds: string[],
+  basicVulnInfo: Record<string, BasicVulnInfo>,
+  testOptions: TestOptions,
+) {
   return vulnIds
     .filter((id) => basicVulnInfo[id]) // basicVulnInfo only contains issues with the specified severity levels
-    .sort((a, b) => getSeverityValue(basicVulnInfo[a].severity) - getSeverityValue(basicVulnInfo[b].severity))
+    .sort(
+      (a, b) =>
+        getSeverityValue(basicVulnInfo[a].severity) -
+        getSeverityValue(basicVulnInfo[b].severity),
+    )
     .filter((id) => basicVulnInfo[id].type !== 'license')
-    .map((id) => formatIssue(
-      id,
-      basicVulnInfo[id].title,
-      basicVulnInfo[id].severity,
-      basicVulnInfo[id].isNew,
-      undefined,
-      `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
-      basicVulnInfo[id].paths,
-      testOptions,
-    ))
+    .map((id) =>
+      formatIssue(
+        id,
+        basicVulnInfo[id].title,
+        basicVulnInfo[id].severity,
+        basicVulnInfo[id].isNew,
+        undefined,
+        `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
+        basicVulnInfo[id].paths,
+        testOptions,
+      ),
+    )
     .join('\n');
 }
 
@@ -218,10 +252,14 @@ function processUpgrades(
   for (const dep of deps) {
     const data = upgradesByDep[dep];
     const upgradeDepTo = data.upgradeTo;
-    const vulnIds = (data as UpgradeRemediation).vulns || (data as PinRemediation).issues;
-    const upgradeText =
-      `\n  Upgrade ${chalk.bold.whiteBright(dep)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
-    sink.push(upgradeText + thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions));
+    const vulnIds =
+      (data as UpgradeRemediation).vulns || (data as PinRemediation).issues;
+    const upgradeText = `\n  Upgrade ${chalk.bold.whiteBright(
+      dep,
+    )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
+    sink.push(
+      upgradeText + thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions),
+    );
   }
 }
 
@@ -232,13 +270,18 @@ function constructUpgradesText(
   },
   testOptions: TestOptions,
 ): string[] {
-
   if (!(Object.keys(upgrades).length > 0)) {
     return [];
   }
 
   const upgradeTextArray = [chalk.bold.green('\nIssues to fix by upgrading:')];
-  processUpgrades(upgradeTextArray, upgrades, Object.keys(upgrades), basicVulnInfo, testOptions);
+  processUpgrades(
+    upgradeTextArray,
+    upgrades,
+    Object.keys(upgrades),
+    basicVulnInfo,
+    testOptions,
+  );
   return upgradeTextArray;
 }
 
@@ -248,19 +291,28 @@ function constructPinText(
   basicVulnInfo: Record<string, BasicVulnInfo>,
   testOptions: TestOptions,
 ): string[] {
-
-  if (!(Object.keys(pins).length)) {
+  if (!Object.keys(pins).length) {
     return [];
   }
 
   const upgradeTextArray: string[] = [];
-  upgradeTextArray.push(chalk.bold.green('\nIssues to fix by upgrading dependencies:'));
+  upgradeTextArray.push(
+    chalk.bold.green('\nIssues to fix by upgrading dependencies:'),
+  );
 
   // First, direct upgrades
 
-  const upgradeables = Object.keys(pins).filter((name) => !pins[name].isTransitive);
+  const upgradeables = Object.keys(pins).filter(
+    (name) => !pins[name].isTransitive,
+  );
   if (upgradeables.length) {
-    processUpgrades(upgradeTextArray, pins, upgradeables, basicVulnInfo, testOptions);
+    processUpgrades(
+      upgradeTextArray,
+      pins,
+      upgradeables,
+      basicVulnInfo,
+      testOptions,
+    );
   }
 
   // Second, pins
@@ -271,20 +323,27 @@ function constructPinText(
       const data = pins[pkgName];
       const vulnIds = data.issues;
       const upgradeDepTo = data.upgradeTo;
-      const upgradeText =
-        `\n  Pin ${chalk.bold.whiteBright(pkgName)} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix`;
+      const upgradeText = `\n  Pin ${chalk.bold.whiteBright(
+        pkgName,
+      )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix`;
       upgradeTextArray.push(upgradeText);
-      upgradeTextArray.push(thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions));
+      upgradeTextArray.push(
+        thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions),
+      );
 
       // Finally, if we have some upgrade paths that fix the same issues, suggest them as well.
       const topLevelUpgradesAlreadySuggested = new Set();
       for (const vid of vulnIds) {
-        for (const topLevelPkg of upgradesByAffected[pkgName + '@' + basicVulnInfo[vid].version] || []) {
+        for (const topLevelPkg of upgradesByAffected[
+          pkgName + '@' + basicVulnInfo[vid].version
+        ] || []) {
           const setKey = `${topLevelPkg.name}\n${topLevelPkg.version}`;
           if (!topLevelUpgradesAlreadySuggested.has(setKey)) {
             topLevelUpgradesAlreadySuggested.add(setKey);
-            upgradeTextArray.push('  The issues above can also be fixed by upgrading top-level dependency ' +
-              `${topLevelPkg.name} to ${topLevelPkg.version}`);
+            upgradeTextArray.push(
+              '  The issues above can also be fixed by upgrading top-level dependency ' +
+                `${topLevelPkg.name} to ${topLevelPkg.version}`,
+            );
           }
         }
       }
@@ -294,11 +353,17 @@ function constructPinText(
   return upgradeTextArray;
 }
 
-function constructUnfixableText(unresolved: IssueData[], basicVulnInfo: Record<string, BasicVulnInfo>, testOptions: TestOptions) {
+function constructUnfixableText(
+  unresolved: IssueData[],
+  basicVulnInfo: Record<string, BasicVulnInfo>,
+  testOptions: TestOptions,
+) {
   if (!(unresolved.length > 0)) {
     return [];
   }
-  const unfixableIssuesTextArray = [chalk.bold.white('\nIssues with no direct upgrade or patch:')];
+  const unfixableIssuesTextArray = [
+    chalk.bold.white('\nIssues with no direct upgrade or patch:'),
+  ];
   for (const issue of unresolved) {
     const issueInfo = basicVulnInfo[issue.id];
     if (!issueInfo) {
@@ -306,11 +371,14 @@ function constructUnfixableText(unresolved: IssueData[], basicVulnInfo: Record<s
       continue;
     }
 
-    const extraInfo = issue.fixedIn && issue.fixedIn.length
-      ? `\n  This issue was fixed in versions: ${chalk.bold(issue.fixedIn.join(', '))}`
-      : '\n  No upgrade or patch available';
-    unfixableIssuesTextArray
-      .push(formatIssue(
+    const extraInfo =
+      issue.fixedIn && issue.fixedIn.length
+        ? `\n  This issue was fixed in versions: ${chalk.bold(
+            issue.fixedIn.join(', '),
+          )}`
+        : '\n  No upgrade or patch available';
+    unfixableIssuesTextArray.push(
+      formatIssue(
         issue.id,
         issue.title,
         issue.severity,
@@ -319,7 +387,8 @@ function constructUnfixableText(unresolved: IssueData[], basicVulnInfo: Record<s
         `${issue.packageName}@${issue.version}`,
         issueInfo.paths,
         testOptions,
-      ) + `${extraInfo}`);
+      ) + `${extraInfo}`,
+    );
   }
 
   if (unfixableIssuesTextArray.length === 1) {
@@ -344,7 +413,7 @@ function formatIssue(
   vulnerableModule: string,
   paths: string[][],
   testOptions: TestOptions,
-  ): string {
+): string {
   const severitiesColourMapping = {
     low: {
       colorFunc(text) {
@@ -368,24 +437,46 @@ function formatIssue(
   const formatLegalText = wrapLegalText.split('\n').join('\n    ');
 
   let introducedBy = '';
-  if (testOptions.showVulnPaths === 'some' && paths && paths.find((p) => p.length > 2)) {
+  if (
+    testOptions.showVulnPaths === 'some' &&
+    paths &&
+    paths.find((p) => p.length > 2)
+  ) {
     // In this mode, we show only one path by default, for compactness
     const pathStr = printPath(paths[0]);
-    introducedBy = paths.length === 1
-      ? `\n    introduced by ${pathStr}`
-      : `\n    introduced by ${pathStr} and ${chalk.cyanBright('' + (paths.length - 1))} other path(s)`;
+    introducedBy =
+      paths.length === 1
+        ? `\n    introduced by ${pathStr}`
+        : `\n    introduced by ${pathStr} and ${chalk.cyanBright(
+            '' + (paths.length - 1),
+          )} other path(s)`;
   } else if (testOptions.showVulnPaths === 'all' && paths) {
-    introducedBy = `\n    introduced by:` + paths.slice(0, 1000).map((p) => `\n    ` + printPath(p)).join('');
+    introducedBy =
+      `\n    introduced by:` +
+      paths
+        .slice(0, 1000)
+        .map((p) => `\n    ` + printPath(p))
+        .join('');
     if (paths.length > 1000) {
-      introducedBy += `\n    and ${chalk.cyanBright('' + (paths.length - 1))} other path(s)`
+      introducedBy += `\n    and ${chalk.cyanBright(
+        '' + (paths.length - 1),
+      )} other path(s)`;
     }
   }
 
-  return severitiesColourMapping[severity].colorFunc(
-    `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(severity)} Severity]`,
-  ) + `[${config.ROOT}/vuln/${id}]` + name
-    + introducedBy
-    + (legalInstructions ? `${chalk.bold('\n    Legal instructions')}:\n    ${formatLegalText}` : '');
+  return (
+    severitiesColourMapping[severity].colorFunc(
+      `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(
+        severity,
+      )} Severity]`,
+    ) +
+    `[${config.ROOT}/vuln/${id}]` +
+    name +
+    introducedBy +
+    (legalInstructions
+      ? `${chalk.bold('\n    Legal instructions')}:\n    ${formatLegalText}`
+      : '')
+  );
 }
 
 function titleCaseText(text) {

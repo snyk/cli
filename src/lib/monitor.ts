@@ -1,17 +1,17 @@
 import * as Debug from 'debug';
 import * as depGraphLib from '@snyk/dep-graph';
 import * as snyk from '../lib';
-import {apiTokenExists} from './api-token';
+import { apiTokenExists } from './api-token';
 import request = require('./request');
 import * as config from './config';
 import * as os from 'os';
 import * as _ from 'lodash';
-import {isCI} from './is-ci';
+import { isCI } from './is-ci';
 import * as analytics from './analytics';
 import { DepTree, MonitorMeta, MonitorResult } from './types';
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
-import {MonitorError, ConnectionTimeoutError} from './errors';
+import { MonitorError, ConnectionTimeoutError } from './errors';
 import { countPathsToGraphRoot, pruneGraph } from './prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
@@ -80,13 +80,22 @@ function countTotalDependenciesInTree(depTree: DepTree): number {
   return count;
 }
 
-async function pruneTree(tree: DepTree, packageManagerName: string): Promise<DepTree> {
+async function pruneTree(
+  tree: DepTree,
+  packageManagerName: string,
+): Promise<DepTree> {
   debug('pruning dep tree');
   // Pruning requires conversion to the graph first.
   // This is slow.
-  const graph = await depGraphLib.legacy.depTreeToGraph(tree, packageManagerName);
-  const prunedTree: DepTree = await depGraphLib.legacy
-    .graphToDepTree(graph, packageManagerName, {deduplicateWithinTopLevelDeps: true}) as DepTree;
+  const graph = await depGraphLib.legacy.depTreeToGraph(
+    tree,
+    packageManagerName,
+  );
+  const prunedTree: DepTree = (await depGraphLib.legacy.graphToDepTree(
+    graph,
+    packageManagerName,
+    { deduplicateWithinTopLevelDeps: true },
+  )) as DepTree;
   // Transplant pruned dependencies in the original tree (we want to keep all other fields):
   tree.dependencies = prunedTree.dependencies;
   debug('finished pruning dep tree');
@@ -106,7 +115,8 @@ function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
 
   for (const depKey of Object.keys(depTree.dependencies)) {
     const dep = depTree.dependencies[depKey];
-    if ((dep as any).missingLockFileEntry) { // TODO(kyegupov): add field to the type
+    if ((dep as any).missingLockFileEntry) {
+      // TODO(kyegupov): add field to the type
       missingDeps.push(`${dep.name}@${dep.version}`);
     } else {
       filteredDeps[depKey] = dep;
@@ -124,18 +134,21 @@ function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
 }
 
 export async function monitor(
-    root: string,
-    meta: MonitorMeta,
-    info: pluginApi.SinglePackageResult,
-    targetFile?: string,
-    ): Promise<MonitorResult> {
+  root: string,
+  meta: MonitorMeta,
+  info: pluginApi.SinglePackageResult,
+  targetFile?: string,
+): Promise<MonitorResult> {
   apiTokenExists();
 
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
 
-  if (meta['experimental-dep-graph'] && GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
+  if (
+    meta['experimental-dep-graph'] &&
+    GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
+  ) {
     return await monitorGraph(root, meta, info, targetFile);
   }
 
@@ -152,16 +165,19 @@ export async function monitor(
 
   const pluginMeta = info.plugin;
   const policyPath = meta['policy-path'] || root;
-  const policyLocations = [policyPath].concat(pluckPolicies(pkg))
-      .filter(Boolean);
+  const policyLocations = [policyPath]
+    .concat(pluckPolicies(pkg))
+    .filter(Boolean);
   // docker doesn't have a policy as it can be run from anywhere
   if (!meta.isDocker || !policyLocations.length) {
     await snyk.policy.create();
   }
-  const policy = await snyk.policy.load(policyLocations, {loose: true});
+  const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await getTarget(pkg, meta);
-  const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
+  const targetFileRelativePath = targetFile
+    ? path.relative(root, targetFile)
+    : '';
 
   if (target && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -171,69 +187,74 @@ export async function monitor(
 
   // TODO(kyegupov): async/await
   return new Promise((resolve, reject) => {
-    request({
-      body: {
-        meta: {
-          method: meta.method,
-          hostname: os.hostname(),
-          id: snyk.id || pkg.name,
-          ci: isCI(),
-          pid: process.pid,
-          node: process.version,
-          master: snyk.config.isMaster,
-          name: pkg.name,
-          version: pkg.version,
-          org: config.org ? decodeURIComponent(config.org) : undefined,
-          pluginName: pluginMeta.name,
-          pluginRuntime: pluginMeta.runtime,
-          dockerImageId: pluginMeta.dockerImageId,
-          dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-          dockerfileLayers: pkg.docker ? pkg.docker.dockerfileLayers : undefined,
-          projectName: meta['project-name'],
-          prePruneDepCount, // undefined unless 'prune' is used
+    request(
+      {
+        body: {
+          meta: {
+            method: meta.method,
+            hostname: os.hostname(),
+            id: snyk.id || pkg.name,
+            ci: isCI(),
+            pid: process.pid,
+            node: process.version,
+            master: snyk.config.isMaster,
+            name: pkg.name,
+            version: pkg.version,
+            org: config.org ? decodeURIComponent(config.org) : undefined,
+            pluginName: pluginMeta.name,
+            pluginRuntime: pluginMeta.runtime,
+            dockerImageId: pluginMeta.dockerImageId,
+            dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
+            dockerfileLayers: pkg.docker
+              ? pkg.docker.dockerfileLayers
+              : undefined,
+            projectName: meta['project-name'],
+            prePruneDepCount, // undefined unless 'prune' is used
+          },
+          policy: policy ? policy.toString() : undefined,
+          package: pkg,
+          // we take the targetFile from the plugin,
+          // because we want to send it only for specific package-managers
+          target,
+          targetFile: pluginMeta.targetFile,
+          targetFileRelativePath,
+        } as MonitorBody,
+        gzip: true,
+        method: 'PUT',
+        headers: {
+          authorization: 'token ' + snyk.api,
+          'content-encoding': 'gzip',
         },
-        policy: policy ? policy.toString() : undefined,
-        package: pkg,
-        // we take the targetFile from the plugin,
-        // because we want to send it only for specific package-managers
-        target,
-        targetFile: pluginMeta.targetFile,
-        targetFileRelativePath,
-      } as MonitorBody,
-      gzip: true,
-      method: 'PUT',
-      headers: {
-        'authorization': 'token ' + snyk.api,
-        'content-encoding': 'gzip',
+        url: config.API + '/monitor/' + packageManager,
+        json: true,
       },
-      url: config.API + '/monitor/' + packageManager,
-      json: true,
-    }, (error, res, body) => {
-      if (error) {
-        return reject(error);
-      }
-
-      if (res.statusCode >= 200 && res.statusCode <= 299) {
-        resolve(body as MonitorResult);
-      } else {
-        let err;
-        const userMessage = body && body.userMessage;
-        if (!userMessage && res.statusCode === 504) {
-          err = new ConnectionTimeoutError();
-        } else {
-          err = new MonitorError(res.statusCode, userMessage);
+      (error, res, body) => {
+        if (error) {
+          return reject(error);
         }
-        reject(err);
-      }
-    });
+
+        if (res.statusCode >= 200 && res.statusCode <= 299) {
+          resolve(body as MonitorResult);
+        } else {
+          let err;
+          const userMessage = body && body.userMessage;
+          if (!userMessage && res.statusCode === 504) {
+            err = new ConnectionTimeoutError();
+          } else {
+            err = new MonitorError(res.statusCode, userMessage);
+          }
+          reject(err);
+        }
+      },
+    );
   });
 }
 
 export async function monitorGraph(
-    root: string,
-    meta: MonitorMeta,
-    info: pluginApi.SinglePackageResult,
-    targetFile?: string,
+  root: string,
+  meta: MonitorMeta,
+  info: pluginApi.SinglePackageResult,
+  targetFile?: string,
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
 
@@ -241,7 +262,9 @@ export async function monitorGraph(
   let pkg = info.package;
   const pluginMeta = info.plugin;
   const policyPath = meta['policy-path'] || root;
-  const policyLocations = [policyPath].concat(pluckPolicies(pkg)).filter(Boolean);
+  const policyLocations = [policyPath]
+    .concat(pluckPolicies(pkg))
+    .filter(Boolean);
 
   if (['npm', 'yarn'].includes(meta.packageManager)) {
     const { filteredDepTree, missingDeps } = filterOutMissingDeps(info.package);
@@ -249,16 +272,21 @@ export async function monitorGraph(
     treeMissingDeps = missingDeps;
   }
 
-  const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(pkg, packageManager);
+  const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(
+    pkg,
+    packageManager,
+  );
 
   // docker doesn't have a policy as it can be run from anywhere
   if (!meta.isDocker || !policyLocations.length) {
     await snyk.policy.create();
   }
-  const policy = await snyk.policy.load(policyLocations, {loose: true});
+  const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await getTarget(pkg, meta);
-  const targetFileRelativePath = targetFile ? path.relative(root, targetFile) : '';
+  const targetFileRelativePath = targetFile
+    ? path.relative(root, targetFile)
+    : '';
 
   if (target && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -269,67 +297,72 @@ export async function monitorGraph(
   if (meta.prune) {
     debug('Trying to prune the graph');
     prePruneDepCount = countPathsToGraphRoot(depGraph);
-    debug('pre prunedPathsCount: ' +  prePruneDepCount);
+    debug('pre prunedPathsCount: ' + prePruneDepCount);
     prunedGraph = await pruneGraph(depGraph, packageManager);
   }
 
   return new Promise((resolve, reject) => {
-    request({
-      body: {
-        meta: {
-          method: meta.method,
-          hostname: os.hostname(),
-          id: snyk.id || pkg.name,
-          ci: isCI(),
-          pid: process.pid,
-          node: process.version,
-          master: snyk.config.isMaster,
-          name: depGraph.rootPkg.name,
-          version: depGraph.rootPkg.version,
-          org: config.org ? decodeURIComponent(config.org) : undefined,
-          pluginName: pluginMeta.name,
-          pluginRuntime: pluginMeta.runtime,
-          dockerImageId: pluginMeta.dockerImageId,
-          dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-          dockerfileLayers: pkg.docker ? pkg.docker.dockerfileLayers : undefined,
-          projectName: meta['project-name'],
-          prePruneDepCount, // undefined unless 'prune' is used
-          missingDeps: treeMissingDeps,
+    request(
+      {
+        body: {
+          meta: {
+            method: meta.method,
+            hostname: os.hostname(),
+            id: snyk.id || pkg.name,
+            ci: isCI(),
+            pid: process.pid,
+            node: process.version,
+            master: snyk.config.isMaster,
+            name: depGraph.rootPkg.name,
+            version: depGraph.rootPkg.version,
+            org: config.org ? decodeURIComponent(config.org) : undefined,
+            pluginName: pluginMeta.name,
+            pluginRuntime: pluginMeta.runtime,
+            dockerImageId: pluginMeta.dockerImageId,
+            dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
+            dockerfileLayers: pkg.docker
+              ? pkg.docker.dockerfileLayers
+              : undefined,
+            projectName: meta['project-name'],
+            prePruneDepCount, // undefined unless 'prune' is used
+            missingDeps: treeMissingDeps,
+          },
+          policy: policy ? policy.toString() : undefined,
+          depGraphJSON: prunedGraph, // depGraph will be auto serialized to JSON on send
+          // we take the targetFile from the plugin,
+          // because we want to send it only for specific package-managers
+          target,
+          targetFile: pluginMeta.targetFile,
+          targetFileRelativePath,
+        } as MonitorBody,
+        gzip: true,
+        method: 'PUT',
+        headers: {
+          authorization: 'token ' + snyk.api,
+          'content-encoding': 'gzip',
         },
-        policy: policy ? policy.toString() : undefined,
-        depGraphJSON: prunedGraph, // depGraph will be auto serialized to JSON on send
-        // we take the targetFile from the plugin,
-        // because we want to send it only for specific package-managers
-        target,
-        targetFile: pluginMeta.targetFile,
-        targetFileRelativePath,
-      } as MonitorBody,
-      gzip: true,
-      method: 'PUT',
-      headers: {
-        'authorization': 'token ' + snyk.api,
-        'content-encoding': 'gzip',
+        url: `${config.API}/monitor/${packageManager}/graph`,
+        json: true,
       },
-      url: `${config.API}/monitor/${packageManager}/graph`,
-      json: true,
-    }, (error, res, body) => {
-      if (error) {
-        return reject(error);
-      }
-
-      if (res.statusCode >= 200 && res.statusCode <= 299) {
-        resolve(body as MonitorResult);
-      } else {
-        let err;
-        const userMessage = body && body.userMessage;
-        if (!userMessage && res.statusCode === 504) {
-          err = new ConnectionTimeoutError();
-        } else {
-          err = new MonitorError(res.statusCode, userMessage);
+      (error, res, body) => {
+        if (error) {
+          return reject(error);
         }
-        reject(err);
-      }
-    });
+
+        if (res.statusCode >= 200 && res.statusCode <= 299) {
+          resolve(body as MonitorResult);
+        } else {
+          let err;
+          const userMessage = body && body.userMessage;
+          if (!userMessage && res.statusCode === 504) {
+            err = new ConnectionTimeoutError();
+          } else {
+            err = new MonitorError(res.statusCode, userMessage);
+          }
+          reject(err);
+        }
+      },
+    );
   });
 }
 
@@ -346,12 +379,19 @@ function pluckPolicies(pkg) {
     return null;
   }
 
-  return _.flatten(Object.keys(pkg.dependencies).map((name) => {
-    return pluckPolicies(pkg.dependencies[name]);
-  }).filter(Boolean));
+  return _.flatten(
+    Object.keys(pkg.dependencies)
+      .map((name) => {
+        return pluckPolicies(pkg.dependencies[name]);
+      })
+      .filter(Boolean),
+  );
 }
 
-async function getTarget(pkg: DepTree, meta: MonitorMeta): Promise<GitTarget | null> {
+async function getTarget(
+  pkg: DepTree,
+  meta: MonitorMeta,
+): Promise<GitTarget | null> {
   const target = await projectMetadata.getInfo(pkg);
 
   // Override the remoteUrl if the --remote-repo-url flag was set

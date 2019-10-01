@@ -10,7 +10,7 @@ function npm(
   live: boolean,
   cwd: string | null,
   flags: string[] | null,
-  ): Promise<void> {
+): Promise<void> {
   flags = flags || [];
   if (!packages) {
     packages = [];
@@ -28,7 +28,7 @@ function npm(
 
   method += ' ' + flags.join(' ');
 
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const cmd = 'npm ' + method + ' ' + (packages as string[]).join(' ');
     if (!cwd) {
       cwd = process.cwd();
@@ -40,36 +40,44 @@ function npm(
       return resolve();
     }
 
-    exec(cmd, {
-      cwd,
-    }, (error, stdout, stderr) => {
-      if (error) {
-        return reject(error);
-      }
+    exec(
+      cmd,
+      {
+        cwd,
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          return reject(error);
+        }
 
-      if (stderr.indexOf('ERR!') !== -1) {
-        console.error(stderr.trim());
-        const e = new Error('npm update issues: ' + stderr.trim());
-        (e as any).code = 'FAIL_UPDATE';
-        return reject(e);
-      }
+        if (stderr.indexOf('ERR!') !== -1) {
+          console.error(stderr.trim());
+          const e = new Error('npm update issues: ' + stderr.trim());
+          (e as any).code = 'FAIL_UPDATE';
+          return reject(e);
+        }
 
-      debug('npm %s complete', method);
+        debug('npm %s complete', method);
 
-      resolve();
-    });
-  }));
+        resolve();
+      },
+    );
+  });
 }
 
 npm.getVersion = () => {
-  return new Promise(((resolve, reject) => {
-    exec('npm --version', {
-      cwd: process.cwd(),
-    }, (error, stdout) => {
-      if (error) {
-        return reject(error);
-      }
-      return resolve(stdout);
-    });
-  }));
+  return new Promise((resolve, reject) => {
+    exec(
+      'npm --version',
+      {
+        cwd: process.cwd(),
+      },
+      (error, stdout) => {
+        if (error) {
+          return reject(error);
+        }
+        return resolve(stdout);
+      },
+    );
+  });
 };

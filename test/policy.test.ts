@@ -1,6 +1,6 @@
 import * as policy from 'snyk-policy';
 import * as test from 'tape';
-import {extendExpiries} from './utils';
+import { extendExpiries } from './utils';
 import * as path from 'path';
 
 test('policy is callable with string', async (t) => {
@@ -40,9 +40,11 @@ test('test sensibly bails if gets an old .snyk format', async (t) => {
   const dir = path.resolve(__dirname + '/fixtures/jsbin-snyk-config');
   const vulns = require('./fixtures/test-jsbin-vulns-updated.json');
   const id = 'npm:semver:20150403';
-  const vuln = vulns.vulnerabilities.filter((v) => {
-    return v.id === id;
-  }).pop();
+  const vuln = vulns.vulnerabilities
+    .filter((v) => {
+      return v.id === id;
+    })
+    .pop();
   try {
     const config = await policy.load(dir);
     const rule = policy.getByVuln(config, vuln);
@@ -52,11 +54,10 @@ test('test sensibly bails if gets an old .snyk format', async (t) => {
     const notfound = policy.getByVuln(config, 'unknown');
     t.equal(notfound, null, 'unknown policies are null');
     t.end();
-
   } catch (e) {
-      console.log(e.stack);
-      t.fail('could not load the policy file');
-      t.end();
+    console.log(e.stack);
+    t.fail('could not load the policy file');
+    t.end();
   }
 });
 

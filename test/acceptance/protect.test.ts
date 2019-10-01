@@ -1,5 +1,5 @@
-import {test} from 'tap';
-import {exec} from 'child_process';
+import { test } from 'tap';
+import { exec } from 'child_process';
 import * as userConfig from '../../src/lib/user-config';
 import { sep } from 'path';
 
@@ -16,7 +16,11 @@ test('`protect` should not fail for unauthorized users', (t) => {
     if (err) {
       throw err;
     }
-    t.equal(stdout.trim(), 'Successfully applied Snyk patches', 'correct output for unauthenticated user');
+    t.equal(
+      stdout.trim(),
+      'Successfully applied Snyk patches',
+      'correct output for unauthenticated user',
+    );
 
     // Restore api param
     userConfig.set('api', apiUserConfig);

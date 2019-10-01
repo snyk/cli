@@ -6,17 +6,19 @@ module.exports = function config(method, ...args) {
   return new Promise((resolve) => {
     let res = '';
     if (method === 'set') {
-      args.map((item) => {
-        return item.split('=');
-      }).forEach((pair) => {
-        res += pair[0] + ' updated\n';
-        snyk.config.set(...pair);
+      args
+        .map((item) => {
+          return item.split('=');
+        })
+        .forEach((pair) => {
+          res += pair[0] + ' updated\n';
+          snyk.config.set(...pair);
 
-        // ensure we update the live library
-        if (pair[0] === 'api') {
-          snyk.api = pair[1];
-        }
-      });
+          // ensure we update the live library
+          if (pair[0] === 'api') {
+            snyk.api = pair[1];
+          }
+        });
       res = res.trim(); // for clean response
     } else if (method === 'get') {
       if (!key) {
@@ -40,11 +42,12 @@ module.exports = function config(method, ...args) {
       res = 'config cleared';
     } else if (!method) {
       res = Object.keys(snyk.config.all)
-        .sort((a, b) => (a.toLowerCase() < b.toLowerCase()))
+        .sort((a, b) => a.toLowerCase() < b.toLowerCase())
         .reduce((acc, curr) => {
           acc += curr + ': ' + snyk.config.all[curr] + '\n';
           return acc;
-        }, '').trim();
+        }, '')
+        .trim();
     } else {
       throw new Error('Unknown config command "' + method + '"');
     }

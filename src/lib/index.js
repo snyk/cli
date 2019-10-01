@@ -16,10 +16,10 @@ const apiToken = require('./api-token');
 Object.defineProperty(snyk, 'api', {
   enumerable: true,
   configurable: true,
-  get: function () {
+  get: function() {
     return apiToken.api();
   },
-  set: function (value) {
+  set: function(value) {
     snykConfig.api = value;
   },
 });
@@ -30,7 +30,7 @@ snyk.bus = require('./bus');
 snyk.policy = require('snyk-policy');
 snyk.isRequired = true; // changed to false when loaded via cli
 snyk.isolate = {
-  okay: function () {
+  okay: function() {
     return true;
   },
 };

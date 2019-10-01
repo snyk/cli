@@ -1,5 +1,4 @@
 export class CustomError extends Error {
-
   public innerError;
   public code: number | undefined;
   public userMessage: string | undefined;

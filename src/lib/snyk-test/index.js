@@ -4,7 +4,7 @@ const detect = require('../detect');
 const runTest = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
-const {UnsupportedPackageManagerError} = require('../errors');
+const { UnsupportedPackageManagerError } = require('../errors');
 
 function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -17,9 +17,11 @@ function test(root, options, callback) {
 
   const promise = executeTest(root, options);
   if (callback) {
-    promise.then((res) => {
-      callback(null, res);
-    }).catch(callback);
+    promise
+      .then((res) => {
+        callback(null, res);
+      })
+      .catch(callback);
   }
   return promise;
 }
@@ -28,20 +30,19 @@ function executeTest(root, options) {
   try {
     const packageManager = detect.detectPackageManager(root, options);
     options.packageManager = packageManager;
-    return run(root, options)
-      .then((results) => {
-        for (const res of results) {
-          if (!res.packageManager) {
-            res.packageManager = packageManager;
-          }
+    return run(root, options).then((results) => {
+      for (const res of results) {
+        if (!res.packageManager) {
+          res.packageManager = packageManager;
         }
-        if (results.length === 1) {
-          // Return only one result if only one found as this is the default usecase
-          return results[0];
-        }
-        // For gradle and yarnWorkspaces we may be returning more than one result
-        return results;
-      });
+      }
+      if (results.length === 1) {
+        // Return only one result if only one found as this is the default usecase
+        return results[0];
+      }
+      // For gradle and yarnWorkspaces we may be returning more than one result
+      return results;
+    });
   } catch (error) {
     return Promise.reject(chalk.red.bold(error));
   }

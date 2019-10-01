@@ -2,11 +2,12 @@ var test = require('tap').test;
 var tryRequire = require('snyk-try-require');
 var interactive = require('./wizard-instrumented');
 
-test('wizard detects shrinkwrap', function (t) {
+test('wizard detects shrinkwrap', function(t) {
   t.plan(1);
 
-  t.test('includes shrinkwrap when updating', function (t) {
-    var responses = [ //
+  t.test('includes shrinkwrap when updating', function(t) {
+    var responses = [
+      //
       'default:update', // 7
       'default:update', // 3
       'default:update', // 1
@@ -21,15 +22,17 @@ test('wizard detects shrinkwrap', function (t) {
 
     var vulns = require(__dirname + '/fixtures/mean.json');
 
-    tryRequire(__dirname + '/fixtures/pkg-mean-io/package.json').then(function (pkg) {
-      var options = {
-        pkg: pkg,
-      };
+    tryRequire(__dirname + '/fixtures/pkg-mean-io/package.json')
+      .then(function(pkg) {
+        var options = {
+          pkg: pkg,
+        };
 
-      return interactive(vulns, responses, options).then(function (res) {
-        t.ok(res['misc-build-shrinkwrap'], 'shrinkwrap is present');
-      });
-    }).catch(t.threw).then(t.end);
-
+        return interactive(vulns, responses, options).then(function(res) {
+          t.ok(res['misc-build-shrinkwrap'], 'shrinkwrap is present');
+        });
+      })
+      .catch(t.threw)
+      .then(t.end);
   });
 });

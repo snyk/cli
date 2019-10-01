@@ -8,7 +8,10 @@ import * as ProxyAgent from 'proxy-agent';
 const debug = debugModule('snyk:fetch-patch');
 const getProxyForUrl = proxyFromEnv.getProxyForUrl;
 
-async function getPatchFile(patchUrl: string, patchFilename: string): Promise<string> {
+async function getPatchFile(
+  patchUrl: string,
+  patchFilename: string,
+): Promise<string> {
   let options;
   const proxyUri = getProxyForUrl(patchUrl);
   if (proxyUri) {
@@ -24,7 +27,9 @@ async function getPatchFile(patchUrl: string, patchFilename: string): Promise<st
       throw res;
     }
     patchData = res.body;
-    debug(`Successfully downloaded patch from ${patchUrl}, patch size ${patchData.length} bytes`);
+    debug(
+      `Successfully downloaded patch from ${patchUrl}, patch size ${patchData.length} bytes`,
+    );
   } catch (error) {
     debug(`Failed to download patch from ${patchUrl}`, error);
     analytics.add('patch-fetch-fail', {

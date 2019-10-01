@@ -42,7 +42,7 @@ import { Options, MonitorMeta, MonitorResult } from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 
 function wizard(options?: Options) {
-  options = options || {} as Options;
+  options = options || ({} as Options);
   options.org = options.org || config.org || null;
 
   return processPackageManager(options)
@@ -53,35 +53,40 @@ function wizard(options?: Options) {
 async function processPackageManager(options: Options) {
   const packageManager = detect.detectPackageManager(process.cwd(), options);
 
-  const supportsWizard = pm.WIZARD_SUPPORTED_PACKAGE_MANAGERS
-    .includes(packageManager);
+  const supportsWizard = pm.WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(
+    packageManager,
+  );
   if (!supportsWizard) {
     return Promise.reject(
-      `Snyk wizard for ${pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager]} projects is not currently supported`);
+      `Snyk wizard for ${pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager]} projects is not currently supported`,
+    );
   }
 
-  return fs.exists(path.join('.', 'node_modules'))
-    .then((nodeModulesExist) => {
-      if (!nodeModulesExist) {
-        // throw a custom error
-        throw new Error(
-          'Missing node_modules folder: we can\'t patch without having installed packages.' +
-          `\nPlease run '${packageManager} install' first.`);
-      }
-      return options;
-    });
+  return fs.exists(path.join('.', 'node_modules')).then((nodeModulesExist) => {
+    if (!nodeModulesExist) {
+      // throw a custom error
+      throw new Error(
+        "Missing node_modules folder: we can't patch without having installed packages." +
+          `\nPlease run '${packageManager} install' first.`,
+      );
+    }
+    return options;
+  });
 }
 
 function processWizardFlow(options) {
   spinner.sticky();
-  const message = options['dry-run'] ? '*** dry run ****' : '~~~~ LIVE RUN ~~~~';
+  const message = options['dry-run']
+    ? '*** dry run ****'
+    : '~~~~ LIVE RUN ~~~~';
   debug(message);
 
-  return snyk.policy.load(options['policy-path'], options)
+  return snyk.policy
+    .load(options['policy-path'], options)
     .catch((error) => {
-    // if we land in the catch, but we're in interactive mode, then it means
-    // the file hasn't been created yet, and that's fine, so we'll resolve
-    // with an empty object
+      // if we land in the catch, but we're in interactive mode, then it means
+      // the file hasn't been created yet, and that's fine, so we'll resolve
+      // with an empty object
       if (error.code === 'ENOENT') {
         options.newPolicy = true;
         return snyk.policy.create();
@@ -90,28 +95,33 @@ function processWizardFlow(options) {
       throw error;
     })
     .then((cliPolicy) => {
-      return auth.isAuthed().then((authed) => {
-        analytics.add('inline-auth', !authed);
-        if (!authed) {
-          if (isCI()) {
-            throw MisconfiguredAuthInCI();
+      return auth
+        .isAuthed()
+        .then((authed) => {
+          analytics.add('inline-auth', !authed);
+          if (!authed) {
+            if (isCI()) {
+              throw MisconfiguredAuthInCI();
+            }
           }
-        }
-        apiTokenExists();
-      })
+          apiTokenExists();
+        })
         .then(() => authorization.actionAllowed('cliIgnore', options))
         .then((cliIgnoreAuthorization) => {
-          options.ignoreDisabled = cliIgnoreAuthorization.allowed ?
-            false : cliIgnoreAuthorization;
+          options.ignoreDisabled = cliIgnoreAuthorization.allowed
+            ? false
+            : cliIgnoreAuthorization;
           if (options.ignoreDisabled) {
             debug('ignore disabled');
           }
           const intro = __dirname + '/../../../../help/wizard.txt';
-          return fs.readFile(intro, 'utf8').then((str) => {
-            if (!isCI()) {
-              console.log(str);
-            }
-          })
+          return fs
+            .readFile(intro, 'utf8')
+            .then((str) => {
+              if (!isCI()) {
+                console.log(str);
+              }
+            })
             .then(() => {
               return new Promise((resolve) => {
                 if (options.newPolicy) {
@@ -132,7 +142,9 @@ function processWizardFlow(options) {
 
               return snyk.test(process.cwd(), options).then((oneOrManyRes) => {
                 if (oneOrManyRes[0]) {
-                  throw new Error('Multiple subprojects are not yet supported by snyk wizard');
+                  throw new Error(
+                    'Multiple subprojects are not yet supported by snyk wizard',
+                  );
                 }
                 const res = oneOrManyRes as LegacyVulnApiResult;
                 if (alerts.hasAlert('tests-reached') && res.isPrivate) {
@@ -144,27 +156,45 @@ function processWizardFlow(options) {
                   const paths = vulns.length === 1 ? 'path' : 'paths';
                   const ies = vulns.length === 1 ? 'y' : 'ies';
                   // echo out the deps + vulns found
-                  console.log('Tested %s dependencies for known vulnerabilities, %s',
+                  console.log(
+                    'Tested %s dependencies for known vulnerabilities, %s',
                     res.dependencyCount,
-                    chalk.bold.red('found ' +
-                    res.uniqueCount +
-                    ' vulnerabilit' + ies +
-                    ', ' + vulns.length +
-                    ' vulnerable ' +
-                    paths + '.'));
+                    chalk.bold.red(
+                      'found ' +
+                        res.uniqueCount +
+                        ' vulnerabilit' +
+                        ies +
+                        ', ' +
+                        vulns.length +
+                        ' vulnerable ' +
+                        paths +
+                        '.',
+                    ),
+                  );
                 } else {
-                  console.log(chalk.green('✓ Tested %s dependencies for known ' +
-                  'vulnerabilities, no vulnerable paths found.'),
-                  res.dependencyCount);
+                  console.log(
+                    chalk.green(
+                      '✓ Tested %s dependencies for known ' +
+                        'vulnerabilities, no vulnerable paths found.',
+                    ),
+                    res.dependencyCount,
+                  );
                 }
 
-                return snyk.policy.loadFromText(res.policy)
+                return snyk.policy
+                  .loadFromText(res.policy)
                   .then((combinedPolicy) => {
                     return tryRequire(packageFile).then((pkg) => {
                       options.packageLeading = pkg.prefix;
                       options.packageTrailing = pkg.suffix;
-                      return interactive(res, pkg, combinedPolicy, options)
-                        .then((answers) => processAnswers(answers, cliPolicy, options));
+                      return interactive(
+                        res,
+                        pkg,
+                        combinedPolicy,
+                        options,
+                      ).then((answers) =>
+                        processAnswers(answers, cliPolicy, options),
+                      );
                     });
                   });
               });
@@ -179,29 +209,34 @@ function interactive(test, pkg, policy, options) {
     policy = {};
   }
 
-  if (!pkg) { // only really happening in tests
+  if (!pkg) {
+    // only really happening in tests
     pkg = {};
   }
 
-  return new Promise(((resolve) => {
+  return new Promise((resolve) => {
     debug('starting questions');
     const prompts = allPrompts.getUpdatePrompts(vulns, policy, options);
     resolve(inquire(prompts, {}));
-  })).then((answers) => {
-    const prompts = allPrompts.getPatchPrompts(vulns, policy, options);
-    return inquire(prompts, answers);
-  }).then((answers) => {
-    const prompts = allPrompts.getIgnorePrompts(vulns, policy, options);
-    return inquire(prompts, answers);
-  }).then((answers) => {
-    const prompts = allPrompts.nextSteps(pkg, test.ok ? false : answers);
-    return inquire(prompts, answers);
-  }).then((answers) => {
-    if (pkg.shrinkwrap) {
-      answers['misc-build-shrinkwrap'] = true;
-    }
-    return answers;
-  });
+  })
+    .then((answers) => {
+      const prompts = allPrompts.getPatchPrompts(vulns, policy, options);
+      return inquire(prompts, answers);
+    })
+    .then((answers) => {
+      const prompts = allPrompts.getIgnorePrompts(vulns, policy, options);
+      return inquire(prompts, answers);
+    })
+    .then((answers) => {
+      const prompts = allPrompts.nextSteps(pkg, test.ok ? false : answers);
+      return inquire(prompts, answers);
+    })
+    .then((answers) => {
+      if (pkg.shrinkwrap) {
+        answers['misc-build-shrinkwrap'] = true;
+      }
+      return answers;
+    });
 }
 
 function inquire(prompts, answers): Promise<{}> {
@@ -212,7 +247,7 @@ function inquire(prompts, answers): Promise<{}> {
   prompts.forEach((prompt) => {
     prompt.name = prompt.name.replace(/\./g, '--DOT--');
   });
-  return new Promise(((resolve) => {
+  return new Promise((resolve) => {
     inquirer.prompt(prompts).then((theseAnswers) => {
       _.extend(answers, theseAnswers);
       Object.keys(answers).forEach((answerName) => {
@@ -224,7 +259,7 @@ function inquire(prompts, answers): Promise<{}> {
       });
       resolve(answers);
     });
-  }));
+  });
 }
 
 function getNewScriptContent(scriptContent, cmd) {
@@ -294,35 +329,42 @@ function processAnswers(answers, policy, options) {
   if (!targetFile) {
     throw MissingTargetFileError(cwd);
   }
-  const isLockFileBased = targetFile.endsWith('package-lock.json') || targetFile.endsWith('yarn.lock');
+  const isLockFileBased =
+    targetFile.endsWith('package-lock.json') ||
+    targetFile.endsWith('yarn.lock');
 
   let pkg = {} as Pkg;
 
-  analytics.add('answers', Object.keys(answers).map((key) => {
-    // if we're looking at a reason, skip it
-    if (key.indexOf('-reason') !== -1) {
-      return;
-    }
+  analytics.add(
+    'answers',
+    Object.keys(answers)
+      .map((key) => {
+        // if we're looking at a reason, skip it
+        if (key.indexOf('-reason') !== -1) {
+          return;
+        }
 
-    // ignore misc questions, like "add snyk test to package?"
-    if (key.indexOf('misc-') === 0) {
-      return;
-    }
+        // ignore misc questions, like "add snyk test to package?"
+        if (key.indexOf('misc-') === 0) {
+          return;
+        }
 
-    const answer = answers[key];
-    const entry = {
-      vulnId: answer.vuln.id,
-      choice: answer.choice,
-      from: answer.vuln.from.slice(1),
-    } as any;
+        const answer = answers[key];
+        const entry = {
+          vulnId: answer.vuln.id,
+          choice: answer.choice,
+          from: answer.vuln.from.slice(1),
+        } as any;
 
-    if (answer.vuln.grouped) {
-      entry.batchMain = !!answer.vuln.grouped.main;
-      entry.batch = true;
-    }
+        if (answer.vuln.grouped) {
+          entry.batchMain = !!answer.vuln.grouped.main;
+          entry.batch = true;
+        }
 
-    return entry;
-  }).filter(Boolean));
+        return entry;
+      })
+      .filter(Boolean),
+  );
 
   const tasks = answersToTasks(answers);
   debug(tasks);
@@ -330,46 +372,52 @@ function processAnswers(answers, policy, options) {
   const live = !options['dry-run'];
   let snykVersion = '*';
 
-  const res = protect.generatePolicy(policy, tasks, live, options.packageManager)
+  const res = protect
+    .generatePolicy(policy, tasks, live, options.packageManager)
     .then((policy2) => {
       if (!live) {
-      // if this was a dry run, we'll throw an error to bail out of the
-      // promise chain, then in the catch, check the error.code and if
-      // it matches `DRYRUN` we'll return the text and not an error
-      // (which avoids the exit code 1).
+        // if this was a dry run, we'll throw an error to bail out of the
+        // promise chain, then in the catch, check the error.code and if
+        // it matches `DRYRUN` we'll return the text and not an error
+        // (which avoids the exit code 1).
         const e = new Error('This was a dry run: nothing changed');
         (e as any).code = 'DRYRUN';
         throw e;
       }
 
       return policy2.save(cwd, spinner).then(() => {
-      // don't do this during testing
+        // don't do this during testing
         if (isCI() || process.env.TAP) {
           return Promise.resolve();
         }
 
-        return new Promise(((resolve) => {
-          exec('git add .snyk', {
-            cwd,
-          }, (error, stdout, stderr) => {
-            if (error) {
-              debug('error adding .snyk to git', error);
-            }
+        return new Promise((resolve) => {
+          exec(
+            'git add .snyk',
+            {
+              cwd,
+            },
+            (error, stdout, stderr) => {
+              if (error) {
+                debug('error adding .snyk to git', error);
+              }
 
-            if (stderr) {
-              debug('stderr adding .snyk to git', stderr.trim());
-            }
+              if (stderr) {
+                debug('stderr adding .snyk to git', stderr.trim());
+              }
 
-            // resolve either way
-            resolve();
-          });
-        }));
+              // resolve either way
+              resolve();
+            },
+          );
+        });
       });
     })
     .then(() => {
-    // re-read the package.json - because the generatePolicy can apply
-    // an `npm install` which will change the deps
-      return fs.readFile(packageFile, 'utf8')
+      // re-read the package.json - because the generatePolicy can apply
+      // an `npm install` which will change the deps
+      return fs
+        .readFile(packageFile, 'utf8')
         .then(JSON.parse)
         .then((updatedPkg) => {
           pkg = updatedPkg;
@@ -402,7 +450,7 @@ function processAnswers(answers, policy, options) {
       const test = pkg.scripts.test;
       const cmd = 'snyk test';
       if (test && test !== 'echo "Error: no test specified" && exit 1') {
-      // only add the test if it's not already in the test
+        // only add the test if it's not already in the test
         if (test.indexOf(cmd) === -1) {
           pkg.scripts.test = cmd + ' && ' + test;
         }
@@ -431,19 +479,23 @@ function processAnswers(answers, policy, options) {
     })
     .then(() => {
       let lbl = 'Updating package.json...';
-      const addSnykToDependencies = answers['misc-add-test'] || answers['misc-add-protect'];
-      let updateSnykFunc = () => protect.install(packageManager, ['snyk'], live);
+      const addSnykToDependencies =
+        answers['misc-add-test'] || answers['misc-add-protect'];
+      let updateSnykFunc = () =>
+        protect.install(packageManager, ['snyk'], live);
 
       if (addSnykToDependencies) {
         debug('updating %s', packageFile);
 
-        if (_.get(pkg, 'dependencies.snyk') ||
+        if (
+          _.get(pkg, 'dependencies.snyk') ||
           _.get(pkg, 'peerDependencies.snyk') ||
-          _.get(pkg, 'optionalDependencies.snyk')) {
-        // nothing to do as the user already has Snyk
-        // TODO decide whether we should update the version being used
-        // and how do we reconcile if the global install is older
-        // than the local version?
+          _.get(pkg, 'optionalDependencies.snyk')
+        ) {
+          // nothing to do as the user already has Snyk
+          // TODO decide whether we should update the version being used
+          // and how do we reconcile if the global install is older
+          // than the local version?
         } else {
           const addSnykToProdDeps = answers['misc-add-protect'];
           const snykIsInDevDeps = _.get(pkg, 'devDependencies.snyk');
@@ -453,8 +505,9 @@ function processAnswers(answers, policy, options) {
               pkg.dependencies = {};
             }
             pkg.dependencies.snyk = snykVersion;
-            lbl = 'Adding Snyk to production dependencies ' +
-                '(used by snyk protect)';
+            lbl =
+              'Adding Snyk to production dependencies ' +
+              '(used by snyk protect)';
 
             // but also check if we should remove it from devDependencies
             if (snykIsInDevDeps) {
@@ -466,31 +519,34 @@ function processAnswers(answers, policy, options) {
             }
             lbl = 'Adding Snyk to devDependencies (used by npm test)';
             pkg.devDependencies.snyk = snykVersion;
-            updateSnykFunc = () => protect.installDev(packageManager, ['snyk'], live);
-
+            updateSnykFunc = () =>
+              protect.installDev(packageManager, ['snyk'], live);
           }
         }
       }
 
-      if (addSnykToDependencies ||
-          tasks.update.length) {
-        const packageString = options.packageLeading + JSON.stringify(pkg, null, 2) +
-                          options.packageTrailing;
-        return spinner(lbl)
-          .then(fs.writeFile(packageFile, packageString))
-          .then(() => {
-            if (isLockFileBased) {
-              // we need to trigger a lockfile update after adding snyk
-              // as a dep
-              return updateSnykFunc();
-            }
-          })
-          // clear spinner in case of success or failure
-          .then(spinner.clear<void>(lbl))
-          .catch((error) => {
-            spinner.clear<void>(lbl)();
-            throw error;
-          });
+      if (addSnykToDependencies || tasks.update.length) {
+        const packageString =
+          options.packageLeading +
+          JSON.stringify(pkg, null, 2) +
+          options.packageTrailing;
+        return (
+          spinner(lbl)
+            .then(fs.writeFile(packageFile, packageString))
+            .then(() => {
+              if (isLockFileBased) {
+                // we need to trigger a lockfile update after adding snyk
+                // as a dep
+                return updateSnykFunc();
+              }
+            })
+            // clear spinner in case of success or failure
+            .then(spinner.clear<void>(lbl))
+            .catch((error) => {
+              spinner.clear<void>(lbl)();
+              throw error;
+            })
+        );
       }
     })
     .then(() => {
@@ -498,27 +554,30 @@ function processAnswers(answers, policy, options) {
         debug('updating shrinkwrap');
 
         const lbl = 'Updating npm-shrinkwrap.json...';
-        return spinner(lbl)
-          .then(() => npm('shrinkwrap', null, live, cwd, null))
-          // clear spinner in case of success or failure
-          .then(spinner.clear(lbl))
-          .catch((error) => {
-            spinner.clear<void>(lbl)();
-            throw error;
-          });
+        return (
+          spinner(lbl)
+            .then(() => npm('shrinkwrap', null, live, cwd, null))
+            // clear spinner in case of success or failure
+            .then(spinner.clear(lbl))
+            .catch((error) => {
+              spinner.clear<void>(lbl)();
+              throw error;
+            })
+        );
       }
     })
     .then(() => {
-      if (answers['misc-test-no-monitor']) { // allows us to automate tests
+      if (answers['misc-test-no-monitor']) {
+        // allows us to automate tests
         return {
           id: 'test',
         } as MonitorResult;
       }
 
       debug('running monitor');
-      const lbl = 'Remembering current dependencies for future ' +
-      'notifications...';
-      const meta = {method: 'wizard', packageManager};
+      const lbl =
+        'Remembering current dependencies for future ' + 'notifications...';
+      const meta = { method: 'wizard', packageManager };
       const plugin = plugins.loadPlugin(packageManager);
       const info = moduleInfo(plugin, options.policy);
 
@@ -534,15 +593,20 @@ function processAnswers(answers, policy, options) {
         options.traverseNodeModules = false;
       }
 
-      return info.inspect(cwd, targetFile, options)
-        .then((inspectRes) => spinner(lbl).then(() => inspectRes))
-        .then((inspectRes) => snykMonitor(cwd, meta as MonitorMeta, inspectRes))
-        // clear spinner in case of success or failure
-        .then(spinner.clear(lbl))
-        .catch((error) => {
-          spinner.clear<void>(lbl)();
-          throw error;
-        });
+      return (
+        info
+          .inspect(cwd, targetFile, options)
+          .then((inspectRes) => spinner(lbl).then(() => inspectRes))
+          .then((inspectRes) =>
+            snykMonitor(cwd, meta as MonitorMeta, inspectRes),
+          )
+          // clear spinner in case of success or failure
+          .then(spinner.clear(lbl))
+          .catch((error) => {
+            spinner.clear<void>(lbl)();
+            throw error;
+          })
+      );
     })
     .then((monitorRes) => {
       const endpoint = url.parse(config.API);
@@ -555,28 +619,39 @@ function processAnswers(answers, policy, options) {
       endpoint.pathname = leader + '/manage';
       const manageUrl = url.format(endpoint);
 
-      return (options.newPolicy ?
-      // if it's a newly created file
-        '\nYour policy file has been created with the actions you\'ve ' +
-        'selected, add it to your source control (`git add .snyk`).' :
-      // otherwise we updated it
-        '\nYour .snyk policy file has been successfully updated.') +
-      '\nTo review your policy, run `snyk policy`.\n\n' +
-      'You can see a snapshot of your dependencies here:\n' +
-      monitorUrl + '\n\n' +
-      (monitorRes.isMonitored ?
-        'We\'ll notify you when relevant new vulnerabilities are ' +
-      'disclosed.\n\n' :
-        chalk.bold.red('Project is inactive, so notifications are turned off.\n' +
-      'Activate this project here: ' + manageUrl + '\n')) +
-      (monitorRes.trialStarted ?
-        chalk.yellow('You\'re over the free plan usage limit, \n' +
-      'and are now on a free 14-day premium trial.\n' +
-      'View plans here: ' + manageUrl + '\n\n') :
-        '');
+      return (
+        (options.newPolicy
+          ? // if it's a newly created file
+            "\nYour policy file has been created with the actions you've " +
+            'selected, add it to your source control (`git add .snyk`).'
+          : // otherwise we updated it
+            '\nYour .snyk policy file has been successfully updated.') +
+        '\nTo review your policy, run `snyk policy`.\n\n' +
+        'You can see a snapshot of your dependencies here:\n' +
+        monitorUrl +
+        '\n\n' +
+        (monitorRes.isMonitored
+          ? "We'll notify you when relevant new vulnerabilities are " +
+            'disclosed.\n\n'
+          : chalk.bold.red(
+              'Project is inactive, so notifications are turned off.\n' +
+                'Activate this project here: ' +
+                manageUrl +
+                '\n',
+            )) +
+        (monitorRes.trialStarted
+          ? chalk.yellow(
+              "You're over the free plan usage limit, \n" +
+                'and are now on a free 14-day premium trial.\n' +
+                'View plans here: ' +
+                manageUrl +
+                '\n\n',
+            )
+          : '')
+      );
     })
     .catch((error) => {
-    // if it's a dry run - exit with 0 status
+      // if it's a dry run - exit with 0 status
       if (error.code === 'DRYRUN') {
         return error.message;
       }

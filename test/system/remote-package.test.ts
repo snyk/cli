@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import {test} from 'tap';
+import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
 import * as sinon from 'sinon';
 
@@ -15,7 +15,9 @@ process.env.LOG_LEVEL = '0';
 
 // tslint:disable-next-line:no-var-requires
 const server = require('../cli-server')(
-  process.env.SNYK_API, apiKey, notAuthorizedApiKey,
+  process.env.SNYK_API,
+  apiKey,
+  notAuthorizedApiKey,
 );
 
 // ensure this is required *after* the demo server, since this will
@@ -62,23 +64,32 @@ test('cli tests for online repos', async (t) => {
   }
 
   try {
-    const res = await cli.test('semver@2', {json: true});
+    const res = await cli.test('semver@2', { json: true });
     t.fail(res);
   } catch (error) {
     const res = JSON.parse(error.message);
     const vuln = res.vulnerabilities[0];
     t.pass(vuln.title);
-    t.equal(vuln.id, 'npm:semver:20150403',
-      'correctly found vulnerability: ' + vuln.id);
+    t.equal(
+      vuln.id,
+      'npm:semver:20150403',
+      'correctly found vulnerability: ' + vuln.id,
+    );
   }
 });
 
 test('multiple test arguments', async (t) => {
   try {
     const res = await cli.test('semver@4', 'qs@6');
-    const lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine, 'Tested 2 projects, no vulnerable paths were found.',
-      'successfully tested semver@4, qs@6');
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
+    t.equals(
+      lastLine,
+      'Tested 2 projects, no vulnerable paths were found.',
+      'successfully tested semver@4, qs@6',
+    );
   } catch (error) {
     t.fail(error);
   }
@@ -88,9 +99,15 @@ test('multiple test arguments', async (t) => {
     t.fail(res);
   } catch (error) {
     const res = error.message;
-    const lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine, 'Tested 2 projects, 1 contained vulnerable paths.',
-      'successfully tested semver@4, qs@1');
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
+    t.equals(
+      lastLine,
+      'Tested 2 projects, 1 contained vulnerable paths.',
+      'successfully tested semver@4, qs@1',
+    );
   }
 
   try {
@@ -98,9 +115,15 @@ test('multiple test arguments', async (t) => {
     t.fail(res);
   } catch (error) {
     const res = error.message;
-    const lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine, 'Tested 2 projects, 1 contained vulnerable paths.',
-      'successfully tested semver@2, qs@6');
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
+    t.equals(
+      lastLine,
+      'Tested 2 projects, 1 contained vulnerable paths.',
+      'successfully tested semver@2, qs@6',
+    );
   }
 
   try {
@@ -108,18 +131,30 @@ test('multiple test arguments', async (t) => {
     t.fail(res);
   } catch (error) {
     const res = error.message;
-    const lastLine = res.trim().split('\n').pop();
-    t.equals(lastLine, 'Tested 2 projects, 2 contained vulnerable paths.',
-      'successfully tested semver@2, qs@1');
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
+    t.equals(
+      lastLine,
+      'Tested 2 projects, 2 contained vulnerable paths.',
+      'successfully tested semver@2, qs@1',
+    );
   }
 });
 
 test('test for existing remote package with dev-deps only with --dev', async (t) => {
   try {
-    const res = await cli.test('lodash@4.17.11', {dev: true});
-    const lastLine = res.trim().split('\n').pop();
-    t.deepEqual(lastLine, '✓ Tested lodash@4.17.11 for known vulnerabilities, no vulnerable paths found.',
-      'successfully tested lodash@4.17.11');
+    const res = await cli.test('lodash@4.17.11', { dev: true });
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
+    t.deepEqual(
+      lastLine,
+      '✓ Tested lodash@4.17.11 for known vulnerabilities, no vulnerable paths found.',
+      'successfully tested lodash@4.17.11',
+    );
   } catch (error) {
     t.fail('should not throw, instead received error: ' + error);
   }
@@ -127,17 +162,21 @@ test('test for existing remote package with dev-deps only with --dev', async (t)
 
 test('test for existing remote package with dev-deps only', async (t) => {
   try {
-    const ciCheckerStub = sinon.stub(ciChecker, 'isCI')
+    const ciCheckerStub = sinon.stub(ciChecker, 'isCI');
     ciCheckerStub.returns(false);
     t.teardown(ciCheckerStub.restore);
 
-    const res = await cli.test('lodash@4.17.11', {dev: false});
-    const lastLine = res.trim().split('\n').pop();
+    const res = await cli.test('lodash@4.17.11', { dev: false });
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
 
     t.deepEqual(
       lastLine,
       'Tip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag.',
-      'tip text as expected');
+      'tip text as expected',
+    );
   } catch (error) {
     t.fail('should not throw, instead received error: ' + error);
   }
@@ -149,8 +188,15 @@ test('test for non-existing', async (t) => {
     t.fails('should fail, instead received ' + res);
   } catch (error) {
     const res = error.message;
-    const lastLine = res.trim().split('\n').pop();
-    t.deepEqual(lastLine, 'Internal server error', 'expected error: Internal server error');
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
+    t.deepEqual(
+      lastLine,
+      'Internal server error',
+      'expected error: Internal server error',
+    );
   }
 });
 

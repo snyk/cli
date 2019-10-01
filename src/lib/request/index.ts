@@ -2,7 +2,10 @@ import request = require('./request');
 import alerts = require('../alerts');
 
 // A hybrid async function: both returns a promise and takes a callback
-export = async (payload: any, callback?: (err: Error|null, res?, body?) => void) => {
+export = async (
+  payload: any,
+  callback?: (err: Error | null, res?, body?) => void,
+) => {
   try {
     const result = await request(payload);
     if (result.body.alerts) {
