@@ -87,13 +87,13 @@ Gradle options:
                        project.assets.json, if found.
   --packages-folder    Custom path to packages folder
 
-Npm options:
+npm options:
   --strict-out-of-sync=<true|false>
-                       Allow testing out of sync lockfile. Defauls to true.
+                       Prevent testing out of sync lockfiles. Defaults to true.
 
 Yarn options:
   --strict-out-of-sync=<true|false>
-                       Allow testing out of sync lockfile. Defauls to true.
+                       Prevent testing out of sync lockfiles. Defaults to true.
 
 Python options:
   --command=<string>   Python interpreter to use. Default: "python", set to
