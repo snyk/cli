@@ -34,9 +34,11 @@ function answersToTasks(answers) {
 
     if (task === 'patch' && vuln.grouped && vuln.grouped.upgrades) {
       // ignore the first as it's the same one as this particular answer
-      debug('additional answers required: %s',
+      debug(
+        'additional answers required: %s',
         vuln.grouped.count - 1,
-        vuln.grouped);
+        vuln.grouped,
+      );
 
       const additional = vuln.grouped.upgrades.slice(1);
 

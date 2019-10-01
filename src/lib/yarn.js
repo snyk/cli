@@ -15,7 +15,7 @@ function yarn(method, packages, live, cwd, flags) {
 
   method += ' ' + flags.join(' ');
 
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const cmd = 'yarn ' + method + ' ' + packages.join(' ');
     if (!cwd) {
       cwd = process.cwd();
@@ -27,23 +27,27 @@ function yarn(method, packages, live, cwd, flags) {
       return resolve();
     }
 
-    exec(cmd, {
-      cwd: cwd,
-    }, (error, stdout, stderr) => {
-      if (error) {
-        return reject(error);
-      }
+    exec(
+      cmd,
+      {
+        cwd: cwd,
+      },
+      (error, stdout, stderr) => {
+        if (error) {
+          return reject(error);
+        }
 
-      if (stderr.indexOf('ERR!') !== -1) {
-        console.error(stderr.trim());
-        const e = new Error('Yarn update issues: ' + stderr.trim());
-        e.code = 'FAIL_UPDATE';
-        return reject(e);
-      }
+        if (stderr.indexOf('ERR!') !== -1) {
+          console.error(stderr.trim());
+          const e = new Error('Yarn update issues: ' + stderr.trim());
+          e.code = 'FAIL_UPDATE';
+          return reject(e);
+        }
 
-      debug('yarn %s complete', method);
+        debug('yarn %s complete', method);
 
-      resolve();
-    });
-  }));
+        resolve();
+      },
+    );
+  });
 }

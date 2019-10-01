@@ -12,7 +12,10 @@ export interface Files {
   gemspec?: File;
 }
 
-export async function tryGetSpec(dir: string, name: string): Promise<File | null> {
+export async function tryGetSpec(
+  dir: string,
+  name: string,
+): Promise<File | null> {
   const filePath = path.resolve(dir, name);
 
   if (await fs.exists(filePath)) {

@@ -1,6 +1,18 @@
-export type SupportedPackageManagers = 'rubygems' | 'npm' | 'yarn' |
-'maven' | 'pip' | 'sbt' | 'gradle' | 'golangdep' | 'govendor' | 'gomodules' |
-'nuget' | 'paket' | 'composer' | 'cocoapods';
+export type SupportedPackageManagers =
+  | 'rubygems'
+  | 'npm'
+  | 'yarn'
+  | 'maven'
+  | 'pip'
+  | 'sbt'
+  | 'gradle'
+  | 'golangdep'
+  | 'govendor'
+  | 'gomodules'
+  | 'nuget'
+  | 'paket'
+  | 'composer'
+  | 'cocoapods';
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   readonly [packageManager in SupportedPackageManagers]: string;
@@ -21,13 +33,20 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   cocoapods: 'CocoaPods',
 };
 
-export const WIZARD_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]
-  = ['yarn', 'npm'];
-export const PROTECT_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]
-  = ['yarn', 'npm'];
-export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]
-  = ['npm', 'sbt'];
+export const WIZARD_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
+  'yarn',
+  'npm',
+];
+export const PROTECT_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
+  'yarn',
+  'npm',
+];
+export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
+  'npm',
+  'sbt',
+];
 // For ecosystems with a flat set of libraries (e.g. Python, JVM), one can
 // "pin" a transitive dependency
-export const PINNING_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[]
-  = ['pip'];
+export const PINNING_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
+  'pip',
+];

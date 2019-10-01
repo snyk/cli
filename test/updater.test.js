@@ -16,17 +16,21 @@ test('missing package.json', (t) => {
     resolveStub.restore();
   });
 
-  t.equal(updateCheck(), false, 'Notifier was not started on missing package.json');
+  t.equal(
+    updateCheck(),
+    false,
+    'Notifier was not started on missing package.json',
+  );
   t.end();
 });
 
 // Run updateNotifier API for the basic package. THe target is to verify API still stands
 test('verify updater', (t) => {
-   var pkg = {
+  var pkg = {
     name: 'snyk',
-    version: '1.0.0'
+    version: '1.0.0',
   };
-  const notifier = updateNotifier({pkg});
+  const notifier = updateNotifier({ pkg });
 
   t.equal(notifier.packageName, 'snyk', 'Successfull call to notifier');
   t.end();

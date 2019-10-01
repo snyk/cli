@@ -1,5 +1,5 @@
 import * as tap from 'tap';
-const {test} = tap;
+const { test } = tap;
 import * as fs from 'then-fs';
 
 const apiKey = '123456789';
@@ -14,7 +14,9 @@ const baseDir = __dirname + '/fixtures/';
 
 // tslint:disable-next-line:no-var-requires
 const server = require('./cli-server')(
-  process.env.SNYK_API, apiKey, notAuthorizedApiKey,
+  process.env.SNYK_API,
+  apiKey,
+  notAuthorizedApiKey,
 );
 
 // ensure this is required *after* the demo server, since this will

@@ -18,124 +18,131 @@ function update(packages, live, pkgManager) {
   const lbl = 'Applying updates using ' + pkgManager + '...';
   let error = false;
 
-  return spinner(lbl).then(() => {
-    const upgrade = packages
-      .map((vuln) => {
-        const remediation = vuln.upgradePath && vuln.upgradePath[1];
-        if (!remediation) {
-        // this vuln holds an unreachable upgrade path - send this to analytics
-        // and return an empty object to be filtered
-          analytics.add('bad-upgrade-path', vuln);
-          return null;
-        }
-
-        return {
-          remediation: remediation,
-          type: vuln.parentDepType || 'prod',
-        };
-      })
-      .filter(Boolean)
-      .reduce((ups, vuln) => {
-        if (!ups[vuln.type]) {
-          ups[vuln.type] = [];
-        }
-        ups[vuln.type].push(vuln.remediation);
-        return ups;
-      }, {});
-
-    debug('to upgrade', upgrade);
-
-    if (upgrade.length === 0) {
-      return;
-    }
-
-    // warn if extraneous packages were selected for update
-    if (upgrade.extraneous) {
-      console.error(chalk.yellow('Extraneous packages were selected for ' +
-        'update, but will be skipped. These dependencies introduce ' +
-        'vulnerabilities. Please remove the dependencies with `npm prune`, ' +
-        'or install properly as prod or dev dependencies:',
-      upgrade.extraneous.join(', ')
-      ));
-    }
-
-    const promise = Promise.resolve()
+  return (
+    spinner(lbl)
       .then(() => {
-      // create list of unique package names _without versions_ for uninstall
-      // skip extraneous packages, if any
-        const prodToUninstall = (upgrade.prod && upgrade.prod.map(stripVersion)) ||
-                            [];
-        const devToUninstall = (upgrade.dev && upgrade.dev.map(stripVersion)) ||
-                           [];
-        const toUninstall = _.uniq(prodToUninstall.concat(devToUninstall));
-        debug('to uninstall', toUninstall);
+        const upgrade = packages
+          .map((vuln) => {
+            const remediation = vuln.upgradePath && vuln.upgradePath[1];
+            if (!remediation) {
+              // this vuln holds an unreachable upgrade path - send this to analytics
+              // and return an empty object to be filtered
+              analytics.add('bad-upgrade-path', vuln);
+              return null;
+            }
 
-        if (!_.isEmpty(toUninstall)) {
-          return  uninstall(pkgManager, toUninstall, live);
+            return {
+              remediation: remediation,
+              type: vuln.parentDepType || 'prod',
+            };
+          })
+          .filter(Boolean)
+          .reduce((ups, vuln) => {
+            if (!ups[vuln.type]) {
+              ups[vuln.type] = [];
+            }
+            ups[vuln.type].push(vuln.remediation);
+            return ups;
+          }, {});
+
+        debug('to upgrade', upgrade);
+
+        if (upgrade.length === 0) {
+          return;
         }
+
+        // warn if extraneous packages were selected for update
+        if (upgrade.extraneous) {
+          console.error(
+            chalk.yellow(
+              'Extraneous packages were selected for ' +
+                'update, but will be skipped. These dependencies introduce ' +
+                'vulnerabilities. Please remove the dependencies with `npm prune`, ' +
+                'or install properly as prod or dev dependencies:',
+              upgrade.extraneous.join(', '),
+            ),
+          );
+        }
+
+        const promise = Promise.resolve()
+          .then(() => {
+            // create list of unique package names _without versions_ for uninstall
+            // skip extraneous packages, if any
+            const prodToUninstall =
+              (upgrade.prod && upgrade.prod.map(stripVersion)) || [];
+            const devToUninstall =
+              (upgrade.dev && upgrade.dev.map(stripVersion)) || [];
+            const toUninstall = _.uniq(prodToUninstall.concat(devToUninstall));
+            debug('to uninstall', toUninstall);
+
+            if (!_.isEmpty(toUninstall)) {
+              return uninstall(pkgManager, toUninstall, live);
+            }
+          })
+          .then(() => {
+            const prodUpdate = (upgrade.prod
+              ? install(pkgManager, findUpgrades(upgrade.prod), live)
+              : Promise.resolve(true)
+            ).catch((e) => {
+              error = e;
+              return false;
+            });
+            const devUpdate = (upgrade.dev
+              ? installDev(pkgManager, findUpgrades(upgrade.dev), live)
+              : Promise.resolve(true)
+            ).catch((e) => {
+              error = e;
+              return false;
+            });
+            return Promise.all([prodUpdate, devUpdate]).then((results) => {
+              return results[0] && results[1];
+            });
+          });
+        return promise;
       })
-      .then(() => {
-        const prodUpdate = (upgrade.prod ?
-          install(pkgManager, findUpgrades(upgrade.prod), live) :
-          Promise.resolve(true))
-          .catch((e) => {
-            error = e;
-            return false;
-          });
-        const devUpdate = (upgrade.dev ?
-          installDev(pkgManager, findUpgrades(upgrade.dev), live) :
-          Promise.resolve(true))
-          .catch((e) => {
-            error = e;
-            return false;
-          });
-        return Promise.all([prodUpdate, devUpdate])
-          .then((results) => {
-            return results[0] && results[1];
-          });
-      });
-    return promise;
-  })
-    // clear spinner in case of success or failure
-    .then(spinner.clear(lbl))
-    .catch((error) => {
-      spinner.clear(lbl)();
-      throw error;
-    })
-    .then((res) => {
-      if (error) {
-        console.error(chalk.red(errors.message(error)));
-        debug(error.stack);
-      }
-      return res;
-    });
+      // clear spinner in case of success or failure
+      .then(spinner.clear(lbl))
+      .catch((error) => {
+        spinner.clear(lbl)();
+        throw error;
+      })
+      .then((res) => {
+        if (error) {
+          console.error(chalk.red(errors.message(error)));
+          debug(error.stack);
+        }
+        return res;
+      })
+  );
 }
 
 function install(pkgManager, upgrades, live) {
-  return pkgManager === 'yarn' ?
-    yarn('add', upgrades, live) :
-    npm('install', upgrades, live);
+  return pkgManager === 'yarn'
+    ? yarn('add', upgrades, live)
+    : npm('install', upgrades, live);
 }
 
 function installDev(pkgManager, upgrades, live) {
-  return pkgManager === 'yarn' ?
-    yarn('add', upgrades, live, null, ['--dev']) :
-    npm('install', upgrades, live, null, ['--save-dev']);
+  return pkgManager === 'yarn'
+    ? yarn('add', upgrades, live, null, ['--dev'])
+    : npm('install', upgrades, live, null, ['--save-dev']);
 }
 
 function uninstall(pkgManager, toUninstall, live) {
-  return pkgManager === 'yarn' ?
-    yarn('remove', toUninstall, live) :
-    npm('uninstall', toUninstall, live);
+  return pkgManager === 'yarn'
+    ? yarn('remove', toUninstall, live)
+    : npm('uninstall', toUninstall, live);
 }
 
 function findUpgrades(packages) {
   return packages
     .map(moduleToObject)
     .reduce((acc, curr) => {
-      const have = acc.filter((pkg) => {
-        return pkg.name === curr.name;
-      }).pop();
+      const have = acc
+        .filter((pkg) => {
+          return pkg.name === curr.name;
+        })
+        .pop();
 
       if (have) {
         if (semver.gt(curr.version, have.version)) {

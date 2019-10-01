@@ -1,4 +1,4 @@
-const protect = module.exports = {
+const protect = (module.exports = {
   ignore: require('./ignore'),
   update: require('./update').update,
   install: require('./update').install,
@@ -6,17 +6,19 @@ const protect = module.exports = {
   patch: require('./patch'),
   patchesForPackage: require('./patches-for-package'),
   generatePolicy: generatePolicy,
-};
+});
 
 const debug = require('debug')('snyk');
 const _ = require('lodash');
 
 function generatePolicy(policy, tasks, live, packageManager) {
-  const promises = ['ignore', 'update', 'patch'].filter((task) => {
-    return tasks[task].length;
-  }).map((task) => {
-    return protect[task](tasks[task], live, packageManager);
-  });
+  const promises = ['ignore', 'update', 'patch']
+    .filter((task) => {
+      return tasks[task].length;
+    })
+    .map((task) => {
+      return protect[task](tasks[task], live, packageManager);
+    });
 
   return Promise.all(promises).then((res) => {
     // we're squashing the arrays of arrays into a flat structure

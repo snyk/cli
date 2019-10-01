@@ -33,7 +33,7 @@ const DETECTABLE_FILES: string[] = [
 const DETECTABLE_PACKAGE_MANAGERS: {
   [name: string]: SupportedPackageManagers;
 } = {
-  'Gemfile': 'rubygems',
+  Gemfile: 'rubygems',
   'Gemfile.lock': 'rubygems',
   '.gemspec': 'rubygems',
   'package-lock.json': 'npm',
@@ -43,7 +43,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   'build.sbt': 'sbt',
   'yarn.lock': 'yarn',
   'package.json': 'npm',
-  'Pipfile': 'pip',
+  Pipfile: 'pip',
   'requirements.txt': 'pip',
   'Gopkg.lock': 'golangdep',
   'go.mod': 'gomodules',
@@ -56,7 +56,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   'Podfile.lock': 'cocoapods',
   'CocoaPods.podfile.yaml': 'cocoapods',
   'CocoaPods.podfile': 'cocoapods',
-  'Podfile': 'cocoapods',
+  Podfile: 'cocoapods',
 };
 
 export function isPathToPackageFile(path) {
@@ -84,8 +84,10 @@ export function detectPackageManager(root, options) {
     if (options.file) {
       if (localFileSuppliedButNotFound(root, options.file)) {
         throw new Error(
-          'Could not find the specified file: ' + options.file +
-          '\nPlease check that it exists and try again.');
+          'Could not find the specified file: ' +
+            options.file +
+            '\nPlease check that it exists and try again.',
+        );
       }
       file = options.file;
       packageManager = detectPackageManagerFromFile(file);
@@ -109,8 +111,9 @@ export function detectPackageManager(root, options) {
 
 // User supplied a "local" file, but that file doesn't exist
 function localFileSuppliedButNotFound(root, file) {
-  return file && fs.existsSync(root) &&
-    !fs.existsSync(pathLib.resolve(root, file));
+  return (
+    file && fs.existsSync(root) && !fs.existsSync(pathLib.resolve(root, file))
+  );
 }
 
 export function isLocalFolder(root) {

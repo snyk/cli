@@ -14,12 +14,10 @@ function getVulnSource(vuln, live) {
   const viaPath = path.resolve(
     process.cwd(),
     'node_modules',
-    from.join('/node_modules/')
+    from.join('/node_modules/'),
   );
 
-  let source = vuln.__filename ?
-    path.dirname(vuln.__filename) :
-    viaPath;
+  let source = vuln.__filename ? path.dirname(vuln.__filename) : viaPath;
 
   // try to stat the directory, if it throws, it doesn't exist...
   try {
@@ -34,7 +32,10 @@ function getVulnSource(vuln, live) {
     } catch (e) {
       let adaptedError = e;
       if (e.code === 'NO_PACKAGE_FOUND') {
-        adaptedError = 'Error: `' +e.message + '`\nWe can\'t patch without ' +
+        adaptedError =
+          'Error: `' +
+          e.message +
+          "`\nWe can't patch without " +
           'dependencies installed. Please run `npm ' +
           'install` or  `yarn install` first.';
       }

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as detect from '../detect';
-import {NoSupportedManifestsFoundError} from '../errors/no-supported-manifests-found';
+import { NoSupportedManifestsFoundError } from '../errors/no-supported-manifests-found';
 import * as Debug from 'debug';
 import { FileFlagBadInputError } from '../errors';
 
@@ -16,11 +16,12 @@ export const parsePathsFromSln = (slnFile) => {
   const projectScopes =
     loadFile(path.resolve(slnFile)).match(/Project[\s\S]*?EndProject/g) || [];
 
-  const paths = projectScopes.map((projectScope) => {
-    const secondArg = projectScope.split(',')[1];
-    // expected ` "path/to/manifest.file"`, clean it up
-    return secondArg && secondArg.trim().replace(/"/g, '');
-  })
+  const paths = projectScopes
+    .map((projectScope) => {
+      const secondArg = projectScope.split(',')[1];
+      // expected ` "path/to/manifest.file"`, clean it up
+      return secondArg && secondArg.trim().replace(/"/g, '');
+    })
     // drop falsey values
     .filter(Boolean)
     // convert path separators
@@ -33,7 +34,6 @@ export const parsePathsFromSln = (slnFile) => {
 };
 
 export const updateArgs = (args) => {
-
   if (!args.options.file || typeof args.options.file !== 'string') {
     throw new FileFlagBadInputError();
   }
@@ -47,10 +47,13 @@ export const updateArgs = (args) => {
 
   const foldersWithSupportedProjects = projectFolders
     .map((projectPath) => {
-      const projectFolder =
-        path.resolve(slnFilePath, path.dirname(projectPath));
+      const projectFolder = path.resolve(
+        slnFilePath,
+        path.dirname(projectPath),
+      );
       const manifestFile = detect.detectPackageFile(projectFolder);
-      return manifestFile ? projectFolder : undefined; })
+      return manifestFile ? projectFolder : undefined;
+    })
     .filter(Boolean);
 
   debug('valid project folders in solution: ', projectFolders);
@@ -60,7 +63,7 @@ export const updateArgs = (args) => {
   }
 
   // delete the file option as the solution has now been parsed
-  delete (args.options.file);
+  delete args.options.file;
 
   // mutates args!
   addProjectFoldersToArgs(args, foldersWithSupportedProjects);

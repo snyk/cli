@@ -14,24 +14,24 @@ function isolate(options) {
   }
 
   if (Array.isArray(options.isolate)) {
-    potentialBlacklist = options.isolate.map((pkg) => {
-      const i = pkg.lastIndexOf('@');
-      return {
-        name: pkg.slice(0, i),
-        version: pkg.slice(i + 1),
-      };
-    }).reduce((acc, curr) => {
-      acc[curr.name] = curr;
-      return acc;
-    }, {});
+    potentialBlacklist = options.isolate
+      .map((pkg) => {
+        const i = pkg.lastIndexOf('@');
+        return {
+          name: pkg.slice(0, i),
+          version: pkg.slice(i + 1),
+        };
+      })
+      .reduce((acc, curr) => {
+        acc[curr.name] = curr;
+        return acc;
+      }, {});
   }
 
   snyk.bus.on('after:module', (module) => {
     instrumentProps(module.id, module.id, module.exports);
   });
 }
-
-
 
 function instrumentProps(id, key, obj) {
   // only apply once
@@ -88,12 +88,16 @@ function checkIsolation(filename) {
       }
       if (version) {
         if (semver.satisfies(version, check.version)) {
-          throw new Error('Snyk: Isolated module "' + check.name +
-            '@' + check.version + '" was not allowed to load');
+          throw new Error(
+            'Snyk: Isolated module "' +
+              check.name +
+              '@' +
+              check.version +
+              '" was not allowed to load',
+          );
         }
       }
     }
-
   }
 
   // lookup the version

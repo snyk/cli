@@ -2,9 +2,9 @@ export = monitor;
 
 import * as _ from 'lodash';
 import * as fs from 'then-fs';
-import {apiTokenExists} from '../../lib/api-token';
+import { apiTokenExists } from '../../lib/api-token';
 import snyk = require('../../lib/'); // TODO(kyegupov): fix import
-import {monitor as snykMonitor} from '../../lib/monitor';
+import { monitor as snykMonitor } from '../../lib/monitor';
 import * as config from '../../lib/config';
 import * as url from 'url';
 import chalk from 'chalk';
@@ -13,19 +13,12 @@ import * as spinner from '../../lib/spinner';
 
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
-import {ModuleInfo} from '../../lib/module-info'; // TODO(kyegupov): fix import
-import {
-  MonitorOptions,
-  MonitorMeta,
-  MonitorResult,
-} from '../../lib/types';
+import { ModuleInfo } from '../../lib/module-info'; // TODO(kyegupov): fix import
+import { MonitorOptions, MonitorMeta, MonitorResult } from '../../lib/types';
 import { MethodArgs, ArgsOptions } from '../args';
 import { maybePrintDeps } from '../../lib/print-deps';
 import * as analytics from '../../lib/analytics';
-import {
-  MonitorError,
-  UnsupportedFeatureFlagError,
-} from '../../lib/errors';
+import { MonitorError, UnsupportedFeatureFlagError } from '../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { isFeatureFlagSupportedForOrg } from '../../lib/feature-flags';
 
@@ -46,8 +39,14 @@ interface BadResult {
 
 // This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
 // declaring the type of x as possibly undefined.
-async function promiseOrCleanup<T>(p: Promise<T>, cleanup: (x?) => void): Promise<T> {
-  return p.catch((error) => { cleanup(); throw error; });
+async function promiseOrCleanup<T>(
+  p: Promise<T>,
+  cleanup: (x?) => void,
+): Promise<T> {
+  return p.catch((error) => {
+    cleanup();
+    throw error;
+  });
 }
 
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
@@ -57,13 +56,13 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   let options: MonitorOptions = {};
   const results: Array<GoodResult | BadResult> = [];
   if (typeof args[args.length - 1] === 'object') {
-    options = args.pop() as ArgsOptions as MonitorOptions;
+    options = (args.pop() as ArgsOptions) as MonitorOptions;
   }
 
   args = args.filter(Boolean);
 
   // populate with default path (cwd) if no path given
-  if (args.length ===  0) {
+  if (args.length === 0) {
     args.unshift(process.cwd());
   }
 
@@ -72,7 +71,9 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   if (options.allSubProjects && options['project-name']) {
-    throw new Error('`--all-sub-projects` is currently not compatible with `--project-name`');
+    throw new Error(
+      '`--all-sub-projects` is currently not compatible with `--project-name`',
+    );
   }
 
   if (options.docker && options['remote-repo-url']) {
@@ -82,10 +83,15 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   apiTokenExists();
 
   if (options['experimental-dep-graph']) {
-    const isFFSupported = await isFeatureFlagSupportedForOrg(_.camelCase('experimental-dep-graph'));
+    const isFFSupported = await isFeatureFlagSupportedForOrg(
+      _.camelCase('experimental-dep-graph'),
+    );
 
     if (!isFFSupported.ok) {
-      throw new UnsupportedFeatureFlagError('experimental-dep-graph', isFFSupported.userMessage);
+      throw new UnsupportedFeatureFlagError(
+        'experimental-dep-graph',
+        isFFSupported.userMessage,
+      );
     }
   }
 
@@ -95,21 +101,25 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       const exists = await fs.exists(path);
       if (!exists && !options.docker) {
         throw new Error(
-          '"' + path + '" is not a valid path for "snyk monitor"');
+          '"' + path + '" is not a valid path for "snyk monitor"',
+        );
       }
 
       let packageManager = detect.detectPackageManager(path, options);
 
-      const targetFile = options.docker && !options.file // snyk monitor --docker (without --file)
-        ? undefined
-        : (options.file || detect.detectPackageFile(path));
+      const targetFile =
+        options.docker && !options.file // snyk monitor --docker (without --file)
+          ? undefined
+          : options.file || detect.detectPackageFile(path);
 
       const plugin = plugins.loadPlugin(packageManager, options);
 
       const moduleInfo = ModuleInfo(plugin, options.policy);
 
       const displayPath = pathUtil.relative(
-        '.', pathUtil.join(path, targetFile || ''));
+        '.',
+        pathUtil.join(path, targetFile || ''),
+      );
 
       const analysisType = options.docker ? 'docker' : packageManager;
 
@@ -128,8 +138,9 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // TODO: the type should depend on allSubProjects flag
       const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
-          moduleInfo.inspect(path, targetFile, { ...options }),
-          spinner.clear(analyzingDepsSpinnerLabel));
+        moduleInfo.inspect(path, targetFile, { ...options }),
+        spinner.clear(analyzingDepsSpinnerLabel),
+      );
 
       analytics.add('pluginName', inspectResult.plugin.name);
 
@@ -140,15 +151,15 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         packageManager = inspectResult.plugin.packageManager;
       }
       const meta: MonitorMeta = {
-        'method': 'cli',
-        'packageManager': packageManager,
+        method: 'cli',
+        packageManager: packageManager,
         'policy-path': options['policy-path'],
         'project-name': options['project-name'] || config.PROJECT_NAME,
-        'isDocker': !!options.docker,
-        'prune': !!options['prune-repeated-subdependencies'],
+        isDocker: !!options.docker,
+        prune: !!options['prune-repeated-subdependencies'],
         'experimental-dep-graph': !!options['experimental-dep-graph'],
         'remote-repo-url': options['remote-repo-url'],
-    };
+      };
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
 
@@ -159,13 +170,20 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       let advertiseSubprojectsCount: number | null = null;
       if (pluginApi.isMultiResult(inspectResult)) {
         perSubProjectResults = inspectResult.scannedProjects.map(
-          (scannedProject) => ({plugin: inspectResult.plugin, package: scannedProject.depTree}));
+          (scannedProject) => ({
+            plugin: inspectResult.plugin,
+            package: scannedProject.depTree,
+          }),
+        );
       } else {
-        if (!options['gradle-sub-project']
-          && inspectResult.plugin.meta
-          && inspectResult.plugin.meta.allSubProjectNames
-          && inspectResult.plugin.meta.allSubProjectNames.length > 1) {
-          advertiseSubprojectsCount = inspectResult.plugin.meta.allSubProjectNames.length;
+        if (
+          !options['gradle-sub-project'] &&
+          inspectResult.plugin.meta &&
+          inspectResult.plugin.meta.allSubProjectNames &&
+          inspectResult.plugin.meta.allSubProjectNames.length > 1
+        ) {
+          advertiseSubprojectsCount =
+            inspectResult.plugin.meta.allSubProjectNames.length;
         }
         perSubProjectResults = [inspectResult];
       }
@@ -176,7 +194,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
         const res = await promiseOrCleanup(
           snykMonitor(path, meta, subProjDeps, targetFile),
-          spinner.clear(postingMonitorSpinnerLabel));
+          spinner.clear(postingMonitorSpinnerLabel),
+        );
 
         await spinner.clear(postingMonitorSpinnerLabel)(res);
 
@@ -201,12 +220,12 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           subProjectName,
           advertiseSubprojectsCount,
         );
-        results.push({ok: true, data: monOutput, path, subProjectName});
+        results.push({ ok: true, data: monOutput, path, subProjectName });
       }
       // push a good result
     } catch (err) {
       // push this error, the loop continues
-      results.push({ok: false, data: err, path});
+      results.push({ ok: false, data: err, path });
     }
   }
   // Part 2: process the output from the Registry
@@ -219,7 +238,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         }
         return jsonData;
       }
-      return {ok: false, error: result.data.message, path: result.path};
+      return { ok: false, error: result.data.message, path: result.path };
     });
     // backwards compat - strip array if only one result
     dataToSend = dataToSend.length === 1 ? dataToSend[0] : dataToSend;
@@ -232,18 +251,24 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error(json);
   }
 
-  const output = results.map((res) => {
-    if (res.ok) {
-      return res.data;
-    }
+  const output = results
+    .map((res) => {
+      if (res.ok) {
+        return res.data;
+      }
 
-    const errorMessage = (res.data && res.data.userMessage) ?
-      chalk.bold.red(res.data.userMessage) :
-      (res.data ? res.data.message : 'Unknown error occurred.');
+      const errorMessage =
+        res.data && res.data.userMessage
+          ? chalk.bold.red(res.data.userMessage)
+          : res.data
+          ? res.data.message
+          : 'Unknown error occurred.';
 
-    return chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') +
-      errorMessage;
-  }).join('\n' + SEPARATOR);
+      return (
+        chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') + errorMessage
+      );
+    })
+    .join('\n' + SEPARATOR);
 
   if (results.every((res) => res.ok)) {
     return output;
@@ -253,37 +278,58 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 }
 
 function formatMonitorOutput(
-    packageManager,
-    res: MonitorResult,
-    manageUrl,
-    options,
-    subProjectName?: string,
-    advertiseSubprojectsCount?: number|null,
-  ) {
+  packageManager,
+  res: MonitorResult,
+  manageUrl,
+  options,
+  subProjectName?: string,
+  advertiseSubprojectsCount?: number | null,
+) {
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-  const humanReadableName = subProjectName ? `${res.path} (${subProjectName})` : res.path;
-  const strOutput = chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
-    (packageManager === 'yarn' ?
-      'A yarn.lock file was detected - continuing as a Yarn project.\n' : '') +
-      'Explore this snapshot at ' + res.uri + '\n\n' +
-    (advertiseSubprojectsCount ?
-      chalk.bold.white(`This project has multiple sub-projects (${advertiseSubprojectsCount}), ` +
-      'use --all-sub-projects flag to scan all sub-projects.\n\n') :
-      '') +
-    (res.isMonitored ?
-      'Notifications about newly disclosed ' + issues + ' related ' +
-      'to these dependencies will be emailed to you.\n' :
-      chalk.bold.red('Project is inactive, so notifications are turned ' +
-        'off.\nActivate this project here: ' + manageUrl + '\n\n')) +
-    (res.trialStarted ?
-      chalk.yellow('You\'re over the free plan usage limit, \n' +
-        'and are now on a free 14-day premium trial.\n' +
-        'View plans here: ' + manageUrl + '\n\n') :
-      '');
+  const humanReadableName = subProjectName
+    ? `${res.path} (${subProjectName})`
+    : res.path;
+  const strOutput =
+    chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
+    (packageManager === 'yarn'
+      ? 'A yarn.lock file was detected - continuing as a Yarn project.\n'
+      : '') +
+    'Explore this snapshot at ' +
+    res.uri +
+    '\n\n' +
+    (advertiseSubprojectsCount
+      ? chalk.bold.white(
+          `This project has multiple sub-projects (${advertiseSubprojectsCount}), ` +
+            'use --all-sub-projects flag to scan all sub-projects.\n\n',
+        )
+      : '') +
+    (res.isMonitored
+      ? 'Notifications about newly disclosed ' +
+        issues +
+        ' related ' +
+        'to these dependencies will be emailed to you.\n'
+      : chalk.bold.red(
+          'Project is inactive, so notifications are turned ' +
+            'off.\nActivate this project here: ' +
+            manageUrl +
+            '\n\n',
+        )) +
+    (res.trialStarted
+      ? chalk.yellow(
+          "You're over the free plan usage limit, \n" +
+            'and are now on a free 14-day premium trial.\n' +
+            'View plans here: ' +
+            manageUrl +
+            '\n\n',
+        )
+      : '');
 
-  return options.json ?
-    JSON.stringify(_.assign({}, res, {
-      manageUrl,
-      packageManager,
-    })) : strOutput;
+  return options.json
+    ? JSON.stringify(
+        _.assign({}, res, {
+          manageUrl,
+          packageManager,
+        }),
+      )
+    : strOutput;
 }

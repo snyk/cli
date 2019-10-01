@@ -61,7 +61,7 @@ export interface IssueData {
     vulnerableHashes?: string[];
     vulnerableByDistro?: {
       [distroNameAndVersion: string]: string[];
-    }
+    };
   };
   patches: Patch[];
   isNew: boolean;
@@ -234,11 +234,11 @@ export interface RemediationChanges {
 }
 
 function convertTestDepGraphResultToLegacy(
-    res: TestDepGraphResponse,
-    depGraph: depGraphLib.DepGraph,
-    packageManager: string,
-    severityThreshold?: SEVERITY): LegacyVulnApiResult {
-
+  res: TestDepGraphResponse,
+  depGraph: depGraphLib.DepGraph,
+  packageManager: string,
+  severityThreshold?: SEVERITY,
+): LegacyVulnApiResult {
   const result = res.result;
 
   const upgradePathsMap = new Map<string, string[]>();
@@ -248,8 +248,13 @@ function convertTestDepGraphResultToLegacy(
       if (pkgIssue.fixInfo && pkgIssue.fixInfo.upgradePaths) {
         for (const upgradePath of pkgIssue.fixInfo.upgradePaths) {
           const legacyFromPath = pkgPathToLegacyPath(upgradePath.path);
-          const vulnPathString = getVulnPathString(pkgIssue.issueId, legacyFromPath);
-          upgradePathsMap[vulnPathString] = toLegacyUpgradePath(upgradePath.path);
+          const vulnPathString = getVulnPathString(
+            pkgIssue.issueId,
+            legacyFromPath,
+          );
+          upgradePathsMap[vulnPathString] = toLegacyUpgradePath(
+            upgradePath.path,
+          );
         }
       }
     }
@@ -263,21 +268,28 @@ function convertTestDepGraphResultToLegacy(
     for (const vulnPkgPath of depGraph.pkgPathsToRoot(pkgInfo.pkg)) {
       const legacyFromPath = pkgPathToLegacyPath(vulnPkgPath.reverse());
       for (const pkgIssue of _.values(pkgInfo.issues)) {
-        const vulnPathString = getVulnPathString(pkgIssue.issueId, legacyFromPath);
+        const vulnPathString = getVulnPathString(
+          pkgIssue.issueId,
+          legacyFromPath,
+        );
         const upgradePath = upgradePathsMap[vulnPathString] || [];
 
         // TODO: we need the full issue-data for every path only for the --json output,
         //   consider picking only the required fields,
         //   and append the full data only for --json, to minimize chance of out-of-memory
-        const annotatedIssue = Object.assign({}, result.issuesData[pkgIssue.issueId], {
-          from: legacyFromPath,
-          upgradePath,
-          isUpgradable: !!upgradePath[0] || !!upgradePath[1],
-          isPatchable: pkgIssue.fixInfo.isPatchable,
-          name: pkgInfo.pkg.name,
-          version: pkgInfo.pkg.version as string,
-          nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
-        }) as AnnotatedIssue & DockerIssue;  // TODO(kyegupov): get rid of type assertion
+        const annotatedIssue = Object.assign(
+          {},
+          result.issuesData[pkgIssue.issueId],
+          {
+            from: legacyFromPath,
+            upgradePath,
+            isUpgradable: !!upgradePath[0] || !!upgradePath[1],
+            isPatchable: pkgIssue.fixInfo.isPatchable,
+            name: pkgInfo.pkg.name,
+            version: pkgInfo.pkg.version as string,
+            nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
+          },
+        ) as AnnotatedIssue & DockerIssue; // TODO(kyegupov): get rid of type assertion
 
         vulns.push(annotatedIssue);
       }
@@ -290,17 +302,22 @@ function convertTestDepGraphResultToLegacy(
     const binariesVulns = dockerRes.binariesVulns;
     for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
       for (const pkgIssue of _.values(pkgInfo.issues)) {
-        const pkgAndVersion =
-          pkgInfo.pkg.name + '@' + pkgInfo.pkg.version as string;
-        const annotatedIssue = Object.assign({}, binariesVulns.issuesData[pkgIssue.issueId], {
-          from: ['Upstream', pkgAndVersion],
-          upgradePath: [],
-          isUpgradable: false,
-          isPatchable: false,
-          name: pkgInfo.pkg.name,
-          version: pkgInfo.pkg.version as string,
-          nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
-        }) as any as AnnotatedIssue; // TODO(kyegupov): get rid of forced type assertion
+        const pkgAndVersion = (pkgInfo.pkg.name +
+          '@' +
+          pkgInfo.pkg.version) as string;
+        const annotatedIssue = (Object.assign(
+          {},
+          binariesVulns.issuesData[pkgIssue.issueId],
+          {
+            from: ['Upstream', pkgAndVersion],
+            upgradePath: [],
+            isUpgradable: false,
+            isPatchable: false,
+            name: pkgInfo.pkg.name,
+            version: pkgInfo.pkg.version as string,
+            nearestFixedInVersion: pkgIssue.fixInfo.nearestFixedInVersion,
+          },
+        ) as any) as AnnotatedIssue; // TODO(kyegupov): get rid of forced type assertion
         vulns.push(annotatedIssue);
       }
     }
@@ -308,7 +325,8 @@ function convertTestDepGraphResultToLegacy(
 
   const meta = res.meta || {};
 
-  severityThreshold = (severityThreshold === SEVERITY.LOW) ? undefined : severityThreshold;
+  severityThreshold =
+    severityThreshold === SEVERITY.LOW ? undefined : severityThreshold;
 
   const legacyRes: LegacyVulnApiResult = {
     vulnerabilities: vulns,
@@ -330,14 +348,16 @@ function convertTestDepGraphResultToLegacy(
 }
 
 function getVulnPathString(issueId: string, vulnPath: string[]) {
-  return issueId + '|' +  JSON.stringify(vulnPath);
+  return issueId + '|' + JSON.stringify(vulnPath);
 }
 
 function pkgPathToLegacyPath(pkgPath: Pkg[]): string[] {
   return pkgPath.map(toLegacyPkgId);
 }
 
-function toLegacyUpgradePath(upgradePath: UpgradePathItem[]): Array<string|boolean> {
+function toLegacyUpgradePath(
+  upgradePath: UpgradePathItem[],
+): Array<string | boolean> {
   return upgradePath
     .filter((item) => !item.isDropped)
     .map((item) => {
@@ -360,10 +380,10 @@ function getSummary(vulns: object[], severityThreshold?: SEVERITY): string {
   const severitiesArray = SEVERITIES.map((s) => s.verboseName);
   if (severityThreshold) {
     severitiesArray
-    .slice(severitiesArray.indexOf(severityThreshold))
-    .forEach((sev) => {
-      severityFilters.push(sev);
-    });
+      .slice(severitiesArray.indexOf(severityThreshold))
+      .forEach((sev) => {
+        severityFilters.push(sev);
+      });
   }
 
   if (!count) {
@@ -395,7 +415,4 @@ function pl(word, count) {
   return word;
 }
 
-export {
-  convertTestDepGraphResultToLegacy,
-  AnnotatedIssue,
-};
+export { convertTestDepGraphResultToLegacy, AnnotatedIssue };

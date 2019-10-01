@@ -1,4 +1,4 @@
-import {execSync} from 'child_process';
+import { execSync } from 'child_process';
 
 const program = {
   darwin: 'pbcopy',
@@ -7,5 +7,5 @@ const program = {
 }[process.platform];
 
 export function copy(str) {
-  return execSync(program, {input: str});
+  return execSync(program, { input: str });
 }

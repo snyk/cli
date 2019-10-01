@@ -11,7 +11,7 @@ var mkdirSync = require('fs').mkdirSync;
 function silenceLog() {
   var old = console.log;
 
-  console.log = function () {};
+  console.log = function() {};
 
   return function() {
     console.log = old;
@@ -19,9 +19,9 @@ function silenceLog() {
 }
 
 function extendExpiries(policy) {
-  var d = new Date(Date.now() + (1000 * 60 * 60 * 24)).toJSON();
-  Object.keys(policy.ignore).forEach(function (id) {
-    policy.ignore[id].forEach(function (rule) {
+  var d = new Date(Date.now() + 1000 * 60 * 60 * 24).toJSON();
+  Object.keys(policy.ignore).forEach(function(id) {
+    policy.ignore[id].forEach(function(rule) {
       var path = Object.keys(rule).shift();
       rule[path].expires = d;
     });
@@ -29,8 +29,14 @@ function extendExpiries(policy) {
 }
 
 function tmpdir() {
-  var dirname = join(osTmpdir(), 'TMP' + Math.random().toString(36)
-                     .replace(/[^a-z0-9]+/g, '').substr(2, 12));
+  var dirname = join(
+    osTmpdir(),
+    'TMP' +
+      Math.random()
+        .toString(36)
+        .replace(/[^a-z0-9]+/g, '')
+        .substr(2, 12),
+  );
   mkdirSync(dirname);
   return dirname;
 }

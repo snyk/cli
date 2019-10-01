@@ -3,7 +3,8 @@ var args = require('../src/cli/args').args;
 
 test('test command line arguments', function(t) {
   t.plan(1);
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'test',
     '--',
@@ -17,7 +18,8 @@ test('test command line arguments', function(t) {
 
 test('test command line test --package-manager', function(t) {
   t.plan(1);
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'test',
     '--package-manager=pip',
@@ -29,7 +31,8 @@ test('test command line test --package-manager', function(t) {
 
 test('test command line monitor --package-manager', function(t) {
   t.plan(1);
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'monitor',
     '--package-manager=pip',
@@ -41,23 +44,24 @@ test('test command line monitor --package-manager', function(t) {
 
 test('test --insecure', function(t) {
   t.plan(1);
-  t.teardown(function () {
+  t.teardown(function() {
     delete global.ignoreUnknownCA;
   });
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'test',
     '--insecure',
   ];
   var result = args(cliArgs);
-  t.equal(global.ignoreUnknownCA, true, 'ignoreUnknownCA true')
+  t.equal(global.ignoreUnknownCA, true, 'ignoreUnknownCA true');
   t.end();
 });
 
-
 test('test command line test --all-sub-projects', function(t) {
   t.plan(1);
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'test',
     '--all-sub-projects',
@@ -69,7 +73,8 @@ test('test command line test --all-sub-projects', function(t) {
 
 test('test command line test --gradle-sub-project=foo', function(t) {
   t.plan(1);
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'test',
     '--gradle-sub-project=foo',
@@ -81,7 +86,8 @@ test('test command line test --gradle-sub-project=foo', function(t) {
 
 test('test command line test --strict-out-of-sync', function(t) {
   t.plan(1);
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'test',
     '--strict-out-of-sync',
@@ -93,7 +99,8 @@ test('test command line test --strict-out-of-sync', function(t) {
 
 test('test command line test --strict-out-of-sync=true', function(t) {
   t.plan(1);
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'test',
     '--strict-out-of-sync=true',
@@ -105,7 +112,8 @@ test('test command line test --strict-out-of-sync=true', function(t) {
 
 test('test command line test --strict-out-of-sync=false', function(t) {
   t.plan(1);
-  var cliArgs = [ '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+  var cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'test',
     '--strict-out-of-sync=false',

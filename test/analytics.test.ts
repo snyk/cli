@@ -5,9 +5,12 @@ const osName = require('os-name');
 import * as sinon from 'sinon';
 import * as snyk from '../src/lib';
 let old;
-const iswindows = osName().toLowerCase().indexOf('windows') === 0;
+const iswindows =
+  osName()
+    .toLowerCase()
+    .indexOf('windows') === 0;
 const proxyquire = Proxyquire.noPreserveCache();
-const {test} = tap;
+const { test } = tap;
 
 tap.beforeEach((done) => {
   old = snyk.config.get('disable-analytics');
@@ -49,9 +52,21 @@ test('analytics', (t) => {
     args: [],
   }).then(() => {
     const body = spy.lastCall.args[0].body.data;
-    t.deepEqual(Object.keys(body).sort(),
-      ['command', 'os', 'version', 'id', 'ci', 'metadata', 'args', 'nodeVersion', 'durationMs'].sort(),
-      'keys as expected');
+    t.deepEqual(
+      Object.keys(body).sort(),
+      [
+        'command',
+        'os',
+        'version',
+        'id',
+        'ci',
+        'metadata',
+        'args',
+        'nodeVersion',
+        'durationMs',
+      ].sort(),
+      'keys as expected',
+    );
   });
 });
 
@@ -69,9 +84,16 @@ test('bad command', (t) => {
 
     const payload = spy.args[0][0].body;
     t.equal(payload.data.command, 'bad-command', 'correct event name');
-    t.equal(payload.data.metadata.command, 'random command', 'found original command');
-    t.equal(payload.data.metadata['error-message'],
-      'Unknown command "random command"', 'got correct error');
+    t.equal(
+      payload.data.metadata.command,
+      'random command',
+      'found original command',
+    );
+    t.equal(
+      payload.data.metadata['error-message'],
+      'Unknown command "random command"',
+      'got correct error',
+    );
   });
 });
 
@@ -92,7 +114,7 @@ test('bad command with string error', (t) => {
           '..\\cli\\commands\\test'() {
             return Promise.reject(error);
           },
-          '../cli/commands/test'()  {
+          '../cli/commands/test'() {
             return Promise.reject(error);
           },
         }),
@@ -127,7 +149,7 @@ test('vulns found (thrown as an error)', (t) => {
           '..\\cli\\commands\\test'() {
             return Promise.reject(error);
           },
-          '../cli/commands/test'()  {
+          '../cli/commands/test'() {
             return Promise.reject(error);
           },
         }),
@@ -141,7 +163,11 @@ test('vulns found (thrown as an error)', (t) => {
     const payload = spy.args[0][0].body;
     t.equal(payload.data.command, 'test', 'correct event name');
     t.equal(payload.data.metadata.command, 'test', 'found original command');
-    t.equal(payload.data.metadata['error-message'], 'Vulnerabilities found', 'got correct vuln count');
+    t.equal(
+      payload.data.metadata['error-message'],
+      'Vulnerabilities found',
+      'got correct vuln count',
+    );
   });
 });
 
@@ -173,6 +199,10 @@ test('test includes data', { skip: iswindows }, (t) => {
 
     const payload = spy.args[0][0].body;
     t.equal(payload.data.command, 'test', 'correct event name');
-    t.equal(payload.data.metadata.package, 'snyk-demo-app@*', 'includes package');
+    t.equal(
+      payload.data.metadata.package,
+      'snyk-demo-app@*',
+      'includes package',
+    );
   });
 });

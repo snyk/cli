@@ -44,40 +44,42 @@ function postAnalytics(data) {
   }
 
   // get snyk version
-  return version().then((version) => {
-    data.version = version;
-    data.os = osName(os.platform(), os.release());
-    data.nodeVersion = process.version;
+  return version()
+    .then((version) => {
+      data.version = version;
+      data.os = osName(os.platform(), os.release());
+      data.nodeVersion = process.version;
 
-    const seed = uuid.v4();
-    const shasum = crypto.createHash('sha1');
-    data.id = shasum.update(seed).digest('hex');
+      const seed = uuid.v4();
+      const shasum = crypto.createHash('sha1');
+      data.id = shasum.update(seed).digest('hex');
 
-    const headers = {};
-    if (snyk.api) {
-      headers.authorization = 'token ' + snyk.api;
-    }
+      const headers = {};
+      if (snyk.api) {
+        headers.authorization = 'token ' + snyk.api;
+      }
 
-    data.ci = isCI();
-    data.durationMs = Date.now() - startTime;
+      data.ci = isCI();
+      data.durationMs = Date.now() - startTime;
 
-    debug('analytics', data);
+      debug('analytics', data);
 
-    return request({
-      body: {
-        data: data,
-      },
-      url: config.API + '/analytics/cli',
-      json: true,
-      method: 'post',
-      headers: headers,
+      return request({
+        body: {
+          data: data,
+        },
+        url: config.API + '/analytics/cli',
+        json: true,
+        method: 'post',
+        headers: headers,
+      });
+    })
+    .catch((error) => {
+      debug('analytics', error); // this swallows the analytics error
     });
-  }).catch((error) => {
-    debug('analytics', error); // this swallows the analytics error
-  });
 }
 
-analytics.add = function (key, value) {
+analytics.add = function(key, value) {
   if (typeof value === 'string') {
     value = stripAnsi(value);
   }

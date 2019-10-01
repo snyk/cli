@@ -6,9 +6,9 @@ const path = require('path');
 // as needed by the user, and totally avoiding if the module is being required
 // into a user project
 function hotload(dir) {
-  return function (name) {
+  return function(name) {
     let module = null;
-    return function (...args) {
+    return function(...args) {
       if (module === null) {
         module = require(path.relative(__dirname, path.resolve(dir, name)));
       }

@@ -23,164 +23,203 @@ function patch(vulns, live) {
   const lbl = 'Applying patches...';
   const errorList = [];
 
-  return spinner(lbl).then(() => {
-    // the target directory where our module name will live
-    vulns.forEach((vuln) => vuln.source = getVulnSource(vuln, live));
+  return (
+    spinner(lbl)
+      .then(() => {
+        // the target directory where our module name will live
+        vulns.forEach((vuln) => (vuln.source = getVulnSource(vuln, live)));
 
-    const deduped = dedupe(vulns);
-    debug('patching %s vulns after dedupe', deduped.packages.length);
+        const deduped = dedupe(vulns);
+        debug('patching %s vulns after dedupe', deduped.packages.length);
 
-    // find the patches, pull them down off the web, save them in a temp file
-    // then apply each individual patch - but do it one at a time (via reduce)
-    const promises = deduped.packages.reduce((acc, vuln) => {
-      return acc.then((res) => {
-        const patches = vuln.patches; // this is also deduped in `dedupe`
+        // find the patches, pull them down off the web, save them in a temp file
+        // then apply each individual patch - but do it one at a time (via reduce)
+        const promises = deduped.packages.reduce((acc, vuln) => {
+          return acc.then((res) => {
+            const patches = vuln.patches; // this is also deduped in `dedupe`
 
-        if (patches === null) {
-          debug('no patch available for ' + vuln.id);
-          analytics.add('no-patch', vuln.from.slice(1).join(' > '));
-          return res;
-        }
-
-        analytics.add('patch', vuln.from.slice(1).join(' > '));
-        debug(`Patching vuln: ${vuln.id} ${vuln.from}`);
-
-        // the colon doesn't like Windows, ref: https://git.io/vw2iO
-        const fileSafeId = vuln.id.replace(/:/g, '-');
-        const flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
-        const oldFlag = path.resolve(vuln.source, '.snyk-' + vuln.id + '.flag');
-
-        // get the patches on the local fs
-        const promises = patches.urls.map((url) => {
-          const filename = tempfile('.' + fileSafeId + '.snyk-patch');
-          return getPatchFile(url, filename).then((patch) => {
-            // check whether there's a trace of us having patched before
-            return fs.exists(flag).then((exists) => {
-              // if the file doesn't exist, look for the old style filename
-              // in case and for backwards compatability
-              return exists || fs.exists(oldFlag);
-            }).then((exists) => {
-              if (!exists) {
-                return patch;
-              }
-              debug('Previous flag found = ' + exists +
-              ' | Restoring file back to original to apply the patch again');
-              // else revert the patch
-              return new Promise(((resolve, reject) => {
-                // find all backup files that do not belong to transitive deps
-                glob('**/*.orig', {cwd: vuln.source, ignore: '**/node_modules/**'}, (error, files) => {
-                  if (error) {
-                    return reject(error);
-                  }
-
-                  // copy '.orig' backups over the patched files
-                  for (const file of files) {
-                    const backupFile = path.resolve(vuln.source, file);
-                    const sourceFile = backupFile.slice(0, -'.orig'.length);
-                    debug('restoring', backupFile, sourceFile);
-                    fs.renameSync(backupFile, sourceFile);
-                  }
-
-                  resolve(patch);
-                });
-              }));
-            });
-          }).then((patch) => {
-            if (patch === false) {
-              debug('already patched %s', vuln.id);
-              return vuln;
+            if (patches === null) {
+              debug('no patch available for ' + vuln.id);
+              analytics.add('no-patch', vuln.from.slice(1).join(' > '));
+              return res;
             }
 
-            debug('applying patch file for %s: \n%s\n%s', vuln.id, url, patch);
+            analytics.add('patch', vuln.from.slice(1).join(' > '));
+            debug(`Patching vuln: ${vuln.id} ${vuln.from}`);
 
-            return applyPatch(patch, vuln, live, url)
-              .then(() => {
-                return true;
-              }, (e) => {
-                errorList.push(e);
-                return false;
-              })
-              .then(writePatchFlag(now, vuln))
-              .then((ok) => {
-                return ok ? vuln : false;
-              });
+            // the colon doesn't like Windows, ref: https://git.io/vw2iO
+            const fileSafeId = vuln.id.replace(/:/g, '-');
+            const flag = path.resolve(
+              vuln.source,
+              '.snyk-' + fileSafeId + '.flag',
+            );
+            const oldFlag = path.resolve(
+              vuln.source,
+              '.snyk-' + vuln.id + '.flag',
+            );
+
+            // get the patches on the local fs
+            const promises = patches.urls.map((url) => {
+              const filename = tempfile('.' + fileSafeId + '.snyk-patch');
+              return getPatchFile(url, filename)
+                .then((patch) => {
+                  // check whether there's a trace of us having patched before
+                  return fs
+                    .exists(flag)
+                    .then((exists) => {
+                      // if the file doesn't exist, look for the old style filename
+                      // in case and for backwards compatability
+                      return exists || fs.exists(oldFlag);
+                    })
+                    .then((exists) => {
+                      if (!exists) {
+                        return patch;
+                      }
+                      debug(
+                        'Previous flag found = ' +
+                          exists +
+                          ' | Restoring file back to original to apply the patch again',
+                      );
+                      // else revert the patch
+                      return new Promise((resolve, reject) => {
+                        // find all backup files that do not belong to transitive deps
+                        glob(
+                          '**/*.orig',
+                          { cwd: vuln.source, ignore: '**/node_modules/**' },
+                          (error, files) => {
+                            if (error) {
+                              return reject(error);
+                            }
+
+                            // copy '.orig' backups over the patched files
+                            for (const file of files) {
+                              const backupFile = path.resolve(
+                                vuln.source,
+                                file,
+                              );
+                              const sourceFile = backupFile.slice(
+                                0,
+                                -'.orig'.length,
+                              );
+                              debug('restoring', backupFile, sourceFile);
+                              fs.renameSync(backupFile, sourceFile);
+                            }
+
+                            resolve(patch);
+                          },
+                        );
+                      });
+                    });
+                })
+                .then((patch) => {
+                  if (patch === false) {
+                    debug('already patched %s', vuln.id);
+                    return vuln;
+                  }
+
+                  debug(
+                    'applying patch file for %s: \n%s\n%s',
+                    vuln.id,
+                    url,
+                    patch,
+                  );
+
+                  return applyPatch(patch, vuln, live, url)
+                    .then(
+                      () => {
+                        return true;
+                      },
+                      (e) => {
+                        errorList.push(e);
+                        return false;
+                      },
+                    )
+                    .then(writePatchFlag(now, vuln))
+                    .then((ok) => {
+                      return ok ? vuln : false;
+                    });
+                });
+            });
+
+            return Promise.all(promises).then((result) => {
+              res.push(result);
+              return res; // this is what makes the waterfall reduce chain work
+            });
           });
-        });
+        }, Promise.resolve(deduped.removed));
 
-        return Promise.all(promises).then((result) => {
-          res.push(result);
-          return res; // this is what makes the waterfall reduce chain work
-        });
-      });
-    }, Promise.resolve(deduped.removed));
+        const promise = promises
+          .then((res) => {
+            const patched = _.flatten(res).filter(Boolean);
 
-    const promise = promises.then((res) => {
-      const patched = _.flatten(res).filter(Boolean);
+            if (!live) {
+              debug('[skipping - dry run]');
+              return patched;
+            }
+            return Promise.all(patched);
+          })
+          .then((patched) => {
+            const config = {};
 
-      if (!live) {
-        debug('[skipping - dry run]');
-        return patched;
-      }
-      return Promise.all(patched);
-    }).then((patched) => {
-      const config = {};
+            // this reduce function will look to see if the patch actually resolves
+            // more than one vulnerability, and if it does, it'll replicate the
+            // patch rule against the *other* vuln.ids. This will happen when the user
+            // runs the wizard and selects to apply a patch that fixes more than one
+            // vuln.
+            const mapped = patched.map(patchRule).reduce((acc, curr, i) => {
+              const vuln = patched[i];
+              if (vuln.grouped && vuln.grouped.includes) {
+                vuln.grouped.includes.forEach((id) => {
+                  const rule = _.cloneDeep(curr);
+                  rule.vulnId = id;
+                  acc.push(rule);
+                });
+              }
 
-      // this reduce function will look to see if the patch actually resolves
-      // more than one vulnerability, and if it does, it'll replicate the
-      // patch rule against the *other* vuln.ids. This will happen when the user
-      // runs the wizard and selects to apply a patch that fixes more than one
-      // vuln.
-      const mapped = patched.map(patchRule).reduce((acc, curr, i) => {
-        const vuln = patched[i];
-        if (vuln.grouped && vuln.grouped.includes) {
-          vuln.grouped.includes.forEach((id) => {
-            const rule = _.cloneDeep(curr);
-            rule.vulnId = id;
-            acc.push(rule);
+              acc.push(curr);
+
+              return acc;
+            }, []);
+
+            config.patch = mapped.reduce((acc, curr) => {
+              if (!acc[curr.vulnId]) {
+                acc[curr.vulnId] = [];
+              }
+
+              const id = curr.vulnId;
+              delete curr.vulnId;
+              acc[id].push(curr);
+
+              return acc;
+            }, {});
+
+            debug('patched', config);
+
+            return config;
           });
+
+        return promise;
+      })
+      // clear spinner in case of success or failure
+      .then(spinner.clear(lbl))
+      .catch((error) => {
+        spinner.clear(lbl)();
+        throw error;
+      })
+      .then((res) => {
+        if (errorList.length) {
+          errorList.forEach((error) => {
+            console.log(chalk.red(errors.message(error)));
+            debug(error.stack);
+          });
+          throw new Error(
+            'Please email support@snyk.io if this problem persists.',
+          );
         }
 
-        acc.push(curr);
-
-        return acc;
-      }, []);
-
-      config.patch = mapped.reduce((acc, curr) => {
-        if (!acc[curr.vulnId]) {
-          acc[curr.vulnId] = [];
-        }
-
-        const id = curr.vulnId;
-        delete curr.vulnId;
-        acc[id].push(curr);
-
-        return acc;
-      }, {});
-
-      debug('patched', config);
-
-      return config;
-    });
-
-    return promise;
-  })
-    // clear spinner in case of success or failure
-    .then(spinner.clear(lbl))
-    .catch((error) => {
-      spinner.clear(lbl)();
-      throw error;
-    })
-    .then((res) => {
-      if (errorList.length) {
-        errorList.forEach((error) => {
-          console.log(chalk.red(errors.message(error)));
-          debug(error.stack);
-        });
-        throw new Error('Please email support@snyk.io if this problem persists.');
-      }
-
-      return res;
-    });
+        return res;
+      })
+  );
 }
 
 function patchRule(vuln) {

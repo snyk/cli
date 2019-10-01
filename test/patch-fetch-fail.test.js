@@ -4,22 +4,22 @@ var analyticsEvent;
 
 var getPatchFile = proxyquire('../src/lib/protect/fetch-patch', {
   fs: {
-    writeFileSync: function () {},
+    writeFileSync: function() {},
   },
   '../analytics': {
-    add: function (type, data) {
-      analyticsEvent = {type, data};
+    add: function(type, data) {
+      analyticsEvent = { type, data };
     },
   },
 });
 
-test('Fetch does what it should when request works properly', t => {
+test('Fetch does what it should when request works properly', (t) => {
   return getPatchFile('http://httpstat.us/200', 'name')
-    .then(name => t.is(name, 'name'))
+    .then((name) => t.is(name, 'name'))
     .catch(() => t.fail('Rejected'));
 });
 
-test('Fetch fails with 404', t => {
+test('Fetch fails with 404', (t) => {
   return getPatchFile('http://httpstat.us/404', 'name')
     .then(() => t.fail('Should have failed'))
     .catch(() => {
@@ -28,7 +28,7 @@ test('Fetch fails with 404', t => {
     });
 });
 
-test('Fetch fails with 502', t => {
+test('Fetch fails with 502', (t) => {
   return getPatchFile('http://httpstat.us/502', 'name')
     .then(() => t.fail('Should have failed'))
     .catch(() => {

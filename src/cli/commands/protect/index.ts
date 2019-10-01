@@ -11,8 +11,10 @@ import * as errors from '../../../lib/errors';
 
 const debug = debugModule('snyk');
 
-async function protectFunc(options: types.ProtectOptions & types.Options & types.TestOptions) {
-  const protectOptions = {...options};
+async function protectFunc(
+  options: types.ProtectOptions & types.Options & types.TestOptions,
+) {
+  const protectOptions = { ...options };
   protectOptions.loose = true; // replace missing policies with empty ones
   protectOptions.vulnEndpoint = '/vuln/npm/patches';
   // TODO: fix this by providing better patch support for yarn
@@ -25,13 +27,19 @@ async function protectFunc(options: types.ProtectOptions & types.Options & types
   protectOptions.traverseNodeModules = true;
 
   try {
-    const packageManager: pm.SupportedPackageManagers = detect.detectPackageManager(process.cwd(), protectOptions);
-    const supportsProtect = pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS
-      .includes(packageManager);
+    const packageManager: pm.SupportedPackageManagers = detect.detectPackageManager(
+      process.cwd(),
+      protectOptions,
+    );
+    const supportsProtect = pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS.includes(
+      packageManager,
+    );
     if (!supportsProtect) {
       throw new Error(
-        'Snyk protect for ' + pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager] +
-        ' projects is not currently supported');
+        'Snyk protect for ' +
+          pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager] +
+          ' projects is not currently supported',
+      );
     }
   } catch (error) {
     return Promise.reject(error);
@@ -39,8 +47,12 @@ async function protectFunc(options: types.ProtectOptions & types.Options & types
 
   if (protectOptions.interactive) {
     // silently fail
-    return Promise.reject(new Error('Snyk protect interactive mode ' +
-      'has moved. Please run `snyk wizard`'));
+    return Promise.reject(
+      new Error(
+        'Snyk protect interactive mode ' +
+          'has moved. Please run `snyk wizard`',
+      ),
+    );
   }
 
   if (protectOptions['dry-run']) {
@@ -69,7 +81,10 @@ async function protectFunc(options: types.ProtectOptions & types.Options & types
 
 async function patch(options: types.ProtectOptions & types.Options) {
   try {
-    const response = await snyk.test(process.cwd(), options) as LegacyVulnApiResult;
+    const response = (await snyk.test(
+      process.cwd(),
+      options,
+    )) as LegacyVulnApiResult;
     // TODO: need to add support for multiple test results being returned
     // from test (for example gradle modules)
 

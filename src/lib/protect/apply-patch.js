@@ -12,7 +12,7 @@ const errorAnalytics = require('../analytics').single;
 function applyPatch(patchFileName, vuln, live, patchUrl) {
   let cwd = vuln.source;
 
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     if (!cwd) {
       cwd = process.cwd();
     }
@@ -28,22 +28,35 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
         pkg = JSON.parse(packageJson);
         debug('package at patch target location: %s@%s', pkg.name, pkg.version);
       } catch (err) {
-        debug('Failed loading package.json at %s. Skipping patch!', packageJsonPath, err);
+        debug(
+          'Failed loading package.json at %s. Skipping patch!',
+          packageJsonPath,
+          err,
+        );
         return resolve();
       }
 
       const versionOfPackageToPatch = pkg.version;
       const patchableVersionsRange = semver.coerce(vuln.patches.version);
       if (semver.satisfies(versionOfPackageToPatch, patchableVersionsRange)) {
-        debug('Patch version range %s matches package version %s',
-          patchableVersionsRange, versionOfPackageToPatch);
+        debug(
+          'Patch version range %s matches package version %s',
+          patchableVersionsRange,
+          versionOfPackageToPatch,
+        );
       } else {
-        debug('Patch version range %s does not match package version %s. Skipping patch!',
-          patchableVersionsRange, versionOfPackageToPatch);
+        debug(
+          'Patch version range %s does not match package version %s. Skipping patch!',
+          patchableVersionsRange,
+          versionOfPackageToPatch,
+        );
         return resolve();
       }
 
-      const patchContent = fs.readFileSync(path.resolve(relative, patchFileName), 'utf8');
+      const patchContent = fs.readFileSync(
+        path.resolve(relative, patchFileName),
+        'utf8',
+      );
 
       jsDiff(patchContent, relative, live).then(() => {
         debug('patch succeed');
@@ -52,15 +65,15 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
     } catch (error) {
       debug('patch command failed', relative, error);
       patchError(error, relative, vuln, patchUrl).catch(reject);
-    };
-  }));
+    }
+  });
 }
 
 function jsDiff(patchContent, relative, live) {
   const patchedFiles = {};
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     diff.applyPatches(patchContent, {
-      loadFile: function (index, callback) {
+      loadFile: function(index, callback) {
         try {
           const fileName = trimUpToFirstSlash(index.oldFileName);
           if (patchedFiles[fileName]) {
@@ -82,7 +95,7 @@ function jsDiff(patchContent, relative, live) {
           callback(err);
         }
       },
-      patched: function (index, content, callback) {
+      patched: function(index, content, callback) {
         try {
           if (content === false) {
             // `false` means the patch does not match the original content.
@@ -101,14 +114,14 @@ function jsDiff(patchContent, relative, live) {
           callback(err);
         }
       },
-      compareLine: function (_, line, operation, patchContent) {
+      compareLine: function(_, line, operation, patchContent) {
         if (operation === ' ') {
           // Ignore when no patch operators as GNU patch does
           return true;
         }
         return line === patchContent;
       },
-      complete: function (error) {
+      complete: function(error) {
         if (error) {
           return reject(error);
         }
@@ -119,7 +132,10 @@ function jsDiff(patchContent, relative, live) {
           // write patched files back to disk, unlink files completely removed by patching
           for (const fileName in patchedFiles) {
             if (typeof patchedFiles[fileName] === 'string') {
-              fs.writeFileSync(path.resolve(relative, fileName), patchedFiles[fileName]);
+              fs.writeFileSync(
+                path.resolve(relative, fileName),
+                patchedFiles[fileName],
+              );
             } else {
               fs.unlinkSync(path.resolve(relative, fileName));
             }
@@ -130,7 +146,7 @@ function jsDiff(patchContent, relative, live) {
         }
       },
     });
-  }));
+  });
 }
 
 // diff data compares the same file with a dummy path (a/path/to/real.file vs b/path/to/real.file)
@@ -141,52 +157,74 @@ function trimUpToFirstSlash(fileName) {
 
 function patchError(error, dir, vuln, patchUrl) {
   if (error && error.code === 'ENOENT') {
-    error.message = 'Failed to patch: the target could not be found (' + error.message + ').';
+    error.message =
+      'Failed to patch: the target could not be found (' + error.message + ').';
     return Promise.reject(error);
   }
 
-  return new Promise(((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const id = vuln.id;
 
-    exec('npm -v', {
-      env: process.env,
-    }, (npmVError, versions) => { // stderr is ignored
-      const npmVersion = versions && versions.split('\n').shift();
-      const referenceId = uuid();
+    exec(
+      'npm -v',
+      {
+        env: process.env,
+      },
+      (npmVError, versions) => {
+        // stderr is ignored
+        const npmVersion = versions && versions.split('\n').shift();
+        const referenceId = uuid();
 
-      // this is a general "patch failed", since we already check if the
-      // patch was applied via a flag, this means something else went
-      // wrong, so we'll ask the user for help to diagnose.
-      const filename = path.relative(process.cwd(), dir);
+        // this is a general "patch failed", since we already check if the
+        // patch was applied via a flag, this means something else went
+        // wrong, so we'll ask the user for help to diagnose.
+        const filename = path.relative(process.cwd(), dir);
 
-      // post metadata to help diagnose
-      errorAnalytics({
-        command: 'patch-fail',
-        metadata: {
-          from: vuln.from.slice(1),
-          vulnId: id,
-          packageName: vuln.name,
-          packageVersion: vuln.version,
-          package: vuln.name + '@' + vuln.version,
-          patchError: Object.assign({}, {
-            message: error.message,
-            stack: error.stack,
-            name: error.name,
-          }, error),
-          'npm-version': npmVersion,
-          referenceId: referenceId,
-          patchUrl: patchUrl,
-          filename: filename,
-        },
-      });
+        // post metadata to help diagnose
+        errorAnalytics({
+          command: 'patch-fail',
+          metadata: {
+            from: vuln.from.slice(1),
+            vulnId: id,
+            packageName: vuln.name,
+            packageVersion: vuln.version,
+            package: vuln.name + '@' + vuln.version,
+            patchError: Object.assign(
+              {},
+              {
+                message: error.message,
+                stack: error.stack,
+                name: error.name,
+              },
+              error,
+            ),
+            'npm-version': npmVersion,
+            referenceId: referenceId,
+            patchUrl: patchUrl,
+            filename: filename,
+          },
+        });
 
-      const msg = id + ' on ' + vuln.name + '@' + vuln.version + ' at "' + filename + '"\n' +
-                error + ', ' + 'reference ID: ' + referenceId + '\n';
+        const msg =
+          id +
+          ' on ' +
+          vuln.name +
+          '@' +
+          vuln.version +
+          ' at "' +
+          filename +
+          '"\n' +
+          error +
+          ', ' +
+          'reference ID: ' +
+          referenceId +
+          '\n';
 
-      error = new Error(msg);
-      error.code = 'FAIL_PATCH';
+        error = new Error(msg);
+        error.code = 'FAIL_PATCH';
 
-      reject(error);
-    });
-  }));
+        reject(error);
+      },
+    );
+  });
 }

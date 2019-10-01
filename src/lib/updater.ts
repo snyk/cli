@@ -19,7 +19,7 @@ export function updateCheck() {
 
   // Checks for available update and returns an instance
   // Default updateCheckInterval is once a day
-  const notifier = updateNotifier({pkg});
+  const notifier = updateNotifier({ pkg });
   notifier.notify();
   return true;
 }

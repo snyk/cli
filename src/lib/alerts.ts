@@ -40,8 +40,4 @@ function displayAlerts() {
   return res;
 }
 
-export {
-  registerAlerts,
-  hasAlert,
-  displayAlerts,
-};
+export { registerAlerts, hasAlert, displayAlerts };

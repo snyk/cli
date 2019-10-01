@@ -1,6 +1,6 @@
 import * as path from 'path';
-import {Files, tryGetSpec} from './try-get-spec';
-import {Spec} from './index';
+import { Files, tryGetSpec } from './try-get-spec';
+import { Spec } from './index';
 
 const pattern = /\.gemspec$/;
 
@@ -21,7 +21,10 @@ export async function gatherSpecs(root: string, target: string): Promise<Spec> {
     throw new Error(`File not found: ${target}`);
   }
 
-  const gemfileLock = await tryGetSpec(root, path.join(targetDir, 'Gemfile.lock'));
+  const gemfileLock = await tryGetSpec(
+    root,
+    path.join(targetDir, 'Gemfile.lock'),
+  );
 
   if (gemfileLock) {
     files.gemfileLock = gemfileLock;

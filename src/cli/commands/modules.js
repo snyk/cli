@@ -1,11 +1,10 @@
 const snyk = require('../../lib');
 
-module.exports = function (path, options) {
+module.exports = function(path, options) {
   if (!options) {
     options = {};
   }
   return snyk.modules(path || process.cwd()).then((modules) => {
-
     let parent = '';
     if (modules.parent) {
       parent = modules.parent.full;
@@ -15,8 +14,11 @@ module.exports = function (path, options) {
       return JSON.stringify(modules, '', 2);
     }
 
-    return parent + Object.keys(modules.dependencies)
-      .map((key) => modules.dependencies[key].full)
-      .join('\n');
+    return (
+      parent +
+      Object.keys(modules.dependencies)
+        .map((key) => modules.dependencies[key].full)
+        .join('\n')
+    );
   });
 };

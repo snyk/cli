@@ -1,9 +1,9 @@
 import * as tap from 'tap';
-import {only, test} from 'tap';
-import {fakeServer} from './fake-server';
+import { only, test } from 'tap';
+import { fakeServer } from './fake-server';
 import * as cli from '../../src/cli/commands';
 
-const port = process.env.PORT = process.env.SNYK_PORT = '12345';
+const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
 process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
@@ -38,13 +38,15 @@ before('setup', async (t) => {
   t.end();
 });
 
-
 test('runTest annotates results with remediation data when using node_modules', async (t) => {
   const vulns = require('./fixtures/npm-package-with-git-url/test-graph-result.json');
   server.setNextResponse(vulns);
 
-  let result = await runTest('npm', 'test/acceptance/workspaces/npm-package-with-git-url',
-    { packageManager: 'npm' } as Options & TestOptions);
+  let result = await runTest(
+    'npm',
+    'test/acceptance/workspaces/npm-package-with-git-url',
+    { packageManager: 'npm' } as Options & TestOptions,
+  );
   t.ok(result[0].vulnerabilities[0].parentDepType, 'has parentDepType');
 });
 
@@ -52,8 +54,10 @@ test('runTest annotates results with remediation data when traverseNodeModules',
   const vulns = require('./fixtures/npm-package/test-graph-result.json');
   server.setNextResponse(vulns);
 
-  let result = await runTest('npm', 'test/acceptance/workspaces/npm-package',
-    {packageManager: 'npm', traverseNodeModules: true} as Options & TestOptions);
+  let result = await runTest('npm', 'test/acceptance/workspaces/npm-package', {
+    packageManager: 'npm',
+    traverseNodeModules: true,
+  } as Options & TestOptions);
   t.ok(result[0].vulnerabilities[0].parentDepType, 'has parentDepType');
 });
 

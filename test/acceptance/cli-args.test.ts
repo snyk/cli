@@ -12,7 +12,11 @@ test('snyk test command should fail when --file is not specified correctly', (t)
     if (err) {
       throw err;
     }
-    t.equal(stdout.trim(), 'Empty --file argument. Did you mean --file=path/to/file ?', 'correct error output');
+    t.equal(
+      stdout.trim(),
+      'Empty --file argument. Did you mean --file=path/to/file ?',
+      'correct error output',
+    );
   });
 });
 
@@ -23,6 +27,10 @@ test('snyk test command should fail when --packageManager is not specified corre
     if (err) {
       throw err;
     }
-    t.match(stdout.trim(), 'Unsupported package manager', 'correct error output');
+    t.match(
+      stdout.trim(),
+      'Unsupported package manager',
+      'correct error output',
+    );
   });
 });
