@@ -24,7 +24,6 @@ Object.defineProperty(snyk, 'api', {
   },
 });
 
-snyk.modules = require('./modules');
 snyk.test = require('./snyk-test');
 snyk.bus = require('./bus');
 snyk.policy = require('snyk-policy');

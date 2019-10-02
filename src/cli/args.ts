@@ -156,7 +156,6 @@ export function args(rawArgv: string[]): Args {
     [
       'protect',
       'test',
-      'modules',
       'monitor',
       'wizard',
       'ignore',
