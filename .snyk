@@ -16,8 +16,4 @@ ignore:
     - update-notifier > boxen > term-size > execa:
         reason: None given
         expires: '2019-05-31T17:15:04.209Z'
-  SNYK-JS-HTTPSPROXYAGENT-469131:
-    - '*':
-        reason: No new version available yet
-        expires: '2019-11-02T12:07:27.178Z'
 patch: {}
