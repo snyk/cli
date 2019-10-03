@@ -60,7 +60,7 @@ test('`test ruby-app` legal instructions displayed', async (t) => {
     await snykTest('ruby-app');
   } catch (error) {
     const res = error.message;
-    t.match(res, 'Legal instructions');
+    t.match(res, 'I am legal license instruction');
   }
 
   snykTestStub.restore();
@@ -81,7 +81,7 @@ test('`test pip-app-license-issue` legal instructions displayed (legacy formatte
     await snykTest('pip-app-license-issue');
   } catch (error) {
     const res = error.message;
-    t.match(res, 'Legal instructions');
+    t.match(res, 'I am legal license instruction');
   }
 
   snykTestStub.restore();
