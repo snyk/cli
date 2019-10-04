@@ -9,7 +9,9 @@ import {
   GroupedVuln,
   AnnotatedIssue,
   DockerIssue,
+  LegalInstruction,
 } from '../../../../lib/snyk-test/legacy';
+import { formatLegalInstructions } from './legal-license-instructions';
 
 export function formatIssues(
   vuln: GroupedVuln,
@@ -50,11 +52,10 @@ export function formatIssues(
         : '',
     fixedIn: options.docker ? createFixedInText(vuln) : '',
     dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
-    legalInstructions: vuln.legalInstructions
-      ? '\n  Legal instructions:\n  ' +
-        wrap(vuln.legalInstructions, 100)
-          .split('\n')
-          .join('\n  ')
+    legalInstructions: vuln.legalInstructionsArray
+      ? chalk.bold('\n  Legal instructions:\n') +
+        ' '.repeat(2) +
+        formatLegalInstructions(vuln.legalInstructionsArray, 2)
       : '',
   };
 

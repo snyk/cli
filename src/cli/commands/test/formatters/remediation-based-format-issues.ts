@@ -12,8 +12,10 @@ import {
   DependencyPins,
   UpgradeRemediation,
   PinRemediation,
+  LegalInstruction,
 } from '../../../../lib/snyk-test/legacy';
 import { SEVERITIES } from '../../../../lib/snyk-test/common';
+import { formatLegalInstructions } from './legal-license-instructions';
 
 interface BasicVulnInfo {
   type: string;
@@ -23,7 +25,7 @@ interface BasicVulnInfo {
   name: string;
   version: string;
   fixedIn: string[];
-  legalInstructions?: string;
+  legalInstructions?: LegalInstruction[];
   paths: string[][];
 }
 
@@ -58,7 +60,7 @@ export function formatIssuesWithRemediation(
       type: vuln.metadata.type,
       version: vuln.version,
       fixedIn: vuln.fixedIn,
-      legalInstructions: vuln.legalInstructions,
+      legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
     };
 
@@ -409,7 +411,7 @@ function formatIssue(
   title: string,
   severity: SEVERITY,
   isNew: boolean,
-  legalInstructions: string | undefined,
+  legalInstructions: LegalInstruction[] | undefined,
   vulnerableModule: string,
   paths: string[][],
   testOptions: TestOptions,
@@ -433,8 +435,10 @@ function formatIssue(
   };
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
-  const wrapLegalText = wrap(`${legalInstructions}`, 100);
-  const formatLegalText = wrapLegalText.split('\n').join('\n    ');
+  let legalLicenseInstructionsText;
+  if (legalInstructions) {
+    legalLicenseInstructionsText = formatLegalInstructions(legalInstructions);
+  }
 
   let introducedBy = '';
   if (
@@ -452,10 +456,10 @@ function formatIssue(
           )} other path(s)`;
   } else if (testOptions.showVulnPaths === 'all' && paths) {
     introducedBy =
-      `\n    introduced by:` +
+      '\n    introduced by:' +
       paths
         .slice(0, 1000)
-        .map((p) => `\n    ` + printPath(p))
+        .map((p) => '\n    ' + printPath(p))
         .join('');
     if (paths.length > 1000) {
       introducedBy += `\n    and ${chalk.cyanBright(
@@ -473,8 +477,10 @@ function formatIssue(
     `[${config.ROOT}/vuln/${id}]` +
     name +
     introducedBy +
-    (legalInstructions
-      ? `${chalk.bold('\n    Legal instructions')}:\n    ${formatLegalText}`
+    (legalLicenseInstructionsText
+      ? `${chalk.bold(
+          '\n    Legal instructions',
+        )}:\n    ${legalLicenseInstructionsText}`
       : '')
   );
 }

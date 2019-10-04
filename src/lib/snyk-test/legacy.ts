@@ -47,9 +47,13 @@ export interface GroupedVuln {
   version: string;
   isFixable: boolean;
   fixedIn: string[];
-  legalInstructions?: string;
+  legalInstructionsArray?: LegalInstruction[];
 }
 
+export interface LegalInstruction {
+  licenseName: string;
+  legalContent: string;
+}
 export interface IssueData {
   id: string;
   packageName: string;

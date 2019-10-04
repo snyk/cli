@@ -586,7 +586,7 @@ function groupVulnerabilities(vulns): GroupedVuln[] {
       map[curr.id].dockerfileInstruction = curr.dockerfileInstruction;
       map[curr.id].dockerBaseImage = curr.dockerBaseImage;
       map[curr.id].nearestFixedInVersion = curr.nearestFixedInVersion;
-      map[curr.id].legalInstructions = curr.legalInstructions;
+      map[curr.id].legalInstructionsArray = curr.legalInstructionsArray;
     }
 
     map[curr.id].list.push(curr);
