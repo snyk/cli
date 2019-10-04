@@ -1,12 +1,12 @@
 var debug = require('debug')('snyk');
 var policy = require('snyk-policy');
 var path = require('path');
-var test = require('tape');
+var test = require('tap');
 var vulns = require('./fixtures/semver-vuln.json');
 var exec = require('child_process').exec;
 
 // skipped intentially - only used for debugging tests
-test(
+test.skip(
   'patch is correctly skipped during tests',
   { timeout: 1000 * 60 * 3 },
   function(t) {
