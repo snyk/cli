@@ -1,19 +1,5 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.13.5
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore:
-  'npm:mem:20180117':
-    - nyc > yargs > os-locale > mem:
-        reason: DoS vulnerability is not valid for CLI tool
-        expires: '2019-12-19T10:35:25.346Z'
-    - tap > nyc > yargs > os-locale > mem:
-        reason: DoS vulnerability is not valid for CLI tool
-        expires: '2019-12-19T10:35:25.346Z'
-  SNYK-JS-EXECA-174564:
-    - os-name > windows-release > execa:
-        reason: None given
-        expires: '2019-05-31T17:15:04.209Z'
-    - update-notifier > boxen > term-size > execa:
-        reason: None given
-        expires: '2019-05-31T17:15:04.209Z'
+ignore: {}
 patch: {}
