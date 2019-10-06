@@ -176,6 +176,17 @@ async function main() {
     exitCode = response.exitCode;
   }
 
+  if (runtime.isUsingNode6(process.versions.node)) {
+    alerts.registerAlerts([
+      {
+        msg:
+          'Node.js v6 is past the End-of-Life phase, please upgrade your version. We will soon be dropping support for it.',
+        name: 'Node6EOLWarning',
+        type: 'info',
+      },
+    ]);
+  }
+
   if (!args.options.json) {
     console.log(alerts.displayAlerts());
   }
