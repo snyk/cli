@@ -137,6 +137,5 @@
       "test-unpublished.json",
       "help/**/*.txt"
     ]
-  },
-  "snyk": true
+  }
 }
