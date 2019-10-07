@@ -51,7 +51,7 @@ export interface Options {
   'show-vulnerable-paths'?: string;
   packageManager: SupportedPackageManagers;
   advertiseSubprojectsCount?: number;
-  subProjectNames?: string[];
+  projectNames?: string[];
   severityThreshold?: SEVERITY;
   dev?: boolean;
   'print-deps'?: boolean;
