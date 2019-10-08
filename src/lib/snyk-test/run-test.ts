@@ -14,7 +14,6 @@ import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
 import { DepTree, TestOptions } from '../types';
-import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {
   convertTestDepGraphResultToLegacy,
   AnnotatedIssue,
