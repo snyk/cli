@@ -4,9 +4,15 @@ if [ -f "${PROJECT_PATH}/requirements.txt" ]; then
     source snyk/bin/activate
     pip install -U -r "${PROJECT_PATH}/requirements.txt"
 elif [ -f "${PROJECT_PATH}/Pipfile" ]; then
-    cd "${PROJECT_PATH}"
-    pipenv install Pipfile
+    if [ -f "${PROJECT_PATH}/Pipfile.lock" ]; then
+      pushd "${PROJECT_PATH}/"
+      pipenv sync
+      popd
+    else
+      pushd "${PROJECT_PATH}/"
+      pipenv update
+      popd
+   fi
 fi
 
-cd /$HOME/
 bash docker-entrypoint.sh "$@"
