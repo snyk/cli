@@ -41,7 +41,6 @@ test('setup', (t) => {
 });
 
 test('throws when missing node_modules', async (t) => {
-  t.plan(1);
   const dir = baseDir + 'npm/npm-3-no-node-modules';
   // ensure node_modules does not exist
   try {
@@ -54,13 +53,17 @@ test('throws when missing node_modules', async (t) => {
     await cli.test(dir);
     t.fail('should have thrown');
   } catch (e) {
-    t.matches(e.message, /Missing node_modules folder/);
+    t.equal(e.code, 500, 'correct error code');
+    t.equal(
+      e.userMessage,
+      "Missing node_modules folder: we can't test without dependencies.\n" +
+        "Please run 'npm install' first.",
+      'correct error message',
+    );
   }
 });
 
 test('teardown', (t) => {
-  t.plan(4);
-
   delete process.env.SNYK_API;
   delete process.env.SNYK_HOST;
   delete process.env.SNYK_PORT;

@@ -69,7 +69,6 @@ before('prime config', async (t) => {
 });
 
 test('test cli with multiple params: good and bad', async (t) => {
-  t.plan(6);
   try {
     await cli.test('/', 'semver', { registry: 'npm', org: 'EFF', json: true });
     t.fail('expect to err');
@@ -1428,7 +1427,6 @@ test('`test npm-out-of-sync --strict-out-of-sync=false` passes', async (t) => {
 });
 
 test('`test npm-package-shrinkwrap --file=package-lock.json ` with npm-shrinkwrap errors', async (t) => {
-  t.plan(1);
   chdirWorkspaces();
   try {
     await cli.test('npm-package-shrinkwrap', { file: 'package-lock.json' });
@@ -2855,8 +2853,6 @@ test('`test foo:latest --docker with binaries vulnerabilities`', async (t) => {
 });
 
 test('`test --policy-path`', async (tt) => {
-  tt.plan(3);
-
   tt.test('default policy', async (t) => {
     chdirWorkspaces('npm-package-policy');
     const expected = fs.readFileSync(path.join('.snyk'), 'utf8');
@@ -3009,7 +3005,6 @@ test('`test sbt-simple-struts`', async (t) => {
  * `monitor`
  */
 test('`monitor --policy-path`', async (tt) => {
-  tt.plan(2);
   chdirWorkspaces('npm-package-policy');
 
   tt.test('default policy', async (t) => {
@@ -3061,7 +3056,6 @@ test('`monitor non-existing`', async (t) => {
 });
 
 test('monitor for package with no name', async (t) => {
-  t.plan(1);
   await cli.monitor({
     file: __dirname + '/../fixtures/package-sans-name/package.json',
   });
@@ -3069,7 +3063,6 @@ test('monitor for package with no name', async (t) => {
 });
 
 test('monitor for package with no name in lockfile', async (t) => {
-  t.plan(1);
   await cli.monitor({
     file:
       __dirname + '/../fixtures/package-sans-name-lockfile/package-lock.json',
@@ -3467,7 +3460,6 @@ test('`monitor gradle-app`', async (t) => {
 });
 
 test('`monitor gradle-app --all-sub-projects`', async (t) => {
-  t.plan(5);
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -3508,7 +3500,6 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
 });
 
 test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
-  t.plan(9);
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -3571,7 +3562,6 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
 });
 
 test('`monitor gradle-app --all-sub-projects --project-name`', async (t) => {
-  t.plan(2);
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -4103,7 +4093,6 @@ test('`protect` for unsupported package managers', async (t) => {
 });
 
 test('`protect --policy-path`', async (tt) => {
-  tt.plan(2);
   chdirWorkspaces('npm-package-policy');
 
   tt.test('default policy', async (t) => {
@@ -4140,7 +4129,6 @@ test('`protect --policy-path`', async (tt) => {
 });
 
 test('`protect` with no policy', async (t) => {
-  t.plan(1);
   chdirWorkspaces('npm-with-dep-missing-policy');
 
   const vulns = require('./fixtures/npm-package-policy/vulns.json');
@@ -4158,7 +4146,6 @@ test('`protect` with no policy', async (t) => {
 });
 
 test('`test --insecure`', async (tt) => {
-  tt.plan(2);
   chdirWorkspaces('npm-package');
 
   tt.test('default (insecure false)', async (t) => {
