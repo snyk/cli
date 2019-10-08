@@ -9,7 +9,7 @@ import * as config from '../../lib/config';
 import * as url from 'url';
 import chalk from 'chalk';
 import * as pathUtil from 'path';
-import * as spinner from 'cli-spinner';
+import * as spinner from '../../lib/spinner';
 
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
