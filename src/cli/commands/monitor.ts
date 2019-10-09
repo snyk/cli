@@ -9,7 +9,7 @@ import * as config from '../../lib/config';
 import * as url from 'url';
 import chalk from 'chalk';
 import * as pathUtil from 'path';
-import * as spinner from '../../lib/spinner';
+import { Spinner } from 'cli-spinner';
 
 import * as detect from '../../lib/detect';
 import * as plugins from '../../lib/plugins';
@@ -39,12 +39,9 @@ interface BadResult {
 
 // This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
 // declaring the type of x as possibly undefined.
-async function promiseOrCleanup<T>(
-  p: Promise<T>,
-  cleanup: (x?) => void,
-): Promise<T> {
+async function promiseOrCleanup<T>(p: Promise<T>, spinner): Promise<T> {
   return p.catch((error) => {
-    cleanup();
+    spinner.stop(true);
     throw error;
   });
 }
@@ -126,10 +123,9 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       const analyzingDepsSpinnerLabel =
         'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
 
-      const postingMonitorSpinnerLabel =
-        'Posting monitor snapshot for ' + displayPath + ' ...';
-
-      await spinner(analyzingDepsSpinnerLabel);
+      const spinner = new Spinner(analyzingDepsSpinnerLabel);
+      spinner.setSpinnerString('|/-\\');
+      spinner.start();
 
       // Scan the project dependencies via a plugin
 
@@ -139,14 +135,15 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       // TODO: the type should depend on allSubProjects flag
       const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
         moduleInfo.inspect(path, targetFile, { ...options }),
-        spinner.clear(analyzingDepsSpinnerLabel),
+        spinner,
       );
 
       analytics.add('pluginName', inspectResult.plugin.name);
 
-      await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
+      const postingMonitorSpinnerLabel =
+        'Posting monitor snapshot for ' + displayPath + ' ...';
+      spinner.setSpinnerTitle(postingMonitorSpinnerLabel);
 
-      await spinner(postingMonitorSpinnerLabel);
       if (inspectResult.plugin.packageManager) {
         packageManager = inspectResult.plugin.packageManager;
       }
@@ -194,10 +191,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
         const res = await promiseOrCleanup(
           snykMonitor(path, meta, projectDeps, targetFile),
-          spinner.clear(postingMonitorSpinnerLabel),
+          spinner,
         );
 
-        await spinner.clear(postingMonitorSpinnerLabel)(res);
+        spinner.stop(true);
 
         res.path = path;
         const endpoint = url.parse(config.API);
