@@ -14,7 +14,6 @@ import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
 import { DepTree, TestOptions } from '../types';
-import gemfileLockToDependencies = require('../../lib/plugins/rubygems/gemfile-lock-to-dependencies');
 import {
   convertTestDepGraphResultToLegacy,
   AnnotatedIssue,
@@ -343,15 +342,6 @@ async function assembleLocalPayloads(
           analytics.add('BaseImage', baseImageFromDockerfile);
           analytics.add('imageLayers', deps.plugin.imageLayers);
         }
-      }
-
-      if (_.get(pkg, 'files.gemfileLock.contents')) {
-        const gemfileLockBase64 = pkg.files.gemfileLock.contents;
-        const gemfileLockContents = Buffer.from(
-          gemfileLockBase64,
-          'base64',
-        ).toString();
-        pkg.dependencies = gemfileLockToDependencies(gemfileLockContents);
       }
 
       let policyLocations: string[] = [options['policy-path'] || root];

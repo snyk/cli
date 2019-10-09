@@ -32,7 +32,6 @@ const after = tap.runOnly ? only : test;
 // Should be after `process.env` setup.
 import * as plugins from '../../src/lib/plugins';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { fail } from 'assert';
 
 function loadJson(filename: string) {
   return JSON.parse(fs.readFileSync(filename, 'utf-8'));
@@ -281,8 +280,9 @@ test('`test ruby-app` meta when no vulns', async (t) => {
   t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
   t.match(meta[1], /Package manager:\s+rubygems/, 'package manager displayed');
   t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
-  t.match(meta[3], /Open source:\s+no/, 'open source displayed');
-  t.match(meta[4], /Project path:\s+ruby-app/, 'path displayed');
+  t.match(meta[3], /Project name:\s+ruby-app/, 'project name displayed');
+  t.match(meta[4], /Open source:\s+no/, 'open source displayed');
+  t.match(meta[5], /Project path:\s+ruby-app/, 'path displayed');
   t.notMatch(
     meta[5],
     /Local Snyk policy:\s+found/,
@@ -317,8 +317,13 @@ test('`test ruby-app-thresholds`', async (t) => {
       'package manager displayed',
     );
     t.match(meta[2], /Target file:\s+Gemfile/, 'target file displayed');
-    t.match(meta[3], /Open source:\s+no/, 'open source displayed');
-    t.match(meta[4], /Project path:\s+ruby-app-thresholds/, 'path displayed');
+    t.match(
+      meta[3],
+      /Project name:\s+ruby-app-thresholds/,
+      'project name displayed',
+    );
+    t.match(meta[4], /Open source:\s+no/, 'open source displayed');
+    t.match(meta[5], /Project path:\s+ruby-app-thresholds/, 'path displayed');
     t.notMatch(
       meta[5],
       /Local Snyk policy:\s+found/,
@@ -3295,11 +3300,7 @@ test('`monitor ruby-app`', async (t) => {
   );
   t.match(req.url, '/monitor/rubygems', 'puts at correct url');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-  t.match(
-    decode64(req.body.package.files.gemfileLock.contents),
-    'remote: http://rubygems.org/',
-    'attaches Gemfile.lock',
-  );
+  t.ok(req.body.package.dependencies, 'dependencies sent instead of files');
 });
 
 test('`monitor maven-app`', async (t) => {
@@ -4311,7 +4312,7 @@ function chdirWorkspaces(subdir: string = '') {
 }
 
 function decode64(str) {
-  return new Buffer(str, 'base64').toString('utf8');
+  return Buffer.from(str, 'base64').toString('utf8');
 }
 
 // fixture can be fixture path or object

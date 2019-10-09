@@ -35,7 +35,7 @@ async function webAuth(via: AuthCliCommands) {
 
   // validate that via comes from our code, and not from user & CLI
   if (redirects[via]) {
-    urlStr += '&redirectUri=' + new Buffer(redirects[via]).toString('base64');
+    urlStr += '&redirectUri=' + Buffer.from(redirects[via]).toString('base64');
   }
 
   const msg =
