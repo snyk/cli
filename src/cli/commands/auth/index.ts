@@ -54,23 +54,17 @@ async function webAuth(via: AuthCliCommands) {
 
   const lbl = 'Waiting...';
 
-  return (
-    spinner(lbl)
-      .then(() => {
-        setTimeout(() => {
-          open(urlStr, { wait: false });
-        }, 2000);
-        // start checking the token immediately in case they've already
-        // opened the url manually
-        return testAuthComplete(token);
-      })
-      // clear spinnger in case of success or failure
-      .then(spinner.clear(lbl))
-      .catch((error) => {
-        spinner.clear<void>(lbl)();
-        throw error;
-      })
-  );
+  try {
+    await spinner(lbl);
+    await setTimeout(() => {
+      open(urlStr, { wait: false });
+    }, 2000);
+
+    const res = await testAuthComplete(token);
+    return res;
+  } finally {
+    spinner.clear<void>(lbl)();
+  }
 }
 
 async function testAuthComplete(token: string): Promise<{ res; body }> {
