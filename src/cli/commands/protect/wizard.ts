@@ -40,6 +40,7 @@ import { MissingTargetFileError } from '../../../lib/errors/missing-targetfile-e
 import * as pm from '../../../lib/package-managers';
 import { Options, MonitorMeta, MonitorResult } from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
+import { SinglePackageResult } from '@snyk/cli-interface/legacy/plugin';
 
 function wizard(options?: Options) {
   options = options || ({} as Options);
@@ -593,13 +594,19 @@ function processAnswers(answers, policy, options) {
         options.traverseNodeModules = false;
       }
 
+      // TODO: extract common inspect & monitor code and use the same way here
+      // as during test & monitor
       return (
         info
           .inspect(cwd, targetFile, options)
           .then((inspectRes) => spinner(lbl).then(() => inspectRes))
-          .then((inspectRes) =>
-            snykMonitor(cwd, meta as MonitorMeta, inspectRes),
-          )
+          .then((inspectRes) => {
+            const singleRes: SinglePackageResult = {
+              plugin: inspectRes.plugin,
+              package: _.get(inspectRes, 'scannedProjects[0].depTree'),
+            };
+            return snykMonitor(cwd, meta as MonitorMeta, singleRes);
+          })
           // clear spinner in case of success or failure
           .then(spinner.clear(lbl))
           .catch((error) => {

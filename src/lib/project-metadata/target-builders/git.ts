@@ -6,7 +6,6 @@ import { GitTarget } from '../types';
 
 export async function getInfo(packageInfo): Promise<GitTarget | null> {
   let origin: string | null | undefined;
-
   if (packageInfo.docker) {
     return null;
   }
