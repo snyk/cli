@@ -23,6 +23,7 @@ import {
   formatIssuesWithRemediation,
   getSeverityValue,
 } from './formatters/remediation-based-format-issues';
+import * as analytics from '../../../lib/analytics';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -377,12 +378,14 @@ function displayResult(res, options: Options & TestOptions) {
 
   let groupedVulnInfoOutput;
   if (res.remediation) {
+    analytics.add('actionableRemediation', true);
     groupedVulnInfoOutput = formatIssuesWithRemediation(
       filteredSortedGroupedVulns,
       res.remediation,
       options,
     );
   } else {
+    analytics.add('actionableRemediation', false);
     groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) =>
       formatIssues(vuln, options),
     );
