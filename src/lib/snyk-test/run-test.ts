@@ -145,8 +145,7 @@ async function runTest(
 
       if (res.docker && dockerfilePackages) {
         res.vulnerabilities = res.vulnerabilities.map((vuln) => {
-          const pkg = vuln.name.split('/')[0] + '-' + vuln.version;
-          const dockerfilePackage = dockerfilePackages[pkg];
+          const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
           if (dockerfilePackage) {
             (vuln as DockerIssue).dockerfileInstruction =
               dockerfilePackage.instruction;
