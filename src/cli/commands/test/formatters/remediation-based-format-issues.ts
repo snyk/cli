@@ -189,8 +189,10 @@ function constructPatchesText(
     return [];
   }
   const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
-
   for (const id of Object.keys(patches)) {
+    if (!basicVulnInfo[id]) {
+      continue;
+    }
     if (basicVulnInfo[id].type === 'license') {
       continue;
     }
