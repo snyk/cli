@@ -10,6 +10,13 @@ export function updateCheck() {
     return false;
   }
 
+  const standalonePath = p.join(__dirname, '../', 'STANDALONE');
+  const isStandaloneBuild = fs.existsSync(standalonePath);
+
+  if (isStandaloneBuild) {
+    return false;
+  }
+
   const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
 
   // if there's no version (f.e. during tests) - do not proceed

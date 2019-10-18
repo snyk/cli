@@ -2,6 +2,11 @@
   "prepare": [
     "@semantic-release/npm",
     {
+      "//": "adds a file to identify a build as a standalone binary",
+      "path": "@semantic-release/exec",
+      "cmd": "echo '' > dist/STANDALONE"
+    },
+    {
       "//": "build the alpine, macos, linux and windows binaries",
       "path": "@semantic-release/exec",
       "cmd": "npm i -g pkg && pkg . -t node8-alpine-x64,node8-linux-x64,node8-macos-x64,node8-win-x64"
