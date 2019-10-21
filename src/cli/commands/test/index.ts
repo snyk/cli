@@ -24,6 +24,7 @@ import {
   getSeverityValue,
 } from './formatters/remediation-based-format-issues';
 import * as analytics from '../../../lib/analytics';
+import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -167,10 +168,15 @@ async function test(...args: MethodArgs): Promise<string> {
     throw err;
   }
 
+  const pinningSupported =
+    results.find((r) => (r as LegacyVulnApiResult).packageManager === 'pip') &&
+    (await isFeatureFlagSupportedForOrg('pythonPinningAdvice')).ok;
+
   let response = results
-    .map((unused, i) =>
-      displayResult(results[i] as LegacyVulnApiResult, resultOptions[i]),
-    )
+    .map((unused, i) => {
+      resultOptions[i].pinningSupported = pinningSupported;
+      return displayResult(results[i] as LegacyVulnApiResult, resultOptions[i]);
+    })
     .join(`\n${SEPARATOR}`);
 
   if (notSuccess) {

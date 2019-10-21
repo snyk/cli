@@ -1566,7 +1566,14 @@ test('`test pip-app --file=requirements.txt`', async (t) => {
   await cli.test('pip-app', {
     file: 'requirements.txt',
   });
-  const req = server.popRequest();
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(
+    req.url,
+    'cli-config/feature-flags/pythonPinningAdvice',
+    'to correct url',
+  );
+  req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.equal(
     req.headers['x-snyk-cli-version'],
@@ -1617,7 +1624,14 @@ test('`test pipenv-app --file=Pipfile`', async (t) => {
   await cli.test('pipenv-app', {
     file: 'Pipfile',
   });
-  const req = server.popRequest();
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(
+    req.url,
+    'cli-config/feature-flags/pythonPinningAdvice',
+    'to correct url',
+  );
+  req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.equal(
     req.headers['x-snyk-cli-version'],
@@ -1673,7 +1687,14 @@ test('`test pip-app-transitive-vuln --file=requirements.txt (actionableCliRemedi
       fs.readFileSync('pip-app-transitive-vuln/cli-output.txt', 'utf8'),
     );
   }
-  const req = server.popRequest();
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(
+    req.url,
+    'cli-config/feature-flags/pythonPinningAdvice',
+    'to correct url',
+  );
+  req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.equal(
     req.headers['x-snyk-cli-version'],
@@ -1731,7 +1752,14 @@ test('`test pip-app-transitive-vuln --file=requirements.txt (actionableCliRemedi
       ),
     );
   }
-  const req = server.popRequest();
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(
+    req.url,
+    'cli-config/feature-flags/pythonPinningAdvice',
+    'to correct url',
+  );
+  req = server.popRequest();
   t.equal(req.method, 'POST', 'makes POST request');
   t.equal(
     req.headers['x-snyk-cli-version'],
