@@ -18,7 +18,7 @@ test('`snyk test` sees suggested ignore policies', async (t) => {
       'found suggestion to ignore',
     );
 
-    originalVulnCount = count('vulnerability found', vulns);
+    originalVulnCount = count('✗', vulns);
   }
 });
 
@@ -26,7 +26,7 @@ test('`snyk test` ignores when applying `--trust-policies`', async (t) => {
   try {
     await cli.test(dir, { 'trust-policies': true });
   } catch (res) {
-    const vulnCount = count('vulnerability found', res.message.trim());
+    const vulnCount = count('✗', res.message.trim());
     t.equal(originalVulnCount - vulnCount, 2, '2 vulns ignored');
   }
 });
