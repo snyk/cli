@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import { Options, TestOptions, ShowVulnPaths } from '../../../../lib/types';
 import { isLocalFolder } from '../../../../lib/detect';
-import parsePackageNameVersion = require('snyk-module');
+import * as snykModule from 'snyk-module';
 import {
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
   PINNING_SUPPORTED_PACKAGE_MANAGERS,
@@ -193,11 +193,17 @@ function createRemediationText(
   ) {
     const toVersion = vuln.fixedIn.join(' or ');
     const transitive = vuln.list.every((i) => i.from.length > 2);
-
-    const action = transitive ? 'Pin the transitive' : 'Update the';
-    return chalk.bold(
-      `\n  Remediation:\n    ${action} dependency ${vuln.name} to version ${toVersion}`,
-    );
+    const fromVersionArray = vuln.list.map((v) => v.from[1]);
+    const fromVersion = fromVersionArray[0];
+    if (transitive) {
+      return chalk.bold(
+        `\n  Remediation:\n    Pin the transitive dependency ${vuln.name} to version ${toVersion}`,
+      );
+    } else {
+      return chalk.bold(
+        `\n  Remediation:\n    Upgrade direct dependency ${fromVersion} to ${vuln.name}@${toVersion}`,
+      );
+    }
   }
 
   if (vuln.isFixable === true) {
@@ -214,8 +220,7 @@ function createRemediationText(
             v.upgradePath.length > 0
               ? ` (triggers upgrades to ${v.upgradePath.join(' > ')})`
               : '';
-          const testedPackageName = parsePackageNameVersion(v
-            .upgradePath[0] as string);
+          const testedPackageName = snykModule(v.upgradePath[0] as string);
           return (
             `You've tested an outdated version of ${testedPackageName[0]}.` +
             +` Upgrade to ${v.upgradePath[0]}${selfUpgradeInfo}`

@@ -15,7 +15,7 @@ Testing pip-app-transitive-vuln...
   Introduced through: flask@0.12.2
   From: flask@0.12.2
   Remediation:
-    Update the dependency flask to version 0.12.3
+    Upgrade direct dependency flask@0.12.2 to flask@0.12.3
 
 ✗ High severity vulnerability found in flask
   Description: Denial of Service (DOS)
@@ -23,7 +23,7 @@ Testing pip-app-transitive-vuln...
   Introduced through: flask@0.12.2
   From: flask@0.12.2
   Remediation:
-    Update the dependency flask to version 1.0
+    Upgrade direct dependency flask@0.12.2 to flask@1.0
 
 ✗ High severity vulnerability found in Werkzeug
   Description: Insufficient Randomness

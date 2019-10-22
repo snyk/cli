@@ -168,8 +168,12 @@ async function test(...args: MethodArgs): Promise<string> {
     throw err;
   }
 
+  const pipResults: LegacyVulnApiResult = results.find(
+    (res) => res.packageManager === 'pip',
+  );
+
   const pinningSupported =
-    results.find((r) => (r as LegacyVulnApiResult).packageManager === 'pip') &&
+    pipResults &&
     (await isFeatureFlagSupportedForOrg('pythonPinningAdvice')).ok;
 
   let response = results
