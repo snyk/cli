@@ -27,6 +27,7 @@ interface BasicVulnInfo {
   fixedIn: string[];
   legalInstructions?: LegalInstruction[];
   paths: string[][];
+  note: string | false;
 }
 
 interface TopLevelPackageUpgrade {
@@ -60,6 +61,7 @@ export function formatIssuesWithRemediation(
       type: vuln.metadata.type,
       version: vuln.version,
       fixedIn: vuln.fixedIn,
+      note: vuln.note,
       legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
     };
@@ -166,10 +168,11 @@ function constructLicenseText(
       basicLicenseInfo[id].title,
       basicLicenseInfo[id].severity,
       basicLicenseInfo[id].isNew,
-      basicLicenseInfo[id].legalInstructions,
       `${basicLicenseInfo[id].name}@${basicLicenseInfo[id].version}`,
       basicLicenseInfo[id].paths,
       testOptions,
+      basicLicenseInfo[id].note,
+      basicLicenseInfo[id].legalInstructions,
     );
     licenseTextArray.push('\n' + licenseText);
   }
@@ -207,10 +210,10 @@ function constructPatchesText(
       basicVulnInfo[id].title,
       basicVulnInfo[id].severity,
       basicVulnInfo[id].isNew,
-      undefined,
       `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
       basicVulnInfo[id].paths,
       testOptions,
+      basicVulnInfo[id].note,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
@@ -237,10 +240,10 @@ function thisUpgradeFixes(
         basicVulnInfo[id].title,
         basicVulnInfo[id].severity,
         basicVulnInfo[id].isNew,
-        undefined,
         `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`,
         basicVulnInfo[id].paths,
         testOptions,
+        basicVulnInfo[id].note,
       ),
     )
     .join('\n');
@@ -387,10 +390,10 @@ function constructUnfixableText(
         issue.title,
         issue.severity,
         issue.isNew,
-        undefined,
         `${issue.packageName}@${issue.version}`,
         issueInfo.paths,
         testOptions,
+        issueInfo.note,
       ) + `${extraInfo}`,
     );
   }
@@ -413,10 +416,11 @@ function formatIssue(
   title: string,
   severity: SEVERITY,
   isNew: boolean,
-  legalInstructions: LegalInstruction[] | undefined,
   vulnerableModule: string,
   paths: string[][],
   testOptions: TestOptions,
+  note: string | false,
+  legalInstructions?: LegalInstruction[],
 ): string {
   const severitiesColourMapping = {
     low: {
@@ -483,7 +487,8 @@ function formatIssue(
       ? `${chalk.bold(
           '\n    Legal instructions',
         )}:\n    ${legalLicenseInstructionsText}`
-      : '')
+      : '') +
+    (note ? `${chalk.bold('\n    Note')}:\n    ${note}` : '')
   );
 }
 
