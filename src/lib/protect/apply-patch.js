@@ -37,8 +37,19 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
       }
 
       const versionOfPackageToPatch = pkg.version;
-      const patchableVersionsRange = semver.coerce(vuln.patches.version);
-      if (semver.satisfies(versionOfPackageToPatch, patchableVersionsRange)) {
+      const patchableVersionsRange = vuln.patches.version;
+
+      const isSemverMatch = semver.satisfies(
+        versionOfPackageToPatch,
+        patchableVersionsRange,
+      );
+
+      const isVersionMatch = semver.satisfies(
+        versionOfPackageToPatch,
+        semver.valid(semver.coerce(vuln.patches.version)),
+      );
+
+      if (isSemverMatch || isVersionMatch) {
         debug(
           'Patch version range %s matches package version %s',
           patchableVersionsRange,
