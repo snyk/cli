@@ -40,7 +40,7 @@ export interface GroupedVuln {
   metadata: VulnMetaData;
   isIgnored: boolean;
   title: string;
-  note: string;
+  note: string | false;
   severity: SEVERITY;
   isNew: boolean;
   name: string;
@@ -95,7 +95,7 @@ interface AnnotatedIssue extends IssueData {
   type?: 'license';
   title: string;
   patch?: any;
-  note?: any;
+  note?: string | false;
   publicationTime?: string;
 }
 
