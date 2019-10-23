@@ -10,8 +10,7 @@
     "SECURITY.md",
     "README.md",
     "Contributor-Agreement.md",
-    ".snyk",
-    "proxy-agent-3.1.0.tgz"
+    ".snyk"
   ],
   "directories": {
     "test": "test"
@@ -71,6 +70,7 @@
     "needle": "^2.2.4",
     "opn": "^5.5.0",
     "os-name": "^3.0.0",
+    "proxy-agent": "^3.1.1",
     "proxy-from-env": "^1.0.0",
     "semver": "^6.0.0",
     "snyk-config": "^2.2.1",
@@ -122,9 +122,6 @@
     "tslint": "^5.14.0",
     "typescript": "^3.4.1"
   },
-  "bundledDependencies": [
-    "proxy-agent"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/snyk/snyk.git"
