@@ -1,0 +1,15 @@
+{
+  "name": "protect-semver-patch",
+  "version": "1.0.0",
+  "description": "protect-semver-patch",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "hoek": "^4.2.0"
+  }
+}

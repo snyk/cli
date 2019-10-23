@@ -1,0 +1,6 @@
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:hoek:20180212':
+    - '*':
+        reason: None given

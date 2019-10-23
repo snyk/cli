@@ -1,0 +1,178 @@
+{
+  "vulnerabilities": [
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
+      "alternativeIds": [
+        "SNYK-JS-HOEK-12061"
+      ],
+      "creationTime": "2018-02-12T22:28:27.612000Z",
+      "credit": [
+        "Olivier Arteau (HoLyVieR)"
+      ],
+      "cvssScore": 6.3,
+      "description": "## Overview\n\n[hoek](https://github.com/hapijs/hoek) is a Utility methods for the hapi ecosystem.\n\n\nAffected versions of this package are vulnerable to Prototype Pollution.\nThe utilities function allow modification of the `Object` prototype. If an attacker can control part of the structure passed to this function, they could add or modify an existing property.  \r\n\r\n## PoC by Olivier Arteau (HoLyVieR)\r\n```js\r\nvar Hoek = require('hoek');\r\nvar malicious_payload = '{\"__proto__\":{\"oops\":\"It works !\"}}';\r\n\r\nvar a = {};\r\nconsole.log(\"Before : \" + a.oops);\r\nHoek.merge({}, JSON.parse(malicious_payload));\r\nconsole.log(\"After : \" + a.oops);\r\n\r\n```\n\n## Details\nPrototype Pollution is a vulnerability affecting JavaScript. Prototype Pollution refers to the ability to inject properties into existing JavaScript language construct prototypes, such as objects. JavaScript allows all Object attributes to be altered, including their magical attributes such as `_proto_`, `constructor` and `prototype`. An attacker manipulates these attributes to overwrite, or pollute, a JavaScript application object prototype of the base object by injecting other values.  Properties on the `Object.prototype` are then inherited by all the JavaScript objects through the prototype chain. When that happens, this leads to either denial of service by triggering JavaScript exceptions, or it tampers with the application source code to force the code path that the attacker injects, thereby leading to remote code execution.\r\n\r\nThere are two main ways in which the pollution of prototypes occurs:\r\n\r\n-   Unsafe `Object` recursive merge\r\n    \r\n-   Property definition by path\r\n    \r\n\r\n### Unsafe Object recursive merge\r\n\r\nThe logic of a vulnerable recursive merge function follows the following high-level model:\r\n```\r\nmerge (target, source)\r\n\r\n  foreach property of source\r\n\r\n    if property exists and is an object on both the target and the source\r\n\r\n      merge(target[property], source[property])\r\n\r\n    else\r\n\r\n      target[property] = source[property]\r\n```\r\n<br>  \r\n\r\nWhen the source object contains a property named `_proto_` defined with `Object.defineProperty()` , the condition that checks if the property exists and is an object on both the target and the source passes and the merge recurses with the target, being the prototype of `Object` and the source of `Object` as defined by the attacker. Properties are then copied on the `Object` prototype.\r\n\r\nClone operations are a special sub-class of unsafe recursive merges, which occur when a recursive merge is conducted on an empty object: `merge({},source)`.\r\n\r\n`lodash` and `Hoek` are examples of libraries susceptible to recursive merge attacks.\r\n\r\n### Property definition by path\r\n\r\nThere are a few JavaScript libraries that use an API to define property values on an object based on a given path. The function that is generally affected contains this signature: `theFunction(object, path, value)`\r\n\r\nIf the attacker can control the value of “path”, they can set this value to `_proto_.myValue`. `myValue` is then assigned to the prototype of the class of the object.\r\n\r\n## Types of attacks\r\n\r\nThere are a few methods by which Prototype Pollution can be manipulated:\r\n\r\n| Type |Origin  |Short description |\r\n|--|--|--|\r\n| **Denial of service (DoS)**|Client  |This is the most likely attack. <br>DoS occurs when `Object` holds generic functions that are implicitly called for various operations (for example, `toString` and `valueOf`). <br> The attacker pollutes `Object.prototype.someattr` and alters its state to an unexpected value such as `Int` or `Object`. In this case, the code fails and is likely to cause a denial of service.  <br>**For example:** if an attacker pollutes `Object.prototype.toString` by defining it as an integer, if the codebase at any point was reliant on `someobject.toString()` it would fail. |\r\n |**Remote Code Execution**|Client|Remote code execution is generally only possible in cases where the codebase evaluates a specific attribute of an object, and then executes that evaluation.<br>**For example:** `eval(someobject.someattr)`. In this case, if the attacker pollutes `Object.prototype.someattr` they are likely to be able to leverage this in order to execute code.|\r\n|**Property Injection**|Client|The attacker pollutes properties that the codebase relies on for their informative value, including security properties such as cookies or tokens.<br>  **For example:** if a codebase checks privileges for `someuser.isAdmin`, then when the attacker pollutes `Object.prototype.isAdmin` and sets it to equal `true`, they can then achieve admin privileges.|\r\n\r\n## Affected environments\r\n\r\nThe following environments are susceptible to a Prototype Pollution attack:\r\n\r\n-   Application server\r\n    \r\n-   Web server\r\n    \r\n\r\n## How to prevent\r\n\r\n1.  Freeze the prototype— use `Object.freeze (Object.prototype)`.\r\n    \r\n2.  Require schema validation of JSON input.\r\n    \r\n3.  Avoid using unsafe recursive merge functions.\r\n    \r\n4.  Consider using objects without prototypes (for example, `Object.create(null)`), breaking the prototype chain and preventing pollution.\r\n    \r\n5.  As a best practice use `Map` instead of `Object`.\r\n\r\n### For more information on this vulnerability type:\r\n\r\n[Arteau, Oliver. “JavaScript prototype pollution attack in NodeJS application.” GitHub, 26 May 2018](https://github.com/HoLyVieR/prototype-pollution-nsec18/blob/master/paper/JavaScript_prototype_pollution_attack_in_NodeJS.pdf)\n\n## Remediation\n\nUpgrade `hoek` to version 4.2.1, 5.0.3 or higher.\n\n\n## References\n\n- [GitHub Commit 4.2.x](https://github.com/hapijs/hoek/commit/5aed1a8c4a3d55722d1c799f2368857bf418d6df)\n\n- [GitHub Commit 5.0.3](https://github.com/hapijs/hoek/commit/32ed5c9413321fbc37da5ca81a7cbab693786dee)\n\n- [GitHub Issue - 4.2.1 Backport](https://github.com/hapijs/hoek/issues/230)\n\n- [GitHub PR](https://github.com/hapijs/hoek/pull/227)\n\n- [HackerOne Report](https://hackerone.com/reports/310439)\n\n- [NPM Security Advisory](http://npmjs.com/advisories/566)\n",
+      "disclosureTime": "2018-02-12T22:28:27Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "4.2.1",
+        "5.0.3"
+      ],
+      "functions": [
+        {
+          "functionId": {
+            "className": null,
+            "filePath": "lib/hoek.js",
+            "functionName": "exports.merge"
+          },
+          "version": [
+            "<0.0.19"
+          ]
+        },
+        {
+          "functionId": {
+            "className": null,
+            "filePath": "lib/index.js",
+            "functionName": "exports.merge"
+          },
+          "version": [
+            ">0.0.18 <4.2.1"
+          ]
+        },
+        {
+          "functionId": {
+            "className": null,
+            "filePath": "lib/index.js",
+            "functionName": "exports.merge"
+          },
+          "version": [
+            ">=5.0.0 <5.0.3"
+          ]
+        }
+      ],
+      "functions_new": [
+        {
+          "functionId": {
+            "filePath": "lib/hoek.js",
+            "functionName": "exports.merge"
+          },
+          "version": [
+            "<0.0.19"
+          ]
+        },
+        {
+          "functionId": {
+            "filePath": "lib/index.js",
+            "functionName": "exports.merge"
+          },
+          "version": [
+            ">0.0.18 <4.2.1"
+          ]
+        },
+        {
+          "functionId": {
+            "filePath": "lib/index.js",
+            "functionName": "exports.merge"
+          },
+          "version": [
+            ">=5.0.0 <5.0.3"
+          ]
+        }
+      ],
+      "id": "npm:hoek:20180212",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-JS-HOEK-12061"
+        ],
+        "CVE": [
+          "CVE-2018-3728"
+        ],
+        "CWE": [
+          "CWE-400"
+        ],
+        "NSP": [
+          566
+        ]
+      },
+      "language": "js",
+      "modificationTime": "2019-05-21T07:48:56.121075Z",
+      "moduleName": "hoek",
+      "packageManager": "npm",
+      "packageName": "hoek",
+      "patches": [
+        {
+          "comments": [],
+          "id": "patch:npm:hoek:20180212:0",
+          "modificationTime": "2018-09-04T11:57:08.715429Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/hoek/20180212/20180212_0_0_hoek_5aed1a8c4a3d55722d1c799f2368857bf418d6df.patch"
+          ],
+          "version": "<4.2.1 >=4.1.0 || <3.0.4 >=3.0.0"
+        },
+        {
+          "comments": [],
+          "id": "patch:npm:hoek:20180212:1",
+          "modificationTime": "2018-09-04T11:57:08.716800Z",
+          "urls": [
+            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/hoek/20180212/20180212_0_1_hoek_32ed5c9413321fbc37da5ca81a7cbab693786dee.patch"
+          ],
+          "version": ">=2.0.0 <3.0.0"
+        }
+      ],
+      "publicationTime": "2018-02-14T13:22:50Z",
+      "references": [
+        {
+          "title": "GitHub Commit 4.2.x",
+          "url": "https://github.com/hapijs/hoek/commit/5aed1a8c4a3d55722d1c799f2368857bf418d6df"
+        },
+        {
+          "title": "GitHub Commit 5.0.3",
+          "url": "https://github.com/hapijs/hoek/commit/32ed5c9413321fbc37da5ca81a7cbab693786dee"
+        },
+        {
+          "title": "GitHub Issue - 4.2.1 Backport",
+          "url": "https://github.com/hapijs/hoek/issues/230"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/hapijs/hoek/pull/227"
+        },
+        {
+          "title": "HackerOne Report",
+          "url": "https://hackerone.com/reports/310439"
+        },
+        {
+          "title": "NPM Security Advisory",
+          "url": "http://npmjs.com/advisories/566"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "<4.2.1",
+          ">=5.0.0 <5.0.3"
+        ]
+      },
+      "severity": "medium",
+      "title": "Prototype Pollution",
+      "from": [
+        "snyk-patch-test@0.0.0",
+        "hoek@4.2.0"
+      ],
+      "upgradePath": [
+        false,
+        "hoek@4.2.1"
+      ],
+      "version": "4.2.0",
+      "name": "hoek",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "isPinnable": false
+    }
+  ],
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 2,
+  "packageManager": "npm"
+}
