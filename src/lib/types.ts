@@ -5,7 +5,7 @@ import { SEVERITY } from './snyk-test/legacy';
 export interface PluginMetadata {
   name: string;
   packageFormatVersion?: string;
-  packageManager: SupportedPackageManagers;
+  packageManager?: SupportedPackageManagers;
   imageLayers?: any;
   targetFile?: string; // this is wrong (because Shaun said it)
   runtime?: any;

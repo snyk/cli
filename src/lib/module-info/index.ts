@@ -10,7 +10,7 @@ export function ModuleInfo(plugin, policy) {
       root,
       targetFile,
       options,
-    ): Promise<pluginApi.SinglePackageResult> {
+    ): Promise<pluginApi.SinglePackageResult | pluginApi.MultiProjectResult> {
       const pluginOptions = _.merge(
         {
           args: options._doubleDashArgs,

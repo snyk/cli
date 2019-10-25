@@ -5,8 +5,10 @@ const runTest = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
+const {getSearchPath, findGlobs} = require('./find-globs');
 
 function test(root, options, callback) {
+
   if (typeof options === 'function') {
     callback = options;
     options = {};
@@ -14,8 +16,12 @@ function test(root, options, callback) {
   if (!options) {
     options = {};
   }
+  const searchPath = getSearchPath();
+  const targetFiles = findGlobs(searchPath);
 
-  const promise = executeTest(root, options);
+  console.log('**** targetFiles', targetFiles);
+
+  const promise = executeTest(root, options, targetFiles);
   if (callback) {
     promise
       .then((res) => {
@@ -26,11 +32,11 @@ function test(root, options, callback) {
   return promise;
 }
 
-function executeTest(root, options) {
+function executeTest(root, options, targetFiles) {
   try {
     const packageManager = detect.detectPackageManager(root, options);
     options.packageManager = packageManager;
-    return run(root, options).then((results) => {
+    return run(root, options, targetFiles).then((results) => {
       for (const res of results) {
         if (!res.packageManager) {
           res.packageManager = packageManager;
@@ -48,10 +54,10 @@ function executeTest(root, options) {
   }
 }
 
-function run(root, options) {
+function run(root, options, targetFiles) {
   const packageManager = options.packageManager;
   if (!(options.docker || pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager])) {
     throw new UnsupportedPackageManagerError(packageManager);
   }
-  return runTest(packageManager, root, options);
+  return runTest(packageManager, root, options, targetFiles);
 }

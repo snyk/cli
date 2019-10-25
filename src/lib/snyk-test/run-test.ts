@@ -33,6 +33,8 @@ import { SupportedPackageManagers } from '../package-managers';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { AuthFailedError } from '../errors/authentication-failed-error';
+import { getPackageManager } from './project-types';
+import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -70,12 +72,16 @@ async function runTest(
   packageManager: SupportedPackageManagers,
   root: string,
   options: Options & TestOptions,
+  targetFiles?: Array<
+    'Gemfile' | 'Gemfile.lock' | 'package.json' | 'package-lock.json'
+  >,
 ): Promise<LegacyVulnApiResult[]> {
   const results: LegacyVulnApiResult[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
-    const payloads = await assemblePayloads(root, options);
+    const payloads = await assemblePayloads(root, options, targetFiles);
     for (const payload of payloads) {
+      console.log(JSON.stringify(payload.body));
       const payloadPolicy = payload.body && payload.body.policy;
       const depGraph = payload.body && payload.body.depGraph;
 
@@ -96,7 +102,7 @@ async function runTest(
         res = convertTestDepGraphResultToLegacy(
           (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
           depGraph,
-          packageManager,
+          depGraph.pkgManager.name,
           options.severityThreshold,
         );
 
@@ -233,6 +239,9 @@ function handleTestHttpErrorResponse(res, body) {
 function assemblePayloads(
   root: string,
   options: Options & TestOptions,
+  targetFiles?: Array<
+    'Gemfile' | 'Gemfile.lock' | 'package.json' | 'package-lock.json'
+  >,
 ): Promise<Payload[]> {
   let isLocal;
   if (options.docker) {
@@ -243,27 +252,69 @@ function assemblePayloads(
   }
   analytics.add('local', isLocal);
   if (isLocal) {
-    return assembleLocalPayloads(root, options);
+    return assembleLocalPayloads(root, options, targetFiles);
   }
   return assembleRemotePayloads(root, options);
+}
+
+interface ScannedProjectCustom extends ScannedProject {
+  packageManager: SupportedPackageManagers;
 }
 
 // Force getDepsFromPlugin to return scannedProjects for processing in assembleLocalPayload
 async function getDepsFromPlugin(
   root,
   options: Options,
+  targetFiles?: Array<
+    'Gemfile' | 'Gemfile.lock' | 'package.json' | 'package-lock.json'
+  >, // gemfile & package,json
 ): Promise<pluginApi.MultiProjectResult> {
-  options.file = options.file || detect.detectPackageFile(root);
-  if (!options.docker && !(options.file || options.packageManager)) {
-    throw NoSupportedManifestsFoundError([...root]);
+  // if option file => scan 1
+  // array scan each
+  // otherwise magic?
+  let inspectRes: pluginApi.InspectResult;
+  if (targetFiles) {
+    const allResults: ScannedProjectCustom[] = [];
+
+    for (const targetFile of targetFiles) {
+      options.file = targetFile; // todo: does it matter?
+      const packageManager = getPackageManager(targetFile);
+      const plugin = plugins.loadPlugin(
+        packageManager as SupportedPackageManagers,
+        options,
+      );
+      const moduleInfo = ModuleInfo(plugin, options.policy);
+      inspectRes = await moduleInfo.inspect(root, options.file, { ...options }); // {
+
+      const customScannedProject: ScannedProjectCustom[] =
+      (inspectRes as pluginApi.MultiProjectResult).scannedProjects.map(
+        (a) => {
+          (a as ScannedProjectCustom).targetFile = targetFile;
+          (a as ScannedProjectCustom).packageManager = packageManager as SupportedPackageManagers;
+          return (a as ScannedProjectCustom);
+        },
+      );
+      allResults.push(...customScannedProject);
+    }
+
+    return {
+      plugin: {
+        name: 'custom-auto-detect',
+      },
+      scannedProjects: allResults,
+    };
+  } else {
+    options.file = options.file || detect.detectPackageFile(root);
+    if (!options.docker && !(options.file || options.packageManager)) {
+      throw NoSupportedManifestsFoundError([...root]);
+    }
+    const plugin = plugins.loadPlugin(options.packageManager, options);
+    const moduleInfo = ModuleInfo(plugin, options.policy);
+    inspectRes = await moduleInfo.inspect(root, options.file, { ...options });
   }
-  const plugin = plugins.loadPlugin(options.packageManager, options);
-  const moduleInfo = ModuleInfo(plugin, options.policy);
-  const inspectRes: pluginApi.InspectResult = await moduleInfo.inspect(
-    root,
-    options.file,
-    { ...options },
-  );
+  // many project test where each is  either multi or single
+
+  // 1 project test = either multi or single
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package) {
@@ -306,6 +357,9 @@ async function getDepsFromPlugin(
 async function assembleLocalPayloads(
   root,
   options: Options & TestOptions,
+  targetFiles?: Array<
+    'Gemfile' | 'Gemfile.lock' | 'package.json' | 'package-lock.json'
+  >,
 ): Promise<Payload[]> {
   const analysisType = options.docker ? 'docker' : options.packageManager;
   const spinnerLbl =
@@ -319,7 +373,7 @@ async function assembleLocalPayloads(
     const payloads: Payload[] = [];
 
     await spinner(spinnerLbl);
-    const deps = await getDepsFromPlugin(root, options);
+    const deps = await getDepsFromPlugin(root, options, targetFiles);
     analytics.add('pluginName', deps.plugin.name);
 
     for (const scannedProject of deps.scannedProjects) {
@@ -328,8 +382,12 @@ async function assembleLocalPayloads(
         await spinner.clear<void>(spinnerLbl)();
         maybePrintDeps(options, pkg);
       }
-      if (deps.plugin && deps.plugin.packageManager) {
-        (options as any).packageManager = deps.plugin.packageManager;
+      const project = (scannedProject as ScannedProjectCustom);
+      const packageManager =
+        project.packageManager ||
+        (deps.plugin && deps.plugin.packageManager);
+      if (packageManager) {
+        (options as any).packageManager = packageManager;
       }
 
       if (pkg.docker) {

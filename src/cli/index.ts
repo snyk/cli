@@ -148,8 +148,8 @@ async function main() {
     } else if (typeof args.options.file === 'boolean') {
       throw new FileFlagBadInputError();
     }
-
     checkPaths(args);
+    // TODO: ideally pass detected targetFiles here
     res = await runCommand(args);
   } catch (error) {
     failed = true;

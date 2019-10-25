@@ -75,7 +75,6 @@ async function test(...args: MethodArgs): Promise<string> {
     const testOpts = _.cloneDeep(options);
     testOpts.path = path;
     testOpts.projectName = testOpts['project-name'];
-
     let res;
 
     try {
@@ -251,7 +250,7 @@ function summariseErrorResults(errorResults) {
 function displayResult(res, options: Options & TestOptions) {
   const meta = metaForDisplay(res, options);
   const dockerAdvice = dockerRemediationForDisplay(res);
-  const packageManager = options.packageManager;
+  const packageManager = res.packageManager || options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
   const prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
 
@@ -468,7 +467,7 @@ function rightPadWithSpaces(s, desiredLength) {
 
 function metaForDisplay(res, options) {
   const padToLength = 19; // chars to align
-  const packageManager = options.packageManager || res.packageManager;
+  const packageManager = res.packageManager || options.packageManager ;
   const openSource = res.isPrivate ? 'no' : 'yes';
   const meta = [
     chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org,
@@ -478,7 +477,7 @@ function metaForDisplay(res, options) {
   if (options.file) {
     meta.push(
       chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) +
-        options.file,
+      options.file,
     );
   }
   if (options.projectName) {
