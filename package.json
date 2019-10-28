@@ -52,7 +52,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/cli-interface": "2.2.0",
-    "@snyk/dep-graph": "1.12.0",
+    "@snyk/dep-graph": "1.13.1",
     "@snyk/gemfile": "1.2.0",
     "@snyk/snyk-cocoapods-plugin": "1.0.3",
     "@types/agent-base": "^4.2.0",
