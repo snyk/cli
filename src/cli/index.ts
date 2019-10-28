@@ -16,6 +16,7 @@ import ansiEscapes = require('ansi-escapes');
 import { isPathToPackageFile } from '../lib/detect';
 import { updateCheck } from '../lib/updater';
 import { MissingTargetFileError, FileFlagBadInputError } from '../lib/errors';
+import { UnsupportedOptionCombinationError } from '../lib/errors/unsupported-option-combination-error';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -120,12 +121,20 @@ function checkRuntime() {
   }
 }
 
-// Check if user specify package file name as part of path
-// and throw error if so.
+// Throw error if user specifies package file name as part of path,
+// and if user specifies multiple paths and used project-name option.
 function checkPaths(args) {
+  let count = 0;
   for (const path of args.options._) {
     if (typeof path === 'string' && isPathToPackageFile(path)) {
       throw MissingTargetFileError(path);
+    } else if (typeof path === 'string') {
+      if (++count > 1 && args.options['project-name']) {
+        throw new UnsupportedOptionCombinationError([
+          'multiple paths',
+          'project-name',
+        ]);
+      }
     }
   }
 }
@@ -144,12 +153,19 @@ async function main() {
       typeof args.options.file === 'string' &&
       (args.options.file as string).match(/\.sln$/)
     ) {
+      if (args.options['project-name']) {
+        throw new UnsupportedOptionCombinationError([
+          'file=*.sln',
+          'project-name',
+        ]);
+      }
       sln.updateArgs(args);
     } else if (typeof args.options.file === 'boolean') {
       throw new FileFlagBadInputError();
     }
 
     checkPaths(args);
+
     res = await runCommand(args);
   } catch (error) {
     failed = true;

@@ -34,3 +34,39 @@ test('snyk test command should fail when --packageManager is not specified corre
     );
   });
 });
+
+test('`test multiple paths with --project-name=NAME`', (t) => {
+  t.plan(1);
+
+  exec(
+    `node ${main} test pathA pathB --project-name=NAME`,
+    (err, stdout, stderr) => {
+      if (err) {
+        throw err;
+      }
+      t.equals(
+        stdout.trim(),
+        'The following option combination is not currently supported: ["multiple paths","project-name"]',
+        'correct error output',
+      );
+    },
+  );
+});
+
+test('`test --file=file.sln --project-name=NAME`', (t) => {
+  t.plan(1);
+
+  exec(
+    `node ${main} test --file=file.sln --project-name=NAME`,
+    (err, stdout, stderr) => {
+      if (err) {
+        throw err;
+      }
+      t.equals(
+        stdout.trim(),
+        'The following option combination is not currently supported: ["file=*.sln","project-name"]',
+        'correct error output',
+      );
+    },
+  );
+});
