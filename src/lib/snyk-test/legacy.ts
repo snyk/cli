@@ -201,10 +201,16 @@ export interface PatchObject {
   };
 }
 
-export interface UpgradeRemediation {
-  upgradeTo: string;
-  upgrades: string[];
+export interface Upgrade {
+  upgradeTo: string; // name@version
+}
+
+export interface UpgradeVulns extends Upgrade {
   vulns: string[];
+}
+
+export interface UpgradeRemediation extends UpgradeVulns {
+  upgrades: string[];
 }
 
 export interface PatchRemediation {
@@ -215,9 +221,7 @@ export interface DependencyUpdates {
   [from: string]: UpgradeRemediation;
 }
 
-export interface PinRemediation {
-  upgradeTo: string;
-  issues: string[];
+export interface PinRemediation extends UpgradeVulns {
   isTransitive: boolean;
 }
 

@@ -98,7 +98,7 @@ export function formatIssuesWithRemediation(
     );
     const allVulnIds = new Set();
     Object.keys(remediationInfo.pin).forEach((name) =>
-      remediationInfo.pin[name].issues.forEach((vid) => allVulnIds.add(vid)),
+      remediationInfo.pin[name].vulns.forEach((vid) => allVulnIds.add(vid)),
     );
     remediationInfo.unresolved = remediationInfo.unresolved.filter(
       (issue) => !allVulnIds.has(issue.id),
@@ -260,7 +260,7 @@ function processUpgrades(
     const data = upgradesByDep[dep];
     const upgradeDepTo = data.upgradeTo;
     const vulnIds =
-      (data as UpgradeRemediation).vulns || (data as PinRemediation).issues;
+      (data as UpgradeRemediation).vulns || (data as PinRemediation).vulns;
     const upgradeText = `\n  Upgrade ${chalk.bold.whiteBright(
       dep,
     )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
@@ -328,7 +328,7 @@ function constructPinText(
   if (pinables.length) {
     for (const pkgName of pinables) {
       const data = pins[pkgName];
-      const vulnIds = data.issues;
+      const vulnIds = data.vulns;
       const upgradeDepTo = data.upgradeTo;
       const upgradeText = `\n  Pin ${chalk.bold.whiteBright(
         pkgName,

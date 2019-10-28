@@ -455,7 +455,7 @@
       "pin": {
         "flask": {
           "upgradeTo": "1.0",
-          "issues": [
+          "vulns": [
             "SNYK-PYTHON-FLASK-42185",
             "SNYK-PYTHON-FLASK-451637"
           ],
@@ -463,14 +463,14 @@
         },
         "Jinja2": {
           "upgradeTo": "2.10.1",
-          "issues": [
+          "vulns": [
             "SNYK-PYTHON-JINJA2-174126"
           ],
           "isTransitive": true
         },
         "Werkzeug": {
           "upgradeTo": "0.15.3",
-          "issues": [
+          "vulns": [
             "SNYK-PYTHON-WERKZEUG-458931"
           ],
           "isTransitive": true
