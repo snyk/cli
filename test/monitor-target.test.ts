@@ -1,15 +1,44 @@
-const test = require('tape').test;
-const zlib = require('zlib');
-const requestLib = require('needle');
+import { test, afterEach, afterAll } from 'tap';
+import * as requestLib from 'needle';
 
 import * as _ from 'lodash';
 import * as sinon from 'sinon';
 
 import * as cli from '../src/cli/commands';
 import subProcess = require('../src/lib/sub-process');
+import { fakeServer } from './acceptance/fake-server';
+import * as version from '../src/lib/version';
+
+const apiKey = '123456789';
+
+const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
+process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
+process.env.SNYK_HOST = 'http://localhost:' + port;
+process.env.LOG_LEVEL = '0';
+let oldkey;
+let oldendpoint;
+let versionNumber;
+const server = fakeServer(process.env.SNYK_API, apiKey);
+
+test('setup', async (t) => {
+  versionNumber = await version();
+  let key = await cli.config('get', 'api');
+  oldkey = key;
+  t.pass('existing user config captured');
+
+  key = await cli.config('get', 'endpoint');
+  oldendpoint = key;
+  t.pass('existing user endpoint captured');
+
+  await new Promise((resolve) => {
+    server.listen(port, resolve);
+  });
+  t.pass('started demo server');
+});
 
 test('Make sure that target is sent correctly', async (t) => {
   const subProcessStub = sinon.stub(subProcess, 'execute');
+  const requestSpy = sinon.spy(requestLib, 'request');
 
   subProcessStub
     .withArgs('git', ['remote', 'get-url', 'origin'])
@@ -19,9 +48,8 @@ test('Make sure that target is sent correctly', async (t) => {
     .withArgs('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
     .resolves('master');
 
-  const { data, spy } = await getMonitorRequestDataAndSpy();
-
-  t.true(spy.calledOnce, 'needle.request was called once');
+  const { data } = await getFakeServerRequestBody();
+  t.true(requestSpy.calledOnce, 'needle.request was called once');
   t.true(!_.isEmpty(data.target), 'target passed to request');
   t.true(
     !_.isEmpty(data.targetFileRelativePath),
@@ -40,15 +68,15 @@ test('Make sure that target is sent correctly', async (t) => {
   );
 
   subProcessStub.restore();
-  spy.restore();
-  t.end();
+  requestSpy.restore();
 });
 
 test("Make sure it's not failing monitor for non git projects", async (t) => {
-  const subProcessStub = sinon.stub(subProcess, 'execute').resolves('');
-  const { data, spy } = await getMonitorRequestDataAndSpy();
+  const subProcessStub = sinon.stub(subProcess, 'execute');
+  const requestSpy = sinon.spy(requestLib, 'request');
+  const { data } = await getFakeServerRequestBody();
 
-  t.true(spy.calledOnce, 'needle.request was called once');
+  t.true(requestSpy.calledOnce, 'needle.request was called once');
   t.true(_.isEmpty(data.target), 'empty target passed to request');
   t.equals(
     data.targetFileRelativePath,
@@ -57,38 +85,61 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   );
 
   subProcessStub.restore();
-  spy.restore();
-  t.end();
+  requestSpy.restore();
 });
 
 test("Make sure it's not failing if there is no remote configured", async (t) => {
-  const subProcessStub = sinon.stub(subProcess, 'execute').rejects();
-  const { data, spy } = await getMonitorRequestDataAndSpy();
+  const subProcessStub = sinon.stub(subProcess, 'execute');
+  const requestSpy = sinon.spy(requestLib, 'request');
+  const { data } = await getFakeServerRequestBody();
 
-  t.true(spy.calledOnce, 'needle.request was called once');
+  t.true(requestSpy.calledOnce, 'needle.request was called once');
   t.true(_.isEmpty(data.target), 'empty target passed to request');
   t.equals(
     data.targetFileRelativePath,
     'package.json',
     'targetFileRelativePath passed to request',
   );
-
   subProcessStub.restore();
-  spy.restore();
-  t.end();
+  requestSpy.restore();
 });
 
-async function getMonitorRequestDataAndSpy() {
-  const requestSpy = sinon.spy(requestLib, 'request');
+test('teardown', async (t) => {
+  t.plan(4);
 
+  delete process.env.SNYK_API;
+  delete process.env.SNYK_HOST;
+  delete process.env.SNYK_PORT;
+  t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
+
+  await new Promise((resolve) => {
+    server.close(resolve);
+  });
+  t.pass('server shutdown');
+  let key = 'set';
+  let value = 'api=' + oldkey;
+  if (!oldkey) {
+    key = 'unset';
+    value = 'api';
+  }
+  await cli.config(key, value);
+  t.pass('user config restored');
+  if (oldendpoint) {
+    await cli.config('endpoint', oldendpoint);
+    t.pass('user endpoint restored');
+    t.end();
+  } else {
+    t.pass('no endpoint');
+    t.end();
+  }
+});
+
+async function getFakeServerRequestBody() {
   await cli.monitor();
-
-  const data = JSON.parse(
-    zlib.gunzipSync(requestSpy.getCall(0).args[2]).toString(),
-  );
+  const req = server.popRequest();
+  const body = req.body;
 
   return {
-    data,
-    spy: requestSpy,
+    data: body,
   };
 }
