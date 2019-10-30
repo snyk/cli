@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as snyk from '../../index';
-import * as spinner from '../../spinner';
+import { Spinner } from 'cli-spinner';
 import * as analytics from '../../analytics';
 import * as fs from 'then-fs';
 import { PkgTree } from 'snyk-nodejs-lockfile-parser';
@@ -33,8 +33,11 @@ export async function parse(
   const resolveModuleSpinnerLabel =
     'Analyzing npm dependencies for ' +
     path.dirname(path.resolve(root, targetFile));
+  const spinner = new Spinner(resolveModuleSpinnerLabel);
+  spinner.setSpinnerString('|/-\\');
+  spinner.start();
+
   try {
-    await spinner(resolveModuleSpinnerLabel);
     if (targetFile.endsWith('yarn.lock')) {
       options.file =
         options.file && options.file.replace('yarn.lock', 'package.json');
@@ -51,6 +54,6 @@ export async function parse(
       Object.assign({}, options, { noFromArrays: true }),
     );
   } finally {
-    await spinner.clear<void>(resolveModuleSpinnerLabel)();
+    spinner.stop();
   }
 }

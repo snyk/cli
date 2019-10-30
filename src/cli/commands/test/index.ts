@@ -254,6 +254,9 @@ function displayResult(res, options: Options & TestOptions) {
   const packageManager = options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
   const prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
+  // clear any previous output
+  const CLEAR = process.stdout.isTTY ? '\u001b[2K' : '\u000d \u000d';
+  process.stdout.write(CLEAR);
 
   // handle errors by extracting their message
   if (res instanceof Error) {

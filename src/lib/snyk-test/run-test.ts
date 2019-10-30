@@ -72,7 +72,14 @@ async function runTest(
   options: Options & TestOptions,
 ): Promise<LegacyVulnApiResult[]> {
   const results: LegacyVulnApiResult[] = [];
+<<<<<<< HEAD
   const spinnerLbl = 'Querying vulnerabilities database...';
+=======
+  const spinner = new Spinner('Querying vulnerabilities database...');
+  spinner.setSpinnerString('|/-\\');
+  spinner.start();
+
+>>>>>>> fix: do not clear spinner, stop instead
   try {
     const payloads = await assemblePayloads(root, options);
     for (const payload of payloads) {
@@ -87,7 +94,10 @@ async function runTest(
       ) {
         dockerfilePackages = payload.body.docker.dockerfilePackages;
       }
+<<<<<<< HEAD
       await spinner(spinnerLbl);
+=======
+>>>>>>> fix: do not clear spinner, stop instead
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
@@ -184,7 +194,11 @@ async function runTest(
       error.code,
     );
   } finally {
+<<<<<<< HEAD
     spinner.clear<void>(spinnerLbl)();
+=======
+    spinner.stop();
+>>>>>>> fix: do not clear spinner, stop instead
   }
 }
 
@@ -313,19 +327,20 @@ async function assembleLocalPayloads(
     analysisType +
     ' dependencies for ' +
     (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
-      pathUtil.relative('..', '.') + ' project dir');
+      pathUtil.relative('..', '.'));
+  const spinner = new Spinner(spinnerLbl);
+  spinner.setSpinnerString('|/-\\');
+  spinner.start();
 
   try {
     const payloads: Payload[] = [];
-
-    await spinner(spinnerLbl);
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
 
     for (const scannedProject of deps.scannedProjects) {
       const pkg = scannedProject.depTree;
       if (options['print-deps']) {
-        await spinner.clear<void>(spinnerLbl)();
+        spinner.stop();
         maybePrintDeps(options, pkg);
       }
       if (deps.plugin && deps.plugin.packageManager) {
@@ -438,7 +453,11 @@ async function assembleLocalPayloads(
     }
     return payloads;
   } finally {
+<<<<<<< HEAD
     await spinner.clear<void>(spinnerLbl)();
+=======
+    spinner.stop();
+>>>>>>> fix: do not clear spinner, stop instead
   }
 }
 
