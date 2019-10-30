@@ -17,6 +17,7 @@ import { isPathToPackageFile } from '../lib/detect';
 import { updateCheck } from '../lib/updater';
 import { MissingTargetFileError, FileFlagBadInputError } from '../lib/errors';
 import { UnsupportedOptionCombinationError } from '../lib/errors/unsupported-option-combination-error';
+import stripAnsi from 'strip-ansi';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -59,7 +60,7 @@ async function handleError(args, error) {
     const output = vulnsFound ? error.message : error.stack;
     console.log(output);
   } else if (args.options.json) {
-    console.log(error.json || error.stack);
+    console.log(stripAnsi(error.json || error.stack));
   } else {
     if (!args.options.quiet) {
       const result = errors.message(error);
