@@ -69,6 +69,6 @@ export async function parse(
       strictOutOfSync,
     );
   } finally {
-    spinner.stop(true);
+    spinner.stop();
   }
 }

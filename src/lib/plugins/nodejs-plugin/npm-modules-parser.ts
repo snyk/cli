@@ -35,8 +35,9 @@ export async function parse(
     path.dirname(path.resolve(root, targetFile));
   const spinner = new Spinner(resolveModuleSpinnerLabel);
   spinner.setSpinnerString('|/-\\');
+  spinner.start();
+
   try {
-    spinner.start();
     if (targetFile.endsWith('yarn.lock')) {
       options.file =
         options.file && options.file.replace('yarn.lock', 'package.json');
@@ -53,6 +54,6 @@ export async function parse(
       Object.assign({}, options, { noFromArrays: true }),
     );
   } finally {
-    await spinner.stop(true);
+    spinner.stop();
   }
 }
