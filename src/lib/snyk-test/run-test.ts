@@ -11,7 +11,7 @@ import { ModuleInfo } from '../module-info';
 import { isCI } from '../is-ci';
 import request = require('../request');
 import snyk = require('../');
-import spinner = require('../spinner');
+import {Spinner} from 'cli-spinner';
 import common = require('./common');
 import { DepTree, TestOptions } from '../types';
 import {
@@ -72,14 +72,10 @@ async function runTest(
   options: Options & TestOptions,
 ): Promise<LegacyVulnApiResult[]> {
   const results: LegacyVulnApiResult[] = [];
-<<<<<<< HEAD
-  const spinnerLbl = 'Querying vulnerabilities database...';
-=======
   const spinner = new Spinner('Querying vulnerabilities database...');
   spinner.setSpinnerString('|/-\\');
   spinner.start();
 
->>>>>>> fix: do not clear spinner, stop instead
   try {
     const payloads = await assemblePayloads(root, options);
     for (const payload of payloads) {
@@ -94,10 +90,6 @@ async function runTest(
       ) {
         dockerfilePackages = payload.body.docker.dockerfilePackages;
       }
-<<<<<<< HEAD
-      await spinner(spinnerLbl);
-=======
->>>>>>> fix: do not clear spinner, stop instead
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
@@ -194,11 +186,7 @@ async function runTest(
       error.code,
     );
   } finally {
-<<<<<<< HEAD
-    spinner.clear<void>(spinnerLbl)();
-=======
     spinner.stop();
->>>>>>> fix: do not clear spinner, stop instead
   }
 }
 
@@ -453,11 +441,7 @@ async function assembleLocalPayloads(
     }
     return payloads;
   } finally {
-<<<<<<< HEAD
-    await spinner.clear<void>(spinnerLbl)();
-=======
     spinner.stop();
->>>>>>> fix: do not clear spinner, stop instead
   }
 }
 

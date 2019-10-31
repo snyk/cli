@@ -37,15 +37,6 @@ interface BadResult {
   path: string;
 }
 
-// This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
-// declaring the type of x as possibly undefined.
-async function promiseOrCleanup<T>(p: Promise<T>, spinner): Promise<T> {
-  return p.catch((error) => {
-    spinner.stop(true);
-    throw error;
-  });
-}
-
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
 // or an error message.
 async function monitor(...args0: MethodArgs): Promise<any> {
@@ -131,10 +122,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       analytics.add('pluginOptions', options);
 
       // TODO: the type should depend on allSubProjects flag
-      const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
-        moduleInfo.inspect(path, targetFile, { ...options }),
-        spinner,
-      );
+      const inspectResult: pluginApi.InspectResult = await moduleInfo.inspect(path, targetFile, { ...options });
 
       analytics.add('pluginName', inspectResult.plugin.name);
 
@@ -187,10 +175,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       for (const projectDeps of perProjectResult) {
         maybePrintDeps(options, projectDeps.package);
 
-        const res = await promiseOrCleanup(
-          snykMonitor(path, meta, projectDeps, targetFile),
-          spinner,
-        );
+        const res = await snykMonitor(path, meta, projectDeps, targetFile);
 
         spinner.stop(true);
 

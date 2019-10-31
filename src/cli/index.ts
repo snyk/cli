@@ -37,7 +37,7 @@ async function runCommand(args: Args) {
       copy(result);
       console.log('Result copied to clipboard');
     } else {
-      console.log(result);
+      console.log(result.trim());
     }
   }
 
@@ -58,7 +58,7 @@ async function handleError(args, error) {
 
   if (args.options.debug && !args.options.json) {
     const output = vulnsFound ? error.message : error.stack;
-    console.log(output);
+    console.log(output.trim());
   } else if (args.options.json) {
     console.log(stripAnsi(error.json || error.stack));
   } else {
@@ -73,7 +73,7 @@ async function handleError(args, error) {
           const erase = ansiEscapes.eraseLines(4);
           process.stdout.write(erase);
         }
-        console.log(result);
+        console.log(result.trim());
       }
     }
   }
