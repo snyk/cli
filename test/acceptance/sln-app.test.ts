@@ -5,8 +5,8 @@ import * as sln from '../../src/lib/sln';
 test('parseFoldersFromSln when passed an existent filename', (t) => {
   const slnFile = 'test/acceptance/workspaces/sln-example-app/mySolution.sln';
   const expected = JSON.stringify([
-    'dotnet2_new_mvc_project' + path.sep + 'new_mvc_project.csproj',
-    'WebApplication2' + path.sep + 'WebApplication2.csproj',
+    'dotnet2_new_mvc_project',
+    'WebApplication2',
   ]);
   const actual = JSON.stringify(sln.parsePathsFromSln(slnFile));
   t.equal(actual, expected, 'should parse & extract csproj folders');
@@ -28,13 +28,17 @@ test('parseFoldersFromSln when non existent filename', (t) => {
 
 test('parseFoldersFromSln when no supported files found', (t) => {
   let response;
-  const slnFile =
-    'test/acceptance/workspaces/sln-no-supported-files/mySolution1.sln';
+  const file =
+    'test/acceptance/workspaces/sln-no-supported-files/mySolution.sln';
   try {
-    response = sln.parsePathsFromSln(slnFile);
+    response = sln.updateArgs({ options: { file } });
     t.fail('an exception should be thrown');
   } catch (e) {
-    t.match(e.message, 'File not found: ', 'should throw exception');
+    t.match(
+      e.message,
+      'Could not detect supported target files in dotnet2_new_mvc_project, WebApplication2',
+      'should throw exception',
+    );
     t.equal(response, undefined, 'shouldnt return');
   }
   t.end();
