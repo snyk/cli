@@ -26,7 +26,7 @@ export const parsePathsFromSln = (slnFile) => {
     .filter(Boolean)
     // convert path separators
     .map((projectPath) => {
-      return projectPath.replace(/\\/g, path.sep);
+      return path.dirname(projectPath.replace(/\\/g, path.sep));
     });
 
   debug('extracted paths from solution file: ', paths);
@@ -47,10 +47,7 @@ export const updateArgs = (args) => {
 
   const foldersWithSupportedProjects = projectFolders
     .map((projectPath) => {
-      const projectFolder = path.resolve(
-        slnFilePath,
-        path.dirname(projectPath),
-      );
+      const projectFolder = path.resolve(slnFilePath, projectPath);
       const manifestFile = detect.detectPackageFile(projectFolder);
       return manifestFile ? projectFolder : undefined;
     })
