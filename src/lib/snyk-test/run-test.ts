@@ -11,7 +11,7 @@ import { ModuleInfo } from '../module-info';
 import { isCI } from '../is-ci';
 import request = require('../request');
 import snyk = require('../');
-import { Spinner } from 'cli-spinner';
+import spinner = require('../spinner');
 import common = require('./common');
 import { DepTree, TestOptions } from '../types';
 import {
@@ -72,9 +72,7 @@ async function runTest(
   options: Options & TestOptions,
 ): Promise<LegacyVulnApiResult[]> {
   const results: LegacyVulnApiResult[] = [];
-  const spinner = new Spinner('Querying vulnerabilities database...');
-  spinner.setSpinnerString('|/-\\');
-
+  const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     const payloads = await assemblePayloads(root, options);
     for (const payload of payloads) {
@@ -89,7 +87,7 @@ async function runTest(
       ) {
         dockerfilePackages = payload.body.docker.dockerfilePackages;
       }
-      spinner.start();
+      await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
@@ -186,7 +184,7 @@ async function runTest(
       error.code,
     );
   } finally {
-    spinner.stop(true);
+    spinner.clear<void>(spinnerLbl)();
   }
 }
 
@@ -315,21 +313,19 @@ async function assembleLocalPayloads(
     analysisType +
     ' dependencies for ' +
     (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
-      pathUtil.relative('..', '.'));
-  const spinner = new Spinner(spinnerLbl);
-  spinner.setSpinnerString('|/-\\');
+      pathUtil.relative('..', '.') + ' project dir');
 
   try {
     const payloads: Payload[] = [];
 
-    spinner.start();
+    await spinner(spinnerLbl);
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
 
     for (const scannedProject of deps.scannedProjects) {
       const pkg = scannedProject.depTree;
       if (options['print-deps']) {
-        spinner.stop(true);
+        await spinner.clear<void>(spinnerLbl)();
         maybePrintDeps(options, pkg);
       }
       if (deps.plugin && deps.plugin.packageManager) {
@@ -442,7 +438,7 @@ async function assembleLocalPayloads(
     }
     return payloads;
   } finally {
-    await spinner.stop(true);
+    await spinner.clear<void>(spinnerLbl)();
   }
 }
 
