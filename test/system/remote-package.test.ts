@@ -52,40 +52,33 @@ before('prime config', async (t) => {
   }
 });
 
-test('cli tests for online repo semver@2', async (t) => {
+test('cli tests for online repos', async (t) => {
   try {
     const res = await cli.test('semver@2');
     t.fail(res);
   } catch (error) {
     const res = error.message;
     const pos = res.toLowerCase().indexOf('vulnerability found');
-    t.true(res, 'have res');
-    t.notEqual(pos, -1, 'correctly found a vulnerability in semver@2');
+    t.pass(res);
+    t.notEqual(pos, -1, 'correctly found vulnerability: ' + res);
   }
-});
 
-test('cli tests for online repo semver@2 with --json', async (t) => {
   try {
     const res = await cli.test('semver@2', { json: true });
     t.fail(res);
   } catch (error) {
     const res = JSON.parse(error.message);
     const vuln = res.vulnerabilities[0];
-    t.equal(
-      vuln.title,
-      'semver Regular Expression Denial of Service',
-      'vuln title present',
-    );
-    t.equal(res.packageManager, 'npm', 'correct package manager');
+    t.pass(vuln.title);
     t.equal(
       vuln.id,
       'npm:semver:20150403',
-      'correctly found a vulnerability in semver@2 with --json',
+      'correctly found vulnerability: ' + vuln.id,
     );
   }
 });
 
-test('multiple test arguments semver@4, qs@6', async (t) => {
+test('multiple test arguments', async (t) => {
   try {
     const res = await cli.test('semver@4', 'qs@6');
     const lastLine = res
@@ -100,9 +93,7 @@ test('multiple test arguments semver@4, qs@6', async (t) => {
   } catch (error) {
     t.fail(error);
   }
-});
 
-test('multiple test arguments semver@4, qs@1', async (t) => {
   try {
     const res = await cli.test('semver@4', 'qs@1');
     t.fail(res);
@@ -116,6 +107,38 @@ test('multiple test arguments semver@4, qs@1', async (t) => {
       lastLine,
       'Tested 2 projects, 1 contained vulnerable paths.',
       'successfully tested semver@4, qs@1',
+    );
+  }
+
+  try {
+    const res = await cli.test('semver@2', 'qs@6');
+    t.fail(res);
+  } catch (error) {
+    const res = error.message;
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
+    t.equals(
+      lastLine,
+      'Tested 2 projects, 1 contained vulnerable paths.',
+      'successfully tested semver@2, qs@6',
+    );
+  }
+
+  try {
+    const res = await cli.test('semver@2', 'qs@1');
+    t.fail(res);
+  } catch (error) {
+    const res = error.message;
+    const lastLine = res
+      .trim()
+      .split('\n')
+      .pop();
+    t.equals(
+      lastLine,
+      'Tested 2 projects, 2 contained vulnerable paths.',
+      'successfully tested semver@2, qs@1',
     );
   }
 });

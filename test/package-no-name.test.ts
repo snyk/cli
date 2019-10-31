@@ -1,4 +1,4 @@
-import { test } from 'tap';
+import * as test from 'tape';
 import * as snyk from '../src/lib';
 
 test('packages with no name read dir', async (t) => {
