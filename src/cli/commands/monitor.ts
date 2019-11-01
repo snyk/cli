@@ -171,14 +171,11 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           }),
         );
       } else {
-        if (
-          !options['gradle-sub-project'] &&
-          inspectResult.plugin.meta &&
-          inspectResult.plugin.meta.allSubProjectNames &&
-          inspectResult.plugin.meta.allSubProjectNames.length > 1
-        ) {
-          advertiseSubprojectsCount =
-            inspectResult.plugin.meta.allSubProjectNames.length;
+        if (packageManager === 'gradle') {
+          advertiseSubprojectsCount = getSubProjectCountForGradle(
+            inspectResult,
+            options['gradle-sub-project'],
+          );
         }
         perProjectResult = [inspectResult];
       }
@@ -272,12 +269,26 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   throw new Error(output);
 }
 
+function getSubProjectCountForGradle(
+  inspectResult,
+  calledForSingleSubProject,
+): number | null {
+  if (
+    !calledForSingleSubProject &&
+    inspectResult.plugin.meta &&
+    inspectResult.plugin.meta.allSubProjectNames &&
+    inspectResult.plugin.meta.allSubProjectNames.length > 1
+  ) {
+    return inspectResult.plugin.meta.allSubProjectNames.length;
+  }
+
+  return null;
+}
+
 async function validateMonitorPath(path, isDocker) {
   const exists = await fs.exists(path);
   if (!exists && !isDocker) {
-    throw new Error(
-      '"' + path + '" is not a valid path for "snyk monitor"',
-    );
+    throw new Error('"' + path + '" is not a valid path for "snyk monitor"');
   }
 }
 
