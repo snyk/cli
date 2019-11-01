@@ -98,12 +98,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
     try {
-      const exists = await fs.exists(path);
-      if (!exists && !options.docker) {
-        throw new Error(
-          '"' + path + '" is not a valid path for "snyk monitor"',
-        );
-      }
+      await validateMonitorPath(path, options.docker);
 
       let packageManager = detect.detectPackageManager(path, options);
 
@@ -275,6 +270,15 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   throw new Error(output);
+}
+
+async function validateMonitorPath(path, isDocker) {
+  const exists = await fs.exists(path);
+  if (!exists && !isDocker) {
+    throw new Error(
+      '"' + path + '" is not a valid path for "snyk monitor"',
+    );
+  }
 }
 
 function formatMonitorOutput(
