@@ -164,12 +164,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       let perProjectResult: pluginApi.SinglePackageResult[] = [];
       let advertiseSubprojectsCount: number | null = null;
       if (pluginApi.isMultiResult(inspectResult)) {
-        perProjectResult = inspectResult.scannedProjects.map(
-          (scannedProject) => ({
-            plugin: inspectResult.plugin,
-            package: scannedProject.depTree,
-          }),
-        );
+        perProjectResult = convertMultiPluginResultToSingle(inspectResult);
       } else {
         if (packageManager === 'gradle') {
           advertiseSubprojectsCount = getSubProjectCountForGradle(
@@ -267,6 +262,15 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   throw new Error(output);
+}
+
+function convertMultiPluginResultToSingle(
+  result: pluginApi.MultiProjectResult,
+): pluginApi.SinglePackageResult[] {
+  return result.scannedProjects.map((scannedProject) => ({
+    plugin: result.plugin,
+    package: scannedProject.depTree,
+  }));
 }
 
 function getSubProjectCountForGradle(
