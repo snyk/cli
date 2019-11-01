@@ -176,6 +176,7 @@ export function args(rawArgv: string[]): Args {
     'strict-out-of-sync',
     'all-sub-projects',
     'sub-project',
+    'all-projects',
     'gradle-sub-project',
   ]) {
     if (argv[dashedArg]) {

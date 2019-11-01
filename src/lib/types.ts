@@ -65,6 +65,7 @@ export interface MonitorOptions {
   policy?: string;
   json?: boolean;
   allSubProjects?: boolean;
+  allProjects?: boolean;
   'project-name'?: string;
   'print-deps'?: boolean;
   'experimental-dep-graph'?: boolean;
