@@ -1,6 +1,5 @@
 import * as _ from 'lodash';
 import chalk from 'chalk';
-import * as wrap from 'wrap-ansi';
 import * as config from '../../../../lib/config';
 import { Options, TestOptions, ShowVulnPaths } from '../../../../lib/types';
 import { isLocalFolder } from '../../../../lib/detect';
@@ -9,7 +8,6 @@ import {
   GroupedVuln,
   AnnotatedIssue,
   DockerIssue,
-  LegalInstruction,
 } from '../../../../lib/snyk-test/legacy';
 import { formatLegalInstructions } from './legal-license-instructions';
 

@@ -2,25 +2,26 @@ export = monitor;
 
 import * as _ from 'lodash';
 import * as fs from 'then-fs';
-import { apiTokenExists } from '../../lib/api-token';
-import snyk = require('../../lib/'); // TODO(kyegupov): fix import
-import { monitor as snykMonitor } from '../../lib/monitor';
-import * as config from '../../lib/config';
+import { apiTokenExists } from '../../../lib/api-token';
+import snyk = require('../../../lib'); // TODO(kyegupov): fix import
+import { monitor as snykMonitor } from '../../../lib/monitor';
+import * as config from '../../../lib/config';
 import * as url from 'url';
 import chalk from 'chalk';
 import * as pathUtil from 'path';
-import * as spinner from '../../lib/spinner';
+import * as spinner from '../../../lib/spinner';
 
-import * as detect from '../../lib/detect';
-import * as plugins from '../../lib/plugins';
-import { ModuleInfo } from '../../lib/module-info'; // TODO(kyegupov): fix import
-import { MonitorOptions, MonitorMeta, MonitorResult } from '../../lib/types';
-import { MethodArgs, ArgsOptions } from '../args';
-import { maybePrintDeps } from '../../lib/print-deps';
-import * as analytics from '../../lib/analytics';
-import { MonitorError, UnsupportedFeatureFlagError } from '../../lib/errors';
+import * as detect from '../../../lib/detect';
+import * as plugins from '../../../lib/plugins';
+import { ModuleInfo } from '../../../lib/module-info'; // TODO(kyegupov): fix import
+import { MonitorOptions, MonitorMeta } from '../../../lib/types';
+import { MethodArgs, ArgsOptions } from '../../args';
+import { maybePrintDeps } from '../../../lib/print-deps';
+import * as analytics from '../../../lib/analytics';
+import { MonitorError, UnsupportedFeatureFlagError } from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { isFeatureFlagSupportedForOrg } from '../../lib/feature-flags';
+import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
+import { formatMonitorOutput } from './formatters/format-monitor-response';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -294,61 +295,4 @@ async function validateMonitorPath(path, isDocker) {
   if (!exists && !isDocker) {
     throw new Error('"' + path + '" is not a valid path for "snyk monitor"');
   }
-}
-
-function formatMonitorOutput(
-  packageManager,
-  res: MonitorResult,
-  manageUrl,
-  options,
-  projectName?: string,
-  advertiseSubprojectsCount?: number | null,
-) {
-  const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-  const humanReadableName = projectName
-    ? `${res.path} (${projectName})`
-    : res.path;
-  const strOutput =
-    chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
-    (packageManager === 'yarn'
-      ? 'A yarn.lock file was detected - continuing as a Yarn project.\n'
-      : '') +
-    'Explore this snapshot at ' +
-    res.uri +
-    '\n\n' +
-    (advertiseSubprojectsCount
-      ? chalk.bold.white(
-          `This project has multiple sub-projects (${advertiseSubprojectsCount}), ` +
-            'use --all-sub-projects flag to scan all sub-projects.\n\n',
-        )
-      : '') +
-    (res.isMonitored
-      ? 'Notifications about newly disclosed ' +
-        issues +
-        ' related ' +
-        'to these dependencies will be emailed to you.\n'
-      : chalk.bold.red(
-          'Project is inactive, so notifications are turned ' +
-            'off.\nActivate this project here: ' +
-            manageUrl +
-            '\n\n',
-        )) +
-    (res.trialStarted
-      ? chalk.yellow(
-          "You're over the free plan usage limit, \n" +
-            'and are now on a free 14-day premium trial.\n' +
-            'View plans here: ' +
-            manageUrl +
-            '\n\n',
-        )
-      : '');
-
-  return options.json
-    ? JSON.stringify(
-        _.assign({}, res, {
-          manageUrl,
-          packageManager,
-        }),
-      )
-    : strOutput;
 }
