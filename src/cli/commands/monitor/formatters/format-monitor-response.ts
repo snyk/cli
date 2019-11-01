@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import chalk from 'chalk';
-import {MonitorResult } from '../../../../lib/types';
+import { MonitorResult } from '../../../../lib/types';
 
 export function formatMonitorOutput(
   packageManager,
@@ -8,8 +8,11 @@ export function formatMonitorOutput(
   manageUrl,
   options,
   projectName?: string,
-  advertiseSubprojectsCount?: number | null,
-) {
+  foundProjectCount?: number,
+): string {
+  const advertiseGradleSubProjectsCount =
+    packageManager === 'gradle' && !options['gradle-sub-project'];
+
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
   const humanReadableName = projectName
     ? `${res.path} (${projectName})`
@@ -22,9 +25,9 @@ export function formatMonitorOutput(
     'Explore this snapshot at ' +
     res.uri +
     '\n\n' +
-    (advertiseSubprojectsCount
+    (advertiseGradleSubProjectsCount && foundProjectCount
       ? chalk.bold.white(
-          `This project has multiple sub-projects (${advertiseSubprojectsCount}), ` +
+          `This project has multiple sub-projects (${foundProjectCount}), ` +
             'use --all-sub-projects flag to scan all sub-projects.\n\n',
         )
       : '') +
