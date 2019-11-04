@@ -12,7 +12,7 @@ test('snyk test command should fail when --file is not specified correctly', (t)
     if (err) {
       throw err;
     }
-    t.equal(
+    t.match(
       stdout.trim(),
       'Empty --file argument. Did you mean --file=path/to/file ?',
       'correct error output',
@@ -44,7 +44,7 @@ test('`test multiple paths with --project-name=NAME`', (t) => {
       if (err) {
         throw err;
       }
-      t.equals(
+      t.match(
         stdout.trim(),
         'The following option combination is not currently supported: ["multiple paths","project-name"]',
         'correct error output',
@@ -62,7 +62,7 @@ test('`test --file=file.sln --project-name=NAME`', (t) => {
       if (err) {
         throw err;
       }
-      t.equals(
+      t.match(
         stdout.trim(),
         'The following option combination is not currently supported: ["file=*.sln","project-name"]',
         'correct error output',

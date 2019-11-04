@@ -180,7 +180,8 @@ async function main() {
     alerts.registerAlerts([
       {
         msg:
-          'Node.js v6 is past the End-of-Life phase, please upgrade your version. We will soon be dropping support for it.',
+          'Node.js v6 has past End-of-Life; please upgrade your current Node.js version ' +
+          'to continue scanning and protecting your projects from security vulnerabilities.',
         name: 'Node6EOLWarning',
         type: 'info',
       },
