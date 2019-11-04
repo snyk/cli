@@ -28,6 +28,7 @@ export interface TestOptions {
   interactive: boolean;
   'prune-repeated-subdependencies'?: boolean;
   showVulnPaths: ShowVulnPaths;
+  pinningSupported?: boolean;
 }
 export interface ProtectOptions {
   loose: boolean;

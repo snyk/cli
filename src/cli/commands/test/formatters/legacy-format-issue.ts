@@ -3,7 +3,12 @@ import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import { Options, TestOptions, ShowVulnPaths } from '../../../../lib/types';
 import { isLocalFolder } from '../../../../lib/detect';
-import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../../lib/package-managers';
+import * as snykModule from 'snyk-module';
+import {
+  WIZARD_SUPPORTED_PACKAGE_MANAGERS,
+  PINNING_SUPPORTED_PACKAGE_MANAGERS,
+  SupportedPackageManagers,
+} from '../../../../lib/package-managers';
 import {
   GroupedVuln,
   AnnotatedIssue,
@@ -46,7 +51,11 @@ export function formatIssues(
     extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
     remediationInfo:
       vuln.metadata.type !== 'license' && localPackageTest
-        ? createRemediationText(vuln, packageManager)
+        ? createRemediationText(
+            vuln,
+            packageManager,
+            !!options.pinningSupported,
+          )
         : '',
     fixedIn: options.docker ? createFixedInText(vuln) : '',
     dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
@@ -167,10 +176,34 @@ function createFixedInText(vuln: GroupedVuln): string {
   return '';
 }
 
-function createRemediationText(vuln, packageManager) {
+function createRemediationText(
+  vuln: GroupedVuln,
+  packageManager: SupportedPackageManagers,
+  pinningSupported: boolean,
+): string {
   let wizardHintText = '';
   if (WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     wizardHintText = 'Run `snyk wizard` to explore remediation options.';
+  }
+
+  if (
+    pinningSupported &&
+    vuln.fixedIn &&
+    PINNING_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
+  ) {
+    const toVersion = vuln.fixedIn.join(' or ');
+    const transitive = vuln.list.every((i) => i.from.length > 2);
+    const fromVersionArray = vuln.list.map((v) => v.from[1]);
+    const fromVersion = fromVersionArray[0];
+    if (transitive) {
+      return chalk.bold(
+        `\n  Remediation:\n    Pin the transitive dependency ${vuln.name} to version ${toVersion}`,
+      );
+    } else {
+      return chalk.bold(
+        `\n  Remediation:\n    Upgrade direct dependency ${fromVersion} to ${vuln.name}@${toVersion}`,
+      );
+    }
   }
 
   if (vuln.isFixable === true) {
@@ -187,7 +220,7 @@ function createRemediationText(vuln, packageManager) {
             v.upgradePath.length > 0
               ? ` (triggers upgrades to ${v.upgradePath.join(' > ')})`
               : '';
-          const testedPackageName = v.upgradePath[0].split('@');
+          const testedPackageName = snykModule(v.upgradePath[0] as string);
           return (
             `You've tested an outdated version of ${testedPackageName[0]}.` +
             +` Upgrade to ${v.upgradePath[0]}${selfUpgradeInfo}`
@@ -209,7 +242,7 @@ function createRemediationText(vuln, packageManager) {
       }),
     );
     return chalk.bold(
-      `\n  Remediation: \n    ${upgradePathsArray.join('\n    ')}`,
+      `\n  Remediation:\n    ${upgradePathsArray.join('\n    ')}`,
     );
   }
 
