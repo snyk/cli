@@ -2,25 +2,26 @@ export = monitor;
 
 import * as _ from 'lodash';
 import * as fs from 'then-fs';
-import { apiTokenExists } from '../../lib/api-token';
-import snyk = require('../../lib/'); // TODO(kyegupov): fix import
-import { monitor as snykMonitor } from '../../lib/monitor';
-import * as config from '../../lib/config';
+import { apiTokenExists } from '../../../lib/api-token';
+import snyk = require('../../../lib'); // TODO(kyegupov): fix import
+import { monitor as snykMonitor } from '../../../lib/monitor';
+import * as config from '../../../lib/config';
 import * as url from 'url';
 import chalk from 'chalk';
 import * as pathUtil from 'path';
-import * as spinner from '../../lib/spinner';
+import * as spinner from '../../../lib/spinner';
 
-import * as detect from '../../lib/detect';
-import * as plugins from '../../lib/plugins';
-import { ModuleInfo } from '../../lib/module-info'; // TODO(kyegupov): fix import
-import { MonitorOptions, MonitorMeta, MonitorResult } from '../../lib/types';
-import { MethodArgs, ArgsOptions } from '../args';
-import { maybePrintDeps } from '../../lib/print-deps';
-import * as analytics from '../../lib/analytics';
-import { MonitorError, UnsupportedFeatureFlagError } from '../../lib/errors';
+import * as detect from '../../../lib/detect';
+import * as plugins from '../../../lib/plugins';
+import { ModuleInfo } from '../../../lib/module-info'; // TODO(kyegupov): fix import
+import { MonitorOptions, MonitorMeta } from '../../../lib/types';
+import { MethodArgs, ArgsOptions } from '../../args';
+import { maybePrintDeps } from '../../../lib/print-deps';
+import * as analytics from '../../../lib/analytics';
+import { MonitorError, UnsupportedFeatureFlagError } from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { isFeatureFlagSupportedForOrg } from '../../lib/feature-flags';
+import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
+import { formatMonitorOutput } from './formatters/format-monitor-response';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -98,12 +99,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
     try {
-      const exists = await fs.exists(path);
-      if (!exists && !options.docker) {
-        throw new Error(
-          '"' + path + '" is not a valid path for "snyk monitor"',
-        );
-      }
+      await validateMonitorPath(path, options.docker);
 
       let packageManager = detect.detectPackageManager(path, options);
 
@@ -167,24 +163,11 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       // a MultiProjectResult to an array of these.
 
       let perProjectResult: pluginApi.SinglePackageResult[] = [];
-      let advertiseSubprojectsCount: number | null = null;
+      let foundProjectCount;
       if (pluginApi.isMultiResult(inspectResult)) {
-        perProjectResult = inspectResult.scannedProjects.map(
-          (scannedProject) => ({
-            plugin: inspectResult.plugin,
-            package: scannedProject.depTree,
-          }),
-        );
+        perProjectResult = convertMultiPluginResultToSingle(inspectResult);
       } else {
-        if (
-          !options['gradle-sub-project'] &&
-          inspectResult.plugin.meta &&
-          inspectResult.plugin.meta.allSubProjectNames &&
-          inspectResult.plugin.meta.allSubProjectNames.length > 1
-        ) {
-          advertiseSubprojectsCount =
-            inspectResult.plugin.meta.allSubProjectNames.length;
-        }
+        foundProjectCount = getSubProjectCount(inspectResult);
         perProjectResult = [inspectResult];
       }
 
@@ -218,7 +201,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           manageUrl,
           options,
           projectName,
-          advertiseSubprojectsCount,
+          foundProjectCount,
         );
         results.push({ ok: true, data: monOutput, path, projectName });
       }
@@ -277,59 +260,30 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   throw new Error(output);
 }
 
-function formatMonitorOutput(
-  packageManager,
-  res: MonitorResult,
-  manageUrl,
-  options,
-  projectName?: string,
-  advertiseSubprojectsCount?: number | null,
-) {
-  const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-  const humanReadableName = projectName
-    ? `${res.path} (${projectName})`
-    : res.path;
-  const strOutput =
-    chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
-    (packageManager === 'yarn'
-      ? 'A yarn.lock file was detected - continuing as a Yarn project.\n'
-      : '') +
-    'Explore this snapshot at ' +
-    res.uri +
-    '\n\n' +
-    (advertiseSubprojectsCount
-      ? chalk.bold.white(
-          `This project has multiple sub-projects (${advertiseSubprojectsCount}), ` +
-            'use --all-sub-projects flag to scan all sub-projects.\n\n',
-        )
-      : '') +
-    (res.isMonitored
-      ? 'Notifications about newly disclosed ' +
-        issues +
-        ' related ' +
-        'to these dependencies will be emailed to you.\n'
-      : chalk.bold.red(
-          'Project is inactive, so notifications are turned ' +
-            'off.\nActivate this project here: ' +
-            manageUrl +
-            '\n\n',
-        )) +
-    (res.trialStarted
-      ? chalk.yellow(
-          "You're over the free plan usage limit, \n" +
-            'and are now on a free 14-day premium trial.\n' +
-            'View plans here: ' +
-            manageUrl +
-            '\n\n',
-        )
-      : '');
+function convertMultiPluginResultToSingle(
+  result: pluginApi.MultiProjectResult,
+): pluginApi.SinglePackageResult[] {
+  return result.scannedProjects.map((scannedProject) => ({
+    plugin: result.plugin,
+    package: scannedProject.depTree,
+  }));
+}
 
-  return options.json
-    ? JSON.stringify(
-        _.assign({}, res, {
-          manageUrl,
-          packageManager,
-        }),
-      )
-    : strOutput;
+function getSubProjectCount(inspectResult): number | null {
+  if (
+    inspectResult.plugin.meta &&
+    inspectResult.plugin.meta.allSubProjectNames &&
+    inspectResult.plugin.meta.allSubProjectNames.length > 1
+  ) {
+    return inspectResult.plugin.meta.allSubProjectNames.length;
+  }
+
+  return null;
+}
+
+async function validateMonitorPath(path, isDocker) {
+  const exists = await fs.exists(path);
+  if (!exists && !isDocker) {
+    throw new Error('"' + path + '" is not a valid path for "snyk monitor"');
+  }
 }
