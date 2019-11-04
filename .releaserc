@@ -15,6 +15,11 @@
       "//": "shasum all binaries",
       "path": "@semantic-release/exec",
       "cmd": "shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256 && shasum -a 256 snyk-alpine > snyk-alpine.sha256"
+    },
+    {
+      "//": "removes the file we use to identify a build as a standalone binary",
+      "path": "@semantic-release/exec",
+      "cmd": "echo 'Demonstrate that the dist/STANDALONE file is removed prior to publication'"
     }
   ],
   "publish": [
