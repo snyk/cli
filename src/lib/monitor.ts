@@ -115,7 +115,10 @@ function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
 
   for (const depKey of Object.keys(depTree.dependencies)) {
     const dep = depTree.dependencies[depKey];
-    if ((dep as any).missingLockFileEntry) {
+    if (
+      (dep as any).missingLockFileEntry ||
+      (dep as any).labels.missingLockFileEntry
+    ) {
       // TODO(kyegupov): add field to the type
       missingDeps.push(`${dep.name}@${dep.version}`);
     } else {
