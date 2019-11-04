@@ -19,7 +19,7 @@
     {
       "//": "removes the file we use to identify a build as a standalone binary",
       "path": "@semantic-release/exec",
-      "cmd": "echo 'Demonstrate that the dist/STANDALONE file is removed prior to publication'"
+      "cmd": "rm dist/STANDALONE"
     }
   ],
   "publish": [
