@@ -3212,11 +3212,21 @@ test('`monitor sbt package --experimental-dep-graph --sbt-graph`', async (t) => 
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/sbt/graph', 'puts at correct url');
   t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
-  t.match(
-    req.body.targetFileRelativePath,
-    '/test/acceptance/workspaces/sbt-simple-struts/build.sbt',
-    'matching file path',
-  );
+  if (process.platform === 'win32') {
+    t.true(
+      req.body.targetFileRelativePath.endsWith(
+        '\\test\\acceptance\\workspaces\\sbt-simple-struts\\build.sbt',
+      ),
+      'matching file path',
+    );
+  } else {
+    t.true(
+      req.body.targetFileRelativePath.endsWith(
+        '/test/acceptance/workspaces/sbt-simple-struts/build.sbt',
+      ),
+      'matching file path',
+    );
+  }
 });
 
 test('`monitor yarn-package`', async (t) => {
@@ -3236,11 +3246,21 @@ test('`monitor yarn-package`', async (t) => {
   t.notOk(pkg.dependencies['object-assign'], 'no dev dependency');
   t.notOk(pkg.from, 'no "from" array on root');
   t.notOk(pkg.dependencies.debug.from, 'no "from" array on dep');
-  t.match(
-    req.body.targetFileRelativePath,
-    '/test/acceptance/workspaces/yarn-package/yarn.lock',
-    'matching file path',
-  );
+  if (process.platform === 'win32') {
+    t.true(
+      req.body.targetFileRelativePath.endsWith(
+        '\\test\\acceptance\\workspaces\\yarn-package\\yarn.lock',
+      ),
+      'matching file path win32',
+    );
+  } else {
+    t.true(
+      req.body.targetFileRelativePath.endsWith(
+        '/test/acceptance/workspaces/yarn-package/yarn.lock',
+      ),
+      'matching file path',
+    );
+  }
 });
 
 test('`monitor yarn-package from within folder`', async (t) => {
@@ -3260,11 +3280,21 @@ test('`monitor yarn-package from within folder`', async (t) => {
   t.notOk(pkg.dependencies['object-assign'], 'no dev dependency');
   t.notOk(pkg.from, 'no "from" array on root');
   t.notOk(pkg.dependencies.debug.from, 'no "from" array on dep');
-  t.match(
-    req.body.targetFileRelativePath,
-    '/test/acceptance/workspaces/yarn-package/yarn.lock',
-    'matching file path',
-  );
+  if (process.platform === 'win32') {
+    t.true(
+      req.body.targetFileRelativePath.endsWith(
+        '\\test\\acceptance\\workspaces\\yarn-package\\yarn.lock',
+      ),
+      'matching file path',
+    );
+  } else {
+    t.true(
+      req.body.targetFileRelativePath.endsWith(
+        '/test/acceptance/workspaces/yarn-package/yarn.lock',
+      ),
+      'matching file path',
+    );
+  }
 });
 
 test('`monitor npm-package with custom --project-name`', async (t) => {
