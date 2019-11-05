@@ -117,7 +117,7 @@ function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
     const dep = depTree.dependencies[depKey];
     if (
       (dep as any).missingLockFileEntry ||
-      (dep as any).labels.missingLockFileEntry
+      ((dep as any).labels && (dep as any).labels.missingLockFileEntry)
     ) {
       // TODO(kyegupov): add field to the type
       missingDeps.push(`${dep.name}@${dep.version}`);
@@ -143,6 +143,7 @@ export async function monitor(
   targetFile?: string,
 ): Promise<MonitorResult> {
   apiTokenExists();
+  let treeMissingDeps: string[] = [];
 
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
@@ -164,6 +165,11 @@ export async function monitor(
     analytics.add('prePruneDepCount', prePruneDepCount);
     debug('total dependencies: %d', prePruneDepCount);
     pkg = await pruneTree(info.package, meta.packageManager);
+  }
+  if (['npm', 'yarn'].includes(meta.packageManager)) {
+    const { filteredDepTree, missingDeps } = filterOutMissingDeps(info.package);
+    pkg = filteredDepTree;
+    treeMissingDeps = missingDeps;
   }
 
   const pluginMeta = info.plugin;
@@ -206,6 +212,7 @@ export async function monitor(
             org: config.org ? decodeURIComponent(config.org) : undefined,
             pluginName: pluginMeta.name,
             pluginRuntime: pluginMeta.runtime,
+            missingDeps: treeMissingDeps,
             dockerImageId: pluginMeta.dockerImageId,
             dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
             dockerfileLayers: pkg.docker

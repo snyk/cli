@@ -76,7 +76,6 @@ export interface MonitorOptions {
 
 export interface MonitorMeta {
   method: 'cli' | 'wizard';
-  missingDeps?: string[];
   packageManager: SupportedPackageManagers;
   'policy-path': string;
   'project-name': string;
