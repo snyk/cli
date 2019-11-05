@@ -54,7 +54,7 @@
     "@snyk/cli-interface": "2.2.0",
     "@snyk/dep-graph": "1.13.1",
     "@snyk/gemfile": "1.2.0",
-    "@snyk/snyk-cocoapods-plugin": "1.0.3",
+    "@snyk/snyk-cocoapods-plugin": "2.0.1",
     "@types/agent-base": "^4.2.0",
     "@types/restify": "^4.3.6",
     "abbrev": "^1.1.1",

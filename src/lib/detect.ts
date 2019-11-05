@@ -27,6 +27,8 @@ const DETECTABLE_FILES: string[] = [
   'packages.config',
   'paket.dependencies',
   'composer.lock',
+  'Podfile',
+  'Podfile.lock',
 ];
 
 // when file is specified with --file, we look it up here

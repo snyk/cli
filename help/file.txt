@@ -26,6 +26,8 @@ looking for files in following order:
   packages.config
   paket.dependencies
   composer.lock
+  Podfile
+  Podfile.lock
 
 If more than one file exists it will use the first order-wise. If you wish to specify manually, you can
   point the --file parameter to force using what you specify, for example:
