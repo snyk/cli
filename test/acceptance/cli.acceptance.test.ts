@@ -3148,7 +3148,7 @@ test('`monitor npm-package`', async (t) => {
   t.notOk(req.body.meta.prePruneDepCount, "doesn't send meta.prePruneDepCount");
 });
 
-test('`monitor npm-out-of-sync`', async (t) => {
+test('`monitor npm-out-of-sync graph monitor`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('npm-out-of-sync-graph', {
     'experimental-dep-graph': true,
@@ -3165,6 +3165,20 @@ test('`monitor npm-out-of-sync`', async (t) => {
   t.notOk(
     req.body.depGraphJSON.pkgs.find((pkg) => pkg.name === 'body-parser'),
     'filetered out missingLockFileEntry',
+  );
+});
+
+test('`monitor npm-out-of-sync old monitor`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('npm-out-of-sync-graph', {
+    strictOutOfSync: false,
+  });
+  const req = server.popRequest();
+  t.match(req.url, '/monitor/npm', 'puts at correct url');
+  t.deepEqual(
+    req.body.meta.missingDeps,
+    ['body-parser@^1.18.2'],
+    'missingDeps passed',
   );
 });
 
