@@ -179,7 +179,7 @@ export async function monitor(
 
   const target = await getTarget(pkg, meta);
   const targetFileRelativePath = targetFile
-    ? path.relative(root, targetFile)
+    ? path.join(path.resolve(root), targetFile)
     : '';
 
   if (target && target.branch) {
@@ -288,7 +288,7 @@ export async function monitorGraph(
 
   const target = await getTarget(pkg, meta);
   const targetFileRelativePath = targetFile
-    ? path.relative(root, targetFile)
+    ? path.join(path.resolve(root), targetFile)
     : '';
 
   if (target && target.branch) {

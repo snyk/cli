@@ -1,5 +1,6 @@
 import { test, afterEach, afterAll } from 'tap';
 import * as requestLib from 'needle';
+import * as path from 'path';
 
 import * as _ from 'lodash';
 import * as sinon from 'sinon';
@@ -61,9 +62,9 @@ test('Make sure that target is sent correctly', async (t) => {
     'http://github.com/snyk/project.git',
     'correct name passed to request',
   );
-  t.equals(
+  t.match(
     data.targetFileRelativePath,
-    'package.json',
+    'snyk' + path.sep + 'package.json',
     'correct relative target file path passed to request',
   );
 
@@ -78,9 +79,9 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
 
   t.true(requestSpy.calledOnce, 'needle.request was called once');
   t.true(_.isEmpty(data.target), 'empty target passed to request');
-  t.equals(
+  t.match(
     data.targetFileRelativePath,
-    'package.json',
+    'snyk' + path.sep + 'package.json',
     'targetFileRelativePath passed to request',
   );
 
@@ -95,9 +96,9 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
 
   t.true(requestSpy.calledOnce, 'needle.request was called once');
   t.true(_.isEmpty(data.target), 'empty target passed to request');
-  t.equals(
+  t.match(
     data.targetFileRelativePath,
-    'package.json',
+    'snyk' + path.sep + 'package.json',
     'targetFileRelativePath passed to request',
   );
   subProcessStub.restore();
