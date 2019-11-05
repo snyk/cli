@@ -16,7 +16,7 @@ test('`protect` should not fail for unauthorized users', (t) => {
     if (err) {
       throw err;
     }
-    t.equal(
+    t.match(
       stdout.trim(),
       'Successfully applied Snyk patches',
       'correct output for unauthenticated user',
