@@ -3892,27 +3892,31 @@ test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
   );
 });
 
-test('`monitor cocoapods-app`', async (t) => {
+test('`test cocoapods-app (autodetect)`', async (t) => {
   chdirWorkspaces();
-  try {
-    await cli.test('cocoapods-app');
-    t.fail('should have failed');
-  } catch (err) {
-    t.pass('throws err');
-    t.match(
-      err.message,
-      'Could not detect supported target files in cocoapods-app.' +
-        '\nPlease see our documentation for supported' +
-        ' languages and target files: ' +
-        'https://support.snyk.io/hc/en-us/articles/360000911957-Language-support' +
-        ' and make sure you' +
-        ' are in the right directory.',
-    );
-  }
+
+  await cli.test('cocoapods-app');
+
+  const req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+
+  const depGraph = req.body.depGraph;
+  t.equal(depGraph.pkgManager.name, 'cocoapods');
+  t.same(
+    depGraph.pkgs.map((p) => p.id).sort(),
+    ['cocoapods-app@0.0.0', 'Reachability@3.1.0'].sort(),
+    'depGraph looks fine',
+  );
 });
 
-test('`monitor cocoapods-app --file=Podfile`', async (t) => {
-  chdirWorkspaces();
+test('`monitor cocoapods-app (autodetect)`', async (t) => {
+  chdirWorkspaces('cocoapods-app');
   const plugin = {
     async inspect() {
       return {
@@ -3931,9 +3935,7 @@ test('`monitor cocoapods-app --file=Podfile`', async (t) => {
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('cocoapods').returns(plugin);
 
-  await cli.monitor('cocoapods-app', {
-    file: 'Podfile',
-  });
+  await cli.monitor('./');
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.equal(
@@ -3946,11 +3948,102 @@ test('`monitor cocoapods-app --file=Podfile`', async (t) => {
   t.same(
     spyPlugin.getCall(0).args,
     [
-      'cocoapods-app',
+      './',
+      'Podfile',
+      {
+        args: null,
+      },
+    ],
+    'calls CocoaPods plugin',
+  );
+});
+
+test('`monitor cocoapods-app --file=Podfile`', async (t) => {
+  chdirWorkspaces('cocoapods-app');
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {
+          targetFile: 'Podfile',
+          name: 'snyk-cocoapods-plugin',
+          runtime: 'cocoapods',
+        },
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('cocoapods').returns(plugin);
+
+  await cli.monitor('./', {
+    file: 'Podfile',
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/monitor/cocoapods', 'puts at correct url');
+  t.equal(req.body.targetFile, 'Podfile', 'sends the targetFile (Podfile)');
+  t.same(
+    spyPlugin.getCall(0).args,
+    [
+      './',
       'Podfile',
       {
         args: null,
         file: 'Podfile',
+      },
+    ],
+    'calls CocoaPods plugin',
+  );
+});
+
+test('`monitor cocoapods-app --file=Podfile.lock`', async (t) => {
+  chdirWorkspaces('cocoapods-app');
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: {
+          targetFile: 'Podfile',
+          name: 'snyk-cocoapods-plugin',
+          runtime: 'cocoapods',
+        },
+        package: {},
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('cocoapods').returns(plugin);
+
+  await cli.monitor('./', {
+    file: 'Podfile.lock',
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/monitor/cocoapods', 'puts at correct url');
+  t.equal(req.body.targetFile, 'Podfile', 'sends the targetFile (Podfile)');
+  t.same(
+    spyPlugin.getCall(0).args,
+    [
+      './',
+      'Podfile.lock',
+      {
+        args: null,
+        file: 'Podfile.lock',
       },
     ],
     'calls CocoaPods plugin',
@@ -4462,7 +4555,7 @@ after('teardown', async (t) => {
   }
 });
 
-function chdirWorkspaces(subdir: string = '') {
+function chdirWorkspaces(subdir = '') {
   process.chdir(__dirname + '/workspaces' + (subdir ? '/' + subdir : ''));
 }
 
