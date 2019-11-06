@@ -8,5 +8,8 @@
     "zendframework/zendframework": "2.1.0",
     "aws/aws-sdk-php": "3.0.0",
     "doctrine/common": "2.5.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^8.4"
   }
 }

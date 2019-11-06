@@ -2360,6 +2360,55 @@ test('`test composer-app` auto-detects composer.lock', async (t) => {
   );
 });
 
+test('`test composer-app --file=composer.lock --dev`', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        package: {},
+        plugin: { name: 'testplugin', runtime: 'testruntime' },
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('composer').returns(plugin);
+
+  await cli.test('composer-app', {
+    file: 'composer.lock',
+    dev: true,
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'composer');
+  t.same(
+    spyPlugin.getCall(0).args,
+    [
+      'composer-app',
+      'composer.lock',
+      {
+        args: null,
+        dev: true,
+        file: 'composer.lock',
+        org: null,
+        projectName: null,
+        packageManager: 'composer',
+        path: 'composer-app',
+        showVulnPaths: 'some',
+      },
+    ],
+    'calls composer plugin',
+  );
+});
+
 test('`test composer-app golang-app nuget-app` auto-detects all three projects', async (t) => {
   chdirWorkspaces();
   const plugin = {
