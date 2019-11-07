@@ -1,4 +1,4 @@
 export interface GitTarget {
-  remoteUrl: string;
+  remoteUrl?: string;
   branch?: string;
 }
