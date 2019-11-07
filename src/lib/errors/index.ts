@@ -8,12 +8,8 @@ export { ConnectionTimeoutError } from './connection-timeout-error';
 export { FailedToLoadPolicyError } from './failed-to-load-policy-error';
 export { PolicyNotFoundError } from './policy-not-found-error';
 export { InternalServerError } from './internal-server-error';
-export {
-  FailedToGetVulnerabilitiesError,
-} from './failed-to-get-vulnerabilities-error';
+export { FailedToGetVulnerabilitiesError } from './failed-to-get-vulnerabilities-error';
 export { UnsupportedFeatureFlagError } from './unsupported-feature-flag-error';
-export {
-  UnsupportedPackageManagerError,
-} from './unsupported-package-manager-error';
+export { UnsupportedPackageManagerError } from './unsupported-package-manager-error';
 export { FailedToRunTestError } from './failed-to-run-test-error';
 export { TooManyVulnPaths } from './too-many-vuln-paths';
