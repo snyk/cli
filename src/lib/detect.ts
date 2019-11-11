@@ -40,6 +40,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   '.gemspec': 'rubygems',
   'package-lock.json': 'npm',
   'pom.xml': 'maven',
+  '.jar': 'maven',
   'build.gradle': 'gradle',
   'build.gradle.kts': 'gradle',
   'build.sbt': 'sbt',
@@ -140,8 +141,14 @@ export function detectPackageFile(root) {
 function detectPackageManagerFromFile(file) {
   let key = pathLib.basename(file);
 
+  // TODO: fix this to use glob matching instead
+  // like *.gemspec
   if (/\.gemspec$/.test(key)) {
     key = '.gemspec';
+  }
+
+  if (/\.jar$/.test(key)) {
+    key = '.jar';
   }
 
   if (!(key in DETECTABLE_PACKAGE_MANAGERS)) {

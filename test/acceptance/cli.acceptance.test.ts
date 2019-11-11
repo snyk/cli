@@ -1166,6 +1166,60 @@ test('`test maven-app --file=pom.xml --dev` sends package info', async (t) => {
   t.ok(pkgs.indexOf('junit:junit@3.8.2') >= 0);
 });
 
+test('`test maven-app-with-jars --file=example.jar` sends package info', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        package: {},
+        plugin: { name: 'testplugin', runtime: 'testruntime' },
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('maven').returns(plugin);
+
+  await cli.test('maven-app-with-jars', {
+    file: 'example.jar',
+  });
+
+  let req = server.popRequest();
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(
+    req.url,
+    'cli-config/feature-flags/pythonPinningAdvice',
+    'to correct url',
+  );
+  req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.equal(req.body.depGraph.pkgManager.name, 'maven');
+  t.same(
+    spyPlugin.getCall(0).args,
+    [
+      'maven-app-with-jars',
+      'example.jar',
+      {
+        args: null,
+        file: 'example.jar',
+        org: null,
+        projectName: null,
+        packageManager: 'maven',
+        path: '',
+        showVulnPaths: 'some',
+      },
+    ],
+    'calls mvn plugin',
+  );
+});
+
 test('`test npm-package` sends pkg info', async (t) => {
   chdirWorkspaces();
   await cli.test('npm-package');
@@ -3505,6 +3559,42 @@ test('`monitor maven-multi-app`', async (t) => {
     pkg.dependencies['com.mycompany.app:simple-child'].from,
     'no "from" array on dep',
   );
+});
+
+test('`monitor maven-app-with-jars --file=example.jar` sends package info', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        package: {},
+        plugin: { name: 'testplugin', runtime: 'testruntime' },
+      };
+    },
+  };
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('maven').returns(plugin);
+
+  await cli.monitor('maven-app-with-jars', {
+    file: 'example.jar',
+  });
+
+  let req = server.popRequest();
+  const pkg = req.body.package;
+  t.equal(req.method, 'GET', 'makes GET request');
+  t.match(
+    req.url,
+    'cli-config/feature-flags/pythonPinningAdvice',
+    'to correct url',
+  );
+  req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/monitor/maven', 'puts at correct url');
 });
 
 test('`monitor yarn-app`', async (t) => {
