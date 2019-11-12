@@ -1215,6 +1215,55 @@ test('`test maven-app-with-jars --file=example.jar` sends package info', async (
   );
 });
 
+test('`test maven-app-with-jars --file=example.war` sends package info', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        package: {},
+        plugin: { name: 'testplugin', runtime: 'testruntime' },
+      };
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('maven').returns(plugin);
+
+  await cli.test('maven-app-with-jars', {
+    file: 'example.war',
+  });
+
+  const req = server.popRequest();
+  t.equal(req.method, 'POST', 'makes POST request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/test-dep-graph', 'posts to correct url');
+  t.match(req.body.targetFile, undefined, 'target is undefined');
+
+  t.equal(req.body.depGraph.pkgManager.name, 'maven');
+  t.same(
+    spyPlugin.getCall(0).args,
+    [
+      'maven-app-with-jars',
+      'example.war',
+      {
+        args: null,
+        file: 'example.war',
+        org: null,
+        projectName: null,
+        packageManager: 'maven',
+        path: 'maven-app-with-jars',
+        showVulnPaths: 'some',
+      },
+    ],
+    'calls mvn plugin',
+  );
+});
+
 test('`test npm-package` sends pkg info', async (t) => {
   chdirWorkspaces();
   await cli.test('npm-package');

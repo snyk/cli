@@ -514,6 +514,34 @@ test('`monitor maven-app-with-jars --file=example.jar` sends package info', asyn
   t.match(req.url, '/monitor/maven', 'puts at correct url');
 });
 
+test('`monitor maven-app-with-jars --file=example.war` sends package info', async (t) => {
+  chdirWorkspaces();
+  const plugin = {
+    async inspect() {
+      return {
+        package: {},
+        plugin: { name: 'testplugin', runtime: 'testruntime' },
+      };
+    },
+  };
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('maven').returns(plugin);
+
+  await cli.monitor('maven-app-with-jars', {
+    file: 'example.war',
+  });
+
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/monitor/maven', 'puts at correct url');
+});
+
 test('`monitor yarn-app`', async (t) => {
   chdirWorkspaces('yarn-app');
   await cli.monitor();

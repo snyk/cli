@@ -41,6 +41,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   'package-lock.json': 'npm',
   'pom.xml': 'maven',
   '.jar': 'maven',
+  '.war': 'maven',
   'build.gradle': 'gradle',
   'build.gradle.kts': 'gradle',
   'build.sbt': 'sbt',
@@ -149,6 +150,10 @@ function detectPackageManagerFromFile(file) {
 
   if (/\.jar$/.test(key)) {
     key = '.jar';
+  }
+
+  if (/\.war$/.test(key)) {
+    key = '.war';
   }
 
   if (!(key in DETECTABLE_PACKAGE_MANAGERS)) {
