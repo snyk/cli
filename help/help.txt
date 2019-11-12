@@ -102,7 +102,7 @@ CocoaPods options:
 Python options:
   --command=<string>   Python interpreter to use. Default: "python", set to
                        "python2" or "python3" to use a specific version.
-  --allow-missing=<true|false> Allow skipping packages that are not found
+  --skip-unresolved=<true|false> Allow skipping packages that are not found
                         in the environment.
 
 Docker options:
