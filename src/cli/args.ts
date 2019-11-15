@@ -177,11 +177,20 @@ export function args(rawArgv: string[]): Args {
     'all-sub-projects',
     'sub-project',
     'gradle-sub-project',
+    'skip-unresolved',
   ]) {
     if (argv[dashedArg]) {
       const camelCased = dashToCamelCase(dashedArg);
       argv[camelCased] = argv[dashedArg];
       delete argv[dashedArg];
+    }
+  }
+
+  if (argv.skipUnresolved !== undefined) {
+    if (argv.skipUnresolved === 'false') {
+      argv.allowMissing = false;
+    } else {
+      argv.allowMissing = true;
     }
   }
 
