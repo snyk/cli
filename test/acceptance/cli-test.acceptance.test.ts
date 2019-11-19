@@ -169,17 +169,30 @@ test('test npm-package remoteUrl', async (t) => {
     'http://github.com/snyk/npm-package',
     'git remoteUrl is passed',
   );
+  t.equals(
+    req.body.target.branch,
+    'master',
+    'correct branch passed to request',
+  );
 
   delete process.env.GIT_DIR;
 });
 
 test('test npm-package remoteUrl with --remote-repo-url', async (t) => {
   chdirWorkspaces();
+  process.env.GIT_DIR = 'npm-package/gitdir';
   await cli.test('npm-package', {
     'remote-repo-url': 'foo',
   });
   const req = server.popRequest();
   t.equal(req.body.target.remoteUrl, 'foo', 'specified remoteUrl is passed');
+  t.equals(
+    req.body.target.branch,
+    'master',
+    'correct branch passed to request',
+  );
+
+  delete process.env.GIT_DIR;
 });
 
 test('`test empty --file=Gemfile`', async (t) => {

@@ -1,0 +1,1 @@
+The `objects` folder is needed for git testing
