@@ -11,18 +11,22 @@ export async function getInfo(packageInfo): Promise<GitTarget | null> {
   }
 
   try {
-    origin = (
-      await subProcess.execute('git', ['remote', 'get-url', 'origin'])
-    ).trim();
+    origin = (await subProcess.execute('git', [
+      'remote',
+      'get-url',
+      'origin',
+    ])).trim();
 
     if (!origin) {
       return null;
     }
 
     const parsedOrigin = GitUrlParse(origin);
-    const branch = (
-      await subProcess.execute('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
-    ).trim();
+    const branch = (await subProcess.execute('git', [
+      'rev-parse',
+      '--abbrev-ref',
+      'HEAD',
+    ])).trim();
 
     return {
       remoteUrl: parsedOrigin.toString('http'),
