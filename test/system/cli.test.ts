@@ -245,7 +245,7 @@ test('auth via invalid key', async (t) => {
 });
 
 test('auth via github', async (t) => {
-  let tokenRequest: (Url & { token?: string }) | null = null;
+  let tokenRequest: Url & { token?: string } | null = null;
 
   const openSpy = sinon.spy((url) => {
     tokenRequest = parse(url);
