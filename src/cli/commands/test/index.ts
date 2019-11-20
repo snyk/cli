@@ -56,8 +56,14 @@ async function test(...args: MethodArgs): Promise<string> {
   options.org = options.org || config.org;
 
   // making `show-vulnerable-paths` 'some' by default.
-  const svpSupplied = (options['show-vulnerable-paths'] || '').toLowerCase();
-  options.showVulnPaths = showVulnPathsMapping[svpSupplied] || 'some';
+  let svpSupplied = options['show-vulnerable-paths'] || '';
+  // Some legacy documentation refers to this as a boolean flag.
+  // We handle the "true" value as "some" (the default).
+  if ((svpSupplied as any) === true) {
+    svpSupplied = 'some';
+  }
+  options.showVulnPaths =
+    showVulnPathsMapping[svpSupplied.toLowerCase()] || 'some';
 
   if (
     options.severityThreshold &&
