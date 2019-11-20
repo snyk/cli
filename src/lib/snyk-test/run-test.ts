@@ -14,6 +14,9 @@ import snyk = require('../');
 import spinner = require('../spinner');
 import common = require('./common');
 import { DepTree, TestOptions } from '../types';
+import * as projectMetadata from '../project-metadata';
+import { GitTarget } from '../project-metadata/types';
+
 import {
   convertTestDepGraphResultToLegacy,
   AnnotatedIssue,
@@ -51,6 +54,7 @@ interface PayloadBody {
   projectNameOverride?: string;
   hasDevDependencies?: boolean;
   docker?: any;
+  target?: GitTarget | null;
 }
 
 interface Payload {
@@ -377,6 +381,7 @@ async function assembleLocalPayloads(
         policy: policy && policy.toString(),
         docker: pkg.docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
+        target: await getTarget(pkg, options),
       };
 
       if (options.vulnEndpoint) {
@@ -499,4 +504,17 @@ function pluckPolicies(pkg) {
       })
       .filter(Boolean),
   );
+}
+
+async function getTarget(
+  pkg: DepTree,
+  options: Options,
+): Promise<GitTarget | null> {
+  const target = await projectMetadata.getInfo(pkg);
+
+  // Override the remoteUrl if the --remote-repo-url flag was set
+  if (options['remote-repo-url']) {
+    return { ...target, remoteUrl: options['remote-repo-url'] };
+  }
+  return target;
 }

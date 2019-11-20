@@ -56,6 +56,7 @@ export interface Options {
   severityThreshold?: SEVERITY;
   dev?: boolean;
   'print-deps'?: boolean;
+  'remote-repo-url'?: string;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
