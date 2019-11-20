@@ -54,7 +54,7 @@ interface PayloadBody {
   projectNameOverride?: string;
   hasDevDependencies?: boolean;
   docker?: any;
-  target?: any;
+  target?: GitTarget | null;
 }
 
 interface Payload {
@@ -508,7 +508,7 @@ function pluckPolicies(pkg) {
 
 async function getTarget(
   pkg: DepTree,
-  options: any,
+  options: Options,
 ): Promise<GitTarget | null> {
   const target = await projectMetadata.getInfo(pkg);
 

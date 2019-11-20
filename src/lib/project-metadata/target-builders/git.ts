@@ -1,11 +1,11 @@
 import fs = require('fs');
-import GitUrlParse = require('git-url-parse');
+import gitUrlParse = require('git-url-parse');
 
 import subProcess = require('../../sub-process');
+import { DepTree } from '../../types';
 import { GitTarget } from '../types';
 
-export async function getInfo(packageInfo): Promise<GitTarget | null> {
-  let origin: string | null | undefined;
+export async function getInfo(packageInfo: DepTree): Promise<GitTarget | null> {
   if (packageInfo.docker) {
     return null;
   }
@@ -13,12 +13,12 @@ export async function getInfo(packageInfo): Promise<GitTarget | null> {
   const target: GitTarget = {};
 
   try {
-    origin = (
+    const origin: string | null | undefined = (
       await subProcess.execute('git', ['remote', 'get-url', 'origin'])
     ).trim();
 
     if (origin) {
-      const parsedOrigin = GitUrlParse(origin);
+      const parsedOrigin = gitUrlParse(origin);
       target.remoteUrl = parsedOrigin.toString('http');
     }
   } catch (err) {
@@ -27,11 +27,9 @@ export async function getInfo(packageInfo): Promise<GitTarget | null> {
   }
 
   try {
-    const branch = (
+    target.branch = (
       await subProcess.execute('git', ['rev-parse', '--abbrev-ref', 'HEAD'])
     ).trim();
-
-    target.branch = branch;
   } catch (err) {
     // Swallowing exception since we don't want to break the monitor if there is a problem
     // executing git commands.
