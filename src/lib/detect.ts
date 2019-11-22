@@ -48,6 +48,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   'yarn.lock': 'yarn',
   'package.json': 'npm',
   Pipfile: 'pip',
+  'setup.py': 'pip',
   'requirements.txt': 'pip',
   'Gopkg.lock': 'golangdep',
   'go.mod': 'gomodules',
