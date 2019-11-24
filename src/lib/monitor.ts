@@ -184,9 +184,7 @@ export async function monitor(
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await getTarget(pkg, meta);
-  const targetFileRelativePath = targetFile
-    ? path.join(path.resolve(root), targetFile)
-    : '';
+  const targetFileRelativePath = path.join(path.resolve(root), targetFile || '');
 
   if (target && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -294,9 +292,7 @@ export async function monitorGraph(
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await getTarget(pkg, meta);
-  const targetFileRelativePath = targetFile
-    ? path.join(path.resolve(root), targetFile)
-    : '';
+  const targetFileRelativePath = path.join(path.resolve(root), targetFile || '');
 
   if (target && target.branch) {
     analytics.add('targetBranch', target.branch);
