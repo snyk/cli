@@ -11,6 +11,7 @@ import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
 import { verifyAPI } from './is-authed';
+import { CustomError } from '../../../lib/errors';
 
 export = auth;
 
@@ -86,7 +87,7 @@ async function testAuthComplete(token: string): Promise<{ res; body }> {
       }
 
       if (res.statusCode !== 200) {
-        return reject(AuthFailedError(body.message, res.statusCode));
+        return reject(errorForFailedAuthAttempt(res, body));
       }
 
       // we have success
@@ -132,6 +133,26 @@ async function auth(apiToken: string, via: AuthCliCommands) {
         'be used.\n'
       );
     }
-    throw AuthFailedError(body.message, res.statusCode);
+    throw errorForFailedAuthAttempt(res, body);
   });
+}
+
+/**
+ * Resolve an appropriate error for a failed attempt to authenticate
+ *
+ * @param res The response from the API
+ * @param body The body of the failed authentication request
+ */
+function errorForFailedAuthAttempt(res, body) {
+  if (res.statusCode === 401 || res.statusCode === 403) {
+    return AuthFailedError(body.userMessage, res.statusCode);
+  } else {
+    const userMessage = body && body.userMessage;
+    const error = new CustomError(userMessage || 'Auth request failed');
+    if (userMessage) {
+      error.userMessage = userMessage;
+    }
+    error.code = res.statusCode;
+    return error;
+  }
 }
