@@ -142,7 +142,7 @@ export async function monitor(
   info: pluginApi.SinglePackageResult,
   targetFile?: string,
 ): Promise<MonitorResult> {
-  apiTokenExists();
+  await apiTokenExists();
   let treeMissingDeps: string[] = [];
 
   const packageManager = meta.packageManager;

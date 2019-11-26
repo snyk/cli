@@ -105,7 +105,7 @@ function processWizardFlow(options) {
               throw MisconfiguredAuthInCI();
             }
           }
-          apiTokenExists();
+          return apiTokenExists();
         })
         .then(() => authorization.actionAllowed('cliIgnore', options))
         .then((cliIgnoreAuthorization) => {

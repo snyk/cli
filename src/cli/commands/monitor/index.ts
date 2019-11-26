@@ -81,7 +81,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error('`--remote-repo-url` is not supported for container scans');
   }
 
-  apiTokenExists();
+  await apiTokenExists();
 
   if (options['experimental-dep-graph']) {
     const isFFSupported = await isFeatureFlagSupportedForOrg(

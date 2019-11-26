@@ -23,7 +23,7 @@ function ignore(options) {
           throw MisconfiguredAuthInCI();
         }
       }
-      apiTokenExists();
+      return apiTokenExists();
     })
     .then(() => {
       return authorization.actionAllowed('cliIgnore', options);
