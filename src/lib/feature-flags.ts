@@ -3,8 +3,10 @@ import snyk = require('.'); // TODO(kyegupov): fix import
 import * as config from './config';
 
 interface OrgFeatureFlagResponse {
-  ok: boolean;
+  ok?: boolean;
   userMessage?: string;
+  code?: number;
+  error?: string;
 }
 
 export async function isFeatureFlagSupportedForOrg(

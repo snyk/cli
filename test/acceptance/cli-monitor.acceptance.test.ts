@@ -133,10 +133,32 @@ test('monitor for package with no name in lockfile', async (t) => {
   t.pass('succeed');
 });
 
+test('`monitor npm-package with experimental-dep-graph enabled, but bad auth token`', async (t) => {
+  chdirWorkspaces();
+
+  const validTokenStub = sinon
+    .stub(needle, 'request')
+    .yields(null, null, { code: 401, error: 'Invalid auth token provided' });
+
+  try {
+    await cli.monitor('npm-package', { 'experimental-dep-graph': true });
+    t.fail('shoud have thrown an error');
+  } catch (e) {
+    t.equal(e.name, 'CustomError', 'correct error was thrown');
+    t.equal(
+      e.userMessage,
+      'Invalid auth token provided',
+      'correct default error message',
+    );
+
+    validTokenStub.restore();
+  }
+});
+
 test('`monitor npm-package with experimental-dep-graph not enabled`', async (t) => {
   chdirWorkspaces();
 
-  const featureFlagRequestStub = sinon
+  const needleRequestStub = sinon
     .stub(needle, 'request')
     .yields(null, null, { ok: false });
 
@@ -152,7 +174,7 @@ test('`monitor npm-package with experimental-dep-graph not enabled`', async (t) 
       'correct default error message',
     );
 
-    featureFlagRequestStub.restore();
+    needleRequestStub.restore();
   }
 });
 
