@@ -18,7 +18,11 @@ import { MonitorOptions, MonitorMeta } from '../../../lib/types';
 import { MethodArgs, ArgsOptions } from '../../args';
 import { maybePrintDeps } from '../../../lib/print-deps';
 import * as analytics from '../../../lib/analytics';
-import { MonitorError, UnsupportedFeatureFlagError } from '../../../lib/errors';
+import {
+  AuthFailedError,
+  MonitorError,
+  UnsupportedFeatureFlagError,
+} from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { formatMonitorOutput } from './formatters/format-monitor-response';
@@ -87,6 +91,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     const isFFSupported = await isFeatureFlagSupportedForOrg(
       _.camelCase('experimental-dep-graph'),
     );
+
+    if (isFFSupported.code === 401) {
+      throw AuthFailedError(isFFSupported.error, isFFSupported.code);
+    }
 
     if (!isFFSupported.ok) {
       throw new UnsupportedFeatureFlagError(
