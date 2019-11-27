@@ -257,7 +257,10 @@ async function getDepsFromPlugin(
   root,
   options: Options,
 ): Promise<pluginApi.MultiProjectResult> {
-  options.file = options.file || detect.detectPackageFile(root);
+  // don't override options.file if scanning multiple files at once
+  if (!options.scanAllUnmanaged) {
+    options.file = options.file || detect.detectPackageFile(root);
+  }
   if (!options.docker && !(options.file || options.packageManager)) {
     throw NoSupportedManifestsFoundError([...root]);
   }

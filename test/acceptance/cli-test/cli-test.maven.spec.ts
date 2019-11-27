@@ -165,5 +165,55 @@ export const MavenTests: AcceptanceTests = {
         'calls mvn plugin',
       );
     },
+
+    '`test maven-app-with-jars --scan-all-unmanaged` sends package info': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const plugin = {
+        async inspect() {
+          return {
+            package: {},
+            plugin: { name: 'testplugin', runtime: 'testruntime' },
+          };
+        },
+      };
+      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('maven').returns(plugin);
+      await params.cli.test('maven-app-with-jars', {
+        scanAllUnmanaged: true,
+      });
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      t.match(req.body.targetFile, undefined, 'target is undefined');
+      t.equal(req.body.depGraph.pkgManager.name, 'maven');
+      t.same(
+        spyPlugin.getCall(0).args,
+        [
+          'maven-app-with-jars',
+          undefined, // no specified target file
+          {
+            args: null,
+            // file: undefined, no file
+            org: null,
+            projectName: null,
+            packageManager: 'maven',
+            path: 'maven-app-with-jars',
+            showVulnPaths: 'some',
+            scanAllUnmanaged: true,
+          },
+        ],
+        'calls mvn plugin',
+      );
+    },
   },
 };

@@ -6,10 +6,10 @@ export class UnsupportedOptionCombinationError extends CustomError {
 
   constructor(options: string[]) {
     super(
-      UnsupportedOptionCombinationError.ERROR_MESSAGE + JSON.stringify(options),
+      UnsupportedOptionCombinationError.ERROR_MESSAGE + options.join(' + '),
     );
     this.code = 422;
     this.userMessage =
-      UnsupportedOptionCombinationError.ERROR_MESSAGE + JSON.stringify(options);
+      UnsupportedOptionCombinationError.ERROR_MESSAGE + options.join(' + ');
   }
 }

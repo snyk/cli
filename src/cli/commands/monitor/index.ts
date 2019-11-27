@@ -112,7 +112,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       let packageManager = detect.detectPackageManager(path, options);
 
       const targetFile =
-        options.docker && !options.file // snyk monitor --docker (without --file)
+        !options.scanAllUnmanaged && options.docker && !options.file // snyk monitor --docker (without --file)
           ? undefined
           : options.file || detect.detectPackageFile(path);
 

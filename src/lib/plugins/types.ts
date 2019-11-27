@@ -19,6 +19,7 @@ export interface Options {
   composerIsFine?: boolean;
   composerPharIsFine?: boolean;
   systemVersions?: object;
+  scanAllUnmanaged?: boolean;
 }
 
 export interface Plugin {

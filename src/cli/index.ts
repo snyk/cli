@@ -151,6 +151,12 @@ async function main() {
   let failed = false;
   let exitCode = EXIT_CODES.ERROR;
   try {
+    if (args.options.scanAllUnmanaged && args.options.file) {
+      throw new UnsupportedOptionCombinationError([
+        'file',
+        'scan-all-unmanaged',
+      ]);
+    }
     if (
       args.options.file &&
       typeof args.options.file === 'string' &&

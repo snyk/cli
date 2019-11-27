@@ -96,6 +96,8 @@ export function detectPackageManager(root, options) {
       }
       file = options.file;
       packageManager = detectPackageManagerFromFile(file);
+    } else if (options.scanAllUnmanaged) {
+      packageManager = 'maven';
     } else {
       debug('no file specified. Trying to autodetect in base folder ' + root);
       file = detectPackageFile(root);

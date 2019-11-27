@@ -46,7 +46,7 @@ test('`test multiple paths with --project-name=NAME`', (t) => {
       }
       t.match(
         stdout.trim(),
-        'The following option combination is not currently supported: ["multiple paths","project-name"]',
+        'The following option combination is not currently supported: multiple paths + project-name',
         'correct error output',
       );
     },
@@ -64,7 +64,26 @@ test('`test --file=file.sln --project-name=NAME`', (t) => {
       }
       t.match(
         stdout.trim(),
-        'The following option combination is not currently supported: ["file=*.sln","project-name"]',
+        'The following option combination is not currently supported: file=*.sln + project-name',
+        'correct error output',
+      );
+    },
+  );
+});
+
+test('`test --file=blah --scan-all-unmanaged`', (t) => {
+  t.plan(1);
+
+  exec(
+    `node ${main} test --file=blah --scan-all-unmanaged`,
+    (err, stdout, stderr) => {
+      if (err) {
+        throw err;
+      }
+      console.log(stdout.trim());
+      t.match(
+        stdout.trim(),
+        'The following option combination is not currently supported: file + scan-all-unmanaged',
         'correct error output',
       );
     },
