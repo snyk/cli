@@ -3,10 +3,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import * as needle from 'needle';
-import * as cli from '../../src/cli/commands';
-import { fakeServer } from './fake-server';
-import * as subProcess from '../../src/lib/sub-process';
-import * as version from '../../src/lib/version';
+import * as cli from '../../../src/cli/commands';
+import { fakeServer } from '../fake-server';
+import * as subProcess from '../../../src/lib/sub-process';
+import * as version from '../../../src/lib/version';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -28,7 +28,7 @@ const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
-import * as plugins from '../../src/lib/plugins';
+import * as plugins from '../../../src/lib/plugins/index';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -119,7 +119,7 @@ test('`monitor non-existing`', async (t) => {
 test('monitor for package with no name', async (t) => {
   t.plan(1);
   await cli.monitor({
-    file: __dirname + '/../fixtures/package-sans-name/package.json',
+    file: __dirname + '/../../fixtures/package-sans-name/package.json',
   });
   t.pass('succeed');
 });
@@ -128,7 +128,8 @@ test('monitor for package with no name in lockfile', async (t) => {
   t.plan(1);
   await cli.monitor({
     file:
-      __dirname + '/../fixtures/package-sans-name-lockfile/package-lock.json',
+      __dirname +
+      '/../../fixtures/package-sans-name-lockfile/package-lock.json',
   });
   t.pass('succeed');
 });
@@ -284,7 +285,7 @@ test('`monitor sbt package --experimental-dep-graph --sbt-graph`', async (t) => 
     async inspect() {
       return {
         plugin: { name: 'sbt' },
-        package: require('./workspaces/sbt-simple-struts/monitor-graph-result.json'),
+        package: require('../workspaces/sbt-simple-struts/monitor-graph-result.json'),
       };
     },
   };
@@ -949,29 +950,6 @@ test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
   );
 });
 
-test('`test cocoapods-app (autodetect)`', async (t) => {
-  chdirWorkspaces();
-
-  await cli.test('cocoapods-app');
-
-  const req = server.popRequest();
-  t.equal(req.method, 'POST', 'makes POST request');
-  t.equal(
-    req.headers['x-snyk-cli-version'],
-    versionNumber,
-    'sends version number',
-  );
-  t.match(req.url, '/test-dep-graph', 'posts to correct url');
-
-  const depGraph = req.body.depGraph;
-  t.equal(depGraph.pkgManager.name, 'cocoapods');
-  t.same(
-    depGraph.pkgs.map((p) => p.id).sort(),
-    ['cocoapods-app@0.0.0', 'Reachability@3.1.0'].sort(),
-    'depGraph looks fine',
-  );
-});
-
 test('`monitor cocoapods-app (autodetect)`', async (t) => {
   chdirWorkspaces('cocoapods-app');
   const plugin = {
@@ -1373,154 +1351,6 @@ test('`wizard` for unsupported package managers', async (t) => {
   });
 });
 
-test('`protect` for unsupported package managers', async (t) => {
-  chdirWorkspaces();
-  async function testUnsupported(data) {
-    try {
-      await cli.protect({ file: data.file });
-      t.fail('should fail');
-    } catch (e) {
-      return e;
-    }
-  }
-  const cases = [
-    { file: 'ruby-app/Gemfile.lock', type: 'RubyGems' },
-    { file: 'maven-app/pom.xml', type: 'Maven' },
-    { file: 'pip-app/requirements.txt', type: 'pip' },
-    { file: 'sbt-app/build.sbt', type: 'SBT' },
-    { file: 'gradle-app/build.gradle', type: 'Gradle' },
-    { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
-    { file: 'golang-gomodules/go.mod', type: 'Go Modules' },
-    { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
-    { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
-    { file: 'composer-app/composer.lock', type: 'Composer' },
-    { file: 'cocoapods-app/Podfile.lock', type: 'CocoaPods' },
-  ];
-  const results = await Promise.all(cases.map(testUnsupported));
-  results.map((result, i) => {
-    const type = cases[i].type;
-    t.equal(
-      result.message,
-      'Snyk protect for ' + type + ' projects is not currently supported',
-      type,
-    );
-  });
-});
-
-test('`protect --policy-path`', async (tt) => {
-  tt.plan(2);
-  chdirWorkspaces('npm-package-policy');
-
-  tt.test('default policy', async (t) => {
-    const expected = fs.readFileSync(path.join('.snyk'), 'utf8');
-    const vulns = require('./fixtures/npm-package-policy/test-graph-result.json');
-    vulns.policy = expected;
-    server.setNextResponse(vulns);
-    try {
-      await cli.protect();
-      t.fail('should fail');
-    } catch (err) {
-      const req = server.popRequest();
-      const policyString = req.body.policy;
-      t.equal(policyString, expected, 'sends correct policy');
-    }
-  });
-
-  tt.test('custom policy path', async (t) => {
-    const expected = fs.readFileSync(
-      path.join('custom-location', '.snyk'),
-      'utf8',
-    );
-    const vulns = require('./fixtures/npm-package-policy/vulns.json');
-    vulns.policy = expected;
-    server.setNextResponse(vulns);
-
-    await cli.protect({
-      'policy-path': 'custom-location',
-    });
-    const req = server.popRequest();
-    const policyString = req.body.policy;
-    t.equal(policyString, expected, 'sends correct policy');
-  });
-});
-
-test('`protect` with no policy', async (t) => {
-  t.plan(1);
-  chdirWorkspaces('npm-with-dep-missing-policy');
-
-  const vulns = require('./fixtures/npm-package-policy/vulns.json');
-  server.setNextResponse(vulns);
-
-  const projectPolicy = fs
-    .readFileSync(__dirname + '/workspaces/npm-with-dep-missing-policy/.snyk')
-    .toString();
-
-  await cli.protect();
-  const req = server.popRequest();
-  const policySentToServer = req.body.policy;
-  t.equal(policySentToServer, projectPolicy, 'sends correct policy');
-  t.end();
-});
-
-test('`test --insecure`', async (tt) => {
-  tt.plan(2);
-  chdirWorkspaces('npm-package');
-
-  tt.test('default (insecure false)', async (t) => {
-    const requestStub = sinon
-      .stub(needle, 'request')
-      .callsFake((a, b, c, d, cb) => {
-        if (cb) {
-          cb(new Error('bail'), {} as any, null);
-        }
-        return {} as any;
-      });
-    t.teardown(requestStub.restore);
-    try {
-      await cli.test('npm-package');
-      t.fail('should fail');
-    } catch (e) {
-      t.notOk(
-        (requestStub.firstCall.args[3] as any).rejectUnauthorized,
-        'rejectUnauthorized not present (same as true)',
-      );
-    }
-  });
-
-  tt.test('insecure true', async (t) => {
-    // Unfortunately, all acceptance tests run through cli/commands
-    // which bypasses `args`, and `ignoreUnknownCA` is a global set
-    // by `args`, so we simply set the global here.
-    // NOTE: due to this we add tests to `args.test.js`
-    (global as any).ignoreUnknownCA = true;
-    const requestStub = sinon
-      .stub(needle, 'request')
-      .callsFake((a, b, c, d, cb) => {
-        if (cb) {
-          cb(new Error('bail'), {} as any, null);
-        }
-        return {} as any;
-      });
-    t.teardown(() => {
-      delete (global as any).ignoreUnknownCA;
-      requestStub.restore();
-    });
-    try {
-      await cli.test('npm-package');
-      t.fail('should fail');
-    } catch (e) {
-      t.false(
-        (requestStub.firstCall.args[3] as any).rejectUnauthorized,
-        'rejectUnauthorized false',
-      );
-    }
-  });
-});
-
-test("snyk help doesn't crash", async (t) => {
-  t.match(await cli.help(), /Usage/);
-});
-
 /**
  * We can't expect all test environments to have Maven installed
  * So, hijack the system exec call and return the expected output
@@ -1534,51 +1364,6 @@ function stubExec(t, execOutputFile) {
     stub.restore();
   });
 }
-
-test('error 401 handling', async (t) => {
-  chdirWorkspaces();
-
-  server.setNextStatusCodeAndResponse(401, {});
-
-  try {
-    await cli.test('ruby-app-thresholds');
-    t.fail('should have thrown');
-  } catch (err) {
-    t.match(
-      err.message,
-      /Authentication failed. Please check the API token on/,
-    );
-  }
-});
-
-test('error 403 handling', async (t) => {
-  chdirWorkspaces();
-
-  server.setNextStatusCodeAndResponse(403, {});
-
-  try {
-    await cli.test('ruby-app-thresholds');
-    t.fail('should have thrown');
-  } catch (err) {
-    t.match(
-      err.message,
-      /Authentication failed. Please check the API token on/,
-    );
-  }
-});
-
-test('error 500 handling', async (t) => {
-  chdirWorkspaces();
-
-  server.setNextStatusCodeAndResponse(500, {});
-
-  try {
-    await cli.test('ruby-app-thresholds');
-    t.fail('should have thrown');
-  } catch (err) {
-    t.match(err.message, 'Internal server error');
-  }
-});
 
 // @later: try and remove this config stuff
 // Was copied straight from ../src/cli-server.js
@@ -1613,7 +1398,7 @@ after('teardown', async (t) => {
 });
 
 function chdirWorkspaces(subdir = '') {
-  process.chdir(__dirname + '/workspaces' + (subdir ? '/' + subdir : ''));
+  process.chdir(__dirname + '/../workspaces' + (subdir ? '/' + subdir : ''));
 }
 
 // fixture can be fixture path or object

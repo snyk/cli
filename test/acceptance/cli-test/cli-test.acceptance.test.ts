@@ -1,8 +1,44 @@
 import * as tap from 'tap';
-import * as sinon from 'sinon';
-import * as cli from '../../src/cli/commands';
-import { fakeServer } from './fake-server';
-import * as version from '../../src/lib/version';
+import * as cli from '../../../src/cli/commands';
+import { fakeServer } from '../fake-server';
+import * as version from '../../../src/lib/version';
+
+export interface AcceptanceTests {
+  language: string;
+  tests: {
+    [name: string]: any;
+  };
+}
+
+import { GenericTests } from './cli-test.generic.spec';
+
+import { CocoapodsTests } from './cli-test.cocoapods.spec';
+import { ComposerTests } from './cli-test.composer.spec';
+import { DockerTests } from './cli-test.docker.spec';
+import { GoTests } from './cli-test.go.spec';
+import { GradleTests } from './cli-test.gradle.spec';
+import { MavenTests } from './cli-test.maven.spec';
+import { NpmTests } from './cli-test.npm.spec';
+import { NugetTests } from './cli-test.nuget.spec';
+import { PythonTests } from './cli-test.python.spec';
+import { RubyTests } from './cli-test.ruby.spec';
+import { SbtTests } from './cli-test.sbt.spec';
+import { YarnTests } from './cli-test.yarn.spec';
+
+const languageTests: AcceptanceTests[] = [
+  CocoapodsTests,
+  ComposerTests,
+  DockerTests,
+  GoTests,
+  GradleTests,
+  MavenTests,
+  NpmTests,
+  NugetTests,
+  PythonTests,
+  RubyTests,
+  SbtTests,
+  YarnTests,
+];
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -20,8 +56,7 @@ const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
-import * as plugins from '../../src/lib/plugins';
-import * as _ from 'lodash';
+import * as plugins from '../../../src/lib/plugins/index';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -54,53 +89,31 @@ before('prime config', async (t) => {
   t.end();
 });
 
-test('`test sbt-simple-struts`', async (t) => {
-  chdirWorkspaces();
-
-  const plugin = {
-    async inspect() {
-      return {
-        plugin: { name: 'sbt' },
-        package: require('./workspaces/sbt-simple-struts/dep-tree.json'),
-      };
-    },
-  };
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin.returns(plugin);
-
-  t.teardown(() => {
-    loadPlugin.restore();
-  });
-
-  server.setNextResponse(
-    require('./workspaces/sbt-simple-struts/test-graph-result.json'),
-  );
-
-  try {
-    await cli.test('sbt-simple-struts', { json: true });
-
-    t.fail('should have thrown');
-  } catch (err) {
-    const res = JSON.parse(err.message);
-
-    const expected = require('./workspaces/sbt-simple-struts/legacy-res-json.json');
-
-    t.deepEqual(
-      _.omit(res, ['vulnerabilities', 'packageManager']),
-      _.omit(expected, ['vulnerabilities', 'packageManager']),
-      'metadata is ok',
+test(GenericTests.language, async (t) => {
+  for (const testName of Object.keys(GenericTests.tests)) {
+    t.test(
+      testName,
+      GenericTests.tests[testName](
+        { server, versionNumber, cli },
+        { chdirWorkspaces },
+      ),
     );
-    // NOTE: decided to keep this discrepancy
-    t.is(
-      res.packageManager,
-      'sbt',
-      'pacakgeManager is sbt, altough it was mavn with the legacy api',
-    );
-    t.deepEqual(
-      _.sortBy(res.vulnerabilities, 'id'),
-      _.sortBy(expected.vulnerabilities, 'id'),
-      'vulns are the same',
-    );
+  }
+});
+
+test('Languages', async (t) => {
+  for (const languageTest of languageTests) {
+    t.test(languageTest.language, async (tt) => {
+      for (const testName of Object.keys(languageTest.tests)) {
+        tt.test(
+          testName,
+          languageTest.tests[testName](
+            { server, plugins, versionNumber, cli },
+            { chdirWorkspaces },
+          ),
+        );
+      }
+    });
   }
 });
 
@@ -137,5 +150,5 @@ after('teardown', async (t) => {
 });
 
 function chdirWorkspaces(subdir = '') {
-  process.chdir(__dirname + '/workspaces' + (subdir ? '/' + subdir : ''));
+  process.chdir(__dirname + '/../workspaces' + (subdir ? '/' + subdir : ''));
 }
