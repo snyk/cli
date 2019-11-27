@@ -54,6 +54,7 @@ export interface Options {
   advertiseSubprojectsCount?: number;
   projectNames?: string[];
   severityThreshold?: SEVERITY;
+  failOn?: FAILON;
   dev?: boolean;
   'print-deps'?: boolean;
   'remote-repo-url'?: string;
@@ -105,4 +106,9 @@ export interface SpinnerOptions {
   label?: string;
   unref?: any;
   cleanup?: any;
+}
+
+export enum FAILON {
+  UPGRADABLE = 'upgradable',
+  PATCHABLE = 'patchable',
 }
