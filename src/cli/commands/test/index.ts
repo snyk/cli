@@ -8,7 +8,12 @@ import { isCI } from '../../../lib/is-ci';
 import { apiTokenExists } from '../../../lib/api-token';
 import { SEVERITIES } from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
-import { Options, TestOptions, ShowVulnPaths } from '../../../lib/types';
+import {
+  Options,
+  TestOptions,
+  ShowVulnPaths,
+  FAILON,
+} from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
 import { MethodArgs } from '../../args';
 import {
@@ -66,6 +71,13 @@ async function test(...args: MethodArgs): Promise<string> {
     return Promise.reject(new Error('INVALID_SEVERITY_THRESHOLD'));
   }
 
+  if (
+    options.failOn &&
+    !(Object as any).values(FAILON).includes(options.failOn)
+  ) {
+    return Promise.reject(new Error('INVALID_FAILON_CRITERIA'));
+  }
+
   apiTokenExists();
 
   // Promise waterfall to test all other paths sequentially
@@ -81,6 +93,9 @@ async function test(...args: MethodArgs): Promise<string> {
 
     try {
       res = (await snyk.test(path, testOpts)) as LegacyVulnApiResult;
+      if (options.failOn) {
+        res = modifyRes(res, options.failOn);
+      }
     } catch (error) {
       // Possible error cases:
       // - the test found some vulns. `error.message` is a
@@ -634,5 +649,56 @@ function metadataForVuln(vuln): VulnMetaData {
     isNew: isNewVuln(vuln),
     version: vuln.version,
     packageManager: vuln.packageManager,
+  };
+}
+
+function modifyRes(
+  res: LegacyVulnApiResult,
+  failOn: string,
+): LegacyVulnApiResult {
+  const failOnPatchable = failOn === 'patchable';
+  // if failOn level is patchable we also want the upgradable vulns
+  const vulnerabilities = failOnPatchable
+    ? res.vulnerabilities.filter((r) => r.isUpgradable || r.isPatchable)
+    : res.vulnerabilities.filter((r) => r.isUpgradable);
+
+  const ok = vulnerabilities.length === 0;
+  // we want most of the values of res.remediation to stay the same
+  // the res.remediation object is pretty weird if you look at the definition
+  const { remediation } = res;
+  if (remediation) {
+    // if a failOn is set, we are ignoring unresolved
+    remediation.unresolved = [];
+
+    // if we're not failing on patchable vulns, just wipe that value
+    if (!failOnPatchable) {
+      remediation.patch = {};
+    }
+  }
+
+  // I'm not 100% sure how uniqueCount is calculated by Snyk, and sometimes it actually
+  // seems incorrect based on looking at the rest of the `res` object from the
+  // `await snyk.test` call earlier. This seemed like a reasonable way to calculate the value.
+  const uniqueCount = remediation
+    ? Object.keys(remediation.upgrade).length +
+      Object.keys(remediation.patch).length
+    : 0;
+
+  return {
+    vulnerabilities,
+    ok,
+    dependencyCount: res.dependencyCount,
+    org: res.org,
+    policy: res.policy,
+    isPrivate: res.isPrivate,
+    licensesPolicy: res.licensesPolicy,
+    packageManager: res.packageManager,
+    ignoreSettings: res.ignoreSettings,
+    summary: res.summary, // this gets recomputed later by existing Snyk code
+    docker: res.docker,
+    severityThreshold: res.severityThreshold,
+    filesystemPolicy: res.filesystemPolicy,
+    uniqueCount,
+    remediation,
   };
 }
