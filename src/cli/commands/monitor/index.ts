@@ -54,12 +54,135 @@ async function promiseOrCleanup<T>(
   });
 }
 
+// detects package manager
+// loads appropriate plugin and inspects for dependencies
+// finally posts dependencies to registry
+async function detectInspectMonitor(
+  path: string,
+  options: MonitorOptions = {},
+): Promise<GoodResult | BadResult> {
+  try {
+    await validateMonitorPath(path, options.docker);
+
+    let packageManager = detect.detectPackageManager(path, options);
+
+    const targetFile =
+      options.docker && !options.file // snyk monitor --docker (without --file)
+        ? undefined
+        : options.file || detect.detectPackageFile(path);
+
+    const plugin = plugins.loadPlugin(packageManager, options);
+
+    const moduleInfo = ModuleInfo(plugin, options.policy);
+
+    const displayPath = pathUtil.relative(
+      '.',
+      pathUtil.join(path, targetFile || ''),
+    );
+
+    const analysisType = options.docker ? 'docker' : packageManager;
+
+    const analyzingDepsSpinnerLabel =
+      'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
+
+    const postingMonitorSpinnerLabel =
+      'Posting monitor snapshot for ' + displayPath + ' ...';
+
+    await spinner(analyzingDepsSpinnerLabel);
+
+    // Scan the project dependencies via a plugin
+
+    analytics.add('packageManager', packageManager);
+    analytics.add('pluginOptions', options);
+
+    // TODO: the type should depend on allSubProjects flag
+    const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
+      moduleInfo.inspect(path, targetFile, { ...options }),
+      spinner.clear(analyzingDepsSpinnerLabel),
+    );
+
+    analytics.add('pluginName', inspectResult.plugin.name);
+
+    await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
+
+    await spinner(postingMonitorSpinnerLabel);
+    if (inspectResult.plugin.packageManager) {
+      packageManager = inspectResult.plugin.packageManager;
+    }
+    const meta: MonitorMeta = {
+      method: 'cli',
+      packageManager,
+      'policy-path': options['policy-path'],
+      'project-name': options['project-name'] || config.PROJECT_NAME,
+      isDocker: !!options.docker,
+      prune: !!options['prune-repeated-subdependencies'],
+      'experimental-dep-graph': !!options['experimental-dep-graph'],
+      'remote-repo-url': options['remote-repo-url'],
+    };
+
+    // We send results from "all-sub-projects" scanning as different Monitor objects
+
+    // SinglePackageResult is a legacy format understood by Registry, so we have to convert
+    // a MultiProjectResult to an array of these.
+
+    let perProjectResult: pluginApi.SinglePackageResult[] = [];
+    let foundProjectCount;
+    if (pluginApi.isMultiResult(inspectResult)) {
+      perProjectResult = convertMultiPluginResultToSingle(inspectResult);
+    } else {
+      foundProjectCount = getSubProjectCount(inspectResult);
+      perProjectResult = [inspectResult];
+    }
+
+    // Post the project dependencies to the Registry
+    for (const projectDeps of perProjectResult) {
+      maybePrintDeps(options, projectDeps.package);
+
+      const res = await promiseOrCleanup(
+        snykMonitor(path, meta, projectDeps, targetFile),
+        spinner.clear(postingMonitorSpinnerLabel),
+      );
+
+      await spinner.clear(postingMonitorSpinnerLabel)(res);
+
+      res.path = path;
+      const endpoint = url.parse(config.API);
+      let leader = '';
+      if (res.org) {
+        leader = '/org/' + res.org;
+      }
+      endpoint.pathname = leader + '/manage';
+      const manageUrl = url.format(endpoint);
+
+      endpoint.pathname = leader + '/monitor/' + res.id;
+      const projectName = pluginApi.isMultiResult(inspectResult)
+        ? projectDeps.package.name
+        : undefined;
+      const monOutput = formatMonitorOutput(
+        packageManager,
+        res,
+        manageUrl,
+        options,
+        projectName,
+        foundProjectCount,
+      );
+      return { ok: true, data: monOutput, path, projectName };
+    }
+  } catch (err) {
+    return { ok: false, data: err, path };
+  }
+  return {
+    ok: false,
+    data: new MonitorError(500, 'Failed to monitor path.'),
+    path,
+  };
+}
+
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
 // or an error message.
 async function monitor(...args0: MethodArgs): Promise<any> {
   let args = [...args0];
   let options: MonitorOptions = {};
-  const results: Array<GoodResult | BadResult> = [];
   if (typeof args[args.length - 1] === 'object') {
     options = (args.pop() as ArgsOptions) as MonitorOptions;
   }
@@ -104,121 +227,11 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     }
   }
 
-  // Part 1: every argument is a scan target; process them sequentially
-  for (const path of args as string[]) {
-    try {
-      await validateMonitorPath(path, options.docker);
+  // Part 1: every argument is a scan target; process them asynchronously
+  const results = await Promise.all(
+    (args as string[]).map((arg) => detectInspectMonitor(arg, options)),
+  );
 
-      let packageManager = detect.detectPackageManager(path, options);
-
-      const targetFile =
-        options.docker && !options.file // snyk monitor --docker (without --file)
-          ? undefined
-          : options.file || detect.detectPackageFile(path);
-
-      const plugin = plugins.loadPlugin(packageManager, options);
-
-      const moduleInfo = ModuleInfo(plugin, options.policy);
-
-      const displayPath = pathUtil.relative(
-        '.',
-        pathUtil.join(path, targetFile || ''),
-      );
-
-      const analysisType = options.docker ? 'docker' : packageManager;
-
-      const analyzingDepsSpinnerLabel =
-        'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
-
-      const postingMonitorSpinnerLabel =
-        'Posting monitor snapshot for ' + displayPath + ' ...';
-
-      await spinner(analyzingDepsSpinnerLabel);
-
-      // Scan the project dependencies via a plugin
-
-      analytics.add('packageManager', packageManager);
-      analytics.add('pluginOptions', options);
-
-      // TODO: the type should depend on allSubProjects flag
-      const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
-        moduleInfo.inspect(path, targetFile, { ...options }),
-        spinner.clear(analyzingDepsSpinnerLabel),
-      );
-
-      analytics.add('pluginName', inspectResult.plugin.name);
-
-      await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
-
-      await spinner(postingMonitorSpinnerLabel);
-      if (inspectResult.plugin.packageManager) {
-        packageManager = inspectResult.plugin.packageManager;
-      }
-      const meta: MonitorMeta = {
-        method: 'cli',
-        packageManager: packageManager,
-        'policy-path': options['policy-path'],
-        'project-name': options['project-name'] || config.PROJECT_NAME,
-        isDocker: !!options.docker,
-        prune: !!options['prune-repeated-subdependencies'],
-        'experimental-dep-graph': !!options['experimental-dep-graph'],
-        'remote-repo-url': options['remote-repo-url'],
-      };
-
-      // We send results from "all-sub-projects" scanning as different Monitor objects
-
-      // SinglePackageResult is a legacy format understood by Registry, so we have to convert
-      // a MultiProjectResult to an array of these.
-
-      let perProjectResult: pluginApi.SinglePackageResult[] = [];
-      let foundProjectCount;
-      if (pluginApi.isMultiResult(inspectResult)) {
-        perProjectResult = convertMultiPluginResultToSingle(inspectResult);
-      } else {
-        foundProjectCount = getSubProjectCount(inspectResult);
-        perProjectResult = [inspectResult];
-      }
-
-      // Post the project dependencies to the Registry
-      for (const projectDeps of perProjectResult) {
-        maybePrintDeps(options, projectDeps.package);
-
-        const res = await promiseOrCleanup(
-          snykMonitor(path, meta, projectDeps, targetFile),
-          spinner.clear(postingMonitorSpinnerLabel),
-        );
-
-        await spinner.clear(postingMonitorSpinnerLabel)(res);
-
-        res.path = path;
-        const endpoint = url.parse(config.API);
-        let leader = '';
-        if (res.org) {
-          leader = '/org/' + res.org;
-        }
-        endpoint.pathname = leader + '/manage';
-        const manageUrl = url.format(endpoint);
-
-        endpoint.pathname = leader + '/monitor/' + res.id;
-        const projectName = pluginApi.isMultiResult(inspectResult)
-          ? projectDeps.package.name
-          : undefined;
-        const monOutput = formatMonitorOutput(
-          packageManager,
-          res,
-          manageUrl,
-          options,
-          projectName,
-          foundProjectCount,
-        );
-        results.push({ ok: true, data: monOutput, path, projectName });
-      }
-      // push a good result
-    } catch (err) {
-      // push this error, the loop continues
-      results.push({ ok: false, data: err, path });
-    }
-  }
   // Part 2: process the output from the Registry
   if (options.json) {
     let dataToSend = results.map((result) => {
