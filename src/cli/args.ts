@@ -179,6 +179,7 @@ export function args(rawArgv: string[]): Args {
     'gradle-sub-project',
     'skip-unresolved',
     'scan-all-unmanaged',
+    'fail-on',
   ]) {
     if (argv[dashedArg]) {
       const camelCased = dashToCamelCase(dashedArg);

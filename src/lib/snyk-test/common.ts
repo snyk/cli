@@ -42,3 +42,11 @@ export const SEVERITIES: Array<{
     value: 3,
   },
 ];
+
+export enum FAIL_ON {
+  all = 'all',
+  upgradable = 'upgradable',
+  patchable = 'patchable',
+}
+
+export type FailOn = 'all' | 'upgradable' | 'patchable';

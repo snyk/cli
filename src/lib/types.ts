@@ -1,6 +1,7 @@
 import { SupportedPackageManagers } from './package-managers';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { SEVERITY } from './snyk-test/legacy';
+import { FailOn } from './snyk-test/common';
 
 export interface PluginMetadata {
   name: string;
@@ -29,6 +30,7 @@ export interface TestOptions {
   'prune-repeated-subdependencies'?: boolean;
   showVulnPaths: ShowVulnPaths;
   pinningSupported?: boolean;
+  failOn?: FailOn;
 }
 export interface ProtectOptions {
   loose: boolean;

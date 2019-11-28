@@ -63,6 +63,12 @@ Options:
   --remote-repo-url=<string>
                        (monitor command only)
                        Set or override the remote URL for the repository that you would like to monitor.
+  --fail-on=<all|upgradable|patchable>
+                       Only fail when there are vulnerabilities that can be fixed.
+                       All fails when there is at least one vulnerability that can be either upgraded or patched.
+                       Upgradable fails when there is at least one vulnerability that can be upgraded.
+                       Patchable fails when there is at least one vulnerability that can be patched.
+                       If vulnerabilities do not have a fix and this option is being used tests will pass.
 
 Gradle options:
   --sub-project=<string> (alias: --gradle-sub-project)

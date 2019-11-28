@@ -29,6 +29,7 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../../src/lib/plugins/index';
+import { chdirWorkspaces } from '../workspace-helper';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -1423,10 +1424,6 @@ after('teardown', async (t) => {
     t.end();
   }
 });
-
-function chdirWorkspaces(subdir = '') {
-  process.chdir(__dirname + '/../workspaces' + (subdir ? '/' + subdir : ''));
-}
 
 // fixture can be fixture path or object
 function stubDockerPluginResponse(fixture: string | object, t) {

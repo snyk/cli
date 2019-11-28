@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as cli from '../../src/cli/commands';
 import { fakeServer } from './fake-server';
 import * as version from '../../src/lib/version';
+import { chdirWorkspaces } from './workspace-helper';
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -22,10 +23,6 @@ let oldendpoint;
 let versionNumber;
 const server = fakeServer(process.env.SNYK_API, apiKey);
 const before = tap.runOnly ? only : test;
-
-function chdirWorkspaces(subdir = '') {
-  process.chdir(__dirname + '/workspaces' + (subdir ? '/' + subdir : ''));
-}
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js

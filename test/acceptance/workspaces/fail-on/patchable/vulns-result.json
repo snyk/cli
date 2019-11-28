@@ -1,0 +1,116 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "ms@1.0.0": {
+        "pkg": { "name": "ms", "version": "1.0.0" },
+        "issues": {
+          "npm:ms:20170412": {
+            "issueId": "npm:ms:20170412",
+            "fixInfo": { "isPatchable": true, "upgradePaths": [] }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "npm:ms:20170412": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "alternativeIds": ["SNYK-JS-MS-10509"],
+        "creationTime": "2017-04-12T10:02:45.497000Z",
+        "credit": ["Snyk Security Research Team"],
+        "cvssScore": 3.7,
+        "description": "## Overview\r\n[`ms`](https://www.npmjs.com/package/ms) is a tiny millisecond conversion utility.\r\n\r\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) due to an incomplete fix for previously reported vulnerability [npm:ms:20151024](https://snyk.io/vuln/npm:ms:20151024). The fix limited the length of accepted input string to 10,000 characters, and turned to be insufficient making it possible to block the event loop for 0.3 seconds (on a typical laptop) with a specially crafted string passed to `ms()` function.\r\n\r\n*Proof of concept*\r\n```js\r\nms = require('ms');\r\nms('1'.repeat(9998) + 'Q') // Takes about ~0.3s\r\n```\r\n\r\n**Note:** Snyk's patch for this vulnerability limits input length to 100 characters. This new limit was deemed to be a breaking change by the author.\r\nBased on user feedback, we believe the risk of breakage is _very_ low, while the value to your security is much greater, and therefore opted to still capture this change in a patch for earlier versions as well.  Whenever patching security issues, we always suggest to run tests on your code to validate that nothing has been broken.\r\n\r\nFor more information on `Regular Expression Denial of Service (ReDoS)` attacks, go to our [blog](https://snyk.io/blog/redos-and-catastrophic-backtracking/).\r\n\r\n## Disclosure Timeline\r\n- Feb 9th, 2017 - Reported the issue to package owner.\r\n- Feb 11th, 2017 - Issue acknowledged by package owner.\r\n- April 12th, 2017 - Fix PR opened by Snyk Security Team.\r\n- May 15th, 2017 - Vulnerability published.\r\n- May 16th, 2017 - Issue fixed and version `2.0.0` released.\r\n- May 21th, 2017 - Patches released for versions `>=0.7.1, <=1.0.0`.\r\n\r\n## Details\r\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\r\n\r\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\r\n\r\nLet’s take the following regular expression as an example:\r\n```js\r\nregex = /A(B|C+)+D/\r\n```\r\n\r\nThis regular expression accomplishes the following:\r\n- `A` The string must start with the letter 'A'\r\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\r\n- `D` Finally, we ensure this section of the string ends with a 'D'\r\n\r\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\r\n\r\nIt most cases, it doesn't take very long for a regex engine to find a match:\r\n\r\n```bash\r\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\r\n0.04s user 0.01s system 95% cpu 0.052 total\r\n\r\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\r\n1.79s user 0.02s system 99% cpu 1.812 total\r\n```\r\n\r\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\r\n\r\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\r\n\r\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\r\n1. CCC\r\n2. CC+C\r\n3. C+CC\r\n4. C+C+C.\r\n\r\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\r\n\r\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\r\n\r\n| String | Number of C's | Number of steps |\r\n| -------|-------------:| -----:|\r\n| ACCCX | 3 | 38\r\n| ACCCCX | 4 | 71\r\n| ACCCCCX | 5 | 136\r\n| ACCCCCCCCCCCCCCX | 14 | 65,553\r\n\r\n\r\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\r\n\r\n\r\n## Remediation\r\nUpgrade `ms` to version 2.0.0 or higher.\r\n\r\n## References\r\n- [GitHub PR](https://github.com/zeit/ms/pull/89)\r\n- [GitHub Commit](https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef)",
+        "disclosureTime": "2017-04-11T21:00:00Z",
+        "exploit": "Not Defined",
+        "fixedIn": ["2.0.0"],
+        "functions": [
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "index.js",
+              "functionName": "parse"
+            },
+            "version": [">=0.7.3 <2.0.0"]
+          }
+        ],
+        "functions_new": [
+          {
+            "functionId": { "filePath": "index.js", "functionName": "parse" },
+            "version": [">=0.7.3 <2.0.0"]
+          }
+        ],
+        "id": "npm:ms:20170412",
+        "identifiers": {
+          "ALTERNATIVE": ["SNYK-JS-MS-10509"],
+          "CVE": [],
+          "CWE": ["CWE-400"]
+        },
+        "language": "js",
+        "modificationTime": "2019-05-23T07:50:28.604870Z",
+        "moduleName": "ms",
+        "packageManager": "npm",
+        "packageName": "ms",
+        "patches": [
+          {
+            "comments": [],
+            "id": "patch:npm:ms:20170412:0",
+            "modificationTime": "2018-09-04T11:57:08.694191Z",
+            "urls": [
+              "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+            ],
+            "version": "=1.0.0"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:ms:20170412:1",
+            "modificationTime": "2018-09-04T11:57:08.695549Z",
+            "urls": [
+              "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+            ],
+            "version": "=0.7.2 || =0.7.3"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:ms:20170412:2",
+            "modificationTime": "2018-09-04T11:57:08.696913Z",
+            "urls": [
+              "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+            ],
+            "version": "=0.7.1"
+          }
+        ],
+        "publicationTime": "2017-05-15T06:02:45Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/zeit/ms/pull/89/commits/305f2ddcd4eff7cc7c518aca6bb2b2d2daad8fef"
+          },
+          { "title": "GitHub PR", "url": "https://github.com/zeit/ms/pull/89" }
+        ],
+        "semver": { "vulnerable": [">=0.7.1 <2.0.0"] },
+        "severity": "low",
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "isPinnable": false
+      }
+    },
+    "remediation": {
+      "unresolved": [],
+      "upgrade": {},
+      "patch": {
+        "npm:ms:20170412": {
+          "paths": [{ "ms": { "patched": "2019-11-29T15:08:55.159Z" } }]
+        }
+      },
+      "ignore": {},
+      "pin": {}
+    }
+  },
+  "meta": {
+    "isPrivate": true,
+    "isLicensesEnabled": false,
+    "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "gitphill"
+  },
+  "filesystemPolicy": false
+}

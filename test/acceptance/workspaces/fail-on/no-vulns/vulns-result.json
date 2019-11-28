@@ -1,0 +1,12 @@
+{
+  "result": { "affectedPkgs": {}, "issuesData": {} },
+  "meta": {
+    "isPrivate": true,
+    "isLicensesEnabled": false,
+    "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "gitphill"
+  },
+  "filesystemPolicy": false
+}

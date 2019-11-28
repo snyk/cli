@@ -1,0 +1,9 @@
+{
+  "name": "no-vulns",
+  "version": "1.0.0",
+  "description": "application with no vulns",
+  "dependencies": {
+    "ms": "2.1.2"
+  },
+  "devDependencies": {}
+}

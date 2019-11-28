@@ -6,7 +6,7 @@ import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
 import { apiTokenExists } from '../../../lib/api-token';
-import { SEVERITIES } from '../../../lib/snyk-test/common';
+import { SEVERITIES, FAIL_ON, FailOn } from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
 import { Options, TestOptions, ShowVulnPaths } from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
@@ -25,6 +25,7 @@ import {
 } from './formatters/remediation-based-format-issues';
 import * as analytics from '../../../lib/analytics';
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
+import { FailOnError } from '../../../lib/errors/fail-on-error.ts';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -64,6 +65,11 @@ async function test(...args: MethodArgs): Promise<string> {
     !validateSeverityThreshold(options.severityThreshold)
   ) {
     return Promise.reject(new Error('INVALID_SEVERITY_THRESHOLD'));
+  }
+
+  if (options.failOn && !validateFailOn(options.failOn)) {
+    const error = new FailOnError();
+    return Promise.reject(chalk.red.bold(error.message));
   }
 
   apiTokenExists();
@@ -151,20 +157,29 @@ async function test(...args: MethodArgs): Promise<string> {
 
     // backwards compat - strip array IFF only one result
     const dataToSend = results.length === 1 ? results[0] : results;
-    const stringifiedError = JSON.stringify(dataToSend, null, 2);
+    const stringifiedData = JSON.stringify(dataToSend, null, 2);
 
     if (results.every((res) => res.ok)) {
-      return stringifiedError;
+      return stringifiedData;
     }
-    const err = new Error(stringifiedError) as any;
+
+    const err = new Error(stringifiedData) as any;
+
     if (foundVulnerabilities) {
+      if (options.failOn) {
+        const fail = shouldFail(vulnerableResults, options.failOn);
+        if (!fail) {
+          // return here to prevent failure
+          return stringifiedData;
+        }
+      }
       err.code = 'VULNS';
       const dataToSendNoVulns = dataToSend;
       delete dataToSendNoVulns.vulnerabilities;
       err.jsonNoVulns = dataToSendNoVulns;
     }
 
-    err.json = stringifiedError;
+    err.json = stringifiedData;
     throw err;
   }
 
@@ -215,6 +230,15 @@ async function test(...args: MethodArgs): Promise<string> {
   }
 
   if (foundVulnerabilities) {
+    if (options.failOn) {
+      const fail = shouldFail(vulnerableResults, options.failOn);
+      if (!fail) {
+        // return here to prevent throwing failure
+        response += chalk.bold.green(summaryMessage);
+        return response;
+      }
+    }
+
     response += chalk.bold.red(summaryMessage);
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
@@ -228,6 +252,63 @@ async function test(...args: MethodArgs): Promise<string> {
 
   response += chalk.bold.green(summaryMessage);
   return response;
+}
+
+function shouldFail(vulnerableResults: any[], failOn: FailOn) {
+  // find reasons not to fail
+  if (failOn === 'all') {
+    return hasFixes(vulnerableResults);
+  }
+  if (failOn === 'upgradable') {
+    return hasUpgrades(vulnerableResults);
+  }
+  if (failOn === 'patchable') {
+    return hasPatches(vulnerableResults);
+  }
+  // should fail by default when there are vulnerable results
+  return vulnerableResults.length > 0;
+}
+
+function hasFix(vuln: any) {
+  const { isUpgradable, isPinnable, isPatchable } = vuln;
+  return isUpgradable || isPinnable || isPatchable;
+}
+
+function hasUpgrade(vuln: any) {
+  const { isUpgradable, isPinnable } = vuln;
+  return isUpgradable || isPinnable;
+}
+
+function hasPatch(vuln: any) {
+  const { isPatchable } = vuln;
+  return isPatchable;
+}
+
+function isTestResultFixable(testResult: any): boolean {
+  const { vulnerabilities } = testResult;
+  return vulnerabilities.some(hasFix);
+}
+
+function hasFixes(testResults: any[]): boolean {
+  return testResults.some(isTestResultFixable);
+}
+
+function isTestResultUpgradable(testResult: any): boolean {
+  const { vulnerabilities } = testResult;
+  return vulnerabilities.some(hasUpgrade);
+}
+
+function hasUpgrades(testResults: any[]): boolean {
+  return testResults.some(isTestResultUpgradable);
+}
+
+function isTestResultPatchable(testResult: any): boolean {
+  const { vulnerabilities } = testResult;
+  return vulnerabilities.some(hasPatch);
+}
+
+function hasPatches(testResults: any[]): boolean {
+  return testResults.some(isTestResultPatchable);
 }
 
 function summariseVulnerableResults(vulnerableResults, options: TestOptions) {
@@ -573,6 +654,10 @@ function getTerminalStringFormatter({ color, bold }) {
 
 function validateSeverityThreshold(severityThreshold) {
   return SEVERITIES.map((s) => s.verboseName).indexOf(severityThreshold) > -1;
+}
+
+function validateFailOn(arg: FailOn) {
+  return Object.keys(FAIL_ON).includes(arg);
 }
 
 // This is all a copy from Registry snapshots/index
