@@ -26,6 +26,7 @@ import {
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { formatMonitorOutput } from './formatters/format-monitor-response';
+import { SupportedPackageManagers } from '../../../lib/package-managers';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -53,62 +54,33 @@ async function promiseOrCleanup<T>(
     throw error;
   });
 }
+interface Snapshot {
+  path: string;
+  displayPath: string;
+  packageManager: SupportedPackageManagers;
+  inspectResult: pluginApi.InspectResult;
+  targetFile?: string;
+}
 
-// detects package manager
-// loads appropriate plugin and inspects for dependencies
-// finally posts dependencies to registry
-async function detectInspectMonitor(
-  path: string,
-  options: MonitorOptions = {},
-): Promise<GoodResult | BadResult> {
+async function saveSnapshot(
+  snapshot: Snapshot,
+  options: MonitorOptions,
+): Promise<Array<GoodResult | BadResult>> {
+  const results: Array<GoodResult | BadResult> = [];
+  const {
+    path,
+    displayPath,
+    packageManager,
+    inspectResult,
+    targetFile,
+  } = snapshot;
+
   try {
-    await validateMonitorPath(path, options.docker);
-
-    let packageManager = detect.detectPackageManager(path, options);
-
-    const targetFile =
-      options.docker && !options.file // snyk monitor --docker (without --file)
-        ? undefined
-        : options.file || detect.detectPackageFile(path);
-
-    const plugin = plugins.loadPlugin(packageManager, options);
-
-    const moduleInfo = ModuleInfo(plugin, options.policy);
-
-    const displayPath = pathUtil.relative(
-      '.',
-      pathUtil.join(path, targetFile || ''),
-    );
-
-    const analysisType = options.docker ? 'docker' : packageManager;
-
-    const analyzingDepsSpinnerLabel =
-      'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
-
     const postingMonitorSpinnerLabel =
       'Posting monitor snapshot for ' + displayPath + ' ...';
 
-    await spinner(analyzingDepsSpinnerLabel);
-
-    // Scan the project dependencies via a plugin
-
-    analytics.add('packageManager', packageManager);
-    analytics.add('pluginOptions', options);
-
-    // TODO: the type should depend on allSubProjects flag
-    const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
-      moduleInfo.inspect(path, targetFile, { ...options }),
-      spinner.clear(analyzingDepsSpinnerLabel),
-    );
-
-    analytics.add('pluginName', inspectResult.plugin.name);
-
-    await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
-
     await spinner(postingMonitorSpinnerLabel);
-    if (inspectResult.plugin.packageManager) {
-      packageManager = inspectResult.plugin.packageManager;
-    }
+
     const meta: MonitorMeta = {
       method: 'cli',
       packageManager,
@@ -166,16 +138,13 @@ async function detectInspectMonitor(
         projectName,
         foundProjectCount,
       );
-      return { ok: true, data: monOutput, path, projectName };
+      results.push({ ok: true, data: monOutput, path, projectName });
     }
   } catch (err) {
-    return { ok: false, data: err, path };
+    // push this error, the loop continues
+    results.push({ ok: false, data: err, path });
   }
-  return {
-    ok: false,
-    data: new MonitorError(500, 'Failed to monitor path.'),
-    path,
-  };
+  return results;
 }
 
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
@@ -227,12 +196,86 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     }
   }
 
-  // Part 1: every argument is a scan target; process them asynchronously
-  const results = await Promise.all(
-    (args as string[]).map((arg) => detectInspectMonitor(arg, options)),
-  );
+  // Part 1: every argument is a scan target; process them sequentially
+  const snapshots: Array<Promise<Array<GoodResult | BadResult>>> = [];
+  for (const path of args as string[]) {
+    try {
+      await validateMonitorPath(path, options.docker);
 
-  // Part 2: process the output from the Registry
+      let packageManager = detect.detectPackageManager(path, options);
+
+      const targetFile =
+        options.docker && !options.file // snyk monitor --docker (without --file)
+          ? undefined
+          : options.file || detect.detectPackageFile(path);
+
+      const plugin = plugins.loadPlugin(packageManager, options);
+
+      const moduleInfo = ModuleInfo(plugin, options.policy);
+
+      const displayPath = pathUtil.relative(
+        '.',
+        pathUtil.join(path, targetFile || ''),
+      );
+
+      const analysisType = options.docker ? 'docker' : packageManager;
+
+      const analyzingDepsSpinnerLabel =
+        'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
+
+      await spinner(analyzingDepsSpinnerLabel);
+
+      // Scan the project dependencies via a plugin
+
+      analytics.add('packageManager', packageManager);
+      analytics.add('pluginOptions', options);
+
+      // TODO: the type should depend on allSubProjects flag
+      const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
+        moduleInfo.inspect(path, targetFile, { ...options }),
+        spinner.clear(analyzingDepsSpinnerLabel),
+      );
+
+      if (inspectResult.plugin.packageManager) {
+        packageManager = inspectResult.plugin.packageManager;
+      }
+
+      analytics.add('pluginName', inspectResult.plugin.name);
+      await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
+
+      snapshots.push(
+        saveSnapshot(
+          {
+            path,
+            displayPath,
+            targetFile,
+            packageManager,
+            inspectResult,
+          },
+          options,
+        ),
+      );
+    } catch (err) {
+      // push this error, the loop continues
+      snapshots.push(Promise.resolve([{ ok: false, data: err, path }]));
+    }
+  }
+
+  // Part 2: send snapshots to registry asynchronously
+  const snapshotResults = await Promise.all(snapshots);
+  const snapshotsResultsFlat = ([] as Array<GoodResult | BadResult>).concat(
+    ...snapshotResults,
+  );
+  // construct results ordering by paths given in args
+  const results: Array<GoodResult | BadResult> = [];
+  for (const path of args as string[]) {
+    const result = snapshotsResultsFlat.find((res) => res.path === path);
+    if (result) {
+      results.push(result);
+    }
+  }
+
+  // Part 3: process the output from the Registry
   if (options.json) {
     let dataToSend = results.map((result) => {
       if (result.ok) {
