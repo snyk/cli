@@ -1,4 +1,3 @@
-import fs = require('fs');
 import gitUrlParse = require('git-url-parse');
 
 import subProcess = require('../../sub-process');
