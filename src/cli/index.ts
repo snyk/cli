@@ -30,6 +30,7 @@ async function runCommand(args: Args) {
   const res = analytics({
     args: args.options._,
     command: args.command,
+    org: args.options.org,
   });
 
   if (result && !args.options.quiet) {
@@ -106,6 +107,7 @@ async function handleError(args, error) {
   const res = analytics({
     args: args.options._,
     command,
+    org: args.options.org,
   });
 
   return { res, exitCode };
