@@ -254,5 +254,66 @@ export const PythonTests: AcceptanceTests = {
         'calls python plugin',
       );
     },
+    '`test setup_py-app --file=setup.py`': (params, utils) => async (t) => {
+      utils.chdirWorkspaces();
+      const plugin = {
+        async inspect() {
+          return {
+            plugin: {
+              targetFile: 'setup.py',
+              name: 'snyk-python-plugin',
+              runtime: 'Python',
+            },
+            package: {},
+          };
+        },
+      };
+      const spyPlugin = sinon.spy(plugin, 'inspect');
+
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('pip').returns(plugin);
+
+      await params.cli.test('setup_py-app', {
+        file: 'setup.py',
+      });
+
+      let req = params.server.popRequest();
+
+      t.equal(req.method, 'GET', 'makes GET request');
+      t.match(
+        req.url,
+        'cli-config/feature-flags/pythonPinningAdvice',
+        'to correct url',
+      );
+
+      req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      t.equal(req.body.targetFile, 'setup.py', 'specifies target');
+      t.equal(req.body.depGraph.pkgManager.name, 'pip');
+      t.same(
+        spyPlugin.getCall(0).args,
+        [
+          'setup_py-app',
+          'setup.py',
+          {
+            args: null,
+            file: 'setup.py',
+            org: null,
+            projectName: null,
+            packageManager: 'pip',
+            path: 'setup_py-app',
+            showVulnPaths: 'some',
+          },
+        ],
+        'calls python plugin',
+      );
+    },
   },
 };
