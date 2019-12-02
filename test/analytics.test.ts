@@ -67,6 +67,83 @@ test('analytics', (t) => {
       ].sort(),
       'keys as expected',
     );
+
+    const queryString = spy.lastCall.args[0].qs;
+    t.deepEqual(queryString, undefined, 'query string is empty');
+  });
+});
+
+test('analytics with args', (t) => {
+  const spy = sinon.spy();
+  const analytics = proxyquire('../src/lib/analytics', {
+    './request': spy,
+  });
+
+  analytics.add('foo', 'bar');
+
+  return analytics({
+    command: '__test__',
+    args: [],
+  }).then(() => {
+    const body = spy.lastCall.args[0].body.data;
+    t.deepEqual(
+      Object.keys(body).sort(),
+      [
+        'command',
+        'os',
+        'version',
+        'id',
+        'ci',
+        'metadata',
+        'args',
+        'nodeVersion',
+        'durationMs',
+      ].sort(),
+      'keys as expected',
+    );
+
+    const queryString = spy.lastCall.args[0].qs;
+    t.deepEqual(queryString, undefined, 'query string is empty');
+  });
+});
+
+test('analytics with args and org', (t) => {
+  const spy = sinon.spy();
+  const analytics = proxyquire('../src/lib/analytics', {
+    './request': spy,
+  });
+
+  analytics.add('foo', 'bar');
+
+  return analytics({
+    command: '__test__',
+    args: [],
+    org: 'snyk',
+  }).then(() => {
+    const body = spy.lastCall.args[0].body.data;
+    t.deepEqual(
+      Object.keys(body).sort(),
+      [
+        'command',
+        'os',
+        'version',
+        'id',
+        'ci',
+        'metadata',
+        'args',
+        'nodeVersion',
+        'durationMs',
+        'org',
+      ].sort(),
+      'keys as expected',
+    );
+
+    const queryString = spy.lastCall.args[0].qs;
+    t.deepEqual(
+      queryString,
+      { org: 'snyk' },
+      'query string has the expected values',
+    );
   });
 });
 

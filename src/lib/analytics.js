@@ -62,12 +62,23 @@ function postAnalytics(data) {
       data.ci = isCI();
       data.durationMs = Date.now() - startTime;
 
+      const queryStringParams = {};
+      if (data.org) {
+        queryStringParams.org = data.org;
+      }
+
       debug('analytics', data);
+
+      const queryString =
+        Object.keys(queryStringParams).length > 0
+          ? queryStringParams
+          : undefined;
 
       return request({
         body: {
           data: data,
         },
+        qs: queryString,
         url: config.API + '/analytics/cli',
         json: true,
         method: 'post',

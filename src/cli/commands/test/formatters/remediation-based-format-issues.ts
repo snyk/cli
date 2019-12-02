@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import * as wrap from 'wrap-ansi';
 import * as config from '../../../../lib/config';
 import { TestOptions } from '../../../../lib/types';
 import {

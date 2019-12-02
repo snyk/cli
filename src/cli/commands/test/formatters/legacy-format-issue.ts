@@ -32,11 +32,6 @@ export function formatIssues(
     }),
   ).join(', ');
 
-  let version;
-  if (vuln.metadata.packageManager.toLowerCase() === 'upstream') {
-    version = vuln.metadata.version;
-  }
-
   const vulnOutput = {
     issueHeading: createSeverityBasedIssueHeading(
       vuln.metadata.severity,
