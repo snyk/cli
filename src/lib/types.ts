@@ -57,6 +57,7 @@ export interface Options {
   dev?: boolean;
   'print-deps'?: boolean;
   'remote-repo-url'?: string;
+  scanAllUnmanaged?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -70,6 +71,7 @@ export interface MonitorOptions {
   'project-name'?: string;
   'print-deps'?: boolean;
   'experimental-dep-graph'?: boolean;
+  scanAllUnmanaged?: boolean;
 
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
   'prune-repeated-subdependencies'?: boolean;
