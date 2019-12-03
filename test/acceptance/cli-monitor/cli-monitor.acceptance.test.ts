@@ -1161,34 +1161,6 @@ test('`monitor foo:latest --docker`', async (t) => {
   );
 });
 
-test('monitor with multiple paths', async (t) => {
-  chdirWorkspaces();
-  await cli.monitor('npm-package', 'yarn-app', 'ruby-app');
-  // test last three requests to fake server
-  server.popRequests(3).forEach((req) => {
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
-    );
-    t.match(req.url, /\/monitor\/(npm|yarn|rubygems)/, 'puts at correct url');
-    t.match(
-      req.body,
-      {
-        meta: {
-          name: /(npm-package|yarn-app|ruby-app)/,
-        },
-        package: {
-          name: /(npm-package|yarn-app|ruby-app)/,
-        },
-      },
-      'sends name in body',
-    );
-    t.ok(req.body.package.dependencies, 'sends dependencies in body');
-  });
-});
-
 test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
   const dockerImageId =
     'sha256:' +
