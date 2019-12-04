@@ -55,4 +55,4 @@ test_script:
   - npm i -g npm@^3.10.10
   - npm --version
   - npm run build
-  - npm run tap
+  - npm run test-windows
