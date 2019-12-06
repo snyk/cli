@@ -16,9 +16,13 @@ import {
   SEVERITY,
   GroupedVuln,
   VulnMetaData,
+  TestResult,
 } from '../../../lib/snyk-test/legacy';
 import { formatIssues } from './formatters/legacy-format-issue';
-import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../../../lib/package-managers';
+import {
+  WIZARD_SUPPORTED_PACKAGE_MANAGERS,
+  SupportedPackageManagers,
+} from '../../../lib/package-managers';
 import {
   formatIssuesWithRemediation,
   getSeverityValue,
@@ -86,7 +90,7 @@ async function test(...args: MethodArgs): Promise<string> {
     let res;
 
     try {
-      res = (await snyk.test(path, testOpts)) as LegacyVulnApiResult;
+      res = await snyk.test(path, testOpts);
     } catch (error) {
       // Possible error cases:
       // - the test found some vulns. `error.message` is a
@@ -349,10 +353,11 @@ function summariseErrorResults(errorResults) {
   return '';
 }
 
-function displayResult(res, options: Options & TestOptions) {
+function displayResult(res: TestResult, options: Options & TestOptions) {
   const meta = metaForDisplay(res, options);
   const dockerAdvice = dockerRemediationForDisplay(res);
-  const packageManager = options.packageManager;
+  const packageManager =
+    (res.packageManager as SupportedPackageManagers) || options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
   const prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
 
@@ -569,23 +574,23 @@ function rightPadWithSpaces(s, desiredLength) {
 
 function metaForDisplay(res, options) {
   const padToLength = 19; // chars to align
-  const packageManager = options.packageManager || res.packageManager;
+  const packageManager = res.packageManager || options.packageManager;
+  const targetFile = res.targetFile || options.file;
   const openSource = res.isPrivate ? 'no' : 'yes';
   const meta = [
     chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org,
     chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) +
       packageManager,
   ];
-  if (options.file) {
+  if (targetFile) {
     meta.push(
-      chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) +
-        options.file,
+      chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + targetFile,
     );
   }
-  if (options.projectName) {
+  if (res.projectName) {
     meta.push(
       chalk.bold(rightPadWithSpaces('Project name: ', padToLength)) +
-        options.projectName,
+        res.projectName,
     );
   }
   if (options.docker) {

@@ -23,5 +23,6 @@ Issues to fix by upgrading dependencies:
 Organization:      kyegupov
 Package manager:   pip
 Target file:       requirements.txt
+Project name:      pip-app-transitive-vuln
 Open source:       no
 Project path:      pip-app-transitive-vuln

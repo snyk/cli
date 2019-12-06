@@ -7,8 +7,7 @@ const main = './dist/cli/index.js'.replace(/\//g, sep);
 // TODO(kyegupov): make these work in Windows
 test('snyk test command should fail when --file is not specified correctly', (t) => {
   t.plan(1);
-
-  exec(`node ${main} test --file package-lock.json`, (err, stdout, stderr) => {
+  exec(`node ${main} test --file package-lock.json`, (err, stdout) => {
     if (err) {
       throw err;
     }
@@ -22,8 +21,7 @@ test('snyk test command should fail when --file is not specified correctly', (t)
 
 test('snyk test command should fail when --packageManager is not specified correctly', (t) => {
   t.plan(1);
-
-  exec(`node ${main} test --packageManager=hello`, (err, stdout, stderr) => {
+  exec(`node ${main} test --packageManager=hello`, (err, stdout) => {
     if (err) {
       throw err;
     }
@@ -37,28 +35,23 @@ test('snyk test command should fail when --packageManager is not specified corre
 
 test('`test multiple paths with --project-name=NAME`', (t) => {
   t.plan(1);
-
-  exec(
-    `node ${main} test pathA pathB --project-name=NAME`,
-    (err, stdout, stderr) => {
-      if (err) {
-        throw err;
-      }
-      t.match(
-        stdout.trim(),
-        'The following option combination is not currently supported: multiple paths + project-name',
-        'correct error output',
-      );
-    },
-  );
+  exec(`node ${main} test pathA pathB --project-name=NAME`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      'The following option combination is not currently supported: multiple paths + project-name',
+      'correct error output',
+    );
+  });
 });
 
 test('`test --file=file.sln --project-name=NAME`', (t) => {
   t.plan(1);
-
   exec(
     `node ${main} test --file=file.sln --project-name=NAME`,
-    (err, stdout, stderr) => {
+    (err, stdout) => {
       if (err) {
         throw err;
       }
@@ -73,19 +66,76 @@ test('`test --file=file.sln --project-name=NAME`', (t) => {
 
 test('`test --file=blah --scan-all-unmanaged`', (t) => {
   t.plan(1);
+  exec(`node ${main} test --file=blah --scan-all-unmanaged`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      'The following option combination is not currently supported: file + scan-all-unmanaged',
+      'correct error output',
+    );
+  });
+});
 
+test('`test --file=blah and --all-projects`', (t) => {
+  t.plan(1);
+  exec(`node ${main} test --file=blah --all-projects`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      'The following option combination is not currently supported: project-name or file or package-manager or docker + all-projects',
+      'correct error output',
+    );
+  });
+});
+
+test('`test --package-manager and --all-projects`', (t) => {
+  t.plan(1);
   exec(
-    `node ${main} test --file=blah --scan-all-unmanaged`,
-    (err, stdout, stderr) => {
+    `node ${main} test --package-manager=npm --all-projects`,
+    (err, stdout) => {
       if (err) {
         throw err;
       }
-      console.log(stdout.trim());
       t.match(
         stdout.trim(),
-        'The following option combination is not currently supported: file + scan-all-unmanaged',
+        'The following option combination is not currently supported: project-name or file or package-manager or docker + all-projects',
         'correct error output',
       );
     },
   );
+});
+
+test('`test --project-name and --all-projects`', (t) => {
+  t.plan(1);
+  exec(
+    `node ${main} test --project-name=my-monorepo --all-projects`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.match(
+        stdout.trim(),
+        'The following option combination is not currently supported: project-name or file or package-manager or docker + all-projects',
+        'correct error output',
+      );
+    },
+  );
+});
+
+test('`test --docker and --all-projects`', (t) => {
+  t.plan(1);
+  exec(`node ${main} test --docker --all-projects`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      'The following option combination is not currently supported: project-name or file or package-manager or docker + all-projects',
+      'correct error output',
+    );
+  });
 });

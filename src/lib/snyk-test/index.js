@@ -6,7 +6,7 @@ const chalk = require('chalk');
 const pm = require('../package-managers');
 const { UnsupportedPackageManagerError } = require('../errors');
 
-function test(root, options, callback) {
+async function test(root, options, callback) {
   if (typeof options === 'function') {
     callback = options;
     options = {};
@@ -14,7 +14,6 @@ function test(root, options, callback) {
   if (!options) {
     options = {};
   }
-
   const promise = executeTest(root, options);
   if (callback) {
     promise

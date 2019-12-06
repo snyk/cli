@@ -1964,6 +1964,7 @@
   "ignoreSettings": null,
   "summary": "31 vulnerable dependency paths",
   "filesystemPolicy": false,
+  "projectName": "small-app:small-app_2.10",
   "filtered": {
     "ignore": [],
     "patch": []
