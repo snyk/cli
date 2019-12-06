@@ -1,0 +1,9 @@
+{
+  "name": "upgradable-app",
+  "version": "1.0.0",
+  "description": "upgradable application",
+  "dependencies": {
+    "yarn": "1.17.1"
+  },
+  "devDependencies": {}
+}

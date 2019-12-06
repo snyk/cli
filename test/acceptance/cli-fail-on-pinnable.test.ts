@@ -1,45 +1,10 @@
 import * as tap from 'tap';
-import * as cli from '../../../src/cli/commands';
-import { fakeServer } from '../fake-server';
-import * as version from '../../../src/lib/version';
-import { chdirWorkspaces } from '../workspace-helper';
-
-export interface AcceptanceTests {
-  language: string;
-  tests: {
-    [name: string]: any;
-  };
-}
-
-import { GenericTests } from './cli-test.generic.spec';
-
-import { CocoapodsTests } from './cli-test.cocoapods.spec';
-import { ComposerTests } from './cli-test.composer.spec';
-import { DockerTests } from './cli-test.docker.spec';
-import { GoTests } from './cli-test.go.spec';
-import { GradleTests } from './cli-test.gradle.spec';
-import { MavenTests } from './cli-test.maven.spec';
-import { NpmTests } from './cli-test.npm.spec';
-import { NugetTests } from './cli-test.nuget.spec';
-import { PythonTests } from './cli-test.python.spec';
-import { RubyTests } from './cli-test.ruby.spec';
-import { SbtTests } from './cli-test.sbt.spec';
-import { YarnTests } from './cli-test.yarn.spec';
-
-const languageTests: AcceptanceTests[] = [
-  CocoapodsTests,
-  ComposerTests,
-  DockerTests,
-  GoTests,
-  GradleTests,
-  MavenTests,
-  NpmTests,
-  NugetTests,
-  PythonTests,
-  RubyTests,
-  SbtTests,
-  YarnTests,
-];
+import * as cli from '../../src/cli/commands';
+import { fakeServer } from './fake-server';
+import * as version from '../../src/lib/version';
+import * as sinon from 'sinon';
+import * as snyk from '../../src/lib';
+import { getWorkspaceJSON, chdirWorkspaces } from './workspace-helper';
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -56,8 +21,14 @@ const server = fakeServer(process.env.SNYK_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 
-// Should be after `process.env` setup.
-import * as plugins from '../../../src/lib/plugins/index';
+const pinnableVulnsResult = getWorkspaceJSON(
+  'fail-on',
+  'pinnable',
+  'vulns-result.json',
+);
+
+// snyk test stub responses
+const pinnableVulns = getWorkspaceJSON('fail-on', 'pinnable', 'vulns.json');
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -90,31 +61,38 @@ before('prime config', async (t) => {
   t.end();
 });
 
-test(GenericTests.language, async (t) => {
-  for (const testName of Object.keys(GenericTests.tests)) {
-    t.test(
-      testName,
-      GenericTests.tests[testName](
-        { server, versionNumber, cli },
-        { chdirWorkspaces },
-      ),
-    );
+test('test vulnerable project with pinnable and --fail-on=upgradable', async (t) => {
+  // mocking test results here as CI tooling does not have python installed
+  const snykTestStub = sinon.stub(snyk, 'test').returns(pinnableVulns);
+  try {
+    server.setNextResponse(pinnableVulnsResult);
+    chdirWorkspaces('fail-on');
+    await cli.test('pinnable', {
+      failOn: 'upgradable',
+    });
+    t.fail('expected test to throw exception');
+  } catch (err) {
+    t.equal(err.code, 'VULNS', 'should throw exception');
+  } finally {
+    snykTestStub.restore();
   }
 });
 
-test('Languages', async (t) => {
-  for (const languageTest of languageTests) {
-    t.test(languageTest.language, async (tt) => {
-      for (const testName of Object.keys(languageTest.tests)) {
-        tt.test(
-          testName,
-          languageTest.tests[testName](
-            { server, plugins, versionNumber, cli },
-            { chdirWorkspaces },
-          ),
-        );
-      }
+test('test vulnerable project with pinnable and --fail-on=upgradable --json', async (t) => {
+  // mocking test results here as CI tooling does not have python installed
+  const snykTestStub = sinon.stub(snyk, 'test').returns(pinnableVulns);
+  try {
+    server.setNextResponse(pinnableVulnsResult);
+    chdirWorkspaces('fail-on');
+    await cli.test('pinnable', {
+      failOn: 'upgradable',
+      json: true,
     });
+    t.fail('expected test to throw exception');
+  } catch (err) {
+    t.equal(err.code, 'VULNS', 'should throw exception');
+  } finally {
+    snykTestStub.restore();
   }
 });
 

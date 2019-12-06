@@ -6,6 +6,7 @@ import * as fs from 'fs';
 // tslint:disable-next-line:no-var-requires
 const snykTest = require('../../src/cli/commands/test');
 import * as snyk from '../../src/lib';
+import { chdirWorkspaces } from './workspace-helper';
 
 const { test } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -87,7 +88,3 @@ test('`test pip-app-license-issue` legal instructions displayed (legacy formatte
   snykTestStub.restore();
   t.end();
 });
-
-function chdirWorkspaces(subdir: string = '') {
-  process.chdir(__dirname + '/workspaces' + (subdir ? '/' + subdir : ''));
-}

@@ -207,7 +207,6 @@ function sendTestPayload(
       }
 
       body.filesystemPolicy = filesystemPolicy;
-
       resolve(body);
     });
   });

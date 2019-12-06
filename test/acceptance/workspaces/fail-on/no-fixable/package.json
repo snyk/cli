@@ -1,0 +1,9 @@
+{
+  "name": "no-fix-app",
+  "version": "1.0.0",
+  "description": "application with vuln but no fixes",
+  "dependencies": {
+    "cxct": "0.0.1-security"
+  },
+  "devDependencies": {}
+}

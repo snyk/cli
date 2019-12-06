@@ -1,0 +1,104 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "cxct@0.0.1-security": {
+        "pkg": { "name": "cxct", "version": "0.0.1-security" },
+        "issues": {
+          "SNYK-JS-CXCT-535487": {
+            "issueId": "SNYK-JS-CXCT-535487",
+            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-JS-CXCT-535487": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "alternativeIds": [],
+        "creationTime": "2019-11-24T13:10:43.888332Z",
+        "credit": ["npm 󠅮󠅰󠅭security"],
+        "cvssScore": 9.8,
+        "description": "## Overview\n\n[cxct](https://www.npmjs.com/package/cxct) is a malicious package.\n\n\nThe package finds and exfiltrates cryptocurrency wallets.\n\n## Remediation\n\nAvoid using `cxct` altogether.\n\n\n## References\n\n- [NPM Security Advisory](https://www.npmjs.com/advisories/1344)\n",
+        "disclosureTime": "2019-11-22T00:24:41Z",
+        "exploit": "Not Defined",
+        "fixedIn": [],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-JS-CXCT-535487",
+        "identifiers": { "CVE": [], "CWE": ["CWE-506"], "NSP": [1344] },
+        "language": "js",
+        "modificationTime": "2019-11-24T16:16:16.630345Z",
+        "moduleName": "cxct",
+        "packageManager": "npm",
+        "packageName": "cxct",
+        "patches": [],
+        "publicationTime": "2019-11-24T13:11:04Z",
+        "references": [
+          {
+            "title": "NPM Security Advisory",
+            "url": "https://www.npmjs.com/advisories/1344"
+          }
+        ],
+        "semver": { "vulnerable": ["*"] },
+        "severity": "high",
+        "title": "Malicious 󠅮󠅰󠅭Package",
+        "isPinnable": false
+      }
+    },
+    "remediation": {
+      "unresolved": [
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+          "alternativeIds": [],
+          "creationTime": "2019-11-24T13:10:43.888332Z",
+          "credit": ["npm 󠅮󠅰󠅭security"],
+          "cvssScore": 9.8,
+          "description": "## Overview\n\n[cxct](https://www.npmjs.com/package/cxct) is a malicious package.\n\n\nThe package finds and exfiltrates cryptocurrency wallets.\n\n## Remediation\n\nAvoid using `cxct` altogether.\n\n\n## References\n\n- [NPM Security Advisory](https://www.npmjs.com/advisories/1344)\n",
+          "disclosureTime": "2019-11-22T00:24:41Z",
+          "exploit": "Not Defined",
+          "fixedIn": [],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-JS-CXCT-535487",
+          "identifiers": { "CVE": [], "CWE": ["CWE-506"], "NSP": [1344] },
+          "language": "js",
+          "modificationTime": "2019-11-24T16:16:16.630345Z",
+          "moduleName": "cxct",
+          "packageManager": "npm",
+          "packageName": "cxct",
+          "patches": [],
+          "publicationTime": "2019-11-24T13:11:04Z",
+          "references": [
+            {
+              "title": "NPM Security Advisory",
+              "url": "https://www.npmjs.com/advisories/1344"
+            }
+          ],
+          "semver": { "vulnerable": ["*"] },
+          "severity": "high",
+          "title": "Malicious 󠅮󠅰󠅭Package",
+          "isPinnable": false,
+          "from": ["no-fix-app@1.0.0", "cxct@0.0.1-security"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "name": "cxct",
+          "version": "0.0.1-security"
+        }
+      ],
+      "upgrade": {},
+      "patch": {},
+      "ignore": {},
+      "pin": {}
+    }
+  },
+  "meta": {
+    "isPrivate": true,
+    "isLicensesEnabled": false,
+    "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "gitphill"
+  },
+  "filesystemPolicy": false
+}
