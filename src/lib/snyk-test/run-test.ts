@@ -300,7 +300,7 @@ async function getMultiPluginResult(
 
   for (const targetFile of targetFiles) {
     const optionsClone = _.cloneDeep(options);
-    optionsClone.file = pathUtil.basename(targetFile);
+    optionsClone.file = pathUtil.relative(root, targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
       optionsClone.file,
     );
