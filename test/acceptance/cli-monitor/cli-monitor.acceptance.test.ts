@@ -409,6 +409,23 @@ test('`monitor npm-package with custom --remote-repo-url`', async (t) => {
   t.equal(req.body.target.remoteUrl, 'a-fake-remote');
 });
 
+test('it fails when the custom --remote-repo-url is invalid', async (t) => {
+  t.plan(1);
+  chdirWorkspaces();
+  try {
+    await cli.monitor('npm-package', {
+      'remote-repo-url': true,
+    });
+    t.fail('should not succeed');
+  } catch (err) {
+    t.contains(
+      err,
+      /Invalid argument provided for --remote-repo-url/,
+      'correct error message',
+    );
+  }
+});
+
 test('`monitor npm-package with dev dep flag`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('npm-package', { dev: true });

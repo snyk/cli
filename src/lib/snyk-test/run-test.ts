@@ -383,7 +383,7 @@ async function assembleLocalPayloads(
         policy: policy && policy.toString(),
         docker: pkg.docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
-        target: await getTarget(pkg, options),
+        target: await projectMetadata.getInfo(pkg, options),
       };
 
       if (options.vulnEndpoint) {
@@ -506,17 +506,4 @@ function pluckPolicies(pkg) {
       })
       .filter(Boolean),
   );
-}
-
-async function getTarget(
-  pkg: DepTree,
-  options: Options,
-): Promise<GitTarget | null> {
-  const target = await projectMetadata.getInfo(pkg);
-
-  // Override the remoteUrl if the --remote-repo-url flag was set
-  if (options['remote-repo-url']) {
-    return { ...target, remoteUrl: options['remote-repo-url'] };
-  }
-  return target;
 }
