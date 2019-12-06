@@ -1,0 +1,123 @@
+import * as path from 'path';
+import { test } from 'tap';
+import { find } from '../src/lib/find-files';
+
+const testFixture = path.join(__dirname, 'fixtures', 'find-files');
+
+test('find all files in test fixture', async (t) => {
+  // four levels deep to find all
+  const result = await find(testFixture, [], [], 4);
+  const expected = [
+    path.join(testFixture, 'README.md'),
+    path.join(testFixture, 'gradle', 'build.gradle'),
+    path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
+    path.join(testFixture, 'maven', 'pom.xml'),
+    path.join(testFixture, 'maven', 'test.txt'),
+    path.join(testFixture, 'mvn', 'pom.xml'),
+    path.join(testFixture, 'mvn', 'test.txt'),
+    path.join(testFixture, 'npm', 'package.json'),
+    path.join(testFixture, 'npm', 'test.txt'),
+    path.join(testFixture, 'ruby', 'Gemfile'),
+    path.join(testFixture, 'ruby', 'test.txt'),
+  ].sort();
+  t.same(result.sort(), expected, 'should return all files');
+});
+
+test('find all files in test fixture ignoring node_modules', async (t) => {
+  // four levels deep to ensure node_modules is tested
+  const result = await find(testFixture, ['node_modules'], [], 4);
+  const expected = [
+    path.join(testFixture, 'README.md'),
+    path.join(testFixture, 'gradle', 'build.gradle'),
+    path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
+    path.join(testFixture, 'maven', 'pom.xml'),
+    path.join(testFixture, 'maven', 'test.txt'),
+    path.join(testFixture, 'mvn', 'pom.xml'),
+    path.join(testFixture, 'mvn', 'test.txt'),
+    path.join(testFixture, 'npm', 'package.json'),
+    path.join(testFixture, 'npm', 'test.txt'),
+    path.join(testFixture, 'ruby', 'Gemfile'),
+    path.join(testFixture, 'ruby', 'test.txt'),
+  ].sort();
+  t.same(result.sort(), expected, 'should return expected files');
+});
+
+test('find package.json file in test fixture ignoring node_modules', async (t) => {
+  // four levels deep to ensure node_modules is tested
+  const nodeModulesPath = path.join(testFixture, 'node_modules');
+  const result = await find(nodeModulesPath, [], ['package.json'], 4);
+  const expected = [];
+  t.same(result, expected, 'should return expected file');
+});
+
+test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
+  // four levels deep to ensure node_modules is tested
+  const result = await find(testFixture, [], ['package.json'], 4);
+  const expected = [path.join(testFixture, 'npm', 'package.json')];
+  t.same(result, expected, 'should return expected file');
+});
+
+test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
+  // four levels deep to ensure node_modules is tested
+  const result = await find(testFixture, [], ['package.json'], 4);
+  const expected = [path.join(testFixture, 'npm', 'package.json')];
+  t.same(result, expected, 'should return expected file');
+});
+
+test('find Gemfile file in test fixture', async (t) => {
+  const result = await find(testFixture, [], ['Gemfile']);
+  const expected = [path.join(testFixture, 'ruby', 'Gemfile')];
+  t.same(result, expected, 'should return expected file');
+});
+
+test('find pom.xml files in test fixture', async (t) => {
+  const result = await find(testFixture, [], ['pom.xml']);
+  const expected = [
+    path.join(testFixture, 'maven', 'pom.xml'),
+    path.join(testFixture, 'mvn', 'pom.xml'),
+  ].sort();
+  t.same(result.sort(), expected, 'should return expected files');
+});
+
+test('find build.gradle, but stop at first build.gradle found', async (t) => {
+  t.todo('stop recursion for given file names');
+});
+
+test('find path that does not exist', async (t) => {
+  try {
+    await find('does-not-exist');
+    t.fail('expected exception to be thrown');
+  } catch (err) {
+    t.match(
+      err.message,
+      'Error finding files in path',
+      'throws expected exception',
+    );
+  }
+});
+
+test('find path is empty string', async (t) => {
+  try {
+    await find('');
+    t.fail('expected exception to be thrown');
+  } catch (err) {
+    t.match(
+      err.message,
+      'Error finding files in path',
+      'throws expected exception',
+    );
+  }
+});
+
+test('find path is relative', async (t) => {
+  try {
+    await find('fixtures/find-files');
+    t.fail('expected exception to be thrown');
+  } catch (err) {
+    t.match(
+      err.message,
+      'Error finding files in path',
+      'throws expected exception',
+    );
+  }
+});
