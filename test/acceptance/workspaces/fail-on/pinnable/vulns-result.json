@@ -6,123 +6,243 @@
         "issues": {
           "SNYK-PYTHON-DJANGO-40025": {
             "issueId": "SNYK-PYTHON-DJANGO-40025",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40026": {
             "issueId": "SNYK-PYTHON-DJANGO-40026",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40027": {
             "issueId": "SNYK-PYTHON-DJANGO-40027",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40256": {
             "issueId": "SNYK-PYTHON-DJANGO-40256",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40257": {
             "issueId": "SNYK-PYTHON-DJANGO-40257",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40258": {
             "issueId": "SNYK-PYTHON-DJANGO-40258",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40259": {
             "issueId": "SNYK-PYTHON-DJANGO-40259",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40261": {
             "issueId": "SNYK-PYTHON-DJANGO-40261",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40262": {
             "issueId": "SNYK-PYTHON-DJANGO-40262",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40302": {
             "issueId": "SNYK-PYTHON-DJANGO-40302",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40303": {
             "issueId": "SNYK-PYTHON-DJANGO-40303",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40304": {
             "issueId": "SNYK-PYTHON-DJANGO-40304",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40305": {
             "issueId": "SNYK-PYTHON-DJANGO-40305",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40317": {
             "issueId": "SNYK-PYTHON-DJANGO-40317",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40318": {
             "issueId": "SNYK-PYTHON-DJANGO-40318",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40332": {
             "issueId": "SNYK-PYTHON-DJANGO-40332",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40333": {
             "issueId": "SNYK-PYTHON-DJANGO-40333",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40339": {
             "issueId": "SNYK-PYTHON-DJANGO-40339",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40340": {
             "issueId": "SNYK-PYTHON-DJANGO-40340",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40359": {
             "issueId": "SNYK-PYTHON-DJANGO-40359",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40382": {
             "issueId": "SNYK-PYTHON-DJANGO-40382",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40383": {
             "issueId": "SNYK-PYTHON-DJANGO-40383",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40403": {
             "issueId": "SNYK-PYTHON-DJANGO-40403",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40434": {
             "issueId": "SNYK-PYTHON-DJANGO-40434",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40439": {
             "issueId": "SNYK-PYTHON-DJANGO-40439",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40440": {
             "issueId": "SNYK-PYTHON-DJANGO-40440",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40460": {
             "issueId": "SNYK-PYTHON-DJANGO-40460",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-40461": {
             "issueId": "SNYK-PYTHON-DJANGO-40461",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-42178": {
             "issueId": "SNYK-PYTHON-DJANGO-42178",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           },
           "SNYK-PYTHON-DJANGO-72888": {
             "issueId": "SNYK-PYTHON-DJANGO-72888",
-            "fixInfo": { "isPatchable": false, "upgradePaths": [] }
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": true
+            }
           }
         }
       }
@@ -172,8 +292,7 @@
           ]
         },
         "severity": "medium",
-        "title": "Arbitrary Code Execution",
-        "isPinnable": true
+        "title": "Arbitrary Code Execution"
       },
       "SNYK-PYTHON-DJANGO-40026": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
@@ -219,8 +338,7 @@
           ]
         },
         "severity": "medium",
-        "title": "Cross-site Request Forgery (CSRF)",
-        "isPinnable": true
+        "title": "Cross-site Request Forgery (CSRF)"
       },
       "SNYK-PYTHON-DJANGO-40027": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -266,8 +384,7 @@
           ]
         },
         "severity": "high",
-        "title": "SQL Injection",
-        "isPinnable": true
+        "title": "SQL Injection"
       },
       "SNYK-PYTHON-DJANGO-40256": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
@@ -311,8 +428,7 @@
         ],
         "semver": { "vulnerable": ["[,1.4.13)", "[1.5,1.5.8)", "[1.6,1.6.5)"] },
         "severity": "medium",
-        "title": "Cache Poisoning",
-        "isPinnable": true
+        "title": "Cache Poisoning"
       },
       "SNYK-PYTHON-DJANGO-40257": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
@@ -351,8 +467,7 @@
         ],
         "semver": { "vulnerable": ["[,1.4.13)", "[1.5,1.5.8)", "[1.6,1.6.5)"] },
         "severity": "medium",
-        "title": "Open Redirect",
-        "isPinnable": true
+        "title": "Open Redirect"
       },
       "SNYK-PYTHON-DJANGO-40258": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
@@ -387,8 +502,7 @@
         ],
         "semver": { "vulnerable": ["[,1.4.14)", "[1.5,1.5.9)", "[1.6,1.6.6)"] },
         "severity": "medium",
-        "title": "Malicious Link Generation",
-        "isPinnable": true
+        "title": "Malicious Link Generation"
       },
       "SNYK-PYTHON-DJANGO-40259": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
@@ -423,8 +537,7 @@
         ],
         "semver": { "vulnerable": ["[,1.4.14)", "[1.5,1.5.9)", "[1.6,1.6.6)"] },
         "severity": "medium",
-        "title": "Denial of Service (DoS)",
-        "isPinnable": true
+        "title": "Denial of Service (DoS)"
       },
       "SNYK-PYTHON-DJANGO-40261": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:L",
@@ -459,8 +572,7 @@
         ],
         "semver": { "vulnerable": ["[,1.4.14)", "[1.5,1.5.9)", "[1.6,1.6.6)"] },
         "severity": "medium",
-        "title": "Session Hijacking",
-        "isPinnable": true
+        "title": "Session Hijacking"
       },
       "SNYK-PYTHON-DJANGO-40262": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:N/A:N",
@@ -499,8 +611,7 @@
         ],
         "semver": { "vulnerable": ["[,1.4.14)", "[1.5,1.5.9)", "[1.6,1.6.6)"] },
         "severity": "low",
-        "title": "Information Exposure",
-        "isPinnable": true
+        "title": "Information Exposure"
       },
       "SNYK-PYTHON-DJANGO-40302": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
@@ -537,8 +648,7 @@
           "vulnerable": ["[,1.4.18)", "[1.5,1.6.10)", "[1.7,1.7.3)"]
         },
         "severity": "medium",
-        "title": "WSGI Header Spoofing",
-        "isPinnable": true
+        "title": "WSGI Header Spoofing"
       },
       "SNYK-PYTHON-DJANGO-40303": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
@@ -575,8 +685,7 @@
           "vulnerable": ["[,1.4.18)", "[1.5,1.6.10)", "[1.7,1.7.3)"]
         },
         "severity": "medium",
-        "title": "Cross-site Scripting (XSS)",
-        "isPinnable": true
+        "title": "Cross-site Scripting (XSS)"
       },
       "SNYK-PYTHON-DJANGO-40304": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
@@ -613,8 +722,7 @@
           "vulnerable": ["[,1.4.18)", "[1.5,1.6.10)", "[1.7,1.7.3)"]
         },
         "severity": "medium",
-        "title": "Denial of Service (DoS)",
-        "isPinnable": true
+        "title": "Denial of Service (DoS)"
       },
       "SNYK-PYTHON-DJANGO-40305": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
@@ -651,8 +759,7 @@
           "vulnerable": ["[,1.4.18)", "[1.5,1.6.10)", "[1.7,1.7.3)"]
         },
         "severity": "medium",
-        "title": "Denial of Service (DoS)",
-        "isPinnable": true
+        "title": "Denial of Service (DoS)"
       },
       "SNYK-PYTHON-DJANGO-40317": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
@@ -693,8 +800,7 @@
           "vulnerable": ["[,1.4.20)", "[1.5,1.6.11)", "[1.7,1.7.7)"]
         },
         "severity": "medium",
-        "title": "Denial of Service (DoS)",
-        "isPinnable": true
+        "title": "Denial of Service (DoS)"
       },
       "SNYK-PYTHON-DJANGO-40318": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
@@ -735,8 +841,7 @@
           "vulnerable": ["[,1.4.20)", "[1.5,1.6.11)", "[1.7,1.7.7)"]
         },
         "severity": "medium",
-        "title": "Cross-site Scripting (XSS)",
-        "isPinnable": true
+        "title": "Cross-site Scripting (XSS)"
       },
       "SNYK-PYTHON-DJANGO-40332": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
@@ -779,8 +884,7 @@
         ],
         "semver": { "vulnerable": ["[,1.4.21)", "[1.5,1.7.9)", "[1.8,1.8.3)"] },
         "severity": "high",
-        "title": "Denial of Service (DoS)",
-        "isPinnable": true
+        "title": "Denial of Service (DoS)"
       },
       "SNYK-PYTHON-DJANGO-40333": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
@@ -819,8 +923,7 @@
         ],
         "semver": { "vulnerable": ["[,1.4.21)", "[1.5,1.7.9)", "[1.8,1.8.3)"] },
         "severity": "medium",
-        "title": "HTTP Response Splitting",
-        "isPinnable": true
+        "title": "HTTP Response Splitting"
       },
       "SNYK-PYTHON-DJANGO-40339": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
@@ -865,8 +968,7 @@
           "vulnerable": ["[,1.4.22)", "[1.5,1.7.10)", "[1.8,1.8.4)"]
         },
         "severity": "medium",
-        "title": "Denial of Service (DoS)",
-        "isPinnable": true
+        "title": "Denial of Service (DoS)"
       },
       "SNYK-PYTHON-DJANGO-40340": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
@@ -911,8 +1013,7 @@
           "vulnerable": ["[,1.4.22)", "[1.5,1.7.10)", "[1.8,1.8.4)"]
         },
         "severity": "medium",
-        "title": "Denial of Service (DoS)",
-        "isPinnable": true
+        "title": "Denial of Service (DoS)"
       },
       "SNYK-PYTHON-DJANGO-40359": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
@@ -955,8 +1056,7 @@
         ],
         "semver": { "vulnerable": ["[,1.7.11)", "[1.8,1.8.7)"] },
         "severity": "medium",
-        "title": "Information Exposure",
-        "isPinnable": true
+        "title": "Information Exposure"
       },
       "SNYK-PYTHON-DJANGO-40382": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:N/I:H/A:N",
@@ -1003,8 +1103,7 @@
         ],
         "semver": { "vulnerable": ["[,1.8.10)", "[1.9,1.9.3)"] },
         "severity": "high",
-        "title": "Cross-site Scripting (XSS)",
-        "isPinnable": true
+        "title": "Cross-site Scripting (XSS)"
       },
       "SNYK-PYTHON-DJANGO-40383": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
@@ -1051,8 +1150,7 @@
         ],
         "semver": { "vulnerable": ["[,1.8.10)", "[1.9,1.9.3)"] },
         "severity": "low",
-        "title": "Timing Attack",
-        "isPinnable": true
+        "title": "Timing Attack"
       },
       "SNYK-PYTHON-DJANGO-40403": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N/E:P/RL:O/RC:C",
@@ -1115,8 +1213,7 @@
         ],
         "semver": { "vulnerable": ["[,1.8.14)", "[1.9.0,1.9.8)"] },
         "severity": "medium",
-        "title": "Cross-site Scripting (XSS)",
-        "isPinnable": true
+        "title": "Cross-site Scripting (XSS)"
       },
       "SNYK-PYTHON-DJANGO-40434": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
@@ -1151,8 +1248,7 @@
         ],
         "semver": { "vulnerable": ["[,1.8.15)", "[1.9,1.9.10)"] },
         "severity": "high",
-        "title": "Cross-site Request Forgery (CSRF)",
-        "isPinnable": true
+        "title": "Cross-site Request Forgery (CSRF)"
       },
       "SNYK-PYTHON-DJANGO-40439": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -1189,8 +1285,7 @@
           "vulnerable": ["[,1.8.16)", "[1.9,1.9.11)", "[1.10,1.10.3)"]
         },
         "severity": "high",
-        "title": "Use of hardcoded DB password",
-        "isPinnable": true
+        "title": "Use of hardcoded DB password"
       },
       "SNYK-PYTHON-DJANGO-40440": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
@@ -1227,8 +1322,7 @@
           "vulnerable": ["[,1.8.16)", "[1.9,1.9.11)", "[1.10,1.10.3)"]
         },
         "severity": "high",
-        "title": "DNS Rebinding",
-        "isPinnable": true
+        "title": "DNS Rebinding"
       },
       "SNYK-PYTHON-DJANGO-40460": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -1265,8 +1359,7 @@
           "vulnerable": ["[,1.8.18)", "[1.9,1.9.13)", "[1.10,1.10.7)"]
         },
         "severity": "medium",
-        "title": "Open Redirect",
-        "isPinnable": true
+        "title": "Open Redirect"
       },
       "SNYK-PYTHON-DJANGO-40461": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -1303,8 +1396,7 @@
           "vulnerable": ["[,1.8.18)", "[1.9,1.9.13)", "[1.10,1.10.7)"]
         },
         "severity": "medium",
-        "title": "Open Redirect",
-        "isPinnable": true
+        "title": "Open Redirect"
       },
       "SNYK-PYTHON-DJANGO-42178": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
@@ -1351,8 +1443,7 @@
         ],
         "semver": { "vulnerable": ["[,1.11.15), [2.0.0, 2.0.8)"] },
         "severity": "medium",
-        "title": "Open Redirect",
-        "isPinnable": true
+        "title": "Open Redirect"
       },
       "SNYK-PYTHON-DJANGO-72888": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
@@ -1393,8 +1484,1516 @@
           "vulnerable": ["[,1.11.18)", "[2.0.0, 2.0.10)", "[2.1.0, 2.1.5)"]
         },
         "severity": "medium",
-        "title": "Content Spoofing",
-        "isPinnable": true
+        "title": "Content Spoofing"
+      }
+    },
+    "remediation": {
+      "unresolved": [
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
+          "alternativeIds": [],
+          "creationTime": "2017-04-13T12:32:00Z",
+          "credit": ["Benjamin Bach"],
+          "cvssScore": 5.6,
+          "description": "## Overview\r\n[`Django`](https://pypi.python.org/pypi/Django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Arbitrary Code Execution attacks. The `django.core.urlresolvers.reverse` function allows remote attackers to import and execute arbitrary Python modules by leveraging a view that constructs URLs using user input and a \"dotted Python path.\"\r\n\r\n## Remediation\r\nUpgrade to versions `1.7b2`, `1.6.3`, `1.5.6`, `1.4.11` or greater.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/apr/21/security/)\r\n- [Redhat Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2014-0472)\r\n- [Redhat Vulnerability Advisory](https://rhn.redhat.com/errata/RHSA-2014-0456.html)",
+          "disclosureTime": "2014-04-23T12:32:00Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.11", "1.5.6", "1.6.3", "1.7.1"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40025",
+          "identifiers": { "CVE": ["CVE-2014-0472"], "CWE": ["CWE-94"] },
+          "language": "python",
+          "modificationTime": "2019-07-11T13:26:49.758445Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-04-23T12:32:00Z",
+          "references": [
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/apr/21/security/"
+            },
+            {
+              "title": "Redhat Bugzilla",
+              "url": "https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2014-0472"
+            },
+            {
+              "title": "Redhat Vulnerability Advisory",
+              "url": "https://rhn.redhat.com/errata/RHSA-2014-0456.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": [
+              "[,1.4.11)",
+              "[1.5,1.5.6)",
+              "[1.6,1.6.3)",
+              "[1.7,1.7.1)"
+            ]
+          },
+          "severity": "medium",
+          "title": "Arbitrary Code Execution",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-04-13T12:32:01Z",
+          "credit": ["Paul McMillan"],
+          "cvssScore": 5.3,
+          "description": "## Overview\r\n[`Django`](https://pypi.python.org/pypi/Django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Request Forgery (CSRF) attacks.\r\nThe caching framework reuses a cached CSRF token for all anonymous users, which allows remote attackers to bypass CSRF protections by reading the CSRF cookie for anonymous users.\r\n\r\n## Remediation\r\nUpgrade to versions `1.7b2`, `1.6.3`, `1.5.6`, `1.4.11` or greater.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/apr/21/security/)\r\n- [Redhat Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2014-0473)\r\n- [Redhat Vulnerability Advisory](https://rhn.redhat.com/errata/RHSA-2014-0456.html)",
+          "disclosureTime": "2014-04-23T12:32:01Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.11", "1.5.6", "1.6.3", "1.7.1"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40026",
+          "identifiers": { "CVE": ["CVE-2014-0473"], "CWE": ["CWE-264"] },
+          "language": "python",
+          "modificationTime": "2019-07-11T13:26:21.075980Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-04-23T12:32:01Z",
+          "references": [
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/apr/21/security/"
+            },
+            {
+              "title": "Redhat Bugzilla",
+              "url": "https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2014-0473"
+            },
+            {
+              "title": "Redhat Vulnerability Advisory",
+              "url": "https://rhn.redhat.com/errata/RHSA-2014-0456.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": [
+              "[,1.4.11)",
+              "[1.5,1.5.6)",
+              "[1.6,1.6.3)",
+              "[1.7,1.7.1)"
+            ]
+          },
+          "severity": "medium",
+          "title": "Cross-site Request Forgery (CSRF)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+          "alternativeIds": [],
+          "creationTime": "2017-04-13T12:32:00Z",
+          "credit": ["Michael Koziarski"],
+          "cvssScore": 9.8,
+          "description": "## Overview\r\n[`Django`](https://pypi.python.org/pypi/Django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to SQL Injection attacks.\r\nThe `FilePathField`, `GenericIPAddressField`, and `IPAddressField` model field classes in Django do not properly perform type conversion, which allows remote attackers to have unspecified impact and vectors, related to \"MySQL typecasting.\"\r\n\r\n## Remediation\r\nUpgrade to versions `1.7b2`, `1.6.3`, `1.5.6`, `1.4.11` or greater.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/apr/21/security/)\r\n- [Redhat Bugzilla](https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2014-0474)\r\n- [Redhat Vulnerability Advisory](https://rhn.redhat.com/errata/RHSA-2014-0456.html)",
+          "disclosureTime": "2014-04-23T12:32:00Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.11", "1.5.6", "1.6.3", "1.7.1"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40027",
+          "identifiers": { "CVE": ["CVE-2014-0474"], "CWE": ["CWE-399"] },
+          "language": "python",
+          "modificationTime": "2019-07-11T13:25:51.492234Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-04-23T12:32:00Z",
+          "references": [
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/apr/21/security/"
+            },
+            {
+              "title": "Redhat Bugzilla",
+              "url": "https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2014-0474"
+            },
+            {
+              "title": "Redhat Vulnerability Advisory",
+              "url": "https://rhn.redhat.com/errata/RHSA-2014-0456.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": [
+              "[,1.4.11)",
+              "[1.5,1.5.6)",
+              "[1.6,1.6.3)",
+              "[1.7,1.7.1)"
+            ]
+          },
+          "severity": "high",
+          "title": "SQL Injection",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.165000Z",
+          "credit": [
+            "Seth Arnold",
+            "Michael Nelson",
+            "Natalia Bidart",
+            "James Westby"
+          ],
+          "cvssScore": 6.5,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Cache Poisoning. It does not properly include the `Vary: Cookie` or `Cache-Control` header in responses, which allows remote attackers to obtain sensitive information or poison the cache via a request from certain browsers.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/may/14/security-releases-issued/)\r\n- [Openwall](http://www.openwall.com/lists/oss-security/2014/05/14/10)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-1418)\r\n",
+          "disclosureTime": "2014-05-14T04:56:15.106000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.13", "1.5.8", "1.6.5"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40256",
+          "identifiers": { "CVE": ["CVE-2014-1418"], "CWE": ["CWE-444"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.691423Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-05-14T04:56:15.106000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-1418"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/may/14/security-releases-issued/"
+            },
+            {
+              "title": "Openwall",
+              "url": "http://www.openwall.com/lists/oss-security/2014/05/14/10"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.13)", "[1.5,1.5.8)", "[1.6,1.6.5)"]
+          },
+          "severity": "medium",
+          "title": "Cache Poisoning",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.202000Z",
+          "credit": ["Peter Kuma", "Gavin Wahl"],
+          "cvssScore": 4.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Open Redirecting. The `http.is_safe_url()` function does not properly validate URLs, like `http:\\\\\\djangoproject.com.`, which This allows a user to be redirected to an unsafe URL unexpectedly.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/may/14/security-releases-issued/)\r\n- [Openwall](http://www.openwall.com/lists/oss-security/2014/05/14/10)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-3730)\r\n",
+          "disclosureTime": "2014-05-14T03:31:24.837000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.13", "1.5.8", "1.6.5"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40257",
+          "identifiers": { "CVE": ["CVE-2014-3730"], "CWE": ["CWE-20"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.696844Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-05-14T03:31:24.837000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-3730"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/may/14/security-releases-issued/"
+            },
+            {
+              "title": "Openwall",
+              "url": "http://www.openwall.com/lists/oss-security/2014/05/14/10"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.13)", "[1.5,1.5.8)", "[1.6,1.6.5)"]
+          },
+          "severity": "medium",
+          "title": "Open Redirect",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.158000Z",
+          "credit": ["Florian Apolloner"],
+          "cvssScore": 5.4,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Phishing attacks. The `reverse()` function does not properly validate URLs. When user input beginning with two forward-slash characters (`//`), `reverse()` could generate scheme-relative URLs to other hosts, allowing an attacker to generate links to sites of their choice, enabling phishing and other attacks.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/aug/20/security/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0480)\r\n",
+          "disclosureTime": "2014-08-20T06:32:08.601000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.14", "1.5.9", "1.6.6"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40258",
+          "identifiers": { "CVE": ["CVE-2014-0480"], "CWE": ["CWE-20"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.703263Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-08-20T06:32:08.601000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0480"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/aug/20/security/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.14)", "[1.5,1.5.9)", "[1.6,1.6.6)"]
+          },
+          "severity": "medium",
+          "title": "Malicious Link Generation",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.160000Z",
+          "credit": ["David Wilson"],
+          "cvssScore": 4.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Denial of Service (DoS) attacks.The default configuration for the file upload handling uses a sequential file name generation process when a file with a conflicting name is uploaded. An attackers can cause high CPU consumption by uploading multiple files with the same name.\r\n\r\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/aug/20/security/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0481)\r\n",
+          "disclosureTime": "2014-08-20T06:32:08.601000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.14", "1.5.9", "1.6.6"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40259",
+          "identifiers": { "CVE": ["CVE-2014-0481"], "CWE": ["CWE-399"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.710436Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-08-20T06:32:08.601000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0481"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/aug/20/security/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.14)", "[1.5,1.5.9)", "[1.6,1.6.6)"]
+          },
+          "severity": "medium",
+          "title": "Denial of Service (DoS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:L/A:L",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.165000Z",
+          "credit": ["David Greisen"],
+          "cvssScore": 5.5,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Session Hijacking. The `RemoteUserMiddleware` when using the `contrib.auth.backends.RemoteUserBackend` backend, allows remote authenticated users to hijack web sessions via the `REMOTE_USER` header as logout/login actions are not checked.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/aug/20/security/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0482)\r\n",
+          "disclosureTime": "2014-05-14T04:56:15.106000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.14", "1.5.9", "1.6.6"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40261",
+          "identifiers": { "CVE": ["CVE-2014-0482"], "CWE": ["CWE-287"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.717039Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-05-14T04:56:15.106000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0482"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/aug/20/security/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.14)", "[1.5,1.5.9)", "[1.6,1.6.6)"]
+          },
+          "severity": "medium",
+          "title": "Session Hijacking",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:L/UI:R/S:U/C:L/I:N/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.163000Z",
+          "credit": ["Collin Anderson"],
+          "cvssScore": 3.5,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Information Exposure. The administrative interface (`contrib.admin`) does not check if a field represents a relationship between models. This allows remote authenticated users to obtain sensitive information via the `to_field` parameter in a popup action to an admin change form page.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2014/aug/20/security/)\r\n- [GitHub Commit](https://github.com/django/django/commit/2b31342cdf14fc20e07c43d258f1e7334ad664a6)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0483)\r\n",
+          "disclosureTime": "2014-08-20T06:32:08.601000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.14", "1.5.9", "1.6.6"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40262",
+          "identifiers": { "CVE": ["CVE-2014-0483"], "CWE": ["CWE-264"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.723615Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2014-08-20T06:32:08.601000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2014-0483"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2014/aug/20/security/"
+            },
+            {
+              "title": "GitHub Commit",
+              "url": "https://github.com/django/django/commit/2b31342cdf14fc20e07c43d258f1e7334ad664a6"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.14)", "[1.5,1.5.9)", "[1.6,1.6.6)"]
+          },
+          "severity": "low",
+          "title": "Information Exposure",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.233000Z",
+          "credit": ["Jedediah Smith"],
+          "cvssScore": 5.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are  vulnerable to WSGI header spoofing. A malicious user could exploit this vulnerability by using an `_` character instead of a `-` in an HTTP header. In the WSGI environ, the `X-Auth-User` and the `X-Auth_User` headers are both converted to `HTTP_X_Auth_User`, allowing the attacker to bypass the protection.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/jan/13/security/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-0219)\r\n",
+          "disclosureTime": "2015-01-13T06:10:48.814000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.18", "1.6.10", "1.7.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40302",
+          "identifiers": { "CVE": ["CVE-2015-0219"], "CWE": ["CWE-17"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.729931Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-01-13T06:10:48.814000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-0219"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/jan/13/security/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.18)", "[1.5,1.6.10)", "[1.7,1.7.3)"]
+          },
+          "severity": "medium",
+          "title": "WSGI Header Spoofing",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.234000Z",
+          "credit": ["Mikko Ohtamaa"],
+          "cvssScore": 4.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Scripting (XSS) attacks. The `is_safe_url()` function did not properly handle leading whitespaces, which allows remote attackers to craft URLs like `\\njavascript:`.\r\n\r\n## Details\r\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\r\n\r\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\r\n\r\nֿInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\r\n\r\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\r\n \r\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \r\n\r\n### Types of attacks\r\nThere are a few methods by which XSS can be manipulated:\r\n\r\n|Type|Origin|Description|\r\n|--|--|--|\r\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\r\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \r\n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\r\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\r\n\r\n### Affected environments\r\nThe following environments are susceptible to an XSS attack:\r\n\r\n* Web servers\r\n* Application servers\r\n* Web application environments\r\n\r\n### How to prevent\r\nThis section describes the top best practices designed to specifically protect your code: \r\n\r\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \r\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \r\n* Give users the option to disable client-side scripts.\r\n* Redirect invalid requests.\r\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\r\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\r\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\n\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/jan/13/security/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-0220)\r\n",
+          "disclosureTime": "2015-01-13T06:05:28.579000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.18", "1.6.10", "1.7.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40303",
+          "identifiers": { "CVE": ["CVE-2015-0220"], "CWE": ["CWE-79"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.736465Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-01-13T06:05:28.579000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-0220"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/jan/13/security/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.18)", "[1.5,1.6.10)", "[1.7,1.7.3)"]
+          },
+          "severity": "medium",
+          "title": "Cross-site Scripting (XSS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.236000Z",
+          "credit": ["Alex Gaynor"],
+          "cvssScore": 5.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Denial of Service (DoS) attacks. The `serve()` view reads files an entire line at a time, which allows remote attackers to cause high memory consumption via a long line in a file.\r\n\r\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/jan/13/security/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-0221)\r\n",
+          "disclosureTime": "2015-01-13T05:47:14.147000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.18", "1.6.10", "1.7.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40304",
+          "identifiers": { "CVE": ["CVE-2015-0221"], "CWE": ["CWE-399"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.742776Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-01-13T05:47:14.147000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-0221"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/jan/13/security/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.18)", "[1.5,1.6.10)", "[1.7,1.7.3)"]
+          },
+          "severity": "medium",
+          "title": "Denial of Service (DoS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.237000Z",
+          "credit": ["Keryn Knight"],
+          "cvssScore": 5.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Denial of Service (DoS) attacks. When a form uses `show_hidden_initial=True` and `ModelMultipleChoiceField`, An attacker may cause a large number of SQL queries by submitting duplicate values for the field's data.\r\n\r\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/jan/13/security/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-0222)\r\n",
+          "disclosureTime": "2015-01-13T05:37:23.441000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.18", "1.6.10", "1.7.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40305",
+          "identifiers": { "CVE": ["CVE-2015-0222"], "CWE": ["CWE-17"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.749366Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-01-13T05:37:23.441000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-0222"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/jan/13/security/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.18)", "[1.5,1.6.10)", "[1.7,1.7.3)"]
+          },
+          "severity": "medium",
+          "title": "Denial of Service (DoS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.259000Z",
+          "credit": ["Andrey Babak"],
+          "cvssScore": 5.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to a Denial of Service (DoS) attacks. When an inputing a long string into the `utils.html.strip_tags` function, an infinite loop occurs.\r\n\r\n**Note:** This occurs only when using Python <2.7.7 or =3.3.5.\r\n\r\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/mar/18/security-releases/)\r\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/bulletinapr2015-2511959.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-2316)\r\n",
+          "disclosureTime": "2015-03-18T03:16:07.977000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.20", "1.6.11", "1.7.7"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40317",
+          "identifiers": { "CVE": ["CVE-2015-2316"], "CWE": ["CWE-399"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.762684Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-03-18T03:16:07.977000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-2316"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/mar/18/security-releases/"
+            },
+            {
+              "title": "Oracle Security Bulletin",
+              "url": "http://www.oracle.com/technetwork/topics/security/bulletinapr2015-2511959.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.20)", "[1.5,1.6.11)", "[1.7,1.7.7)"]
+          },
+          "severity": "medium",
+          "title": "Denial of Service (DoS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.260000Z",
+          "credit": ["Daniel Chatfield"],
+          "cvssScore": 4.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Scripting (XSS) attacks. The `utils.http.is_safe_url` function did not properly validate URLs, allowing the execustion of URLs of the sort: `\\x08javascript: URL`.\r\n\r\n## Details\r\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\r\n\r\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\r\n\r\nֿInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\r\n\r\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\r\n \r\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \r\n\r\n### Types of attacks\r\nThere are a few methods by which XSS can be manipulated:\r\n\r\n|Type|Origin|Description|\r\n|--|--|--|\r\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\r\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \r\n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\r\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\r\n\r\n### Affected environments\r\nThe following environments are susceptible to an XSS attack:\r\n\r\n* Web servers\r\n* Application servers\r\n* Web application environments\r\n\r\n### How to prevent\r\nThis section describes the top best practices designed to specifically protect your code: \r\n\r\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \r\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \r\n* Give users the option to disable client-side scripts.\r\n* Redirect invalid requests.\r\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\r\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\r\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\n\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/mar/18/security-releases/)\r\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/bulletinapr2015-2511959.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-2317)\r\n",
+          "disclosureTime": "2015-03-18T03:02:27.594000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.20", "1.6.11", "1.7.7"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40318",
+          "identifiers": { "CVE": ["CVE-2015-2317"], "CWE": ["CWE-79"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.769326Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-03-18T03:02:27.594000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-2317"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/mar/18/security-releases/"
+            },
+            {
+              "title": "Oracle Security Bulletin",
+              "url": "http://www.oracle.com/technetwork/topics/security/bulletinapr2015-2511959.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.20)", "[1.5,1.6.11)", "[1.7,1.7.7)"]
+          },
+          "severity": "medium",
+          "title": "Cross-site Scripting (XSS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.281000Z",
+          "credit": ["Eric Peterson", "Lin Hua Cheng"],
+          "cvssScore": 7.5,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Denial of Service (DoS) attacks. When sending multiple requests with unique session keys, the session backends create new empty records in the session storage, which can fill the session store.\r\n\r\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## Remediation\r\nUpgrade `django` to versions 1.8.3, 1.7.9, 1.4.21 or higher.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/jul/08/security-releases/)\r\n- [Redhat Security Advisory](http://rhn.redhat.com/errata/RHSA-2015-1686.html)\r\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/bulletinoct2015-2511968.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-5143)\r\n",
+          "disclosureTime": "2015-07-08T06:51:23.714000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.21", "1.7.9", "1.8.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40332",
+          "identifiers": { "CVE": ["CVE-2015-5143"], "CWE": ["CWE-399"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.782076Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-07-08T06:51:23.714000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-5143"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/jul/08/security-releases/"
+            },
+            {
+              "title": "Oracle Security Bulletin",
+              "url": "http://www.oracle.com/technetwork/topics/security/bulletinoct2015-2511968.html"
+            },
+            {
+              "title": "Redhat Security Advisory",
+              "url": "http://rhn.redhat.com/errata/RHSA-2015-1686.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.21)", "[1.5,1.7.9)", "[1.8,1.8.3)"]
+          },
+          "severity": "high",
+          "title": "Denial of Service (DoS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.283000Z",
+          "credit": ["Unknown"],
+          "cvssScore": 4.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to HTTP Response Splitting attacks due to the use of an incorrect regular expression. It allows newline characters in email messages (to the `EmailValidator`), in URLs (to the `URLValidator`), or other instances. An attacker can leverage this to inject arbitrary headers and conduct HTTP response splitting attacks.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/jul/08/security-releases/)\r\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/bulletinoct2015-2511968.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-5144)\r\n",
+          "disclosureTime": "2015-07-08T06:27:41.582000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.21", "1.7.9", "1.8.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40333",
+          "identifiers": { "CVE": ["CVE-2015-5144"], "CWE": ["CWE-113"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.788031Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-07-08T06:27:41.582000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-5144"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/jul/08/security-releases/"
+            },
+            {
+              "title": "Oracle Security Bulletin",
+              "url": "http://www.oracle.com/technetwork/topics/security/bulletinoct2015-2511968.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.21)", "[1.5,1.7.9)", "[1.8,1.8.3)"]
+          },
+          "severity": "medium",
+          "title": "HTTP Response Splitting",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.291000Z",
+          "credit": ["Lin Hua Cheng"],
+          "cvssScore": 5.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Denial of Service (DoS) attacks. If a large number of requests were made to `contrib.auth.views.logout`, it would trigger the creation of an empty session records, causing high session store consumption.\r\n\r\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## Remediation\r\nUpgrade `django` to versions 1.8.4, 1.7.0, 1.4.22 or higher.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/aug/18/security-releases/)\r\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/bulletinoct2015-2511968.html)\r\n- [Redhat Security Advisory](http://rhn.redhat.com/errata/RHSA-2015-1766.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-5963)\r\n",
+          "disclosureTime": "2015-08-18T05:56:48.932000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.22", "1.7.10", "1.8.4"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40339",
+          "identifiers": { "CVE": ["CVE-2015-5963"], "CWE": ["CWE-399"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.798224Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-08-18T05:56:48.932000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-5963"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/aug/18/security-releases/"
+            },
+            {
+              "title": "Oracle Security Bulletin",
+              "url": "http://www.oracle.com/technetwork/topics/security/bulletinoct2015-2511968.html"
+            },
+            {
+              "title": "Redhat Security Advisory",
+              "url": "http://rhn.redhat.com/errata/RHSA-2015-1766.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.22)", "[1.5,1.7.10)", "[1.8,1.8.4)"]
+          },
+          "severity": "medium",
+          "title": "Denial of Service (DoS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.292000Z",
+          "credit": ["Lin Hua Cheng"],
+          "cvssScore": 5.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Denial of Service (DoS) attacks. The `contrib.sessions.backends.base.SessionBase.flush` and `cache_db.SessionStore.flush` functions create empty sessions causing session store consumption.\r\n\r\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## Remediation\r\nUpgrade `django` to versions 1.8.4, 1.7.0, 1.4.22 or higher.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/aug/18/security-releases/)\r\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/bulletinoct2015-2511968.html)\r\n- [Redhat Security Advisory](http://rhn.redhat.com/errata/RHSA-2015-1766.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-5964)\r\n",
+          "disclosureTime": "2015-08-18T05:29:38.357000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.4.22", "1.7.10", "1.8.4"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40340",
+          "identifiers": { "CVE": ["CVE-2015-5964"], "CWE": ["CWE-399"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.804417Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-08-18T05:29:38.357000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-5964"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/aug/18/security-releases/"
+            },
+            {
+              "title": "Oracle Security Bulletin",
+              "url": "http://www.oracle.com/technetwork/topics/security/bulletinoct2015-2511968.html"
+            },
+            {
+              "title": "Redhat Security Advisory",
+              "url": "http://rhn.redhat.com/errata/RHSA-2015-1766.html"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.4.22)", "[1.5,1.7.10)", "[1.8,1.8.4)"]
+          },
+          "severity": "medium",
+          "title": "Denial of Service (DoS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.323000Z",
+          "credit": ["Ryan Butterfield"],
+          "cvssScore": 5.3,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Information Exposure. It is possible for a user to specify the date format and pass it to the date filter, e.g. `{{ last_updated|date:user_date_format }}`. An attacker could send a settings key instead of a date format (like `SECRET_KEY`), and obtain any secret in the application's settings.\r\n\r\n## Remediation\r\nUpgrade `django` to versions 1.7.11, 1.8.7 or higher. \r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2015/nov/24/security-releases-issued/)\r\n- [Redhat Security Advisory](http://rhn.redhat.com/errata/RHSA-2016-0129.html)\r\n- [GitHub Commit](https://github.com/django/django/commit/316bc3fc9437c5960c24baceb93c73f1939711e4)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-8213)\r\n",
+          "disclosureTime": "2015-11-24T05:24:28.904000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.7.11", "1.8.7"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40359",
+          "identifiers": { "CVE": ["CVE-2015-8213"], "CWE": ["CWE-200"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.811115Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2015-11-24T05:24:28.904000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2015-8213"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2015/nov/24/security-releases-issued/"
+            },
+            {
+              "title": "GitHub Commit",
+              "url": "https://github.com/django/django/commit/316bc3fc9437c5960c24baceb93c73f1939711e4"
+            },
+            {
+              "title": "Redhat Security Advisory",
+              "url": "http://rhn.redhat.com/errata/RHSA-2016-0129.html"
+            }
+          ],
+          "semver": { "vulnerable": ["[,1.7.11)", "[1.8,1.8.7)"] },
+          "severity": "medium",
+          "title": "Information Exposure",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:N/I:H/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.358000Z",
+          "credit": ["Mark Striemer"],
+          "cvssScore": 7.4,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Scripting (XSS). The `utils.http.is_safe_url` function allows remote attackers to redirect users to arbitrary web sites and conduct phishing attacks or possibly conduct Cross-site Scripting (XSS) attacks via a URL containing basic authentication. For example, a URL like `http://mysite.example.com\\@attacker.com` would be considered safe if the request's host is `http://mysite.example.com`, but redirecting to this URL sends the user to attacker.com.\r\n\r\n## Details\r\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\r\n\r\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\r\n\r\nֿInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\r\n\r\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\r\n \r\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \r\n\r\n### Types of attacks\r\nThere are a few methods by which XSS can be manipulated:\r\n\r\n|Type|Origin|Description|\r\n|--|--|--|\r\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\r\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \r\n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\r\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\r\n\r\n### Affected environments\r\nThe following environments are susceptible to an XSS attack:\r\n\r\n* Web servers\r\n* Application servers\r\n* Web application environments\r\n\r\n### How to prevent\r\nThis section describes the top best practices designed to specifically protect your code: \r\n\r\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \r\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \r\n* Give users the option to disable client-side scripts.\r\n* Redirect invalid requests.\r\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\r\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\r\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\n\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2016/mar/01/security-releases)\r\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/bulletinapr2016-2952098.html)\r\n- [GitHub Commit](https://github.com/django/django/commit/c5544d289233f501917e25970c03ed444abbd4f0)\r\n- [Redhat Security Advisory](http://rhn.redhat.com/errata/RHSA-2016-0502.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-2512)\r\n",
+          "disclosureTime": "2016-03-01T02:24:48.911000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.8.10", "1.9.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40382",
+          "identifiers": { "CVE": ["CVE-2016-2512"], "CWE": ["CWE-79"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.824000Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2016-03-01T02:24:48.911000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-2512"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2016/mar/01/security-releases"
+            },
+            {
+              "title": "GitHub Commit",
+              "url": "https://github.com/django/django/commit/c5544d289233f501917e25970c03ed444abbd4f0"
+            },
+            {
+              "title": "Oracle Security Bulletin",
+              "url": "http://www.oracle.com/technetwork/topics/security/bulletinapr2016-2952098.html"
+            },
+            {
+              "title": "Redhat Security Advisory",
+              "url": "http://rhn.redhat.com/errata/RHSA-2016-0502.html"
+            }
+          ],
+          "semver": { "vulnerable": ["[,1.8.10)", "[1.9,1.9.3)"] },
+          "severity": "high",
+          "title": "Cross-site Scripting (XSS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.360000Z",
+          "credit": ["Sjoerd Job Postmus"],
+          "cvssScore": 3.1,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Timing attacks. There is a timing difference between a login request for a user with a password encoded in an older number of iterations and login request for a nonexistent user (which runs the default hasher's default number of iterations). This only affects users who haven't logged in since the iterations were increased in Django 1.6.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2016/mar/01/security-releases/)\r\n- [Redhat Security Advisory](http://rhn.redhat.com/errata/RHSA-2016-0502.html)\r\n- [GitHub Commit](https://github.com/django/django/commit/67b46ba7016da2d259c1ecc7d666d11f5e1cfaab)\r\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/bulletinapr2016-2952098.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-2513)\r\n",
+          "disclosureTime": "2016-03-01T02:48:38.693000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.8.10", "1.9.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40383",
+          "identifiers": { "CVE": ["CVE-2016-2513"], "CWE": ["CWE-200"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.830967Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2016-03-01T02:48:38.693000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-2513"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2016/mar/01/security-releases/"
+            },
+            {
+              "title": "GitHub Commit",
+              "url": "https://github.com/django/django/commit/67b46ba7016da2d259c1ecc7d666d11f5e1cfaab"
+            },
+            {
+              "title": "Oracle Security Bulletin",
+              "url": "http://www.oracle.com/technetwork/topics/security/bulletinapr2016-2952098.html"
+            },
+            {
+              "title": "Redhat Security Advisory",
+              "url": "http://rhn.redhat.com/errata/RHSA-2016-0502.html"
+            }
+          ],
+          "semver": { "vulnerable": ["[,1.8.10)", "[1.9,1.9.3)"] },
+          "severity": "low",
+          "title": "Timing Attack",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N/E:P/RL:O/RC:C",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.390000Z",
+          "credit": ["Paulo Alvarado", "Vulnerability Laboratory"],
+          "cvssScore": 6.1,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Scripting (XSS) attacks. The `dismissChangeRelatedObjectPopup` function uses Javascript's `Element.innerHTML` in an unsafe manner. This allows remote attackers to forge content in the admin's add/change popup.\r\n\r\n## Details\r\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\r\n\r\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\r\n\r\nֿInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\r\n\r\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\r\n \r\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \r\n\r\n### Types of attacks\r\nThere are a few methods by which XSS can be manipulated:\r\n\r\n|Type|Origin|Description|\r\n|--|--|--|\r\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\r\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \r\n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\r\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\r\n\r\n### Affected environments\r\nThe following environments are susceptible to an XSS attack:\r\n\r\n* Web servers\r\n* Application servers\r\n* Web application environments\r\n\r\n### How to prevent\r\nThis section describes the top best practices designed to specifically protect your code: \r\n\r\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \r\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \r\n* Give users the option to disable client-side scripts.\r\n* Redirect invalid requests.\r\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\r\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\r\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\r\n\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2016/jul/18/security-releases/)\r\n- [Vulnerability Lab Report](http://www.vulnerability-lab.com/get_content.php?id=1869)\r\n- [GitHub Commit 1.9.x](https://github.com/django/django/commit/d03bf6fe4e9bf5b07de62c1a271c4b41a7d3d158)\r\n- [GitHub Commit 1.8.x](https://github.com/django/django/commit/f68e5a99164867ab0e071a936470958ed867479d)\r\n- [Redhat Security Advisory](http://rhn.redhat.com/errata/RHSA-2016-1596.html)\r\n- [Seclists](http://seclists.org/fulldisclosure/2016/Jul/53)\r\n- [Packetsorm Security](http://packetstormsecurity.com/files/137965/Django-3.3.0-Script-Insertion.html)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-6186)",
+          "disclosureTime": "2016-07-18T09:11:36Z",
+          "exploit": "Proof of Concept",
+          "fixedIn": ["1.8.14", "1.9.8"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40403",
+          "identifiers": { "CVE": ["CVE-2016-6186"], "CWE": ["CWE-79"] },
+          "language": "python",
+          "modificationTime": "2019-07-17T12:16:49.732594Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2016-07-18T09:11:36Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-6186"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2016/jul/18/security-releases/"
+            },
+            {
+              "title": "Exploit - ExploitDB",
+              "url": "https://www.exploit-db.com/exploits/40129"
+            },
+            {
+              "title": "GitHub Commit 1.8.x",
+              "url": "https://github.com/django/django/commit/f68e5a99164867ab0e071a936470958ed867479d"
+            },
+            {
+              "title": "GitHub Commit 1.9.x",
+              "url": "https://github.com/django/django/commit/d03bf6fe4e9bf5b07de62c1a271c4b41a7d3d158"
+            },
+            {
+              "title": "Packetsorm Security",
+              "url": "http://packetstormsecurity.com/files/137965/Django-3.3.0-Script-Insertion.html"
+            },
+            {
+              "title": "Redhat Security Advisory",
+              "url": "http://rhn.redhat.com/errata/RHSA-2016-1596.html"
+            },
+            {
+              "title": "Seclists",
+              "url": "http://seclists.org/fulldisclosure/2016/Jul/53"
+            },
+            {
+              "title": "Vulnerability Lab Report",
+              "url": "http://www.vulnerability-lab.com/get_content.php?id=1869"
+            }
+          ],
+          "semver": { "vulnerable": ["[,1.8.14)", "[1.9.0,1.9.8)"] },
+          "severity": "medium",
+          "title": "Cross-site Scripting (XSS)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.443000Z",
+          "credit": ["Sergey Bobrov"],
+          "cvssScore": 7.5,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Cross-site Request Forgery (CSRF) attacks. The cookie parsing code, when used on a site with Google Analytics, may allow remote attackers to set arbitrary cookies leading to a bypass of CSRF protection.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2016/sep/26/security-releases/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-7401)\r\n",
+          "disclosureTime": "2016-09-26T06:51:07.513000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.8.15", "1.9.10"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40434",
+          "identifiers": { "CVE": ["CVE-2016-7401"], "CWE": ["CWE-254"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.843652Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2016-09-26T06:51:07.513000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-7401"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2016/sep/26/security-releases/"
+            }
+          ],
+          "semver": { "vulnerable": ["[,1.8.15)", "[1.9,1.9.10)"] },
+          "severity": "high",
+          "title": "Cross-site Request Forgery (CSRF)",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.453000Z",
+          "credit": ["Marti Raudsepp"],
+          "cvssScore": 9.8,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package used a hardcoded password for a temporary database user created when running tests with an Oracle database. This user is usually dropped after the test suite completes, but not when using the `manage.py test --keepdb` option or if the user has an active session. This makes it easier for remote attackers to obtain access to the database.\r\n\r\n## References\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-9013)\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2016/nov/01/security-releases/)\r\n",
+          "disclosureTime": "2016-11-01T02:44:34.747000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.8.16", "1.9.11", "1.10.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40439",
+          "identifiers": { "CVE": ["CVE-2016-9013"], "CWE": ["CWE-259"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.850164Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2016-11-01T02:44:34.747000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-9013"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2016/nov/01/security-releases/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.8.16)", "[1.9,1.9.11)", "[1.10,1.10.3)"]
+          },
+          "severity": "high",
+          "title": "Use of hardcoded DB password",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.454000Z",
+          "credit": ["Aymeric Augustin"],
+          "cvssScore": 8.1,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to DNS Rebinding attacks. When `settings.DEBUG` is set to `True`, it fails to validate the HTTP Host header against `settings.ALLOWED_HOSTS` making it possible to manipulate the host header. This is at least cross-site scripting vector, which could be quite serious if developers load a copy of the production database in development or connect to some production services for which there's no development instance. Also, if a project uses a package like the `django-debug-toolbar`, the attacker could also execute arbitrary SQL.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2016/nov/01/security-releases/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-9014)\r\n",
+          "disclosureTime": "2016-11-02T03:05:23.821000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.8.16", "1.9.11", "1.10.3"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40440",
+          "identifiers": { "CVE": ["CVE-2016-9014"], "CWE": ["CWE-350"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.855752Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2016-11-02T03:05:23.821000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2016-9014"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2016/nov/01/security-releases/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.8.16)", "[1.9,1.9.11)", "[1.10,1.10.3)"]
+          },
+          "severity": "high",
+          "title": "DNS Rebinding",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.521000Z",
+          "credit": ["Unknown"],
+          "cvssScore": 6.1,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Open Redirect. It relies on user input in some cases to redirect the user to an \"on success\" URL. The security check for these redirects (namely `django.utils.http.is_safe_url()`) considered some numeric URLs \"safe\" when they shouldn't be, aka an open redirect vulnerability. Also, if a developer relies on `is_safe_url()` to provide safe redirect targets and puts such a URL into a link, they could suffer from an XSS attack.\r\n\r\n## Remediation\r\nUpgrade `django` to version 1.8.18, 1.9.13, 1.10.7 or higher.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2017/apr/04/security-releases/)\r\n- [CVE](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2017-7233)\r\n",
+          "disclosureTime": "2017-04-05T07:22:14.750000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.8.18", "1.9.13", "1.10.7"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40460",
+          "identifiers": { "CVE": ["CVE-2017-7233"], "CWE": ["CWE-601"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.860853Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2017-04-05T07:22:14.750000Z",
+          "references": [
+            {
+              "title": "CVE",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2017-7233"
+            },
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2017/apr/04/security-releases/"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.8.18)", "[1.9,1.9.13)", "[1.10,1.10.7)"]
+          },
+          "severity": "medium",
+          "title": "Open Redirect",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2017-05-25T12:42:28.523000Z",
+          "credit": ["Unknown"],
+          "cvssScore": 6.1,
+          "description": "## Overview\r\n[`django`](https://pypi.python.org/pypi/django) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\r\n\r\nAffected versions of this package are vulnerable to Open Redirect. A maliciously crafted URL to a Django site using the `django.views.static.serve()` view could redirect to any other domain.\r\n\r\n## Remediation\r\nUpgrade `django` to version 1.8.18, 1.9.13, 1.10.7 or higher.\r\n\r\n## References\r\n- [Django Vulnerability Description](https://www.djangoproject.com/weblog/2017/apr/04/security-releases/)\r\n- [NVD](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2017-7234)\r\n",
+          "disclosureTime": "2017-04-05T07:42:13.435000Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.8.18", "1.9.13", "1.10.7"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-40461",
+          "identifiers": { "CVE": ["CVE-2017-7234"], "CWE": ["CWE-601"] },
+          "language": "python",
+          "modificationTime": "2019-06-04T15:12:22.866628Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2017-04-05T07:42:13.435000Z",
+          "references": [
+            {
+              "title": "Django Vulnerability Description",
+              "url": "https://www.djangoproject.com/weblog/2017/apr/04/security-releases/"
+            },
+            {
+              "title": "NVD",
+              "url": "https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2017-7234"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.8.18)", "[1.9,1.9.13)", "[1.10,1.10.7)"]
+          },
+          "severity": "medium",
+          "title": "Open Redirect",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2018-08-01T00:00:00Z",
+          "credit": ["Andreas Hug"],
+          "cvssScore": 6.1,
+          "description": "## Overview\n[django](https://pypi.org/project/Django/) is a Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to Open Redirect. \nIf the `django.middleware.common.CommonMiddleware` and the `APPEND_SLASH` setting are both enabled, and if the project has a URL pattern that accepts any path ending in a slash, a malicious user could send a request to a crafted URL of that site that would lead to a redirect to another site.\n\n## Remediation\nUpgrade `django` to versions 1.11.15, 2.0.8, 2.1 or higher.\n\n## References\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1609031)\n- [Django Security Release](https://www.djangoproject.com/weblog/2018/aug/01/security-releases/)\n- [GitHub Commit 1.11.x](https://github.com/django/django/commit/a656a681272f8f3734b6eb38e9a88aa0d91806f1)\n- [GitHub Commit 2.0.x](https://github.com/django/django/commit/6fffc3c6d420e44f4029d5643f38d00a39b08525)\n- [GitHub Commit 2.1.x](https://github.com/django/django/commit/c4e5ff7fdb5fce447675e90291fd33fddd052b3c)\n",
+          "disclosureTime": "2018-08-01T00:00:00Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.11.15", "2.0.8"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-42178",
+          "identifiers": { "CVE": ["CVE-2018-14574"], "CWE": ["CWE-601"] },
+          "language": "python",
+          "modificationTime": "2019-06-02T11:58:20.268658Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2018-08-02T14:43:16.508000Z",
+          "references": [
+            {
+              "title": "Django Security Release",
+              "url": "https://www.djangoproject.com/weblog/2018/aug/01/security-releases/"
+            },
+            {
+              "title": "GitHub Commit 1.11.x",
+              "url": "https://github.com/django/django/commit/a656a681272f8f3734b6eb38e9a88aa0d91806f1"
+            },
+            {
+              "title": "GitHub Commit 2.0.x",
+              "url": "https://github.com/django/django/commit/6fffc3c6d420e44f4029d5643f38d00a39b08525"
+            },
+            {
+              "title": "GitHub Commit 2.1.x",
+              "url": "https://github.com/django/django/commit/c4e5ff7fdb5fce447675e90291fd33fddd052b3c"
+            },
+            {
+              "title": "RedHat Bugzilla Bug",
+              "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1609031"
+            }
+          ],
+          "semver": { "vulnerable": ["[,1.11.15), [2.0.0, 2.0.8)"] },
+          "severity": "medium",
+          "title": "Open Redirect",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        },
+        {
+          "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+          "alternativeIds": [],
+          "creationTime": "2019-01-08T15:45:12.317736Z",
+          "credit": ["Jerbi Nessim"],
+          "cvssScore": 4.3,
+          "description": "## Overview\n\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\n\nAffected versions of this package are vulnerable to Content Spoofing.\nThe default 404 page did not properly handle user-supplied data, an attacker could supply content to the web application, typically via a parameter value, that is reflected back to the user. This presented the user with a modified page under the context of the trusted domain.\n\n## Remediation\n\nUpgrade `django` to version 1.11.18, 2.0.10, 2.1.5 or higher.\n\n\n## References\n\n- [Django Project Security Blog](https://www.djangoproject.com/weblog/2019/jan/04/security-releases/)\n\n- [GitHub Commit](https://github.com/django/django/commit/1ecc0a395)\n\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1663722)\n",
+          "disclosureTime": "2019-01-04T22:34:17Z",
+          "exploit": "Not Defined",
+          "fixedIn": ["1.11.18", "2.0.10", "2.1.5"],
+          "functions": [],
+          "functions_new": [],
+          "id": "SNYK-PYTHON-DJANGO-72888",
+          "identifiers": { "CVE": ["CVE-2019-3498"], "CWE": ["CWE-148"] },
+          "language": "python",
+          "modificationTime": "2019-01-08T16:10:39.807334Z",
+          "moduleName": "django",
+          "packageManager": "pip",
+          "packageName": "django",
+          "patches": [],
+          "publicationTime": "2019-01-08T16:10:39.792267Z",
+          "references": [
+            {
+              "title": "Django Project Security Blog",
+              "url": "https://www.djangoproject.com/weblog/2019/jan/04/security-releases/"
+            },
+            {
+              "title": "GitHub Commit",
+              "url": "https://github.com/django/django/commit/1ecc0a395"
+            },
+            {
+              "title": "RedHat Bugzilla Bug",
+              "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1663722"
+            }
+          ],
+          "semver": {
+            "vulnerable": ["[,1.11.18)", "[2.0.0, 2.0.10)", "[2.1.0, 2.1.5)"]
+          },
+          "severity": "medium",
+          "title": "Content Spoofing",
+          "from": ["pinnable@0.0.0", "django@1.6.1"],
+          "upgradePath": [],
+          "isUpgradable": false,
+          "isPatchable": false,
+          "isPinnable": true,
+          "name": "django",
+          "version": "1.6.1"
+        }
+      ],
+      "upgrade": {},
+      "patch": {},
+      "ignore": {},
+      "pin": {
+        "django@1.6.1": {
+          "upgradeTo": "django@1.6.3",
+          "vulns": [
+            "SNYK-PYTHON-DJANGO-40025",
+            "SNYK-PYTHON-DJANGO-40026",
+            "SNYK-PYTHON-DJANGO-40027",
+            "SNYK-PYTHON-DJANGO-40256",
+            "SNYK-PYTHON-DJANGO-40257",
+            "SNYK-PYTHON-DJANGO-40258",
+            "SNYK-PYTHON-DJANGO-40259",
+            "SNYK-PYTHON-DJANGO-40261",
+            "SNYK-PYTHON-DJANGO-40262",
+            "SNYK-PYTHON-DJANGO-40302",
+            "SNYK-PYTHON-DJANGO-40303",
+            "SNYK-PYTHON-DJANGO-40304",
+            "SNYK-PYTHON-DJANGO-40305",
+            "SNYK-PYTHON-DJANGO-40317",
+            "SNYK-PYTHON-DJANGO-40318",
+            "SNYK-PYTHON-DJANGO-40332",
+            "SNYK-PYTHON-DJANGO-40333",
+            "SNYK-PYTHON-DJANGO-40339",
+            "SNYK-PYTHON-DJANGO-40340",
+            "SNYK-PYTHON-DJANGO-40359",
+            "SNYK-PYTHON-DJANGO-40382",
+            "SNYK-PYTHON-DJANGO-40383",
+            "SNYK-PYTHON-DJANGO-40403",
+            "SNYK-PYTHON-DJANGO-40434",
+            "SNYK-PYTHON-DJANGO-40439",
+            "SNYK-PYTHON-DJANGO-40440",
+            "SNYK-PYTHON-DJANGO-40460",
+            "SNYK-PYTHON-DJANGO-40461",
+            "SNYK-PYTHON-DJANGO-42178",
+            "SNYK-PYTHON-DJANGO-72888"
+          ],
+          "isTransitive": false
+        }
       }
     }
   },
@@ -1402,7 +3001,7 @@
     "isPrivate": true,
     "isLicensesEnabled": false,
     "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
-    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.14.0\nignore: {}\npatch: {}\n",
     "ignoreSettings": null,
     "org": "gitphill"
   },
