@@ -15,7 +15,6 @@ import { MonitorError, ConnectionTimeoutError } from './errors';
 import { countPathsToGraphRoot, pruneGraph } from './prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { GitTarget } from './project-metadata/types';
 
 const debug = Debug('snyk');
 
@@ -183,7 +182,7 @@ export async function monitor(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await getTarget(pkg, meta);
+  const target = await projectMetadata.getInfo(pkg, meta);
   const targetFileRelativePath = targetFile
     ? path.join(path.resolve(root), targetFile)
     : '';
@@ -293,7 +292,7 @@ export async function monitorGraph(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await getTarget(pkg, meta);
+  const target = await projectMetadata.getInfo(pkg, meta);
   const targetFileRelativePath = targetFile
     ? path.join(path.resolve(root), targetFile)
     : '';
@@ -396,17 +395,4 @@ function pluckPolicies(pkg) {
       })
       .filter(Boolean),
   );
-}
-
-async function getTarget(
-  pkg: DepTree,
-  meta: MonitorMeta,
-): Promise<GitTarget | null> {
-  const target = await projectMetadata.getInfo(pkg);
-
-  // Override the remoteUrl if the --remote-repo-url flag was set
-  if (meta['remote-repo-url']) {
-    return { ...target, remoteUrl: meta['remote-repo-url'] };
-  }
-  return target;
 }
