@@ -269,46 +269,34 @@ function shouldFail(vulnerableResults: any[], failOn: FailOn) {
   return vulnerableResults.length > 0;
 }
 
-function hasFix(vuln: any) {
-  const { isUpgradable, isPinnable, isPatchable } = vuln;
-  return isUpgradable || isPinnable || isPatchable;
-}
-
-function hasUpgrade(vuln: any) {
-  const { isUpgradable, isPinnable } = vuln;
-  return isUpgradable || isPinnable;
-}
-
-function hasPatch(vuln: any) {
-  const { isPatchable } = vuln;
-  return isPatchable;
-}
-
-function isTestResultFixable(testResult: any): boolean {
-  const { vulnerabilities } = testResult;
-  return vulnerabilities.some(hasFix);
+function isFixable(testResult: any): boolean {
+  return isUpgradable(testResult) || isPatchable(testResult);
 }
 
 function hasFixes(testResults: any[]): boolean {
-  return testResults.some(isTestResultFixable);
+  return testResults.some(isFixable);
 }
 
-function isTestResultUpgradable(testResult: any): boolean {
-  const { vulnerabilities } = testResult;
-  return vulnerabilities.some(hasUpgrade);
+function isUpgradable(testResult: any): boolean {
+  const {
+    remediation: { upgrade = {}, pin = {} },
+  } = testResult;
+  return Object.keys(upgrade).length > 0 || Object.keys(pin).length > 0;
 }
 
 function hasUpgrades(testResults: any[]): boolean {
-  return testResults.some(isTestResultUpgradable);
+  return testResults.some(isUpgradable);
 }
 
-function isTestResultPatchable(testResult: any): boolean {
-  const { vulnerabilities } = testResult;
-  return vulnerabilities.some(hasPatch);
+function isPatchable(testResult: any): boolean {
+  const {
+    remediation: { patch = {} },
+  } = testResult;
+  return Object.keys(patch).length > 0;
 }
 
 function hasPatches(testResults: any[]): boolean {
-  return testResults.some(isTestResultPatchable);
+  return testResults.some(isPatchable);
 }
 
 function summariseVulnerableResults(vulnerableResults, options: TestOptions) {

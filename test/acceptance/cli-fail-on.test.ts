@@ -40,14 +40,6 @@ const patchableResult = getWorkspaceJSON(
   'patchable',
   'vulns-result.json',
 );
-const pinnableVulnsResult = getWorkspaceJSON(
-  'fail-on',
-  'pinnable',
-  'vulns-result.json',
-);
-
-// snyk test stub responses
-const pinnableVulns = getWorkspaceJSON('fail-on', 'pinnable', 'vulns.json');
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
