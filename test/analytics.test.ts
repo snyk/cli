@@ -150,13 +150,13 @@ test('analytics with args and org', (t) => {
 test('bad command', (t) => {
   const spy = sinon.spy();
   process.argv = ['node', 'script.js', 'random command', '-q'];
-  const cli = proxyquire('../src/cli', {
+  const { main } = proxyquire('../src/cli/main', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
   });
 
-  return cli.then(() => {
+  return main().then(() => {
     t.equal(spy.callCount, 1, 'analytics was called');
 
     const payload = spy.args[0][0].body;
@@ -179,7 +179,7 @@ test('bad command with string error', (t) => {
   process.argv = ['node', 'script.js', 'test', '-q'];
   const error = new Error('Some error') as any;
   error.code = 'CODE';
-  const cli = proxyquire('../src/cli', {
+  const { main } = proxyquire('../src/cli/main', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
@@ -199,7 +199,7 @@ test('bad command with string error', (t) => {
     }),
   });
 
-  return cli.then(() => {
+  return main().then(() => {
     t.equal(spy.callCount, 1, 'analytics was called');
 
     const payload = spy.args[0][0].body;
@@ -214,7 +214,7 @@ test('vulns found (thrown as an error)', (t) => {
   process.argv = ['node', 'script.js', 'test', '-q'];
   const error = new Error('7 vulnerable dependency paths') as any;
   error.code = 'VULNS';
-  const cli = proxyquire('../src/cli', {
+  const { main } = proxyquire('../src/cli/main', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
@@ -234,7 +234,7 @@ test('vulns found (thrown as an error)', (t) => {
     }),
   });
 
-  return cli.then(() => {
+  return main().then(() => {
     t.equal(spy.callCount, 1, 'analytics was called');
 
     const payload = spy.args[0][0].body;
@@ -256,7 +256,7 @@ test('test includes data', { skip: iswindows }, (t) => {
     './request': spy,
   });
 
-  const cli = proxyquire('../src/cli', {
+  const { main } = proxyquire('../src/cli/main', {
     '../lib/analytics': analytics,
     './args': proxyquire('../src/cli/args', {
       './commands': proxyquire('../src/cli/commands', {
@@ -271,7 +271,7 @@ test('test includes data', { skip: iswindows }, (t) => {
     }),
   });
 
-  return cli.then(() => {
+  return main().then(() => {
     t.equal(spy.callCount, 1, 'analytics was called');
 
     const payload = spy.args[0][0].body;

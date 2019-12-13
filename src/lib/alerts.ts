@@ -36,6 +36,7 @@ function displayAlerts() {
       res += chalk.yellow(alert.msg);
     }
   });
+  registeredAlerts.splice(0, registeredAlerts.length); // clear the array
 
   return res;
 }

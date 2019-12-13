@@ -1,13 +1,14 @@
-import { gte, satisfies } from 'semver';
+import { satisfies } from 'semver';
 
-const MIN_RUNTIME = '6.5.0';
+const LEGACY_RUNTIME = '^6.5.0';
+const MIN_LTE_RUNTIME = '8.0.0';
 
-export const supportedRange = `>= ${MIN_RUNTIME}`;
+export const supportedRange = `${LEGACY_RUNTIME} || >= ${MIN_LTE_RUNTIME}`;
 
 export function isSupported(runtimeVersion) {
-  return gte(runtimeVersion, MIN_RUNTIME);
+  return satisfies(runtimeVersion, supportedRange, { includePrerelease: true });
 }
 
 export function isUsingNode6(runtimeVersion) {
-  return satisfies(runtimeVersion, '6.x');
+  return satisfies(runtimeVersion, LEGACY_RUNTIME);
 }
