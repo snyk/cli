@@ -13,12 +13,14 @@ test('find all files in test fixture', async (t) => {
     path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
     path.join(testFixture, 'maven', 'pom.xml'),
     path.join(testFixture, 'maven', 'test.txt'),
+    path.join(testFixture, 'npm-with-lockfile', 'package-lock.json'),
     path.join(testFixture, 'mvn', 'pom.xml'),
     path.join(testFixture, 'mvn', 'test.txt'),
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm', 'test.txt'),
-    path.join(testFixture, 'ruby', 'Gemfile'),
+    path.join(testFixture, 'ruby', 'Gemfile.lock'),
     path.join(testFixture, 'ruby', 'test.txt'),
+    path.join(testFixture, 'yarn', 'yarn.lock'),
   ].sort();
   t.same(result.sort(), expected, 'should return all files');
 });
@@ -34,10 +36,12 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
     path.join(testFixture, 'maven', 'test.txt'),
     path.join(testFixture, 'mvn', 'pom.xml'),
     path.join(testFixture, 'mvn', 'test.txt'),
+    path.join(testFixture, 'npm-with-lockfile', 'package-lock.json'),
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm', 'test.txt'),
-    path.join(testFixture, 'ruby', 'Gemfile'),
+    path.join(testFixture, 'ruby', 'Gemfile.lock'),
     path.join(testFixture, 'ruby', 'test.txt'),
+    path.join(testFixture, 'yarn', 'yarn.lock'),
   ].sort();
   t.same(result.sort(), expected, 'should return expected files');
 });
@@ -53,14 +57,61 @@ test('find package.json file in test fixture ignoring node_modules', async (t) =
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
   // four levels deep to ensure node_modules is tested
   const result = await find(testFixture, [], ['package.json'], 4);
-  const expected = [path.join(testFixture, 'npm', 'package.json')];
+  const expected = [
+    path.join(testFixture, 'npm', 'package.json'),
+    path.join(testFixture, 'npm-with-lockfile', 'package.json'),
+    path.join(testFixture, 'yarn', 'package.json'),
+  ];
+  t.same(result, expected, 'should return expected file');
+});
+
+test('find package-lock.json file in test fixture (ignore package.json in the same folder)', async (t) => {
+  const npmLockfilePath = path.join(testFixture, 'npm-with-lockfile');
+
+  const result = await find(
+    npmLockfilePath,
+    [],
+    ['package.json', 'package-lock.json'],
+    1,
+  );
+  const expected = [path.join(npmLockfilePath, 'package-lock.json')];
+  t.same(result, expected, 'should return expected file');
+});
+
+test('find Gemfile.lock file in test fixture (ignore Gemfile in the same folder)', async (t) => {
+  const npmLockfilePath = path.join(testFixture, 'ruby');
+
+  const result = await find(
+    npmLockfilePath,
+    [],
+    ['Gemfile', 'Gemfile.lock'],
+    1,
+  );
+  const expected = [path.join(npmLockfilePath, 'Gemfile.lock')];
+  t.same(result, expected, 'should return expected file');
+});
+
+test('find yarn.lock file in test fixture (ignore package.json in the same folder)', async (t) => {
+  const yarnLockfilePath = path.join(testFixture, 'yarn');
+
+  const result = await find(
+    yarnLockfilePath,
+    [],
+    ['package.json', 'yarn.lock'],
+    1,
+  );
+  const expected = [path.join(yarnLockfilePath, 'yarn.lock')];
   t.same(result, expected, 'should return expected file');
 });
 
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
   // four levels deep to ensure node_modules is tested
   const result = await find(testFixture, [], ['package.json'], 4);
-  const expected = [path.join(testFixture, 'npm', 'package.json')];
+  const expected = [
+    path.join(testFixture, 'npm', 'package.json'),
+    path.join(testFixture, 'npm-with-lockfile', 'package.json'),
+    path.join(testFixture, 'yarn', 'package.json'),
+  ];
   t.same(result, expected, 'should return expected file');
 });
 
