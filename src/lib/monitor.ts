@@ -15,6 +15,7 @@ import { MonitorError, ConnectionTimeoutError } from './errors';
 import { countPathsToGraphRoot, pruneGraph } from './prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
+import { isFeatureFlagSupportedForOrg } from './feature-flags';
 
 const debug = Debug('snyk');
 
@@ -148,8 +149,12 @@ export async function monitor(
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
 
+  const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
+    _.camelCase('experimental-dep-graph'),
+  );
+
   if (
-    meta['experimental-dep-graph'] &&
+    monitorGraphSupportedRes &&
     GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
   ) {
     return await monitorGraph(root, meta, info, targetFile);

@@ -87,23 +87,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   apiTokenExists();
 
-  if (options['experimental-dep-graph']) {
-    const isFFSupported = await isFeatureFlagSupportedForOrg(
-      _.camelCase('experimental-dep-graph'),
-    );
-
-    if (isFFSupported.code === 401) {
-      throw AuthFailedError(isFFSupported.error, isFFSupported.code);
-    }
-
-    if (!isFFSupported.ok) {
-      throw new UnsupportedFeatureFlagError(
-        'experimental-dep-graph',
-        isFFSupported.userMessage,
-      );
-    }
-  }
-
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
     try {
@@ -156,7 +139,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       }
       const meta: MonitorMeta = {
         method: 'cli',
-        packageManager: packageManager,
+        packageManager,
         'policy-path': options['policy-path'],
         'project-name': options['project-name'] || config.PROJECT_NAME,
         isDocker: !!options.docker,
