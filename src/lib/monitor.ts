@@ -11,7 +11,7 @@ import * as analytics from './analytics';
 import { DepTree, MonitorMeta, MonitorResult } from './types';
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
-import { MonitorError, ConnectionTimeoutError } from './errors';
+import { MonitorError, ConnectionTimeoutError, AuthFailedError } from './errors';
 import { countPathsToGraphRoot, pruneGraph } from './prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
@@ -149,15 +149,20 @@ export async function monitor(
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
 
-  const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
-    _.camelCase('experimental-dep-graph'),
-  );
-
   if (
-    monitorGraphSupportedRes &&
     GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
   ) {
-    return await monitorGraph(root, meta, info, targetFile);
+    const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
+      _.camelCase('experimental-dep-graph'),
+    );
+
+    if (monitorGraphSupportedRes.code === 401) {
+      throw AuthFailedError(monitorGraphSupportedRes.error, monitorGraphSupportedRes.code);
+    }
+
+    if (monitorGraphSupportedRes.ok) {
+      return await monitorGraph(root, meta, info, targetFile);
+    }
   }
 
   let pkg = info.package;

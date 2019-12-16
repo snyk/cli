@@ -19,12 +19,9 @@ import { MethodArgs, ArgsOptions } from '../../args';
 import { maybePrintDeps } from '../../../lib/print-deps';
 import * as analytics from '../../../lib/analytics';
 import {
-  AuthFailedError,
   MonitorError,
-  UnsupportedFeatureFlagError,
 } from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { formatMonitorOutput } from './formatters/format-monitor-response';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
