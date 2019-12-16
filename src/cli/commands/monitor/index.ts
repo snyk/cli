@@ -14,13 +14,11 @@ import * as spinner from '../../../lib/spinner';
 import * as detect from '../../../lib/detect';
 import * as plugins from '../../../lib/plugins';
 import { ModuleInfo } from '../../../lib/module-info'; // TODO(kyegupov): fix import
-import { MonitorOptions, MonitorMeta } from '../../../lib/types';
+import { MonitorOptions, MonitorMeta, Options } from '../../../lib/types';
 import { MethodArgs, ArgsOptions } from '../../args';
 import { maybePrintDeps } from '../../../lib/print-deps';
 import * as analytics from '../../../lib/analytics';
-import {
-  MonitorError,
-} from '../../../lib/errors';
+import { MonitorError } from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { formatMonitorOutput } from './formatters/format-monitor-response';
 
@@ -164,7 +162,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         maybePrintDeps(options, projectDeps.package);
 
         const res = await promiseOrCleanup(
-          snykMonitor(path, meta, projectDeps, targetFile),
+          snykMonitor(path, meta, projectDeps, options, targetFile),
           spinner.clear(postingMonitorSpinnerLabel),
         );
 

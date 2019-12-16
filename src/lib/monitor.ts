@@ -8,10 +8,20 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import { isCI } from './is-ci';
 import * as analytics from './analytics';
-import { DepTree, MonitorMeta, MonitorResult } from './types';
+import {
+  DepTree,
+  MonitorMeta,
+  MonitorResult,
+  MonitorOptions,
+  Options,
+} from './types';
 import * as projectMetadata from './project-metadata';
 import * as path from 'path';
-import { MonitorError, ConnectionTimeoutError, AuthFailedError } from './errors';
+import {
+  MonitorError,
+  ConnectionTimeoutError,
+  AuthFailedError,
+} from './errors';
 import { countPathsToGraphRoot, pruneGraph } from './prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
@@ -140,6 +150,7 @@ export async function monitor(
   root: string,
   meta: MonitorMeta,
   info: pluginApi.SinglePackageResult,
+  options,
   targetFile?: string,
 ): Promise<MonitorResult> {
   apiTokenExists();
@@ -148,20 +159,25 @@ export async function monitor(
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
+  analytics.add('monitorGraph', true);
 
-  if (
-    GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
-  ) {
+  if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
       _.camelCase('experimental-dep-graph'),
+      options.org || config.org,
     );
 
     if (monitorGraphSupportedRes.code === 401) {
-      throw AuthFailedError(monitorGraphSupportedRes.error, monitorGraphSupportedRes.code);
+      throw AuthFailedError(
+        monitorGraphSupportedRes.error,
+        monitorGraphSupportedRes.code,
+      );
     }
-
     if (monitorGraphSupportedRes.ok) {
       return await monitorGraph(root, meta, info, targetFile);
+    }
+    if (monitorGraphSupportedRes.userMessage) {
+      debug(monitorGraphSupportedRes.userMessage);
     }
   }
 
@@ -228,7 +244,8 @@ export async function monitor(
               ? pkg.docker.dockerfileLayers
               : undefined,
             projectName: meta['project-name'],
-            prePruneDepCount, // undefined unless 'prune' is used
+            prePruneDepCount, // undefined unless 'prune' is used,
+            monitorGraph: false,
           },
           policy: policy ? policy.toString() : undefined,
           package: pkg,
@@ -276,6 +293,7 @@ export async function monitorGraph(
   targetFile?: string,
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
+  analytics.add('monitorGraph', true);
 
   let treeMissingDeps: string[];
   let pkg = info.package;
@@ -345,6 +363,7 @@ export async function monitorGraph(
             projectName: meta['project-name'],
             prePruneDepCount, // undefined unless 'prune' is used
             missingDeps: treeMissingDeps,
+            monitorGraph: true,
           },
           policy: policy ? policy.toString() : undefined,
           depGraphJSON: prunedGraph, // depGraph will be auto serialized to JSON on send

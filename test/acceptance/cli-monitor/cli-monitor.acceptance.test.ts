@@ -7,6 +7,7 @@ import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
 import * as version from '../../../src/lib/version';
+import * as userConfig from '../../../src/lib/user-config';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -170,7 +171,9 @@ test('`monitor npm-package`', async (t) => {
   const depGraphJSON = req.body.depGraphJSON;
   t.ok(depGraphJSON);
   const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
-  const objectAssign = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'object-assign');
+  const objectAssign = depGraphJSON.pkgs.find(
+    (pkg) => pkg.info.name === 'object-assign',
+  );
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
   t.ok(debug, 'dependency');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
@@ -200,20 +203,6 @@ test('`monitor npm-out-of-sync graph monitor`', async (t) => {
   );
 });
 
-test('`monitor npm-out-of-sync old monitor`', async (t) => {
-  chdirWorkspaces();
-  await cli.monitor('npm-out-of-sync-graph', {
-    strictOutOfSync: false,
-  });
-  const req = server.popRequest();
-  t.match(req.url, '/monitor/npm', 'puts at correct url');
-  t.deepEqual(
-    req.body.meta.missingDeps,
-    ['body-parser@^1.18.2'],
-    'missingDeps passed',
-  );
-});
-
 test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
   chdirWorkspaces();
 
@@ -228,10 +217,13 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (
     'sends version number',
   );
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+  t.deepEqual(req.body.meta.monitorGraph, true, 'correct meta set');
   t.ok(req.body.meta.prePruneDepCount, 'sends meta.prePruneDepCount');
   const depGraphJSON = req.body.depGraphJSON;
   t.ok(depGraphJSON);
-  const packageC = depGraphJSON.graph.nodes.find((pkg) => pkg.pkgId === 'c@1.0.0');
+  const packageC = depGraphJSON.graph.nodes.find(
+    (pkg) => pkg.pkgId === 'c@1.0.0',
+  );
   t.ok(packageC.info.labels.pruned, 'a.d.c is pruned');
   t.notOk(packageC.dependencies, 'a.d.c has no dependencies');
 });
@@ -259,6 +251,19 @@ test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
   t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
+});
+
+test('`monitor npm-package-pruneable experimental for no-flag org`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('npm-package-pruneable', {
+    org: 'no-flag',
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/npm', 'puts at correct url');
+  t.deepEqual(req.body.meta.monitorGraph, false, 'correct meta set');
+  t.ok(req.body.package, 'sends package');
+  userConfig.delete('org');
 });
 
 test('`monitor sbt package --experimental-dep-graph --sbt-graph`', async (t) => {
@@ -420,14 +425,13 @@ test('`monitor npm-package with dev dep flag`', async (t) => {
   );
   const depGraphJSON = req.body.depGraphJSON;
   const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
-  const objectAssign = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'object-assign');
+  const objectAssign = depGraphJSON.pkgs.find(
+    (pkg) => pkg.info.name === 'object-assign',
+  );
   t.ok(depGraphJSON, 'monitor is a depgraph format');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
   t.ok(debug, 'debug dependency found');
-  t.ok(
-    objectAssign,
-    'includes dev dependency',
-  );
+  t.ok(objectAssign, 'includes dev dependency');
 });
 
 test('`monitor yarn-package with dev dep flag`', async (t) => {

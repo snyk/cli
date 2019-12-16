@@ -122,6 +122,15 @@ export function fakeServer(root, apikey) {
   server.get(
     root + '/cli-config/feature-flags/:featureFlag',
     (req, res, next) => {
+      const flag = req.params.featureFlag;
+      if ((req as any).params.org === 'no-flag') {
+        res.send({
+          ok: false,
+          userMessage: `Org ${
+            (req as any).org
+          } doesn\'t have \'${flag}\' feature enabled'`,
+        });
+      }
       res.send({
         ok: true,
       });
