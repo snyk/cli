@@ -3,7 +3,7 @@ import * as cli from '../../src/cli/commands';
 import { fakeServer } from './fake-server';
 import * as sinon from 'sinon';
 import * as snyk from '../../src/lib';
-import { getWorkspaceJSON, chdirWorkspaces } from './workspace-helper';
+import { getWorkspaceJSON } from './workspace-helper';
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -19,14 +19,33 @@ const server = fakeServer(process.env.SNYK_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 
-const pinnableVulnsResult = getWorkspaceJSON(
+const dockerFixableVulnsResult = getWorkspaceJSON(
   'fail-on',
-  'pinnable',
+  'docker',
+  'fixable',
+  'vulns-result.json',
+);
+
+const dockerNoFixableVulnsResult = getWorkspaceJSON(
+  'fail-on',
+  'docker',
+  'no-fixable',
   'vulns-result.json',
 );
 
 // snyk test stub responses
-const pinnableVulns = getWorkspaceJSON('fail-on', 'pinnable', 'vulns.json');
+const dockerFixableVulns = getWorkspaceJSON(
+  'fail-on',
+  'docker',
+  'fixable',
+  'vulns.json',
+);
+const dockerNoFixableVulns = getWorkspaceJSON(
+  'fail-on',
+  'docker',
+  'no-fixable',
+  'vulns.json',
+);
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -57,32 +76,31 @@ before('prime config', async (t) => {
   t.end();
 });
 
-test('test vulnerable project with pinnable and --fail-on=upgradable', async (t) => {
-  // mocking test results here as CI tooling does not have python installed
-  const snykTestStub = sinon.stub(snyk, 'test').returns(pinnableVulns);
+test('test docker image with no fixable vulns and --fail-on=all', async (t) => {
+  // mocking test results here as CI tooling does not have docker installed
+  const snykTestStub = sinon.stub(snyk, 'test').returns(dockerNoFixableVulns);
   try {
-    server.setNextResponse(pinnableVulnsResult);
-    chdirWorkspaces('fail-on');
-    await cli.test('pinnable', {
-      failOn: 'upgradable',
+    server.setNextResponse(dockerNoFixableVulnsResult);
+    await cli.test('debian/sqlite3:latest', {
+      failOn: 'all',
+      docker: true,
     });
-    t.fail('expected test to throw exception');
+    t.pass('should not throw exception');
   } catch (err) {
-    t.equal(err.code, 'VULNS', 'should throw exception');
+    t.fail('did not expect exception to be thrown ' + err);
   } finally {
     snykTestStub.restore();
   }
 });
 
-test('test vulnerable project with pinnable and --fail-on=upgradable --json', async (t) => {
-  // mocking test results here as CI tooling does not have python installed
-  const snykTestStub = sinon.stub(snyk, 'test').returns(pinnableVulns);
+test('test docker image with fixable vulns and --fail-on=all', async (t) => {
+  // mocking test results here as CI tooling does not have docker installed
+  const snykTestStub = sinon.stub(snyk, 'test').returns(dockerFixableVulns);
   try {
-    server.setNextResponse(pinnableVulnsResult);
-    chdirWorkspaces('fail-on');
-    await cli.test('pinnable', {
-      failOn: 'upgradable',
-      json: true,
+    server.setNextResponse(dockerFixableVulnsResult);
+    await cli.test('garethr/snyky:alpine', {
+      failOn: 'all',
+      docker: true,
     });
     t.fail('expected test to throw exception');
   } catch (err) {
