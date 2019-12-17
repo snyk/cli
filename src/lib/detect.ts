@@ -142,7 +142,7 @@ export function detectPackageFile(root) {
   debug('no package file found in ' + root);
 }
 
-function detectPackageManagerFromFile(file) {
+export function detectPackageManagerFromFile(file) {
   let key = pathLib.basename(file);
 
   // TODO: fix this to use glob matching instead

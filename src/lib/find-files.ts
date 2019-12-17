@@ -1,5 +1,7 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
+import * as _ from 'lodash';
+import { detectPackageManagerFromFile } from './detect';
 // TODO: use util.promisify once we move to node 8
 
 /**
@@ -73,7 +75,7 @@ export async function find(
         found.push(fileFound);
       }
     }
-    return found;
+    return filterForDefaultManifests(found);
   } catch (err) {
     throw new Error(`Error finding files in path '${path}'.\n${err.message}`);
   }
@@ -106,4 +108,93 @@ async function findInDirectory(
     });
   const found = await Promise.all(toFind);
   return Array.prototype.concat.apply([], found);
+}
+
+function filterForDefaultManifests(files: string[]) {
+  // take all the files in the same dir & filter out
+  // based on package Manager
+  if (files.length <= 1) {
+    return files;
+  }
+
+  const filteredFiles: string[] = [];
+
+  const foundFiles = _(files)
+    .filter(Boolean)
+    .map((p) => ({
+      path: p,
+      ...pathLib.parse(p),
+      packageManager: detectProjectTypeFromFile(p),
+    }))
+    .groupBy('dir')
+    .value();
+
+  for (const directory of Object.keys(foundFiles)) {
+    const filesInDirectory = foundFiles[directory];
+    if (filesInDirectory.length <= 1) {
+      filteredFiles.push(filesInDirectory[0].path);
+      continue;
+    }
+
+    const groupedFiles = _(filesInDirectory)
+      .groupBy('packageManager')
+      .value();
+
+    for (const packageManager of Object.keys(groupedFiles)) {
+      const filesPerPackageManager = groupedFiles[packageManager];
+      if (filesPerPackageManager.length <= 1) {
+        filteredFiles.push(filesPerPackageManager[0].path);
+        continue;
+      }
+      const defaultManifestFileName = chooseBestManifest(
+        filesPerPackageManager,
+        packageManager,
+      );
+      if (defaultManifestFileName) {
+        filteredFiles.push(defaultManifestFileName);
+      }
+    }
+  }
+  return filteredFiles;
+}
+
+function detectProjectTypeFromFile(file: string): string | null {
+  try {
+    const packageManager = detectPackageManagerFromFile(file);
+    if (['yarn', 'npm'].includes(packageManager)) {
+      return 'node';
+    }
+    return packageManager;
+  } catch (error) {
+    return null;
+  }
+}
+
+function chooseBestManifest(
+  files: Array<{ base: string; path: string }>,
+  projectType: string,
+): string | null {
+  switch (projectType) {
+    case 'node': {
+      const lockFile = files.filter((path) =>
+        ['package-lock.json', 'yarn.lock'].includes(path.base),
+      )[0];
+      if (lockFile) {
+        return lockFile.path;
+      }
+      const packageJson = files.filter((path) =>
+        ['package.json'].includes(path.base),
+      )[0];
+      return packageJson.path;
+    }
+    case 'rubygems': {
+      const defaultManifest = files.filter((path) =>
+        ['Gemfile.lock'].includes(path.base),
+      )[0];
+      return defaultManifest.path;
+    }
+    default: {
+      return null;
+    }
+  }
 }
