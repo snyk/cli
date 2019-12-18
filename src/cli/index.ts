@@ -184,18 +184,6 @@ async function main() {
     exitCode = response.exitCode;
   }
 
-  if (runtime.isUsingNode6(process.versions.node)) {
-    alerts.registerAlerts([
-      {
-        msg:
-          'Node.js v6 has past End-of-Life; please upgrade your current Node.js version ' +
-          'to continue scanning and protecting your projects from security vulnerabilities.',
-        name: 'Node6EOLWarning',
-        type: 'info',
-      },
-    ]);
-  }
-
   if (!args.options.json) {
     console.log(alerts.displayAlerts());
   }
