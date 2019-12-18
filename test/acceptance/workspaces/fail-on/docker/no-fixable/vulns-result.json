@@ -1,0 +1,4312 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "apt/libapt-pkg5.0@1.8.2": {
+        "pkg": { "name": "apt/libapt-pkg5.0", "version": "1.8.2" },
+        "issues": {
+          "SNYK-LINUX-APT-116518": {
+            "issueId": "SNYK-LINUX-APT-116518",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "apt@1.8.2": {
+        "pkg": { "name": "apt", "version": "1.8.2" },
+        "issues": {
+          "SNYK-LINUX-APT-116518": {
+            "issueId": "SNYK-LINUX-APT-116518",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "bash@5.0-4": {
+        "pkg": { "name": "bash", "version": "5.0-4" },
+        "issues": {
+          "SNYK-LINUX-BASH-536272": {
+            "issueId": "SNYK-LINUX-BASH-536272",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "coreutils@8.30-3": {
+        "pkg": { "name": "coreutils", "version": "8.30-3" },
+        "issues": {
+          "SNYK-LINUX-COREUTILS-104909": {
+            "issueId": "SNYK-LINUX-COREUTILS-104909",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-COREUTILS-114540": {
+            "issueId": "SNYK-LINUX-COREUTILS-114540",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "gcc-8/libstdc++6@8.3.0-6": {
+        "pkg": { "name": "gcc-8/libstdc++6", "version": "8.3.0-6" },
+        "issues": {
+          "SNYK-LINUX-GCC8-447557": {
+            "issueId": "SNYK-LINUX-GCC8-447557",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GCC8-469412": {
+            "issueId": "SNYK-LINUX-GCC8-469412",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "gcc-8/gcc-8-base@8.3.0-6": {
+        "pkg": { "name": "gcc-8/gcc-8-base", "version": "8.3.0-6" },
+        "issues": {
+          "SNYK-LINUX-GCC8-447557": {
+            "issueId": "SNYK-LINUX-GCC8-447557",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GCC8-469412": {
+            "issueId": "SNYK-LINUX-GCC8-469412",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "gcc-8/libgcc1@1:8.3.0-6": {
+        "pkg": { "name": "gcc-8/libgcc1", "version": "1:8.3.0-6" },
+        "issues": {
+          "SNYK-LINUX-GCC8-447557": {
+            "issueId": "SNYK-LINUX-GCC8-447557",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GCC8-469412": {
+            "issueId": "SNYK-LINUX-GCC8-469412",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "glibc/libc-bin@2.28-10": {
+        "pkg": { "name": "glibc/libc-bin", "version": "2.28-10" },
+        "issues": {
+          "SNYK-LINUX-GLIBC-107098": {
+            "issueId": "SNYK-LINUX-GLIBC-107098",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-121839": {
+            "issueId": "SNYK-LINUX-GLIBC-121839",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-134363": {
+            "issueId": "SNYK-LINUX-GLIBC-134363",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-145302": {
+            "issueId": "SNYK-LINUX-GLIBC-145302",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-438096": {
+            "issueId": "SNYK-LINUX-GLIBC-438096",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-438162": {
+            "issueId": "SNYK-LINUX-GLIBC-438162",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-452129": {
+            "issueId": "SNYK-LINUX-GLIBC-452129",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-452150": {
+            "issueId": "SNYK-LINUX-GLIBC-452150",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-452266": {
+            "issueId": "SNYK-LINUX-GLIBC-452266",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-452710": {
+            "issueId": "SNYK-LINUX-GLIBC-452710",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-534990": {
+            "issueId": "SNYK-LINUX-GLIBC-534990",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "glibc/libc6@2.28-10": {
+        "pkg": { "name": "glibc/libc6", "version": "2.28-10" },
+        "issues": {
+          "SNYK-LINUX-GLIBC-107098": {
+            "issueId": "SNYK-LINUX-GLIBC-107098",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-121839": {
+            "issueId": "SNYK-LINUX-GLIBC-121839",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-134363": {
+            "issueId": "SNYK-LINUX-GLIBC-134363",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-145302": {
+            "issueId": "SNYK-LINUX-GLIBC-145302",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-438096": {
+            "issueId": "SNYK-LINUX-GLIBC-438096",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-438162": {
+            "issueId": "SNYK-LINUX-GLIBC-438162",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-452129": {
+            "issueId": "SNYK-LINUX-GLIBC-452129",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-452150": {
+            "issueId": "SNYK-LINUX-GLIBC-452150",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-452266": {
+            "issueId": "SNYK-LINUX-GLIBC-452266",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-452710": {
+            "issueId": "SNYK-LINUX-GLIBC-452710",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-GLIBC-534990": {
+            "issueId": "SNYK-LINUX-GLIBC-534990",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "gnupg2/gpgv@2.2.12-1+deb10u1": {
+        "pkg": { "name": "gnupg2/gpgv", "version": "2.2.12-1+deb10u1" },
+        "issues": {
+          "SNYK-LINUX-GNUPG2-535531": {
+            "issueId": "SNYK-LINUX-GNUPG2-535531",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "gnutls28/libgnutls30@3.6.7-4": {
+        "pkg": { "name": "gnutls28/libgnutls30", "version": "3.6.7-4" },
+        "issues": {
+          "SNYK-LINUX-GNUTLS28-145159": {
+            "issueId": "SNYK-LINUX-GNUTLS28-145159",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "iptables/libxtables12@1.8.2-4": {
+        "pkg": { "name": "iptables/libxtables12", "version": "1.8.2-4" },
+        "issues": {
+          "SNYK-LINUX-IPTABLES-105526": {
+            "issueId": "SNYK-LINUX-IPTABLES-105526",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-IPTABLES-451767": {
+            "issueId": "SNYK-LINUX-IPTABLES-451767",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "libgcrypt20@1.8.4-5": {
+        "pkg": { "name": "libgcrypt20", "version": "1.8.4-5" },
+        "issues": {
+          "SNYK-LINUX-LIBGCRYPT20-116093": {
+            "issueId": "SNYK-LINUX-LIBGCRYPT20-116093",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-LIBGCRYPT20-450655": {
+            "issueId": "SNYK-LINUX-LIBGCRYPT20-450655",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-LIBGCRYPT20-460484": {
+            "issueId": "SNYK-LINUX-LIBGCRYPT20-460484",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "libidn2/libidn2-0@2.0.5-1": {
+        "pkg": { "name": "libidn2/libidn2-0", "version": "2.0.5-1" },
+        "issues": {
+          "SNYK-LINUX-LIBIDN2-474085": {
+            "issueId": "SNYK-LINUX-LIBIDN2-474085",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-LIBIDN2-474097": {
+            "issueId": "SNYK-LINUX-LIBIDN2-474097",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "libseccomp/libseccomp2@2.3.3-4": {
+        "pkg": { "name": "libseccomp/libseccomp2", "version": "2.3.3-4" },
+        "issues": {
+          "SNYK-LINUX-LIBSECCOMP-441036": {
+            "issueId": "SNYK-LINUX-LIBSECCOMP-441036",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "libtasn1-6@4.13-3": {
+        "pkg": { "name": "libtasn1-6", "version": "4.13-3" },
+        "issues": {
+          "SNYK-LINUX-LIBTASN16-172697": {
+            "issueId": "SNYK-LINUX-LIBTASN16-172697",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "lz4/liblz4-1@1.8.3-1": {
+        "pkg": { "name": "lz4/liblz4-1", "version": "1.8.3-1" },
+        "issues": {
+          "SNYK-LINUX-LZ4-473071": {
+            "issueId": "SNYK-LINUX-LZ4-473071",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "pcre3/libpcre3@2:8.39-12": {
+        "pkg": { "name": "pcre3/libpcre3", "version": "2:8.39-12" },
+        "issues": {
+          "SNYK-LINUX-PCRE3-115388": {
+            "issueId": "SNYK-LINUX-PCRE3-115388",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-PCRE3-123374": {
+            "issueId": "SNYK-LINUX-PCRE3-123374",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-PCRE3-126449": {
+            "issueId": "SNYK-LINUX-PCRE3-126449",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-PCRE3-137957": {
+            "issueId": "SNYK-LINUX-PCRE3-137957",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "perl/perl-base@5.28.1-6": {
+        "pkg": { "name": "perl/perl-base", "version": "5.28.1-6" },
+        "issues": {
+          "SNYK-LINUX-PERL-119176": {
+            "issueId": "SNYK-LINUX-PERL-119176",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "shadow/passwd@1:4.5-1.1": {
+        "pkg": { "name": "shadow/passwd", "version": "1:4.5-1.1" },
+        "issues": {
+          "SNYK-LINUX-SHADOW-106309": {
+            "issueId": "SNYK-LINUX-SHADOW-106309",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SHADOW-107359": {
+            "issueId": "SNYK-LINUX-SHADOW-107359",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SHADOW-116095": {
+            "issueId": "SNYK-LINUX-SHADOW-116095",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "shadow/login@1:4.5-1.1": {
+        "pkg": { "name": "shadow/login", "version": "1:4.5-1.1" },
+        "issues": {
+          "SNYK-LINUX-SHADOW-106309": {
+            "issueId": "SNYK-LINUX-SHADOW-106309",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SHADOW-107359": {
+            "issueId": "SNYK-LINUX-SHADOW-107359",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SHADOW-116095": {
+            "issueId": "SNYK-LINUX-SHADOW-116095",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "sqlite3/libsqlite3-0@3.27.2-3": {
+        "pkg": { "name": "sqlite3/libsqlite3-0", "version": "3.27.2-3" },
+        "issues": {
+          "SNYK-LINUX-SQLITE3-466334": {
+            "issueId": "SNYK-LINUX-SQLITE3-466334",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SQLITE3-535526": {
+            "issueId": "SNYK-LINUX-SQLITE3-535526",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SQLITE3-535608": {
+            "issueId": "SNYK-LINUX-SQLITE3-535608",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SQLITE3-537243": {
+            "issueId": "SNYK-LINUX-SQLITE3-537243",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SQLITE3-537589": {
+            "issueId": "SNYK-LINUX-SQLITE3-537589",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "sqlite3@3.27.2-3": {
+        "pkg": { "name": "sqlite3", "version": "3.27.2-3" },
+        "issues": {
+          "SNYK-LINUX-SQLITE3-466334": {
+            "issueId": "SNYK-LINUX-SQLITE3-466334",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SQLITE3-535526": {
+            "issueId": "SNYK-LINUX-SQLITE3-535526",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SQLITE3-535608": {
+            "issueId": "SNYK-LINUX-SQLITE3-535608",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SQLITE3-537243": {
+            "issueId": "SNYK-LINUX-SQLITE3-537243",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SQLITE3-537589": {
+            "issueId": "SNYK-LINUX-SQLITE3-537589",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "systemd/libsystemd0@241-7~deb10u2": {
+        "pkg": { "name": "systemd/libsystemd0", "version": "241-7~deb10u2" },
+        "issues": {
+          "SNYK-LINUX-SYSTEMD-111917": {
+            "issueId": "SNYK-LINUX-SYSTEMD-111917",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-442642": {
+            "issueId": "SNYK-LINUX-SYSTEMD-442642",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-445382": {
+            "issueId": "SNYK-LINUX-SYSTEMD-445382",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-445385": {
+            "issueId": "SNYK-LINUX-SYSTEMD-445385",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-446728": {
+            "issueId": "SNYK-LINUX-SYSTEMD-446728",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-476508": {
+            "issueId": "SNYK-LINUX-SYSTEMD-476508",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "systemd/libudev1@241-7~deb10u2": {
+        "pkg": { "name": "systemd/libudev1", "version": "241-7~deb10u2" },
+        "issues": {
+          "SNYK-LINUX-SYSTEMD-111917": {
+            "issueId": "SNYK-LINUX-SYSTEMD-111917",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-442642": {
+            "issueId": "SNYK-LINUX-SYSTEMD-442642",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-445382": {
+            "issueId": "SNYK-LINUX-SYSTEMD-445382",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-445385": {
+            "issueId": "SNYK-LINUX-SYSTEMD-445385",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-446728": {
+            "issueId": "SNYK-LINUX-SYSTEMD-446728",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-SYSTEMD-476508": {
+            "issueId": "SNYK-LINUX-SYSTEMD-476508",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      },
+      "tar@1.30+dfsg-6": {
+        "pkg": { "name": "tar", "version": "1.30+dfsg-6" },
+        "issues": {
+          "SNYK-LINUX-TAR-105079": {
+            "issueId": "SNYK-LINUX-TAR-105079",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          },
+          "SNYK-LINUX-TAR-441202": {
+            "issueId": "SNYK-LINUX-TAR-441202",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [],
+              "isPinnable": false
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-LINUX-APT-116518": {
+        "CVSSv3": null,
+        "creationTime": "2019-02-06T14:40:43.295348Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nIt was found that apt-key in apt, all versions, do not correctly validate gpg keys with the master keyring, leading to a potential man-in-the-middle attack.\n\n## References\n- [MISC](https://access.redhat.com/security/cve/cve-2011-3374)\n- [MISC](https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=642480)\n- [MISC](https://people.canonical.com/~ubuntu-security/cve/2011/CVE-2011-3374.html)\n- [MISC](https://security-tracker.debian.org/tracker/CVE-2011-3374)\n- [MISC](https://snyk.io/vuln/SNYK-LINUX-APT-116518)\n",
+        "disclosureTime": "2019-11-26T00:15:00Z",
+        "id": "SNYK-LINUX-APT-116518",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-APT-407500",
+            "SNYK-DEBIAN9-APT-407501",
+            "SNYK-DEBIAN10-APT-407502",
+            "SNYK-DEBIANUNSTABLE-APT-407503",
+            "SNYK-DEBIAN11-APT-522585"
+          ],
+          "CVE": ["CVE-2011-3374"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-27T04:11:53.714912Z",
+        "packageManager": "linux",
+        "packageName": "apt",
+        "patches": [],
+        "publicationTime": "2018-06-27T16:20:45.037549Z",
+        "references": [
+          {
+            "title": "MISC",
+            "url": "https://access.redhat.com/security/cve/cve-2011-3374"
+          },
+          {
+            "title": "MISC",
+            "url": "https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=642480"
+          },
+          {
+            "title": "MISC",
+            "url": "https://people.canonical.com/~ubuntu-security/cve/2011/CVE-2011-3374.html"
+          },
+          {
+            "title": "MISC",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2011-3374"
+          },
+          {
+            "title": "MISC",
+            "url": "https://snyk.io/vuln/SNYK-LINUX-APT-116518"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2011-3374"
+      },
+      "SNYK-LINUX-BASH-536272": {
+        "CVSSv3": null,
+        "creationTime": "2019-11-28T21:36:14.458518Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nAn issue was discovered in disable_priv_mode in shell.c in GNU Bash through 5.0 patch 11. By default, if Bash is run with its effective UID not equal to its real UID, it will drop privileges by setting its effective UID to its real UID. However, it does so incorrectly. On Linux and other systems that support \"saved UID\" functionality, the saved UID is not dropped. An attacker with command execution in the shell can use \"enable -f\" for runtime loading of a new builtin, which can be a shared object that calls setuid() and therefore regains privileges. However, binaries running with an effective UID of 0 are unaffected.\n\n## References\n- [ADVISORY](https://security-tracker.debian.org/tracker/CVE-2019-18276)\n- [CONFIRM](https://github.com/bminor/bash/commit/951bdaad7a18cc0dc1036bba86b18b90874d39ff)\n- [MISC](http://packetstormsecurity.com/files/155498/Bash-5.0-Patch-11-Privilege-Escalation.html)\n- [MISC](https://www.youtube.com/watch?v=-wGtxJ8opa8)\n",
+        "disclosureTime": "2019-11-28T01:15:00Z",
+        "id": "SNYK-LINUX-BASH-536272",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN11-BASH-536273",
+            "SNYK-DEBIAN9-BASH-536274",
+            "SNYK-DEBIANUNSTABLE-BASH-536277",
+            "SNYK-DEBIAN8-BASH-536279",
+            "SNYK-DEBIAN10-BASH-536280"
+          ],
+          "CVE": ["CVE-2019-18276"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-12-04T05:52:58.829950Z",
+        "packageManager": "linux",
+        "packageName": "bash",
+        "patches": [],
+        "publicationTime": "2019-11-28T21:36:14.482365Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-18276"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://github.com/bminor/bash/commit/951bdaad7a18cc0dc1036bba86b18b90874d39ff"
+          },
+          {
+            "title": "MISC",
+            "url": "http://packetstormsecurity.com/files/155498/Bash-5.0-Patch-11-Privilege-Escalation.html"
+          },
+          {
+            "title": "MISC",
+            "url": "https://www.youtube.com/watch?v=-wGtxJ8opa8"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2019-18276"
+      },
+      "SNYK-LINUX-COREUTILS-104909": {
+        "CVSSv3": "CVSS:3.1/AV:L/AC:L/PR:L/UI:N/S:C/C:N/I:H/A:N",
+        "creationTime": "2019-02-06T14:17:28.587642Z",
+        "credit": [""],
+        "cvssScore": 6.5,
+        "description": "## Overview\nchroot in GNU coreutils, when used with --userspec, allows local users to escape to the parent session via a crafted TIOCSTI ioctl call, which pushes characters to the terminal's input buffer.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2016-2781)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2016/02/28/2)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2016/02/28/3)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2016-2781)\n",
+        "disclosureTime": "2017-02-07T15:59:00Z",
+        "id": "SNYK-LINUX-COREUTILS-104909",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-COREUTILS-317463",
+            "SNYK-DEBIAN9-COREUTILS-317464",
+            "SNYK-DEBIAN10-COREUTILS-317465",
+            "SNYK-UBUNTU1204-COREUTILS-317466",
+            "SNYK-UBUNTU1404-COREUTILS-317467",
+            "SNYK-UBUNTU1604-COREUTILS-317468",
+            "SNYK-UBUNTU1804-COREUTILS-317469",
+            "SNYK-UBUNTU1810-COREUTILS-317470",
+            "SNYK-DEBIANUNSTABLE-COREUTILS-317471",
+            "SNYK-DEBIAN11-COREUTILS-514776",
+            "SNYK-UBUNTU1904-COREUTILS-533432"
+          ],
+          "CVE": ["CVE-2016-2781"],
+          "CWE": ["CWE-20"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T19:25:49.702080Z",
+        "packageManager": "linux",
+        "packageName": "coreutils",
+        "patches": [],
+        "publicationTime": "2017-02-07T15:59:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2016-2781"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2016/02/28/2"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2016/02/28/3"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2016-2781"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:12.04": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Improper Input Validation"
+      },
+      "SNYK-LINUX-COREUTILS-114540": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:H/A:N",
+        "creationTime": "2019-02-06T14:17:29.067740Z",
+        "credit": [""],
+        "cvssScore": 4.7,
+        "description": "## Overview\nIn GNU Coreutils through 8.29, chown-core.c in chown and chgrp does not prevent replacement of a plain file with a symlink during use of the POSIX \"-R -L\" options, which allows local users to modify the ownership of arbitrary files by leveraging a race condition.\n\n## References\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-18018)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2017-18018)\n- [http://lists.gnu.org/archive/html/coreutils/2017-12/msg00045.html](http://lists.gnu.org/archive/html/coreutils/2017-12/msg00045.html)\n",
+        "disclosureTime": "2018-01-04T04:29:00Z",
+        "id": "SNYK-LINUX-COREUTILS-114540",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-COREUTILS-317492",
+            "SNYK-DEBIAN9-COREUTILS-317493",
+            "SNYK-DEBIAN10-COREUTILS-317494",
+            "SNYK-DEBIANUNSTABLE-COREUTILS-317495",
+            "SNYK-ALPINE39-COREUTILS-339213",
+            "SNYK-ALPINE310-COREUTILS-453839",
+            "SNYK-ALPINE37-COREUTILS-458423",
+            "SNYK-ALPINE38-COREUTILS-458456",
+            "SNYK-DEBIAN11-COREUTILS-527269"
+          ],
+          "CVE": ["CVE-2017-18018"],
+          "CWE": ["CWE-362"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T18:48:21.388974Z",
+        "packageManager": "linux",
+        "packageName": "coreutils",
+        "patches": [],
+        "publicationTime": "2018-01-04T04:29:00Z",
+        "references": [
+          {
+            "title": "CVE Details",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-18018"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2017-18018"
+          },
+          {
+            "title": "http://lists.gnu.org/archive/html/coreutils/2017-12/msg00045.html",
+            "url": "http://lists.gnu.org/archive/html/coreutils/2017-12/msg00045.html"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "alpine:3.10": ["<8.30-r0"],
+            "alpine:3.7": ["<8.28-r0"],
+            "alpine:3.8": ["<8.29-r2"],
+            "alpine:3.9": ["<8.30-r0"],
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Race Condition"
+      },
+      "SNYK-LINUX-GCC8-447557": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-05-27T10:44:28.348400Z",
+        "credit": [""],
+        "cvssScore": 8.1,
+        "description": "## Overview\nstack_protect_prologue in cfgexpand.c and stack_protect_epilogue in function.c in GNU Compiler Collection (GCC) 4.1 through 8 (under certain circumstances) generate instruction sequences when targeting ARM targets that spill the address of the stack protector guard, which allows an attacker to bypass the protection of -fstack-protector, -fstack-protector-all, -fstack-protector-strong, and -fstack-protector-explicit against stack overflow by controlling what the stack canary is compared against.\n\n## References\n- [CONFIRM](https://gcc.gnu.org/viewcvs/gcc/trunk/gcc/config/arm/arm-protos.h?revision=266379&view=markup)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-12886)\n- [MISC](https://www.gnu.org/software/gcc/gcc-8/changes.html)\n",
+        "disclosureTime": "2019-05-22T19:29:00Z",
+        "id": "SNYK-LINUX-GCC8-447557",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN10-GCC8-347558",
+            "SNYK-DEBIANUNSTABLE-GCC8-347569",
+            "SNYK-DEBIAN11-GCC8-516632"
+          ],
+          "CVE": ["CVE-2018-12886"],
+          "CWE": ["CWE-119"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T20:29:22.724210Z",
+        "packageManager": "linux",
+        "packageName": "gcc-8",
+        "patches": [],
+        "publicationTime": "2019-05-22T19:29:00Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://gcc.gnu.org/viewcvs/gcc/trunk/gcc/config/arm/arm-protos.h?revision=266379&view=markup"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2018-12886"
+          },
+          {
+            "title": "MISC",
+            "url": "https://www.gnu.org/software/gcc/gcc-8/changes.html"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Out-of-Bounds"
+      },
+      "SNYK-LINUX-GCC8-469412": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "creationTime": "2019-09-28T10:23:44.030355Z",
+        "credit": [""],
+        "cvssScore": 7.5,
+        "description": "## Overview\nThe POWER9 backend in GNU Compiler Collection (GCC) before version 10 could optimize multiple calls of the __builtin_darn intrinsic into a single call, thus reducing the entropy of the random number generator. This occurred because a volatile operation was not specified. For example, within a single execution of a program, the output of every __builtin_darn() call may be the same.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-15847)\n- [MISC](https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91481)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00056.html)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00057.html)\n",
+        "disclosureTime": "2019-09-02T23:15:00Z",
+        "id": "SNYK-LINUX-GCC8-469412",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN10-GCC8-469413",
+            "SNYK-DEBIANUNSTABLE-GCC8-469416",
+            "SNYK-DEBIAN11-GCC8-529844"
+          ],
+          "CVE": ["CVE-2019-15847"],
+          "CWE": ["CWE-331"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T16:07:52.738102Z",
+        "packageManager": "linux",
+        "packageName": "gcc-8",
+        "patches": [],
+        "publicationTime": "2019-09-28T10:23:44.039689Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-15847"
+          },
+          {
+            "title": "MISC",
+            "url": "https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91481"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00056.html"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00057.html"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Insufficient Entropy"
+      },
+      "SNYK-LINUX-GLIBC-107098": {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "creationTime": "2019-02-06T14:27:51.504463Z",
+        "credit": [""],
+        "cvssScore": 5.9,
+        "description": "## Overview\nThe iconv program in the GNU C Library (aka glibc or libc6) 2.25 and earlier, when invoked with the -c option, enters an infinite loop when processing invalid multi-byte input sequences, leading to a denial of service.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2016-10228)\n- [OSS security Advisory](http://openwall.com/lists/oss-security/2017/03/01/10)\n- [Security Focus](http://www.securityfocus.com/bid/96525)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2016-10228)\n- [https://sourceware.org/bugzilla/show_bug.cgi?id=19519](https://sourceware.org/bugzilla/show_bug.cgi?id=19519)\n",
+        "disclosureTime": "2017-03-02T01:59:00Z",
+        "id": "SNYK-LINUX-GLIBC-107098",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-GLIBC-356369",
+            "SNYK-DEBIAN9-GLIBC-356370",
+            "SNYK-DEBIAN10-GLIBC-356371",
+            "SNYK-UBUNTU1604-GLIBC-356372",
+            "SNYK-UBUNTU1804-GLIBC-356373",
+            "SNYK-UBUNTU1810-GLIBC-356374",
+            "SNYK-DEBIANUNSTABLE-GLIBC-356375",
+            "SNYK-DEBIAN11-GLIBC-531216",
+            "SNYK-UBUNTU1904-GLIBC-533646"
+          ],
+          "CVE": ["CVE-2016-10228"],
+          "CWE": ["CWE-20"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T10:37:19.248869Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2017-03-02T01:59:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2016-10228"
+          },
+          {
+            "title": "https://sourceware.org/bugzilla/show_bug.cgi?id=19519",
+            "url": "https://sourceware.org/bugzilla/show_bug.cgi?id=19519"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://openwall.com/lists/oss-security/2017/03/01/10"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/96525"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2016-10228"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Improper Input Validation"
+      },
+      "SNYK-LINUX-GLIBC-121839": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "creationTime": "2019-02-06T14:27:55.794057Z",
+        "credit": [""],
+        "cvssScore": 5.3,
+        "description": "## Overview\nStack consumption vulnerability in the regcomp implementation in the GNU C Library (aka glibc or libc6) through 2.11.3, and 2.12.x through 2.12.2, allows context-dependent attackers to cause a denial of service (resource exhaustion) via a regular expression containing adjacent repetition operators, as demonstrated by a {10,}{10,}{10,}{10,} sequence in the proftpd.gnu.c exploit for ProFTPD.\n\n## References\n- [BUGTRAQ](http://www.securityfocus.com/archive/1/515589/100/0/threaded)\n- [Cert Vulnerability Note](http://www.kb.cert.org/vuls/id/912279)\n- [Dead Link](http://www.securityfocus.com/archive/1/archive/1/515589/100/0/threaded)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2010-4052)\n- [Exploit DB](http://www.exploit-db.com/exploits/15935)\n- [MISC](http://cxib.net/stuff/proftpd.gnu.c)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=645859)\n- [SECTRACK](http://securitytracker.com/id?1024832)\n- [SREASON](http://securityreason.com/securityalert/8003)\n- [SREASONRES](http://securityreason.com/achievement_securityalert/93)\n- [Seclists Full Disclosure](http://seclists.org/fulldisclosure/2011/Jan/78)\n- [Secunia Advisory](http://secunia.com/advisories/42547)\n- [Security Focus](http://www.securityfocus.com/bid/45233)\n",
+        "disclosureTime": "2011-01-13T19:00:00Z",
+        "id": "SNYK-LINUX-GLIBC-121839",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-GLIBC-356669",
+            "SNYK-DEBIAN9-GLIBC-356670",
+            "SNYK-DEBIAN10-GLIBC-356671",
+            "SNYK-DEBIANUNSTABLE-GLIBC-356672",
+            "SNYK-DEBIAN11-GLIBC-527807"
+          ],
+          "CVE": ["CVE-2010-4052"],
+          "CWE": ["CWE-399"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T11:16:21.910732Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2011-01-13T19:00:00Z",
+        "references": [
+          {
+            "title": "BUGTRAQ",
+            "url": "http://www.securityfocus.com/archive/1/515589/100/0/threaded"
+          },
+          {
+            "title": "Cert Vulnerability Note",
+            "url": "http://www.kb.cert.org/vuls/id/912279"
+          },
+          {
+            "title": "Dead Link",
+            "url": "http://www.securityfocus.com/archive/1/archive/1/515589/100/0/threaded"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2010-4052"
+          },
+          {
+            "title": "Exploit DB",
+            "url": "http://www.exploit-db.com/exploits/15935"
+          },
+          { "title": "MISC", "url": "http://cxib.net/stuff/proftpd.gnu.c" },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=645859"
+          },
+          {
+            "title": "Seclists Full Disclosure",
+            "url": "http://seclists.org/fulldisclosure/2011/Jan/78"
+          },
+          {
+            "title": "SECTRACK",
+            "url": "http://securitytracker.com/id?1024832"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/42547"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/45233"
+          },
+          {
+            "title": "SREASON",
+            "url": "http://securityreason.com/securityalert/8003"
+          },
+          {
+            "title": "SREASONRES",
+            "url": "http://securityreason.com/achievement_securityalert/93"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Resource Management Errors"
+      },
+      "SNYK-LINUX-GLIBC-134363": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "creationTime": "2019-02-06T14:27:58.807316Z",
+        "credit": [""],
+        "cvssScore": 5.3,
+        "description": "## Overview\nThe regcomp implementation in the GNU C Library (aka glibc or libc6) through 2.11.3, and 2.12.x through 2.12.2, allows context-dependent attackers to cause a denial of service (application crash) via a regular expression containing adjacent bounded repetitions that bypass the intended RE_DUP_MAX limitation, as demonstrated by a {10,}{10,}{10,}{10,}{10,} sequence in the proftpd.gnu.c exploit for ProFTPD, related to a \"RE_DUP_MAX overflow.\"\n\n## References\n- [BUGTRAQ](http://www.securityfocus.com/archive/1/515589/100/0/threaded)\n- [Cert Vulnerability Note](http://www.kb.cert.org/vuls/id/912279)\n- [Dead Link](http://www.securityfocus.com/archive/1/archive/1/515589/100/0/threaded)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2010-4051)\n- [Exploit DB](http://www.exploit-db.com/exploits/15935)\n- [MISC](http://cxib.net/stuff/proftpd.gnu.c)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=645859)\n- [SECTRACK](http://securitytracker.com/id?1024832)\n- [SREASON](http://securityreason.com/securityalert/8003)\n- [SREASONRES](http://securityreason.com/achievement_securityalert/93)\n- [Seclists Full Disclosure](http://seclists.org/fulldisclosure/2011/Jan/78)\n- [Secunia Advisory](http://secunia.com/advisories/42547)\n- [Security Focus](http://www.securityfocus.com/bid/45233)\n",
+        "disclosureTime": "2011-01-13T19:00:00Z",
+        "id": "SNYK-LINUX-GLIBC-134363",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-GLIBC-356873",
+            "SNYK-DEBIAN9-GLIBC-356874",
+            "SNYK-DEBIAN10-GLIBC-356875",
+            "SNYK-DEBIANUNSTABLE-GLIBC-356876",
+            "SNYK-DEBIAN11-GLIBC-517034"
+          ],
+          "CVE": ["CVE-2010-4051"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T16:12:54.826168Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2011-01-13T19:00:00Z",
+        "references": [
+          {
+            "title": "BUGTRAQ",
+            "url": "http://www.securityfocus.com/archive/1/515589/100/0/threaded"
+          },
+          {
+            "title": "Cert Vulnerability Note",
+            "url": "http://www.kb.cert.org/vuls/id/912279"
+          },
+          {
+            "title": "Dead Link",
+            "url": "http://www.securityfocus.com/archive/1/archive/1/515589/100/0/threaded"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2010-4051"
+          },
+          {
+            "title": "Exploit DB",
+            "url": "http://www.exploit-db.com/exploits/15935"
+          },
+          { "title": "MISC", "url": "http://cxib.net/stuff/proftpd.gnu.c" },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=645859"
+          },
+          {
+            "title": "Seclists Full Disclosure",
+            "url": "http://seclists.org/fulldisclosure/2011/Jan/78"
+          },
+          {
+            "title": "SECTRACK",
+            "url": "http://securitytracker.com/id?1024832"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/42547"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/45233"
+          },
+          {
+            "title": "SREASON",
+            "url": "http://securityreason.com/securityalert/8003"
+          },
+          {
+            "title": "SREASONRES",
+            "url": "http://securityreason.com/achievement_securityalert/93"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "CVE-2010-4051"
+      },
+      "SNYK-LINUX-GLIBC-145302": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L",
+        "creationTime": "2019-02-06T14:27:56.712438Z",
+        "credit": [""],
+        "cvssScore": 4.3,
+        "description": "## Overview\nThe glob implementation in the GNU C Library (aka glibc or libc6) allows remote authenticated users to cause a denial of service (CPU and memory consumption) via crafted glob expressions that do not match any pathnames, as demonstrated by glob expressions in STAT commands to an FTP daemon, a different vulnerability than CVE-2010-2632.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2010-4756)\n- [http://cxib.net/stuff/glob-0day.c](http://cxib.net/stuff/glob-0day.c)\n- [http://securityreason.com/achievement_securityalert/89](http://securityreason.com/achievement_securityalert/89)\n- [http://securityreason.com/exploitalert/9223](http://securityreason.com/exploitalert/9223)\n",
+        "disclosureTime": "2011-03-02T20:00:00Z",
+        "id": "SNYK-LINUX-GLIBC-145302",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-GLIBC-356733",
+            "SNYK-DEBIAN9-GLIBC-356734",
+            "SNYK-DEBIAN10-GLIBC-356735",
+            "SNYK-DEBIANUNSTABLE-GLIBC-356736",
+            "SNYK-DEBIAN11-GLIBC-532215"
+          ],
+          "CVE": ["CVE-2010-4756"],
+          "CWE": ["CWE-399"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T23:59:06.581441Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2011-03-02T20:00:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2010-4756"
+          },
+          {
+            "title": "http://cxib.net/stuff/glob-0day.c",
+            "url": "http://cxib.net/stuff/glob-0day.c"
+          },
+          {
+            "title": "http://securityreason.com/achievement_securityalert/89",
+            "url": "http://securityreason.com/achievement_securityalert/89"
+          },
+          {
+            "title": "http://securityreason.com/exploitalert/9223",
+            "url": "http://securityreason.com/exploitalert/9223"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Resource Management Errors"
+      },
+      "SNYK-LINUX-GLIBC-438096": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "creationTime": "2019-02-27T14:24:32.364731Z",
+        "credit": [""],
+        "cvssScore": 7.5,
+        "description": "## Overview\n** DISPUTED ** In the GNU C Library (aka glibc or libc6) through 2.29, check_dst_limits_calc_pos_1 in posix/regexec.c has Uncontrolled Recursion, as demonstrated by '(|)(\\\\1\\\\1)*' in grep, a different issue than CVE-2018-20796. NOTE: the software maintainer disputes that this is a vulnerability because the behavior occurs only with a crafted pattern.\n\n## References\n- [CONFIRM](https://support.f5.com/csp/article/K26346590?utm_source=f5support&amp%3Butm_medium=RSS)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-9192)\n- [MISC](https://sourceware.org/bugzilla/show_bug.cgi?id=24269)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-9192)\n",
+        "disclosureTime": "2019-02-26T18:29:00Z",
+        "id": "SNYK-LINUX-GLIBC-438096",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-GLIBC-338097",
+            "SNYK-DEBIAN8-GLIBC-338100",
+            "SNYK-DEBIAN9-GLIBC-338103",
+            "SNYK-DEBIAN10-GLIBC-338106",
+            "SNYK-UBUNTU1810-GLIBC-347797",
+            "SNYK-UBUNTU1604-GLIBC-347834",
+            "SNYK-UBUNTU1804-GLIBC-347870",
+            "SNYK-DEBIAN11-GLIBC-521199",
+            "SNYK-UBUNTU1904-GLIBC-532356"
+          ],
+          "CVE": ["CVE-2019-9192"],
+          "CWE": ["CWE-399"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T23:47:23.725060Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2019-02-26T18:29:00Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://support.f5.com/csp/article/K26346590?utm_source=f5support&amp%3Butm_medium=RSS"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-9192"
+          },
+          {
+            "title": "MISC",
+            "url": "https://sourceware.org/bugzilla/show_bug.cgi?id=24269"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-9192"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Resource Management Errors"
+      },
+      "SNYK-LINUX-GLIBC-438162": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "creationTime": "2019-02-27T14:24:50.196815Z",
+        "credit": [""],
+        "cvssScore": 7.5,
+        "description": "## Overview\nIn the GNU C Library (aka glibc or libc6) through 2.29, check_dst_limits_calc_pos_1 in posix/regexec.c has Uncontrolled Recursion, as demonstrated by '(\\227|)(\\\\1\\\\1|t1|\\\\\\2537)+' in grep.\n\n## References\n- [CONFIRM](https://support.f5.com/csp/article/K26346590?utm_source=f5support&amp%3Butm_medium=RSS)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-20796)\n- [MISC](https://debbugs.gnu.org/cgi/bugreport.cgi?bug=34141)\n- [MISC](https://lists.gnu.org/archive/html/bug-gnulib/2019-01/msg00108.html)\n- [Netapp Security Advisory](https://security.netapp.com/advisory/ntap-20190315-0002/)\n- [Security Focus](http://www.securityfocus.com/bid/107160)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20796)\n",
+        "disclosureTime": "2019-02-26T02:29:00Z",
+        "id": "SNYK-LINUX-GLIBC-438162",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN10-GLIBC-338163",
+            "SNYK-DEBIAN8-GLIBC-338173",
+            "SNYK-DEBIANUNSTABLE-GLIBC-338174",
+            "SNYK-DEBIAN9-GLIBC-338175",
+            "SNYK-UBUNTU1604-GLIBC-347781",
+            "SNYK-UBUNTU1804-GLIBC-347807",
+            "SNYK-UBUNTU1810-GLIBC-347833",
+            "SNYK-DEBIAN11-GLIBC-531492",
+            "SNYK-UBUNTU1904-GLIBC-534324"
+          ],
+          "CVE": ["CVE-2018-20796"],
+          "CWE": ["CWE-674"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T15:34:40.235047Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2019-02-26T02:29:00Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://support.f5.com/csp/article/K26346590?utm_source=f5support&amp%3Butm_medium=RSS"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2018-20796"
+          },
+          {
+            "title": "MISC",
+            "url": "https://debbugs.gnu.org/cgi/bugreport.cgi?bug=34141"
+          },
+          {
+            "title": "MISC",
+            "url": "https://lists.gnu.org/archive/html/bug-gnulib/2019-01/msg00108.html"
+          },
+          {
+            "title": "Netapp Security Advisory",
+            "url": "https://security.netapp.com/advisory/ntap-20190315-0002/"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/107160"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20796"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Uncontrolled Recursion"
+      },
+      "SNYK-LINUX-GLIBC-452129": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-07-24T09:33:32.243638Z",
+        "credit": [""],
+        "cvssScore": 9.8,
+        "description": "## Overview\nGNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may bypass stack guard protection. The component is: nptl. The attack vector is: Exploit stack buffer overflow vulnerability and use this bypass vulnerability to bypass stack guard.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-1010022)\n- [MISC](https://sourceware.org/bugzilla/show_bug.cgi?id=22850)\n",
+        "disclosureTime": "2019-07-15T04:15:00Z",
+        "id": "SNYK-LINUX-GLIBC-452129",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-GLIBC-452130",
+            "SNYK-DEBIAN10-GLIBC-452228",
+            "SNYK-DEBIAN8-GLIBC-453095",
+            "SNYK-DEBIAN9-GLIBC-453364",
+            "SNYK-DEBIAN11-GLIBC-521063"
+          ],
+          "CVE": ["CVE-2019-1010022"],
+          "CWE": ["CWE-119"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T10:19:09.580709Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2019-07-24T09:33:32.251091Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-1010022"
+          },
+          {
+            "title": "MISC",
+            "url": "https://sourceware.org/bugzilla/show_bug.cgi?id=22850"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Out-of-Bounds"
+      },
+      "SNYK-LINUX-GLIBC-452150": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "creationTime": "2019-07-24T09:33:59.223346Z",
+        "credit": [""],
+        "cvssScore": 5.3,
+        "description": "## Overview\n** DISPUTED ** GNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may guess the heap addresses of pthread_created thread. The component is: glibc. NOTE: the vendor's position is \"ASLR bypass itself is not a vulnerability.\"\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-1010025)\n- [MISC](https://sourceware.org/bugzilla/show_bug.cgi?id=22853)\n",
+        "disclosureTime": "2019-07-15T04:15:00Z",
+        "id": "SNYK-LINUX-GLIBC-452150",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-GLIBC-452151",
+            "SNYK-DEBIAN8-GLIBC-452314",
+            "SNYK-DEBIAN10-GLIBC-453375",
+            "SNYK-DEBIAN9-GLIBC-453579",
+            "SNYK-DEBIAN11-GLIBC-522385"
+          ],
+          "CVE": ["CVE-2019-1010025"],
+          "CWE": ["CWE-200"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T10:35:22.661621Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2019-07-24T09:33:59.230537Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-1010025"
+          },
+          {
+            "title": "MISC",
+            "url": "https://sourceware.org/bugzilla/show_bug.cgi?id=22853"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Information Exposure"
+      },
+      "SNYK-LINUX-GLIBC-452266": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:L/UI:R/S:U/C:L/I:N/A:N/E:P/RL:U/RC:R",
+        "creationTime": "2019-07-24T09:36:38.236428Z",
+        "credit": [""],
+        "cvssScore": 2.8,
+        "description": "## Overview\nGNU Libc current is affected by: Re-mapping current loaded libray with malicious ELF file. The impact is: In worst case attacker may evaluate privileges. The component is: libld. The attack vector is: Attacker sends 2 ELF files to victim and asks to run ldd on it. ldd execute code.\n\n## References\n- [CONFIRM](https://support.f5.com/csp/article/K11932200?utm_source=f5support&amp%3Butm_medium=RSS)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-1010023)\n- [MISC](https://sourceware.org/bugzilla/show_bug.cgi?id=22851)\n- [Security Focus](http://www.securityfocus.com/bid/109167)\n",
+        "disclosureTime": "2019-07-15T04:15:00Z",
+        "id": "SNYK-LINUX-GLIBC-452266",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN10-GLIBC-452267",
+            "SNYK-DEBIAN8-GLIBC-452594",
+            "SNYK-DEBIANUNSTABLE-GLIBC-452916",
+            "SNYK-DEBIAN9-GLIBC-453121",
+            "SNYK-DEBIAN11-GLIBC-531451"
+          ],
+          "CVE": ["CVE-2019-1010023"],
+          "CWE": ["CWE-264"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T15:16:16.284384Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2019-07-24T09:36:38.241516Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://support.f5.com/csp/article/K11932200?utm_source=f5support&amp%3Butm_medium=RSS"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-1010023"
+          },
+          {
+            "title": "MISC",
+            "url": "https://sourceware.org/bugzilla/show_bug.cgi?id=22851"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/109167"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "Access Restriction Bypass"
+      },
+      "SNYK-LINUX-GLIBC-452710": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "creationTime": "2019-07-24T09:44:44.872480Z",
+        "credit": [""],
+        "cvssScore": 5.3,
+        "description": "## Overview\nGNU Libc current is affected by: Mitigation bypass. The impact is: Attacker may bypass ASLR using cache of thread stack and heap. The component is: glibc.\n\n## References\n- [CONFIRM](https://support.f5.com/csp/article/K06046097)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-1010024)\n- [MISC](https://sourceware.org/bugzilla/show_bug.cgi?id=22852)\n- [Security Focus](http://www.securityfocus.com/bid/109162)\n",
+        "disclosureTime": "2019-07-15T04:15:00Z",
+        "id": "SNYK-LINUX-GLIBC-452710",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-GLIBC-452711",
+            "SNYK-DEBIAN8-GLIBC-453319",
+            "SNYK-DEBIAN10-GLIBC-453640",
+            "SNYK-DEBIAN9-GLIBC-453766",
+            "SNYK-DEBIAN11-GLIBC-529848"
+          ],
+          "CVE": ["CVE-2019-1010024"],
+          "CWE": ["CWE-200"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T21:42:23.778298Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2019-07-24T09:44:44.882448Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://support.f5.com/csp/article/K06046097"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-1010024"
+          },
+          {
+            "title": "MISC",
+            "url": "https://sourceware.org/bugzilla/show_bug.cgi?id=22852"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/109162"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Information Exposure"
+      },
+      "SNYK-LINUX-GLIBC-534990": {
+        "CVSSv3": null,
+        "creationTime": "2019-11-20T10:34:14.392585Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nOn the x86-64 architecture, the GNU C Library (aka glibc) before 2.31 fails to ignore the LD_PREFER_MAP_32BIT_EXEC environment variable during program execution after a security transition, allowing local attackers to restrict the possible mapping addresses for loaded libraries and thus bypass ASLR for a setuid program.\n\n## References\n- [ADVISORY](https://security-tracker.debian.org/tracker/CVE-2019-19126)\n- [MISC](https://sourceware.org/bugzilla/show_bug.cgi?id=25204)\n",
+        "disclosureTime": "2019-11-19T22:15:00Z",
+        "id": "SNYK-LINUX-GLIBC-534990",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-GLIBC-534991",
+            "SNYK-DEBIAN11-GLIBC-534992",
+            "SNYK-DEBIAN10-GLIBC-534995",
+            "SNYK-DEBIAN9-GLIBC-534996",
+            "SNYK-DEBIANUNSTABLE-GLIBC-534998"
+          ],
+          "CVE": ["CVE-2019-19126"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-21T23:44:32.990140Z",
+        "packageManager": "linux",
+        "packageName": "glibc",
+        "patches": [],
+        "publicationTime": "2019-11-20T10:34:14.402456Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-19126"
+          },
+          {
+            "title": "MISC",
+            "url": "https://sourceware.org/bugzilla/show_bug.cgi?id=25204"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["<0.0.0"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2019-19126"
+      },
+      "SNYK-LINUX-GNUPG2-535531": {
+        "CVSSv3": null,
+        "creationTime": "2019-11-25T21:35:22.141203Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nNone\n\n## References\n- [ADVISORY](https://security-tracker.debian.org/tracker/CVE-2019-14855)\n",
+        "disclosureTime": null,
+        "id": "SNYK-LINUX-GNUPG2-535531",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-GNUPG2-535532",
+            "SNYK-DEBIAN9-GNUPG2-535537",
+            "SNYK-DEBIAN11-GNUPG2-535540",
+            "SNYK-DEBIAN8-GNUPG2-535546",
+            "SNYK-DEBIAN10-GNUPG2-535553"
+          ],
+          "CVE": ["CVE-2019-14855"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-29T17:11:26.285123Z",
+        "packageManager": "linux",
+        "packageName": "gnupg2",
+        "patches": [],
+        "publicationTime": "2019-11-25T21:35:22.151696Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-14855"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2019-14855"
+      },
+      "SNYK-LINUX-GNUTLS28-145159": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:N/A:N",
+        "creationTime": "2019-02-06T14:23:43.466609Z",
+        "credit": [""],
+        "cvssScore": 4.3,
+        "description": "## Overview\nThe SSL protocol, as used in certain configurations in Microsoft Windows and Microsoft Internet Explorer, Mozilla Firefox, Google Chrome, Opera, and other products, encrypts data by using CBC mode with chained initialization vectors, which allows man-in-the-middle attackers to obtain plaintext HTTP headers via a blockwise chosen-boundary attack (BCBA) on an HTTPS session, in conjunction with JavaScript code that uses (1) the HTML5 WebSocket API, (2) the Java URLConnection API, or (3) the Silverlight WebClient API, aka a \"BEAST\" attack.\n\n## References\n- [APPLE](http://lists.apple.com/archives/Security-announce/2011//Oct/msg00001.html)\n- [APPLE](http://lists.apple.com/archives/Security-announce/2011//Oct/msg00002.html)\n- [Apple Security Advisory](http://support.apple.com/kb/HT4999)\n- [Apple Security Advisory](http://support.apple.com/kb/HT5001)\n- [Apple Security Advisory](http://support.apple.com/kb/HT5130)\n- [Apple Security Advisory](http://support.apple.com/kb/HT5281)\n- [Apple Security Advisory](http://support.apple.com/kb/HT5501)\n- [Apple Security Advisory](http://support.apple.com/kb/HT6150)\n- [Apple Security Announcement](http://lists.apple.com/archives/security-announce/2012/Feb/msg00000.html)\n- [Apple Security Announcement](http://lists.apple.com/archives/security-announce/2012/Jul/msg00001.html)\n- [Apple Security Announcement](http://lists.apple.com/archives/security-announce/2012/May/msg00001.html)\n- [Apple Security Announcement](http://lists.apple.com/archives/security-announce/2012/Sep/msg00004.html)\n- [Apple Security Announcement](http://lists.apple.com/archives/security-announce/2013/Oct/msg00004.html)\n- [CERT](http://www.us-cert.gov/cas/techalerts/TA12-010A.html)\n- [CONFIRM](http://blog.mozilla.com/security/2011/09/27/attack-against-tls-protected-communications/)\n- [CONFIRM](http://blogs.technet.com/b/msrc/archive/2011/09/26/microsoft-releases-security-advisory-2588513.aspx)\n- [CONFIRM](http://blogs.technet.com/b/srd/archive/2011/09/26/is-ssl-broken-more-about-security-advisory-2588513.aspx)\n- [CONFIRM](http://curl.haxx.se/docs/adv_20120124B.html)\n- [CONFIRM](http://downloads.asterisk.org/pub/security/AST-2016-001.html)\n- [CONFIRM](http://my.opera.com/securitygroup/blog/2011/09/28/the-beast-ssl-tls-issue)\n- [CONFIRM](http://technet.microsoft.com/security/advisory/2588513)\n- [CONFIRM](http://www.apcmedia.com/salestools/SJHN-7RKGNM/SJHN-7RKGNM_R4_EN.pdf)\n- [CONFIRM](http://www.ibm.com/developerworks/java/jdk/alerts/)\n- [CONFIRM](http://www.imperialviolet.org/2011/09/23/chromeandbeast.html)\n- [CONFIRM](http://www.opera.com/docs/changelogs/mac/1151/)\n- [CONFIRM](http://www.opera.com/docs/changelogs/mac/1160/)\n- [CONFIRM](http://www.opera.com/docs/changelogs/unix/1151/)\n- [CONFIRM](http://www.opera.com/docs/changelogs/unix/1160/)\n- [CONFIRM](http://www.opera.com/docs/changelogs/windows/1151/)\n- [CONFIRM](http://www.opera.com/docs/changelogs/windows/1160/)\n- [CONFIRM](http://www.opera.com/support/kb/view/1004/)\n- [CONFIRM](https://blogs.oracle.com/sunsecurity/entry/multiple_vulnerabilities_in_fetchmail)\n- [CONFIRM](https://bugzilla.novell.com/show_bug.cgi?id=719047)\n- [Cert Vulnerability Note](http://www.kb.cert.org/vuls/id/864643)\n- [Chrome Release](http://googlechromereleases.blogspot.com/2011/10/chrome-stable-release.html)\n- [Debian Security Advisory](http://www.debian.org/security/2012/dsa-2398)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2011-3389)\n- [Gentoo Security Advisory](http://security.gentoo.org/glsa/glsa-201203-02.xml)\n- [Gentoo Security Advisory](http://security.gentoo.org/glsa/glsa-201406-32.xml)\n- [HP](https://h20564.www2.hp.com/portal/site/hpsc/public/kb/docDisplay?docId=emr_na-c03839862)\n- [HP Security Bulletin](http://marc.info/?l=bugtraq&m=132750579901589&w=2)\n- [HP Security Bulletin](http://marc.info/?l=bugtraq&m=132872385320240&w=2)\n- [HP Security Bulletin](http://marc.info/?l=bugtraq&m=133365109612558&w=2)\n- [HP Security Bulletin](http://marc.info/?l=bugtraq&m=133728004526190&w=2)\n- [HP Security Bulletin](http://marc.info/?l=bugtraq&m=134254866602253&w=2)\n- [HP Security Bulletin](http://marc.info/?l=bugtraq&m=134254957702612&w=2)\n- [MANDRIVA](http://www.mandriva.com/security/advisories?name=MDVSA-2012:058)\n- [MISC](http://ekoparty.org/2011/juliano-rizzo.php)\n- [MISC](http://eprint.iacr.org/2004/111)\n- [MISC](http://eprint.iacr.org/2006/136)\n- [MISC](http://isc.sans.edu/diary/SSL%2BTLS%2Bpart%2B3%2B/11635)\n- [MISC](http://vnhacker.blogspot.com/2011/09/beast.html)\n- [MISC](http://www.educatedguesswork.org/2011/09/security_impact_of_the_rizzodu.html)\n- [MISC](http://www.insecure.cl/Beast-SSL.rar)\n- [MISC](https://ics-cert.us-cert.gov/advisories/ICSMA-18-058-02)\n- [MS](http://technet.microsoft.com/security/bulletin/MS12-006)\n- [MS](https://docs.microsoft.com/en-us/security-updates/securitybulletins/2012/ms12-006)\n- [OSVDB](http://osvdb.org/74829)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2012-01/msg00049.html)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2012-01/msg00051.html)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2012-05/msg00009.html)\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/cpujan2015-1972971.html)\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/cpujul2015-2367936.html)\n- [Oracle Security Bulletin](http://www.oracle.com/technetwork/topics/security/javacpuoct2011-443431.html)\n- [Oval Security](https://oval.cisecurity.org/repository/search/definition/oval%3Aorg.mitre.oval%3Adef%3A14752)\n- [REDHAT](http://www.redhat.com/support/errata/RHSA-2011-1384.html)\n- [REDHAT](http://www.redhat.com/support/errata/RHSA-2012-0006.html)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=737506)\n- [RedHat Security Advisory](http://rhn.redhat.com/errata/RHSA-2012-0508.html)\n- [RedHat Security Advisory](http://rhn.redhat.com/errata/RHSA-2013-1455.html)\n- [SUSE](https://hermes.opensuse.org/messages/13154861)\n- [SUSE](https://hermes.opensuse.org/messages/13155432)\n- [Secunia Advisory](http://secunia.com/advisories/45791)\n- [Secunia Advisory](http://secunia.com/advisories/47998)\n- [Secunia Advisory](http://secunia.com/advisories/48256)\n- [Secunia Advisory](http://secunia.com/advisories/48692)\n- [Secunia Advisory](http://secunia.com/advisories/48915)\n- [Secunia Advisory](http://secunia.com/advisories/48948)\n- [Secunia Advisory](http://secunia.com/advisories/49198)\n- [Secunia Advisory](http://secunia.com/advisories/55322)\n- [Secunia Advisory](http://secunia.com/advisories/55350)\n- [Secunia Advisory](http://secunia.com/advisories/55351)\n- [Security Focus](http://www.securityfocus.com/bid/49388)\n- [Security Focus](http://www.securityfocus.com/bid/49778)\n- [Security Tracker](http://www.securitytracker.com/id/1029190)\n- [Security Tracker](http://www.securitytracker.com/id?1025997)\n- [Security Tracker](http://www.securitytracker.com/id?1026103)\n- [Security Tracker](http://www.securitytracker.com/id?1026704)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2011-3389)\n- [Ubuntu Security Advisory](http://www.ubuntu.com/usn/USN-1263-1)\n",
+        "disclosureTime": "2011-09-06T19:55:00Z",
+        "id": "SNYK-LINUX-GNUTLS28-145159",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-GNUTLS28-340753",
+            "SNYK-DEBIAN9-GNUTLS28-340754",
+            "SNYK-DEBIAN10-GNUTLS28-340755",
+            "SNYK-DEBIANUNSTABLE-GNUTLS28-340756",
+            "SNYK-DEBIAN11-GNUTLS28-515971"
+          ],
+          "CVE": ["CVE-2011-3389"],
+          "CWE": ["CWE-20"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T19:28:08.262956Z",
+        "packageManager": "linux",
+        "packageName": "gnutls28",
+        "patches": [],
+        "publicationTime": "2011-09-06T19:55:00Z",
+        "references": [
+          {
+            "title": "APPLE",
+            "url": "http://lists.apple.com/archives/Security-announce/2011//Oct/msg00001.html"
+          },
+          {
+            "title": "APPLE",
+            "url": "http://lists.apple.com/archives/Security-announce/2011//Oct/msg00002.html"
+          },
+          {
+            "title": "Apple Security Advisory",
+            "url": "http://support.apple.com/kb/HT4999"
+          },
+          {
+            "title": "Apple Security Advisory",
+            "url": "http://support.apple.com/kb/HT5001"
+          },
+          {
+            "title": "Apple Security Advisory",
+            "url": "http://support.apple.com/kb/HT5130"
+          },
+          {
+            "title": "Apple Security Advisory",
+            "url": "http://support.apple.com/kb/HT5281"
+          },
+          {
+            "title": "Apple Security Advisory",
+            "url": "http://support.apple.com/kb/HT5501"
+          },
+          {
+            "title": "Apple Security Advisory",
+            "url": "http://support.apple.com/kb/HT6150"
+          },
+          {
+            "title": "Apple Security Announcement",
+            "url": "http://lists.apple.com/archives/security-announce/2012/Feb/msg00000.html"
+          },
+          {
+            "title": "Apple Security Announcement",
+            "url": "http://lists.apple.com/archives/security-announce/2012/Jul/msg00001.html"
+          },
+          {
+            "title": "Apple Security Announcement",
+            "url": "http://lists.apple.com/archives/security-announce/2012/May/msg00001.html"
+          },
+          {
+            "title": "Apple Security Announcement",
+            "url": "http://lists.apple.com/archives/security-announce/2012/Sep/msg00004.html"
+          },
+          {
+            "title": "Apple Security Announcement",
+            "url": "http://lists.apple.com/archives/security-announce/2013/Oct/msg00004.html"
+          },
+          {
+            "title": "CERT",
+            "url": "http://www.us-cert.gov/cas/techalerts/TA12-010A.html"
+          },
+          {
+            "title": "Cert Vulnerability Note",
+            "url": "http://www.kb.cert.org/vuls/id/864643"
+          },
+          {
+            "title": "Chrome Release",
+            "url": "http://googlechromereleases.blogspot.com/2011/10/chrome-stable-release.html"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://blog.mozilla.com/security/2011/09/27/attack-against-tls-protected-communications/"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://blogs.technet.com/b/msrc/archive/2011/09/26/microsoft-releases-security-advisory-2588513.aspx"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://blogs.technet.com/b/srd/archive/2011/09/26/is-ssl-broken-more-about-security-advisory-2588513.aspx"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://curl.haxx.se/docs/adv_20120124B.html"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://downloads.asterisk.org/pub/security/AST-2016-001.html"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://my.opera.com/securitygroup/blog/2011/09/28/the-beast-ssl-tls-issue"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://blogs.oracle.com/sunsecurity/entry/multiple_vulnerabilities_in_fetchmail"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://bugzilla.novell.com/show_bug.cgi?id=719047"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://technet.microsoft.com/security/advisory/2588513"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.apcmedia.com/salestools/SJHN-7RKGNM/SJHN-7RKGNM_R4_EN.pdf"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.ibm.com/developerworks/java/jdk/alerts/"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.imperialviolet.org/2011/09/23/chromeandbeast.html"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.opera.com/docs/changelogs/mac/1151/"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.opera.com/docs/changelogs/mac/1160/"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.opera.com/docs/changelogs/unix/1151/"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.opera.com/docs/changelogs/unix/1160/"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.opera.com/docs/changelogs/windows/1151/"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.opera.com/docs/changelogs/windows/1160/"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "http://www.opera.com/support/kb/view/1004/"
+          },
+          {
+            "title": "Debian Security Advisory",
+            "url": "http://www.debian.org/security/2012/dsa-2398"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2011-3389"
+          },
+          {
+            "title": "Gentoo Security Advisory",
+            "url": "http://security.gentoo.org/glsa/glsa-201203-02.xml"
+          },
+          {
+            "title": "Gentoo Security Advisory",
+            "url": "http://security.gentoo.org/glsa/glsa-201406-32.xml"
+          },
+          {
+            "title": "HP",
+            "url": "https://h20564.www2.hp.com/portal/site/hpsc/public/kb/docDisplay?docId=emr_na-c03839862"
+          },
+          {
+            "title": "HP Security Bulletin",
+            "url": "http://marc.info/?l=bugtraq&m=132750579901589&w=2"
+          },
+          {
+            "title": "HP Security Bulletin",
+            "url": "http://marc.info/?l=bugtraq&m=132872385320240&w=2"
+          },
+          {
+            "title": "HP Security Bulletin",
+            "url": "http://marc.info/?l=bugtraq&m=133365109612558&w=2"
+          },
+          {
+            "title": "HP Security Bulletin",
+            "url": "http://marc.info/?l=bugtraq&m=133728004526190&w=2"
+          },
+          {
+            "title": "HP Security Bulletin",
+            "url": "http://marc.info/?l=bugtraq&m=134254866602253&w=2"
+          },
+          {
+            "title": "HP Security Bulletin",
+            "url": "http://marc.info/?l=bugtraq&m=134254957702612&w=2"
+          },
+          {
+            "title": "MANDRIVA",
+            "url": "http://www.mandriva.com/security/advisories?name=MDVSA-2012:058"
+          },
+          {
+            "title": "MISC",
+            "url": "http://ekoparty.org/2011/juliano-rizzo.php"
+          },
+          { "title": "MISC", "url": "http://eprint.iacr.org/2004/111" },
+          { "title": "MISC", "url": "http://eprint.iacr.org/2006/136" },
+          {
+            "title": "MISC",
+            "url": "http://isc.sans.edu/diary/SSL%2BTLS%2Bpart%2B3%2B/11635"
+          },
+          {
+            "title": "MISC",
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-058-02"
+          },
+          {
+            "title": "MISC",
+            "url": "http://vnhacker.blogspot.com/2011/09/beast.html"
+          },
+          {
+            "title": "MISC",
+            "url": "http://www.educatedguesswork.org/2011/09/security_impact_of_the_rizzodu.html"
+          },
+          { "title": "MISC", "url": "http://www.insecure.cl/Beast-SSL.rar" },
+          {
+            "title": "MS",
+            "url": "https://docs.microsoft.com/en-us/security-updates/securitybulletins/2012/ms12-006"
+          },
+          {
+            "title": "MS",
+            "url": "http://technet.microsoft.com/security/bulletin/MS12-006"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2012-01/msg00049.html"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2012-01/msg00051.html"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2012-05/msg00009.html"
+          },
+          {
+            "title": "Oracle Security Bulletin",
+            "url": "http://www.oracle.com/technetwork/topics/security/cpujan2015-1972971.html"
+          },
+          {
+            "title": "Oracle Security Bulletin",
+            "url": "http://www.oracle.com/technetwork/topics/security/cpujul2015-2367936.html"
+          },
+          {
+            "title": "Oracle Security Bulletin",
+            "url": "http://www.oracle.com/technetwork/topics/security/javacpuoct2011-443431.html"
+          },
+          { "title": "OSVDB", "url": "http://osvdb.org/74829" },
+          {
+            "title": "Oval Security",
+            "url": "https://oval.cisecurity.org/repository/search/definition/oval%3Aorg.mitre.oval%3Adef%3A14752"
+          },
+          {
+            "title": "REDHAT",
+            "url": "http://www.redhat.com/support/errata/RHSA-2011-1384.html"
+          },
+          {
+            "title": "REDHAT",
+            "url": "http://www.redhat.com/support/errata/RHSA-2012-0006.html"
+          },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=737506"
+          },
+          {
+            "title": "RedHat Security Advisory",
+            "url": "http://rhn.redhat.com/errata/RHSA-2012-0508.html"
+          },
+          {
+            "title": "RedHat Security Advisory",
+            "url": "http://rhn.redhat.com/errata/RHSA-2013-1455.html"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/45791"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/47998"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/48256"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/48692"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/48915"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/48948"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/49198"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/55322"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/55350"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/55351"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/49388"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/49778"
+          },
+          {
+            "title": "Security Tracker",
+            "url": "http://www.securitytracker.com/id?1025997"
+          },
+          {
+            "title": "Security Tracker",
+            "url": "http://www.securitytracker.com/id?1026103"
+          },
+          {
+            "title": "Security Tracker",
+            "url": "http://www.securitytracker.com/id?1026704"
+          },
+          {
+            "title": "Security Tracker",
+            "url": "http://www.securitytracker.com/id/1029190"
+          },
+          {
+            "title": "SUSE",
+            "url": "https://hermes.opensuse.org/messages/13154861"
+          },
+          {
+            "title": "SUSE",
+            "url": "https://hermes.opensuse.org/messages/13155432"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2011-3389"
+          },
+          {
+            "title": "Ubuntu Security Advisory",
+            "url": "http://www.ubuntu.com/usn/USN-1263-1"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Improper Input Validation"
+      },
+      "SNYK-LINUX-IPTABLES-105526": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "creationTime": "2019-02-06T14:09:10.442685Z",
+        "credit": [""],
+        "cvssScore": 7.3,
+        "description": "## Overview\nextensions/libxt_tcp.c in iptables through 1.4.21 does not match TCP SYN+FIN packets in --syn rules, which might allow remote attackers to bypass intended firewall restrictions via crafted packets.  NOTE: the CVE-2012-6638 fix makes this issue less relevant.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2012-2663)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=826702)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2012-2663)\n- [http://www.spinics.net/lists/netfilter-devel/msg21248.html](http://www.spinics.net/lists/netfilter-devel/msg21248.html)\n",
+        "disclosureTime": "2014-02-15T14:57:00Z",
+        "id": "SNYK-LINUX-IPTABLES-105526",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-IPTABLES-287321",
+            "SNYK-DEBIAN9-IPTABLES-287322",
+            "SNYK-DEBIAN10-IPTABLES-287323",
+            "SNYK-UBUNTU1204-IPTABLES-287324",
+            "SNYK-UBUNTU1404-IPTABLES-287325",
+            "SNYK-UBUNTU1604-IPTABLES-287326",
+            "SNYK-UBUNTU1804-IPTABLES-287327",
+            "SNYK-UBUNTU1810-IPTABLES-287328",
+            "SNYK-DEBIANUNSTABLE-IPTABLES-287329",
+            "SNYK-DEBIAN11-IPTABLES-529281",
+            "SNYK-UBUNTU1904-IPTABLES-533756"
+          ],
+          "CVE": ["CVE-2012-2663"],
+          "CWE": ["CWE-20"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T22:03:46.713136Z",
+        "packageManager": "linux",
+        "packageName": "iptables",
+        "patches": [],
+        "publicationTime": "2014-02-15T14:57:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2012-2663"
+          },
+          {
+            "title": "http://www.spinics.net/lists/netfilter-devel/msg21248.html",
+            "url": "http://www.spinics.net/lists/netfilter-devel/msg21248.html"
+          },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=826702"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2012-2663"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:12.04": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Improper Input Validation"
+      },
+      "SNYK-LINUX-IPTABLES-451767": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "creationTime": "2019-07-24T09:26:49.115977Z",
+        "credit": [""],
+        "cvssScore": 5.5,
+        "description": "## Overview\nA buffer overflow in iptables-restore in netfilter iptables 1.8.2 allows an attacker to (at least) crash the program or potentially gain code execution via a specially crafted iptables-save file. This is related to add_param_to_argv in xshared.c.\n\n## References\n- [CONFIRM](https://git.netfilter.org/iptables/commit/iptables/xshared.c?id=2ae1099a42e6a0f06de305ca13a842ac83d4683e)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-11360)\n- [MISC](https://0day.work/cve-2019-11360-bufferoverflow-in-iptables-restore-v1-8-2/)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-11360)\n",
+        "disclosureTime": "2019-07-12T14:15:00Z",
+        "id": "SNYK-LINUX-IPTABLES-451767",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN10-IPTABLES-451768",
+            "SNYK-UBUNTU1604-IPTABLES-451829",
+            "SNYK-UBUNTU1404-IPTABLES-451926",
+            "SNYK-DEBIANUNSTABLE-IPTABLES-452069",
+            "SNYK-UBUNTU1804-IPTABLES-452174",
+            "SNYK-UBUNTU1204-IPTABLES-452726",
+            "SNYK-DEBIAN8-IPTABLES-452863",
+            "SNYK-DEBIAN9-IPTABLES-453081",
+            "SNYK-DEBIAN11-IPTABLES-518456",
+            "SNYK-UBUNTU1904-IPTABLES-530421"
+          ],
+          "CVE": ["CVE-2019-11360"],
+          "CWE": ["CWE-119"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-05T00:28:58.094625Z",
+        "packageManager": "linux",
+        "packageName": "iptables",
+        "patches": [],
+        "publicationTime": "2019-07-24T09:26:49.122094Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://git.netfilter.org/iptables/commit/iptables/xshared.c?id=2ae1099a42e6a0f06de305ca13a842ac83d4683e"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-11360"
+          },
+          {
+            "title": "MISC",
+            "url": "https://0day.work/cve-2019-11360-bufferoverflow-in-iptables-restore-v1-8-2/"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-11360"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<1.8.3-2"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<1.8.3-2"],
+            "ubuntu:12.04": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Out-of-Bounds"
+      },
+      "SNYK-LINUX-LIBGCRYPT20-116093": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "creationTime": "2019-02-06T14:36:52.783091Z",
+        "credit": [""],
+        "cvssScore": 7.5,
+        "description": "## Overview\ncipher/elgamal.c in Libgcrypt through 1.8.2, when used to encrypt messages directly, improperly encodes plaintexts, which allows attackers to obtain sensitive information by reading ciphertext data (i.e., it does not have semantic security in face of a ciphertext-only attack). The Decisional Diffie-Hellman (DDH) assumption does not hold for Libgcrypt's ElGamal implementation.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-6829)\n- [MISC](https://github.com/weikengchen/attack-on-libgcrypt-elgamal)\n- [MISC](https://github.com/weikengchen/attack-on-libgcrypt-elgamal/wiki)\n- [MISC](https://lists.gnupg.org/pipermail/gcrypt-devel/2018-February/004394.html)\n",
+        "disclosureTime": "2018-02-07T23:29:00Z",
+        "id": "SNYK-LINUX-LIBGCRYPT20-116093",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-LIBGCRYPT20-391900",
+            "SNYK-DEBIAN9-LIBGCRYPT20-391901",
+            "SNYK-DEBIAN10-LIBGCRYPT20-391902",
+            "SNYK-DEBIANUNSTABLE-LIBGCRYPT20-391903",
+            "SNYK-DEBIAN11-LIBGCRYPT20-523947"
+          ],
+          "CVE": ["CVE-2018-6829"],
+          "CWE": ["CWE-327"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T16:08:10.836253Z",
+        "packageManager": "linux",
+        "packageName": "libgcrypt20",
+        "patches": [],
+        "publicationTime": "2018-02-07T23:29:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2018-6829"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/weikengchen/attack-on-libgcrypt-elgamal"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/weikengchen/attack-on-libgcrypt-elgamal/wiki"
+          },
+          {
+            "title": "MISC",
+            "url": "https://lists.gnupg.org/pipermail/gcrypt-devel/2018-February/004394.html"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Use of a Broken or Risky Cryptographic Algorithm"
+      },
+      "SNYK-LINUX-LIBGCRYPT20-450655": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "creationTime": "2019-06-23T08:32:49.957992Z",
+        "credit": [""],
+        "cvssScore": 5.9,
+        "description": "## Overview\nIn Libgcrypt 1.8.4, the C implementation of AES is vulnerable to a flush-and-reload side-channel attack because physical addresses are available to other processes. (The C implementation is used on platforms where an assembly-language implementation is unavailable.)\n\n## References\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-12904)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-12904)\n- [GitHub Commit](https://github.com/gpg/libgcrypt/commit/a4c561aab1014c3630bc88faf6f5246fee16b020)\n- [GitHub Commit](https://github.com/gpg/libgcrypt/commit/daedbbb5541cd8ecda1459d3b843ea4d92788762)\n- [MISC](https://dev.gnupg.org/T4541)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-07/msg00049.html)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-12904)\n",
+        "disclosureTime": "2019-06-20T00:15:00Z",
+        "id": "SNYK-LINUX-LIBGCRYPT20-450655",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-LIBGCRYPT20-450656",
+            "SNYK-DEBIAN10-LIBGCRYPT20-450771",
+            "SNYK-DEBIAN9-LIBGCRYPT20-450775",
+            "SNYK-DEBIAN8-LIBGCRYPT20-450798",
+            "SNYK-UBUNTU1804-LIBGCRYPT20-455294",
+            "SNYK-DEBIAN11-LIBGCRYPT20-525128",
+            "SNYK-UBUNTU1904-LIBGCRYPT20-533998"
+          ],
+          "CVE": ["CVE-2019-12904"],
+          "CWE": ["CWE-310"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T12:10:54.324589Z",
+        "packageManager": "linux",
+        "packageName": "libgcrypt20",
+        "patches": [],
+        "publicationTime": "2019-06-23T08:32:49.967636Z",
+        "references": [
+          {
+            "title": "CVE Details",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-12904"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-12904"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/gpg/libgcrypt/commit/a4c561aab1014c3630bc88faf6f5246fee16b020"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/gpg/libgcrypt/commit/daedbbb5541cd8ecda1459d3b843ea4d92788762"
+          },
+          { "title": "MISC", "url": "https://dev.gnupg.org/T4541" },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-07/msg00049.html"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-12904"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["<0.0.0"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Cryptographic Issues"
+      },
+      "SNYK-LINUX-LIBGCRYPT20-460484": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L",
+        "creationTime": "2019-08-29T18:08:35.704829Z",
+        "credit": [""],
+        "cvssScore": 6.3,
+        "description": "## Overview\nIt was discovered that there was a ECDSA timing attack in the libgcrypt20 cryptographic library. Version affected: 1.8.4-5, 1.7.6-2+deb9u3, and 1.6.3-2+deb8u4. Versions fixed: 1.8.5-2 and 1.6.3-2+deb8u7.\n\n## References\n- [Debian Security Announcement](https://lists.debian.org/debian-lts-announce/2019/09/msg00024.html)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-13627)\n- [GitHub Release](https://github.com/gpg/libgcrypt/releases/tag/libgcrypt-1.8.5)\n- [MISC](https://minerva.crocs.fi.muni.cz/)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2019/10/02/2)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00060.html)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-13627)\n",
+        "disclosureTime": "2019-09-25T15:15:00Z",
+        "id": "SNYK-LINUX-LIBGCRYPT20-460484",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-LIBGCRYPT20-460485",
+            "SNYK-DEBIAN10-LIBGCRYPT20-460489",
+            "SNYK-DEBIAN9-LIBGCRYPT20-460491",
+            "SNYK-DEBIAN8-LIBGCRYPT20-460492",
+            "SNYK-UBUNTU1604-LIBGCRYPT20-467121",
+            "SNYK-UBUNTU1804-LIBGCRYPT20-467122",
+            "SNYK-DEBIAN11-LIBGCRYPT20-514858",
+            "SNYK-UBUNTU1904-LIBGCRYPT20-526915"
+          ],
+          "CVE": ["CVE-2019-13627"],
+          "CWE": ["CWE-362"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T14:39:58.982523Z",
+        "packageManager": "linux",
+        "packageName": "libgcrypt20",
+        "patches": [],
+        "publicationTime": "2019-08-29T18:08:35.751875Z",
+        "references": [
+          {
+            "title": "Debian Security Announcement",
+            "url": "https://lists.debian.org/debian-lts-announce/2019/09/msg00024.html"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-13627"
+          },
+          {
+            "title": "GitHub Release",
+            "url": "https://github.com/gpg/libgcrypt/releases/tag/libgcrypt-1.8.5"
+          },
+          { "title": "MISC", "url": "https://minerva.crocs.fi.muni.cz/" },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-09/msg00060.html"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2019/10/02/2"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-13627"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<1.8.5-1"],
+            "debian:8": ["<1.6.3-2+deb8u6"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<1.8.5-1"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Race Condition"
+      },
+      "SNYK-LINUX-LIBIDN2-474085": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "creationTime": "2019-10-22T22:43:50.217619Z",
+        "credit": [""],
+        "cvssScore": 7.3,
+        "description": "## Overview\nidn2_to_ascii_4i in lib/lookup.c in GNU libidn2 before 2.1.1 has a heap-based buffer overflow via a long domain string.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-18224)\n- [Fedora Security Update](https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/JDQVQ2XPV5BTZUFINT7AFJSKNNBVURNJ/)\n- [Fedora Security Update](https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/MINU5RKDFE6TKAFY5DRFN3WSFDS4DYVS/)\n- [GitHub Commit](https://github.com/libidn/libidn2/commit/e4d1558aa2c1c04a05066ee8600f37603890ba8c)\n- [GitHub Comparison](https://github.com/libidn/libidn2/compare/libidn2-2.1.0...libidn2-2.1.1)\n- [MISC](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=12420)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-18224)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4168-1/)\n",
+        "disclosureTime": "2019-10-21T17:15:00Z",
+        "id": "SNYK-LINUX-LIBIDN2-474085",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-LIBIDN2-474086",
+            "SNYK-DEBIAN10-LIBIDN2-474091",
+            "SNYK-UBUNTU1804-LIBIDN2-474110",
+            "SNYK-DEBIAN11-LIBIDN2-528535",
+            "SNYK-UBUNTU1904-LIBIDN2-533769"
+          ],
+          "CVE": ["CVE-2019-18224"],
+          "CWE": ["CWE-787"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-10-26T17:15:01.581355Z",
+        "packageManager": "linux",
+        "packageName": "libidn2",
+        "patches": [],
+        "publicationTime": "2019-10-22T22:43:50.226964Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-18224"
+          },
+          {
+            "title": "Fedora Security Update",
+            "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/JDQVQ2XPV5BTZUFINT7AFJSKNNBVURNJ/"
+          },
+          {
+            "title": "Fedora Security Update",
+            "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/MINU5RKDFE6TKAFY5DRFN3WSFDS4DYVS/"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/libidn/libidn2/commit/e4d1558aa2c1c04a05066ee8600f37603890ba8c"
+          },
+          {
+            "title": "GitHub Comparison",
+            "url": "https://github.com/libidn/libidn2/compare/libidn2-2.1.0...libidn2-2.1.1"
+          },
+          {
+            "title": "MISC",
+            "url": "https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=12420"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-18224"
+          },
+          {
+            "title": "Ubuntu Security Advisory",
+            "url": "https://usn.ubuntu.com/4168-1/"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<2.2.0-1"],
+            "debian:unstable": ["<2.2.0-1"],
+            "ubuntu:18.04": ["<2.0.4-1.1ubuntu0.2"],
+            "ubuntu:19.04": ["<2.0.5-1ubuntu0.3"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Out-of-bounds Write"
+      },
+      "SNYK-LINUX-LIBIDN2-474097": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+        "creationTime": "2019-10-23T09:48:58.490079Z",
+        "credit": [""],
+        "cvssScore": 5.3,
+        "description": "## Overview\nGNU libidn2 before 2.2.0 fails to perform the roundtrip checks specified in RFC3490 Section 4.2 when converting A-labels to U-labels. This makes it possible in some circumstances for one domain to impersonate another. By creating a malicious domain that matches a target domain except for the inclusion of certain punycoded Unicode characters (that would be discarded when converted first to a Unicode label and then back to an ASCII label), arbitrary domains can be impersonated.\n\n## References\n- [CONFIRM](https://gitlab.com/libidn/libidn2/commit/614117ef6e4c60e1950d742e3edf0a0ef8d389de)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-12290)\n- [MISC](https://gitlab.com/libidn/libidn2/commit/241e8f486134793cb0f4a5b0e5817a97883401f5)\n- [MISC](https://gitlab.com/libidn/libidn2/merge_requests/71)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-12290)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4168-1/)\n",
+        "disclosureTime": "2019-10-22T16:15:00Z",
+        "id": "SNYK-LINUX-LIBIDN2-474097",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-LIBIDN2-474098",
+            "SNYK-DEBIAN10-LIBIDN2-474100",
+            "SNYK-UBUNTU1804-LIBIDN2-474599",
+            "SNYK-DEBIAN11-LIBIDN2-526991",
+            "SNYK-UBUNTU1904-LIBIDN2-531887"
+          ],
+          "CVE": ["CVE-2019-12290"],
+          "CWE": ["CWE-20"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-10-24T08:34:16.181776Z",
+        "packageManager": "linux",
+        "packageName": "libidn2",
+        "patches": [],
+        "publicationTime": "2019-10-23T09:48:58.496004Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://gitlab.com/libidn/libidn2/commit/614117ef6e4c60e1950d742e3edf0a0ef8d389de"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-12290"
+          },
+          {
+            "title": "MISC",
+            "url": "https://gitlab.com/libidn/libidn2/commit/241e8f486134793cb0f4a5b0e5817a97883401f5"
+          },
+          {
+            "title": "MISC",
+            "url": "https://gitlab.com/libidn/libidn2/merge_requests/71"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-12290"
+          },
+          {
+            "title": "Ubuntu Security Advisory",
+            "url": "https://usn.ubuntu.com/4168-1/"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<2.2.0-1"],
+            "debian:unstable": ["<2.2.0-1"],
+            "ubuntu:18.04": ["<2.0.4-1.1ubuntu0.2"],
+            "ubuntu:19.04": ["<2.0.5-1ubuntu0.3"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Improper Input Validation"
+      },
+      "SNYK-LINUX-LIBSECCOMP-441036": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-03-22T09:50:04.788241Z",
+        "credit": [""],
+        "cvssScore": 9.8,
+        "description": "## Overview\nlibseccomp before 2.4.0 did not correctly generate 64-bit syscall argument comparisons using the arithmetic operators (LT, GT, LE, GE), which might able to lead to bypassing seccomp filters and potential privilege escalations.\n\n## References\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-9893)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-9893)\n- [Gentoo Security Advisory](https://security.gentoo.org/glsa/201904-18)\n- [GitHub Issue](https://github.com/seccomp/libseccomp/issues/139)\n- [Oss-Sec Mailing List](https://seclists.org/oss-sec/2019/q1/179)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-9893)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4001-1/)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4001-2/)\n",
+        "disclosureTime": "2019-03-21T16:01:00Z",
+        "id": "SNYK-LINUX-LIBSECCOMP-441036",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-LIBSECCOMP-341037",
+            "SNYK-DEBIANUNSTABLE-LIBSECCOMP-341038",
+            "SNYK-DEBIAN9-LIBSECCOMP-341041",
+            "SNYK-DEBIAN10-LIBSECCOMP-341044",
+            "SNYK-UBUNTU1404-LIBSECCOMP-341046",
+            "SNYK-UBUNTU1804-LIBSECCOMP-341047",
+            "SNYK-UBUNTU1810-LIBSECCOMP-341048",
+            "SNYK-UBUNTU1604-LIBSECCOMP-341049",
+            "SNYK-ALPINE310-LIBSECCOMP-453831",
+            "SNYK-DEBIAN11-LIBSECCOMP-525547",
+            "SNYK-UBUNTU1904-LIBSECCOMP-533316"
+          ],
+          "CVE": ["CVE-2019-9893"],
+          "CWE": ["CWE-264"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T18:17:57.581354Z",
+        "packageManager": "linux",
+        "packageName": "libseccomp",
+        "patches": [],
+        "publicationTime": "2019-03-21T16:01:00Z",
+        "references": [
+          {
+            "title": "CVE Details",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-9893"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-9893"
+          },
+          {
+            "title": "Gentoo Security Advisory",
+            "url": "https://security.gentoo.org/glsa/201904-18"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/seccomp/libseccomp/issues/139"
+          },
+          {
+            "title": "Oss-Sec Mailing List",
+            "url": "https://seclists.org/oss-sec/2019/q1/179"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-9893"
+          },
+          {
+            "title": "Ubuntu Security Advisory",
+            "url": "https://usn.ubuntu.com/4001-1/"
+          },
+          {
+            "title": "Ubuntu Security Advisory",
+            "url": "https://usn.ubuntu.com/4001-2/"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "alpine:3.10": ["<2.4.0-r0"],
+            "debian:10": ["*"],
+            "debian:11": ["<2.4.1-1"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<2.4.1-1"],
+            "ubuntu:14.04": ["<2.4.1-0ubuntu0.14.04.2"],
+            "ubuntu:16.04": ["<2.4.1-0ubuntu0.16.04.2"],
+            "ubuntu:18.04": ["<2.4.1-0ubuntu0.18.04.2"],
+            "ubuntu:18.10": ["<2.4.1-0ubuntu0.18.10.3"],
+            "ubuntu:19.04": ["<2.4.1-0ubuntu0.19.04.3"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Access Restriction Bypass"
+      },
+      "SNYK-LINUX-LIBTASN16-172697": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "creationTime": "2019-02-06T14:23:24.825993Z",
+        "credit": [""],
+        "cvssScore": 5.5,
+        "description": "## Overview\nGNU Libtasn1-4.13 libtasn1-4.13 version libtasn1-4.13, libtasn1-4.12 contains a DoS, specifically CPU usage will reach 100% when running asn1Paser against the POC due to an issue in _asn1_expand_object_id(p_tree), after a long time, the program will be killed. This attack appears to be exploitable via parsing a crafted file.\n\n## References\n- [CONFIRM](https://gitlab.com/gnutls/libtasn1/issues/4)\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1000654)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-1000654)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-06/msg00009.html)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-06/msg00018.html)\n- [Security Focus](http://www.securityfocus.com/bid/105151)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-1000654)\n",
+        "disclosureTime": "2018-08-20T19:31:00Z",
+        "id": "SNYK-LINUX-LIBTASN16-172697",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-LIBTASN16-339583",
+            "SNYK-DEBIAN9-LIBTASN16-339584",
+            "SNYK-DEBIAN10-LIBTASN16-339585",
+            "SNYK-UBUNTU1404-LIBTASN16-339586",
+            "SNYK-UBUNTU1604-LIBTASN16-339587",
+            "SNYK-UBUNTU1804-LIBTASN16-339588",
+            "SNYK-UBUNTU1810-LIBTASN16-339589",
+            "SNYK-DEBIANUNSTABLE-LIBTASN16-339590",
+            "SNYK-DEBIAN11-LIBTASN16-524761",
+            "SNYK-UBUNTU1904-LIBTASN16-533702"
+          ],
+          "CVE": ["CVE-2018-1000654"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T16:21:18.656329Z",
+        "packageManager": "linux",
+        "packageName": "libtasn1-6",
+        "patches": [],
+        "publicationTime": "2018-08-22T13:40:59.009029Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://gitlab.com/gnutls/libtasn1/issues/4"
+          },
+          {
+            "title": "CVE Details",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1000654"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2018-1000654"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-06/msg00009.html"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-06/msg00018.html"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/105151"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-1000654"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<4.14-2"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<4.14-2"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "CVE-2018-1000654"
+      },
+      "SNYK-LINUX-LZ4-473071": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L",
+        "creationTime": "2019-10-14T21:05:19.335493Z",
+        "credit": [""],
+        "cvssScore": 6.3,
+        "description": "## Overview\nLZ4 before 1.9.2 has a heap-based buffer overflow in LZ4_write32 (related to LZ4_compress_destSize), affecting applications that call LZ4_compress_fast with a large input. (This issue can also lead to data corruption.) NOTE: the vendor states \"only a few specific / uncommon usages of the API are at risk.\"\n\n## References\n- [Apache Security Advisory](https://lists.apache.org/thread.html/25015588b770d67470b7ba7ea49a305d6735dd7f00eabe7d50ec1e17@%3Cissues.arrow.apache.org%3E)\n- [Apache Security Advisory](https://lists.apache.org/thread.html/793012683dc0fa6819b7c2560e6cf990811014c40c7d75412099c357@%3Cissues.arrow.apache.org%3E)\n- [Apache Security Advisory](https://lists.apache.org/thread.html/9ff0606d16be2ab6a81619e1c9e23c3e251756638e36272c8c8b7fa3@%3Cissues.arrow.apache.org%3E)\n- [Apache Security Advisory](https://lists.apache.org/thread.html/f0038c4fab2ee25aee849ebeff6b33b3aa89e07ccfb06b5c87b36316@%3Cissues.arrow.apache.org%3E)\n- [Apache Security Advisory](https://lists.apache.org/thread.html/f506bc371d4a068d5d84d7361293568f61167d3a1c3e91f0def2d7d3@%3Cdev.arrow.apache.org%3E)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-17543)\n- [GitHub Comparison](https://github.com/lz4/lz4/compare/v1.9.1...v1.9.2)\n- [GitHub Issue](https://github.com/lz4/lz4/issues/801)\n- [GitHub PR](https://github.com/lz4/lz4/pull/756)\n- [GitHub PR](https://github.com/lz4/lz4/pull/760)\n- [MISC](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=15941)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00069.html)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00070.html)\n",
+        "disclosureTime": "2019-10-14T02:15:00Z",
+        "id": "SNYK-LINUX-LZ4-473071",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN10-LZ4-473072",
+            "SNYK-DEBIAN8-LZ4-473076",
+            "SNYK-DEBIAN9-LZ4-473077",
+            "SNYK-DEBIANUNSTABLE-LZ4-473079",
+            "SNYK-UBUNTU1604-LZ4-482540",
+            "SNYK-UBUNTU1804-LZ4-482649",
+            "SNYK-UBUNTU1904-LZ4-527963",
+            "SNYK-DEBIAN11-LZ4-530880"
+          ],
+          "CVE": ["CVE-2019-17543"],
+          "CWE": ["CWE-120"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-10-20T22:36:37.423400Z",
+        "packageManager": "linux",
+        "packageName": "lz4",
+        "patches": [],
+        "publicationTime": "2019-10-14T21:05:19.346299Z",
+        "references": [
+          {
+            "title": "Apache Security Advisory",
+            "url": "https://lists.apache.org/thread.html/25015588b770d67470b7ba7ea49a305d6735dd7f00eabe7d50ec1e17@%3Cissues.arrow.apache.org%3E"
+          },
+          {
+            "title": "Apache Security Advisory",
+            "url": "https://lists.apache.org/thread.html/793012683dc0fa6819b7c2560e6cf990811014c40c7d75412099c357@%3Cissues.arrow.apache.org%3E"
+          },
+          {
+            "title": "Apache Security Advisory",
+            "url": "https://lists.apache.org/thread.html/9ff0606d16be2ab6a81619e1c9e23c3e251756638e36272c8c8b7fa3@%3Cissues.arrow.apache.org%3E"
+          },
+          {
+            "title": "Apache Security Advisory",
+            "url": "https://lists.apache.org/thread.html/f0038c4fab2ee25aee849ebeff6b33b3aa89e07ccfb06b5c87b36316@%3Cissues.arrow.apache.org%3E"
+          },
+          {
+            "title": "Apache Security Advisory",
+            "url": "https://lists.apache.org/thread.html/f506bc371d4a068d5d84d7361293568f61167d3a1c3e91f0def2d7d3@%3Cdev.arrow.apache.org%3E"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-17543"
+          },
+          {
+            "title": "GitHub Comparison",
+            "url": "https://github.com/lz4/lz4/compare/v1.9.1...v1.9.2"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/lz4/lz4/issues/801"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/lz4/lz4/pull/756"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/lz4/lz4/pull/760"
+          },
+          {
+            "title": "MISC",
+            "url": "https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=15941"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00069.html"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-10/msg00070.html"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<1.9.2-1"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<1.9.2-1"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Buffer Overflow"
+      },
+      "SNYK-LINUX-PCRE3-115388": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-02-06T14:24:57.956065Z",
+        "credit": [""],
+        "cvssScore": 7.8,
+        "description": "## Overview\nStack-based buffer overflow in the pcre32_copy_substring function in pcre_get.c in libpcre1 in PCRE 8.40 allows remote attackers to cause a denial of service (WRITE of size 268) or possibly have unspecified other impact via a crafted file.\n\n## References\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7246)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2017-7246)\n- [Gentoo Security Advisory](https://security.gentoo.org/glsa/201710-25)\n- [MISC](https://blogs.gentoo.org/ago/2017/03/20/libpcre-two-stack-based-buffer-overflow-write-in-pcre32_copy_substring-pcre_get-c/)\n- [RHSA Security Advisory](https://access.redhat.com/errata/RHSA-2018:2486)\n- [Security Focus](http://www.securityfocus.com/bid/97067)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2017-7246)\n",
+        "disclosureTime": "2017-03-23T21:59:00Z",
+        "id": "SNYK-LINUX-PCRE3-115388",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-PCRE3-345351",
+            "SNYK-DEBIAN9-PCRE3-345352",
+            "SNYK-DEBIAN10-PCRE3-345353",
+            "SNYK-UBUNTU1204-PCRE3-345354",
+            "SNYK-UBUNTU1404-PCRE3-345355",
+            "SNYK-UBUNTU1604-PCRE3-345356",
+            "SNYK-UBUNTU1804-PCRE3-345357",
+            "SNYK-UBUNTU1810-PCRE3-345358",
+            "SNYK-DEBIANUNSTABLE-PCRE3-345359",
+            "SNYK-UBUNTU1904-PCRE3-527359",
+            "SNYK-DEBIAN11-PCRE3-529490"
+          ],
+          "CVE": ["CVE-2017-7246"],
+          "CWE": ["CWE-119"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T21:51:33.237435Z",
+        "packageManager": "linux",
+        "packageName": "pcre3",
+        "patches": [],
+        "publicationTime": "2017-03-23T21:59:00Z",
+        "references": [
+          {
+            "title": "CVE Details",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7246"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2017-7246"
+          },
+          {
+            "title": "Gentoo Security Advisory",
+            "url": "https://security.gentoo.org/glsa/201710-25"
+          },
+          {
+            "title": "MISC",
+            "url": "https://blogs.gentoo.org/ago/2017/03/20/libpcre-two-stack-based-buffer-overflow-write-in-pcre32_copy_substring-pcre_get-c/"
+          },
+          {
+            "title": "RHSA Security Advisory",
+            "url": "https://access.redhat.com/errata/RHSA-2018:2486"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/97067"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2017-7246"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:12.04": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Out-of-Bounds"
+      },
+      "SNYK-LINUX-PCRE3-123374": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "creationTime": "2019-02-06T14:24:59.928769Z",
+        "credit": [""],
+        "cvssScore": 7.5,
+        "description": "## Overview\nIn PCRE 8.41, the OP_KETRMAX feature in the match function in pcre_exec.c allows stack exhaustion (uncontrolled recursion) when processing a crafted regular expression.\n\n## References\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-11164)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2017-11164)\n- [OSS security Advisory](http://openwall.com/lists/oss-security/2017/07/11/3)\n- [Security Focus](http://www.securityfocus.com/bid/99575)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2017-11164)\n",
+        "disclosureTime": "2017-07-11T03:29:00Z",
+        "id": "SNYK-LINUX-PCRE3-123374",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-PCRE3-345500",
+            "SNYK-DEBIAN9-PCRE3-345501",
+            "SNYK-DEBIAN10-PCRE3-345502",
+            "SNYK-DEBIANUNSTABLE-PCRE3-345503",
+            "SNYK-UBUNTU1404-PCRE3-451827",
+            "SNYK-UBUNTU1804-PCRE3-452543",
+            "SNYK-UBUNTU1604-PCRE3-453321",
+            "SNYK-DEBIAN11-PCRE3-529298",
+            "SNYK-UBUNTU1904-PCRE3-530728"
+          ],
+          "CVE": ["CVE-2017-11164"],
+          "CWE": ["CWE-674"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T11:21:12.003062Z",
+        "packageManager": "linux",
+        "packageName": "pcre3",
+        "patches": [],
+        "publicationTime": "2017-07-11T03:29:00Z",
+        "references": [
+          {
+            "title": "CVE Details",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-11164"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2017-11164"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://openwall.com/lists/oss-security/2017/07/11/3"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/99575"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2017-11164"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Uncontrolled Recursion"
+      },
+      "SNYK-LINUX-PCRE3-126449": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-02-06T14:24:57.515515Z",
+        "credit": [""],
+        "cvssScore": 7.8,
+        "description": "## Overview\nStack-based buffer overflow in the pcre32_copy_substring function in pcre_get.c in libpcre1 in PCRE 8.40 allows remote attackers to cause a denial of service (WRITE of size 4) or possibly have unspecified other impact via a crafted file.\n\n## References\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7245)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2017-7245)\n- [Gentoo Security Advisory](https://security.gentoo.org/glsa/201710-25)\n- [MISC](https://blogs.gentoo.org/ago/2017/03/20/libpcre-two-stack-based-buffer-overflow-write-in-pcre32_copy_substring-pcre_get-c/)\n- [RHSA Security Advisory](https://access.redhat.com/errata/RHSA-2018:2486)\n- [Security Focus](http://www.securityfocus.com/bid/97067)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2017-7245)\n",
+        "disclosureTime": "2017-03-23T21:59:00Z",
+        "id": "SNYK-LINUX-PCRE3-126449",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-PCRE3-345319",
+            "SNYK-DEBIAN9-PCRE3-345320",
+            "SNYK-DEBIAN10-PCRE3-345321",
+            "SNYK-UBUNTU1204-PCRE3-345322",
+            "SNYK-UBUNTU1404-PCRE3-345323",
+            "SNYK-UBUNTU1604-PCRE3-345324",
+            "SNYK-UBUNTU1804-PCRE3-345325",
+            "SNYK-UBUNTU1810-PCRE3-345326",
+            "SNYK-DEBIANUNSTABLE-PCRE3-345327",
+            "SNYK-DEBIAN11-PCRE3-523392",
+            "SNYK-UBUNTU1904-PCRE3-530506"
+          ],
+          "CVE": ["CVE-2017-7245"],
+          "CWE": ["CWE-119"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T11:42:38.005203Z",
+        "packageManager": "linux",
+        "packageName": "pcre3",
+        "patches": [],
+        "publicationTime": "2017-03-23T21:59:00Z",
+        "references": [
+          {
+            "title": "CVE Details",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7245"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2017-7245"
+          },
+          {
+            "title": "Gentoo Security Advisory",
+            "url": "https://security.gentoo.org/glsa/201710-25"
+          },
+          {
+            "title": "MISC",
+            "url": "https://blogs.gentoo.org/ago/2017/03/20/libpcre-two-stack-based-buffer-overflow-write-in-pcre32_copy_substring-pcre_get-c/"
+          },
+          {
+            "title": "RHSA Security Advisory",
+            "url": "https://access.redhat.com/errata/RHSA-2018:2486"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/97067"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2017-7245"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:12.04": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Out-of-Bounds"
+      },
+      "SNYK-LINUX-PCRE3-137957": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H",
+        "creationTime": "2019-02-06T14:25:00.345877Z",
+        "credit": [""],
+        "cvssScore": 5.5,
+        "description": "## Overview\n** DISPUTED ** In PCRE 8.41, after compiling, a pcretest load test PoC produces a crash overflow in the function match() in pcre_exec.c because of a self-recursive call. NOTE: third parties dispute the relevance of this report, noting that there are options that can be used to limit the amount of stack that is used.\n\n## References\n- [CONFIRM](https://bugs.exim.org/show_bug.cgi?id=2047)\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-16231)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2017-16231)\n- [MISC](http://packetstormsecurity.com/files/150897/PCRE-8.41-Buffer-Overflow.html)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2017/11/01/11)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2017/11/01/3)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2017/11/01/7)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2017/11/01/8)\n- [Seclists Full Disclosure](http://seclists.org/fulldisclosure/2018/Dec/33)\n- [Security Focus](http://www.securityfocus.com/bid/101688)\n",
+        "disclosureTime": "2019-03-21T15:59:00Z",
+        "id": "SNYK-LINUX-PCRE3-137957",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-PCRE3-345528",
+            "SNYK-DEBIAN9-PCRE3-345529",
+            "SNYK-DEBIAN10-PCRE3-345530",
+            "SNYK-DEBIANUNSTABLE-PCRE3-345531",
+            "SNYK-DEBIAN11-PCRE3-525075"
+          ],
+          "CVE": ["CVE-2017-16231"],
+          "CWE": ["CWE-119"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T11:21:52.966941Z",
+        "packageManager": "linux",
+        "packageName": "pcre3",
+        "patches": [],
+        "publicationTime": "2018-06-27T16:41:33.954433Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://bugs.exim.org/show_bug.cgi?id=2047"
+          },
+          {
+            "title": "CVE Details",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-16231"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2017-16231"
+          },
+          {
+            "title": "MISC",
+            "url": "http://packetstormsecurity.com/files/150897/PCRE-8.41-Buffer-Overflow.html"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2017/11/01/11"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2017/11/01/3"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2017/11/01/7"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2017/11/01/8"
+          },
+          {
+            "title": "Seclists Full Disclosure",
+            "url": "http://seclists.org/fulldisclosure/2018/Dec/33"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/101688"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Out-of-Bounds"
+      },
+      "SNYK-LINUX-PERL-119176": {
+        "CVSSv3": null,
+        "creationTime": "2019-02-06T14:20:08.573942Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nCVE-2011-4116",
+        "disclosureTime": null,
+        "id": "SNYK-LINUX-PERL-119176",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-PERL-327791",
+            "SNYK-DEBIAN9-PERL-327792",
+            "SNYK-DEBIAN10-PERL-327793",
+            "SNYK-DEBIANUNSTABLE-PERL-327794",
+            "SNYK-DEBIAN11-PERL-532614"
+          ],
+          "CVE": ["CVE-2011-4116"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-10-23T14:33:52.985298Z",
+        "packageManager": "linux",
+        "packageName": "perl",
+        "patches": [],
+        "publicationTime": "2018-06-27T16:23:21.190689Z",
+        "references": [],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2011-4116"
+      },
+      "SNYK-LINUX-SHADOW-106309": {
+        "CVSSv3": null,
+        "creationTime": "2019-02-06T14:14:24.112489Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nshadow: TOCTOU (time-of-check time-of-use) race condition when copying and removing directory trees\n\n## References\n- [ADVISORY](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2013-4235)\n- [MISC](https://access.redhat.com/security/cve/cve-2013-4235)\n- [MISC](https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2013-4235)\n- [MISC](https://security-tracker.debian.org/tracker/CVE-2013-4235)\n",
+        "disclosureTime": "2019-12-03T15:15:00Z",
+        "id": "SNYK-LINUX-SHADOW-106309",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-SHADOW-306203",
+            "SNYK-DEBIAN9-SHADOW-306204",
+            "SNYK-DEBIAN10-SHADOW-306205",
+            "SNYK-UBUNTU1204-SHADOW-306206",
+            "SNYK-UBUNTU1404-SHADOW-306207",
+            "SNYK-UBUNTU1604-SHADOW-306208",
+            "SNYK-UBUNTU1804-SHADOW-306209",
+            "SNYK-UBUNTU1810-SHADOW-306210",
+            "SNYK-DEBIANUNSTABLE-SHADOW-306211",
+            "SNYK-DEBIAN11-SHADOW-528840",
+            "SNYK-UBUNTU1904-SHADOW-532604"
+          ],
+          "CVE": ["CVE-2013-4235"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-12-05T05:43:02.054766Z",
+        "packageManager": "linux",
+        "packageName": "shadow",
+        "patches": [],
+        "publicationTime": "2018-06-27T16:11:53.712324Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2013-4235"
+          },
+          {
+            "title": "MISC",
+            "url": "https://access.redhat.com/security/cve/cve-2013-4235"
+          },
+          {
+            "title": "MISC",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2013-4235"
+          },
+          {
+            "title": "MISC",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2013-4235"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:12.04": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2013-4235"
+      },
+      "SNYK-LINUX-SHADOW-107359": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "creationTime": "2019-02-06T14:14:24.444975Z",
+        "credit": [""],
+        "cvssScore": 5.3,
+        "description": "## Overview\nAn issue was discovered in shadow 4.5. newgidmap (in shadow-utils) is setuid and allows an unprivileged user to be placed in a user namespace where setgroups(2) is permitted. This allows an attacker to remove themselves from a supplementary group, which may allow access to certain filesystem paths if the administrator has used \"group blacklisting\" (e.g., chmod g-rwx) to restrict access to paths. This flaw effectively reverts a security feature in the kernel (in particular, the /proc/self/setgroups knob) to prevent this sort of privilege escalation.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-7169)\n- [Gentoo Security Advisory](https://security.gentoo.org/glsa/201805-09)\n- [MISC](https://bugs.launchpad.net/ubuntu/%2Bsource/shadow/%2Bbug/1729357)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-7169)\n",
+        "disclosureTime": "2018-02-15T20:29:00Z",
+        "id": "SNYK-LINUX-SHADOW-107359",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-SHADOW-306228",
+            "SNYK-DEBIAN9-SHADOW-306229",
+            "SNYK-DEBIAN10-SHADOW-306230",
+            "SNYK-UBUNTU1404-SHADOW-306231",
+            "SNYK-UBUNTU1604-SHADOW-306232",
+            "SNYK-UBUNTU1804-SHADOW-306233",
+            "SNYK-UBUNTU1810-SHADOW-306234",
+            "SNYK-DEBIANUNSTABLE-SHADOW-306235",
+            "SNYK-DEBIAN11-SHADOW-517331",
+            "SNYK-UBUNTU1904-SHADOW-526602"
+          ],
+          "CVE": ["CVE-2018-7169"],
+          "CWE": ["CWE-732"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-05T00:05:11.916497Z",
+        "packageManager": "linux",
+        "packageName": "shadow",
+        "patches": [],
+        "publicationTime": "2018-02-15T20:29:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2018-7169"
+          },
+          {
+            "title": "Gentoo Security Advisory",
+            "url": "https://security.gentoo.org/glsa/201805-09"
+          },
+          {
+            "title": "MISC",
+            "url": "https://bugs.launchpad.net/ubuntu/%2Bsource/shadow/%2Bbug/1729357"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-7169"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<1:4.7-1"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<1:4.7-1"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Incorrect Permission Assignment for Critical Resource"
+      },
+      "SNYK-LINUX-SHADOW-116095": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "creationTime": "2019-02-06T14:14:24.700363Z",
+        "credit": [""],
+        "cvssScore": 6.2,
+        "description": "## Overview\ninitscripts in rPath Linux 1 sets insecure permissions for the /var/log/btmp file, which allows local users to obtain sensitive information regarding authentication attempts.  NOTE: because sshd detects the insecure permissions and does not log certain events, this also prevents sshd from logging failed authentication attempts by remote attackers.\n\n## References\n- [BUGTRAQ](http://www.securityfocus.com/archive/1/482129/100/100/threaded)\n- [BUGTRAQ](http://www.securityfocus.com/archive/1/482857/100/0/threaded)\n- [CONFIRM](https://issues.rpath.com/browse/RPL-1825)\n- [Dead Link](http://www.securityfocus.com/archive/1/archive/1/482129/100/100/threaded)\n- [Dead Link](http://www.securityfocus.com/archive/1/archive/1/482857/100/0/threaded)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2007-5686)\n- [Secunia Advisory](http://secunia.com/advisories/27215)\n- [Security Focus](http://www.securityfocus.com/bid/26048)\n- [VUPEN](http://www.vupen.com/english/advisories/2007/3474)\n",
+        "disclosureTime": "2007-10-28T17:08:00Z",
+        "id": "SNYK-LINUX-SHADOW-116095",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-SHADOW-306248",
+            "SNYK-DEBIAN9-SHADOW-306249",
+            "SNYK-DEBIAN10-SHADOW-306250",
+            "SNYK-DEBIANUNSTABLE-SHADOW-306251",
+            "SNYK-DEBIAN11-SHADOW-526940"
+          ],
+          "CVE": ["CVE-2007-5686"],
+          "CWE": ["CWE-264"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T10:41:10.547663Z",
+        "packageManager": "linux",
+        "packageName": "shadow",
+        "patches": [],
+        "publicationTime": "2007-10-28T17:08:00Z",
+        "references": [
+          {
+            "title": "BUGTRAQ",
+            "url": "http://www.securityfocus.com/archive/1/482129/100/100/threaded"
+          },
+          {
+            "title": "BUGTRAQ",
+            "url": "http://www.securityfocus.com/archive/1/482857/100/0/threaded"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://issues.rpath.com/browse/RPL-1825"
+          },
+          {
+            "title": "Dead Link",
+            "url": "http://www.securityfocus.com/archive/1/archive/1/482129/100/100/threaded"
+          },
+          {
+            "title": "Dead Link",
+            "url": "http://www.securityfocus.com/archive/1/archive/1/482857/100/0/threaded"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2007-5686"
+          },
+          {
+            "title": "Secunia Advisory",
+            "url": "http://secunia.com/advisories/27215"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/26048"
+          },
+          {
+            "title": "VUPEN",
+            "url": "http://www.vupen.com/english/advisories/2007/3474"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Access Restriction Bypass"
+      },
+      "SNYK-LINUX-SQLITE3-466334": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "creationTime": "2019-09-09T19:32:19.971415Z",
+        "credit": [""],
+        "cvssScore": 5.3,
+        "description": "## Overview\nIn SQLite through 3.29.0, whereLoopAddBtreeIndex in sqlite3.c can crash a browser or other application because of missing validation of a sqlite_stat1 sz field, aka a \"severe division by zero in the query planner.\"\n\n## References\n- [CONFIRM](https://security.netapp.com/advisory/ntap-20190926-0003/)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-16168)\n- [MISC](https://www.mail-archive.com/sqlite-users@mailinglists.sqlite.org/msg116312.html)\n- [MISC](https://www.sqlite.org/src/info/e4598ecbdd18bd82945f6029013296690e719a62)\n- [MISC](https://www.sqlite.org/src/timeline?c=98357d8c1263920b)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-16168)\n",
+        "disclosureTime": "2019-09-09T17:15:00Z",
+        "id": "SNYK-LINUX-SQLITE3-466334",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-SQLITE3-466335",
+            "SNYK-DEBIAN8-SQLITE3-466336",
+            "SNYK-DEBIAN10-SQLITE3-466337",
+            "SNYK-DEBIAN9-SQLITE3-466338",
+            "SNYK-UBUNTU1604-SQLITE3-466477",
+            "SNYK-UBUNTU1804-SQLITE3-466478",
+            "SNYK-DEBIAN11-SQLITE3-516485",
+            "SNYK-UBUNTU1904-SQLITE3-527360"
+          ],
+          "CVE": ["CVE-2019-16168"],
+          "CWE": ["CWE-369"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T14:51:32.339936Z",
+        "packageManager": "linux",
+        "packageName": "sqlite3",
+        "patches": [],
+        "publicationTime": "2019-09-09T19:32:19.978398Z",
+        "references": [
+          {
+            "title": "CONFIRM",
+            "url": "https://security.netapp.com/advisory/ntap-20190926-0003/"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-16168"
+          },
+          {
+            "title": "MISC",
+            "url": "https://www.mail-archive.com/sqlite-users@mailinglists.sqlite.org/msg116312.html"
+          },
+          {
+            "title": "MISC",
+            "url": "https://www.sqlite.org/src/info/e4598ecbdd18bd82945f6029013296690e719a62"
+          },
+          {
+            "title": "MISC",
+            "url": "https://www.sqlite.org/src/timeline?c=98357d8c1263920b"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-16168"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<3.29.0-2"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<3.29.0-2"],
+            "ubuntu:16.04": ["<3.11.0-1ubuntu1.3"],
+            "ubuntu:18.04": ["<3.22.0-1ubuntu0.2"],
+            "ubuntu:19.04": ["<3.27.2-2ubuntu0.2"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Divide By Zero"
+      },
+      "SNYK-LINUX-SQLITE3-535526": {
+        "CVSSv3": null,
+        "creationTime": "2019-11-25T21:35:20.367631Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nSQLite 3.30.1 mishandles pExpr->y.pTab, as demonstrated by the TK_COLUMN case in sqlite3ExprCodeTarget in expr.c.\n\n## References\n- [ADVISORY](https://security-tracker.debian.org/tracker/CVE-2019-19242)\n- [MISC](https://github.com/sqlite/sqlite/commit/57f7ece78410a8aae86aa4625fb7556897db384c)\n- [UBUNTU](https://usn.ubuntu.com/4205-1/)\n",
+        "disclosureTime": "2019-11-27T17:15:00Z",
+        "id": "SNYK-LINUX-SQLITE3-535526",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-SQLITE3-535527",
+            "SNYK-DEBIAN9-SQLITE3-535547",
+            "SNYK-DEBIAN11-SQLITE3-535550",
+            "SNYK-DEBIAN10-SQLITE3-535551",
+            "SNYK-DEBIAN8-SQLITE3-535554",
+            "SNYK-UBUNTU1904-SQLITE3-536436"
+          ],
+          "CVE": ["CVE-2019-19242"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-12-04T05:58:04.853342Z",
+        "packageManager": "linux",
+        "packageName": "sqlite3",
+        "patches": [],
+        "publicationTime": "2019-11-25T21:35:20.381427Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-19242"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/sqlite/sqlite/commit/57f7ece78410a8aae86aa4625fb7556897db384c"
+          },
+          { "title": "UBUNTU", "url": "https://usn.ubuntu.com/4205-1/" }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["<0.0.0"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:19.04": ["<3.27.2-2ubuntu0.2"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2019-19242"
+      },
+      "SNYK-LINUX-SQLITE3-535608": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "creationTime": "2019-11-26T15:10:23.061407Z",
+        "credit": [""],
+        "cvssScore": 5.3,
+        "description": "## Overview\nsqlite3Select in select.c in SQLite 3.30.1 allows a crash if a sub-select uses both DISTINCT and window functions, and also has certain ORDER BY usage.\n\n## References\n- [ADVISORY](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-19244)\n- [ADVISORY](https://security-tracker.debian.org/tracker/CVE-2019-19244)\n- [MISC](https://github.com/sqlite/sqlite/commit/e59c562b3f6894f84c715772c4b116d7b5c01348)\n- [UBUNTU](https://usn.ubuntu.com/4205-1/)\n",
+        "disclosureTime": "2019-11-25T20:15:00Z",
+        "id": "SNYK-LINUX-SQLITE3-535608",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-UBUNTU1204-SQLITE3-535609",
+            "SNYK-UBUNTU1904-SQLITE3-535613",
+            "SNYK-UBUNTU1604-SQLITE3-535616",
+            "SNYK-UBUNTU1404-SQLITE3-535619",
+            "SNYK-UBUNTU1804-SQLITE3-535621",
+            "SNYK-DEBIAN8-SQLITE3-535709",
+            "SNYK-DEBIAN9-SQLITE3-535710",
+            "SNYK-DEBIAN10-SQLITE3-535712",
+            "SNYK-DEBIANUNSTABLE-SQLITE3-535715",
+            "SNYK-DEBIAN11-SQLITE3-535716"
+          ],
+          "CVE": ["CVE-2019-19244"],
+          "CWE": ["CWE-20"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-28T17:21:28.787077Z",
+        "packageManager": "linux",
+        "packageName": "sqlite3",
+        "patches": [],
+        "publicationTime": "2019-11-26T15:10:23.076030Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-19244"
+          },
+          {
+            "title": "ADVISORY",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-19244"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/sqlite/sqlite/commit/e59c562b3f6894f84c715772c4b116d7b5c01348"
+          },
+          { "title": "UBUNTU", "url": "https://usn.ubuntu.com/4205-1/" }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["<0.0.0"],
+            "debian:9": ["<0.0.0"],
+            "debian:unstable": ["*"],
+            "ubuntu:12.04": ["<0.0.0"],
+            "ubuntu:14.04": ["<0.0.0"],
+            "ubuntu:16.04": ["<0.0.0"],
+            "ubuntu:18.04": ["<0.0.0"],
+            "ubuntu:19.04": ["<3.27.2-2ubuntu0.2"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Improper Input Validation"
+      },
+      "SNYK-LINUX-SQLITE3-537243": {
+        "CVSSv3": null,
+        "creationTime": "2019-12-10T23:29:10.411222Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nalter.c in SQLite through 3.30.1 allows attackers to trigger infinite recursion via certain types of self-referential views in conjunction with ALTER TABLE statements.\n\n## References\n- [ADVISORY](https://security-tracker.debian.org/tracker/CVE-2019-19645)\n- [MISC](https://github.com/sqlite/sqlite/commit/38096961c7cd109110ac21d3ed7dad7e0cb0ae06)\n",
+        "disclosureTime": "2019-12-09T16:15:00Z",
+        "id": "SNYK-LINUX-SQLITE3-537243",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN9-SQLITE3-537244",
+            "SNYK-DEBIAN8-SQLITE3-537246",
+            "SNYK-DEBIAN11-SQLITE3-537250",
+            "SNYK-DEBIAN10-SQLITE3-537251",
+            "SNYK-DEBIANUNSTABLE-SQLITE3-537252"
+          ],
+          "CVE": ["CVE-2019-19645"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-12-11T05:59:56.441914Z",
+        "packageManager": "linux",
+        "packageName": "sqlite3",
+        "patches": [],
+        "publicationTime": "2019-12-10T23:29:10.427373Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-19645"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/sqlite/sqlite/commit/38096961c7cd109110ac21d3ed7dad7e0cb0ae06"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2019-19645"
+      },
+      "SNYK-LINUX-SQLITE3-537589": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "creationTime": "2019-12-11T21:29:25.238196Z",
+        "credit": [""],
+        "cvssScore": 7.3,
+        "description": "## Overview\nSQLite 3.30.1 mishandles certain SELECT statements with a nonexistent VIEW, leading to an application crash.\n\n## References\n- [ADVISORY](https://security-tracker.debian.org/tracker/CVE-2019-19603)\n- [MISC](https://github.com/sqlite/sqlite/commit/527cbd4a104cb93bf3994b3dd3619a6299a78b13)\n- [MISC](https://www.sqlite.org/)\n",
+        "disclosureTime": "2019-12-09T19:15:00Z",
+        "id": "SNYK-LINUX-SQLITE3-537589",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-SQLITE3-537590",
+            "SNYK-DEBIAN9-SQLITE3-537594",
+            "SNYK-DEBIAN11-SQLITE3-537596",
+            "SNYK-DEBIANUNSTABLE-SQLITE3-537597",
+            "SNYK-DEBIAN10-SQLITE3-537598"
+          ],
+          "CVE": ["CVE-2019-19603"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-12-15T05:39:51.299265Z",
+        "packageManager": "linux",
+        "packageName": "sqlite3",
+        "patches": [],
+        "publicationTime": "2019-12-11T21:29:25.262400Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-19603"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/sqlite/sqlite/commit/527cbd4a104cb93bf3994b3dd3619a6299a78b13"
+          },
+          { "title": "MISC", "url": "https://www.sqlite.org/" }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "CVE-2019-19603"
+      },
+      "SNYK-LINUX-SYSTEMD-111917": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+        "creationTime": "2019-02-06T14:14:07.634838Z",
+        "credit": [""],
+        "cvssScore": 4.4,
+        "description": "## Overview\nsystemd, when updating file permissions, allows local users to change the permissions and SELinux security contexts for arbitrary files via a symlink attack on unspecified files.\n\n## References\n- [Debian Bug Report](http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=725357)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2013-4392)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2013/10/01/9)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=859060)\n",
+        "disclosureTime": "2013-10-28T22:55:00Z",
+        "id": "SNYK-LINUX-SYSTEMD-111917",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-SYSTEMD-305142",
+            "SNYK-DEBIAN9-SYSTEMD-305143",
+            "SNYK-DEBIAN10-SYSTEMD-305144",
+            "SNYK-DEBIANUNSTABLE-SYSTEMD-305145",
+            "SNYK-DEBIAN11-SYSTEMD-524969"
+          ],
+          "CVE": ["CVE-2013-4392"],
+          "CWE": ["CWE-264"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T21:16:26.298050Z",
+        "packageManager": "linux",
+        "packageName": "systemd",
+        "patches": [],
+        "publicationTime": "2013-10-28T22:55:00Z",
+        "references": [
+          {
+            "title": "Debian Bug Report",
+            "url": "http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=725357"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2013-4392"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2013/10/01/9"
+          },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=859060"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "medium",
+        "title": "Access Restriction Bypass"
+      },
+      "SNYK-LINUX-SYSTEMD-442642": {
+        "CVSSv3": null,
+        "creationTime": "2019-04-09T05:59:04.271213Z",
+        "credit": [""],
+        "cvssScore": null,
+        "description": "## Overview\nCVE-2019-9619\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-9619)\n",
+        "disclosureTime": null,
+        "id": "SNYK-LINUX-SYSTEMD-442642",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-SYSTEMD-342643",
+            "SNYK-DEBIAN10-SYSTEMD-342768",
+            "SNYK-DEBIANUNSTABLE-SYSTEMD-342805",
+            "SNYK-DEBIAN9-SYSTEMD-342819"
+          ],
+          "CVE": ["CVE-2019-9619"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-10-17T07:28:39.375897Z",
+        "packageManager": "linux",
+        "packageName": "systemd",
+        "patches": [],
+        "publicationTime": "2019-04-09T05:59:04Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-9619"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2019-9619"
+      },
+      "SNYK-LINUX-SYSTEMD-445382": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-04-28T07:39:59.177808Z",
+        "credit": [""],
+        "cvssScore": 7.8,
+        "description": "## Overview\nIt was discovered that a systemd service that uses DynamicUser property can create a SUID/SGID binary that would be allowed to run as the transient service UID/GID even after the service is terminated. A local attacker may use this flaw to access resources that will be owned by a potentially different service in the future, when the UID/GID will be recycled.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-3843)\n- [Fedora Security Update](https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/5JXQAKSTMABZ46EVCRMW62DHWYHTTFES/)\n- [Netapp Security Advisory](https://security.netapp.com/advisory/ntap-20190619-0002/)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2019-3843)\n- [Security Focus](http://www.securityfocus.com/bid/108116)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-3843)\n",
+        "disclosureTime": "2019-04-26T21:29:00Z",
+        "id": "SNYK-LINUX-SYSTEMD-445382",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN9-SYSTEMD-345383",
+            "SNYK-DEBIANUNSTABLE-SYSTEMD-345384",
+            "SNYK-DEBIAN8-SYSTEMD-345388",
+            "SNYK-DEBIAN10-SYSTEMD-345391",
+            "SNYK-UBUNTU1804-SYSTEMD-345433",
+            "SNYK-UBUNTU1810-SYSTEMD-345450",
+            "SNYK-DEBIAN11-SYSTEMD-526983",
+            "SNYK-UBUNTU1904-SYSTEMD-533737"
+          ],
+          "CVE": ["CVE-2019-3843"],
+          "CWE": ["CWE-264"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T19:58:07.323545Z",
+        "packageManager": "linux",
+        "packageName": "systemd",
+        "patches": [],
+        "publicationTime": "2019-04-26T21:29:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-3843"
+          },
+          {
+            "title": "Fedora Security Update",
+            "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/5JXQAKSTMABZ46EVCRMW62DHWYHTTFES/"
+          },
+          {
+            "title": "Netapp Security Advisory",
+            "url": "https://security.netapp.com/advisory/ntap-20190619-0002/"
+          },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2019-3843"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/108116"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-3843"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<242-4"],
+            "debian:8": ["<0.0.0"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<242-4"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Access Restriction Bypass"
+      },
+      "SNYK-LINUX-SYSTEMD-445385": {
+        "CVSSv3": "CVSS:3.0/AV:L/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-04-28T08:14:07.490940Z",
+        "credit": [""],
+        "cvssScore": 7.8,
+        "description": "## Overview\nIt was discovered that a systemd service that uses DynamicUser property can get new privileges through the execution of SUID binaries, which would allow to create binaries owned by the service transient group with the setgid bit set. A local attacker may use this flaw to access resources that will be owned by a potentially different service in the future, when the GID will be recycled.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-3844)\n- [Netapp Security Advisory](https://security.netapp.com/advisory/ntap-20190619-0002/)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2019-3844)\n- [Security Focus](http://www.securityfocus.com/bid/108096)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-3844)\n",
+        "disclosureTime": "2019-04-26T21:29:00Z",
+        "id": "SNYK-LINUX-SYSTEMD-445385",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN10-SYSTEMD-345386",
+            "SNYK-DEBIANUNSTABLE-SYSTEMD-345387",
+            "SNYK-DEBIAN8-SYSTEMD-345389",
+            "SNYK-DEBIAN9-SYSTEMD-345390",
+            "SNYK-UBUNTU1804-SYSTEMD-345445",
+            "SNYK-UBUNTU1810-SYSTEMD-345490",
+            "SNYK-DEBIAN11-SYSTEMD-515789",
+            "SNYK-UBUNTU1904-SYSTEMD-533656"
+          ],
+          "CVE": ["CVE-2019-3844"],
+          "CWE": ["CWE-264"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T09:36:48.058446Z",
+        "packageManager": "linux",
+        "packageName": "systemd",
+        "patches": [],
+        "publicationTime": "2019-04-26T21:29:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-3844"
+          },
+          {
+            "title": "Netapp Security Advisory",
+            "url": "https://security.netapp.com/advisory/ntap-20190619-0002/"
+          },
+          {
+            "title": "RedHat Bugzilla Bug",
+            "url": "https://bugzilla.redhat.com/show_bug.cgi?id=CVE-2019-3844"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/108096"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-3844"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["<242-4"],
+            "debian:8": ["<0.0.0"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<242-4"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Access Restriction Bypass"
+      },
+      "SNYK-LINUX-SYSTEMD-446728": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-05-18T05:56:51.551052Z",
+        "credit": [""],
+        "cvssScore": 9.8,
+        "description": "## Overview\nsystemd 242 changes the VT1 mode upon a logout, which allows attackers to read cleartext passwords in certain circumstances, such as watching a shutdown, or using Ctrl-Alt-F1 and Ctrl-Alt-F2. This occurs because the KDGKBMODE (aka current keyboard mode) check is mishandled.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-20839)\n- [GitHub Commit](https://github.com/systemd/systemd/commit/9725f1a10f80f5e0ae7d9b60547458622aeb322f)\n- [GitHub PR](https://github.com/systemd/systemd/pull/12378)\n- [MISC](https://bugs.launchpad.net/ubuntu/%2Bsource/systemd/%2Bbug/1803993)\n- [Netapp Security Advisory](https://security.netapp.com/advisory/ntap-20190530-0002/)\n- [Security Focus](http://www.securityfocus.com/bid/108389)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20839)\n",
+        "disclosureTime": "2019-05-17T04:29:00Z",
+        "id": "SNYK-LINUX-SYSTEMD-446728",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-UBUNTU1404-SYSTEMD-346729",
+            "SNYK-DEBIAN9-SYSTEMD-346733",
+            "SNYK-UBUNTU1604-SYSTEMD-346739",
+            "SNYK-DEBIANUNSTABLE-SYSTEMD-346741",
+            "SNYK-UBUNTU1804-SYSTEMD-346780",
+            "SNYK-DEBIAN8-SYSTEMD-346782",
+            "SNYK-DEBIAN10-SYSTEMD-346788",
+            "SNYK-UBUNTU1810-SYSTEMD-346796",
+            "SNYK-DEBIAN11-SYSTEMD-524438",
+            "SNYK-UBUNTU1904-SYSTEMD-533327"
+          ],
+          "CVE": ["CVE-2018-20839"],
+          "CWE": ["CWE-255"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T23:50:05.012139Z",
+        "packageManager": "linux",
+        "packageName": "systemd",
+        "patches": [],
+        "publicationTime": "2019-05-17T04:29:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2018-20839"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/systemd/systemd/commit/9725f1a10f80f5e0ae7d9b60547458622aeb322f"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/systemd/systemd/pull/12378"
+          },
+          {
+            "title": "MISC",
+            "url": "https://bugs.launchpad.net/ubuntu/%2Bsource/systemd/%2Bbug/1803993"
+          },
+          {
+            "title": "Netapp Security Advisory",
+            "url": "https://security.netapp.com/advisory/ntap-20190530-0002/"
+          },
+          {
+            "title": "Security Focus",
+            "url": "http://www.securityfocus.com/bid/108389"
+          },
+          {
+            "title": "Ubuntu CVE Tracker",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20839"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"],
+            "ubuntu:18.10": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Credentials Management"
+      },
+      "SNYK-LINUX-SYSTEMD-476508": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "creationTime": "2019-11-03T11:53:13.886929Z",
+        "credit": [""],
+        "cvssScore": 7.3,
+        "description": "## Overview\nsystemd 239 through 244 accepts any certificate signed by a trusted certificate authority for DNS Over TLS. Server Name Indication (SNI) is not sent, and there is no hostname validation with the GnuTLS backend.\n\n## References\n- [ADVISORY](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-21029)\n- [CONFIRM](https://security.netapp.com/advisory/ntap-20191122-0002/)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-21029)\n- [FEDORA](https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/4NLJVOJMB6ANDILRLDZK26YGLYBEPHKY/)\n- [MISC](https://blog.cloudflare.com/dns-encryption-explained/)\n- [MISC](https://github.com/systemd/systemd/blob/v243/src/resolve/resolved-dnstls-gnutls.c%23L62-L63)\n- [MISC](https://github.com/systemd/systemd/issues/9397)\n- [MISC](https://github.com/systemd/systemd/pull/13870)\n",
+        "disclosureTime": "2019-10-30T22:15:00Z",
+        "id": "SNYK-LINUX-SYSTEMD-476508",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-SYSTEMD-476509",
+            "SNYK-DEBIAN10-SYSTEMD-476511",
+            "SNYK-DEBIAN11-SYSTEMD-530524",
+            "SNYK-UBUNTU1904-SYSTEMD-533997"
+          ],
+          "CVE": ["CVE-2018-21029"],
+          "CWE": ["CWE-295"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-27T04:06:00.277795Z",
+        "packageManager": "linux",
+        "packageName": "systemd",
+        "patches": [],
+        "publicationTime": "2019-11-03T11:53:13.897231Z",
+        "references": [
+          {
+            "title": "ADVISORY",
+            "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-21029"
+          },
+          {
+            "title": "CONFIRM",
+            "url": "https://security.netapp.com/advisory/ntap-20191122-0002/"
+          },
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2018-21029"
+          },
+          {
+            "title": "FEDORA",
+            "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/4NLJVOJMB6ANDILRLDZK26YGLYBEPHKY/"
+          },
+          {
+            "title": "MISC",
+            "url": "https://blog.cloudflare.com/dns-encryption-explained/"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/systemd/systemd/blob/v243/src/resolve/resolved-dnstls-gnutls.c%23L62-L63"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/systemd/systemd/issues/9397"
+          },
+          {
+            "title": "MISC",
+            "url": "https://github.com/systemd/systemd/pull/13870"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:unstable": ["*"],
+            "ubuntu:19.04": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "Improper Certificate Validation"
+      },
+      "SNYK-LINUX-TAR-105079": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N",
+        "creationTime": "2019-02-06T14:16:03.169358Z",
+        "credit": [""],
+        "cvssScore": 0,
+        "description": "## Overview\nTar 1.15.1 does not properly warn the user when extracting setuid or setgid files, which may allow local users or remote attackers to gain privileges.\r\n\r\nThis is considered intended behaviour, as tar is an archiving tool and one needs to give `-p` as a command line flag\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2005-2541)\n- [HP Security Bulletin](http://marc.info/?l=bugtraq&m=112327628230258&w=2)\n",
+        "disclosureTime": "2005-08-10T04:00:00Z",
+        "id": "SNYK-LINUX-TAR-105079",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN8-TAR-312329",
+            "SNYK-DEBIAN9-TAR-312330",
+            "SNYK-DEBIAN10-TAR-312331",
+            "SNYK-DEBIANUNSTABLE-TAR-312332",
+            "SNYK-DEBIAN11-TAR-523480"
+          ],
+          "CVE": ["CVE-2005-2541"],
+          "CWE": []
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T21:25:22.672560Z",
+        "packageManager": "linux",
+        "packageName": "tar",
+        "patches": [],
+        "publicationTime": "2005-08-10T04:00:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2005-2541"
+          },
+          {
+            "title": "HP Security Bulletin",
+            "url": "http://marc.info/?l=bugtraq&m=112327628230258&w=2"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "low",
+        "title": "CVE-2005-2541"
+      },
+      "SNYK-LINUX-TAR-441202": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "creationTime": "2019-03-23T09:43:34.231264Z",
+        "credit": [""],
+        "cvssScore": 7.5,
+        "description": "## Overview\npax_decode_header in sparse.c in GNU Tar before 1.32 had a NULL pointer dereference when parsing certain archives that have malformed extended headers.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-9923)\n- [MISC](http://git.savannah.gnu.org/cgit/tar.git/commit/?id=cb07844454d8cc9fb21f53ace75975f91185a120)\n- [MISC](http://savannah.gnu.org/bugs/?55369)\n- [MISC](https://bugs.launchpad.net/ubuntu/%2Bsource/tar/%2Bbug/1810241)\n- [OpenSuse Security Announcement](http://lists.opensuse.org/opensuse-security-announce/2019-04/msg00077.html)\n",
+        "disclosureTime": "2019-03-22T08:29:00Z",
+        "id": "SNYK-LINUX-TAR-441202",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIAN10-TAR-341203",
+            "SNYK-DEBIAN8-TAR-341209",
+            "SNYK-DEBIAN9-TAR-341215",
+            "SNYK-DEBIANUNSTABLE-TAR-341219",
+            "SNYK-DEBIAN11-TAR-516445"
+          ],
+          "CVE": ["CVE-2019-9923"],
+          "CWE": ["CWE-476"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-03T18:46:26.470725Z",
+        "packageManager": "linux",
+        "packageName": "tar",
+        "patches": [],
+        "publicationTime": "2019-03-22T08:29:00Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-9923"
+          },
+          {
+            "title": "MISC",
+            "url": "http://git.savannah.gnu.org/cgit/tar.git/commit/?id=cb07844454d8cc9fb21f53ace75975f91185a120"
+          },
+          { "title": "MISC", "url": "http://savannah.gnu.org/bugs/?55369" },
+          {
+            "title": "MISC",
+            "url": "https://bugs.launchpad.net/ubuntu/%2Bsource/tar/%2Bbug/1810241"
+          },
+          {
+            "title": "OpenSuse Security Announcement",
+            "url": "http://lists.opensuse.org/opensuse-security-announce/2019-04/msg00077.html"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "debian:10": ["*"],
+            "debian:11": ["*"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["*"]
+          },
+          "vulnerable": ["*"]
+        },
+        "severity": "high",
+        "title": "NULL Pointer Dereference"
+      }
+    },
+    "docker": { "binariesVulns": { "issuesData": {}, "affectedPkgs": {} } }
+  },
+  "meta": {
+    "isPrivate": true,
+    "isLicensesEnabled": false,
+    "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.14.0\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "gitphill"
+  }
+}

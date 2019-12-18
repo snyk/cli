@@ -278,10 +278,15 @@ function hasFixes(testResults: any[]): boolean {
 }
 
 function isUpgradable(testResult: any): boolean {
-  const {
-    remediation: { upgrade = {}, pin = {} },
-  } = testResult;
-  return Object.keys(upgrade).length > 0 || Object.keys(pin).length > 0;
+  if (testResult.remediation) {
+    const {
+      remediation: { upgrade = {}, pin = {} },
+    } = testResult;
+    return Object.keys(upgrade).length > 0 || Object.keys(pin).length > 0;
+  }
+  // if remediation is not available, fallback on vuln properties
+  const { vulnerabilities = {} } = testResult;
+  return vulnerabilities.some(isVulnUpgradable);
 }
 
 function hasUpgrades(testResults: any[]): boolean {
@@ -289,14 +294,31 @@ function hasUpgrades(testResults: any[]): boolean {
 }
 
 function isPatchable(testResult: any): boolean {
-  const {
-    remediation: { patch = {} },
-  } = testResult;
-  return Object.keys(patch).length > 0;
+  if (testResult.remediation) {
+    const {
+      remediation: { patch = {} },
+    } = testResult;
+    return Object.keys(patch).length > 0;
+  }
+  // if remediation is not available, fallback on vuln properties
+  const { vulnerabilities = {} } = testResult;
+  return vulnerabilities.some(isVulnPatchable);
 }
 
 function hasPatches(testResults: any[]): boolean {
   return testResults.some(isPatchable);
+}
+
+function isVulnUpgradable(vuln) {
+  return vuln.isUpgradable || vuln.isPinnable;
+}
+
+function isVulnPatchable(vuln) {
+  return vuln.isPatchable;
+}
+
+function isVulnFixable(vuln) {
+  return isVulnUpgradable(vuln) || isVulnPatchable(vuln);
 }
 
 function summariseVulnerableResults(vulnerableResults, options: TestOptions) {
@@ -646,11 +668,6 @@ function validateSeverityThreshold(severityThreshold) {
 
 function validateFailOn(arg: FailOn) {
   return Object.keys(FAIL_ON).includes(arg);
-}
-
-// This is all a copy from Registry snapshots/index
-function isVulnFixable(vuln) {
-  return vuln.isUpgradable || vuln.isPatchable;
 }
 
 function groupVulnerabilities(vulns): GroupedVuln[] {

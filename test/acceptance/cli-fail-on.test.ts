@@ -1,7 +1,6 @@
 import * as tap from 'tap';
 import * as cli from '../../src/cli/commands';
 import { fakeServer } from './fake-server';
-import * as version from '../../src/lib/version';
 import { chdirWorkspaces, getWorkspaceJSON } from './workspace-helper';
 
 const { test, only } = tap;
@@ -14,7 +13,6 @@ process.env.LOG_LEVEL = '0';
 const apiKey = '123456789';
 let oldkey;
 let oldendpoint;
-let versionNumber;
 const server = fakeServer(process.env.SNYK_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
@@ -44,8 +42,6 @@ const patchableResult = getWorkspaceJSON(
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
-  versionNumber = await version();
-
   t.plan(3);
   let key = await cli.config('get', 'api');
   oldkey = key;
