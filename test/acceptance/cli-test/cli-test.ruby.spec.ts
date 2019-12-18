@@ -480,7 +480,7 @@ export const RubyTests: AcceptanceTests = {
         ['ruby-app@', 'json@2.0.2', 'lynx@0.4.0'].sort(),
         'depGraph looks fine',
       );
-      t.equal(req.body.targetFile, 'Gemfile', 'specifies target');
+      t.notOk(req.body.targetFile, 'does not specify target');
     },
 
     '`test monorepo --file=sub-ruby-app/Gemfile`': (params, utils) => async (
@@ -506,11 +506,7 @@ export const RubyTests: AcceptanceTests = {
         'depGraph looks fine',
       );
 
-      t.equal(
-        req.body.targetFile,
-        path.join('sub-ruby-app', 'Gemfile'),
-        'specifies target',
-      );
+      t.notOk(req.body.targetFile, 'does not specify target');
     },
 
     '`test empty --file=Gemfile`': (params, utils) => async (t) => {

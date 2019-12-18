@@ -378,7 +378,7 @@ async function assembleLocalPayloads(
       }
 
       let body: PayloadBody = {
-        targetFile: pkg.targetFile,
+        targetFile: deps.plugin.targetFile,
         projectNameOverride: options.projectName,
         policy: policy && policy.toString(),
         docker: pkg.docker,
