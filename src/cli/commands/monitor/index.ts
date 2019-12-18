@@ -14,17 +14,12 @@ import * as spinner from '../../../lib/spinner';
 import * as detect from '../../../lib/detect';
 import * as plugins from '../../../lib/plugins';
 import { ModuleInfo } from '../../../lib/module-info'; // TODO(kyegupov): fix import
-import { MonitorOptions, MonitorMeta } from '../../../lib/types';
+import { MonitorOptions, MonitorMeta, Options } from '../../../lib/types';
 import { MethodArgs, ArgsOptions } from '../../args';
 import { maybePrintDeps } from '../../../lib/print-deps';
 import * as analytics from '../../../lib/analytics';
-import {
-  AuthFailedError,
-  MonitorError,
-  UnsupportedFeatureFlagError,
-} from '../../../lib/errors';
+import { MonitorError } from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { formatMonitorOutput } from './formatters/format-monitor-response';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -87,23 +82,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   apiTokenExists();
 
-  if (options['experimental-dep-graph']) {
-    const isFFSupported = await isFeatureFlagSupportedForOrg(
-      _.camelCase('experimental-dep-graph'),
-    );
-
-    if (isFFSupported.code === 401) {
-      throw AuthFailedError(isFFSupported.error, isFFSupported.code);
-    }
-
-    if (!isFFSupported.ok) {
-      throw new UnsupportedFeatureFlagError(
-        'experimental-dep-graph',
-        isFFSupported.userMessage,
-      );
-    }
-  }
-
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
     try {
@@ -156,7 +134,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       }
       const meta: MonitorMeta = {
         method: 'cli',
-        packageManager: packageManager,
+        packageManager,
         'policy-path': options['policy-path'],
         'project-name': options['project-name'] || config.PROJECT_NAME,
         isDocker: !!options.docker,
@@ -184,7 +162,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         maybePrintDeps(options, projectDeps.package);
 
         const res = await promiseOrCleanup(
-          snykMonitor(path, meta, projectDeps, targetFile),
+          snykMonitor(path, meta, projectDeps, options, targetFile),
           spinner.clear(postingMonitorSpinnerLabel),
         );
 

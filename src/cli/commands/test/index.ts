@@ -189,7 +189,7 @@ async function test(...args: MethodArgs): Promise<string> {
 
   const pinningSupported =
     pipResults &&
-    (await isFeatureFlagSupportedForOrg('pythonPinningAdvice')).ok;
+    (await isFeatureFlagSupportedForOrg('pythonPinningAdvice', config.org)).ok;
 
   let response = results
     .map((unused, i) => {

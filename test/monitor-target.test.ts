@@ -50,7 +50,7 @@ test('Make sure that target is sent correctly', async (t) => {
     .resolves('master');
 
   const { data } = await getFakeServerRequestBody();
-  t.true(requestSpy.calledOnce, 'needle.request was called once');
+  t.true(requestSpy.calledTwice, 'needle.request was called once');
   t.true(!_.isEmpty(data.target), 'target passed to request');
   t.true(
     !_.isEmpty(data.targetFileRelativePath),
@@ -77,7 +77,7 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.true(requestSpy.calledOnce, 'needle.request was called once');
+  t.true(requestSpy.calledTwice, 'needle.request was called once');
   t.true(_.isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
@@ -94,7 +94,7 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
   const requestSpy = sinon.spy(requestLib, 'request');
   const { data } = await getFakeServerRequestBody();
 
-  t.true(requestSpy.calledOnce, 'needle.request was called once');
+  t.true(requestSpy.calledTwice, 'needle.request was called once');
   t.true(_.isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,

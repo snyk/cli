@@ -605,7 +605,7 @@ function processAnswers(answers, policy, options) {
               plugin: inspectRes.plugin,
               package: _.get(inspectRes, 'scannedProjects[0].depTree'),
             };
-            return snykMonitor(cwd, meta as MonitorMeta, singleRes);
+            return snykMonitor(cwd, meta as MonitorMeta, singleRes, options);
           })
           // clear spinner in case of success or failure
           .then(spinner.clear(lbl))

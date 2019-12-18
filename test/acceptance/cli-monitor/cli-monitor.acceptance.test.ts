@@ -7,6 +7,7 @@ import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
 import * as version from '../../../src/lib/version';
+import * as userConfig from '../../../src/lib/user-config';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -144,11 +145,11 @@ test('`monitor npm-package with experimental-dep-graph enabled, but bad auth tok
 
   try {
     await cli.monitor('npm-package', { 'experimental-dep-graph': true });
-    t.fail('shoud have thrown an error');
+    t.fail('should have thrown an error');
   } catch (e) {
-    t.equal(e.name, 'CustomError', 'correct error was thrown');
-    t.equal(
-      e.userMessage,
+    t.equal(e.name, 'Error', 'correct error was thrown');
+    t.match(
+      e.message,
       'Invalid auth token provided',
       'correct default error message',
     );
@@ -157,46 +158,28 @@ test('`monitor npm-package with experimental-dep-graph enabled, but bad auth tok
   }
 });
 
-test('`monitor npm-package with experimental-dep-graph not enabled`', async (t) => {
-  chdirWorkspaces();
-
-  const needleRequestStub = sinon
-    .stub(needle, 'request')
-    .yields(null, null, { ok: false });
-
-  try {
-    await cli.monitor('npm-package', { 'experimental-dep-graph': true });
-    t.fail('shoud have thrown an error');
-  } catch (e) {
-    t.equal(e.name, 'UnsupportedFeatureFlagError', 'correct error was thrown');
-    t.equal(
-      e.userMessage,
-      "Feature flag 'experimental-dep-graph' is not currently enabled for your org, " +
-        'to enable please contact snyk support',
-      'correct default error message',
-    );
-
-    needleRequestStub.restore();
-  }
-});
-
 test('`monitor npm-package`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('npm-package');
   const req = server.popRequest();
-  const pkg = req.body.package;
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.equal(
     req.headers['x-snyk-cli-version'],
     versionNumber,
     'sends version number',
   );
-  t.match(req.url, '/monitor/npm', 'puts at correct url');
-  t.ok(pkg.dependencies.debug, 'dependency');
+  const depGraphJSON = req.body.depGraphJSON;
+  t.ok(depGraphJSON);
+  const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
+  const objectAssign = depGraphJSON.pkgs.find(
+    (pkg) => pkg.info.name === 'object-assign',
+  );
+  t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+  t.ok(debug, 'dependency');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-  t.notOk(pkg.dependencies['object-assign'], 'no dev dependency');
-  t.notOk(pkg.from, 'no "from" array on root');
-  t.notOk(pkg.dependencies.debug.from, 'no "from" array on dep');
+  t.notOk(objectAssign, 'no dev dependency');
+  t.notOk(depGraphJSON.from, 'no "from" array on root');
+  t.notOk(debug.from, 'no "from" array on dep');
   t.notOk(req.body.meta.prePruneDepCount, "doesn't send meta.prePruneDepCount");
 });
 
@@ -220,20 +203,6 @@ test('`monitor npm-out-of-sync graph monitor`', async (t) => {
   );
 });
 
-test('`monitor npm-out-of-sync old monitor`', async (t) => {
-  chdirWorkspaces();
-  await cli.monitor('npm-out-of-sync-graph', {
-    strictOutOfSync: false,
-  });
-  const req = server.popRequest();
-  t.match(req.url, '/monitor/npm', 'puts at correct url');
-  t.deepEqual(
-    req.body.meta.missingDeps,
-    ['body-parser@^1.18.2'],
-    'missingDeps passed',
-  );
-});
-
 test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
   chdirWorkspaces();
 
@@ -247,11 +216,16 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (
     versionNumber,
     'sends version number',
   );
-  t.match(req.url, '/monitor/npm', 'puts at correct url');
+  t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+  t.deepEqual(req.body.meta.monitorGraph, true, 'correct meta set');
   t.ok(req.body.meta.prePruneDepCount, 'sends meta.prePruneDepCount');
-  const adc = req.body.package.dependencies.a.dependencies.d.dependencies.c;
-  t.ok(adc.labels.pruned, 'a.d.c is pruned');
-  t.notOk(adc.dependencies, 'a.d.c has no dependencies');
+  const depGraphJSON = req.body.depGraphJSON;
+  t.ok(depGraphJSON);
+  const packageC = depGraphJSON.graph.nodes.find(
+    (pkg) => pkg.pkgId === 'c@1.0.0',
+  );
+  t.ok(packageC.info.labels.pruned, 'a.d.c is pruned');
+  t.notOk(packageC.dependencies, 'a.d.c has no dependencies');
 });
 
 test('`monitor npm-package-pruneable --prune-repeated-subdependencies --experimental-dep-graph`', async (t) => {
@@ -277,6 +251,19 @@ test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
   t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
+});
+
+test('`monitor npm-package-pruneable experimental for no-flag org`', async (t) => {
+  chdirWorkspaces();
+  await cli.monitor('npm-package-pruneable', {
+    org: 'no-flag',
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/npm', 'puts at correct url');
+  t.deepEqual(req.body.meta.monitorGraph, false, 'correct meta set');
+  t.ok(req.body.package, 'sends package');
+  userConfig.delete('org');
 });
 
 test('`monitor sbt package --experimental-dep-graph --sbt-graph`', async (t) => {
@@ -436,12 +423,15 @@ test('`monitor npm-package with dev dep flag`', async (t) => {
     versionNumber,
     'sends version number',
   );
-  t.match(req.url, '/monitor/npm', 'puts at correct url');
-  t.ok(req.body.package.dependencies.debug, 'dependency');
-  t.ok(
-    req.body.package.dependencies['object-assign'],
-    'includes dev dependency',
+  const depGraphJSON = req.body.depGraphJSON;
+  const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
+  const objectAssign = depGraphJSON.pkgs.find(
+    (pkg) => pkg.info.name === 'object-assign',
   );
+  t.ok(depGraphJSON, 'monitor is a depgraph format');
+  t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+  t.ok(debug, 'debug dependency found');
+  t.ok(objectAssign, 'includes dev dependency');
 });
 
 test('`monitor yarn-package with dev dep flag`', async (t) => {
@@ -593,7 +583,6 @@ test('`test maven-app-with-jars --scan-all-unmanaged` sends package info', async
       };
     },
   };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
   const loadPlugin = sinon.stub(plugins, 'loadPlugin');
   t.teardown(loadPlugin.restore);
   loadPlugin.withArgs('maven').returns(plugin);
