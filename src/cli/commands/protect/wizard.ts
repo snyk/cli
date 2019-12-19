@@ -38,7 +38,12 @@ import { ModuleInfo as moduleInfo } from '../../../lib/module-info';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { MissingTargetFileError } from '../../../lib/errors/missing-targetfile-error';
 import * as pm from '../../../lib/package-managers';
-import { Options, MonitorMeta, MonitorResult } from '../../../lib/types';
+import {
+  Options,
+  MonitorMeta,
+  MonitorResult,
+  WizardOptions,
+} from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import { SinglePackageResult } from '@snyk/cli-interface/legacy/plugin';
 
@@ -75,132 +80,131 @@ async function processPackageManager(options: Options) {
   });
 }
 
-function processWizardFlow(options) {
+async function loadOrCreatePolicyFile(options: Options & WizardOptions) {
+  let policyFile;
+  try {
+    policyFile = await snyk.policy.load(options['policy-path'], options);
+    return policyFile;
+  } catch (error) {
+    // if we land in the catch, but we're in interactive mode, then it means
+    // the file hasn't been created yet, and that's fine, so we'll resolve
+    // with an empty object
+    if (error.code === 'ENOENT') {
+      options.newPolicy = true;
+      policyFile = snyk.policy.create();
+      return policyFile;
+    }
+
+    throw error;
+  }
+}
+
+async function processWizardFlow(options) {
   spinner.sticky();
   const message = options['dry-run']
     ? '*** dry run ****'
     : '~~~~ LIVE RUN ~~~~';
   debug(message);
+  const policyFile = await loadOrCreatePolicyFile(options);
 
-  return snyk.policy
-    .load(options['policy-path'], options)
-    .catch((error) => {
-      // if we land in the catch, but we're in interactive mode, then it means
-      // the file hasn't been created yet, and that's fine, so we'll resolve
-      // with an empty object
-      if (error.code === 'ENOENT') {
-        options.newPolicy = true;
-        return snyk.policy.create();
+  const authed = await auth.isAuthed();
+  analytics.add('inline-auth', !authed);
+  if (!authed && isCI()) {
+    throw MisconfiguredAuthInCI();
+  }
+
+  apiTokenExists();
+  const cliIgnoreAuthorization = await authorization.actionAllowed(
+    'cliIgnore',
+    options,
+  );
+
+  options.ignoreDisabled = cliIgnoreAuthorization.allowed
+    ? false
+    : cliIgnoreAuthorization;
+  if (options.ignoreDisabled) {
+    debug('ignore disabled');
+  }
+  const intro = __dirname + '/../../../../help/wizard.txt';
+  return fs
+    .readFile(intro, 'utf8')
+    .then((str) => {
+      if (!isCI()) {
+        console.log(str);
       }
-
-      throw error;
     })
-    .then((cliPolicy) => {
-      return auth
-        .isAuthed()
-        .then((authed) => {
-          analytics.add('inline-auth', !authed);
-          if (!authed) {
-            if (isCI()) {
-              throw MisconfiguredAuthInCI();
-            }
+    .then(() => {
+      return new Promise((resolve) => {
+        if (options.newPolicy) {
+          return resolve(); // don't prompt to start over
+        }
+        inquirer.prompt(allPrompts.startOver()).then((answers) => {
+          analytics.add('start-over', answers['misc-start-over']);
+          if (answers['misc-start-over']) {
+            options['ignore-policy'] = true;
           }
-          apiTokenExists();
-        })
-        .then(() => authorization.actionAllowed('cliIgnore', options))
-        .then((cliIgnoreAuthorization) => {
-          options.ignoreDisabled = cliIgnoreAuthorization.allowed
-            ? false
-            : cliIgnoreAuthorization;
-          if (options.ignoreDisabled) {
-            debug('ignore disabled');
-          }
-          const intro = __dirname + '/../../../../help/wizard.txt';
-          return fs
-            .readFile(intro, 'utf8')
-            .then((str) => {
-              if (!isCI()) {
-                console.log(str);
-              }
-            })
-            .then(() => {
-              return new Promise((resolve) => {
-                if (options.newPolicy) {
-                  return resolve(); // don't prompt to start over
-                }
-                inquirer.prompt(allPrompts.startOver()).then((answers) => {
-                  analytics.add('start-over', answers['misc-start-over']);
-                  if (answers['misc-start-over']) {
-                    options['ignore-policy'] = true;
-                  }
-                  resolve();
-                });
-              });
-            })
-            .then(() => {
-              // We need to have modules information for remediation. See Payload.modules
-              options.traverseNodeModules = true;
-
-              return snyk.test(process.cwd(), options).then((oneOrManyRes) => {
-                if (oneOrManyRes[0]) {
-                  throw new Error(
-                    'Multiple subprojects are not yet supported by snyk wizard',
-                  );
-                }
-                const res = oneOrManyRes as LegacyVulnApiResult;
-                if (alerts.hasAlert('tests-reached') && res.isPrivate) {
-                  return;
-                }
-                const packageFile = path.resolve(process.cwd(), 'package.json');
-                if (!res.ok) {
-                  const vulns = res.vulnerabilities;
-                  const paths = vulns.length === 1 ? 'path' : 'paths';
-                  const ies = vulns.length === 1 ? 'y' : 'ies';
-                  // echo out the deps + vulns found
-                  console.log(
-                    'Tested %s dependencies for known vulnerabilities, %s',
-                    res.dependencyCount,
-                    chalk.bold.red(
-                      'found ' +
-                        res.uniqueCount +
-                        ' vulnerabilit' +
-                        ies +
-                        ', ' +
-                        vulns.length +
-                        ' vulnerable ' +
-                        paths +
-                        '.',
-                    ),
-                  );
-                } else {
-                  console.log(
-                    chalk.green(
-                      '✓ Tested %s dependencies for known ' +
-                        'vulnerabilities, no vulnerable paths found.',
-                    ),
-                    res.dependencyCount,
-                  );
-                }
-
-                return snyk.policy
-                  .loadFromText(res.policy)
-                  .then((combinedPolicy) => {
-                    return tryRequire(packageFile).then((pkg) => {
-                      options.packageLeading = pkg.prefix;
-                      options.packageTrailing = pkg.suffix;
-                      return interactive(
-                        res,
-                        pkg,
-                        combinedPolicy,
-                        options,
-                      ).then((answers) =>
-                        processAnswers(answers, cliPolicy, options),
-                      );
-                    });
-                  });
-              });
-            });
+          resolve();
         });
+      });
+    })
+    .then(() => {
+      // We need to have modules information for remediation. See Payload.modules
+      options.traverseNodeModules = true;
+
+      return snyk.test(process.cwd(), options).then((oneOrManyRes) => {
+        if (oneOrManyRes[0]) {
+          throw new Error(
+            'Multiple subprojects are not yet supported by snyk wizard',
+          );
+        }
+        const res = oneOrManyRes as LegacyVulnApiResult;
+        if (alerts.hasAlert('tests-reached') && res.isPrivate) {
+          return;
+        }
+        const packageFile = path.resolve(process.cwd(), 'package.json');
+        if (!res.ok) {
+          const vulns = res.vulnerabilities;
+          const paths = vulns.length === 1 ? 'path' : 'paths';
+          const ies = vulns.length === 1 ? 'y' : 'ies';
+          // echo out the deps + vulns found
+          console.log(
+            'Tested %s dependencies for known vulnerabilities, %s',
+            res.dependencyCount,
+            chalk.bold.red(
+              'found ' +
+                res.uniqueCount +
+                ' vulnerabilit' +
+                ies +
+                ', ' +
+                vulns.length +
+                ' vulnerable ' +
+                paths +
+                '.',
+            ),
+          );
+        } else {
+          console.log(
+            chalk.green(
+              '✓ Tested %s dependencies for known ' +
+                'vulnerabilities, no vulnerable paths found.',
+            ),
+            res.dependencyCount,
+          );
+        }
+
+        return snyk.policy.loadFromText(res.policy).then((combinedPolicy) => {
+          return tryRequire(packageFile).then((pkg) => {
+            options.packageLeading = pkg.prefix;
+            options.packageTrailing = pkg.suffix;
+            return interactive(
+              res,
+              pkg,
+              combinedPolicy,
+              options,
+            ).then((answers) => processAnswers(answers, policyFile, options));
+          });
+        });
+      });
     });
 }
 
@@ -336,36 +340,7 @@ function processAnswers(answers, policy, options) {
 
   let pkg = {} as Pkg;
 
-  analytics.add(
-    'answers',
-    Object.keys(answers)
-      .map((key) => {
-        // if we're looking at a reason, skip it
-        if (key.indexOf('-reason') !== -1) {
-          return;
-        }
-
-        // ignore misc questions, like "add snyk test to package?"
-        if (key.indexOf('misc-') === 0) {
-          return;
-        }
-
-        const answer = answers[key];
-        const entry = {
-          vulnId: answer.vuln.id,
-          choice: answer.choice,
-          from: answer.vuln.from.slice(1),
-        } as any;
-
-        if (answer.vuln.grouped) {
-          entry.batchMain = !!answer.vuln.grouped.main;
-          entry.batch = true;
-        }
-
-        return entry;
-      })
-      .filter(Boolean),
-  );
+  sendWizardAnalyticsData(answers);
 
   const tasks = answersToTasks(answers);
   debug(tasks);
@@ -375,7 +350,7 @@ function processAnswers(answers, policy, options) {
 
   const res = protect
     .generatePolicy(policy, tasks, live, options.packageManager)
-    .then((policy2) => {
+    .then(async (policy2) => {
       if (!live) {
         // if this was a dry run, we'll throw an error to bail out of the
         // promise chain, then in the catch, check the error.code and if
@@ -386,32 +361,32 @@ function processAnswers(answers, policy, options) {
         throw e;
       }
 
-      return policy2.save(cwd, spinner).then(() => {
-        // don't do this during testing
-        if (isCI() || process.env.TAP) {
-          return Promise.resolve();
-        }
+      await policy2.save(cwd, spinner);
 
-        return new Promise((resolve) => {
-          exec(
-            'git add .snyk',
-            {
-              cwd,
-            },
-            (error, stdout, stderr) => {
-              if (error) {
-                debug('error adding .snyk to git', error);
-              }
+      // don't do this during testing
+      if (isCI() || process.env.TAP) {
+        return Promise.resolve();
+      }
 
-              if (stderr) {
-                debug('stderr adding .snyk to git', stderr.trim());
-              }
+      return new Promise((resolve) => {
+        exec(
+          'git add .snyk',
+          {
+            cwd,
+          },
+          (error, stdout, stderr) => {
+            if (error) {
+              debug('error adding .snyk to git', error);
+            }
 
-              // resolve either way
-              resolve();
-            },
-          );
-        });
+            if (stderr) {
+              debug('stderr adding .snyk to git', stderr.trim());
+            }
+
+            // resolve either way
+            resolve();
+          },
+        );
       });
     })
     .then(() => {
@@ -459,10 +434,8 @@ function processAnswers(answers, policy, options) {
         pkg.scripts.test = cmd;
       }
     })
-    .then(() => {
-      return npm.getVersion();
-    })
-    .then((npmVersion) => {
+    .then(async () => {
+      const npmVersion = await npm.getVersion();
       analytics.add('add-snyk-protect', answers['misc-add-protect']);
       if (!answers['misc-add-protect']) {
         return;
@@ -667,4 +640,37 @@ function processAnswers(answers, policy, options) {
     });
 
   return res;
+}
+
+function sendWizardAnalyticsData(answers): void {
+  analytics.add(
+    'answers',
+    Object.keys(answers)
+      .map((key) => {
+        // if we're looking at a reason, skip it
+        if (key.indexOf('-reason') !== -1) {
+          return;
+        }
+
+        // ignore misc questions, like "add snyk test to package?"
+        if (key.indexOf('misc-') === 0) {
+          return;
+        }
+
+        const answer = answers[key];
+        const entry = {
+          vulnId: answer.vuln.id,
+          choice: answer.choice,
+          from: answer.vuln.from.slice(1),
+        } as any;
+
+        if (answer.vuln.grouped) {
+          entry.batchMain = !!answer.vuln.grouped.main;
+          entry.batch = true;
+        }
+
+        return entry;
+      })
+      .filter(Boolean),
+  );
 }
