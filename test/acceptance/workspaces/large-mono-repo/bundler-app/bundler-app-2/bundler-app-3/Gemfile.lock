@@ -1,0 +1,19 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rack (1.6.5)
+    rack-cache (1.1)
+      rack (>= 0.4)
+    rack-protection (1.5.3)
+      rack
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  rack (~> 1.6.2)
+  rack-cache (~> 1.1.0)
+  rack-protection (~> 1.5.0)
+
+BUNDLED WITH
+   1.14.3

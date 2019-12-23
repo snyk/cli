@@ -301,9 +301,7 @@ async function getMultiPluginResult(
   for (const targetFile of targetFiles) {
     const optionsClone = _.cloneDeep(options);
     optionsClone.file = pathUtil.relative(root, targetFile);
-    optionsClone.packageManager = detectPackageManagerFromFile(
-      optionsClone.file,
-    );
+    optionsClone.packageManager = detectPackageManagerFromFile(targetFile);
     try {
       const inspectRes = await getSinglePluginResult(root, optionsClone);
       let resultWithScannedProjects: pluginApi.MultiProjectResult;
@@ -368,8 +366,7 @@ async function getDepsFromPlugin(
     if (targetFiles.length === 0) {
       throw NoSupportedManifestsFoundError([root]);
     }
-    inspectRes = await getMultiPluginResult(root, options, targetFiles);
-    return inspectRes;
+    return await getMultiPluginResult(root, options, targetFiles);
   } else {
     // TODO: is this needed for the auto detect handling above?
     // don't override options.file if scanning multiple files at once
