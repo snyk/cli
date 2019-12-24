@@ -360,7 +360,7 @@ async function getDepsFromPlugin(
 
   if (options.allProjects) {
     // auto-detect only one-level deep for now
-    const targetFiles = await find(root, [], AUTO_DETECTABLE_FILES, 1);
+    const targetFiles = await find(root, [], AUTO_DETECTABLE_FILES, options.detectionLevel);
     debug(
       `auto detect manifest files, found ${targetFiles.length}`,
       targetFiles,

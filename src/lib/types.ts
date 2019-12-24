@@ -32,6 +32,7 @@ export interface TestOptions {
   pinningSupported?: boolean;
   failOn?: FailOn;
   allProjects?: boolean;
+  detectionLevel?: number;
 }
 export interface ProtectOptions {
   loose: boolean;
