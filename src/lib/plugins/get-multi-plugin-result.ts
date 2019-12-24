@@ -26,9 +26,9 @@ export async function getMultiPluginResult(
   const allResults: ScannedProjectCustom[] = [];
   for (const targetFile of targetFiles) {
     const optionsClone = _.cloneDeep(options);
-    optionsClone.file = path.basename(targetFile);
+    optionsClone.file = path.relative(root, targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
-      optionsClone.file,
+      path.basename(targetFile),
     );
     try {
       const inspectRes = await getSinglePluginResult(

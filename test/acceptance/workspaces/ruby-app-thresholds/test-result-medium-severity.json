@@ -338,6 +338,7 @@
   "ignoreSettings": null,
   "severityThreshold": "medium",
   "summary": "6 medium or high severity vulnerable dependency paths",
+  "displayTargetFile": "Gemfile",
   "filesystemPolicy": false,
   "filtered": {
     "ignore": [],

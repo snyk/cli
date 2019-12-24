@@ -9,6 +9,7 @@
   "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\nignore: {}\npatch: {}\n",
   "ignoreSettings": null,
   "projectName": "ruby-app-no-vulns",
+  "displayTargetFile": "Gemfile",
   "summary": "No known vulnerabilities",
   "filesystemPolicy": false,
   "uniqueCount": 0,

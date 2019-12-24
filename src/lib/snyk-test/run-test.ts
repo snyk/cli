@@ -58,6 +58,7 @@ interface PayloadBody {
   originalProjectName?: string; // used only for display
   foundProjectCount?: number; // used only for display
   docker?: any;
+  displayTargetFile?: string;
   target?: GitTarget | null;
 }
 
@@ -93,6 +94,8 @@ async function runTest(
         _.get(payload, 'body.projectNameOverride') ||
         _.get(payload, 'body.originalProjectName');
       const foundProjectCount = _.get(payload, 'body.foundProjectCount');
+      const displayTargetFile = _.get(payload, 'body.displayTargetFile');
+
       let dockerfilePackages;
       if (
         payload.body &&
@@ -190,6 +193,7 @@ async function runTest(
         targetFile,
         projectName,
         foundProjectCount,
+        displayTargetFile,
       };
       results.push(result);
     }
@@ -277,7 +281,9 @@ async function assembleLocalPayloads(
   root,
   options: Options & TestOptions,
 ): Promise<Payload[]> {
-  const analysisType = options.docker ? 'docker' : options.packageManager;
+  // For --all-projects packageManager is yet undefined here. Use 'all'
+  const analysisType =
+    (options.docker ? 'docker' : options.packageManager) || 'all';
   const spinnerLbl =
     'Analyzing ' +
     analysisType +
@@ -344,14 +350,17 @@ async function assembleLocalPayloads(
       }
 
       // todo: normalize what target file gets used across plugins and functions
-      const targetFile = scannedProject.targetFile || deps.plugin.targetFile;
+      const targetFile =
+        scannedProject.targetFile || deps.plugin.targetFile || options.file;
 
       let body: PayloadBody = {
-        targetFile,
+        // WARNING: be careful changing this as it affects project uniqueness
+        targetFile: deps.plugin.targetFile,
         projectNameOverride: options.projectName,
         originalProjectName: pkg.name,
         policy: policy && policy.toString(),
         foundProjectCount: getSubProjectCount(deps),
+        displayTargetFile: targetFile,
         docker: pkg.docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
         target: await projectMetadata.getInfo(pkg, options),

@@ -181,6 +181,7 @@ export function args(rawArgv: string[]): Args {
     'scan-all-unmanaged',
     'fail-on',
     'all-projects',
+    'detection-depth',
   ]) {
     if (argv[dashedArg]) {
       const camelCased = dashToCamelCase(dashedArg);

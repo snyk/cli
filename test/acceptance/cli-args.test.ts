@@ -78,64 +78,36 @@ test('`test --file=blah --scan-all-unmanaged`', (t) => {
   });
 });
 
-test('`test --file=blah and --all-projects`', (t) => {
-  t.plan(1);
-  exec(`node ${main} test --file=blah --all-projects`, (err, stdout) => {
-    if (err) {
-      throw err;
-    }
-    t.match(
-      stdout.trim(),
-      'The following option combination is not currently supported: project-name or file or package-manager or docker + all-projects',
-      'correct error output',
-    );
-  });
-});
+const argsNotAllowedWithAllProjects = [
+  'file',
+  'package-manager',
+  'project-name',
+  'docker',
+  'all-sub-projects',
+];
 
-test('`test --package-manager and --all-projects`', (t) => {
-  t.plan(1);
-  exec(
-    `node ${main} test --package-manager=npm --all-projects`,
-    (err, stdout) => {
+argsNotAllowedWithAllProjects.forEach((arg) => {
+  test(`using --${arg} and --all-projects throws exception`, (t) => {
+    t.plan(2);
+    exec(`node ${main} test --${arg} --all-projects`, (err, stdout) => {
       if (err) {
         throw err;
       }
       t.match(
         stdout.trim(),
-        'The following option combination is not currently supported: project-name or file or package-manager or docker + all-projects',
-        'correct error output',
+        `The following option combination is not currently supported: ${arg} + all-projects`,
+        'when using test',
       );
-    },
-  );
-});
-
-test('`test --project-name and --all-projects`', (t) => {
-  t.plan(1);
-  exec(
-    `node ${main} test --project-name=my-monorepo --all-projects`,
-    (err, stdout) => {
+    });
+    exec(`node ${main} monitor --${arg} --all-projects`, (err, stdout) => {
       if (err) {
         throw err;
       }
       t.match(
         stdout.trim(),
-        'The following option combination is not currently supported: project-name or file or package-manager or docker + all-projects',
-        'correct error output',
+        `The following option combination is not currently supported: ${arg} + all-projects`,
+        'when using monitor',
       );
-    },
-  );
-});
-
-test('`test --docker and --all-projects`', (t) => {
-  t.plan(1);
-  exec(`node ${main} test --docker --all-projects`, (err, stdout) => {
-    if (err) {
-      throw err;
-    }
-    t.match(
-      stdout.trim(),
-      'The following option combination is not currently supported: project-name or file or package-manager or docker + all-projects',
-      'correct error output',
-    );
+    });
   });
 });

@@ -1,5 +1,6 @@
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
+import * as path from 'path';
 import * as sinon from 'sinon';
 
 export const AllProjectsTests: AcceptanceTests = {
@@ -66,6 +67,164 @@ export const AllProjectsTests: AcceptanceTests = {
         result,
         'Target file:       pom.xml',
         'contains target file pom.xml',
+      );
+    },
+
+    '`test --all-projects and --file payloads are the same`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+
+      await params.cli.test('mono-repo-project', {
+        allProjects: true,
+      });
+      const [
+        rubyAllProjectsBody,
+        npmAllProjectsBody,
+        mavenAllProjectsBody,
+      ] = params.server.popRequests(3).map((req) => req.body);
+
+      await params.cli.test('mono-repo-project', {
+        file: 'Gemfile.lock',
+      });
+      const { body: rubyFileBody } = params.server.popRequest();
+
+      await params.cli.test('mono-repo-project', {
+        file: 'package-lock.json',
+      });
+      const { body: npmFileBody } = params.server.popRequest();
+
+      await params.cli.test('mono-repo-project', {
+        file: 'pom.xml',
+      });
+      const { body: mavenFileBody } = params.server.popRequest();
+
+      t.same(
+        rubyAllProjectsBody,
+        rubyFileBody,
+        'Same body for --all-projects and --file=Gemfile.lock',
+      );
+
+      t.same(
+        npmAllProjectsBody,
+        npmFileBody,
+        'Same body for --all-projects and --file=package-lock.json',
+      );
+
+      t.same(
+        mavenAllProjectsBody,
+        mavenFileBody,
+        'Same body for --all-projects and --file=pom.xml',
+      );
+    },
+
+    '`test maven-multi-app --all-projects --detection-depth=2`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+
+      const result = await params.cli.test('maven-multi-app', {
+        allProjects: true,
+        detectionDepth: 2,
+      });
+
+      t.ok(spyPlugin.withArgs('maven').calledTwice, 'calls maven plugin');
+      t.ok(
+        spyPlugin.withArgs('rubygems').notCalled,
+        'did not call rubygems plugin',
+      );
+      t.ok(spyPlugin.withArgs('npm').notCalled, 'did not call npm plugin');
+      params.server.popRequests(2).forEach((req) => {
+        t.equal(req.method, 'POST', 'makes POST request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+        t.match(req.url, '/api/v1/test-dep-graph', 'posts to correct url');
+        t.ok(req.body.depGraph, 'body contains depGraph');
+        t.match(
+          req.body.depGraph.pkgManager.name,
+          /maven/,
+          'depGraph has package manager',
+        );
+      });
+      t.match(
+        result,
+        'Package manager:   maven',
+        'contains package manager maven',
+      );
+      t.match(
+        result,
+        'Target file:       pom.xml',
+        'contains target file pom.xml',
+      );
+      t.match(
+        result,
+        `Target file:       simple-child${path.sep}pom.xml`,
+        `contains target file simple-child${path.sep}pom.xml`,
+      );
+    },
+
+    '`test large-mono-repo with --all-projects and --detection-depth=2`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+      await params.cli.test('large-mono-repo', {
+        allProjects: true,
+        detectionDepth: 2,
+      });
+      t.equals(
+        spyPlugin.withArgs('rubygems').callCount,
+        1,
+        'calls rubygems plugin once',
+      );
+      t.equals(
+        spyPlugin.withArgs('npm').callCount,
+        19,
+        'calls npm plugin 19 times',
+      );
+      t.equals(
+        spyPlugin.withArgs('maven').callCount,
+        1,
+        'calls maven plugin once',
+      );
+    },
+
+    '`test large-mono-repo with --all-projects and --detection-depth=7`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+      await params.cli.test('large-mono-repo', {
+        allProjects: true,
+        detectionDepth: 7,
+      });
+      t.equals(
+        spyPlugin.withArgs('rubygems').callCount,
+        19,
+        'calls rubygems plugin 19 times',
+      );
+      t.equals(
+        spyPlugin.withArgs('npm').callCount,
+        19,
+        'calls npm plugin 19 times',
+      );
+      t.equals(
+        spyPlugin.withArgs('maven').callCount,
+        6,
+        'calls maven plugin 6 times',
       );
     },
 
@@ -167,7 +326,7 @@ export const AllProjectsTests: AcceptanceTests = {
         t.fail('should have thrown');
       } catch (err) {
         const req = params.server.popRequest();
-        t.equal(req.query.ignorePolicy, 'true');
+        t.equal(req.query.ignorePolicy, 'true', 'should request ignore policy');
         const res = err.message;
         t.match(
           res,

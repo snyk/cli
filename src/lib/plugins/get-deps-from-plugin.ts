@@ -24,7 +24,7 @@ export async function getDepsFromPlugin(
   let inspectRes: pluginApi.InspectResult;
 
   if (options.allProjects) {
-    const levelsDeep = 1; // TODO: auto-detect only one-level deep for now
+    const levelsDeep = options.detectionDepth || 1; // default to 1 level deep
     const targetFiles = await find(root, [], AUTO_DETECTABLE_FILES, levelsDeep);
     debug(
       `auto detect manifest files, found ${targetFiles.length}`,

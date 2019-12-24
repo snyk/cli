@@ -1963,6 +1963,7 @@
   "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\nignore: {}\npatch: {}\n",
   "ignoreSettings": null,
   "summary": "31 vulnerable dependency paths",
+  "displayTargetFile": "build.sbt",
   "filesystemPolicy": false,
   "projectName": "small-app:small-app_2.10",
   "filtered": {

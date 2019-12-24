@@ -9,7 +9,7 @@ export function formatTestMeta(
 ): string {
   const padToLength = 19; // chars to align
   const packageManager = res.packageManager || options.packageManager;
-  const targetFile = res.targetFile || options.file;
+  const targetFile = res.targetFile || res.displayTargetFile || options.file;
   const openSource = res.isPrivate ? 'no' : 'yes';
   const meta = [
     chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org,

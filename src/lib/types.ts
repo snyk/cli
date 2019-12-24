@@ -30,7 +30,6 @@ export interface TestOptions {
   'prune-repeated-subdependencies'?: boolean;
   showVulnPaths: ShowVulnPaths;
   failOn?: FailOn;
-  allProjects?: boolean;
 }
 export interface ProtectOptions {
   loose: boolean;
@@ -64,6 +63,8 @@ export interface Options {
   'print-deps'?: boolean;
   'remote-repo-url'?: string;
   scanAllUnmanaged?: boolean;
+  allProjects?: boolean;
+  detectionDepth?: number;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -78,8 +79,6 @@ export interface MonitorOptions {
   'print-deps'?: boolean;
   'experimental-dep-graph'?: boolean;
   scanAllUnmanaged?: boolean;
-  allProjects?: boolean;
-
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
   'prune-repeated-subdependencies'?: boolean;
 }
