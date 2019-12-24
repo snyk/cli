@@ -1,18 +1,19 @@
-var tap = require('tap');
-var test = require('tap').test;
-var proxyquire = require('proxyquire');
-var path = require('path');
-var sinon = require('sinon');
-var noop = function() {};
-var snyk = require('../src/lib');
+const tap = require('tap');
+const test = require('tap').test;
+const proxyquire = require('proxyquire');
+const path = require('path');
+const sinon = require('sinon');
+const fs = require('fs');
+const noop = function() {};
+const snyk = require('../src/lib');
 
 // spies
-var policySaveSpy;
-var execSpy;
-var writeSpy;
+let policySaveSpy;
+let execSpy;
+let writeSpy;
 
 // policy
-var save = (p) => {
+const save = (p) => {
   policySaveSpy(p);
   return Promise.resolve();
 };
@@ -22,8 +23,8 @@ snyk.policy.save = function(data) {
   return Promise.resolve();
 };
 
-var policy = proxyquire('snyk-policy', { save: save });
-var mockPolicy;
+const policy = proxyquire('snyk-policy', { save: save });
+let mockPolicy;
 
 tap.beforeEach((done) => {
   // reset all spies
@@ -287,4 +288,26 @@ test('wizard maintains whitespace at beginning and end of package.json', functio
       process.chdir(old);
       t.end();
     });
+});
+
+test('wizard updates vulns and retains indentation', async function(t) {
+  const old = process.cwd();
+  const dir = path.resolve(__dirname, 'fixtures', 'four-spaces');
+  const manifestPath = path.resolve(dir, 'package.json');
+  const original = fs.readFileSync(manifestPath, 'utf-8');
+  writeSpy = sinon.spy();
+  process.chdir(dir);
+
+  await wizard.processAnswers(
+    {
+      'misc-add-test': true,
+      'misc-test-no-monitor': true,
+    },
+    mockPolicy,
+  );
+  const pkgString = writeSpy.args[0][1];
+  t.equal(pkgString, original, 'package.json retains indentation');
+
+  process.chdir(old);
+  t.end();
 });

@@ -1,0 +1,17 @@
+{
+    "name": "package-file-withfour-spaces-of-indentation",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "snyk test"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "debug": "^1.0.0"
+    },
+    "devDependencies": {
+        "snyk": "*"
+    }
+}
