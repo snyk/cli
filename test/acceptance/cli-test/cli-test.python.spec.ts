@@ -28,14 +28,7 @@ export const PythonTests: AcceptanceTests = {
       await params.cli.test('pip-app', {
         file: 'requirements.txt',
       });
-      let req = params.server.popRequest();
-      t.equal(req.method, 'GET', 'makes GET request');
-      t.match(
-        req.url,
-        'cli-config/feature-flags/pythonPinningAdvice',
-        'to correct url',
-      );
-      req = params.server.popRequest();
+      const req = params.server.popRequest();
       t.equal(req.method, 'POST', 'makes POST request');
       t.equal(
         req.headers['x-snyk-cli-version'],
@@ -86,14 +79,7 @@ export const PythonTests: AcceptanceTests = {
       await params.cli.test('pipenv-app', {
         file: 'Pipfile',
       });
-      let req = params.server.popRequest();
-      t.equal(req.method, 'GET', 'makes GET request');
-      t.match(
-        req.url,
-        'cli-config/feature-flags/pythonPinningAdvice',
-        'to correct url',
-      );
-      req = params.server.popRequest();
+      const req = params.server.popRequest();
       t.equal(req.method, 'POST', 'makes POST request');
       t.equal(
         req.headers['x-snyk-cli-version'],
@@ -152,14 +138,7 @@ export const PythonTests: AcceptanceTests = {
           fs.readFileSync('pip-app-transitive-vuln/cli-output.txt', 'utf8'),
         );
       }
-      let req = params.server.popRequest();
-      t.equal(req.method, 'GET', 'makes GET request');
-      t.match(
-        req.url,
-        'cli-config/feature-flags/pythonPinningAdvice',
-        'to correct url',
-      );
-      req = params.server.popRequest();
+      const req = params.server.popRequest();
       t.equal(req.method, 'POST', 'makes POST request');
       t.equal(
         req.headers['x-snyk-cli-version'],
@@ -220,14 +199,7 @@ export const PythonTests: AcceptanceTests = {
           ),
         );
       }
-      let req = params.server.popRequest();
-      t.equal(req.method, 'GET', 'makes GET request');
-      t.match(
-        req.url,
-        'cli-config/feature-flags/pythonPinningAdvice',
-        'to correct url',
-      );
-      req = params.server.popRequest();
+      const req = params.server.popRequest();
       t.equal(req.method, 'POST', 'makes POST request');
       t.equal(
         req.headers['x-snyk-cli-version'],
@@ -278,16 +250,7 @@ export const PythonTests: AcceptanceTests = {
         file: 'setup.py',
       });
 
-      let req = params.server.popRequest();
-
-      t.equal(req.method, 'GET', 'makes GET request');
-      t.match(
-        req.url,
-        'cli-config/feature-flags/pythonPinningAdvice',
-        'to correct url',
-      );
-
-      req = params.server.popRequest();
+      const req = params.server.popRequest();
       t.equal(req.method, 'POST', 'makes POST request');
       t.equal(
         req.headers['x-snyk-cli-version'],
