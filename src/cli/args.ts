@@ -180,6 +180,7 @@ export function args(rawArgv: string[]): Args {
     'skip-unresolved',
     'scan-all-unmanaged',
     'fail-on',
+    'all-projects',
   ]) {
     if (argv[dashedArg]) {
       const camelCased = dashToCamelCase(dashedArg);

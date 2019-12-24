@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as _ from 'lodash';
 import { AcceptanceTests } from './cli-test.acceptance.test';
+import { getWorkspaceJSON } from '../workspace-helper';
 
 export const RubyTests: AcceptanceTests = {
   language: 'Ruby',
@@ -66,7 +67,7 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-thresholds/test-graph-result.json'),
+        getWorkspaceJSON('ruby-app-thresholds', 'test-graph-result.json'),
       );
 
       try {
@@ -115,7 +116,10 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-thresholds/test-graph-result-low-severity.json'),
+        getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-graph-result-low-severity.json',
+        ),
       );
 
       try {
@@ -130,7 +134,10 @@ export const RubyTests: AcceptanceTests = {
 
         const res = JSON.parse(err.message);
 
-        const expected = require('../workspaces/ruby-app-thresholds/legacy-res-json-low-severity.json');
+        const expected = getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-result-low-severity.json',
+        );
 
         t.deepEqual(
           _.omit(res, ['vulnerabilities']),
@@ -152,7 +159,10 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-thresholds/test-graph-result-medium-severity.json'),
+        getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-graph-result-medium-severity.json',
+        ),
       );
 
       try {
@@ -180,7 +190,10 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-thresholds/test-graph-result-medium-severity.json'),
+        getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-graph-result-medium-severity.json',
+        ),
       );
 
       try {
@@ -202,7 +215,10 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-thresholds/test-graph-result-medium-severity.json'),
+        getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-graph-result-medium-severity.json',
+        ),
       );
 
       try {
@@ -217,7 +233,10 @@ export const RubyTests: AcceptanceTests = {
 
         const res = JSON.parse(err.message);
 
-        const expected = require('../workspaces/ruby-app-thresholds/legacy-res-json-medium-severity.json');
+        const expected = getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-result-medium-severity.json',
+        );
 
         t.deepEqual(
           _.omit(res, ['vulnerabilities']),
@@ -239,7 +258,10 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-thresholds/test-graph-result-high-severity.json'),
+        getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-graph-result-high-severity.json',
+        ),
       );
 
       try {
@@ -268,7 +290,10 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-thresholds/test-graph-result-high-severity.json'),
+        getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-graph-result-high-severity.json',
+        ),
       );
 
       try {
@@ -283,7 +308,10 @@ export const RubyTests: AcceptanceTests = {
 
         const res = JSON.parse(err.message);
 
-        const expected = require('../workspaces/ruby-app-thresholds/legacy-res-json-high-severity.json');
+        const expected = getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-result-high-severity.json',
+        );
 
         t.deepEqual(
           _.omit(res, ['vulnerabilities']),
@@ -302,7 +330,7 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-policy/test-graph-result.json'),
+        getWorkspaceJSON('ruby-app-policy', 'test-graph-result.json'),
       );
 
       try {
@@ -313,7 +341,10 @@ export const RubyTests: AcceptanceTests = {
       } catch (err) {
         const res = JSON.parse(err.message);
 
-        const expected = require('../workspaces/ruby-app-policy/legacy-res-json.json');
+        const expected = getWorkspaceJSON(
+          'ruby-app-policy',
+          'test-result.json',
+        );
 
         t.deepEqual(
           _.omit(res, ['vulnerabilities']),
@@ -334,7 +365,10 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-policy/test-graph-result-cloud-ignore.json'),
+        getWorkspaceJSON(
+          'ruby-app-policy',
+          'test-graph-result-cloud-ignore.json',
+        ),
       );
 
       try {
@@ -345,7 +379,10 @@ export const RubyTests: AcceptanceTests = {
       } catch (err) {
         const res = JSON.parse(err.message);
 
-        const expected = require('../workspaces/ruby-app-policy/legacy-res-json-cloud-ignore.json');
+        const expected = getWorkspaceJSON(
+          'ruby-app-policy',
+          'test-result-cloud-ignore.json',
+        );
 
         t.deepEqual(
           _.omit(res, ['vulnerabilities']),
@@ -364,7 +401,7 @@ export const RubyTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
-        require('../workspaces/ruby-app-no-vulns/test-graph-result.json'),
+        getWorkspaceJSON('ruby-app-no-vulns', 'test-graph-result.json'),
       );
 
       const outText = await params.cli.test('ruby-app-no-vulns', {
@@ -373,7 +410,10 @@ export const RubyTests: AcceptanceTests = {
 
       const res = JSON.parse(outText);
 
-      const expected = require('../workspaces/ruby-app-no-vulns/legacy-res-json.json');
+      const expected = getWorkspaceJSON(
+        'ruby-app-no-vulns',
+        'test-result.json',
+      );
 
       t.deepEqual(res, expected, '--json output is the same');
     },
@@ -383,7 +423,7 @@ export const RubyTests: AcceptanceTests = {
 
       const apiResponse = Object.assign(
         {},
-        require('../workspaces/ruby-app-no-vulns/test-graph-result.json'),
+        getWorkspaceJSON('ruby-app-no-vulns', 'test-graph-result.json'),
       );
       apiResponse.meta.isPublic = true;
       params.server.setNextResponse(apiResponse);
@@ -396,7 +436,7 @@ export const RubyTests: AcceptanceTests = {
 
       const expected = Object.assign(
         {},
-        require('../workspaces/ruby-app-no-vulns/legacy-res-json.json'),
+        getWorkspaceJSON('ruby-app-no-vulns', 'test-result.json'),
         { isPrivate: false },
       );
 

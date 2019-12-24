@@ -183,6 +183,34 @@ test('`monitor npm-package`', async (t) => {
   t.notOk(req.body.meta.prePruneDepCount, "doesn't send meta.prePruneDepCount");
 });
 
+test('`monitor npm-package with --all-projects has not effect`', async (t) => {
+  // TODO: monitor --all-projects is not supported initially
+  chdirWorkspaces();
+  await cli.monitor('npm-package', {
+    'all-projects': true,
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  const depGraphJSON = req.body.depGraphJSON;
+  t.ok(depGraphJSON);
+  const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
+  const objectAssign = depGraphJSON.pkgs.find(
+    (pkg) => pkg.info.name === 'object-assign',
+  );
+  t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+  t.ok(debug, 'dependency');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
+  t.notOk(objectAssign, 'no dev dependency');
+  t.notOk(depGraphJSON.from, 'no "from" array on root');
+  t.notOk(debug.from, 'no "from" array on dep');
+  t.notOk(req.body.meta.prePruneDepCount, "doesn't send meta.prePruneDepCount");
+});
+
 test('`monitor npm-out-of-sync graph monitor`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('npm-out-of-sync-graph', {

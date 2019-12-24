@@ -157,6 +157,19 @@ async function main() {
         'scan-all-unmanaged',
       ]);
     }
+
+    if (
+      (args.options['project-name'] ||
+        args.options.file ||
+        args.options.packageManager ||
+        args.options.docker) &&
+      args.options.allProjects
+    ) {
+      throw new UnsupportedOptionCombinationError([
+        'project-name or file or package-manager or docker',
+        'all-projects',
+      ]);
+    }
     if (
       args.options.file &&
       typeof args.options.file === 'string' &&

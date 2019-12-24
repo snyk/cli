@@ -25,6 +25,7 @@ import { PythonTests } from './cli-test.python.spec';
 import { RubyTests } from './cli-test.ruby.spec';
 import { SbtTests } from './cli-test.sbt.spec';
 import { YarnTests } from './cli-test.yarn.spec';
+import { AllProjectsTests } from './cli-test.all-projects.spec';
 
 const languageTests: AcceptanceTests[] = [
   CocoapodsTests,
@@ -96,6 +97,18 @@ test(GenericTests.language, async (t) => {
       testName,
       GenericTests.tests[testName](
         { server, versionNumber, cli },
+        { chdirWorkspaces },
+      ),
+    );
+  }
+});
+
+test(AllProjectsTests.language, async (t) => {
+  for (const testName of Object.keys(AllProjectsTests.tests)) {
+    t.test(
+      testName,
+      AllProjectsTests.tests[testName](
+        { server, versionNumber, cli, plugins },
         { chdirWorkspaces },
       ),
     );

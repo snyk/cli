@@ -5,18 +5,22 @@ interface FakeServer extends restify.Server {
   _nextResponse?: restify.Response;
   _nextStatusCode?: number;
   popRequest: () => restify.Request;
+  popRequests: (num: number) => restify.Request[];
   setNextResponse: (r: any) => void;
   setNextStatusCodeAndResponse: (c: number, r: any) => void;
 }
 
 export function fakeServer(root, apikey) {
-  var server = restify.createServer({
+  const server = restify.createServer({
     name: 'snyk-mock-server',
     version: '1.0.0',
   }) as FakeServer;
   server._reqLog = [];
-  server.popRequest = function() {
+  server.popRequest = () => {
     return server._reqLog.pop()!;
+  };
+  server.popRequests = (num: number) => {
+    return server._reqLog.slice(server._reqLog.length - num, num);
   };
   server.use(restify.acceptParser(server.acceptable));
   server.use(restify.queryParser());
@@ -26,8 +30,8 @@ export function fakeServer(root, apikey) {
     next();
   });
 
-  [root + '/verify/callback', root + '/verify/token'].map(function(url) {
-    server.post(url, function(req, res) {
+  [root + '/verify/callback', root + '/verify/token'].map((url) => {
+    server.post(url, (req, res) => {
       if (req.params.api && req.params.api === apikey) {
         return res.send({
           ok: true,
@@ -49,11 +53,11 @@ export function fakeServer(root, apikey) {
     });
   });
 
-  server.use(function(req, res, next) {
+  server.use((req, res, next) => {
     if (!server._nextResponse && !server._nextStatusCode) {
       return next();
     }
-    var response = server._nextResponse;
+    const response = server._nextResponse;
     delete server._nextResponse;
     if (server._nextStatusCode) {
       const code = server._nextStatusCode;
@@ -64,15 +68,15 @@ export function fakeServer(root, apikey) {
     }
   });
 
-  server.get(root + '/vuln/:registry/:module', function(req, res, next) {
+  server.get(root + '/vuln/:registry/:module', (req, res, next) => {
     res.send({
       vulnerabilities: [],
     });
     return next();
   });
 
-  server.post(root + '/vuln/:registry', function(req, res, next) {
-    var vulnerabilities = [];
+  server.post(root + '/vuln/:registry', (req, res, next) => {
+    const vulnerabilities = [];
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);
       res.send({
@@ -82,21 +86,21 @@ export function fakeServer(root, apikey) {
       return next();
     }
     res.send({
-      vulnerabilities: vulnerabilities,
+      vulnerabilities,
       org: 'test-org',
       isPrivate: true,
     });
     return next();
   });
 
-  server.post(root + '/vuln/:registry/patches', function(req, res, next) {
+  server.post(root + '/vuln/:registry/patches', (req, res, next) => {
     res.send({
       vulnerabilities: [],
     });
     return next();
   });
 
-  server.post(root + '/test-dep-graph', function(req, res, next) {
+  server.post(root + '/test-dep-graph', (req, res, next) => {
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);
       res.send({
@@ -145,14 +149,14 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.put(root + '/monitor/:registry', function(req, res, next) {
+  server.put(root + '/monitor/:registry', (req, res, next) => {
     res.send({
       id: 'test',
     });
     return next();
   });
 
-  server.setNextResponse = function(response) {
+  server.setNextResponse = (response) => {
     server._nextResponse = response;
   };
 

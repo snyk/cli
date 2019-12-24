@@ -128,6 +128,10 @@ export interface LegacyVulnApiResult {
   remediation?: RemediationChanges;
 }
 
+export interface TestResult extends LegacyVulnApiResult {
+  targetFile?: string;
+}
+
 interface UpgradePathItem {
   name: string;
   version: string;

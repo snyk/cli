@@ -14,7 +14,7 @@ import { SupportedPackageManagers } from '../package-managers';
 import { UnsupportedPackageManagerError } from '../errors';
 
 export function loadPlugin(
-  packageManager: SupportedPackageManagers,
+  packageManager: SupportedPackageManagers | undefined,
   options: types.Options = {},
 ): types.Plugin {
   if (options.docker) {

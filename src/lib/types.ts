@@ -31,6 +31,7 @@ export interface TestOptions {
   showVulnPaths: ShowVulnPaths;
   pinningSupported?: boolean;
   failOn?: FailOn;
+  allProjects?: boolean;
 }
 export interface ProtectOptions {
   loose: boolean;
