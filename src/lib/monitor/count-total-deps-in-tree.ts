@@ -1,6 +1,4 @@
-import {
-  DepTree,
-} from '../types';
+import { DepTree } from '../types';
 
 export function countTotalDependenciesInTree(depTree: DepTree): number {
   let count = 0;

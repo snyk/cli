@@ -8,11 +8,7 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
-import {
-  DepTree,
-  MonitorMeta,
-  MonitorResult,
-} from '../types';
+import { DepTree, MonitorMeta, MonitorResult } from '../types';
 import * as projectMetadata from '../project-metadata';
 import * as path from 'path';
 import {

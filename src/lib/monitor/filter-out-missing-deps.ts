@@ -1,6 +1,4 @@
-import {
-  DepTree,
-} from '../types';
+import { DepTree } from '../types';
 
 interface FilteredDepTree {
   filteredDepTree: DepTree;

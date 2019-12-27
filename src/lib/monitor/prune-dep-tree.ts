@@ -1,7 +1,5 @@
 import * as depGraphLib from '@snyk/dep-graph';
-import {
-  DepTree,
-} from '../types';
+import { DepTree } from '../types';
 
 export async function pruneTree(
   tree: DepTree,

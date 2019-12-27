@@ -1,6 +1,4 @@
-import {
-  DepTree,
-} from '../types';
+import { DepTree } from '../types';
 
 export function dropEmptyDeps(depTree: DepTree) {
   if (depTree.dependencies) {
