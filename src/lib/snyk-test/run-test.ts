@@ -41,6 +41,7 @@ import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { AuthFailedError } from '../errors/authentication-failed-error';
 import { find } from '../find-files';
 import { AUTO_DETECTABLE_FILES } from '../detect';
+import { pluckPolicies } from '../policy';
 
 // tslint:disable-next-line:no-var-requires
 const debug = require('debug')('snyk');
@@ -603,26 +604,4 @@ function countUniqueVulns(vulns: AnnotatedIssue[]): number {
     seen[curr.id] = true;
   }
   return Object.keys(seen).length;
-}
-
-function pluckPolicies(pkg) {
-  if (!pkg) {
-    return null;
-  }
-
-  if (pkg.snyk) {
-    return pkg.snyk;
-  }
-
-  if (!pkg.dependencies) {
-    return null;
-  }
-
-  return _.flatten(
-    Object.keys(pkg.dependencies)
-      .map((name) => {
-        return pluckPolicies(pkg.dependencies[name]);
-      })
-      .filter(Boolean),
-  );
 }
