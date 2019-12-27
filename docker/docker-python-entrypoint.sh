@@ -1,5 +1,4 @@
 #!/bin/bash
-
 virtualenv -p python snyk
 source snyk/bin/activate
 
@@ -13,6 +12,19 @@ exitWithMsg() {
     fi
 
     exit "$2"
+}
+
+installRequirementsTxtDeps() {
+    echo "Installing dependencies from requirements file"
+    pip install -U -r "$1"
+}
+
+installPipfileDeps() {
+    pushd "${PROJECT_PATH}/"
+    echo "Found Pipfile"
+    pipenv lock
+    pipenv install --system
+    popd
 }
 
 PROJECT_SUBDIR=""
@@ -31,7 +43,7 @@ if [ -n "${TARGET_FILE}" ]; then
     case $MANIFEST_NAME in
     *req*.txt)
         echo "Installing dependencies from requirements file"
-        pip install -U -r "${PROJECT_PATH}/$MANIFEST_NAME"
+        installRequirementsTxtDeps "${PROJECT_PATH}/$MANIFEST_NAME"
         ;;
     *setup.py)
         echo "Installing dependencies from setup.py"
@@ -45,7 +57,9 @@ fi
 
 if [ -f "${PROJECT_PATH}/requirements.txt" ]; then
     echo "Found requirement.txt"
-    pip install -U -r "${PROJECT_PATH}/requirements.txt"
+    installRequirementsTxtDeps "${PROJECT_PATH}/requirements.txt"
+elif [ -f "${PROJECT_PATH}/Pipfile" ]; then
+    installPipfileDeps
 fi
 
 bash docker-entrypoint.sh "$@"

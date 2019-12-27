@@ -60,7 +60,7 @@ The package argument is optional. If no package is given, Snyk will run the comm
 - **Alert** `snyk monitor` records the state of dependencies and any vulnerabilities on snyk.io so you can be alerted when new vulnerabilities or updates/patches are disclosed that affect your repositories.
 - **Prevent** new vulnerable dependencies from being added to your project by running `snyk test` as part of your CI to fail tests when vulnerable Node.js or Ruby dependencies are added.
 
-## Snyk cli Docker images
+## Snyk CLI Docker images
 
 [See all snyk/snyk-cli images](https://hub.docker.com/r/snyk/snyk-cli)
 
@@ -77,7 +77,6 @@ The following environment variables can be used when running the container on do
 - `ENV_FLAGS` - [OPTIONAL] additional environment parameters to pass to `snyk test` when running the container.
 - `TARGET_FILE` - [OPTIONAL] additional environment parameters to pass to `snyk test` & `snyk monitor` equal to `--file` option in the cli.
 
-
 Docker images are tagged according to the package manager runtime they include, the package manager version and snyk version.
 The general format of tags is [snyk-version]-[package-manager]-[package-manager-version] or just [package-manager]-[package-manager-version] if we want to use the latest version of snyk. Please see available tags to see the available options.
 
@@ -85,52 +84,44 @@ The general format of tags is [snyk-version]-[package-manager]-[package-manager-
 [package-manager] - One of the available package managers (e.g: npm, mvn, gradle, etc...).
 [package-manager-version] - The version of the package manager that is installed inside the image.
 
-
-**Note** We will need to mount the project root folder when running the image so that Snyk can access the code within the container. The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
-
-#### Below are examples of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk):
-
-- `snyk test`
-  ```
-  docker run -it
-      -e "SNYK_TOKEN=<TOKEN>"
-      -e "USER_ID=1234"
-      -v "<PROJECT_DIRECTORY>:/project"
-    snyk/snyk-cli:npm
-  ```
-
-- `snyk test` with a report generated via `snyk-to-html`
-  ```
-  docker run -it
-      -e "SNYK_TOKEN=<TOKEN>"
-      -e "USER_ID=1234"
-      -e "MONITOR=true"
-      -v "<PROJECT_DIRECTORY>:/project"
-    snyk/snyk-cli:npm test --json --org=my-org-name
-  ```
-
-- `snyk monitor`
-  ```
-  docker run -it
-      -e "SNYK_TOKEN=<TOKEN>"
-      -e "USER_ID=1234"
-      -v "<PROJECT_DIRECTORY>:/project"
-    snyk/snyk-cli:npm monitor
-  ```
+Please see the following examples on how to run Snyk inside docker:
 
 ### Node.js (npm)
 
-`snyk/snyk-cli:npm` - [see all available `npm` tagged images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=npm)
+The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
+
+Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for npm:
+
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+  snyk/snyk-cli:npm test --org=my-org-name
+```
 
 ### RubyGems
 
-`snyk/snyk-cli:rubygems` - [see all available `rubygems` tagged images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=rubygems)
+The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
 
-### Maven 3.5.4 / 3.6.3 / 3.6.3 (Java 11)
+Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for RubyGems:
 
-`snyk/snyk-cli:maven-*` - [see all available `maven` tagged images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=maven)
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+  snyk/snyk-cli:rubygems test --org=my-org-name
+```
 
-You may also need to mount the local .m2 and .ivy2 folders, example:
+### Maven 3.5.4
+
+The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
+You may also need to mount the local `.m2` and `.ivy2` folders.
+
+Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Maven:
 
 ```
 docker run -it
@@ -143,51 +134,80 @@ docker run -it
   snyk/snyk-cli:maven-3.5.4 test --org=my-org-name
 ```
 
-### Python 2 / 3
-`snyk/snyk-cli:python-*` - [see all available `python` tagged images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=python)
-
-
-- setup.py (example in the current directory with Python 3)
-```
-  docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "TARGET_FILE=setup.py"
-    -v "$PWD:/project"
-    snyk/snyk-cli:python-3
-```
-
-- \*req\*.txt (requirements-dev.txt / prod-reqs.txt etc)
-
-```
-docker run -it -e
-  docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "TARGET_FILE=requirements-dev.txt"
-    -v "$PWD:/project"
-    snyk/snyk-cli:python-3 test --package-manager=pip
-```
-
-
 ### SBT 0.13.16 / SBT 1.0.4
-`snyk/snyk-cli:sbt-*` - [see all available `sbt` tagged images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=sbt)
 
+The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
+You may also need to mount the local `.m2` and `.ivy2` folders.
 
-You may also need to mount the local .m2 and .ivy2 folders, example:
+Here are examples of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for SBT:
 
 *Note*: the `dependency-tree` or `sbt-dependency-graph` or `sbt-coursier` (included by default in latest sbt versions) module is required for `snyk` to process Scala projects.
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+    -v "/home/user/.m2:/home/node/.m2"
+    -v "/home/user/.ivy2:/home/node/.ivy2"
+  snyk/snyk-cli:sbt-0.13.16 test --org=my-org-name
+```
 
-For `dependency-tree` you can use [version 0.8.2](https://github.com/jrudolph/sbt-dependency-graph/tree/v0.8.2) for SBT 0.13.16 and [version 0.9.0](https://github.com/jrudolph/sbt-dependency-graph/tree/v0.9.0) for version SBT 1.0.4.
-
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+    -v "/home/user/.m2:/home/node/.m2"
+    -v "/home/user/.ivy2:/home/node/.ivy2"
+  snyk/snyk-cli:sbt-1.0.4 test --org=my-org-name
+```
 
 ### Gradle 2.8 / Gradle 4.4 / Gradle 5.4
-`snyk/snyk-cli:gradle-*` - [see all available `gradle` tagged images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=gradle)
 
-You may also need to mount the local .m2 and .ivy2 folders, example:
+The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
+You may also need to mount the local `.gradle`.
 
+Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Gradle:
+
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+    -v "/home/user/.gradle:/home/node/.gradle"
+  snyk/snyk-cli:gradle-2.8 test --org=my-org-name
+```
+
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+    -v "/home/user/.gradle:/home/node/.gradle"
+  snyk/snyk-cli:gradle-4.4 test --org=my-org-name
+```
+
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -v "<PROJECT_DIRECTORY>:/project"
+    -v "/home/user/.gradle:/home/node/.gradle"
+  snyk/snyk-cli:gradle-5.4 test --org=my-org-name
+```
 
 ### Docker
 
-`snyk/snyk-cli:docker` - [see all available `docker` tagged images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=docker)
+The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
+
+The image being tested is expected to be available locally.
+
+Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Docker:
 
 ```
 docker run -it
@@ -196,7 +216,7 @@ docker run -it
     -e "MONITOR=true"
     -v "<PROJECT_DIRECTORY>:/project"
     -v "/var/run/docker.sock:/var/run/docker.sock"
-  snyk/snyk-cli:docker test --docker <APP>:<TAG> --file=<DOCKERFILE>
+  snyk/snyk-cli:docker test --docker myapp:mytag --file=<DOCKERFILE>
 ```
 
 ## Badge
