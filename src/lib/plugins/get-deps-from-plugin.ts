@@ -1,8 +1,7 @@
 import * as debugModule from 'debug';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-
 import { find } from '../find-files';
-import { Options, TestOptions } from '../types';
+import { Options, TestOptions, MonitorOptions } from '../types';
 import { NoSupportedManifestsFoundError } from '../errors';
 import { getMultiPluginResult } from './get-multi-plugin-result';
 import { getSinglePluginResult } from './get-single-plugin-result';
@@ -18,7 +17,7 @@ const debug = debugModule('snyk');
 // Force getDepsFromPlugin to return scannedProjects for processing
 export async function getDepsFromPlugin(
   root: string,
-  options: Options & TestOptions,
+  options: Options & (TestOptions | MonitorOptions),
 ): Promise<pluginApi.MultiProjectResult> {
   let inspectRes: pluginApi.InspectResult;
 

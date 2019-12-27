@@ -6,38 +6,25 @@ import { apiTokenExists } from '../../../lib/api-token';
 import snyk = require('../../../lib'); // TODO(kyegupov): fix import
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import * as config from '../../../lib/config';
-import * as url from 'url';
 import chalk from 'chalk';
 import * as pathUtil from 'path';
 import * as spinner from '../../../lib/spinner';
+import * as Debug from 'debug';
 
 import * as detect from '../../../lib/detect';
-import * as plugins from '../../../lib/plugins';
-import { ModuleInfo } from '../../../lib/module-info'; // TODO(kyegupov): fix import
-import { MonitorOptions, MonitorMeta, Options } from '../../../lib/types';
+import { MonitorOptions, MonitorMeta } from '../../../lib/types';
 import { MethodArgs, ArgsOptions } from '../../args';
 import { maybePrintDeps } from '../../../lib/print-deps';
 import * as analytics from '../../../lib/analytics';
-import { MonitorError } from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { formatMonitorOutput } from './formatters/format-monitor-response';
 import { getSubProjectCount } from '../../../lib/plugins/get-sub-project-count';
 import { processJsonMonitorResponse } from './process-json-monitor';
+import { GoodResult, BadResult } from './types';
+import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
-
-interface GoodResult {
-  ok: true;
-  data: string;
-  path: string;
-  projectName?: string;
-}
-
-interface BadResult {
-  ok: false;
-  data: MonitorError;
-  path: string;
-}
+const debug = Debug('snyk');
 
 // This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
 // declaring the type of x as possibly undefined.
@@ -86,6 +73,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
+    debug(`Processing ${path}...`);
     try {
       await validateMonitorPath(path, options.docker);
 
@@ -95,10 +83,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         !options.scanAllUnmanaged && options.docker && !options.file // snyk monitor --docker (without --file)
           ? undefined
           : options.file || detect.detectPackageFile(path);
-
-      const modulePlugin = plugins.loadPlugin(packageManager, options);
-
-      const moduleInfo = ModuleInfo(modulePlugin, options.policy);
 
       const displayPath = pathUtil.relative(
         '.',
@@ -110,26 +94,27 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       const analyzingDepsSpinnerLabel =
         'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
 
-      const postingMonitorSpinnerLabel =
-        'Posting monitor snapshot for ' + displayPath + ' ...';
-
       await spinner(analyzingDepsSpinnerLabel);
 
       // Scan the project dependencies via a plugin
 
       analytics.add('packageManager', packageManager);
       analytics.add('pluginOptions', options);
+      debug('getDepsFromPlugin ...');
 
       // each plugin will be asked to scan once per path
       // some return single InspectResult & newer ones return Multi
-      const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
-        moduleInfo.inspect(path, targetFile, { ...options }),
+      const inspectResult = await promiseOrCleanup(
+        getDepsFromPlugin(path, { ...options, path, packageManager }),
         spinner.clear(analyzingDepsSpinnerLabel),
       );
 
       analytics.add('pluginName', inspectResult.plugin.name);
 
       await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
+
+      const postingMonitorSpinnerLabel =
+        'Posting monitor snapshot for ' + displayPath + ' ...';
 
       await spinner(postingMonitorSpinnerLabel);
       if (inspectResult.plugin.packageManager) {
@@ -169,6 +154,9 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Post the project dependencies to the Registry
       for (const projectDeps of perProjectResult.scannedProjects) {
+        debug(
+          `Processing ${projectDeps.depTree.name || targetFile || path}...`,
+        );
         maybePrintDeps(options, projectDeps.depTree);
 
         const res = await promiseOrCleanup(

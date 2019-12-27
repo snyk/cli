@@ -1,11 +1,11 @@
 import plugins = require('.');
 import { ModuleInfo } from '../module-info';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { TestOptions, Options } from '../types';
+import { TestOptions, Options, MonitorOptions } from '../types';
 
 export async function getSinglePluginResult(
   root: string,
-  options: Options & TestOptions,
+  options: Options & (TestOptions | MonitorOptions),
   targetFile?: string,
 ): Promise<pluginApi.InspectResult> {
   const plugin = plugins.loadPlugin(options.packageManager, options);

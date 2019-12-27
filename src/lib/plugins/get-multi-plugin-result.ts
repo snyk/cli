@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import * as cliInterface from '@snyk/cli-interface';
 
-import { TestOptions, Options } from '../types';
+import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
 import { SupportedPackageManagers } from '../package-managers';
 import { getSinglePluginResult } from './get-single-plugin-result';
@@ -14,11 +14,10 @@ export interface ScannedProjectCustom
 
 export async function getMultiPluginResult(
   root: string,
-  options: Options & TestOptions,
+  options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
 ): Promise<cliInterface.legacyPlugin.MultiProjectResult> {
   const allResults: ScannedProjectCustom[] = [];
-
   for (const targetFile of targetFiles) {
     const optionsClone = _.cloneDeep(options);
     optionsClone.file = path.basename(targetFile);
@@ -57,8 +56,7 @@ export async function getMultiPluginResult(
       const customScannedProject: ScannedProjectCustom[] = resultWithScannedProjects.scannedProjects.map(
         (a) => {
           (a as ScannedProjectCustom).targetFile = optionsClone.file;
-          (a as ScannedProjectCustom).packageManager =
-            optionsClone.packageManager;
+          (a as ScannedProjectCustom).packageManager = optionsClone.packageManager!;
           return a as ScannedProjectCustom;
         },
       );

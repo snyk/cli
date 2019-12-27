@@ -324,7 +324,7 @@ async function assembleLocalPayloads(
         policyLocations = policyLocations.filter((loc) => {
           return loc !== root;
         });
-      } else if (['npm', 'yarn'].indexOf(options.packageManager) > -1) {
+      } else if (['npm', 'yarn'].indexOf(options.packageManager!) > -1) {
         policyLocations = policyLocations.concat(pluckPolicies(pkg));
       }
       debug('policies found', policyLocations);
@@ -372,7 +372,7 @@ async function assembleLocalPayloads(
         });
         let depGraph = await depGraphLib.legacy.depTreeToGraph(
           pkg,
-          options.packageManager,
+          options.packageManager!,
         );
 
         debug('done converting dep-tree to dep-graph', {
@@ -383,7 +383,7 @@ async function assembleLocalPayloads(
           const prePruneDepCount = countPathsToGraphRoot(depGraph);
           debug('pre prunedPathsCount: ' + prePruneDepCount);
 
-          depGraph = await pruneGraph(depGraph, options.packageManager);
+          depGraph = await pruneGraph(depGraph, options.packageManager!);
 
           analytics.add('prePrunedPathsCount', prePruneDepCount);
           const postPruneDepCount = countPathsToGraphRoot(depGraph);
@@ -405,7 +405,7 @@ async function assembleLocalPayloads(
         body,
       };
 
-      if (['yarn', 'npm'].indexOf(options.packageManager) !== -1) {
+      if (['yarn', 'npm'].indexOf(options.packageManager!) !== -1) {
         const isLockFileBased =
           targetFile &&
           (targetFile.endsWith('package-lock.json') ||

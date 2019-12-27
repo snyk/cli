@@ -21,7 +21,7 @@ export function formatIssues(
   options: Options & TestOptions,
 ) {
   const vulnID = vuln.list[0].id;
-  const packageManager = options.packageManager;
+  const packageManager = options.packageManager!;
   const localPackageTest = isLocalFolder(options.path);
   const uniquePackages = _.uniq(
     vuln.list.map((i) => {
