@@ -19,7 +19,7 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
 
-      params.server.popRequests(2).forEach((req) => {
+      params.server.popRequests(3).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
@@ -30,7 +30,7 @@ export const AllProjectsTests: AcceptanceTests = {
         t.ok(req.body.depGraph, 'body contains depGraph');
         t.match(
           req.body.depGraph.pkgManager.name,
-          /(npm|rubygems)/,
+          /(npm|rubygems|maven)/,
           'depGraph has package manager',
         );
       });
@@ -56,6 +56,16 @@ export const AllProjectsTests: AcceptanceTests = {
         'Target file:       package-lock.json',
         'contains target file package-lock.json',
       );
+      t.match(
+        result,
+        'Package manager:   maven',
+        'contains package manager maven',
+      );
+      t.match(
+        result,
+        'Target file:       pom.xml',
+        'contains target file pom.xml',
+      );
     },
 
     '`test mono-repo-project-manifests-only --all-projects`': (
@@ -66,7 +76,7 @@ export const AllProjectsTests: AcceptanceTests = {
       const result = await params.cli.test('mono-repo-project-manifests-only', {
         allProjects: true,
       });
-      params.server.popRequests(2).forEach((req) => {
+      params.server.popRequests(3).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
@@ -77,12 +87,12 @@ export const AllProjectsTests: AcceptanceTests = {
         t.ok(req.body.depGraph, 'body contains depGraph');
         t.match(
           req.body.depGraph.pkgManager.name,
-          /(npm|rubygems)/,
+          /(npm|rubygems|maven)/,
           'depGraph has package manager',
         );
       });
 
-      // results should contain test results from both package managers
+      // results should contain test results from all package managers
       t.match(
         result,
         'Package manager:   rubygems',
@@ -99,6 +109,16 @@ export const AllProjectsTests: AcceptanceTests = {
         'Target file:       package-lock.json',
         'contains target file package-lock.json',
       );
+      t.match(
+        result,
+        'Package manager:   maven',
+        'contains package manager maven',
+      );
+      t.match(
+        result,
+        'Target file:       pom.xml',
+        'contains target file pom.xml',
+      );
     },
 
     '`test ruby-app --all-projects`': (params, utils) => async (t) => {
@@ -109,7 +129,11 @@ export const AllProjectsTests: AcceptanceTests = {
       const res = await params.cli.test('ruby-app', { allProjects: true });
 
       t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
-      t.notOk(spyPlugin.withArgs('npm').calledOnce, 'doesnt calls npm plugin');
+      t.notOk(spyPlugin.withArgs('npm').calledOnce, "doesn't call npm plugin");
+      t.notOk(
+        spyPlugin.withArgs('maven').calledOnce,
+        "doesn't call maven plugin",
+      );
 
       t.match(
         res,
