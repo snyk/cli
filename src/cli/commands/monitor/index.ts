@@ -169,22 +169,12 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         await spinner.clear(postingMonitorSpinnerLabel)(res);
 
         res.path = path;
-        const endpoint = url.parse(config.API);
-        let leader = '';
-        if (res.org) {
-          leader = '/org/' + res.org;
-        }
-        endpoint.pathname = leader + '/manage';
-        const manageUrl = url.format(endpoint);
-
-        endpoint.pathname = leader + '/monitor/' + res.id;
         const projectName = pluginApi.isMultiResult(inspectResult)
           ? projectDeps.package.name
           : undefined;
         const monOutput = formatMonitorOutput(
           packageManager,
           res,
-          manageUrl,
           options,
           projectName,
           foundProjectCount,
