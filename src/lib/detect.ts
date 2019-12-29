@@ -37,6 +37,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'package.json',
   'Gemfile',
   'Gemfile.lock',
+  'pom.xml',
 ];
 
 // when file is specified with --file, we look it up here
