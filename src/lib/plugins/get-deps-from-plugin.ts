@@ -1,15 +1,14 @@
+import * as debugModule from 'debug';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import detect = require('../../lib/detect');
-import { TestOptions } from '../types';
-import { Options } from '../types';
-import { NoSupportedManifestsFoundError } from '../errors';
-import { find } from '../find-files';
-import { AUTO_DETECTABLE_FILES } from '../detect';
-import { getSinglePluginResult } from '../plugins/get-single-plugin-result';
-import { getMultiPluginResult } from '../plugins/get-multi-plugin-result';
 
-// tslint:disable-next-line:no-var-requires
-const debug = require('debug')('snyk');
+import { find } from '../find-files';
+import { Options, TestOptions } from '../types';
+import { NoSupportedManifestsFoundError } from '../errors';
+import { getMultiPluginResult } from './get-multi-plugin-result';
+import { getSinglePluginResult } from './get-single-plugin-result';
+import { detectPackageFile, AUTO_DETECTABLE_FILES } from '../detect';
+
+const debug = debugModule('snyk');
 
 // Force getDepsFromPlugin to return scannedProjects for processing
 export async function getDepsFromPlugin(
@@ -34,13 +33,14 @@ export async function getDepsFromPlugin(
     // TODO: is this needed for the auto detect handling above?
     // don't override options.file if scanning multiple files at once
     if (!options.scanAllUnmanaged) {
-      options.file = options.file || detect.detectPackageFile(root);
+      options.file = options.file || detectPackageFile(root);
     }
     if (!options.docker && !(options.file || options.packageManager)) {
       throw NoSupportedManifestsFoundError([...root]);
     }
     inspectRes = await getSinglePluginResult(root, options);
   }
+
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package) {
       // something went wrong if both are not present...

@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
+import * as path from 'path';
 import * as cliInterface from '@snyk/cli-interface';
 
-import pathUtil = require('path');
 import { TestOptions, Options } from '../types';
-import { detectPackageManagerFromFile } from '../../lib/detect';
+import { detectPackageManagerFromFile } from '../detect';
 import { SupportedPackageManagers } from '../package-managers';
 import { getSinglePluginResult } from './get-single-plugin-result';
 
@@ -21,7 +21,7 @@ export async function getMultiPluginResult(
 
   for (const targetFile of targetFiles) {
     const optionsClone = _.cloneDeep(options);
-    optionsClone.file = pathUtil.basename(targetFile);
+    optionsClone.file = path.basename(targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
       optionsClone.file,
     );

@@ -1,44 +1,44 @@
-import * as _ from 'lodash';
 import * as fs from 'fs';
-import pathUtil = require('path');
-import moduleToObject = require('snyk-module');
+import * as _ from 'lodash';
+import * as path from 'path';
+import * as debugModule from 'debug';
+import * as moduleToObject from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 
-import analytics = require('../analytics');
-import * as config from '../config';
-import { isCI } from '../is-ci';
-import request = require('../request');
-import snyk = require('../');
-import spinner = require('../spinner');
-import common = require('./common');
-import { DepTree, TestOptions } from '../types';
-import * as projectMetadata from '../project-metadata';
-import { GitTarget } from '../project-metadata/types';
 import {
-  convertTestDepGraphResultToLegacy,
+  TestResult,
+  DockerIssue,
   AnnotatedIssue,
   LegacyVulnApiResult,
   TestDepGraphResponse,
-  DockerIssue,
-  TestResult,
+  convertTestDepGraphResultToLegacy,
 } from './legacy';
-import { Options } from '../types';
 import {
-  NoSupportedManifestsFoundError,
+  AuthFailedError,
   InternalServerError,
+  NoSupportedManifestsFoundError,
   FailedToGetVulnerabilitiesError,
   FailedToRunTestError,
 } from '../errors';
-import { maybePrintDeps } from '../print-deps';
-import { SupportedPackageManagers } from '../package-managers';
-import { countPathsToGraphRoot, pruneGraph } from '../prune';
-import { AuthFailedError } from '../errors/authentication-failed-error';
+import * as snyk from '../';
+import { isCI } from '../is-ci';
+import * as common from './common';
+import * as config from '../config';
+import * as analytics from '../analytics';
 import { pluckPolicies } from '../policy';
+import { maybePrintDeps } from '../print-deps';
+import { GitTarget } from '../project-metadata/types';
+import * as projectMetadata from '../project-metadata';
+import { DepTree, Options, TestOptions } from '../types';
+import { countPathsToGraphRoot, pruneGraph } from '../prune';
+import { SupportedPackageManagers } from '../package-managers';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 
-// tslint:disable-next-line:no-var-requires
-const debug = require('debug')('snyk');
+import request = require('../request');
+import spinner = require('../spinner');
+
+const debug = debugModule('snyk');
 
 export = runTest;
 
@@ -277,8 +277,8 @@ async function assembleLocalPayloads(
     'Analyzing ' +
     analysisType +
     ' dependencies for ' +
-    (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
-      pathUtil.relative('..', '.') + ' project dir');
+    (path.relative('.', path.join(root, options.file || '')) ||
+      path.relative('..', '.') + ' project dir');
 
   try {
     const payloads: Payload[] = [];
