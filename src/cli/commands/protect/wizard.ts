@@ -305,6 +305,15 @@ function addProtectScripts(existingScripts, npmVersion, options) {
   return scripts;
 }
 
+function calculatePkgFileIndentation(packageFile: string): number {
+  let pkgIndentation = 2;
+  const whitespaceMatch = packageFile.match(/{\n(\s+)"/);
+  if (whitespaceMatch && whitespaceMatch[1]) {
+    pkgIndentation = whitespaceMatch[1].length;
+  }
+  return pkgIndentation;
+}
+
 interface Pkg {
   scripts: any;
   snyk: boolean;
@@ -335,6 +344,7 @@ function processAnswers(answers, policy, options) {
     targetFile.endsWith('yarn.lock');
 
   let pkg = {} as Pkg;
+  let pkgIndentation = 2;
 
   analytics.add(
     'answers',
@@ -419,6 +429,10 @@ function processAnswers(answers, policy, options) {
       // an `npm install` which will change the deps
       return fs
         .readFile(packageFile, 'utf8')
+        .then((packageFileString) => {
+          pkgIndentation = calculatePkgFileIndentation(packageFileString);
+          return packageFileString;
+        })
         .then(JSON.parse)
         .then((updatedPkg) => {
           pkg = updatedPkg;
@@ -529,7 +543,7 @@ function processAnswers(answers, policy, options) {
       if (addSnykToDependencies || tasks.update.length) {
         const packageString =
           options.packageLeading +
-          JSON.stringify(pkg, null, 2) +
+          JSON.stringify(pkg, null, pkgIndentation) +
           options.packageTrailing;
         return (
           spinner(lbl)
