@@ -1,49 +1,44 @@
-import * as _ from 'lodash';
 import * as fs from 'fs';
-import pathUtil = require('path');
-import moduleToObject = require('snyk-module');
+import * as _ from 'lodash';
+import * as path from 'path';
+import * as debugModule from 'debug';
+import * as moduleToObject from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
-import * as cliInterface from '@snyk/cli-interface';
-import analytics = require('../analytics');
-import * as config from '../config';
-import detect = require('../../lib/detect');
-import plugins = require('../plugins');
-import { ModuleInfo } from '../module-info';
-import { isCI } from '../is-ci';
-import request = require('../request');
-import snyk = require('../');
-import spinner = require('../spinner');
-import common = require('./common');
-import { DepTree, TestOptions } from '../types';
-import * as projectMetadata from '../project-metadata';
-import { GitTarget } from '../project-metadata/types';
-import { detectPackageManagerFromFile } from '../../lib/detect';
 
 import {
-  convertTestDepGraphResultToLegacy,
+  TestResult,
+  DockerIssue,
   AnnotatedIssue,
   LegacyVulnApiResult,
   TestDepGraphResponse,
-  DockerIssue,
-  TestResult,
+  convertTestDepGraphResultToLegacy,
 } from './legacy';
-import { Options } from '../types';
 import {
-  NoSupportedManifestsFoundError,
+  AuthFailedError,
   InternalServerError,
+  NoSupportedManifestsFoundError,
   FailedToGetVulnerabilitiesError,
   FailedToRunTestError,
 } from '../errors';
+import * as snyk from '../';
+import { isCI } from '../is-ci';
+import * as common from './common';
+import * as config from '../config';
+import * as analytics from '../analytics';
+import { pluckPolicies } from '../policy';
 import { maybePrintDeps } from '../print-deps';
-import { SupportedPackageManagers } from '../package-managers';
+import { GitTarget } from '../project-metadata/types';
+import * as projectMetadata from '../project-metadata';
+import { DepTree, Options, TestOptions } from '../types';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { AuthFailedError } from '../errors/authentication-failed-error';
-import { find } from '../find-files';
-import { AUTO_DETECTABLE_FILES } from '../detect';
+import { SupportedPackageManagers } from '../package-managers';
+import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
+import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 
-// tslint:disable-next-line:no-var-requires
-const debug = require('debug')('snyk');
+import request = require('../request');
+import spinner = require('../spinner');
+
+const debug = debugModule('snyk');
 
 export = runTest;
 
@@ -272,152 +267,6 @@ function assemblePayloads(
   return assembleRemotePayloads(root, options);
 }
 
-async function getSinglePluginResult(
-  root: string,
-  options: Options & TestOptions,
-): Promise<pluginApi.InspectResult> {
-  const plugin = plugins.loadPlugin(options.packageManager, options);
-  const moduleInfo = ModuleInfo(plugin, options.policy);
-  const inspectRes: pluginApi.InspectResult = await moduleInfo.inspect(
-    root,
-    options.file,
-    { ...options },
-  );
-  return inspectRes;
-}
-
-interface ScannedProjectCustom
-  extends cliInterface.legacyCommon.ScannedProject {
-  packageManager: SupportedPackageManagers;
-}
-
-async function getMultiPluginResult(
-  root: string,
-  options: Options & TestOptions,
-  targetFiles: string[],
-): Promise<pluginApi.MultiProjectResult> {
-  const allResults: ScannedProjectCustom[] = [];
-
-  for (const targetFile of targetFiles) {
-    const optionsClone = _.cloneDeep(options);
-    optionsClone.file = pathUtil.basename(targetFile);
-    optionsClone.packageManager = detectPackageManagerFromFile(
-      optionsClone.file,
-    );
-    try {
-      const inspectRes = await getSinglePluginResult(root, optionsClone);
-      let resultWithScannedProjects: pluginApi.MultiProjectResult;
-
-      if (!pluginApi.isMultiResult(inspectRes)) {
-        resultWithScannedProjects = {
-          plugin: inspectRes.plugin,
-          scannedProjects: [
-            {
-              depTree: inspectRes.package,
-              targetFile: inspectRes.plugin.targetFile,
-              meta: inspectRes.meta,
-            },
-          ],
-        };
-      } else {
-        resultWithScannedProjects = inspectRes;
-      }
-
-      // annotate the package manager, project name & targetFile to be used
-      // for test & monitor
-      // TODO: refactor how we display meta to not have to do this
-      (options as any).projectNames = resultWithScannedProjects.scannedProjects.map(
-        (scannedProject) => scannedProject.depTree.name,
-      );
-      const customScannedProject: ScannedProjectCustom[] = resultWithScannedProjects.scannedProjects.map(
-        (a) => {
-          (a as ScannedProjectCustom).targetFile = optionsClone.file;
-          (a as ScannedProjectCustom).packageManager =
-            optionsClone.packageManager;
-          return a as ScannedProjectCustom;
-        },
-      );
-      allResults.push(...customScannedProject);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
-  return {
-    plugin: {
-      name: 'custom-auto-detect',
-    },
-    scannedProjects: allResults,
-  };
-}
-
-// Force getDepsFromPlugin to return scannedProjects for processing in assembleLocalPayload
-async function getDepsFromPlugin(
-  root: string,
-  options: Options & TestOptions,
-): Promise<pluginApi.MultiProjectResult> {
-  let inspectRes: pluginApi.InspectResult;
-
-  if (options.allProjects) {
-    // auto-detect only one-level deep for now
-    const targetFiles = await find(root, [], AUTO_DETECTABLE_FILES, 1);
-    debug(
-      `auto detect manifest files, found ${targetFiles.length}`,
-      targetFiles,
-    );
-    if (targetFiles.length === 0) {
-      throw NoSupportedManifestsFoundError([root]);
-    }
-    inspectRes = await getMultiPluginResult(root, options, targetFiles);
-    return inspectRes;
-  } else {
-    // TODO: is this needed for the auto detect handling above?
-    // don't override options.file if scanning multiple files at once
-    if (!options.scanAllUnmanaged) {
-      options.file = options.file || detect.detectPackageFile(root);
-    }
-    if (!options.docker && !(options.file || options.packageManager)) {
-      throw NoSupportedManifestsFoundError([...root]);
-    }
-    inspectRes = await getSinglePluginResult(root, options);
-  }
-  if (!pluginApi.isMultiResult(inspectRes)) {
-    if (!inspectRes.package) {
-      // something went wrong if both are not present...
-      throw Error(
-        `error getting dependencies from ${options.packageManager} ` +
-          "plugin: neither 'package' nor 'scannedProjects' were found",
-      );
-    }
-    if (!inspectRes.package.targetFile && inspectRes.plugin) {
-      inspectRes.package.targetFile = inspectRes.plugin.targetFile;
-    }
-    // We are using "options" to store some information returned from plugin that we need to use later,
-    // but don't want to send to Registry in the Payload.
-    // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    if (
-      inspectRes.plugin.meta &&
-      inspectRes.plugin.meta.allSubProjectNames &&
-      inspectRes.plugin.meta.allSubProjectNames.length > 1
-    ) {
-      options.advertiseSubprojectsCount =
-        inspectRes.plugin.meta.allSubProjectNames.length;
-    }
-    return {
-      plugin: inspectRes.plugin,
-      scannedProjects: [{ depTree: inspectRes.package }],
-    };
-  } else {
-    // We are using "options" to store some information returned from plugin that we need to use later,
-    // but don't want to send to Registry in the Payload.
-    // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    (options as any).projectNames = inspectRes.scannedProjects.map(
-      (scannedProject) => scannedProject.depTree.name,
-    );
-    return inspectRes;
-  }
-}
-
 // Payload to send to the Registry for scanning a package from the local filesystem.
 async function assembleLocalPayloads(
   root,
@@ -428,8 +277,8 @@ async function assembleLocalPayloads(
     'Analyzing ' +
     analysisType +
     ' dependencies for ' +
-    (pathUtil.relative('.', pathUtil.join(root, options.file || '')) ||
-      pathUtil.relative('..', '.') + ' project dir');
+    (path.relative('.', path.join(root, options.file || '')) ||
+      path.relative('..', '.') + ' project dir');
 
   try {
     const payloads: Payload[] = [];
@@ -603,26 +452,4 @@ function countUniqueVulns(vulns: AnnotatedIssue[]): number {
     seen[curr.id] = true;
   }
   return Object.keys(seen).length;
-}
-
-function pluckPolicies(pkg) {
-  if (!pkg) {
-    return null;
-  }
-
-  if (pkg.snyk) {
-    return pkg.snyk;
-  }
-
-  if (!pkg.dependencies) {
-    return null;
-  }
-
-  return _.flatten(
-    Object.keys(pkg.dependencies)
-      .map((name) => {
-        return pluckPolicies(pkg.dependencies[name]);
-      })
-      .filter(Boolean),
-  );
 }

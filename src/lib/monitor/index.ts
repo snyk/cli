@@ -1,31 +1,30 @@
 import * as Debug from 'debug';
 import * as depGraphLib from '@snyk/dep-graph';
-import * as snyk from '../lib';
-import { apiTokenExists } from './api-token';
-import request = require('./request');
-import * as config from './config';
+import * as snyk from '..';
+import { apiTokenExists } from '../api-token';
+import request = require('../request');
+import * as config from '../config';
 import * as os from 'os';
 import * as _ from 'lodash';
-import { isCI } from './is-ci';
-import * as analytics from './analytics';
-import {
-  DepTree,
-  MonitorMeta,
-  MonitorResult,
-  MonitorOptions,
-  Options,
-} from './types';
-import * as projectMetadata from './project-metadata';
+import { isCI } from '../is-ci';
+import * as analytics from '../analytics';
+import { DepTree, MonitorMeta, MonitorResult } from '../types';
+import * as projectMetadata from '../project-metadata';
 import * as path from 'path';
 import {
   MonitorError,
   ConnectionTimeoutError,
   AuthFailedError,
-} from './errors';
-import { countPathsToGraphRoot, pruneGraph } from './prune';
-import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from './package-managers';
+} from '../errors';
+import { countPathsToGraphRoot, pruneGraph } from '../prune';
+import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { isFeatureFlagSupportedForOrg } from './feature-flags';
+import { isFeatureFlagSupportedForOrg } from '../feature-flags';
+import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
+import { filterOutMissingDeps } from './filter-out-missing-deps';
+import { dropEmptyDeps } from './drop-empty-deps';
+import { pruneTree } from './prune-dep-tree';
+import { pluckPolicies } from '../policy';
 
 const debug = Debug('snyk');
 
@@ -57,93 +56,6 @@ interface Meta {
   dockerImageId?: string;
   dockerBaseImage?: string;
   projectName: string;
-}
-
-interface FilteredDepTree {
-  filteredDepTree: DepTree;
-  missingDeps: string[];
-}
-
-function dropEmptyDeps(node: DepTree) {
-  if (node.dependencies) {
-    const keys = Object.keys(node.dependencies);
-    if (keys.length === 0) {
-      delete node.dependencies;
-    } else {
-      for (const k of keys) {
-        dropEmptyDeps(node.dependencies[k]);
-      }
-    }
-  }
-}
-
-function countTotalDependenciesInTree(depTree: DepTree): number {
-  let count = 0;
-  if (depTree.dependencies) {
-    for (const name of Object.keys(depTree.dependencies)) {
-      const dep = depTree.dependencies[name];
-      if (dep) {
-        count += 1 + countTotalDependenciesInTree(dep);
-      }
-    }
-  }
-  return count;
-}
-
-async function pruneTree(
-  tree: DepTree,
-  packageManagerName: string,
-): Promise<DepTree> {
-  debug('pruning dep tree');
-  // Pruning requires conversion to the graph first.
-  // This is slow.
-  const graph = await depGraphLib.legacy.depTreeToGraph(
-    tree,
-    packageManagerName,
-  );
-  const prunedTree: DepTree = (await depGraphLib.legacy.graphToDepTree(
-    graph,
-    packageManagerName,
-    { deduplicateWithinTopLevelDeps: true },
-  )) as DepTree;
-  // Transplant pruned dependencies in the original tree (we want to keep all other fields):
-  tree.dependencies = prunedTree.dependencies;
-  debug('finished pruning dep tree');
-  return tree;
-}
-
-function filterOutMissingDeps(depTree: DepTree): FilteredDepTree {
-  const filteredDeps = {};
-  const missingDeps: string[] = [];
-
-  if (!depTree.dependencies) {
-    return {
-      filteredDepTree: depTree,
-      missingDeps,
-    };
-  }
-
-  for (const depKey of Object.keys(depTree.dependencies)) {
-    const dep = depTree.dependencies[depKey];
-    if (
-      (dep as any).missingLockFileEntry ||
-      ((dep as any).labels && (dep as any).labels.missingLockFileEntry)
-    ) {
-      // TODO(kyegupov): add field to the type
-      missingDeps.push(`${dep.name}@${dep.version}`);
-    } else {
-      filteredDeps[depKey] = dep;
-    }
-  }
-  const filteredDepTree: DepTree = {
-    ...depTree,
-    dependencies: filteredDeps,
-  };
-
-  return {
-    filteredDepTree,
-    missingDeps,
-  };
 }
 
 export async function monitor(
@@ -189,7 +101,9 @@ export async function monitor(
     prePruneDepCount = countTotalDependenciesInTree(info.package);
     analytics.add('prePruneDepCount', prePruneDepCount);
     debug('total dependencies: %d', prePruneDepCount);
+    debug('pruning dep tree');
     pkg = await pruneTree(info.package, meta.packageManager);
+    debug('finished pruning dep tree');
   }
   if (['npm', 'yarn'].includes(meta.packageManager)) {
     const { filteredDepTree, missingDeps } = filterOutMissingDeps(info.package);
@@ -217,7 +131,7 @@ export async function monitor(
     analytics.add('targetBranch', target.branch);
   }
 
-  dropEmptyDeps(pkg);
+  pkg = dropEmptyDeps(pkg);
 
   // TODO(kyegupov): async/await
   return new Promise((resolve, reject) => {
@@ -402,26 +316,4 @@ export async function monitorGraph(
       },
     );
   });
-}
-
-function pluckPolicies(pkg) {
-  if (!pkg) {
-    return null;
-  }
-
-  if (pkg.snyk) {
-    return pkg.snyk;
-  }
-
-  if (!pkg.dependencies) {
-    return null;
-  }
-
-  return _.flatten(
-    Object.keys(pkg.dependencies)
-      .map((name) => {
-        return pluckPolicies(pkg.dependencies[name]);
-      })
-      .filter(Boolean),
-  );
 }
