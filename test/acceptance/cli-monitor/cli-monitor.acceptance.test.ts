@@ -12,6 +12,7 @@ import * as userConfig from '../../../src/lib/user-config';
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
 import * as snykPolicy from 'snyk-policy';
+import { AllProjectsTests } from './cli-test.all-projects.spec';
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -61,6 +62,18 @@ before('prime config', async (t) => {
   await cli.config('unset', 'endpoint');
   t.pass('endpoint removed');
   t.end();
+});
+
+test(AllProjectsTests.language, async (t) => {
+  for (const testName of Object.keys(AllProjectsTests.tests)) {
+    t.test(
+      testName,
+      AllProjectsTests.tests[testName](
+        { server, versionNumber, cli, plugins },
+        { chdirWorkspaces },
+      ),
+    );
+  }
 });
 
 /**

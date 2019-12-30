@@ -18,7 +18,7 @@ export const AllProjectsTests: AcceptanceTests = {
       });
       t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
-      t.ok(spyPlugin.withArgs('maven').calledOnce, 'calls npm plugin');
+      t.ok(spyPlugin.withArgs('maven').calledOnce, 'calls maven plugin');
 
       params.server.popRequests(3).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');

@@ -22,6 +22,8 @@ import { getSubProjectCount } from '../../../lib/plugins/get-sub-project-count';
 import { processJsonMonitorResponse } from './process-json-monitor';
 import { GoodResult, BadResult } from './types';
 import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
+import { ScannedProjectCustom } from '../../../lib/plugins/get-multi-plugin-result';
+import { MultiProjectResult, InspectResult } from '@snyk/cli-interface/legacy/plugin';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -76,8 +78,11 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     debug(`Processing ${path}...`);
     try {
       await validateMonitorPath(path, options.docker);
-
-      let packageManager = detect.detectPackageManager(path, options);
+      const guessedPackageManager = detect.detectPackageManager(path, options);
+      const analysisType =
+        (options.docker
+          ? 'docker'
+          : guessedPackageManager) || 'all';
 
       const targetFile =
         !options.scanAllUnmanaged && options.docker && !options.file // snyk monitor --docker (without --file)
@@ -89,8 +94,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         pathUtil.join(path, targetFile || ''),
       );
 
-      const analysisType = options.docker ? 'docker' : packageManager;
-
       const analyzingDepsSpinnerLabel =
         'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
 
@@ -98,14 +101,13 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Scan the project dependencies via a plugin
 
-      analytics.add('packageManager', packageManager);
       analytics.add('pluginOptions', options);
       debug('getDepsFromPlugin ...');
 
       // each plugin will be asked to scan once per path
       // some return single InspectResult & newer ones return Multi
       const inspectResult = await promiseOrCleanup(
-        getDepsFromPlugin(path, { ...options, path, packageManager }),
+        getDepsFromPlugin(path, { ...options, path, packageManager: guessedPackageManager }),
         spinner.clear(analyzingDepsSpinnerLabel),
       );
 
@@ -181,7 +183,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           res,
           options,
           projectName,
-          foundProjectCount,
+          getSubProjectCount(inspectResult),
         );
         results.push({ ok: true, data: monOutput, path, projectName });
       }
@@ -225,10 +227,25 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 function convertMultiPluginResultToSingle(
   result: pluginApi.MultiProjectResult,
 ): pluginApi.SinglePackageResult[] {
-  return result.scannedProjects.map((scannedProject) => ({
-    plugin: result.plugin,
-    package: scannedProject.depTree,
-  }));
+  return result.scannedProjects.map((scannedProject) => {
+    return {
+      plugin: result.plugin,
+      package: scannedProject.depTree,
+    };
+});
+}
+
+function generateMonitorMeta(options, packageManager?): MonitorMeta {
+  return {
+    method: 'cli',
+    packageManager,
+    'policy-path': options['policy-path'],
+    'project-name': options['project-name'] || config.PROJECT_NAME,
+    isDocker: !!options.docker,
+    prune: !!options['prune-repeated-subdependencies'],
+    'experimental-dep-graph': !!options['experimental-dep-graph'],
+    'remote-repo-url': options['remote-repo-url'],
+  };
 }
 
 async function validateMonitorPath(path, isDocker) {

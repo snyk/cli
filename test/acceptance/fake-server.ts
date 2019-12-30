@@ -20,7 +20,7 @@ export function fakeServer(root, apikey) {
     return server._reqLog.pop()!;
   };
   server.popRequests = (num: number) => {
-    return server._reqLog.slice(server._reqLog.length - num, num);
+    return server._reqLog.splice(server._reqLog.length - num, num);
   };
   server.use(restify.acceptParser(server.acceptable));
   server.use(restify.queryParser());
@@ -144,14 +144,18 @@ export function fakeServer(root, apikey) {
 
   server.put(root + '/monitor/:registry/graph', (req, res, next) => {
     res.send({
-      id: 'test',
+      id: 'monitor',
+      uri: `${req.params.registry}/graph/some/project-id`,
+      isMonitored: true,
     });
     return next();
   });
 
   server.put(root + '/monitor/:registry', (req, res, next) => {
     res.send({
-      id: 'test',
+      id: 'monitor',
+      uri: `${req.params.registry}/some/project-id`,
+      isMonitored: true,
     });
     return next();
   });
