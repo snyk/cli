@@ -18,13 +18,14 @@ import {
 } from '../errors';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { isFeatureFlagSupportedForOrg } from '../feature-flags';
 import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
 import { filterOutMissingDeps } from './filter-out-missing-deps';
 import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
 import { pluckPolicies } from '../policy';
+import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 
 const debug = Debug('snyk');
 
@@ -61,8 +62,9 @@ interface Meta {
 export async function monitor(
   root: string,
   meta: MonitorMeta,
-  info: pluginApi.SinglePackageResult,
+  scannedProject: ScannedProject,
   options,
+  pluginMeta: PluginMetadata,
   targetFile?: string,
 ): Promise<MonitorResult> {
   apiTokenExists();
@@ -86,32 +88,39 @@ export async function monitor(
       );
     }
     if (monitorGraphSupportedRes.ok) {
-      return await monitorGraph(root, meta, info, targetFile);
+      return await monitorGraph(
+        root,
+        meta,
+        scannedProject,
+        pluginMeta,
+        targetFile,
+      );
     }
     if (monitorGraphSupportedRes.userMessage) {
       debug(monitorGraphSupportedRes.userMessage);
     }
   }
 
-  let pkg = info.package;
+  let pkg = scannedProject.depTree;
 
   let prePruneDepCount;
   if (meta.prune) {
     debug('prune used, counting total dependencies');
-    prePruneDepCount = countTotalDependenciesInTree(info.package);
+    prePruneDepCount = countTotalDependenciesInTree(scannedProject.depTree);
     analytics.add('prePruneDepCount', prePruneDepCount);
     debug('total dependencies: %d', prePruneDepCount);
     debug('pruning dep tree');
-    pkg = await pruneTree(info.package, meta.packageManager);
+    pkg = await pruneTree(scannedProject.depTree, meta.packageManager);
     debug('finished pruning dep tree');
   }
   if (['npm', 'yarn'].includes(meta.packageManager)) {
-    const { filteredDepTree, missingDeps } = filterOutMissingDeps(info.package);
+    const { filteredDepTree, missingDeps } = filterOutMissingDeps(
+      scannedProject.depTree,
+    );
     pkg = filteredDepTree;
     treeMissingDeps = missingDeps;
   }
 
-  const pluginMeta = info.plugin;
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath]
     .concat(pluckPolicies(pkg))
@@ -203,22 +212,22 @@ export async function monitor(
 export async function monitorGraph(
   root: string,
   meta: MonitorMeta,
-  info: pluginApi.SinglePackageResult,
+  scannedProject: ScannedProject,
+  pluginMeta: PluginMetadata,
   targetFile?: string,
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('monitorGraph', true);
 
   let treeMissingDeps: string[];
-  let pkg = info.package;
-  const pluginMeta = info.plugin;
+  let pkg = scannedProject.depTree;
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath]
     .concat(pluckPolicies(pkg))
     .filter(Boolean);
 
   if (['npm', 'yarn'].includes(meta.packageManager)) {
-    const { filteredDepTree, missingDeps } = filterOutMissingDeps(info.package);
+    const { filteredDepTree, missingDeps } = filterOutMissingDeps(pkg);
     pkg = filteredDepTree;
     treeMissingDeps = missingDeps;
   }

@@ -731,6 +731,7 @@ test('`monitor gradle-app`', async (t) => {
   loadPlugin.withArgs('gradle').returns(plugin);
 
   const output = await cli.monitor('gradle-app');
+  t.match(output, '(2)', '2 sub projects found');
   t.match(
     output,
     /use --all-sub-projects flag to scan all sub-projects/,

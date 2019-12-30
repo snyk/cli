@@ -40,7 +40,10 @@ import { MissingTargetFileError } from '../../../lib/errors/missing-targetfile-e
 import * as pm from '../../../lib/package-managers';
 import { Options, MonitorMeta, MonitorResult } from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
-import { SinglePackageResult } from '@snyk/cli-interface/legacy/plugin';
+import {
+  SinglePackageResult,
+  MultiProjectResult,
+} from '@snyk/cli-interface/legacy/plugin';
 
 function wizard(options?: Options) {
   options = options || ({} as Options);
@@ -615,11 +618,14 @@ function processAnswers(answers, policy, options) {
           .inspect(cwd, targetFile, options)
           .then((inspectRes) => spinner(lbl).then(() => inspectRes))
           .then((inspectRes) => {
-            const singleRes: SinglePackageResult = {
-              plugin: inspectRes.plugin,
-              package: _.get(inspectRes, 'scannedProjects[0].depTree'),
-            };
-            return snykMonitor(cwd, meta as MonitorMeta, singleRes, options);
+            // both ruby and node plugin return multi result
+            return snykMonitor(
+              cwd,
+              meta as MonitorMeta,
+              (inspectRes as MultiProjectResult).scannedProjects[0],
+              inspectRes.plugin,
+              options,
+            );
           })
           // clear spinner in case of success or failure
           .then(spinner.clear(lbl))

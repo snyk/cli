@@ -94,9 +94,9 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           ? undefined
           : options.file || detect.detectPackageFile(path);
 
-      const plugin = plugins.loadPlugin(packageManager, options);
+      const modulePlugin = plugins.loadPlugin(packageManager, options);
 
-      const moduleInfo = ModuleInfo(plugin, options.policy);
+      const moduleInfo = ModuleInfo(modulePlugin, options.policy);
 
       const displayPath = pathUtil.relative(
         '.',
@@ -118,7 +118,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       analytics.add('packageManager', packageManager);
       analytics.add('pluginOptions', options);
 
-      // TODO: the type should depend on allSubProjects flag
+      // each plugin will be asked to scan once per path
+      // some return single InspectResult & newer ones return Multi
       const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
         moduleInfo.inspect(path, targetFile, { ...options }),
         spinner.clear(analyzingDepsSpinnerLabel),
@@ -132,7 +133,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       if (inspectResult.plugin.packageManager) {
         packageManager = inspectResult.plugin.packageManager;
       }
-      const meta: MonitorMeta = {
+      const monitorMeta: MonitorMeta = {
         method: 'cli',
         packageManager,
         'policy-path': options['policy-path'],
@@ -144,34 +145,47 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       };
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
-
-      // SinglePackageResult is a legacy format understood by Registry, so we have to convert
-      // a MultiProjectResult to an array of these.
-
-      let perProjectResult: pluginApi.SinglePackageResult[] = [];
+      // multi result will become default, so start migrating code to always work with it
+      let perProjectResult: pluginApi.MultiProjectResult;
       let foundProjectCount;
-      if (pluginApi.isMultiResult(inspectResult)) {
-        perProjectResult = convertMultiPluginResultToSingle(inspectResult);
-      } else {
+
+      if (!pluginApi.isMultiResult(inspectResult)) {
         foundProjectCount = getSubProjectCount(inspectResult);
-        perProjectResult = [inspectResult];
+        const { plugin, meta, package: depTree } = inspectResult;
+        perProjectResult = {
+          plugin,
+          scannedProjects: [
+            {
+              depTree,
+              meta,
+            },
+          ],
+        };
+      } else {
+        perProjectResult = inspectResult;
       }
 
       // Post the project dependencies to the Registry
-      for (const projectDeps of perProjectResult) {
-        maybePrintDeps(options, projectDeps.package);
+      for (const projectDeps of perProjectResult.scannedProjects) {
+        maybePrintDeps(options, projectDeps.depTree);
 
         const res = await promiseOrCleanup(
-          snykMonitor(path, meta, projectDeps, options, targetFile),
+          snykMonitor(
+            path,
+            monitorMeta,
+            projectDeps,
+            options,
+            perProjectResult.plugin,
+            targetFile,
+          ),
           spinner.clear(postingMonitorSpinnerLabel),
         );
 
         await spinner.clear(postingMonitorSpinnerLabel)(res);
 
         res.path = path;
-        const projectName = pluginApi.isMultiResult(inspectResult)
-          ? projectDeps.package.name
-          : undefined;
+        const projectName = projectDeps.depTree.name;
+
         const monOutput = formatMonitorOutput(
           packageManager,
           res,
