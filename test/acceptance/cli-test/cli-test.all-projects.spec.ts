@@ -3,7 +3,7 @@ import { getWorkspaceJSON } from '../workspace-helper';
 import * as sinon from 'sinon';
 
 export const AllProjectsTests: AcceptanceTests = {
-  language: 'Mixed (Ruby & Npm)',
+  language: 'Mixed (Ruby & Npm & Maven)',
   tests: {
     '`test mono-repo-project with lockfiles --all-projects`': (
       params,
@@ -18,6 +18,7 @@ export const AllProjectsTests: AcceptanceTests = {
       });
       t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
+      t.ok(spyPlugin.withArgs('maven').calledOnce, 'calls npm plugin');
 
       params.server.popRequests(3).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
