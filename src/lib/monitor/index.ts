@@ -64,7 +64,7 @@ export async function monitor(
   scannedProject: cliInterface.legacyCommon.ScannedProject,
   options,
   pluginMeta: PluginMetadata,
-  targetFile?: string,
+  targetFileRelativePath?: string,
 ): Promise<MonitorResult> {
   apiTokenExists();
   let treeMissingDeps: string[] = [];
@@ -92,7 +92,7 @@ export async function monitor(
         meta,
         scannedProject,
         pluginMeta,
-        targetFile,
+        targetFileRelativePath,
       );
     }
     if (monitorGraphSupportedRes.userMessage) {
@@ -131,9 +131,6 @@ export async function monitor(
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await projectMetadata.getInfo(pkg, meta);
-  const targetFileRelativePath = targetFile
-    ? path.join(path.resolve(root), targetFile)
-    : '';
 
   if (target && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -214,7 +211,7 @@ export async function monitorGraph(
   meta: MonitorMeta,
   scannedProject: cliInterface.legacyCommon.ScannedProject,
   pluginMeta: PluginMetadata,
-  targetFile?: string,
+  targetFileRelativePath?: string,
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('monitorGraph', true);
@@ -244,9 +241,6 @@ export async function monitorGraph(
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await projectMetadata.getInfo(pkg, meta);
-  const targetFileRelativePath = targetFile
-    ? path.join(path.resolve(root), targetFile)
-    : '';
 
   if (target && target.branch) {
     analytics.add('targetBranch', target.branch);

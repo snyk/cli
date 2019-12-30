@@ -37,6 +37,7 @@ import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 
 import request = require('../request');
 import spinner = require('../spinner');
+import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getSubProjectCount } from '../plugins/get-sub-project-count';
 
 const debug = debugModule('snyk');
@@ -92,7 +93,6 @@ async function runTest(
         _.get(payload, 'body.projectNameOverride') ||
         _.get(payload, 'body.originalProjectName');
       const foundProjectCount = _.get(payload, 'body.foundProjectCount');
-
       let dockerfilePackages;
       if (
         payload.body &&
@@ -184,6 +184,7 @@ async function runTest(
       }
 
       res.uniqueCount = countUniqueVulns(res.vulnerabilities);
+
       const result = {
         ...res,
         targetFile,
@@ -298,14 +299,7 @@ async function assembleLocalPayloads(
         maybePrintDeps(options, pkg);
       }
       const project = scannedProject as ScannedProjectCustom;
-      const packageManager =
-        project.packageManager || (deps.plugin && deps.plugin.packageManager);
-      if (packageManager) {
-        (options as any).packageManager = packageManager;
-      }
-      if (deps.plugin && deps.plugin.packageManager) {
-        (options as any).packageManager = deps.plugin.packageManager;
-      }
+      const packageManager = extractPackageManager(project, deps, options);
 
       if (pkg.docker) {
         const baseImageFromDockerfile = pkg.docker.baseImage;
@@ -324,13 +318,16 @@ async function assembleLocalPayloads(
         policyLocations = policyLocations.filter((loc) => {
           return loc !== root;
         });
-      } else if (['npm', 'yarn'].indexOf(options.packageManager!) > -1) {
+      } else if (
+        packageManager &&
+        ['npm', 'yarn'].indexOf(packageManager) > -1
+      ) {
         policyLocations = policyLocations.concat(pluckPolicies(pkg));
       }
       debug('policies found', policyLocations);
 
       analytics.add('policies', policyLocations.length);
-      analytics.add('packageManager', options.packageManager);
+      analytics.add('packageManager', packageManager);
       addPackageAnalytics(pkg);
 
       let policy;
@@ -372,18 +369,18 @@ async function assembleLocalPayloads(
         });
         let depGraph = await depGraphLib.legacy.depTreeToGraph(
           pkg,
-          options.packageManager!,
+          packageManager!,
         );
 
         debug('done converting dep-tree to dep-graph', {
           uniquePkgsCount: depGraph.getPkgs().length,
         });
-        if (options['prune-repeated-subdependencies']) {
+        if (options['prune-repeated-subdependencies'] && packageManager) {
           debug('Trying to prune the graph');
           const prePruneDepCount = countPathsToGraphRoot(depGraph);
           debug('pre prunedPathsCount: ' + prePruneDepCount);
 
-          depGraph = await pruneGraph(depGraph, options.packageManager!);
+          depGraph = await pruneGraph(depGraph, packageManager);
 
           analytics.add('prePrunedPathsCount', prePruneDepCount);
           const postPruneDepCount = countPathsToGraphRoot(depGraph);
@@ -405,7 +402,7 @@ async function assembleLocalPayloads(
         body,
       };
 
-      if (['yarn', 'npm'].indexOf(options.packageManager!) !== -1) {
+      if (packageManager && ['yarn', 'npm'].indexOf(packageManager) !== -1) {
         const isLockFileBased =
           targetFile &&
           (targetFile.endsWith('package-lock.json') ||

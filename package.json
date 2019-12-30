@@ -28,7 +28,7 @@
     "format": "prettier --write '{src,test,scripts}/**/*.{js,ts}'",
     "prepare": "npm run build",
     "test:common": "npm run check-tests && npm run build && npm run lint && node --require ts-node/register src/cli test --org=snyk",
-    "test:acceptance": "tap test/acceptance/**/*monitor*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
+    "test:acceptance": "tap test/acceptance/**/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test:system": "tap test/system/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test:test": "tap test/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test": "npm run test:common && npm run test:acceptance && npm run test:system && npm run test:test",
