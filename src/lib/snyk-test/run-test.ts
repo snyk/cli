@@ -37,6 +37,7 @@ import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 
 import request = require('../request');
 import spinner = require('../spinner');
+import { getSubProjectCount } from '../plugins/get-sub-project-count';
 
 const debug = debugModule('snyk');
 
@@ -54,6 +55,7 @@ interface PayloadBody {
   projectNameOverride?: string;
   hasDevDependencies?: boolean;
   originalProjectName?: string; // used only for display
+  foundProjectCount?: number; // used only for display
   docker?: any;
   target?: GitTarget | null;
 }
@@ -89,6 +91,7 @@ async function runTest(
       const projectName =
         _.get(payload, 'body.projectNameOverride') ||
         _.get(payload, 'body.originalProjectName');
+      const foundProjectCount = _.get(payload, 'body.foundProjectCount');
 
       let dockerfilePackages;
       if (
@@ -185,6 +188,7 @@ async function runTest(
         ...res,
         targetFile,
         projectName,
+        foundProjectCount,
       };
       results.push(result);
     }
@@ -350,6 +354,7 @@ async function assembleLocalPayloads(
         projectNameOverride: options.projectName,
         originalProjectName: pkg.name,
         policy: policy && policy.toString(),
+        foundProjectCount: getSubProjectCount(deps),
         docker: pkg.docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
         target: await projectMetadata.getInfo(pkg, options),

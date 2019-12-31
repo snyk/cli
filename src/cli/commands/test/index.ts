@@ -18,18 +18,24 @@ import {
   VulnMetaData,
   TestResult,
 } from '../../../lib/snyk-test/legacy';
-import { formatIssues } from './formatters/legacy-format-issue';
 import {
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
   SupportedPackageManagers,
 } from '../../../lib/package-managers';
-import {
-  formatIssuesWithRemediation,
-  getSeverityValue,
-} from './formatters/remediation-based-format-issues';
+
 import * as analytics from '../../../lib/analytics';
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { FailOnError } from '../../../lib/errors/fail-on-error.ts';
+import {
+  summariseVulnerableResults,
+  summariseErrorResults,
+  formatTestMeta,
+  dockerRemediationForDisplay,
+  formatIssues,
+  formatIssuesWithRemediation,
+  formatDockerBinariesIssues,
+  getSeverityValue,
+} from './formatters';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -217,7 +223,7 @@ async function test(...args: MethodArgs): Promise<string> {
     summaryMessage =
       `\n\n\nTested ${results.length} ${projects}` +
       summariseVulnerableResults(vulnerableResults, options) +
-      summariseErrorResults(errorResults) +
+      summariseErrorResults(errorResults.length) +
       '\n';
   }
 
@@ -325,36 +331,12 @@ function isVulnFixable(vuln) {
   return isVulnUpgradable(vuln) || isVulnPatchable(vuln);
 }
 
-function summariseVulnerableResults(vulnerableResults, options: TestOptions) {
-  const vulnsLength = vulnerableResults.length;
-  if (vulnsLength) {
-    if (options.showVulnPaths) {
-      return `, ${vulnsLength} contained vulnerable paths.`;
-    }
-    return `, ${vulnsLength} had issues.`;
-  }
-
-  if (options.showVulnPaths) {
-    return ', no vulnerable paths were found.';
-  }
-
-  return ', no issues were found.';
-}
-
-function summariseErrorResults(errorResults) {
-  const projects = errorResults.length > 1 ? 'projects' : 'project';
-  if (errorResults.length > 0) {
-    return (
-      ` Failed to test ${errorResults.length} ${projects}.\n` +
-      'Run with `-d` for debug output and contact support@snyk.io'
-    );
-  }
-
-  return '';
-}
-
-function displayResult(res: TestResult, options: Options & TestOptions) {
-  const meta = metaForDisplay(res, options);
+function displayResult(
+  res: TestResult,
+  options: Options & TestOptions,
+  foundProjectCount?: number,
+) {
+  const meta = formatTestMeta(res, options);
   const dockerAdvice = dockerRemediationForDisplay(res);
   const packageManager =
     (res.packageManager as SupportedPackageManagers) || options.packageManager;
@@ -377,9 +359,11 @@ function displayResult(res: TestResult, options: Options & TestOptions) {
 
   let multiProjAdvice = '';
 
-  if (options.advertiseSubprojectsCount) {
+  const advertiseGradleSubProjectsCount =
+    packageManager === 'gradle' && !options['gradle-sub-project'];
+  if (advertiseGradleSubProjectsCount && foundProjectCount) {
     multiProjAdvice = chalk.bold.white(
-      `\n\nThis project has multiple sub-projects (${options.advertiseSubprojectsCount}), ` +
+      `\n\nThis project has multiple sub-projects (${foundProjectCount}), ` +
         'use --all-sub-projects flag to scan all sub-projects.',
     );
   }
@@ -528,143 +512,6 @@ function displayResult(res: TestResult, options: Options & TestOptions) {
     dockerAdvice +
     dockerSuggestion
   );
-}
-
-function formatDockerBinariesIssues(
-  dockerBinariesSortedGroupedVulns,
-  binariesVulns,
-  options: Options & TestOptions,
-) {
-  const binariesIssuesOutput = [] as string[];
-  for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
-    binariesIssuesOutput.push(createDockerBinaryHeading(pkgInfo));
-    const binaryIssues = dockerBinariesSortedGroupedVulns.filter(
-      (vuln) => vuln.metadata.name === pkgInfo.pkg.name,
-    );
-    const formattedBinaryIssues = binaryIssues.map((vuln) =>
-      formatIssues(vuln, options),
-    );
-    binariesIssuesOutput.push(formattedBinaryIssues.join('\n\n'));
-  }
-  return binariesIssuesOutput;
-}
-
-function createDockerBinaryHeading(pkgInfo) {
-  const binaryName = pkgInfo.pkg.name;
-  const binaryVersion = pkgInfo.pkg.version;
-  const numOfVulns = _.values(pkgInfo.issues).length;
-  const vulnCountText = numOfVulns > 1 ? 'vulnerabilities' : 'vulnerability';
-  return numOfVulns
-    ? chalk.bold.white(
-        `------------ Detected ${numOfVulns} ${vulnCountText}` +
-          ` for ${binaryName}@${binaryVersion} ------------`,
-        '\n',
-      )
-    : '';
-}
-
-function rightPadWithSpaces(s, desiredLength) {
-  const padLength = desiredLength - s.length;
-  if (padLength <= 0) {
-    return s;
-  }
-
-  return s + ' '.repeat(padLength);
-}
-
-function metaForDisplay(res, options) {
-  const padToLength = 19; // chars to align
-  const packageManager = res.packageManager || options.packageManager;
-  const targetFile = res.targetFile || options.file;
-  const openSource = res.isPrivate ? 'no' : 'yes';
-  const meta = [
-    chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org,
-    chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) +
-      packageManager,
-  ];
-  if (targetFile) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Target file: ', padToLength)) + targetFile,
-    );
-  }
-  if (res.projectName) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Project name: ', padToLength)) +
-        res.projectName,
-    );
-  }
-  if (options.docker) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Docker image: ', padToLength)) +
-        options.path,
-    );
-  } else {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Open source: ', padToLength)) + openSource,
-    );
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Project path: ', padToLength)) +
-        options.path,
-    );
-  }
-  if (res.docker && res.docker.baseImage) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Base image: ', padToLength)) +
-        res.docker.baseImage,
-    );
-  }
-
-  if (res.filesystemPolicy) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) +
-        chalk.green('found'),
-    );
-    if (res.ignoreSettings && res.ignoreSettings.disregardFilesystemIgnores) {
-      meta.push(
-        chalk.bold(
-          rightPadWithSpaces('Local Snyk policy ignored: ', padToLength),
-        ) + chalk.red('yes'),
-      );
-    }
-  }
-  if (res.licensesPolicy) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Licenses: ', padToLength)) +
-        chalk.green('enabled'),
-    );
-  }
-
-  return meta.join('\n');
-}
-
-function dockerRemediationForDisplay(res) {
-  if (!res.docker || !res.docker.baseImageRemediation) {
-    return '';
-  }
-  const { advice, message } = res.docker.baseImageRemediation;
-  const out = [] as any[];
-
-  if (advice) {
-    for (const item of advice) {
-      out.push(getTerminalStringFormatter(item)(item.message));
-    }
-  } else if (message) {
-    out.push(message);
-  } else {
-    return '';
-  }
-  return `\n\n${out.join('\n')}`;
-}
-
-function getTerminalStringFormatter({ color, bold }) {
-  let formatter = chalk;
-  if (color && formatter[color]) {
-    formatter = formatter[color];
-  }
-  if (bold) {
-    formatter = formatter.bold;
-  }
-  return formatter;
 }
 
 function validateSeverityThreshold(severityThreshold) {

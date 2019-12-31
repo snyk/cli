@@ -21,6 +21,7 @@ import * as analytics from '../../../lib/analytics';
 import { MonitorError } from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { formatMonitorOutput } from './formatters/format-monitor-response';
+import { getSubProjectCount } from '../../../lib/plugins/get-sub-project-count';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -257,18 +258,6 @@ function convertMultiPluginResultToSingle(
     plugin: result.plugin,
     package: scannedProject.depTree,
   }));
-}
-
-function getSubProjectCount(inspectResult): number | null {
-  if (
-    inspectResult.plugin.meta &&
-    inspectResult.plugin.meta.allSubProjectNames &&
-    inspectResult.plugin.meta.allSubProjectNames.length > 1
-  ) {
-    return inspectResult.plugin.meta.allSubProjectNames.length;
-  }
-
-  return null;
 }
 
 async function validateMonitorPath(path, isDocker) {
