@@ -18,23 +18,24 @@ import {
   VulnMetaData,
   TestResult,
 } from '../../../lib/snyk-test/legacy';
-import { formatIssues } from './formatters/legacy-format-issue';
 import {
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
   SupportedPackageManagers,
 } from '../../../lib/package-managers';
-import {
-  formatIssuesWithRemediation,
-  getSeverityValue,
-} from './formatters/remediation-based-format-issues';
+
 import * as analytics from '../../../lib/analytics';
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { FailOnError } from '../../../lib/errors/fail-on-error.ts';
-import { formatTestMeta } from './formatters/format-test-meta';
-import { dockerRemediationForDisplay } from './formatters/docker/format-docker-advice';
-import { summariseVulnerableResults } from './formatters/format-vulnerable-result-summary';
-import { summariseErrorResults } from './formatters/format-error-result-summary';
-import { formatDockerBinariesIssues } from './formatters/docker/format-docker-binary-issues';
+import {
+  summariseVulnerableResults,
+  summariseErrorResults,
+  formatTestMeta,
+  dockerRemediationForDisplay,
+  formatIssues,
+  formatIssuesWithRemediation,
+  formatDockerBinariesIssues,
+  getSeverityValue,
+} from './formatters';
 
 const debug = Debug('snyk');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -330,7 +331,11 @@ function isVulnFixable(vuln) {
   return isVulnUpgradable(vuln) || isVulnPatchable(vuln);
 }
 
-function displayResult(res: TestResult, options: Options & TestOptions) {
+function displayResult(
+  res: TestResult,
+  options: Options & TestOptions,
+  foundProjectCount?: number,
+) {
   const meta = formatTestMeta(res, options);
   const dockerAdvice = dockerRemediationForDisplay(res);
   const packageManager =
@@ -354,9 +359,11 @@ function displayResult(res: TestResult, options: Options & TestOptions) {
 
   let multiProjAdvice = '';
 
-  if (options.advertiseSubprojectsCount) {
+  const advertiseGradleSubProjectsCount =
+    packageManager === 'gradle' && !options['gradle-sub-project'];
+  if (advertiseGradleSubProjectsCount && foundProjectCount) {
     multiProjAdvice = chalk.bold.white(
-      `\n\nThis project has multiple sub-projects (${options.advertiseSubprojectsCount}), ` +
+      `\n\nThis project has multiple sub-projects (${foundProjectCount}), ` +
         'use --all-sub-projects flag to scan all sub-projects.',
     );
   }
