@@ -1,15 +1,18 @@
 import * as _ from 'lodash';
 import chalk from 'chalk';
+import * as url from 'url';
+
 import { MonitorResult } from '../../../../lib/types';
+import * as config from '../../../../lib/config';
 
 export function formatMonitorOutput(
   packageManager,
   res: MonitorResult,
-  manageUrl,
   options,
   projectName?: string,
   foundProjectCount?: number,
 ): string {
+  const manageUrl = buildManageUrl(res.id, res.org);
   const advertiseGradleSubProjectsCount =
     packageManager === 'gradle' && !options['gradle-sub-project'];
 
@@ -60,4 +63,18 @@ export function formatMonitorOutput(
         }),
       )
     : strOutput;
+}
+
+function buildManageUrl(resId: string, org?: string): string {
+  const endpoint = url.parse(config.API);
+  let leader = '';
+  if (org) {
+    leader = '/org/' + org;
+  }
+  endpoint.pathname = leader + '/manage';
+  const manageUrl = url.format(endpoint);
+
+  // TODO: what was this meant to do?
+  endpoint.pathname = leader + '/monitor/' + resId;
+  return manageUrl;
 }
