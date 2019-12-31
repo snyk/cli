@@ -6,12 +6,13 @@ import { TestOptions, Options } from '../types';
 export async function getSinglePluginResult(
   root: string,
   options: Options & TestOptions,
+  targetFile?: string,
 ): Promise<pluginApi.InspectResult> {
   const plugin = plugins.loadPlugin(options.packageManager, options);
   const moduleInfo = ModuleInfo(plugin, options.policy);
   const inspectRes: pluginApi.InspectResult = await moduleInfo.inspect(
     root,
-    options.file,
+    targetFile || options.file,
     { ...options },
   );
   return inspectRes;
