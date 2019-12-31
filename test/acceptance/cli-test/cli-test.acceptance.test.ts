@@ -28,18 +28,18 @@ import { YarnTests } from './cli-test.yarn.spec';
 import { AllProjectsTests } from './cli-test.all-projects.spec';
 
 const languageTests: AcceptanceTests[] = [
-  // CocoapodsTests,
-  // ComposerTests,
-  // DockerTests,
-  // GoTests,
-  // GradleTests,
-  // MavenTests,
-  // NpmTests,
-  // NugetTests,
-  // PythonTests,
-  // RubyTests,
-  // SbtTests,
-  // YarnTests,
+  CocoapodsTests,
+  ComposerTests,
+  DockerTests,
+  GoTests,
+  GradleTests,
+  MavenTests,
+  NpmTests,
+  NugetTests,
+  PythonTests,
+  RubyTests,
+  SbtTests,
+  YarnTests,
 ];
 
 const { test, only } = tap;
