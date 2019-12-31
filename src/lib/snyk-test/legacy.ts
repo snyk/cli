@@ -106,6 +106,12 @@ export interface DockerIssue {
   dockerBaseImage?: any;
 }
 
+export interface IgnoreSettings {
+  adminOnly: boolean;
+  reasonRequired: boolean;
+  disregardFilesystemIgnores: boolean;
+}
+
 export interface LegacyVulnApiResult {
   vulnerabilities: AnnotatedIssue[];
   ok: boolean;
@@ -115,11 +121,12 @@ export interface LegacyVulnApiResult {
   isPrivate: boolean;
   licensesPolicy: object | null;
   packageManager: string;
-  ignoreSettings: object | null;
+  ignoreSettings: IgnoreSettings | null;
   summary: string;
   docker?: {
     baseImage?: any;
     binariesVulns?: unknown;
+    baseImageRemediation?: BaseImageRemediation;
   };
   severityThreshold?: string;
 
@@ -128,8 +135,21 @@ export interface LegacyVulnApiResult {
   remediation?: RemediationChanges;
 }
 
+export interface BaseImageRemediation {
+  code: string;
+  advice: BaseImageRemediationAdvice[];
+  message?: string; // TODO: check if this is still being sent
+}
+
+export interface BaseImageRemediationAdvice {
+  message: string;
+  bold?: boolean;
+  color?: string;
+}
+
 export interface TestResult extends LegacyVulnApiResult {
   targetFile?: string;
+  projectName?: string;
 }
 
 interface UpgradePathItem {
@@ -179,7 +199,7 @@ interface TestDepGraphMeta {
       [type: string]: string;
     };
   };
-  ignoreSettings?: object;
+  ignoreSettings?: IgnoreSettings;
   policy: string;
   org: string;
 }
