@@ -9,16 +9,12 @@ export function convertScannedProjectsToCustom(
 ): ScannedProjectCustom[] {
   // annotate the package manager & targetFile to be used
   // for test & monitor
-  const customScannedProject: ScannedProjectCustom[] = scannedProjects.map(
-    (a) => {
-      (a as ScannedProjectCustom).targetFile = targetFile;
-      (a as ScannedProjectCustom).packageManager = (a as ScannedProjectCustom)
-        .packageManager
-        ? (a as ScannedProjectCustom).packageManager
-        : (packageManager as SupportedPackageManagers);
-      return a as ScannedProjectCustom;
-    },
-  );
-
-  return customScannedProject;
+  return scannedProjects.map((a) => {
+    (a as ScannedProjectCustom).targetFile = a.targetFile || targetFile;
+    (a as ScannedProjectCustom).packageManager = (a as ScannedProjectCustom)
+      .packageManager
+      ? (a as ScannedProjectCustom).packageManager
+      : (packageManager as SupportedPackageManagers);
+    return a as ScannedProjectCustom;
+  });
 }

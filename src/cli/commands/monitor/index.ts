@@ -1,17 +1,11 @@
 export = monitor;
 
-import * as _ from 'lodash';
-import * as fs from 'then-fs';
-import { apiTokenExists } from '../../../lib/api-token';
-import snyk = require('../../../lib'); // TODO(kyegupov): fix import
-import { monitor as snykMonitor } from '../../../lib/monitor';
-import * as config from '../../../lib/config';
 import chalk from 'chalk';
-import * as pathUtil from 'path';
-import * as spinner from '../../../lib/spinner';
+import * as fs from 'then-fs';
 import * as Debug from 'debug';
+import * as pathUtil from 'path';
+import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
-import * as detect from '../../../lib/detect';
 import {
   MonitorOptions,
   MonitorMeta,
@@ -19,19 +13,24 @@ import {
   PluginMetadata,
   Options,
 } from '../../../lib/types';
-import { MethodArgs, ArgsOptions } from '../../args';
-import { maybePrintDeps } from '../../../lib/print-deps';
-import * as analytics from '../../../lib/analytics';
-import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { formatMonitorOutput } from './formatters/format-monitor-response';
-import { processJsonMonitorResponse } from './process-json-monitor';
+import * as config from '../../../lib/config';
+import * as detect from '../../../lib/detect';
 import { GoodResult, BadResult } from './types';
+import * as spinner from '../../../lib/spinner';
+import * as analytics from '../../../lib/analytics';
+import { MethodArgs, ArgsOptions } from '../../args';
+import { apiTokenExists } from '../../../lib/api-token';
+import { maybePrintDeps } from '../../../lib/print-deps';
+import { monitor as snykMonitor } from '../../../lib/monitor';
+import { processJsonMonitorResponse } from './process-json-monitor';
+import snyk = require('../../../lib'); // TODO(kyegupov): fix import
+import { formatMonitorOutput } from './formatters/format-monitor-response';
 import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
+import { getSubProjectCount } from '../../../lib/plugins/get-sub-project-count';
 import { extractPackageManager } from '../../../lib/plugins/extract-package-manager';
 import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-result';
-import { getSubProjectCount } from '../../../lib/plugins/get-sub-project-count';
-import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
+import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -151,11 +150,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
         debug(`Processing ${projectDeps.depTree.name}...`);
         maybePrintDeps(options, projectDeps.depTree);
-        // TODO: not always correct for multi scan,
-        // targetFile needs to be derived from project scanned always
-        // this is not yet used anywhere in the system to leaving for now
-        const targetFileRelativePath = targetFile
-          ? pathUtil.join(pathUtil.resolve(path), targetFile)
+
+        const tFile = projectDeps.targetFile || targetFile;
+        const targetFileRelativePath = tFile
+          ? pathUtil.join(pathUtil.resolve(path), tFile)
           : '';
         const res: MonitorResult = await promiseOrCleanup(
           snykMonitor(

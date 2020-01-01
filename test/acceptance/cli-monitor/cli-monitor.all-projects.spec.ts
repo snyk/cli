@@ -132,39 +132,77 @@ export const AllProjectsTests: AcceptanceTests = {
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
 
-      const result = await params.cli.monitor('mono-repo-project', {
+      await params.cli.monitor('mono-repo-project', {
         allProjects: true,
       });
       // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const requests = params.server
+      const [rubyAll, npmAll, mavenAll] = params.server
         .popRequests(4)
         .filter((req) => req.url.includes('/monitor/'));
 
-      // TODO: Compare each with with a --file below
-
       // Ruby
-      const resultRuby = await params.cli.monitor('mono-repo-project', {
+      await params.cli.monitor('mono-repo-project', {
         file: 'Gemfile.lock',
       });
-      const requestsRuby = params.server
+      const [requestsRuby] = params.server
         .popRequests(2)
         .filter((req) => req.url.includes('/monitor/'));
 
       // npm
-      const resultNpm = await params.cli.monitor('mono-repo-project', {
+      await params.cli.monitor('mono-repo-project', {
         file: 'package-lock.json',
       });
-      const requestsNpm = params.server
+      const [requestsNpm] = params.server
         .popRequests(2)
         .filter((req) => req.url.includes('/monitor/'));
 
       // maven
-      const resultMaven = await params.cli.monitor('mono-repo-project', {
+      await params.cli.monitor('mono-repo-project', {
         file: 'pom.xml',
       });
-      const requestsMaven = params.server
+      const [requestsMaven] = params.server
         .popRequests(2)
         .filter((req) => req.url.includes('/monitor/'));
+
+      // Ruby project
+
+      // Removing properties that are different for plugin and custom-plugin
+      // (pluginName, pluginRuntime)
+      delete rubyAll.body.meta.pluginName;
+      delete requestsRuby.body.meta.pluginName;
+      delete requestsRuby.body.meta.pluginRuntime;
+
+      t.deepEqual(
+        rubyAll.body,
+        requestsRuby.body,
+        'Same body for --all-projects and --file=Gemfile.lock',
+      );
+
+      // NPM project
+
+      // Removing properties that are different for plugin and custom-plugin
+      // (pluginName, pluginRuntime)
+      delete npmAll.body.meta.pluginName;
+      delete requestsNpm.body.meta.pluginName;
+      delete requestsNpm.body.meta.pluginRuntime;
+      t.deepEqual(
+        npmAll.body,
+        requestsNpm.body,
+        'Same body for --all-projects and --file=package-lock.json',
+      );
+
+      // Maven project
+
+      // Removing properties that are different for plugin and custom-plugin
+      // (pluginName, pluginRuntime)
+      delete mavenAll.body.meta.pluginName;
+      delete requestsMaven.body.meta.pluginName;
+      delete requestsMaven.body.meta.pluginRuntime;
+      t.deepEqual(
+        mavenAll.body,
+        requestsMaven.body,
+        'Same body for --all-projects and --file=pom.xml',
+      );
 
       t.pass('TODO');
     },
