@@ -34,7 +34,7 @@ export async function getMultiPluginResult(
       const inspectRes = await getSinglePluginResult(
         root,
         optionsClone,
-        targetFile,
+        optionsClone.file,
       );
       let resultWithScannedProjects: cliInterface.legacyPlugin.MultiProjectResult;
 
