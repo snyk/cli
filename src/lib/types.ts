@@ -36,6 +36,10 @@ export interface TestOptions {
 export interface ProtectOptions {
   loose: boolean;
 }
+
+export interface WizardOptions {
+  newPolicy: boolean;
+}
 export interface Options {
   org: string | null;
   path: string;
