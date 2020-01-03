@@ -46,11 +46,7 @@ export function formatIssues(
     extraInfo: vuln.note ? chalk.bold('\n  Note: ' + vuln.note) : '',
     remediationInfo:
       vuln.metadata.type !== 'license' && localPackageTest
-        ? createRemediationText(
-            vuln,
-            packageManager,
-            !!options.pinningSupported,
-          )
+        ? createRemediationText(vuln, packageManager)
         : '',
     fixedIn: options.docker ? createFixedInText(vuln) : '',
     dockerfilePackage: options.docker ? dockerfileInstructionText(vuln) : '',
@@ -174,7 +170,6 @@ function createFixedInText(vuln: GroupedVuln): string {
 function createRemediationText(
   vuln: GroupedVuln,
   packageManager: SupportedPackageManagers,
-  pinningSupported: boolean,
 ): string {
   let wizardHintText = '';
   if (WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
@@ -182,7 +177,6 @@ function createRemediationText(
   }
 
   if (
-    pinningSupported &&
     vuln.fixedIn &&
     PINNING_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
   ) {
