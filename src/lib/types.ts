@@ -40,7 +40,7 @@ export interface WizardOptions {
   newPolicy: boolean;
 }
 export interface Options {
-  org: string | null;
+  org?: string | null;
   path: string;
   docker?: boolean;
   file?: string;
@@ -56,7 +56,7 @@ export interface Options {
   allSubProjects?: boolean;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
-  packageManager: SupportedPackageManagers;
+  packageManager?: SupportedPackageManagers;
   advertiseSubprojectsCount?: number;
   projectNames?: string[];
   severityThreshold?: SEVERITY;
@@ -78,6 +78,7 @@ export interface MonitorOptions {
   'print-deps'?: boolean;
   'experimental-dep-graph'?: boolean;
   scanAllUnmanaged?: boolean;
+  allProjects?: boolean;
 
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
   'prune-repeated-subdependencies'?: boolean;

@@ -1,8 +1,7 @@
 import * as debugModule from 'debug';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-
 import { find } from '../find-files';
-import { Options, TestOptions } from '../types';
+import { Options, TestOptions, MonitorOptions } from '../types';
 import { NoSupportedManifestsFoundError } from '../errors';
 import { getMultiPluginResult } from './get-multi-plugin-result';
 import { getSinglePluginResult } from './get-single-plugin-result';
@@ -12,13 +11,15 @@ import {
   detectPackageManagerFromFile,
 } from '../detect';
 import analytics = require('../analytics');
+import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
+import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 
 const debug = debugModule('snyk');
 
 // Force getDepsFromPlugin to return scannedProjects for processing
 export async function getDepsFromPlugin(
   root: string,
-  options: Options & TestOptions,
+  options: Options & (TestOptions | MonitorOptions),
 ): Promise<pluginApi.MultiProjectResult> {
   let inspectRes: pluginApi.InspectResult;
 
@@ -43,51 +44,35 @@ export async function getDepsFromPlugin(
     };
     analytics.add('allProjects', analyticData);
     return inspectRes;
-  } else {
-    // TODO: is this needed for the auto detect handling above?
-    // don't override options.file if scanning multiple files at once
-    if (!options.scanAllUnmanaged) {
-      options.file = options.file || detectPackageFile(root);
-    }
-    if (!options.docker && !(options.file || options.packageManager)) {
-      throw NoSupportedManifestsFoundError([...root]);
-    }
-    inspectRes = await getSinglePluginResult(root, options);
   }
+
+  // TODO: is this needed for the auto detect handling above?
+  // don't override options.file if scanning multiple files at once
+  if (!options.scanAllUnmanaged) {
+    options.file = options.file || detectPackageFile(root);
+  }
+  if (!options.docker && !(options.file || options.packageManager)) {
+    throw NoSupportedManifestsFoundError([...root]);
+  }
+  inspectRes = await getSinglePluginResult(root, options);
 
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package) {
       // something went wrong if both are not present...
       throw Error(
-        `error getting dependencies from ${options.packageManager} ` +
-          "plugin: neither 'package' nor 'scannedProjects' were found",
+        `error getting dependencies from ${
+          options.docker ? 'docker' : options.packageManager
+        } ` + "plugin: neither 'package' nor 'scannedProjects' were found",
       );
     }
-    if (!inspectRes.package.targetFile && inspectRes.plugin) {
-      inspectRes.package.targetFile = inspectRes.plugin.targetFile;
-    }
-    // We are using "options" to store some information returned from plugin that we need to use later,
-    // but don't want to send to Registry in the Payload.
-    // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    if (
-      inspectRes.plugin.meta &&
-      inspectRes.plugin.meta.allSubProjectNames &&
-      inspectRes.plugin.meta.allSubProjectNames.length > 1
-    ) {
-      options.advertiseSubprojectsCount =
-        inspectRes.plugin.meta.allSubProjectNames.length;
-    }
-    return {
-      plugin: inspectRes.plugin,
-      scannedProjects: [{ depTree: inspectRes.package }],
-    };
-  } else {
-    // We are using "options" to store some information returned from plugin that we need to use later,
-    // but don't want to send to Registry in the Payload.
-    // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-    (options as any).projectNames = inspectRes.scannedProjects.map(
-      (scannedProject) => scannedProject.depTree.name,
-    );
-    return inspectRes;
+
+    return convertSingleResultToMultiCustom(inspectRes, options.packageManager);
   }
+  // We are using "options" to store some information returned from plugin that we need to use later,
+  // but don't want to send to Registry in the Payload.
+  // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
+  (options as any).projectNames = inspectRes.scannedProjects.map(
+    (scannedProject) => scannedProject.depTree.name,
+  );
+  return convertMultiResultToMultiCustom(inspectRes, options.packageManager);
 }

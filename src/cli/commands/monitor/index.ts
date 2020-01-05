@@ -1,43 +1,39 @@
 export = monitor;
 
-import * as _ from 'lodash';
-import * as fs from 'then-fs';
-import { apiTokenExists } from '../../../lib/api-token';
-import snyk = require('../../../lib'); // TODO(kyegupov): fix import
-import { monitor as snykMonitor } from '../../../lib/monitor';
-import * as config from '../../../lib/config';
-import * as url from 'url';
 import chalk from 'chalk';
+import * as fs from 'then-fs';
+import * as Debug from 'debug';
 import * as pathUtil from 'path';
-import * as spinner from '../../../lib/spinner';
-
-import * as detect from '../../../lib/detect';
-import * as plugins from '../../../lib/plugins';
-import { ModuleInfo } from '../../../lib/module-info'; // TODO(kyegupov): fix import
-import { MonitorOptions, MonitorMeta, Options } from '../../../lib/types';
-import { MethodArgs, ArgsOptions } from '../../args';
-import { maybePrintDeps } from '../../../lib/print-deps';
-import * as analytics from '../../../lib/analytics';
-import { MonitorError } from '../../../lib/errors';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { formatMonitorOutput } from './formatters/format-monitor-response';
-import { getSubProjectCount } from '../../../lib/plugins/get-sub-project-count';
+
+import {
+  MonitorOptions,
+  MonitorMeta,
+  MonitorResult,
+  PluginMetadata,
+  Options,
+} from '../../../lib/types';
+import * as config from '../../../lib/config';
+import * as detect from '../../../lib/detect';
+import { GoodResult, BadResult } from './types';
+import * as spinner from '../../../lib/spinner';
+import * as analytics from '../../../lib/analytics';
+import { MethodArgs, ArgsOptions } from '../../args';
+import { apiTokenExists } from '../../../lib/api-token';
+import { maybePrintDeps } from '../../../lib/print-deps';
+import { monitor as snykMonitor } from '../../../lib/monitor';
 import { processJsonMonitorResponse } from './process-json-monitor';
+import snyk = require('../../../lib'); // TODO(kyegupov): fix import
+import { formatMonitorOutput } from './formatters/format-monitor-response';
+import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
+import { getSubProjectCount } from '../../../lib/plugins/get-sub-project-count';
+import { extractPackageManager } from '../../../lib/plugins/extract-package-manager';
+import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-result';
+import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
+import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
-
-interface GoodResult {
-  ok: true;
-  data: string;
-  path: string;
-  projectName?: string;
-}
-
-interface BadResult {
-  ok: false;
-  data: MonitorError;
-  path: string;
-}
+const debug = Debug('snyk');
 
 // This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
 // declaring the type of x as possibly undefined.
@@ -86,104 +82,90 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
+    debug(`Processing ${path}...`);
     try {
       await validateMonitorPath(path, options.docker);
-
-      let packageManager = detect.detectPackageManager(path, options);
+      const guessedPackageManager = detect.detectPackageManager(path, options);
+      const analysisType =
+        (options.docker ? 'docker' : guessedPackageManager) || 'all';
 
       const targetFile =
         !options.scanAllUnmanaged && options.docker && !options.file // snyk monitor --docker (without --file)
           ? undefined
           : options.file || detect.detectPackageFile(path);
 
-      const modulePlugin = plugins.loadPlugin(packageManager, options);
-
-      const moduleInfo = ModuleInfo(modulePlugin, options.policy);
-
       const displayPath = pathUtil.relative(
         '.',
         pathUtil.join(path, targetFile || ''),
       );
 
-      const analysisType = options.docker ? 'docker' : packageManager;
-
       const analyzingDepsSpinnerLabel =
         'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
-
-      const postingMonitorSpinnerLabel =
-        'Posting monitor snapshot for ' + displayPath + ' ...';
 
       await spinner(analyzingDepsSpinnerLabel);
 
       // Scan the project dependencies via a plugin
 
-      analytics.add('packageManager', packageManager);
       analytics.add('pluginOptions', options);
+      debug('getDepsFromPlugin ...');
 
       // each plugin will be asked to scan once per path
       // some return single InspectResult & newer ones return Multi
-      const inspectResult: pluginApi.InspectResult = await promiseOrCleanup(
-        moduleInfo.inspect(path, targetFile, { ...options }),
+      const inspectResult = await promiseOrCleanup(
+        getDepsFromPlugin(path, {
+          ...options,
+          path,
+          packageManager: guessedPackageManager,
+        }),
         spinner.clear(analyzingDepsSpinnerLabel),
       );
 
       analytics.add('pluginName', inspectResult.plugin.name);
 
-      await spinner.clear(analyzingDepsSpinnerLabel)(inspectResult);
-
+      const postingMonitorSpinnerLabel =
+        'Posting monitor snapshot for ' + displayPath + ' ...';
       await spinner(postingMonitorSpinnerLabel);
-      if (inspectResult.plugin.packageManager) {
-        packageManager = inspectResult.plugin.packageManager;
-      }
-      const monitorMeta: MonitorMeta = {
-        method: 'cli',
-        packageManager,
-        'policy-path': options['policy-path'],
-        'project-name': options['project-name'] || config.PROJECT_NAME,
-        isDocker: !!options.docker,
-        prune: !!options['prune-repeated-subdependencies'],
-        'experimental-dep-graph': !!options['experimental-dep-graph'],
-        'remote-repo-url': options['remote-repo-url'],
-      };
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
       // multi result will become default, so start migrating code to always work with it
-      let perProjectResult: pluginApi.MultiProjectResult;
+      let perProjectResult: MultiProjectResultCustom;
       let foundProjectCount;
 
       if (!pluginApi.isMultiResult(inspectResult)) {
         foundProjectCount = getSubProjectCount(inspectResult);
-        const { plugin, meta, package: depTree } = inspectResult;
-        perProjectResult = {
-          plugin,
-          scannedProjects: [
-            {
-              depTree,
-              meta,
-            },
-          ],
-        };
+        perProjectResult = convertSingleResultToMultiCustom(inspectResult);
       } else {
-        perProjectResult = inspectResult;
+        perProjectResult = convertMultiResultToMultiCustom(inspectResult);
       }
 
       // Post the project dependencies to the Registry
       for (const projectDeps of perProjectResult.scannedProjects) {
+        const packageManager = extractPackageManager(
+          projectDeps,
+          perProjectResult,
+          options as MonitorOptions & Options,
+        );
+        analytics.add('packageManager', packageManager);
         maybePrintDeps(options, projectDeps.depTree);
 
-        const res = await promiseOrCleanup(
+        debug(`Processing ${projectDeps.depTree.name}...`);
+        maybePrintDeps(options, projectDeps.depTree);
+
+        const tFile = projectDeps.targetFile || targetFile;
+        const targetFileRelativePath = tFile
+          ? pathUtil.join(pathUtil.resolve(path), tFile)
+          : '';
+        const res: MonitorResult = await promiseOrCleanup(
           snykMonitor(
             path,
-            monitorMeta,
+            generateMonitorMeta(options, packageManager),
             projectDeps,
             options,
-            perProjectResult.plugin,
-            targetFile,
+            perProjectResult.plugin as PluginMetadata,
+            targetFileRelativePath,
           ),
           spinner.clear(postingMonitorSpinnerLabel),
         );
-
-        await spinner.clear(postingMonitorSpinnerLabel)(res);
 
         res.path = path;
         const projectName = projectDeps.depTree.name;
@@ -193,7 +175,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           res,
           options,
           projectName,
-          foundProjectCount,
+          getSubProjectCount(inspectResult),
         );
         results.push({ ok: true, data: monOutput, path, projectName });
       }
@@ -201,6 +183,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     } catch (err) {
       // push this error, the loop continues
       results.push({ ok: false, data: err, path });
+    } finally {
+      spinner.clearAll();
     }
   }
   // Part 2: process the output from the Registry
@@ -234,13 +218,17 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   throw new Error(output);
 }
 
-function convertMultiPluginResultToSingle(
-  result: pluginApi.MultiProjectResult,
-): pluginApi.SinglePackageResult[] {
-  return result.scannedProjects.map((scannedProject) => ({
-    plugin: result.plugin,
-    package: scannedProject.depTree,
-  }));
+function generateMonitorMeta(options, packageManager?): MonitorMeta {
+  return {
+    method: 'cli',
+    packageManager,
+    'policy-path': options['policy-path'],
+    'project-name': options['project-name'] || config.PROJECT_NAME,
+    isDocker: !!options.docker,
+    prune: !!options['prune-repeated-subdependencies'],
+    'experimental-dep-graph': !!options['experimental-dep-graph'],
+    'remote-repo-url': options['remote-repo-url'],
+  };
 }
 
 async function validateMonitorPath(path, isDocker) {

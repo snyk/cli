@@ -12,6 +12,7 @@ import * as userConfig from '../../../src/lib/user-config';
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
 import * as snykPolicy from 'snyk-policy';
+import { AllProjectsTests } from './cli-monitor.all-projects.spec';
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -61,6 +62,18 @@ before('prime config', async (t) => {
   await cli.config('unset', 'endpoint');
   t.pass('endpoint removed');
   t.end();
+});
+
+test(AllProjectsTests.language, async (t) => {
+  for (const testName of Object.keys(AllProjectsTests.tests)) {
+    t.test(
+      testName,
+      AllProjectsTests.tests[testName](
+        { server, versionNumber, cli, plugins },
+        { chdirWorkspaces },
+      ),
+    );
+  }
 });
 
 /**
@@ -703,6 +716,8 @@ test('`monitor pip-app --file=requirements.txt`', async (t) => {
       {
         args: null,
         file: 'requirements.txt',
+        packageManager: 'pip',
+        path: 'pip-app',
       },
     ],
     'calls python plugin',
@@ -752,6 +767,9 @@ test('`monitor gradle-app`', async (t) => {
       'build.gradle',
       {
         args: null,
+        packageManager: 'gradle',
+        file: 'build.gradle',
+        path: 'gradle-app',
       },
     ],
     'calls gradle plugin',
@@ -793,6 +811,9 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
       {
         allSubProjects: true,
         args: null,
+        file: 'build.gradle',
+        packageManager: 'gradle',
+        path: 'gradle-app',
       },
     ],
     'calls gradle plugin',
@@ -844,6 +865,9 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
       {
         allSubProjects: true,
         args: null,
+        file: 'build.gradle',
+        packageManager: 'gradle',
+        path: 'gradle-app',
       },
     ],
     'calls plugin for the 1st path',
@@ -856,6 +880,9 @@ test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
       {
         allSubProjects: true,
         args: null,
+        file: 'requirements.txt',
+        packageManager: 'pip',
+        path: 'pip-app',
       },
     ],
     'calls plugin for the 2nd path',
@@ -931,6 +958,8 @@ test('`monitor golang-gomodules --file=go.mod', async (t) => {
       {
         args: null,
         file: 'go.mod',
+        packageManager: 'gomodules',
+        path: 'golang-gomodules',
       },
     ],
     'calls golang plugin',
@@ -977,6 +1006,8 @@ test('`monitor golang-app --file=Gopkg.lock', async (t) => {
       {
         args: null,
         file: 'Gopkg.lock',
+        packageManager: 'golangdep',
+        path: 'golang-app',
       },
     ],
     'calls golang plugin',
@@ -1023,6 +1054,8 @@ test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
       {
         args: null,
         file: 'vendor/vendor.json',
+        packageManager: 'govendor',
+        path: 'golang-app',
       },
     ],
     'calls golang plugin',
@@ -1066,6 +1099,9 @@ test('`monitor cocoapods-app (autodetect)`', async (t) => {
       'Podfile',
       {
         args: null,
+        file: 'Podfile',
+        packageManager: 'cocoapods',
+        path: './',
       },
     ],
     'calls CocoaPods plugin',
@@ -1112,6 +1148,8 @@ test('`monitor cocoapods-app --file=Podfile`', async (t) => {
       {
         args: null,
         file: 'Podfile',
+        packageManager: 'cocoapods',
+        path: './',
       },
     ],
     'calls CocoaPods plugin',
@@ -1158,6 +1196,8 @@ test('`monitor cocoapods-app --file=Podfile.lock`', async (t) => {
       {
         args: null,
         file: 'Podfile.lock',
+        packageManager: 'cocoapods',
+        path: './',
       },
     ],
     'calls CocoaPods plugin',
@@ -1233,7 +1273,10 @@ test('`monitor foo:latest --docker`', async (t) => {
       {
         args: null,
         docker: true,
+        file: null,
         org: 'explicit-org',
+        packageManager: null,
+        path: 'foo:latest',
       },
     ],
     'calls docker plugin with expected arguments',
@@ -1284,6 +1327,8 @@ test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
         docker: true,
         file: 'Dockerfile',
         org: 'explicit-org',
+        packageManager: null,
+        path: 'foo:latest',
       },
     ],
     'calls docker plugin with expected arguments',
@@ -1326,7 +1371,10 @@ test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
       {
         args: null,
         docker: true,
+        file: null,
         org: 'explicit-org',
+        packageManager: null,
+        path: 'foo:latest',
       },
     ],
     'calls docker plugin with expected arguments',
@@ -1382,8 +1430,11 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
       {
         args: null,
         docker: true,
+        file: null,
         org: 'explicit-org',
         'policy-path': 'custom-location',
+        packageManager: null,
+        path: 'foo:latest',
       },
     ],
     'calls docker plugin with expected arguments',

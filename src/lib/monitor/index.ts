@@ -1,5 +1,6 @@
 import * as Debug from 'debug';
 import * as depGraphLib from '@snyk/dep-graph';
+import * as cliInterface from '@snyk/cli-interface';
 import * as snyk from '..';
 import { apiTokenExists } from '../api-token';
 import request = require('../request');
@@ -8,7 +9,7 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
-import { DepTree, MonitorMeta, MonitorResult } from '../types';
+import { DepTree, MonitorMeta, MonitorResult, PluginMetadata } from '../types';
 import * as projectMetadata from '../project-metadata';
 import * as path from 'path';
 import {
@@ -24,8 +25,6 @@ import { filterOutMissingDeps } from './filter-out-missing-deps';
 import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
 import { pluckPolicies } from '../policy';
-import { ScannedProject } from '@snyk/cli-interface/legacy/common';
-import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 
 const debug = Debug('snyk');
 
@@ -62,10 +61,10 @@ interface Meta {
 export async function monitor(
   root: string,
   meta: MonitorMeta,
-  scannedProject: ScannedProject,
+  scannedProject: cliInterface.legacyCommon.ScannedProject,
   options,
   pluginMeta: PluginMetadata,
-  targetFile?: string,
+  targetFileRelativePath?: string,
 ): Promise<MonitorResult> {
   apiTokenExists();
   let treeMissingDeps: string[] = [];
@@ -93,7 +92,7 @@ export async function monitor(
         meta,
         scannedProject,
         pluginMeta,
-        targetFile,
+        targetFileRelativePath,
       );
     }
     if (monitorGraphSupportedRes.userMessage) {
@@ -132,9 +131,6 @@ export async function monitor(
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await projectMetadata.getInfo(pkg, meta);
-  const targetFileRelativePath = targetFile
-    ? path.join(path.resolve(root), targetFile)
-    : '';
 
   if (target && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -175,6 +171,7 @@ export async function monitor(
           // we take the targetFile from the plugin,
           // because we want to send it only for specific package-managers
           target,
+          // WARNING: be careful changing this as it affects project uniqueness
           targetFile: pluginMeta.targetFile,
           targetFileRelativePath,
         } as MonitorBody,
@@ -212,9 +209,9 @@ export async function monitor(
 export async function monitorGraph(
   root: string,
   meta: MonitorMeta,
-  scannedProject: ScannedProject,
+  scannedProject: cliInterface.legacyCommon.ScannedProject,
   pluginMeta: PluginMetadata,
-  targetFile?: string,
+  targetFileRelativePath?: string,
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('monitorGraph', true);
@@ -244,9 +241,6 @@ export async function monitorGraph(
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await projectMetadata.getInfo(pkg, meta);
-  const targetFileRelativePath = targetFile
-    ? path.join(path.resolve(root), targetFile)
-    : '';
 
   if (target && target.branch) {
     analytics.add('targetBranch', target.branch);
