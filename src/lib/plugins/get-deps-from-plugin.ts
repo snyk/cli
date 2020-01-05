@@ -6,7 +6,12 @@ import { Options, TestOptions } from '../types';
 import { NoSupportedManifestsFoundError } from '../errors';
 import { getMultiPluginResult } from './get-multi-plugin-result';
 import { getSinglePluginResult } from './get-single-plugin-result';
-import { detectPackageFile, AUTO_DETECTABLE_FILES } from '../detect';
+import {
+  detectPackageFile,
+  AUTO_DETECTABLE_FILES,
+  detectPackageManagerFromFile,
+} from '../detect';
+import analytics = require('../analytics');
 
 const debug = debugModule('snyk');
 
@@ -18,8 +23,8 @@ export async function getDepsFromPlugin(
   let inspectRes: pluginApi.InspectResult;
 
   if (options.allProjects) {
-    // auto-detect only one-level deep for now
-    const targetFiles = await find(root, [], AUTO_DETECTABLE_FILES, 1);
+    const levelsDeep = 1; // TODO: auto-detect only one-level deep for now
+    const targetFiles = await find(root, [], AUTO_DETECTABLE_FILES, levelsDeep);
     debug(
       `auto detect manifest files, found ${targetFiles.length}`,
       targetFiles,
@@ -28,6 +33,15 @@ export async function getDepsFromPlugin(
       throw NoSupportedManifestsFoundError([root]);
     }
     inspectRes = await getMultiPluginResult(root, options, targetFiles);
+    const analyticData = {
+      scannedProjects: inspectRes.scannedProjects.length,
+      targetFiles,
+      packageManagers: targetFiles.map((file) =>
+        detectPackageManagerFromFile(file),
+      ),
+      levelsDeep,
+    };
+    analytics.add('allProjects', analyticData);
     return inspectRes;
   } else {
     // TODO: is this needed for the auto detect handling above?
