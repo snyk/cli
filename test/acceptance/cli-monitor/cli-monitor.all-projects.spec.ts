@@ -203,10 +203,6 @@ export const AllProjectsTests: AcceptanceTests = {
         requestsMaven.body,
         'Same body for --all-projects and --file=pom.xml',
       );
-
-      t.pass('TODO');
     },
-
-    // TODO: monitor with --json flag
   },
 };
