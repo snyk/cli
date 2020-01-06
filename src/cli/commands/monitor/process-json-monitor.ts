@@ -15,11 +15,12 @@ export function processJsonMonitorResponse(
   });
   // backwards compat - strip array if only one result
   dataToSend = dataToSend.length === 1 ? dataToSend[0] : dataToSend;
-  const json = JSON.stringify(dataToSend, null, 2);
+  const stringifiedData = JSON.stringify(dataToSend, null, 2);
 
   if (results.every((res) => res.ok)) {
-    return json;
+    return stringifiedData;
   }
-
-  throw new Error(json);
+  const err = new Error(stringifiedData) as any;
+  err.json = dataToSend;
+  throw err;
 }

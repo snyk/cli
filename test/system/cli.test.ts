@@ -28,6 +28,7 @@ const server = require('../cli-server')(
 // configure our fake configuration too
 import * as cli from '../../src/cli/commands';
 import { PolicyNotFoundError } from '../../src/lib/errors';
+import { chdirWorkspaces } from '../acceptance/workspace-helper';
 
 const before = test;
 const after = test;
@@ -276,6 +277,29 @@ test('snyk policy', async (t) => {
     await cli.policy('wrong/path');
   } catch (error) {
     t.match(error, PolicyNotFoundError);
+  }
+});
+
+test('monitor --json no supported target files', async (t) => {
+  try {
+    chdirWorkspaces();
+    await cli.monitor('no-supported-target-files', { json: true });
+    t.fail('should have thrown');
+  } catch (error) {
+    const jsonResponse = error.json;
+
+    if (_.isObject(jsonResponse)) {
+      t.pass('monitor outputted JSON');
+    } else {
+      t.fail('Failed parsing monitor JSON output');
+    }
+
+    const keyList = ['error', 'path'];
+    t.equals(jsonResponse.ok, false, 'result is an error');
+
+    keyList.forEach((k) => {
+      t.ok(_.get(jsonResponse, k, null), `${k} present`);
+    });
   }
 });
 

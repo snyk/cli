@@ -1,4 +1,5 @@
 import * as sinon from 'sinon';
+import * as _ from 'lodash';
 
 interface AcceptanceTests {
   language: string;
@@ -203,6 +204,42 @@ export const AllProjectsTests: AcceptanceTests = {
         requestsMaven.body,
         'Same body for --all-projects and --file=pom.xml',
       );
+    },
+    '`monitor mono-repo-project with lockfiles --all-projects --json`': (
+      params,
+      utils,
+    ) => async (t) => {
+      try {
+        utils.chdirWorkspaces();
+        const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+        t.teardown(spyPlugin.restore);
+
+        const response = await params.cli.monitor('mono-repo-project', {
+          json: true,
+          allProjects: true,
+        });
+        JSON.parse(response).forEach((res) => {
+          if (_.isObject(res)) {
+            t.pass('monitor outputted JSON');
+          } else {
+            t.fail('Failed parsing monitor JSON output');
+          }
+
+          const keyList = [
+            'packageManager',
+            'manageUrl',
+            'id',
+            'projectName',
+            'isMonitored',
+          ];
+
+          keyList.forEach((k) => {
+            !_.get(res, k) ? t.fail(k + ' not found') : t.pass(k + ' found');
+          });
+        });
+      } catch (error) {
+        t.fail('should have passed', error);
+      }
     },
   },
 };
