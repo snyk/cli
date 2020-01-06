@@ -196,34 +196,6 @@ test('`monitor npm-package`', async (t) => {
   t.notOk(req.body.meta.prePruneDepCount, "doesn't send meta.prePruneDepCount");
 });
 
-test('`monitor npm-package with --all-projects has not effect`', async (t) => {
-  // TODO: monitor --all-projects is not supported initially
-  chdirWorkspaces();
-  await cli.monitor('npm-package', {
-    'all-projects': true,
-  });
-  const req = server.popRequest();
-  t.equal(req.method, 'PUT', 'makes PUT request');
-  t.equal(
-    req.headers['x-snyk-cli-version'],
-    versionNumber,
-    'sends version number',
-  );
-  const depGraphJSON = req.body.depGraphJSON;
-  t.ok(depGraphJSON);
-  const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
-  const objectAssign = depGraphJSON.pkgs.find(
-    (pkg) => pkg.info.name === 'object-assign',
-  );
-  t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-  t.ok(debug, 'dependency');
-  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-  t.notOk(objectAssign, 'no dev dependency');
-  t.notOk(depGraphJSON.from, 'no "from" array on root');
-  t.notOk(debug.from, 'no "from" array on dep');
-  t.notOk(req.body.meta.prePruneDepCount, "doesn't send meta.prePruneDepCount");
-});
-
 test('`monitor npm-out-of-sync graph monitor`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('npm-out-of-sync-graph', {
@@ -1445,40 +1417,6 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
   );
   const policyString = req.body.policy;
   t.deepEqual(policyString, expected, 'sends correct policy');
-});
-
-test('`wizard` for unsupported package managers', async (t) => {
-  chdirWorkspaces();
-  async function testUnsupported(data) {
-    try {
-      await cli.wizard({ file: data.file });
-      t.fail('should fail');
-    } catch (e) {
-      return e;
-    }
-  }
-  const cases = [
-    { file: 'ruby-app/Gemfile.lock', type: 'RubyGems' },
-    { file: 'maven-app/pom.xml', type: 'Maven' },
-    { file: 'pip-app/requirements.txt', type: 'pip' },
-    { file: 'sbt-app/build.sbt', type: 'SBT' },
-    { file: 'gradle-app/build.gradle', type: 'Gradle' },
-    { file: 'gradle-kotlin-dsl-app/build.gradle.kts', type: 'Gradle' },
-    { file: 'golang-gomodules/go.mod', type: 'Go Modules' },
-    { file: 'golang-app/Gopkg.lock', type: 'dep (Go)' },
-    { file: 'golang-app/vendor/vendor.json', type: 'govendor' },
-    { file: 'composer-app/composer.lock', type: 'Composer' },
-    { file: 'cocoapods-app/Podfile.lock', type: 'CocoaPods' },
-  ];
-  const results = await Promise.all(cases.map(testUnsupported));
-  results.map((result, i) => {
-    const type = cases[i].type;
-    t.equal(
-      result,
-      'Snyk wizard for ' + type + ' projects is not currently supported',
-      type,
-    );
-  });
 });
 
 /**
