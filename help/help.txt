@@ -108,8 +108,9 @@ CocoaPods options:
 Python options:
   --command=<string>   Python interpreter to use. Default: "python", set to
                        "python2" or "python3" to use a specific version.
-  --skip-unresolved=<true|false> Allow skipping packages that are not found
-                        in the environment.
+  --skip-unresolved=<true|false>
+                       Allow skipping packages that are not found
+                       in the environment.
 
 Docker options:
   --docker ........... Test or monitor a local docker image for Linux
@@ -119,6 +120,17 @@ Docker options:
   --exclude-base-image-vulns
                        Exclude from display Docker base image vulnerabilities.
 
+
+Experimental options:
+  The following options may change without notice, we do not recommend using them in production.
+
+  --all-projects ..... (test & monitor commands only)
+                       Auto detect all projects in working directory.
+                       Currently npm, yarn, ruby and maven projects are supported.
+  --detection-depth=<number>
+                       (test & monitor commands only)
+                       Use with --all-projects to indicate how many sub-directories to search.
+                       Defaults to 1 (the current working directory).
 
 Examples:
 
