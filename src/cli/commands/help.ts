@@ -5,7 +5,7 @@ const debug = Debug('snyk');
 
 export = async function help(item: string | boolean) {
   if (!item || item === true || typeof item !== 'string') {
-    item = 'usage';
+    item = 'help';
   }
 
   // cleanse the filename to only contain letters

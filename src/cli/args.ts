@@ -129,7 +129,7 @@ export function args(rawArgv: string[]): Args {
     command = 'help';
 
     if (!argv._.length) {
-      argv._.unshift((argv.help as string) || 'usage');
+      argv._.unshift((argv.help as string) || 'help');
     }
   }
 
