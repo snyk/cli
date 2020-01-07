@@ -28,7 +28,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20170213/630_632.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/630_632.patch"
           ],
           "version": "=6.3.0",
           "modificationTime": "2017-03-09T00:00:00.000Z",
@@ -37,7 +37,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20170213/631_632.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/631_632.patch"
           ],
           "version": "=6.3.1",
           "modificationTime": "2017-03-09T00:00:00.000Z",
@@ -46,7 +46,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20170213/621_623.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/621_623.patch"
           ],
           "version": "=6.2.1",
           "modificationTime": "2017-03-09T00:00:00.000Z",
@@ -55,7 +55,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20170213/622_623.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/622_623.patch"
           ],
           "version": "=6.2.2",
           "modificationTime": "2017-03-09T00:00:00.000Z",
@@ -64,7 +64,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20170213/610_612.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/610_612.patch"
           ],
           "version": "=6.1.0",
           "modificationTime": "2017-03-09T00:00:00.000Z",
@@ -73,7 +73,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20170213/611_612.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/611_612.patch"
           ],
           "version": "=6.1.1",
           "modificationTime": "2017-03-09T00:00:00.000Z",
@@ -82,7 +82,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20170213/602_604.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/602_604.patch"
           ],
           "version": "=6.0.2",
           "modificationTime": "2017-03-09T00:00:00.000Z",
@@ -91,7 +91,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/develop/patches/npm/qs/20170213/603_604.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/603_604.patch"
           ],
           "version": "=6.0.3",
           "modificationTime": "2017-03-09T00:00:00.000Z",
