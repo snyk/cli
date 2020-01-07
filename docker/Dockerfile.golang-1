@@ -1,0 +1,30 @@
+FROM golang:1
+
+MAINTAINER Snyk Ltd
+
+RUN mkdir /home/node
+WORKDIR /home/node
+
+# Install gradle, node, cli
+RUN apt-get update && \
+  apt-get install -y curl unzip git && \
+  curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+  apt-get install -y nodejs jq && \
+  npm install --global snyk snyk-to-html && \
+  apt-get autoremove -y && \
+  apt-get clean && \
+  chmod -R a+wrx /home/node
+
+ENV HOME /home/node
+
+# The path at which the project is mounted (-v runtime arg)
+ENV PROJECT_PATH /project
+
+COPY docker-entrypoint.sh .
+COPY snyk_report.css .
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
+# Default command is `snyk test`
+# Override with `docker run ... snyk/snyk-cli <command> <args>`
+CMD ["test"]
