@@ -1,0 +1,12 @@
+{
+  "name": "package-file-basic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "debug": "^1.0.0",
+    "minimatch": "3.0.0"
+  }
+}

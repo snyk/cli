@@ -45,10 +45,7 @@ import {
   WizardOptions,
 } from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
-import {
-  SinglePackageResult,
-  MultiProjectResult,
-} from '@snyk/cli-interface/legacy/plugin';
+import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 
 function wizard(options?: Options) {
   options = options || ({} as Options);
@@ -472,9 +469,13 @@ function processAnswers(answers, policy, options) {
       let lbl = 'Updating package.json...';
       const addSnykToDependencies =
         answers['misc-add-test'] || answers['misc-add-protect'];
-      let updateSnykFunc = () =>
-        protect.install(packageManager, ['snyk'], live);
+      let updateSnykFunc = () => {
+        return;
+      }; // noop
 
+      if (addSnykToDependencies) {
+        updateSnykFunc = () => protect.install(packageManager, ['snyk'], live);
+      }
       if (addSnykToDependencies) {
         debug('updating %s', packageFile);
 

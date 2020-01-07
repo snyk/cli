@@ -1,0 +1,67 @@
+{
+  "npm:minimatch:20160620-u4": {
+    "vuln": {
+      "title": "Regular Expression Denial of Service",
+      "creationTime": "2016-06-20T16:00:06.484Z",
+      "modificationTime": "2016-06-20T16:00:06.484Z",
+      "publicationTime": "2016-06-20T15:52:52.000Z",
+      "disclosureTime": "2016-06-20T15:52:52.000Z",
+      "semver": {
+        "vulnerable": "<=3.0.1",
+        "unaffected": ">=3.0.2"
+      },
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "severity": "high",
+      "identifiers": {
+        "CWE": [
+          "CWE-400"
+        ],
+        "CVE": [],
+        "NSP": 118
+      },
+      "patches": [
+        {
+          "urls": [
+            "https://snyk-patches.s3.amazonaws.com/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+          ],
+          "version": "<=3.0.1 >2.0.5",
+          "modificationTime": "2016-06-20T16:00:06.484Z",
+          "comments": [],
+          "id": "patch:npm:minimatch:20160620:0"
+        }
+      ],
+      "moduleName": "minimatch",
+      "id": "npm:minimatch:20160620",
+      "from": [
+        "minimatch@3.0.0"
+      ],
+      "upgradePath": [
+        false,
+        "minimatch@3.0.2"
+      ],
+      "version": "3.0.0",
+      "name": "minimatch",
+      "isUpgradable": true,
+      "isPatchable": true,
+      "__filename": "/Users/oakfang/dev/SC-1472/node_modules/minimatch/package.json",
+      "parentDepType": "dev",
+      "grouped": {
+        "affected": {
+          "name": "tap",
+          "version": "3.1.2",
+          "full": "tap@3.1.2"
+        },
+        "main": true,
+        "id": "npm:minimatch:20160620-4",
+        "count": 3,
+        "upgrades": [
+          "minimatch@3.0.2"
+        ]
+      }
+    },
+    "choice": "update"
+  },
+  "misc-add-test": false,
+  "misc-add-protect": false,
+  "misc-test-no-monitor": true
+}
