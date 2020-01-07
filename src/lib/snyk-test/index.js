@@ -27,19 +27,20 @@ async function test(root, options, callback) {
 
 function executeTest(root, options) {
   try {
-    const packageManager = detect.detectPackageManager(root, options);
-    options.packageManager = packageManager;
+    if (!options.allProjects) {
+      options.packageManager = detect.detectPackageManager(root, options);
+    }
     return run(root, options).then((results) => {
       for (const res of results) {
         if (!res.packageManager) {
-          res.packageManager = packageManager;
+          res.packageManager = options.packageManager;
         }
       }
       if (results.length === 1) {
         // Return only one result if only one found as this is the default usecase
         return results[0];
       }
-      // For gradle and yarnWorkspaces we may be returning more than one result
+      // For gradle, yarnWorkspaces, allProjects we may be returning more than one result
       return results;
     });
   } catch (error) {
@@ -49,7 +50,13 @@ function executeTest(root, options) {
 
 function run(root, options) {
   const packageManager = options.packageManager;
-  if (!(options.docker || pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager])) {
+  if (
+    !(
+      options.docker ||
+      options.allProjects ||
+      pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager]
+    )
+  ) {
     throw new UnsupportedPackageManagerError(packageManager);
   }
   return runTest(packageManager, root, options);

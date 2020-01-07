@@ -389,6 +389,7 @@
   "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\nignore: {}\npatch: {}\n",
   "ignoreSettings": null,
   "summary": "7 vulnerable dependency paths",
+  "displayTargetFile": "Gemfile",
   "filesystemPolicy": false,
   "filtered": {
     "ignore": [],

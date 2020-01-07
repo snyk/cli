@@ -158,18 +158,31 @@ async function main() {
       ]);
     }
 
-    if (
-      (args.options['project-name'] ||
-        args.options.file ||
-        args.options.packageManager ||
-        args.options.docker) &&
-      args.options.allProjects
-    ) {
+    if (args.options['project-name'] && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError([
-        'project-name or file or package-manager or docker',
+        'project-name',
         'all-projects',
       ]);
     }
+    if (args.options.file && args.options.allProjects) {
+      throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
+    }
+    if (args.options.packageManager && args.options.allProjects) {
+      throw new UnsupportedOptionCombinationError([
+        'package-manager',
+        'all-projects',
+      ]);
+    }
+    if (args.options.docker && args.options.allProjects) {
+      throw new UnsupportedOptionCombinationError(['docker', 'all-projects']);
+    }
+    if (args.options.allSubProjects && args.options.allProjects) {
+      throw new UnsupportedOptionCombinationError([
+        'all-sub-projects',
+        'all-projects',
+      ]);
+    }
+
     if (
       args.options.file &&
       typeof args.options.file === 'string' &&

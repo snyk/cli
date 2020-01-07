@@ -24,7 +24,6 @@ import {
 } from '../../../lib/package-managers';
 
 import * as analytics from '../../../lib/analytics';
-import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { FailOnError } from '../../../lib/errors/fail-on-error.ts';
 import {
   summariseVulnerableResults,

@@ -57,38 +57,47 @@ export const AllProjectsTests: AcceptanceTests = {
         );
       });
     },
-    '`monitor maven-multi-app --all-projects`': (params, utils) => async (
-      t,
-    ) => {
+    '`monitor maven-multi-app --all-projects --detection-depth=2`': (
+      params,
+      utils,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
 
       const result = await params.cli.monitor('maven-multi-app', {
         allProjects: true,
+        detectionDepth: 2,
       });
       t.ok(
         spyPlugin.withArgs('rubygems').notCalled,
         'did not call rubygems plugin',
       );
       t.ok(spyPlugin.withArgs('npm').notCalled, 'did not call npm plugin');
-      t.ok(spyPlugin.withArgs('maven').calledOnce, 'calls maven plugin');
+      t.equals(
+        spyPlugin.withArgs('maven').callCount,
+        2,
+        'calls maven plugin twice',
+      );
       // maven
+      console.log(result);
       t.match(result, 'maven/some/project-id', 'maven project was monitored ');
 
-      const request = params.server.popRequest();
-      // TODO: bump this test to discover both pom.xml in the repo
-      // once we have depth increase released
-      t.ok(request, 'Monitor POST request');
+      const requests = params.server.popRequests(2);
 
-      t.match(request.url, '/monitor/', 'puts at correct url');
-      t.notOk(request.body.targetFile, "doesn't send the targetFile");
-      t.equal(request.method, 'PUT', 'makes PUT request');
-      t.equal(
-        request.headers['x-snyk-cli-version'],
-        params.versionNumber,
-        'sends version number',
-      );
+      requests.forEach((request) => {
+        // once we have depth increase released
+        t.ok(request, 'Monitor POST request');
+
+        t.match(request.url, '/monitor/', 'puts at correct url');
+        t.notOk(request.body.targetFile, "doesn't send the targetFile");
+        t.equal(request.method, 'PUT', 'makes PUT request');
+        t.equal(
+          request.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+      });
     },
     '`monitor monorepo-bad-project --all-projects`': (params, utils) => async (
       t,

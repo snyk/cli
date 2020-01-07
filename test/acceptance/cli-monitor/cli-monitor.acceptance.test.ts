@@ -8,6 +8,8 @@ import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
 import * as version from '../../../src/lib/version';
 import * as userConfig from '../../../src/lib/user-config';
+import { chdirWorkspaces, getWorkspaceJSON } from '../workspace-helper';
+import * as _ from 'lodash';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -31,7 +33,6 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../../src/lib/plugins/index';
-import { chdirWorkspaces } from '../workspace-helper';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -1417,6 +1418,38 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
   );
   const policyString = req.body.policy;
   t.deepEqual(policyString, expected, 'sends correct policy');
+});
+
+test('monitor --json multiple folders', async (t) => {
+  chdirWorkspaces('fail-on');
+
+  const noFixableResult = getWorkspaceJSON(
+    'fail-on',
+    'no-fixable',
+    'vulns-result.json',
+  );
+  server.setNextResponse(noFixableResult);
+  try {
+    const response = await cli.monitor('upgradable', 'no-fixable', {
+      json: true,
+    });
+    const res = JSON.parse(response);
+    if (_.isObject(res)) {
+      t.pass('monitor outputted JSON');
+    } else {
+      t.fail('Failed parsing monitor JSON output');
+    }
+    const keyList = ['packageManager', 'manageUrl'];
+    t.true(Array.isArray(res), 'Response is an array');
+    t.equal(res.length, 2, 'Two monitor responses in the array');
+    res.forEach((project) => {
+      keyList.forEach((k) => {
+        !_.get(project, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
+      });
+    });
+  } catch (error) {
+    t.fail('should not have failed');
+  }
 });
 
 /**
