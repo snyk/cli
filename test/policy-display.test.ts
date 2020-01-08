@@ -3,6 +3,10 @@ import { test } from 'tap';
 import * as fs from 'then-fs';
 import { display } from '../src/lib/display-policy';
 import stripAnsi from 'strip-ansi';
+import { URL } from 'url';
+
+const SNYK_API = process.env.SNYK_API || 'https://snyk.io/api/v1';
+const { hostname } = new URL(SNYK_API);
 
 test('test sensibly bails if gets an old .snyk format', async (t) => {
   const filename = __dirname + '/fixtures/snyk-config-no-version';
@@ -21,6 +25,8 @@ test('test sensibly bails if gets an old .snyk format', async (t) => {
       .join('\n');
     const expected = expectedFileString
       .trim()
+      // replace hostname in policy if using env var SNYK_API
+      .replace(/snyk\.io/g, hostname)
       .split('\n')
       .slice(3)
       .join('\n');
