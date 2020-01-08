@@ -70,7 +70,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
           ],
           "version": "<= 2.4.23 >=2.2.0",
           "modificationTime": "2015-11-16T09:29:10.000Z",
@@ -81,7 +81,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
           ],
           "version": "<2.6.0 >2.4.23",
           "modificationTime": "2015-11-16T09:29:10.000Z",
@@ -133,7 +133,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
           ],
           "version": "<= 2.4.23 >=2.2.0",
           "modificationTime": "2015-11-16T09:29:10.000Z",
@@ -144,7 +144,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
           ],
           "version": "<2.6.0 >2.4.23",
           "modificationTime": "2015-11-16T09:29:10.000Z",
@@ -195,7 +195,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
           ],
           "version": "<= 2.4.23 >=2.2.0",
           "modificationTime": "2015-11-16T09:29:10.000Z",
@@ -206,7 +206,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
           ],
           "version": "<2.6.0 >2.4.23",
           "modificationTime": "2015-11-16T09:29:10.000Z",

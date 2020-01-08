@@ -22,7 +22,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
           ],
           "version": "<=3.0.1 >2.0.5",
           "modificationTime": "2016-06-20T16:00:06.484Z",
@@ -71,7 +71,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
           ],
           "version": "<1.0.0 >=0.6.5",
           "modificationTime": "2014-08-06T06:10:22.000Z",
@@ -136,7 +136,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
           ],
           "version": "<=3.0.1 >2.0.5",
           "modificationTime": "2016-06-20T16:00:06.484Z",
@@ -203,7 +203,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
           ],
           "version": "<=3.0.1 >2.0.5",
           "modificationTime": "2016-06-20T16:00:06.484Z",
@@ -270,7 +270,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
           ],
           "version": "<=3.0.1 >2.0.5",
           "modificationTime": "2016-06-20T16:00:06.484Z",
@@ -326,7 +326,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_0_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/request/20160119/request_20160119_0_0_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
           ],
           "version": "<2.68.0 >=2.54.0",
           "modificationTime": "2016-03-22T12:00:05.158Z",
@@ -376,7 +376,7 @@
             "patches": [
               {
                 "urls": [
-                  "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_0_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+                  "https://snyk-patches.s3.amazonaws.com/npm/request/20160119/request_20160119_0_0_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
                 ],
                 "version": "<2.68.0 >=2.54.0",
                 "modificationTime": "2016-03-22T12:00:05.158Z",
@@ -397,7 +397,7 @@
             "patches": [
               {
                 "urls": [
-                  "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/request/20160119/request_20160119_0_4_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
+                  "https://snyk-patches.s3.amazonaws.com/npm/request/20160119/request_20160119_0_4_3d31d4526fa4d4e4f59b89cabe194fb671063cdb.patch"
                 ],
                 "version": "<2.47.0 >=2.27.0",
                 "modificationTime": "2016-03-27T12:00:05.158Z",

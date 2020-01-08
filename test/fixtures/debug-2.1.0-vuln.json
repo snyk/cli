@@ -29,62 +29,62 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/ms/20151024/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
           ],
           "version": "=0.7.0",
           "modificationTime": "2015-10-24T20:39:59.852Z",
           "comments": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/ms/20151024/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
           ]
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/ms/20151024/ms_20151024_1_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
           ],
           "version": "<0.7.0 >=0.6.0",
           "modificationTime": "2015-10-24T20:39:59.852Z",
           "comments": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/ms/20151024/ms_20151024_0_0_48701f029417faf65e6f5e0b61a3cebe5436b07b.patch"
           ]
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/ms/20151024/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
           ],
           "version": "<0.6.0 >0.3.0",
           "modificationTime": "2015-10-24T20:39:59.852Z",
           "comments": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/ms/20151024/ms_20151024_2_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk2.patch"
           ]
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/ms/20151024/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
           ],
           "version": "=0.3.0",
           "modificationTime": "2015-10-24T20:39:59.852Z",
           "comments": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/ms/20151024/ms_20151024_3_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk3.patch"
           ]
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/ms/20151024/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
           ],
           "version": "=0.2.0",
           "modificationTime": "2015-10-24T20:39:59.852Z",
           "comments": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/ms/20151024/ms_20151024_4_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk4.patch"
           ]
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/ms/20151024/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
           ],
           "version": "=0.1.0",
           "modificationTime": "2015-10-24T20:39:59.852Z",
           "comments": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/patches/npm/ms/48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/ms/20151024/ms_20151024_5_0_48701f029417faf65e6f5e0b61a3cebe5436b07b_snyk5.patch"
           ]
         }
       ],

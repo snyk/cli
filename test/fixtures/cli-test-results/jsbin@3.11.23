@@ -105,7 +105,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/handlebars/20151207/handlebars_0.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/handlebars/20151207/handlebars_0.patch"
           ],
           "version": "<4.0.0 >=3.0.2",
           "modificationTime": "2015-12-14T23:52:16.811Z",
@@ -158,7 +158,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_0_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_0_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
           ],
           "version": "<=2.11.1 >2.10.6",
           "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -167,7 +167,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_1_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_1_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
           ],
           "version": "<=2.10.6 >2.9.0",
           "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -176,7 +176,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_2_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_2_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
           ],
           "version": "<=2.9.0 >2.2.1",
           "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -185,7 +185,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_3_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_3_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
           ],
           "version": "=2.2.1",
           "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -194,7 +194,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_4_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_4_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
           ],
           "version": "<2.2.1 >2.0.0",
           "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -240,7 +240,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
           ],
           "version": "<1.0.0 >=0.6.5",
           "modificationTime": "2014-08-06T06:10:22.000Z",
@@ -249,7 +249,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20140806/qs_20140806_0_1_snyk_npm.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806/qs_20140806_0_1_snyk_npm.patch"
           ],
           "version": "=0.5.6",
           "modificationTime": "2014-08-06T06:10:22.000Z",
@@ -299,7 +299,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
           ],
           "version": "<1.0.0 >=0.6.5",
           "modificationTime": "2014-11-20T06:10:22.000Z",
@@ -308,7 +308,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
           ],
           "version": "=0.5.6",
           "modificationTime": "2014-11-20T06:10:22.000Z",
@@ -358,7 +358,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
           ],
           "version": "<4.3.2 >= 2.0.2",
           "modificationTime": "2015-04-03T16:00:00.000Z",
@@ -406,7 +406,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
           ],
           "version": "<4.3.2 >= 2.0.2",
           "modificationTime": "2015-04-03T16:00:00.000Z",
@@ -460,7 +460,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/send/20140912/send_20140912_0_0_9c6ca9b2c0b880afd3ff91ce0d211213c5fa_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/send/20140912/send_20140912_0_0_9c6ca9b2c0b880afd3ff91ce0d211213c5fa_snyk.patch"
           ],
           "version": "< 0.8.4 >=0.7.3",
           "modificationTime": "2014-09-12T05:06:33.000Z",
@@ -510,7 +510,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/send/20140912/send_20140912_0_0_9c6ca9b2c0b880afd3ff91ce0d211213c5fa_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/send/20140912/send_20140912_0_0_9c6ca9b2c0b880afd3ff91ce0d211213c5fa_snyk.patch"
           ],
           "version": "< 0.8.4 >=0.7.3",
           "modificationTime": "2014-09-12T05:06:33.000Z",
@@ -559,7 +559,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/send/20151103/send_20151103_0_1_98a5b89982b38e79db684177cf94730ce7fc7aed.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/send/20151103/send_20151103_0_1_98a5b89982b38e79db684177cf94730ce7fc7aed.patch"
           ],
           "version": "<0.11.1 >=0.9.0",
           "modificationTime": "2015-11-03T07:12:20.676Z",
@@ -608,7 +608,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/send/20151103/send_20151103_0_1_98a5b89982b38e79db684177cf94730ce7fc7aed.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/send/20151103/send_20151103_0_1_98a5b89982b38e79db684177cf94730ce7fc7aed.patch"
           ],
           "version": "<0.11.1 >=0.9.0",
           "modificationTime": "2015-11-03T07:12:20.676Z",
@@ -657,7 +657,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_0_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/tar/20151103/tar_20151103_0_0_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
           ],
           "version": "<2.0.0 >=0.1.13",
           "modificationTime": "2015-11-17T09:29:10.000Z",
@@ -668,7 +668,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_1_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/tar/20151103/tar_20151103_0_1_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
           ],
           "version": "<0.1.13 >0.0.1",
           "modificationTime": "2015-11-17T09:29:10.000Z",
@@ -718,7 +718,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_0_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/tar/20151103/tar_20151103_0_0_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
           ],
           "version": "<2.0.0 >=0.1.13",
           "modificationTime": "2015-11-17T09:29:10.000Z",
@@ -729,7 +729,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/tar/20151103/tar_20151103_0_1_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/tar/20151103/tar_20151103_0_1_a5337a6cd58a2d800fc03b3781a25751cf459f28_snyk.patch"
           ],
           "version": "<0.1.13 >0.0.1",
           "modificationTime": "2015-11-17T09:29:10.000Z",
@@ -780,7 +780,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20150824/uglify-js_20150824_0_0_905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20150824/uglify-js_20150824_0_0_905b6011784ca60d41919ac1a499962b7c1d4b02_snyk.patch"
           ],
           "version": "<= 2.4.23 >2.0.0",
           "modificationTime": "2015-08-24T09:29:10.000Z",
@@ -833,7 +833,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk_inc.patch"
           ],
           "version": "<= 2.4.23 >=2.2.0",
           "modificationTime": "2015-11-16T09:29:10.000Z",
@@ -844,7 +844,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/uglify-js/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
           ],
           "version": "<2.6.0 >2.4.23",
           "modificationTime": "2015-11-16T09:29:10.000Z",

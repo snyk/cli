@@ -23,7 +23,7 @@
   "patches": [
     {
       "urls": [
-        "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_0_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+        "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_0_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
       ],
       "version": "<=2.11.1 >2.10.6",
       "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -32,7 +32,7 @@
     },
     {
       "urls": [
-        "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_1_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+        "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_1_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
       ],
       "version": "<=2.10.6 >2.9.0",
       "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -41,7 +41,7 @@
     },
     {
       "urls": [
-        "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_2_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+        "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_2_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
       ],
       "version": "<=2.9.0 >2.2.1",
       "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -50,7 +50,7 @@
     },
     {
       "urls": [
-        "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_3_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+        "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_3_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
       ],
       "version": "=2.2.1",
       "modificationTime": "2016-01-26T20:04:21.225Z",
@@ -59,7 +59,7 @@
     },
     {
       "urls": [
-        "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/moment/20160126/moment_20160126_0_4_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
+        "https://snyk-patches.s3.amazonaws.com/npm/moment/20160126/moment_20160126_0_4_34af63b8b21208a949dfaf42d228502c73d20ec0.patch"
       ],
       "version": "<2.2.1 >2.0.0",
       "modificationTime": "2016-01-26T20:04:21.225Z",

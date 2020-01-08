@@ -17,7 +17,7 @@
     "patches": [
       {
         "urls": [
-          "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
+          "https://snyk-patches.s3.amazonaws.com/npm/semver/20150403/semver_20150403_0_0_c80180d8341a8ada0236815c29a2be59864afd70.patch"
         ],
         "version": "<4.3.2 >= 2.0.2",
         "modificationTime": "2015-04-03T16:00:00.000Z",

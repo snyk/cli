@@ -24,7 +24,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/20151117_002112_base_patches/uglify-js_20151024_0_0_63d35f8_snyk.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/ms/20151024/uglify-js_20151024_0_0_63d35f8_snyk.patch"
           ],
           "version": "<2.6.0 >=2.2.0",
           "modificationTime": "2015-11-16T09:29:10.000Z",
