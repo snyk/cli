@@ -23,7 +23,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160115/sequelize_20160115_0_0_b85f78a318e6f7112a3374498171a3e148cdc4da.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/sequelize/20160115/sequelize_20160115_0_0_b85f78a318e6f7112a3374498171a3e148cdc4da.patch"
           ],
           "version": "<3.17.2 >3.16.0",
           "modificationTime": "2016-04-13T10:00:00.000Z",
@@ -32,7 +32,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160115/sequelize_20160115_0_0_b85f78a318e6f7112a3374498171a3e148cdc4da_w_20160106.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/sequelize/20160115/sequelize_20160115_0_0_b85f78a318e6f7112a3374498171a3e148cdc4da_w_20160106.patch"
           ],
           "version": "<=3.16.0 >3.13.0",
           "modificationTime": "2016-04-17T10:00:00.000Z",
@@ -81,7 +81,7 @@
       "patches": [
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71.patch"
           ],
           "version": "<=3.19.3 >=3.17.2",
           "modificationTime": "2016-04-12T10:00:00.000Z",
@@ -90,7 +90,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115.patch"
           ],
           "version": "<3.17.2 >3.16.0",
           "modificationTime": "2016-04-13T10:00:00.000Z",
@@ -101,7 +101,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115_w_20160106.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/sequelize/20160329/sequelize_20160329_0_0_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115_w_20160106.patch"
           ],
           "version": "<=3.16.0 >3.15.1",
           "modificationTime": "2016-04-13T10:00:00.000Z",
@@ -112,7 +112,7 @@
         },
         {
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/feat-sequelize-patches2/patches/npm/sequelize/20160329/sequelize_20160329_0_1_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115_w_20160106.patch"
+            "https://s3.amazonaws.com/snyk-patches/npm/sequelize/20160329/sequelize_20160329_0_1_23952a2b020cc3571f090e67dae7feb084e1be71_w_20160115_w_20160106.patch"
           ],
           "version": "<=3.15.1 >3.13.0",
           "modificationTime": "2016-04-13T10:00:00.000Z",

@@ -30,7 +30,7 @@
         "patches": [
             {
                 "urls": [
-                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_0_c38a0166c266a679c8de012d4eaccec3f944e685.patch"
+                    "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_0_c38a0166c266a679c8de012d4eaccec3f944e685.patch"
                 ],
                 "version": ">= 3.0.0 <=3.0.1",
                 "modificationTime": "2017-09-24T06:52:18.990Z",
@@ -39,7 +39,7 @@
             },
             {
                 "urls": [
-                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_1_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                    "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_1_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
                 ],
                 "version": ">=2.5.1 <2.6.9",
                 "modificationTime": "2017-09-24T06:52:18.990Z",
@@ -48,7 +48,7 @@
             },
             {
                 "urls": [
-                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_2_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                    "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_2_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
                 ],
                 "version": ">=2.4.0 <2.5.0",
                 "modificationTime": "2017-09-24T06:52:18.990Z",
@@ -57,7 +57,7 @@
             },
             {
                 "urls": [
-                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_3_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                    "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_3_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
                 ],
                 "version": ">=2.0.0 <2.4.0",
                 "modificationTime": "2017-09-24T06:52:18.990Z",
@@ -126,7 +126,7 @@
         "patches": [
             {
                 "urls": [
-                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_0_c38a0166c266a679c8de012d4eaccec3f944e685.patch"
+                    "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_0_c38a0166c266a679c8de012d4eaccec3f944e685.patch"
                 ],
                 "version": ">= 3.0.0 <=3.0.1",
                 "modificationTime": "2017-09-24T06:52:18.990Z",
@@ -135,7 +135,7 @@
             },
             {
                 "urls": [
-                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_1_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                    "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_1_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
                 ],
                 "version": ">=2.5.1 <2.6.9",
                 "modificationTime": "2017-09-24T06:52:18.990Z",
@@ -144,7 +144,7 @@
             },
             {
                 "urls": [
-                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_2_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                    "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_2_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
                 ],
                 "version": ">=2.4.0 <2.5.0",
                 "modificationTime": "2017-09-24T06:52:18.990Z",
@@ -153,7 +153,7 @@
             },
             {
                 "urls": [
-                    "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/debug/20170905/debug_20170905_0_3_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+                    "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_3_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
                 ],
                 "version": ">=2.0.0 <2.4.0",
                 "modificationTime": "2017-09-24T06:52:18.990Z",

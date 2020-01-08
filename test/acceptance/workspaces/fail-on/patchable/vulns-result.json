@@ -55,7 +55,7 @@
             "id": "patch:npm:ms:20170412:0",
             "modificationTime": "2018-09-04T11:57:08.694191Z",
             "urls": [
-              "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_100.patch"
+              "https://snyk-patches.s3.amazonaws.com/npm/ms/20170412/ms_100.patch"
             ],
             "version": "=1.0.0"
           },
@@ -64,7 +64,7 @@
             "id": "patch:npm:ms:20170412:1",
             "modificationTime": "2018-09-04T11:57:08.695549Z",
             "urls": [
-              "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_072-073.patch"
+              "https://snyk-patches.s3.amazonaws.com/npm/ms/20170412/ms_072-073.patch"
             ],
             "version": "=0.7.2 || =0.7.3"
           },
@@ -73,7 +73,7 @@
             "id": "patch:npm:ms:20170412:2",
             "modificationTime": "2018-09-04T11:57:08.696913Z",
             "urls": [
-              "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/ms/20170412/ms_071.patch"
+              "https://snyk-patches.s3.amazonaws.com/npm/ms/20170412/ms_071.patch"
             ],
             "version": "=0.7.1"
           }

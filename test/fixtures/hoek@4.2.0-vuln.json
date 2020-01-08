@@ -104,7 +104,7 @@
           "id": "patch:npm:hoek:20180212:0",
           "modificationTime": "2018-09-04T11:57:08.715429Z",
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/hoek/20180212/20180212_0_0_hoek_5aed1a8c4a3d55722d1c799f2368857bf418d6df.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/hoek/20180212/20180212_0_0_hoek_5aed1a8c4a3d55722d1c799f2368857bf418d6df.patch"
           ],
           "version": "<4.2.1 >=4.1.0 || <3.0.4 >=3.0.0"
         },
@@ -113,7 +113,7 @@
           "id": "patch:npm:hoek:20180212:1",
           "modificationTime": "2018-09-04T11:57:08.716800Z",
           "urls": [
-            "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/hoek/20180212/20180212_0_1_hoek_32ed5c9413321fbc37da5ca81a7cbab693786dee.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/hoek/20180212/20180212_0_1_hoek_32ed5c9413321fbc37da5ca81a7cbab693786dee.patch"
           ],
           "version": ">=2.0.0 <3.0.0"
         }

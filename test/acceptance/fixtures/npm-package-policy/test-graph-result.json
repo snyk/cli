@@ -57,7 +57,7 @@
         "patches": [
           {
             "urls": [
-              "https://s3.amazonaws.com/snyk-rules-pre-repository/snapshots/master/patches/npm/marked/20170112/marked_20170112_0_0_cd2f6f5b7091154c5526e79b5f3bfb4d15995a51.patch"
+              "https://snyk-patches.s3.amazonaws.com/npm/marked/20170112/marked_20170112_0_0_cd2f6f5b7091154c5526e79b5f3bfb4d15995a51.patch"
             ],
             "version": "<=0.3.6 >0.3.3",
             "modificationTime": "2017-02-06T00:00:00.000Z",

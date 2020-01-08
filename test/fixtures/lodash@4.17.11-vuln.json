@@ -35,7 +35,7 @@
           "id": "patch:SNYK-JS-LODASH-450202:0",
           "modificationTime": "2019-07-03T13:52:26.362878Z",
           "urls": [
-            "https://snyk-rules-pre-repository.s3.amazonaws.com/snapshots/master/patches/npm/lodash/20190702/lodash_20190702_0_0_1f8ea07746963a535385a5befc19fa687a627d2b.patch"
+            "https://snyk-patches.s3.amazonaws.com/npm/lodash/20190702/lodash_20190702_0_0_1f8ea07746963a535385a5befc19fa687a627d2b.patch"
           ],
           "version": "=4.17.11"
         }
