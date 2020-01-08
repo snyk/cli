@@ -59,7 +59,7 @@ async function webAuth(via: AuthCliCommands) {
     spinner.start();
     await setTimeout(() => {
       open(urlStr, { wait: false });
-    }, 2000);
+    }, 0);
 
     const res = await testAuthComplete(token);
     return res;
