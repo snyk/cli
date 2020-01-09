@@ -220,7 +220,6 @@ test('test without authentication', async (t) => {
 });
 
 test('auth via key', async (t) => {
-  t.plan(1);
   try {
     const res = await cli.auth(apiKey);
     t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
@@ -262,7 +261,11 @@ test('auth via github', async (t) => {
 
   try {
     const res = await auth();
-    t.notEqual(res.toLowerCase().indexOf('ready'), -1, 'snyk auth worked');
+    t.match(
+      res,
+      'Your account has been authenticated. Snyk is now ready to be used',
+      'snyk auth worked',
+    );
   } catch (e) {
     t.threw(e);
   }
