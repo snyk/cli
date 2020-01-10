@@ -32,7 +32,7 @@ jobs:
       name: "Danger Zone"
     - stage: Release
       if: branch = master AND type != pull_request
-      node_js: "8"
+      node_js: "10"
       script:
       - npm i -g semantic-release @semantic-release/exec && semantic-release
 branches:
