@@ -80,7 +80,6 @@ export const AllProjectsTests: AcceptanceTests = {
         'calls maven plugin twice',
       );
       // maven
-      console.log(result);
       t.match(result, 'maven/some/project-id', 'maven project was monitored ');
 
       const requests = params.server.popRequests(2);
@@ -249,6 +248,40 @@ export const AllProjectsTests: AcceptanceTests = {
       } catch (error) {
         t.fail('should have passed', error);
       }
+    },
+    '`monitor maven-multi-app --all-projects --detection-depth=2 --exclude=simple-child`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+      const result = await params.cli.monitor('maven-multi-app', {
+        allProjects: true,
+        detectionDepth: 2,
+        exclude: 'simple-child',
+      });
+      t.ok(
+        spyPlugin.withArgs('rubygems').notCalled,
+        'did not call rubygems plugin',
+      );
+      t.ok(spyPlugin.withArgs('npm').notCalled, 'did not call npm plugin');
+      t.equals(
+        spyPlugin.withArgs('maven').callCount,
+        1,
+        'calls maven plugin once, excluding simple-child',
+      );
+      t.match(result, 'maven/some/project-id', 'maven project was monitored ');
+      const request = params.server.popRequest();
+      t.ok(request, 'Monitor POST request');
+      t.match(request.url, '/monitor/', 'puts at correct url');
+      t.notOk(request.body.targetFile, "doesn't send the targetFile");
+      t.equal(request.method, 'PUT', 'makes PUT request');
+      t.equal(
+        request.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
     },
   },
 };

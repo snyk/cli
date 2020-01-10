@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as Debug from 'debug';
+import * as pathLib from 'path';
 
 // assert supported node runtime version
 import * as runtime from './runtime';
@@ -15,9 +16,15 @@ import errors = require('../lib/errors/legacy-errors');
 import ansiEscapes = require('ansi-escapes');
 import { isPathToPackageFile } from '../lib/detect';
 import { updateCheck } from '../lib/updater';
-import { MissingTargetFileError, FileFlagBadInputError } from '../lib/errors';
-import { UnsupportedOptionCombinationError } from '../lib/errors/unsupported-option-combination-error';
+import {
+  MissingTargetFileError,
+  FileFlagBadInputError,
+  OptionMissingErrorError,
+  UnsupportedOptionCombinationError,
+  ExcludeFlagBadInputError,
+} from '../lib/errors';
 import stripAnsi from 'strip-ansi';
+import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -181,6 +188,18 @@ async function main() {
         'all-sub-projects',
         'all-projects',
       ]);
+    }
+
+    if (args.options.exclude) {
+      if (typeof args.options.exclude !== 'string') {
+        throw new ExcludeFlagBadInputError();
+      }
+      if (!args.options.allProjects) {
+        throw new OptionMissingErrorError('--exclude', '--all-projects');
+      }
+      if (args.options.exclude.indexOf(pathLib.sep) > -1) {
+        throw new ExcludeFlagInvalidInputError();
+      }
     }
 
     if (

@@ -65,6 +65,7 @@ export interface Options {
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
   detectionDepth?: number;
+  exclude?: string;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny

@@ -6,6 +6,6 @@ const program = {
   win32: 'clip',
 }[process.platform];
 
-export function copy(str) {
+export function copy(str: string) {
   return execSync(program, { input: str });
 }

@@ -25,7 +25,13 @@ export async function getDepsFromPlugin(
 
   if (options.allProjects) {
     const levelsDeep = options.detectionDepth || 1; // default to 1 level deep
-    const targetFiles = await find(root, [], AUTO_DETECTABLE_FILES, levelsDeep);
+    const ignore = options.exclude ? options.exclude.split(',') : [];
+    const targetFiles = await find(
+      root,
+      ignore,
+      AUTO_DETECTABLE_FILES,
+      levelsDeep,
+    );
     debug(
       `auto detect manifest files, found ${targetFiles.length}`,
       targetFiles,
@@ -41,6 +47,7 @@ export async function getDepsFromPlugin(
         detectPackageManagerFromFile(file),
       ),
       levelsDeep,
+      ignore,
     };
     analytics.add('allProjects', analyticData);
     return inspectRes;
