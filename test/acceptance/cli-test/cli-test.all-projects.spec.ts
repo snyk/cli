@@ -352,5 +352,46 @@ export const AllProjectsTests: AcceptanceTests = {
         );
       }
     },
+    '`test monorepo --all-projects with Nuget, Python, Go, Npm`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+
+      try {
+        const res = await params.cli.test('monorepo-with-nuget', {
+          allProjects: true,
+          detectionDepth: 4,
+        });
+        t.ok(spyPlugin.withArgs('nuget').callCount, 2, 'calls nuget plugin');
+        t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
+        t.match(
+          res,
+          /Tested 3 projects, no vulnerable paths were found./,
+          'Two projects tested',
+        );
+        t.match(
+          res,
+          `Target file:       src${path.sep}paymentservice${path.sep}package-lock.json`,
+          'Npm project targetFile is as expected',
+        );
+        t.match(res, 'Package manager:   npm', 'Npm package manager');
+        t.match(
+          res,
+          `Target file:       src${path.sep}cartservice-nuget${path.sep}obj${path.sep}project.assets.json`,
+          'Nuget project targetFile is as expected',
+        );
+        t.match(
+          res,
+          `Target file:       test${path.sep}nuget-app-4${path.sep}packages.config`,
+          'Nuget project targetFile is as expected',
+        );
+        t.match(res, 'Package manager:   nuget', 'Nuget package manager');
+      } catch (err) {
+        t.fail('expected to pass');
+      }
+    },
   },
 };
