@@ -1,10 +1,9 @@
 import * as _ from 'lodash';
 import { test } from 'tap';
-import * as testUtils from '../utils';
 import * as ciChecker from '../../src/lib/is-ci';
+import { makeTmpDirectory, silenceLog } from '../utils';
 import * as sinon from 'sinon';
-import proxyquire = require('proxyquire');
-import { parse, Url } from 'url';
+import * as proxyquire from 'proxyquire';
 import * as policy from 'snyk-policy';
 import stripAnsi from 'strip-ansi';
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
@@ -33,174 +32,23 @@ import { chdirWorkspaces } from '../acceptance/workspace-helper';
 const before = test;
 const after = test;
 
-before('setup', (t) => {
-  t.plan(3);
-  cli.config('get', 'api').then((key) => {
-    oldKey = key; // just in case
-    t.pass('existing user config captured');
-  });
+before('setup', async (t) => {
+  const key = await cli.config('get', 'api');
+  oldKey = key; // just in case
+  t.pass('existing user config captured');
 
-  cli.config('get', 'endpoint').then((key) => {
-    oldEndPoint = key; // just in case
-    t.pass('existing user endpoint captured');
-  });
+  const endPointKey = await cli.config('get', 'endpoint');
+  oldEndPoint = endPointKey; // just in case
+  t.pass('existing user endpoint captured');
 
-  server.listen(port, () => {
-    t.pass('started demo server');
-  });
+  server.listen(port);
 });
 
-before('prime config', (t) => {
-  cli
-    .config('set', 'api=' + apiKey)
-    .then(() => {
-      t.pass('api token set');
-    })
-    .then(() => {
-      return cli.config('unset', 'endpoint').then(() => {
-        t.pass('endpoint removed');
-      });
-    })
-    .catch(t.bailout)
-    .then(t.end);
-});
-
-test('cli tests error paths', { timeout: 3000 }, (t) => {
-  t.plan(3);
-
-  cli
-    .test('/', { json: true })
-    .then((res) => {
-      t.fail(res);
-    })
-    .catch((error) => {
-      const errObj = JSON.parse(error.message);
-      t.ok(errObj.error.length > 1, 'should display error message');
-      t.match(errObj.path, '/', 'path property should be populated');
-      t.pass('error json with correct output when one bad project specified');
-      t.end();
-    });
-});
-
-test('monitor', async (t) => {
-  try {
-    const res = await cli.monitor();
-    t.match(res, /Monitoring/, 'monitor captured');
-  } catch (error) {
-    t.fail(error);
-  }
-});
-
-test('monitor --json', async (t) => {
-  try {
-    const response = await cli.monitor(undefined, { json: true });
-    const res = JSON.parse(response);
-
-    if (_.isObject(res)) {
-      t.pass('monitor outputted JSON');
-    } else {
-      t.fail('Failed parsing monitor JSON output');
-    }
-
-    const keyList = ['packageManager', 'manageUrl'];
-
-    keyList.forEach((k) => {
-      !_.get(res, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
-    });
-  } catch (error) {
-    t.fail(error);
-  }
-});
-
-test('snyk ignore - all options', async (t) => {
-  const fullPolicy = {
-    ID: [
-      {
-        '*': {
-          reason: 'REASON',
-          expires: new Date('2017-10-07T00:00:00.000Z'),
-        },
-      },
-    ],
-  };
-  const dir = testUtils.tmpdir();
-  try {
-    await cli.ignore({
-      id: 'ID',
-      reason: 'REASON',
-      expiry: new Date('2017-10-07'),
-      'policy-path': dir,
-    });
-  } catch (err) {
-    t.throws(err, 'ignore should succeed');
-  }
-  const pol = await policy.load(dir);
-  t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
-});
-
-test('snyk ignore - no ID', async (t) => {
-  const dir = testUtils.tmpdir();
-  try {
-    await cli.ignore({
-      reason: 'REASON',
-      expiry: new Date('2017-10-07'),
-      'policy-path': dir,
-    });
-    t.fail('should not succeed with missing ID');
-  } catch (e) {
-    const errors = require('../../src/lib/errors/legacy-errors');
-    const message = stripAnsi(errors.message(e));
-    t.equal(
-      message.toLowerCase().indexOf('id is a required field'),
-      0,
-      'captured failed ignore (no --id given)',
-    );
-  }
-});
-
-test('snyk ignore - default options', async (t) => {
-  const dir = testUtils.tmpdir();
-  try {
-    await cli.ignore({
-      id: 'ID3',
-      'policy-path': dir,
-    });
-  } catch (e) {
-    t.fail('ignore should succeed');
-  }
-
-  const pol = await policy.load(dir);
-  t.true(pol.ignore.ID3, 'policy ID written correctly');
-  t.is(
-    pol.ignore.ID3[0]['*'].reason,
-    'None Given',
-    'policy (default) reason written correctly',
-  );
-  const expiryFromNow = pol.ignore.ID3[0]['*'].expires - Date.now();
-  // not more than 30 days ahead, not less than (30 days - 1 minute)
-  t.true(
-    expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
-      expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
-    'policy (default) expiry wirtten correctly',
-  );
-});
-
-test('snyk ignore - not authorized', async (t) => {
-  const dir = testUtils.tmpdir();
-  try {
-    await cli.config('set', 'api=' + notAuthorizedApiKey);
-    await cli.ignore({
-      id: 'ID3',
-      'policy-path': dir,
-    });
-  } catch (err) {
-    t.throws(err, 'ignore should succeed');
-  }
-  try {
-    await policy.load(dir);
-  } catch (err) {
-    t.pass('no policy file saved');
-  }
+before('prime config', async (t) => {
+  await cli.config('set', 'api=' + apiKey);
+  t.pass('api token set');
+  await cli.config('unset', 'endpoint');
+  t.pass('endpoint removed');
 });
 
 test('test without authentication', async (t) => {
@@ -244,21 +92,16 @@ test('auth via invalid key', async (t) => {
   }
 });
 
-test('auth via github', async (t) => {
-  let tokenRequest: (Url & { token?: string }) | null = null;
-
-  const openSpy = sinon.spy((url) => {
-    tokenRequest = parse(url);
-    tokenRequest.token = tokenRequest.query.split('=').pop();
-  });
-
+test('auth with no args', async (t) => {
+  // stub open so browser window doesn't actually open
+  const open = sinon.stub();
   const auth = proxyquire('../../src/cli/commands/auth', {
-    open: openSpy,
+    opn: open,
   });
+  // stub CI check (ensure returns false for system test)
   sinon.stub(ciChecker, 'isCI').returns(false);
-
-  const unhook = testUtils.silenceLog();
-
+  // disable console.log
+  const enableLog = silenceLog();
   try {
     const res = await auth();
     t.match(
@@ -266,10 +109,120 @@ test('auth via github', async (t) => {
       'Your account has been authenticated. Snyk is now ready to be used',
       'snyk auth worked',
     );
+    t.ok(open.calledOnce, 'called open once');
+    t.match(
+      open.firstCall.args[0],
+      'http://localhost:12345/login?token=',
+      'opens login with token param',
+    );
+    t.same(open.firstCall.args[1], { wait: false }, 'does not wait for open');
   } catch (e) {
     t.threw(e);
   }
-  unhook();
+  // turn console.log back on
+  enableLog();
+});
+
+test('cli tests error paths', async (t) => {
+  try {
+    await cli.test('/', { json: true });
+    t.fail('expected exception to be thrown');
+  } catch (error) {
+    const errObj = JSON.parse(error.message);
+    t.ok(errObj.error.length > 1, 'should display error message');
+    t.match(errObj.path, '/', 'path property should be populated');
+    t.pass('error json with correct output when one bad project specified');
+  }
+});
+
+test('snyk ignore - all options', async (t) => {
+  const fullPolicy = {
+    ID: [
+      {
+        '*': {
+          reason: 'REASON',
+          expires: new Date('2017-10-07T00:00:00.000Z'),
+        },
+      },
+    ],
+  };
+  try {
+    const dir = await makeTmpDirectory();
+    await cli.ignore({
+      id: 'ID',
+      reason: 'REASON',
+      expiry: new Date('2017-10-07'),
+      'policy-path': dir,
+    });
+    const pol = await policy.load(dir);
+    t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
+  } catch (err) {
+    t.throws(err, 'ignore should succeed');
+  }
+});
+
+test('snyk ignore - no ID', async (t) => {
+  try {
+    const dir = await makeTmpDirectory();
+    await cli.ignore({
+      reason: 'REASON',
+      expiry: new Date('2017-10-07'),
+      'policy-path': dir,
+    });
+    t.fail('should not succeed with missing ID');
+  } catch (e) {
+    const errors = require('../../src/lib/errors/legacy-errors');
+    const message = stripAnsi(errors.message(e));
+    t.equal(
+      message.toLowerCase().indexOf('id is a required field'),
+      0,
+      'captured failed ignore (no --id given)',
+    );
+  }
+});
+
+test('snyk ignore - default options', async (t) => {
+  try {
+    const dir = await makeTmpDirectory();
+    await cli.ignore({
+      id: 'ID3',
+      'policy-path': dir,
+    });
+    const pol = await policy.load(dir);
+    t.true(pol.ignore.ID3, 'policy ID written correctly');
+    t.is(
+      pol.ignore.ID3[0]['*'].reason,
+      'None Given',
+      'policy (default) reason written correctly',
+    );
+    const expiryFromNow = pol.ignore.ID3[0]['*'].expires - Date.now();
+    // not more than 30 days ahead, not less than (30 days - 1 minute)
+    t.true(
+      expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
+        expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
+      'policy (default) expiry wirtten correctly',
+    );
+  } catch (e) {
+    t.fail(e, 'ignore should succeed');
+  }
+});
+
+test('snyk ignore - not authorized', async (t) => {
+  const dir = await makeTmpDirectory();
+  try {
+    await cli.config('set', 'api=' + notAuthorizedApiKey);
+    await cli.ignore({
+      id: 'ID3',
+      'policy-path': dir,
+    });
+  } catch (err) {
+    t.throws(err, 'ignore should succeed');
+  }
+  try {
+    await policy.load(dir);
+  } catch (err) {
+    t.pass('no policy file saved');
+  }
 });
 
 test('snyk policy', async (t) => {
@@ -280,6 +233,36 @@ test('snyk policy', async (t) => {
     await cli.policy('wrong/path');
   } catch (error) {
     t.match(error, PolicyNotFoundError);
+  }
+});
+
+test('monitor', async (t) => {
+  try {
+    const res = await cli.monitor();
+    t.match(res, /Monitoring/, 'monitor captured');
+  } catch (error) {
+    t.fail(error);
+  }
+});
+
+test('monitor --json', async (t) => {
+  try {
+    const response = await cli.monitor(undefined, { json: true });
+    const res = JSON.parse(response);
+
+    if (_.isObject(res)) {
+      t.pass('monitor outputted JSON');
+    } else {
+      t.fail('Failed parsing monitor JSON output');
+    }
+
+    const keyList = ['packageManager', 'manageUrl'];
+
+    keyList.forEach((k) => {
+      !_.get(res, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
+    });
+  } catch (error) {
+    t.fail(error);
   }
 });
 
@@ -306,33 +289,26 @@ test('monitor --json no supported target files', async (t) => {
   }
 });
 
-after('teardown', (t) => {
-  t.plan(4);
-
+after('teardown', async (t) => {
   delete process.env.SNYK_API;
   delete process.env.SNYK_HOST;
   delete process.env.SNYK_PORT;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-  server.close(() => {
-    t.pass('server shutdown');
-    let key = 'set';
-    let value = 'api=' + oldKey;
-    if (!oldKey) {
-      key = 'unset';
-      value = 'api';
-    }
-    cli.config(key, value).then(() => {
-      t.pass('user config restored');
-      if (oldEndPoint) {
-        cli.config('endpoint', oldEndPoint).then(() => {
-          t.pass('user endpoint restored');
-          t.end();
-        });
-      } else {
-        t.pass('no endpoint');
-        t.end();
-      }
-    });
-  });
+  await server.close();
+  t.pass('server shutdown');
+  let key = 'set';
+  let value = 'api=' + oldKey;
+  if (!oldKey) {
+    key = 'unset';
+    value = 'api';
+  }
+  await cli.config(key, value);
+  t.pass('user config restored');
+  if (oldEndPoint) {
+    await cli.config('endpoint', oldEndPoint);
+    t.pass('user endpoint restored');
+  } else {
+    t.pass('no endpoint');
+  }
 });
