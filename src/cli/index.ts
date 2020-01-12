@@ -93,7 +93,7 @@ async function handleError(args, error) {
 
   if (!vulnsFound && !error.stack) {
     // log errors that are not error objects
-    analytics.add('error', JSON.stringify(analyticsError));
+    analytics.add('error', true);
     analytics.add('command', args.command);
   } else {
     analytics.add('error-message', analyticsError.message);
