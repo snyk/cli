@@ -19,7 +19,7 @@ import * as _ from 'lodash';
 import { exec } from 'child_process';
 import { apiTokenExists } from '../../../lib/api-token';
 import * as auth from '../auth/is-authed';
-import * as getVersion from '../version';
+import { getVersion } from '../version';
 import * as allPrompts from './prompts';
 import answersToTasks = require('./tasks');
 import * as snyk from '../../../lib/';
@@ -45,10 +45,7 @@ import {
   WizardOptions,
 } from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
-import {
-  SinglePackageResult,
-  MultiProjectResult,
-} from '@snyk/cli-interface/legacy/plugin';
+import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 
 function wizard(options?: Options) {
   options = options || ({} as Options);

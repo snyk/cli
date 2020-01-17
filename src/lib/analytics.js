@@ -44,7 +44,8 @@ function postAnalytics(data) {
   }
 
   // get snyk version
-  return version()
+  return version
+    .getVersion()
     .then((version) => {
       data.version = version;
       data.os = osName(os.platform(), os.release());

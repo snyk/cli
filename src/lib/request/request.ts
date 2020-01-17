@@ -10,7 +10,7 @@ import * as analytics from '../analytics';
 import { Agent } from 'http';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
-import * as version from '../version';
+import { getVersion } from '../version';
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');
@@ -20,7 +20,7 @@ declare const global: Global;
 export = function makeRequest(
   payload: Payload,
 ): Promise<{ res: needle.NeedleResponse; body: any }> {
-  return version().then(
+  return getVersion().then(
     (versionNumber) =>
       new Promise((resolve, reject) => {
         const body = payload.body;

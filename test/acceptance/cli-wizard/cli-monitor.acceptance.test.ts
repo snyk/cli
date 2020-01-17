@@ -2,7 +2,7 @@ import * as tap from 'tap';
 import * as sinon from 'sinon';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
-import * as version from '../../../src/lib/version';
+import { getVersion } from '../../../src/lib/version';
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -26,7 +26,7 @@ import { chdirWorkspaces } from '../workspace-helper';
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
-  versionNumber = await version();
+  versionNumber = await getVersion();
 
   t.plan(3);
   let key = await cli.config('get', 'api');
