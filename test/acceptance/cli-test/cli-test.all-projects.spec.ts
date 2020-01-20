@@ -336,6 +336,35 @@ export const AllProjectsTests: AcceptanceTests = {
       }
     },
 
+    '`test large-mono-repo with --all-projects, --detection-depth=7 and --exclude=bundler-app,maven-project-1`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+      await params.cli.test('large-mono-repo', {
+        allProjects: true,
+        detectionDepth: 7,
+        exclude: 'bundler-app,maven-project-1',
+      });
+      t.equals(
+        spyPlugin.withArgs('rubygems').callCount,
+        0,
+        'does not call rubygems',
+      );
+      t.equals(
+        spyPlugin.withArgs('npm').callCount,
+        19,
+        'calls npm plugin 19 times',
+      );
+      t.equals(
+        spyPlugin.withArgs('maven').callCount,
+        1,
+        'calls maven plugin once, excluding the rest',
+      );
+    },
+
     '`test empty --all-projects`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
       try {

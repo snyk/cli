@@ -97,7 +97,7 @@ const argsNotAllowedWithAllProjects = [
 ];
 
 argsNotAllowedWithAllProjects.forEach((arg) => {
-  test(`using --${arg} and --all-projects throws exception`, (t) => {
+  test(`using --${arg} and --all-projects displays error message`, (t) => {
     t.plan(2);
     exec(`node ${main} test --${arg} --all-projects`, (err, stdout) => {
       if (err) {
@@ -120,4 +120,47 @@ argsNotAllowedWithAllProjects.forEach((arg) => {
       );
     });
   });
+});
+
+test('`test --exclude without --all-project displays error message`', (t) => {
+  t.plan(1);
+  exec(`node ${main} test --exclude=test`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.equals(
+      stdout.trim(),
+      'The --exclude option can only be use in combination with --all-projects.',
+    );
+  });
+});
+
+test('`test --exclude without any value displays error message`', (t) => {
+  t.plan(1);
+  exec(`node ${main} test --all-projects --exclude`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.equals(
+      stdout.trim(),
+      'Empty --exclude argument. Did you mean --exclude=subdirectory ?',
+    );
+  });
+});
+
+test('`test --exclude=path/to/dir displays error message`', (t) => {
+  t.plan(1);
+  const exclude = 'path/to/dir'.replace(/\//g, sep);
+  exec(
+    `node ${main} test --all-projects --exclude=${exclude}`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.equals(
+        stdout.trim(),
+        'The --exclude argument must be a comma seperated list of directory names and cannot contain a path.',
+      );
+    },
+  );
 });
