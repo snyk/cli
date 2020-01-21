@@ -7,7 +7,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as cli from '../../src/cli/commands';
 import { fakeServer } from './fake-server';
-import * as version from '../../src/lib/version';
+import { getVersion } from '../../src/lib/version';
 import { chdirWorkspaces } from './workspace-helper';
 
 const { test, only } = tap;
@@ -27,7 +27,7 @@ const before = tap.runOnly ? only : test;
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
-  versionNumber = await version();
+  versionNumber = await getVersion();
 
   t.plan(3);
   let key = await cli.config('get', 'api');

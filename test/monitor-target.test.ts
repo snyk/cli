@@ -8,7 +8,7 @@ import * as sinon from 'sinon';
 import * as cli from '../src/cli/commands';
 import subProcess = require('../src/lib/sub-process');
 import { fakeServer } from './acceptance/fake-server';
-import * as version from '../src/lib/version';
+import { getVersion } from '../src/lib/version';
 
 const apiKey = '123456789';
 
@@ -22,7 +22,7 @@ let versionNumber;
 const server = fakeServer(process.env.SNYK_API, apiKey);
 
 test('setup', async (t) => {
-  versionNumber = await version();
+  versionNumber = await getVersion();
   let key = await cli.config('get', 'api');
   oldkey = key;
   t.pass('existing user config captured');

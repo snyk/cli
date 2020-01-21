@@ -6,7 +6,7 @@ import * as needle from 'needle';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
-import * as version from '../../../src/lib/version';
+import { getVersion } from '../../../src/lib/version';
 import * as userConfig from '../../../src/lib/user-config';
 import { chdirWorkspaces, getWorkspaceJSON } from '../workspace-helper';
 import * as _ from 'lodash';
@@ -37,7 +37,7 @@ import * as plugins from '../../../src/lib/plugins/index';
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
-  versionNumber = await version();
+  versionNumber = await getVersion();
 
   t.plan(3);
   let key = await cli.config('get', 'api');

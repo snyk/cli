@@ -1,8 +1,7 @@
-const exec = require('child_process').exec;
+import { exec } from 'child_process';
 
-module.exports = command;
-
-function command(cmd, root) {
+// TODO: is this different to child process exec?
+export function executeCommand(cmd, root) {
   return new Promise((resolve, reject) => {
     exec(cmd, { cwd: root }, (err, stdout, stderr) => {
       const error = stderr.trim();
