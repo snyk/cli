@@ -48,6 +48,8 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'Gopkg.lock',
   'go.mod',
   'vendor.json',
+  'Pipfile',
+  'requirements.txt',
 ];
 
 // when file is specified with --file, we look it up here

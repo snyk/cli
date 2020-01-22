@@ -1,0 +1,10 @@
+REDIRECTS: ON
+NUGET
+  remote: https://www.nuget.org/api/v2
+    FAKE (5.8.4)
+    FSharp.Compiler.Service (2.0.0.6)
+    FSharp.Formatting (2.14.4)
+      FSharp.Compiler.Service (2.0.0.6)
+      FSharpVSPowerTools.Core (>= 2.3 < 2.4)
+    FSharpVSPowerTools.Core (2.3)
+      FSharp.Compiler.Service (>= 2.0.0.3)

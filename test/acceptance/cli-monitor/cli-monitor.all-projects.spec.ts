@@ -1,5 +1,6 @@
 import * as sinon from 'sinon';
 import * as _ from 'lodash';
+import * as path from 'path';
 
 interface AcceptanceTests {
   language: string;
@@ -11,62 +12,69 @@ interface AcceptanceTests {
 export const AllProjectsTests: AcceptanceTests = {
   language: 'Mixed',
   tests: {
-    '`monitor mono-repo-project with lockfiles --all-projects`': (
+    '`monitor mono-repo-project --all-projects --detection-depth=1`': (
       params,
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
-      t.teardown(spyPlugin.restore);
+
+      // mock python plugin becuase CI tooling doesn't have pipenv installed
+      const mockPlugin = {
+        async inspect() {
+          return {
+            plugin: {
+              targetFile: 'Pipfile',
+              name: 'snyk-python-plugin',
+            },
+            package: {},
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('pip').returns(mockPlugin);
+      loadPlugin.callThrough(); // don't mock other plugins
 
       const result = await params.cli.monitor('mono-repo-project', {
         allProjects: true,
         detectionDepth: 1,
       });
-      t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
-      t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
-      t.ok(spyPlugin.withArgs('maven').calledOnce, 'calls maven plugin');
-      t.ok(spyPlugin.withArgs('nuget').calledOnce, 'calls nuget plugin');
-      t.ok(spyPlugin.withArgs('paket').calledOnce, 'calls nuget plugin');
+      t.ok(loadPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
+      t.ok(loadPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
+      t.ok(loadPlugin.withArgs('maven').calledOnce, 'calls maven plugin');
+      t.ok(loadPlugin.withArgs('nuget').calledOnce, 'calls nuget plugin');
+      t.ok(loadPlugin.withArgs('paket').calledOnce, 'calls nuget plugin');
+      t.ok(loadPlugin.withArgs('pip').calledOnce, 'calls pip plugin');
 
-      // npm
-      t.match(
-        result,
-        'npm/graph/some/project-id',
-        'npm project was monitored (via graph endpoint)',
-      );
-      // rubygems
-      t.match(
-        result,
-        'rubygems/some/project-id',
-        'rubygems project was monitored',
-      );
-      // nuget
-      t.match(result, 'nuget/some/project-id', 'nuget project was monitored');
-      // paket
-      t.match(result, 'paket/some/project-id', 'paket project was monitored');
-      // maven
-      t.match(result, 'maven/some/project-id', 'maven project was monitored ');
+      t.match(result, 'rubygems/some/project-id', 'ruby project in output');
+      t.match(result, 'npm/graph/some/project-id', 'npm project in output');
+      t.match(result, 'maven/some/project-id', 'maven project in output ');
+      t.match(result, 'nuget/some/project-id', 'nuget project in output');
+      t.match(result, 'paket/some/project-id', 'paket project in output');
+      t.match(result, 'pip/some/project-id', 'python project in output ');
+
       // Pop all calls to server and filter out calls to `featureFlag` endpoint
       const requests = params.server
-        .popRequests(6)
+        .popRequests(7)
         .filter((req) => req.url.includes('/monitor/'));
-      t.equal(requests.length, 5, 'Correct amount of monitor requests');
+      t.equal(requests.length, 6, 'correct amount of monitor requests');
 
-      const pluginsWithoutTragetFilesInBody = [
+      const pluginsWithoutTargetFileInBody = [
         'snyk-nodejs-lockfile-parser',
         'bundled:maven',
         'bundled:rubygems',
       ];
 
       requests.forEach((req) => {
-        t.match(req.url, '/monitor/', 'puts at correct url');
-        if (
-          pluginsWithoutTragetFilesInBody.includes(req.body.meta.pluginName)
-        ) {
+        t.match(
+          req.url,
+          /\/api\/v1\/monitor\/(npm\/graph|rubygems|maven|nuget|paket|pip)/,
+          'puts at correct url',
+        );
+        if (pluginsWithoutTargetFileInBody.includes(req.body.meta.pluginName)) {
           t.notOk(
             req.body.targetFile,
-            `doesn\'t send the targetFile for ${req.body.meta.pluginName}`,
+            `doesn't send the targetFile for ${req.body.meta.pluginName}`,
           );
         } else {
           t.ok(
@@ -104,16 +112,12 @@ export const AllProjectsTests: AcceptanceTests = {
         2,
         'calls maven plugin twice',
       );
-      // maven
       t.match(result, 'maven/some/project-id', 'maven project was monitored ');
 
       const requests = params.server.popRequests(2);
 
       requests.forEach((request) => {
-        // once we have depth increase released
-        t.ok(request, 'Monitor POST request');
-
-        t.match(request.url, '/monitor/', 'puts at correct url');
+        t.match(request.url, '/api/v1/monitor/maven', 'puts at correct url');
         t.notOk(request.body.targetFile, "doesn't send the targetFile");
         t.equal(request.method, 'PUT', 'makes PUT request');
         t.equal(
@@ -137,19 +141,25 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(spyPlugin.withArgs('yarn').calledOnce, 'calls npm plugin');
       t.ok(spyPlugin.withArgs('maven').notCalled, 'did not call  maven plugin');
 
-      // rubygems
       t.match(
         result,
         'rubygems/some/project-id',
         'rubygems project was monitored',
       );
-      // yarn
-      // yarn project fails with OutOfSyncError, no monitor output shown
+
+      t.notMatch(
+        result,
+        'yarn/graph/some/project-id',
+        'yarn project was not monitored',
+      );
+
       const request = params.server.popRequest();
-
-      t.ok(request, 'Monitor POST request');
-
-      t.match(request.url, '/monitor/', 'puts at correct url');
+      t.equal(
+        params.server._reqLog.length,
+        0,
+        'no other requests sent (yarn error ignored)',
+      );
+      t.match(request.url, '/api/v1/monitor/rubygems', 'puts at correct url');
       t.notOk(request.body.targetFile, "doesn't send the targetFile");
       t.equal(request.method, 'PUT', 'makes PUT request');
       t.equal(
@@ -158,110 +168,116 @@ export const AllProjectsTests: AcceptanceTests = {
         'sends version number',
       );
     },
-    '`monitor mono-repo-project with lockfiles --all-projects and without same meta`': (
+    '`monitor mono-repo-project --all-projects sends same payload as --file`': (
       params,
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
-      t.teardown(spyPlugin.restore);
+
+      // mock python plugin becuase CI tooling doesn't have pipenv installed
+      const mockPlugin = {
+        async inspect() {
+          return {
+            plugin: {
+              targetFile: 'Pipfile',
+              name: 'snyk-python-plugin',
+            },
+            package: {},
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('pip').returns(mockPlugin);
+      loadPlugin.callThrough(); // don't mock other plugins
 
       await params.cli.monitor('mono-repo-project', {
         allProjects: true,
         detectionDepth: 1,
       });
+
       // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const [
-        rubyAll,
-        npmAll,
-        nugetAll,
-        paketAll,
-        mavenAll,
-      ] = params.server
-        .popRequests(6)
+      const requests = params.server
+        .popRequests(7)
         .filter((req) => req.url.includes('/monitor/'));
+      // find each type of request
+      const rubyAll = requests.find((req) => req.url.indexOf('rubygems') > -1);
+      const pipAll = requests.find((req) => req.url.indexOf('pip') > -1);
+      const npmAll = requests.find((req) => req.url.indexOf('npm') > -1);
+      const nugetAll = requests.find((req) => req.url.indexOf('nuget') > -1);
+      const paketAll = requests.find((req) => req.url.indexOf('paket') > -1);
+      const mavenAll = requests.find((req) => req.url.indexOf('maven') > -1);
 
-      // nuget
-      await params.cli.monitor('mono-repo-project', {
-        file: 'packages.config',
-      });
-      const [requestsNuget] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
-
-      // Ruby
       await params.cli.monitor('mono-repo-project', {
         file: 'Gemfile.lock',
       });
-      const [requestsRuby] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const rubyFile = params.server.popRequest();
 
-      // npm
+      await params.cli.monitor('mono-repo-project', {
+        file: 'Pipfile',
+      });
+      const pipFile = params.server.popRequest();
+
       await params.cli.monitor('mono-repo-project', {
         file: 'package-lock.json',
       });
-      const [requestsNpm] = params.server
+      // Pop all calls to server and filter out calls to `featureFlag` endpoint
+      const [npmFile] = params.server
         .popRequests(2)
         .filter((req) => req.url.includes('/monitor/'));
 
-      // maven
       await params.cli.monitor('mono-repo-project', {
-        file: 'pom.xml',
+        file: 'packages.config',
       });
-      const [requestsMaven] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const nugetFile = params.server.popRequest();
 
-      // paket
       await params.cli.monitor('mono-repo-project', {
         file: 'paket.dependencies',
       });
-      const [requestsPaket] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const paketFile = params.server.popRequest();
 
-      // Ruby project
+      await params.cli.monitor('mono-repo-project', {
+        file: 'pom.xml',
+      });
+      const mavenFile = params.server.popRequest();
 
-      t.deepEqual(
+      t.same(
         rubyAll.body,
-        requestsRuby.body,
-        'Same body for --all-projects and --file=Gemfile.lock',
+        rubyFile.body,
+        'same body for --all-projects and --file=Gemfile.lock',
       );
 
-      // NPM project
+      t.same(
+        pipAll.body,
+        pipFile.body,
+        'same body for --all-projects and --file=Pipfile',
+      );
 
-      t.deepEqual(
+      t.same(
         npmAll.body,
-        requestsNpm.body,
-        'Same body for --all-projects and --file=package-lock.json',
+        npmFile.body,
+        'same body for --all-projects and --file=package-lock.json',
       );
 
-      // NUGET project
-
-      t.deepEqual(
+      t.same(
         nugetAll.body,
-        requestsNuget.body,
-        'Same body for --all-projects and --file=packages.config',
+        nugetFile.body,
+        'same body for --all-projects and --file=packages.config',
       );
 
-      // Maven project
-
-      t.deepEqual(
-        mavenAll.body,
-        requestsMaven.body,
-        'Same body for --all-projects and --file=pom.xml',
-      );
-
-      // Paket project
-
-      t.deepEqual(
+      t.same(
         paketAll.body,
-        requestsPaket.body,
-        'Same body for --all-projects and --file=paket.dependencies',
+        paketFile.body,
+        'same body for --all-projects and --file=paket.dependencies',
+      );
+
+      t.same(
+        mavenAll.body,
+        mavenFile.body,
+        'same body for --all-projects and --file=pom.xml',
       );
     },
-    '`monitor composer-app with --all-projects and without same meta`': (
+    '`monitor composer-app with --all-projects sends same payload as --file`': (
       params,
       utils,
     ) => async (t) => {
@@ -272,22 +288,17 @@ export const AllProjectsTests: AcceptanceTests = {
       await params.cli.monitor('composer-app', {
         allProjects: true,
       });
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const [composerAll] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const composerAll = params.server.popRequest();
 
       await params.cli.monitor('composer-app', {
         file: 'composer.lock',
       });
-      const [requestsComposer] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const composerFile = params.server.popRequest();
 
-      t.deepEqual(
+      t.same(
         composerAll.body,
-        requestsComposer.body,
-        'Same body for --all-projects and --file=composer.lock',
+        composerFile.body,
+        'same body for --all-projects and --file=composer.lock',
       );
     },
     '`monitor mono-repo-project with lockfiles --all-projects --json`': (
@@ -296,14 +307,48 @@ export const AllProjectsTests: AcceptanceTests = {
     ) => async (t) => {
       try {
         utils.chdirWorkspaces();
-        const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
-        t.teardown(spyPlugin.restore);
+
+        // mock python plugin becuase CI tooling doesn't have pipenv installed
+        const mockPlugin = {
+          async inspect() {
+            return {
+              plugin: {
+                targetFile: 'Pipfile',
+                name: 'snyk-python-plugin',
+              },
+              package: {
+                name: 'mono-repo-project', // used by projectName
+              },
+            };
+          },
+        };
+        const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+        t.teardown(loadPlugin.restore);
+        loadPlugin.withArgs('pip').returns(mockPlugin);
+        loadPlugin.callThrough(); // don't mock other plugins
 
         const response = await params.cli.monitor('mono-repo-project', {
           json: true,
           allProjects: true,
+          detectionDepth: 1,
         });
-        JSON.parse(response).forEach((res) => {
+
+        const requests = params.server.popRequests(7);
+        t.equal(requests.length, 7, 'sends expected # requests'); // extra feature-flags request
+        t.equal(
+          params.server._reqLog.length,
+          0,
+          `${params.server._reqLog.length} pending requests`,
+        );
+
+        const jsonResponse = JSON.parse(response);
+        t.equal(
+          jsonResponse.length,
+          6,
+          'json response array has expected # elements',
+        );
+
+        jsonResponse.forEach((res) => {
           if (_.isObject(res)) {
             t.pass('monitor outputted JSON');
           } else {
@@ -350,7 +395,6 @@ export const AllProjectsTests: AcceptanceTests = {
       );
       t.match(result, 'maven/some/project-id', 'maven project was monitored ');
       const request = params.server.popRequest();
-      t.ok(request, 'Monitor POST request');
       t.match(request.url, '/monitor/', 'puts at correct url');
       t.notOk(request.body.targetFile, "doesn't send the targetFile");
       t.equal(request.method, 'PUT', 'makes PUT request');
@@ -360,27 +404,108 @@ export const AllProjectsTests: AcceptanceTests = {
         'sends version number',
       );
     },
-    '`monitor monorepo-with-nuget with Cocoapods --all-projects and without same meta`': (
+    '`monitor monorepo-with-nuget --all-projects sends same payload as --file`': (
       params,
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
-      t.teardown(spyPlugin.restore);
 
-      await params.cli.monitor('monorepo-with-nuget/src/cocoapods-app', {
+      // mock go plugin becuase CI tooling doesn't have go installed
+      const mockPlugin = {
+        async inspect() {
+          return {
+            plugin: {
+              targetFile: 'Gopkg.lock',
+              name: 'snyk-go-plugin',
+              runtime: 'go',
+            },
+            package: {},
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('golangdep').returns(mockPlugin);
+      loadPlugin.callThrough(); // don't mock other plugins
+
+      await params.cli.monitor('monorepo-with-nuget', {
         allProjects: true,
+        detectionDepth: 4,
       });
-      const cocoapodsAll = params.server.popRequest();
-      // Cocoapods
-      await params.cli.monitor('monorepo-with-nuget/src/cocoapods-app', {
-        file: 'Podfile',
+
+      // Pop all calls to server and filter out calls to `featureFlag` endpoint
+      const [
+        projectAssetsAll,
+        cocoapodsAll,
+        golangdepAll,
+        npmAll,
+        packageConfigAll,
+        paketAll,
+      ] = params.server
+        .popRequests(7)
+        .filter((req) => req.url.includes('/monitor/'));
+
+      await params.cli.monitor('monorepo-with-nuget', {
+        file: `src${path.sep}cartservice-nuget${path.sep}obj${path.sep}project.assets.json`,
       });
-      const requestsCocoapods = params.server.popRequest();
-      t.deepEqual(
+      const projectAssetsFile = params.server.popRequest();
+
+      await params.cli.monitor('monorepo-with-nuget', {
+        file: `src${path.sep}cocoapods-app${path.sep}Podfile.lock`,
+      });
+      const cocoapodsFile = params.server.popRequest();
+
+      await params.cli.monitor('monorepo-with-nuget', {
+        file: `src${path.sep}frontend${path.sep}Gopkg.lock`,
+      });
+      const golangdepFile = params.server.popRequest();
+
+      await params.cli.monitor('monorepo-with-nuget', {
+        file: `src${path.sep}paymentservice${path.sep}package-lock.json`,
+      });
+      const [npmFile] = params.server
+        .popRequests(2)
+        .filter((req) => req.url.includes('/monitor/'));
+
+      await params.cli.monitor('monorepo-with-nuget', {
+        file: `test${path.sep}nuget-app-4${path.sep}packages.config`,
+      });
+      const packageConfigFile = params.server.popRequest();
+
+      await params.cli.monitor('monorepo-with-nuget', {
+        file: `test${path.sep}paket-app${path.sep}paket.dependencies`,
+      });
+      const paketFile = params.server.popRequest();
+
+      t.same(
+        projectAssetsAll.body,
+        projectAssetsFile.body,
+        `same body for --all-projects and --file=src${path.sep}cartservice-nuget${path.sep}obj${path.sep}project.assets.json`,
+      );
+      t.same(
         cocoapodsAll.body,
-        requestsCocoapods.body,
-        'Same body for --all-projects and --file=src/cocoapods-app/Podfile',
+        cocoapodsFile.body,
+        `same body for --all-projects and --file=src${path.sep}cocoapods-app${path.sep}Podfile.lock`,
+      );
+      t.same(
+        golangdepAll.body,
+        golangdepFile.body,
+        `same body for --all-projects and --file=src${path.sep}frontend${path.sep}Gopkg.lock`,
+      );
+      t.same(
+        npmAll.body,
+        npmFile.body,
+        `same body for --all-projects and --file=src${path.sep}paymentservice${path.sep}package-lock.json`,
+      );
+      t.same(
+        packageConfigAll.body,
+        packageConfigFile.body,
+        `same body for --all-projects and --file=test${path.sep}nuget-app-4${path.sep}packages.config`,
+      );
+      t.same(
+        paketAll.body,
+        paketFile.body,
+        `same body for --all-projects and --file=test${path.sep}paket-app${path.sep}paket.dependencies`,
       );
     },
     '`monitor mono-repo-go/hello-dep --all-projects sends same body as --file`': (
@@ -415,7 +540,7 @@ export const AllProjectsTests: AcceptanceTests = {
       t.same(
         allProjectsBody.body,
         fileBody.body,
-        'Same body for --all-projects and --file=mono-repo-go/hello-dep/Gopkg.lock',
+        'same body for --all-projects and --file=mono-repo-go/hello-dep/Gopkg.lock',
       );
     },
     '`monitor mono-repo-go/hello-mod --all-projects sends same body as --file`': (
@@ -450,7 +575,7 @@ export const AllProjectsTests: AcceptanceTests = {
       t.same(
         allProjectsBody.body,
         fileBody.body,
-        'Same body for --all-projects and --file=mono-repo-go/hello-mod/go.mod',
+        'same body for --all-projects and --file=mono-repo-go/hello-mod/go.mod',
       );
     },
     '`monitor mono-repo-go/hello-vendor --all-projects sends same body as --file`': (
@@ -485,7 +610,7 @@ export const AllProjectsTests: AcceptanceTests = {
       t.same(
         allProjectsBody.body,
         fileBody.body,
-        'Same body for --all-projects and --file=mono-repo-go/hello-vendor/vendor/vendor.json',
+        'same body for --all-projects and --file=mono-repo-go/hello-vendor/vendor/vendor.json',
       );
     },
 
@@ -509,8 +634,8 @@ export const AllProjectsTests: AcceptanceTests = {
       t.teardown(loadPlugin.restore);
       loadPlugin.withArgs('golangdep').returns(mockPlugin);
       loadPlugin.withArgs('gomodules').returns(mockPlugin);
-      loadPlugin.withArgs('npm').returns(mockPlugin);
       loadPlugin.withArgs('govendor').returns(mockPlugin);
+      loadPlugin.callThrough(); // don't mock npm plugin
       const result = await params.cli.monitor('mono-repo-go', {
         allProjects: true,
         detectionDepth: 3,
@@ -527,10 +652,14 @@ export const AllProjectsTests: AcceptanceTests = {
       const requests = params.server
         .popRequests(5)
         .filter((req) => req.url.includes('/monitor/'));
-      t.equal(requests.length, 4, 'Correct amount of monitor requests');
+      t.equal(requests.length, 4, 'correct amount of monitor requests');
 
       requests.forEach((req) => {
-        t.match(req.url, '/monitor/', 'puts at correct url');
+        t.match(
+          req.url,
+          /\/api\/v1\/monitor\/(npm\/graph|golangdep|gomodules|govendor)/,
+          'puts at correct url',
+        );
         t.notOk(req.body.targetFile, "doesn't send the targetFile");
         t.equal(req.method, 'PUT', 'makes PUT request');
         t.equal(

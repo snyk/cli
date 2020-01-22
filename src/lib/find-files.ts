@@ -2,6 +2,9 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as _ from 'lodash';
 import { detectPackageManagerFromFile } from './detect';
+import * as debugModule from 'debug';
+const debug = debugModule('snyk');
+
 // TODO: use util.promisify once we move to node 8
 
 /**
@@ -180,22 +183,41 @@ function chooseBestManifest(
         ['package-lock.json', 'yarn.lock'].includes(path.base),
       )[0];
       if (lockFile) {
+        debug(
+          'Encountered multiple npm manifest files, defaulting to package-lock.json / yarn.lock',
+        );
         return lockFile.path;
       }
       const packageJson = files.filter((path) =>
         ['package.json'].includes(path.base),
       )[0];
+      debug(
+        'Encountered multiple npm manifest files, defaulting to package.json',
+      );
       return packageJson.path;
     }
     case 'rubygems': {
+      debug(
+        'Encountered multiple gem manifest files, defaulting to Gemfile.lock',
+      );
       const defaultManifest = files.filter((path) =>
         ['Gemfile.lock'].includes(path.base),
       )[0];
       return defaultManifest.path;
     }
     case 'cocoapods': {
+      debug(
+        'Encountered multiple cocoapod manifest files, defaulting to Podfile',
+      );
       const defaultManifest = files.filter((path) =>
         ['Podfile'].includes(path.base),
+      )[0];
+      return defaultManifest.path;
+    }
+    case 'pip': {
+      debug('Encountered multiple pip manifest files, defaulting to Pipfile');
+      const defaultManifest = files.filter((path) =>
+        ['Pipfile'].includes(path.base),
       )[0];
       return defaultManifest.path;
     }
