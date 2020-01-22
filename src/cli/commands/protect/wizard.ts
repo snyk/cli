@@ -469,9 +469,13 @@ function processAnswers(answers, policy, options) {
       let lbl = 'Updating package.json...';
       const addSnykToDependencies =
         answers['misc-add-test'] || answers['misc-add-protect'];
-      let updateSnykFunc = () =>
-        protect.install(packageManager, ['snyk'], live);
+      let updateSnykFunc = () => {
+        return;
+      }; // noop
 
+      if (addSnykToDependencies) {
+        updateSnykFunc = () => protect.install(packageManager, ['snyk'], live);
+      }
       if (addSnykToDependencies) {
         debug('updating %s', packageFile);
 

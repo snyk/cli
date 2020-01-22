@@ -311,3 +311,25 @@ test('wizard updates vulns and retains indentation', async function(t) {
   process.chdir(old);
   t.end();
 });
+
+test('wizard updates vulns but does not install snyk', async function(t) {
+  const old = process.cwd();
+  const dir = path.resolve(__dirname, 'fixtures', 'basic-npm');
+  const answersPath = path.resolve(dir, 'answers.json');
+
+  const answers = JSON.parse(fs.readFileSync(answersPath, 'utf-8'));
+
+  const installCommands = [
+    ['uninstall', ['minimatch'], true, undefined, undefined],
+    ['install', ['minimatch@3.0.2'], true, null, ['--save-dev']],
+  ];
+
+  process.chdir(dir);
+
+  await wizard.processAnswers(answers, mockPolicy);
+
+  t.deepEqual(execSpy.args, installCommands, 'snyk not installed');
+
+  process.chdir(old);
+  t.end();
+});
