@@ -396,11 +396,16 @@ export const AllProjectsTests: AcceptanceTests = {
           allProjects: true,
           detectionDepth: 4,
         });
+        t.ok(
+          spyPlugin.withArgs('cocoapods').callCount,
+          1,
+          'calls cocoapods plugin',
+        );
         t.ok(spyPlugin.withArgs('nuget').callCount, 2, 'calls nuget plugin');
         t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
         t.match(
           res,
-          /Tested 3 projects, no vulnerable paths were found./,
+          /Tested 4 projects, no vulnerable paths were found./,
           'Two projects tested',
         );
         t.match(
@@ -420,6 +425,17 @@ export const AllProjectsTests: AcceptanceTests = {
           'Nuget project targetFile is as expected',
         );
         t.match(res, 'Package manager:   nuget', 'Nuget package manager');
+
+        t.match(
+          res,
+          `Target file:       src${path.sep}cocoapods-app${path.sep}Podfile`,
+          'Cocoapods project targetFile is as expected',
+        );
+        t.match(
+          res,
+          'Package manager:   cocoapods',
+          'cocoapods package manager',
+        );
       } catch (err) {
         t.fail('expected to pass');
       }

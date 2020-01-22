@@ -80,6 +80,7 @@ export interface MonitorOptions {
   'print-deps'?: boolean;
   'experimental-dep-graph'?: boolean;
   scanAllUnmanaged?: boolean;
+  allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
   'prune-repeated-subdependencies'?: boolean;
 }

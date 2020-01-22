@@ -269,5 +269,35 @@ export const AllProjectsTests: AcceptanceTests = {
         'sends version number',
       );
     },
+    '`monitor monorepo-with-nuget with Cocoapods --all-projects and without same meta`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+
+      await params.cli.monitor('monorepo-with-nuget/src/cocoapods-app', {
+        allProjects: true,
+      });
+      // Pop all calls to server and filter out calls to `featureFlag` endpoint
+      const [cocoapodsAll] = params.server
+        .popRequests(1)
+        .filter((req) => req.url.includes('/monitor/'));
+
+      // Cocoapods
+      await params.cli.monitor('monorepo-with-nuget/src/cocoapods-app', {
+        file: 'Podfile',
+      });
+      const [requestsCocoapods] = params.server
+        .popRequests(1)
+        .filter((req) => req.url.includes('/monitor/'));
+
+      t.deepEqual(
+        cocoapodsAll.body,
+        requestsCocoapods.body,
+        'Same body for --all-projects and --file=src/cocoapods-app/Podfile',
+      );
+    },
   },
 };
