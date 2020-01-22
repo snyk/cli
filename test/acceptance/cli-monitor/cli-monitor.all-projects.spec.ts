@@ -175,12 +175,6 @@ export const AllProjectsTests: AcceptanceTests = {
 
       // Ruby project
 
-      // Removing properties that are different for plugin and custom-plugin
-      // (pluginName, pluginRuntime)
-      delete rubyAll.body.meta.pluginName;
-      delete requestsRuby.body.meta.pluginName;
-      delete requestsRuby.body.meta.pluginRuntime;
-
       t.deepEqual(
         rubyAll.body,
         requestsRuby.body,
@@ -189,11 +183,6 @@ export const AllProjectsTests: AcceptanceTests = {
 
       // NPM project
 
-      // Removing properties that are different for plugin and custom-plugin
-      // (pluginName, pluginRuntime)
-      delete npmAll.body.meta.pluginName;
-      delete requestsNpm.body.meta.pluginName;
-      delete requestsNpm.body.meta.pluginRuntime;
       t.deepEqual(
         npmAll.body,
         requestsNpm.body,
@@ -202,11 +191,6 @@ export const AllProjectsTests: AcceptanceTests = {
 
       // Maven project
 
-      // Removing properties that are different for plugin and custom-plugin
-      // (pluginName, pluginRuntime)
-      delete mavenAll.body.meta.pluginName;
-      delete requestsMaven.body.meta.pluginName;
-      delete requestsMaven.body.meta.pluginRuntime;
       t.deepEqual(
         mavenAll.body,
         requestsMaven.body,

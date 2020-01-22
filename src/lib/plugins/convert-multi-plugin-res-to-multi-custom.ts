@@ -14,6 +14,7 @@ export function convertMultiResultToMultiCustom(
     plugin: inspectRes.plugin,
     scannedProjects: convertScannedProjectsToCustom(
       inspectRes.scannedProjects,
+      inspectRes.plugin,
       (inspectRes.plugin.packageManager as SupportedPackageManagers) ||
         packageManager,
       targetFile,

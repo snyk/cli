@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import * as cliInterface from '@snyk/cli-interface';
 
-import { TestOptions, Options, MonitorOptions } from '../types';
+import { TestOptions, Options, MonitorOptions, PluginMetadata } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
 import { SupportedPackageManagers } from '../package-managers';
 import { getSinglePluginResult } from './get-single-plugin-result';
@@ -12,6 +12,7 @@ import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-m
 export interface ScannedProjectCustom
   extends cliInterface.legacyCommon.ScannedProject {
   packageManager: SupportedPackageManagers;
+  plugin: PluginMetadata;
 }
 export interface MultiProjectResultCustom
   extends cliInterface.legacyPlugin.MultiProjectResult {
