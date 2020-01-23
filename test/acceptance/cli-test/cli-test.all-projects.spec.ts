@@ -21,8 +21,10 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
       t.ok(spyPlugin.withArgs('maven').calledOnce, 'calls maven plugin');
+      t.ok(spyPlugin.withArgs('nuget').calledOnce, 'calls nuget plugin');
+      t.ok(spyPlugin.withArgs('paket').calledOnce, 'calls nuget plugin');
 
-      params.server.popRequests(3).forEach((req) => {
+      params.server.popRequests(5).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
@@ -33,7 +35,7 @@ export const AllProjectsTests: AcceptanceTests = {
         t.ok(req.body.depGraph, 'body contains depGraph');
         t.match(
           req.body.depGraph.pkgManager.name,
-          /(npm|rubygems|maven)/,
+          /(npm|rubygems|maven|nuget|paket)/,
           'depGraph has package manager',
         );
       });
@@ -86,13 +88,25 @@ export const AllProjectsTests: AcceptanceTests = {
       const [
         rubyAllProjectsBody,
         npmAllProjectsBody,
+        nugetAllProjectsBody,
+        paketAllProjectsBody,
         mavenAllProjectsBody,
-      ] = params.server.popRequests(3).map((req) => req.body);
+      ] = params.server.popRequests(5).map((req) => req.body);
 
       await params.cli.test('mono-repo-project', {
         file: 'Gemfile.lock',
       });
       const { body: rubyFileBody } = params.server.popRequest();
+
+      await params.cli.test('mono-repo-project', {
+        file: 'paket.dependencies',
+      });
+      const { body: paketFileBody } = params.server.popRequest();
+
+      await params.cli.test('mono-repo-project', {
+        file: 'packages.config',
+      });
+      const { body: nugetFileBody } = params.server.popRequest();
 
       await params.cli.test('mono-repo-project', {
         file: 'package-lock.json',
@@ -116,6 +130,17 @@ export const AllProjectsTests: AcceptanceTests = {
         'Same body for --all-projects and --file=package-lock.json',
       );
 
+      t.same(
+        paketAllProjectsBody,
+        paketFileBody,
+        'Same body for --all-projects and --file=package-lock.json',
+      );
+
+      t.same(
+        nugetAllProjectsBody,
+        nugetFileBody,
+        'Same body for --all-projects and --file=package-lock.json',
+      );
       t.same(
         mavenAllProjectsBody,
         mavenFileBody,
