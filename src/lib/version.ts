@@ -26,7 +26,7 @@ async function getBranchCommitAndDirty(promises): Promise<string> {
     const branchName = res[0];
     const commitStr = res[1];
     const filesCount = res[2];
-    const dirtyCount = parseInt(filesCount, 10);
+    const dirtyCount = parseInt(filesCount, 10) || 0;
     let curr = branchName + ': ' + commitStr;
     if (dirtyCount !== 0) {
       curr += ' (' + dirtyCount + ' dirty files)';
@@ -41,8 +41,4 @@ async function getBranchCommitAndDirty(promises): Promise<string> {
 
 const commit = () => executeCommand('git rev-parse HEAD', root);
 const branch = () => executeCommand('git rev-parse --abbrev-ref HEAD', root);
-const dirty = () =>
-  executeCommand(
-    'expr $(git status --porcelain 2>/dev/null| ' + 'egrep "^(M| M)" | wc -l)',
-    root,
-  );
+const dirty = () => executeCommand('git diff --shortstat', root);

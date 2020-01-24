@@ -1,1 +1,3 @@
-export * from '../../lib/version';
+import { getVersion } from '../../lib/version';
+
+export = getVersion;

@@ -19,6 +19,20 @@ test('snyk test command should fail when --file is not specified correctly', (t)
   });
 });
 
+test('snyk version command should show cli version or sha', (t) => {
+  t.plan(1);
+  exec(`node ${main} --version`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      ':', // can't guess branch or sha or dirty files, but we do always add `:`
+      'version is shown',
+    );
+  });
+});
+
 test('snyk test command should fail when --packageManager is not specified correctly', (t) => {
   t.plan(1);
   exec(`node ${main} test --packageManager=hello`, (err, stdout) => {
