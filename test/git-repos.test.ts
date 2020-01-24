@@ -1,5 +1,5 @@
 import * as cli from '../src/cli/commands/';
-import * as tap from 'tap';
+import { test } from 'tap';
 
 const urls = [
   // a repo with no dependencies so it will never be vulnerable (2017-05-15)
@@ -9,15 +9,13 @@ const urls = [
   'Snyk/vulndb-fixtures.git',
 ];
 
-urls.forEach((url) => {
-  // TODO: investigate why this test fails on Windows, Node 8
-  tap.skip('snyk.test supports ' + url + ' structure', async (t) => {
-    try {
-      await cli.test(url);
-      t.pass('url worked');
-    } catch (err) {
-      t.threw(err);
-      t.end();
+test('snyk test supports different URLs', async (t) => {
+  try {
+    for (const url of urls) {
+      const res = await cli.test(url);
+      t.ok(res, `snyk test ${url} ok`);
     }
-  });
+  } catch (err) {
+    t.fail('unexpected error thrown: ' + err.message);
+  }
 });
