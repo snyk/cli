@@ -21,6 +21,7 @@ export const AllProjectsTests: AcceptanceTests = {
 
       const result = await params.cli.monitor('mono-repo-project', {
         allProjects: true,
+        detectionDepth: 1,
       });
       t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
@@ -143,6 +144,7 @@ export const AllProjectsTests: AcceptanceTests = {
 
       await params.cli.monitor('mono-repo-project', {
         allProjects: true,
+        detectionDepth: 1,
       });
       // Pop all calls to server and filter out calls to `featureFlag` endpoint
       const [rubyAll, npmAll, mavenAll] = params.server
