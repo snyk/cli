@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as sinon from 'sinon';
 
 export const AllProjectsTests: AcceptanceTests = {
-  language: 'Mixed (Ruby & Npm & Maven)',
+  language: 'Mixed',
   tests: {
     '`test mono-repo-project with lockfiles --all-projects`': (
       params,
@@ -383,37 +383,69 @@ export const AllProjectsTests: AcceptanceTests = {
         );
       }
     },
-    '`test monorepo --all-projects with Nuget, Python, Go, Npm`': (
+
+    '`test monorepo-with-nuget --all-projects with Nuget, Python, Go, Npm, Cocoapods`': (
       params,
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
-      t.teardown(spyPlugin.restore);
+      const mockPlugin = {
+        async inspect() {
+          return {
+            package: {},
+            plugin: {
+              name: 'mock',
+            },
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      // prevent plugin inspect from actually running (requires go to be installed)
+      loadPlugin.withArgs('nuget').returns(mockPlugin);
+      loadPlugin.withArgs('cocoapods').returns(mockPlugin);
+      loadPlugin.withArgs('npm').returns(mockPlugin);
+      loadPlugin.withArgs('golangdep').returns(mockPlugin);
 
       try {
         const res = await params.cli.test('monorepo-with-nuget', {
           allProjects: true,
           detectionDepth: 4,
         });
+        t.equal(
+          loadPlugin.withArgs('nuget').callCount,
+          2,
+          'calls nuget plugin twice',
+        );
         t.ok(
-          spyPlugin.withArgs('cocoapods').callCount,
-          1,
+          loadPlugin.withArgs('cocoapods').calledOnce,
           'calls cocoapods plugin',
         );
-        t.ok(spyPlugin.withArgs('nuget').callCount, 2, 'calls nuget plugin');
-        t.ok(spyPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
+        t.ok(loadPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
+        t.ok(
+          loadPlugin.withArgs('golangdep').calledOnce,
+          'calls golangdep plugin',
+        );
         t.match(
           res,
-          /Tested 4 projects, no vulnerable paths were found./,
-          'Two projects tested',
+          /Tested 5 projects, no vulnerable paths were found./,
+          'Five projects tested',
         );
         t.match(
           res,
           `Target file:       src${path.sep}paymentservice${path.sep}package-lock.json`,
           'Npm project targetFile is as expected',
         );
-        t.match(res, 'Package manager:   npm', 'Npm package manager');
+        t.match(
+          res,
+          `Target file:       src${path.sep}cocoapods-app${path.sep}Podfile`,
+          'Cocoapods project targetFile is as expected',
+        );
+        t.match(
+          res,
+          `Target file:       src${path.sep}frontend${path.sep}Gopkg.lock`,
+          'Go dep project targetFile is as expected',
+        );
         t.match(
           res,
           `Target file:       src${path.sep}cartservice-nuget${path.sep}obj${path.sep}project.assets.json`,
@@ -425,16 +457,17 @@ export const AllProjectsTests: AcceptanceTests = {
           'Nuget project targetFile is as expected',
         );
         t.match(res, 'Package manager:   nuget', 'Nuget package manager');
-
-        t.match(
-          res,
-          `Target file:       src${path.sep}cocoapods-app${path.sep}Podfile`,
-          'Cocoapods project targetFile is as expected',
-        );
         t.match(
           res,
           'Package manager:   cocoapods',
-          'cocoapods package manager',
+          'Cocoapods package manager',
+        );
+        t.match(res, 'Package manager:   npm', 'Npm package manager');
+        t.match(res, 'Package manager:   golangdep', 'Go dep package manager');
+        t.match(
+          res,
+          'Package manager:   cocoapods',
+          'Cocoapods package manager',
         );
       } catch (err) {
         t.fail('expected to pass');
@@ -470,6 +503,70 @@ export const AllProjectsTests: AcceptanceTests = {
         'Target file:       composer.lock',
         'contains target file composer.lock',
       );
+    },
+    '`test mono-repo-go --all-projects --detection-depth=2`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const mockPlugin = {
+        async inspect() {
+          return {
+            package: {},
+            plugin: {
+              name: 'mock',
+            },
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      // prevent plugin inspect from actually running (requires go to be installed)
+      loadPlugin.withArgs('golangdep').returns(mockPlugin);
+      loadPlugin.withArgs('gomodules').returns(mockPlugin);
+      loadPlugin.withArgs('npm').returns(mockPlugin);
+      loadPlugin.withArgs('govendor').returns(mockPlugin);
+
+      const res = await params.cli.test('mono-repo-go', {
+        allProjects: true,
+        detectionDepth: 3,
+      });
+      t.ok(loadPlugin.withArgs('golangdep').calledOnce, 'calls go dep plugin');
+      t.ok(loadPlugin.withArgs('gomodules').calledOnce, 'calls go mod plugin');
+      t.ok(loadPlugin.withArgs('npm').calledOnce, 'calls npm plugin');
+      t.ok(
+        loadPlugin.withArgs('govendor').calledOnce,
+        'calls go vendor plugin',
+      );
+      t.match(
+        res,
+        /Tested 4 projects, no vulnerable paths were found./,
+        'Four projects tested',
+      );
+      t.match(
+        res,
+        `Target file:       hello-dep${path.sep}Gopkg.lock`,
+        'Go dep project targetFile is as expected',
+      );
+      t.match(
+        res,
+        `Target file:       hello-mod${path.sep}go.mod`,
+        'Go mod project targetFile is as expected',
+      );
+      t.match(
+        res,
+        `Target file:       hello-node${path.sep}package-lock.json`,
+        'Npm project targetFile is as expected',
+      );
+      t.match(
+        res,
+        `Target file:       hello-vendor${path.sep}vendor${path.sep}vendor.json`,
+        'Go vendor project targetFile is as expected',
+      );
+      t.match(res, 'Package manager:   golangdep', 'Nuget package manager');
+      t.match(res, 'Package manager:   gomodules', 'Nuget package manager');
+      t.match(res, 'Package manager:   npm', 'Npm package manager');
+      t.match(res, 'Package manager:   govendor', 'Go dep package manager');
     },
   },
 };

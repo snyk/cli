@@ -44,6 +44,9 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'Podfile',
   'Podfile.lock',
   'composer.lock',
+  'Gopkg.lock',
+  'go.mod',
+  'vendor.json',
 ];
 
 // when file is specified with --file, we look it up here

@@ -9,6 +9,16 @@ test('find all files in test fixture', async (t) => {
   const result = await find(testFixture, [], [], 4);
   const expected = [
     path.join(testFixture, 'README.md'),
+    path.join(
+      testFixture,
+      'golang',
+      'golang-app-govendor',
+      'vendor',
+      'vendor.json',
+    ),
+    path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
+    path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
+    path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
     path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
     path.join(testFixture, 'maven', 'pom.xml'),
@@ -30,6 +40,16 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
   const result = await find(testFixture, ['node_modules'], [], 4);
   const expected = [
     path.join(testFixture, 'README.md'),
+    path.join(
+      testFixture,
+      'golang',
+      'golang-app-govendor',
+      'vendor',
+      'vendor.json',
+    ),
+    path.join(testFixture, 'golang', 'golang-app', 'Gopkg.lock'),
+    path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
+    path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
     path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
     path.join(testFixture, 'maven', 'pom.xml'),
