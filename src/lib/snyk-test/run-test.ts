@@ -355,7 +355,7 @@ async function assembleLocalPayloads(
 
       let body: PayloadBody = {
         // WARNING: be careful changing this as it affects project uniqueness
-        targetFile: deps.plugin.targetFile,
+        targetFile: project.plugin.targetFile,
         projectNameOverride: options.projectName,
         originalProjectName: pkg.name,
         policy: policy && policy.toString(),

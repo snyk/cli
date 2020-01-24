@@ -161,7 +161,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
             generateMonitorMeta(options, packageManager),
             projectDeps,
             options,
-            perProjectResult.plugin as PluginMetadata,
+            projectDeps.plugin as PluginMetadata,
             targetFileRelativePath,
           ),
           spinner.clear(postingMonitorSpinnerLabel),

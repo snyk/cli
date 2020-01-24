@@ -1,6 +1,7 @@
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { MultiProjectResultCustom } from './get-multi-plugin-result';
 import { SupportedPackageManagers } from '../package-managers';
+import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 
 export function convertSingleResultToMultiCustom(
   inspectRes: pluginApi.SinglePackageResult,
@@ -19,6 +20,7 @@ export function convertSingleResultToMultiCustom(
     plugin,
     scannedProjects: [
       {
+        plugin: plugin as any,
         depTree,
         meta,
         targetFile: plugin.targetFile,
