@@ -70,6 +70,11 @@ Options:
                        Patchable fails when there is at least one vulnerability that can be patched.
                        If vulnerabilities do not have a fix and this option is being used tests will pass.
 
+Maven options:
+  --scan-all-unmanaged
+                       Autodetects maven jars and wars in given directory.
+                       Individual testing can be done with --file=<jar-file-name>
+
 Gradle options:
   --sub-project=<string> (alias: --gradle-sub-project)
                        For Gradle "multi project" configurations,
