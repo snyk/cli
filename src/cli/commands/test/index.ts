@@ -2,6 +2,7 @@ export = test;
 
 import * as _ from 'lodash';
 import chalk from 'chalk';
+import * as pathUtil from 'path';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
@@ -124,9 +125,17 @@ async function test(...args: MethodArgs): Promise<string> {
     // with scripts that use a callback with test. Coerce results/errors to be arrays
     // and add the result options to each to be displayed
     const resArray: any[] = Array.isArray(res) ? res : [res];
-
     for (let i = 0; i < resArray.length; i++) {
       results.push(_.assign(resArray[i], { path }));
+
+      if (options.file && resArray[i].packageManager === 'rubygems') {
+        const { file: targetFile } = options;
+        const targetFileRelativePath = targetFile
+          ? pathUtil.join(pathUtil.resolve(path), targetFile)
+          : '';
+        analytics.add('targetFileRelativePath', targetFileRelativePath);
+      }
+
       // currently testOpts are identical for each test result returned even if it's for multiple projects.
       // we want to return the project names, so will need to be crafty in a way that makes sense.
       if (!testOpts.projectNames) {

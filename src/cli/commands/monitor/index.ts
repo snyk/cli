@@ -155,6 +155,12 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         const targetFileRelativePath = tFile
           ? pathUtil.join(pathUtil.resolve(path), tFile)
           : '';
+
+        // target file logging as a port of [Jira: BST-1124]
+        if (packageManager === 'rubygems' && options.file) {
+          analytics.add('targetFileRelativePath', targetFileRelativePath);
+        }
+
         const res: MonitorResult = await promiseOrCleanup(
           snykMonitor(
             path,
