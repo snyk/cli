@@ -81,7 +81,7 @@ cd "${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" ||
   exitWithMsg "Can't cd to ${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" 1
 
 runCmdAsDockerUser "PATH=${PATH} snyk ${SNYK_COMMAND} ${SNYK_PARAMS} \
-${ADDITIONAL_ENV} > \"${OUTPUT_FILE}\" 2>\"${ERROR_FILE}\""
+${ADDITIONAL_ENV} --json > \"${OUTPUT_FILE}\" 2>\"${ERROR_FILE}\""
 
 RC=$?
 
@@ -115,8 +115,6 @@ sed 's/<\/head>/  <link rel=\"stylesheet\" href=\"snyk_report.css\"><\/head>/' \
 
 runCmdAsDockerUser "cat /home/node/snyk_report.css > \
 \"${PROJECT_PATH}/${PROJECT_FOLDER}/snyk_report.css\""
-# fi
-#
 
 if [ $RC -ne "0" ]; then
   exitWithMsg "${OUTPUT_FILE}" "$RC"
