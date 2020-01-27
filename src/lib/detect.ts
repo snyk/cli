@@ -43,6 +43,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'project.assets.json',
   'Podfile',
   'Podfile.lock',
+  'composer.lock',
 ];
 
 // when file is specified with --file, we look it up here

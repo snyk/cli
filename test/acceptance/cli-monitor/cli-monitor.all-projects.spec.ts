@@ -199,6 +199,35 @@ export const AllProjectsTests: AcceptanceTests = {
         'Same body for --all-projects and --file=pom.xml',
       );
     },
+    '`monitor composer-app with --all-projects and without same meta`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+
+      await params.cli.monitor('composer-app', {
+        allProjects: true,
+      });
+      // Pop all calls to server and filter out calls to `featureFlag` endpoint
+      const [composerAll] = params.server
+        .popRequests(2)
+        .filter((req) => req.url.includes('/monitor/'));
+
+      await params.cli.monitor('composer-app', {
+        file: 'composer.lock',
+      });
+      const [requestsComposer] = params.server
+        .popRequests(2)
+        .filter((req) => req.url.includes('/monitor/'));
+
+      t.deepEqual(
+        composerAll.body,
+        requestsComposer.body,
+        'Same body for --all-projects and --file=composer.lock',
+      );
+    },
     '`monitor mono-repo-project with lockfiles --all-projects --json`': (
       params,
       utils,
