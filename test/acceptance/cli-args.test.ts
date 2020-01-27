@@ -1,8 +1,13 @@
 import { test } from 'tap';
 import { exec } from 'child_process';
 import { sep } from 'path';
+const osName = require('os-name');
 
 const main = './dist/cli/index.js'.replace(/\//g, sep);
+const iswindows =
+  osName()
+    .toLowerCase()
+    .indexOf('windows') === 0;
 
 // TODO(kyegupov): make these work in Windows
 test('snyk test command should fail when --file is not specified correctly', (t) => {
@@ -18,6 +23,24 @@ test('snyk test command should fail when --file is not specified correctly', (t)
     );
   });
 });
+
+test(
+  'snyk version command should show cli version or sha',
+  { skip: iswindows },
+  (t) => {
+    t.plan(1);
+    exec(`node ${main} --version`, (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.match(
+        stdout.trim(),
+        ':', // can't guess branch or sha or dirty files, but we do always add `:`
+        'version is shown',
+      );
+    });
+  },
+);
 
 test('snyk test command should fail when --packageManager is not specified correctly', (t) => {
   t.plan(1);

@@ -19,7 +19,7 @@ import * as _ from 'lodash';
 import { exec } from 'child_process';
 import { apiTokenExists } from '../../../lib/api-token';
 import * as auth from '../auth/is-authed';
-import { getVersion } from '../version';
+import getVersion = require('../version');
 import * as allPrompts from './prompts';
 import answersToTasks = require('./tasks');
 import * as snyk from '../../../lib/';
