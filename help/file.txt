@@ -1,10 +1,12 @@
 
 File:
 
-When testing locally, you can specify the file that Snyk should inspect for
+When testing locally or monitoring a project, you can specify the file that Snyk should inspect for
 package information.
 
   $ snyk test --file=package.json
+  or
+  $ snyk monitor --file=package.json
 
 When ommitted Snyk will try to detect the appropriate file for your project by
 looking for files in following order:
