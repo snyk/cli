@@ -129,7 +129,7 @@ Experimental options:
   --detection-depth=<number>
                        (test & monitor commands only)
                        Use with --all-projects to indicate how many sub-directories to search.
-                       Defaults to 1 (the current working directory).
+                       Defaults to 2 (the current working directory and one sub-directory).
   --exclude=<comma seperated list of directory names>
                        (test & monitor commands only)
                        Can only be used with --all-projects to indicate sub-directories to exclude.

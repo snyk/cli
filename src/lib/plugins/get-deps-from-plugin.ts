@@ -24,7 +24,7 @@ export async function getDepsFromPlugin(
   let inspectRes: pluginApi.InspectResult;
 
   if (options.allProjects) {
-    const levelsDeep = options.detectionDepth || 1; // default to 1 level deep
+    const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
     const targetFiles = await find(
       root,
