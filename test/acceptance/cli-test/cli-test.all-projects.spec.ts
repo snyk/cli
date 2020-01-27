@@ -440,5 +440,36 @@ export const AllProjectsTests: AcceptanceTests = {
         t.fail('expected to pass');
       }
     },
+    '`test composer-app --all-projects`': (params, utils) => async (t) => {
+      utils.chdirWorkspaces();
+      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(spyPlugin.restore);
+
+      const result = await params.cli.test('composer-app', {
+        allProjects: true,
+      });
+
+      t.ok(spyPlugin.withArgs('composer').calledOnce, 'calls composer plugin');
+
+      params.server.popRequests(2).forEach((req) => {
+        t.equal(req.method, 'POST', 'makes POST request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+        t.match(req.url, '/api/v1/test', 'posts to correct url');
+      });
+      t.match(
+        result,
+        'Package manager:   composer',
+        'contains package manager composer',
+      );
+      t.match(
+        result,
+        'Target file:       composer.lock',
+        'contains target file composer.lock',
+      );
+    },
   },
 };
