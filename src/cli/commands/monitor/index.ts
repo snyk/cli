@@ -56,7 +56,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   if (typeof args[args.length - 1] === 'object') {
     options = (args.pop() as ArgsOptions) as MonitorOptions;
   }
-
   args = args.filter(Boolean);
 
   // populate with default path (cwd) if no path given
@@ -85,9 +84,15 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     debug(`Processing ${path}...`);
     try {
       await validateMonitorPath(path, options.docker);
-      const guessedPackageManager = detect.detectPackageManager(path, options);
-      const analysisType =
-        (options.docker ? 'docker' : guessedPackageManager) || 'all';
+      let analysisType = 'all';
+      let packageManager;
+      if (options.allProjects) {
+        analysisType = 'all';
+      } else if (options.docker) {
+        analysisType = 'docker';
+      } else {
+        packageManager = detect.detectPackageManager(path, options);
+      }
 
       const targetFile =
         !options.scanAllUnmanaged && options.docker && !options.file // snyk monitor --docker (without --file)
@@ -100,7 +105,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       );
 
       const analyzingDepsSpinnerLabel =
-        'Analyzing ' + analysisType + ' dependencies for ' + displayPath;
+        'Analyzing ' +
+        (packageManager ? packageManager : analysisType) +
+        ' dependencies for ' +
+        displayPath;
 
       await spinner(analyzingDepsSpinnerLabel);
 
@@ -115,7 +123,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         getDepsFromPlugin(path, {
           ...options,
           path,
-          packageManager: guessedPackageManager,
+          packageManager,
         }),
         spinner.clear(analyzingDepsSpinnerLabel),
       );

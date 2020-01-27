@@ -193,6 +193,12 @@ function chooseBestManifest(
       )[0];
       return defaultManifest.path;
     }
+    case 'cocoapods': {
+      const defaultManifest = files.filter((path) =>
+        ['Podfile'].includes(path.base),
+      )[0];
+      return defaultManifest.path;
+    }
     default: {
       return null;
     }
