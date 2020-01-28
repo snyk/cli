@@ -39,6 +39,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'Gemfile.lock',
   'pom.xml',
   'packages.config',
+  'paket.dependencies',
   'project.json',
   'project.assets.json',
   'Podfile',
