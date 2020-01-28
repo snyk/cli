@@ -9,7 +9,7 @@ interface AcceptanceTests {
 }
 
 export const AllProjectsTests: AcceptanceTests = {
-  language: 'Mixed (Ruby & Npm & Maven)',
+  language: 'Mixed',
   tests: {
     '`monitor mono-repo-project with lockfiles --all-projects`': (
       params,
@@ -309,24 +309,174 @@ export const AllProjectsTests: AcceptanceTests = {
       await params.cli.monitor('monorepo-with-nuget/src/cocoapods-app', {
         allProjects: true,
       });
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const [cocoapodsAll] = params.server
-        .popRequests(1)
-        .filter((req) => req.url.includes('/monitor/'));
-
+      const cocoapodsAll = params.server.popRequest();
       // Cocoapods
       await params.cli.monitor('monorepo-with-nuget/src/cocoapods-app', {
         file: 'Podfile',
       });
-      const [requestsCocoapods] = params.server
-        .popRequests(1)
-        .filter((req) => req.url.includes('/monitor/'));
-
+      const requestsCocoapods = params.server.popRequest();
       t.deepEqual(
         cocoapodsAll.body,
         requestsCocoapods.body,
         'Same body for --all-projects and --file=src/cocoapods-app/Podfile',
       );
+    },
+    '`monitor mono-repo-go/hello-dep --all-projects sends same body as --file`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      // mock plugin becuase CI tooling doesn't have go installed
+      const mockPlugin = {
+        async inspect() {
+          return {
+            plugin: {
+              targetFile: 'Gopkg.lock',
+              name: 'snyk-go-plugin',
+              runtime: 'go',
+            },
+            package: {},
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('golangdep').returns(mockPlugin);
+      await params.cli.monitor('mono-repo-go/hello-dep', {
+        allProjects: true,
+      });
+      const allProjectsBody = params.server.popRequest();
+      await params.cli.monitor('mono-repo-go/hello-dep', {
+        file: 'Gopkg.lock',
+      });
+      const fileBody = params.server.popRequest();
+      t.same(
+        allProjectsBody.body,
+        fileBody.body,
+        'Same body for --all-projects and --file=mono-repo-go/hello-dep/Gopkg.lock',
+      );
+    },
+    '`monitor mono-repo-go/hello-mod --all-projects sends same body as --file`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      // mock plugin becuase CI tooling doesn't have go installed
+      const mockPlugin = {
+        async inspect() {
+          return {
+            plugin: {
+              targetFile: 'go.mod',
+              name: 'snyk-go-plugin',
+              runtime: 'go',
+            },
+            package: {},
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('gomodules').returns(mockPlugin);
+      await params.cli.monitor('mono-repo-go/hello-mod', {
+        allProjects: true,
+      });
+      const allProjectsBody = params.server.popRequest();
+      await params.cli.monitor('mono-repo-go/hello-mod', {
+        file: 'go.mod',
+      });
+      const fileBody = params.server.popRequest();
+      t.same(
+        allProjectsBody.body,
+        fileBody.body,
+        'Same body for --all-projects and --file=mono-repo-go/hello-mod/go.mod',
+      );
+    },
+    '`monitor mono-repo-go/hello-vendor --all-projects sends same body as --file`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      // mock plugin becuase CI tooling doesn't have go installed
+      const mockPlugin = {
+        async inspect() {
+          return {
+            plugin: {
+              targetFile: 'vendor/vendor.json',
+              name: 'snyk-go-plugin',
+              runtime: 'go',
+            },
+            package: {},
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('govendor').returns(mockPlugin);
+      await params.cli.monitor('mono-repo-go/hello-vendor', {
+        allProjects: true,
+      });
+      const allProjectsBody = params.server.popRequest();
+      await params.cli.monitor('mono-repo-go/hello-vendor', {
+        file: 'vendor/vendor.json',
+      });
+      const fileBody = params.server.popRequest();
+      t.same(
+        allProjectsBody.body,
+        fileBody.body,
+        'Same body for --all-projects and --file=mono-repo-go/hello-vendor/vendor/vendor.json',
+      );
+    },
+
+    '`monitor mono-repo-go with --all-projects and --detectin-depth=3`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      // mock plugin becuase CI tooling doesn't have go installed
+      const mockPlugin = {
+        async inspect() {
+          return {
+            plugin: {
+              name: 'mock',
+            },
+            package: {},
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('golangdep').returns(mockPlugin);
+      loadPlugin.withArgs('gomodules').returns(mockPlugin);
+      loadPlugin.withArgs('npm').returns(mockPlugin);
+      loadPlugin.withArgs('govendor').returns(mockPlugin);
+      const result = await params.cli.monitor('mono-repo-go', {
+        allProjects: true,
+        detectionDepth: 3,
+      });
+      t.match(result, 'golangdep/some/project-id', 'dep project was monitored');
+      t.match(result, 'gomodules/some/project-id', 'mod project was monitored');
+      t.match(result, 'npm/graph/some/project-id', 'npm project was monitored');
+      t.match(
+        result,
+        'govendor/some/project-id',
+        'vendor project was monitored',
+      );
+      // Pop one extra call to server and filter out call to `featureFlag` endpoint
+      const requests = params.server
+        .popRequests(5)
+        .filter((req) => req.url.includes('/monitor/'));
+      t.equal(requests.length, 4, 'Correct amount of monitor requests');
+
+      requests.forEach((req) => {
+        t.match(req.url, '/monitor/', 'puts at correct url');
+        t.notOk(req.body.targetFile, "doesn't send the targetFile");
+        t.equal(req.method, 'PUT', 'makes PUT request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+      });
     },
   },
 };

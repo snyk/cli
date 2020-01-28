@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "tamKcOZfQ8E90Wg7/5saCnmFS6g=",
+			"path": "github.com/golang/example/stringutil",
+			"revision": "46695d81d1fae905a270fb7db8a4d11a334562fe",
+			"revisionTime": "2017-09-03T07:17:50Z"
+		}
+	],
+	"rootPath": "github.com/gitphill/go-hello-vendor"
+}
