@@ -20,13 +20,13 @@ fi
 
 useradd -o -m -u "${USER_ID}" -d /home/node docker-user 2>/dev/null
 
-runCmdAsDockerUser () {
+runCmdAsDockerUser() {
   su docker-user -m -c "$1"
 
   return $?
 }
 
-exitWithMsg () {
+exitWithMsg() {
   echo "Failed to run the process ..."
 
   if [ -f "$1" ]; then
@@ -46,7 +46,7 @@ exitWithMsg () {
 ## README.md for more info.
 ##
 
-TEST_SETTINGS="";
+TEST_SETTINGS=""
 PROJECT_SUBDIR=""
 
 if [ -n "${TARGET_FILE}" ]; then
@@ -77,11 +77,11 @@ if [ -n "${ENV_FLAGS}" ]; then
   ADDITIONAL_ENV="-- ${ENV_FLAGS}"
 fi
 
-cd "${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" || \
-exitWithMsg "Can't cd to ${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" 1
+cd "${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" ||
+  exitWithMsg "Can't cd to ${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" 1
 
 runCmdAsDockerUser "PATH=${PATH} snyk ${SNYK_COMMAND} ${SNYK_PARAMS} \
-${ADDITIONAL_ENV} > \"${OUTPUT_FILE}\" 2>\"${ERROR_FILE}\""
+${ADDITIONAL_ENV} --json > \"${OUTPUT_FILE}\" 2>\"${ERROR_FILE}\""
 
 RC=$?
 
@@ -101,6 +101,7 @@ fi
 runCmdAsDockerUser "touch \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\""
 
 if [ -n "$MONITOR" ]; then
+  echo "Monitoring & generating report ..."
   runCmdAsDockerUser "PATH=$PATH snyk monitor --json ${SNYK_PARAMS} ${ADDITIONAL_ENV} > ${MONITOR_OUTPUT_FILE} 2>$ERROR_FILE"
   runCmdAsDockerUser "cat ${MONITOR_OUTPUT_FILE} | jq -r \".uri\" | awk '{print \"<center><a target=\\\"_blank\\\" href=\\\"\" \$0 \"\\\">View On Snyk.io</a></center>\"}' > \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\" 2>>\"${ERROR_FILE}\""
 fi
@@ -114,8 +115,6 @@ sed 's/<\/head>/  <link rel=\"stylesheet\" href=\"snyk_report.css\"><\/head>/' \
 
 runCmdAsDockerUser "cat /home/node/snyk_report.css > \
 \"${PROJECT_PATH}/${PROJECT_FOLDER}/snyk_report.css\""
-# fi
-#
 
 if [ $RC -ne "0" ]; then
   exitWithMsg "${OUTPUT_FILE}" "$RC"
