@@ -80,8 +80,8 @@ fi
 cd "${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" ||
   exitWithMsg "Can't cd to ${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" 1
 
-runCmdAsDockerUser "PATH=${PATH} snyk ${SNYK_COMMAND} ${SNYK_PARAMS} \
-${ADDITIONAL_ENV} --json > \"${OUTPUT_FILE}\" 2>\"${ERROR_FILE}\""
+runCmdAsDockerUser "PATH=${PATH} snyk ${SNYK_COMMAND} --json ${SNYK_PARAMS} \
+${ADDITIONAL_ENV} > \"${OUTPUT_FILE}\" 2>\"${ERROR_FILE}\""
 
 RC=$?
 
