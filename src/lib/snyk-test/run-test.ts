@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as debugModule from 'debug';
+import * as pathUtil from 'path';
 import * as moduleToObject from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 
@@ -53,6 +54,7 @@ interface PayloadBody {
   depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
   policy: string;
   targetFile?: string;
+  targetFileRelativePath?: string;
   projectNameOverride?: string;
   hasDevDependencies?: boolean;
   originalProjectName?: string; // used only for display
@@ -353,9 +355,17 @@ async function assembleLocalPayloads(
       const targetFile =
         scannedProject.targetFile || deps.plugin.targetFile || options.file;
 
+      // Forcing options.path to be a string as pathUtil requires is to be stringified
+      const targetFileRelativePath = targetFile
+        ? pathUtil.join(pathUtil.resolve(`${options.path}`), targetFile)
+        : '';
+
       let body: PayloadBody = {
         // WARNING: be careful changing this as it affects project uniqueness
         targetFile: project.plugin.targetFile,
+
+        // TODO: Remove relativePath prop once we gather enough ruby related logs
+        targetFileRelativePath: `${targetFileRelativePath}`, // Forcing string
         projectNameOverride: options.projectName,
         originalProjectName: pkg.name,
         policy: policy && policy.toString(),
