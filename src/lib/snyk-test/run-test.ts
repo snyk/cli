@@ -299,6 +299,22 @@ async function assembleLocalPayloads(
     await spinner(spinnerLbl);
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
+    const javaVersion = _.get(
+      deps.plugin,
+      'meta?.versionBuildInfo?.metaBuildVersion.javaVersion',
+      null,
+    );
+    const mvnVersion = _.get(
+      deps.plugin,
+      'meta?.versionBuildInfo?.metaBuildVersion.mvnVersion',
+      null,
+    );
+    if (javaVersion) {
+      analytics.add('javaVersion', javaVersion);
+    }
+    if (mvnVersion) {
+      analytics.add('mvnVersion', mvnVersion);
+    }
 
     for (const scannedProject of deps.scannedProjects) {
       const pkg = scannedProject.depTree;
