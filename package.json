@@ -10,7 +10,8 @@
     "SECURITY.md",
     "README.md",
     "Contributor-Agreement.md",
-    ".snyk"
+    ".snyk",
+    "configstore-3.1.2-RC1.tgz"
   ],
   "directories": {
     "test": "test"
@@ -64,7 +65,7 @@
     "ansi-escapes": "3.2.0",
     "chalk": "^2.4.2",
     "cli-spinner": "0.2.10",
-    "configstore": "^3.1.2",
+    "configstore": "file:configstore-3.1.2-RC1.tgz",
     "debug": "^3.1.0",
     "diff": "^4.0.1",
     "git-url-parse": "11.1.2",
@@ -126,6 +127,9 @@
     "tslint": "^5.14.0",
     "typescript": "^3.4.1"
   },
+  "bundledDependencies": [
+    "configstore"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/snyk/snyk.git"
