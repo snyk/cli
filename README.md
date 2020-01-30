@@ -213,7 +213,7 @@ docker run -it
 
 ### Docker
 
-[See all snyk/snyk-cli gradle images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=docker)
+[See all snyk/snyk-cli docker images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=docker)
 
 The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
 
