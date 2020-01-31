@@ -301,12 +301,12 @@ async function assembleLocalPayloads(
     analytics.add('pluginName', deps.plugin.name);
     const javaVersion = _.get(
       deps.plugin,
-      'meta?.versionBuildInfo?.metaBuildVersion.javaVersion',
+      'meta.versionBuildInfo.metaBuildVersion.javaVersion',
       null,
     );
     const mvnVersion = _.get(
       deps.plugin,
-      'meta?.versionBuildInfo?.metaBuildVersion.mvnVersion',
+      'meta.versionBuildInfo.metaBuildVersion.mvnVersion',
       null,
     );
     if (javaVersion) {
