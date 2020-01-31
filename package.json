@@ -55,6 +55,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/cli-interface": "2.3.0",
+    "@snyk/configstore": "^3.2.0-rc1",
     "@snyk/dep-graph": "1.13.1",
     "@snyk/gemfile": "1.2.0",
     "@snyk/snyk-cocoapods-plugin": "2.0.1",
@@ -64,7 +65,6 @@
     "ansi-escapes": "3.2.0",
     "chalk": "^2.4.2",
     "cli-spinner": "0.2.10",
-    "configstore": "^3.1.2",
     "debug": "^3.1.0",
     "diff": "^4.0.1",
     "git-url-parse": "11.1.2",
