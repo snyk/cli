@@ -59,6 +59,7 @@
     "@snyk/dep-graph": "1.13.1",
     "@snyk/gemfile": "1.2.0",
     "@snyk/snyk-cocoapods-plugin": "2.0.1",
+    "@snyk/update-notifier": "^2.5.1-rc1",
     "@types/agent-base": "^4.2.0",
     "@types/restify": "^4.3.6",
     "abbrev": "^1.1.1",
@@ -97,7 +98,6 @@
     "strip-ansi": "^5.2.0",
     "tempfile": "^2.0.0",
     "then-fs": "^2.0.0",
-    "update-notifier": "^2.5.0",
     "uuid": "^3.3.2",
     "wrap-ansi": "^5.1.0"
   },

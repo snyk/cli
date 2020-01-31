@@ -4,7 +4,7 @@ const updateCheck = require('../src/lib/updater').updateCheck;
 const fs = require('fs');
 const p = require('path');
 const sinon = require('sinon').createSandbox();
-const updateNotifier = require('update-notifier');
+const updateNotifier = require('@snyk/update-notifier');
 
 // Fake location of the package.json file and verify the code behaves well
 test('missing package.json', (t) => {
