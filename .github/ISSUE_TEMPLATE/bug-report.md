@@ -1,8 +1,8 @@
 ---
-name: ":bug: Bug report"
+name: "\U0001F41B Bug report"
 about: Submit a bug
-title: "[:bug:]"
-labels: ":bug:  bug"
+title: "[\U0001F41B]"
+labels: "\U0001F41B  bug"
 assignees: ''
 ---
 
