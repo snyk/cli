@@ -1,0 +1,44 @@
+FROM openjdk:11-jdk-slim
+
+MAINTAINER Snyk Ltd
+
+RUN mkdir /home/node
+WORKDIR /home/node
+
+# Install sbt, node, cli
+RUN apt-get update && \
+    apt-get install -y curl apt-transport-https git && \
+    curl -L -o sbt-1.3.5.deb https://dl.bintray.com/sbt/debian/sbt-1.3.5.deb && \
+    dpkg -i sbt-1.3.5.deb && \
+    rm sbt-1.3.5.deb && \
+    apt-get update && \
+    apt-get install -y sbt && \
+    sbt sbtVersion && \
+    echo "docker-user ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers  && \
+    mkdir -p /root/.sbt/1.0/plugins  && \
+    mkdir -p /home/node/.sbt/1.0/plugins  && \
+    echo "addSbtPlugin(\"net.virtual-void\" % \"sbt-dependency-graph\" % \"0.9.0\")" >> /root/.sbt/1.0/plugins/plugins.sbt && \
+    echo "addSbtPlugin(\"net.virtual-void\" % \"sbt-dependency-graph\" % \"0.9.0\")" >> /home/node/.sbt/1.0/plugins/plugins.sbt && \
+    echo "addCommandAlias(\"dependency-tree\", \"dependencyTree\")" >> /root/.sbt/1.0/user.sbt && \
+    echo "addCommandAlias(\"dependency-tree\", \"dependencyTree\")" >> /home/node/.sbt/1.0/user.sbt && \
+    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    apt-get install -y nodejs jq && \
+    npm install --global snyk snyk-to-html && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    chmod -R a+wrx /home/node
+
+ENV HOME /home/node
+ENV M2 /home/node/.m2
+
+# The path at which the project is mounted (-v runtime arg)
+ENV PROJECT_PATH /project
+
+COPY docker-entrypoint.sh .
+COPY snyk_report.css .
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
+# Default command is `snyk test`
+# Override with `docker run ... snyk/snyk-cli <command> <args>`
+CMD ["test"]
