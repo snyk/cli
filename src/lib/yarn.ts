@@ -1,9 +1,16 @@
-module.exports = yarn;
+import * as Debug from 'debug';
+import { exec } from 'child_process';
+import { CustomError } from './errors';
 
-const debug = require('debug')('snyk');
-const exec = require('child_process').exec;
+const debug = Debug('snyk');
 
-function yarn(method, packages, live, cwd, flags) {
+export function yarn(
+  method: string,
+  packages: string[],
+  live: boolean,
+  cwd: string,
+  flags: string[],
+) {
   flags = flags || [];
   if (!packages) {
     packages = [];
@@ -30,7 +37,7 @@ function yarn(method, packages, live, cwd, flags) {
     exec(
       cmd,
       {
-        cwd: cwd,
+        cwd,
       },
       (error, stdout, stderr) => {
         if (error) {
@@ -39,8 +46,9 @@ function yarn(method, packages, live, cwd, flags) {
 
         if (stderr.indexOf('ERR!') !== -1) {
           console.error(stderr.trim());
-          const e = new Error('Yarn update issues: ' + stderr.trim());
-          e.code = 'FAIL_UPDATE';
+          const e = new CustomError('Yarn update issues: ' + stderr.trim());
+          e.strCode = 'FAIL_UPDATE';
+          e.code = 422;
           return reject(e);
         }
 
