@@ -36,4 +36,4 @@ snyk.isolate = {
 };
 
 // this is the user config, and not the internal config
-snyk.config = require('./user-config');
+snyk.config = require('./user-config').config;
