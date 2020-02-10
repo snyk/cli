@@ -1,7 +1,11 @@
-const childProcess = require('child_process');
+import * as childProcess from 'child_process';
 
-module.exports.execute = function(command, args, options) {
-  const spawnOptions = { shell: true };
+export function execute(
+  command: string,
+  args: string[],
+  options?: { cwd: string },
+): Promise<string> {
+  const spawnOptions: childProcess.SpawnOptions = { shell: true };
   if (options && options.cwd) {
     spawnOptions.cwd = options.cwd;
   }
@@ -25,4 +29,4 @@ module.exports.execute = function(command, args, options) {
       resolve(stdout || stderr);
     });
   });
-};
+}

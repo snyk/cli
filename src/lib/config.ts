@@ -1,5 +1,5 @@
 import * as snykConfig from 'snyk-config';
-import * as userConfig from './user-config';
+import { config as userConfig } from './user-config';
 import * as url from 'url';
 
 const DEFAULT_TIMEOUT = 5 * 60; // in seconds

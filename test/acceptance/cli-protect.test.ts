@@ -1,6 +1,6 @@
 import { test } from 'tap';
 import { exec } from 'child_process';
-import * as userConfig from '../../src/lib/user-config';
+import { config as userConfig } from '../../src/lib/user-config';
 import { sep } from 'path';
 import * as tap from 'tap';
 import * as path from 'path';

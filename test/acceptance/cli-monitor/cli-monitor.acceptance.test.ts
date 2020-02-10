@@ -7,7 +7,7 @@ import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
 import { getVersion } from '../../../src/lib/version';
-import * as userConfig from '../../../src/lib/user-config';
+import { config as userConfig } from '../../../src/lib/user-config';
 import { chdirWorkspaces, getWorkspaceJSON } from '../workspace-helper';
 import * as _ from 'lodash';
 
