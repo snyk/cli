@@ -9,7 +9,7 @@ const moduleToObject = require('snyk-module');
 const semver = require('semver');
 const errors = require('../errors/legacy-errors');
 const npm = require('../npm');
-const yarn = require('../yarn');
+const { yarn } = require('../yarn');
 const spinner = require('../spinner');
 const analytics = require('../analytics');
 
