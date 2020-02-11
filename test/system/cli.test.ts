@@ -5,6 +5,9 @@ import { makeTmpDirectory, silenceLog } from '../utils';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
 import * as policy from 'snyk-policy';
+import * as fs from 'fs';
+import * as path from 'path';
+
 import stripAnsi from 'strip-ansi';
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
@@ -188,7 +191,12 @@ test('snyk ignore - default options', async (t) => {
       id: 'ID3',
       'policy-path': dir,
     });
+    console.log('Pre load');
+    console.log({ dir });
+    console.log({ dirResolve: path.resolve(dir, '.snyk') });
+    console.log({ dir: fs.readdirSync(dir) });
     const pol = await policy.load(dir);
+    console.log('post load');
     t.true(pol.ignore.ID3, 'policy ID written correctly');
     t.is(
       pol.ignore.ID3[0]['*'].reason,
@@ -203,6 +211,7 @@ test('snyk ignore - default options', async (t) => {
       'policy (default) expiry wirtten correctly',
     );
   } catch (e) {
+    console.log(e);
     t.fail(e, 'ignore should succeed');
   }
 });

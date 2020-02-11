@@ -71,7 +71,9 @@ function ignore(options) {
               },
             },
           ];
+          // console.log('pre save');
           policy.save(pol, options['policy-path']);
+          // console.log('post save');
         });
     });
 }

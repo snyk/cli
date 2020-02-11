@@ -1,0 +1,105 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0
+
+defaults: &defaults
+  executor:
+    name: win/default
+  working_directory: ~/snyk
+
+commands:
+  install_deps:
+    description: Install dependencies
+    steps:
+      - checkout
+      - run:
+          name: Use snyk-main npmjs user
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+      - run:
+          name: Install dependencies
+          command: npm install
+  build_ts:
+    description: Build js files from ts
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/
+  install_maven:
+      description: Install maven
+      steps:
+        - run: choco install maven
+
+jobs:
+  test_12:
+    <<: *defaults
+    environment:
+      NODE_ENV: development
+    steps:
+      - run: git config --global core.autocrlf false
+      - install_maven
+      - checkout
+      - attach_workspace:
+          at: ~/snyk
+      - install_deps
+      - build_ts
+      - run:
+          name: Node version
+          command: node --version
+      - run:
+          name: npm version
+          command: npm --version
+      - run:
+          name: Run auth
+          command: npm run snyk-auth-windows
+      - run:
+          name: Run tests
+          command: npm run test-windows
+  test_10:
+    <<: *defaults
+    environment:
+      NODE_ENV: development
+    steps:
+      - run: git config --global core.autocrlf false
+      - install_maven
+      - checkout
+      - attach_workspace:
+          at: ~/snyk
+      - run:
+          name: Install compatible npm version
+          command: npm install -g npm@5.8.0
+      - run:
+          name: Install Node 10
+          command: nvm install 10
+      - run:
+          name: Use Node 10
+          command: nvm use 10
+      - install_deps
+      - build_ts
+      - run:
+          name: Node version
+          command: node --version
+      - run:
+          name: npm version
+          command: npm --version
+      - run:
+          name: Run auth
+          command: npm run snyk-auth-windows
+      - run:
+          name: Run tests
+          command: npm run test-windows
+workflows:
+  version: 2
+  test_and_release:
+    jobs:
+      - test_12:
+          name: Test Node v12
+          context: nodejs-install
+      - test_10:
+          name: Test Node v10
+          context: nodejs-install

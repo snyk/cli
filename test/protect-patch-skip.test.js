@@ -11,7 +11,7 @@ test('patch is correctly applied', (t) => {
   const version = '4.17.13';
 
   const dir = path.resolve(__dirname, 'fixtures/protect');
-  npm('install', name + '@' + version, dir)
+  npm('install --no-package-lock', name + '@' + version, dir)
     .then(() => {
       debug('installing to %s', dir);
       return protect.patch(vulns, true, dir).then(() => {
