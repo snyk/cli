@@ -1,5 +1,5 @@
 const protect = (module.exports = {
-  ignore: require('./ignore'),
+  ignore: require('./ignore').ignore,
   update: require('./update').update,
   install: require('./update').install,
   installDev: require('./update').installDev,
