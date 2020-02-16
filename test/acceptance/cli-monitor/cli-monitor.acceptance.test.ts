@@ -205,7 +205,7 @@ test('`monitor npm-out-of-sync graph monitor`', async (t) => {
   });
   const req = server.popRequest();
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-  t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
+  t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
   t.deepEqual(
     req.body.meta.missingDeps,
     ['body-parser@^1.18.2'],
@@ -252,7 +252,7 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies --experime
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-  t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
+  t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
 });
 
 test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
@@ -264,7 +264,7 @@ test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-  t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
+  t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
 });
 
 test('`monitor npm-package-pruneable experimental for no-flag org`', async (t) => {
@@ -306,7 +306,7 @@ test('`monitor sbt package --experimental-dep-graph --sbt-graph`', async (t) => 
   const req = server.popRequest();
   t.equal(req.method, 'PUT', 'makes PUT request');
   t.match(req.url, '/monitor/sbt/graph', 'puts at correct url');
-  t.ok(req.body.depGraphJSON, 'sends depGraphJSON');
+  t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
   if (process.platform === 'win32') {
     t.true(
       req.body.targetFileRelativePath.endsWith(
