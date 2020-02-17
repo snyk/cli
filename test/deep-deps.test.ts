@@ -15,8 +15,6 @@ test('finds all sub-dependencies', async (t) => {
       'marked has no dependencies',
     );
   } catch (e) {
-    t.fail(e.message);
-    console.log(e.stack);
-    t.bailout();
+    t.fail('Should have passed: ' + e);
   }
 });

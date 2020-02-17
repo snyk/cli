@@ -1,10 +1,7 @@
 import * as fs from 'fs';
 import * as sinon from 'sinon';
 import { AcceptanceTests } from './cli-test.acceptance.test';
-
-function loadJson(filename: string) {
-  return JSON.parse(fs.readFileSync(filename, 'utf-8'));
-}
+import { loadJson } from '../../utils';
 
 export const PythonTests: AcceptanceTests = {
   language: 'Python',

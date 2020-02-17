@@ -1,5 +1,5 @@
 var protect = require('../src/lib/protect');
-var test = require('tape');
+var test = require('tap').test;
 var plan = require('./fixtures/protect-interactive.json');
 var expected = require('./fixtures/protect-interactive-config.json');
 

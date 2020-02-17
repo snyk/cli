@@ -1,4 +1,4 @@
-var test = require('tape');
+var test = require('tap').test;
 var path = require('path');
 var snyk = require('../src/lib');
 

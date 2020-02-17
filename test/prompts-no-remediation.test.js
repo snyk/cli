@@ -1,4 +1,4 @@
-var test = require('tape');
+var test = require('tap').test;
 var getPrompts = require('../src/cli/commands/protect/prompts').getPrompts;
 var vulns = require('./fixtures/test-jsbin-vulns-updated.json').vulnerabilities;
 
