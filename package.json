@@ -102,7 +102,6 @@
     "wrap-ansi": "^5.1.0"
   },
   "devDependencies": {
-    "@types/chalk": "^2.2.0",
     "@types/diff": "^3.5.2",
     "@types/lodash": "^4.14.136",
     "@types/needle": "^2.0.4",
