@@ -1,0 +1,108 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0
+
+defaults: &defaults
+  environment:
+    npm_config_loglevel: silent
+  parameters:
+    node_version:
+      type: string
+      default: ""
+  executor:
+    name: win/default
+  working_directory: ~/snyk
+
+commands:
+  install_deps:
+    description: Install dependencies
+    steps:
+      - checkout
+      - run:
+          name: Use snyk-main npmjs user
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+      - run:
+          name: Install dependencies
+          command: npm install
+  build_ts:
+    description: Build js files from ts
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/
+  install_maven:
+    description: Install maven
+    steps:
+      - run: choco install maven
+  install_node_npm:
+    description: Install correct Node version
+    parameters:
+      node_version:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Install correct version of Node
+          command: nvm install << parameters.node_version >>
+      - run:
+          name: Use correct version of Node
+          command: nvm use << parameters.node_version >>
+  show_node_version:
+    description: Log Node and npm version
+    steps:
+      - run:
+          name: Node version
+          command: node --version
+      - run:
+          name: NPM version
+          command: npm --version
+
+jobs:
+  test-all:
+    <<: *defaults
+    steps:
+      - run: git config --global core.autocrlf false
+      - install_maven
+      - install_node_npm:
+          node_version: << parameters.node_version >>
+      - show_node_version
+      - checkout
+      - attach_workspace:
+          at: ~/snyk
+      - install_deps
+      - build_ts
+      - run:
+          name: npm version
+          command: npm --version
+      - run:
+          name: Run auth
+          command: npm run snyk-auth-windows
+      - run:
+          name: Run tests
+          command: npm run test-windows
+workflows:
+  version: 2
+  test_and_release:
+    jobs:
+      - test-all:
+          name: Test Node v12
+          context: nodejs-install
+          node_version: "12.0.0"
+      - test-all:
+          name: Test Node v10
+          context: nodejs-install
+          node_version: "10.0.0"
+      - test-all:
+          name: Test Node v8
+          context: nodejs-install
+          node_version: "8.17.0"
+      - test-all:
+          name: Test Node v6
+          context: nodejs-install
+          node_version: "6.17.1"
