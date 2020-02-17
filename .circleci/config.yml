@@ -1,0 +1,101 @@
+version: 2.1
+
+orbs:
+  win: circleci/windows@2.2.0
+
+defaults: &defaults
+  executor:
+    name: win/default
+  working_directory: ~/snyk
+
+commands:
+  install_deps:
+    description: Install dependencies
+    steps:
+      - checkout
+      - run:
+          name: Use snyk-main npmjs user
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+      - run:
+          name: Install dependencies
+          command: npm install
+  build_ts:
+    description: Build js files from ts
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/
+  install_maven:
+      description: Install maven
+      steps:
+        - run: choco install maven
+  show_node_version:
+    description: log Node version
+    steps:
+      - run: node --version
+  show_npm_version:
+    description: log npm version
+    steps:
+      - run: npm -v
+  snyk_auth_windows:
+    description: Authenticate w/ Snyk server
+    steps:
+      - run:
+          name: Snyk auth Windows
+          command: npm run snyk-auth-windows
+  install_nvm:
+    description: Install nvm
+    steps:
+      - run: choco install -y nvm
+  install_node_version:
+    parameters:
+      version:
+        type: integer
+    description: Install node
+    steps:
+      - run: nvm install << parameters.version >>
+  run_windows_tests:
+    description: Run 'npm run test-windows'
+    steps:
+      - run: npm run test-windows
+
+jobs:
+  test-all:
+    <<: *defaults
+    parameters:
+      version:
+        type: integer
+        default: 12
+    steps:
+      - run: git config --global core.autocrlf false
+      - install_maven
+      - install_node_version:
+          version: << parameters.version >>
+      - checkout
+      - attach_workspace:
+          at: ~/snyk
+      - install_nvm
+      - show_node_version
+      - show_npm_version
+      - install_deps
+      - build_ts
+      - snyk_auth_windows
+      - run_windows_tests
+
+workflows:
+  version: 2
+  test_and_release:
+    jobs:
+      - test-all:
+          name: Test Node v12
+          context: nodejs-install
+          version: 12
+      - test-all:
+          name: Test Node v10
+          context: nodejs-install
+          version: 10

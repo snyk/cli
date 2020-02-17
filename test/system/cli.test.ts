@@ -154,8 +154,12 @@ test('snyk ignore - all options', async (t) => {
       expiry: new Date('2017-10-07'),
       'policy-path': dir,
     });
-    const pol = await policy.load(dir);
-    t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
+
+    // TODO: remove me!
+    setTimeout(async () => {
+      const pol = await policy.load(dir);
+      t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
+    }, 1000);
   } catch (err) {
     t.throws(err, 'ignore should succeed');
   }
