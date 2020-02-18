@@ -62,7 +62,7 @@ function ignore(options) {
           }
           throw Error('policyFile');
         })
-        .then(function ignoreIssue(pol) {
+        .then(async function ignoreIssue(pol) {
           pol.ignore[options.id] = [
             {
               '*': {
@@ -71,7 +71,7 @@ function ignore(options) {
               },
             },
           ];
-          policy.save(pol, options['policy-path']);
+          return await policy.save(pol, options['policy-path']);
         });
     });
 }
