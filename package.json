@@ -54,7 +54,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/cli-interface": "2.3.0",
+    "@snyk/cli-interface": "2.3.2",
     "@snyk/configstore": "^3.2.0-rc1",
     "@snyk/dep-graph": "1.13.1",
     "@snyk/gemfile": "1.2.0",

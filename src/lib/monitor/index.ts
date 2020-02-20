@@ -9,7 +9,7 @@ import * as os from 'os';
 import * as _ from 'lodash';
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
-import { DepTree, MonitorMeta, MonitorResult, PluginMetadata } from '../types';
+import { DepTree, MonitorMeta, MonitorResult } from '../types';
 import * as projectMetadata from '../project-metadata';
 import * as path from 'path';
 import {
@@ -25,6 +25,7 @@ import { filterOutMissingDeps } from './filter-out-missing-deps';
 import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
 import { pluckPolicies } from '../policy';
+import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 
 const debug = Debug('snyk');
 
