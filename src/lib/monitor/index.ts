@@ -1,6 +1,5 @@
 import * as Debug from 'debug';
 import * as depGraphLib from '@snyk/dep-graph';
-import * as cliInterface from '@snyk/cli-interface';
 import * as snyk from '..';
 import { apiTokenExists } from '../api-token';
 import request = require('../request');
@@ -11,7 +10,7 @@ import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
 import { DepTree, MonitorMeta, MonitorResult } from '../types';
 import * as projectMetadata from '../project-metadata';
-import * as path from 'path';
+
 import {
   MonitorError,
   ConnectionTimeoutError,
@@ -26,6 +25,7 @@ import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
 import { pluckPolicies } from '../policy';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
+import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
 const debug = Debug('snyk');
 
@@ -62,7 +62,7 @@ interface Meta {
 export async function monitor(
   root: string,
   meta: MonitorMeta,
-  scannedProject: cliInterface.legacyCommon.ScannedProject,
+  scannedProject: ScannedProject,
   options,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
@@ -166,6 +166,9 @@ export async function monitor(
             projectName: meta['project-name'],
             prePruneDepCount, // undefined unless 'prune' is used,
             monitorGraph: false,
+            versionBuildInfo: JSON.stringify(
+              scannedProject.meta?.versionBuildInfo,
+            ),
           },
           policy: policy ? policy.toString() : undefined,
           package: pkg,
@@ -210,7 +213,7 @@ export async function monitor(
 export async function monitorGraph(
   root: string,
   meta: MonitorMeta,
-  scannedProject: cliInterface.legacyCommon.ScannedProject,
+  scannedProject: ScannedProject,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
 ): Promise<MonitorResult> {
