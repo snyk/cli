@@ -3,19 +3,6 @@ import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { SEVERITY } from './snyk-test/legacy';
 import { FailOn } from './snyk-test/common';
 
-export interface PluginMetadata {
-  name: string;
-  packageFormatVersion?: string;
-  packageManager: SupportedPackageManagers;
-  imageLayers?: any;
-  targetFile?: string; // this is wrong (because Shaun said it)
-  runtime?: any;
-  dockerImageId: any;
-  meta?: {
-    allSubProjectNames: string[]; // To warn the user about subprojects not being scanned
-  };
-}
-
 export interface DepDict {
   [name: string]: DepTree;
 }

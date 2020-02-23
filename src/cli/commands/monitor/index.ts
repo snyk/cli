@@ -10,7 +10,6 @@ import {
   MonitorOptions,
   MonitorMeta,
   MonitorResult,
-  PluginMetadata,
   Options,
 } from '../../../lib/types';
 import * as config from '../../../lib/config';
@@ -31,6 +30,7 @@ import { extractPackageManager } from '../../../lib/plugins/extract-package-mana
 import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-result';
 import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
 import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
+import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
