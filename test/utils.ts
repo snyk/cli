@@ -1,6 +1,6 @@
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { mkdir } from 'fs';
+import { mkdir, readFileSync } from 'fs';
 
 export function silenceLog() {
   const old = console.log;
@@ -45,4 +45,8 @@ export async function makeTmpDirectory(): Promise<string> {
         .substr(2, 12),
   );
   return makeDirectory(dirname);
+}
+
+export function loadJson(filename: string) {
+  return JSON.parse(readFileSync(filename, 'utf-8'));
 }

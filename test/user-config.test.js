@@ -1,4 +1,4 @@
-var test = require('tape');
+var test = require('tap').test;
 var config = require('../src/cli/commands/config');
 
 test('can unset config values', function(t) {

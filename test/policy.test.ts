@@ -1,5 +1,5 @@
 import * as policy from 'snyk-policy';
-import * as test from 'tape';
+import { test } from 'tap';
 import { extendExpiries } from './utils';
 import * as path from 'path';
 
