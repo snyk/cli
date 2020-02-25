@@ -30,10 +30,14 @@ test('wizard prompts as expected', async (tapTest) => {
       false,
     ];
 
-    const vulns = require(__dirname + '/fixtures/oui.json');
+    const vulns = JSON.parse(
+      fs.readFileSync(path.resolve(__dirname, './fixtures/oui.json'), 'utf-8'),
+    );
 
     try {
-      await interactive(vulns, responses);
+      const res = await interactive(vulns, responses);
+      t.equal(res['misc-add-test'], false, 'should be false');
+      t.equal(res['misc-add-protect'], false, 'should be false');
     } catch (e) {
       t.threw(e);
     }
@@ -105,7 +109,8 @@ test('wizard supports review and ignore (SC-943)', async (t) => {
   );
 
   try {
-    await interactive(vulns, responses, { earlyExit: true });
+    const res = await interactive(vulns, responses, { earlyExit: true });
+    t.equal(res['npm:uglify-js:20150824-u1'].choice, 'ignore');
   } catch (e) {
     t.threw(e);
   }
