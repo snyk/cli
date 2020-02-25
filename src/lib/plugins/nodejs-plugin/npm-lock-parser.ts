@@ -33,10 +33,10 @@ export async function parse(
 
   if (fs.existsSync(shrinkwrapFullPath)) {
     throw new Error(
-      '`npm-shrinkwrap.json` was found while using lockfile.\n' +
-        'Please run your command again without `--file=' +
-        targetFile +
-        '` flag.',
+      'Both `npm-shrinkwrap.json` and `package-lock.json` were found in ' +
+        fullPath.dir +
+        '.\n' +
+        'Please run your command again specifying `--file=package.json` flag.',
     );
   }
 
