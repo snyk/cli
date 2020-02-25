@@ -39,6 +39,11 @@ const patchableResult = getWorkspaceJSON(
   'patchable',
   'vulns-result.json',
 );
+const multiSeveritiesResult = getWorkspaceJSON(
+  'fail-on',
+  'multiple-severities',
+  'vulns-result.json',
+);
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -390,6 +395,26 @@ test('test project with no vulns and --fail-on=patchable --json', async (t) => {
     t.pass('should not throw exception');
   } catch (err) {
     t.fail('did not expect exception to be thrown ' + err);
+  }
+});
+
+test('test project with multiple severities with upgrade and patch with --fail-on=patchable and --severity=high', async (t) => {
+  try {
+    server.setNextResponse(multiSeveritiesResult);
+    chdirWorkspaces('fail-on');
+    await cli.test('multiple-severities', {
+      failOn: 'upgradable',
+      severityThreshold: 'high',
+    });
+    t.fail('expected test to throw exception');
+  } catch (err) {
+    t.match(err, /Patchable issues/, 'should show patchable issues');
+    t.notMatch(
+      err,
+      /Issues to fix by upgrading/,
+      'should not show upgradable issues',
+    );
+    t.equal(err.code, 'VULNS', 'should throw exception');
   }
 });
 

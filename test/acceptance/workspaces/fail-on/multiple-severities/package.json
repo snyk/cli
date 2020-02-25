@@ -1,0 +1,10 @@
+{
+  "name": "upgradable-app",
+  "version": "1.0.0",
+  "description": "multiple severity vulns that are upgradable",
+  "dependencies": {
+    "yarn": "1.17.1",
+    "ms": "^1.0.0"
+  },
+  "devDependencies": {}
+}
