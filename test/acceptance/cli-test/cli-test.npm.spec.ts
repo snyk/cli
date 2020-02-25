@@ -208,7 +208,7 @@ export const NpmTests: AcceptanceTests = {
       } catch (e) {
         t.includes(
           e.message,
-          '--file=package-lock.json',
+          '--file=package.json',
           'Contains enough info about err',
         );
       }
