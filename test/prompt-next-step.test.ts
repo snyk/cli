@@ -1,8 +1,9 @@
-var test = require('tap').test;
-var prompts = require('../src/cli/commands/protect/prompts').nextSteps;
+import { test } from 'tap';
 
-test('wizard next steps include protect correctly', function(t) {
-  var res = prompts({}, false);
+import { nextSteps as prompts } from '../src/cli/commands/protect/prompts';
+
+test('wizard next steps include protect correctly', async (t) => {
+  let res = prompts({}, false);
 
   t.equal(res.length, 1, 'contains 1 entry');
   t.equal(res[0].name, 'misc-add-test', 'only entry is test');
@@ -75,6 +76,4 @@ test('wizard next steps include protect correctly', function(t) {
   );
 
   t.equal(res.length, 0, 'no next steps');
-
-  t.end();
 });
