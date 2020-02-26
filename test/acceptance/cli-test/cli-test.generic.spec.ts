@@ -40,28 +40,25 @@ export const GenericTests: AcceptanceTests = {
       } catch (err) {
         t.equal(
           err.userMessage,
-          'Could not test npm-package, please check that the version and name are correct. See more details on what is supported `snyk help`',
-          'got error message',
+          'Could not test npm-package, \nplease check that the version and name are correct. See more details on what is supported `snyk help`',
+          'got correct err message',
         );
       }
       t.end();
     },
 
-    'userMessage correctly bubbles with github repository': (
+    'userMessage correctly bubbles with everything other than npm': (
       params,
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
       try {
-        await params.cli.test(
-          'https://github.com/snyk/python-goof-not-exists',
-          { org: 'missing-org' },
-        );
+        await params.cli.test('ruby-app', { org: 'missing-org' });
         t.fail('expect to err');
       } catch (err) {
         t.equal(
           err.userMessage,
-          'Could not test https://github.com/snyk/python-goof-not-exists, please try it on `https://snyk.io/test/`. See more details on what is supported `snyk help',
+          'Could not test ruby-app, \nplease check that the version and name are correct. See more details on what is supported `snyk help`',
           'got correct err message',
         );
       }
