@@ -1,18 +1,16 @@
 import { CustomError } from './custom-error';
-import chalk from 'chalk';
 
 const errorNpmMessage =
-  '\nplease check that the version and name are correct. See more details on what is supported `snyk help`';
+  'Please check the version and package name and try running `snyk test` again.\nFor additional assistance, run `snyk help` or check out our docs \n(link to: https://support.snyk.io/hc/en-us/articles/360003851277#UUID-ba99a73f-110d-1f1d-9e7a-1bad66bf0996).';
 const errorRepositoryMessage =
-  `\nplease try it on ${chalk.underline('`https://snyk.io/test/`')}` +
-  '. See more details on what is supported `snyk help`';
+  'Try testing this repository at https://snyk.io/test/.\nFor additional assistance, run `snyk help` or check out our docs \n(link to: https://support.snyk.io/hc/en-us/articles/360003851277#UUID-ba99a73f-110d-1f1d-9e7a-1bad66bf0996).';
 
 export function FailedToGetVulnsFromUnavailableResource(
   root: string,
   statusCode: number,
 ): CustomError {
   const isRepository = root.startsWith('http' || 'https');
-  const errorMsg = `Could not test ${root}, ${
+  const errorMsg = `We couldn't test ${root}. ${
     isRepository ? errorRepositoryMessage : errorNpmMessage
   }`;
   const error = new CustomError(errorMsg);
