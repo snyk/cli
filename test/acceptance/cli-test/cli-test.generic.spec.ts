@@ -40,7 +40,7 @@ export const GenericTests: AcceptanceTests = {
       } catch (err) {
         t.equal(
           err.userMessage,
-          'cli error message',
+          "We couldn't test npm-package. Please check the version and package name and try running `snyk test` again.\nFor additional assistance, run `snyk help` or check out our docs \n(link to: https://support.snyk.io/hc/en-us/articles/360003851277#UUID-ba99a73f-110d-1f1d-9e7a-1bad66bf0996).",
           'got correct err message',
         );
       }
@@ -58,7 +58,7 @@ export const GenericTests: AcceptanceTests = {
       } catch (err) {
         t.equal(
           err.userMessage,
-          'cli error message',
+          "We couldn't test ruby-app. Please check the version and package name and try running `snyk test` again.\nFor additional assistance, run `snyk help` or check out our docs \n(link to: https://support.snyk.io/hc/en-us/articles/360003851277#UUID-ba99a73f-110d-1f1d-9e7a-1bad66bf0996).",
           'got correct err message',
         );
       }

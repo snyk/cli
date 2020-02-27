@@ -19,6 +19,7 @@ import {
   InternalServerError,
   NoSupportedManifestsFoundError,
   FailedToGetVulnerabilitiesError,
+  FailedToGetVulnsFromUnavailableResource,
   FailedToRunTestError,
 } from '../errors';
 import * as snyk from '../';
@@ -204,8 +205,18 @@ async function runTest(
     debug('Error running test', { error });
     // handling denial from registry because of the feature flag
     // currently done for go.mod
-    if (error.code === 403 && error.message.includes('Feature not allowed')) {
+    const isFeatureNotAllowed =
+      error.code === 403 && error.message.includes('Feature not allowed');
+
+    const hasFailedToGetVulnerabilities =
+      error.code === 404 &&
+      error.name.includes('FailedToGetVulnerabilitiesError');
+
+    if (isFeatureNotAllowed) {
       throw NoSupportedManifestsFoundError([root]);
+    }
+    if (hasFailedToGetVulnerabilities) {
+      throw FailedToGetVulnsFromUnavailableResource(root, error.code);
     }
 
     throw new FailedToRunTestError(
