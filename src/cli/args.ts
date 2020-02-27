@@ -42,6 +42,7 @@ export type Method = (...args: MethodArgs) => Promise<string>;
 export interface Args {
   command: string;
   method: Method; // command resolved to a function
+  python: string;
   options: ArgsOptions;
 }
 
@@ -143,6 +144,8 @@ export function args(rawArgv: string[]): Args {
     argv._.unshift(tmp.shift()!);
   }
 
+  const python = argv.python as string; // can actually be undefined
+
   let method: () => Promise<string> = cli[command];
 
   if (!method) {
@@ -221,6 +224,7 @@ export function args(rawArgv: string[]): Args {
   return {
     command,
     method,
+    python,
     options: argv,
   };
 }

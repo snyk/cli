@@ -78,6 +78,27 @@ test('test command line test --gradle-sub-project=foo', (t) => {
   t.end();
 });
 
+test('test command line test --python=2', (t) => {
+  const cliArgs = ['node', '$SNYK_CLI_LOCAL_DIST', '--python=2', 'test'];
+  const result = args(cliArgs);
+  t.equal(result.python, '2');
+  t.end();
+});
+
+test('test command line test --python=3', (t) => {
+  const cliArgs = ['node', '$SNYK_CLI_LOCAL_DIST', '--python=3', 'test'];
+  const result = args(cliArgs);
+  t.equal(result.python, '3');
+  t.end();
+});
+
+test('test command line test --python=maven does not work if pass wrong arg', (t) => {
+  const cliArgs = ['node', '$SNYK_CLI_LOCAL_DIST', '--python=maven', 'test'];
+  const result = args(cliArgs);
+  t.notEqual(result.python, '2' || '3');
+  t.end();
+});
+
 test('test command line test --strict-out-of-sync', (t) => {
   const cliArgs = [
     '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
