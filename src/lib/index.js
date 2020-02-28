@@ -24,16 +24,9 @@ Object.defineProperty(snyk, 'api', {
   },
 });
 
-snyk.modules = require('./modules');
 snyk.test = require('./snyk-test');
-snyk.bus = require('./bus');
 snyk.policy = require('snyk-policy');
 snyk.isRequired = true; // changed to false when loaded via cli
-snyk.isolate = {
-  okay: function() {
-    return true;
-  },
-};
 
 // this is the user config, and not the internal config
 snyk.config = require('./user-config').config;
