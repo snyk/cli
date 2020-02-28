@@ -183,20 +183,6 @@ test('bad command with string error', (t) => {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
-
-    './args': proxyquire('../src/cli/args', {
-      './commands': proxyquire('../src/cli/commands', {
-        '../../lib/hotload': proxyquire('../src/lib/hotload', {
-          // windows-based testing uses windows path separator
-          '..\\cli\\commands\\test'() {
-            return Promise.reject(error);
-          },
-          '../cli/commands/test'() {
-            return Promise.reject(error);
-          },
-        }),
-      }),
-    }),
   });
 
   return cli.then(() => {
@@ -217,20 +203,6 @@ test('vulns found (thrown as an error)', (t) => {
   const cli = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
-    }),
-
-    './args': proxyquire('../src/cli/args', {
-      './commands': proxyquire('../src/cli/commands', {
-        '../../lib/hotload': proxyquire('../src/lib/hotload', {
-          // windows-based testing uses windows path separator
-          '..\\cli\\commands\\test'() {
-            return Promise.reject(error);
-          },
-          '../cli/commands/test'() {
-            return Promise.reject(error);
-          },
-        }),
-      }),
     }),
   });
 
@@ -258,17 +230,6 @@ test('test includes data', { skip: iswindows }, (t) => {
 
   const cli = proxyquire('../src/cli', {
     '../lib/analytics': analytics,
-    './args': proxyquire('../src/cli/args', {
-      './commands': proxyquire('../src/cli/commands', {
-        '../../lib/hotload': proxyquire('../src/lib/hotload', {
-          '../cli/commands/test': proxyquire('../src/lib/snyk-test', {
-            './run-test': proxyquire('../src/lib/snyk-test/run-test', {
-              '../analytics': analytics,
-            }),
-          }),
-        }),
-      }),
-    }),
   });
 
   return cli.then(() => {
