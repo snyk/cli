@@ -123,8 +123,11 @@ CocoaPods options:
                        Prevent testing out of sync lockfiles. Defaults to false.
 
 Python options:
-  --command=<string>   Python interpreter to use. Default: "python", set to
-                       "python2" or "python3" to use a specific version.
+  --command=<string>   Python command to use. 
+                       The default is 'python' which will execute your systems default python version.
+                       Run 'python -V' to find out what version that is. 
+                       If you are using multiple Python versions, or you aliased your Python command, for example to python2 or python3, 
+                       use this parameter to specify the correct Python command for execution e.g. `--command=python3`.
   --skip-unresolved=<true|false>
                        Allow skipping packages that are not found
                        in the environment.
