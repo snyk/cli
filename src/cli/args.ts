@@ -153,15 +153,9 @@ export function args(rawArgv: string[]): Args {
 
   // TODO decide why we can't do this cart blanche...
   if (
-    [
-      'protect',
-      'test',
-      'modules',
-      'monitor',
-      'wizard',
-      'ignore',
-      'woof',
-    ].indexOf(command) !== -1
+    ['protect', 'test', 'monitor', 'wizard', 'ignore', 'woof'].indexOf(
+      command,
+    ) !== -1
   ) {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
