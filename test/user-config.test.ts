@@ -1,8 +1,8 @@
-var test = require('tap').test;
-var config = require('../src/cli/commands/config');
+import { test } from 'tap';
+import * as config from '../src/cli/commands/config';
 
-test('can unset config values', function(t) {
-  var before = null;
+test('can unset config values', (t) => {
+  let before = null;
 
   t.plan(6);
 
