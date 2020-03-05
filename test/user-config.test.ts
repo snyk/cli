@@ -1,16 +1,14 @@
 import { test } from 'tap';
 import * as config from '../src/cli/commands/config';
 
-test('can unset config values', (t) => {
+test('can unset config values', async (t) => {
   let before = null;
-
-  t.plan(6);
 
   config('get').catch(t.pass);
   config('unset').catch(t.pass);
   config('foo').catch(t.pass);
 
-  config()
+  await config()
     .then(function(v) {
       before = v;
       return config('set', 'foo=10');
