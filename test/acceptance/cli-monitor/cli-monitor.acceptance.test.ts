@@ -235,11 +235,17 @@ test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (
   t.ok(req.body.meta.prePruneDepCount, 'sends meta.prePruneDepCount');
   const depGraphJSON = req.body.depGraphJSON;
   t.ok(depGraphJSON);
-  const packageC = depGraphJSON.graph.nodes.find(
-    (pkg) => pkg.pkgId === 'c@1.0.0',
+
+  const packageC1 = depGraphJSON.graph.nodes.find(
+    (pkg) => pkg.nodeId === 'c@1.0.0|1',
   );
-  t.ok(packageC.info.labels.pruned, 'a.d.c is pruned');
-  t.notOk(packageC.dependencies, 'a.d.c has no dependencies');
+  const packageC2 = depGraphJSON.graph.nodes.find(
+    (pkg) => pkg.nodeId === 'c@1.0.0|2',
+  );
+  t.notOk(packageC1.info.labels.pruned, 'a.d.c first instance is not pruned');
+  t.ok(packageC2.info.labels.pruned, 'a.d.c second instance is pruned');
+  t.ok(packageC1.deps.length, 'a.d.c has dependencies');
+  t.notOk(packageC2.deps.length, 'a.d.c has no dependencies');
 });
 
 test('`monitor npm-package-pruneable --prune-repeated-subdependencies --experimental-dep-graph`', async (t) => {
