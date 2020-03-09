@@ -102,7 +102,3 @@ workflows:
           name: Test Node v8
           context: nodejs-install
           node_version: "8.17.0"
-      - test-all:
-          name: Test Node v6
-          context: nodejs-install
-          node_version: "6.17.1"
