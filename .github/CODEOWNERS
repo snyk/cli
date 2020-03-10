@@ -1,3 +1,6 @@
 # Snyk Boost will be required for a review on every PR
+README.md  @snyk/content @snyk/boost
+help/  @snyk/content @snyk/boost
 *  @snyk/boost
+
 
