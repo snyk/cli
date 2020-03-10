@@ -1,0 +1,17 @@
+import * as url from 'url';
+
+const SNYK_UTM_MEDIUM = process.env.SNYK_UTM_MEDIUM || '';
+const SNYK_UTM_SOURCE = process.env.SNYK_UTM_SOURCE || '';
+const SNYK_UTM_CAMPAIGN = process.env.SNYK_UTM_CAMPAIGN || '';
+
+export function getUtmsAsString(): string {
+  /* eslint-disable @typescript-eslint/camelcase */
+  const utmQueryParams = new url.URLSearchParams({
+    utm_medium: SNYK_UTM_MEDIUM,
+    utm_source: SNYK_UTM_SOURCE,
+    utm_campaign: SNYK_UTM_CAMPAIGN,
+  });
+  /* eslint-enable @typescript-eslint/camelcase */
+
+  return utmQueryParams.toString();
+}
