@@ -73,7 +73,6 @@ export async function monitor(
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
-  analytics.add('monitorGraph', true);
 
   if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
