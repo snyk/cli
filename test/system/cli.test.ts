@@ -99,7 +99,7 @@ test('auth with no args', async (t) => {
     opn: open,
   });
   // stub CI check (ensure returns false for system test)
-  sinon.stub(ciChecker, 'isCI').returns(false);
+  const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
   // disable console.log
   const enableLog = silenceLog();
   try {
@@ -116,11 +116,60 @@ test('auth with no args', async (t) => {
       'opens login with token param',
     );
     t.same(open.firstCall.args[1], { wait: false }, 'does not wait for open');
+    ciStub.restore();
   } catch (e) {
     t.threw(e);
   }
   // turn console.log back on
   enableLog();
+});
+
+test('auth with UTMs in environment variables', async (t) => {
+  // stub open so browser window doesn't actually open
+  const open = sinon.stub();
+  const auth = proxyquire('../../src/cli/commands/auth', {
+    opn: open,
+  });
+  // stub CI check (ensure returns false for system test)
+  const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
+
+  // read data from console.log
+  let stdoutMessages = '';
+  const stubConsoleLog = (msg) => (stdoutMessages += msg);
+  const origConsoleLog = console.log;
+  console.log = stubConsoleLog;
+
+  process.env.SNYK_UTM_MEDIUM = 'ide';
+  process.env.SNYK_UTM_SOURCE = 'eclipse';
+  process.env.SNYK_UTM_CAMPAIGN = 'plugin';
+
+  try {
+    await auth();
+    t.match(
+      stdoutMessages,
+      'utm_medium=ide&utm_source=eclipse&utm_campaign=plugin',
+      'utm detected in environment variables',
+    );
+    t.ok(open.calledOnce, 'called open once');
+    t.match(
+      open.firstCall.args[0],
+      '&utm_medium=ide&utm_source=eclipse&utm_campaign=plugin',
+      'opens login with utm tokens provided',
+    );
+    t.same(open.firstCall.args[1], { wait: false }, 'does not wait for open');
+
+    // clean up environment variables
+    delete process.env.SNYK_UTM_MEDIUM;
+    delete process.env.SNYK_UTM_SOURCE;
+    delete process.env.SNYK_UTM_CAMPAIGN;
+    // clean up stubs
+    ciStub.restore();
+
+    // restore original console.log
+    console.log = origConsoleLog;
+  } catch (e) {
+    t.threw(e);
+  }
 });
 
 test('cli tests error paths', async (t) => {
