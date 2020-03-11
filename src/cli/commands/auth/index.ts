@@ -34,7 +34,11 @@ async function webAuth(via: AuthCliCommands) {
   };
 
   let urlStr = authUrl + '/login?token=' + token;
-  urlStr += '&' + getUtmsAsString();
+
+  const utmParams = getUtmsAsString();
+  if (utmParams) {
+    urlStr += '&' + utmParams;
+  }
 
   // validate that via comes from our code, and not from user & CLI
   if (redirects[via]) {
