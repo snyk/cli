@@ -135,7 +135,7 @@ test('auth with UTMs in environment variables', async (t) => {
 
   // read data from console.log
   let stdoutMessages = '';
-  const stubConsoleLog = (msg) => (stdoutMessages += msg);
+  const stubConsoleLog = (msg: string) => (stdoutMessages += msg);
   const origConsoleLog = console.log;
   console.log = stubConsoleLog;
 
