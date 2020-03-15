@@ -1,15 +1,14 @@
-const tap = require('tap');
-const test = tap.test;
-const updateCheck = require('../src/lib/updater').updateCheck;
-const fs = require('fs');
-const p = require('path');
-const sinon = require('sinon').createSandbox();
-const updateNotifier = require('@snyk/update-notifier');
+import { test } from 'tap';
+import * as fs from 'fs';
+import { updateCheck } from '../src/lib/updater';
+import * as path from 'path';
+import * as sinon from 'sinon';
+import * as updateNotifier from '@snyk/update-notifier';
 
 // Fake location of the package.json file and verify the code behaves well
 test('missing package.json', (t) => {
   const fsStub = sinon.stub(fs, 'existsSync');
-  fsStub.withArgs(p.join(__dirname, '../', 'package.json')).returns(false);
+  fsStub.withArgs(path.join(__dirname, '../', 'package.json')).returns(false);
 
   t.tearDown(() => {
     fsStub.restore();
@@ -25,8 +24,8 @@ test('missing package.json', (t) => {
 
 test('STANDALONE declaration present', (t) => {
   const fsStub = sinon.stub(fs, 'existsSync');
-  fsStub.withArgs(p.join(__dirname, '../', 'package.json')).returns(true);
-  fsStub.withArgs(p.join(__dirname, '../src', 'STANDALONE')).returns(true);
+  fsStub.withArgs(path.join(__dirname, '../', 'package.json')).returns(true);
+  fsStub.withArgs(path.join(__dirname, '../src', 'STANDALONE')).returns(true);
 
   t.tearDown(() => {
     fsStub.restore();
