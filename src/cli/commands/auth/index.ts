@@ -12,6 +12,7 @@ import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in
 import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
 import { verifyAPI } from './is-authed';
 import { CustomError } from '../../../lib/errors';
+import { getUtmsAsString } from '../../../lib/utm';
 
 export = auth;
 
@@ -33,6 +34,11 @@ async function webAuth(via: AuthCliCommands) {
   };
 
   let urlStr = authUrl + '/login?token=' + token;
+
+  const utmParams = getUtmsAsString();
+  if (utmParams) {
+    urlStr += '&' + utmParams;
+  }
 
   // validate that via comes from our code, and not from user & CLI
   if (redirects[via]) {
