@@ -36,7 +36,7 @@ import {
   getSeverityValue,
 } from './formatters';
 
-const debug = Debug('snyk');
+const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
 const showVulnPathsMapping: Record<string, ShowVulnPaths> = {

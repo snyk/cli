@@ -1,6 +1,8 @@
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as cliInterface from '@snyk/cli-interface';
+import chalk from 'chalk';
+import * as debugModule from 'debug';
 
 import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
@@ -10,6 +12,7 @@ import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-t
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 
+const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
   extends cliInterface.legacyCommon.ScannedProject {
   packageManager: SupportedPackageManagers;
@@ -63,7 +66,7 @@ export async function getMultiPluginResult(
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (err) {
-      console.log(err);
+      debug(chalk.bold.red(err.message));
     }
   }
 

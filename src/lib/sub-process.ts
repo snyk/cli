@@ -15,12 +15,16 @@ export function execute(
     let stderr = '';
 
     const proc = childProcess.spawn(command, args, spawnOptions);
-    proc.stdout.on('data', (data) => {
-      stdout = stdout + data;
-    });
-    proc.stderr.on('data', (data) => {
-      stderr = stderr + data;
-    });
+    if (proc.stdout) {
+      proc.stdout.on('data', (data) => {
+        stdout += data;
+      });
+    }
+    if (proc.stderr) {
+      proc.stderr.on('data', (data) => {
+        stderr += data;
+      });
+    }
 
     proc.on('close', (code) => {
       if (code !== 0) {

@@ -14,7 +14,7 @@ import analytics = require('../analytics');
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 
-const debug = debugModule('snyk');
+const debug = debugModule('snyk-test');
 
 // Force getDepsFromPlugin to return scannedProjects for processing
 export async function getDepsFromPlugin(
