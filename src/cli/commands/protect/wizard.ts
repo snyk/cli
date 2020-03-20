@@ -68,16 +68,16 @@ async function processPackageManager(options: Options) {
     );
   }
 
-  return fs.exists(path.join('.', 'node_modules')).then((nodeModulesExist) => {
-    if (!nodeModulesExist) {
-      // throw a custom error
-      throw new Error(
-        "Missing node_modules folder: we can't patch without having installed packages." +
-          `\nPlease run '${packageManager} install' first.`,
-      );
-    }
-    return options;
-  });
+  const nodeModulesExist = await fs.exists(path.join('.', 'node_modules'));
+  if (!nodeModulesExist) {
+    // throw a custom error
+    throw new Error(
+      "Missing node_modules folder: we can't patch without having installed packages." +
+        `\nPlease run '${packageManager} install' first.`,
+    );
+  }
+
+  return Promise.resolve(options);
 }
 
 async function loadOrCreatePolicyFile(options: Options & WizardOptions) {
@@ -524,7 +524,9 @@ function processAnswers(answers, policy, options) {
           options.packageTrailing;
         return (
           spinner(lbl)
-            .then(fs.writeFile(packageFile, packageString))
+            .then(() => {
+              return fs.writeFile(packageFile, packageString);
+            })
             .then(() => {
               if (isLockFileBased) {
                 // we need to trigger a lockfile update after adding snyk
