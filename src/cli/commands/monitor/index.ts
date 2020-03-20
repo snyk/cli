@@ -137,10 +137,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       // We send results from "all-sub-projects" scanning as different Monitor objects
       // multi result will become default, so start migrating code to always work with it
       let perProjectResult: MultiProjectResultCustom;
-      let foundProjectCount;
 
       if (!pluginApi.isMultiResult(inspectResult)) {
-        foundProjectCount = getSubProjectCount(inspectResult);
         perProjectResult = convertSingleResultToMultiCustom(inspectResult);
       } else {
         perProjectResult = convertMultiResultToMultiCustom(inspectResult);
@@ -148,12 +146,12 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Post the project dependencies to the Registry
       for (const projectDeps of perProjectResult.scannedProjects) {
-        const packageManager = extractPackageManager(
+        const extractedPackageManager = extractPackageManager(
           projectDeps,
           perProjectResult,
           options as MonitorOptions & Options,
         );
-        analytics.add('packageManager', packageManager);
+        analytics.add('packageManager', extractedPackageManager);
         maybePrintDeps(options, projectDeps.depTree);
 
         debug(`Processing ${projectDeps.depTree.name}...`);
@@ -166,7 +164,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         const res: MonitorResult = await promiseOrCleanup(
           snykMonitor(
             path,
-            generateMonitorMeta(options, packageManager),
+            generateMonitorMeta(options, extractedPackageManager),
             projectDeps,
             options,
             projectDeps.plugin as PluginMetadata,
@@ -179,7 +177,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         const projectName = projectDeps.depTree.name;
 
         const monOutput = formatMonitorOutput(
-          packageManager,
+          extractedPackageManager,
           res,
           options,
           projectName,

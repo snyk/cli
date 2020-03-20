@@ -19,7 +19,7 @@
     "snyk": "dist/cli/index.js"
   },
   "engines": {
-    "node": ">=6"
+    "node": ">=8"
   },
   "scripts": {
     "build": "tsc",
@@ -105,11 +105,11 @@
     "@types/diff": "^3.5.2",
     "@types/lodash": "^4.14.136",
     "@types/needle": "^2.0.4",
-    "@types/node": "^6.14.4",
+    "@types/node": "8.10.59",
     "@types/sinon": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "2.18.0",
     "@typescript-eslint/parser": "^2.0.0",
-    "eslint": "^5.16.0",
+    "eslint": "6.8.0",
     "eslint-config-prettier": "^6.1.0",
     "madge": "^3.4.4",
     "nock": "^10.0.6",
