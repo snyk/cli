@@ -1,9 +1,0 @@
-- Processing /Users/lili/www/snyk-fixtures/npm-lockfiles
-- Detected 16 manifest(s)
-[31m✖[39m Failed processing /Users/lili/www/snyk-fixtures/npm-lockfiles/package.json: Missing node_modules folder: we can't test without dependencies.
-Please run 'npm install' first.
-[31m✖[39m Failed processing /Users/lili/www/snyk-fixtures/npm-lockfiles/dev-deps-only/package-lock.json: Could not find package.json at /Users/lili/www/snyk-fixtures/npm-lockfiles/dev-deps-only/package.json (lockfile found at dev-deps-only/package-lock.json)
-[31m✖[39m Failed processing /Users/lili/www/snyk-fixtures/npm-lockfiles/invalid-files/package-lock.json: package.json parsing failed with error Unexpected token } in JSON at position 100
-[31m✖[39m Failed processing /Users/lili/www/snyk-fixtures/npm-lockfiles/one-npm-lockfile-only/package-lock.json: Could not find package.json at /Users/lili/www/snyk-fixtures/npm-lockfiles/one-npm-lockfile-only/package.json (lockfile found at one-npm-lockfile-only/package-lock.json)
-[31m✖[39m Failed processing /Users/lili/www/snyk-fixtures/npm-lockfiles/test/package-lock.json: Could not find package.json at /Users/lili/www/snyk-fixtures/npm-lockfiles/test/package.json (lockfile found at test/package-lock.json)
-- Analyzing all dependencies for ../../snyk-fixtures/npm-lockfiles/package.json

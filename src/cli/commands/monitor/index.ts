@@ -126,7 +126,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       spinner.start();
 
-      spinner.text  =
+      spinner.text =
         'Monitoring results. A new project will be created if none match for every result.';
 
       // We send results from "all-sub-projects" scanning as different Monitor objects

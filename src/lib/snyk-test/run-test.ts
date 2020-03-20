@@ -38,7 +38,7 @@ import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 
 import request = require('../request');
-import spinner = require('../spinner');
+import * as Spinner from 'ora';
 import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getSubProjectCount } from '../plugins/get-sub-project-count';
 
@@ -84,10 +84,16 @@ async function runTest(
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
-  const spinnerLbl = 'Querying vulnerabilities database...';
+  const spinner = Spinner('Querying vulnerabilities database...').start();
+
   try {
+    spinner.stop();
     const payloads = await assemblePayloads(root, options);
+    spinner.start();
     for (const payload of payloads) {
+      spinner.text = `Processing result ${payloads.indexOf(payload)}/${
+        payloads.length
+      }`;
       const payloadPolicy = payload.body && payload.body.policy;
       const depGraph = payload.body && payload.body.depGraph;
       const pkgManager =
@@ -107,7 +113,6 @@ async function runTest(
       ) {
         dockerfilePackages = payload.body.docker.dockerfilePackages;
       }
-      await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
@@ -226,7 +231,7 @@ async function runTest(
       error.code,
     );
   } finally {
-    spinner.clear<void>(spinnerLbl)();
+    spinner.stop();
   }
 }
 
@@ -297,17 +302,18 @@ async function assembleLocalPayloads(
   // For --all-projects packageManager is yet undefined here. Use 'all'
   const analysisType =
     (options.docker ? 'docker' : options.packageManager) || 'all';
+
   const spinnerLbl =
     'Analyzing ' +
     analysisType +
     ' dependencies for ' +
     (path.relative('.', path.join(root, options.file || '')) ||
       path.relative('..', '.') + ' project dir');
+  const spinner = Spinner(spinnerLbl).start();
 
   try {
     const payloads: Payload[] = [];
-
-    await spinner(spinnerLbl);
+    spinner.stop();
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
     const javaVersion = _.get(
@@ -326,11 +332,14 @@ async function assembleLocalPayloads(
     if (mvnVersion) {
       analytics.add('mvnVersion', mvnVersion);
     }
-
+    spinner.start();
     for (const scannedProject of deps.scannedProjects) {
+      spinner.text = `Processing vulnerabilities for result ${deps.scannedProjects.indexOf(
+        scannedProject,
+      )}/${deps.scannedProjects.length}.`;
+
       const pkg = scannedProject.depTree;
       if (options['print-deps']) {
-        await spinner.clear<void>(spinnerLbl)();
         maybePrintDeps(options, pkg);
       }
       const project = scannedProject as ScannedProjectCustom;
@@ -461,7 +470,7 @@ async function assembleLocalPayloads(
     }
     return payloads;
   } finally {
-    await spinner.clear<void>(spinnerLbl)();
+    spinner.stop();
   }
 }
 

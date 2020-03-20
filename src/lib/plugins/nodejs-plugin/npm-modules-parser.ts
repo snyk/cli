@@ -1,9 +1,10 @@
 import * as path from 'path';
 import * as fs from 'then-fs';
+import * as baseDebug from 'debug';
+const debug = baseDebug('snyk-test');
 import * as resolveNodeDeps from 'snyk-resolve-deps';
 import { PkgTree } from 'snyk-nodejs-lockfile-parser';
 
-import * as spinner from '../../spinner';
 import * as analytics from '../../analytics';
 import { Options } from '../types';
 
@@ -34,24 +35,19 @@ export async function parse(
   const resolveModuleSpinnerLabel =
     'Analyzing npm dependencies for ' +
     path.dirname(path.resolve(root, targetFile));
-  try {
-    await spinner(resolveModuleSpinnerLabel);
-    if (targetFile.endsWith('yarn.lock')) {
-      options.file =
-        options.file && options.file.replace('yarn.lock', 'package.json');
-    }
-
-    // package-lock.json falls back to package.json (used in wizard code)
-    if (targetFile.endsWith('package-lock.json')) {
-      options.file =
-        options.file &&
-        options.file.replace('package-lock.json', 'package.json');
-    }
-    return resolveNodeDeps(
-      root,
-      Object.assign({}, options, { noFromArrays: true }),
-    );
-  } finally {
-    await spinner.clear<void>(resolveModuleSpinnerLabel)();
+  debug(resolveModuleSpinnerLabel);
+  if (targetFile.endsWith('yarn.lock')) {
+    options.file =
+      options.file && options.file.replace('yarn.lock', 'package.json');
   }
+
+  // package-lock.json falls back to package.json (used in wizard code)
+  if (targetFile.endsWith('package-lock.json')) {
+    options.file =
+      options.file && options.file.replace('package-lock.json', 'package.json');
+  }
+  return resolveNodeDeps(
+    root,
+    Object.assign({}, options, { noFromArrays: true }),
+  );
 }

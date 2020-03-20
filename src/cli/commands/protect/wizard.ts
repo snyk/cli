@@ -28,7 +28,7 @@ import { isCI } from '../../../lib/is-ci';
 import * as protect from '../../../lib/protect';
 import * as authorization from '../../../lib/authorization';
 import * as config from '../../../lib/config';
-import * as spinner from '../../../lib/spinner';
+import * as Spinner from 'ora';
 import * as analytics from '../../../lib/analytics';
 import * as alerts from '../../../lib/alerts';
 import npm = require('../../../lib/npm');
@@ -100,7 +100,6 @@ async function loadOrCreatePolicyFile(options: Options & WizardOptions) {
 }
 
 async function processWizardFlow(options) {
-  spinner.sticky();
   const message = options['dry-run']
     ? '*** dry run ****'
     : '~~~~ LIVE RUN ~~~~';
@@ -336,6 +335,8 @@ function processAnswers(answers, policy, options) {
   if (options.json) {
     return Promise.resolve(JSON.stringify(answers, null, 2));
   }
+  const spinner = Spinner('Processing wizard answers').start();
+
   const cwd = process.cwd();
   const packageFile = path.resolve(cwd, 'package.json');
   const packageManager = detect.detectPackageManager(cwd, options);
@@ -371,7 +372,7 @@ function processAnswers(answers, policy, options) {
         throw e;
       }
 
-      await policy2.save(cwd, spinner);
+      await policy2.save(cwd);
 
       // don't do this during testing
       if (isCI() || process.env.TAP) {
@@ -467,6 +468,7 @@ function processAnswers(answers, policy, options) {
     })
     .then(() => {
       let lbl = 'Updating package.json...';
+      spinner.text = lbl;
       const addSnykToDependencies =
         answers['misc-add-test'] || answers['misc-add-protect'];
       let updateSnykFunc = () => {
@@ -522,9 +524,10 @@ function processAnswers(answers, policy, options) {
           options.packageLeading +
           JSON.stringify(pkg, null, pkgIndentation) +
           options.packageTrailing;
+        spinner.text = lbl;
         return (
-          spinner(lbl)
-            .then(fs.writeFile(packageFile, packageString))
+          fs
+            .writeFile(packageFile, packageString)
             .then(() => {
               if (isLockFileBased) {
                 // we need to trigger a lockfile update after adding snyk
@@ -533,9 +536,9 @@ function processAnswers(answers, policy, options) {
               }
             })
             // clear spinner in case of success or failure
-            .then(spinner.clear<void>(lbl))
+            .then(spinner.clear())
             .catch((error) => {
-              spinner.clear<void>(lbl)();
+              spinner.stop();
               throw error;
             })
         );
@@ -545,20 +548,18 @@ function processAnswers(answers, policy, options) {
       if (answers['misc-build-shrinkwrap'] && tasks.update.length) {
         debug('updating shrinkwrap');
 
-        const lbl = 'Updating npm-shrinkwrap.json...';
+        spinner.text = 'Updating npm-shrinkwrap.json...';
         return (
-          spinner(lbl)
-            .then(() => npm('shrinkwrap', null, live, cwd, null))
+          npm('shrinkwrap', null, live, cwd, null)
             // clear spinner in case of success or failure
-            .then(spinner.clear(lbl))
             .catch((error) => {
-              spinner.clear<void>(lbl)();
+              spinner.stop();
               throw error;
             })
         );
       }
     })
-    .then(() => {
+    .then(async () => {
       if (answers['misc-test-no-monitor']) {
         // allows us to automate tests
         return {
@@ -587,27 +588,23 @@ function processAnswers(answers, policy, options) {
 
       // TODO: extract common inspect & monitor code and use the same way here
       // as during test & monitor
-      return (
-        info
-          .inspect(cwd, targetFile, options)
-          .then((inspectRes) => spinner(lbl).then(() => inspectRes))
-          .then((inspectRes) => {
-            // both ruby and node plugin return multi result
-            return snykMonitor(
-              cwd,
-              meta as MonitorMeta,
-              (inspectRes as MultiProjectResult).scannedProjects[0],
-              inspectRes.plugin,
-              options,
-            );
-          })
-          // clear spinner in case of success or failure
-          .then(spinner.clear(lbl))
-          .catch((error) => {
-            spinner.clear<void>(lbl)();
-            throw error;
-          })
-      );
+      debug(lbl);
+      spinner.stop();
+      return info
+        .inspect(cwd, targetFile, options)
+        .then((inspectRes) => {
+          // both ruby and node plugin return multi result
+          return snykMonitor(
+            cwd,
+            meta as MonitorMeta,
+            (inspectRes as MultiProjectResult).scannedProjects[0],
+            inspectRes.plugin,
+            options,
+          );
+        })
+        .catch((error) => {
+          throw error;
+        });
     })
     .then((monitorRes) => {
       const endpoint = url.parse(config.API);
