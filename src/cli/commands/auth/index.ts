@@ -6,7 +6,7 @@ import { isCI } from '../../../lib/is-ci';
 import request = require('../../../lib/request');
 import * as url from 'url';
 import * as uuid from 'uuid';
-import { Spinner } from 'cli-spinner';
+import * as Spinner from 'ora';
 import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
@@ -52,14 +52,14 @@ async function webAuth(via: AuthCliCommands) {
     urlStr +
     '\n';
 
+  const spinner = Spinner('Waiting...').start();
+
   // suppress this message in CI
   if (!isCI()) {
-    console.log(msg);
+    spinner.info(msg);
   } else {
     return Promise.reject(MisconfiguredAuthInCI());
   }
-  const spinner = new Spinner('Waiting...');
-  spinner.setSpinnerString('|/-\\');
 
   try {
     spinner.start();
@@ -70,7 +70,7 @@ async function webAuth(via: AuthCliCommands) {
     const res = await testAuthComplete(token);
     return res;
   } finally {
-    spinner.stop(true);
+    spinner.stop();
   }
 }
 
