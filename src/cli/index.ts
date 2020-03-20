@@ -11,7 +11,6 @@ import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
 import { args as argsLib, Args } from './args';
 import { copy } from './copy';
-import spinner = require('../lib/spinner');
 import errors = require('../lib/errors/legacy-errors');
 import ansiEscapes = require('ansi-escapes');
 import { isPathToPackageFile } from '../lib/detect';
@@ -53,7 +52,6 @@ async function runCommand(args: Args) {
 }
 
 async function handleError(args, error) {
-  spinner.clearAll();
   let command = 'bad-command';
   let exitCode = EXIT_CODES.ERROR;
 

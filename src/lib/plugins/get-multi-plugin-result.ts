@@ -11,6 +11,7 @@ import { getSinglePluginResult } from './get-single-plugin-result';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
+import * as Spinner from 'ora';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -29,7 +30,9 @@ export async function getMultiPluginResult(
   targetFiles: string[],
 ): Promise<MultiProjectResultCustom> {
   const allResults: ScannedProjectCustom[] = [];
+  const spinner = Spinner(`Detected ${targetFiles.length} manifest(s)`).start();
   for (const targetFile of targetFiles) {
+    spinner.text = `Processing ${targetFile}`;
     const optionsClone = _.cloneDeep(options);
     optionsClone.file = path.relative(root, targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
@@ -63,12 +66,15 @@ export async function getMultiPluginResult(
       (options as any).projectNames = resultWithScannedProjects.scannedProjects.map(
         (scannedProject) => scannedProject.depTree.name,
       );
-
+      debug(`Finished processing ${targetFile}`);
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (err) {
+      spinner.fail(`Failed processing ${targetFile}: ${err.message}`);
       debug(chalk.bold.red(err.message));
     }
   }
+
+  spinner.stop();
 
   return {
     plugin: {

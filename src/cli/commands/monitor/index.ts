@@ -15,7 +15,7 @@ import {
 import * as config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
 import { GoodResult, BadResult } from './types';
-import * as spinner from '../../../lib/spinner';
+import * as Spinner from 'ora';
 import * as analytics from '../../../lib/analytics';
 import { MethodArgs, ArgsOptions } from '../../args';
 import { apiTokenExists } from '../../../lib/api-token';
@@ -78,7 +78,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   apiTokenExists();
-
+  const spinner = Spinner('Processing ' + args.join(', ')).start();
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
     debug(`Processing ${path}...`);
@@ -104,35 +104,30 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         pathUtil.join(path, targetFile || ''),
       );
 
-      const analyzingDepsSpinnerLabel =
+      spinner.text =
         'Analyzing ' +
         (packageManager ? packageManager : analysisType) +
         ' dependencies for ' +
         displayPath;
 
-      await spinner(analyzingDepsSpinnerLabel);
-
       // Scan the project dependencies via a plugin
-
       analytics.add('pluginOptions', options);
-      debug('getDepsFromPlugin ...');
 
+      spinner.stop();
       // each plugin will be asked to scan once per path
       // some return single InspectResult & newer ones return Multi
-      const inspectResult = await promiseOrCleanup(
-        getDepsFromPlugin(path, {
-          ...options,
-          path,
-          packageManager,
-        }),
-        spinner.clear(analyzingDepsSpinnerLabel),
-      );
+      const inspectResult = await getDepsFromPlugin(path, {
+        ...options,
+        path,
+        packageManager,
+      });
 
       analytics.add('pluginName', inspectResult.plugin.name);
 
-      const postingMonitorSpinnerLabel =
-        'Posting monitor snapshot for ' + displayPath + ' ...';
-      await spinner(postingMonitorSpinnerLabel);
+      spinner.start();
+
+      spinner.text  =
+        'Monitoring results. A new project will be created if none match for every result.';
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
       // multi result will become default, so start migrating code to always work with it
@@ -170,7 +165,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
             projectDeps.plugin as PluginMetadata,
             targetFileRelativePath,
           ),
-          spinner.clear(postingMonitorSpinnerLabel),
+          spinner.clear,
         );
 
         res.path = path;
@@ -190,7 +185,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       // push this error, the loop continues
       results.push({ ok: false, data: err, path });
     } finally {
-      spinner.clearAll();
+      spinner.stop();
     }
   }
   // Part 2: process the output from the Registry
