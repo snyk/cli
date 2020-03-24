@@ -133,8 +133,8 @@ Python options:
                        in the environment.
 
 Docker options:
-  --docker ........... Test or monitor a local docker image for Linux
-                       vulnerabilities. 
+  --docker (alias: --container)
+                       Test or monitor a local docker image for Linux vulnerabilities.
   --file=<string> .... Include the path to the image's Dockerfile for more detailed
                        remediation advice.
   --exclude-base-image-vulns

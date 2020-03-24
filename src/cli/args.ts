@@ -201,9 +201,16 @@ export function args(rawArgv: string[]): Args {
   }
 
   // Alias
-  if (argv.gradleSubProject) {
-    argv.subProject = argv.gradleSubProject;
-    delete argv.gradleSubProject;
+  const aliases = {
+    gradleSubProject: 'subProject',
+    container: 'docker',
+  };
+  for (const argAlias in aliases) {
+    if (argv[argAlias]) {
+      const target = aliases[argAlias];
+      argv[target] = argv[argAlias];
+      delete argv[argAlias];
+    }
   }
 
   if (argv.insecure) {

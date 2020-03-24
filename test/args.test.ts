@@ -125,3 +125,28 @@ test('test command line test --fail-on=foo', (t) => {
   t.equal(result.options.failOn, 'foo');
   t.end();
 });
+
+test('test command line test --docker', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--docker',
+  ];
+  const result = args(cliArgs);
+  t.ok(result.options.docker);
+  t.end();
+});
+
+test('test command line test --container', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'test',
+    '--container',
+  ];
+  const result = args(cliArgs);
+  t.ok(result.options.docker);
+  t.notOk(result.options.container);
+  t.end();
+});
