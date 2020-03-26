@@ -77,7 +77,13 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error('`--remote-repo-url` is not supported for container scans');
   }
 
+  if(options.longFormProjectName && !options.allProjects) {
+    throw new Error('`--longFormProjectName` is only compatible with `--all-projects`');
+  }
+
   apiTokenExists();
+
+  
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
@@ -116,6 +122,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       analytics.add('pluginOptions', options);
       debug('getDepsFromPlugin ...');
+      
 
       // each plugin will be asked to scan once per path
       // some return single InspectResult & newer ones return Multi
@@ -155,6 +162,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         maybePrintDeps(options, projectDeps.depTree);
 
         debug(`Processing ${projectDeps.depTree.name}...`);
+        if(options.longFormProjectName){
+          options["project-name"] = projectDeps.depTree.name + ':' +projectDeps.depTree.version
+        }
+        
         maybePrintDeps(options, projectDeps.depTree);
 
         const tFile = projectDeps.targetFile || targetFile;
