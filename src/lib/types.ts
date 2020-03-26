@@ -70,7 +70,7 @@ export interface MonitorOptions {
   allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
   'prune-repeated-subdependencies'?: boolean;
-  'longFormProjectName'?: boolean;
+  longFormProjectName?: boolean;
 }
 
 export interface MonitorMeta {
