@@ -53,6 +53,7 @@ export interface Options {
   allProjects?: boolean;
   detectionDepth?: number;
   exclude?: string;
+  'json-file-output'?: string;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny

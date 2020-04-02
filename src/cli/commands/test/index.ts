@@ -2,6 +2,7 @@ export = test;
 
 import * as _ from 'lodash';
 import chalk from 'chalk';
+import { writeFileSync } from 'fs';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
@@ -148,25 +149,21 @@ async function test(...args: MethodArgs): Promise<string> {
   const notSuccess = errorResults.length > 0;
   const foundVulnerabilities = vulnerableResults.length > 0;
 
+  const jsonOutputFile = options['json-file-output'];
+
   // resultOptions is now an array of 1 or more options used for
   // the tests results is now an array of 1 or more test results
   // values depend on `options.json` value - string or object
   if (options.json) {
-    results = results.map((result) => {
-      // add json for when thrown exception
-      if (result instanceof Error) {
-        return {
-          ok: false,
-          error: result.message,
-          path: (result as any).path,
-        };
-      }
-      return result;
-    });
+    results = createResultsForJsonOutput(results);
 
     // backwards compat - strip array IFF only one result
     const dataToSend = results.length === 1 ? results[0] : results;
     const stringifiedData = JSON.stringify(dataToSend, null, 2);
+
+    if (jsonOutputFile) {
+      saveJsonResultsToFile(stringifiedData, jsonOutputFile);
+    }
 
     if (results.every((res) => res.ok)) {
       return stringifiedData;
@@ -209,6 +206,12 @@ async function test(...args: MethodArgs): Promise<string> {
       const errString = err.stack ? err.stack.toString() : err.toString();
       debug('error: %s', errString);
     });
+  }
+
+  if (jsonOutputFile) {
+    const mappedResults = createResultsForJsonOutput(results);
+    const jsonStringifiedOutput = getJsonStringifiedOutput(mappedResults);
+    saveJsonResultsToFile(jsonStringifiedOutput, jsonOutputFile);
   }
 
   let summaryMessage = '';
@@ -257,6 +260,39 @@ async function test(...args: MethodArgs): Promise<string> {
 
   response += chalk.bold.green(summaryMessage);
   return response;
+}
+
+function createResultsForJsonOutput(results) {
+  const mappedResults = results.map((result) => {
+    // add json for when thrown exception
+    if (result instanceof Error) {
+      return {
+        ok: false,
+        error: result.message,
+        path: (result as any).path,
+      };
+    }
+    return result;
+  });
+
+  return mappedResults;
+}
+
+function getJsonStringifiedOutput(mappedResults): string {
+  // backwards compat - strip array IFF only one result
+  const dataToSend =
+    mappedResults.length === 1 ? mappedResults[0] : mappedResults;
+
+  const stringifiedData = JSON.stringify(dataToSend, null, 2);
+  return stringifiedData;
+}
+
+function saveJsonResultsToFile(stringifiedJson: string, jsonOutputFile: string) {
+  try {
+    writeFileSync(jsonOutputFile, stringifiedJson);
+  } catch (err) {
+
+  }
 }
 
 function shouldFail(vulnerableResults: any[], failOn: FailOn) {
