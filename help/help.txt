@@ -126,8 +126,8 @@ Python options:
   --command=<string>   Indicate which specific Python commands to use based on Python version. 
                        The default is 'python' which executes your systems default python version.
                        Run 'python -V' to find out what version that is. 
-                       If you are using multiple Python versions, or you aliased your Python command, for example to python2 or python3, 
-                       use this parameter to specify the correct Python command for execution. For example: `--command=python3`.
+                       If you are using multiple Python versions, use this parameter to specify the correct Python command for execution. 
+                       For example: `--command=python3`.
   --skip-unresolved=<true|false>
                        Allow skipping packages that are not found
                        in the environment.
