@@ -19,6 +19,7 @@ export function convertScannedProjectsToCustom(
       .packageManager
       ? (a as ScannedProjectCustom).packageManager
       : (packageManager as SupportedPackageManagers);
+    (a as ScannedProjectCustom).scanResults = a.scanResults;
     return a as ScannedProjectCustom;
   });
 }

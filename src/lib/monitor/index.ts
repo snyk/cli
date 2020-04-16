@@ -39,6 +39,7 @@ interface MonitorBody {
   target: {};
   targetFileRelativePath: string;
   targetFile: string;
+  scanResults?: any;
 }
 
 interface Meta {
@@ -67,9 +68,9 @@ export async function monitor(
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
 ): Promise<MonitorResult> {
+  debug('scanResults:', scannedProject.scanResults);
   apiTokenExists();
   let treeMissingDeps: string[] = [];
-
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
@@ -177,6 +178,7 @@ export async function monitor(
           // WARNING: be careful changing this as it affects project uniqueness
           targetFile: pluginMeta.targetFile,
           targetFileRelativePath,
+          scanResults: scannedProject.scanResults,
         } as MonitorBody,
         gzip: true,
         method: 'PUT',
@@ -292,6 +294,7 @@ export async function monitorGraph(
           target,
           targetFile: pluginMeta.targetFile,
           targetFileRelativePath,
+          scanResults : scannedProject.scanResults,
         } as MonitorBody,
         gzip: true,
         method: 'PUT',

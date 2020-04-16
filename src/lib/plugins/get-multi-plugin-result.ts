@@ -17,6 +17,7 @@ export interface ScannedProjectCustom
   extends cliInterface.legacyCommon.ScannedProject {
   packageManager: SupportedPackageManagers;
   plugin: PluginMetadata;
+  scanResults: any | undefined;
 }
 export interface MultiProjectResultCustom
   extends cliInterface.legacyPlugin.MultiProjectResult {

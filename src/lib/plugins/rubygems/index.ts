@@ -25,6 +25,7 @@ export async function inspect(
           targetFile: specs.targetFile,
           dependencies: getDependenciesFromSpecs(specs),
         },
+        scanResults: [],
       },
     ],
   };

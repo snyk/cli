@@ -41,6 +41,8 @@ import request = require('../request');
 import spinner = require('../spinner');
 import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getSubProjectCount } from '../plugins/get-sub-project-count';
+import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+import { DepGraph } from '@snyk/dep-graph';
 
 const debug = debugModule('snyk');
 
@@ -63,6 +65,7 @@ interface PayloadBody {
   docker?: any;
   displayTargetFile?: string;
   target?: GitTarget | null;
+  scanResults?: any | undefined;
 }
 
 interface Payload {
@@ -289,6 +292,39 @@ function assemblePayloads(
   return assembleRemotePayloads(root, options);
 }
 
+async function convertDepTreeToDepGraph(
+  targetFile: string | undefined,
+  options: Options & TestOptions,
+  pkg: DepTree,
+  packageManager: SupportedPackageManagers | undefined,
+): Promise<DepGraph> {
+  // Graphs are more compact and robust representations.
+  // Legacy parts of the code are still using trees, but will eventually be fully migrated.
+  debug('converting dep-tree to dep-graph', {
+    name: pkg.name,
+    targetFile: targetFile || options.file,
+  });
+  let depGraph = await depGraphLib.legacy.depTreeToGraph(pkg, packageManager!);
+
+  debug('done converting dep-tree to dep-graph', {
+    uniquePkgsCount: depGraph.getPkgs().length,
+  });
+  if (options['prune-repeated-subdependencies'] && packageManager) {
+    debug('Trying to prune the graph');
+    const prePruneDepCount = countPathsToGraphRoot(depGraph);
+    debug('pre prunedPathsCount: ' + prePruneDepCount);
+
+    depGraph = await pruneGraph(depGraph, packageManager);
+
+    analytics.add('prePrunedPathsCount', prePruneDepCount);
+    const postPruneDepCount = countPathsToGraphRoot(depGraph);
+    debug('post prunedPathsCount: ' + postPruneDepCount);
+    analytics.add('postPrunedPathsCount', postPruneDepCount);
+  }
+
+  return depGraph;
+}
+
 // Payload to send to the Registry for scanning a package from the local filesystem.
 async function assembleLocalPayloads(
   root,
@@ -401,38 +437,19 @@ async function assembleLocalPayloads(
         docker: pkg.docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
         target: await projectMetadata.getInfo(pkg, options),
+        scanResults: scannedProject.scanResults,
       };
 
       if (options.vulnEndpoint) {
         // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests).
         body = { ...body, ...pkg };
       } else {
-        // Graphs are more compact and robust representations.
-        // Legacy parts of the code are still using trees, but will eventually be fully migrated.
-        debug('converting dep-tree to dep-graph', {
-          name: pkg.name,
-          targetFile: scannedProject.targetFile || options.file,
-        });
-        let depGraph = await depGraphLib.legacy.depTreeToGraph(
+        const depGraph = await convertDepTreeToDepGraph(
+          scannedProject.targetFile,
+          options,
           pkg,
-          packageManager!,
+          packageManager,
         );
-
-        debug('done converting dep-tree to dep-graph', {
-          uniquePkgsCount: depGraph.getPkgs().length,
-        });
-        if (options['prune-repeated-subdependencies'] && packageManager) {
-          debug('Trying to prune the graph');
-          const prePruneDepCount = countPathsToGraphRoot(depGraph);
-          debug('pre prunedPathsCount: ' + prePruneDepCount);
-
-          depGraph = await pruneGraph(depGraph, packageManager);
-
-          analytics.add('prePrunedPathsCount', prePruneDepCount);
-          const postPruneDepCount = countPathsToGraphRoot(depGraph);
-          debug('post prunedPathsCount: ' + postPruneDepCount);
-          analytics.add('postPrunedPathsCount', postPruneDepCount);
-        }
         body.depGraph = depGraph;
       }
 

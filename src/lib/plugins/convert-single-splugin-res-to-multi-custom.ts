@@ -26,6 +26,7 @@ export function convertSingleResultToMultiCustom(
         packageManager:
           (inspectRes.plugin.packageManager as SupportedPackageManagers) ||
           packageManager,
+        scanResults: inspectRes.scanResults,
       },
     ],
   };

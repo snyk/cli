@@ -26,6 +26,6 @@ export async function inspect(
       name: 'snyk-nodejs-lockfile-parser',
       runtime: process.version,
     },
-    scannedProjects: [{ depTree }],
+    scannedProjects: [{ depTree, scanResults: [] }],
   };
 }
