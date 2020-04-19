@@ -88,3 +88,24 @@ test('`test pip-app-license-issue` legal instructions displayed (legacy formatte
   snykTestStub.restore();
   t.end();
 });
+
+test('test reachability info is displayed', async (t) => {
+  chdirWorkspaces();
+  const stubbedResponse = JSON.parse(
+    fs.readFileSync(
+      __dirname +
+        '/workspaces/reachable-vulns/maven/test-dep-graph-response.json',
+      'utf8',
+    ),
+  );
+  const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
+  try {
+    await snykTest('maven-app');
+  } catch (error) {
+    const { message } = error;
+    t.match(message, '[Reachable by function call]');
+  }
+
+  snykTestStub.restore();
+  t.end();
+});

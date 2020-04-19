@@ -12,9 +12,11 @@ import {
   UpgradeRemediation,
   PinRemediation,
   LegalInstruction,
+  REACHABILITY,
 } from '../../../../lib/snyk-test/legacy';
 import { SEVERITIES } from '../../../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
+import { formatReachability } from './format-reachability';
 
 interface BasicVulnInfo {
   type: string;
@@ -27,6 +29,7 @@ interface BasicVulnInfo {
   legalInstructions?: LegalInstruction[];
   paths: string[][];
   note: string | false;
+  reachability?: REACHABILITY;
 }
 
 interface TopLevelPackageUpgrade {
@@ -63,6 +66,7 @@ export function formatIssuesWithRemediation(
       note: vuln.note,
       legalInstructions: vuln.legalInstructionsArray,
       paths: vuln.list.map((v) => v.from),
+      reachability: vuln.reachability,
     };
 
     if (vulnData.type === 'license') {
@@ -243,6 +247,8 @@ function thisUpgradeFixes(
         basicVulnInfo[id].paths,
         testOptions,
         basicVulnInfo[id].note,
+        [],
+        basicVulnInfo[id].reachability,
       ),
     )
     .join('\n');
@@ -393,6 +399,8 @@ function constructUnfixableText(
         issueInfo.paths,
         testOptions,
         issueInfo.note,
+        [],
+        issue.reachability,
       ) + `${extraInfo}`,
     );
   }
@@ -420,6 +428,7 @@ function formatIssue(
   testOptions: TestOptions,
   note: string | false,
   legalInstructions?: LegalInstruction[],
+  reachability?: REACHABILITY,
 ): string {
   const severitiesColourMapping = {
     low: {
@@ -443,6 +452,10 @@ function formatIssue(
   let legalLicenseInstructionsText;
   if (legalInstructions) {
     legalLicenseInstructionsText = formatLegalInstructions(legalInstructions);
+  }
+  let reachabilityText = '';
+  if (reachability) {
+    reachabilityText = `${formatReachability(reachability)}`;
   }
 
   let introducedBy = '';
@@ -479,6 +492,7 @@ function formatIssue(
         severity,
       )} Severity]`,
     ) +
+    reachabilityText +
     `[${config.ROOT}/vuln/${id}]` +
     name +
     introducedBy +

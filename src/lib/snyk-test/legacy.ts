@@ -21,6 +21,13 @@ export enum SEVERITY {
   HIGH = 'high',
 }
 
+export enum REACHABILITY {
+  FUNCTION = 'function',
+  PACKAGE = 'package',
+  UNREACHABLE = 'unreachable',
+  NO_INFO = 'no-info',
+}
+
 export interface VulnMetaData {
   id: string;
   title: string;
@@ -48,6 +55,7 @@ export interface GroupedVuln {
   isFixable: boolean;
   fixedIn: string[];
   legalInstructionsArray?: LegalInstruction[];
+  reachability?: REACHABILITY;
 }
 
 export interface LegalInstruction {
@@ -74,6 +82,7 @@ export interface IssueData {
   severity: SEVERITY;
   fixedIn: string[];
   legalInstructions?: string;
+  reachability?: REACHABILITY;
 }
 
 interface AnnotatedIssue extends IssueData {

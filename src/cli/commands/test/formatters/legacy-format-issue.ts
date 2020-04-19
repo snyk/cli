@@ -15,6 +15,7 @@ import {
   DockerIssue,
 } from '../../../../lib/snyk-test/legacy';
 import { formatLegalInstructions } from './legal-license-instructions';
+import { getReachabilityText } from './format-reachability';
 
 export function formatIssues(
   vuln: GroupedVuln,
@@ -55,6 +56,7 @@ export function formatIssues(
         ' '.repeat(2) +
         formatLegalInstructions(vuln.legalInstructionsArray, 2)
       : '',
+    reachability: vuln.reachability ? createReachabilityInText(vuln) : '',
   };
 
   return (
@@ -64,6 +66,7 @@ export function formatIssues(
     `${vulnOutput.introducedThrough}\n` +
     vulnOutput.fromPaths +
     // Optional - not always there
+    vulnOutput.reachability +
     vulnOutput.remediationInfo +
     vulnOutput.dockerfilePackage +
     vulnOutput.fixedIn +
@@ -165,6 +168,17 @@ function createFixedInText(vuln: GroupedVuln): string {
   }
 
   return '';
+}
+
+function createReachabilityInText(vuln: GroupedVuln): string {
+  if (!vuln.reachability) {
+    return '';
+  }
+  const reachabilityText = getReachabilityText(vuln.reachability);
+  if (!reachabilityText) {
+    return '';
+  }
+  return `\n  Reachability: ${reachabilityText}`;
 }
 
 function createRemediationText(
