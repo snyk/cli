@@ -21,6 +21,7 @@ import {
   FailedToGetVulnerabilitiesError,
   FailedToGetVulnsFromUnavailableResource,
   FailedToRunTestError,
+  UnsupportedFeatureFlagError,
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
@@ -41,6 +42,8 @@ import request = require('../request');
 import spinner = require('../spinner');
 import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getSubProjectCount } from '../plugins/get-sub-project-count';
+import { serializeCallGraphWithMetrics } from '../reachable-vulns';
+import { validateOptions } from './validation';
 
 const debug = debugModule('snyk');
 
@@ -53,6 +56,7 @@ interface DepTreeFromResolveDeps extends DepTree {
 
 interface PayloadBody {
   depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
+  callGraph?: any;
   policy: string;
   targetFile?: string;
   targetFileRelativePath?: string;
@@ -86,6 +90,7 @@ async function runTest(
   const results: TestResult[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
+    await validateOptions(options);
     const payloads = await assemblePayloads(root, options);
     for (const payload of payloads) {
       const payloadPolicy = payload.body && payload.body.policy;
@@ -258,6 +263,10 @@ function handleTestHttpErrorResponse(res, body) {
     case 401:
     case 403:
       err = AuthFailedError(userMessage, statusCode);
+      err.innerError = body.stack;
+      break;
+    case 405:
+      err = new UnsupportedFeatureFlagError('reachableVulns');
       err.innerError = body.stack;
       break;
     case 500:
@@ -434,6 +443,20 @@ async function assembleLocalPayloads(
           analytics.add('postPrunedPathsCount', postPruneDepCount);
         }
         body.depGraph = depGraph;
+      }
+
+      if (scannedProject.callGraph) {
+        const {
+          callGraph,
+          nodeCount,
+          edgeCount,
+        } = serializeCallGraphWithMetrics(scannedProject.callGraph);
+        debug(
+          `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
+        );
+        analytics.add('callGraphNodeCount', nodeCount);
+        analytics.add('callGraphEdgeCount', edgeCount);
+        body.callGraph = callGraph;
       }
 
       const payload: Payload = {
