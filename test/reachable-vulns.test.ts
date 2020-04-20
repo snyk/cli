@@ -18,32 +18,18 @@ import * as featureFlags from '../src/lib/feature-flags';
 import * as utils from './utils';
 
 test('output formatting', (t) => {
-  t.equal(
-    // TODO CHANGE output
-    formatReachability(REACHABILITY.FUNCTION),
-    '[Reachable by function call]',
-  );
-  t.equal(
-    formatReachability(REACHABILITY.PACKAGE),
-    '[Reachable by package import]',
-  );
-  t.equal(formatReachability(REACHABILITY.UNREACHABLE), '[Unreachable]');
+  t.equal(formatReachability(REACHABILITY.FUNCTION), '[Likely reachable]');
+  t.equal(formatReachability(REACHABILITY.PACKAGE), '');
+  t.equal(formatReachability(REACHABILITY.UNREACHABLE), '[Likely unreachable]');
   t.equal(formatReachability(REACHABILITY.NO_INFO), '');
   t.equal(formatReachability(undefined), '');
   t.end();
 });
 
 test('reachable text', (t) => {
-  // TODO CHANGE output
-  t.equal(
-    getReachabilityText(REACHABILITY.FUNCTION),
-    'Reachable by function call',
-  );
-  t.equal(
-    getReachabilityText(REACHABILITY.PACKAGE),
-    'Reachable by package import',
-  );
-  t.equal(getReachabilityText(REACHABILITY.UNREACHABLE), 'Unreachable');
+  t.equal(getReachabilityText(REACHABILITY.FUNCTION), 'Likely reachable');
+  t.equal(getReachabilityText(REACHABILITY.PACKAGE), '');
+  t.equal(getReachabilityText(REACHABILITY.UNREACHABLE), 'Likely unreachable');
   t.equal(getReachabilityText(REACHABILITY.NO_INFO), '');
   t.equal(getReachabilityText(undefined), '');
   t.end();
