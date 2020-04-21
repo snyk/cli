@@ -160,6 +160,7 @@ export interface TestResult extends LegacyVulnApiResult {
   targetFile?: string;
   projectName?: string;
   displayTargetFile?: string; // used for display only
+  foundProjectCount?: number;
 }
 
 interface UpgradePathItem {
