@@ -418,7 +418,7 @@ function printPath(path: string[]) {
   return path.slice(1).join(' > ');
 }
 
-function formatIssue(
+export function formatIssue(
   id: string,
   title: string,
   severity: SEVERITY,
