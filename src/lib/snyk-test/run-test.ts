@@ -32,9 +32,8 @@ import { pluckPolicies } from '../policy';
 import { maybePrintDeps } from '../print-deps';
 import { GitTarget } from '../project-metadata/types';
 import * as projectMetadata from '../project-metadata';
-import { DepTree, Options, TestOptions } from '../types';
+import { DepTree, Options, TestOptions, SupportedProjectTypes } from '../types';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
-import { SupportedPackageManagers } from '../package-managers';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 
@@ -83,7 +82,7 @@ interface Payload {
 }
 
 async function runTest(
-  packageManager: SupportedPackageManagers | undefined,
+  projectType: SupportedProjectTypes | undefined,
   root: string,
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
@@ -116,94 +115,26 @@ async function runTest(
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
-      let res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
+      const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
 
-      // TODO: docker doesn't have a package manager
-      // so this flow will not be applicable
-      // refactor to separate
-      if (depGraph && pkgManager) {
-        res = convertTestDepGraphResultToLegacy(
-          (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
-          depGraph,
-          pkgManager,
-          options.severityThreshold,
-        );
+      const result = await parseRes(
+        depGraph,
+        pkgManager,
+        res,
+        options,
+        payload,
+        payloadPolicy,
+        root,
+        dockerfilePackages,
+      );
 
-        // For Node.js: inject additional information (for remediation etc.) into the response.
-        if (payload.modules) {
-          res.dependencyCount = payload.modules.numDependencies;
-          if (res.vulnerabilities) {
-            res.vulnerabilities.forEach((vuln) => {
-              if (payload.modules && payload.modules.pluck) {
-                const plucked = payload.modules.pluck(
-                  vuln.from,
-                  vuln.name,
-                  vuln.version,
-                );
-                vuln.__filename = plucked.__filename;
-                vuln.shrinkwrap = plucked.shrinkwrap;
-                vuln.bundled = plucked.bundled;
-
-                // this is an edgecase when we're testing the directly vuln pkg
-                if (vuln.from.length === 1) {
-                  return;
-                }
-
-                const parentPkg = moduleToObject(vuln.from[1]);
-                const parent = payload.modules.pluck(
-                  vuln.from.slice(0, 2),
-                  parentPkg.name,
-                  parentPkg.version,
-                );
-                vuln.parentDepType = parent.depType;
-              }
-            });
-          }
-        }
-      }
-      // TODO: is this needed? we filter on the other side already based on policy
-      // this will move to be filtered server side soon & it will support `'ignore-policy'`
-      analytics.add('vulns-pre-policy', res.vulnerabilities.length);
-      res.filesystemPolicy = !!payloadPolicy;
-      if (!options['ignore-policy']) {
-        res.policy = res.policy || (payloadPolicy as string);
-        const policy = await snyk.policy.loadFromText(res.policy);
-        res = policy.filter(res, root);
-      }
-      analytics.add('vulns', res.vulnerabilities.length);
-
-      if (res.docker && dockerfilePackages) {
-        res.vulnerabilities = res.vulnerabilities.map((vuln) => {
-          const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
-          if (dockerfilePackage) {
-            (vuln as DockerIssue).dockerfileInstruction =
-              dockerfilePackage.instruction;
-          }
-          (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
-          return vuln;
-        });
-      }
-
-      if (
-        options.docker &&
-        options.file &&
-        options['exclude-base-image-vulns']
-      ) {
-        res.vulnerabilities = res.vulnerabilities.filter(
-          (vuln) => (vuln as DockerIssue).dockerfileInstruction,
-        );
-      }
-
-      res.uniqueCount = countUniqueVulns(res.vulnerabilities);
-
-      const result = {
-        ...res,
+      results.push({
+        ...result,
         targetFile,
         projectName,
         foundProjectCount,
         displayTargetFile,
-      };
-      results.push(result);
+      });
     }
     return results;
   } catch (error) {
@@ -227,12 +158,98 @@ async function runTest(
     throw new FailedToRunTestError(
       error.userMessage ||
         error.message ||
-        `Failed to test ${packageManager} project`,
+        `Failed to test ${projectType} project`,
       error.code,
     );
   } finally {
     spinner.clear<void>(spinnerLbl)();
   }
+}
+
+async function parseRes(
+  depGraph: depGraphLib.DepGraph | undefined,
+  pkgManager: string | undefined,
+  res: LegacyVulnApiResult,
+  options: Options & TestOptions,
+  payload: Payload,
+  payloadPolicy: string | undefined,
+  root: string,
+  dockerfilePackages: any,
+): Promise<TestResult> {
+  // TODO: docker doesn't have a package manager
+  // so this flow will not be applicable
+  // refactor to separate
+  if (depGraph && pkgManager) {
+    res = convertTestDepGraphResultToLegacy(
+      (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
+      depGraph,
+      pkgManager,
+      options.severityThreshold,
+    );
+
+    // For Node.js: inject additional information (for remediation etc.) into the response.
+    if (payload.modules) {
+      res.dependencyCount = payload.modules.numDependencies;
+      if (res.vulnerabilities) {
+        res.vulnerabilities.forEach((vuln) => {
+          if (payload.modules && payload.modules.pluck) {
+            const plucked = payload.modules.pluck(
+              vuln.from,
+              vuln.name,
+              vuln.version,
+            );
+            vuln.__filename = plucked.__filename;
+            vuln.shrinkwrap = plucked.shrinkwrap;
+            vuln.bundled = plucked.bundled;
+
+            // this is an edgecase when we're testing the directly vuln pkg
+            if (vuln.from.length === 1) {
+              return;
+            }
+
+            const parentPkg = moduleToObject(vuln.from[1]);
+            const parent = payload.modules.pluck(
+              vuln.from.slice(0, 2),
+              parentPkg.name,
+              parentPkg.version,
+            );
+            vuln.parentDepType = parent.depType;
+          }
+        });
+      }
+    }
+  }
+  // TODO: is this needed? we filter on the other side already based on policy
+  // this will move to be filtered server side soon & it will support `'ignore-policy'`
+  analytics.add('vulns-pre-policy', res.vulnerabilities.length);
+  res.filesystemPolicy = !!payloadPolicy;
+  if (!options['ignore-policy']) {
+    res.policy = res.policy || (payloadPolicy as string);
+    const policy = await snyk.policy.loadFromText(res.policy);
+    res = policy.filter(res, root);
+  }
+  analytics.add('vulns', res.vulnerabilities.length);
+
+  if (res.docker && dockerfilePackages) {
+    res.vulnerabilities = res.vulnerabilities.map((vuln) => {
+      const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
+      if (dockerfilePackage) {
+        (vuln as DockerIssue).dockerfileInstruction =
+          dockerfilePackage.instruction;
+      }
+      (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
+      return vuln;
+    });
+  }
+  if (options.docker && options.file && options['exclude-base-image-vulns']) {
+    res.vulnerabilities = res.vulnerabilities.filter(
+      (vuln) => (vuln as DockerIssue).dockerfileInstruction,
+    );
+  }
+
+  res.uniqueCount = countUniqueVulns(res.vulnerabilities);
+
+  return res;
 }
 
 function sendTestPayload(

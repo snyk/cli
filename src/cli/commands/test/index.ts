@@ -8,7 +8,12 @@ import { isCI } from '../../../lib/is-ci';
 import { apiTokenExists } from '../../../lib/api-token';
 import { SEVERITIES, FAIL_ON, FailOn } from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
-import { Options, TestOptions, ShowVulnPaths } from '../../../lib/types';
+import {
+  Options,
+  TestOptions,
+  ShowVulnPaths,
+  SupportedProjectTypes,
+} from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
 import { MethodArgs } from '../../args';
 import {
@@ -333,8 +338,8 @@ function displayResult(
 ) {
   const meta = formatTestMeta(res, options);
   const dockerAdvice = dockerRemediationForDisplay(res);
-  const packageManager =
-    (res.packageManager as SupportedPackageManagers) || options.packageManager;
+  const projectType =
+    (res.packageManager as SupportedProjectTypes) || options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
   const prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
 
@@ -355,7 +360,7 @@ function displayResult(
   let multiProjAdvice = '';
 
   const advertiseGradleSubProjectsCount =
-    packageManager === 'gradle' && !options['gradle-sub-project'];
+    projectType === 'gradle' && !options['gradle-sub-project'];
   if (advertiseGradleSubProjectsCount && foundProjectCount) {
     multiProjAdvice = chalk.bold.white(
       `\n\nThis project has multiple sub-projects (${foundProjectCount}), ` +
@@ -396,6 +401,31 @@ function displayResult(
   }
 
   // NOT OK => We found some vulns, let's format the vulns info
+
+  return getDisplayedOutput(
+    res,
+    options,
+    testedInfoText,
+    localPackageTest,
+    projectType,
+    meta,
+    prefix,
+    multiProjAdvice,
+    dockerAdvice,
+  );
+}
+
+function getDisplayedOutput(
+  res: TestResult,
+  options: Options & TestOptions,
+  testedInfoText: string,
+  localPackageTest: any,
+  projectType: string,
+  meta: string,
+  prefix: string,
+  multiProjAdvice: string,
+  dockerAdvice: string,
+): string {
   const vulnCount = res.vulnerabilities && res.vulnerabilities.length;
   const singleVulnText = res.licensesPolicy ? 'issue' : 'vulnerability';
   const multipleVulnsText = res.licensesPolicy ? 'issues' : 'vulnerabilities';
@@ -423,7 +453,9 @@ function displayResult(
 
   if (
     localPackageTest &&
-    WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
+    WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(
+      projectType as SupportedPackageManagers,
+    )
   ) {
     wizardAdvice = chalk.bold.green(
       '\n\nRun `snyk wizard` to address these issues.',
