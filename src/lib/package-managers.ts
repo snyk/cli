@@ -1,3 +1,7 @@
+export type SupportedProjectTypes =
+| SupportedCloudConfigs
+| SupportedPackageManagers;
+
 export type SupportedPackageManagers =
   | 'rubygems'
   | 'npm'
@@ -13,6 +17,8 @@ export type SupportedPackageManagers =
   | 'paket'
   | 'composer'
   | 'cocoapods';
+
+export type SupportedCloudConfigs = 'k8sconfig' | 'helmconfig';
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   readonly [packageManager in SupportedPackageManagers]: string;

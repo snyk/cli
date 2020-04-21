@@ -33,7 +33,7 @@ import { GitTarget } from '../project-metadata/types';
 import * as projectMetadata from '../project-metadata';
 import { DepTree, Options, TestOptions } from '../types';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
-import { SupportedPackageManagers } from '../package-managers';
+import { SupportedProjectTypes } from '../package-managers';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 
@@ -79,7 +79,7 @@ interface Payload {
 }
 
 async function runTest(
-  packageManager: SupportedPackageManagers | undefined,
+  projectType: SupportedProjectTypes | undefined,
   root: string,
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
@@ -111,8 +111,68 @@ async function runTest(
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
-      let res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
+      const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
 
+      const result = await parseRes(
+        depGraph,
+        pkgManager,
+        res,
+        options,
+        payload,
+        payloadPolicy,
+        root,
+        dockerfilePackages,
+        targetFile,
+        projectName,
+        foundProjectCount,
+        displayTargetFile,
+      );
+      results.push(result);
+    }
+    return results;
+  } catch (error) {
+    debug('Error running test', { error });
+    // handling denial from registry because of the feature flag
+    // currently done for go.mod
+    const isFeatureNotAllowed =
+      error.code === 403 && error.message.includes('Feature not allowed');
+
+    const hasFailedToGetVulnerabilities =
+      error.code === 404 &&
+      error.name.includes('FailedToGetVulnerabilitiesError');
+
+    if (isFeatureNotAllowed) {
+      throw NoSupportedManifestsFoundError([root]);
+    }
+    if (hasFailedToGetVulnerabilities) {
+      throw FailedToGetVulnsFromUnavailableResource(root, error.code);
+    }
+
+    throw new FailedToRunTestError(
+      error.userMessage ||
+        error.message ||
+        `Failed to test ${projectType} project`,
+      error.code,
+    );
+  } finally {
+    spinner.clear<void>(spinnerLbl)();
+  }
+}
+
+async function parseRes(
+  depGraph: depGraphLib.DepGraph | undefined,
+  pkgManager: string | undefined,
+  res: LegacyVulnApiResult,
+  options: Options & TestOptions,
+  payload: Payload,
+  payloadPolicy: string | undefined,
+  root: string,
+  dockerfilePackages: any,
+  targetFile: string | undefined,
+  projectName: any,
+  foundProjectCount: any,
+  displayTargetFile: any,
+): Promise<TestResult> {
       // TODO: docker doesn't have a package manager
       // so this flow will not be applicable
       // refactor to separate
@@ -178,12 +238,7 @@ async function runTest(
           return vuln;
         });
       }
-
-      if (
-        options.docker &&
-        options.file &&
-        options['exclude-base-image-vulns']
-      ) {
+  if (options.docker && options.file && options['exclude-base-image-vulns']) {
         res.vulnerabilities = res.vulnerabilities.filter(
           (vuln) => (vuln as DockerIssue).dockerfileInstruction,
         );
@@ -191,44 +246,14 @@ async function runTest(
 
       res.uniqueCount = countUniqueVulns(res.vulnerabilities);
 
-      const result = {
+  return {
         ...res,
         targetFile,
         projectName,
         foundProjectCount,
         displayTargetFile,
       };
-      results.push(result);
-    }
-    return results;
-  } catch (error) {
-    debug('Error running test', { error });
-    // handling denial from registry because of the feature flag
-    // currently done for go.mod
-    const isFeatureNotAllowed =
-      error.code === 403 && error.message.includes('Feature not allowed');
-
-    const hasFailedToGetVulnerabilities =
-      error.code === 404 &&
-      error.name.includes('FailedToGetVulnerabilitiesError');
-
-    if (isFeatureNotAllowed) {
-      throw NoSupportedManifestsFoundError([root]);
-    }
-    if (hasFailedToGetVulnerabilities) {
-      throw FailedToGetVulnsFromUnavailableResource(root, error.code);
-    }
-
-    throw new FailedToRunTestError(
-      error.userMessage ||
-        error.message ||
-        `Failed to test ${packageManager} project`,
-      error.code,
-    );
-  } finally {
-    spinner.clear<void>(spinnerLbl)();
   }
-}
 
 function sendTestPayload(
   payload: Payload,
