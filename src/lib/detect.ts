@@ -2,8 +2,9 @@ import * as fs from 'then-fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
 import * as _ from 'lodash';
-import { NoSupportedManifestsFoundError } from './errors';
+import { NoSupportedManifestsFoundError, NoSupportedCloudConfigFileError } from './errors';
 import { SupportedPackageManagers } from './package-managers';
+import { isValidK8sFile } from './cloud-config';
 
 const debug = debugLib('snyk-detect');
 
@@ -116,7 +117,17 @@ export function detectPackageManager(root: string, options) {
         );
       }
       file = options.file;
-      packageManager = detectPackageManagerFromFile(file);
+      if (!options.cloudConfig) {
+        packageManager = detectPackageManagerFromFile(file);
+      } else {
+        const fileContent = fs.readFileSync(file, 'utf-8');
+        const isK8sFile = isValidK8sFile(fileContent, file, {});
+        if (!isK8sFile) {
+          throw NoSupportedCloudConfigFileError([root]);
+        }
+        packageManager = 'k8sconfig'
+      }
+
     } else if (options.scanAllUnmanaged) {
       packageManager = 'maven';
     } else {

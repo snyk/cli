@@ -63,6 +63,7 @@ interface PayloadBody {
   docker?: any;
   displayTargetFile?: string;
   target?: GitTarget | null;
+  fileContent?: string;
 }
 
 interface Payload {
@@ -111,23 +112,28 @@ async function runTest(
       analytics.add('depGraph', !!depGraph);
       analytics.add('isDocker', !!(payload.body && payload.body.docker));
       // Type assertion might be a lie, but we are correcting that below
-      const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
+      let res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
 
-      const result = await parseRes(
-        depGraph,
-        pkgManager,
-        res,
-        options,
-        payload,
-        payloadPolicy,
-        root,
-        dockerfilePackages,
-        targetFile,
-        projectName,
-        foundProjectCount,
-        displayTargetFile,
-      );
-      results.push(result);
+      if ((res as any).result.cloudConfigResults) {
+        const result = await parseCloudConfigRes(res, targetFile, projectName);
+        results.push(result);
+      } else {
+        const result = await parseRes(
+          depGraph,
+          pkgManager,
+          res,
+          options,
+          payload,
+          payloadPolicy,
+          root,
+          dockerfilePackages,
+          targetFile,
+          projectName,
+          foundProjectCount,
+          displayTargetFile,
+        );
+        results.push(result);
+      }
     }
     return results;
   } catch (error) {
@@ -173,87 +179,107 @@ async function parseRes(
   foundProjectCount: any,
   displayTargetFile: any,
 ): Promise<TestResult> {
-      // TODO: docker doesn't have a package manager
-      // so this flow will not be applicable
-      // refactor to separate
-      if (depGraph && pkgManager) {
-        res = convertTestDepGraphResultToLegacy(
-          (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
-          depGraph,
-          pkgManager,
-          options.severityThreshold,
-        );
+  // TODO: docker doesn't have a package manager
+  // so this flow will not be applicable
+  // refactor to separate
+  if (depGraph && pkgManager) {
+    res = convertTestDepGraphResultToLegacy(
+      (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
+      depGraph,
+      pkgManager,
+      options.severityThreshold,
+    );
 
-        // For Node.js: inject additional information (for remediation etc.) into the response.
-        if (payload.modules) {
-          res.dependencyCount = payload.modules.numDependencies;
-          if (res.vulnerabilities) {
-            res.vulnerabilities.forEach((vuln) => {
-              if (payload.modules && payload.modules.pluck) {
-                const plucked = payload.modules.pluck(
-                  vuln.from,
-                  vuln.name,
-                  vuln.version,
-                );
-                vuln.__filename = plucked.__filename;
-                vuln.shrinkwrap = plucked.shrinkwrap;
-                vuln.bundled = plucked.bundled;
+    // For Node.js: inject additional information (for remediation etc.) into the response.
+    if (payload.modules) {
+      res.dependencyCount = payload.modules.numDependencies;
+      if (res.vulnerabilities) {
+        res.vulnerabilities.forEach((vuln) => {
+          if (payload.modules && payload.modules.pluck) {
+            const plucked = payload.modules.pluck(
+              vuln.from,
+              vuln.name,
+              vuln.version,
+            );
+            vuln.__filename = plucked.__filename;
+            vuln.shrinkwrap = plucked.shrinkwrap;
+            vuln.bundled = plucked.bundled;
 
-                // this is an edgecase when we're testing the directly vuln pkg
-                if (vuln.from.length === 1) {
-                  return;
-                }
+            // this is an edgecase when we're testing the directly vuln pkg
+            if (vuln.from.length === 1) {
+              return;
+            }
 
-                const parentPkg = moduleToObject(vuln.from[1]);
-                const parent = payload.modules.pluck(
-                  vuln.from.slice(0, 2),
-                  parentPkg.name,
-                  parentPkg.version,
-                );
-                vuln.parentDepType = parent.depType;
-              }
-            });
+            const parentPkg = moduleToObject(vuln.from[1]);
+            const parent = payload.modules.pluck(
+              vuln.from.slice(0, 2),
+              parentPkg.name,
+              parentPkg.version,
+            );
+            vuln.parentDepType = parent.depType;
           }
-        }
-      }
-      // TODO: is this needed? we filter on the other side already based on policy
-      // this will move to be filtered server side soon & it will support `'ignore-policy'`
-      analytics.add('vulns-pre-policy', res.vulnerabilities.length);
-      res.filesystemPolicy = !!payloadPolicy;
-      if (!options['ignore-policy']) {
-        res.policy = res.policy || (payloadPolicy as string);
-        const policy = await snyk.policy.loadFromText(res.policy);
-        res = policy.filter(res, root);
-      }
-      analytics.add('vulns', res.vulnerabilities.length);
-
-      if (res.docker && dockerfilePackages) {
-        res.vulnerabilities = res.vulnerabilities.map((vuln) => {
-          const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
-          if (dockerfilePackage) {
-            (vuln as DockerIssue).dockerfileInstruction =
-              dockerfilePackage.instruction;
-          }
-          (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
-          return vuln;
         });
       }
-  if (options.docker && options.file && options['exclude-base-image-vulns']) {
-        res.vulnerabilities = res.vulnerabilities.filter(
-          (vuln) => (vuln as DockerIssue).dockerfileInstruction,
-        );
-      }
+    }
+  }
+  // TODO: is this needed? we filter on the other side already based on policy
+  // this will move to be filtered server side soon & it will support `'ignore-policy'`
+  analytics.add('vulns-pre-policy', res.vulnerabilities.length);
+  res.filesystemPolicy = !!payloadPolicy;
+  if (!options['ignore-policy']) {
+    res.policy = res.policy || (payloadPolicy as string);
+    const policy = await snyk.policy.loadFromText(res.policy);
+    res = policy.filter(res, root);
+  }
+  analytics.add('vulns', res.vulnerabilities.length);
 
-      res.uniqueCount = countUniqueVulns(res.vulnerabilities);
+  if (res.docker && dockerfilePackages) {
+    res.vulnerabilities = res.vulnerabilities.map((vuln) => {
+      const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
+      if (dockerfilePackage) {
+        (vuln as DockerIssue).dockerfileInstruction =
+          dockerfilePackage.instruction;
+      }
+      (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
+      return vuln;
+    });
+  }
+  if (options.docker && options.file && options['exclude-base-image-vulns']) {
+    res.vulnerabilities = res.vulnerabilities.filter(
+      (vuln) => (vuln as DockerIssue).dockerfileInstruction,
+    );
+  }
+
+  res.uniqueCount = countUniqueVulns(res.vulnerabilities);
+  
+  return {
+    ...res,
+    targetFile,
+    projectName,
+    foundProjectCount,
+    displayTargetFile,
+  };
+}
+
+async function parseCloudConfigRes(
+  res: LegacyVulnApiResult,
+  targetFile: string | undefined,
+  projectName: any,
+): Promise<TestResult> {
+  const meta = (res as any).meta || {};
+
+  // severityThreshold =
+  //   severityThreshold === SEVERITY.LOW ? undefined : severityThreshold;
 
   return {
-        ...res,
-        targetFile,
-        projectName,
-        foundProjectCount,
-        displayTargetFile,
-      };
-  }
+    ...res,
+    targetFile,
+    projectName,
+    org: meta.org,
+    policy: meta.policy,
+    isPrivate: !meta.isPublic,
+  };
+}
 
 function sendTestPayload(
   payload: Payload,
@@ -314,18 +340,79 @@ function assemblePayloads(
   return assembleRemotePayloads(root, options);
 }
 
+async function assembleCloudConfigLocalPayloads(
+  root,
+  options: Options & TestOptions,
+): Promise<Payload[]> {
+  const payloads: Payload[] = [];
+  if (!options.file) {
+    return payloads;
+  }
+  const baseName = path.basename(options.file);
+  //TODO(orka): dup
+  // Forcing options.path to be a string as pathUtil requires is to be stringified
+  const targetFile = options.file;
+  const targetFileRelativePath = targetFile
+    ? pathUtil.join(pathUtil.resolve(`${options.path}`), targetFile)
+    : '';
+
+  const fileContent = fs.readFileSync(targetFile, 'utf8');
+  let body: PayloadBody = {
+    // WARNING: be careful changing this as it affects project uniqueness
+    targetFile,
+    fileContent,
+    // TODO: Remove relativePath prop once we gather enough ruby related logs
+    targetFileRelativePath: `${targetFileRelativePath}`, // Forcing string
+    projectNameOverride: options.projectName,
+    originalProjectName: baseName,
+    // policy: policy && policy.toString(),
+    policy: '',
+    displayTargetFile: targetFile,
+    // target: await projectMetadata.getInfo(pkg, options),
+  };
+
+  //TODO(orka): dup
+  const payload: Payload = {
+    method: 'POST',
+    url: config.API + (options.vulnEndpoint || '/test-cloud-config'),
+    json: true,
+    headers: {
+      'x-is-ci': isCI(),
+      authorization: 'token ' + (snyk as any).api,
+    },
+    qs: common.assembleQueryString(options),
+    body,
+  };
+
+  // if (packageManager && ['yarn', 'npm'].indexOf(packageManager) !== -1) {
+  //   const isLockFileBased =
+  //     targetFile &&
+  //     (targetFile.endsWith('package-lock.json') ||
+  //       targetFile.endsWith('yarn.lock'));
+  //   if (!isLockFileBased || options.traverseNodeModules) {
+  //     payload.modules = pkg as DepTreeFromResolveDeps; // See the output of resolve-deps
+  //   }
+  // }
+  payloads.push(payload);
+  return payloads;
+}
 // Payload to send to the Registry for scanning a package from the local filesystem.
 async function assembleLocalPayloads(
   root,
   options: Options & TestOptions,
 ): Promise<Payload[]> {
   // For --all-projects packageManager is yet undefined here. Use 'all'
-  const analysisType =
-    (options.docker ? 'docker' : options.packageManager) || 'all';
+
+  let analysisTypeText = options.packageManager + ' dependencies for ';
+  if (options.docker) {
+    analysisTypeText = 'docker dependencies for ';
+  } else if (options.cloudConfig) {
+    analysisTypeText = 'Cloud configurations for ';
+  }
+
   const spinnerLbl =
     'Analyzing ' +
-    analysisType +
-    ' dependencies for ' +
+    analysisTypeText +
     (path.relative('.', path.join(root, options.file || '')) ||
       path.relative('..', '.') + ' project dir');
 
@@ -333,6 +420,9 @@ async function assembleLocalPayloads(
     const payloads: Payload[] = [];
 
     await spinner(spinnerLbl);
+    if (options.cloudConfig) {
+      return assembleCloudConfigLocalPayloads(root, options);
+    }
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
     const javaVersion = _.get(
@@ -497,8 +587,9 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
   addPackageAnalytics(pkg);
   const encodedName = encodeURIComponent(pkg.name + '@' + pkg.version);
   // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests)
-  const url = `${config.API}${options.vulnEndpoint ||
-    `/vuln/${options.packageManager}`}/${encodedName}`;
+  const url = `${config.API}${
+    options.vulnEndpoint || `/vuln/${options.packageManager}`
+  }/${encodedName}`;
   return [
     {
       method: 'GET',

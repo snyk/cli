@@ -77,6 +77,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error('`--remote-repo-url` is not supported for container scans');
   }
 
+  if (options.cloudConfig && options['remote-repo-url']) {
+    throw new Error('`--remote-repo-url` is not supported for cloud configuration scans');
+  }
+
   apiTokenExists();
 
   // Part 1: every argument is a scan target; process them sequentially
@@ -90,6 +94,8 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         analysisType = 'all';
       } else if (options.docker) {
         analysisType = 'docker';
+      } else if (options.cloudConfig) {
+        analysisType = 'cloudconfig';
       } else {
         packageManager = detect.detectPackageManager(path, options);
       }
@@ -231,6 +237,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     'policy-path': options['policy-path'],
     'project-name': options['project-name'] || config.PROJECT_NAME,
     isDocker: !!options.docker,
+    isCloudConfig: !!options.cloudConfig,
     prune: !!options['prune-repeated-subdependencies'],
     'experimental-dep-graph': !!options['experimental-dep-graph'],
     'remote-repo-url': options['remote-repo-url'],

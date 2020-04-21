@@ -36,6 +36,7 @@ import {
   formatDockerBinariesIssues,
   getSeverityValue,
 } from './formatters';
+import { formatIssue } from './formatters/remediation-based-format-issues';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -343,7 +344,10 @@ function displayResult(
   if (res instanceof Error) {
     return prefix + res.message;
   }
-  const issuesText = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+  const issuesText =
+    res.licensesPolicy || res.packageManager === 'k8sconfig'
+      ? 'issues'
+      : 'vulnerabilities';
   let pathOrDepsText = '';
 
   if (res.hasOwnProperty('dependencyCount')) {
@@ -365,6 +369,7 @@ function displayResult(
   }
 
   // OK  => no vulns found, return
+  //TODO(orka): handle res.ok
   if (res.ok && res.vulnerabilities.length === 0) {
     const vulnPathsText = options.showVulnPaths
       ? 'no vulnerable paths found.'
@@ -397,7 +402,17 @@ function displayResult(
   }
 
   // NOT OK => We found some vulns, let's format the vulns info
-  
+  if (res.packageManager === 'k8sconfig') {
+    return getCloudConfigDisplayedOutput(
+      res,
+      options,
+      testedInfoText,
+      meta,
+      prefix,
+      multiProjAdvice,
+    );
+  }
+
   return getDisplayedOutput(
     res,
     options,
@@ -409,6 +424,56 @@ function displayResult(
     multiProjAdvice,
     dockerAdvice,
   );
+}
+
+function getCloudConfigDisplayedOutput(
+  res: TestResult,
+  testOptions: Options & TestOptions,
+  testedInfoText: string,
+  meta: string,
+  prefix: string,
+  multiProjAdvice: string,
+): string {
+  const issuesTextArray = [chalk.bold.white('\nCloud Configuration issues:')];
+
+  const NoNote = false;
+  const NotNew = false;
+
+  const issues = (res as any).result.cloudConfigResults;
+
+  issues
+    .sort((a, b) => getSeverityValue(b.severity) - getSeverityValue(a.severity))
+    .forEach((issue) => {
+      const path: string[][] = [issue.cloudConfigPath];
+      issuesTextArray.push(
+        formatIssue(
+          issue.id,
+          issue.title,
+          issue.severity,
+          NotNew,
+          'Deployment', // `${issue.packageName}@${issue.version}`,
+          path,
+          testOptions,
+          NoNote,
+          [],
+          issue.reachability,
+        ),
+      );
+    });
+
+  const issuesInfoOutput: string[] = [];
+  if (issuesTextArray.length > 0) {
+    issuesInfoOutput.push(issuesTextArray.join('\n'));
+  }
+
+  let body = issuesInfoOutput.join('\n\n') + '\n\n' + meta;
+
+  const vulnCountText = `found ${issues.length} issues`;
+  const summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
+
+  body = body + '\n\n' + summary;
+
+  return prefix + body + multiProjAdvice;
 }
 
 function getDisplayedOutput(

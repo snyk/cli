@@ -18,3 +18,5 @@ export { AuthFailedError } from './authentication-failed-error';
 export { OptionMissingErrorError } from './option-missing-error';
 export { ExcludeFlagBadInputError } from './exclude-flag-bad-input';
 export { UnsupportedOptionCombinationError } from './unsupported-option-combination-error';
+export { NoSupportedCloudConfigFileError, IlegalCloudConfigFileError } from './invalid-cloud-config-file';
+

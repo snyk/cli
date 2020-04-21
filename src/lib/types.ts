@@ -29,6 +29,7 @@ export interface Options {
   org?: string | null;
   path: string;
   docker?: boolean;
+  cloudConfig? : boolean;
   file?: string;
   policy?: string;
   json?: boolean;
@@ -59,6 +60,7 @@ export interface Options {
 export interface MonitorOptions {
   id?: string;
   docker?: boolean;
+  cloudConfig?: boolean;
   file?: string;
   policy?: string;
   json?: boolean;
@@ -78,6 +80,7 @@ export interface MonitorMeta {
   'policy-path': string;
   'project-name': string;
   isDocker: boolean;
+  isCloudConfig: boolean;
   prune: boolean;
   'experimental-dep-graph'?: boolean;
   'remote-repo-url'?: string;

@@ -161,6 +161,8 @@ export interface TestResult extends LegacyVulnApiResult {
   projectName?: string;
   displayTargetFile?: string; // used for display only
   foundProjectCount?: number;
+  //TODO(orka): change
+  cloudConfigResults?: any[];
 }
 
 interface UpgradePathItem {

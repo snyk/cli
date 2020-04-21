@@ -53,6 +53,7 @@ function run(root, options) {
   if (
     !(
       options.docker ||
+      options.cloudConfig ||
       options.allProjects ||
       pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager]
     )
