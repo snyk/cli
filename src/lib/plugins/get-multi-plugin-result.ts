@@ -11,12 +11,14 @@ import { getSinglePluginResult } from './get-single-plugin-result';
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
+import { CallGraph } from '@snyk/cli-interface/legacy/common';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
   extends cliInterface.legacyCommon.ScannedProject {
   packageManager: SupportedPackageManagers;
   plugin: PluginMetadata;
+  callGraph?: CallGraph;
 }
 export interface MultiProjectResultCustom
   extends cliInterface.legacyPlugin.MultiProjectResult {

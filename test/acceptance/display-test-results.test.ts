@@ -103,7 +103,7 @@ test('test reachability info is displayed', async (t) => {
     await snykTest('maven-app');
   } catch (error) {
     const { message } = error;
-    t.match(message, '[Reachable by function call]');
+    t.match(message, '[Likely reachable]');
   }
 
   snykTestStub.restore();

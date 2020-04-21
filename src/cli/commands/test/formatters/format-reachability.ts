@@ -8,15 +8,15 @@ const reachabilityLevels: {
 } = {
   [REACHABILITY.FUNCTION]: {
     color: chalk.redBright,
-    text: 'Reachable by function call',
+    text: 'Likely reachable',
   },
   [REACHABILITY.PACKAGE]: {
     color: chalk.yellow,
-    text: 'Reachable by package import',
+    text: '', // Not supported ATM
   },
   [REACHABILITY.UNREACHABLE]: {
     color: chalk.blueBright,
-    text: 'Unreachable',
+    text: 'Likely unreachable',
   },
   [REACHABILITY.NO_INFO]: {
     color: (str) => str,

@@ -9,7 +9,7 @@ export function convertSingleResultToMultiCustom(
   if (!inspectRes.package.targetFile && inspectRes.plugin) {
     inspectRes.package.targetFile = inspectRes.plugin.targetFile;
   }
-  const { plugin, meta, package: depTree } = inspectRes;
+  const { plugin, meta, package: depTree, callGraph } = inspectRes;
 
   if (!depTree.targetFile && plugin) {
     depTree.targetFile = plugin.targetFile;
@@ -21,6 +21,7 @@ export function convertSingleResultToMultiCustom(
       {
         plugin: plugin as any,
         depTree,
+        callGraph,
         meta,
         targetFile: plugin.targetFile,
         packageManager:
