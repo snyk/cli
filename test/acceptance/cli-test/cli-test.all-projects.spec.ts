@@ -103,11 +103,22 @@ export const AllProjectsTests: AcceptanceTests = {
       utils.chdirWorkspaces();
 
       // mock python plugin becuase CI tooling doesn't have pipenv installed
-      const mockPlugin = {
+      const mockPipfile = {
         async inspect() {
           return {
             plugin: {
               targetFile: 'Pipfile',
+              name: 'snyk-python-plugin',
+            },
+            package: {},
+          };
+        },
+      };
+      const mockRequirements = {
+        async inspect() {
+          return {
+            plugin: {
+              targetFile: 'python-app-with-req-file/requirements.txt',
               name: 'snyk-python-plugin',
             },
             package: {},
@@ -119,7 +130,12 @@ export const AllProjectsTests: AcceptanceTests = {
       // detect pip plugin called only with Pipfile (and not requirement.txt)
       loadPlugin
         .withArgs('pip', sinon.match.has('file', 'Pipfile'))
-        .returns(mockPlugin);
+        .returns(mockPipfile)
+        .withArgs(
+          'pip',
+          sinon.match.has('file', 'python-app-with-req-file/requirements.txt'),
+        )
+        .returns(mockRequirements);
       loadPlugin.callThrough(); // don't mock other plugins
 
       const result = await params.cli.test('mono-repo-project', {

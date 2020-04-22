@@ -299,6 +299,16 @@ test('request with https proxy calls needle as expected', (t) => {
 
 test('request with http proxy calls needle as expected', (t) => {
   needleStub.yields(null, { statusCode: 200 }, 'text');
+
+  // NO_PROXY is set in CircleCI and brakes test purpose
+  const tmpNoProxy = process.env.NO_PROXY;
+  delete process.env.NO_PROXY;
+
+  // Restore env variables
+  t.teardown(() => {
+    process.env.NO_PROXY = tmpNoProxy;
+  });
+
   process.env.http_proxy = 'http://proxy:8080';
   const payload = {
     url: 'http://localhost',
