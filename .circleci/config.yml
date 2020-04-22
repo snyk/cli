@@ -152,9 +152,10 @@ jobs:
     resource_class: small
     steps:
       - install_deps
+      - run: npm i -g semantic-release @semantic-release/exec
       - run:
           name: Publish to GitHub
-          command: npx semantic-release
+          command: semantic-release
 
 workflows:
   version: 2
