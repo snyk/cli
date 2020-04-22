@@ -46,7 +46,11 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(loadPlugin.withArgs('paket').calledOnce, 'calls nuget plugin');
       t.ok(loadPlugin.withArgs('pip').calledOnce, 'calls pip plugin');
 
-      t.match(result, 'rubygems/some/project-id', 'ruby project in output');
+      t.match(
+        result,
+        'rubygems/graph/some/project-id',
+        'ruby project in output',
+      );
       t.match(result, 'npm/graph/some/project-id', 'npm project in output');
       t.match(result, 'maven/some/project-id', 'maven project in output ');
       t.match(result, 'nuget/some/project-id', 'nuget project in output');
@@ -143,7 +147,7 @@ export const AllProjectsTests: AcceptanceTests = {
 
       t.match(
         result,
-        'rubygems/some/project-id',
+        'rubygems/graph/some/project-id',
         'rubygems project was monitored',
       );
 
@@ -154,12 +158,23 @@ export const AllProjectsTests: AcceptanceTests = {
       );
 
       const request = params.server.popRequest();
+      const ffRequests = params.server.popRequests(2);
+
+      t.equal(
+        ffRequests.every((req) => req.url.includes('experimentalDepGraph')),
+        true,
+        'all left requests are feature flag requests',
+      );
       t.equal(
         params.server._reqLog.length,
         0,
         'no other requests sent (yarn error ignored)',
       );
-      t.match(request.url, '/api/v1/monitor/rubygems', 'puts at correct url');
+      t.match(
+        request.url,
+        '/api/v1/monitor/rubygems/graph',
+        'puts at correct url',
+      );
       t.notOk(request.body.targetFile, "doesn't send the targetFile");
       t.equal(request.method, 'PUT', 'makes PUT request');
       t.equal(
@@ -334,6 +349,13 @@ export const AllProjectsTests: AcceptanceTests = {
         });
 
         const requests = params.server.popRequests(7);
+        const ffRequests = params.server.popRequests(3);
+
+        t.equal(
+          ffRequests.every((req) => req.url.includes('experimentalDepGraph')),
+          true,
+          'all left requests are feature flag requests',
+        );
         t.equal(requests.length, 7, 'sends expected # requests'); // extra feature-flags request
         t.equal(
           params.server._reqLog.length,

@@ -501,9 +501,10 @@ test('`monitor ruby-app`', async (t) => {
     versionNumber,
     'sends version number',
   );
-  t.match(req.url, '/monitor/rubygems', 'puts at correct url');
+  t.match(req.url, '/monitor/rubygems/graph', 'puts at correct url');
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-  t.ok(req.body.package.dependencies, 'dependencies sent instead of files');
+  const depGraphJSON = req.body.depGraphJSON;
+  t.ok(depGraphJSON);
 });
 
 test('`monitor maven-app`', async (t) => {
