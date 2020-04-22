@@ -4,15 +4,17 @@ orbs:
   win: circleci/windows@2.2.0
 
 defaults: &defaults
-  environment:
-    npm_config_loglevel: silent
   parameters:
     node_version:
       type: string
       default: ""
+  working_directory: ~/snyk
+
+windows_defaults: &windows_defaults
+  environment:
+    npm_config_loglevel: silent
   executor:
     name: win/default
-  working_directory: ~/snyk
 
 commands:
   install_deps:
@@ -36,10 +38,15 @@ commands:
           root: .
           paths:
             - dist/
-  install_maven:
+  install_maven_windows:
     description: Install maven
     steps:
       - run: choco install maven
+  install_maven_unix:
+    description: Install maven
+    steps:
+      - run: sudo apt update
+      - run: sudo apt install -y maven
   install_node_npm:
     description: Install correct Node version
     parameters:
@@ -64,11 +71,40 @@ commands:
           command: npm --version
 
 jobs:
-  test-all:
+  common:
     <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    steps:
+      - show_node_version
+      - checkout
+      - attach_workspace:
+          at: ~/snyk
+      - install_deps
+      - build_ts
+      - run:
+          name: Run auth
+          command: npm run snyk-auth
+      - run:
+          name: Run tests
+          command: npm run test:common
+
+  danger:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    steps:
+      - checkout
+      - run:
+          name: Danger Zone
+          command: npx danger ci --failOnErrors
+
+  test-windows:
+    <<: *defaults
+    <<: *windows_defaults
     steps:
       - run: git config --global core.autocrlf false
-      - install_maven
+      - install_maven_windows
       - install_node_npm:
           node_version: << parameters.node_version >>
       - show_node_version
@@ -86,19 +122,130 @@ jobs:
       - run:
           name: Run tests
           command: npm run test-windows
+
+  test-unix:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    steps:
+      - install_maven_unix
+      - show_node_version
+      - checkout
+      - attach_workspace:
+          at: ~/snyk
+      - install_deps
+      - build_ts
+      - run:
+          name: npm version
+          command: npm --version
+      - run:
+          name: Run auth
+          command: npm run snyk-auth
+      - run:
+          name: Run tests
+          command: npm run test:test
+
+  release:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    resource_class: small
+    steps:
+      - install_deps
+      - run:
+          name: Publish to GitHub
+          command: npx semantic-release
+
 workflows:
   version: 2
   test_and_release:
     jobs:
-      - test-all:
-          name: Test Node v12
+      - common:
+          name: Common
+          context: nodejs-install
+          node_version: "8"
+          filters:
+            branches:
+              ignore:
+                - master
+      - danger:
+          name: Danger Zone
+          node_version: "8"
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-windows:
+          name: Windows Tests for Node v12 support
           context: nodejs-install
           node_version: "12.0.0"
-      - test-all:
-          name: Test Node v10
+          requires:
+            - Common
+            - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-windows:
+          name: Windows Tests for Node v10 support
           context: nodejs-install
           node_version: "10.0.0"
-      - test-all:
-          name: Test Node v8
+          requires:
+            - Common
+            - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-windows:
+          name: Windows Tests for Node v8 support
           context: nodejs-install
           node_version: "8.17.0"
+          requires:
+            - Common
+            - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-unix:
+          name: Unix Tests for Node v12 support
+          context: nodejs-install
+          node_version: "12"
+          requires:
+            - Common
+            - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-unix:
+          name: Unix Tests for Node v10 support
+          context: nodejs-install
+          node_version: "10"
+          requires:
+            - Common
+            - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-unix:
+          name: Unix Tests for Node v8 support
+          context: nodejs-install
+          node_version: "8"
+          requires:
+            - Common
+            - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - release:
+          name: Release
+          context: nodejs-app-release
+          node_version: "10"
+          filters:
+            branches:
+              only:
+                - master

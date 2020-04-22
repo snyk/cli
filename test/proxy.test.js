@@ -43,6 +43,16 @@ test('request respects proxy environment variables', function(t) {
   });
 
   t.test('http_proxy', function(t) {
+    // NO_PROXY is set in CircleCI and brakes test purpose
+    const tmpNoProxy = process.env.NO_PROXY;
+    delete process.env.NO_PROXY;
+
+    // Restore env variables
+    t.teardown(() => {
+      process.env.NO_PROXY = tmpNoProxy;
+      delete process.env.http_proxy;
+    });
+
     process.env.http_proxy = `http://localhost:${proxyPort}`;
     var proxy = http.createServer(function(req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'http_proxy url ok');
@@ -54,11 +64,20 @@ test('request respects proxy environment variables', function(t) {
       .catch((err) => t.fail(err.message))
       .then(() => {
         proxy.close();
-        delete process.env.http_proxy;
       });
   });
 
   t.test('HTTP_PROXY', function(t) {
+    // NO_PROXY is set in CircleCI and brakes test purpose
+    const tmpNoProxy = process.env.NO_PROXY;
+    delete process.env.NO_PROXY;
+
+    // Restore env variables
+    t.teardown(() => {
+      process.env.NO_PROXY = tmpNoProxy;
+      delete process.env.HTTP_PROXY;
+    });
+
     process.env.HTTP_PROXY = `http://localhost:${proxyPort}`;
     var proxy = http.createServer(function(req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'HTTP_PROXY url ok');
@@ -70,7 +89,6 @@ test('request respects proxy environment variables', function(t) {
       .catch((err) => t.fail(err.message))
       .then(() => {
         proxy.close();
-        delete process.env.HTTP_PROXY;
       });
   });
 
