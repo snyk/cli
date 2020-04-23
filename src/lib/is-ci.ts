@@ -14,6 +14,7 @@ const ciEnvs = new Set([
   'GOCD_SERVER_HOST',
   'BUILDKITE',
   'TF_BUILD',
+  'SYSTEM_TEAMFOUNDATIONSERVERURI', // for Azure DevOps Pipelines
 ]);
 
 export function isCI(): boolean {
