@@ -57,6 +57,7 @@
     "@snyk/configstore": "^3.2.0-rc1",
     "@snyk/dep-graph": "1.16.1",
     "@snyk/gemfile": "1.2.0",
+    "@snyk/ruby-semver": "2.1.2",
     "@snyk/snyk-cocoapods-plugin": "2.1.1",
     "@snyk/update-notifier": "^2.5.1-rc2",
     "@types/agent-base": "^4.2.0",
