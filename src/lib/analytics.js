@@ -22,6 +22,9 @@ function analytics(data) {
     data = {};
   }
 
+  analytics.add('integrationName', process.env.SNYK_INTEGRATION_NAME || '');
+  analytics.add('integrationVersion', process.env.SNYK_INTEGRATION_VERSION || '');
+
   // merge any new data with data we picked up along the way
   if (Array.isArray(data.args)) {
     // this is an overhang from the cli/args.js and we don't want it
