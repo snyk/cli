@@ -5,14 +5,16 @@ module.exports = function(root, apikey, notAuthorizedApiKey) {
   var server = restify.createServer({
     name: 'snyk-mock-server',
     version: '1.0.0',
+    handleUncaughtExceptions: true,
   });
 
-  server.use(restify.acceptParser(server.acceptable));
-  server.use(restify.queryParser());
-  server.use(restify.bodyParser());
+  server.use(restify.plugins.acceptParser(server.acceptable));
+  server.use(restify.plugins.queryParser({ mapParams: true }));
+  server.use(restify.plugins.bodyParser({ mapParams: true }));
 
   [root + '/verify/callback', root + '/verify/token'].map(function(url) {
     server.post(url, function(req, res) {
+      console.log({ 'req.params': req.params });
       if (req.params.api) {
         if (
           req.params.api === apikey ||
@@ -55,7 +57,7 @@ module.exports = function(root, apikey, notAuthorizedApiKey) {
   });
 
   server.put(root + '/monitor/npm', function(req, res) {
-    res.send({
+    return res.send({
       id: 'test',
     });
   });

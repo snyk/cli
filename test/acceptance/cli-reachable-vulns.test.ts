@@ -6,13 +6,14 @@ const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
 
 const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
-process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
+const BASE_API = '/api/v1';
+process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 const apiKey = '123456789';
 let oldkey;
 let oldendpoint;
-const server = fakeServer(process.env.SNYK_API, apiKey);
+const server = fakeServer(BASE_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 

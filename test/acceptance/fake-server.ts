@@ -14,6 +14,7 @@ export function fakeServer(root, apikey) {
   const server = restify.createServer({
     name: 'snyk-mock-server',
     version: '1.0.0',
+    handleUncaughtExceptions: true,
   }) as FakeServer;
   server._reqLog = [];
   server.popRequest = () => {
@@ -22,9 +23,9 @@ export function fakeServer(root, apikey) {
   server.popRequests = (num: number) => {
     return server._reqLog.splice(server._reqLog.length - num, num);
   };
-  server.use(restify.acceptParser(server.acceptable));
-  server.use(restify.queryParser());
-  server.use(restify.bodyParser());
+  server.use(restify.plugins.acceptParser(server.acceptable));
+  server.use(restify.plugins.queryParser({ mapParams: true }));
+  server.use(restify.plugins.bodyParser({ mapParams: true }));
   server.use(function logRequest(req, res, next) {
     server._reqLog.push(req);
     next();
@@ -134,6 +135,7 @@ export function fakeServer(root, apikey) {
             (req as any).org
           } doesn\'t have \'${flag}\' feature enabled'`,
         });
+        return next();
       }
       res.send({
         ok: true,
