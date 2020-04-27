@@ -52,6 +52,55 @@ export const DockerTests: AcceptanceTests = {
       );
     },
 
+    '`test docker-archive:foo.tar --docker --experimental`': (params) => async (
+      t,
+    ) => {
+      const spyPlugin = stubDockerPluginResponse(
+        params.plugins,
+        {
+          plugin: {
+            packageManager: 'deb',
+          },
+          package: {},
+        },
+        t,
+      );
+
+      await params.cli.test('docker-archive:foo.tar', {
+        docker: true,
+        org: 'experimental-org',
+        experimental: true,
+      });
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      t.equal(req.body.depGraph.pkgManager.name, 'deb');
+      t.same(
+        spyPlugin.getCall(0).args,
+        [
+          'docker-archive:foo.tar',
+          null,
+          {
+            args: null,
+            file: null,
+            docker: true,
+            org: 'experimental-org',
+            projectName: null,
+            packageManager: null,
+            path: 'docker-archive:foo.tar',
+            showVulnPaths: 'some',
+            experimental: true,
+          },
+        ],
+        'calls docker plugin with expected arguments',
+      );
+    },
+
     '`test foo:latest --docker vulnerable paths`': (params) => async (t) => {
       stubDockerPluginResponse(
         params.plugins,

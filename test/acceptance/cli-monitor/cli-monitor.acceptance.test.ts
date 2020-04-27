@@ -1427,6 +1427,58 @@ test('`monitor foo:latest --docker` with custom policy path', async (t) => {
   t.deepEqual(policyString, expected, 'sends correct policy');
 });
 
+test('`monitor docker-archive:foo.tar --docker --experimental`', async (t) => {
+  const dockerImageId =
+    'sha256:' +
+    '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
+  const spyPlugin = stubDockerPluginResponse(
+    {
+      plugin: {
+        packageManager: 'rpm',
+        dockerImageId,
+      },
+      package: {},
+    },
+    t,
+  );
+
+  await cli.monitor('docker-archive:foo.tar', {
+    docker: true,
+    org: 'experimental-org',
+    experimental: true,
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(
+    req.url,
+    '/monitor/rpm',
+    'puts at correct url (uses package manager from plugin response)',
+  );
+  t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
+  t.same(
+    spyPlugin.getCall(0).args,
+    [
+      'docker-archive:foo.tar',
+      null,
+      {
+        args: null,
+        docker: true,
+        file: null,
+        org: 'experimental-org',
+        packageManager: null,
+        path: 'docker-archive:foo.tar',
+        experimental: true,
+      },
+    ],
+    'calls docker plugin with expected arguments',
+  );
+});
+
 test('monitor --json multiple folders', async (t) => {
   chdirWorkspaces('fail-on');
 
