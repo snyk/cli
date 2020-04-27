@@ -10,9 +10,6 @@ const notAuthorizedApiKey = 'notAuthorized';
 let oldkey;
 let oldendpoint;
 const BASE_API = '/api/v1';
-process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
-process.env.SNYK_HOST = 'http://localhost:' + port;
-process.env.LOG_LEVEL = '0';
 
 // tslint:disable-next-line:no-var-requires
 const server = require('../cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
@@ -198,11 +195,6 @@ test('test for non-existing', async (t) => {
 });
 
 after('teardown', async (t) => {
-  delete process.env.SNYK_API;
-  delete process.env.SNYK_HOST;
-  delete process.env.SNYK_PORT;
-  t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
-
   await server.close();
   t.pass('server shutdown');
   let key = 'set';

@@ -8,9 +8,6 @@ const apiKey = '123456789';
 
 const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
 const BASE_API = '/api/v1';
-process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
-process.env.SNYK_HOST = 'http://localhost:' + port;
-process.env.LOG_LEVEL = '0';
 let oldkey;
 let oldendpoint;
 let versionNumber;
@@ -61,11 +58,6 @@ test('"snyk test --severity-threshold=non-sense"', async (t) => {
 });
 
 test('teardown', async (t) => {
-  delete process.env.SNYK_API;
-  delete process.env.SNYK_HOST;
-  delete process.env.SNYK_PORT;
-  t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
-
   await new Promise((resolve) => {
     server.close(resolve);
   });

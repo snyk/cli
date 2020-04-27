@@ -8,8 +8,6 @@ const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 let oldkey;
 let oldendpoint;
 const BASE_API = '/api/v1';
-process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
-process.env.SNYK_HOST = 'http://localhost:' + port;
 
 const baseDir = __dirname + '/fixtures/';
 
@@ -57,11 +55,6 @@ test('throws when missing node_modules', async (t) => {
 
 test('teardown', (t) => {
   t.plan(4);
-
-  delete process.env.SNYK_API;
-  delete process.env.SNYK_HOST;
-  delete process.env.SNYK_PORT;
-  t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
   server.close(() => {
     t.pass('server shutdown');

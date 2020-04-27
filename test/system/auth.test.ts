@@ -8,9 +8,6 @@ const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 const apiKey = '123456789';
 const notAuthorizedApiKey = 'notAuthorized';
 const BASE_API = '/api/v1';
-process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
-process.env.SNYK_HOST = 'http://localhost:' + port;
-process.env.LOG_LEVEL = '0';
 
 // tslint:disable-next-line:no-var-requires
 const server = require('../cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
@@ -70,11 +67,6 @@ test('auth shows an appropriate error message when a request fails with a user m
 
 test('teardown', (t) => {
   t.plan(2);
-
-  delete process.env.SNYK_API;
-  delete process.env.SNYK_HOST;
-  delete process.env.SNYK_PORT;
-  t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
   server.close(() => {
     t.pass('server shutdown');

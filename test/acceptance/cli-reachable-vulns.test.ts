@@ -7,9 +7,7 @@ const { test, only } = tap;
 
 const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
 const BASE_API = '/api/v1';
-process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
-process.env.SNYK_HOST = 'http://localhost:' + port;
-process.env.LOG_LEVEL = '0';
+
 const apiKey = '123456789';
 let oldkey;
 let oldendpoint;
@@ -66,11 +64,6 @@ test('test vulnerable project with --reachable-vulns not supported package manag
 // Was copied straight from ../src/cli-server.js
 after('teardown', async (t) => {
   t.plan(4);
-
-  delete process.env.SNYK_API;
-  delete process.env.SNYK_HOST;
-  delete process.env.SNYK_PORT;
-  t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
   await new Promise((resolve) => {
     server.close(resolve);
