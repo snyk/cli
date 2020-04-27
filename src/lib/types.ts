@@ -55,6 +55,8 @@ export interface Options {
   allProjects?: boolean;
   detectionDepth?: number;
   exclude?: string;
+  // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
+  experimental?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -72,6 +74,8 @@ export interface MonitorOptions {
   allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
   'prune-repeated-subdependencies'?: boolean;
+  // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
+  experimental?: boolean;
 }
 
 export interface MonitorMeta {
