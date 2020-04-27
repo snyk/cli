@@ -13,13 +13,14 @@ import { getVersion } from '../src/lib/version';
 const apiKey = '123456789';
 
 const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
-process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
+const BASE_API = '/api/v1';
+process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 let oldkey;
 let oldendpoint;
 let versionNumber;
-const server = fakeServer(process.env.SNYK_API, apiKey);
+const server = fakeServer(BASE_API, apiKey);
 
 test('setup', async (t) => {
   versionNumber = await getVersion();

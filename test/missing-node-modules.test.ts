@@ -7,17 +7,14 @@ const notAuthorizedApiKey = 'notAuthorized';
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 let oldkey;
 let oldendpoint;
-process.env.SNYK_API = 'http://localhost:' + port + '/api/v1';
+const BASE_API = '/api/v1';
+process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
 
 const baseDir = __dirname + '/fixtures/';
 
 // tslint:disable-next-line:no-var-requires
-const server = require('./cli-server')(
-  process.env.SNYK_API,
-  apiKey,
-  notAuthorizedApiKey,
-);
+const server = require('./cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
