@@ -95,9 +95,7 @@ test('auth via invalid key', async (t) => {
 test('auth with no args', async (t) => {
   // stub open so browser window doesn't actually open
   const open = sinon.stub();
-  const auth = proxyquire('../../src/cli/commands/auth', {
-    opn: open,
-  });
+  const auth = proxyquire('../../src/cli/commands/auth', { open });
   // stub CI check (ensure returns false for system test)
   const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
   // disable console.log
@@ -115,7 +113,6 @@ test('auth with no args', async (t) => {
       'http://localhost:12345/login?token=',
       'opens login with token param',
     );
-    t.same(open.firstCall.args[1], { wait: false }, 'does not wait for open');
     ciStub.restore();
   } catch (e) {
     t.threw(e);
@@ -127,9 +124,7 @@ test('auth with no args', async (t) => {
 test('auth with UTMs in environment variables', async (t) => {
   // stub open so browser window doesn't actually open
   const open = sinon.stub();
-  const auth = proxyquire('../../src/cli/commands/auth', {
-    opn: open,
-  });
+  const auth = proxyquire('../../src/cli/commands/auth', { open });
   // stub CI check (ensure returns false for system test)
   const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
 
@@ -156,7 +151,6 @@ test('auth with UTMs in environment variables', async (t) => {
       '&utm_medium=ide&utm_source=eclipse&utm_campaign=plugin',
       'opens login with utm tokens provided',
     );
-    t.same(open.firstCall.args[1], { wait: false }, 'does not wait for open');
 
     // clean up environment variables
     delete process.env.SNYK_UTM_MEDIUM;

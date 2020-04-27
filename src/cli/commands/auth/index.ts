@@ -1,5 +1,5 @@
 import * as Debug from 'debug';
-import * as open from 'opn';
+import * as open from 'open';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
@@ -64,7 +64,7 @@ async function webAuth(via: AuthCliCommands) {
   try {
     spinner.start();
     await setTimeout(() => {
-      open(urlStr, { wait: false });
+      open(urlStr);
     }, 0);
 
     const res = await testAuthComplete(token);
