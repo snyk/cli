@@ -7,4 +7,6 @@ export {
   formatIssuesWithRemediation,
   getSeverityValue,
 } from './remediation-based-format-issues';
+export { summariseReachableVulns } from './format-reachability';
+
 export * from './docker';

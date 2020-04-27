@@ -1,7 +1,7 @@
 import * as wrap from 'wrap-ansi';
 import chalk from 'chalk';
 
-import { REACHABILITY } from '../../../../lib/snyk-test/legacy';
+import { AnnotatedIssue, REACHABILITY } from '../../../../lib/snyk-test/legacy';
 
 const reachabilityLevels: {
   [key in REACHABILITY]: { color: Function; text: string };
@@ -42,4 +42,20 @@ export function getReachabilityText(reachability?: REACHABILITY): string {
   }
   const reachableInfo = reachabilityLevels[reachability];
   return reachableInfo ? reachableInfo.text : '';
+}
+
+export function summariseReachableVulns(
+  vulnerabilities: AnnotatedIssue[],
+): string {
+  const reachableVulnsCount = vulnerabilities.filter(
+    (v) => v.reachability === REACHABILITY.FUNCTION,
+  ).length;
+
+  if (reachableVulnsCount > 0) {
+    const vulnText =
+      reachableVulnsCount === 1 ? 'vulnerability' : 'vulnerabilities';
+    return `In addition, found ${reachableVulnsCount} ${vulnText} with a reachable path.`;
+  }
+
+  return '';
 }

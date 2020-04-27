@@ -1,6 +1,5 @@
 import * as tap from 'tap';
 import * as sinon from 'sinon';
-import * as _ from 'lodash';
 import * as fs from 'fs';
 
 // tslint:disable-next-line:no-var-requires
@@ -100,9 +99,15 @@ test('test reachability info is displayed', async (t) => {
   );
   const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
   try {
-    await snykTest('maven-app');
+    await snykTest('maven-app', {
+      reachableVulns: true,
+    });
   } catch (error) {
     const { message } = error;
+    t.match(
+      message,
+      ' In addition, found 1 vulnerability with a reachable path.',
+    );
     t.match(message, '[Likely reachable]');
   }
 

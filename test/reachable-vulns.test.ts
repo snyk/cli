@@ -3,9 +3,10 @@ import * as sinon from 'sinon';
 
 import {
   formatReachability,
+  summariseReachableVulns,
   getReachabilityText,
 } from '../src/cli/commands/test/formatters/format-reachability';
-import { REACHABILITY } from '../src/lib/snyk-test/legacy';
+import { AnnotatedIssue, REACHABILITY } from '../src/lib/snyk-test/legacy';
 import {
   serializeCallGraphWithMetrics,
   validatePayload,
@@ -32,6 +33,75 @@ test('reachable text', (t) => {
   t.equal(getReachabilityText(REACHABILITY.UNREACHABLE), 'Likely unreachable');
   t.equal(getReachabilityText(REACHABILITY.NO_INFO), '');
   t.equal(getReachabilityText(undefined), '');
+  t.end();
+});
+
+test('formatReachabilitySummaryText', (t) => {
+  const noReachabilityMetadata = {} as AnnotatedIssue;
+  const noInfoVuln = { reachability: REACHABILITY.NO_INFO } as AnnotatedIssue;
+  const unreachableVuln = {
+    reachability: REACHABILITY.UNREACHABLE,
+  } as AnnotatedIssue;
+  const reachableByPackageVuln = {
+    reachability: REACHABILITY.PACKAGE,
+  } as AnnotatedIssue;
+  const reachableByFunctionVuln = {
+    reachability: REACHABILITY.FUNCTION,
+  } as AnnotatedIssue;
+
+  t.equal(
+    summariseReachableVulns([]),
+    '',
+    'no vulnerabilities should not display anything',
+  );
+
+  t.equal(
+    summariseReachableVulns([noReachabilityMetadata]),
+    '',
+    'no reachability metadata should not display anything',
+  );
+
+  t.equal(
+    summariseReachableVulns([noInfoVuln]),
+    '',
+    'no info should not display anything',
+  );
+
+  t.equal(
+    summariseReachableVulns([unreachableVuln]),
+    '',
+    'unreachable is not implemented yet, should not display anything',
+  );
+
+  t.equal(
+    summariseReachableVulns([reachableByPackageVuln]),
+    '',
+    'package is not implemented yet, should not display anything',
+  );
+
+  t.equal(
+    summariseReachableVulns([reachableByFunctionVuln]),
+    'In addition, found 1 vulnerability with a reachable path.',
+    'one reachable function summary text',
+  );
+
+  t.equal(
+    summariseReachableVulns([reachableByFunctionVuln, reachableByFunctionVuln]),
+    'In addition, found 2 vulnerabilities with a reachable path.',
+    'two reachable functions summary text',
+  );
+
+  t.equal(
+    summariseReachableVulns([
+      reachableByFunctionVuln,
+      reachableByFunctionVuln,
+      reachableByPackageVuln,
+      noInfoVuln,
+    ]),
+    'In addition, found 2 vulnerabilities with a reachable path.',
+    'two reachable functions and no info one, should count only the function reachable once',
+  );
+
   t.end();
 });
 
