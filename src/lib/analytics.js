@@ -23,7 +23,10 @@ function analytics(data) {
   }
 
   analytics.add('integrationName', process.env.SNYK_INTEGRATION_NAME || '');
-  analytics.add('integrationVersion', process.env.SNYK_INTEGRATION_VERSION || '');
+  analytics.add(
+    'integrationVersion',
+    process.env.SNYK_INTEGRATION_VERSION || '',
+  );
 
   // merge any new data with data we picked up along the way
   if (Array.isArray(data.args)) {
