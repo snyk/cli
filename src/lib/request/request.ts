@@ -46,9 +46,20 @@ export = function makeRequest(
           snykDebug('sending request to:', payload.url);
           snykDebug('request body size:', json.length);
           snykDebug('gzipped request body size:', data.length);
+
+          let callGraphLength: number | null = null;
+          if (body.callGraph) {
+            callGraphLength = JSON.stringify(body.callGraph).length;
+            snykDebug('call graph size:', callGraphLength);
+          }
+
           if (!payload.url.endsWith('/analytics/cli')) {
             analytics.add('payloadSize', json.length);
             analytics.add('gzippedPayloadSize', data.length);
+
+            if (callGraphLength) {
+              analytics.add('callGraphPayloadSize', callGraphLength);
+            }
           }
 
           payload.headers['content-encoding'] = 'gzip';
