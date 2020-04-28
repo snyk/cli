@@ -471,8 +471,17 @@ async function assembleLocalPayloads(
         debug(
           `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
         );
-        analytics.add('callGraphNodeCount', nodeCount);
-        analytics.add('callGraphEdgeCount', edgeCount);
+
+        const callGraphMetrics = _.get(
+          deps.plugin,
+          'meta.callGraphMetrics',
+          {},
+        );
+        analytics.add('callGraphMetrics', {
+          callGraphEdgeCount: edgeCount,
+          callGraphNodeCount: nodeCount,
+          ...callGraphMetrics,
+        });
         body.callGraph = callGraph;
       }
 
