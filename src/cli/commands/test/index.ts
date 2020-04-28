@@ -6,39 +6,40 @@ import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
 import { apiTokenExists } from '../../../lib/api-token';
-import { SEVERITIES, FAIL_ON, FailOn } from '../../../lib/snyk-test/common';
+import { FAIL_ON, FailOn, SEVERITIES } from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
 import {
   Options,
-  TestOptions,
   ShowVulnPaths,
   SupportedProjectTypes,
+  TestOptions,
 } from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
 import { MethodArgs } from '../../args';
 import {
+  GroupedVuln,
   LegacyVulnApiResult,
   SEVERITY,
-  GroupedVuln,
-  VulnMetaData,
   TestResult,
+  VulnMetaData,
 } from '../../../lib/snyk-test/legacy';
 import {
-  WIZARD_SUPPORTED_PACKAGE_MANAGERS,
   SupportedPackageManagers,
+  WIZARD_SUPPORTED_PACKAGE_MANAGERS,
 } from '../../../lib/package-managers';
 
 import * as analytics from '../../../lib/analytics';
 import { FailOnError } from '../../../lib/errors/fail-on-error.ts';
 import {
-  summariseVulnerableResults,
-  summariseErrorResults,
-  formatTestMeta,
   dockerRemediationForDisplay,
+  formatDockerBinariesIssues,
   formatIssues,
   formatIssuesWithRemediation,
-  formatDockerBinariesIssues,
+  formatTestMeta,
   getSeverityValue,
+  summariseErrorResults,
+  summariseReachableVulns,
+  summariseVulnerableResults,
 } from './formatters';
 
 const debug = Debug('snyk-test');
@@ -448,7 +449,17 @@ function getDisplayedOutput(
   } else {
     vulnCountText += '.';
   }
-  const summary = testedInfoText + ', ' + chalk.red.bold(vulnCountText);
+
+  const reachableVulnsText =
+    options.reachableVulns && vulnCount > 0
+      ? ` ${summariseReachableVulns(res.vulnerabilities)}`
+      : '';
+
+  const summary =
+    testedInfoText +
+    ', ' +
+    chalk.red.bold(vulnCountText) +
+    chalk.blue.bold(reachableVulnsText);
   let wizardAdvice = '';
 
   if (
