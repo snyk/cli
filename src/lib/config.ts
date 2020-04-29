@@ -15,7 +15,10 @@ interface Config {
   TOKEN: string;
 }
 
-const config: Config = snykConfig(__dirname + '/../..');
+// TODO: fix the types!
+const config = (snykConfig.loadConfig(
+  __dirname + '/../..',
+) as unknown) as Config;
 
 // allow user config override of the api end point
 const endpoint = userConfig.get('endpoint');

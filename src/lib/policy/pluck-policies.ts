@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 
 export function pluckPolicies(pkg) {
   if (!pkg) {

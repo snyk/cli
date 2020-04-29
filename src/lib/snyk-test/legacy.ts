@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 import * as depGraphLib from '@snyk/dep-graph';
 import { SupportedPackageManagers } from '../package-managers';
 import { SEVERITIES } from './common';

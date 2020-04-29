@@ -5,7 +5,7 @@ import { apiTokenExists } from '../api-token';
 import request = require('../request');
 import * as config from '../config';
 import * as os from 'os';
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
 import { DepTree, MonitorMeta, MonitorResult } from '../types';
