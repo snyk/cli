@@ -30,7 +30,7 @@ import * as config from '../config';
 import * as analytics from '../analytics';
 import { pluckPolicies } from '../policy';
 import { maybePrintDeps } from '../print-deps';
-import { GitTarget } from '../project-metadata/types';
+import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import * as projectMetadata from '../project-metadata';
 import { DepTree, Options, TestOptions, SupportedProjectTypes } from '../types';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
@@ -65,7 +65,7 @@ interface PayloadBody {
   foundProjectCount?: number; // used only for display
   docker?: any;
   displayTargetFile?: string;
-  target?: GitTarget | null;
+  target?: GitTarget | ContainerTarget | null;
 }
 
 interface Payload {

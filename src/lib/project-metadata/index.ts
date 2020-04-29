@@ -1,10 +1,10 @@
 import * as gitTargetBuilder from './target-builders/git';
-import { GitTarget } from './types';
+import * as containerTargetBuilder from './target-builders/container';
+import { GitTarget, ContainerTarget } from './types';
 import { DepTree } from '../types';
 import { InvalidRemoteUrlError } from '../errors/invalid-remote-url-error';
 
-const TARGET_BUILDERS = [gitTargetBuilder];
-
+const TARGET_BUILDERS = [containerTargetBuilder, gitTargetBuilder];
 interface Options {
   'remote-repo-url'?: string;
 }
@@ -12,7 +12,7 @@ interface Options {
 export async function getInfo(
   packageInfo: DepTree,
   options: Options,
-): Promise<GitTarget | null> {
+): Promise<GitTarget | ContainerTarget | null> {
   for (const builder of TARGET_BUILDERS) {
     const target = await builder.getInfo(packageInfo);
 
