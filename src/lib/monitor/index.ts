@@ -133,7 +133,7 @@ export async function monitor(
 
   const target = await projectMetadata.getInfo(pkg, meta);
 
-  if (isGitTarget(target)) {
+  if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
   }
 
@@ -246,7 +246,7 @@ export async function monitorGraph(
 
   const target = await projectMetadata.getInfo(pkg, meta);
 
-  if (isGitTarget(target)) {
+  if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
   }
 
