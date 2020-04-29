@@ -26,6 +26,7 @@ import { pruneTree } from './prune-dep-tree';
 import { pluckPolicies } from '../policy';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+import { isGitTarget } from '../project-metadata/types';
 
 const debug = Debug('snyk');
 
@@ -132,7 +133,7 @@ export async function monitor(
 
   const target = await projectMetadata.getInfo(pkg, meta);
 
-  if (target && target.branch) {
+  if (isGitTarget(target)) {
     analytics.add('targetBranch', target.branch);
   }
 
@@ -245,7 +246,7 @@ export async function monitorGraph(
 
   const target = await projectMetadata.getInfo(pkg, meta);
 
-  if (target && target.branch) {
+  if (isGitTarget(target)) {
     analytics.add('targetBranch', target.branch);
   }
 

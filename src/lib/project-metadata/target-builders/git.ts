@@ -5,6 +5,7 @@ import { DepTree } from '../../types';
 import { GitTarget } from '../types';
 
 export async function getInfo(packageInfo: DepTree): Promise<GitTarget | null> {
+  // safety check
   if (packageInfo.docker) {
     return null;
   }
