@@ -1,7 +1,7 @@
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { mkdir, readFileSync } from 'fs';
-import * as graphlib from 'graphlib';
+import * as graphlib from '@snyk/graphlib';
 
 export function silenceLog() {
   const old = console.log;

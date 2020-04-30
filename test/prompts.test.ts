@@ -3,7 +3,7 @@ import { test } from 'tap';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as sinon from 'sinon';
-import * as inquirer from 'inquirer';
+import * as inquirer from '@snyk/inquirer';
 
 import wizard = require('../src/cli/commands/protect/wizard');
 

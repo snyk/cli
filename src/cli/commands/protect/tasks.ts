@@ -2,7 +2,7 @@ export = answersToTasks;
 
 import * as debugModule from 'debug';
 const debug = debugModule('snyk');
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 
 function answersToTasks(answers) {
   const tasks = {

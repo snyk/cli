@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 import * as Debug from 'debug';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
