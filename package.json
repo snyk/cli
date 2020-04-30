@@ -55,7 +55,7 @@
   "dependencies": {
     "@snyk/cli-interface": "2.6.0",
     "@snyk/configstore": "^3.2.0-rc1",
-    "@snyk/dep-graph": "1.18.2",
+    "@snyk/dep-graph": "1.18.3",
     "@snyk/gemfile": "1.2.0",
     "@snyk/graphlib": "2.1.9-patch",
     "@snyk/inquirer": "6.2.2-patch",
