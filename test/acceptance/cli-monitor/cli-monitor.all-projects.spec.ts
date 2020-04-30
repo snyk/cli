@@ -1,5 +1,5 @@
 import * as sinon from 'sinon';
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 import * as path from 'path';
 
 interface AcceptanceTests {

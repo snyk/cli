@@ -1,4 +1,4 @@
-var _ = require('lodash');
+var _ = require('@snyk/lodash');
 var sinon = require('sinon');
 var tap = require('tap');
 var test = tap.test;

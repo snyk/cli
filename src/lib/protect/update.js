@@ -4,7 +4,7 @@ module.exports.installDev = installDev;
 
 const debug = require('debug')('snyk');
 const chalk = require('chalk');
-const _ = require('lodash');
+const _ = require('@snyk/lodash');
 const moduleToObject = require('snyk-module');
 const semver = require('semver');
 const errors = require('../errors/legacy-errors');
