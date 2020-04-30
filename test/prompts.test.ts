@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { test } from 'tap';
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 import * as path from 'path';
 import * as sinon from 'sinon';
 import * as inquirer from '@snyk/inquirer';

@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 import { test } from 'tap';
 import * as sinon from 'sinon';
 import * as isAuthed from '../../src/cli/commands/auth/is-authed';

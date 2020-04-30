@@ -9,7 +9,7 @@ import * as subProcess from '../../../src/lib/sub-process';
 import { getVersion } from '../../../src/lib/version';
 import { config as userConfig } from '../../../src/lib/user-config';
 import { chdirWorkspaces, getWorkspaceJSON } from '../workspace-helper';
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too

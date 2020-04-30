@@ -212,7 +212,7 @@ workflows:
       - test-unix:
           name: Unix Tests for Node v12 support
           context: nodejs-install
-          node_version: "12"
+          node_version: "12.16.2"
           requires:
             - Common
             - Danger Zone

@@ -2,7 +2,7 @@ import { test, afterEach, afterAll } from 'tap';
 import * as requestLib from 'needle';
 import * as path from 'path';
 
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 import * as sinon from 'sinon';
 
 import * as cli from '../src/cli/commands';

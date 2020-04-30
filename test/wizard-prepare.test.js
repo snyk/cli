@@ -2,7 +2,7 @@ var test = require('tap').test;
 var proxyquire = require('proxyquire');
 var sinon = require('sinon');
 var spy = sinon.spy();
-var _ = require('lodash');
+var _ = require('@snyk/lodash');
 var dir = __dirname + '/fixtures/protect-via-snyk/';
 var fixture = require('./fixtures/protect-via-snyk/package.json');
 
