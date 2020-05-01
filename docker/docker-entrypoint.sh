@@ -103,7 +103,7 @@ runCmdAsDockerUser "touch \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\""
 if [ -n "$MONITOR" ]; then
   echo "Monitoring & generating report ..."
   runCmdAsDockerUser "PATH=$PATH snyk monitor --json ${SNYK_PARAMS} ${ADDITIONAL_ENV} > ${MONITOR_OUTPUT_FILE} 2>$ERROR_FILE"
-  runCmdAsDockerUser "cat ${MONITOR_OUTPUT_FILE} | jq -r \".uri\" | awk '{print \"<center><a target=\\\"_blank\\\" href=\\\"\" \$0 \"\\\">View On Snyk.io</a></center>\"}' > \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\" 2>>\"${ERROR_FILE}\""
+  runCmdAsDockerUser "cat ${MONITOR_OUTPUT_FILE} | jq -r 'if type==\"array\" then .[].uri? else .uri? end' | awk '{print \"<center><a target=\\\"_blank\\\" href=\\\"\" \$0 \"\\\">View On Snyk.io</a></center>\"}' > \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\" 2>>\"${ERROR_FILE}\""
 fi
 
 
