@@ -3,10 +3,15 @@ import gitUrlParse = require('git-url-parse');
 import subProcess = require('../../sub-process');
 import { DepTree } from '../../types';
 import { GitTarget } from '../types';
+import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
-export async function getInfo(packageInfo: DepTree): Promise<GitTarget | null> {
+export async function getInfo(
+  scannedProject: ScannedProject,
+  packageInfo: DepTree,
+  isFromContainer: boolean,
+): Promise<GitTarget | null> {
   // safety check
-  if (packageInfo.docker) {
+  if (isFromContainer) {
     return null;
   }
 

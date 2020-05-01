@@ -1460,6 +1460,7 @@ test('`monitor docker-archive:foo.tar --docker --experimental`', async (t) => {
   const dockerImageId =
     'sha256:' +
     '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
+  const imageName = 'my-image';
   const spyPlugin = stubDockerPluginResponse(
     {
       plugin: {
@@ -1467,6 +1468,9 @@ test('`monitor docker-archive:foo.tar --docker --experimental`', async (t) => {
         dockerImageId,
       },
       package: {},
+      meta: {
+        imageName,
+      },
     },
     t,
   );
@@ -1489,6 +1493,8 @@ test('`monitor docker-archive:foo.tar --docker --experimental`', async (t) => {
     'puts at correct url (uses package manager from plugin response)',
   );
   t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
+  t.equal(req.body.meta.projectName, imageName, 'sends projectName');
+  t.equal(req.body.meta.name, imageName, 'sends name');
   t.same(
     spyPlugin.getCall(0).args,
     [

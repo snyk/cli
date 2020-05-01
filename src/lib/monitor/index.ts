@@ -28,6 +28,12 @@ import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph, ScannedProject } from '@snyk/cli-interface/legacy/common';
 import { isGitTarget } from '../project-metadata/types';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
+import {
+  getNameDepTree,
+  getNameDepGraph,
+  getProjectName,
+  getTargetFile,
+} from './utils';
 
 const debug = Debug('snyk');
 
@@ -133,7 +139,7 @@ export async function monitor(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(pkg, meta);
+  const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -167,7 +173,7 @@ export async function monitor(
             pid: process.pid,
             node: process.version,
             master: snyk.config.isMaster,
-            name: pkg.name,
+            name: getNameDepTree(scannedProject, pkg),
             version: pkg.version,
             org: config.org ? decodeURIComponent(config.org) : undefined,
             pluginName: pluginMeta.name,
@@ -178,7 +184,7 @@ export async function monitor(
             dockerfileLayers: pkg.docker
               ? pkg.docker.dockerfileLayers
               : undefined,
-            projectName: meta['project-name'],
+            projectName: getProjectName(scannedProject, meta),
             prePruneDepCount, // undefined unless 'prune' is used,
             monitorGraph: false,
             versionBuildInfo: JSON.stringify(
@@ -192,7 +198,7 @@ export async function monitor(
           // because we want to send it only for specific package-managers
           target,
           // WARNING: be careful changing this as it affects project uniqueness
-          targetFile: pluginMeta.targetFile,
+          targetFile: getTargetFile(scannedProject, pluginMeta),
           targetFileRelativePath,
         } as MonitorBody,
         gzip: true,
@@ -260,7 +266,7 @@ export async function monitorGraph(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(pkg, meta);
+  const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -287,7 +293,7 @@ export async function monitorGraph(
             pid: process.pid,
             node: process.version,
             master: snyk.config.isMaster,
-            name: depGraph.rootPkg.name,
+            name: getNameDepGraph(scannedProject, depGraph),
             version: depGraph.rootPkg.version,
             org: config.org ? decodeURIComponent(config.org) : undefined,
             pluginName: pluginMeta.name,
@@ -297,7 +303,7 @@ export async function monitorGraph(
             dockerfileLayers: pkg.docker
               ? pkg.docker.dockerfileLayers
               : undefined,
-            projectName: meta['project-name'],
+            projectName: getProjectName(scannedProject, meta),
             prePruneDepCount, // undefined unless 'prune' is used
             missingDeps: treeMissingDeps,
             monitorGraph: true,
@@ -307,7 +313,7 @@ export async function monitorGraph(
           // we take the targetFile from the plugin,
           // because we want to send it only for specific package-managers
           target,
-          targetFile: pluginMeta.targetFile,
+          targetFile: getTargetFile(scannedProject, pluginMeta),
           targetFileRelativePath,
         } as MonitorBody,
         gzip: true,
