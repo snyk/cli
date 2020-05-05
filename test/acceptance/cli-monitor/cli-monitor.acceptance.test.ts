@@ -34,6 +34,7 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../../src/lib/plugins/index';
+import { createCallGraph } from '../../utils';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -613,7 +614,7 @@ test('`monitor maven-app-with-jars --file=example.war` sends package info', asyn
   t.match(req.url, '/monitor/maven', 'puts at correct url');
 });
 
-test('`test maven-app-with-jars --scan-all-unmanaged` sends package info', async (t) => {
+test('`monitor maven-app-with-jars --scan-all-unmanaged` sends package info', async (t) => {
   chdirWorkspaces();
   const plugin = {
     async inspect() {
@@ -637,6 +638,33 @@ test('`test maven-app-with-jars --scan-all-unmanaged` sends package info', async
     'sends version number',
   );
   t.match(req.url, '/monitor/maven', 'puts at correct url');
+});
+
+test('`monitor maven --reachable-vulns` sends call graph', async (t) => {
+  chdirWorkspaces();
+  const callGraphPayload = require('../fixtures/call-graphs/maven.json');
+  const callGraph = createCallGraph(callGraphPayload);
+  const plugin = {
+    async inspect() {
+      return {
+        package: {},
+        plugin: { name: 'testplugin', runtime: 'testruntime' },
+        callGraph,
+      };
+    },
+  };
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('maven').returns(plugin);
+
+  await cli.monitor('maven-app-with-jars', {
+    file: 'example.jar',
+  });
+
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.match(req.url, '/monitor/maven', 'puts at correct url');
+  t.deepEqual(req.body.callGraph, callGraphPayload, 'sends correct call graph');
 });
 
 test('`monitor yarn-app`', async (t) => {

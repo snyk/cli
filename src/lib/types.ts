@@ -76,6 +76,7 @@ export interface MonitorOptions {
   'prune-repeated-subdependencies'?: boolean;
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
+  reachableVulns?: boolean;
 }
 
 export interface MonitorMeta {
