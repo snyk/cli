@@ -149,8 +149,13 @@ export async function monitor(
     debug(
       `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
     );
-    analytics.add('callGraphNodeCount', nodeCount);
-    analytics.add('callGraphEdgeCount', edgeCount);
+
+    const callGraphMetrics = _.get(pluginMeta, 'meta.callGraphMetrics', {});
+    analytics.add('callGraphMetrics', {
+      callGraphEdgeCount: edgeCount,
+      callGraphNodeCount: nodeCount,
+      ...callGraphMetrics,
+    });
     callGraphPayload = callGraph;
   }
 
