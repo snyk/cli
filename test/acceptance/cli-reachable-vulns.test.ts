@@ -62,6 +62,21 @@ test('test vulnerable project with --reachable-vulns not supported package manag
   }
 });
 
+test('monitor vulnerable project with --reachable-vulns not supported package manager', async (t) => {
+  try {
+    await cli.monitor('.', {
+      reachableVulns: true,
+      packageManager: 'gradle',
+    });
+    t.fail('expected test to throw exception');
+  } catch (err) {
+    t.match(
+      err.message,
+      `'Reachable vulns' is not supported for package manager 'gradle'.`,
+    );
+  }
+});
+
 // @later: try and remove this config stuff
 // Was copied straight from ../src/cli-server.js
 after('teardown', async (t) => {

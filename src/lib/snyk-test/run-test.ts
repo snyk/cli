@@ -42,7 +42,7 @@ import spinner = require('../spinner');
 import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
-import { validateOptions } from './validation';
+import { validateOptions } from '../options-validator';
 
 const debug = debugModule('snyk');
 
@@ -89,7 +89,7 @@ async function runTest(
   const results: TestResult[] = [];
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
-    await validateOptions(options);
+    await validateOptions(options, options.packageManager);
     const payloads = await assemblePayloads(root, options);
     for (const payload of payloads) {
       const payloadPolicy = payload.body && payload.body.policy;

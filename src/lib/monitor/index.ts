@@ -25,8 +25,9 @@ import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
 import { pluckPolicies } from '../policy';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
-import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+import { CallGraph, ScannedProject } from '@snyk/cli-interface/legacy/common';
 import { isGitTarget } from '../project-metadata/types';
+import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 
 const debug = Debug('snyk');
 
@@ -37,6 +38,7 @@ interface MonitorBody {
   policy: string;
   package?: DepTree;
   depGraph?: depGraphLib.DepGraph;
+  callGraph?: CallGraph;
   target: {};
   targetFileRelativePath: string;
   targetFile: string;
@@ -139,6 +141,19 @@ export async function monitor(
 
   pkg = dropEmptyDeps(pkg);
 
+  let callGraphPayload;
+  if (scannedProject.callGraph) {
+    const { callGraph, nodeCount, edgeCount } = serializeCallGraphWithMetrics(
+      scannedProject.callGraph,
+    );
+    debug(
+      `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
+    );
+    analytics.add('callGraphNodeCount', nodeCount);
+    analytics.add('callGraphEdgeCount', edgeCount);
+    callGraphPayload = callGraph;
+  }
+
   // TODO(kyegupov): async/await
   return new Promise((resolve, reject) => {
     request(
@@ -172,6 +187,7 @@ export async function monitor(
           },
           policy: policy ? policy.toString() : undefined,
           package: pkg,
+          callGraph: callGraphPayload,
           // we take the targetFile from the plugin,
           // because we want to send it only for specific package-managers
           target,
