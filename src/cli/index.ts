@@ -10,6 +10,7 @@ import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
 import { args as argsLib, Args } from './args';
+import { CommandResult, TestCommandResult } from './commands/types';
 import { copy } from './copy';
 import spinner = require('../lib/spinner');
 import errors = require('../lib/errors/legacy-errors');
@@ -26,6 +27,11 @@ import {
 import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
+import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
+import {
+  createDirectory,
+  writeContentsToFileSwallowingErrors,
+} from '../lib/json-file-output';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -34,12 +40,17 @@ const EXIT_CODES = {
 };
 
 async function runCommand(args: Args) {
-  const result = await args.method(...args.options._);
+  const commandResult: CommandResult | string = await args.method(
+    ...args.options._,
+  );
+
   const res = analytics({
     args: args.options._,
     command: args.command,
     org: args.options.org,
   });
+
+  const result = commandResult.toString();
 
   if (result && !args.options.quiet) {
     if (args.options.copy) {
@@ -47,6 +58,19 @@ async function runCommand(args: Args) {
       console.log('Result copied to clipboard');
     } else {
       console.log(result);
+    }
+  }
+
+  // also save the json (in error.json) to file if option is set
+  if (args.command === 'test') {
+    const jsonOutputFile = args.options['json-file-output'];
+    if (jsonOutputFile) {
+      const jsonOutputFileStr = jsonOutputFile as string;
+      const fullOutputFilePath = getFullPath(jsonOutputFileStr);
+      saveJsonResultsToFile(
+        stripAnsi((commandResult as TestCommandResult).getJsonResult()),
+        fullOutputFilePath,
+      );
     }
   }
 
@@ -87,6 +111,16 @@ async function handleError(args, error) {
     }
   }
 
+  // also save the json (in error.json) to file if `--json-file-output` option is set
+  const jsonOutputFile = args.options['json-file-output'];
+  if (jsonOutputFile && error.jsonStringifiedResults) {
+    const fullOutputFilePath = getFullPath(jsonOutputFile);
+    saveJsonResultsToFile(
+      stripAnsi(error.jsonStringifiedResults),
+      fullOutputFilePath,
+    );
+  }
+
   const analyticsError = vulnsFound
     ? {
         stack: error.jsonNoVulns,
@@ -119,6 +153,37 @@ async function handleError(args, error) {
   });
 
   return { res, exitCode };
+}
+
+function getFullPath(filepathFragment: string): string {
+  if (pathLib.isAbsolute(filepathFragment)) {
+    return filepathFragment;
+  } else {
+    const fullPath = pathLib.join(process.cwd(), filepathFragment);
+    return fullPath;
+  }
+}
+
+function saveJsonResultsToFile(
+  stringifiedJson: string,
+  jsonOutputFile: string,
+) {
+  if (!jsonOutputFile) {
+    console.error('empty jsonOutputFile');
+    return;
+  }
+
+  if (jsonOutputFile.constructor.name !== String.name) {
+    console.error('--json-output-file should be a filename path');
+    return;
+  }
+
+  // create the directory if it doesn't exist
+  const dirPath = pathLib.dirname(jsonOutputFile);
+  const createDirSuccess = createDirectory(dirPath);
+  if (createDirSuccess) {
+    writeContentsToFileSwallowingErrors(jsonOutputFile, stringifiedJson);
+  }
 }
 
 function checkRuntime() {
@@ -219,6 +284,25 @@ async function main() {
       sln.updateArgs(args);
     } else if (typeof args.options.file === 'boolean') {
       throw new FileFlagBadInputError();
+    }
+
+    if (args.options['json-file-output'] && args.command !== 'test') {
+      throw new UnsupportedOptionCombinationError([
+        args.command,
+        'json-file-output',
+      ]);
+    }
+
+    const jsonFileOptionSet: boolean = 'json-file-output' in args.options;
+    if (jsonFileOptionSet) {
+      const jsonFileOutputValue = args.options['json-file-output'];
+      if (!jsonFileOutputValue || typeof jsonFileOutputValue !== 'string') {
+        throw new JsonFileOutputBadInputError();
+      }
+      // On Windows, seems like quotes get passed in
+      if (jsonFileOutputValue === "''" || jsonFileOutputValue === '""') {
+        throw new JsonFileOutputBadInputError();
+      }
     }
 
     checkPaths(args);

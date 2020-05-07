@@ -81,6 +81,10 @@ Options:
                        Upgradable fails when there is at least one vulnerability that can be upgraded.
                        Patchable fails when there is at least one vulnerability that can be patched.
                        If vulnerabilities do not have a fix and this option is being used tests will pass.
+  --json-file-output=<string>
+                       (test command only)
+                       Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
+                       This is especially useful if you want to display the human-readable test output via stdout and at the same time save the JSON format output to a file.
 
 Maven options:
   --scan-all-unmanaged

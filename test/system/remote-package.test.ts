@@ -20,6 +20,7 @@ const server = require('../cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
 import * as cli from '../../src/cli/commands';
+import { CommandResult } from '../../src/cli/commands/types';
 
 const before = test;
 const after = test;
@@ -77,7 +78,8 @@ test('cli tests for online repos', async (t) => {
 
 test('multiple test arguments', async (t) => {
   try {
-    const res = await cli.test('semver@4', 'qs@6');
+    const commandResult: CommandResult = await cli.test('semver@4', 'qs@6');
+    const res = commandResult.getDisplayResults();
     const lastLine = res
       .trim()
       .split('\n')
@@ -142,7 +144,10 @@ test('multiple test arguments', async (t) => {
 
 test('test for existing remote package with dev-deps only with --dev', async (t) => {
   try {
-    const res = await cli.test('lodash@4.17.11', { dev: true });
+    const commandResult: CommandResult = await cli.test('lodash@4.17.11', {
+      dev: true,
+    });
+    const res = commandResult.getDisplayResults();
     const lastLine = res
       .trim()
       .split('\n')
@@ -163,7 +168,10 @@ test('test for existing remote package with dev-deps only', async (t) => {
     ciCheckerStub.returns(false);
     t.teardown(ciCheckerStub.restore);
 
-    const res = await cli.test('lodash@4.17.11', { dev: false });
+    const commandResult: CommandResult = await cli.test('lodash@4.17.11', {
+      dev: false,
+    });
+    const res = commandResult.getDisplayResults();
     const lastLine = res
       .trim()
       .split('\n')

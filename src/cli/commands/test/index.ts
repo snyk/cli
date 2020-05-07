@@ -16,6 +16,7 @@ import {
 } from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
 import { MethodArgs } from '../../args';
+import { TestCommandResult } from '../../commands/types';
 import {
   GroupedVuln,
   LegacyVulnApiResult,
@@ -56,9 +57,9 @@ const showVulnPathsMapping: Record<string, ShowVulnPaths> = {
 
 // TODO: avoid using `as any` whenever it's possible
 
-async function test(...args: MethodArgs): Promise<string> {
+async function test(...args: MethodArgs): Promise<TestCommandResult> {
   const resultOptions = [] as any[];
-  let results = [] as any[];
+  const results = [] as any[];
   let options = ({} as any) as Options & TestOptions;
 
   if (typeof args[args.length - 1] === 'object') {
@@ -164,25 +165,18 @@ async function test(...args: MethodArgs): Promise<string> {
   // resultOptions is now an array of 1 or more options used for
   // the tests results is now an array of 1 or more test results
   // values depend on `options.json` value - string or object
+  const errorMappedResults = createErrorMappedResultsForJsonOutput(results);
+  // backwards compat - strip array IFF only one result
+  const dataToSend =
+    errorMappedResults.length === 1
+      ? errorMappedResults[0]
+      : errorMappedResults;
+  const stringifiedData = JSON.stringify(dataToSend, null, 2);
+
   if (options.json) {
-    results = results.map((result) => {
-      // add json for when thrown exception
-      if (result instanceof Error) {
-        return {
-          ok: false,
-          error: result.message,
-          path: (result as any).path,
-        };
-      }
-      return result;
-    });
-
-    // backwards compat - strip array IFF only one result
-    const dataToSend = results.length === 1 ? results[0] : results;
-    const stringifiedData = JSON.stringify(dataToSend, null, 2);
-
-    if (results.every((res) => res.ok)) {
-      return stringifiedData;
+    // if all results are ok (.ok == true) then return the json
+    if (errorMappedResults.every((res) => res.ok)) {
+      return TestCommandResult.createJsonTestCommandResult(stringifiedData);
     }
 
     const err = new Error(stringifiedData) as any;
@@ -192,7 +186,7 @@ async function test(...args: MethodArgs): Promise<string> {
         const fail = shouldFail(vulnerableResults, options.failOn);
         if (!fail) {
           // return here to prevent failure
-          return stringifiedData;
+          return TestCommandResult.createJsonTestCommandResult(stringifiedData);
         }
       }
       err.code = 'VULNS';
@@ -202,6 +196,7 @@ async function test(...args: MethodArgs): Promise<string> {
     }
 
     err.json = stringifiedData;
+    err.jsonStringifiedResults = stringifiedData;
     throw err;
   }
 
@@ -253,7 +248,10 @@ async function test(...args: MethodArgs): Promise<string> {
       if (!fail) {
         // return here to prevent throwing failure
         response += chalk.bold.green(summaryMessage);
-        return response;
+        return TestCommandResult.createHumanReadableTestCommandResult(
+          response,
+          stringifiedData,
+        );
       }
     }
 
@@ -265,11 +263,31 @@ async function test(...args: MethodArgs): Promise<string> {
     // first one
     error.code = vulnerableResults[0].code || 'VULNS';
     error.userMessage = vulnerableResults[0].userMessage;
+    error.jsonStringifiedResults = stringifiedData;
     throw error;
   }
 
   response += chalk.bold.green(summaryMessage);
-  return response;
+  return TestCommandResult.createHumanReadableTestCommandResult(
+    response,
+    stringifiedData,
+  );
+}
+
+function createErrorMappedResultsForJsonOutput(results) {
+  const errorMappedResults = results.map((result) => {
+    // add json for when thrown exception
+    if (result instanceof Error) {
+      return {
+        ok: false,
+        error: result.message,
+        path: (result as any).path,
+      };
+    }
+    return result;
+  });
+
+  return errorMappedResults;
 }
 
 function shouldFail(vulnerableResults: any[], failOn: FailOn) {

@@ -117,7 +117,7 @@ async function testAuthComplete(token: string): Promise<{ res; body }> {
   });
 }
 
-async function auth(apiToken: string, via: AuthCliCommands) {
+async function auth(apiToken: string, via: AuthCliCommands): Promise<string> {
   let promise;
   resetAttempts();
   if (apiToken) {

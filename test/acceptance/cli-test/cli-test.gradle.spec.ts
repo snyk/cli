@@ -1,6 +1,7 @@
 import * as sinon from 'sinon';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { AcceptanceTests } from './cli-test.acceptance.test';
+import { CommandResult } from '../../../src/cli/commands/types';
 
 export const GradleTests: AcceptanceTests = {
   language: 'Gradle',
@@ -23,7 +24,10 @@ export const GradleTests: AcceptanceTests = {
       t.teardown(loadPlugin.restore);
       loadPlugin.withArgs('gradle').returns(plugin);
 
-      const res = await params.cli.test('gradle-kotlin-dsl-app');
+      const commandResult: CommandResult = await params.cli.test(
+        'gradle-kotlin-dsl-app',
+      );
+      const res: string = commandResult.getDisplayResults();
       const meta = res.slice(res.indexOf('Organization:')).split('\n');
       t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
       t.match(
@@ -64,7 +68,8 @@ export const GradleTests: AcceptanceTests = {
       t.teardown(loadPlugin.restore);
       loadPlugin.withArgs('gradle').returns(plugin);
 
-      const res = await params.cli.test('gradle-app');
+      const commandResult: CommandResult = await params.cli.test('gradle-app');
+      const res = commandResult.getDisplayResults();
       const meta = res.slice(res.indexOf('Organization:')).split('\n');
 
       t.false(
@@ -168,7 +173,10 @@ export const GradleTests: AcceptanceTests = {
       t.teardown(loadPlugin.restore);
       loadPlugin.withArgs('gradle').returns(plugin);
 
-      const res = await params.cli.test('gradle-app', { allSubProjects: true });
+      const commandResult: CommandResult = await params.cli.test('gradle-app', {
+        allSubProjects: true,
+      });
+      const res = commandResult.getDisplayResults();
       t.true(
         ((spyPlugin.args[0] as any)[2] as any).allSubProjects,
         '`allSubProjects` option is sent',
