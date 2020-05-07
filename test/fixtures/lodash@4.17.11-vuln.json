@@ -79,7 +79,7 @@
   "ok": false,
   "dependencyCount": 1,
   "org": "adrukh",
-  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.5\nignore: {}\npatch: {}\n",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.14.1\nignore: {}\npatch: {}\n",
   "isPrivate": true,
   "licensesPolicy": {
     "severities": {
