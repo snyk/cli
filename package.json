@@ -1,6 +1,6 @@
 {
   "name": "snyk",
-  "description": "snyk library and cli utility",
+  "description": "snyk library and cli utility aaaaa",
   "main": "dist/lib/index.js",
   "files": [
     "help",
