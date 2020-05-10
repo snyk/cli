@@ -14,7 +14,6 @@ module.exports = function(root, apikey, notAuthorizedApiKey) {
 
   [root + '/verify/callback', root + '/verify/token'].map(function(url) {
     server.post(url, function(req, res) {
-      console.log({ 'req.params': req.params });
       if (req.params.api) {
         if (
           req.params.api === apikey ||
