@@ -143,7 +143,7 @@ jobs:
           command: npm run snyk-auth
       - run:
           name: Run tests
-          command: npm run test:test
+          command: npm test
 
   release:
     <<: *defaults
