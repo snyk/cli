@@ -56,7 +56,7 @@ Options:
                        Doesn't affect output in JSON mode.
   --project-name=<string>
                        Specify a custom Snyk project name.
-  --policy-path ...... Manually pass a path to a policy file.
+  --policy-path ...... Manually pass a path to a snyk policy file.
   --insecure ......... Ignore unknown certificate authorities.
   --json ............. Return results in JSON format.
   --dry-run .......... Don't apply updates or patches during protect.
@@ -123,10 +123,10 @@ CocoaPods options:
                        Prevent testing out of sync lockfiles. Defaults to false.
 
 Python options:
-  --command=<string>   Indicate which specific Python commands to use based on Python version. 
+  --command=<string>   Indicate which specific Python commands to use based on Python version.
                        The default is 'python' which executes your systems default python version.
-                       Run 'python -V' to find out what version that is. 
-                       If you are using multiple Python versions, use this parameter to specify the correct Python command for execution. 
+                       Run 'python -V' to find out what version that is.
+                       If you are using multiple Python versions, use this parameter to specify the correct Python command for execution.
                        For example: `--command=python3`.
   --skip-unresolved=<true|false>
                        Allow skipping packages that are not found
@@ -148,7 +148,7 @@ Examples:
   $ snyk monitor --org=my-team
   $ snyk monitor --project-name=my-project
   $ snyk test --docker ubuntu:18.04 --org=my-team
-  $ snyk test --docker app:latest --file=Dockerfile --policy-path=.snyk
+  $ snyk test --docker app:latest --file=Dockerfile --policy-path=path/to/.snyk
 
 Possible exit statuses and their meaning:
 
