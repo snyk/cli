@@ -426,7 +426,7 @@ async function assembleLocalPayloads(
         displayTargetFile: targetFile,
         docker: pkg.docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
-        target: await projectMetadata.getInfo(pkg, options),
+        target: await projectMetadata.getInfo(scannedProject, pkg, options),
       };
 
       if (options.vulnEndpoint) {
