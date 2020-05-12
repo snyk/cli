@@ -26,6 +26,7 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk',
   'snyk-gradle-plugin',
   'snyk-sbt-plugin',
+  'snyk-mvn-plugin',
 ];
 
 function dashToCamelCase(dash) {
