@@ -1,3 +1,4 @@
+import * as util from 'util';
 import * as _ from '@snyk/lodash';
 import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
@@ -19,6 +20,8 @@ process.env.LOG_LEVEL = '0';
 
 // tslint:disable-next-line:no-var-requires
 const server = require('../cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
+
+sinon.stub(util, 'promisify').returns(() => {});
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too

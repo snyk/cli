@@ -100,6 +100,7 @@ export = function makeRequest(
           timeout: payload.timeout,
           // eslint-disable-next-line @typescript-eslint/camelcase
           follow_max: 5,
+          family: payload.family,
         };
 
         const proxyUri = getProxyForUrl(url);

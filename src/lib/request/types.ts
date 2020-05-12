@@ -9,4 +9,5 @@ export interface Payload {
   qs?: {};
   json?: boolean;
   timeout?: number;
+  family?: number;
 }
