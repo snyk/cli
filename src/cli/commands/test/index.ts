@@ -41,6 +41,7 @@ import {
   summariseReachableVulns,
   summariseVulnerableResults,
 } from './formatters';
+import * as utils from './utils';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -132,7 +133,13 @@ async function test(...args: MethodArgs): Promise<string> {
     const resArray: any[] = Array.isArray(res) ? res : [res];
 
     for (let i = 0; i < resArray.length; i++) {
-      results.push(_.assign(resArray[i], { path }));
+      const pathWithOptionalProjectName = utils.getPathWithOptionalProjectName(
+        path,
+        resArray[i],
+      );
+      results.push(
+        _.assign(resArray[i], { path: pathWithOptionalProjectName }),
+      );
       // currently testOpts are identical for each test result returned even if it's for multiple projects.
       // we want to return the project names, so will need to be crafty in a way that makes sense.
       if (!testOpts.projectNames) {
