@@ -1,6 +1,7 @@
 import * as abbrev from 'abbrev';
 
 import debugModule = require('debug');
+import { parseMode } from './modes';
 
 export declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
@@ -110,6 +111,9 @@ export function args(rawArgv: string[]): Args {
   // the first argument is the command we'll execute, everything else will be
   // an argument to our command, like `snyk help protect`
   let command = argv._.shift() as string; // can actually be undefined
+
+  // snyk [mode?] [command] [paths?] [options-double-dash]
+  command = parseMode(command, argv);
 
   // alias switcheroo - allows us to have
   if (cli.aliases[command]) {
