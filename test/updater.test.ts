@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { updateCheck } from '../src/lib/updater';
 import * as path from 'path';
 import * as sinon from 'sinon';
-import * as updateNotifier from '@snyk/update-notifier';
+import * as updateNotifier from 'update-notifier';
 
 // Fake location of the package.json file and verify the code behaves well
 test('missing package.json', (t) => {

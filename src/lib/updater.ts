@@ -1,4 +1,4 @@
-import * as updateNotifier from '@snyk/update-notifier';
+import * as updateNotifier from 'update-notifier';
 import * as fs from 'fs';
 import * as p from 'path';
 

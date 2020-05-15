@@ -62,7 +62,6 @@
     "@snyk/lodash": "^4.17.15-patch",
     "@snyk/ruby-semver": "2.2.0",
     "@snyk/snyk-cocoapods-plugin": "2.2.0",
-    "@snyk/update-notifier": "^2.5.1-rc2",
     "@types/agent-base": "^4.2.0",
     "abbrev": "^1.1.1",
     "ansi-escapes": "3.2.0",
@@ -98,6 +97,7 @@
     "strip-ansi": "^5.2.0",
     "tempfile": "^2.0.0",
     "then-fs": "^2.0.0",
+    "update-notifier": "^4.1.0",
     "uuid": "^3.3.2",
     "wrap-ansi": "^5.1.0"
   },
@@ -107,6 +107,7 @@
     "@types/node": "8.10.59",
     "@types/restify": "^8.4.2",
     "@types/sinon": "^7.5.0",
+    "@types/update-notifier": "^4.1.0",
     "@typescript-eslint/eslint-plugin": "2.18.0",
     "@typescript-eslint/parser": "^2.0.0",
     "eslint": "6.8.0",
