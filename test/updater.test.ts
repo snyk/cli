@@ -36,13 +36,14 @@ test('STANDALONE declaration present', (t) => {
 });
 
 // Run updateNotifier API for the basic package. The target is to verify API still stands
-test('verify updater', (t) => {
+test('verify updater', async (t) => {
   const pkg = {
     name: 'snyk',
     version: '1.0.0',
   };
   const notifier = updateNotifier({ pkg });
+  const info = await notifier.fetchInfo();
 
-  t.equal(notifier.packageName, 'snyk', 'Successfull call to notifier');
+  t.equal(info.name, 'snyk', 'Successful call to notifier');
   t.end();
 });
