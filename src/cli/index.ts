@@ -25,6 +25,7 @@ import {
 } from '../lib/errors';
 import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
+import { modeValidation } from './modes';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -158,6 +159,8 @@ async function main() {
   let failed = false;
   let exitCode = EXIT_CODES.ERROR;
   try {
+    modeValidation(args);
+
     if (args.options.scanAllUnmanaged && args.options.file) {
       throw new UnsupportedOptionCombinationError([
         'file',

@@ -150,3 +150,39 @@ test('test command line test --container', (t) => {
   t.notOk(result.options.container);
   t.end();
 });
+
+test('test command line "container test"', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'container',
+    'test',
+  ];
+  const result = args(cliArgs);
+  t.ok(result.options.docker);
+  t.end();
+});
+
+test('test command line "container monitor"', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'container',
+    'monitor',
+  ];
+  const result = args(cliArgs);
+  t.ok(result.options.docker);
+  t.end();
+});
+
+test('test command line "container protect"', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'container',
+    'protect',
+  ];
+  const result = args(cliArgs);
+  t.notOk(result.options.docker);
+  t.end();
+});
