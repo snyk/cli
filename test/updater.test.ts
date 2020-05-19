@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { updateCheck } from '../src/lib/updater';
 import * as path from 'path';
 import * as sinon from 'sinon';
-import * as updateNotifier from '@snyk/update-notifier';
+import * as updateNotifier from 'update-notifier';
 
 // Fake location of the package.json file and verify the code behaves well
 test('missing package.json', (t) => {
@@ -36,13 +36,14 @@ test('STANDALONE declaration present', (t) => {
 });
 
 // Run updateNotifier API for the basic package. The target is to verify API still stands
-test('verify updater', (t) => {
+test('verify updater', async (t) => {
   const pkg = {
     name: 'snyk',
     version: '1.0.0',
   };
   const notifier = updateNotifier({ pkg });
+  const info = await notifier.fetchInfo();
 
-  t.equal(notifier.packageName, 'snyk', 'Successfull call to notifier');
+  t.equal(info.name, 'snyk', 'Successful call to notifier');
   t.end();
 });
