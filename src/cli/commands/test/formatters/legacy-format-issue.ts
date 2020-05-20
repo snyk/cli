@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import { Options, TestOptions, ShowVulnPaths } from '../../../../lib/types';
 import { isLocalFolder } from '../../../../lib/detect';
-import * as snykModule from 'snyk-module';
+import { parsePackageString as snykModule } from 'snyk-module';
 import {
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
   PINNING_SUPPORTED_PACKAGE_MANAGERS,

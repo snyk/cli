@@ -11,19 +11,14 @@ import * as _ from '@snyk/lodash';
 import * as semver from 'semver';
 import { format as fmt } from 'util';
 import * as debugModule from 'debug';
-const debug = debugModule('snyk');
 import * as protect from '../../../lib/protect';
-import * as moduleToObjectJs from 'snyk-module';
+import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as config from '../../../lib/config';
 import * as snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
 import { AnnotatedIssue } from '../../../lib/snyk-test/legacy';
 
-const moduleToObject = moduleToObjectJs as (
-  name: string,
-  version?: string,
-  options?: { loose?: boolean },
-) => { name: string; version: string };
+const debug = debugModule('snyk');
 
 const ignoreDisabledReasons = {
   notAdmin: 'Set to ignore (only administrators can ignore issues)',

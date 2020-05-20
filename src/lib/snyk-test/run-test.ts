@@ -3,7 +3,7 @@ import * as _ from '@snyk/lodash';
 import * as path from 'path';
 import * as debugModule from 'debug';
 import * as pathUtil from 'path';
-import * as moduleToObject from 'snyk-module';
+import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 
 import {
