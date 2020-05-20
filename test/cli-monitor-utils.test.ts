@@ -34,7 +34,16 @@ const stubMeta: MonitorMeta = {
   method: 'cli',
   packageManager: 'npm',
   'policy-path': '',
-  'project-name': 'my-project',
+  'project-name': '',
+  isDocker: true,
+  prune: false,
+};
+
+const overrideNameStubMeta: MonitorMeta = {
+  method: 'cli',
+  packageManager: 'npm',
+  'policy-path': '',
+  'project-name': 'project-name-override',
   isDocker: true,
   prune: false,
 };
@@ -47,28 +56,28 @@ const stubPluginMeta: PluginMetadata = {
 test('getNameDepTree returns name from scanned project if container', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProjectContainer();
-  const res = utils.getNameDepTree(scannedProject, stubDepTree);
+  const res = utils.getNameDepTree(scannedProject, stubDepTree, stubMeta);
   t.equal(res, 'some-image:/tmp/package.json');
 });
 
 test('getNameDepTree returns name from depTree if not container', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProject();
-  const res = utils.getNameDepTree(scannedProject, stubDepTree);
+  const res = utils.getNameDepTree(scannedProject, stubDepTree, stubMeta);
   t.equal(res, 'my-project');
 });
 
 test('getNameDepGraph returns name from scanned project if container', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProjectContainer();
-  const res = utils.getNameDepGraph(scannedProject, stubDepGraph);
+  const res = utils.getNameDepGraph(scannedProject, stubDepGraph, stubMeta);
   t.equal(res, 'some-image:/tmp/package.json');
 });
 
 test('getNameDepGraph returns name from depGraph if not container', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProject();
-  const res = utils.getNameDepGraph(scannedProject, stubDepGraph);
+  const res = utils.getNameDepGraph(scannedProject, stubDepGraph, stubMeta);
   t.equal(res, 'my-project');
 });
 
@@ -82,8 +91,8 @@ test('getProjectName returns name from scanned project if container', (t) => {
 test('getProjectName returns name from meta if not container', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProject();
-  const res = utils.getProjectName(scannedProject, stubMeta);
-  t.equal(res, 'my-project');
+  const res = utils.getProjectName(scannedProject, overrideNameStubMeta);
+  t.equal(res, 'project-name-override');
 });
 
 test('getTargetFile returns name from scanned project if container', (t) => {
