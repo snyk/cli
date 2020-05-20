@@ -1,6 +1,7 @@
 import { test } from 'tap';
 import * as container from '../src/lib/container';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
+import { MonitorMeta } from '../src/lib/types';
 
 const stubScannedProjectContainer = () => {
   return {
@@ -16,6 +17,23 @@ const stubScannedProject = () => {
   return {
     depTree: {},
   };
+};
+const overriddenNameStubMeta: MonitorMeta = {
+  method: 'cli',
+  packageManager: 'npm',
+  'policy-path': '',
+  'project-name': 'override-name-my-project',
+  isDocker: true,
+  prune: false,
+};
+
+const stubMeta: MonitorMeta = {
+  method: 'cli',
+  packageManager: 'npm',
+  'policy-path': '',
+  'project-name': '',
+  isDocker: true,
+  prune: false,
 };
 
 test('isContainer returns true if image name exists in meta', (t) => {
@@ -44,17 +62,17 @@ test('getContainerTargetFile returns target file when container project', (t) =>
   t.equal(res, '/tmp/package.json');
 });
 
-test('getContainerName returns undefined when not conatiner', (t) => {
+test('getContainerName returns undefined when not container', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProject();
-  const res = container.getContainerName(scannedProject);
+  const res = container.getContainerName(scannedProject, stubMeta);
   t.equal(res, undefined);
 });
 
 test('getContainerName returns name+target when container project', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProjectContainer();
-  const res = container.getContainerName(scannedProject);
+  const res = container.getContainerName(scannedProject, stubMeta);
   t.equal(res, 'some-image:/tmp/package.json');
 });
 
@@ -62,20 +80,30 @@ test('getContainerName returns name only when container project', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProjectContainer();
   scannedProject.targetFile = undefined;
-  const res = container.getContainerName(scannedProject);
+  const res = container.getContainerName(scannedProject, stubMeta);
   t.equal(res, 'some-image');
 });
 
 test('getContainerProjectName returns undefined when not container', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProject();
-  const res = container.getContainerProjectName(scannedProject);
+  const res = container.getContainerProjectName(scannedProject, stubMeta);
   t.equal(res, undefined);
 });
 
 test('getContainerProjectName returns name only when container project', (t) => {
   t.plan(1);
   const scannedProject: ScannedProject = stubScannedProjectContainer();
-  const res = container.getContainerProjectName(scannedProject);
+  const res = container.getContainerProjectName(scannedProject, stubMeta);
   t.equal(res, 'some-image');
+});
+
+test('getContainerProjectName returns --project-name opt name when container project', (t) => {
+  t.plan(1);
+  const scannedProject: ScannedProject = stubScannedProjectContainer();
+  const res = container.getContainerProjectName(
+    scannedProject,
+    overriddenNameStubMeta,
+  );
+  t.equal(res, 'override-name-my-project');
 });

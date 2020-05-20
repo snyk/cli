@@ -12,9 +12,10 @@ import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 export function getNameDepTree(
   scannedProject: ScannedProject,
   depTree: DepTree,
+  meta: MonitorMeta,
 ): string | undefined {
   if (isContainer(scannedProject)) {
-    return getContainerName(scannedProject);
+    return getContainerName(scannedProject, meta);
   }
   return depTree.name;
 }
@@ -22,9 +23,10 @@ export function getNameDepTree(
 export function getNameDepGraph(
   scannedProject: ScannedProject,
   depGraph: depGraphLib.DepGraph,
+  meta: MonitorMeta,
 ): string | undefined {
   if (isContainer(scannedProject)) {
-    return getContainerName(scannedProject);
+    return getContainerName(scannedProject, meta);
   }
   return depGraph.rootPkg?.name;
 }
@@ -34,7 +36,7 @@ export function getProjectName(
   meta: MonitorMeta,
 ): string | undefined {
   if (isContainer(scannedProject)) {
-    return getContainerProjectName(scannedProject);
+    return getContainerProjectName(scannedProject, meta);
   }
   return meta['project-name'];
 }
