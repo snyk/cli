@@ -61,7 +61,6 @@
     "@snyk/lodash": "^4.17.15-patch",
     "@snyk/ruby-semver": "2.2.0",
     "@snyk/snyk-cocoapods-plugin": "2.2.0",
-    "@types/agent-base": "^4.2.0",
     "abbrev": "^1.1.1",
     "ansi-escapes": "3.2.0",
     "chalk": "^2.4.2",
@@ -102,6 +101,7 @@
     "wrap-ansi": "^5.1.0"
   },
   "devDependencies": {
+    "@types/agent-base": "^4.2.1",
     "@types/diff": "^3.5.2",
     "@types/needle": "^2.0.4",
     "@types/node": "8.10.59",
