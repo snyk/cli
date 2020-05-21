@@ -13,6 +13,26 @@ const stubScannedProjectContainer = () => {
   };
 };
 
+const stubScannedProjectContainerWithNoImageName = () => {
+  return {
+    depTree: {},
+    meta: {
+      imageName: undefined,
+    },
+    targetFile: '/tmp/package.json',
+  };
+};
+
+const stubScannedProjectContainerWithEmptyImageName = () => {
+  return {
+    depTree: {},
+    meta: {
+      imageName: '',
+    },
+    targetFile: '/tmp/package.json',
+  };
+};
+
 const stubScannedProject = () => {
   return {
     depTree: {},
@@ -35,6 +55,18 @@ const stubMeta: MonitorMeta = {
   isDocker: true,
   prune: false,
 };
+
+test('isContainer returns false if image name is undefined', (t) => {
+  t.plan(1);
+  const scannedProject: ScannedProject = stubScannedProjectContainerWithNoImageName();
+  t.false(container.isContainer(scannedProject));
+});
+
+test('isContainer returns false if image name is empty', (t) => {
+  t.plan(1);
+  const scannedProject: ScannedProject = stubScannedProjectContainerWithEmptyImageName();
+  t.false(container.isContainer(scannedProject));
+});
 
 test('isContainer returns true if image name exists in meta', (t) => {
   t.plan(1);

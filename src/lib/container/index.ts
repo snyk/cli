@@ -2,7 +2,7 @@ import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 import { MonitorMeta } from '../types';
 
 export function isContainer(scannedProject: ScannedProject): boolean {
-  return scannedProject.meta?.imageName.length;
+  return scannedProject.meta?.imageName?.length;
 }
 
 export function getContainerTargetFile(
