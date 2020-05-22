@@ -3,10 +3,15 @@ import {
   UnsupportedOptionCombinationError,
   CustomError,
 } from '../src/lib/errors';
-import { parseMode, modeValidation } from '../src/cli/modes';
+import { parseMode, modeValidation, displayModeHelp } from '../src/cli/modes';
 
-test('when is missing command', (c) => {
-  c.test('should do nothing', (t) => {
+test('display help message', (c) => {
+  c.test('should do nothing when it is missing command', (t) => {
+    const expectedCommand = 'container';
+    const expectedArgs = {
+      _: [],
+      'package-manager': 'pip',
+    };
     const cliCommand = 'container';
     const cliArgs = {
       _: [],
@@ -15,11 +20,91 @@ test('when is missing command', (c) => {
 
     const command = parseMode(cliCommand, cliArgs);
 
-    t.equal(command, cliCommand);
-    t.equal(cliArgs, cliArgs);
-    t.notOk(cliArgs['docker']);
+    t.equal(command, expectedCommand, 'command should be "container"');
+    t.same(cliArgs, expectedArgs, 'args should be the same');
+    t.notOk(cliArgs['docker'], 'should not set docker option');
     t.end();
   });
+
+  c.test('should change the command to help with help="container"', (t) => {
+    const expectedCommand = 'container';
+    const expectedArgs = {
+      _: [],
+      help: 'container',
+      'package-manager': 'pip',
+    };
+    const cliCommand = 'container';
+    const cliArgs = {
+      _: [],
+      'package-manager': 'pip',
+    };
+
+    const command = displayModeHelp(cliCommand, cliArgs);
+
+    t.equal(command, expectedCommand, 'command should be "container"');
+    t.same(
+      cliArgs,
+      expectedArgs,
+      'args should contain "help" as key and "container" as value',
+    );
+    t.end();
+  });
+
+  c.test(
+    'command "container --help" should change the command to help with help="container"',
+    (t) => {
+      const expectedCommand = 'container';
+      const expectedArgs = {
+        _: [],
+        help: 'container',
+        'package-manager': 'pip',
+      };
+      const cliCommand = 'container';
+      const cliArgs = {
+        _: [],
+        help: true,
+        'package-manager': 'pip',
+      };
+
+      const command = displayModeHelp(cliCommand, cliArgs);
+
+      t.equal(command, expectedCommand, 'command should be "container"');
+      t.same(
+        cliArgs,
+        expectedArgs,
+        'args should contain "help" as key and "container" as value',
+      );
+      t.end();
+    },
+  );
+
+  c.test(
+    'command "container test --help" should change the command to help with help="container"',
+    (t) => {
+      const expectedCommand = 'container';
+      const expectedArgs = {
+        _: ['test'],
+        help: 'container',
+        'package-manager': 'pip',
+      };
+      const cliCommand = 'container';
+      const cliArgs = {
+        _: ['test'],
+        help: true,
+        'package-manager': 'pip',
+      };
+
+      const command = displayModeHelp(cliCommand, cliArgs);
+
+      t.equal(command, expectedCommand, 'command should be "container"');
+      t.same(
+        cliArgs,
+        expectedArgs,
+        'args should contain "help" as key and "container" as value',
+      );
+      t.end();
+    },
+  );
   c.end();
 });
 

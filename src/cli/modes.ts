@@ -51,6 +51,18 @@ export function modeValidation(args: object) {
   }
 }
 
+export function displayModeHelp(mode: string, args) {
+  if (isValidMode(mode)) {
+    const command: string = args._[0];
+
+    if (!isValidCommand(mode, command) || args['help']) {
+      args['help'] = mode;
+    }
+  }
+
+  return mode;
+}
+
 function isValidMode(mode: string): boolean {
   return Object.keys(modes).includes(mode);
 }
