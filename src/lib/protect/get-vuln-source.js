@@ -4,7 +4,7 @@ const debug = require('debug')('snyk');
 const resolve = require('snyk-resolve');
 const path = require('path');
 const statSync = require('fs').statSync;
-const moduleToObject = require('snyk-module');
+const { parsePackageString: moduleToObject } = require('snyk-module');
 
 function getVulnSource(vuln, live) {
   const from = vuln.from.slice(1).map((pkg) => {
