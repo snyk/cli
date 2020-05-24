@@ -1,6 +1,7 @@
 import * as updateNotifier from 'update-notifier';
 import * as fs from 'fs';
 import * as p from 'path';
+import { isStandaloneBuild } from './version';
 
 export function updateCheck() {
   const pkgPath = p.join(__dirname, '../..', 'package.json');
@@ -10,10 +11,7 @@ export function updateCheck() {
     return false;
   }
 
-  const standalonePath = p.join(__dirname, '../', 'STANDALONE');
-  const isStandaloneBuild = fs.existsSync(standalonePath);
-
-  if (isStandaloneBuild) {
+  if (isStandaloneBuild()) {
     return false;
   }
 
