@@ -1,5 +1,5 @@
 import { SupportedPackageManagers } from './package-managers';
-import { SupportedCloudConfigs } from './cloud-config-projects';
+import { SupportedCloudConfigs } from './cloud-config/cloud-config-projects';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { SEVERITY } from './snyk-test/legacy';
 import { FailOn } from './snyk-test/common';
@@ -31,6 +31,7 @@ export interface Options {
   org?: string | null;
   path: string;
   docker?: boolean;
+  cloudConfig?: boolean;
   file?: string;
   policy?: string;
   json?: boolean;
@@ -63,6 +64,7 @@ export interface Options {
 export interface MonitorOptions {
   id?: string;
   docker?: boolean;
+  cloudConfig?: boolean;
   file?: string;
   policy?: string;
   json?: boolean;
@@ -85,6 +87,7 @@ export interface MonitorMeta {
   'policy-path': string;
   'project-name': string;
   isDocker: boolean;
+  isCloudConfig: boolean;
   prune: boolean;
   'experimental-dep-graph'?: boolean;
   'remote-repo-url'?: string;

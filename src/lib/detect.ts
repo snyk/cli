@@ -2,8 +2,12 @@ import * as fs from 'then-fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
 import * as _ from '@snyk/lodash';
-import { NoSupportedManifestsFoundError } from './errors';
+import {
+  NoSupportedManifestsFoundError,
+  NoSupportedCloudConfigFileError,
+} from './errors';
 import { SupportedPackageManagers } from './package-managers';
+import { isValidK8sFile } from './cloud-config/cloud-config-parser';
 
 const debug = debugLib('snyk-detect');
 
@@ -135,6 +139,33 @@ export function detectPackageManager(root: string, options) {
     throw NoSupportedManifestsFoundError([root]);
   }
   return packageManager;
+}
+
+export function isCloudConfigProject(root: string, options): string {
+  let file;
+  if (!isLocalFolder(root)) {
+    throw "Cloud Config doesn't support lookup as repo";
+  }
+
+  if (!options.file) {
+    debug('no file specified. Trying to autodetect in base folder ' + root);
+    throw 'Cloud Config works only with specified files';
+  }
+
+  if (localFileSuppliedButNotFound(root, options.file)) {
+    throw new Error(
+      'Could not find the specified file: ' +
+        options.file +
+        '\nPlease check that it exists and try again.',
+    );
+  }
+  file = options.file;
+  const fileContent = fs.readFileSync(file, 'utf-8');
+  const isK8sFile = isValidK8sFile(fileContent, file, {});
+  if (!isK8sFile) {
+    throw NoSupportedCloudConfigFileError([root]);
+  }
+  return 'k8sconfig';
 }
 
 // User supplied a "local" file, but that file doesn't exist

@@ -21,6 +21,7 @@ import {
   LegacyVulnApiResult,
   SEVERITY,
   TestResult,
+  CloudConfigTestResult,
   VulnMetaData,
 } from '../../../lib/snyk-test/legacy';
 import {
@@ -42,6 +43,7 @@ import {
   summariseVulnerableResults,
 } from './formatters';
 import * as utils from './utils';
+import { getCloudConfigDisplayedOutput } from './cloud-config-output';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -340,12 +342,12 @@ function isVulnFixable(vuln) {
 }
 
 function displayResult(
-  res: TestResult,
+  res: TestResult | CloudConfigTestResult,
   options: Options & TestOptions,
   foundProjectCount?: number,
 ) {
   const meta = formatTestMeta(res, options);
-  const dockerAdvice = dockerRemediationForDisplay(res);
+  const dockerAdvice = dockerRemediationForDisplay(res as TestResult);
   const projectType =
     (res.packageManager as SupportedProjectTypes) || options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
@@ -355,11 +357,16 @@ function displayResult(
   if (res instanceof Error) {
     return prefix + res.message;
   }
-  const issuesText = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+  const issuesText =
+    //TODO(orka): remove (res as TestResult)
+    (res as TestResult).licensesPolicy || res.packageManager === 'k8sconfig'
+      ? 'issues'
+      : 'vulnerabilities';
   let pathOrDepsText = '';
 
   if (res.hasOwnProperty('dependencyCount')) {
-    pathOrDepsText += res.dependencyCount + ' dependencies';
+    //TODO(orka): remove (res as TestResult)
+    pathOrDepsText += (res as TestResult).dependencyCount + ' dependencies';
   } else {
     pathOrDepsText += options.path;
   }
@@ -377,7 +384,9 @@ function displayResult(
   }
 
   // OK  => no vulns found, return
-  if (res.ok && res.vulnerabilities.length === 0) {
+  //TODO(orka): handle res.ok
+  //TODO(orka): remove (res as TestResult)
+  if (res.ok && (res as TestResult).vulnerabilities.length === 0) {
     const vulnPathsText = options.showVulnPaths
       ? 'no vulnerable paths found.'
       : 'none were found.';
@@ -408,10 +417,21 @@ function displayResult(
     );
   }
 
+  if (res.packageManager === 'k8sconfig') {
+    return getCloudConfigDisplayedOutput(
+      res as CloudConfigTestResult,
+      options,
+      testedInfoText,
+      meta,
+      prefix,
+      multiProjAdvice,
+    );
+  }
+
   // NOT OK => We found some vulns, let's format the vulns info
 
   return getDisplayedOutput(
-    res,
+    res as TestResult,
     options,
     testedInfoText,
     localPackageTest,

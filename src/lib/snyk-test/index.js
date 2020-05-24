@@ -4,6 +4,7 @@ const detect = require('../detect');
 const runTest = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
+const cloudConfigProjects = require('../cloud-config-projects');
 const { UnsupportedPackageManagerError } = require('../errors');
 
 async function test(root, options, callback) {
@@ -28,7 +29,11 @@ async function test(root, options, callback) {
 function executeTest(root, options) {
   try {
     if (!options.allProjects) {
-      options.packageManager = detect.detectPackageManager(root, options);
+      if (options.cloudConfig) {
+        options.projectType = detect.isCloudConfigProject(root, options);
+      } else {
+        options.packageManager = detect.detectPackageManager(root, options);
+      }
     }
     return run(root, options).then((results) => {
       for (const res of results) {
@@ -49,6 +54,18 @@ function executeTest(root, options) {
 }
 
 function run(root, options) {
+  if (options.cloudConfig) {
+    const projectType = options.projectType;
+    if (
+      !cloudConfigProjects.TEST_SUPPORTED_CLOUD_CONFIG_PROJECTS.includes(
+        projectType,
+      )
+    ) {
+      throw new NoSupportedCloudConfigFileError(projectType);
+    }
+    return runTest(projectType, root, options);
+  }
+
   const packageManager = options.packageManager;
   if (
     !(
