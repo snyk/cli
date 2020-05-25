@@ -1,6 +1,7 @@
 import * as _ from '@snyk/lodash';
 import * as depGraphLib from '@snyk/dep-graph';
 import { SupportedPackageManagers } from '../package-managers';
+import { SupportedProjectTypes } from '../types';
 import { SEVERITIES } from './common';
 
 interface Pkg {
@@ -279,7 +280,7 @@ export interface RemediationChanges {
 function convertTestDepGraphResultToLegacy(
   res: TestDepGraphResponse,
   depGraph: depGraphLib.DepGraph,
-  packageManager: string,
+  packageManager: SupportedProjectTypes | undefined,
   severityThreshold?: SEVERITY,
 ): LegacyVulnApiResult {
   const result = res.result;

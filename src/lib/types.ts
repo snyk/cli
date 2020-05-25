@@ -1,5 +1,5 @@
 import { SupportedPackageManagers } from './package-managers';
-import { SupportedCloudConfigs } from './cloud-config-projects';
+import { SupportedCloudConfigs } from './cloud-config/cloud-config-projects';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { SEVERITY } from './snyk-test/legacy';
 import { FailOn } from './snyk-test/common';

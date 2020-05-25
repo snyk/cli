@@ -49,43 +49,11 @@ import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
+import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
 
 const debug = debugModule('snyk');
 
 export = runTest;
-
-interface DepTreeFromResolveDeps extends DepTree {
-  numDependencies: number;
-  pluck: any;
-}
-
-interface PayloadBody {
-  depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
-  callGraph?: any;
-  policy?: string;
-  targetFile?: string;
-  targetFileRelativePath?: string;
-  projectNameOverride?: string;
-  hasDevDependencies?: boolean;
-  originalProjectName?: string; // used only for display
-  foundProjectCount?: number; // used only for display
-  docker?: any;
-  displayTargetFile?: string;
-  target?: GitTarget | ContainerTarget | null;
-}
-
-interface Payload {
-  method: string;
-  url: string;
-  json: boolean;
-  headers: {
-    'x-is-ci': boolean;
-    authorization: string;
-  };
-  body?: PayloadBody;
-  qs?: object | null;
-  modules?: DepTreeFromResolveDeps;
-}
 
 async function runTest(
   projectType: SupportedProjectTypes | undefined,
@@ -173,7 +141,7 @@ async function runTest(
 
 async function parseRes(
   depGraph: depGraphLib.DepGraph | undefined,
-  pkgManager: string | undefined,
+  pkgManager: SupportedProjectTypes | undefined,
   res: LegacyVulnApiResult,
   options: Options & TestOptions,
   payload: Payload,
