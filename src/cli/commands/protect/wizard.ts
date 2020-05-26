@@ -550,7 +550,7 @@ function processAnswers(answers, policy, options) {
         const lbl = 'Updating npm-shrinkwrap.json...';
         return (
           spinner(lbl)
-            .then(() => npm('shrinkwrap', null, live, cwd, null))
+            .then(() => npm('shrinkwrap', null, live, cwd))
             // clear spinner in case of success or failure
             .then(spinner.clear(lbl))
             .catch((error) => {

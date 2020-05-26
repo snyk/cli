@@ -8,8 +8,8 @@ function npm(
   method: string,
   packages: string[] | null,
   live: boolean,
-  cwd: string | null,
-  flags: string[] | null,
+  cwd?: string,
+  flags?: string[],
 ): Promise<void> {
   flags = flags || [];
   if (!packages) {

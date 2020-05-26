@@ -8,8 +8,8 @@ export function yarn(
   method: string,
   packages: string[],
   live: boolean,
-  cwd: string,
-  flags: string[],
+  cwd?: string,
+  flags?: string[],
 ) {
   flags = flags || [];
   if (!packages) {

@@ -1,8 +1,10 @@
-module.exports = writePatchFlag;
+export = writePatchFlag;
 
-const debug = require('debug')('snyk');
-const fs = require('then-fs');
-const path = require('path');
+import * as debugModule from 'debug';
+import * as fs from 'then-fs';
+import * as path from 'path';
+
+const debug = debugModule('snyk');
 
 function writePatchFlag(now, vuln) {
   if (!vuln) {

@@ -102,7 +102,7 @@
   },
   "devDependencies": {
     "@types/agent-base": "^4.2.1",
-    "@types/diff": "^3.5.2",
+    "@types/diff": "^4.0.2",
     "@types/needle": "^2.0.4",
     "@types/node": "8.10.59",
     "@types/restify": "^8.4.2",

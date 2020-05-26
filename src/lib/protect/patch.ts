@@ -1,27 +1,28 @@
-module.exports = patch;
+export = patch;
+
+import * as debugModule from 'debug';
+import chalk from 'chalk';
+import * as glob from 'glob';
+import * as tempfile from 'tempfile';
+import * as fs from 'then-fs';
+import * as path from 'path';
+import * as _ from '@snyk/lodash';
+import applyPatch = require('./apply-patch');
+import stripVersions = require('./strip-versions');
+import getVulnSource = require('./get-vuln-source');
+import dedupe = require('./dedupe-patches');
+import writePatchFlag = require('./write-patch-flag');
+import * as spinner from '../spinner';
+import * as errors from '../errors/legacy-errors';
+import * as analytics from '../analytics';
+import getPatchFile = require('./fetch-patch');
 
 const now = new Date();
-
-const debug = require('debug')('snyk');
-const chalk = require('chalk');
-const glob = require('glob');
-const tempfile = require('tempfile');
-const fs = require('then-fs');
-const path = require('path');
-const _ = require('@snyk/lodash');
-const applyPatch = require('./apply-patch');
-const stripVersions = require('./strip-versions');
-const getVulnSource = require('./get-vuln-source');
-const dedupe = require('./dedupe-patches');
-const writePatchFlag = require('./write-patch-flag');
-const spinner = require('../spinner');
-const errors = require('../errors/legacy-errors');
-const analytics = require('../analytics');
-const getPatchFile = require('./fetch-patch');
+const debug = debugModule('snyk');
 
 function patch(vulns, live) {
   const lbl = 'Applying patches...';
-  const errorList = [];
+  const errorList: any[] = [];
 
   return (
     spinner(lbl)
@@ -159,7 +160,7 @@ function patch(vulns, live) {
             return Promise.all(patched);
           })
           .then((patched) => {
-            const config = {};
+            const config: any = {};
 
             // this reduce function will look to see if the patch actually resolves
             // more than one vulnerability, and if it does, it'll replicate the
@@ -203,7 +204,7 @@ function patch(vulns, live) {
       // clear spinner in case of success or failure
       .then(spinner.clear(lbl))
       .catch((error) => {
-        spinner.clear(lbl)();
+        spinner.clear(lbl)(null);
         throw error;
       })
       .then((res) => {

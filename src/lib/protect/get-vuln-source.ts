@@ -1,10 +1,12 @@
-module.exports = getVulnSource;
+export = getVulnSource;
 
-const debug = require('debug')('snyk');
-const resolve = require('snyk-resolve');
-const path = require('path');
-const statSync = require('fs').statSync;
-const { parsePackageString: moduleToObject } = require('snyk-module');
+import * as debugModule from 'debug';
+import * as resolve from 'snyk-resolve';
+import * as path from 'path';
+import { statSync } from 'fs';
+import { parsePackageString as moduleToObject } from 'snyk-module';
+
+const debug = debugModule('snyk');
 
 function getVulnSource(vuln, live) {
   const from = vuln.from.slice(1).map((pkg) => {

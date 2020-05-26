@@ -1,13 +1,15 @@
-module.exports = applyPatch;
+export = applyPatch;
 
-const debug = require('debug')('snyk');
-const diff = require('diff');
-const exec = require('child_process').exec;
-const path = require('path');
-const fs = require('fs');
-const uuid = require('uuid/v4');
-const semver = require('semver');
-const errorAnalytics = require('../analytics').single;
+import * as debugModule from 'debug';
+import * as diff from 'diff';
+import { exec } from 'child_process';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as uuid from 'uuid/v4';
+import * as semver from 'semver';
+import { single as errorAnalytics } from '../analytics';
+
+const debug = debugModule('snyk');
 
 function applyPatch(patchFileName, vuln, live, patchUrl) {
   let cwd = vuln.source;
@@ -21,11 +23,11 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
     debug('DRY RUN: relative: %s', relative);
 
     try {
-      let pkg = {};
+      let pkg: any = {};
       const packageJsonPath = path.resolve(relative, 'package.json');
       try {
         const packageJson = fs.readFileSync(packageJsonPath);
-        pkg = JSON.parse(packageJson);
+        pkg = JSON.parse(packageJson.toString());
         debug('package at patch target location: %s@%s', pkg.name, pkg.version);
       } catch (err) {
         debug(
@@ -46,7 +48,7 @@ function applyPatch(patchFileName, vuln, live, patchUrl) {
 
       const isVersionMatch = semver.satisfies(
         versionOfPackageToPatch,
-        semver.valid(semver.coerce(vuln.patches.version)),
+        semver.valid(semver.coerce(vuln.patches.version)!.toString())!,
       );
 
       if (isSemverMatch || isVersionMatch) {
@@ -84,7 +86,7 @@ function jsDiff(patchContent, relative, live) {
   const patchedFiles = {};
   return new Promise((resolve, reject) => {
     diff.applyPatches(patchContent, {
-      loadFile: function(index, callback) {
+      loadFile(index, callback) {
         try {
           const fileName = trimUpToFirstSlash(index.oldFileName);
           if (patchedFiles[fileName]) {
@@ -103,14 +105,14 @@ function jsDiff(patchContent, relative, live) {
         } catch (err) {
           // collect patch metadata for error analysis
           err.patchIssue = JSON.stringify(index);
-          callback(err);
+          callback(err, '');
         }
       },
-      patched: function(index, content, callback) {
+      patched(index, content, callback) {
         try {
-          if (content === false) {
+          if ((content as any) === false) {
             // `false` means the patch does not match the original content.
-            const error = new Error('Found a mismatching patch');
+            const error: any = new Error('Found a mismatching patch');
             error.patchIssue = JSON.stringify(index);
             throw error;
           }
@@ -120,19 +122,19 @@ function jsDiff(patchContent, relative, live) {
             patchedFiles[oldFileName] = null;
           }
           patchedFiles[newFileName] = content;
-          callback();
+          callback(null);
         } catch (err) {
           callback(err);
         }
       },
-      compareLine: function(_, line, operation, patchContent) {
+      compareLine(_, line, operation, patchContent) {
         if (operation === ' ') {
           // Ignore when no patch operators as GNU patch does
           return true;
         }
         return line === patchContent;
       },
-      complete: function(error) {
+      complete(error) {
         if (error) {
           return reject(error);
         }

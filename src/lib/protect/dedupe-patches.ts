@@ -1,10 +1,12 @@
-module.exports = dedupe;
+export = dedupe;
 
-const debug = require('debug')('snyk:patch');
-const patchesForPackage = require('./patches-for-package');
+import * as debugModule from 'debug';
+import patchesForPackage = require('./patches-for-package');
+
+const debug = debugModule('snyk:patch');
 
 function dedupe(source) {
-  const removed = [];
+  const removed: any[] = [];
 
   const names = source.reduce((acc, vuln) => {
     if (Array.isArray(vuln.patches)) {

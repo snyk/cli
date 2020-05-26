@@ -1,22 +1,24 @@
-module.exports.update = update;
-module.exports.install = install;
-module.exports.installDev = installDev;
+export { update };
+export { install };
+export { installDev };
 
-const debug = require('debug')('snyk');
-const chalk = require('chalk');
-const _ = require('@snyk/lodash');
-const { parsePackageString: moduleToObject } = require('snyk-module');
-const semver = require('semver');
-const errors = require('../errors/legacy-errors');
-const npm = require('../npm');
-const { yarn } = require('../yarn');
-const spinner = require('../spinner');
-const analytics = require('../analytics');
+import * as debugModule from 'debug';
+import chalk from 'chalk';
+import * as _ from '@snyk/lodash';
+import { parsePackageString as moduleToObject } from 'snyk-module';
+import * as semver from 'semver';
+import * as errors from '../errors/legacy-errors';
+import * as npm from '../npm';
+import { yarn } from '../yarn';
+import * as spinner from '../spinner';
+import * as analytics from '../analytics';
+
+const debug = debugModule('snyk');
 
 function update(packages, live, pkgManager) {
   pkgManager = pkgManager || 'npm';
   const lbl = 'Applying updates using ' + pkgManager + '...';
-  let error = false;
+  let error: any = false;
 
   return (
     spinner(lbl)
@@ -101,9 +103,9 @@ function update(packages, live, pkgManager) {
         return promise;
       })
       // clear spinner in case of success or failure
-      .then(spinner.clear(lbl))
+      .then(() => spinner.clear(lbl)(null))
       .catch((error) => {
-        spinner.clear(lbl)();
+        spinner.clear(lbl)(null);
         throw error;
       })
       .then((res) => {
@@ -124,8 +126,8 @@ function install(pkgManager, upgrades, live) {
 
 function installDev(pkgManager, upgrades, live) {
   return pkgManager === 'yarn'
-    ? yarn('add', upgrades, live, null, ['--dev'])
-    : npm('install', upgrades, live, null, ['--save-dev']);
+    ? yarn('add', upgrades, live, undefined, ['--dev'])
+    : npm('install', upgrades, live, undefined, ['--save-dev']);
 }
 
 function uninstall(pkgManager, toUninstall, live) {

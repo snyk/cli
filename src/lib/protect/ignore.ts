@@ -1,17 +1,19 @@
-module.exports = ignore;
+export = ignore;
 
-const debug = require('debug')('snyk');
-const stripVersions = require('./strip-versions');
+import * as debugModule from 'debug';
+import stripVersions = require('./strip-versions');
+
+const debug = debugModule('snyk');
 const oneDay = 1000 * 60 * 60 * 24;
 
 function ignore(data) {
   return new Promise((resolve) => {
-    const config = {};
+    const config: any = {};
     config.ignore = data
       .map((res) => {
         const vuln = res.vuln;
         const days = res.meta.days || 30;
-        const ignoreRule = {};
+        const ignoreRule: any = {};
         ignoreRule[stripVersions(vuln.from.slice(1)).join(' > ')] = {
           reason: res.meta.reason,
           expires: new Date(Date.now() + oneDay * days).toJSON(),

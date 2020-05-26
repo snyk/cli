@@ -1,6 +1,6 @@
-module.exports = stripVersions;
+export = stripVersions;
 
-const { parsePackageString: moduleToObject } = require('snyk-module');
+import { parsePackageString as moduleToObject } from 'snyk-module';
 
 function stripVersions(packages) {
   return packages.map((pkg) => {
