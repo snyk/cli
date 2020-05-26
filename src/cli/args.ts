@@ -1,7 +1,7 @@
 import * as abbrev from 'abbrev';
 
 import debugModule = require('debug');
-import { parseMode } from './modes';
+import { parseMode, displayModeHelp } from './modes';
 
 export declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
@@ -114,6 +114,7 @@ export function args(rawArgv: string[]): Args {
   let command = argv._.shift() as string; // can actually be undefined
 
   // snyk [mode?] [command] [paths?] [options-double-dash]
+  command = displayModeHelp(command, argv);
   command = parseMode(command, argv);
 
   // alias switcheroo - allows us to have

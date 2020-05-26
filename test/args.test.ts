@@ -186,3 +186,54 @@ test('test command line "container protect"', (t) => {
   t.notOk(result.options.docker);
   t.end();
 });
+
+test('test command line "container" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'container',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(
+    result.options.help,
+    'container',
+    'help option should be assigned to container',
+  );
+  t.end();
+});
+
+test('test command line "container --help" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'container',
+    '--help',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(
+    result.options.help,
+    'container',
+    'help option should be assigned to container',
+  );
+  t.end();
+});
+
+test('test command line "container test --help" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'container',
+    'test',
+    '--help',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(
+    result.options.help,
+    'container',
+    'help option should be assigned to container',
+  );
+  t.end();
+});
