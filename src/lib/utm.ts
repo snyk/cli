@@ -1,9 +1,9 @@
 import * as url from 'url';
 
 export function getUtmsAsString(): string {
-  const SNYK_UTM_MEDIUM = process.env.SNYK_UTM_MEDIUM || '';
-  const SNYK_UTM_SOURCE = process.env.SNYK_UTM_SOURCE || '';
-  const SNYK_UTM_CAMPAIGN = process.env.SNYK_UTM_CAMPAIGN || '';
+  const SNYK_UTM_MEDIUM = process.env.SNYK_UTM_MEDIUM || 'cli';
+  const SNYK_UTM_SOURCE = process.env.SNYK_UTM_SOURCE || 'cli';
+  const SNYK_UTM_CAMPAIGN = process.env.SNYK_UTM_CAMPAIGN || 'cli';
 
   if (!SNYK_UTM_MEDIUM && !SNYK_UTM_SOURCE && !SNYK_UTM_CAMPAIGN) {
     return '';

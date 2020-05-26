@@ -163,6 +163,42 @@ test('auth with UTMs in environment variables', async (t) => {
   }
 });
 
+test('auth with default UTMs', async (t) => {
+  // stub open so browser window doesn't actually open
+  const open = sinon.stub();
+  const auth = proxyquire('../../src/cli/commands/auth', { open });
+  // stub CI check (ensure returns false for system test)
+  const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
+
+  // read data from console.log
+  let stdoutMessages = '';
+  const stubConsoleLog = (msg: string) => (stdoutMessages += msg);
+  const origConsoleLog = console.log;
+  console.log = stubConsoleLog;
+
+  try {
+    await auth();
+    t.match(
+      stdoutMessages,
+      'utm_medium=cli&utm_source=cli&utm_campaign=cli',
+      'utm detected in environment variables',
+    );
+    t.ok(open.calledOnce, 'called open once');
+    t.match(
+      open.firstCall.args[0],
+      '&utm_medium=cli&utm_source=cli&utm_campaign=cli',
+      'defualt utms are exists',
+    );
+
+    // clean up stubs
+    ciStub.restore();
+
+    // restore original console.log
+    console.log = origConsoleLog;
+  } catch (e) {
+    t.threw(e);
+  }
+});
 test('cli tests error paths', async (t) => {
   try {
     await cli.test('/', { json: true });
