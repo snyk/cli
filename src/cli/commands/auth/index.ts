@@ -1,20 +1,27 @@
-import * as Debug from 'debug';
-import * as open from 'open';
-import * as snyk from '../../../lib';
-import * as config from '../../../lib/config';
-import { isCI } from '../../../lib/is-ci';
-import request = require('../../../lib/request');
+import * as dns from 'dns';
 import * as url from 'url';
+import * as util from 'util';
+import * as open from 'open';
 import * as uuid from 'uuid';
+import * as Debug from 'debug';
 import { Spinner } from 'cli-spinner';
-import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
-import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
-import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
+import { IPv6, parse } from 'ipaddr.js';
+
+import * as snyk from '../../../lib';
 import { verifyAPI } from './is-authed';
+import { isCI } from '../../../lib/is-ci';
+import * as config from '../../../lib/config';
+import request = require('../../../lib/request');
 import { CustomError } from '../../../lib/errors';
 import { getUtmsAsString } from '../../../lib/utm';
+import { AuthFailedError } from '../../../lib/errors';
+import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
+import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
+import { Payload } from '../../../lib/request/types';
 
 export = auth;
+
+const dnsLookupPromise = util.promisify(dns.lookup);
 
 const apiUrl = url.parse(config.API);
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;
@@ -61,21 +68,25 @@ async function webAuth(via: AuthCliCommands) {
   const spinner = new Spinner('Waiting...');
   spinner.setSpinnerString('|/-\\');
 
+  const ipFamily = await getIpFamily();
+
   try {
     spinner.start();
     await setTimeout(() => {
       open(urlStr);
     }, 0);
 
-    const res = await testAuthComplete(token);
-    return res;
+    return await testAuthComplete(token, ipFamily);
   } finally {
     spinner.stop(true);
   }
 }
 
-async function testAuthComplete(token: string): Promise<{ res; body }> {
-  const payload = {
+async function testAuthComplete(
+  token: string,
+  ipFamily?: number,
+): Promise<{ res; body }> {
+  const payload: Partial<Payload> = {
     body: {
       token,
     },
@@ -83,6 +94,10 @@ async function testAuthComplete(token: string): Promise<{ res; body }> {
     json: true,
     method: 'post',
   };
+
+  if (ipFamily) {
+    payload.family = ipFamily;
+  }
 
   return new Promise((resolve, reject) => {
     debug(payload);
@@ -108,7 +123,7 @@ async function testAuthComplete(token: string): Promise<{ res; body }> {
       setTimeout(() => {
         attemptsLeft--;
         if (attemptsLeft > 0) {
-          return resolve(testAuthComplete(token));
+          return resolve(testAuthComplete(token, ipFamily));
         }
 
         reject(TokenExpiredError());
@@ -160,5 +175,20 @@ function errorForFailedAuthAttempt(res, body) {
     }
     error.code = res.statusCode;
     return error;
+  }
+}
+
+async function getIpFamily(): Promise<6 | undefined> {
+  const IPv6Family = 6;
+
+  try {
+    const { address } = await dnsLookupPromise(apiUrl.hostname!, {
+      family: IPv6Family,
+    });
+    const res = parse(address) as IPv6;
+    return !res.isIPv4MappedAddress() ? IPv6Family : undefined;
+  } catch (e) {
+    /* IPv6 is not enabled */
+    return undefined;
   }
 }
