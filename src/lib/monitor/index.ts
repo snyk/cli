@@ -48,6 +48,7 @@ interface MonitorBody {
   target: {};
   targetFileRelativePath: string;
   targetFile: string;
+  contributors?: { userId: string; lastCommitDate: string }[];
 }
 
 interface Meta {
@@ -75,6 +76,7 @@ export async function monitor(
   options,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
+  contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
   apiTokenExists();
   let treeMissingDeps: string[] = [];
@@ -102,6 +104,7 @@ export async function monitor(
         scannedProject,
         pluginMeta,
         targetFileRelativePath,
+        contributors,
       );
     }
     if (monitorGraphSupportedRes.userMessage) {
@@ -205,6 +208,7 @@ export async function monitor(
           // WARNING: be careful changing this as it affects project uniqueness
           targetFile: getTargetFile(scannedProject, pluginMeta),
           targetFileRelativePath,
+          contributors: contributors,
         } as MonitorBody,
         gzip: true,
         method: 'PUT',
@@ -243,6 +247,7 @@ export async function monitorGraph(
   scannedProject: ScannedProject,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
+  contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('monitorGraph', true);
@@ -320,6 +325,7 @@ export async function monitorGraph(
           target,
           targetFile: getTargetFile(scannedProject, pluginMeta),
           targetFileRelativePath,
+          contributors: contributors,
         } as MonitorBody,
         gzip: true,
         method: 'PUT',
