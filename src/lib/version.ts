@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as path from 'path';
 import { executeCommand } from './exec';
 
@@ -18,6 +19,11 @@ export function getVersion(): Promise<string> {
 
     resolve(getBranchCommitAndDirty(promises));
   });
+}
+
+export function isStandaloneBuild() {
+  const standalonePath = path.join(__dirname, '../', 'STANDALONE');
+  return fs.existsSync(standalonePath);
 }
 
 async function getBranchCommitAndDirty(promises): Promise<string> {

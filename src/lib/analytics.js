@@ -49,6 +49,8 @@ function postAnalytics(data) {
     return Promise.resolve();
   }
 
+  const isStandalone = version.isStandaloneBuild();
+
   // get snyk version
   return version
     .getVersion()
@@ -56,6 +58,7 @@ function postAnalytics(data) {
       data.version = version;
       data.os = osName(os.platform(), os.release());
       data.nodeVersion = process.version;
+      data.standalone = isStandalone;
 
       const seed = uuid.v4();
       const shasum = crypto.createHash('sha1');

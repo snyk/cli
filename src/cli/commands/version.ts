@@ -1,3 +1,9 @@
-import { getVersion } from '../../lib/version';
+import { getVersion, isStandaloneBuild } from '../../lib/version';
 
-export = getVersion;
+export = async () => {
+  let version = await getVersion();
+  if (isStandaloneBuild()) {
+    version += ' (standalone)';
+  }
+  return version;
+};
