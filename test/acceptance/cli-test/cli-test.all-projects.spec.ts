@@ -2,6 +2,7 @@ import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
 import * as path from 'path';
 import * as sinon from 'sinon';
+import { CommandResult } from '../../../src/cli/commands/types';
 
 export const AllProjectsTests: AcceptanceTests = {
   language: 'Mixed',
@@ -29,7 +30,7 @@ export const AllProjectsTests: AcceptanceTests = {
       loadPlugin.withArgs('pip').returns(mockPlugin);
       loadPlugin.callThrough(); // don't mock other plugins
 
-      const result = await params.cli.test('mono-repo-project', {
+      const result: CommandResult = await params.cli.test('mono-repo-project', {
         allProjects: true,
         detectionDepth: 1,
         skipUnresolved: true,
@@ -59,38 +60,42 @@ export const AllProjectsTests: AcceptanceTests = {
       // results should contain test results from both package managers
 
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   rubygems',
         'contains package manager rubygems',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       Gemfile.lock',
         'contains target file Gemfile.lock',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Project name:      shallow-goof',
         'contains correct project name for npm',
       );
-      t.match(result, 'Package manager:   npm', 'contains package manager npm');
       t.match(
-        result,
+        result.getDisplayResults(),
+        'Package manager:   npm',
+        'contains package manager npm',
+      );
+      t.match(
+        result.getDisplayResults(),
         'Target file:       package-lock.json',
         'contains target file package-lock.json',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   maven',
         'contains package manager maven',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       pom.xml',
         'contains target file pom.xml',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       Pipfile',
         'contains target file Pipfile',
       );
@@ -138,7 +143,7 @@ export const AllProjectsTests: AcceptanceTests = {
         .returns(mockRequirements);
       loadPlugin.callThrough(); // don't mock other plugins
 
-      const result = await params.cli.test('mono-repo-project', {
+      const result: CommandResult = await params.cli.test('mono-repo-project', {
         allProjects: true,
         detectionDepth: 3,
         allowMissing: true, // allow requirements.txt to pass when deps not installed
@@ -173,89 +178,97 @@ export const AllProjectsTests: AcceptanceTests = {
 
       // ruby
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   rubygems',
         'contains package manager rubygems',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       Gemfile.lock',
         'contains target file Gemfile.lock',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         `Target file:       bundler-app${path.sep}Gemfile.lock`,
         `contains target file bundler-app${path.sep}Gemfile.lock`,
       );
 
       // npm
       t.match(
-        result,
+        result.getDisplayResults(),
         'Project name:      shallow-goof',
         'contains correct project name for npm',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Project name:      goof',
         'contains correct project name for npm',
       );
-      t.match(result, 'Package manager:   npm', 'contains package manager npm');
       t.match(
-        result,
+        result.getDisplayResults(),
+        'Package manager:   npm',
+        'contains package manager npm',
+      );
+      t.match(
+        result.getDisplayResults(),
         'Target file:       package-lock.json',
         'contains target file package-lock.json',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         `Target file:       npm-project${path.sep}package.json`,
         `contains target file npm-project${path.sep}package.json`,
       );
 
       // maven
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   maven',
         'contains package manager maven',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       pom.xml',
         'contains target file pom.xml',
       );
 
       // nuget
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   nuget',
         'contains package manager nuget',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       packages.config',
         'contains target file packages.config',
       );
 
       // paket
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   paket',
         'contains package manager paket',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       paket.dependencies',
         'contains target file paket.dependencies',
       );
 
       // pip
-      t.match(result, 'Package manager:   pip', 'contains package manager pip');
       t.match(
-        result,
+        result.getDisplayResults(),
+        'Package manager:   pip',
+        'contains package manager pip',
+      );
+      t.match(
+        result.getDisplayResults(),
         'Target file:       Pipfile',
         'contains target file Pipfile',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         `Target file:       python-app-with-req-file${path.sep}requirements.txt`,
         `contains target file python-app-with-req-file${path.sep}requirements.txt`,
       );
@@ -385,7 +398,7 @@ export const AllProjectsTests: AcceptanceTests = {
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
 
-      const result = await params.cli.test('maven-multi-app', {
+      const result: CommandResult = await params.cli.test('maven-multi-app', {
         allProjects: true,
         detectionDepth: 2,
       });
@@ -412,17 +425,17 @@ export const AllProjectsTests: AcceptanceTests = {
         );
       });
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   maven',
         'contains package manager maven',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       pom.xml',
         'contains target file pom.xml',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         `Target file:       simple-child${path.sep}pom.xml`,
         `contains target file simple-child${path.sep}pom.xml`,
       );
@@ -489,9 +502,12 @@ export const AllProjectsTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const result = await params.cli.test('mono-repo-project-manifests-only', {
-        allProjects: true,
-      });
+      const result: CommandResult = await params.cli.test(
+        'mono-repo-project-manifests-only',
+        {
+          allProjects: true,
+        },
+      );
       params.server.popRequests(3).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
@@ -510,28 +526,32 @@ export const AllProjectsTests: AcceptanceTests = {
 
       // results should contain test results from all package managers
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   rubygems',
         'contains package manager rubygems',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       Gemfile.lock',
         'contains target file Gemfile.lock',
       );
-      t.match(result, 'Package manager:   npm', 'contains package manager npm');
       t.match(
-        result,
+        result.getDisplayResults(),
+        'Package manager:   npm',
+        'contains package manager npm',
+      );
+      t.match(
+        result.getDisplayResults(),
         'Target file:       package-lock.json',
         'contains target file package-lock.json',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   maven',
         'contains package manager maven',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       pom.xml',
         'contains target file pom.xml',
       );
@@ -542,7 +562,9 @@ export const AllProjectsTests: AcceptanceTests = {
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
 
-      const res = await params.cli.test('ruby-app', { allProjects: true });
+      const res: CommandResult = await params.cli.test('ruby-app', {
+        allProjects: true,
+      });
 
       t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.notOk(spyPlugin.withArgs('npm').calledOnce, "doesn't call npm plugin");
@@ -552,12 +574,12 @@ export const AllProjectsTests: AcceptanceTests = {
       );
 
       t.match(
-        res,
+        res.getDisplayResults(),
         'Package manager:   rubygems',
         'contains package manager rubygems',
       );
       t.match(
-        res,
+        res.getDisplayResults(),
         'Target file:       Gemfile.lock',
         'contains target file Gemfile.lock',
       );
@@ -660,10 +682,13 @@ export const AllProjectsTests: AcceptanceTests = {
       loadPlugin.callThrough(); // don't mock other plugins
 
       try {
-        const res = await params.cli.test('monorepo-with-nuget', {
-          allProjects: true,
-          detectionDepth: 4,
-        });
+        const res: CommandResult = await params.cli.test(
+          'monorepo-with-nuget',
+          {
+            allProjects: true,
+            detectionDepth: 4,
+          },
+        );
         t.equal(
           loadPlugin.withArgs('nuget').callCount,
           2,
@@ -680,49 +705,61 @@ export const AllProjectsTests: AcceptanceTests = {
         );
         t.ok(loadPlugin.withArgs('paket').calledOnce, 'calls nuget plugin');
         t.match(
-          res,
+          res.getDisplayResults(),
           /Tested 6 projects, no vulnerable paths were found./,
           'Six projects tested',
         );
         t.match(
-          res,
+          res.getDisplayResults(),
           `Target file:       src${path.sep}paymentservice${path.sep}package-lock.json`,
           'Npm project targetFile is as expected',
         );
         t.match(
-          res,
+          res.getDisplayResults(),
           `Target file:       src${path.sep}cocoapods-app${path.sep}Podfile`,
           'Cocoapods project targetFile is as expected',
         );
         t.match(
-          res,
+          res.getDisplayResults(),
           `Target file:       src${path.sep}frontend${path.sep}Gopkg.lock`,
           'Go dep project targetFile is as expected',
         );
         t.match(
-          res,
+          res.getDisplayResults(),
           `Target file:       src${path.sep}cartservice-nuget${path.sep}obj${path.sep}project.assets.json`,
           'Nuget project targetFile is as expected',
         );
         t.match(
-          res,
+          res.getDisplayResults(),
           `Target file:       test${path.sep}nuget-app-4${path.sep}packages.config`,
           'Nuget project targetFile is as expected',
         );
         t.match(
-          res,
+          res.getDisplayResults(),
           `Target file:       test${path.sep}paket-app${path.sep}paket.dependencies`,
           'Paket project targetFile is as expected',
         );
 
-        t.match(res, 'Package manager:   nuget', 'Nuget package manager');
         t.match(
-          res,
+          res.getDisplayResults(),
+          'Package manager:   nuget',
+          'Nuget package manager',
+        );
+        t.match(
+          res.getDisplayResults(),
           'Package manager:   cocoapods',
           'Cocoapods package manager',
         );
-        t.match(res, 'Package manager:   npm', 'Npm package manager');
-        t.match(res, 'Package manager:   golangdep', 'Go dep package manager');
+        t.match(
+          res.getDisplayResults(),
+          'Package manager:   npm',
+          'Npm package manager',
+        );
+        t.match(
+          res.getDisplayResults(),
+          'Package manager:   golangdep',
+          'Go dep package manager',
+        );
       } catch (err) {
         t.fail('expected to pass');
       }
@@ -732,7 +769,7 @@ export const AllProjectsTests: AcceptanceTests = {
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
 
-      const result = await params.cli.test('composer-app', {
+      const result: CommandResult = await params.cli.test('composer-app', {
         allProjects: true,
       });
 
@@ -748,12 +785,12 @@ export const AllProjectsTests: AcceptanceTests = {
         t.match(req.url, '/api/v1/test', 'posts to correct url');
       });
       t.match(
-        result,
+        result.getDisplayResults(),
         'Package manager:   composer',
         'contains package manager composer',
       );
       t.match(
-        result,
+        result.getDisplayResults(),
         'Target file:       composer.lock',
         'contains target file composer.lock',
       );
@@ -781,7 +818,7 @@ export const AllProjectsTests: AcceptanceTests = {
       loadPlugin.withArgs('govendor').returns(mockPlugin);
       loadPlugin.callThrough(); // don't mock npm plugin
 
-      const res = await params.cli.test('mono-repo-go', {
+      const res: CommandResult = await params.cli.test('mono-repo-go', {
         allProjects: true,
         detectionDepth: 3,
       });
@@ -793,34 +830,50 @@ export const AllProjectsTests: AcceptanceTests = {
         'calls go vendor plugin',
       );
       t.match(
-        res,
+        res.getDisplayResults(),
         /Tested 4 projects, no vulnerable paths were found./,
         'Four projects tested',
       );
       t.match(
-        res,
+        res.getDisplayResults(),
         `Target file:       hello-dep${path.sep}Gopkg.lock`,
         'Go dep project targetFile is as expected',
       );
       t.match(
-        res,
+        res.getDisplayResults(),
         `Target file:       hello-mod${path.sep}go.mod`,
         'Go mod project targetFile is as expected',
       );
       t.match(
-        res,
+        res.getDisplayResults(),
         `Target file:       hello-node${path.sep}package-lock.json`,
         'Npm project targetFile is as expected',
       );
       t.match(
-        res,
+        res.getDisplayResults(),
         `Target file:       hello-vendor${path.sep}vendor${path.sep}vendor.json`,
         'Go vendor project targetFile is as expected',
       );
-      t.match(res, 'Package manager:   golangdep', 'Nuget package manager');
-      t.match(res, 'Package manager:   gomodules', 'Nuget package manager');
-      t.match(res, 'Package manager:   npm', 'Npm package manager');
-      t.match(res, 'Package manager:   govendor', 'Go dep package manager');
+      t.match(
+        res.getDisplayResults(),
+        'Package manager:   golangdep',
+        'Nuget package manager',
+      );
+      t.match(
+        res.getDisplayResults(),
+        'Package manager:   gomodules',
+        'Nuget package manager',
+      );
+      t.match(
+        res.getDisplayResults(),
+        'Package manager:   npm',
+        'Npm package manager',
+      );
+      t.match(
+        res.getDisplayResults(),
+        'Package manager:   govendor',
+        'Go dep package manager',
+      );
     },
   },
 };

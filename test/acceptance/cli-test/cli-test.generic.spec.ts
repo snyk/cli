@@ -84,7 +84,11 @@ export const GenericTests: AcceptanceTests = {
       );
       t.match(req.url, '/vuln/npm/semver', 'gets from correct url');
       t.equal(req.query.org, 'EFF', 'org sent as a query in request');
-      t.match(output, 'Testing semver', 'has "Testing semver" message');
+      t.match(
+        output.getDisplayResults(),
+        'Testing semver',
+        'has "Testing semver" message',
+      );
       t.notMatch(output, 'Remediation', 'shows no remediation advice');
       t.notMatch(output, 'snyk wizard', 'does not suggest `snyk wizard`');
     },

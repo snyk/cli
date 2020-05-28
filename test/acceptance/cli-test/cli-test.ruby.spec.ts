@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as _ from '@snyk/lodash';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
+import { CommandResult } from '../../../src/cli/commands/types';
 
 export const RubyTests: AcceptanceTests = {
   language: 'Ruby',
@@ -43,7 +44,8 @@ export const RubyTests: AcceptanceTests = {
 
     '`test ruby-app` meta when no vulns': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
-      const res = await params.cli.test('ruby-app');
+      const commandResult: CommandResult = await params.cli.test('ruby-app');
+      const res = commandResult.getDisplayResults();
 
       const meta = res.slice(res.indexOf('Organization:')).split('\n');
       t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
@@ -448,7 +450,10 @@ export const RubyTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const res = await params.cli.test('ruby-app', { file: 'Gemfile.lock' });
+      const commandResult: CommandResult = await params.cli.test('ruby-app', {
+        file: 'Gemfile.lock',
+      });
+      const res = commandResult.getDisplayResults();
       const meta = res.slice(res.indexOf('Organization:')).split('\n');
       t.match(meta[2], /Target file:\s+Gemfile.lock/, 'target file displayed');
     },

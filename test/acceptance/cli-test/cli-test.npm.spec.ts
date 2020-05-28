@@ -1,5 +1,6 @@
 import * as path from 'path';
 import { AcceptanceTests } from './cli-test.acceptance.test';
+import { CommandResult } from '../../../src/cli/commands/types';
 
 export const NpmTests: AcceptanceTests = {
   language: 'NPM',
@@ -78,7 +79,10 @@ export const NpmTests: AcceptanceTests = {
       t,
     ) => {
       utils.chdirWorkspaces();
-      const res = await params.cli.test('npm-package-policy');
+      const commandResult: CommandResult = await params.cli.test(
+        'npm-package-policy',
+      );
+      const res = commandResult.getDisplayResults();
       const meta = res.slice(res.indexOf('Organization:')).split('\n');
       t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
       t.match(meta[1], /Package manager:\s+npm/, 'package manager displayed');
