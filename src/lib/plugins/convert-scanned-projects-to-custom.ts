@@ -8,6 +8,7 @@ export function convertScannedProjectsToCustom(
   pluginMeta: PluginMetadata,
   packageManager?: SupportedPackageManagers,
   targetFile?: string,
+  hashes?: string[],
 ): ScannedProjectCustom[] {
   // annotate the package manager & targetFile to be used
   // for test & monitor
@@ -20,6 +21,9 @@ export function convertScannedProjectsToCustom(
       ? (a as ScannedProjectCustom).packageManager
       : (packageManager as SupportedPackageManagers);
     (a as ScannedProjectCustom).meta = a.meta;
+    if (hashes) {
+      (a as ScannedProjectCustom).depTree.docker.hashes = hashes;
+    }
     return a as ScannedProjectCustom;
   });
 }

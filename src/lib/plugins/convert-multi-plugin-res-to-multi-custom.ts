@@ -18,6 +18,7 @@ export function convertMultiResultToMultiCustom(
       (inspectRes.plugin.packageManager as SupportedPackageManagers) ||
         packageManager,
       targetFile,
+      (inspectRes as any).hashes,
     ),
   };
 }
