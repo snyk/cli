@@ -27,6 +27,21 @@ tap.afterEach((done) => {
   done();
 });
 
+test('analyticsAllowed returns false if disable-analytics set in snyk config', (t) => {
+  t.plan(1);
+  snyk.config.set('disable-analytics', '1');
+  const analytics = require('../src/lib/analytics');
+  const analyticsAllowed: boolean = analytics.allowAnalytics();
+  t.notOk(analyticsAllowed);
+});
+
+test('analyticsAllowed returns true if disable-analytics is not set snyk config', (t) => {
+  t.plan(1);
+  const analytics = require('../src/lib/analytics');
+  const analyticsAllowed: boolean = analytics.allowAnalytics();
+  t.ok(analyticsAllowed);
+});
+
 test('analytics disabled', (t) => {
   const spy = sinon.spy();
   snyk.config.set('disable-analytics', '1');

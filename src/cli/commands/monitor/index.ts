@@ -32,6 +32,14 @@ import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-
 import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
 import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
+import {
+  CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
+  getTimestampStartOfContributingDevTimeframe,
+  parseGitLog,
+  runGitLog,
+  GitRepoCommitStats,
+  execShell,
+} from '../../../lib/monitor/dev-count-analysis';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -79,6 +87,27 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   apiTokenExists();
+
+  let contributors: { userId: string; lastCommitDate: string }[] = [];
+  if (!options.docker && analytics.allowAnalytics()) {
+    try {
+      const repoPath = process.cwd();
+      const dNow = new Date();
+      const timestampStartOfContributingDeveloperPeriod = getTimestampStartOfContributingDevTimeframe(
+        dNow,
+        CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
+      );
+      const gitLogResults = await runGitLog(
+        timestampStartOfContributingDeveloperPeriod,
+        repoPath,
+        execShell,
+      );
+      const stats: GitRepoCommitStats = parseGitLog(gitLogResults);
+      contributors = stats.getRepoContributors();
+    } catch (err) {
+      debug('error getting repo contributors', err);
+    }
+  }
 
   // Part 1: every argument is a scan target; process them sequentially
   for (const path of args as string[]) {
@@ -175,6 +204,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
             options,
             projectDeps.plugin as PluginMetadata,
             targetFileRelativePath,
+            contributors,
           ),
           spinner.clear(postingMonitorSpinnerLabel),
         );

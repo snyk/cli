@@ -41,10 +41,18 @@ function analytics(data) {
   return postAnalytics(data);
 }
 
+analytics.allowAnalytics = () => {
+  if (snyk.config.get('disable-analytics') || config.DISABLE_ANALYTICS) {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 function postAnalytics(data) {
   // if the user opt'ed out of analytics, then let's bail out early
   // ths applies to all sending to protect user's privacy
-  if (snyk.config.get('disable-analytics') || config.DISABLE_ANALYTICS) {
+  if (!analytics.allowAnalytics()) {
     debug('analytics disabled');
     return Promise.resolve();
   }
