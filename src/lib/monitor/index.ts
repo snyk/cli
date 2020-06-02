@@ -115,7 +115,7 @@ export async function monitor(
   let pkg = scannedProject.depTree;
 
   let prePruneDepCount;
-  if (meta.prune) {
+  if (meta.prune && scannedProject.depTree) {
     debug('prune used, counting total dependencies');
     prePruneDepCount = countTotalDependenciesInTree(scannedProject.depTree);
     analytics.add('prePruneDepCount', prePruneDepCount);
@@ -124,7 +124,9 @@ export async function monitor(
     pkg = await pruneTree(scannedProject.depTree, meta.packageManager);
     debug('finished pruning dep tree');
   }
-  if (['npm', 'yarn'].includes(meta.packageManager)) {
+
+  // TODO(boost): filter out missing deps when npm/yarn plugins produce a dep-graph?
+  if (['npm', 'yarn'].includes(meta.packageManager) && scannedProject.depTree) {
     const { filteredDepTree, missingDeps } = filterOutMissingDeps(
       scannedProject.depTree,
     );
