@@ -17,7 +17,10 @@ import {
   AuthFailedError,
 } from '../errors';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
-import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
+import {
+  GRAPH_SUPPORTED_PACKAGE_MANAGERS,
+  SupportedPackageManagers,
+} from '../package-managers';
 import { isFeatureFlagSupportedForOrg } from '../feature-flags';
 import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
 import { filterOutMissingDeps } from './filter-out-missing-deps';
@@ -69,53 +72,25 @@ interface Meta {
   projectName: string;
 }
 
-export async function monitor(
+async function monitorDepTree(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
+  packageManager: SupportedPackageManagers,
   options,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
-  apiTokenExists();
-  let treeMissingDeps: string[] = [];
-
-  const packageManager = meta.packageManager;
-  analytics.add('packageManager', packageManager);
-  analytics.add('isDocker', !!meta.isDocker);
-
-  if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
-    const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
-      _.camelCase('experimental-dep-graph'),
-      options.org || config.org,
-    );
-
-    if (monitorGraphSupportedRes.code === 401) {
-      throw AuthFailedError(
-        monitorGraphSupportedRes.error,
-        monitorGraphSupportedRes.code,
-      );
-    }
-    if (monitorGraphSupportedRes.ok) {
-      return await monitorGraph(
-        root,
-        meta,
-        scannedProject,
-        pluginMeta,
-        targetFileRelativePath,
-        contributors,
-      );
-    }
-    if (monitorGraphSupportedRes.userMessage) {
-      debug(monitorGraphSupportedRes.userMessage);
-    }
+  if (!scannedProject.depTree) {
+    throw new Error('DepTree not found'); //TODO @boost: create a dedicated reusable error for this
   }
 
+  let treeMissingDeps: string[] = [];
   let pkg = scannedProject.depTree;
-
   let prePruneDepCount;
-  if (meta.prune && scannedProject.depTree) {
+
+  if (meta.prune) {
     debug('prune used, counting total dependencies');
     prePruneDepCount = countTotalDependenciesInTree(scannedProject.depTree);
     analytics.add('prePruneDepCount', prePruneDepCount);
@@ -143,8 +118,7 @@ export async function monitor(
     await snyk.policy.create();
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
-
-  const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
+  const target = await projectMetadata.getInfo(scannedProject, meta, pkg);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -172,26 +146,29 @@ export async function monitor(
 
   // TODO(kyegupov): async/await
   return new Promise((resolve, reject) => {
+    if (!pkg) {
+      throw new Error('DepTree not found'); //TODO @boost: create a dedicated reusable error for this
+    }
     request(
       {
         body: {
           meta: {
             method: meta.method,
             hostname: os.hostname(),
-            id: snyk.id || pkg.name,
+            id: snyk.id || pkg?.name,
             ci: isCI(),
             pid: process.pid,
             node: process.version,
             master: snyk.config.isMaster,
             name: getNameDepTree(scannedProject, pkg, meta),
-            version: pkg.version,
+            version: pkg?.version,
             org: config.org ? decodeURIComponent(config.org) : undefined,
             pluginName: pluginMeta.name,
             pluginRuntime: pluginMeta.runtime,
             missingDeps: treeMissingDeps,
             dockerImageId: pluginMeta.dockerImageId,
-            dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-            dockerfileLayers: pkg.docker
+            dockerBaseImage: pkg?.docker ? pkg.docker.baseImage : undefined,
+            dockerfileLayers: pkg?.docker
               ? pkg.docker.dockerfileLayers
               : undefined,
             projectName: getProjectName(scannedProject, meta),
@@ -243,7 +220,74 @@ export async function monitor(
   });
 }
 
-export async function monitorGraph(
+export async function monitor(
+  root: string,
+  meta: MonitorMeta,
+  scannedProject: ScannedProject,
+  options,
+  pluginMeta: PluginMetadata,
+  targetFileRelativePath?: string,
+  contributors?: { userId: string; lastCommitDate: string }[],
+): Promise<MonitorResult> {
+  try {
+    apiTokenExists();
+    const packageManager = meta.packageManager;
+    analytics.add('packageManager', packageManager);
+    analytics.add('isDocker', !!meta.isDocker);
+
+   
+    //TODO @boost: needs to change this if to check if `scannedProjects contains depGraph`
+    if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
+      const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
+        _.camelCase('experimental-dep-graph'),
+        options.org || config.org,
+      );
+
+      if (monitorGraphSupportedRes.code === 401) {
+        throw AuthFailedError(
+          monitorGraphSupportedRes.error,
+          monitorGraphSupportedRes.code,
+        );
+      }
+      if (monitorGraphSupportedRes.ok) {
+        return await monitorDepGraph(
+          root,
+          meta,
+          scannedProject,
+          pluginMeta,
+          targetFileRelativePath,
+          contributors,
+        );
+      }
+      if (monitorGraphSupportedRes.userMessage) {
+        debug(monitorGraphSupportedRes.userMessage);
+      }
+      return await monitorDepGraph(
+        root,
+        meta,
+        scannedProject,
+        pluginMeta,
+        targetFileRelativePath,
+        contributors,
+      );
+    }
+
+    return await monitorDepTree(
+      root,
+      meta,
+      scannedProject,
+      packageManager,
+      options,
+      pluginMeta,
+      targetFileRelativePath,
+      contributors,
+    );
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
+export async function monitorDepGraph(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
@@ -253,6 +297,11 @@ export async function monitorGraph(
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('monitorGraph', true);
+
+  // TODO @boost: switch this depTree with depGraph or both(remember experimental FF)
+  if (!scannedProject.depTree) {
+    throw new Error('DepTree not found'); //TODO @boost: create a dedicated reusable error for this
+  }
 
   let treeMissingDeps: string[];
   let pkg = scannedProject.depTree;
@@ -278,7 +327,7 @@ export async function monitorGraph(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
+  const target = await projectMetadata.getInfo(scannedProject, meta, pkg);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);

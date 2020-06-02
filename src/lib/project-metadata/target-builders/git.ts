@@ -9,8 +9,8 @@ const originRegex = /(.+@)?(.+):(.+$)/;
 
 export async function getInfo(
   scannedProject: ScannedProject,
-  packageInfo: DepTree,
   isFromContainer: boolean,
+  packageInfo?: DepTree,
 ): Promise<GitTarget | null> {
   // safety check
   if (isFromContainer) {

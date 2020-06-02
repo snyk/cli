@@ -29,7 +29,7 @@ import * as common from './common';
 import * as config from '../config';
 import * as analytics from '../analytics';
 import { pluckPolicies } from '../policy';
-import { maybePrintDeps } from '../print-deps';
+import { printDepTree } from '../print-deps';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import * as projectMetadata from '../project-metadata';
 import { DepTree, Options, TestOptions, SupportedProjectTypes } from '../types';
@@ -354,10 +354,14 @@ async function assembleLocalPayloads(
     }
 
     for (const scannedProject of deps.scannedProjects) {
+      if (!scannedProject.depTree) {
+        continue;
+      }
+
       const pkg = scannedProject.depTree;
       if (options['print-deps']) {
         await spinner.clear<void>(spinnerLbl)();
-        maybePrintDeps(options, pkg);
+        printDepTree(options, pkg);
       }
       const project = scannedProject as ScannedProjectCustom;
       const packageManager = extractPackageManager(project, deps, options);
@@ -426,7 +430,7 @@ async function assembleLocalPayloads(
         displayTargetFile: targetFile,
         docker: pkg.docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
-        target: await projectMetadata.getInfo(scannedProject, pkg, options),
+        target: await projectMetadata.getInfo(scannedProject, options, pkg),
       };
 
       if (options.vulnEndpoint) {

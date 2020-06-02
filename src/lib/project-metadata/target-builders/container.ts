@@ -4,8 +4,8 @@ import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
 export async function getInfo(
   scannedProject: ScannedProject,
-  packageInfo: DepTree,
   isFromContainer: boolean,
+  packageInfo?: DepTree,
 ): Promise<ContainerTarget | null> {
   // safety check
   if (!isFromContainer) {
@@ -14,8 +14,11 @@ export async function getInfo(
 
   const imageNameOnProjectMeta =
     scannedProject.meta && scannedProject.meta.imageName;
+
+  const image =
+    imageNameOnProjectMeta || (packageInfo as any)?.image || packageInfo?.name;
+
   return {
-    image:
-      imageNameOnProjectMeta || (packageInfo as any).image || packageInfo.name,
+    image,
   };
 }

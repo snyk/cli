@@ -20,10 +20,3 @@ export async function pruneTree(
   tree.dependencies = prunedTree.dependencies;
   return tree;
 }
-
-
-export async function pruneDepGraph(
-  depGraph: DepGraph,
-): Promise<DepTree> {
-  const prunedTree: DepTree = 
-}
