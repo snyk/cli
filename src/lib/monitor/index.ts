@@ -85,6 +85,20 @@ export async function monitor(
   analytics.add('isDocker', !!meta.isDocker);
 
   if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
+    const isGradlePkgManager: boolean = packageManager === 'gradle';
+
+    // TODO @boost: delete this condition once 'experimental-dep-graph' ff is deleted
+    if (isGradlePkgManager) {
+      return await monitorDepGraph(
+        root,
+        meta,
+        scannedProject,
+        pluginMeta,
+        targetFileRelativePath,
+        contributors,
+      );
+    }
+
     // TODO @boost: remove the code below once 'experimental-dep-graph' is deleted
     const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
       _.camelCase('experimental-dep-graph'),
@@ -257,6 +271,102 @@ async function monitorDepTree(
           return reject(error);
         }
 
+        if (res.statusCode >= 200 && res.statusCode <= 299) {
+          resolve(body as MonitorResult);
+        } else {
+          let err;
+          const userMessage = body && body.userMessage;
+          if (!userMessage && res.statusCode === 504) {
+            err = new ConnectionTimeoutError();
+          } else {
+            err = new MonitorError(res.statusCode, userMessage);
+          }
+          reject(err);
+        }
+      },
+    );
+  });
+}
+
+export async function monitorDepGraph(
+  root: string,
+  meta: MonitorMeta,
+  scannedProject: ScannedProject,
+  pluginMeta: PluginMetadata,
+  targetFileRelativePath?: string,
+  contributors?: { userId: string; lastCommitDate: string }[],
+): Promise<MonitorResult> {
+  const packageManager = meta.packageManager;
+  analytics.add('monitorDepGraph', true);
+
+  let depGraph = scannedProject.depGraph;
+
+  //TODO @boost: create a customer error msg new InvalidDepGraph()???
+  if (!depGraph) {
+    throw new Error('Invalid DepGraph');
+  }
+
+  const policyPath = meta['policy-path'] || root;
+  const policyLocations = [policyPath]
+    .concat(pluckPolicies(depGraph))
+    .filter(Boolean);
+
+  if (!policyLocations.length) {
+    await snyk.policy.create();
+  }
+
+  const policy = await snyk.policy.load(policyLocations, { loose: true });
+  const target = await projectMetadata.getInfo(scannedProject, meta);
+  if (isGitTarget(target) && target.branch) {
+    analytics.add('targetBranch', target.branch);
+  }
+
+  return new Promise((resolve, reject) => {
+    if (!depGraph) {
+      //TODO @boost: create a customer error msg new InvalidDepGraph()???
+      return reject(new Error('Invalid DepGraph'));
+    }
+    request(
+      {
+        body: {
+          meta: {
+            method: meta.method,
+            hostname: os.hostname(),
+            id: snyk.id || depGraph.rootPkg.name,
+            ci: isCI(),
+            pid: process.pid,
+            node: process.version,
+            master: snyk.config.isMaster,
+            name: getNameDepGraph(scannedProject, depGraph, meta),
+            version: depGraph.rootPkg.version,
+            org: config.org ? decodeURIComponent(config.org) : undefined,
+            pluginName: pluginMeta.name,
+            pluginRuntime: pluginMeta.runtime,
+            projectName: getProjectName(scannedProject, meta),
+            monitorGraph: true,
+          },
+          policy: policy ? policy.toString() : undefined,
+          depGraphJSON: depGraph, // depGraph will be auto serialized to JSON on send
+          // we take the targetFile from the plugin,
+          // because we want to send it only for specific package-managers
+          target,
+          targetFile: getTargetFile(scannedProject, pluginMeta),
+          targetFileRelativePath,
+          contributors: contributors,
+        } as MonitorBody,
+        gzip: true,
+        method: 'PUT',
+        headers: {
+          authorization: 'token ' + snyk.api,
+          'content-encoding': 'gzip',
+        },
+        url: `${config.API}/monitor/${packageManager}/graph`,
+        json: true,
+      },
+      (error, res, body) => {
+        if (error) {
+          return reject(error);
+        }
         if (res.statusCode >= 200 && res.statusCode <= 299) {
           resolve(body as MonitorResult);
         } else {
