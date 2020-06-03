@@ -13,11 +13,11 @@ import { isCI } from '../../../lib/is-ci';
 import * as config from '../../../lib/config';
 import request = require('../../../lib/request');
 import { CustomError } from '../../../lib/errors';
-import { getUtmsAsString } from '../../../lib/utm';
 import { AuthFailedError } from '../../../lib/errors';
 import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { Payload } from '../../../lib/request/types';
+import { getQueryParamsAsString } from '../../../lib/query-strings';
 
 export = auth;
 
@@ -42,7 +42,7 @@ async function webAuth(via: AuthCliCommands) {
 
   let urlStr = authUrl + '/login?token=' + token;
 
-  const utmParams = getUtmsAsString();
+  const utmParams = getQueryParamsAsString();
   if (utmParams) {
     urlStr += '&' + utmParams;
   }

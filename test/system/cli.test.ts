@@ -7,6 +7,9 @@ import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
 import * as policy from 'snyk-policy';
 import stripAnsi from 'strip-ansi';
+import * as os from 'os';
+import * as isDocker from '../../src/lib/is-docker';
+
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
 const apiKey = '123456789';
@@ -172,7 +175,8 @@ test('auth with default UTMs', async (t) => {
   const auth = proxyquire('../../src/cli/commands/auth', { open });
   // stub CI check (ensure returns false for system test)
   const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
-
+  const osStub = sinon.stub(os, 'type').returns('Darwin');
+  const isDockerStub = sinon.stub(isDocker, 'isDocker').returns(false);
   // read data from console.log
   let stdoutMessages = '';
   const stubConsoleLog = (msg: string) => (stdoutMessages += msg);
@@ -189,13 +193,14 @@ test('auth with default UTMs', async (t) => {
     t.ok(open.calledOnce, 'called open once');
     t.match(
       open.firstCall.args[0],
-      '&utm_medium=cli&utm_source=cli&utm_campaign=cli',
+      '&utm_medium=cli&utm_source=cli&utm_campaign=cli&os=darwin&docker=false',
       'defualt utms are exists',
     );
 
     // clean up stubs
     ciStub.restore();
-
+    osStub.restore();
+    isDockerStub.restore();
     // restore original console.log
     console.log = origConsoleLog;
   } catch (e) {
