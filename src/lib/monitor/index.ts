@@ -79,7 +79,6 @@ export async function monitor(
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
   apiTokenExists();
-  let treeMissingDeps: string[] = [];
 
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
@@ -111,6 +110,30 @@ export async function monitor(
       debug(monitorGraphSupportedRes.userMessage);
     }
   }
+
+  return monitorDepTree(
+    root,
+    meta,
+    scannedProject,
+    options,
+    pluginMeta,
+    targetFileRelativePath,
+    contributors,
+  );
+}
+
+async function monitorDepTree(
+  root: string,
+  meta: MonitorMeta,
+  scannedProject: ScannedProject,
+  options,
+  pluginMeta: PluginMetadata,
+  targetFileRelativePath?: string,
+  contributors?: { userId: string; lastCommitDate: string }[],
+): Promise<MonitorResult> {
+  let treeMissingDeps: string[] = [];
+
+  const packageManager = meta.packageManager;
 
   let pkg = scannedProject.depTree;
 
