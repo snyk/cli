@@ -13,15 +13,15 @@ interface Options {
 }
 export async function getInfo(
   scannedProject: ScannedProject,
-  packageInfo: DepTree,
   options: Options,
+  packageInfo?: DepTree,
 ): Promise<GitTarget | ContainerTarget | null> {
   const isFromContainer = options.docker || options.isDocker || false;
   for (const builder of TARGET_BUILDERS) {
     const target = await builder.getInfo(
+      isFromContainer,
       scannedProject,
       packageInfo,
-      isFromContainer,
     );
 
     if (target) {

@@ -169,7 +169,7 @@ async function monitorDepTree(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(scannedProject, depTree, meta);
+  const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -318,7 +318,7 @@ export async function experimentalMonitorDepGraph(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(scannedProject, depTree, meta);
+  const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);

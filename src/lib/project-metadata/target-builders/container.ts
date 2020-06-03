@@ -3,9 +3,9 @@ import { ContainerTarget } from '../types';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
 export async function getInfo(
-  scannedProject: ScannedProject,
-  packageInfo: DepTree,
   isFromContainer: boolean,
+  scannedProject: ScannedProject,
+  packageInfo?: DepTree,
 ): Promise<ContainerTarget | null> {
   // safety check
   if (!isFromContainer) {
@@ -16,6 +16,6 @@ export async function getInfo(
     scannedProject.meta && scannedProject.meta.imageName;
   return {
     image:
-      imageNameOnProjectMeta || (packageInfo as any).image || packageInfo.name,
+      imageNameOnProjectMeta || (packageInfo as any)?.image || packageInfo?.name,
   };
 }

@@ -6,7 +6,7 @@ test('getInfo returns null for isFromContainer=true', async (t) => {
   const {
     getInfo,
   } = require('../src/lib/project-metadata/target-builders/git');
-  const gitInfo = await getInfo(null as any, null as any, true);
+  const gitInfo = await getInfo(true);
   t.same(gitInfo, null);
 });
 
@@ -22,7 +22,7 @@ test('getInfo handles provided https remote url as http', async (t) => {
       },
     },
   );
-  const gitInfo = await getInfo(null as any, null as any, false);
+  const gitInfo = await getInfo(false);
   t.same(gitInfo.remoteUrl, 'http://myserver.local/myproject.git');
 });
 
@@ -38,7 +38,7 @@ test('getInfo handles provided http remote url', async (t) => {
       },
     },
   );
-  const gitInfo = await getInfo(null as any, null as any, false);
+  const gitInfo = await getInfo(false);
   t.same(gitInfo.remoteUrl, providedUrl);
 });
 
@@ -54,7 +54,7 @@ test('getInfo handles provided ssh remote url as http', async (t) => {
       },
     },
   );
-  const gitInfo = await getInfo(null as any, null as any, false);
+  const gitInfo = await getInfo(false);
   t.same(gitInfo.remoteUrl, 'http://myserver.local/myproject.git');
 });
 
@@ -70,7 +70,7 @@ test('getInfo handles provided scp-like syntax with user in remote url', async (
       },
     },
   );
-  const gitInfo = await getInfo(null as any, null as any, false);
+  const gitInfo = await getInfo(false);
   t.same(gitInfo.remoteUrl, 'http://myserver.local/myproject.git');
 });
 
@@ -86,7 +86,7 @@ test('getInfo handles provided scp-like syntax without user in remote url', asyn
       },
     },
   );
-  const gitInfo = await getInfo(null as any, null as any, false);
+  const gitInfo = await getInfo(false);
   t.same(gitInfo.remoteUrl, 'http://myserver.local/folder/myproject.git');
 });
 
@@ -102,7 +102,7 @@ test('getInfo handles invalid URL by keeping it as is', async (t) => {
       },
     },
   );
-  const gitInfo = await getInfo(null as any, null as any, false);
+  const gitInfo = await getInfo(false);
   t.same(gitInfo.remoteUrl, providedUrl);
 });
 
@@ -118,6 +118,6 @@ test('getInfo handles undefined by returning undefined', async (t) => {
       },
     },
   );
-  const gitInfo = await getInfo(null as any, null as any, false);
+  const gitInfo = await getInfo(false);
   t.same(gitInfo.remoteUrl, undefined);
 });
