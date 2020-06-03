@@ -17,7 +17,10 @@ import {
   AuthFailedError,
 } from '../errors';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
-import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
+import {
+  GRAPH_SUPPORTED_PACKAGE_MANAGERS,
+  SupportedPackageManagers,
+} from '../package-managers';
 import { isFeatureFlagSupportedForOrg } from '../feature-flags';
 import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
 import { filterOutMissingDeps } from './filter-out-missing-deps';
@@ -79,7 +82,6 @@ export async function monitor(
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
   apiTokenExists();
-  let treeMissingDeps: string[] = [];
 
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
@@ -98,7 +100,7 @@ export async function monitor(
       );
     }
     if (monitorGraphSupportedRes.ok) {
-      return await monitorGraph(
+      return await monitorDepGraph(
         root,
         meta,
         scannedProject,
@@ -112,8 +114,30 @@ export async function monitor(
     }
   }
 
-  let pkg = scannedProject.depTree;
+  return await monitorDepTree(
+    root,
+    meta,
+    packageManager,
+    scannedProject,
+    options,
+    pluginMeta,
+    targetFileRelativePath,
+    contributors,
+  );
+}
 
+export async function monitorDepTree(
+  root: string,
+  meta: MonitorMeta,
+  packageManager: SupportedPackageManagers,
+  scannedProject: ScannedProject,
+  options,
+  pluginMeta: PluginMetadata,
+  targetFileRelativePath?: string,
+  contributors?: { userId: string; lastCommitDate: string }[],
+): Promise<MonitorResult> {
+  let treeMissingDeps: string[] = [];
+  let pkg = scannedProject.depTree;
   let prePruneDepCount;
   if (meta.prune) {
     debug('prune used, counting total dependencies');
@@ -124,7 +148,8 @@ export async function monitor(
     pkg = await pruneTree(scannedProject.depTree, meta.packageManager);
     debug('finished pruning dep tree');
   }
-  if (['npm', 'yarn'].includes(meta.packageManager)) {
+  // TODO @boost: filter out missing deps when npm/yarn plugins produce a dep-graph?
+  if (['npm', 'yarn'].includes(meta.packageManager) && scannedProject.depTree) {
     const { filteredDepTree, missingDeps } = filterOutMissingDeps(
       scannedProject.depTree,
     );
@@ -141,7 +166,6 @@ export async function monitor(
     await snyk.policy.create();
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
-
   const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
 
   if (isGitTarget(target) && target.branch) {
@@ -241,7 +265,7 @@ export async function monitor(
   });
 }
 
-export async function monitorGraph(
+export async function monitorDepGraph(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,

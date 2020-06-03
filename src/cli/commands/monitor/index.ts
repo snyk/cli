@@ -20,7 +20,7 @@ import * as spinner from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
 import { MethodArgs, ArgsOptions } from '../../args';
 import { apiTokenExists } from '../../../lib/api-token';
-import { maybePrintDeps } from '../../../lib/print-deps';
+import { printDepTree, printDepGraph } from '../../../lib/print-deps';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { processJsonMonitorResponse } from './process-json-monitor';
 import snyk = require('../../../lib'); // TODO(kyegupov): fix import
@@ -187,10 +187,17 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           options as MonitorOptions & Options,
         );
         analytics.add('packageManager', extractedPackageManager);
-        maybePrintDeps(options, projectDeps.depTree);
 
-        debug(`Processing ${projectDeps.depTree.name}...`);
-        maybePrintDeps(options, projectDeps.depTree);
+        if (projectDeps.depTree) {
+          debug(`Processing ${projectDeps.depTree.name}...`);
+          printDepTree(options, projectDeps.depTree);
+        }
+
+        //TODO @boost: add new snyk-cli-interface with depGraph
+        if ((projectDeps as any).depGraph) {
+          debug(`Processing ${projectDeps.depTree.name}...`);
+          printDepGraph(options, (projectDeps as any).depGraph);
+        }
 
         const tFile = projectDeps.targetFile || targetFile;
         const targetFileRelativePath = tFile
