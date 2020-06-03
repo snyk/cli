@@ -11,6 +11,7 @@ import {
   FeatureNotSupportedByPackageManagerError,
   UnsupportedFeatureFlagError,
 } from './errors';
+import { MonitorOptions, Options, TestOptions } from './types';
 
 const featureFlag = 'reachableVulns';
 
@@ -29,10 +30,15 @@ export function serializeCallGraphWithMetrics(
 }
 
 export async function validatePayload(
-  packageManager: SupportedPackageManagers,
   org: any,
+  options: (Options & TestOptions) | (Options & MonitorOptions),
+  packageManager?: SupportedPackageManagers,
 ): Promise<boolean> {
-  if (!REACHABLE_VULNS_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
+  if (
+    packageManager &&
+    !options.allProjects &&
+    !REACHABLE_VULNS_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
+  ) {
     throw new FeatureNotSupportedByPackageManagerError(
       'Reachable vulns',
       packageManager,

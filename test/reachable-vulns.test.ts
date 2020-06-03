@@ -113,7 +113,11 @@ test('validatePayload - not supported package manager', async (t) => {
 
   for (const pkgManager of pkgManagers) {
     try {
-      await validatePayload(pkgManager as SupportedPackageManagers, {});
+      await validatePayload(
+        {},
+        { path: '' },
+        pkgManager as SupportedPackageManagers,
+      );
       t.fail(`${pkgManager} should not be supported for reachable vulns`);
     } catch (err) {
       t.equal(
@@ -133,7 +137,7 @@ test('validatePayload - supported package manager (maven) no feature flag', asyn
     .resolves({ userMessage });
 
   try {
-    await validatePayload('maven', {});
+    await validatePayload({}, { path: '' }, 'maven');
   } catch (err) {
     t.equal(err.code, 403, 'correct error code');
     t.equal(err.userMessage, userMessage, 'correct user message ');
@@ -152,7 +156,7 @@ test('validatePayload - supported package manager (maven) with feature flag', as
     isFeatureFlagSupportedForOrgStub.restore();
   });
 
-  const valid = await validatePayload('maven', org);
+  const valid = await validatePayload(org, { path: '' }, 'maven');
 
   t.true(valid, 'payload is valid');
 
@@ -165,6 +169,21 @@ test('validatePayload - supported package manager (maven) with feature flag', as
   ).args;
   t.equal(featureFlagArg, 'reachableVulns', 'correct feature flag passed');
   t.deepEqual(orgArg, org, 'correct org payload passed');
+});
+
+test('validatePayload - package manager not specified in case of --all-projects flag', async (t) => {
+  const isFeatureFlagSupportedForOrgStub = sinon
+    .stub(featureFlags, 'isFeatureFlagSupportedForOrg')
+    .resolves({ ok: true });
+  const org = { name: 'org-with-reachable-vulns-ff' };
+
+  t.tearDown(() => {
+    isFeatureFlagSupportedForOrgStub.restore();
+  });
+
+  const valid = await validatePayload(org, { path: '' });
+
+  t.true(valid, 'payload is valid');
 });
 
 test('serializeCallGraphWithMetrics', (t) => {
