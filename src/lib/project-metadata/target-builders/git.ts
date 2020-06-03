@@ -8,8 +8,6 @@ import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 const originRegex = /(.+@)?(.+):(.+$)/;
 
 export async function getInfo(
-  scannedProject: ScannedProject,
-  packageInfo: DepTree,
   isFromContainer: boolean,
 ): Promise<GitTarget | null> {
   // safety check

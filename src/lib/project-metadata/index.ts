@@ -19,9 +19,9 @@ export async function getInfo(
   const isFromContainer = options.docker || options.isDocker || false;
   for (const builder of TARGET_BUILDERS) {
     const target = await builder.getInfo(
+      isFromContainer,
       scannedProject,
       packageInfo,
-      isFromContainer,
     );
 
     if (target) {

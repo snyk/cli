@@ -3,9 +3,9 @@ import { ContainerTarget } from '../types';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
 export async function getInfo(
+  isFromContainer: boolean,
   scannedProject: ScannedProject,
   packageInfo: DepTree,
-  isFromContainer: boolean,
 ): Promise<ContainerTarget | null> {
   // safety check
   if (!isFromContainer) {
