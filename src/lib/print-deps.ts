@@ -1,9 +1,20 @@
+import { DepGraph } from '@snyk/dep-graph';
 import { DepDict, Options, MonitorOptions } from './types';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 
+export function maybePrintDepGraph(
+  options: Options | MonitorOptions,
+  depGraph: DepGraph,
+) {
+  if (options['print-deps']) {
+    // TODO @boost: add as output graphviz 'dot' file to visualize?
+    console.log(JSON.stringify(depGraph.toJSON(), null, 2));
+  }
+}
+
 // This option is still experimental and might be deprecated.
 // It might be a better idea to convert it to a command (i.e. do not perform test/monitor).
-export function maybePrintDeps(
+export function maybePrintDepTree(
   options: Options | MonitorOptions,
   rootPackage: legacyApi.DepTree,
 ) {

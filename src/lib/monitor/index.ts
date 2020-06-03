@@ -15,6 +15,7 @@ import {
   MonitorError,
   ConnectionTimeoutError,
   AuthFailedError,
+  FailedToRunTestError,
 } from '../errors';
 import { countPathsToGraphRoot, pruneGraph } from '../prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
@@ -43,7 +44,6 @@ interface MonitorBody {
   meta: Meta;
   policy: string;
   package?: DepTree;
-  depGraph?: depGraphLib.DepGraph;
   callGraph?: CallGraph;
   target: {};
   targetFileRelativePath: string;
@@ -84,22 +84,19 @@ export async function monitor(
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
 
+  if (scannedProject.depGraph) {
+    return await monitorDepGraph(
+      root,
+      meta,
+      scannedProject,
+      pluginMeta,
+      targetFileRelativePath,
+      contributors,
+    );
+  }
+
+  // TODO @boost: delete this once 'experimental-dep-graph' ff is deleted
   if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
-    const isGradlePkgManager: boolean = packageManager === 'gradle';
-
-    // TODO @boost: delete this condition once 'experimental-dep-graph' ff is deleted
-    if (isGradlePkgManager) {
-      return await monitorDepGraph(
-        root,
-        meta,
-        scannedProject,
-        pluginMeta,
-        targetFileRelativePath,
-        contributors,
-      );
-    }
-
-    // TODO @boost: remove the code below once 'experimental-dep-graph' is deleted
     const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
       _.camelCase('experimental-dep-graph'),
       options.org || config.org,
@@ -112,7 +109,7 @@ export async function monitor(
       );
     }
     if (monitorGraphSupportedRes.ok) {
-      return await experimentalMonitorDepGraph(
+      return await experimentalMonitorDepGraphFromDepTree(
         root,
         meta,
         scannedProject,
@@ -126,11 +123,10 @@ export async function monitor(
     }
   }
 
-  return monitorDepTree(
+  return await monitorDepTree(
     root,
     meta,
     scannedProject,
-    options,
     pluginMeta,
     targetFileRelativePath,
     contributors,
@@ -141,7 +137,6 @@ async function monitorDepTree(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
-  options,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
   contributors?: { userId: string; lastCommitDate: string }[],
@@ -153,8 +148,12 @@ async function monitorDepTree(
   let depTree = scannedProject.depTree;
 
   if (!depTree) {
-    //TODO @boost: create a customer error msg new InvalidDepTree()???
-    throw new Error('Invalid DepTree');
+    debug(
+      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+    );
+    throw new FailedToRunTestError(
+      'Your monitor request could not be completed. Please email support@snyk.io',
+    );
   }
 
   let prePruneDepCount;
@@ -212,8 +211,14 @@ async function monitorDepTree(
   // TODO(kyegupov): async/await
   return new Promise((resolve, reject) => {
     if (!depTree) {
-      //TODO @boost: create a customer error msg new InvalidDepTree()???
-      return reject(new Error('Invalid DepTree'));
+      debug(
+        'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      );
+      return reject(
+        new FailedToRunTestError(
+          'Your monitor request could not be completed. Please email support@snyk.io',
+        ),
+      );
     }
     request(
       {
@@ -301,9 +306,13 @@ export async function monitorDepGraph(
 
   let depGraph = scannedProject.depGraph;
 
-  //TODO @boost: create a customer error msg new InvalidDepGraph()???
   if (!depGraph) {
-    throw new Error('Invalid DepGraph');
+    debug(
+      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+    );
+    throw new FailedToRunTestError(
+      'Your monitor request could not be completed. Please email support@snyk.io',
+    );
   }
 
   const policyPath = meta['policy-path'] || root;
@@ -321,10 +330,19 @@ export async function monitorDepGraph(
     analytics.add('targetBranch', target.branch);
   }
 
+  // this graph will be pruned only if is too dense
+  depGraph = await pruneGraph(depGraph, packageManager);
+
   return new Promise((resolve, reject) => {
     if (!depGraph) {
-      //TODO @boost: create a customer error msg new InvalidDepGraph()???
-      return reject(new Error('Invalid DepGraph'));
+      debug(
+        'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      );
+      return reject(
+        new FailedToRunTestError(
+          'Your monitor request could not be completed. Please email support@snyk.io',
+        ),
+      );
     }
     request(
       {
@@ -344,6 +362,9 @@ export async function monitorDepGraph(
             pluginRuntime: pluginMeta.runtime,
             projectName: getProjectName(scannedProject, meta),
             monitorGraph: true,
+            versionBuildInfo: JSON.stringify(
+              scannedProject.meta?.versionBuildInfo,
+            ),
           },
           policy: policy ? policy.toString() : undefined,
           depGraphJSON: depGraph, // depGraph will be auto serialized to JSON on send
@@ -384,10 +405,12 @@ export async function monitorDepGraph(
   });
 }
 
-// @deprecated: it will be deleted once experimentalDepGraph FF will be deleted
-// and npm, yarn, sbt and rubygems usage of `experimentalMonitorDepGraph`
-// will be replaced with `monitorDepGraph` method
-export async function experimentalMonitorDepGraph(
+/**
+ * @deprecated it will be deleted once experimentalDepGraph FF will be deleted
+ and npm, yarn, sbt and rubygems usage of `experimentalMonitorDepGraphFromDepTree`
+ will be replaced with `monitorDepGraph` method
+ */
+async function experimentalMonitorDepGraphFromDepTree(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
@@ -396,14 +419,18 @@ export async function experimentalMonitorDepGraph(
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
-  analytics.add('experimentalMonitorDepGraph', true);
+  analytics.add('experimentalMonitorDepGraphFromDepTree', true);
 
   let treeMissingDeps: string[];
   let depTree = scannedProject.depTree;
 
-  //TODO @boost: create a customer error msg new InvalidDepTree()???
   if (!depTree) {
-    throw new Error('Invalid DepTree');
+    debug(
+      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+    );
+    throw new FailedToRunTestError(
+      'Your monitor request could not be completed. Please email support@snyk.io',
+    );
   }
 
   const policyPath = meta['policy-path'] || root;
@@ -445,8 +472,14 @@ export async function experimentalMonitorDepGraph(
 
   return new Promise((resolve, reject) => {
     if (!depTree) {
-      //TODO @boost: create a customer error msg new InvalidDepTree()???
-      return reject(new Error('Invalid DepTree'));
+      debug(
+        'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      );
+      return reject(
+        new FailedToRunTestError(
+          'Your monitor request could not be completed. Please email support@snyk.io',
+        ),
+      );
     }
     request(
       {

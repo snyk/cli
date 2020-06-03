@@ -29,7 +29,7 @@ import * as common from './common';
 import * as config from '../config';
 import * as analytics from '../analytics';
 import { pluckPolicies } from '../policy';
-import { maybePrintDeps } from '../print-deps';
+import { maybePrintDepTree, maybePrintDepGraph } from '../print-deps';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import * as projectMetadata from '../project-metadata';
 import { DepTree, Options, TestOptions, SupportedProjectTypes } from '../types';
@@ -354,15 +354,28 @@ async function assembleLocalPayloads(
     }
 
     for (const scannedProject of deps.scannedProjects) {
-      const pkg = scannedProject.depTree;
-
-      if (!pkg) {
-        continue;
+      if (!scannedProject.depTree && !scannedProject.depGraph) {
+        debug(
+          'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+        );
+        throw new FailedToRunTestError(
+          'Your test request could not be completed. Please email support@snyk.io',
+        );
       }
-      
+
+      let pkg: any = scannedProject.depTree;
+      if (scannedProject.depGraph) {
+        pkg = scannedProject.depGraph;
+      }
+
       if (options['print-deps']) {
-        await spinner.clear<void>(spinnerLbl)();
-        maybePrintDeps(options, pkg);
+        if (scannedProject.depGraph) {
+          await spinner.clear<void>(spinnerLbl)();
+          maybePrintDepGraph(options, pkg);
+        } else {
+          await spinner.clear<void>(spinnerLbl)();
+          maybePrintDepTree(options, pkg);
+        }
       }
       const project = scannedProject as ScannedProjectCustom;
       const packageManager = extractPackageManager(project, deps, options);
@@ -418,6 +431,13 @@ async function assembleLocalPayloads(
         ? pathUtil.join(pathUtil.resolve(`${options.path}`), targetFile)
         : '';
 
+      let target: GitTarget | ContainerTarget | null;
+      if (scannedProject.depGraph) {
+        target = await projectMetadata.getInfo(scannedProject, options);
+      } else {
+        target = await projectMetadata.getInfo(scannedProject, options, pkg);
+      }
+
       let body: PayloadBody = {
         // WARNING: be careful changing this as it affects project uniqueness
         targetFile: project.plugin.targetFile,
@@ -431,7 +451,7 @@ async function assembleLocalPayloads(
         displayTargetFile: targetFile,
         docker: pkg.docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
-        target: await projectMetadata.getInfo(scannedProject, pkg, options),
+        target,
       };
 
       if (options.vulnEndpoint) {
@@ -444,10 +464,16 @@ async function assembleLocalPayloads(
           name: pkg.name,
           targetFile: scannedProject.targetFile || options.file,
         });
-        let depGraph = await depGraphLib.legacy.depTreeToGraph(
-          pkg,
-          packageManager!,
-        );
+
+        let depGraph: depGraphLib.DepGraph;
+        if (scannedProject.depGraph) {
+          depGraph = scannedProject.depGraph;
+        } else {
+          depGraph = await depGraphLib.legacy.depTreeToGraph(
+            pkg,
+            packageManager!,
+          );
+        }
 
         debug('done converting dep-tree to dep-graph', {
           uniquePkgsCount: depGraph.getPkgs().length,

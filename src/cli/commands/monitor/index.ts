@@ -20,7 +20,7 @@ import * as spinner from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
 import { MethodArgs, ArgsOptions } from '../../args';
 import { apiTokenExists } from '../../../lib/api-token';
-import { maybePrintDeps } from '../../../lib/print-deps';
+import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { processJsonMonitorResponse } from './process-json-monitor';
 import snyk = require('../../../lib'); // TODO(kyegupov): fix import
@@ -40,6 +40,7 @@ import {
   GitRepoCommitStats,
   execShell,
 } from '../../../lib/monitor/dev-count-analysis';
+import { FailedToRunTestError } from '../../../lib/errors';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -181,22 +182,42 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Post the project dependencies to the Registry
       for (const projectDeps of perProjectResult.scannedProjects) {
-        if (!projectDeps.depTree) {
-          continue;
+        if (!projectDeps.depGraph && !projectDeps.depTree) {
+          debug(
+            'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+          );
+          throw new FailedToRunTestError(
+            'Your monitor request could not be completed. Please email support@snyk.io',
+          );
         }
         const extractedPackageManager = extractPackageManager(
           projectDeps,
           perProjectResult,
           options as MonitorOptions & Options,
         );
-        analytics.add('packageManager', extractedPackageManager);
-        maybePrintDeps(options, projectDeps.depTree);
 
-        debug(`Processing ${projectDeps.depTree.name}...`);
+        analytics.add('packageManager', extractedPackageManager);
+
+        let projectName;
+
+        if (projectDeps.depGraph) {
+          debug(`Processing ${projectDeps.depGraph.rootPkg.name}...`);
+          maybePrintDepGraph(options, projectDeps.depGraph);
+          projectName = projectDeps.depGraph.rootPkg.name;
+        }
+
+        if (projectDeps.depTree) {
+          debug(`Processing ${projectDeps.depTree.name}...`);
+          maybePrintDepTree(options, projectDeps.depTree);
+          projectName = projectDeps.depTree.name;
+        }
+
         const tFile = projectDeps.targetFile || targetFile;
-        const targetFileRelativePath = tFile
-          ? pathUtil.join(pathUtil.resolve(path), tFile)
-          : '';
+        const targetFileRelativePath =
+          projectDeps.plugin.targetFile ||
+          (tFile && pathUtil.join(pathUtil.resolve(path), tFile)) ||
+          '';
+
         const res: MonitorResult = await promiseOrCleanup(
           snykMonitor(
             path,
@@ -211,8 +232,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         );
 
         res.path = path;
-        const projectName = projectDeps.depTree.name;
-
         const monOutput = formatMonitorOutput(
           extractedPackageManager,
           res,
@@ -220,9 +239,9 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           projectName,
           getSubProjectCount(inspectResult),
         );
+        // push a good result
         results.push({ ok: true, data: monOutput, path, projectName });
       }
-      // push a good result
     } catch (err) {
       // push this error, the loop continues
       results.push({ ok: false, data: err, path });

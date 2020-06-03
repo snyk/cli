@@ -16,6 +16,8 @@ export async function getInfo(
     scannedProject.meta && scannedProject.meta.imageName;
   return {
     image:
-      imageNameOnProjectMeta || (packageInfo as any)?.image || packageInfo?.name,
+      imageNameOnProjectMeta ||
+      (packageInfo as any)?.image ||
+      packageInfo?.name,
   };
 }
