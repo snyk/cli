@@ -355,6 +355,11 @@ async function assembleLocalPayloads(
 
     for (const scannedProject of deps.scannedProjects) {
       const pkg = scannedProject.depTree;
+
+      if (!pkg) {
+        continue;
+      }
+      
       if (options['print-deps']) {
         await spinner.clear<void>(spinnerLbl)();
         maybePrintDeps(options, pkg);

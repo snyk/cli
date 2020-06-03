@@ -79,7 +79,7 @@ export async function getDepsFromPlugin(
   // but don't want to send to Registry in the Payload.
   // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
   (options as any).projectNames = inspectRes.scannedProjects.map(
-    (scannedProject) => scannedProject.depTree.name,
+    (scannedProject) => scannedProject?.depTree?.name,
   );
   return convertMultiResultToMultiCustom(inspectRes, options.packageManager);
 }

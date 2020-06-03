@@ -136,29 +136,32 @@ async function monitorDepTree(
 
   const packageManager = meta.packageManager;
 
-  let pkg = scannedProject.depTree;
+  let depTree = scannedProject.depTree;
+
+  if (!depTree) {
+    //TODO @boost: create a customer error msg new InvalidDepTree()???
+    throw new Error('Invalid DepTree');
+  }
 
   let prePruneDepCount;
   if (meta.prune) {
     debug('prune used, counting total dependencies');
-    prePruneDepCount = countTotalDependenciesInTree(scannedProject.depTree);
+    prePruneDepCount = countTotalDependenciesInTree(depTree);
     analytics.add('prePruneDepCount', prePruneDepCount);
     debug('total dependencies: %d', prePruneDepCount);
     debug('pruning dep tree');
-    pkg = await pruneTree(scannedProject.depTree, meta.packageManager);
+    depTree = await pruneTree(depTree, meta.packageManager);
     debug('finished pruning dep tree');
   }
   if (['npm', 'yarn'].includes(meta.packageManager)) {
-    const { filteredDepTree, missingDeps } = filterOutMissingDeps(
-      scannedProject.depTree,
-    );
-    pkg = filteredDepTree;
+    const { filteredDepTree, missingDeps } = filterOutMissingDeps(depTree);
+    depTree = filteredDepTree;
     treeMissingDeps = missingDeps;
   }
 
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath]
-    .concat(pluckPolicies(pkg))
+    .concat(pluckPolicies(depTree))
     .filter(Boolean);
   // docker doesn't have a policy as it can be run from anywhere
   if (!meta.isDocker || !policyLocations.length) {
@@ -166,13 +169,13 @@ async function monitorDepTree(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
+  const target = await projectMetadata.getInfo(scannedProject, depTree, meta);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
   }
 
-  pkg = dropEmptyDeps(pkg);
+  depTree = dropEmptyDeps(depTree);
 
   let callGraphPayload;
   if (scannedProject.callGraph) {
@@ -194,27 +197,33 @@ async function monitorDepTree(
 
   // TODO(kyegupov): async/await
   return new Promise((resolve, reject) => {
+    if (!depTree) {
+      //TODO @boost: create a customer error msg new InvalidDepTree()???
+      return reject(new Error('Invalid DepTree'));
+    }
     request(
       {
         body: {
           meta: {
             method: meta.method,
             hostname: os.hostname(),
-            id: snyk.id || pkg.name,
+            id: snyk.id || depTree.name,
             ci: isCI(),
             pid: process.pid,
             node: process.version,
             master: snyk.config.isMaster,
-            name: getNameDepTree(scannedProject, pkg, meta),
-            version: pkg.version,
+            name: getNameDepTree(scannedProject, depTree, meta),
+            version: depTree.version,
             org: config.org ? decodeURIComponent(config.org) : undefined,
             pluginName: pluginMeta.name,
             pluginRuntime: pluginMeta.runtime,
             missingDeps: treeMissingDeps,
             dockerImageId: pluginMeta.dockerImageId,
-            dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-            dockerfileLayers: pkg.docker
-              ? pkg.docker.dockerfileLayers
+            dockerBaseImage: depTree.docker
+              ? depTree.docker.baseImage
+              : undefined,
+            dockerfileLayers: depTree.docker
+              ? depTree.docker.dockerfileLayers
               : undefined,
             projectName: getProjectName(scannedProject, meta),
             prePruneDepCount, // undefined unless 'prune' is used,
@@ -224,7 +233,7 @@ async function monitorDepTree(
             ),
           },
           policy: policy ? policy.toString() : undefined,
-          package: pkg,
+          package: depTree,
           callGraph: callGraphPayload,
           // we take the targetFile from the plugin,
           // because we want to send it only for specific package-managers
@@ -280,20 +289,26 @@ export async function experimentalMonitorDepGraph(
   analytics.add('experimentalMonitorDepGraph', true);
 
   let treeMissingDeps: string[];
-  let pkg = scannedProject.depTree;
+  let depTree = scannedProject.depTree;
+
+  //TODO @boost: create a customer error msg new InvalidDepTree()???
+  if (!depTree) {
+    throw new Error('Invalid DepTree');
+  }
+
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath]
-    .concat(pluckPolicies(pkg))
+    .concat(pluckPolicies(depTree))
     .filter(Boolean);
 
   if (['npm', 'yarn'].includes(meta.packageManager)) {
-    const { filteredDepTree, missingDeps } = filterOutMissingDeps(pkg);
-    pkg = filteredDepTree;
+    const { filteredDepTree, missingDeps } = filterOutMissingDeps(depTree);
+    depTree = filteredDepTree;
     treeMissingDeps = missingDeps;
   }
 
   const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(
-    pkg,
+    depTree,
     packageManager,
   );
 
@@ -303,7 +318,7 @@ export async function experimentalMonitorDepGraph(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
+  const target = await projectMetadata.getInfo(scannedProject, depTree, meta);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -319,13 +334,17 @@ export async function experimentalMonitorDepGraph(
   }
 
   return new Promise((resolve, reject) => {
+    if (!depTree) {
+      //TODO @boost: create a customer error msg new InvalidDepTree()???
+      return reject(new Error('Invalid DepTree'));
+    }
     request(
       {
         body: {
           meta: {
             method: meta.method,
             hostname: os.hostname(),
-            id: snyk.id || pkg.name,
+            id: snyk.id || depTree.name,
             ci: isCI(),
             pid: process.pid,
             node: process.version,
@@ -336,9 +355,11 @@ export async function experimentalMonitorDepGraph(
             pluginName: pluginMeta.name,
             pluginRuntime: pluginMeta.runtime,
             dockerImageId: pluginMeta.dockerImageId,
-            dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-            dockerfileLayers: pkg.docker
-              ? pkg.docker.dockerfileLayers
+            dockerBaseImage: depTree.docker
+              ? depTree.docker.baseImage
+              : undefined,
+            dockerfileLayers: depTree.docker
+              ? depTree.docker.dockerfileLayers
               : undefined,
             projectName: getProjectName(scannedProject, meta),
             prePruneDepCount, // undefined unless 'prune' is used

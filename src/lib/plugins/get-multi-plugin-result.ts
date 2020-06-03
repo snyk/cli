@@ -63,7 +63,7 @@ export async function getMultiPluginResult(
       // for test & monitor
       // TODO: refactor how we display meta to not have to do this
       (options as any).projectNames = resultWithScannedProjects.scannedProjects.map(
-        (scannedProject) => scannedProject.depTree.name,
+        (scannedProject) => scannedProject?.depTree?.name,
       );
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);

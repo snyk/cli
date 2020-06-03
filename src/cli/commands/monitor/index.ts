@@ -181,6 +181,9 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Post the project dependencies to the Registry
       for (const projectDeps of perProjectResult.scannedProjects) {
+        if (!projectDeps.depTree) {
+          continue;
+        }
         const extractedPackageManager = extractPackageManager(
           projectDeps,
           perProjectResult,
