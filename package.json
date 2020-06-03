@@ -53,7 +53,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/cli-interface": "2.6.0",
+    "@snyk/cli-interface": "2.7.0",
     "@snyk/dep-graph": "1.18.3",
     "@snyk/gemfile": "1.2.0",
     "@snyk/graphlib": "2.1.9-patch",
