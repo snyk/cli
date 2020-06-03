@@ -85,6 +85,7 @@ export async function monitor(
   analytics.add('isDocker', !!meta.isDocker);
 
   if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
+    // TODO @boost: remove the code below once 'experimental-dep-graph' is deleted
     const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
       _.camelCase('experimental-dep-graph'),
       options.org || config.org,
@@ -97,7 +98,7 @@ export async function monitor(
       );
     }
     if (monitorGraphSupportedRes.ok) {
-      return await monitorGraph(
+      return await experimentalMonitorDepGraph(
         root,
         meta,
         scannedProject,
@@ -264,7 +265,10 @@ async function monitorDepTree(
   });
 }
 
-export async function monitorGraph(
+// @deprecated: it will be deleted once experimentalDepGraph FF will be deleted
+// and npm, yarn, sbt and rubygems usage of `experimentalMonitorDepGraph`
+// will be replaced with `monitorDepGraph` method
+export async function experimentalMonitorDepGraph(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
@@ -273,7 +277,7 @@ export async function monitorGraph(
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
-  analytics.add('monitorGraph', true);
+  analytics.add('experimentalMonitorDepGraph', true);
 
   let treeMissingDeps: string[];
   let pkg = scannedProject.depTree;
