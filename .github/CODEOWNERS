@@ -2,5 +2,6 @@
 README.md  @snyk/content @snyk/boost
 help/  @snyk/content @snyk/boost
 *  @snyk/boost
+*  @snyk/hammer
 
 
