@@ -1,4 +1,5 @@
 import * as snykConfig from 'snyk-config';
+import { InvalidEndpointConfigError } from './errors/invalid-endpoint-config-error';
 import { config as userConfig } from './user-config';
 import * as url from 'url';
 
@@ -21,9 +22,18 @@ const config = (snykConfig.loadConfig(
   __dirname + '/../..',
 ) as unknown) as Config;
 
-// allow user config override of the api end point
+// allow user config override of the API endpoint
 const endpoint = userConfig.get('endpoint');
-if (endpoint) {
+if (endpoint && endpoint !== config.API) {
+  const parsedEndpoint = url.parse(endpoint);
+  // Endpoint option must be a valid URL including protocol
+  if (!parsedEndpoint || !parsedEndpoint.protocol || !parsedEndpoint.host) {
+    throw new InvalidEndpointConfigError();
+  }
+  console.info(
+    'Using a custom API endpoint from `snyk config` (tip: it should contain path to `/api`):',
+    endpoint,
+  );
   config.API = endpoint;
 }
 
