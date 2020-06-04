@@ -1,22 +1,21 @@
 import * as url from 'url';
-import * as os from 'os';
-import { isDocker } from './is-docker';
 
-export function getQueryParamsAsString(): string {
+export function getUtmsAsString(): string {
   const SNYK_UTM_MEDIUM = process.env.SNYK_UTM_MEDIUM || 'cli';
   const SNYK_UTM_SOURCE = process.env.SNYK_UTM_SOURCE || 'cli';
   const SNYK_UTM_CAMPAIGN = process.env.SNYK_UTM_CAMPAIGN || 'cli';
-  const osType = os.type()?.toLowerCase();
-  const docker = isDocker().toString();
+
+  if (!SNYK_UTM_MEDIUM && !SNYK_UTM_SOURCE && !SNYK_UTM_CAMPAIGN) {
+    return '';
+  }
 
   /* eslint-disable @typescript-eslint/camelcase */
-  const queryParams = new url.URLSearchParams({
+  const utmQueryParams = new url.URLSearchParams({
     utm_medium: SNYK_UTM_MEDIUM,
     utm_source: SNYK_UTM_SOURCE,
     utm_campaign: SNYK_UTM_CAMPAIGN,
-    os: osType,
-    docker,
   });
   /* eslint-enable @typescript-eslint/camelcase */
-  return queryParams.toString();
+
+  return utmQueryParams.toString();
 }
