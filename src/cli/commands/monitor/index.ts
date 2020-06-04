@@ -163,7 +163,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         spinner.clear(analyzingDepsSpinnerLabel),
       );
 
-      analytics.add('pluginName', inspectResult.plugin.name);
+      analytics.add('inspectResultpluginName', inspectResult.plugin.name);
 
       const postingMonitorSpinnerLabel =
         'Posting monitor snapshot for ' + displayPath + ' ...';
