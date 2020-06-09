@@ -1,7 +1,7 @@
 export = monitor;
 
 import chalk from 'chalk';
-import * as fs from 'then-fs';
+import * as fs from 'fs';
 import * as Debug from 'debug';
 import * as pathUtil from 'path';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
@@ -274,7 +274,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
 }
 
 async function validateMonitorPath(path, isDocker) {
-  const exists = await fs.exists(path);
+  const exists = fs.existsSync(path);
   if (!exists && !isDocker) {
     throw new Error('"' + path + '" is not a valid path for "snyk monitor"');
   }

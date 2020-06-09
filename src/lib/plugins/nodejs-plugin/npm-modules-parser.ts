@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as fs from 'then-fs';
+import * as fs from 'fs';
 import * as resolveNodeDeps from 'snyk-resolve-deps';
 import { PkgTree } from 'snyk-nodejs-lockfile-parser';
 

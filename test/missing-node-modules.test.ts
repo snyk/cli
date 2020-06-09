@@ -1,6 +1,6 @@
 import * as tap from 'tap';
 const { test } = tap;
-import * as fs from 'then-fs';
+import * as fs from 'fs';
 
 const apiKey = '123456789';
 const notAuthorizedApiKey = 'notAuthorized';
@@ -42,7 +42,7 @@ test('throws when missing node_modules', async (t) => {
   const dir = baseDir + 'npm/npm-3-no-node-modules';
   // ensure node_modules does not exist
   try {
-    fs.rmdir(dir + '/node_modules');
+    fs.rmdirSync(dir + '/node_modules');
   } catch (err) {
     // ignore
   }

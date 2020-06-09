@@ -17,15 +17,14 @@ tap.tearDown(() => {
 let mockPackage;
 
 const wizard = proxyquire('../src/cli/commands/protect/wizard', {
-  'then-fs': {
-    writeFile(filename, content) {
+  fs: {
+    writeFileSync(filename, content) {
       if (filename.includes('package.json')) {
         writeSpy(JSON.parse(content));
       }
-      return Promise.resolve();
     },
-    readFile(filename) {
-      return Promise.resolve(JSON.stringify(mockPackage));
+    readFileSync() {
+      return JSON.stringify(mockPackage);
     },
     '../../../lib/npm': {
       getVersion() {

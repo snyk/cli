@@ -11,7 +11,7 @@ const debug = debugModule('snyk');
 
 import * as path from 'path';
 import * as inquirer from '@snyk/inquirer';
-import * as fs from 'then-fs';
+import * as fs from 'fs';
 import * as tryRequire from 'snyk-try-require';
 import chalk from 'chalk';
 import * as url from 'url';
@@ -68,7 +68,7 @@ async function processPackageManager(options: Options) {
     );
   }
 
-  const nodeModulesExist = await fs.exists(path.join('.', 'node_modules'));
+  const nodeModulesExist = fs.existsSync(path.join('.', 'node_modules'));
   if (!nodeModulesExist) {
     // throw a custom error
     throw new Error(
@@ -126,8 +126,8 @@ async function processWizardFlow(options) {
     debug('ignore disabled');
   }
   const intro = __dirname + '/../../../../help/wizard.txt';
-  return fs
-    .readFile(intro, 'utf8')
+
+  return Promise.resolve(fs.readFileSync(intro, 'utf8'))
     .then((str) => {
       if (!isCI()) {
         console.log(str);
@@ -402,8 +402,7 @@ function processAnswers(answers, policy, options) {
     .then(() => {
       // re-read the package.json - because the generatePolicy can apply
       // an `npm install` which will change the deps
-      return fs
-        .readFile(packageFile, 'utf8')
+      return Promise.resolve(fs.readFileSync(packageFile, 'utf8'))
         .then((packageFileString) => {
           pkgIndentation = calculatePkgFileIndentation(packageFileString);
           return packageFileString;
@@ -525,9 +524,7 @@ function processAnswers(answers, policy, options) {
         return (
           spinner(lbl)
             .then(() => {
-              return fs.writeFile(packageFile, packageString);
-            })
-            .then(() => {
+              fs.writeFileSync(packageFile, packageString);
               if (isLockFileBased) {
                 // we need to trigger a lockfile update after adding snyk
                 // as a dep

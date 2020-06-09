@@ -21,13 +21,12 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
     install: () => new Promise((resolve) => resolve()),
     installDev: () => new Promise((resolve) => resolve()),
   },
-  'then-fs': {
-    readFile: function() {
-      return Promise.resolve(JSON.stringify(fixture));
+  fs: {
+    readFileSync: function() {
+      return JSON.stringify(fixture);
     },
-    writeFile: function(filename, body) {
+    writeFileSync: function(filename, body) {
       spy(body);
-      return Promise.resolve();
     },
   },
 });

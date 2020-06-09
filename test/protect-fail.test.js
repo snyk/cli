@@ -1,18 +1,17 @@
-var applyPatch = require('../src/lib/protect/apply-patch');
-var path = require('path');
-var fs = require('fs');
-var thenfs = require('then-fs');
-var test = require('tap').test;
-var snyk = require('../src/lib');
+const applyPatch = require('../src/lib/protect/apply-patch');
+const path = require('path');
+const fs = require('fs');
+const test = require('tap').test;
+const snyk = require('../src/lib');
 
 test('bad patch file does not apply', function(t) {
   // check the target file first
-  var root = path.resolve(__dirname, './fixtures/semver-patch-fail/');
-  var dir = path.resolve(root, './node_modules/semver');
-  var semver = fs.readFileSync(dir + '/semver.js', 'utf8');
+  const root = path.resolve(__dirname, './fixtures/semver-patch-fail/');
+  const dir = path.resolve(root, './node_modules/semver');
+  const semver = fs.readFileSync(dir + '/semver.js', 'utf8');
   t.ok('original semver loaded');
 
-  var old = snyk.config.get('disable-analytics');
+  const old = snyk.config.get('disable-analytics');
   snyk.config.set('disable-analytics', '1');
 
   applyPatch(
@@ -32,25 +31,23 @@ test('bad patch file does not apply', function(t) {
       fs.writeFileSync(dir + '/semver.js', semver);
     })
     .catch(function(error) {
-      var semver2 = fs.readFileSync(dir + '/semver.js', 'utf8');
+      const semver2 = fs.readFileSync(dir + '/semver.js', 'utf8');
       t.equal(semver, semver2, 'target was untouched');
       t.equal(error.code, 'FAIL_PATCH', 'patch failed, task exited correctly');
     })
     .then(function() {
       // clean up
-      var noop = function() {};
-      var promises = [];
-      promises.push(thenfs.unlink(dir + '/semver.js.orig').catch(noop));
-      promises.push(thenfs.unlink(dir + '/semver.js.rej').catch(noop));
-      promises.push(
-        thenfs.unlink(dir + '/test/big-numbers.js.orig').catch(noop),
-      );
-      promises.push(
-        thenfs.unlink(dir + '/test/big-numbers.js.rej').catch(noop),
-      );
-      fs.writeFileSync(dir + '/semver.js', semver);
-
-      return Promise.all(promises);
+      /* TODO:
+      These promises might throw, but you still want to run all of them
+      Might need rethinking of this test
+      */
+      return Promise.all([
+        new Promise((r) => fs.unlink(dir + '/semver.js.orig', r)),
+        new Promise((r) => fs.unlink(dir + '/semver.js.rej', r)),
+        new Promise((r) => fs.unlink(dir + '/test/big-numbers.js.orig', r)),
+        new Promise((r) => fs.unlink(dir + '/test/big-numbers.js.rej', r)),
+        new Promise((r) => fs.writeFile(dir + '/semver.js', semver, r)),
+      ]);
     })
     .then(function() {
       t.ok('clean up done');

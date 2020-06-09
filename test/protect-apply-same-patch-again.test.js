@@ -1,7 +1,7 @@
 const test = require('tap').test;
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
-const fs = require('then-fs');
+const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
 
@@ -84,7 +84,7 @@ test('Same patch is applied multiple times without issue', (t) => {
       fixturesBaseFolderFiles.forEach((file) => {
         const flagMatch = file.match(/\.snyk.*\.flag/);
         if (flagMatch) {
-          fs.unlink(fixturesBaseFolder + file);
+          fs.unlinkSync(path.join(fixturesBaseFolder, file));
         }
       });
     });
@@ -98,7 +98,7 @@ test('Same patch is applied multiple times without issue', (t) => {
 
       fixturesModuleFolderFiles.forEach((file) => {
         if (file !== debugNodeFileFixture) {
-          fs.unlink(fixturesModuleFolder + file);
+          fs.unlinkSync(path.join(fixturesModuleFolder, file));
         }
       });
     });
