@@ -19,6 +19,7 @@ export interface TestOptions {
   showVulnPaths: ShowVulnPaths;
   failOn?: FailOn;
   reachableVulns?: boolean;
+  yarnWorkspaces?: boolean;
 }
 
 export interface WizardOptions {
@@ -63,6 +64,7 @@ export interface Options {
   allProjects?: boolean;
   detectionDepth?: number;
   exclude?: string;
+  strictOutOfSync?: boolean;
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
 }
@@ -85,6 +87,7 @@ export interface MonitorOptions {
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
   reachableVulns?: boolean;
+  yarnWorkspaces?: boolean;
 }
 
 export interface MonitorMeta {

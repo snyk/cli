@@ -244,6 +244,12 @@ async function main() {
     if (args.options.file && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
     }
+    if (args.options.yarnWorkspaces && args.options.allProjects) {
+      throw new UnsupportedOptionCombinationError([
+        'yarn-workspaces',
+        'all-projects',
+      ]);
+    }
     if (args.options.packageManager && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError([
         'package-manager',

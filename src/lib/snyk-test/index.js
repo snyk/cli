@@ -32,11 +32,9 @@ async function test(root, options, callback) {
 function executeTest(root, options) {
   try {
     if (!options.allProjects) {
-      if (options.iac) {
-        options.packageManager = detect.isIacProject(root, options);
-      } else {
-        options.packageManager = detect.detectPackageManager(root, options);
-      }
+      options.packageManager = options.iac
+        ? detect.isIacProject(root, options)
+        : detect.detectPackageManager(root, options);
     }
     return run(root, options).then((results) => {
       for (const res of results) {
@@ -70,6 +68,7 @@ function run(root, options) {
     !(
       options.docker ||
       options.allProjects ||
+      options.yarnWorkspaces ||
       pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager]
     )
   ) {

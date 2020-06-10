@@ -13,8 +13,20 @@ import {
 import analytics = require('../analytics');
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
+import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 
 const debug = debugModule('snyk-test');
+
+const multiProjectProcessors = {
+  yarnWorkspaces: {
+    handler: processYarnWorkspaces,
+    files: ['package.json'],
+  },
+  allProjects: {
+    handler: getMultiPluginResult,
+    files: AUTO_DETECTABLE_FILES,
+  },
+};
 
 // Force getDepsFromPlugin to return scannedProjects for processing
 export async function getDepsFromPlugin(
@@ -23,13 +35,14 @@ export async function getDepsFromPlugin(
 ): Promise<pluginApi.MultiProjectResult> {
   let inspectRes: pluginApi.InspectResult;
 
-  if (options.allProjects) {
+  if (Object.keys(multiProjectProcessors).some((key) => options[key])) {
+    const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
     const targetFiles = await find(
       root,
       ignore,
-      AUTO_DETECTABLE_FILES,
+      multiProjectProcessors[scanType].files,
       levelsDeep,
     );
     debug(
@@ -39,7 +52,11 @@ export async function getDepsFromPlugin(
     if (targetFiles.length === 0) {
       throw NoSupportedManifestsFoundError([root]);
     }
-    inspectRes = await getMultiPluginResult(root, options, targetFiles);
+    inspectRes = await multiProjectProcessors[scanType].handler(
+      root,
+      options,
+      targetFiles,
+    );
     const analyticData = {
       scannedProjects: inspectRes.scannedProjects.length,
       targetFiles,
@@ -49,7 +66,7 @@ export async function getDepsFromPlugin(
       levelsDeep,
       ignore,
     };
-    analytics.add('allProjects', analyticData);
+    analytics.add(scanType, analyticData);
     return inspectRes;
   }
 

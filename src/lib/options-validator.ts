@@ -9,7 +9,7 @@ export async function validateOptions(
 ): Promise<void> {
   if (options.reachableVulns) {
     // Throwing error only in case when both packageManager and allProjects not defined
-    if (!packageManager && !options.allProjects) {
+    if (!packageManager && !options.allProjects && !options.yarnWorkspaces) {
       throw new Error('Could not determine package manager');
     }
     const org = options.org || config.org;

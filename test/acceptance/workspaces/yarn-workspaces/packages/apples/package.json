@@ -1,0 +1,20 @@
+{
+  "name": "apples",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "main": "./src/index.js",
+  "scripts": {
+    "precommit": "lint-staged"
+  },
+  "jest": {
+    "preset": "@lego-shop/lego-scripts"
+  },
+  "babel": {
+    "presets": [
+      "@lego-shop/lego-scripts/babel"
+    ]
+  },
+  "dependencies": {
+    "debug": "^2.7.2"
+  }
+}

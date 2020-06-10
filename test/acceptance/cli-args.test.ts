@@ -120,6 +120,7 @@ const argsNotAllowedWithAllProjects = [
   'project-name',
   'docker',
   'all-sub-projects',
+  'yarn-workspaces',
 ];
 
 argsNotAllowedWithAllProjects.forEach((arg) => {
