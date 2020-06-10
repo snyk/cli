@@ -43,6 +43,7 @@ import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
+import { dockerIdExists } from '../api-token';
 
 const debug = debugModule('snyk');
 
@@ -523,6 +524,7 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
   // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests)
   const url = `${config.API}${options.vulnEndpoint ||
     `/vuln/${options.packageManager}`}/${encodedName}`;
+  const authHeader = getAuthHeader(options);
   return [
     {
       method: 'GET',
@@ -531,10 +533,17 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
       json: true,
       headers: {
         'x-is-ci': isCI(),
-        authorization: 'token ' + snyk.api,
+        authorization: authHeader,
       },
     },
   ];
+}
+
+function getAuthHeader(options) {
+  if (!dockerIdExists(options)) {
+    return 'token ' + snyk.api;
+  }
+  return 'bearer ' + config.dockerSnykID;
 }
 
 function addPackageAnalytics(module): void {

@@ -13,6 +13,7 @@ interface Config {
   timeout: number;
   PROJECT_NAME: string;
   TOKEN: string;
+  dockerSnykID: string;
 }
 
 // TODO: fix the types!

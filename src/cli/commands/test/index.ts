@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
-import { apiTokenExists } from '../../../lib/api-token';
+import { apiTokenExists, dockerIdExists } from '../../../lib/api-token';
 import { FAIL_ON, FailOn, SEVERITIES } from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
 import {
@@ -88,8 +88,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     const error = new FailOnError();
     return Promise.reject(chalk.red.bold(error.message));
   }
-
-  apiTokenExists();
+  dockerIdExists(options) || apiTokenExists();
 
   // Promise waterfall to test all other paths sequentially
   for (const path of args as string[]) {

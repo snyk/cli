@@ -8,6 +8,15 @@ export function api() {
   return config.api || config.TOKEN || userConfig.get('api');
 }
 
+export function dockerIdExists(options) {
+  // TODO: determine config key name
+  return (
+    options.dockerSnykID ||
+    config.dockerSnykID ||
+    userConfig.get('dockerSnykID')
+  );
+}
+
 export function apiTokenExists() {
   const configured = api();
   if (!configured) {
