@@ -4,6 +4,7 @@ import { DepGraph, legacy } from '@snyk/dep-graph';
 import { DepTree } from './types';
 import * as config from './config';
 import { TooManyVulnPaths } from './errors';
+import * as analytics from '../lib/analytics';
 import { SupportedPackageManagers } from './package-managers';
 
 const debug = _debug('snyk:prune');
@@ -19,26 +20,28 @@ export function countPathsToGraphRoot(graph: DepGraph): number {
 export async function pruneGraph(
   depGraph: DepGraph,
   packageManager: SupportedPackageManagers,
+  pruneIsRequired = false,
 ): Promise<DepGraph> {
-  try {
-    // Arbitrary threshold for maximum number of elements in the tree
-    const threshold = config.PRUNE_DEPS_THRESHOLD;
+  const prePrunePathsCount = countPathsToGraphRoot(depGraph);
+  const isDenseGraph = prePrunePathsCount > config.PRUNE_DEPS_THRESHOLD;
+
+  debug('rootPkg', depGraph.rootPkg);
+  debug('prePrunePathsCount: ' + prePrunePathsCount);
+  debug('isDenseGraph', isDenseGraph);
+  analytics.add('prePrunePathsCount', prePrunePathsCount);
+  if (isDenseGraph || pruneIsRequired) {
     const prunedTree = (await graphToDepTree(depGraph, packageManager, {
       deduplicateWithinTopLevelDeps: true,
     })) as DepTree;
-
     const prunedGraph = await depTreeToGraph(prunedTree, packageManager);
-    const count = countPathsToGraphRoot(prunedGraph);
-    debug('prunedPathsCount: ' + count);
-
-    if (count < threshold) {
-      return prunedGraph;
+    const postPrunePathsCount = countPathsToGraphRoot(prunedGraph);
+    analytics.add('postPrunePathsCount', postPrunePathsCount);
+    debug('postPrunePathsCount' + postPrunePathsCount);
+    if (postPrunePathsCount > config.MAX_PATH_COUNT) {
+      debug('Too many vulnerable paths to process the project');
+      throw new TooManyVulnPaths();
     }
-
-    debug('Too many vulnerable paths to process the project');
-    throw new TooManyVulnPaths();
-  } catch (e) {
-    debug('Failed to prune the graph, returning original: ' + e);
-    return depGraph;
+    return prunedGraph;
   }
+  return depGraph;
 }
