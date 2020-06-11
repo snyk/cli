@@ -311,7 +311,7 @@ export async function monitorGraph(
     debug('Trying to prune the graph');
     prePruneDepCount = countPathsToGraphRoot(depGraph);
     debug('pre prunedPathsCount: ' + prePruneDepCount);
-    prunedGraph = await pruneGraph(depGraph, packageManager);
+    prunedGraph = await pruneGraph(depGraph, packageManager, meta.prune);
   }
 
   return new Promise((resolve, reject) => {

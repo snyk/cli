@@ -447,13 +447,19 @@ async function assembleLocalPayloads(
         debug('done converting dep-tree to dep-graph', {
           uniquePkgsCount: depGraph.getPkgs().length,
         });
-        if (options['prune-repeated-subdependencies'] && packageManager) {
+
+        const pruneIsRequired = options['prune-repeated-subdependencies'];
+
+        if (pruneIsRequired && packageManager) {
           debug('Trying to prune the graph');
           const prePruneDepCount = countPathsToGraphRoot(depGraph);
           debug('pre prunedPathsCount: ' + prePruneDepCount);
 
-          depGraph = await pruneGraph(depGraph, packageManager);
-
+          depGraph = await pruneGraph(
+            depGraph,
+            packageManager,
+            pruneIsRequired,
+          );
           analytics.add('prePrunedPathsCount', prePruneDepCount);
           const postPruneDepCount = countPathsToGraphRoot(depGraph);
           debug('post prunedPathsCount: ' + postPruneDepCount);

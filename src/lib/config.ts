@@ -5,6 +5,7 @@ import * as url from 'url';
 const DEFAULT_TIMEOUT = 5 * 60; // in seconds
 interface Config {
   PRUNE_DEPS_THRESHOLD: number;
+  MAX_PATH_COUNT: number;
   API: string;
   api: string;
   disableSuggestions: string;
