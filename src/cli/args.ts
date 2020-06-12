@@ -1,5 +1,5 @@
 import * as abbrev from 'abbrev';
-import { CommandResult } from './commands/types';
+import { MethodResult } from './commands/types';
 
 import debugModule = require('debug');
 import { parseMode, displayModeHelp } from './modes';
@@ -40,11 +40,9 @@ function dashToCamelCase(dash) {
 // Last item is ArgsOptions, the rest are strings (positional arguments, e.g. paths)
 export type MethodArgs = Array<string | ArgsOptions>;
 
-export type Method = (...args: MethodArgs) => Promise<CommandResult | string>;
-
 export interface Args {
   command: string;
-  method: Method; // command resolved to a function
+  method: (...args: MethodArgs) => Promise<MethodResult>; // command resolved to a function
   options: ArgsOptions;
 }
 
@@ -150,7 +148,7 @@ export function args(rawArgv: string[]): Args {
     argv._.unshift(tmp.shift()!);
   }
 
-  let method: () => Promise<CommandResult | string> = cli[command];
+  let method: () => Promise<MethodResult> = cli[command];
 
   if (!method) {
     // if we failed to find a command, then default to an error

@@ -10,7 +10,7 @@ import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
 import { args as argsLib, Args } from './args';
-import { CommandResult, TestCommandResult } from './commands/types';
+import { TestCommandResult } from './commands/types';
 import { copy } from './copy';
 import spinner = require('../lib/spinner');
 import errors = require('../lib/errors/legacy-errors');
@@ -40,15 +40,17 @@ const EXIT_CODES = {
 };
 
 async function runCommand(args: Args) {
-  const commandResult: CommandResult | string = await args.method(
-    ...args.options._,
-  );
+  const commandResult = await args.method(...args.options._);
 
   const res = analytics({
     args: args.options._,
     command: args.command,
     org: args.options.org,
   });
+
+  if (!commandResult) {
+    return;
+  }
 
   const result = commandResult.toString();
 

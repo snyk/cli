@@ -6,13 +6,14 @@ import * as authorization from '../../lib/authorization';
 import * as auth from './auth/is-authed';
 import { apiTokenExists } from '../../lib/api-token';
 import { isCI } from '../../lib/is-ci';
+import { MethodResult } from './types';
 
 import * as Debug from 'debug';
 const debug = Debug('snyk');
 
 import { MisconfiguredAuthInCI } from '../../lib/errors/misconfigured-auth-in-ci-error';
 
-function ignore(options) {
+function ignore(options): Promise<MethodResult> {
   debug('snyk ignore called with options: %O', options);
 
   return auth
