@@ -190,8 +190,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         maybePrintDeps(options, projectDeps.depTree);
 
         debug(`Processing ${projectDeps.depTree.name}...`);
-        maybePrintDeps(options, projectDeps.depTree);
-
         const tFile = projectDeps.targetFile || targetFile;
         const targetFileRelativePath = tFile
           ? pathUtil.join(pathUtil.resolve(path), tFile)
