@@ -35,6 +35,7 @@ const after = tap.runOnly ? only : test;
 // Should be after `process.env` setup.
 import * as plugins from '../../../src/lib/plugins/index';
 import { createCallGraph } from '../../utils';
+import { DepGraphBuilder } from '@snyk/dep-graph';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
@@ -686,6 +687,79 @@ test('`monitor yarn-app`', async (t) => {
   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
 });
 
+test('`monitor pip-app with dep-graph`', async (t) => {
+  chdirWorkspaces();
+
+  const depGraphBuilder = new DepGraphBuilder(
+    { name: 'pip' },
+    { name: 'pip-app', version: '0.0.1' },
+  );
+
+  depGraphBuilder.addPkgNode(
+    { name: 'oauth2', version: '1.1.3' },
+    'oauth2@1.1.3',
+  );
+
+  depGraphBuilder.addPkgNode(
+    { name: 'jinja2', version: '2.7.2' },
+    'jinja2@2.7.2',
+  );
+
+  depGraphBuilder.addPkgNode({ name: 'rsa', version: '3.0.1' }, 'rsa@3.0.1');
+
+  depGraphBuilder.addPkgNode(
+    { name: 'django', version: '1.6.1' },
+    'django@1.6.1',
+  );
+
+  depGraphBuilder.connectDep('root-node', 'oauth2@1.1.3');
+  depGraphBuilder.connectDep('root-node', 'jinja2@2.7.2');
+  depGraphBuilder.connectDep('root-node', 'django@1.6.1');
+
+  const dependencyGraph = depGraphBuilder.build();
+
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: { name: 'pip' },
+        dependencyGraph,
+      };
+    },
+  };
+
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('pip').returns(plugin);
+
+  // experimental-dep-graph is not defined because
+  // we do not want test `experimentalMonitorDepGraphFromDepTree` but `monitorDepGraph`
+  await cli.monitor('pip-app');
+
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/monitor/pip/graph', 'puts at correct url');
+  t.same(
+    spyPlugin.getCall(0).args,
+    [
+      'pip-app',
+      'requirements.txt',
+      {
+        args: null,
+        file: 'requirements.txt',
+        packageManager: 'pip',
+        path: 'pip-app',
+      },
+    ],
+    'calls python plugin',
+  );
+});
+
 test('`monitor pip-app --file=requirements.txt`', async (t) => {
   chdirWorkspaces();
   const plugin = {
@@ -778,6 +852,74 @@ test('`monitor gradle-app`', async (t) => {
         args: null,
         packageManager: 'gradle',
         file: 'build.gradle',
+        path: 'gradle-app',
+      },
+    ],
+    'calls gradle plugin',
+  );
+});
+
+test('`monitor gradle-app with dep-graph`', async (t) => {
+  chdirWorkspaces();
+
+  const depGraphBuilder = new DepGraphBuilder(
+    { name: 'gradle' },
+    { name: 'gradle-app', version: '1.1.5-SNAPSHOT' },
+  );
+
+  depGraphBuilder.addPkgNode(
+    { name: 'ch.qos.logback:logback-core', version: '1.0.13' },
+    'ch.qos.logback:logback-core@1.0.13',
+  );
+
+  depGraphBuilder.addPkgNode(
+    { name: 'org.bouncycastle:bcprov-jdk15on', version: '1.48' },
+    'org.bouncycastle:bcprov-jdk15on@1.48',
+  );
+
+  depGraphBuilder.connectDep('root-node', 'ch.qos.logback:logback-core@1.0.13');
+  depGraphBuilder.connectDep(
+    'root-node',
+    'org.bouncycastle:bcprov-jdk15on@1.48',
+  );
+
+  const dependencyGraph = depGraphBuilder.build();
+
+  const plugin = {
+    async inspect() {
+      return {
+        plugin: { name: 'gradle' },
+        dependencyGraph,
+      };
+    },
+  };
+
+  const spyPlugin = sinon.spy(plugin, 'inspect');
+  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+  t.teardown(loadPlugin.restore);
+  loadPlugin.withArgs('gradle').returns(plugin);
+
+  // experimental-dep-graph is not defined because
+  // we do not want test `experimentalMonitorDepGraphFromDepTree` but `monitorDepGraph`
+  await cli.monitor('gradle-app');
+
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/monitor/gradle/graph', 'puts at correct url');
+  t.same(
+    spyPlugin.getCall(0).args,
+    [
+      'gradle-app',
+      'build.gradle',
+      {
+        args: null,
+        file: 'build.gradle',
+        packageManager: 'gradle',
         path: 'gradle-app',
       },
     ],
