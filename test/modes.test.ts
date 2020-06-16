@@ -135,6 +135,7 @@ test('when is a valid mode', (c) => {
         const expectedArgs = {
           _: [],
           docker: true,
+          experimental: true,
           'package-manager': 'pip',
         };
         const cliCommand = 'container';
@@ -148,6 +149,7 @@ test('when is a valid mode', (c) => {
         t.equal(command, expectedCommand);
         t.same(cliArgs, expectedArgs);
         t.ok(cliArgs['docker']);
+        t.ok(cliArgs['experimental']);
         t.end();
       },
     );
@@ -158,6 +160,7 @@ test('when is a valid mode', (c) => {
         const expectedArgs = {
           _: [],
           docker: true,
+          experimental: true,
           'package-manager': 'pip',
         };
         const cliCommand = 'container';
@@ -171,6 +174,7 @@ test('when is a valid mode', (c) => {
         t.equal(command, expectedCommand);
         t.same(cliArgs, expectedArgs);
         t.ok(cliArgs['docker']);
+        t.ok(cliArgs['experimental']);
         t.end();
       });
       t.end();
@@ -198,6 +202,7 @@ test('when is a valid mode', (c) => {
         t.equal(command, expectedCommand);
         t.same(cliArgs, expectedArgs);
         t.notOk(cliArgs['docker']);
+        t.notOk(cliArgs['experimental']);
         t.end();
       },
     );
