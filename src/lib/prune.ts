@@ -6,16 +6,11 @@ import * as config from './config';
 import { TooManyVulnPaths } from './errors';
 import * as analytics from '../lib/analytics';
 import { SupportedPackageManagers } from './package-managers';
+import { countPathsToGraphRoot } from './utils';
 
 const debug = _debug('snyk:prune');
 
 const { depTreeToGraph, graphToDepTree } = legacy;
-
-export function countPathsToGraphRoot(graph: DepGraph): number {
-  return graph
-    .getPkgs()
-    .reduce((acc, pkg) => acc + graph.countPathsToRoot(pkg), 0);
-}
 
 export async function pruneGraph(
   depGraph: DepGraph,

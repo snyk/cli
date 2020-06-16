@@ -33,7 +33,7 @@ import { maybePrintDepTree, maybePrintDepGraph } from '../print-deps';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import * as projectMetadata from '../project-metadata';
 import { DepTree, Options, TestOptions, SupportedProjectTypes } from '../types';
-import { countPathsToGraphRoot, pruneGraph } from '../prune';
+import { pruneGraph } from '../prune';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 
@@ -43,6 +43,7 @@ import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
+import { countPathsToGraphRoot } from '../utils';
 
 const debug = debugModule('snyk');
 

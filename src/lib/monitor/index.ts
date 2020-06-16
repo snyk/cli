@@ -17,7 +17,7 @@ import {
   AuthFailedError,
   FailedToRunTestError,
 } from '../errors';
-import { countPathsToGraphRoot, pruneGraph } from '../prune';
+import { pruneGraph } from '../prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
 import { isFeatureFlagSupportedForOrg } from '../feature-flags';
 import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
@@ -35,6 +35,7 @@ import {
   getProjectName,
   getTargetFile,
 } from './utils';
+import { countPathsToGraphRoot } from '../utils';
 
 const debug = Debug('snyk');
 
