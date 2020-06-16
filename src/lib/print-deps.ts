@@ -1,9 +1,43 @@
+import * as config from './config';
+import * as depGraphLib from '@snyk/dep-graph';
 import { DepDict, Options, MonitorOptions } from './types';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
+import { countPathsToGraphRoot } from './utils';
+
+export async function maybePrintDepGraph(
+  options: Options | MonitorOptions,
+  depGraph: depGraphLib.DepGraph,
+) {
+  // TODO @boost: remove this logic once we get a valid depGraph print format
+  const graphPathsCount = countPathsToGraphRoot(depGraph);
+  const hasTooManyPaths = graphPathsCount > config.PRUNE_DEPS_THRESHOLD;
+
+  if (!hasTooManyPaths) {
+    const depTree = (await depGraphLib.legacy.graphToDepTree(
+      depGraph,
+      depGraph.pkgManager.name,
+    )) as legacyApi.DepTree;
+    maybePrintDepTree(options, depTree);
+  } else {
+    if (options['print-deps']) {
+      if (options.json) {
+        console.log(
+          '--print-deps --json option not yet supported for large projects. Displaying graph json output instead',
+        );
+        // TODO @boost: add as output graphviz 'dot' file to visualize?
+        console.log(JSON.stringify(depGraph.toJSON(), null, 2));
+      } else {
+        console.log(
+          '--print-deps option not yet supported for large projects. Try with --json.',
+        );
+      }
+    }
+  }
+}
 
 // This option is still experimental and might be deprecated.
 // It might be a better idea to convert it to a command (i.e. do not perform test/monitor).
-export function maybePrintDeps(
+export function maybePrintDepTree(
   options: Options | MonitorOptions,
   rootPackage: legacyApi.DepTree,
 ) {
@@ -12,12 +46,12 @@ export function maybePrintDeps(
       // Will produce 2 JSON outputs, one for the deps, one for the vuln scan.
       console.log(JSON.stringify(rootPackage, null, 2));
     } else {
-      printDeps({ [rootPackage.name!]: rootPackage });
+      printDepsForTree({ [rootPackage.name!]: rootPackage });
     }
   }
 }
 
-function printDeps(depDict: DepDict, prefix = '') {
+function printDepsForTree(depDict: DepDict, prefix = '') {
   let counter = 0;
   const keys = Object.keys(depDict);
   for (const name of keys) {
@@ -31,7 +65,7 @@ function printDeps(depDict: DepDict, prefix = '') {
       prefix + (prefix ? branch : '') + dep.name + ' @ ' + dep.version,
     );
     if (dep.dependencies) {
-      printDeps(dep.dependencies, prefix + (last ? '   ' : '│  '));
+      printDepsForTree(dep.dependencies, prefix + (last ? '   ' : '│  '));
     }
     counter++;
   }

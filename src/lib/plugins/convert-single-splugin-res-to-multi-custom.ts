@@ -6,12 +6,54 @@ export function convertSingleResultToMultiCustom(
   inspectRes: pluginApi.SinglePackageResult,
   packageManager?: SupportedPackageManagers,
 ): MultiProjectResultCustom {
-  if (!inspectRes.package.targetFile && inspectRes.plugin) {
+  if (!packageManager) {
+    packageManager = inspectRes.plugin
+      .packageManager as SupportedPackageManagers;
+  }
+  if (inspectRes.dependencyGraph) {
+    return convertDepGraphResult(inspectRes, packageManager);
+  } else {
+    return convertDepTreeResult(inspectRes, packageManager);
+  }
+}
+
+function convertDepGraphResult(
+  inspectRes: pluginApi.SinglePackageResult,
+  packageManager: SupportedPackageManagers,
+): MultiProjectResultCustom {
+  const { plugin, meta, dependencyGraph: depGraph, callGraph } = inspectRes;
+  return {
+    plugin,
+    scannedProjects: [
+      {
+        plugin: plugin as any,
+        depGraph,
+        callGraph,
+        meta,
+        targetFile: plugin.targetFile,
+        packageManager,
+      },
+    ],
+  };
+}
+
+/**
+ * @deprecated @boost: delete me when all languages uses depGraph
+ */
+function convertDepTreeResult(
+  inspectRes: pluginApi.SinglePackageResult,
+  packageManager: SupportedPackageManagers,
+): MultiProjectResultCustom {
+  if (
+    inspectRes.package &&
+    !inspectRes.package.targetFile &&
+    inspectRes.plugin
+  ) {
     inspectRes.package.targetFile = inspectRes.plugin.targetFile;
   }
   const { plugin, meta, package: depTree, callGraph } = inspectRes;
 
-  if (!depTree.targetFile && plugin) {
+  if (depTree && !depTree.targetFile && plugin) {
     depTree.targetFile = plugin.targetFile;
   }
 
@@ -24,9 +66,7 @@ export function convertSingleResultToMultiCustom(
         callGraph,
         meta,
         targetFile: plugin.targetFile,
-        packageManager:
-          (inspectRes.plugin.packageManager as SupportedPackageManagers) ||
-          packageManager,
+        packageManager,
       },
     ],
   };

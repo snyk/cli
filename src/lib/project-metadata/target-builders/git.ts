@@ -1,15 +1,11 @@
 import * as url from 'url';
 import subProcess = require('../../sub-process');
-import { DepTree } from '../../types';
 import { GitTarget } from '../types';
-import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
 // for scp-like syntax [user@]server:project.git
 const originRegex = /(.+@)?(.+):(.+$)/;
 
 export async function getInfo(
-  scannedProject: ScannedProject,
-  packageInfo: DepTree,
   isFromContainer: boolean,
 ): Promise<GitTarget | null> {
   // safety check

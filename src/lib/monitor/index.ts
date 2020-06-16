@@ -15,8 +15,9 @@ import {
   MonitorError,
   ConnectionTimeoutError,
   AuthFailedError,
+  FailedToRunTestError,
 } from '../errors';
-import { countPathsToGraphRoot, pruneGraph } from '../prune';
+import { pruneGraph } from '../prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
 import { isFeatureFlagSupportedForOrg } from '../feature-flags';
 import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
@@ -34,6 +35,7 @@ import {
   getProjectName,
   getTargetFile,
 } from './utils';
+import { countPathsToGraphRoot } from '../utils';
 
 const debug = Debug('snyk');
 
@@ -43,7 +45,6 @@ interface MonitorBody {
   meta: Meta;
   policy: string;
   package?: DepTree;
-  depGraph?: depGraphLib.DepGraph;
   callGraph?: CallGraph;
   target: {};
   targetFileRelativePath: string;
@@ -84,6 +85,18 @@ export async function monitor(
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
 
+  if (scannedProject.depGraph) {
+    return await monitorDepGraph(
+      root,
+      meta,
+      scannedProject,
+      pluginMeta,
+      targetFileRelativePath,
+      contributors,
+    );
+  }
+
+  // TODO @boost: delete this once 'experimental-dep-graph' ff is deleted
   if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
       _.camelCase('experimental-dep-graph'),
@@ -97,7 +110,7 @@ export async function monitor(
       );
     }
     if (monitorGraphSupportedRes.ok) {
-      return await monitorGraph(
+      return await experimentalMonitorDepGraphFromDepTree(
         root,
         meta,
         scannedProject,
@@ -111,11 +124,10 @@ export async function monitor(
     }
   }
 
-  return monitorDepTree(
+  return await monitorDepTree(
     root,
     meta,
     scannedProject,
-    options,
     pluginMeta,
     targetFileRelativePath,
     contributors,
@@ -126,7 +138,6 @@ async function monitorDepTree(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
-  options,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
   contributors?: { userId: string; lastCommitDate: string }[],
@@ -135,29 +146,36 @@ async function monitorDepTree(
 
   const packageManager = meta.packageManager;
 
-  let pkg = scannedProject.depTree;
+  let depTree = scannedProject.depTree;
+
+  if (!depTree) {
+    debug(
+      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+    );
+    throw new FailedToRunTestError(
+      'Your monitor request could not be completed. Please email support@snyk.io',
+    );
+  }
 
   let prePruneDepCount;
   if (meta.prune) {
     debug('prune used, counting total dependencies');
-    prePruneDepCount = countTotalDependenciesInTree(scannedProject.depTree);
+    prePruneDepCount = countTotalDependenciesInTree(depTree);
     analytics.add('prePruneDepCount', prePruneDepCount);
     debug('total dependencies: %d', prePruneDepCount);
     debug('pruning dep tree');
-    pkg = await pruneTree(scannedProject.depTree, meta.packageManager);
+    depTree = await pruneTree(depTree, meta.packageManager);
     debug('finished pruning dep tree');
   }
   if (['npm', 'yarn'].includes(meta.packageManager)) {
-    const { filteredDepTree, missingDeps } = filterOutMissingDeps(
-      scannedProject.depTree,
-    );
-    pkg = filteredDepTree;
+    const { filteredDepTree, missingDeps } = filterOutMissingDeps(depTree);
+    depTree = filteredDepTree;
     treeMissingDeps = missingDeps;
   }
 
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath]
-    .concat(pluckPolicies(pkg))
+    .concat(pluckPolicies(depTree))
     .filter(Boolean);
   // docker doesn't have a policy as it can be run from anywhere
   if (!meta.isDocker || !policyLocations.length) {
@@ -165,13 +183,13 @@ async function monitorDepTree(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
+  const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
   }
 
-  pkg = dropEmptyDeps(pkg);
+  depTree = dropEmptyDeps(depTree);
 
   let callGraphPayload;
   if (scannedProject.callGraph) {
@@ -193,27 +211,39 @@ async function monitorDepTree(
 
   // TODO(kyegupov): async/await
   return new Promise((resolve, reject) => {
+    if (!depTree) {
+      debug(
+        'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      );
+      return reject(
+        new FailedToRunTestError(
+          'Your monitor request could not be completed. Please email support@snyk.io',
+        ),
+      );
+    }
     request(
       {
         body: {
           meta: {
             method: meta.method,
             hostname: os.hostname(),
-            id: snyk.id || pkg.name,
+            id: snyk.id || depTree.name,
             ci: isCI(),
             pid: process.pid,
             node: process.version,
             master: snyk.config.isMaster,
-            name: getNameDepTree(scannedProject, pkg, meta),
-            version: pkg.version,
+            name: getNameDepTree(scannedProject, depTree, meta),
+            version: depTree.version,
             org: config.org ? decodeURIComponent(config.org) : undefined,
             pluginName: pluginMeta.name,
             pluginRuntime: pluginMeta.runtime,
             missingDeps: treeMissingDeps,
             dockerImageId: pluginMeta.dockerImageId,
-            dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-            dockerfileLayers: pkg.docker
-              ? pkg.docker.dockerfileLayers
+            dockerBaseImage: depTree.docker
+              ? depTree.docker.baseImage
+              : undefined,
+            dockerfileLayers: depTree.docker
+              ? depTree.docker.dockerfileLayers
               : undefined,
             projectName: getProjectName(scannedProject, meta),
             prePruneDepCount, // undefined unless 'prune' is used,
@@ -223,7 +253,7 @@ async function monitorDepTree(
             ),
           },
           policy: policy ? policy.toString() : undefined,
-          package: pkg,
+          package: depTree,
           callGraph: callGraphPayload,
           // we take the targetFile from the plugin,
           // because we want to send it only for specific package-managers
@@ -264,7 +294,7 @@ async function monitorDepTree(
   });
 }
 
-export async function monitorGraph(
+export async function monitorDepGraph(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
@@ -273,23 +303,150 @@ export async function monitorGraph(
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
-  analytics.add('monitorGraph', true);
+  analytics.add('monitorDepGraph', true);
 
-  let treeMissingDeps: string[];
-  let pkg = scannedProject.depTree;
+  let depGraph = scannedProject.depGraph;
+
+  if (!depGraph) {
+    debug(
+      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+    );
+    throw new FailedToRunTestError(
+      'Your monitor request could not be completed. Please email support@snyk.io',
+    );
+  }
+
   const policyPath = meta['policy-path'] || root;
   const policyLocations = [policyPath]
-    .concat(pluckPolicies(pkg))
+    .concat(pluckPolicies(depGraph))
+    .filter(Boolean);
+
+  if (!policyLocations.length) {
+    await snyk.policy.create();
+  }
+
+  const policy = await snyk.policy.load(policyLocations, { loose: true });
+  const target = await projectMetadata.getInfo(scannedProject, meta);
+  if (isGitTarget(target) && target.branch) {
+    analytics.add('targetBranch', target.branch);
+  }
+
+  // this graph will be pruned only if is too dense
+  depGraph = await pruneGraph(depGraph, packageManager);
+
+  return new Promise((resolve, reject) => {
+    if (!depGraph) {
+      debug(
+        'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      );
+      return reject(
+        new FailedToRunTestError(
+          'Your monitor request could not be completed. Please email support@snyk.io',
+        ),
+      );
+    }
+    request(
+      {
+        body: {
+          meta: {
+            method: meta.method,
+            hostname: os.hostname(),
+            id: snyk.id || depGraph.rootPkg.name,
+            ci: isCI(),
+            pid: process.pid,
+            node: process.version,
+            master: snyk.config.isMaster,
+            name: getNameDepGraph(scannedProject, depGraph, meta),
+            version: depGraph.rootPkg.version,
+            org: config.org ? decodeURIComponent(config.org) : undefined,
+            pluginName: pluginMeta.name,
+            pluginRuntime: pluginMeta.runtime,
+            projectName: getProjectName(scannedProject, meta),
+            monitorGraph: true,
+            versionBuildInfo: JSON.stringify(
+              scannedProject.meta?.versionBuildInfo,
+            ),
+          },
+          policy: policy ? policy.toString() : undefined,
+          depGraphJSON: depGraph, // depGraph will be auto serialized to JSON on send
+          // we take the targetFile from the plugin,
+          // because we want to send it only for specific package-managers
+          target,
+          targetFile: getTargetFile(scannedProject, pluginMeta),
+          targetFileRelativePath,
+          contributors: contributors,
+        } as MonitorBody,
+        gzip: true,
+        method: 'PUT',
+        headers: {
+          authorization: 'token ' + snyk.api,
+          'content-encoding': 'gzip',
+        },
+        url: `${config.API}/monitor/${packageManager}/graph`,
+        json: true,
+      },
+      (error, res, body) => {
+        if (error) {
+          return reject(error);
+        }
+        if (res.statusCode >= 200 && res.statusCode <= 299) {
+          resolve(body as MonitorResult);
+        } else {
+          let err;
+          const userMessage = body && body.userMessage;
+          if (!userMessage && res.statusCode === 504) {
+            err = new ConnectionTimeoutError();
+          } else {
+            err = new MonitorError(res.statusCode, userMessage);
+          }
+          reject(err);
+        }
+      },
+    );
+  });
+}
+
+/**
+ * @deprecated it will be deleted once experimentalDepGraph FF will be deleted
+ and npm, yarn, sbt and rubygems usage of `experimentalMonitorDepGraphFromDepTree`
+ will be replaced with `monitorDepGraph` method
+ */
+async function experimentalMonitorDepGraphFromDepTree(
+  root: string,
+  meta: MonitorMeta,
+  scannedProject: ScannedProject,
+  pluginMeta: PluginMetadata,
+  targetFileRelativePath?: string,
+  contributors?: { userId: string; lastCommitDate: string }[],
+): Promise<MonitorResult> {
+  const packageManager = meta.packageManager;
+  analytics.add('experimentalMonitorDepGraphFromDepTree', true);
+
+  let treeMissingDeps: string[];
+  let depTree = scannedProject.depTree;
+
+  if (!depTree) {
+    debug(
+      'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+    );
+    throw new FailedToRunTestError(
+      'Your monitor request could not be completed. Please email support@snyk.io',
+    );
+  }
+
+  const policyPath = meta['policy-path'] || root;
+  const policyLocations = [policyPath]
+    .concat(pluckPolicies(depTree))
     .filter(Boolean);
 
   if (['npm', 'yarn'].includes(meta.packageManager)) {
-    const { filteredDepTree, missingDeps } = filterOutMissingDeps(pkg);
-    pkg = filteredDepTree;
+    const { filteredDepTree, missingDeps } = filterOutMissingDeps(depTree);
+    depTree = filteredDepTree;
     treeMissingDeps = missingDeps;
   }
 
   const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(
-    pkg,
+    depTree,
     packageManager,
   );
 
@@ -299,7 +456,7 @@ export async function monitorGraph(
   }
   const policy = await snyk.policy.load(policyLocations, { loose: true });
 
-  const target = await projectMetadata.getInfo(scannedProject, pkg, meta);
+  const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -315,13 +472,23 @@ export async function monitorGraph(
   }
 
   return new Promise((resolve, reject) => {
+    if (!depTree) {
+      debug(
+        'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      );
+      return reject(
+        new FailedToRunTestError(
+          'Your monitor request could not be completed. Please email support@snyk.io',
+        ),
+      );
+    }
     request(
       {
         body: {
           meta: {
             method: meta.method,
             hostname: os.hostname(),
-            id: snyk.id || pkg.name,
+            id: snyk.id || depTree.name,
             ci: isCI(),
             pid: process.pid,
             node: process.version,
@@ -332,9 +499,11 @@ export async function monitorGraph(
             pluginName: pluginMeta.name,
             pluginRuntime: pluginMeta.runtime,
             dockerImageId: pluginMeta.dockerImageId,
-            dockerBaseImage: pkg.docker ? pkg.docker.baseImage : undefined,
-            dockerfileLayers: pkg.docker
-              ? pkg.docker.dockerfileLayers
+            dockerBaseImage: depTree.docker
+              ? depTree.docker.baseImage
+              : undefined,
+            dockerfileLayers: depTree.docker
+              ? depTree.docker.dockerfileLayers
               : undefined,
             projectName: getProjectName(scannedProject, meta),
             prePruneDepCount, // undefined unless 'prune' is used
