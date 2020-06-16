@@ -1,5 +1,8 @@
 import * as baseDebug from 'debug';
-const debug = baseDebug('yarn-workspaces');
+import * as pathUtil from 'path';
+import * as _ from 'lodash';
+
+const debug = baseDebug('snyk:yarn-workspaces');
 import * as fs from 'fs';
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
 import * as path from 'path';
@@ -17,9 +20,23 @@ export async function processYarnWorkspaces(
   },
   targetFiles: string[],
 ): Promise<MultiProjectResultCustom> {
-  const yarnTargetFiles = targetFiles.filter((f) => f.endsWith('package.json'));
+  // the order of folders is important
+  // must have the root level most folders at the top
+  const yarnTargetFiles: {
+    [dir: string]: Array<{
+      path: string;
+      base: string;
+      dir: string;
+    }>;
+  } = _(targetFiles)
+    .map((p) => ({ path: p, ...pathUtil.parse(p) }))
+    .filter((res) => ['package.json'].includes(res.base))
+    .sortBy('dir')
+    .groupBy('dir')
+    .value();
+
   debug(`processing Yarn workspaces (${targetFiles.length})`);
-  if (yarnTargetFiles.length === 0) {
+  if (Object.keys(yarnTargetFiles).length === 0) {
     throw NoSupportedManifestsFoundError([root]);
   }
   let yarnWorkspacesMap = {};
@@ -32,19 +49,20 @@ export async function processYarnWorkspaces(
     },
     scannedProjects: [],
   };
-  for (const packageJsonFileName of yarnTargetFiles) {
+  // the folders must be ordered highest first
+  for (const directory of Object.keys(yarnTargetFiles)) {
+    const packageJsonFileName = pathUtil.join(directory, 'package.json');
     const packageJson = getFileContents(root, packageJsonFileName);
     yarnWorkspacesMap = {
       ...yarnWorkspacesMap,
       ...getWorkspacesMap(packageJson),
     };
-
     for (const workspaceRoot of Object.keys(yarnWorkspacesMap)) {
       const workspaces = yarnWorkspacesMap[workspaceRoot].workspaces || [];
       const match = workspaces
-        .map((pattern) =>
-          packageJsonFileName.includes(pattern.replace(/\*/, '')),
-        )
+        .map((pattern) => {
+          return packageJsonFileName.includes(pattern.replace(/\*/, ''));
+        })
         .filter(Boolean);
 
       if (match) {
@@ -71,7 +89,7 @@ export async function processYarnWorkspaces(
       );
       const project: ScannedProjectCustom = {
         packageManager: 'yarn',
-        targetFile: path.parse(packageJson.name).base,
+        targetFile: path.relative(root, packageJson.name),
         depTree: res as any,
         plugin: {
           name: 'snyk-nodejs-lockfile-parser',

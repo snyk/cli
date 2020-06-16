@@ -190,10 +190,10 @@ async function parseRes(
       pkgManager,
       options.severityThreshold,
     );
+
     // For Node.js: inject additional information (for remediation etc.) into the response.
     if (payload.modules) {
-      res.dependencyCount =
-        payload.modules.numDependencies || depGraph.getPkgs().length - 1;
+      res.dependencyCount = payload.modules.numDependencies;
       if (res.vulnerabilities) {
         res.vulnerabilities.forEach((vuln) => {
           if (payload.modules && payload.modules.pluck) {
