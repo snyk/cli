@@ -1,3 +1,5 @@
+export type MethodResult = CommandResult | string | void;
+
 export class CommandResult {
   result: string;
   constructor(result: string) {
