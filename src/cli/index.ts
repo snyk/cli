@@ -50,7 +50,7 @@ async function runCommand(args: Args) {
     org: args.options.org,
   });
 
-  const result = commandResult.toString();
+  const result = commandResult?.toString();
 
   if (result && !args.options.quiet) {
     if (args.options.copy) {
