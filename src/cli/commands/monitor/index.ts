@@ -182,65 +182,71 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
       // Post the project dependencies to the Registry
       for (const projectDeps of perProjectResult.scannedProjects) {
-        if (!projectDeps.depGraph && !projectDeps.depTree) {
-          debug(
-            'scannedProject is missing depGraph or depTree, cannot run test/monitor',
-          );
-          throw new FailedToRunTestError(
-            'Your monitor request could not be completed. Please email support@snyk.io',
-          );
-        }
-        const extractedPackageManager = extractPackageManager(
-          projectDeps,
-          perProjectResult,
-          options as MonitorOptions & Options,
-        );
-
-        analytics.add('packageManager', extractedPackageManager);
-
-        let projectName;
-
-        if (projectDeps.depGraph) {
-          debug(`Processing ${projectDeps.depGraph.rootPkg.name}...`);
-          maybePrintDepGraph(options, projectDeps.depGraph);
-          projectName = projectDeps.depGraph.rootPkg.name;
-        }
-
-        if (projectDeps.depTree) {
-          debug(`Processing ${projectDeps.depTree.name}...`);
-          maybePrintDepTree(options, projectDeps.depTree);
-          projectName = projectDeps.depTree.name;
-        }
-
-        const tFile = projectDeps.targetFile || targetFile;
-        const targetFileRelativePath =
-          projectDeps.plugin.targetFile ||
-          (tFile && pathUtil.join(pathUtil.resolve(path), tFile)) ||
-          '';
-
-        const res: MonitorResult = await promiseOrCleanup(
-          snykMonitor(
-            path,
-            generateMonitorMeta(options, extractedPackageManager),
+        try {
+          if (!projectDeps.depGraph && !projectDeps.depTree) {
+            debug(
+              'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+            );
+            throw new FailedToRunTestError(
+              'Your monitor request could not be completed. Please email support@snyk.io',
+            );
+          }
+          const extractedPackageManager = extractPackageManager(
             projectDeps,
-            options,
-            projectDeps.plugin as PluginMetadata,
-            targetFileRelativePath,
-            contributors,
-          ),
-          spinner.clear(postingMonitorSpinnerLabel),
-        );
+            perProjectResult,
+            options as MonitorOptions & Options,
+          );
 
-        res.path = path;
-        const monOutput = formatMonitorOutput(
-          extractedPackageManager,
-          res,
-          options,
-          projectName,
-          getSubProjectCount(inspectResult),
-        );
-        // push a good result
-        results.push({ ok: true, data: monOutput, path, projectName });
+          analytics.add('packageManager', extractedPackageManager);
+
+          let projectName;
+
+          if (projectDeps.depGraph) {
+            debug(`Processing ${projectDeps.depGraph.rootPkg.name}...`);
+            maybePrintDepGraph(options, projectDeps.depGraph);
+            projectName = projectDeps.depGraph.rootPkg.name;
+          }
+
+          if (projectDeps.depTree) {
+            debug(`Processing ${projectDeps.depTree.name}...`);
+            maybePrintDepTree(options, projectDeps.depTree);
+            projectName = projectDeps.depTree.name;
+          }
+
+          const tFile = projectDeps.targetFile || targetFile;
+          const targetFileRelativePath =
+            projectDeps.plugin.targetFile ||
+            (tFile && pathUtil.join(pathUtil.resolve(path), tFile)) ||
+            '';
+
+          const res: MonitorResult = await promiseOrCleanup(
+            snykMonitor(
+              path,
+              generateMonitorMeta(options, extractedPackageManager),
+              projectDeps,
+              options,
+              projectDeps.plugin as PluginMetadata,
+              targetFileRelativePath,
+              contributors,
+            ),
+            spinner.clear(postingMonitorSpinnerLabel),
+          );
+
+          res.path = path;
+          const monOutput = formatMonitorOutput(
+            extractedPackageManager,
+            res,
+            options,
+            projectName,
+            getSubProjectCount(inspectResult),
+          );
+          // push a good result
+          results.push({ ok: true, data: monOutput, path, projectName });
+        } catch (err) {
+          // pushing this error allow this inner loop to keep scanning the projects
+          // even if 1 in 100 fails
+          results.push({ ok: false, data: err, path });
+        }
       }
     } catch (err) {
       // push this error, the loop continues
