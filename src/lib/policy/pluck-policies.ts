@@ -1,6 +1,6 @@
 import * as _ from '@snyk/lodash';
-
-export function pluckPolicies(pkg) {
+import { DepTree } from '../types';
+export function pluckPolicies(pkg: { snyk: boolean; dependencies: DepTree }) {
   if (!pkg) {
     return null;
   }

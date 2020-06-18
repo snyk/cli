@@ -8,7 +8,7 @@ import * as os from 'os';
 import * as _ from '@snyk/lodash';
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
-import { DepTree, MonitorMeta, MonitorResult } from '../types';
+import { DepTree, MonitorMeta, MonitorResult, MonitorOptions, Options, TestOptions } from '../types';
 import * as projectMetadata from '../project-metadata';
 
 import {
@@ -18,13 +18,13 @@ import {
   FailedToRunTestError,
 } from '../errors';
 import { pruneGraph } from '../prune';
-import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
+import { GRAPH_SUPPORTED_PACKAGE_MANAGERS, SupportedPackageManagers } from '../package-managers';
 import { isFeatureFlagSupportedForOrg } from '../feature-flags';
 import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
 import { filterOutMissingDeps } from './filter-out-missing-deps';
 import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
-import { pluckPolicies } from '../policy';
+import { pluckPolicies, findAndLoadPolicy } from '../policy';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph, ScannedProject } from '@snyk/cli-interface/legacy/common';
 import { isGitTarget } from '../project-metadata/types';
@@ -91,6 +91,7 @@ export async function monitor(
       meta,
       scannedProject,
       pluginMeta,
+      options,
       targetFileRelativePath,
       contributors,
     );
@@ -115,6 +116,7 @@ export async function monitor(
         meta,
         scannedProject,
         pluginMeta,
+        options,
         targetFileRelativePath,
         contributors,
       );
@@ -129,6 +131,7 @@ export async function monitor(
     meta,
     scannedProject,
     pluginMeta,
+    options,
     targetFileRelativePath,
     contributors,
   );
@@ -139,6 +142,7 @@ async function monitorDepTree(
   meta: MonitorMeta,
   scannedProject: ScannedProject,
   pluginMeta: PluginMetadata,
+  options: Options & MonitorOptions,
   targetFileRelativePath?: string,
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
@@ -173,15 +177,8 @@ async function monitorDepTree(
     treeMissingDeps = missingDeps;
   }
 
-  const policyPath = meta['policy-path'] || root;
-  const policyLocations = [policyPath]
-    .concat(pluckPolicies(depTree))
-    .filter(Boolean);
-  // docker doesn't have a policy as it can be run from anywhere
-  if (!meta.isDocker || !policyLocations.length) {
-    await snyk.policy.create();
-  }
-  const policy = await snyk.policy.load(policyLocations, { loose: true });
+  const scanType = meta.isDocker ? 'docker' : meta.packageManager as SupportedPackageManagers;
+  const policy = await findAndLoadPolicy(root, meta['policy-path'], scanType, options, depTree);
 
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
@@ -299,10 +296,12 @@ export async function monitorDepGraph(
   meta: MonitorMeta,
   scannedProject: ScannedProject,
   pluginMeta: PluginMetadata,
+  options,
   targetFileRelativePath?: string,
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
-  const packageManager = meta.packageManager;
+  const packageManager = meta.packageManager!;
+  const scanType = meta.isDocker? 'docker' : packageManager;
   analytics.add('monitorDepGraph', true);
 
   let depGraph = scannedProject.depGraph;
@@ -315,17 +314,8 @@ export async function monitorDepGraph(
       'Your monitor request could not be completed. Please email support@snyk.io',
     );
   }
-
-  const policyPath = meta['policy-path'] || root;
-  const policyLocations = [policyPath]
-    .concat(pluckPolicies(depGraph))
-    .filter(Boolean);
-
-  if (!policyLocations.length) {
-    await snyk.policy.create();
-  }
-
-  const policy = await snyk.policy.load(policyLocations, { loose: true });
+  // TODO: for npm & yarn we can also pluck policies from node_modules
+  const policy = await findAndLoadPolicy(root, meta['policy-path'], scanType, options);
   const target = await projectMetadata.getInfo(scannedProject, meta);
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -416,10 +406,12 @@ async function experimentalMonitorDepGraphFromDepTree(
   meta: MonitorMeta,
   scannedProject: ScannedProject,
   pluginMeta: PluginMetadata,
+  options: TestOptions & MonitorOptions,
   targetFileRelativePath?: string,
   contributors?: { userId: string; lastCommitDate: string }[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
+  const scanType = meta.isDocker? 'docker' : packageManager;
   analytics.add('experimentalMonitorDepGraphFromDepTree', true);
 
   let treeMissingDeps: string[];
@@ -434,11 +426,9 @@ async function experimentalMonitorDepGraphFromDepTree(
     );
   }
 
-  const policyPath = meta['policy-path'] || root;
-  const policyLocations = [policyPath]
-    .concat(pluckPolicies(depTree))
-    .filter(Boolean);
-
+  // TODO: for npm & yarn we can also pluck policies from node_modules
+  const policy = await findAndLoadPolicy(root, meta['policy-path'], scanType, options);
+ 
   if (['npm', 'yarn'].includes(meta.packageManager)) {
     const { filteredDepTree, missingDeps } = filterOutMissingDeps(depTree);
     depTree = filteredDepTree;
@@ -449,12 +439,6 @@ async function experimentalMonitorDepGraphFromDepTree(
     depTree,
     packageManager,
   );
-
-  // docker doesn't have a policy as it can be run from anywhere
-  if (!meta.isDocker || !policyLocations.length) {
-    await snyk.policy.create();
-  }
-  const policy = await snyk.policy.load(policyLocations, { loose: true });
 
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
