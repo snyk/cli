@@ -1,23 +1,22 @@
 import * as _ from '@snyk/lodash';
+import { PackageJson } from '../types';
 
-export function pluckPolicies(pkg) {
+export function pluckPolicies(pkg: PackageJson): string[] {
   if (!pkg) {
-    return null;
+    return [];
   }
 
   if (pkg.snyk) {
-    return pkg.snyk;
+    return []; // why is this check here?
   }
 
   if (!pkg.dependencies) {
-    return null;
+    return [];
   }
 
   return _.flatten(
     Object.keys(pkg.dependencies)
-      .map((name) => {
-        return pluckPolicies(pkg.dependencies[name]);
-      })
+      .map((name: string) => pluckPolicies(pkg.dependencies[name]))
       .filter(Boolean),
   );
 }

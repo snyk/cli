@@ -8,7 +8,16 @@ import * as os from 'os';
 import * as _ from '@snyk/lodash';
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
-import { DepTree, MonitorMeta, MonitorResult } from '../types';
+import {
+  DepTree,
+  MonitorMeta,
+  MonitorResult,
+  PolicyOptions,
+  MonitorOptions,
+  PackageJson,
+  Options,
+  Contributors,
+} from '../types';
 import * as projectMetadata from '../project-metadata';
 
 import {
@@ -24,7 +33,7 @@ import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
 import { filterOutMissingDeps } from './filter-out-missing-deps';
 import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
-import { pluckPolicies } from '../policy';
+import { findAndLoadPolicy } from '../policy';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph, ScannedProject } from '@snyk/cli-interface/legacy/common';
 import { isGitTarget } from '../project-metadata/types';
@@ -49,7 +58,7 @@ interface MonitorBody {
   target: {};
   targetFileRelativePath: string;
   targetFile: string;
-  contributors?: { userId: string; lastCommitDate: string }[];
+  contributors?: Contributors[];
 }
 
 interface Meta {
@@ -74,10 +83,10 @@ export async function monitor(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
-  options,
+  options: Options & MonitorOptions & PolicyOptions,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
-  contributors?: { userId: string; lastCommitDate: string }[],
+  contributors?: Contributors[],
 ): Promise<MonitorResult> {
   apiTokenExists();
 
@@ -91,6 +100,7 @@ export async function monitor(
       meta,
       scannedProject,
       pluginMeta,
+      options,
       targetFileRelativePath,
       contributors,
     );
@@ -115,6 +125,7 @@ export async function monitor(
         meta,
         scannedProject,
         pluginMeta,
+        options,
         targetFileRelativePath,
         contributors,
       );
@@ -129,6 +140,7 @@ export async function monitor(
     meta,
     scannedProject,
     pluginMeta,
+    options,
     targetFileRelativePath,
     contributors,
   );
@@ -139,8 +151,9 @@ async function monitorDepTree(
   meta: MonitorMeta,
   scannedProject: ScannedProject,
   pluginMeta: PluginMetadata,
+  options: MonitorOptions & PolicyOptions,
   targetFileRelativePath?: string,
-  contributors?: { userId: string; lastCommitDate: string }[],
+  contributors?: Contributors[],
 ): Promise<MonitorResult> {
   let treeMissingDeps: string[] = [];
 
@@ -173,15 +186,12 @@ async function monitorDepTree(
     treeMissingDeps = missingDeps;
   }
 
-  const policyPath = meta['policy-path'] || root;
-  const policyLocations = [policyPath]
-    .concat(pluckPolicies(depTree))
-    .filter(Boolean);
-  // docker doesn't have a policy as it can be run from anywhere
-  if (!meta.isDocker || !policyLocations.length) {
-    await snyk.policy.create();
-  }
-  const policy = await snyk.policy.load(policyLocations, { loose: true });
+  const policy = await findAndLoadPolicy(
+    root,
+    meta.isDocker ? 'docker' : packageManager!,
+    options,
+    depTree as PackageJson, // TODO: fix this and send only a manifest
+  );
 
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
@@ -261,7 +271,7 @@ async function monitorDepTree(
           // WARNING: be careful changing this as it affects project uniqueness
           targetFile: getTargetFile(scannedProject, pluginMeta),
           targetFileRelativePath,
-          contributors: contributors,
+          contributors,
         } as MonitorBody,
         gzip: true,
         method: 'PUT',
@@ -299,8 +309,9 @@ export async function monitorDepGraph(
   meta: MonitorMeta,
   scannedProject: ScannedProject,
   pluginMeta: PluginMetadata,
+  options: MonitorOptions & PolicyOptions,
   targetFileRelativePath?: string,
-  contributors?: { userId: string; lastCommitDate: string }[],
+  contributors?: Contributors[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('monitorDepGraph', true);
@@ -316,16 +327,12 @@ export async function monitorDepGraph(
     );
   }
 
-  const policyPath = meta['policy-path'] || root;
-  const policyLocations = [policyPath]
-    .concat(pluckPolicies(depGraph))
-    .filter(Boolean);
+  const policy = await findAndLoadPolicy(
+    root,
+    meta.isDocker ? 'docker' : packageManager!,
+    options,
+  );
 
-  if (!policyLocations.length) {
-    await snyk.policy.create();
-  }
-
-  const policy = await snyk.policy.load(policyLocations, { loose: true });
   const target = await projectMetadata.getInfo(scannedProject, meta);
   if (isGitTarget(target) && target.branch) {
     analytics.add('targetBranch', target.branch);
@@ -374,7 +381,7 @@ export async function monitorDepGraph(
           target,
           targetFile: getTargetFile(scannedProject, pluginMeta),
           targetFileRelativePath,
-          contributors: contributors,
+          contributors,
         } as MonitorBody,
         gzip: true,
         method: 'PUT',
@@ -408,16 +415,17 @@ export async function monitorDepGraph(
 
 /**
  * @deprecated it will be deleted once experimentalDepGraph FF will be deleted
- and npm, yarn, sbt and rubygems usage of `experimentalMonitorDepGraphFromDepTree`
- will be replaced with `monitorDepGraph` method
+ * and npm, yarn, sbt and rubygems usage of `experimentalMonitorDepGraphFromDepTree`
+ * will be replaced with `monitorDepGraph` method
  */
 async function experimentalMonitorDepGraphFromDepTree(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
   pluginMeta: PluginMetadata,
+  options: MonitorOptions & PolicyOptions,
   targetFileRelativePath?: string,
-  contributors?: { userId: string; lastCommitDate: string }[],
+  contributors?: Contributors[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('experimentalMonitorDepGraphFromDepTree', true);
@@ -434,10 +442,12 @@ async function experimentalMonitorDepGraphFromDepTree(
     );
   }
 
-  const policyPath = meta['policy-path'] || root;
-  const policyLocations = [policyPath]
-    .concat(pluckPolicies(depTree))
-    .filter(Boolean);
+  const policy = await findAndLoadPolicy(
+    root,
+    meta.isDocker ? 'docker' : packageManager!,
+    options,
+    depTree as PackageJson, // TODO: fix this and send only a manifest
+  );
 
   if (['npm', 'yarn'].includes(meta.packageManager)) {
     const { filteredDepTree, missingDeps } = filterOutMissingDeps(depTree);
@@ -449,13 +459,6 @@ async function experimentalMonitorDepGraphFromDepTree(
     depTree,
     packageManager,
   );
-
-  // docker doesn't have a policy as it can be run from anywhere
-  if (!meta.isDocker || !policyLocations.length) {
-    await snyk.policy.create();
-  }
-  const policy = await snyk.policy.load(policyLocations, { loose: true });
-
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
   if (isGitTarget(target) && target.branch) {
@@ -517,7 +520,7 @@ async function experimentalMonitorDepGraphFromDepTree(
           target,
           targetFile: getTargetFile(scannedProject, pluginMeta),
           targetFileRelativePath,
-          contributors: contributors,
+          contributors,
         } as MonitorBody,
         gzip: true,
         method: 'PUT',
