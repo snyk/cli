@@ -364,27 +364,31 @@ async function assembleLocalPayloads(
         );
       }
 
-      let pkg: any = scannedProject.depTree;
-      if (scannedProject.depGraph) {
-        pkg = scannedProject.depGraph;
-      }
+      // prefer dep-graph fallback on dep tree
+      // TODO: clean up once dep-graphs only
+      const pkg:
+        | DepTree
+        | depGraphLib.DepGraph
+        | undefined = scannedProject.depGraph
+        ? scannedProject.depGraph
+        : scannedProject.depTree;
 
       if (options['print-deps']) {
         if (scannedProject.depGraph) {
           await spinner.clear<void>(spinnerLbl)();
-          maybePrintDepGraph(options, pkg);
+          maybePrintDepGraph(options, pkg as depGraphLib.DepGraph);
         } else {
           await spinner.clear<void>(spinnerLbl)();
-          maybePrintDepTree(options, pkg);
+          maybePrintDepTree(options, pkg as DepTree);
         }
       }
       const project = scannedProject as ScannedProjectCustom;
       const packageManager = extractPackageManager(project, deps, options);
 
-      if (pkg.docker) {
-        const baseImageFromDockerfile = pkg.docker.baseImage;
+      if ((pkg as DepTree).docker) {
+        const baseImageFromDockerfile = (pkg as DepTree).docker.baseImage;
         if (!baseImageFromDockerfile && options['base-image']) {
-          pkg.docker.baseImage = options['base-image'];
+          (pkg as DepTree).docker.baseImage = options['base-image'];
         }
 
         if (baseImageFromDockerfile && deps.plugin && deps.plugin.imageLayers) {
@@ -408,7 +412,14 @@ async function assembleLocalPayloads(
 
       analytics.add('policies', policyLocations.length);
       analytics.add('packageManager', packageManager);
-      addPackageAnalytics(pkg);
+      if (scannedProject.depGraph) {
+        const depGraph = pkg as depGraphLib.DepGraph;
+        addPackageAnalytics(depGraph.rootPkg.name, depGraph.rootPkg.version!);
+      }
+      if (scannedProject.depTree) {
+        const depTree = pkg as DepTree;
+        addPackageAnalytics(depTree.name!, depTree.version!);
+      }
 
       let policy;
       if (policyLocations.length > 0) {
@@ -436,8 +447,16 @@ async function assembleLocalPayloads(
       if (scannedProject.depGraph) {
         target = await projectMetadata.getInfo(scannedProject, options);
       } else {
-        target = await projectMetadata.getInfo(scannedProject, options, pkg);
+        target = await projectMetadata.getInfo(
+          scannedProject,
+          options,
+          pkg as DepTree,
+        );
       }
+
+      const originalProjectName = scannedProject.depGraph
+        ? (pkg as depGraphLib.DepGraph).rootPkg.name
+        : (pkg as DepTree).name;
 
       let body: PayloadBody = {
         // WARNING: be careful changing this as it affects project uniqueness
@@ -446,11 +465,11 @@ async function assembleLocalPayloads(
         // TODO: Remove relativePath prop once we gather enough ruby related logs
         targetFileRelativePath: `${targetFileRelativePath}`, // Forcing string
         projectNameOverride: options.projectName,
-        originalProjectName: pkg.name,
+        originalProjectName,
         policy: policy && policy.toString(),
         foundProjectCount: getSubProjectCount(deps),
         displayTargetFile: targetFile,
-        docker: pkg.docker,
+        docker: (pkg as DepTree).docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
         target,
       };
@@ -459,26 +478,24 @@ async function assembleLocalPayloads(
         // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests).
         body = { ...body, ...pkg };
       } else {
-        // Graphs are more compact and robust representations.
-        // Legacy parts of the code are still using trees, but will eventually be fully migrated.
-        debug('converting dep-tree to dep-graph', {
-          name: pkg.name,
-          targetFile: scannedProject.targetFile || options.file,
-        });
-
         let depGraph: depGraphLib.DepGraph;
         if (scannedProject.depGraph) {
           depGraph = scannedProject.depGraph;
         } else {
+          // Graphs are more compact and robust representations.
+          // Legacy parts of the code are still using trees, but will eventually be fully migrated.
+          debug('converting dep-tree to dep-graph', {
+            name: (pkg as DepTree).name,
+            targetFile: scannedProject.targetFile || options.file,
+          });
           depGraph = await depGraphLib.legacy.depTreeToGraph(
-            pkg,
+            pkg as DepTree,
             packageManager!,
           );
+          debug('done converting dep-tree to dep-graph', {
+            uniquePkgsCount: depGraph.getPkgs().length,
+          });
         }
-
-        debug('done converting dep-tree to dep-graph', {
-          uniquePkgsCount: depGraph.getPkgs().length,
-        });
 
         const pruneIsRequired = options['prune-repeated-subdependencies'];
 
@@ -556,7 +573,7 @@ async function assembleLocalPayloads(
 async function assembleRemotePayloads(root, options): Promise<Payload[]> {
   const pkg = moduleToObject(root);
   debug('testing remote: %s', pkg.name + '@' + pkg.version);
-  addPackageAnalytics(pkg);
+  addPackageAnalytics(pkg.name, pkg.version);
   const encodedName = encodeURIComponent(pkg.name + '@' + pkg.version);
   // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests)
   const url = `${config.API}${options.vulnEndpoint ||
@@ -575,10 +592,10 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
   ];
 }
 
-function addPackageAnalytics(module): void {
-  analytics.add('packageName', module.name);
-  analytics.add('packageVersion', module.version);
-  analytics.add('package', module.name + '@' + module.version);
+function addPackageAnalytics(name: string, version: string): void {
+  analytics.add('packageName', name);
+  analytics.add('packageVersion', version);
+  analytics.add('package', name + '@' + version);
 }
 
 function countUniqueVulns(vulns: AnnotatedIssue[]): number {
