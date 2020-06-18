@@ -1,13 +1,13 @@
 import * as _ from '@snyk/lodash';
-import { PackageJson } from '../types';
+import { PackageExpanded } from 'snyk-resolve-deps';
 
-export function pluckPolicies(pkg: PackageJson): string[] {
+export function pluckPolicies(pkg: PackageExpanded): string[] | string {
   if (!pkg) {
     return [];
   }
 
   if (pkg.snyk) {
-    return []; // why is this check here?
+    return pkg.snyk;
   }
 
   if (!pkg.dependencies) {

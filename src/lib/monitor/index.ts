@@ -14,7 +14,6 @@ import {
   MonitorResult,
   PolicyOptions,
   MonitorOptions,
-  PackageJson,
   Options,
   Contributors,
 } from '../types';
@@ -190,7 +189,9 @@ async function monitorDepTree(
     root,
     meta.isDocker ? 'docker' : packageManager!,
     options,
-    depTree as PackageJson, // TODO: fix this and send only a manifest
+    // TODO: fix this and send only send when we used resolve-deps for node
+    // it should be a ExpandedPkgTree type instead
+    depTree,
   );
 
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
@@ -446,7 +447,9 @@ async function experimentalMonitorDepGraphFromDepTree(
     root,
     meta.isDocker ? 'docker' : packageManager!,
     options,
-    depTree as PackageJson, // TODO: fix this and send only a manifest
+    // TODO: fix this and send only send when we used resolve-deps for node
+    // it should be a ExpandedPkgTree type instead
+    depTree,
   );
 
   if (['npm', 'yarn'].includes(meta.packageManager)) {

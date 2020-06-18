@@ -1,5 +1,6 @@
 import * as snykPolicyLib from 'snyk-policy';
 import * as debugModule from 'debug';
+import { PackageExpanded } from 'snyk-resolve-deps';
 
 import { pluckPolicies } from '.';
 import { SupportedPackageManagers } from '../package-managers';
@@ -12,7 +13,7 @@ export async function findAndLoadPolicy(
   root: string,
   scanType: SupportedPackageManagers | 'docker',
   options: PolicyOptions,
-  pkg?: PackageJson,
+  pkg?: PackageExpanded,
 ): Promise<string | undefined> {
   const isDocker = scanType === 'docker';
   const isNodeProject = ['npm', 'yarn'].includes(scanType);

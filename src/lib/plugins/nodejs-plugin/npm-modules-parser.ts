@@ -1,7 +1,6 @@
 import * as path from 'path';
 import * as fs from 'then-fs';
 import * as resolveNodeDeps from 'snyk-resolve-deps';
-import { PkgTree } from 'snyk-nodejs-lockfile-parser';
 
 import * as spinner from '../../spinner';
 import * as analytics from '../../analytics';
@@ -11,7 +10,7 @@ export async function parse(
   root: string,
   targetFile: string,
   options: Options,
-): Promise<PkgTree> {
+): Promise<resolveNodeDeps.PackageExpanded> {
   const nodeModulesPath = path.join(
     path.dirname(path.resolve(root, targetFile)),
     'node_modules',

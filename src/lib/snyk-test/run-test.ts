@@ -37,7 +37,6 @@ import {
   TestOptions,
   SupportedProjectTypes,
   PolicyOptions,
-  PackageJson,
 } from '../types';
 import { pruneGraph } from '../prune';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
@@ -408,7 +407,9 @@ async function assembleLocalPayloads(
         root,
         options.docker ? 'docker' : packageManager!,
         options,
-        pkg as PackageJson, // TODO: fix this and send only a manifest
+        // TODO: fix this and send only send when we used resolve-deps for node
+        // it should be a ExpandedPkgTree type instead
+        pkg,
       );
 
       analytics.add('packageManager', packageManager);
