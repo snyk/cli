@@ -241,24 +241,54 @@ async function main() {
         'all-projects',
       ]);
     }
+
+    if (args.options['project-name'] && args.options.yarnWorkspaces) {
+      throw new UnsupportedOptionCombinationError([
+        'project-name',
+        'yarn-workspaces',
+      ]);
+    }
+
+    if (args.options.file && args.options.yarnWorkspaces) {
+      throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
+    }
+
     if (args.options.file && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
     }
+
     if (args.options.yarnWorkspaces && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError([
         'yarn-workspaces',
         'all-projects',
       ]);
     }
+
+    if (args.options.packageManager && args.options.yarnWorkspaces) {
+      throw new UnsupportedOptionCombinationError([
+        'package-manager',
+        'yarn-workspaces',
+      ]);
+    }
+
     if (args.options.packageManager && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError([
         'package-manager',
         'all-projects',
       ]);
     }
+
     if (args.options.docker && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError(['docker', 'all-projects']);
     }
+
+    if (args.options.allSubProjects && args.options.yarnWorkspaces) {
+      throw new UnsupportedOptionCombinationError([
+        'all-sub-projects',
+        'yarn-workspaces',
+      ]);
+    }
+
     if (args.options.allSubProjects && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError([
         'all-sub-projects',
