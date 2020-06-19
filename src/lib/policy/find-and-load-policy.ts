@@ -14,11 +14,12 @@ export async function findAndLoadPolicy(
   scanType: SupportedPackageManagers | 'docker',
   options: PolicyOptions,
   pkg?: PackageExpanded,
+  scannedProjectFolder?: string,
 ): Promise<string | undefined> {
   const isDocker = scanType === 'docker';
   const isNodeProject = ['npm', 'yarn'].includes(scanType);
   // monitor
-  let policyLocations: string[] = [options['policy-path'] || root];
+  let policyLocations: string[] = [options['policy-path'] || scannedProjectFolder || root];
   if (isDocker) {
     policyLocations = policyLocations.filter((loc) => loc !== root);
   } else if (isNodeProject) {
@@ -26,6 +27,7 @@ export async function findAndLoadPolicy(
     // find and apply policies in node_modules
     policyLocations = policyLocations.concat(pluckPolicies(pkg as PackageJson));
   }
+
   debug('Potential policy locations found:', policyLocations);
   analytics.add('policies', policyLocations.length);
   analytics.add('policyLocations', policyLocations);
