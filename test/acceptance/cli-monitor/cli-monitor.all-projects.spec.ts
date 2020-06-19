@@ -17,31 +17,31 @@ export const AllProjectsTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      await params.cli.monitor('mono-repo-with-ignores ', {
+      await params.cli.monitor('mono-repo-with-ignores', {
         allProjects: true,
-        detectionDepth: 1,
+        detectionDepth: 2,
       });
+      // Pop all calls to server and filter out calls to `featureFlag` endpoint
+      const requests = params.server
+        .popRequests(4)
+        .filter((req) => req.url.includes('/monitor/'));
+      let policyCount = 0;
+      requests.forEach((req) => {
+        const vulnerableFolderPath =
+          process.platform === 'win32'
+            ? 'vulnerable\\package-lock.json'
+            : 'vulnerable/package-lock.json';
 
-      params.server.popRequests(2).forEach((req) => {
-        t.equal(req.method, 'POST', 'makes POST request');
-        t.equal(
-          req.headers['x-snyk-cli-version'],
-          params.versionNumber,
-          'sends version number',
-        );
-        t.match(req.url, '/api/v1/monitor', 'posts to correct url');
-        t.ok(req.body.depGraph, 'body contains depGraph');
-        t.match(
-          req.body.policy,
-          'npm:node-uuid:20160328',
-          'body contains policy',
-        );
-        t.match(
-          req.body.depGraph.pkgManager.name,
-          /(npm)/,
-          'depGraph has package manager',
-        );
+        if (req.body.targetFileRelativePath.endsWith(vulnerableFolderPath)) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20160328',
+            'body contains policy',
+          );
+          policyCount += 1;
+        }
       });
+      t.equal(policyCount, 1, 'one policy found');
     },
     '`monitor mono-repo-project --all-projects --detection-depth=1`': (
       params,

@@ -1,0 +1,5 @@
+rootProject.name = 'root-proj'
+
+include 'subproj'
+
+

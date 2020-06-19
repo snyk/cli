@@ -19,7 +19,9 @@ export async function findAndLoadPolicy(
   const isDocker = scanType === 'docker';
   const isNodeProject = ['npm', 'yarn'].includes(scanType);
   // monitor
-  let policyLocations: string[] = [options['policy-path'] || scannedProjectFolder || root];
+  let policyLocations: string[] = [
+    options['policy-path'] || scannedProjectFolder || root,
+  ];
   if (isDocker) {
     policyLocations = policyLocations.filter((loc) => loc !== root);
   } else if (isNodeProject) {
