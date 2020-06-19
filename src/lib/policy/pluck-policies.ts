@@ -1,8 +1,9 @@
 import * as _ from '@snyk/lodash';
+import { PackageExpanded } from 'snyk-resolve-deps';
 
-export function pluckPolicies(pkg) {
+export function pluckPolicies(pkg: PackageExpanded): string[] | string {
   if (!pkg) {
-    return null;
+    return [];
   }
 
   if (pkg.snyk) {
@@ -10,14 +11,12 @@ export function pluckPolicies(pkg) {
   }
 
   if (!pkg.dependencies) {
-    return null;
+    return [];
   }
 
   return _.flatten(
     Object.keys(pkg.dependencies)
-      .map((name) => {
-        return pluckPolicies(pkg.dependencies[name]);
-      })
+      .map((name: string) => pluckPolicies(pkg.dependencies[name]))
       .filter(Boolean),
   );
 }

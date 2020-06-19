@@ -1531,8 +1531,7 @@ test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
     'calls docker plugin with expected arguments',
   );
 
-  const emptyPolicy = await snykPolicy.create();
-  t.deepEqual(req.body.policy, emptyPolicy.toString(), 'empty policy is sent');
+  t.deepEqual(req.body.policy, undefined, 'no policy is sent');
 });
 
 test('`monitor foo:latest --docker` with custom policy path', async (t) => {

@@ -28,11 +28,16 @@ import { isCI } from '../is-ci';
 import * as common from './common';
 import * as config from '../config';
 import * as analytics from '../analytics';
-import { pluckPolicies } from '../policy';
 import { maybePrintDepTree, maybePrintDepGraph } from '../print-deps';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import * as projectMetadata from '../project-metadata';
-import { DepTree, Options, TestOptions, SupportedProjectTypes } from '../types';
+import {
+  DepTree,
+  Options,
+  TestOptions,
+  SupportedProjectTypes,
+  PolicyOptions,
+} from '../types';
 import { pruneGraph } from '../prune';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
 import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
@@ -44,6 +49,7 @@ import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { countPathsToGraphRoot } from '../utils';
+import { findAndLoadPolicy } from '../policy';
 
 const debug = debugModule('snyk');
 
@@ -57,7 +63,7 @@ interface DepTreeFromResolveDeps extends DepTree {
 interface PayloadBody {
   depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
   callGraph?: any;
-  policy: string;
+  policy?: string;
   targetFile?: string;
   targetFileRelativePath?: string;
   projectNameOverride?: string;
@@ -319,7 +325,7 @@ function assemblePayloads(
 // Payload to send to the Registry for scanning a package from the local filesystem.
 async function assembleLocalPayloads(
   root,
-  options: Options & TestOptions,
+  options: Options & TestOptions & PolicyOptions,
 ): Promise<Payload[]> {
   // For --all-projects packageManager is yet undefined here. Use 'all'
   const analysisType =
@@ -397,20 +403,15 @@ async function assembleLocalPayloads(
         }
       }
 
-      let policyLocations: string[] = [options['policy-path'] || root];
-      if (options.docker) {
-        policyLocations = policyLocations.filter((loc) => {
-          return loc !== root;
-        });
-      } else if (
-        packageManager &&
-        ['npm', 'yarn'].indexOf(packageManager) > -1
-      ) {
-        policyLocations = policyLocations.concat(pluckPolicies(pkg));
-      }
-      debug('policies found', policyLocations);
+      const policy = await findAndLoadPolicy(
+        root,
+        options.docker ? 'docker' : packageManager!,
+        options,
+        // TODO: fix this and send only send when we used resolve-deps for node
+        // it should be a ExpandedPkgTree type instead
+        pkg,
+      );
 
-      analytics.add('policies', policyLocations.length);
       analytics.add('packageManager', packageManager);
       if (scannedProject.depGraph) {
         const depGraph = pkg as depGraphLib.DepGraph;
@@ -419,19 +420,6 @@ async function assembleLocalPayloads(
       if (scannedProject.depTree) {
         const depTree = pkg as DepTree;
         addPackageAnalytics(depTree.name!, depTree.version!);
-      }
-
-      let policy;
-      if (policyLocations.length > 0) {
-        try {
-          policy = await snyk.policy.load(policyLocations, options);
-        } catch (err) {
-          // note: inline catch, to handle error from .load
-          //   if the .snyk file wasn't found, it is fine
-          if (err.code !== 'ENOENT') {
-            throw err;
-          }
-        }
       }
 
       // todo: normalize what target file gets used across plugins and functions
@@ -466,7 +454,7 @@ async function assembleLocalPayloads(
         targetFileRelativePath: `${targetFileRelativePath}`, // Forcing string
         projectNameOverride: options.projectName,
         originalProjectName,
-        policy: policy && policy.toString(),
+        policy: policy ? policy.toString() : undefined,
         foundProjectCount: getSubProjectCount(deps),
         displayTargetFile: targetFile,
         docker: (pkg as DepTree).docker,

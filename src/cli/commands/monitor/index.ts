@@ -12,6 +12,8 @@ import {
   MonitorMeta,
   MonitorResult,
   Options,
+  PolicyOptions,
+  Contributors,
 } from '../../../lib/types';
 import * as config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
@@ -61,10 +63,10 @@ async function promiseOrCleanup<T>(
 // or an error message.
 async function monitor(...args0: MethodArgs): Promise<any> {
   let args = [...args0];
-  let options: MonitorOptions = {};
+  let monitorOptions = {};
   const results: Array<GoodResult | BadResult> = [];
   if (typeof args[args.length - 1] === 'object') {
-    options = (args.pop() as ArgsOptions) as MonitorOptions;
+    monitorOptions = args.pop() as ArgsOptions;
   }
   args = args.filter(Boolean);
 
@@ -72,6 +74,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   if (args.length === 0) {
     args.unshift(process.cwd());
   }
+  const options = monitorOptions as Options & PolicyOptions & MonitorOptions;
 
   if (options.id) {
     snyk.id = options.id;
@@ -89,7 +92,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   apiTokenExists();
 
-  let contributors: { userId: string; lastCommitDate: string }[] = [];
+  let contributors: Contributors[] = [];
   if (!options.docker && analytics.allowAnalytics()) {
     try {
       const repoPath = process.cwd();

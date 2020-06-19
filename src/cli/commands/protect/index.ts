@@ -12,7 +12,7 @@ import * as errors from '../../../lib/errors';
 const debug = debugModule('snyk');
 
 async function protectFunc(
-  options: types.ProtectOptions & types.Options & types.TestOptions,
+  options: types.PolicyOptions & types.Options & types.TestOptions,
 ) {
   const protectOptions = { ...options };
   protectOptions.loose = true; // replace missing policies with empty ones
@@ -79,7 +79,7 @@ async function protectFunc(
   }
 }
 
-async function patch(options: types.ProtectOptions & types.Options) {
+async function patch(options: types.PolicyOptions & types.Options) {
   try {
     const response = (await snyk.test(
       process.cwd(),

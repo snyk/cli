@@ -43,6 +43,7 @@ import {
   MonitorMeta,
   MonitorResult,
   WizardOptions,
+  PackageJson,
 } from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
@@ -318,13 +319,6 @@ function calculatePkgFileIndentation(packageFile: string): number {
   return pkgIndentation;
 }
 
-interface Pkg {
-  scripts: any;
-  snyk: boolean;
-  dependencies: any;
-  devDependencies: any;
-}
-
 function processAnswers(answers, policy, options) {
   if (!options) {
     options = {};
@@ -347,7 +341,7 @@ function processAnswers(answers, policy, options) {
     targetFile.endsWith('package-lock.json') ||
     targetFile.endsWith('yarn.lock');
 
-  let pkg = {} as Pkg;
+  let pkg = {} as PackageJson;
   let pkgIndentation = 2;
 
   sendWizardAnalyticsData(answers);
@@ -599,6 +593,7 @@ function processAnswers(answers, policy, options) {
               cwd,
               meta as MonitorMeta,
               (inspectRes as MultiProjectResult).scannedProjects[0],
+              options,
               inspectRes.plugin,
               options,
             );

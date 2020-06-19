@@ -20,13 +20,23 @@ export interface TestOptions {
   failOn?: FailOn;
   reachableVulns?: boolean;
 }
-export interface ProtectOptions {
-  loose: boolean;
-}
 
 export interface WizardOptions {
   newPolicy: boolean;
 }
+
+export interface Contributors {
+  userId: string;
+  lastCommitDate: string;
+}
+
+export interface PolicyOptions {
+  'ignore-policy'?: boolean; // used in snyk/policy lib
+  'trust-policies'?: boolean; // used in snyk/policy lib
+  'policy-path'?: string;
+  loose?: boolean;
+}
+
 export interface Options {
   org?: string | null;
   path: string;
@@ -38,9 +48,6 @@ export interface Options {
   projectName?: string;
   insecure?: boolean;
   'dry-run'?: boolean;
-  'ignore-policy'?: boolean;
-  'trust-policies'?: boolean; // used in snyk/policy lib
-  'policy-path'?: boolean;
   allSubProjects?: boolean;
   'project-name'?: string;
   'show-vulnerable-paths'?: string;
@@ -90,6 +97,12 @@ export interface MonitorMeta {
   'remote-repo-url'?: string;
 }
 
+export interface PackageJson {
+  scripts: any;
+  snyk: boolean;
+  dependencies: any;
+  devDependencies: any;
+}
 export interface MonitorResult {
   org?: string;
   id: string;
