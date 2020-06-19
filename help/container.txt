@@ -1,8 +1,8 @@
-Container:
+Usage:
 
   $ snyk container [command] [options] [image]
 
-Find vulnerabilities in your a container images.
+Find vulnerabilities in your container images.
 
 Commands:
 
@@ -12,16 +12,21 @@ Commands:
 
 Options:
 
-  --exclude-base-image-vulns ............. Exclude from display base image vulnerabilities.
-  --file=<string> ........................ Include the path to the image's Dockerfile for more detailed advice.
+  --exclude-base-image-vulns .............. Exclude from display base image vulnerabilities.
+  --file=<string> ......................... Include the path to the image's Dockerfile for more detailed advice.
   -h, --help
   --json
   --print-deps ............................ Print the dependency tree before sending it for analysis.
+  --project-name=<string> ................. Specify a custom Snyk project name.
+  --policy-path=<path> .................... Manually pass a path to a snyk policy file.
   --severity-threshold=<low|medium|high>... Only report vulnerabilities of provided level or higher.
 
 Examples:
 
   $ snyk container test alpine
+  $ snyk container monitor alpine
+  $ snyk container test docker-archive:archive.tar
+  $ snyk container test oci-archive:archive.tar
 
 Pro tip: use `snyk container test --file=Dockerfile` for more detailed advice.
 
