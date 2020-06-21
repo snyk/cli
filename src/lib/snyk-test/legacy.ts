@@ -24,7 +24,7 @@ export enum SEVERITY {
 export enum REACHABILITY {
   FUNCTION = 'function',
   PACKAGE = 'package',
-  UNREACHABLE = 'unreachable',
+  NOT_REACHABLE = 'not-reachable',
   NO_INFO = 'no-info',
 }
 
