@@ -148,7 +148,12 @@ export const GradleTests: AcceptanceTests = {
       const plugin = {
         async inspect(): Promise<pluginApi.MultiProjectResult> {
           return {
-            plugin: { name: 'gradle' },
+            plugin: {
+              meta: {
+                allSubProjectNames: ['a', 'b'],
+              },
+              name: 'gradle',
+            },
             scannedProjects: [
               {
                 depTree: {
@@ -190,6 +195,12 @@ export const GradleTests: AcceptanceTests = {
         res,
         /Tested 2 projects/,
         'number projects tested displayed properly',
+      );
+      t.match(res, '(2)', '2 sub projects found');
+      t.match(
+        res,
+        /use --all-sub-projects flag to scan all sub-projects/,
+        'all-sub-projects flag is suggested',
       );
       for (let i = 0; i < tests.length; i++) {
         const meta = tests[i]
