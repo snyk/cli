@@ -55,22 +55,25 @@ const debug = debugModule('snyk');
 
 export = runTest;
 
-async function runTest(
-  projectType: SupportedProjectTypes | undefined,
+async function sendAndParseResults(
+  payloads: Payload[],
+  spinnerLbl: string,
   root: string,
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
-  const spinnerLbl = 'Querying vulnerabilities database...';
-  try {
-    await validateOptions(options, options.packageManager);
-    const payloads = await assemblePayloads(root, options);
+
     for (const payload of payloads) {
       const payloadPolicy = payload.body && payload.body.policy;
       const depGraph = payload.body && payload.body.depGraph;
+      const depGraphPayload: PayloadBody = payload.body as PayloadBody;
+      const payloadPolicy = depGraphPayload && depGraphPayload.policy;
+      const depGraph = depGraphPayload && depGraphPayload.depGraph;
       const pkgManager =
-        depGraph && depGraph.pkgManager && depGraph.pkgManager.name;
-      const targetFile = payload.body && payload.body.targetFile;
+        depGraph &&
+        depGraph.pkgManager &&
+        (depGraph.pkgManager.name as SupportedProjectTypes);
+      const targetFile = depGraphPayload && depGraphPayload.targetFile;
       const projectName =
         _.get(payload, 'body.projectNameOverride') ||
         _.get(payload, 'body.originalProjectName');
@@ -78,15 +81,15 @@ async function runTest(
       const displayTargetFile = _.get(payload, 'body.displayTargetFile');
       let dockerfilePackages;
       if (
-        payload.body &&
-        payload.body.docker &&
-        payload.body.docker.dockerfilePackages
+        depGraphPayload &&
+        depGraphPayload.docker &&
+        depGraphPayload.docker.dockerfilePackages
       ) {
-        dockerfilePackages = payload.body.docker.dockerfilePackages;
+        dockerfilePackages = depGraphPayload.docker.dockerfilePackages;
       }
       await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
-      analytics.add('isDocker', !!(payload.body && payload.body.docker));
+      analytics.add('isDocker', !!(depGraphPayload && depGraphPayload.docker));
       // Type assertion might be a lie, but we are correcting that below
       const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
 
@@ -110,6 +113,18 @@ async function runTest(
       });
     }
     return results;
+}
+
+async function runTest(
+  projectType: SupportedProjectTypes | undefined,
+  root: string,
+  options: Options & TestOptions,
+): Promise<TestResult[]> {
+  const spinnerLbl = 'Querying vulnerabilities database...';
+  try {
+    await validateOptions(options, options.packageManager);
+    const payloads = await assemblePayloads(root, options);
+    return await sendAndParseResults(payloads, spinnerLbl, root, options);
   } catch (error) {
     debug('Error running test', { error });
     // handling denial from registry because of the feature flag
