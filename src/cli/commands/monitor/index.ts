@@ -28,7 +28,7 @@ import { processJsonMonitorResponse } from './process-json-monitor';
 import snyk = require('../../../lib'); // TODO(kyegupov): fix import
 import { formatMonitorOutput } from './formatters/format-monitor-response';
 import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
-import { getSubProjectCount } from '../../../lib/plugins/get-sub-project-count';
+import { getExtraProjectCount } from '../../../lib/plugins/get-extra-project-count';
 import { extractPackageManager } from '../../../lib/plugins/extract-package-manager';
 import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-result';
 import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
@@ -241,7 +241,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
             res,
             options,
             projectName,
-            getSubProjectCount(inspectResult),
+            await getExtraProjectCount(path, options, inspectResult),
           );
           // push a good result
           results.push({ ok: true, data: monOutput, path, projectName });

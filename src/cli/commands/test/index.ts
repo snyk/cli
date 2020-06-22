@@ -215,7 +215,6 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   let response = results
     .map((result, i) => {
       resultOptions[i].pinningSupported = pinningSupported;
-
       return displayResult(
         results[i] as LegacyVulnApiResult,
         resultOptions[i],
@@ -425,11 +424,21 @@ function displayResult(
   let multiProjAdvice = '';
 
   const advertiseGradleSubProjectsCount =
-    projectType === 'gradle' && !options['gradle-sub-project'];
-  if (advertiseGradleSubProjectsCount && foundProjectCount) {
+    projectType === 'gradle' &&
+    !options['gradle-sub-project'] &&
+    foundProjectCount;
+  if (advertiseGradleSubProjectsCount) {
     multiProjAdvice = chalk.bold.white(
       `\n\nTip: This project has multiple sub-projects (${foundProjectCount}), ` +
         'use --all-sub-projects flag to scan all sub-projects.',
+    );
+  }
+  const advertiseAllProjectsCount =
+    projectType !== 'gradle' && !options.allProjects && foundProjectCount;
+  if (advertiseAllProjectsCount) {
+    multiProjAdvice = chalk.bold.white(
+      `\n\nTip: Detected multiple supported manifests (${foundProjectCount}), ` +
+        'use --all-projects to scan all of them at once.',
     );
   }
 

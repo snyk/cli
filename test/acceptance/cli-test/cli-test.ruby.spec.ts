@@ -568,5 +568,19 @@ export const RubyTests: AcceptanceTests = {
         );
       }
     },
+    '`test large-mono-repo --file=bundler-app/Gemfile`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const res = await params.cli.test('large-mono-repo', {
+        file: 'bundler-app/Gemfile',
+      });
+      t.match(
+        res.getDisplayResults(),
+        '--all-projects',
+        'Suggest using --all-projects',
+      );
+    },
   },
 };

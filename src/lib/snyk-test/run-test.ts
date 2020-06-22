@@ -47,7 +47,7 @@ import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
 import request = require('../request');
 import spinner = require('../spinner');
 import { extractPackageManager } from '../plugins/extract-package-manager';
-import { getSubProjectCount } from '../plugins/get-sub-project-count';
+import { getExtraProjectCount } from '../plugins/get-extra-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
@@ -471,7 +471,7 @@ async function assembleLocalPayloads(
         projectNameOverride: options.projectName,
         originalProjectName,
         policy: policy ? policy.toString() : undefined,
-        foundProjectCount: getSubProjectCount(deps),
+        foundProjectCount: await getExtraProjectCount(root, options, deps),
         displayTargetFile: targetFile,
         docker: (pkg as DepTree).docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,

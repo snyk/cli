@@ -1370,6 +1370,12 @@ test('`monitor cocoapods-app --file=Podfile`', async (t) => {
   );
 });
 
+test('`monitor large-mono-repo --file=bundler-app/Gemfile` suggest to use --all-projects', async (t) => {
+  chdirWorkspaces('large-mono-repo');
+  const res = await cli.monitor({ file: 'bundler-app/Gemfile' });
+  t.match(res, '--all-projects', 'Suggest using --all-projects');
+});
+
 test('`monitor cocoapods-app --file=Podfile.lock`', async (t) => {
   chdirWorkspaces('cocoapods-app');
   const plugin = {
