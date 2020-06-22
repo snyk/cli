@@ -2,9 +2,10 @@ import chalk from 'chalk';
 import { rightPadWithSpaces } from '../../../../lib/right-pad';
 import { TestOptions, Options } from '../../../../lib/types';
 import { TestResult } from '../../../../lib/snyk-test/legacy';
+import { CloudConfigTestResult } from '../../../../lib/snyk-test/cloud-config-test-result';
 
 export function formatTestMeta(
-  res: TestResult,
+  res: TestResult | CloudConfigTestResult,
   options: Options & TestOptions,
 ): string {
   const padToLength = 19; // chars to align
@@ -41,31 +42,37 @@ export function formatTestMeta(
         options.path,
     );
   }
-  if (res.docker && res.docker.baseImage) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Base image: ', padToLength)) +
-        res.docker.baseImage,
-    );
-  }
-
-  if (res.filesystemPolicy) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) +
-        chalk.green('found'),
-    );
-    if (res.ignoreSettings && res.ignoreSettings.disregardFilesystemIgnores) {
+  if (res.payloadType !== 'k8sconfig') {
+    const legacyRes: TestResult = res as TestResult;
+    if (legacyRes.docker && legacyRes.docker.baseImage) {
       meta.push(
-        chalk.bold(
-          rightPadWithSpaces('Local Snyk policy ignored: ', padToLength),
-        ) + chalk.red('yes'),
+        chalk.bold(rightPadWithSpaces('Base image: ', padToLength)) +
+          legacyRes.docker.baseImage,
       );
     }
-  }
-  if (res.licensesPolicy) {
-    meta.push(
-      chalk.bold(rightPadWithSpaces('Licenses: ', padToLength)) +
-        chalk.green('enabled'),
-    );
+
+    if (legacyRes.filesystemPolicy) {
+      meta.push(
+        chalk.bold(rightPadWithSpaces('Local Snyk policy: ', padToLength)) +
+          chalk.green('found'),
+      );
+      if (
+        legacyRes.ignoreSettings &&
+        legacyRes.ignoreSettings.disregardFilesystemIgnores
+      ) {
+        meta.push(
+          chalk.bold(
+            rightPadWithSpaces('Local Snyk policy ignored: ', padToLength),
+          ) + chalk.red('yes'),
+        );
+      }
+    }
+    if (legacyRes.licensesPolicy) {
+      meta.push(
+        chalk.bold(rightPadWithSpaces('Licenses: ', padToLength)) +
+          chalk.green('enabled'),
+      );
+    }
   }
 
   return meta.join('\n');

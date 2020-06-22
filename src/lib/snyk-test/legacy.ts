@@ -122,24 +122,27 @@ export interface IgnoreSettings {
   disregardFilesystemIgnores: boolean;
 }
 
-export interface LegacyVulnApiResult {
-  vulnerabilities: AnnotatedIssue[];
+export interface BasicResultData {
   ok: boolean;
-  dependencyCount: number;
+  payloadType?: string;
   org: string;
-  policy: string;
   isPrivate: boolean;
-  licensesPolicy: object | null;
-  packageManager: string;
-  ignoreSettings: IgnoreSettings | null;
   summary: string;
+  packageManager?: SupportedProjectTypes;
+  severityThreshold?: string;
+}
+
+export interface LegacyVulnApiResult extends BasicResultData {
+  vulnerabilities: AnnotatedIssue[];
+  dependencyCount: number;
+  policy: string;
+  licensesPolicy: object | null;
+  ignoreSettings: IgnoreSettings | null;
   docker?: {
     baseImage?: any;
     binariesVulns?: unknown;
     baseImageRemediation?: BaseImageRemediation;
   };
-  severityThreshold?: string;
-
   filesystemPolicy?: boolean;
   uniqueCount?: any;
   remediation?: RemediationChanges;

@@ -5,15 +5,17 @@ import * as debugModule from 'debug';
 import * as pathUtil from 'path';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
+import { CloudConfigScan } from './payload-schema';
 
 import {
   TestResult,
   DockerIssue,
   AnnotatedIssue,
-  LegacyVulnApiResult,
   TestDepGraphResponse,
   convertTestDepGraphResultToLegacy,
+  LegacyVulnApiResult,
 } from './legacy';
+import { CloudConfigTestResult } from './cloud-config-test-result';
 import {
   AuthFailedError,
   InternalServerError,
@@ -49,6 +51,10 @@ import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
+import {
+  assembleCloudConfigLocalPayloads,
+  parseCloudConfigRes,
+} from './run-cloud-config-test';
 import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
 
 const debug = debugModule('snyk');
@@ -62,18 +68,32 @@ async function sendAndParseResults(
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
+  for (const payload of payloads) {
+    await spinner(spinnerLbl);
+    if (options.iac) {
+      const cloudConfigScan: CloudConfigScan = payload.body as CloudConfigScan;
+      analytics.add('iac type', !!cloudConfigScan.type);
+      const res = (await sendTestPayload(payload)) as CloudConfigTestResult;
 
-    for (const payload of payloads) {
-      const payloadPolicy = payload.body && payload.body.policy;
-      const depGraph = payload.body && payload.body.depGraph;
-      const depGraphPayload: PayloadBody = payload.body as PayloadBody;
-      const payloadPolicy = depGraphPayload && depGraphPayload.policy;
-      const depGraph = depGraphPayload && depGraphPayload.depGraph;
+      const projectName =
+        cloudConfigScan.projectNameOverride ||
+        cloudConfigScan.originalProjectName;
+      const result = await parseCloudConfigRes(
+        res,
+        cloudConfigScan.targetFile,
+        projectName,
+        options.severityThreshold,
+      );
+      results.push(result);
+    } else {
+      const payloadBody: PayloadBody = payload.body as PayloadBody;
+      const payloadPolicy = payloadBody && payloadBody.policy;
+      const depGraph = payloadBody && payloadBody.depGraph;
       const pkgManager =
         depGraph &&
         depGraph.pkgManager &&
         (depGraph.pkgManager.name as SupportedProjectTypes);
-      const targetFile = depGraphPayload && depGraphPayload.targetFile;
+      const targetFile = payloadBody && payloadBody.targetFile;
       const projectName =
         _.get(payload, 'body.projectNameOverride') ||
         _.get(payload, 'body.originalProjectName');
@@ -81,15 +101,14 @@ async function sendAndParseResults(
       const displayTargetFile = _.get(payload, 'body.displayTargetFile');
       let dockerfilePackages;
       if (
-        depGraphPayload &&
-        depGraphPayload.docker &&
-        depGraphPayload.docker.dockerfilePackages
+        payloadBody &&
+        payloadBody.docker &&
+        payloadBody.docker.dockerfilePackages
       ) {
-        dockerfilePackages = depGraphPayload.docker.dockerfilePackages;
+        dockerfilePackages = payloadBody.docker.dockerfilePackages;
       }
-      await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
-      analytics.add('isDocker', !!(depGraphPayload && depGraphPayload.docker));
+      analytics.add('isDocker', !!(payloadBody && payloadBody.docker));
       // Type assertion might be a lie, but we are correcting that below
       const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
 
@@ -112,7 +131,8 @@ async function sendAndParseResults(
         displayTargetFile,
       });
     }
-    return results;
+  }
+  return results;
 }
 
 async function runTest(
@@ -242,7 +262,7 @@ async function parseRes(
 
 function sendTestPayload(
   payload: Payload,
-): Promise<LegacyVulnApiResult | TestDepGraphResponse> {
+): Promise<LegacyVulnApiResult | TestDepGraphResponse | CloudConfigTestResult> {
   const filesystemPolicy = payload.body && !!payload.body.policy;
   return new Promise((resolve, reject) => {
     request(payload, (error, res, body) => {
@@ -309,12 +329,18 @@ async function assembleLocalPayloads(
   options: Options & TestOptions & PolicyOptions,
 ): Promise<Payload[]> {
   // For --all-projects packageManager is yet undefined here. Use 'all'
-  const analysisType =
-    (options.docker ? 'docker' : options.packageManager) || 'all';
+  let analysisTypeText = 'all dependencies for ';
+  if (options.docker) {
+    analysisTypeText = 'docker dependencies for ';
+  } else if (options.iac) {
+    analysisTypeText = 'Infrastruction as code configurations for ';
+  } else if (options.packageManager) {
+    analysisTypeText = options.packageManager + ' dependencies for ';
+  }
+
   const spinnerLbl =
     'Analyzing ' +
-    analysisType +
-    ' dependencies for ' +
+    analysisTypeText +
     (path.relative('.', path.join(root, options.file || '')) ||
       path.relative('..', '.') + ' project dir');
 
@@ -322,6 +348,9 @@ async function assembleLocalPayloads(
     const payloads: Payload[] = [];
 
     await spinner(spinnerLbl);
+    if (options.iac) {
+      return assembleCloudConfigLocalPayloads(root, options);
+    }
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
     const javaVersion = _.get(
