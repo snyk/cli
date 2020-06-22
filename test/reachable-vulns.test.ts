@@ -19,18 +19,18 @@ import * as featureFlags from '../src/lib/feature-flags';
 import * as utils from './utils';
 
 test('output formatting', (t) => {
-  t.equal(formatReachability(REACHABILITY.FUNCTION), '[Likely reachable]');
-  t.equal(formatReachability(REACHABILITY.PACKAGE), '');
-  t.equal(formatReachability(REACHABILITY.UNREACHABLE), '[Likely unreachable]');
+  t.equal(formatReachability(REACHABILITY.FUNCTION), '[Reachable]');
+  t.equal(formatReachability(REACHABILITY.PACKAGE), '[Potentially reachable]');
+  t.equal(formatReachability(REACHABILITY.NOT_REACHABLE), '[Not reachable]');
   t.equal(formatReachability(REACHABILITY.NO_INFO), '');
   t.equal(formatReachability(undefined), '');
   t.end();
 });
 
 test('reachable text', (t) => {
-  t.equal(getReachabilityText(REACHABILITY.FUNCTION), 'Likely reachable');
-  t.equal(getReachabilityText(REACHABILITY.PACKAGE), '');
-  t.equal(getReachabilityText(REACHABILITY.UNREACHABLE), 'Likely unreachable');
+  t.equal(getReachabilityText(REACHABILITY.FUNCTION), 'Reachable');
+  t.equal(getReachabilityText(REACHABILITY.PACKAGE), 'Potentially reachable');
+  t.equal(getReachabilityText(REACHABILITY.NOT_REACHABLE), 'Not reachable');
   t.equal(getReachabilityText(REACHABILITY.NO_INFO), '');
   t.equal(getReachabilityText(undefined), '');
   t.end();
@@ -39,8 +39,8 @@ test('reachable text', (t) => {
 test('formatReachabilitySummaryText', (t) => {
   const noReachabilityMetadata = {} as AnnotatedIssue;
   const noInfoVuln = { reachability: REACHABILITY.NO_INFO } as AnnotatedIssue;
-  const unreachableVuln = {
-    reachability: REACHABILITY.UNREACHABLE,
+  const notReachableVuln = {
+    reachability: REACHABILITY.NOT_REACHABLE,
   } as AnnotatedIssue;
   const reachableByPackageVuln = {
     reachability: REACHABILITY.PACKAGE,
@@ -68,9 +68,9 @@ test('formatReachabilitySummaryText', (t) => {
   );
 
   t.equal(
-    summariseReachableVulns([unreachableVuln]),
+    summariseReachableVulns([notReachableVuln]),
     '',
-    'unreachable is not implemented yet, should not display anything',
+    'not reachable is not implemented yet, should not display anything',
   );
 
   t.equal(

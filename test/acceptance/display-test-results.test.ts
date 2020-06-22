@@ -108,7 +108,7 @@ test('test reachability info is displayed', async (t) => {
       message,
       ' In addition, found 1 vulnerability with a reachable path.',
     );
-    t.match(message, '[Likely reachable]');
+    t.match(message, '[Reachable]');
   }
 
   snykTestStub.restore();
