@@ -30,7 +30,7 @@ export function formatMonitorOutput(
     '\n\n' +
     (advertiseGradleSubProjectsCount && foundProjectCount
       ? chalk.bold.white(
-          `This project has multiple sub-projects (${foundProjectCount}), ` +
+          `Tip: This project has multiple sub-projects (${foundProjectCount}), ` +
             'use --all-sub-projects flag to scan all sub-projects.\n\n',
         )
       : '') +

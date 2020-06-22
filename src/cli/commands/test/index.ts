@@ -205,9 +205,14 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   );
 
   let response = results
-    .map((unused, i) => {
+    .map((result, i) => {
       resultOptions[i].pinningSupported = pinningSupported;
-      return displayResult(results[i] as LegacyVulnApiResult, resultOptions[i]);
+
+      return displayResult(
+        results[i] as LegacyVulnApiResult,
+        resultOptions[i],
+        result.foundProjectCount,
+      );
     })
     .join(`\n${SEPARATOR}`);
 
@@ -389,7 +394,7 @@ function displayResult(
     projectType === 'gradle' && !options['gradle-sub-project'];
   if (advertiseGradleSubProjectsCount && foundProjectCount) {
     multiProjAdvice = chalk.bold.white(
-      `\n\nThis project has multiple sub-projects (${foundProjectCount}), ` +
+      `\n\nTip: This project has multiple sub-projects (${foundProjectCount}), ` +
         'use --all-sub-projects flag to scan all sub-projects.',
     );
   }
