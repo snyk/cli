@@ -48,7 +48,6 @@ import { extractPackageManager } from '../plugins/extract-package-manager';
 import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
-import { countPathsToGraphRoot } from '../utils';
 import { findAndLoadPolicy } from '../policy';
 
 const debug = debugModule('snyk');
@@ -487,20 +486,12 @@ async function assembleLocalPayloads(
 
         const pruneIsRequired = options['prune-repeated-subdependencies'];
 
-        if (pruneIsRequired && packageManager) {
-          debug('Trying to prune the graph');
-          const prePruneDepCount = countPathsToGraphRoot(depGraph);
-          debug('pre prunedPathsCount: ' + prePruneDepCount);
-
+        if (packageManager) {
           depGraph = await pruneGraph(
             depGraph,
             packageManager,
             pruneIsRequired,
           );
-          analytics.add('prePrunedPathsCount', prePruneDepCount);
-          const postPruneDepCount = countPathsToGraphRoot(depGraph);
-          debug('post prunedPathsCount: ' + postPruneDepCount);
-          analytics.add('postPrunedPathsCount', postPruneDepCount);
         }
         body.depGraph = depGraph;
       }
