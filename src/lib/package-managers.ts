@@ -45,7 +45,6 @@ export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'npm',
   'sbt',
   'yarn',
-  'gradle',
   'rubygems',
 ];
 // For ecosystems with a flat set of libraries (e.g. Python, JVM), one can
