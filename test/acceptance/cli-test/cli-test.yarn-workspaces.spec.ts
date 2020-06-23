@@ -135,6 +135,14 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
       // the parser is used directly
       t.ok(loadPlugin.withArgs('yarn').notCalled, 'skips load plugin');
+      t.teardown(() => {
+        loadPlugin.restore();
+      });
+      t.match(
+        result.getDisplayResults(),
+        '✓ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
+        'correctly showing dep number',
+      );
       t.match(result.getDisplayResults(), 'Package manager:   yarn\n');
       t.match(
         result.getDisplayResults(),
@@ -156,6 +164,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         'Tested 3 projects, no vulnerable paths were found.',
         'no vulnerable paths found as both policies detected and applied.',
       );
+      let policyCount = 0;
 
       params.server.popRequests(3).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
@@ -166,19 +175,126 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         );
         t.match(req.url, '/api/v1/test-dep-graph', 'posts to correct url');
         t.ok(req.body.depGraph, 'body contains depGraph');
-        t.ok(req.body.policy, 'body contains policy');
-        t.equal(
-          req.body.policyLocations,
-          ['yarn-workspaces', 'yarn-workspaces/apples'],
-          'policy locations',
-        );
 
+        if (req.body.targetFileRelativePath.endsWith('apples/package.json')) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20160328',
+            'policy is as expected',
+          );
+          t.ok(req.body.policy, 'body contains policy');
+          policyCount += 1;
+        } else if (
+          req.body.targetFileRelativePath.endsWith('tomatoes/package.json')
+        ) {
+          t.notOk(req.body.policy, 'body does not contain policy');
+        } else if (
+          req.body.targetFileRelativePath.endsWith(
+            'yarn-workspaces/package.json',
+          )
+        ) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20111130',
+            'policy is as expected',
+          );
+          t.ok(req.body.policy, 'body contains policy');
+          policyCount += 1;
+        }
         t.equal(
           req.body.depGraph.pkgManager.name,
           'yarn',
           'depGraph has package manager',
         );
       });
+      t.equal(policyCount, 2, '2 policies found in a workspace');
+    },
+    'test --yarn-workspaces --detection-depth=5 multiple workspaces found': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const result = await params.cli.test({
+        yarnWorkspaces: true,
+        detectionDepth: 5,
+        strictOutOfSync: false,
+      });
+      const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      // the parser is used directly
+      t.ok(loadPlugin.withArgs('yarn').notCalled, 'skips load plugin');
+      t.teardown(() => {
+        loadPlugin.restore();
+      });
+      t.match(
+        result.getDisplayResults(),
+        '✓ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
+        'correctly showing dep number',
+      );
+      t.match(result.getDisplayResults(), 'Package manager:   yarn\n');
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      package.json',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      tomatoes',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      apples',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Tested 6 projects, no vulnerable paths were found.',
+        'Tested 6 projects',
+      );
+      let policyCount = 0;
+
+      params.server.popRequests(3).forEach((req) => {
+        t.equal(req.method, 'POST', 'makes POST request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+        t.match(req.url, '/api/v1/test-dep-graph', 'posts to correct url');
+        t.ok(req.body.depGraph, 'body contains depGraph');
+
+        if (req.body.targetFileRelativePath.endsWith('apples/package.json')) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20160328',
+            'policy is as expected',
+          );
+          t.ok(req.body.policy, 'body contains policy');
+          policyCount += 1;
+        } else if (
+          req.body.targetFileRelativePath.endsWith('tomatoes/package.json')
+        ) {
+          t.notOk(req.body.policy, 'body does not contain policy');
+        } else if (
+          req.body.targetFileRelativePath.endsWith(
+            'yarn-workspaces/package.json',
+          )
+        ) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20111130',
+            'policy is as expected',
+          );
+          t.ok(req.body.policy, 'body contains policy');
+          policyCount += 1;
+        }
+        t.equal(
+          req.body.depGraph.pkgManager.name,
+          'yarn',
+          'depGraph has package manager',
+        );
+      });
+      t.equal(policyCount, 2, '2 policies found in a workspace');
     },
   },
 };

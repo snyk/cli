@@ -250,7 +250,7 @@ async function main() {
     }
 
     if (args.options.file && args.options.yarnWorkspaces) {
-      throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
+      throw new UnsupportedOptionCombinationError(['file', 'yarn-workspaces']);
     }
 
     if (args.options.file && args.options.allProjects) {
@@ -280,6 +280,13 @@ async function main() {
 
     if (args.options.docker && args.options.allProjects) {
       throw new UnsupportedOptionCombinationError(['docker', 'all-projects']);
+    }
+
+    if (args.options.docker && args.options.yarnWorkspaces) {
+      throw new UnsupportedOptionCombinationError([
+        'docker',
+        'yarn-workspaces',
+      ]);
     }
 
     if (args.options.allSubProjects && args.options.yarnWorkspaces) {

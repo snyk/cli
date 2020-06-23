@@ -120,7 +120,6 @@ const argsNotAllowedWithYarnWorkspaces = [
   'project-name',
   'docker',
   'all-sub-projects',
-  'all-projects',
 ];
 
 argsNotAllowedWithYarnWorkspaces.forEach((arg) => {
@@ -132,7 +131,7 @@ argsNotAllowedWithYarnWorkspaces.forEach((arg) => {
       }
       t.match(
         stdout.trim(),
-        `The following option combination is not currently supported: ${arg} + all-projects`,
+        `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
         'when using test',
       );
     });
@@ -142,7 +141,7 @@ argsNotAllowedWithYarnWorkspaces.forEach((arg) => {
       }
       t.match(
         stdout.trim(),
-        `The following option combination is not currently supported: ${arg} + all-projects`,
+        `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
         'when using monitor',
       );
     });
