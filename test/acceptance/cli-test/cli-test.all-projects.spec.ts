@@ -7,6 +7,67 @@ import { CommandResult } from '../../../src/cli/commands/types';
 export const AllProjectsTests: AcceptanceTests = {
   language: 'Mixed',
   tests: {
+    '`test mono-repo-with-ignores --all-projects` respects .snyk policy': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+
+      const result: CommandResult = await params.cli.test(
+        'mono-repo-with-ignores',
+        {
+          allProjects: true,
+          detectionDepth: 3,
+        },
+      );
+      t.ok(loadPlugin.withArgs('npm').calledTwice, 'calls npm plugin');
+      let policyCount = 0;
+      params.server.popRequests(2).forEach((req) => {
+        t.equal(req.method, 'POST', 'makes POST request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+        t.match(req.url, '/api/v1/test-dep-graph', 'posts to correct url');
+        t.ok(req.body.depGraph, 'body contains depGraph');
+        const vulnerableFolderPath =
+          process.platform === 'win32'
+            ? 'vulnerable\\package-lock.json'
+            : 'vulnerable/package-lock.json';
+        if (req.body.targetFileRelativePath.endsWith(vulnerableFolderPath)) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20160328',
+            'body contains policy',
+          );
+          policyCount += 1;
+        }
+        t.match(
+          req.body.depGraph.pkgManager.name,
+          /(npm)/,
+          'depGraph has package manager',
+        );
+      });
+
+      t.match(policyCount, 1, 'one policy should have been found');
+      // results should contain test results from both package managers
+      // and show only 1/2 vulnerable paths for nested one since we ignore
+      // it in the .snyk file
+
+      t.match(
+        result.getDisplayResults(),
+        'Package manager:   npm',
+        'contains package manager npm',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Target file:       package-lock.json',
+        'contains target file package-lock.json',
+      );
+    },
     '`test mono-repo-project with lockfiles --all-projects`': (
       params,
       utils,

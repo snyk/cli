@@ -13,7 +13,6 @@ import * as _ from '@snyk/lodash';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
-import * as snykPolicy from 'snyk-policy';
 import { AllProjectsTests } from './cli-monitor.all-projects.spec';
 
 const { test, only } = tap;

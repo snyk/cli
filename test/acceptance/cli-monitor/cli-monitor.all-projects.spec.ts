@@ -12,6 +12,37 @@ interface AcceptanceTests {
 export const AllProjectsTests: AcceptanceTests = {
   language: 'Mixed',
   tests: {
+    '`monitor mono-repo-with-ignores --all-projects` respects .snyk policy': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.monitor('mono-repo-with-ignores', {
+        allProjects: true,
+        detectionDepth: 2,
+      });
+      // Pop all calls to server and filter out calls to `featureFlag` endpoint
+      const requests = params.server
+        .popRequests(4)
+        .filter((req) => req.url.includes('/monitor/'));
+      let policyCount = 0;
+      requests.forEach((req) => {
+        const vulnerableFolderPath =
+          process.platform === 'win32'
+            ? 'vulnerable\\package-lock.json'
+            : 'vulnerable/package-lock.json';
+
+        if (req.body.targetFileRelativePath.endsWith(vulnerableFolderPath)) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20160328',
+            'body contains policy',
+          );
+          policyCount += 1;
+        }
+      });
+      t.equal(policyCount, 1, 'one policy found');
+    },
     '`monitor mono-repo-project --all-projects --detection-depth=1`': (
       params,
       utils,

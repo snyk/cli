@@ -112,6 +112,50 @@ export const GradleTests: AcceptanceTests = {
       });
       t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
     },
+    '`test gradle-app --all-sub-projects` with policy': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const plugin = {
+        async inspect() {
+          return { plugin: { name: 'gradle' }, package: {} };
+        },
+      };
+      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('gradle').returns(plugin);
+
+      await params.cli.test('gradle-app', {
+        allSubProjects: true,
+      });
+      t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
+      const requests = params.server.popRequests(2);
+      let policyCount = 0;
+      requests.forEach((req) => {
+        if (
+          req.body.displayTargetFile.endsWith('gradle-multi-project/subproj')
+        ) {
+          // TODO: this should return 1 policy when fixed
+          // uncomment then
+          // t.match(
+          //   req.body.policy,
+          //   'SNYK-JAVA-ORGBOUNCYCASTLE-32364',
+          //   'policy is found & sent',
+          // );
+          t.ok(
+            req.body.policy,
+            undefined,
+            'policy is not found even though it should be',
+          );
+          policyCount += 1;
+        }
+        t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      });
+      // TODO: this should return 1 policy when fixed
+      t.equal(policyCount, 0, 'one sub-project policy found & sent');
+    },
 
     '`test gradle-app` plugin fails to return package or scannedProjects': (
       params,

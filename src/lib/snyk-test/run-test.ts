@@ -108,7 +108,6 @@ async function runTest(
         _.get(payload, 'body.originalProjectName');
       const foundProjectCount = _.get(payload, 'body.foundProjectCount');
       const displayTargetFile = _.get(payload, 'body.displayTargetFile');
-
       let dockerfilePackages;
       if (
         payload.body &&
@@ -402,6 +401,22 @@ async function assembleLocalPayloads(
         }
       }
 
+      // todo: normalize what target file gets used across plugins and functions
+      const targetFile =
+        scannedProject.targetFile || deps.plugin.targetFile || options.file;
+
+      // Forcing options.path to be a string as pathUtil requires is to be stringified
+      const targetFileRelativePath = targetFile
+        ? pathUtil.join(pathUtil.resolve(`${options.path || root}`), targetFile)
+        : '';
+
+      let targetFileDir;
+
+      if (targetFileRelativePath) {
+        const { dir } = path.parse(targetFileRelativePath);
+        targetFileDir = dir;
+      }
+
       const policy = await findAndLoadPolicy(
         root,
         options.docker ? 'docker' : packageManager!,
@@ -409,6 +424,7 @@ async function assembleLocalPayloads(
         // TODO: fix this and send only send when we used resolve-deps for node
         // it should be a ExpandedPkgTree type instead
         pkg,
+        targetFileDir,
       );
 
       analytics.add('packageManager', packageManager);
@@ -420,15 +436,6 @@ async function assembleLocalPayloads(
         const depTree = pkg as DepTree;
         addPackageAnalytics(depTree.name!, depTree.version!);
       }
-
-      // todo: normalize what target file gets used across plugins and functions
-      const targetFile =
-        scannedProject.targetFile || deps.plugin.targetFile || options.file;
-
-      // Forcing options.path to be a string as pathUtil requires is to be stringified
-      const targetFileRelativePath = targetFile
-        ? pathUtil.join(pathUtil.resolve(`${options.path}`), targetFile)
-        : '';
 
       let target: GitTarget | ContainerTarget | null;
       if (scannedProject.depGraph) {
