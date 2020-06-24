@@ -595,7 +595,6 @@ function processAnswers(answers, policy, options) {
               (inspectRes as MultiProjectResult).scannedProjects[0],
               options,
               inspectRes.plugin,
-              options,
             );
           })
           // clear spinner in case of success or failure
