@@ -1,10 +1,7 @@
 //TODO(orka): take out into a new lib
 import * as YAML from 'js-yaml';
 import * as debugLib from 'debug';
-import {
-  IllegalCloudConfigFileError,
-  NotSupportedCloudConfigFileError,
-} from './../errors';
+import { IllegalIacFileError, NotSupportedIacFileError } from '../errors';
 
 const debug = debugLib('snyk-detect');
 
@@ -29,7 +26,7 @@ function parseYamlOrJson(fileContent: string, filePath: string): any {
       try {
         return YAML.safeLoadAll(fileContent);
       } catch (e) {
-        debug('Failed to parse cloud config as a YAML');
+        debug('Failed to parse iac config as a YAML');
       }
       break;
     case 'json':
@@ -38,11 +35,11 @@ function parseYamlOrJson(fileContent: string, filePath: string): any {
         objectsArr.push(JSON.parse(fileContent));
         return objectsArr;
       } catch (e) {
-        debug('Failed to parse cloud config as a JSON');
+        debug('Failed to parse iac config as a JSON');
       }
       break;
     default:
-      debug(`Unsupported cloud config file type (${fileType})`);
+      debug(`Unsupported iac config file type (${fileType})`);
   }
   return undefined;
 }
@@ -59,7 +56,7 @@ export function validateK8sFile(
 ) {
   const k8sObjects: any[] = parseYamlOrJson(fileContent, filePath);
   if (!k8sObjects) {
-    throw IllegalCloudConfigFileError([root]);
+    throw IllegalIacFileError([root]);
   }
 
   let numOfSupportedKeyDocs = 0;
@@ -80,13 +77,13 @@ export function validateK8sFile(
       const key = mandatoryKeysForSupportedK8sKinds[kind][i];
       if (!k8sObject[key]) {
         debug(`Missing key (${key}) from supported k8s object kind (${kind})`);
-        throw IllegalCloudConfigFileError([root]);
+        throw IllegalIacFileError([root]);
       }
     }
   }
 
   if (numOfSupportedKeyDocs === 0) {
-    throw NotSupportedCloudConfigFileError([root]);
+    throw NotSupportedIacFileError([root]);
   }
 
   debug(`k8s config found (${filePath})`);

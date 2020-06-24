@@ -1,7 +1,7 @@
 import * as depGraphLib from '@snyk/dep-graph';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import { DepTree } from '../types';
-import { CloudConfigScan } from './payload-schema';
+import { IacScan } from './payload-schema';
 
 export interface PayloadBody {
   depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
@@ -31,7 +31,7 @@ export interface Payload {
     'x-is-ci': boolean;
     authorization: string;
   };
-  body?: PayloadBody | CloudConfigScan;
+  body?: PayloadBody | IacScan;
   qs?: object | null;
   modules?: DepTreeFromResolveDeps;
 }

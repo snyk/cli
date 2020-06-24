@@ -5,7 +5,7 @@ import * as debugModule from 'debug';
 import * as pathUtil from 'path';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
-import { CloudConfigScan } from './payload-schema';
+import { IacScan } from './payload-schema';
 
 import {
   TestResult,
@@ -15,7 +15,7 @@ import {
   convertTestDepGraphResultToLegacy,
   LegacyVulnApiResult,
 } from './legacy';
-import { CloudConfigTestResult } from './cloud-config-test-result';
+import { IacTestResult } from './iac-test-result';
 import {
   AuthFailedError,
   InternalServerError,
@@ -51,10 +51,7 @@ import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
-import {
-  assembleCloudConfigLocalPayloads,
-  parseCloudConfigRes,
-} from './run-cloud-config-test';
+import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
 import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
 
 const debug = debugModule('snyk');
@@ -71,16 +68,16 @@ async function sendAndParseResults(
   for (const payload of payloads) {
     await spinner(spinnerLbl);
     if (options.iac) {
-      const cloudConfigScan: CloudConfigScan = payload.body as CloudConfigScan;
-      analytics.add('iac type', !!cloudConfigScan.type);
-      const res = (await sendTestPayload(payload)) as CloudConfigTestResult;
+      const iacScan: IacScan = payload.body as IacScan;
+      analytics.add('iac type', !!iacScan.type);
+      const res = (await sendTestPayload(payload)) as IacTestResult;
 
+      const targetFile = iacScan.targetFile;
       const projectName =
-        cloudConfigScan.projectNameOverride ||
-        cloudConfigScan.originalProjectName;
-      const result = await parseCloudConfigRes(
+        iacScan.projectNameOverride || iacScan.originalProjectName;
+      const result = await parseIacTestResult(
         res,
-        cloudConfigScan.targetFile,
+        iacScan.targetFile,
         projectName,
         options.severityThreshold,
       );
@@ -262,7 +259,7 @@ async function parseRes(
 
 function sendTestPayload(
   payload: Payload,
-): Promise<LegacyVulnApiResult | TestDepGraphResponse | CloudConfigTestResult> {
+): Promise<LegacyVulnApiResult | TestDepGraphResponse | IacTestResult> {
   const filesystemPolicy = payload.body && !!payload.body.policy;
   return new Promise((resolve, reject) => {
     request(payload, (error, res, body) => {
@@ -349,7 +346,7 @@ async function assembleLocalPayloads(
 
     await spinner(spinnerLbl);
     if (options.iac) {
-      return assembleCloudConfigLocalPayloads(root, options);
+      return assembleIacLocalPayloads(root, options);
     }
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);

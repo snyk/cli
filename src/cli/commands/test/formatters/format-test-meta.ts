@@ -2,10 +2,10 @@ import chalk from 'chalk';
 import { rightPadWithSpaces } from '../../../../lib/right-pad';
 import { TestOptions, Options } from '../../../../lib/types';
 import { TestResult } from '../../../../lib/snyk-test/legacy';
-import { CloudConfigTestResult } from '../../../../lib/snyk-test/cloud-config-test-result';
+import { IacTestResult } from '../../../../lib/snyk-test/iac-test-result';
 
 export function formatTestMeta(
-  res: TestResult | CloudConfigTestResult,
+  res: TestResult | IacTestResult,
   options: Options & TestOptions,
 ): string {
   const padToLength = 19; // chars to align

@@ -4,10 +4,10 @@ const detect = require('../detect');
 const runTest = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
-const cloudConfigProjects = require('../cloud-config/cloud-config-projects');
+const iacProjects = require('../iac/iac-projects');
 const {
   UnsupportedPackageManagerError,
-  NoSupportedCloudConfigFileError,
+  NoSupportedIacFileError,
 } = require('../errors');
 
 async function test(root, options, callback) {
@@ -33,7 +33,7 @@ function executeTest(root, options) {
   try {
     if (!options.allProjects) {
       if (options.iac) {
-        options.packageManager = detect.isCloudConfigProject(root, options);
+        options.packageManager = detect.isIacProject(root, options);
       } else {
         options.packageManager = detect.detectPackageManager(root, options);
       }
@@ -59,12 +59,8 @@ function executeTest(root, options) {
 function run(root, options) {
   if (options.iac) {
     const projectType = options.packageManager;
-    if (
-      !cloudConfigProjects.TEST_SUPPORTED_CLOUD_CONFIG_PROJECTS.includes(
-        projectType,
-      )
-    ) {
-      throw new NoSupportedCloudConfigFileError(projectType);
+    if (!iacProjects.TEST_SUPPORTED_IAC_PROJECTS.includes(projectType)) {
+      throw new NoSupportedIacFileError(projectType);
     }
     return runTest(projectType, root, options);
   }

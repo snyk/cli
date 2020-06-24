@@ -1,10 +1,10 @@
 import chalk from 'chalk';
 import { CustomError } from './custom-error';
 
-export function NotSupportedCloudConfigFileError(atLocations: string[]) {
+export function NotSupportedIacFileError(atLocations: string[]) {
   const locationsStr = atLocations.join(', ');
   const errorMsg =
-    'Not supported Cloud Config target files in ' +
+    'Not supported infrastruction as code target files in ' +
     locationsStr +
     '.\nPlease see our documentation for supported languages and ' +
     'target files: ' +
@@ -19,12 +19,10 @@ export function NotSupportedCloudConfigFileError(atLocations: string[]) {
   return error;
 }
 
-export function IllegalCloudConfigFileError(
-  atLocations: string[],
-): CustomError {
+export function IllegalIacFileError(atLocations: string[]): CustomError {
   const locationsStr = atLocations.join(', ');
   const errorMsg =
-    'Illegal Cloud Config target file ' +
+    'Illegal infrastruction as code target file ' +
     locationsStr +
     '.\nPlease see our documentation for supported languages and ' +
     'target files: ' +

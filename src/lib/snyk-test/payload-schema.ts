@@ -1,5 +1,5 @@
 //TODO(orka): future - change this file
-import { SupportedCloudConfigs } from '../cloud-config/cloud-config-projects';
+import { IacProjectTypes } from '../iac/iac-projects';
 
 interface Scan {
   type: string;
@@ -7,15 +7,15 @@ interface Scan {
   data: any;
 }
 
-export interface CloudConfigFile {
+export interface IacFile {
   fileContent: string;
   fileType: 'yaml' | 'yml' | 'json';
 }
 
-export interface CloudConfigScan extends Scan {
-  type: SupportedCloudConfigs;
+export interface IacScan extends Scan {
+  type: IacProjectTypes;
   targetFile: string;
-  data: CloudConfigFile;
+  data: IacFile;
   targetFileRelativePath: string;
   originalProjectName: string;
   policy: string;

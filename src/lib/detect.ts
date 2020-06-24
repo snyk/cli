@@ -4,7 +4,7 @@ import * as debugLib from 'debug';
 import * as _ from '@snyk/lodash';
 import { NoSupportedManifestsFoundError } from './errors';
 import { SupportedPackageManagers } from './package-managers';
-import { validateK8sFile } from './cloud-config/cloud-config-parser';
+import { validateK8sFile } from './iac/iac-parser';
 
 const debug = debugLib('snyk-detect');
 
@@ -138,14 +138,14 @@ export function detectPackageManager(root: string, options) {
   return packageManager;
 }
 
-export function isCloudConfigProject(root: string, options): string {
+export function isIacProject(root: string, options): string {
   if (!isLocalFolder(root)) {
-    debug('Cloud Config - repo case ' + root);
+    debug('Iac - repo case ' + root);
     throw "iac option doesn't support lookup as repo";
   }
 
   if (!options.file) {
-    debug('Cloud Config - no file specified ' + root);
+    debug('Iac - no file specified ' + root);
     throw 'iac option works only with specified files';
   }
 

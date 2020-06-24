@@ -2,19 +2,19 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as pathUtil from 'path';
 import { TestResult } from './legacy';
-import { CloudConfigTestResult } from './cloud-config-test-result';
+import { IacTestResult } from './iac-test-result';
 import * as snyk from '..';
 import { isCI } from '../is-ci';
 import * as common from './common';
 import * as config from '../config';
 import { Options, TestOptions } from '../types';
 import { Payload } from './types';
-import { CloudConfigScan } from './payload-schema';
+import { IacScan } from './payload-schema';
 import { SEVERITY } from './legacy';
 import * as pathLib from 'path';
 
-export async function parseCloudConfigRes(
-  res: CloudConfigTestResult,
+export async function parseIacTestResult(
+  res: IacTestResult,
   targetFile: string | undefined,
   projectName: any,
   severityThreshold?: SEVERITY,
@@ -40,7 +40,7 @@ export async function parseCloudConfigRes(
   };
 }
 
-export async function assembleCloudConfigLocalPayloads(
+export async function assembleIacLocalPayloads(
   root: string,
   options: Options & TestOptions,
 ): Promise<Payload[]> {
@@ -55,7 +55,7 @@ export async function assembleCloudConfigLocalPayloads(
     : '';
 
   const fileContent = fs.readFileSync(targetFile, 'utf8');
-  const body: CloudConfigScan = {
+  const body: IacScan = {
     data: {
       fileContent,
       fileType: 'yaml',

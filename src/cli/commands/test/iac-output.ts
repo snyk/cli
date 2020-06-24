@@ -1,15 +1,15 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import { Options, TestOptions } from '../../../lib/types';
-import { CloudConfigTestResult } from '../../../lib/snyk-test/cloud-config-test-result';
+import { IacTestResult } from '../../../lib/snyk-test/iac-test-result';
 import { getSeverityValue } from './formatters';
 import { formatIssue } from './formatters/remediation-based-format-issues';
-import { AnnotatedCloudConfigIssue } from '../../../lib/snyk-test/cloud-config-test-result';
+import { AnnotatedIacIssue } from '../../../lib/snyk-test/iac-test-result';
 
-const debug = Debug('cloud-config-output');
+const debug = Debug('iac-output');
 
-export function getCloudConfigDisplayedOutput(
-  res: CloudConfigTestResult,
+export function getIacDisplayedOutput(
+  res: IacTestResult,
   testOptions: Options & TestOptions,
   testedInfoText: string,
   meta: string,
@@ -22,13 +22,13 @@ export function getCloudConfigDisplayedOutput(
   const NoNote = false;
   const NotNew = false;
 
-  const issues: AnnotatedCloudConfigIssue[] = res.result.cloudConfigResults;
+  const issues: AnnotatedIacIssue[] = res.result.cloudConfigResults;
   debug(`iac display output - ${issues.length} issues`);
 
   issues
     .sort((a, b) => getSeverityValue(b.severity) - getSeverityValue(a.severity))
     .forEach((issue) => {
-      const path: string[][] = [issue.cloudConfigPath];
+      const path: string[][] = [issue.iacPath];
       issuesTextArray.push(
         formatIssue(
           issue.id,
@@ -44,7 +44,7 @@ export function getCloudConfigDisplayedOutput(
     });
 
   const issuesInfoOutput: string[] = [];
-  debug(`Cloud Config display output - ${issuesTextArray.length} issues text`);
+  debug(`Iac display output - ${issuesTextArray.length} issues text`);
   if (issuesTextArray.length > 0) {
     issuesInfoOutput.push(issuesTextArray.join('\n'));
   }
