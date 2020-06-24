@@ -1,0 +1,15 @@
+{
+  "name": "npm-package-no-vulns",
+  "version": "1.0.0",
+  "description": "Simple NPM package with no vulnerabilities",
+  "main": "index.js",
+  "scripts": {
+    "test": "snyk test"
+  },
+  "author": "snyk",
+  "license": "ISC",
+  "dependencies": {
+    "ms": "^2.1.2"
+  },
+  "devDependencies": {}
+}

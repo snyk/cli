@@ -144,6 +144,11 @@ export function fakeServer(root, apikey) {
     },
   );
 
+  server.get(root + '/authorization/:action', (req, res, next) => {
+    res.send({ result: { allowed: true } });
+    return next();
+  });
+
   server.put(root + '/monitor/:registry/graph', (req, res, next) => {
     res.send({
       id: 'monitor',

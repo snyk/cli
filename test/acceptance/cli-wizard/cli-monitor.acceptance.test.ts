@@ -1,5 +1,5 @@
 import * as tap from 'tap';
-import * as sinon from 'sinon';
+import * as fs from 'fs';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import { getVersion } from '../../../src/lib/version';
@@ -53,6 +53,33 @@ before('prime config', async (t) => {
   await cli.config('unset', 'endpoint');
   t.pass('endpoint removed');
   t.end();
+});
+
+test('`wizard` for supported package managers', async (t) => {
+  chdirWorkspaces('npm-package-no-vulns');
+  // TODO(boost): confirm that monitor is called with correct params
+  // this currently fails as fake-server is not called?
+  // const monitorSpy = sinon.stub(snykMonitor, 'monitor').callThrough();
+  const result = await cli.wizard({ file: 'package-lock.json' });
+  t.contains(
+    result,
+    'You can see a snapshot of your dependencies here',
+    'wizard saves snapshot',
+  );
+  // t.equal(monitorSpy.calledOnceWith(
+  //   'npm-package-no-vulns',
+  //   {} as MonitorMeta,
+  //   [] as ScannedProject,
+  //   {} as Options,
+  //   {} as PluginMetadata,
+  // ), true);
+  try {
+    fs.unlinkSync('./.snyk');
+  } catch (err) {
+    throw new Error(
+      'Failed to delete test/acceptance/workspaces/npm-package-no-vulns/.snyk',
+    );
+  }
 });
 
 test('`wizard` for unsupported package managers', async (t) => {
@@ -120,20 +147,3 @@ after('teardown', async (t) => {
     t.end();
   }
 });
-
-// fixture can be fixture path or object
-function stubDockerPluginResponse(fixture: string | object, t) {
-  const plugin = {
-    async inspect() {
-      return typeof fixture === 'object' ? fixture : require(fixture);
-    },
-  };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin
-    .withArgs(sinon.match.any, sinon.match({ docker: true }))
-    .returns(plugin);
-  t.teardown(loadPlugin.restore);
-
-  return spyPlugin;
-}
