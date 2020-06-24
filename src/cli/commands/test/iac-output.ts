@@ -28,7 +28,7 @@ export function getIacDisplayedOutput(
   issues
     .sort((a, b) => getSeverityValue(b.severity) - getSeverityValue(a.severity))
     .forEach((issue) => {
-      const path: string[][] = [issue.iacPath];
+      const path: string[][] = [issue.cloudConfigPath];
       issuesTextArray.push(
         formatIssue(
           issue.id,

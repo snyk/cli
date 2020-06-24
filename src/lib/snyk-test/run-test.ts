@@ -72,7 +72,6 @@ async function sendAndParseResults(
       analytics.add('iac type', !!iacScan.type);
       const res = (await sendTestPayload(payload)) as IacTestResult;
 
-      const targetFile = iacScan.targetFile;
       const projectName =
         iacScan.projectNameOverride || iacScan.originalProjectName;
       const result = await parseIacTestResult(
