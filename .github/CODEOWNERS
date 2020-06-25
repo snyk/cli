@@ -9,3 +9,4 @@ src/lib/iac/ @snyk/cloudconfig
 src/lib/snyk-test/iac-test-result.ts @snyk/cloudconfig
 src/lib/snyk-test/payload-schema.ts @snyk/cloudconfig
 src/lib/snyk-test/run-iac-test.ts @snyk/cloudconfig
+test/acceptance/cli-test/cli-test.iac-k8s.spec.ts @snyk/cloudconfig
