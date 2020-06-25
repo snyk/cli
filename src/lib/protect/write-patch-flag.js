@@ -1,7 +1,7 @@
 module.exports = writePatchFlag;
 
 const debug = require('debug')('snyk');
-const fs = require('then-fs');
+const fs = require('fs');
 const path = require('path');
 
 function writePatchFlag(now, vuln) {
@@ -17,17 +17,24 @@ function writePatchFlag(now, vuln) {
   const flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
   if (vuln.grouped && vuln.grouped.includes) {
     debug('found addition vulns to write flag files for');
-    const writePromises = [fs.writeFile(flag, now.toJSON(), 'utf8')];
+    const writePromises = [];
+    fs.writeFileSync(flag, now.toJSON(), 'utf8');
     vuln.grouped.includes.forEach(() => {
       const fileSafeId = vuln.id.replace(/:/g, '-');
       const flag = path.resolve(vuln.source, '.snyk-' + fileSafeId + '.flag');
       debug('Writing flag for grouped vulns', flag);
-      writePromises.push(fs.writeFile(flag, now.toJSON(), 'utf8'));
+      writePromises.push();
+      fs.writeFileSync(flag, now.toJSON(), 'utf8');
     });
     promise = Promise.all(writePromises);
   } else {
     debug('Writing flag for single vuln', flag);
-    promise = fs.writeFile(flag, now.toJSON(), 'utf8');
+    /* TODO:
+      This piece is actually swallowing fs.writeFile errors!
+      See the `promise.then` construct below.
+      This should be refactored and tests should be updated.
+    */
+    promise = new Promise((r) => fs.writeFile(flag, now.toJSON(), 'utf8', r));
   }
   return promise.then(() => {
     return vuln;

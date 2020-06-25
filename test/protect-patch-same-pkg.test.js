@@ -21,14 +21,12 @@ var patch = proxyquire('../src/lib/protect/patch', {
   './write-patch-flag': function(now, vuln) {
     return Promise.resolve(vuln);
   },
-  'then-fs': {
-    rename: function(filename) {
+  fs: {
+    renameSync: function(filename) {
       renameSpy(filename);
-      return Promise.resolve();
     },
-    writeFile: function(filename, body) {
+    writeFileSync: function(filename, body) {
       writeSpy(filename, body);
-      return Promise.resolve();
     },
     createWriteStream: function() {
       // fake event emitter (sort of)

@@ -50,10 +50,9 @@ var getVulnSource = proxyquire('../src/lib/protect/get-vuln-source', {
   },
 });
 
-var thenfs = {
-  writeFile: function(filename, body) {
+var mockfs = {
+  writeFileSync: function(filename, body) {
     writeSpy(filename, body);
-    return Promise.resolve();
   },
   createWriteStream: function() {
     // fake event emitter (sort of)
@@ -71,7 +70,7 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
     execSpy(cmd);
     return Promise.resolve(true);
   },
-  'then-fs': thenfs,
+  fs: mockfs,
   '../../../src/lib/protect': proxyquire('../src/lib/protect', {
     fs: {
       statSync: function() {
@@ -81,10 +80,10 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
     './get-vuln-source': getVulnSource,
     './patch': proxyquire('../src/lib/protect/patch', {
       './write-patch-flag': proxyquire('../src/lib/protect/write-patch-flag', {
-        'then-fs': thenfs,
+        fs: mockfs,
       }),
       './get-vuln-source': getVulnSource,
-      'then-fs': thenfs,
+      fs: mockfs,
       './apply-patch': function() {
         return Promise.resolve();
       },

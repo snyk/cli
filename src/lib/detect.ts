@@ -1,4 +1,4 @@
-import * as fs from 'then-fs';
+import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
 import * as _ from '@snyk/lodash';

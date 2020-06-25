@@ -6,7 +6,7 @@ const debug = require('debug')('snyk');
 const chalk = require('chalk');
 const glob = require('glob');
 const tempfile = require('tempfile');
-const fs = require('then-fs');
+const fs = require('fs');
 const path = require('path');
 const _ = require('@snyk/lodash');
 const applyPatch = require('./apply-patch');
@@ -64,12 +64,11 @@ function patch(vulns, live) {
               return getPatchFile(url, filename)
                 .then((patch) => {
                   // check whether there's a trace of us having patched before
-                  return fs
-                    .exists(flag)
+                  return Promise.resolve(fs.existsSync(flag))
                     .then((exists) => {
                       // if the file doesn't exist, look for the old style filename
                       // in case and for backwards compatability
-                      return exists || fs.exists(oldFlag);
+                      return exists || fs.existsSync(oldFlag);
                     })
                     .then((exists) => {
                       if (!exists) {
