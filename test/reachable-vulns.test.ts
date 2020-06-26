@@ -5,6 +5,8 @@ import {
   formatReachability,
   summariseReachableVulns,
   getReachabilityText,
+  formatReachablePaths,
+  formatReachablePath,
 } from '../src/cli/commands/test/formatters/format-reachability';
 import { AnnotatedIssue, REACHABILITY } from '../src/lib/snyk-test/legacy';
 import {
@@ -100,6 +102,64 @@ test('formatReachabilitySummaryText', (t) => {
     ]),
     'In addition, found 2 vulnerabilities with a reachable path.',
     'two reachable functions and no info one, should count only the function reachable once',
+  );
+
+  t.end();
+});
+
+test('formatReachablePaths', (t) => {
+  function reachablePathsTemplate(
+    samplePaths: string[],
+    extraPathsCount: number,
+  ): string {
+    if (samplePaths.length === 0) {
+      return `\n    reachable via at least ${extraPathsCount} paths`;
+    }
+    let reachableVia = '\n    reachable via:\n';
+    for (const p of samplePaths) {
+      reachableVia += `    ${p}\n`;
+    }
+    if (extraPathsCount > 0) {
+      reachableVia += `    and at least ${extraPathsCount} other path(s)`;
+    }
+    return reachableVia;
+  }
+
+  const noReachablePaths = {
+    pathCount: 0,
+    paths: [],
+  };
+
+  const reachablePaths = {
+    pathCount: 3,
+    paths: [
+      ['f', 'g', 'h', 'i', 'j', 'vulnFunc1'],
+      ['k', 'l', 'm', 'n', 'o', 'vulnFunc1'],
+      ['p', 'q', 'r', 's', 't', 'vulnFunc2'],
+    ],
+  };
+
+  t.equal(
+    formatReachablePaths(reachablePaths, 0, reachablePathsTemplate),
+    reachablePathsTemplate([], 3),
+  );
+
+  t.equal(
+    formatReachablePaths(reachablePaths, 2, reachablePathsTemplate),
+    reachablePathsTemplate(
+      reachablePaths.paths.slice(0, 2).map(formatReachablePath),
+      1,
+    ),
+  );
+
+  t.equal(
+    formatReachablePaths(reachablePaths, 5, reachablePathsTemplate),
+    reachablePathsTemplate(reachablePaths.paths.map(formatReachablePath), 0),
+  );
+
+  t.equal(
+    formatReachablePaths(noReachablePaths, 2, reachablePathsTemplate),
+    reachablePathsTemplate([], 0),
   );
 
   t.end();
