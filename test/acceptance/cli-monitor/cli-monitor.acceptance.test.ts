@@ -927,13 +927,18 @@ test('`monitor gradle-app with dep-graph`', async (t) => {
 });
 
 test('`monitor gradle-app --all-sub-projects`', async (t) => {
-  t.plan(5);
   chdirWorkspaces();
   const plugin = {
     async inspect() {
       return {
-        plugin: { name: 'gradle' },
+        plugin: {
+          name: 'gradle',
+        },
         package: {},
+        meta: {
+          versionBuildInfo: { java: '8', gradleVersion: '6.4' },
+          gradleProjectName: 'original-name',
+        },
       };
     },
   };
@@ -951,6 +956,16 @@ test('`monitor gradle-app --all-sub-projects`', async (t) => {
     req.headers['x-snyk-cli-version'],
     versionNumber,
     'sends version number',
+  );
+  t.deepEqual(
+    req.body.meta.gradleProjectName,
+    'original-name',
+    'gradleProjectName passed',
+  );
+  t.deepEqual(
+    req.body.meta.versionBuildInfo,
+    '{"java":"8","gradleVersion":"6.4"}',
+    'version build info passed',
   );
   t.match(req.url, '/monitor/gradle', 'puts at correct url');
   t.same(
