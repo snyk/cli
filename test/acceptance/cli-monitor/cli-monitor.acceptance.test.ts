@@ -493,6 +493,55 @@ test('`monitor yarn-package with dev dep flag`', async (t) => {
   t.ok(objectAssign, 'dev dependency');
 });
 
+test('`monitor yarn-workspaces with --yarn-workspaces flag`', async (t) => {
+  chdirWorkspaces();
+  const res = await cli.monitor('yarn-workspaces', {
+    yarnWorkspaces: true,
+    detectionDepth: 4,
+  });
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
+  t.match(res, 'Monitoring yarn-workspaces (apples)', 'apples workspace found');
+  t.match(
+    res,
+    'Monitoring yarn-workspaces (package.json)',
+    'root workspace found',
+  );
+  t.match(
+    res,
+    'Monitoring yarn-workspaces (tomatoes)',
+    'tomatoes workspace found',
+  );
+});
+
+test('`monitor yarn-workspaces without --yarn-workspaces flag`', async (t) => {
+  chdirWorkspaces();
+  const res = await cli.monitor('yarn-workspaces');
+  const req = server.popRequest();
+  t.equal(req.method, 'PUT', 'makes PUT request');
+  t.equal(
+    req.headers['x-snyk-cli-version'],
+    versionNumber,
+    'sends version number',
+  );
+  t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
+  t.notOk(req.body.targetFile, 'doesnt send the targetFile');
+  t.notOk(res.includes('tomatoes'), 'tomatoes workspace not found');
+  t.notOk(res.includes('apples'), 'apples workspace not found');
+  t.match(
+    res,
+    'Monitoring yarn-workspaces (package.json)',
+    'root workspace found',
+  );
+});
+
 test('`monitor ruby-app`', async (t) => {
   chdirWorkspaces();
   await cli.monitor('ruby-app');

@@ -165,6 +165,18 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         'no vulnerable paths found as both policies detected and applied.',
       );
       let policyCount = 0;
+      const applesWorkspace =
+        process.platform === 'win32'
+          ? '\\apples\\package.json'
+          : 'apples/package.json';
+      const tomatoesWorkspace =
+        process.platform === 'win32'
+          ? '\\tomatoes\\package.json'
+          : 'tomatoes/package.json';
+      const rootWorkspace =
+        process.platform === 'win32'
+          ? '\\yarn-workspaces\\package.json'
+          : 'yarn-workspaces/package.json';
 
       params.server.popRequests(3).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
@@ -176,7 +188,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         t.match(req.url, '/api/v1/test-dep-graph', 'posts to correct url');
         t.ok(req.body.depGraph, 'body contains depGraph');
 
-        if (req.body.targetFileRelativePath.endsWith('apples/package.json')) {
+        if (req.body.targetFileRelativePath.endsWith(applesWorkspace)) {
           t.match(
             req.body.policy,
             'npm:node-uuid:20160328',
@@ -185,14 +197,10 @@ export const YarnWorkspacesTests: AcceptanceTests = {
           t.ok(req.body.policy, 'body contains policy');
           policyCount += 1;
         } else if (
-          req.body.targetFileRelativePath.endsWith('tomatoes/package.json')
+          req.body.targetFileRelativePath.endsWith(tomatoesWorkspace)
         ) {
           t.notOk(req.body.policy, 'body does not contain policy');
-        } else if (
-          req.body.targetFileRelativePath.endsWith(
-            'yarn-workspaces/package.json',
-          )
-        ) {
+        } else if (req.body.targetFileRelativePath.endsWith(rootWorkspace)) {
           t.match(
             req.body.policy,
             'npm:node-uuid:20111130',
@@ -252,6 +260,18 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         'Tested 6 projects',
       );
       let policyCount = 0;
+      const applesWorkspace =
+        process.platform === 'win32'
+          ? '\\apples\\package.json'
+          : 'apples/package.json';
+      const tomatoesWorkspace =
+        process.platform === 'win32'
+          ? '\\tomatoes\\package.json'
+          : 'tomatoes/package.json';
+      const rootWorkspace =
+        process.platform === 'win32'
+          ? '\\yarn-workspaces\\package.json'
+          : 'yarn-workspaces/package.json';
 
       params.server.popRequests(3).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
@@ -262,8 +282,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         );
         t.match(req.url, '/api/v1/test-dep-graph', 'posts to correct url');
         t.ok(req.body.depGraph, 'body contains depGraph');
-
-        if (req.body.targetFileRelativePath.endsWith('apples/package.json')) {
+        if (req.body.targetFileRelativePath.endsWith(applesWorkspace)) {
           t.match(
             req.body.policy,
             'npm:node-uuid:20160328',
@@ -272,14 +291,10 @@ export const YarnWorkspacesTests: AcceptanceTests = {
           t.ok(req.body.policy, 'body contains policy');
           policyCount += 1;
         } else if (
-          req.body.targetFileRelativePath.endsWith('tomatoes/package.json')
+          req.body.targetFileRelativePath.endsWith(tomatoesWorkspace)
         ) {
           t.notOk(req.body.policy, 'body does not contain policy');
-        } else if (
-          req.body.targetFileRelativePath.endsWith(
-            'yarn-workspaces/package.json',
-          )
-        ) {
+        } else if (req.body.targetFileRelativePath.endsWith(rootWorkspace)) {
           t.match(
             req.body.policy,
             'npm:node-uuid:20111130',
