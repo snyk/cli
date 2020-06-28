@@ -45,6 +45,7 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(loadPlugin.withArgs('nuget').calledOnce, 'calls nuget plugin');
       t.ok(loadPlugin.withArgs('paket').calledOnce, 'calls nuget plugin');
       t.ok(loadPlugin.withArgs('pip').calledOnce, 'calls pip plugin');
+      t.ok(loadPlugin.withArgs('sbt').calledOnce, 'calls sbt plugin');
 
       t.match(
         result,
@@ -56,23 +57,25 @@ export const AllProjectsTests: AcceptanceTests = {
       t.match(result, 'nuget/some/project-id', 'nuget project in output');
       t.match(result, 'paket/some/project-id', 'paket project in output');
       t.match(result, 'pip/some/project-id', 'python project in output ');
+      t.match(result, 'sbt/graph/some/project-id', 'sbt project in output ');
 
       // Pop all calls to server and filter out calls to `featureFlag` endpoint
       const requests = params.server
-        .popRequests(7)
+        .popRequests(9)
         .filter((req) => req.url.includes('/monitor/'));
-      t.equal(requests.length, 6, 'correct amount of monitor requests');
+      t.equal(requests.length, 7, 'correct amount of monitor requests');
 
       const pluginsWithoutTargetFileInBody = [
         'snyk-nodejs-lockfile-parser',
         'bundled:maven',
         'bundled:rubygems',
+        'snyk:sbt',
       ];
 
       requests.forEach((req) => {
         t.match(
           req.url,
-          /\/api\/v1\/monitor\/(npm\/graph|rubygems|maven|nuget|paket|pip)/,
+          /\/api\/v1\/monitor\/(npm\/graph|rubygems|maven|nuget|paket|pip|sbt)/,
           'puts at correct url',
         );
         if (pluginsWithoutTargetFileInBody.includes(req.body.meta.pluginName)) {
@@ -213,7 +216,7 @@ export const AllProjectsTests: AcceptanceTests = {
 
       // Pop all calls to server and filter out calls to `featureFlag` endpoint
       const requests = params.server
-        .popRequests(7)
+        .popRequests(9)
         .filter((req) => req.url.includes('/monitor/'));
       // find each type of request
       const rubyAll = requests.find((req) => req.url.indexOf('rubygems') > -1);
@@ -222,6 +225,7 @@ export const AllProjectsTests: AcceptanceTests = {
       const nugetAll = requests.find((req) => req.url.indexOf('nuget') > -1);
       const paketAll = requests.find((req) => req.url.indexOf('paket') > -1);
       const mavenAll = requests.find((req) => req.url.indexOf('maven') > -1);
+      const sbtAll = requests.find((req) => req.url.indexOf('sbt') > -1);
 
       await params.cli.monitor('mono-repo-project', {
         file: 'Gemfile.lock',
@@ -255,6 +259,11 @@ export const AllProjectsTests: AcceptanceTests = {
         file: 'pom.xml',
       });
       const mavenFile = params.server.popRequest();
+
+      await params.cli.monitor('mono-repo-project', {
+        file: 'build.sbt',
+      });
+      const sbtFile = params.server.popRequest();
 
       t.same(
         rubyAll.body,
@@ -290,6 +299,12 @@ export const AllProjectsTests: AcceptanceTests = {
         mavenAll.body,
         mavenFile.body,
         'same body for --all-projects and --file=pom.xml',
+      );
+
+      t.same(
+        sbtAll.body,
+        sbtFile.body,
+        'same body for --all-projects and --file=build.sbt',
       );
     },
     '`monitor composer-app with --all-projects sends same payload as --file`': (
@@ -348,15 +363,15 @@ export const AllProjectsTests: AcceptanceTests = {
           detectionDepth: 1,
         });
 
-        const requests = params.server.popRequests(7);
-        const ffRequests = params.server.popRequests(3);
+        const requests = params.server.popRequests(9);
+        const ffRequests = params.server.popRequests(4);
 
         t.equal(
           ffRequests.every((req) => req.url.includes('experimentalDepGraph')),
           true,
           'all left requests are feature flag requests',
         );
-        t.equal(requests.length, 7, 'sends expected # requests'); // extra feature-flags request
+        t.equal(requests.length, 9, 'sends expected # requests'); // extra feature-flags request
         t.equal(
           params.server._reqLog.length,
           0,
@@ -366,7 +381,7 @@ export const AllProjectsTests: AcceptanceTests = {
         const jsonResponse = JSON.parse(response);
         t.equal(
           jsonResponse.length,
-          6,
+          7,
           'json response array has expected # elements',
         );
 
