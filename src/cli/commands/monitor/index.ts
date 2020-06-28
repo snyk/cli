@@ -302,7 +302,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
   };
 }
 
-function validateMonitorPath(path, isDocker) {
+function validateMonitorPath(path: string, isDocker?: boolean): void {
   const exists = fs.existsSync(path);
   if (!exists && !isDocker) {
     throw new Error('"' + path + '" is not a valid path for "snyk monitor"');
