@@ -1,6 +1,6 @@
 import * as baseDebug from 'debug';
 import * as pathUtil from 'path';
-import * as _ from 'lodash';
+import * as _ from '@snyk/lodash';
 
 const debug = baseDebug('snyk:yarn-workspaces');
 import * as fs from 'fs';
