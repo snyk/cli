@@ -27,6 +27,16 @@ commands:
       - run:
           name: Install dependencies
           command: npm install
+  install_deps_prod:
+    description: Install dependencies prod only
+    steps:
+      - checkout
+      - run:
+          name: Use snyk-main npmjs user
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
+      - run:
+          name: Install dependencies production
+          command: npm i --production
   build_ts:
     description: Build js files from ts
     steps:
@@ -80,7 +90,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/snyk
-      - install_deps
+      - install_deps_prod
       - build_ts
       - run:
           name: Run auth
