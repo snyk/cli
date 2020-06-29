@@ -24,6 +24,7 @@ import {
   TestResult,
   VulnMetaData,
 } from '../../../lib/snyk-test/legacy';
+import { IacTestResult } from '../../../lib/snyk-test/iac-test-result';
 import {
   SupportedPackageManagers,
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
@@ -43,6 +44,7 @@ import {
   summariseVulnerableResults,
 } from './formatters';
 import * as utils from './utils';
+import { getIacDisplayedOutput } from './iac-output';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -156,7 +158,11 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   }
 
   const vulnerableResults = results.filter(
-    (res) => res.vulnerabilities && res.vulnerabilities.length,
+    (res) =>
+      (res.vulnerabilities && res.vulnerabilities.length) ||
+      (res.result &&
+        res.result.cloudConfigResults &&
+        res.result.cloudConfigResults.length),
   );
   const errorResults = results.filter((res) => res instanceof Error);
   const notSuccess = errorResults.length > 0;
@@ -165,7 +171,9 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   // resultOptions is now an array of 1 or more options used for
   // the tests results is now an array of 1 or more test results
   // values depend on `options.json` value - string or object
-  const errorMappedResults = createErrorMappedResultsForJsonOutput(results);
+  const errorMappedResults = !options.iac
+    ? createErrorMappedResultsForJsonOutput(results)
+    : createErrorMappedResultsForJsonOutputForIac(results);
   // backwards compat - strip array IFF only one result
   const dataToSend =
     errorMappedResults.length === 1
@@ -295,6 +303,25 @@ function createErrorMappedResultsForJsonOutput(results) {
   return errorMappedResults;
 }
 
+function createErrorMappedResultsForJsonOutputForIac(results) {
+  const errorMappedResults = results.map((result) => {
+    // add json for when thrown exception
+    if (result instanceof Error) {
+      return {
+        ok: false,
+        error: result.message,
+        path: (result as any).path,
+      };
+    }
+    const res = { ...result, ...result.result };
+    delete res.result;
+    delete res.meta;
+    return res;
+  });
+
+  return errorMappedResults;
+}
+
 function shouldFail(vulnerableResults: any[], failOn: FailOn) {
   // find reasons not to fail
   if (failOn === 'all') {
@@ -378,7 +405,10 @@ function displayResult(
   if (res instanceof Error) {
     return prefix + res.message;
   }
-  const issuesText = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+  const issuesText =
+    res.licensesPolicy || projectType === 'k8sconfig'
+      ? 'issues'
+      : 'vulnerabilities';
   let pathOrDepsText = '';
 
   if (res.hasOwnProperty('dependencyCount')) {
@@ -431,10 +461,20 @@ function displayResult(
     );
   }
 
+  if (res.packageManager === 'k8sconfig') {
+    return getIacDisplayedOutput(
+      (res as any) as IacTestResult,
+      options,
+      testedInfoText,
+      meta,
+      prefix,
+    );
+  }
+
   // NOT OK => We found some vulns, let's format the vulns info
 
   return getDisplayedOutput(
-    res,
+    res as TestResult,
     options,
     testedInfoText,
     localPackageTest,

@@ -1,4 +1,6 @@
 import * as restify from 'restify';
+import { AnnotatedIacIssue } from '../../src/lib/snyk-test/iac-test-result';
+import { SEVERITY } from '../../src/lib/snyk-test/legacy';
 
 interface FakeServer extends restify.Server {
   _reqLog: restify.Request[];
@@ -115,6 +117,40 @@ export function fakeServer(root, apikey) {
       result: {
         issuesData: {},
         affectedPkgs: {},
+      },
+      meta: {
+        org: 'test-org',
+        isPublic: false,
+      },
+    });
+    return next();
+  });
+
+  server.post(root + '/test-iac', (req, res, next) => {
+    if (req.query.org && req.query.org === 'missing-org') {
+      res.status(404);
+      res.send({
+        code: 404,
+        userMessage: 'cli error message',
+      });
+      return next();
+    }
+
+    // const cloudConfigResults = [{
+    //   id: 'SNYK-CC-K8S-1',
+    //   title: 'Reducing the admission of containers with dropped capabilities',
+    //   description: 'The requiredDropCapabilities property (as part of the Pod Security Policy) provides a whitelist of capabilities that must be dropped from containers (https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities). These capabilities are removed from the default set, and must not be added. It’s recommended to drop all the capabilities (using ALL), or at least to drop NET_RAW (which allows a process to spy on packets on its network / to inject data onto the network).',
+    //   cloudConfigPath: ['[DocId: 2]','input','spec','requiredDropCapabilities'],
+    //   severity: 'high',
+    //   isIgnored: false,
+    //   type: 'k8s',
+    //   subType: 'Deployment',
+    // }];
+
+    res.send({
+      result: {
+        projectType: 'k8sconfig',
+        cloudConfigResults: [],
       },
       meta: {
         org: 'test-org',

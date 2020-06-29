@@ -5,15 +5,17 @@ import * as debugModule from 'debug';
 import * as pathUtil from 'path';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
+import { IacScan } from './payload-schema';
 
 import {
   TestResult,
   DockerIssue,
   AnnotatedIssue,
-  LegacyVulnApiResult,
   TestDepGraphResponse,
   convertTestDepGraphResultToLegacy,
+  LegacyVulnApiResult,
 } from './legacy';
+import { IacTestResult } from './iac-test-result';
 import {
   AuthFailedError,
   InternalServerError,
@@ -49,60 +51,45 @@ import { getSubProjectCount } from '../plugins/get-sub-project-count';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
+import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
+import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
 
 const debug = debugModule('snyk');
 
 export = runTest;
 
-interface DepTreeFromResolveDeps extends DepTree {
-  numDependencies: number;
-  pluck: any;
-}
-
-interface PayloadBody {
-  depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
-  callGraph?: any;
-  policy?: string;
-  targetFile?: string;
-  targetFileRelativePath?: string;
-  projectNameOverride?: string;
-  hasDevDependencies?: boolean;
-  originalProjectName?: string; // used only for display
-  foundProjectCount?: number; // used only for display
-  docker?: any;
-  displayTargetFile?: string;
-  target?: GitTarget | ContainerTarget | null;
-}
-
-interface Payload {
-  method: string;
-  url: string;
-  json: boolean;
-  headers: {
-    'x-is-ci': boolean;
-    authorization: string;
-  };
-  body?: PayloadBody;
-  qs?: object | null;
-  modules?: DepTreeFromResolveDeps;
-}
-
-async function runTest(
-  projectType: SupportedProjectTypes | undefined,
+async function sendAndParseResults(
+  payloads: Payload[],
+  spinnerLbl: string,
   root: string,
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
-  const spinnerLbl = 'Querying vulnerabilities database...';
-  try {
-    await validateOptions(options, options.packageManager);
-    const payloads = await assemblePayloads(root, options);
-    for (const payload of payloads) {
-      const payloadPolicy = payload.body && payload.body.policy;
-      const depGraph = payload.body && payload.body.depGraph;
+  for (const payload of payloads) {
+    await spinner(spinnerLbl);
+    if (options.iac) {
+      const iacScan: IacScan = payload.body as IacScan;
+      analytics.add('iac type', !!iacScan.type);
+      const res = (await sendTestPayload(payload)) as IacTestResult;
+
+      const projectName =
+        iacScan.projectNameOverride || iacScan.originalProjectName;
+      const result = await parseIacTestResult(
+        res,
+        iacScan.targetFile,
+        projectName,
+        options.severityThreshold,
+      );
+      results.push(result);
+    } else {
+      const payloadBody: PayloadBody = payload.body as PayloadBody;
+      const payloadPolicy = payloadBody && payloadBody.policy;
+      const depGraph = payloadBody && payloadBody.depGraph;
       const pkgManager =
-        depGraph && depGraph.pkgManager && depGraph.pkgManager.name;
-      const targetFile = payload.body && payload.body.targetFile;
+        depGraph &&
+        depGraph.pkgManager &&
+        (depGraph.pkgManager.name as SupportedProjectTypes);
+      const targetFile = payloadBody && payloadBody.targetFile;
       const projectName =
         _.get(payload, 'body.projectNameOverride') ||
         _.get(payload, 'body.originalProjectName');
@@ -110,15 +97,14 @@ async function runTest(
       const displayTargetFile = _.get(payload, 'body.displayTargetFile');
       let dockerfilePackages;
       if (
-        payload.body &&
-        payload.body.docker &&
-        payload.body.docker.dockerfilePackages
+        payloadBody &&
+        payloadBody.docker &&
+        payloadBody.docker.dockerfilePackages
       ) {
-        dockerfilePackages = payload.body.docker.dockerfilePackages;
+        dockerfilePackages = payloadBody.docker.dockerfilePackages;
       }
-      await spinner(spinnerLbl);
       analytics.add('depGraph', !!depGraph);
-      analytics.add('isDocker', !!(payload.body && payload.body.docker));
+      analytics.add('isDocker', !!(payloadBody && payloadBody.docker));
       // Type assertion might be a lie, but we are correcting that below
       const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
 
@@ -141,7 +127,20 @@ async function runTest(
         displayTargetFile,
       });
     }
-    return results;
+  }
+  return results;
+}
+
+async function runTest(
+  projectType: SupportedProjectTypes | undefined,
+  root: string,
+  options: Options & TestOptions,
+): Promise<TestResult[]> {
+  const spinnerLbl = 'Querying vulnerabilities database...';
+  try {
+    await validateOptions(options, options.packageManager);
+    const payloads = await assemblePayloads(root, options);
+    return await sendAndParseResults(payloads, spinnerLbl, root, options);
   } catch (error) {
     debug('Error running test', { error });
     // handling denial from registry because of the feature flag
@@ -173,7 +172,7 @@ async function runTest(
 
 async function parseRes(
   depGraph: depGraphLib.DepGraph | undefined,
-  pkgManager: string | undefined,
+  pkgManager: SupportedProjectTypes | undefined,
   res: LegacyVulnApiResult,
   options: Options & TestOptions,
   payload: Payload,
@@ -259,7 +258,7 @@ async function parseRes(
 
 function sendTestPayload(
   payload: Payload,
-): Promise<LegacyVulnApiResult | TestDepGraphResponse> {
+): Promise<LegacyVulnApiResult | TestDepGraphResponse | IacTestResult> {
   const filesystemPolicy = payload.body && !!payload.body.policy;
   return new Promise((resolve, reject) => {
     request(payload, (error, res, body) => {
@@ -326,12 +325,18 @@ async function assembleLocalPayloads(
   options: Options & TestOptions & PolicyOptions,
 ): Promise<Payload[]> {
   // For --all-projects packageManager is yet undefined here. Use 'all'
-  const analysisType =
-    (options.docker ? 'docker' : options.packageManager) || 'all';
+  let analysisTypeText = 'all dependencies for ';
+  if (options.docker) {
+    analysisTypeText = 'docker dependencies for ';
+  } else if (options.iac) {
+    analysisTypeText = 'Infrastruction as code configurations for ';
+  } else if (options.packageManager) {
+    analysisTypeText = options.packageManager + ' dependencies for ';
+  }
+
   const spinnerLbl =
     'Analyzing ' +
-    analysisType +
-    ' dependencies for ' +
+    analysisTypeText +
     (path.relative('.', path.join(root, options.file || '')) ||
       path.relative('..', '.') + ' project dir');
 
@@ -339,6 +344,9 @@ async function assembleLocalPayloads(
     const payloads: Payload[] = [];
 
     await spinner(spinnerLbl);
+    if (options.iac) {
+      return assembleIacLocalPayloads(root, options);
+    }
     const deps = await getDepsFromPlugin(root, options);
     analytics.add('pluginName', deps.plugin.name);
     const javaVersion = _.get(

@@ -4,6 +4,7 @@ import * as debugLib from 'debug';
 import * as _ from '@snyk/lodash';
 import { NoSupportedManifestsFoundError } from './errors';
 import { SupportedPackageManagers } from './package-managers';
+import { validateK8sFile } from './iac/iac-parser';
 
 const debug = debugLib('snyk-detect');
 
@@ -135,6 +136,30 @@ export function detectPackageManager(root: string, options) {
     throw NoSupportedManifestsFoundError([root]);
   }
   return packageManager;
+}
+
+export function isIacProject(root: string, options): string {
+  if (!isLocalFolder(root)) {
+    debug('Iac - repo case ' + root);
+    throw "iac option doesn't support lookup as repo";
+  }
+
+  if (!options.file) {
+    debug('Iac - no file specified ' + root);
+    throw 'iac option works only with specified files';
+  }
+
+  if (localFileSuppliedButNotFound(root, options.file)) {
+    throw new Error(
+      'Could not find the specified file: ' +
+        options.file +
+        '\nPlease check that it exists and try again.',
+    );
+  }
+  const filePath = pathLib.resolve(root, options.file);
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  validateK8sFile(fileContent, filePath, root);
+  return 'k8sconfig';
 }
 
 // User supplied a "local" file, but that file doesn't exist

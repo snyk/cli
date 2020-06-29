@@ -3,3 +3,11 @@ README.md  @snyk/content @snyk/boost
 src/cli/commands/test/formatters/format-reachability.ts  @snyk/flow
 help/  @snyk/content @snyk/boost
 *  @snyk/hammer @snyk/boost
+help/iac.txt @snyk/cloudconfig
+src/cli/commands/test/iac-output.ts @snyk/cloudconfig
+src/lib/cloud-config-projects.ts @snyk/cloudconfig
+src/lib/iac/ @snyk/cloudconfig
+src/lib/snyk-test/iac-test-result.ts @snyk/cloudconfig
+src/lib/snyk-test/payload-schema.ts @snyk/cloudconfig
+src/lib/snyk-test/run-iac-test.ts @snyk/cloudconfig
+test/acceptance/cli-test/cli-test.iac-k8s.spec.ts @snyk/cloudconfig

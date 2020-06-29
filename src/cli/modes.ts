@@ -16,6 +16,14 @@ const modes: Record<string, ModeData> = {
       return args;
     },
   },
+  iac: {
+    allowedCommands: ['test'],
+    config: (args): [] => {
+      args['iac'] = true;
+
+      return args;
+    },
+  },
 };
 
 export function parseMode(mode: string, args): string {

@@ -1,5 +1,5 @@
 import { SupportedPackageManagers } from './package-managers';
-import { SupportedCloudConfigs } from './cloud-config-projects';
+import { IacProjectTypes } from './iac/iac-projects';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { SEVERITY } from './snyk-test/legacy';
 import { FailOn } from './snyk-test/common';
@@ -41,6 +41,7 @@ export interface Options {
   org?: string | null;
   path: string;
   docker?: boolean;
+  iac?: boolean;
   file?: string;
   policy?: string;
   json?: boolean;
@@ -124,6 +125,4 @@ export interface SpinnerOptions {
   cleanup?: any;
 }
 
-export type SupportedProjectTypes =
-  | SupportedCloudConfigs
-  | SupportedPackageManagers;
+export type SupportedProjectTypes = IacProjectTypes | SupportedPackageManagers;

@@ -1,0 +1,23 @@
+//TODO(orka): future - change this file
+import { IacProjectTypes } from '../iac/iac-projects';
+
+interface Scan {
+  type: string;
+  targetFile: string;
+  data: any;
+}
+
+export interface IacFile {
+  fileContent: string;
+  fileType: 'yaml' | 'yml' | 'json';
+}
+
+export interface IacScan extends Scan {
+  type: IacProjectTypes;
+  targetFile: string;
+  data: IacFile;
+  targetFileRelativePath: string;
+  originalProjectName: string;
+  policy: string;
+  projectNameOverride?: string;
+}

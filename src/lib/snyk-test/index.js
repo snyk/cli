@@ -4,7 +4,11 @@ const detect = require('../detect');
 const runTest = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
-const { UnsupportedPackageManagerError } = require('../errors');
+const iacProjects = require('../iac/iac-projects');
+const {
+  UnsupportedPackageManagerError,
+  NoSupportedIacFileError,
+} = require('../errors');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -28,7 +32,11 @@ async function test(root, options, callback) {
 function executeTest(root, options) {
   try {
     if (!options.allProjects) {
-      options.packageManager = detect.detectPackageManager(root, options);
+      if (options.iac) {
+        options.packageManager = detect.isIacProject(root, options);
+      } else {
+        options.packageManager = detect.detectPackageManager(root, options);
+      }
     }
     return run(root, options).then((results) => {
       for (const res of results) {
@@ -49,6 +57,14 @@ function executeTest(root, options) {
 }
 
 function run(root, options) {
+  if (options.iac) {
+    const projectType = options.packageManager;
+    if (!iacProjects.TEST_SUPPORTED_IAC_PROJECTS.includes(projectType)) {
+      throw new NoSupportedIacFileError(projectType);
+    }
+    return runTest(projectType, root, options);
+  }
+
   const packageManager = options.packageManager;
   if (
     !(

@@ -1,6 +1,7 @@
 import * as _ from '@snyk/lodash';
 import * as depGraphLib from '@snyk/dep-graph';
 import { SupportedPackageManagers } from '../package-managers';
+import { SupportedProjectTypes } from '../types';
 import { SEVERITIES } from './common';
 
 interface Pkg {
@@ -121,24 +122,27 @@ export interface IgnoreSettings {
   disregardFilesystemIgnores: boolean;
 }
 
-export interface LegacyVulnApiResult {
-  vulnerabilities: AnnotatedIssue[];
+export interface BasicResultData {
   ok: boolean;
-  dependencyCount: number;
+  payloadType?: string;
   org: string;
-  policy: string;
   isPrivate: boolean;
-  licensesPolicy: object | null;
-  packageManager: string;
-  ignoreSettings: IgnoreSettings | null;
   summary: string;
+  packageManager?: SupportedProjectTypes;
+  severityThreshold?: string;
+}
+
+export interface LegacyVulnApiResult extends BasicResultData {
+  vulnerabilities: AnnotatedIssue[];
+  dependencyCount: number;
+  policy: string;
+  licensesPolicy: object | null;
+  ignoreSettings: IgnoreSettings | null;
   docker?: {
     baseImage?: any;
     binariesVulns?: unknown;
     baseImageRemediation?: BaseImageRemediation;
   };
-  severityThreshold?: string;
-
   filesystemPolicy?: boolean;
   uniqueCount?: any;
   remediation?: RemediationChanges;
@@ -279,7 +283,7 @@ export interface RemediationChanges {
 function convertTestDepGraphResultToLegacy(
   res: TestDepGraphResponse,
   depGraph: depGraphLib.DepGraph,
-  packageManager: string,
+  packageManager: SupportedProjectTypes | undefined,
   severityThreshold?: SEVERITY,
 ): LegacyVulnApiResult {
   const result = res.result;
