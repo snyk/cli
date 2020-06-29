@@ -130,6 +130,7 @@ export interface SpinnerOptions {
 
 export type SupportedProjectTypes = IacProjectTypes | SupportedPackageManagers;
 
+// TODO: finish typing this there are many more!
 export type SupportedUserReachableFacingCliArgs =
   | 'severity-threshold'
   | 'prune-repeated-subdependencies'
@@ -154,6 +155,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'all-projects'
   | 'yarn-workspaces'
   | 'detection-depth'
+  | 'project-name'
   | 'reachable-vulns';
 
 export type SupportedCliCommands =

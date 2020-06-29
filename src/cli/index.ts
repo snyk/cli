@@ -32,7 +32,12 @@ import {
   createDirectory,
   writeContentsToFileSwallowingErrors,
 } from '../lib/json-file-output';
-import { Options, TestOptions, MonitorOptions } from '../lib/types';
+import {
+  Options,
+  TestOptions,
+  MonitorOptions,
+  SupportedUserReachableFacingCliArgs,
+} from '../lib/types';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -305,83 +310,64 @@ if (module.parent) {
 }
 
 function validateUnsupportedOptionCombinations(
-  options: Options & TestOptions & MonitorOptions,
+  options: AllSupportedCliOptions,
 ): void {
+  const unsupportedAllProjectsCombinations: {
+    [name: string]: SupportedUserReachableFacingCliArgs;
+  } = {
+    'project-name': 'project-name',
+    file: 'file',
+    yarnWorkspaces: 'yarn-workspaces',
+    packageManager: 'package-manager',
+    docker: 'docker',
+    allSubProjects: 'all-sub-projects',
+  };
+
+  const unsupportedYarnWorkspacesCombinations: {
+    [name: string]: SupportedUserReachableFacingCliArgs;
+  } = {
+    'project-name': 'project-name',
+    file: 'file',
+    packageManager: 'package-manager',
+    docker: 'docker',
+    allSubProjects: 'all-sub-projects',
+  };
+
   if (options.scanAllUnmanaged && options.file) {
     throw new UnsupportedOptionCombinationError(['file', 'scan-all-unmanaged']);
   }
 
-  if (options['project-name'] && options.allProjects) {
-    throw new UnsupportedOptionCombinationError([
-      'project-name',
-      'all-projects',
-    ]);
+  if (options.allProjects) {
+    for (const option in unsupportedAllProjectsCombinations) {
+      if (options[option]) {
+        throw new UnsupportedOptionCombinationError([
+          unsupportedAllProjectsCombinations[option],
+          'all-projects',
+        ]);
+      }
+    }
   }
 
-  if (options['project-name'] && options.yarnWorkspaces) {
-    throw new UnsupportedOptionCombinationError([
-      'project-name',
-      'yarn-workspaces',
-    ]);
-  }
-
-  if (options.file && options.yarnWorkspaces) {
-    throw new UnsupportedOptionCombinationError(['file', 'yarn-workspaces']);
-  }
-
-  if (options.file && options.allProjects) {
-    throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
-  }
-
-  if (options.yarnWorkspaces && options.allProjects) {
-    throw new UnsupportedOptionCombinationError([
-      'yarn-workspaces',
-      'all-projects',
-    ]);
-  }
-
-  if (options.packageManager && options.yarnWorkspaces) {
-    throw new UnsupportedOptionCombinationError([
-      'package-manager',
-      'yarn-workspaces',
-    ]);
-  }
-
-  if (options.packageManager && options.allProjects) {
-    throw new UnsupportedOptionCombinationError([
-      'package-manager',
-      'all-projects',
-    ]);
-  }
-
-  if (options.docker && options.allProjects) {
-    throw new UnsupportedOptionCombinationError(['docker', 'all-projects']);
-  }
-
-  if (options.docker && options.yarnWorkspaces) {
-    throw new UnsupportedOptionCombinationError(['docker', 'yarn-workspaces']);
-  }
-
-  if (options.allSubProjects && options.yarnWorkspaces) {
-    throw new UnsupportedOptionCombinationError([
-      'all-sub-projects',
-      'yarn-workspaces',
-    ]);
-  }
-
-  if (options.allSubProjects && options.allProjects) {
-    throw new UnsupportedOptionCombinationError([
-      'all-sub-projects',
-      'all-projects',
-    ]);
+  if (options.yarnWorkspaces) {
+    for (const option in unsupportedYarnWorkspacesCombinations) {
+      if (options[option]) {
+        throw new UnsupportedOptionCombinationError([
+          unsupportedAllProjectsCombinations[option],
+          'yarn-workspaces',
+        ]);
+      }
+    }
   }
 
   if (options.exclude) {
+    if (!(options.allProjects || options.yarnWorkspaces)) {
+      throw new OptionMissingErrorError('--exclude', [
+        '--yarn-workspaces',
+        '--all-projects',
+      ]);
+    }
     if (typeof options.exclude !== 'string') {
       throw new ExcludeFlagBadInputError();
-    }
-    if (!options.allProjects) {
-      throw new OptionMissingErrorError('--exclude', '--all-projects');
     }
     if (options.exclude.indexOf(pathLib.sep) > -1) {
       throw new ExcludeFlagInvalidInputError();

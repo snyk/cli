@@ -121,8 +121,8 @@ npm options:
 Yarn options:
   --strict-out-of-sync=<true|false>
                        Prevent testing out of sync lockfiles. Defaults to true.
-  --yarn-workspaces    Detect and scan yarn workspaces. Similar to --all-projects you can specify how
-                       many sub-directories to search & exclude some directories.
+  --yarn-workspaces    Detect and scan yarn workspaces. You can specify how many sub-directories to search using --detection-depth and exclude directories using --exclude.
+
 
 CocoaPods options:
   --strict-out-of-sync=<true|false>
