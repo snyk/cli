@@ -17,6 +17,16 @@ windows_defaults: &windows_defaults
     name: win/default
 
 commands:
+  test_prod_pkg:
+    description: check production bundle is healthy
+    steps:
+      - checkout
+      - run:
+          name: Pkg binary
+          command: npx pkg  ~/snyk.
+      - run:
+          command: ~/snyk/snyk-macos auth $SNYK_API_KEY
+
   install_deps:
     description: Install dependencies
     steps:
@@ -80,6 +90,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/snyk
+      - test_prod_pkg
       - install_deps
       - build_ts
       - run:
