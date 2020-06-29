@@ -117,7 +117,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   for (const path of args as string[]) {
     debug(`Processing ${path}...`);
     try {
-      await validateMonitorPath(path, options.docker);
+      validateMonitorPath(path, options.docker);
       let analysisType = 'all';
       let packageManager;
       if (options.allProjects) {
@@ -302,7 +302,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
   };
 }
 
-async function validateMonitorPath(path, isDocker) {
+function validateMonitorPath(path: string, isDocker?: boolean): void {
   const exists = fs.existsSync(path);
   if (!exists && !isDocker) {
     throw new Error('"' + path + '" is not a valid path for "snyk monitor"');
