@@ -33,7 +33,7 @@ Options:
   --detection-depth=<number>
                        (test & monitor commands only)
                        Use with --all-projects or --yarn-workspaces to indicate how many sub-directories to search.
-                       Defaults to 2 (the current working directory and one sub-directory).
+                       Defaults to 4 (the current working directory and three sub-directories).
   --exclude=<comma separated list of directory names>
                        (test & monitor commands only)
                        Can be used with --all-projects and --yarn-workspaces to indicate sub-directories to exclude.
