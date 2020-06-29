@@ -58,7 +58,7 @@ export async function processYarnWorkspaces(
       ...getWorkspacesMap(packageJson),
     };
     for (const workspaceRoot of Object.keys(yarnWorkspacesMap)) {
-      const workspaces = yarnWorkspacesMap[workspaceRoot].workspaces || [];
+      const workspaces = yarnWorkspacesMap[workspaceRoot].workspaces?.packages || yarnWorkspacesMap[workspaceRoot].workspaces || [];
       const match = workspaces
         .map((pattern) => {
           return packageJsonFileName.includes(pattern.replace(/\*/, ''));

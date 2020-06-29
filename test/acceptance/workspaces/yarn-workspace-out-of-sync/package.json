@@ -1,8 +1,10 @@
 {
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ]
+  },
   "resolutions": {
     "node-fetch": "^2.3.0"
   },
