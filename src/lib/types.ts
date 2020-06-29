@@ -129,3 +129,37 @@ export interface SpinnerOptions {
 }
 
 export type SupportedProjectTypes = IacProjectTypes | SupportedPackageManagers;
+
+export type SupportedUserReachableFacingCliArgs =
+  | 'severity-threshold'
+  | 'prune-repeated-subdependencies'
+  | 'ignore-policy'
+  | 'trust-policies'
+  | 'docker'
+  | 'file'
+  | 'policy'
+  | 'fail-on'
+  | 'reachable-vulns'
+  | 'json'
+  | 'package-manager'
+  | 'packages-folder'
+  | 'severity-threshold'
+  | 'strict-out-of-sync'
+  | 'all-sub-projects'
+  | 'sub-project'
+  | 'gradle-sub-project'
+  | 'skip-unresolved'
+  | 'scan-all-unmanaged'
+  | 'fail-on'
+  | 'all-projects'
+  | 'yarn-workspaces'
+  | 'detection-depth'
+  | 'reachable-vulns';
+
+export type SupportedCliCommands =
+  | 'protect'
+  | 'test'
+  | 'monitor'
+  | 'wizard'
+  | 'ignore'
+  | 'woof';

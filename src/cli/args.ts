@@ -3,6 +3,10 @@ import { MethodResult } from './commands/types';
 
 import debugModule = require('debug');
 import { parseMode, displayModeHelp } from './modes';
+import {
+  SupportedCliCommands,
+  SupportedUserReachableFacingCliArgs,
+} from '../lib/types';
 
 export declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
@@ -157,19 +161,24 @@ export function args(rawArgv: string[]): Args {
     argv._.push(command);
   }
 
+  const commands: SupportedCliCommands[] = [
+    'protect',
+    'test',
+    'monitor',
+    'wizard',
+    'ignore',
+    'woof',
+  ];
   // TODO decide why we can't do this cart blanche...
-  if (
-    ['protect', 'test', 'monitor', 'wizard', 'ignore', 'woof'].indexOf(
-      command,
-    ) !== -1
-  ) {
+  if (commands.indexOf(command as SupportedCliCommands) !== -1) {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
   }
 
-  // arguments that needs transformation from dash-case to camelCase
-  // should be added here
-  for (const dashedArg of [
+  // TODO: eventually all arguments should be transformed like this.
+  const argumentsToTransform: Array<Partial<
+    SupportedUserReachableFacingCliArgs
+  >> = [
     'package-manager',
     'packages-folder',
     'severity-threshold',
@@ -184,7 +193,8 @@ export function args(rawArgv: string[]): Args {
     'yarn-workspaces',
     'detection-depth',
     'reachable-vulns',
-  ]) {
+  ];
+  for (const dashedArg of argumentsToTransform) {
     if (argv[dashedArg]) {
       const camelCased = dashToCamelCase(dashedArg);
       argv[camelCased] = argv[dashedArg];

@@ -32,6 +32,7 @@ import {
   createDirectory,
   writeContentsToFileSwallowingErrors,
 } from '../lib/json-file-output';
+import { Options, TestOptions, MonitorOptions } from '../lib/types';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -217,6 +218,8 @@ function checkPaths(args) {
   }
 }
 
+type AllSupportedCliOptions = Options & MonitorOptions & TestOptions;
+
 async function main() {
   updateCheck();
   checkRuntime();
@@ -227,93 +230,10 @@ async function main() {
   let exitCode = EXIT_CODES.ERROR;
   try {
     modeValidation(args);
-
-    if (args.options.scanAllUnmanaged && args.options.file) {
-      throw new UnsupportedOptionCombinationError([
-        'file',
-        'scan-all-unmanaged',
-      ]);
-    }
-
-    if (args.options['project-name'] && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError([
-        'project-name',
-        'all-projects',
-      ]);
-    }
-
-    if (args.options['project-name'] && args.options.yarnWorkspaces) {
-      throw new UnsupportedOptionCombinationError([
-        'project-name',
-        'yarn-workspaces',
-      ]);
-    }
-
-    if (args.options.file && args.options.yarnWorkspaces) {
-      throw new UnsupportedOptionCombinationError(['file', 'yarn-workspaces']);
-    }
-
-    if (args.options.file && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
-    }
-
-    if (args.options.yarnWorkspaces && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError([
-        'yarn-workspaces',
-        'all-projects',
-      ]);
-    }
-
-    if (args.options.packageManager && args.options.yarnWorkspaces) {
-      throw new UnsupportedOptionCombinationError([
-        'package-manager',
-        'yarn-workspaces',
-      ]);
-    }
-
-    if (args.options.packageManager && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError([
-        'package-manager',
-        'all-projects',
-      ]);
-    }
-
-    if (args.options.docker && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError(['docker', 'all-projects']);
-    }
-
-    if (args.options.docker && args.options.yarnWorkspaces) {
-      throw new UnsupportedOptionCombinationError([
-        'docker',
-        'yarn-workspaces',
-      ]);
-    }
-
-    if (args.options.allSubProjects && args.options.yarnWorkspaces) {
-      throw new UnsupportedOptionCombinationError([
-        'all-sub-projects',
-        'yarn-workspaces',
-      ]);
-    }
-
-    if (args.options.allSubProjects && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError([
-        'all-sub-projects',
-        'all-projects',
-      ]);
-    }
-
-    if (args.options.exclude) {
-      if (typeof args.options.exclude !== 'string') {
-        throw new ExcludeFlagBadInputError();
-      }
-      if (!args.options.allProjects) {
-        throw new OptionMissingErrorError('--exclude', '--all-projects');
-      }
-      if (args.options.exclude.indexOf(pathLib.sep) > -1) {
-        throw new ExcludeFlagInvalidInputError();
-      }
-    }
+    // TODO: fix this, we do transformation to options and teh type doesn't reflect it
+    validateUnsupportedOptionCombinations(
+      (args.options as unknown) as AllSupportedCliOptions,
+    );
 
     if (
       args.options.file &&
@@ -382,4 +302,89 @@ const cli = main().catch((e) => {
 if (module.parent) {
   // eslint-disable-next-line id-blacklist
   module.exports = cli;
+}
+
+function validateUnsupportedOptionCombinations(
+  options: Options & TestOptions & MonitorOptions,
+): void {
+  if (options.scanAllUnmanaged && options.file) {
+    throw new UnsupportedOptionCombinationError(['file', 'scan-all-unmanaged']);
+  }
+
+  if (options['project-name'] && options.allProjects) {
+    throw new UnsupportedOptionCombinationError([
+      'project-name',
+      'all-projects',
+    ]);
+  }
+
+  if (options['project-name'] && options.yarnWorkspaces) {
+    throw new UnsupportedOptionCombinationError([
+      'project-name',
+      'yarn-workspaces',
+    ]);
+  }
+
+  if (options.file && options.yarnWorkspaces) {
+    throw new UnsupportedOptionCombinationError(['file', 'yarn-workspaces']);
+  }
+
+  if (options.file && options.allProjects) {
+    throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
+  }
+
+  if (options.yarnWorkspaces && options.allProjects) {
+    throw new UnsupportedOptionCombinationError([
+      'yarn-workspaces',
+      'all-projects',
+    ]);
+  }
+
+  if (options.packageManager && options.yarnWorkspaces) {
+    throw new UnsupportedOptionCombinationError([
+      'package-manager',
+      'yarn-workspaces',
+    ]);
+  }
+
+  if (options.packageManager && options.allProjects) {
+    throw new UnsupportedOptionCombinationError([
+      'package-manager',
+      'all-projects',
+    ]);
+  }
+
+  if (options.docker && options.allProjects) {
+    throw new UnsupportedOptionCombinationError(['docker', 'all-projects']);
+  }
+
+  if (options.docker && options.yarnWorkspaces) {
+    throw new UnsupportedOptionCombinationError(['docker', 'yarn-workspaces']);
+  }
+
+  if (options.allSubProjects && options.yarnWorkspaces) {
+    throw new UnsupportedOptionCombinationError([
+      'all-sub-projects',
+      'yarn-workspaces',
+    ]);
+  }
+
+  if (options.allSubProjects && options.allProjects) {
+    throw new UnsupportedOptionCombinationError([
+      'all-sub-projects',
+      'all-projects',
+    ]);
+  }
+
+  if (options.exclude) {
+    if (typeof options.exclude !== 'string') {
+      throw new ExcludeFlagBadInputError();
+    }
+    if (!options.allProjects) {
+      throw new OptionMissingErrorError('--exclude', '--all-projects');
+    }
+    if (options.exclude.indexOf(pathLib.sep) > -1) {
+      throw new ExcludeFlagInvalidInputError();
+    }
+  }
 }
