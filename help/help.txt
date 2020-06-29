@@ -32,19 +32,19 @@ Options:
                        Note gradle is not supported, use --all-sub-projects instead.
   --detection-depth=<number>
                        (test & monitor commands only)
-                       Use with --all-projects to indicate how many sub-directories to search.
+                       Use with --all-projects or --yarn-workspaces to indicate how many sub-directories to search.
                        Defaults to 2 (the current working directory and one sub-directory).
-  --exclude=<comma seperated list of directory names>
+  --exclude=<comma separated list of directory names>
                        (test & monitor commands only)
-                       Can only be used with --all-projects to indicate sub-directories to exclude.
-                       Directories must be comma seperated.
+                       Can be used with --all-projects and --yarn-workspaces to indicate sub-directories to exclude.
+                       Directories must be comma separated.
                        If using with --detection-depth exclude ignores directories at any level deep.
   --dev .............. Include devDependencies (defaults to production only).
   --file=<File> ...... Sets package file. For more help run `snyk help file`.
   --org=<org-name> ... Specify the org machine-name to run Snyk with a specific
                        organization. For more help run `snyk help orgs`.
   --ignore-policy .... Ignores the current policy in .snyk file, org level ignores and project policy on snyk.io.
-  --trust-policies ... Applies and uses ignore rules from your dependencies's
+  --trust-policies ... Applies and uses ignore rules from your dependencies'
                        Snyk policies, otherwise ignore policies are only
                        shown as a suggestion.
   --show-vulnerable-paths=<none|some|all>
@@ -88,7 +88,7 @@ Options:
 
 Maven options:
   --scan-all-unmanaged
-                       Autodetects maven jars and wars in given directory.
+                       Auto detects maven jars and wars in given directory.
                        Individual testing can be done with --file=<jar-file-name>
 
 Gradle options:
@@ -121,6 +121,8 @@ npm options:
 Yarn options:
   --strict-out-of-sync=<true|false>
                        Prevent testing out of sync lockfiles. Defaults to true.
+  --yarn-workspaces    Detect and scan yarn workspaces. You can specify how many sub-directories to search using --detection-depth and exclude directories using --exclude.
+
 
 CocoaPods options:
   --strict-out-of-sync=<true|false>
@@ -153,6 +155,8 @@ Examples:
   $ snyk monitor --project-name=my-project
   $ snyk test --docker ubuntu:18.04 --org=my-team
   $ snyk test --docker app:latest --file=Dockerfile --policy-path=path/to/.snyk
+  $ snyk test --yarn-workspaces  --detection-depth=4 --strict-out-of-sync=false
+
 
 Possible exit statuses and their meaning:
 

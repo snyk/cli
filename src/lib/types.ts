@@ -19,6 +19,7 @@ export interface TestOptions {
   showVulnPaths: ShowVulnPaths;
   failOn?: FailOn;
   reachableVulns?: boolean;
+  yarnWorkspaces?: boolean;
 }
 
 export interface WizardOptions {
@@ -63,6 +64,7 @@ export interface Options {
   allProjects?: boolean;
   detectionDepth?: number;
   exclude?: string;
+  strictOutOfSync?: boolean;
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
 }
@@ -85,6 +87,7 @@ export interface MonitorOptions {
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
   reachableVulns?: boolean;
+  yarnWorkspaces?: boolean;
 }
 
 export interface MonitorMeta {
@@ -126,3 +129,39 @@ export interface SpinnerOptions {
 }
 
 export type SupportedProjectTypes = IacProjectTypes | SupportedPackageManagers;
+
+// TODO: finish typing this there are many more!
+export type SupportedUserReachableFacingCliArgs =
+  | 'severity-threshold'
+  | 'prune-repeated-subdependencies'
+  | 'ignore-policy'
+  | 'trust-policies'
+  | 'docker'
+  | 'file'
+  | 'policy'
+  | 'fail-on'
+  | 'reachable-vulns'
+  | 'json'
+  | 'package-manager'
+  | 'packages-folder'
+  | 'severity-threshold'
+  | 'strict-out-of-sync'
+  | 'all-sub-projects'
+  | 'sub-project'
+  | 'gradle-sub-project'
+  | 'skip-unresolved'
+  | 'scan-all-unmanaged'
+  | 'fail-on'
+  | 'all-projects'
+  | 'yarn-workspaces'
+  | 'detection-depth'
+  | 'project-name'
+  | 'reachable-vulns';
+
+export type SupportedCliCommands =
+  | 'protect'
+  | 'test'
+  | 'monitor'
+  | 'wizard'
+  | 'ignore'
+  | 'woof';

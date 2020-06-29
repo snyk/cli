@@ -37,6 +37,7 @@ export async function validatePayload(
   if (
     packageManager &&
     !options.allProjects &&
+    !options.yarnWorkspaces &&
     !REACHABLE_VULNS_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
   ) {
     throw new FeatureNotSupportedByPackageManagerError(

@@ -193,7 +193,9 @@ async function parseRes(
 
     // For Node.js: inject additional information (for remediation etc.) into the response.
     if (payload.modules) {
-      res.dependencyCount = payload.modules.numDependencies;
+      res.dependencyCount =
+        payload.modules.numDependencies ||
+        depGraph.countPathsToRoot(depGraph.rootPkg);
       if (res.vulnerabilities) {
         res.vulnerabilities.forEach((vuln) => {
           if (payload.modules && payload.modules.pluck) {

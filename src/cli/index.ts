@@ -32,6 +32,12 @@ import {
   createDirectory,
   writeContentsToFileSwallowingErrors,
 } from '../lib/json-file-output';
+import {
+  Options,
+  TestOptions,
+  MonitorOptions,
+  SupportedUserReachableFacingCliArgs,
+} from '../lib/types';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -217,6 +223,8 @@ function checkPaths(args) {
   }
 }
 
+type AllSupportedCliOptions = Options & MonitorOptions & TestOptions;
+
 async function main() {
   updateCheck();
   checkRuntime();
@@ -227,50 +235,10 @@ async function main() {
   let exitCode = EXIT_CODES.ERROR;
   try {
     modeValidation(args);
-
-    if (args.options.scanAllUnmanaged && args.options.file) {
-      throw new UnsupportedOptionCombinationError([
-        'file',
-        'scan-all-unmanaged',
-      ]);
-    }
-
-    if (args.options['project-name'] && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError([
-        'project-name',
-        'all-projects',
-      ]);
-    }
-    if (args.options.file && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError(['file', 'all-projects']);
-    }
-    if (args.options.packageManager && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError([
-        'package-manager',
-        'all-projects',
-      ]);
-    }
-    if (args.options.docker && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError(['docker', 'all-projects']);
-    }
-    if (args.options.allSubProjects && args.options.allProjects) {
-      throw new UnsupportedOptionCombinationError([
-        'all-sub-projects',
-        'all-projects',
-      ]);
-    }
-
-    if (args.options.exclude) {
-      if (typeof args.options.exclude !== 'string') {
-        throw new ExcludeFlagBadInputError();
-      }
-      if (!args.options.allProjects) {
-        throw new OptionMissingErrorError('--exclude', '--all-projects');
-      }
-      if (args.options.exclude.indexOf(pathLib.sep) > -1) {
-        throw new ExcludeFlagInvalidInputError();
-      }
-    }
+    // TODO: fix this, we do transformation to options and teh type doesn't reflect it
+    validateUnsupportedOptionCombinations(
+      (args.options as unknown) as AllSupportedCliOptions,
+    );
 
     if (
       args.options.file &&
@@ -339,4 +307,70 @@ const cli = main().catch((e) => {
 if (module.parent) {
   // eslint-disable-next-line id-blacklist
   module.exports = cli;
+}
+
+function validateUnsupportedOptionCombinations(
+  options: AllSupportedCliOptions,
+): void {
+  const unsupportedAllProjectsCombinations: {
+    [name: string]: SupportedUserReachableFacingCliArgs;
+  } = {
+    'project-name': 'project-name',
+    file: 'file',
+    yarnWorkspaces: 'yarn-workspaces',
+    packageManager: 'package-manager',
+    docker: 'docker',
+    allSubProjects: 'all-sub-projects',
+  };
+
+  const unsupportedYarnWorkspacesCombinations: {
+    [name: string]: SupportedUserReachableFacingCliArgs;
+  } = {
+    'project-name': 'project-name',
+    file: 'file',
+    packageManager: 'package-manager',
+    docker: 'docker',
+    allSubProjects: 'all-sub-projects',
+  };
+
+  if (options.scanAllUnmanaged && options.file) {
+    throw new UnsupportedOptionCombinationError(['file', 'scan-all-unmanaged']);
+  }
+
+  if (options.allProjects) {
+    for (const option in unsupportedAllProjectsCombinations) {
+      if (options[option]) {
+        throw new UnsupportedOptionCombinationError([
+          unsupportedAllProjectsCombinations[option],
+          'all-projects',
+        ]);
+      }
+    }
+  }
+
+  if (options.yarnWorkspaces) {
+    for (const option in unsupportedYarnWorkspacesCombinations) {
+      if (options[option]) {
+        throw new UnsupportedOptionCombinationError([
+          unsupportedAllProjectsCombinations[option],
+          'yarn-workspaces',
+        ]);
+      }
+    }
+  }
+
+  if (options.exclude) {
+    if (!(options.allProjects || options.yarnWorkspaces)) {
+      throw new OptionMissingErrorError('--exclude', [
+        '--yarn-workspaces',
+        '--all-projects',
+      ]);
+    }
+    if (typeof options.exclude !== 'string') {
+      throw new ExcludeFlagBadInputError();
+    }
+    if (options.exclude.indexOf(pathLib.sep) > -1) {
+      throw new ExcludeFlagInvalidInputError();
+    }
+  }
 }

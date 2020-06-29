@@ -22,9 +22,6 @@ export function formatMonitorOutput(
     : res.path;
   const strOutput =
     chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
-    (packageManager === 'yarn'
-      ? 'A yarn.lock file was detected - continuing as a Yarn project.\n'
-      : '') +
     'Explore this snapshot at ' +
     res.uri +
     '\n\n' +

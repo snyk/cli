@@ -114,12 +114,46 @@ test('`test --file=blah --scan-all-unmanaged`', (t) => {
   });
 });
 
+const argsNotAllowedWithYarnWorkspaces = [
+  'file',
+  'package-manager',
+  'project-name',
+  'docker',
+  'all-sub-projects',
+];
+
+argsNotAllowedWithYarnWorkspaces.forEach((arg) => {
+  test(`using --${arg} and --yarn-workspaces displays error message`, (t) => {
+    t.plan(2);
+    exec(`node ${main} test --${arg} --yarn-workspaces`, (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.deepEqual(
+        stdout.trim(),
+        `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
+        'when using test',
+      );
+    });
+    exec(`node ${main} monitor --${arg} --yarn-workspaces`, (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.deepEqual(
+        stdout.trim(),
+        `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
+        'when using monitor',
+      );
+    });
+  });
+});
 const argsNotAllowedWithAllProjects = [
   'file',
   'package-manager',
   'project-name',
   'docker',
   'all-sub-projects',
+  'yarn-workspaces',
 ];
 
 argsNotAllowedWithAllProjects.forEach((arg) => {
@@ -129,7 +163,7 @@ argsNotAllowedWithAllProjects.forEach((arg) => {
       if (err) {
         throw err;
       }
-      t.match(
+      t.deepEqual(
         stdout.trim(),
         `The following option combination is not currently supported: ${arg} + all-projects`,
         'when using test',
@@ -139,7 +173,7 @@ argsNotAllowedWithAllProjects.forEach((arg) => {
       if (err) {
         throw err;
       }
-      t.match(
+      t.deepEqual(
         stdout.trim(),
         `The following option combination is not currently supported: ${arg} + all-projects`,
         'when using monitor',
@@ -156,7 +190,7 @@ test('`test --exclude without --all-project displays error message`', (t) => {
     }
     t.equals(
       stdout.trim(),
-      'The --exclude option can only be use in combination with --all-projects.',
+      'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
     );
   });
 });
@@ -185,7 +219,7 @@ test('`test --exclude=path/to/dir displays error message`', (t) => {
       }
       t.equals(
         stdout.trim(),
-        'The --exclude argument must be a comma seperated list of directory names and cannot contain a path.',
+        'The --exclude argument must be a comma separated list of directory names and cannot contain a path.',
       );
     },
   );
