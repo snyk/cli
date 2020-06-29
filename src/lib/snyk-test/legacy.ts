@@ -86,6 +86,18 @@ export interface IssueData {
   reachability?: REACHABILITY;
 }
 
+export type CallPath = string[];
+
+export interface ReachableFunctionPaths {
+  functionName: string;
+  callPaths: CallPath[];
+}
+
+export interface ReachablePaths {
+  pathCount: number;
+  reachablePaths: ReachableFunctionPaths[];
+}
+
 interface AnnotatedIssue extends IssueData {
   credit: any;
   name: string;
@@ -107,6 +119,8 @@ interface AnnotatedIssue extends IssueData {
   patch?: any;
   note?: string | false;
   publicationTime?: string;
+
+  reachablePaths?: ReachablePaths;
 }
 
 // Mixin, to be added to GroupedVuln / AnnotatedIssue

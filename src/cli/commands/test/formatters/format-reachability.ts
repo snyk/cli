@@ -1,7 +1,18 @@
 import * as wrap from 'wrap-ansi';
 import chalk from 'chalk';
 
-import { AnnotatedIssue, REACHABILITY } from '../../../../lib/snyk-test/legacy';
+import {
+  AnnotatedIssue,
+  CallPath,
+  REACHABILITY,
+} from '../../../../lib/snyk-test/legacy';
+import { SampleReachablePaths } from './types';
+
+// Number of function names to show in the beginning of an abbreviated code path
+const LEADING_PATH_ELEMENTS = 2;
+
+// Number of function names to show in the end of an abbreviated code path
+const TRAILING_PATH_ELEMENTS = 2;
 
 const reachabilityLevels: {
   [key in REACHABILITY]: { color: Function; text: string };
@@ -58,4 +69,39 @@ export function summariseReachableVulns(
   }
 
   return '';
+}
+
+function getDistinctReachablePaths(
+  reachablePaths: CallPath[],
+  maxPathCount: number,
+): string[] {
+  const uniquePaths = new Set<string>();
+  for (const path of reachablePaths) {
+    if (uniquePaths.size >= maxPathCount) {
+      break;
+    }
+    uniquePaths.add(formatReachablePath(path));
+  }
+  return Array.from(uniquePaths.values());
+}
+
+export function formatReachablePaths(
+  sampleReachablePaths: SampleReachablePaths | undefined,
+  maxPathCount: number,
+  template: (samplePaths: string[], extraPathsCount: number) => string,
+): string {
+  const paths = sampleReachablePaths?.paths || [];
+  const pathCount = sampleReachablePaths?.pathCount || 0;
+  const distinctPaths = getDistinctReachablePaths(paths, maxPathCount);
+  const extraPaths = pathCount - distinctPaths.length;
+
+  return template(distinctPaths, extraPaths);
+}
+
+export function formatReachablePath(path: CallPath): string {
+  const head = path.slice(0, LEADING_PATH_ELEMENTS).join('>');
+  const tail = path
+    .slice(path.length - TRAILING_PATH_ELEMENTS, path.length)
+    .join('>');
+  return `${head} > ... > ${tail}`;
 }
