@@ -13,12 +13,11 @@ Options:
   -h, --help
   --json .................................. Return results in JSON format.
   --project-name=<string> ................. Specify a custom Snyk project name.
-  --policy-path=<path> .................... Manually pass a path to a snyk policy file.
   --severity-threshold=<low|medium|high>... Only report issues of provided level or higher.
 
 Examples:
 
-  $ snyk iac test /path/to/Kubernetes.yaml
+  $ snyk iac test --file=/path/to/Kubernetes.yaml
 
 
 For more information see https://support.snyk.io/hc/en-us/categories/360001342678-Infrastructure-as-code
