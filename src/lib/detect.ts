@@ -51,6 +51,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'vendor.json',
   'Pipfile',
   'requirements.txt',
+  'build.sbt',
 ];
 
 // when file is specified with --file, we look it up here

@@ -74,7 +74,7 @@ export const AllProjectsTests: AcceptanceTests = {
     ) => async (t) => {
       utils.chdirWorkspaces();
 
-      // mock python plugin becuase CI tooling doesn't have pipenv installed
+      // mock python plugin because CI tooling doesn't have pipenv installed
       const mockPlugin = {
         async inspect() {
           return {
@@ -102,8 +102,9 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(loadPlugin.withArgs('nuget').calledOnce, 'calls nuget plugin');
       t.ok(loadPlugin.withArgs('paket').calledOnce, 'calls nuget plugin');
       t.ok(loadPlugin.withArgs('pip').calledOnce, 'calls pip plugin');
+      t.ok(loadPlugin.withArgs('sbt').calledOnce, 'calls pip plugin');
 
-      params.server.popRequests(6).forEach((req) => {
+      params.server.popRequests(7).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
@@ -114,7 +115,7 @@ export const AllProjectsTests: AcceptanceTests = {
         t.ok(req.body.depGraph, 'body contains depGraph');
         t.match(
           req.body.depGraph.pkgManager.name,
-          /(npm|rubygems|maven|nuget|paket|pip)/,
+          /(npm|rubygems|maven|nuget|paket|pip|sbt)/,
           'depGraph has package manager',
         );
       });
@@ -159,6 +160,11 @@ export const AllProjectsTests: AcceptanceTests = {
         result.getDisplayResults(),
         'Target file:       Pipfile',
         'contains target file Pipfile',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Target file:       build.sbt',
+        'contains target file build.sbt',
       );
     },
 
@@ -219,9 +225,10 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(loadPlugin.withArgs('maven').calledOnce, 'calls maven plugin');
       t.ok(loadPlugin.withArgs('nuget').calledOnce, 'calls nuget plugin');
       t.ok(loadPlugin.withArgs('paket').calledOnce, 'calls nuget plugin');
+      t.ok(loadPlugin.withArgs('sbt').calledOnce, 'calls sbt plugin');
       t.equals(loadPlugin.withArgs('pip').callCount, 2, 'calls pip plugin');
 
-      params.server.popRequests(9).forEach((req) => {
+      params.server.popRequests(10).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
@@ -232,7 +239,7 @@ export const AllProjectsTests: AcceptanceTests = {
         t.ok(req.body.depGraph, 'body contains depGraph');
         t.match(
           req.body.depGraph.pkgManager.name,
-          /(npm|rubygems|maven|nuget|paket|pip)/,
+          /(npm|rubygems|maven|nuget|paket|pip|sbt)/,
           'depGraph has package manager',
         );
       });
@@ -333,6 +340,13 @@ export const AllProjectsTests: AcceptanceTests = {
         `Target file:       python-app-with-req-file${path.sep}requirements.txt`,
         `contains target file python-app-with-req-file${path.sep}requirements.txt`,
       );
+
+      // sbt
+      t.match(
+        result.getDisplayResults(),
+        'Target file:       build.sbt',
+        'contains target file build.sbt',
+      );
     },
 
     '`test mono-repo-project --all-projects and --file payloads are the same`': (
@@ -363,7 +377,7 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 1,
       });
 
-      const requests = params.server.popRequests(6);
+      const requests = params.server.popRequests(7);
 
       // find each type of request
       const rubyAll = requests.find(
@@ -383,6 +397,9 @@ export const AllProjectsTests: AcceptanceTests = {
       );
       const mavenAll = requests.find(
         (req) => req.body.depGraph.pkgManager.name === 'maven',
+      );
+      const sbtAll = requests.find(
+        (req) => req.body.depGraph.pkgManager.name === 'sbt',
       );
 
       await params.cli.test('mono-repo-project', {
@@ -414,6 +431,11 @@ export const AllProjectsTests: AcceptanceTests = {
         file: 'pom.xml',
       });
       const mavenFile = params.server.popRequest();
+
+      await params.cli.test('mono-repo-project', {
+        file: 'build.sbt',
+      });
+      const sbtFile = params.server.popRequest();
 
       t.same(
         pipAll.body,
@@ -448,6 +470,12 @@ export const AllProjectsTests: AcceptanceTests = {
         mavenAll.body,
         mavenFile.body,
         'Same body for --all-projects and --file=pom.xml',
+      );
+
+      t.same(
+        sbtAll.body,
+        sbtFile.body,
+        'Same body for --all-projects and --file=build.sbt',
       );
     },
 
