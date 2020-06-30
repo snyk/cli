@@ -91,7 +91,7 @@ function spinner(opt: SpinnerOptions) {
 
   let delay = typeof opt.delay === 'number' ? opt.delay : 2;
 
-  const interval = setInterval(() => {
+  const interval = (setInterval(() => {
     if (--delay >= 0) {
       return;
     }
@@ -99,7 +99,7 @@ function spinner(opt: SpinnerOptions) {
     const c = sprite[s];
     str.write(c + ' ' + (opt.label || '') + CR);
     wrote = true;
-  }, ms);
+  }, ms) as unknown) as NodeJS.Timer;
 
   const unref = typeof opt.unref === 'boolean' ? opt.unref : true;
   if (unref && typeof interval.unref === 'function') {
