@@ -5,7 +5,7 @@
       {
           "id": "SNYK-CC-K8S-1",
           "title": "Reducing the admission of containers with dropped capabilities",
-          "description": "The requiredDropCapabilities property (as part of the Pod Security Policy) provides a whitelist of capabilities that must be dropped from containers (https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities). These capabilities are removed from the default set, and must not be added. It’s recommended to drop all the capabilities (using ALL), or at least to drop NET_RAW (which allows a process to spy on packets on its network / to inject data onto the network).",
+          "description": "## Overview Privileged containers can do nearly everything a process on the host can do, and provide no isolation from other workloads. Avoid where possible. ## Remediation Change to `false` ## References ad",
           "cloudConfigPath": ["[DocId: 2]","input","spec","requiredDropCapabilities"],
           "severity": "high",
           "isIgnored": false,
@@ -15,7 +15,7 @@
       {
         "id": "SNYK-CC-K8S-2",
         "title": "Reducing the admission of containers with dropped capabilities",
-        "description": "The requiredDropCapabilities property (as part of the Pod Security Policy) provides a whitelist of capabilities that must be dropped from containers (https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities). These capabilities are removed from the default set, and must not be added. It’s recommended to drop all the capabilities (using ALL), or at least to drop NET_RAW (which allows a process to spy on packets on its network / to inject data onto the network).",
+        "description": "## Overview The requiredDropCapabilities property (as part of the Pod Security Policy) provides a whitelist of capabilities that must be dropped from containers (https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities). These capabilities are removed from the default set, and must not be added. It’s recommended to drop all the capabilities (using ALL), or at least to drop NET_RAW (which allows a process to spy on packets on its network / to inject data onto the network). ## Remediation Change to `false` ## References ad",
         "cloudConfigPath": ["[DocId: 2]","input","spec","requiredDropCapabilities"],
         "severity": "medium",
         "isIgnored": false,
@@ -25,7 +25,7 @@
     {
       "id": "SNYK-CC-K8S-3",
       "title": "Reducing the admission of containers with dropped capabilities",
-      "description": "The requiredDropCapabilities property (as part of the Pod Security Policy) provides a whitelist of capabilities that must be dropped from containers (https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities). These capabilities are removed from the default set, and must not be added. It’s recommended to drop all the capabilities (using ALL), or at least to drop NET_RAW (which allows a process to spy on packets on its network / to inject data onto the network).",
+        "description": "## Overview The requiredDropCapabilities property (as part of the Pod Security Policy) provides a whitelist of capabilities that must be dropped from containers (https://docs.docker.com/engine/reference/run/#runtime-privilege-and-linux-capabilities). These capabilities are removed from the default set, and must not be added. It’s recommended to drop all the capabilities (using ALL), or at least to drop NET_RAW (which allows a process to spy on packets on its network / to inject data onto the network). ## Remediation Change to `false` ## References ad",
       "cloudConfigPath": ["[DocId: 2]","input","spec","requiredDropCapabilities"],
       "severity": "low",
       "isIgnored": false,

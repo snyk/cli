@@ -399,7 +399,11 @@ function displayResult(
   const projectType =
     (res.packageManager as SupportedProjectTypes) || options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
-  const prefix = chalk.bold.white('\nTesting ' + options.path + '...\n\n');
+  let testingPath = options.path;
+  if (options.iac && options.file) {
+    testingPath = options.file;
+  }
+  const prefix = chalk.bold.white('\nTesting ' + testingPath + '...\n\n');
 
   // handle errors by extracting their message
   if (res instanceof Error) {
@@ -411,7 +415,7 @@ function displayResult(
       : 'vulnerabilities';
   let pathOrDepsText = '';
 
-  if (res.hasOwnProperty('dependencyCount')) {
+  if (res.dependencyCount) {
     pathOrDepsText += res.dependencyCount + ' dependencies';
   } else {
     pathOrDepsText += options.path;
@@ -464,7 +468,6 @@ function displayResult(
   if (res.packageManager === 'k8sconfig') {
     return getIacDisplayedOutput(
       (res as any) as IacTestResult,
-      options,
       testedInfoText,
       meta,
       prefix,

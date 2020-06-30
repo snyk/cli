@@ -1,9 +1,6 @@
-import * as sinon from 'sinon';
 import * as _ from '@snyk/lodash';
 import { getWorkspaceJSON } from '../workspace-helper';
 import { CommandResult } from '../../../src/cli/commands/types';
-// import * as fs from 'fs';
-// import * as path from 'path';
 
 import { AcceptanceTests } from './cli-test.acceptance.test';
 
@@ -82,11 +79,7 @@ export const IacK8sTests: AcceptanceTests = {
 
       const meta = res.slice(res.indexOf('Organization:')).split('\n');
       t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-      t.match(
-        meta[1],
-        /Package manager:\s+k8sconfig/,
-        'package manager displayed',
-      );
+      t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
       t.match(
         meta[2],
         /Target file:\s+multi-file.yaml/,
@@ -124,17 +117,41 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested 0 dependencies for known issues, found 3 issues',
+          'Tested iac-kubernetes for known issues, found 3 issues',
           '3 issue',
         );
 
+        const issues = res
+          .slice(
+            res.indexOf('Infrastructure as code issues:'),
+            res.indexOf('Organization:'),
+          )
+          .split('\n');
+        t.ok(issues[1].includes('[SNYK-CC-K8S-'), 'Snyk id');
+
+        t.ok(
+          issues[2].trim().startsWith('introduced by'),
+          'Introduced by line',
+        );
+
+        t.ok(issues[3], 'description');
+
+        t.ok(issues[4] === '', 'Empty line after description');
+
+        t.ok(issues[5].includes('[SNYK-CC-K8S-'), 'Snyk id');
+
+        t.ok(
+          issues[6].trim().startsWith('introduced by'),
+          'Introduced by line',
+        );
+
+        t.ok(issues[7], 'description');
+
+        t.ok(issues[8] === '', 'Empty line after description');
+
         const meta = res.slice(res.indexOf('Organization:')).split('\n');
         t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-        t.match(
-          meta[1],
-          /Package manager:\s+k8sconfig/,
-          'package manager displayed',
-        );
+        t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
         t.match(
           meta[2],
           /Target file:\s+multi-file.yaml/,
@@ -177,17 +194,13 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested 0 dependencies for known issues, found 3 issues',
+          'Tested iac-kubernetes for known issues, found 3 issues',
           '3 issue',
         );
 
         const meta = res.slice(res.indexOf('Organization:')).split('\n');
         t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-        t.match(
-          meta[1],
-          /Package manager:\s+k8sconfig/,
-          'package manager displayed',
-        );
+        t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
         t.match(
           meta[2],
           /Target file:\s+multi-file.yaml/,
@@ -275,17 +288,13 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested 0 dependencies for known issues, found 2 issues',
+          'Tested iac-kubernetes for known issues, found 2 issues',
           '2 issue',
         );
 
         const meta = res.slice(res.indexOf('Organization:')).split('\n');
         t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-        t.match(
-          meta[1],
-          /Package manager:\s+k8sconfig/,
-          'package manager displayed',
-        );
+        t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
         t.match(
           meta[2],
           /Target file:\s+multi-file.yaml/,
@@ -373,17 +382,13 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested 0 dependencies for known issues, found 1 issues',
+          'Tested iac-kubernetes for known issues, found 1 issues',
           '1 issue',
         );
 
         const meta = res.slice(res.indexOf('Organization:')).split('\n');
         t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-        t.match(
-          meta[1],
-          /Package manager:\s+k8sconfig/,
-          'package manager displayed',
-        );
+        t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
         t.match(
           meta[2],
           /Target file:\s+multi-file.yaml/,

@@ -331,7 +331,7 @@ async function assembleLocalPayloads(
   if (options.docker) {
     analysisTypeText = 'docker dependencies for ';
   } else if (options.iac) {
-    analysisTypeText = 'Infrastruction as code configurations for ';
+    analysisTypeText = 'Infrastructure as code configurations for ';
   } else if (options.packageManager) {
     analysisTypeText = options.packageManager + ' dependencies for ';
   }

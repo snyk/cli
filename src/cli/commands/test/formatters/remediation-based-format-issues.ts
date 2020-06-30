@@ -414,7 +414,7 @@ function constructUnfixableText(
   return unfixableIssuesTextArray;
 }
 
-function printPath(path: string[]) {
+export function printPath(path: string[]) {
   return path.slice(1).join(' > ');
 }
 
