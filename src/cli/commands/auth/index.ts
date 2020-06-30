@@ -1,11 +1,8 @@
-import * as dns from 'dns';
 import * as url from 'url';
-import * as util from 'util';
 import * as open from 'open';
 import * as uuid from 'uuid';
 import * as Debug from 'debug';
 import { Spinner } from 'cli-spinner';
-import { IPv6, parse } from 'ipaddr.js';
 
 import * as snyk from '../../../lib';
 import { verifyAPI } from './is-authed';
@@ -20,8 +17,6 @@ import { Payload } from '../../../lib/request/types';
 import { getQueryParamsAsString } from '../../../lib/query-strings';
 
 export = auth;
-
-const dnsLookupPromise = util.promisify(dns.lookup);
 
 const apiUrl = url.parse(config.API);
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;
@@ -179,16 +174,16 @@ function errorForFailedAuthAttempt(res, body) {
 }
 
 async function getIpFamily(): Promise<6 | undefined> {
-  const IPv6Family = 6;
-
+  const family = 6;
   try {
-    const { address } = await dnsLookupPromise(apiUrl.hostname!, {
-      family: IPv6Family,
+    // Dispatch a FORCED IPv6 request to test client's ISP and network capability
+    await request({
+      url: config.API + '/verify/callback',
+      family, // family param forces the handler to dispatch a request using IP at "family" version
+      method: 'post',
     });
-    const res = parse(address) as IPv6;
-    return !res.isIPv4MappedAddress() ? IPv6Family : undefined;
+    return family;
   } catch (e) {
-    /* IPv6 is not enabled */
     return undefined;
   }
 }
