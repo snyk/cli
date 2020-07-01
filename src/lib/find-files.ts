@@ -51,7 +51,7 @@ export async function find(
   path: string,
   ignore: string[] = [],
   filter: string[] = [],
-  levelsDeep = 2,
+  levelsDeep = 4,
 ): Promise<string[]> {
   const found: string[] = [];
   // ensure we ignore find against node_modules path.
@@ -100,7 +100,7 @@ async function findInDirectory(
   path: string,
   ignore: string[] = [],
   filter: string[] = [],
-  levelsDeep = 2,
+  levelsDeep = 4,
 ): Promise<string[]> {
   const files = await readDirectory(path);
   const toFind = files

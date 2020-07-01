@@ -5,8 +5,8 @@ import { find } from '../src/lib/find-files';
 const testFixture = path.join(__dirname, 'fixtures', 'find-files');
 
 test('find all files in test fixture', async (t) => {
-  // four levels deep to find all
-  const result = await find(testFixture, [], [], 4);
+  // six levels deep to find all
+  const result = await find(testFixture, [], [], 6);
   const expected = [
     path.join(testFixture, 'README.md'),
     path.join(
@@ -36,8 +36,8 @@ test('find all files in test fixture', async (t) => {
 });
 
 test('find all files in test fixture ignoring node_modules', async (t) => {
-  // four levels deep to ensure node_modules is tested
-  const result = await find(testFixture, ['node_modules'], [], 4);
+  // six levels deep to ensure node_modules is tested
+  const result = await find(testFixture, ['node_modules'], [], 6);
   const expected = [
     path.join(testFixture, 'README.md'),
     path.join(
@@ -67,16 +67,16 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
 });
 
 test('find package.json file in test fixture ignoring node_modules', async (t) => {
-  // four levels deep to ensure node_modules is tested
+  // six levels deep to ensure node_modules is tested
   const nodeModulesPath = path.join(testFixture, 'node_modules');
-  const result = await find(nodeModulesPath, [], ['package.json'], 4);
+  const result = await find(nodeModulesPath, [], ['package.json'], 6);
   const expected = [];
   t.same(result, expected, 'should return expected file');
 });
 
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
-  // four levels deep to ensure node_modules is tested
-  const result = await find(testFixture, [], ['package.json'], 4);
+  // six levels deep to ensure node_modules is tested
+  const result = await find(testFixture, [], ['package.json'], 6);
   const expected = [
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm-with-lockfile', 'package.json'),
