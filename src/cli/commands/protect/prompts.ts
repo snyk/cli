@@ -1,3 +1,5 @@
+import { PATH_SEPARATOR } from '../constants';
+
 export {
   getUpdatePrompts,
   getPatchPrompts,
@@ -648,8 +650,8 @@ function generatePrompt(
       );
       messageIntro += '\n    Description: ' + vuln.title;
       fromText =
-        from !== vuln.from.slice(1).join(' > ')
-          ? '    From: ' + vuln.from.slice(1).join(' > ')
+        from !== vuln.from.slice(1).join(PATH_SEPARATOR)
+          ? '    From: ' + vuln.from.slice(1).join(PATH_SEPARATOR)
           : '';
     }
 

@@ -25,6 +25,7 @@ import {
   SampleReachablePaths,
   UpgradesByAffectedPackage,
 } from './types';
+import { PATH_SEPARATOR } from '../../constants';
 
 // How many reachable paths to show in the output
 const MAX_REACHABLE_PATHS = 2;
@@ -45,7 +46,7 @@ export function formatIssuesWithRemediation(
   for (const vuln of vulns) {
     const allReachablePaths: SampleReachablePaths = { pathCount: 0, paths: [] };
     for (const issue of vuln.list) {
-      const issueReachablePaths = issue.reachablePaths?.reachablePaths || [];
+      const issueReachablePaths = issue.reachablePaths?.paths || [];
       for (const functionReachablePaths of issueReachablePaths) {
         allReachablePaths.paths = allReachablePaths.paths.concat(
           functionReachablePaths.callPaths,
@@ -415,7 +416,7 @@ function constructUnfixableText(
 }
 
 export function printPath(path: string[]) {
-  return path.slice(1).join(' > ');
+  return path.slice(1).join(PATH_SEPARATOR);
 }
 
 export function formatIssue(
