@@ -15,7 +15,8 @@ export function formatMonitorOutput(
   const manageUrl = buildManageUrl(res.id, res.org);
   const advertiseGradleSubProjectsCount =
     packageManager === 'gradle' && !options['gradle-sub-project'];
-
+  const advertiseAllProjectsCount =
+    packageManager !== 'gradle' && !options.allProjects && foundProjectCount;
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
   const humanReadableName = projectName
     ? `${res.path} (${projectName})`
@@ -29,6 +30,12 @@ export function formatMonitorOutput(
       ? chalk.bold.white(
           `Tip: This project has multiple sub-projects (${foundProjectCount}), ` +
             'use --all-sub-projects flag to scan all sub-projects.\n\n',
+        )
+      : '') +
+    (advertiseAllProjectsCount && foundProjectCount
+      ? chalk.bold.white(
+          `Tip: Detected multiple supported manifests (${foundProjectCount}), ` +
+            'use --all-projects to scan all of them at once.\n\n',
         )
       : '') +
     (res.isMonitored
