@@ -95,7 +95,7 @@ export interface ReachableFunctionPaths {
 
 export interface ReachablePaths {
   pathCount: number;
-  reachablePaths: ReachableFunctionPaths[];
+  paths: ReachableFunctionPaths[];
 }
 
 interface AnnotatedIssue extends IssueData {

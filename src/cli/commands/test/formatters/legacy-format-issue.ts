@@ -16,6 +16,7 @@ import {
 } from '../../../../lib/snyk-test/legacy';
 import { formatLegalInstructions } from './legal-license-instructions';
 import { getReachabilityText } from './format-reachability';
+import { PATH_SEPARATOR } from '../../constants';
 
 export function formatIssues(
   vuln: GroupedVuln,
@@ -136,7 +137,7 @@ function createTruncatedVulnsPathsText(
     const fromWithoutBaseProject = i.slice(1);
     // If more than one From path
     if (fromWithoutBaseProject.length) {
-      return i.slice(1).join(' > ');
+      return i.slice(1).join(PATH_SEPARATOR);
     }
     // Else issue is in the core package
     return i;
@@ -221,7 +222,7 @@ function createRemediationText(
           // Example command: snyk test express@3
           const selfUpgradeInfo =
             v.upgradePath.length > 0
-              ? ` (triggers upgrades to ${v.upgradePath.join(' > ')})`
+              ? ` (triggers upgrades to ${v.upgradePath.join(PATH_SEPARATOR)})`
               : '';
           const testedPackageName = snykModule(v.upgradePath[0] as string);
           return (
@@ -230,7 +231,9 @@ function createRemediationText(
           );
         }
         if (shouldUpgradeDirectDep) {
-          const formattedUpgradePath = v.upgradePath.slice(1).join(' > ');
+          const formattedUpgradePath = v.upgradePath
+            .slice(1)
+            .join(PATH_SEPARATOR);
           const upgradeTextInfo = v.upgradePath.length
             ? ` (triggers upgrades to ${formattedUpgradePath})`
             : '';

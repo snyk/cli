@@ -7,12 +7,12 @@ import {
   REACHABILITY,
 } from '../../../../lib/snyk-test/legacy';
 import { SampleReachablePaths } from './types';
-
-// Number of function names to show in the beginning of an abbreviated code path
-const LEADING_PATH_ELEMENTS = 2;
-
-// Number of function names to show in the end of an abbreviated code path
-const TRAILING_PATH_ELEMENTS = 2;
+import {
+  CALL_PATH_LEADING_ELEMENTS,
+  PATH_SEPARATOR,
+  CALL_PATH_TRAILING_ELEMENTS,
+  PATH_HIDDEN_ELEMENTS,
+} from '../../constants';
 
 const reachabilityLevels: {
   [key in REACHABILITY]: { color: Function; text: string };
@@ -99,9 +99,9 @@ export function formatReachablePaths(
 }
 
 export function formatReachablePath(path: CallPath): string {
-  const head = path.slice(0, LEADING_PATH_ELEMENTS).join('>');
+  const head = path.slice(0, CALL_PATH_LEADING_ELEMENTS).join(PATH_SEPARATOR);
   const tail = path
-    .slice(path.length - TRAILING_PATH_ELEMENTS, path.length)
-    .join('>');
-  return `${head} > ... > ${tail}`;
+    .slice(path.length - CALL_PATH_TRAILING_ELEMENTS, path.length)
+    .join(PATH_SEPARATOR);
+  return `${head}${PATH_SEPARATOR}${PATH_HIDDEN_ELEMENTS}${PATH_SEPARATOR}${tail}`;
 }
