@@ -57,7 +57,7 @@
     "@snyk/dep-graph": "1.18.3",
     "@snyk/gemfile": "1.2.0",
     "@snyk/graphlib": "2.1.9-patch",
-    "@snyk/inquirer": "6.2.2-patch",
+    "@snyk/inquirer": "6.5.1",
     "@snyk/lodash": "^4.17.15-patch",
     "@snyk/ruby-semver": "2.2.0",
     "@snyk/snyk-cocoapods-plugin": "2.3.0",
