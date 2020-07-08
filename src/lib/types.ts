@@ -67,6 +67,8 @@ export interface Options {
   strictOutOfSync?: boolean;
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
+  // Used with the Docker plugin only. Allows application scanning.
+  'app-vulns'?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -86,6 +88,8 @@ export interface MonitorOptions {
   'prune-repeated-subdependencies'?: boolean;
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
+  // Used with the Docker plugin only. Allows application scanning.
+  'app-vulns'?: boolean;
   reachableVulns?: boolean;
   yarnWorkspaces?: boolean;
 }
