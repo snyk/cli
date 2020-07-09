@@ -240,6 +240,14 @@ async function main() {
       (args.options as unknown) as AllSupportedCliOptions,
     );
 
+    if (args.options['app-vulns'] && args.options['json']) {
+      throw new UnsupportedOptionCombinationError([
+        'Application vulnerabilities is currently not supported with JSON output. ' +
+          'Please try using —app-vulns only to get application vulnerabilities, or ' +
+          '—json only to get your image vulnerabilties, excluding the application ones.',
+      ]);
+    }
+
     if (
       args.options.file &&
       typeof args.options.file === 'string' &&

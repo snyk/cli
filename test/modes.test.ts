@@ -136,6 +136,7 @@ test('when is a valid mode', (c) => {
           _: [],
           docker: true,
           experimental: true,
+          'app-vulns': true,
           'package-manager': 'pip',
         };
         const cliCommand = 'container';
@@ -155,28 +156,64 @@ test('when is a valid mode', (c) => {
     );
 
     d.test('when there is a command alias', (t) => {
-      t.test('"container t" should set docker option and test command', (t) => {
-        const expectedCommand = 't';
-        const expectedArgs = {
-          _: [],
-          docker: true,
-          experimental: true,
-          'package-manager': 'pip',
-        };
-        const cliCommand = 'container';
-        const cliArgs = {
-          _: ['t'],
-          'package-manager': 'pip',
-        };
+      t.test(
+        '"container test" should set docker option and test command',
+        (t) => {
+          const expectedCommand = 't';
+          const expectedArgs = {
+            _: [],
+            docker: true,
+            experimental: true,
+            'app-vulns': true,
+            'package-manager': 'pip',
+          };
+          const cliCommand = 'container';
+          const cliArgs = {
+            _: ['t'],
+            'package-manager': 'pip',
+          };
 
-        const command = parseMode(cliCommand, cliArgs);
+          const command = parseMode(cliCommand, cliArgs);
 
-        t.equal(command, expectedCommand);
-        t.same(cliArgs, expectedArgs);
-        t.ok(cliArgs['docker']);
-        t.ok(cliArgs['experimental']);
-        t.end();
-      });
+          t.equal(command, expectedCommand);
+          t.same(cliArgs, expectedArgs);
+          t.ok(cliArgs['docker']);
+          t.ok(cliArgs['experimental']);
+          t.end();
+        },
+      );
+      t.end();
+    });
+
+    d.test('when there is a command alias', (t) => {
+      t.test(
+        '"container test" should set docker option and not app-vulns and test command',
+        (t) => {
+          const expectedCommand = 't';
+          const expectedArgs = {
+            _: [],
+            json: true,
+            docker: true,
+            experimental: true,
+            'app-vulns': false,
+            'package-manager': 'pip',
+          };
+          const cliCommand = 'container';
+          const cliArgs = {
+            _: ['t'],
+            json: true,
+            'package-manager': 'pip',
+          };
+
+          const command = parseMode(cliCommand, cliArgs);
+
+          t.equal(command, expectedCommand);
+          t.same(cliArgs, expectedArgs);
+          t.ok(cliArgs['docker']);
+          t.ok(cliArgs['experimental']);
+          t.end();
+        },
+      );
       t.end();
     });
     d.end();
