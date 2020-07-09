@@ -40,29 +40,21 @@ export async function parse(
     );
   }
 
-  const manifestFile = fs.readFileSync(manifestFileFullPath, 'utf-8');
-  const lockFile = fs.readFileSync(lockFileFullPath, 'utf-8');
-
   analytics.add('local', true);
   analytics.add('generating-node-dependency-tree', {
     lockFile: true,
     targetFile,
   });
-
-  const lockFileType = targetFile.endsWith('yarn.lock')
-    ? lockFileParser.LockfileType.yarn
-    : lockFileParser.LockfileType.npm;
-
   const resolveModuleSpinnerLabel = `Analyzing npm dependencies for ${lockFileFullPath}`;
   debug(resolveModuleSpinnerLabel);
   try {
     await spinner(resolveModuleSpinnerLabel);
     const strictOutOfSync = options.strictOutOfSync !== false;
-    return lockFileParser.buildDepTree(
-      manifestFile,
-      lockFile,
+    return lockFileParser.buildDepTreeFromFiles(
+      root,
+      manifestFileFullPath,
+      lockFileFullPath,
       options.dev,
-      lockFileType,
       strictOutOfSync,
     );
   } finally {
