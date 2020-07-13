@@ -20,7 +20,6 @@ commands:
   install_deps:
     description: Install dependencies
     steps:
-      - checkout
       - run:
           name: Use snyk-main npmjs user
           command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
@@ -30,7 +29,6 @@ commands:
   build_ts:
     description: Build js files from ts
     steps:
-      - checkout
       - run:
           name: Build
           command: npm run build
@@ -159,6 +157,32 @@ jobs:
           name: Run tests
           command: npm test
 
+  test-regression:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    steps:
+      - checkout
+      - install_deps
+      - build_ts
+      - run:
+          name: Clear node_modules
+          command: rm -rf node_modules/
+      - run:
+          name: Install only production dependencies
+          command: npm install
+          environment:
+            NODE_ENV: production
+      - run:
+          name: Run auth
+          command: node ~/snyk/dist/cli/index.js auth $SNYK_API_KEY
+      - run:
+          name: Regression test in test command
+          command: node ~/snyk/dist/cli/index.js test test/acceptance/workspaces/npm-package-no-vulns
+      - run:
+          name: Regression test in monitor command
+          command: node ~/snyk/dist/cli/index.js monitor test/acceptance/workspaces/npm-package-no-vulns
+
   release:
     <<: *defaults
     docker:
@@ -195,8 +219,8 @@ workflows:
           context: nodejs-install
           node_version: "12.0.0"
           requires:
-            - Common
-            - Danger Zone
+              - Common
+              - Danger Zone
           filters:
             branches:
               ignore:
@@ -204,10 +228,10 @@ workflows:
       - test-windows:
           name: Windows Tests for Node v10 support
           context: nodejs-install
-          node_version: "10.0.0"
+          node_version: "10.21.0"
           requires:
-            - Common
-            - Danger Zone
+              - Common
+              - Danger Zone
           filters:
             branches:
               ignore:
@@ -217,8 +241,8 @@ workflows:
           context: nodejs-install
           node_version: "8.17.0"
           requires:
-            - Common
-            - Danger Zone
+              - Common
+              - Danger Zone
           filters:
             branches:
               ignore:
@@ -228,8 +252,8 @@ workflows:
           context: nodejs-install
           node_version: "12.16.2"
           requires:
-            - Common
-            - Danger Zone
+              - Common
+              - Danger Zone
           filters:
             branches:
               ignore:
@@ -239,8 +263,8 @@ workflows:
           context: nodejs-install
           node_version: "10"
           requires:
-            - Common
-            - Danger Zone
+              - Common
+              - Danger Zone
           filters:
             branches:
               ignore:
@@ -250,8 +274,23 @@ workflows:
           context: nodejs-install
           node_version: "8"
           requires:
-            - Common
-            - Danger Zone
+              - Common
+              - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-regression:
+          name: Regression Test
+          context: nodejs-install
+          node_version: "8"
+          requires:
+            - Unix Tests for Node v8 support
+            - Unix Tests for Node v10 support
+            - Unix Tests for Node v12 support
+            - Windows Tests for Node v8 support
+            - Windows Tests for Node v10 support
+            - Windows Tests for Node v12 support
           filters:
             branches:
               ignore:
