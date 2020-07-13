@@ -319,7 +319,7 @@ export const YarnTests: AcceptanceTests = {
     '`test` on a yarn v2 package': (params, utils) => async (t) => {
       const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
 
-      if (nodeVersion <= 10) {
+      if (nodeVersion < 10) {
         return t.skip();
       }
 
