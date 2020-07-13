@@ -189,6 +189,7 @@ jobs:
       - image: circleci/node:<< parameters.node_version >>
     resource_class: small
     steps:
+      - checkout
       - install_deps
       - run: sudo npm i -g semantic-release @semantic-release/exec pkg
       - run:
