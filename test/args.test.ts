@@ -1,5 +1,6 @@
 import { test } from 'tap';
 import { args } from '../src/cli/args';
+import { config as userConfig } from '../src/lib/user-config';
 
 test('test command line arguments', (t) => {
   const cliArgs = [
@@ -188,6 +189,68 @@ test('test command line "container protect"', (t) => {
   t.notOk(result.options.docker);
   t.notOk(result.options.experimental);
   t.end();
+});
+
+test('when command line "container"', (c) => {
+  c.test('set option imageSavePath via config set', (t) => {
+    delete process.env['SNYK_IMAGE_SAVE_PATH'];
+    userConfig.set('imageSavePath', './my/custom/image/save/path');
+    const cliArgs = [
+      '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+      '/Users/dror/work/snyk/snyk-internal/cli',
+      'container',
+      'test',
+    ];
+
+    const result = args(cliArgs);
+
+    t.equal(
+      result.options.imageSavePath,
+      './my/custom/image/save/path',
+      'the custom path should be assigned with path',
+    );
+    userConfig.delete('imageSavePath');
+    t.end();
+  });
+
+  c.test('set option imageSavePath via env var', (t) => {
+    process.env['SNYK_IMAGE_SAVE_PATH'] = './my/custom/image/save/path';
+    const cliArgs = [
+      '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+      '/Users/dror/work/snyk/snyk-internal/cli',
+      'container',
+      'test',
+    ];
+
+    const result = args(cliArgs);
+
+    t.equal(
+      result.options.imageSavePath,
+      './my/custom/image/save/path',
+      'the custom path should be assigned with path',
+    );
+    delete process.env['SNYK_IMAGE_SAVE_PATH'];
+    t.end();
+  });
+
+  c.test('does not set option imageSavePath', (t) => {
+    delete process.env['SNYK_IMAGE_SAVE_PATH'];
+    const cliArgs = [
+      '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+      '/Users/dror/work/snyk/snyk-internal/cli',
+      'container',
+      'test',
+    ];
+
+    const result = args(cliArgs);
+
+    t.notOk(
+      result.options.imageSavePath,
+      'the custom path should not be assigned',
+    );
+    t.end();
+  });
+  c.end();
 });
 
 test('test command line "container" should display help for mode', (t) => {

@@ -2,6 +2,7 @@ import { test } from 'tap';
 import * as container from '../src/lib/container';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 import { MonitorMeta } from '../src/lib/types';
+import { config as userConfig } from '../src/lib/user-config';
 
 const stubScannedProjectContainer = () => {
   return {
@@ -138,4 +139,39 @@ test('getContainerProjectName returns --project-name opt name when container pro
     overriddenNameStubMeta,
   );
   t.equal(res, 'override-name-my-project');
+});
+
+test('getContainerImageSavePath return path via config set', (t) => {
+  t.plan(1);
+  userConfig.set(container.IMAGE_SAVE_PATH_OPT, './my/custom/path');
+
+  const customPath = container.getContainerImageSavePath();
+
+  t.equal(
+    customPath,
+    './my/custom/path',
+    'returns the image save path from config',
+  );
+  userConfig.delete(container.IMAGE_SAVE_PATH_OPT);
+});
+
+test('getContainerImageSavePath return path via env var', (t) => {
+  t.plan(1);
+  process.env[container.IMAGE_SAVE_PATH_ENV_VAR] = './my/custom/path';
+
+  const customPath = container.getContainerImageSavePath();
+
+  t.equal(
+    customPath,
+    './my/custom/path',
+    'returns the image save path from env var',
+  );
+  delete process.env[container.IMAGE_SAVE_PATH_ENV_VAR];
+});
+
+test('getContainerImageSavePath does not return path', (t) => {
+  t.plan(1);
+  const customPath = container.getContainerImageSavePath();
+
+  t.notOk(customPath, 'does not returns a path');
 });

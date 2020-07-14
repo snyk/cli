@@ -1,5 +1,9 @@
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 import { MonitorMeta } from '../types';
+import { config as userConfig } from '../user-config';
+
+export const IMAGE_SAVE_PATH_OPT = 'imageSavePath';
+export const IMAGE_SAVE_PATH_ENV_VAR = 'SNYK_IMAGE_SAVE_PATH';
 
 export function isContainer(scannedProject: ScannedProject): boolean {
   return scannedProject.meta?.imageName?.length;
@@ -37,4 +41,12 @@ export function getContainerProjectName(
     name = meta['project-name'];
   }
   return name;
+}
+
+export function getContainerImageSavePath(): string | undefined {
+  return (
+    process.env[IMAGE_SAVE_PATH_ENV_VAR] ||
+    userConfig.get(IMAGE_SAVE_PATH_OPT) ||
+    undefined
+  );
 }
