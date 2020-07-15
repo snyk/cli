@@ -7,7 +7,7 @@ defaults: &defaults
   parameters:
     node_version:
       type: string
-      default: ""
+      default: ''
   working_directory: ~/snyk
 
 windows_defaults: &windows_defaults
@@ -62,7 +62,7 @@ commands:
     parameters:
       node_version:
         type: string
-        default: ""
+        default: ''
     steps:
       - run:
           name: Install correct version of Node
@@ -79,6 +79,36 @@ commands:
       - run:
           name: NPM version
           command: npm --version
+  install_shellspec:
+    description: Installs shellspec
+    steps:
+      - run:
+          name: Fetch shellspec
+          command: curl -fsSL https://git.io/shellspec | sh -s -- -y
+  run_shellspec:
+    steps:
+      - run:
+          working_directory: ~/snyk/test/smoke
+          name: Run shellspec
+          command: |
+            shellspec -f d
+  install_snyk_npm:
+    description: Installs Snyk CLI from npm
+    steps:
+      - run:
+          command: sudo npm install -g snyk
+
+  install_snyk_binary:
+    description: Installs Snyk CLI with binary release
+    steps:
+      - run:
+          name: Download and install Snyk CLI from binary release
+          command: |
+            latest_version=$(curl -Is "https://github.com/snyk/snyk/releases/latest" | grep location | sed s#.*tag/##g | tr -d "\r")
+            snyk_cli_dl_linux="https://github.com/snyk/snyk/releases/download/${latest_version}/snyk-linux"
+            curl -Lo ./snyk-cli $snyk_cli_dl_linux
+            chmod -R +x ./snyk-cli
+            sudo mv ./snyk-cli /usr/local/bin/snyk
 
 jobs:
   common:
@@ -196,6 +226,26 @@ jobs:
           name: Publish to GitHub
           command: semantic-release
 
+  shellspec_snyk_npm:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    steps:
+      - checkout
+      - install_shellspec
+      - install_snyk_npm
+      - run_shellspec
+  
+  shellspec_snyk_binary:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    steps:
+      - checkout
+      - install_shellspec
+      - install_snyk_binary
+      - run_shellspec
+
 workflows:
   version: 2
   test_and_release:
@@ -203,14 +253,14 @@ workflows:
       - common:
           name: Common
           context: nodejs-install
-          node_version: "8"
+          node_version: '8'
           filters:
             branches:
               ignore:
                 - master
       - danger:
           name: Danger Zone
-          node_version: "8"
+          node_version: '8'
           filters:
             branches:
               ignore:
@@ -218,10 +268,10 @@ workflows:
       - test-windows:
           name: Windows Tests for Node v12 support
           context: nodejs-install
-          node_version: "12.0.0"
+          node_version: '12.0.0'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -229,10 +279,10 @@ workflows:
       - test-windows:
           name: Windows Tests for Node v10 support
           context: nodejs-install
-          node_version: "10.21.0"
+          node_version: '10.21.0'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -240,10 +290,10 @@ workflows:
       - test-windows:
           name: Windows Tests for Node v8 support
           context: nodejs-install
-          node_version: "8.17.0"
+          node_version: '8.17.0'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -251,10 +301,10 @@ workflows:
       - test-unix:
           name: Unix Tests for Node v12 support
           context: nodejs-install
-          node_version: "12.16.2"
+          node_version: '12.16.2'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -262,10 +312,10 @@ workflows:
       - test-unix:
           name: Unix Tests for Node v10 support
           context: nodejs-install
-          node_version: "10"
+          node_version: '10'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -273,10 +323,10 @@ workflows:
       - test-unix:
           name: Unix Tests for Node v8 support
           context: nodejs-install
-          node_version: "8"
+          node_version: '8'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -284,7 +334,7 @@ workflows:
       - test-regression:
           name: Regression Test
           context: nodejs-install
-          node_version: "8"
+          node_version: '8'
           requires:
             - Unix Tests for Node v8 support
             - Unix Tests for Node v10 support
@@ -299,8 +349,17 @@ workflows:
       - release:
           name: Release
           context: nodejs-app-release
-          node_version: "10"
+          node_version: '10'
           filters:
             branches:
               only:
                 - master
+
+  smoke_test:
+    jobs:
+      - shellspec_snyk_npm:
+          name: shellspec test using snyk installed with npm
+          node_version: '10'
+      - shellspec_snyk_binary:
+          name: shellspec test using snyk installed with binary release
+          node_version: '10'
