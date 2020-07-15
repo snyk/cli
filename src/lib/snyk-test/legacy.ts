@@ -157,6 +157,7 @@ export interface LegacyVulnApiResult extends BasicResultData {
     binariesVulns?: unknown;
     baseImageRemediation?: BaseImageRemediation;
   };
+  projectId?: string;
   filesystemPolicy?: boolean;
   uniqueCount?: any;
   remediation?: RemediationChanges;
@@ -228,6 +229,7 @@ interface TestDepGraphMeta {
       [type: string]: string;
     };
   };
+  projectId?: string;
   ignoreSettings?: IgnoreSettings;
   policy: string;
   org: string;
@@ -398,6 +400,7 @@ function convertTestDepGraphResultToLegacy(
     isPrivate: !meta.isPublic,
     licensesPolicy: meta.licensesPolicy || null,
     packageManager,
+    projectId: meta.projectId,
     ignoreSettings: meta.ignoreSettings || null,
     docker: result.docker,
     summary: getSummary(vulns, severityThreshold),
