@@ -434,7 +434,10 @@ function displayResult(
     );
   }
   const advertiseAllProjectsCount =
-    projectType !== 'gradle' && !options.allProjects && foundProjectCount;
+    projectType !== 'gradle' &&
+    !options.allProjects &&
+    !options.yarnWorkspaces &&
+    foundProjectCount;
   if (advertiseAllProjectsCount) {
     multiProjAdvice = chalk.bold.white(
       `\n\nTip: Detected multiple supported manifests (${foundProjectCount}), ` +
