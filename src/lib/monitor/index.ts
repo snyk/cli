@@ -36,7 +36,11 @@ import { dropEmptyDeps } from './drop-empty-deps';
 import { pruneTree } from './prune-dep-tree';
 import { findAndLoadPolicy } from '../policy';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
-import { CallGraph, ScannedProject } from '@snyk/cli-interface/legacy/common';
+import {
+  CallGraph,
+  CallGraphError,
+  ScannedProject,
+} from '@snyk/cli-interface/legacy/common';
 import { isGitTarget } from '../project-metadata/types';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import {
@@ -46,6 +50,7 @@ import {
   getTargetFile,
 } from './utils';
 import { countPathsToGraphRoot } from '../utils';
+import * as alerts from '../alerts';
 
 const debug = Debug('snyk');
 
@@ -213,7 +218,17 @@ async function monitorDepTree(
   depTree = dropEmptyDeps(depTree);
 
   let callGraphPayload;
-  if (scannedProject.callGraph) {
+  if (options.reachableVulns && scannedProject.callGraph?.innerError) {
+    const err = scannedProject.callGraph as CallGraphError;
+    analytics.add('callGraphError', err.innerError.toString());
+    alerts.registerAlerts([
+      {
+        type: 'error',
+        name: 'missing-call-graph',
+        msg: err.message,
+      },
+    ]);
+  } else if (scannedProject.callGraph) {
     const { callGraph, nodeCount, edgeCount } = serializeCallGraphWithMetrics(
       scannedProject.callGraph,
     );

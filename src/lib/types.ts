@@ -19,6 +19,7 @@ export interface TestOptions {
   showVulnPaths: ShowVulnPaths;
   failOn?: FailOn;
   reachableVulns?: boolean;
+  reachableVulnsTimeout?: number;
   yarnWorkspaces?: boolean;
 }
 
@@ -91,6 +92,7 @@ export interface MonitorOptions {
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;
   reachableVulns?: boolean;
+  reachableVulnsTimeout?: number;
   yarnWorkspaces?: boolean;
 }
 
@@ -144,7 +146,6 @@ export type SupportedUserReachableFacingCliArgs =
   | 'file'
   | 'policy'
   | 'fail-on'
-  | 'reachable-vulns'
   | 'json'
   | 'package-manager'
   | 'packages-folder'
@@ -160,7 +161,10 @@ export type SupportedUserReachableFacingCliArgs =
   | 'yarn-workspaces'
   | 'detection-depth'
   | 'project-name'
-  | 'reachable-vulns';
+  | 'reachable'
+  | 'reachable-vulns'
+  | 'reachable-timeout'
+  | 'reachable-vulns-timeout';
 
 export type SupportedCliCommands =
   | 'protect'
