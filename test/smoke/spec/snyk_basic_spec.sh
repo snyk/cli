@@ -5,7 +5,7 @@ Describe "Snyk CLI basics"
   Describe "snyk version"
     It "prints version"
       When run "snyk" version
-      The output should include "1.362.0" # TODO: get version from env
+      The output should include "${EXPECTED_SNYK_VERSION}"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
