@@ -1,0 +1,109 @@
+name: Smoke Tests
+
+on:
+  push:
+    branches: [feat/smoke-test]
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  smoke_test:
+    # The type of runner that the job will run on
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        snyk_install_method: [binary, npm]
+        node_version: [8, 10, 12]
+        exclude:
+          - snyk_install_method: binary
+            node_version: 8
+          - snyk_install_method: binary
+            node_version: 10
+        include:
+          - snyk_install_method: binary
+            os: ubuntu-latest
+            snyk_cli_dl_file: snyk-linux
+          - snyk_install_method: binary
+            os: macos-latest
+            snyk_cli_dl_file: snyk-macos
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: Install Snyk with npm
+        if: ${{ matrix.snyk_install_method == 'npm' }}
+        run: |
+          echo "node_version: ${{ matrix.node_version }}"
+          node -v
+          echo "install snyk with npm"
+          npm install -g snyk
+
+      - name: npm install for fixture project
+        working-directory: test/fixtures/basic-npm
+        run: |
+          npm install
+
+      - name: Install Snyk with binary - Non-Windows
+        if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows-latest' }}
+        run: |
+          echo "install snyk with binary"
+          export latest_version=$(curl -Is "https://github.com/snyk/snyk/releases/latest" | grep location | sed s#.*tag/##g | tr -d "\r")
+          echo "latest_version: ${latest_version}"
+          snyk_cli_dl_linux="https://github.com/snyk/snyk/releases/download/${latest_version}/${{ matrix.snyk_cli_dl_file }}"
+          echo "snyk_cli_dl_linux: ${snyk_cli_dl_linux}"
+          curl -Lo ./snyk-cli $snyk_cli_dl_linux
+          echo "snyk_cli_dl_linux: ${snyk_cli_dl_linux}"
+          chmod -R +x ./snyk-cli
+          sudo mv ./snyk-cli /usr/local/bin/snyk
+          snyk --version
+
+      - name: Install Snyk with binary - Windows
+        if: ${{ matrix.snyk_install_method == 'binary' && matrix.os == 'windows-latest' }}
+        shell: powershell
+        run: |
+          echo "install snyk with binary"
+          echo $env:PATH
+          sh ./test/smoke/install-snyk-binary-win.sh
+
+      - name: Install Shellspec - non-windows
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: |
+          curl -fsSL https://git.io/shellspec | sh -s -- -y
+          sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
+          ls -la ${HOME}/.local/lib/shellspec
+          echo "shellspec symlink:"
+          ls -la /usr/local/bin/shellspec
+          /usr/local/bin/shellspec --version
+          which shellspec
+          shellspec --version
+
+      - name: Install Shellspec - Windows
+        shell: powershell
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          Get-Host | Select-Object Version
+          Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+          sh ./test/smoke/install-shellspec-win.sh
+
+      - name: Run shellspec tests - non-Windows
+        if: ${{ matrix.os != 'windows-latest' }}
+        working-directory: test/smoke
+        env:
+          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+        run: |
+          export EXPECTED_SNYK_VERSION=$(snyk --version)
+          shellspec -f d
+
+      - name: Run shellspec tests - Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        working-directory: test/smoke
+        shell: powershell
+        env:
+          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+        run: |
+          sh ./run-shellspec-win.sh
