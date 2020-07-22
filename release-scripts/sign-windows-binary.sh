@@ -20,3 +20,5 @@ osslsigncode sign -h sha512 \
   -t "http://timestamp.comodoca.com/authenticode" \
   -in snyk-win.exe \
   -out snyk-win-signed.exe
+
+sha256sum snyk-win-signed.exe > snyk-win-signed.exe.sha256

@@ -25,4 +25,6 @@ cd ..
 # Create bundle, resolve symlinks
 tar czfh docker-mac-signed-bundle.tar.gz ./docker
 
+sha256sum docker-mac-signed-bundle.tar.gz > docker-mac-signed-bundle.tar.gz.sha256
+
 rm -rf ./docker
