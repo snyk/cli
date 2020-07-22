@@ -51,8 +51,11 @@ import {
 } from './utils';
 import { countPathsToGraphRoot } from '../utils';
 import * as alerts from '../alerts';
+import { abridgeErrorMessage } from '../error-format';
 
 const debug = Debug('snyk');
+
+const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
 
 // TODO(kyegupov): clean up the type, move to snyk-cli-interface repository
 
@@ -220,7 +223,13 @@ async function monitorDepTree(
   let callGraphPayload;
   if (options.reachableVulns && scannedProject.callGraph?.innerError) {
     const err = scannedProject.callGraph as CallGraphError;
-    analytics.add('callGraphError', err.innerError.toString());
+    analytics.add(
+      'callGraphError',
+      abridgeErrorMessage(
+        err.innerError.toString(),
+        ANALYTICS_PAYLOAD_MAX_LENGTH,
+      ),
+    );
     alerts.registerAlerts([
       {
         type: 'error',
