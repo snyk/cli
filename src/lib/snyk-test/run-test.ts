@@ -55,8 +55,11 @@ import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
 import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
 import { CallGraphError } from '@snyk/cli-interface/legacy/common';
 import * as alerts from '../alerts';
+import { abridgeErrorMessage } from '../error-format';
 
 const debug = debugModule('snyk');
+
+const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
 
 export = runTest;
 
@@ -520,7 +523,13 @@ async function assembleLocalPayloads(
         (scannedProject.callGraph as CallGraphError).innerError
       ) {
         const err = scannedProject.callGraph as CallGraphError;
-        analytics.add('callGraphError', err.innerError.toString());
+        analytics.add(
+          'callGraphError',
+          abridgeErrorMessage(
+            err.innerError.toString(),
+            ANALYTICS_PAYLOAD_MAX_LENGTH,
+          ),
+        );
         alerts.registerAlerts([
           {
             type: 'error',
