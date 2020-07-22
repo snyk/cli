@@ -90,6 +90,18 @@ Maven options:
   --scan-all-unmanaged
                        Auto detects maven jars and wars in given directory.
                        Individual testing can be done with --file=<jar-file-name>
+  --reachable
+                       (test and monitor commands only)
+                       Analyze your source code to find which vulnerable
+                       functions and packages are called.
+  --reachable-timeout=<number>
+                       (test and monitor commands only)
+                       The amount of time (in seconds) to wait for Snyk
+                       to gather reachability data. If it takes longer than
+                       the specified interval, Reachable Vulnerabilities are
+                       not reported. This does not affect regular test or
+                       monitor output.
+                       Defaults to waiting 300s (5 minutes).
 
 Gradle options:
   --sub-project=<string> (alias: --gradle-sub-project)

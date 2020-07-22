@@ -53,6 +53,8 @@ import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
 import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
 import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
+import { CallGraphError } from '@snyk/cli-interface/legacy/common';
+import * as alerts from '../alerts';
 
 const debug = debugModule('snyk');
 
@@ -513,7 +515,20 @@ async function assembleLocalPayloads(
         body.depGraph = depGraph;
       }
 
-      if (scannedProject.callGraph) {
+      if (
+        options.reachableVulns &&
+        (scannedProject.callGraph as CallGraphError).innerError
+      ) {
+        const err = scannedProject.callGraph as CallGraphError;
+        analytics.add('callGraphError', err.innerError.toString());
+        alerts.registerAlerts([
+          {
+            type: 'error',
+            name: 'missing-call-graph',
+            msg: err.message,
+          },
+        ]);
+      } else if (scannedProject.callGraph) {
         const {
           callGraph,
           nodeCount,
