@@ -18,7 +18,7 @@ cd ./dist/docker
 npm install --production
 
 # Download macOS NodeJS binary, using same as pkg
-curl "https://nodejs.org/dist/v8.9.4/node-v8.9.4-darwin-x64.tar.gz" | tar -xz
+curl "https://nodejs.org/dist/v14.6.0/node-v14.6.0-darwin-x64.tar.gz" | tar -xz
 
 cd ..
 
