@@ -7,7 +7,7 @@ defaults: &defaults
   parameters:
     node_version:
       type: string
-      default: ""
+      default: ''
   working_directory: ~/snyk
 
 windows_defaults: &windows_defaults
@@ -62,7 +62,7 @@ commands:
     parameters:
       node_version:
         type: string
-        default: ""
+        default: ''
     steps:
       - run:
           name: Install correct version of Node
@@ -203,14 +203,14 @@ workflows:
       - common:
           name: Common
           context: nodejs-install
-          node_version: "8"
+          node_version: '8'
           filters:
             branches:
               ignore:
                 - master
       - danger:
           name: Danger Zone
-          node_version: "8"
+          node_version: '8'
           filters:
             branches:
               ignore:
@@ -218,10 +218,10 @@ workflows:
       - test-windows:
           name: Windows Tests for Node v12 support
           context: nodejs-install
-          node_version: "12.0.0"
+          node_version: '12.0.0'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -229,10 +229,10 @@ workflows:
       - test-windows:
           name: Windows Tests for Node v10 support
           context: nodejs-install
-          node_version: "10.21.0"
+          node_version: '10.21.0'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -240,10 +240,10 @@ workflows:
       - test-windows:
           name: Windows Tests for Node v8 support
           context: nodejs-install
-          node_version: "8.17.0"
+          node_version: '8.17.0'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -251,10 +251,10 @@ workflows:
       - test-unix:
           name: Unix Tests for Node v12 support
           context: nodejs-install
-          node_version: "12.16.2"
+          node_version: '12.16.2'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -262,10 +262,10 @@ workflows:
       - test-unix:
           name: Unix Tests for Node v10 support
           context: nodejs-install
-          node_version: "10"
+          node_version: '10'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -273,10 +273,10 @@ workflows:
       - test-unix:
           name: Unix Tests for Node v8 support
           context: nodejs-install
-          node_version: "8"
+          node_version: '8'
           requires:
-              - Common
-              - Danger Zone
+            - Common
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -284,7 +284,7 @@ workflows:
       - test-regression:
           name: Regression Test
           context: nodejs-install
-          node_version: "8"
+          node_version: '8'
           requires:
             - Unix Tests for Node v8 support
             - Unix Tests for Node v10 support
@@ -299,7 +299,7 @@ workflows:
       - release:
           name: Release
           context: nodejs-app-release
-          node_version: "10"
+          node_version: '10'
           filters:
             branches:
               only:
