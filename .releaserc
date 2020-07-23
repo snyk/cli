@@ -9,7 +9,7 @@
     {
       "//": "build the alpine, macos, linux and windows binaries",
       "path": "@semantic-release/exec",
-      "cmd": "pkg . -t node8-alpine-x64,node8-linux-x64,node8-macos-x64,node8-win-x64"
+      "cmd": "pkg . -t node14-alpine-x64,node14-linux-x64,node14-macos-x64,node14-win-x64"
     },
     {
       "//": "shasum all binaries",
