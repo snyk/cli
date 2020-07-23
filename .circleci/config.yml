@@ -227,6 +227,17 @@ workflows:
               ignore:
                 - master
       - test-windows:
+          name: Windows Tests for Node v14 support
+          context: nodejs-install
+          node_version: '14'
+          requires:
+            - Common
+            - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-windows:
           name: Windows Tests for Node v10 support
           context: nodejs-install
           node_version: '10.21.0'
@@ -252,6 +263,17 @@ workflows:
           name: Unix Tests for Node v12 support
           context: nodejs-install
           node_version: '12.16.2'
+          requires:
+            - Common
+            - Danger Zone
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-unix:
+          name: Unix Tests for Node v14 support
+          context: nodejs-install
+          node_version: '14'
           requires:
             - Common
             - Danger Zone
@@ -289,17 +311,20 @@ workflows:
             - Unix Tests for Node v8 support
             - Unix Tests for Node v10 support
             - Unix Tests for Node v12 support
+            - Unix Tests for Node v14 support
             - Windows Tests for Node v8 support
             - Windows Tests for Node v10 support
             - Windows Tests for Node v12 support
+            - Windows Tests for Node v14 support
           filters:
             branches:
               ignore:
                 - master
+
       - release:
           name: Release
           context: nodejs-app-release
-          node_version: '10'
+          node_version: '14'
           filters:
             branches:
               only:
