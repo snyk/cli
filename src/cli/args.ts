@@ -35,6 +35,7 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk-gradle-plugin',
   'snyk-sbt-plugin',
   'snyk-mvn-plugin',
+  'snyk-java-call-graph-builder',
 ];
 
 // NOTE[muscar] This is accepted in seconds for UX reasons, the mavem plugin
