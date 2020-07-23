@@ -14,9 +14,14 @@ test('abridge same length as max length', async (t) => {
 });
 
 test('abridge longer than max length', async (t) => {
-  t.equal(abridgeErrorMessage('hello there', 10), 'he ... ere');
+  t.equal(abridgeErrorMessage('hello there', 10), 'he ... re');
 });
 
 test('abridge longer than max length (custom ellipsis)', async (t) => {
   t.equal(abridgeErrorMessage('hello there', 10, '--'), 'hell--here');
+});
+
+test('abridge is not longer than max length', async (t) => {
+  const maxLength = 10;
+  t.true(abridgeErrorMessage('hello there', maxLength).length < maxLength);
 });
