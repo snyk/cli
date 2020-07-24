@@ -16,7 +16,7 @@ export async function processYarnWorkspaces(
   root: string,
   settings: {
     strictOutOfSync?: boolean;
-    scanDevDependencies?: boolean;
+    dev?: boolean;
   },
   targetFiles: string[],
 ): Promise<MultiProjectResultCustom> {
@@ -83,7 +83,7 @@ export async function processYarnWorkspaces(
       const res = await lockFileParser.buildDepTree(
         packageJson.content,
         yarnLock.content,
-        settings.scanDevDependencies,
+        settings.dev,
         lockFileParser.LockfileType.yarn,
         settings.strictOutOfSync !== false,
       );
