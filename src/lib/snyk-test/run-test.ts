@@ -56,6 +56,7 @@ import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
 import { CallGraphError } from '@snyk/cli-interface/legacy/common';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
+import { getDockerToken } from '../api-token';
 
 const debug = debugModule('snyk');
 
@@ -557,14 +558,18 @@ async function assembleLocalPayloads(
         });
         body.callGraph = callGraph;
       }
-
+      const reqUrl =
+        config.API +
+        (options.testDepGraphDockerEndpoint ||
+          options.vulnEndpoint ||
+          '/test-dep-graph');
       const payload: Payload = {
         method: 'POST',
-        url: config.API + (options.vulnEndpoint || '/test-dep-graph'),
+        url: reqUrl,
         json: true,
         headers: {
           'x-is-ci': isCI(),
-          authorization: 'token ' + (snyk as any).api,
+          authorization: getAuthHeader(),
         },
         qs: common.assembleQueryString(options),
         body,
@@ -614,6 +619,14 @@ function addPackageAnalytics(name: string, version: string): void {
   analytics.add('packageName', name);
   analytics.add('packageVersion', version);
   analytics.add('package', name + '@' + version);
+}
+
+function getAuthHeader() {
+  const dockerToken = getDockerToken();
+  if (dockerToken) {
+    return 'bearer ' + dockerToken;
+  }
+  return 'token ' + snyk.api;
 }
 
 function countUniqueVulns(vulns: AnnotatedIssue[]): number {
