@@ -14,12 +14,14 @@ import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 
 const debug = debugModule('snyk-test');
+
 export interface ScannedProjectCustom
   extends cliInterface.legacyCommon.ScannedProject {
   packageManager: SupportedPackageManagers;
   plugin: PluginMetadata;
   callGraph?: CallGraph;
 }
+
 export interface MultiProjectResultCustom
   extends cliInterface.legacyPlugin.MultiProjectResult {
   scannedProjects: ScannedProjectCustom[];
@@ -33,13 +35,15 @@ export async function getMultiPluginResult(
   const allResults: ScannedProjectCustom[] = [];
   for (const targetFile of targetFiles) {
     const optionsClone = _.cloneDeep(options);
-    optionsClone.file = path.relative(root, targetFile);
+    optionsClone.file = path.basename(targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
-      path.basename(targetFile),
+      optionsClone.file,
     );
+    const targetFileRE = new RegExp(`(.*)/${optionsClone.file}`, 'gmi');
+    optionsClone.path = targetFile.replace(targetFileRE, '$1');
     try {
       const inspectRes = await getSinglePluginResult(
-        root,
+        optionsClone.path,
         optionsClone,
         optionsClone.file,
       );
