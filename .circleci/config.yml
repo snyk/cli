@@ -70,6 +70,11 @@ commands:
       - run:
           name: Use correct version of Node
           command: nvm use << parameters.node_version >>
+  install_shellspec:
+    description: Install Shellspec
+    steps:
+      - run: curl -fsSL https://git.io/shellspec | sh -s -- -y
+      - run: sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
   show_node_version:
     description: Log Node and npm version
     steps:
@@ -81,15 +86,13 @@ commands:
           command: npm --version
 
 jobs:
-  common:
+  smoke-test:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
     steps:
-      - show_node_version
       - checkout
-      - attach_workspace:
-          at: ~/snyk
+      - install_shellspec
       - install_deps
       - build_ts
       - run:
@@ -98,6 +101,33 @@ jobs:
       - run:
           name: Run tests
           command: npm run test:common
+      - run:
+          name: Clear Snyk config
+          command: rm ~/.config/configstore/snyk.json
+      - run:
+          name: Clear node_modules
+          command: rm -rf node_modules/
+      - run:
+          name: Install only production dependencies
+          command: npm install
+          environment:
+            NODE_ENV: production
+      - run:
+          name: npm install for fixture project
+          working_directory: ~/snyk/test/fixtures/basic-npm
+          command: npm install
+      - run:
+          name: Setup alias for snyk
+          working_directory: ~/snyk/
+          command: sudo ./test/smoke/setup-alias-for-snyk.sh
+      - run:
+          name: Run shellspec
+          working_directory: ~/snyk/test/smoke
+          command: |
+            echo "Checkout the README in test/smoke folder for more details about this step"
+            unset SNYK_API
+            unset SNYK_API_KEY
+            shellspec -f d
 
   danger:
     <<: *defaults
@@ -157,32 +187,6 @@ jobs:
           name: Run tests
           command: npm test
 
-  test-regression:
-    <<: *defaults
-    docker:
-      - image: circleci/node:<< parameters.node_version >>
-    steps:
-      - checkout
-      - install_deps
-      - build_ts
-      - run:
-          name: Clear node_modules
-          command: rm -rf node_modules/
-      - run:
-          name: Install only production dependencies
-          command: npm install
-          environment:
-            NODE_ENV: production
-      - run:
-          name: Run auth
-          command: node ~/snyk/dist/cli/index.js auth $SNYK_API_KEY
-      - run:
-          name: Regression test in test command
-          command: node ~/snyk/dist/cli/index.js test test/acceptance/workspaces/npm-package-no-vulns
-      - run:
-          name: Regression test in monitor command
-          command: node ~/snyk/dist/cli/index.js monitor test/acceptance/workspaces/npm-package-no-vulns
-
   release:
     <<: *defaults
     docker:
@@ -200,17 +204,19 @@ workflows:
   version: 2
   test_and_release:
     jobs:
-      - common:
-          name: Common
-          context: nodejs-install
+      - danger:
+          name: Danger Zone
           node_version: '8'
           filters:
             branches:
               ignore:
                 - master
-      - danger:
-          name: Danger Zone
+      - smoke-test:
+          name: Smoke Test
+          context: nodejs-install
           node_version: '8'
+          requires:
+            - Danger Zone
           filters:
             branches:
               ignore:
@@ -220,8 +226,7 @@ workflows:
           context: nodejs-install
           node_version: '12.0.0'
           requires:
-            - Common
-            - Danger Zone
+            - Smoke Test
           filters:
             branches:
               ignore:
@@ -231,8 +236,7 @@ workflows:
           context: nodejs-install
           node_version: '14'
           requires:
-            - Common
-            - Danger Zone
+            - Smoke Test
           filters:
             branches:
               ignore:
@@ -242,8 +246,7 @@ workflows:
           context: nodejs-install
           node_version: '10.21.0'
           requires:
-            - Common
-            - Danger Zone
+            - Smoke Test
           filters:
             branches:
               ignore:
@@ -253,8 +256,7 @@ workflows:
           context: nodejs-install
           node_version: '8.17.0'
           requires:
-            - Common
-            - Danger Zone
+            - Smoke Test
           filters:
             branches:
               ignore:
@@ -264,8 +266,7 @@ workflows:
           context: nodejs-install
           node_version: '12.16.2'
           requires:
-            - Common
-            - Danger Zone
+            - Smoke Test
           filters:
             branches:
               ignore:
@@ -275,8 +276,7 @@ workflows:
           context: nodejs-install
           node_version: '14'
           requires:
-            - Common
-            - Danger Zone
+            - Smoke Test
           filters:
             branches:
               ignore:
@@ -286,8 +286,7 @@ workflows:
           context: nodejs-install
           node_version: '10'
           requires:
-            - Common
-            - Danger Zone
+            - Smoke Test
           filters:
             branches:
               ignore:
@@ -297,25 +296,7 @@ workflows:
           context: nodejs-install
           node_version: '8'
           requires:
-            - Common
-            - Danger Zone
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-regression:
-          name: Regression Test
-          context: nodejs-install
-          node_version: '8'
-          requires:
-            - Unix Tests for Node v8 support
-            - Unix Tests for Node v10 support
-            - Unix Tests for Node v12 support
-            - Unix Tests for Node v14 support
-            - Windows Tests for Node v8 support
-            - Windows Tests for Node v10 support
-            - Windows Tests for Node v12 support
-            - Windows Tests for Node v14 support
+            - Smoke Test
           filters:
             branches:
               ignore:
