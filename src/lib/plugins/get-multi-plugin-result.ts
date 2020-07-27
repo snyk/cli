@@ -12,6 +12,8 @@ import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-t
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
+import { FailedTestResult } from '../snyk-test/legacy';
+import { saveErrorsToFile } from '../log-errors-to-snyk-folder';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -30,6 +32,7 @@ export async function getMultiPluginResult(
   options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
 ): Promise<MultiProjectResultCustom> {
+  const failedResults: FailedTestResult[] = [];
   const allResults: ScannedProjectCustom[] = [];
   for (const targetFile of targetFiles) {
     const optionsClone = _.cloneDeep(options);
@@ -68,8 +71,33 @@ export async function getMultiPluginResult(
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (err) {
+      failedResults.push({
+        targetFile: optionsClone.file,
+        err,
+        errorMsg: err.message || 'Failed to inspect dependencies',
+      });
       debug(chalk.bold.red(err.message));
     }
+  }
+
+  if (!allResults.length) {
+    if (allResults.length === 1) {
+      throw failedResults[0].err;
+    }
+    throw new Error(
+      `Failed to get vulnerabilities for all ${targetFiles.length} projects`,
+    );
+  }
+  if (failedResults.length) {
+    console.warn(
+      chalk.bold.red(
+        '\nSome projects failed while extracting dependencies, for more details see .snyk-debug',
+      ),
+    );
+    saveErrorsToFile(
+      JSON.stringify(failedResults),
+      `.snyk-debug/${Date.now()}.projects-failed-to-inspect-dependencies.log`,
+    );
   }
 
   return {

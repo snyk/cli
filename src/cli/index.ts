@@ -28,16 +28,14 @@ import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
-import {
-  createDirectory,
-  writeContentsToFileSwallowingErrors,
-} from '../lib/json-file-output';
+import { writeContentsToFileSwallowingErrors } from '../lib/json-file-output';
 import {
   Options,
   TestOptions,
   MonitorOptions,
   SupportedUserReachableFacingCliArgs,
 } from '../lib/types';
+import { createDirectory } from '../lib/create-directory';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {

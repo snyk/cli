@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as _ from '@snyk/lodash';
 import * as path from 'path';
 import * as debugModule from 'debug';
+import chalk from 'chalk';
 import * as pathUtil from 'path';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
@@ -14,6 +15,7 @@ import {
   TestDepGraphResponse,
   convertTestDepGraphResultToLegacy,
   LegacyVulnApiResult,
+  FailedTestResult,
 } from './legacy';
 import { IacTestResult } from './iac-test-result';
 import {
@@ -56,6 +58,7 @@ import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
 import { CallGraphError } from '@snyk/cli-interface/legacy/common';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
+import { saveErrorsToFile } from '../log-errors-to-snyk-folder';
 
 const debug = debugModule('snyk');
 
@@ -70,69 +73,104 @@ async function sendAndParseResults(
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
-  for (const payload of payloads) {
-    await spinner(spinnerLbl);
-    if (options.iac) {
-      const iacScan: IacScan = payload.body as IacScan;
-      analytics.add('iac type', !!iacScan.type);
-      const res = (await sendTestPayload(payload)) as IacTestResult;
+  const failedResults: FailedTestResult[] = [];
 
-      const projectName =
-        iacScan.projectNameOverride || iacScan.originalProjectName;
-      const result = await parseIacTestResult(
-        res,
-        iacScan.targetFile,
-        projectName,
-        options.severityThreshold,
-      );
-      results.push(result);
-    } else {
-      const payloadBody: PayloadBody = payload.body as PayloadBody;
-      const payloadPolicy = payloadBody && payloadBody.policy;
-      const depGraph = payloadBody && payloadBody.depGraph;
-      const pkgManager =
-        depGraph &&
-        depGraph.pkgManager &&
-        (depGraph.pkgManager.name as SupportedProjectTypes);
-      const targetFile = payloadBody && payloadBody.targetFile;
+  for (const payload of payloads) {
+    try {
+      await spinner(spinnerLbl);
+      if (options.iac) {
+        const iacScan: IacScan = payload.body as IacScan;
+        analytics.add('iac type', !!iacScan.type);
+        const res = (await sendTestPayload(payload)) as IacTestResult;
+
+        const projectName =
+          iacScan.projectNameOverride || iacScan.originalProjectName;
+        const result = await parseIacTestResult(
+          res,
+          iacScan.targetFile,
+          projectName,
+          options.severityThreshold,
+        );
+        results.push(result);
+      } else {
+        const payloadBody: PayloadBody = payload.body as PayloadBody;
+        const payloadPolicy = payloadBody && payloadBody.policy;
+        const depGraph = payloadBody && payloadBody.depGraph;
+        const pkgManager =
+          depGraph &&
+          depGraph.pkgManager &&
+          (depGraph.pkgManager.name as SupportedProjectTypes);
+        const targetFile = payloadBody && payloadBody.targetFile;
+        const projectName =
+          _.get(payload, 'body.projectNameOverride') ||
+          _.get(payload, 'body.originalProjectName');
+        const foundProjectCount = _.get(payload, 'body.foundProjectCount');
+        const displayTargetFile = _.get(payload, 'body.displayTargetFile');
+        let dockerfilePackages;
+        if (
+          payloadBody &&
+          payloadBody.docker &&
+          payloadBody.docker.dockerfilePackages
+        ) {
+          dockerfilePackages = payloadBody.docker.dockerfilePackages;
+        }
+        analytics.add('depGraph', !!depGraph);
+        analytics.add('isDocker', !!(payloadBody && payloadBody.docker));
+        // Type assertion might be a lie, but we are correcting that below
+        const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
+
+        const result = await parseRes(
+          depGraph,
+          pkgManager,
+          res,
+          options,
+          payload,
+          payloadPolicy,
+          root,
+          dockerfilePackages,
+        );
+
+        results.push({
+          ...result,
+          targetFile,
+          projectName,
+          foundProjectCount,
+          displayTargetFile,
+        });
+      }
+    } catch (error) {
       const projectName =
         _.get(payload, 'body.projectNameOverride') ||
         _.get(payload, 'body.originalProjectName');
-      const foundProjectCount = _.get(payload, 'body.foundProjectCount');
-      const displayTargetFile = _.get(payload, 'body.displayTargetFile');
-      let dockerfilePackages;
-      if (
-        payloadBody &&
-        payloadBody.docker &&
-        payloadBody.docker.dockerfilePackages
-      ) {
-        dockerfilePackages = payloadBody.docker.dockerfilePackages;
-      }
-      analytics.add('depGraph', !!depGraph);
-      analytics.add('isDocker', !!(payloadBody && payloadBody.docker));
-      // Type assertion might be a lie, but we are correcting that below
-      const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
 
-      const result = await parseRes(
-        depGraph,
-        pkgManager,
-        res,
-        options,
-        payload,
-        payloadPolicy,
-        root,
-        dockerfilePackages,
-      );
-
-      results.push({
-        ...result,
-        targetFile,
+      failedResults.push({
         projectName,
-        foundProjectCount,
-        displayTargetFile,
+        err: error,
+        errorMsg: error.message || 'Failed to test project for vulnerabilities',
       });
     }
   }
+  if (!results.length) {
+    if (payloads.length === 1) {
+      throw failedResults[0].err;
+    }
+    throw new Error(
+      `Failed to get vulnerabilities for all ${payloads.length} projects`,
+    );
+  }
+  if (failedResults.length) {
+    spinner.clear<void>(spinnerLbl)();
+    console.warn(
+      chalk.bold.red(
+        '\nSome projects failed to get vulnerabilities, for more details see .snyk-debug',
+      ),
+    );
+    saveErrorsToFile(
+      JSON.stringify(failedResults),
+      `.snyk-debug/${Date.now()}.projects-failed-to-get-vulnerabilities.log`,
+    );
+  }
+
   return results;
 }
 

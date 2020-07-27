@@ -175,6 +175,12 @@ export interface BaseImageRemediationAdvice {
   color?: string;
 }
 
+export interface FailedTestResult {
+  projectName?: string;
+  targetFile?: string;
+  errorMsg: string;
+  err: Error;
+}
 export interface TestResult extends LegacyVulnApiResult {
   targetFile?: string;
   projectName?: string;
