@@ -62,7 +62,11 @@ fi
 if [ -f "${PROJECT_PATH}/requirements.txt" ]; then
     echo "Found requirement.txt"
     installRequirementsTxtDeps "${PROJECT_PATH}/requirements.txt"
+elif [ -f "${PROJECT_PATH}/setup.py" ]; then
+    echo "Found setup.py"
+    pip install -U -e "${PROJECT_PATH}"
 elif [ -f "${PROJECT_PATH}/Pipfile" ]; then
+    echo "Found Pipfile"
     installPipfileDeps
 fi
 
