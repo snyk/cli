@@ -49,6 +49,10 @@ if [ -n "${TARGET_FILE}" ]; then
         echo "Installing dependencies from setup.py"
         pip install -U -e "${PROJECT_PATH}"
         ;;
+    *Pipfile)
+        echo "Installing dependencies from Pipfile"
+        installPipfileDeps
+        ;;
     *)
         exitWithMsg "\"${PROJECT_PATH}/${TARGET_FILE}\" is not supported" 1
         ;;
