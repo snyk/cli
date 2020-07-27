@@ -49,17 +49,27 @@ if [ -n "${TARGET_FILE}" ]; then
         echo "Installing dependencies from setup.py"
         pip install -U -e "${PROJECT_PATH}"
         ;;
+    *Pipfile)
+        echo "Installing dependencies from Pipfile"
+        installPipfileDeps
+        ;;
     *)
         exitWithMsg "\"${PROJECT_PATH}/${TARGET_FILE}\" is not supported" 1
         ;;
     esac
 fi
 
-if [ -f "${PROJECT_PATH}/requirements.txt" ]; then
-    echo "Found requirement.txt"
-    installRequirementsTxtDeps "${PROJECT_PATH}/requirements.txt"
-elif [ -f "${PROJECT_PATH}/Pipfile" ]; then
-    installPipfileDeps
+if [ -z "${TARGET_FILE}" ]; then
+    if [ -f "${PROJECT_PATH}/requirements.txt" ]; then
+        echo "Found requirement.txt"
+        installRequirementsTxtDeps "${PROJECT_PATH}/requirements.txt"
+    elif [ -f "${PROJECT_PATH}/setup.py" ]; then
+        echo "Found setup.py"
+        pip install -U -e "${PROJECT_PATH}"
+    elif [ -f "${PROJECT_PATH}/Pipfile" ]; then
+        echo "Found Pipfile"
+        installPipfileDeps
+    fi
 fi
 
 bash docker-entrypoint.sh "$@"
