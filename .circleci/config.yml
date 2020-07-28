@@ -196,6 +196,7 @@ jobs:
       - checkout
       - install_deps
       - run: sudo npm i -g semantic-release @semantic-release/exec pkg
+      - run: sudo apt-get install -y osslsigncode
       - run:
           name: Publish to GitHub
           command: semantic-release
