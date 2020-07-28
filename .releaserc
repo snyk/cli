@@ -12,9 +12,19 @@
       "cmd": "pkg . -t node14-alpine-x64,node14-linux-x64,node14-macos-x64,node14-win-x64"
     },
     {
+      "//": "build docker package",
+      "path": "@semantic-release/exec",
+      "cmd": "./release-scripts/docker-desktop-release.sh"
+    },
+    {
+      "//": "build docker package",
+      "path": "@semantic-release/exec",
+      "cmd": "./release-scripts/sign-windows-binary.sh"
+    },
+    {
       "//": "shasum all binaries",
       "path": "@semantic-release/exec",
-      "cmd": "shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-win.exe > snyk-win.exe.sha256 && shasum -a 256 snyk-alpine > snyk-alpine.sha256"
+      "cmd": "shasum -a 256 snyk-linux > snyk-linux.sha256 && shasum -a 256 snyk-macos > snyk-macos.sha256 && shasum -a 256 snyk-alpine > snyk-alpine.sha256"
     },
     {
       "//": "removes the file we use to identify a build as a standalone binary",
@@ -48,12 +58,12 @@
           "label": "snyk-macos.sha256"
         },
         {
-          "path": "./snyk-win.exe",
+          "path": "./snyk-win-signed.exe",
           "name": "snyk-win.exe",
           "label": "snyk-win.exe"
         },
         {
-          "path": "./snyk-win.exe.sha256",
+          "path": "./snyk-win-signed.exe.sha256",
           "name": "snyk-win.exe.sha256",
           "label": "snyk-win.exe.sha256"
         },
@@ -66,6 +76,11 @@
           "path": "./snyk-alpine.sha256",
           "name": "snyk-alpine.sha256",
           "label": "snyk-alpine.sha256"
+        },
+        {
+          "path": "./dist/docker-mac-signed-bundle.tar.gz",
+          "name": "docker-mac-signed-bundle.tar.gz",
+          "label": "docker-mac-signed-bundle.tar.gz"
         }
       ]
     }

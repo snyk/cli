@@ -15,3 +15,5 @@ snyk-result.json
 snyk_report.css
 snyk_report.html
 !/docker/snyk_report.css
+cert.pem
+key.pem

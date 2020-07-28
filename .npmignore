@@ -4,3 +4,7 @@ config.*.json
 !config.default.json
 tmp
 .nyc_output
+cert.pem
+key.pem
+/release-scripts
+/dist/docker-mac-signed-bundle.tar.gz
