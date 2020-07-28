@@ -3,15 +3,15 @@
 Describe "Snyk CLI basics"
   Describe "snyk version"
     It "prints version"
-      When run "snyk" version
+      When run snyk version
       The output should include "${EXPECTED_SNYK_VERSION}"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
     End
 
-    It "prints version"
-      When run "snyk" --version
+    It "prints version with --version flag"
+      When run snyk --version
       The output should include "${EXPECTED_SNYK_VERSION}"
       The status should be success
       # TODO: unusable with our current docker issues
