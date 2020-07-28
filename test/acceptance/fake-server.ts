@@ -126,6 +126,16 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
+  server.post(root + '/docker-jwt/test-dep-graph', (req, res, next) => {
+    res.send({
+      result: {
+        issuesData: {},
+        affectedPkgs: {},
+      },
+    });
+    return next();
+  });
+
   server.post(root + '/test-iac', (req, res, next) => {
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);
