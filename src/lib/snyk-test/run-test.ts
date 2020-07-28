@@ -62,8 +62,6 @@ const debug = debugModule('snyk');
 
 const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
 
-export = runTest;
-
 async function sendAndParseResults(
   payloads: Payload[],
   spinnerLbl: string,
@@ -137,7 +135,7 @@ async function sendAndParseResults(
   return results;
 }
 
-async function runTest(
+export async function runTest(
   projectType: SupportedProjectTypes | undefined,
   root: string,
   options: Options & TestOptions,
