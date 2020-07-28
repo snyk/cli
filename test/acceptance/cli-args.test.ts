@@ -59,6 +59,53 @@ test('snyk test command should fail when --packageManager is not specified corre
   });
 });
 
+test('snyk test command should fail when iac file is not specified', (t) => {
+  t.plan(1);
+  exec(`node ${main} iac test`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      'iac option works only with specified files',
+      'correct error output',
+    );
+  });
+});
+
+test('snyk test command should fail when iac file is not supported', (t) => {
+  t.plan(1);
+  exec(
+    `node ${main} iac test --file=./test/acceptance/workspaces/empty/readme.md`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.match(
+        stdout.trim(),
+        'CustomError: Illegal infrastructure as code target file',
+        'correct error output',
+      );
+    },
+  );
+});
+
+test('snyk test command should fail when iac file is not supported', (t) => {
+  t.plan(1);
+  exec(
+    `node ${main} iac test --file=./test/acceptance/workspaces/helmconfig/Chart.yaml`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.match(
+        stdout.trim(),
+        'CustomError: Not supported infrastructure as code target files in',
+        'correct error output',
+      );
+    },
+  );
+});
 test('`test multiple paths with --project-name=NAME`', (t) => {
   t.plan(1);
   exec(`node ${main} test pathA pathB --project-name=NAME`, (err, stdout) => {

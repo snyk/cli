@@ -7,7 +7,7 @@ const pm = require('../package-managers');
 const iacProjects = require('../iac/iac-projects');
 const {
   UnsupportedPackageManagerError,
-  NoSupportedIacFileError,
+  NotSupportedIacFileError,
 } = require('../errors');
 
 async function test(root, options, callback) {
@@ -58,7 +58,7 @@ function run(root, options) {
   if (options.iac) {
     const projectType = options.packageManager;
     if (!iacProjects.TEST_SUPPORTED_IAC_PROJECTS.includes(projectType)) {
-      throw new NoSupportedIacFileError(projectType);
+      throw new NotSupportedIacFileError(projectType);
     }
     return runTest(projectType, root, options);
   }
