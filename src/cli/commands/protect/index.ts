@@ -98,7 +98,7 @@ async function patch(options: types.PolicyOptions & types.Options) {
     analytics.add('success', true);
     return 'Successfully applied Snyk patches';
   } catch (e) {
-    if (e.code === 'ALREADY_PATCHED') {
+    if (e.strCode === 'ALREADY_PATCHED') {
       analytics.add('success', true);
       return e.message + ', nothing to do';
     }
