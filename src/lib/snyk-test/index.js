@@ -55,24 +55,26 @@ function executeTest(root, options) {
 }
 
 function run(root, options) {
+  const projectType = options.packageManager;
+  validateProjectType(options, projectType);
+  return runTest(projectType, root, options);
+}
+
+function validateProjectType(options, projectType) {
   if (options.iac) {
-    const projectType = options.packageManager;
     if (!iacProjects.TEST_SUPPORTED_IAC_PROJECTS.includes(projectType)) {
       throw new NotSupportedIacFileError(projectType);
     }
-    return runTest(projectType, root, options);
+  } else {
+    if (
+      !(
+        options.docker ||
+        options.allProjects ||
+        options.yarnWorkspaces ||
+        pm.SUPPORTED_PACKAGE_MANAGER_NAME[projectType]
+      )
+    ) {
+      throw new UnsupportedPackageManagerError(projectType);
+    }
   }
-
-  const packageManager = options.packageManager;
-  if (
-    !(
-      options.docker ||
-      options.allProjects ||
-      options.yarnWorkspaces ||
-      pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager]
-    )
-  ) {
-    throw new UnsupportedPackageManagerError(packageManager);
-  }
-  return runTest(packageManager, root, options);
 }
