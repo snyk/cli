@@ -165,6 +165,7 @@ test('`protect` with no policy', async (t) => {
   const req = server.popRequest();
   const policySentToServer = req.body.policy;
   t.equal(policySentToServer, projectPolicy, 'sends correct policy');
+
   t.end();
 });
 
