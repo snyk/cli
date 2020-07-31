@@ -42,7 +42,7 @@ import {
   GitRepoCommitStats,
   execShell,
 } from '../../../lib/monitor/dev-count-analysis';
-import { FailedToRunTestError } from '../../../lib/errors';
+import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -166,12 +166,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         }),
         spinner.clear(analyzingDepsSpinnerLabel),
       );
-
       analytics.add('pluginName', inspectResult.plugin.name);
-
-      const postingMonitorSpinnerLabel =
-        'Posting monitor snapshot for ' + displayPath + ' ...';
-      await spinner(postingMonitorSpinnerLabel);
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
       // multi result will become default, so start migrating code to always work with it
@@ -182,6 +177,22 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       } else {
         perProjectResult = convertMultiResultToMultiCustom(inspectResult);
       }
+
+      const failedResults = (inspectResult as MultiProjectResultCustom)
+        .failedResults;
+      if (failedResults?.length) {
+        failedResults.forEach((result) => {
+          results.push({
+            ok: false,
+            data: new MonitorError(500, result.errMessage),
+            path: result.targetFile || '',
+          });
+        });
+      }
+
+      const postingMonitorSpinnerLabel =
+        'Posting monitor snapshot for ' + displayPath + ' ...';
+      await spinner(postingMonitorSpinnerLabel);
 
       // Post the project dependencies to the Registry
       for (const projectDeps of perProjectResult.scannedProjects) {

@@ -171,10 +171,14 @@ export const AllProjectsTests: AcceptanceTests = {
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
-
-      const result = await params.cli.monitor('monorepo-bad-project', {
-        allProjects: true,
-      });
+      let result;
+      try {
+        await params.cli.monitor('monorepo-bad-project', {
+          allProjects: true,
+        });
+      } catch (error) {
+        result = error.message;
+      }
       t.ok(spyPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.ok(spyPlugin.withArgs('yarn').calledOnce, 'calls npm plugin');
       t.ok(spyPlugin.withArgs('maven').notCalled, 'did not call  maven plugin');
@@ -184,11 +188,10 @@ export const AllProjectsTests: AcceptanceTests = {
         'rubygems/graph/some/project-id',
         'rubygems project was monitored',
       );
-
-      t.notMatch(
+      t.match(
         result,
-        'yarn/graph/some/project-id',
-        'yarn project was not monitored',
+        'Dependency snyk was not found in yarn.lock',
+        'yarn project had an error and we displayed it',
       );
 
       const request = params.server.popRequest();

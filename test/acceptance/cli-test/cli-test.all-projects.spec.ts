@@ -7,6 +7,23 @@ import { CommandResult } from '../../../src/cli/commands/types';
 export const AllProjectsTests: AcceptanceTests = {
   language: 'Mixed',
   tests: {
+    '`test yarn-out-of-sync` out of sync fails': (params, utils) => async (
+      t,
+    ) => {
+      utils.chdirWorkspaces();
+      try {
+        await params.cli.test('yarn-workspace-out-of-sync', {
+          allProjects: true,
+        });
+        t.fail('Should fail');
+      } catch (e) {
+        t.equal(
+          e.message,
+          '\nTesting yarn-workspace-out-of-sync...\n\nFailed to get dependencies for all 3 potential projects. Run with `-d` for debug output and contact support@snyk.io',
+          'Contains enough info about err',
+        );
+      }
+    },
     '`test mono-repo-with-ignores --all-projects` respects .snyk policy': (
       params,
       utils,

@@ -34,6 +34,7 @@ export async function parse(
     'Analyzing npm dependencies for ' +
     path.dirname(path.resolve(root, targetFile));
   try {
+    await spinner.clear<void>(resolveModuleSpinnerLabel)();
     await spinner(resolveModuleSpinnerLabel);
     if (targetFile.endsWith('yarn.lock')) {
       options.file =

@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as _ from '@snyk/lodash';
 import * as path from 'path';
 import * as debugModule from 'debug';
+import chalk from 'chalk';
 import * as pathUtil from 'path';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
@@ -42,7 +43,10 @@ import {
 } from '../types';
 import { pruneGraph } from '../prune';
 import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
-import { ScannedProjectCustom } from '../plugins/get-multi-plugin-result';
+import {
+  ScannedProjectCustom,
+  MultiProjectResultCustom,
+} from '../plugins/get-multi-plugin-result';
 
 import request = require('../request');
 import spinner = require('../spinner');
@@ -72,6 +76,7 @@ async function sendAndParseResults(
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
   for (const payload of payloads) {
+    await spinner.clear<void>(spinnerLbl)();
     await spinner(spinnerLbl);
     if (options.iac) {
       const iacScan: IacScan = payload.body as IacScan;
@@ -348,12 +353,23 @@ async function assembleLocalPayloads(
 
   try {
     const payloads: Payload[] = [];
-
+    await spinner.clear<void>(spinnerLbl)();
     await spinner(spinnerLbl);
     if (options.iac) {
       return assembleIacLocalPayloads(root, options);
     }
     const deps = await getDepsFromPlugin(root, options);
+    const failedResults = (deps as MultiProjectResultCustom).failedResults;
+    if (failedResults?.length) {
+      await spinner.clear<void>(spinnerLbl)();
+      console.warn(
+        chalk.bold.red(
+          `✗ ${failedResults.length}/${failedResults.length +
+            deps.scannedProjects
+              .length} potential projects failed to get dependencies. Run with \`-d\` for debug output.`,
+        ),
+      );
+    }
     analytics.add('pluginName', deps.plugin.name);
     const javaVersion = _.get(
       deps.plugin,
