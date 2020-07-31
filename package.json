@@ -31,7 +31,7 @@
     "test:system": "tap test/system/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test:test": "tap test/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test": "npm run test:acceptance && npm run test:system && npm run test:test",
-    "test-windows": "npm run test:acceptance && npm run test:system && npm run test:test",
+    "test-windows": "tap test/acceptance/**/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register && npm run test:system && npm run test:test",
     "lint": "run-p --aggregate-output lint:*",
     "lint:js": "eslint --color --cache 'src/**/*.{js,ts}'",
     "lint:formatting": "prettier --check '{src,test,scripts}/**/*.{js,ts}'",
