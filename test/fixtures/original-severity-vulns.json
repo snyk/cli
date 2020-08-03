@@ -1,0 +1,92 @@
+{
+  "vulnerabilities": [
+    {
+      "CVSSv3": "CVSS:3.0/AV:A/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:N",
+      "alternativeIds": ["SNYK-JS-NODEUUID-10089"],
+      "creationTime": "2016-03-28T22:00:02.566000Z",
+      "credit": ["Fedot Praslov"],
+      "cvssScore": 4.2,
+      "description": "## Overview\r\n[`node-uuid`](https://github.com/kelektiv/node-uuid) is a Simple, fast generation of RFC4122 UUIDS.\r\n\r\nAffected versions of this package are vulnerable to Insecure Randomness. It uses the cryptographically insecure `Math.random` which can produce predictable values and should not be used in security-sensitive context.\r\n\r\n## Remediation\r\nUpgrade `node-uuid` to version 1.4.4 or greater.\r\n\r\n## References\r\n- [GitHub Issue](https://github.com/broofa/node-uuid/issues/108)\r\n- [GitHub Issue 2](https://github.com/broofa/node-uuid/issues/122)",
+      "disclosureTime": "2016-03-28T21:29:30Z",
+      "exploit": "Not Defined",
+      "fixedIn": ["1.4.4"],
+      "functions": [],
+      "functions_new": [],
+      "id": "npm:node-uuid:20160328",
+      "identifiers": {
+        "ALTERNATIVE": ["SNYK-JS-NODEUUID-10089"],
+        "CVE": ["CVE-2015-8851"],
+        "CWE": ["CWE-330"],
+        "GHSA": ["GHSA-265q-28rp-chq5"],
+        "NSP": [93]
+      },
+      "language": "js",
+      "modificationTime": "2019-12-02T14:38:43.034395Z",
+      "moduleName": "node-uuid",
+      "packageManager": "npm",
+      "packageName": "node-uuid",
+      "patches": [
+        {
+          "comments": [],
+          "id": "patch:npm:node-uuid:20160328:0",
+          "modificationTime": "2019-12-03T11:40:45.815314Z",
+          "urls": [
+            "https://snyk-patches.s3.amazonaws.com/npm/node-uuid/20160328/node-uuid_20160328_0_0_616ad3800f35cf58089215f420db9654801a5a02.patch"
+          ],
+          "version": "<=1.4.3 >=1.4.2"
+        }
+      ],
+      "proprietary": false,
+      "publicationTime": "2016-03-28T22:00:02Z",
+      "references": [
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/broofa/node-uuid/issues/108"
+        },
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/broofa/node-uuid/issues/122"
+        }
+      ],
+      "semver": { "vulnerable": ["<1.4.4"] },
+      "severity": "low",
+      "title": "Insecure Randomness",
+      "originalSeverity": "medium",
+      "from": ["shallow-goof@0.0.1", "node-uuid@1.4.0"],
+      "upgradePath": [false, "node-uuid@1.4.6"],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "node-uuid",
+      "version": "1.4.0",
+      "parentDepType": "prod"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 1,
+  "org": "another-org",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.19.0\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": null,
+  "packageManager": "npm",
+  "projectId": "79b0b833-25d7-4f11-bc58-dbfc55a4e5c7",
+  "ignoreSettings": null,
+  "summary": "1 vulnerable dependency paths",
+  "remediation": {
+    "unresolved": [],
+    "upgrade": {
+      "node-uuid@1.4.0": {
+        "upgradeTo": "node-uuid@1.4.6",
+        "upgrades": ["node-uuid@1.4.0"],
+        "vulns": ["npm:node-uuid:20160328"]
+      }
+    },
+    "patch": {},
+    "ignore": {},
+    "pin": {}
+  },
+  "filesystemPolicy": true,
+  "filtered": { "ignore": [], "patch": [] },
+  "uniqueCount": 4,
+  "projectName": "shallow-goof",
+  "displayTargetFile": "package.json"
+}

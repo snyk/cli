@@ -13,6 +13,7 @@ import {
   GroupedVuln,
   AnnotatedIssue,
   DockerIssue,
+  SEVERITY,
 } from '../../../../lib/snyk-test/legacy';
 import { formatLegalInstructions } from './legal-license-instructions';
 import { getReachabilityText } from './format-reachability';
@@ -35,12 +36,13 @@ export function formatIssues(
   ).join(', ');
 
   const vulnOutput = {
-    issueHeading: createSeverityBasedIssueHeading(
-      vuln.metadata.severity,
-      vuln.metadata.type,
-      vuln.metadata.name,
-      false,
-    ),
+    issueHeading: createSeverityBasedIssueHeading({
+      severity: vuln.metadata.severity,
+      originalSeverity: vuln.originalSeverity,
+      type: vuln.metadata.type,
+      packageName: vuln.metadata.name,
+      isNew: false,
+    }),
     introducedThrough: '  Introduced through: ' + uniquePackages,
     description: '  Description: ' + vuln.title,
     info: '  Info: ' + chalk.underline(config.ROOT + '/vuln/' + vulnID),
@@ -76,7 +78,21 @@ export function formatIssues(
   );
 }
 
-function createSeverityBasedIssueHeading(severity, type, packageName, isNew) {
+type CreateSeverityBasedIssueHeading = {
+  severity: SEVERITY;
+  originalSeverity?: SEVERITY;
+  type: string;
+  packageName: string;
+  isNew: boolean;
+};
+
+function createSeverityBasedIssueHeading({
+  severity,
+  originalSeverity,
+  type,
+  packageName,
+  isNew,
+}: CreateSeverityBasedIssueHeading) {
   // Example: ✗ Medium severity vulnerability found in xmldom
   const vulnTypeText = type === 'license' ? 'issue' : 'vulnerability';
   const severitiesColourMapping = {
@@ -96,11 +112,17 @@ function createSeverityBasedIssueHeading(severity, type, packageName, isNew) {
       },
     },
   };
+
+  let originalSeverityStr = '';
+  if (originalSeverity && originalSeverity !== severity) {
+    originalSeverityStr = ` (originally ${titleCaseText(originalSeverity)})`;
+  }
+
   return (
     severitiesColourMapping[severity].colorFunc(
       '✗ ' +
         titleCaseText(severity) +
-        ' severity ' +
+        ` severity${originalSeverityStr} ` +
         vulnTypeText +
         ' found in ' +
         chalk.underline(packageName),

@@ -50,6 +50,7 @@ export interface GroupedVuln {
   title: string;
   note: string | false;
   severity: SEVERITY;
+  originalSeverity?: SEVERITY;
   isNew: boolean;
   name: string;
   version: string;
@@ -107,6 +108,7 @@ interface AnnotatedIssue extends IssueData {
   isUpgradable: boolean;
   isPatchable: boolean;
   severity: SEVERITY;
+  originalSeverity?: SEVERITY;
 
   // These fields present for "node_module" based scans to allow remediation
   bundled?: any;

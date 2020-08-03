@@ -14,6 +14,7 @@ export interface BasicVulnInfo {
   type: string;
   title: string;
   severity: SEVERITY;
+  originalSeverity?: SEVERITY;
   isNew: boolean;
   name: string;
   version: string;

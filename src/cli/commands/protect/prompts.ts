@@ -18,7 +18,8 @@ import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as config from '../../../lib/config';
 import * as snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
-import { AnnotatedIssue } from '../../../lib/snyk-test/legacy';
+import { AnnotatedIssue, SEVERITY } from '../../../lib/snyk-test/legacy';
+import { titleCaseText } from '../test/formatters/legacy-format-issue';
 
 const debug = debugModule('snyk');
 
@@ -42,7 +43,7 @@ function sort(prop) {
   };
 }
 
-function createSeverityBasedIssueHeading(msg, severity) {
+function createSeverityBasedIssueHeading(msg: string, severity: SEVERITY) {
   // Example: ✗ Medium severity vulnerability found in xmldom
   const severitiesColourMapping = {
     low: {
@@ -609,13 +610,20 @@ function generatePrompt(
       debug('Skipping issues in core package with no upgrade path: ' + id);
     }
     const vulnIn = vuln.from.slice(-1).pop();
-    const severity = vuln.severity[0].toUpperCase() + vuln.severity.slice(1);
+    const severity = titleCaseText(vuln.severity);
 
     let infoLink = '    Info: ' + chalk.underline(config.ROOT);
 
     let messageIntro;
     let fromText: boolean | string = false;
     const group = vuln.grouped && vuln.grouped.main ? vuln.grouped : false;
+
+    let originalSeverityStr = '';
+    if (vuln.originalSeverity && vuln.originalSeverity !== vuln.severity) {
+      originalSeverityStr = ` (originally ${titleCaseText(
+        vuln.originalSeverity,
+      )})`;
+    }
 
     if (group) {
       infoLink += chalk.underline(
@@ -626,7 +634,7 @@ function generatePrompt(
       messageIntro = fmt(
         '✗ %s %s %s introduced %s %s',
         group.count,
-        severity,
+        `${severity}${originalSeverityStr}`,
         issues,
         joiningText,
         group.affected.full,
@@ -639,7 +647,7 @@ function generatePrompt(
       infoLink += chalk.underline('/vuln/' + vuln.id);
       messageIntro = fmt(
         '✗ %s severity %s found in %s, introduced via',
-        severity,
+        `${severity}${originalSeverityStr}`,
         vuln.type === 'license' ? 'issue' : 'vuln',
         vulnIn,
         from,
