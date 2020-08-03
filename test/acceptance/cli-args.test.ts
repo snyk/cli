@@ -15,12 +15,12 @@ const iswindows =
 // TODO(kyegupov): make these work in Windows
 test('snyk test command should fail when --file is not specified correctly', (t) => {
   t.plan(1);
-  exec(`node ${main} test --file package-lock.json`, (err, stdout) => {
+  exec(`node ${main} test --file package-lock.json`, (err, stdout, stderr) => {
     if (err) {
       throw err;
     }
     t.match(
-      stdout.trim(),
+      stderr.trim(),
       'Empty --file argument. Did you mean --file=path/to/file ?',
       'correct error output',
     );
@@ -47,12 +47,12 @@ test(
 
 test('snyk test command should fail when --packageManager is not specified correctly', (t) => {
   t.plan(1);
-  exec(`node ${main} test --packageManager=hello`, (err, stdout) => {
+  exec(`node ${main} test --packageManager=hello`, (err, stdout, stderr) => {
     if (err) {
       throw err;
     }
     t.match(
-      stdout.trim(),
+      stderr.trim(),
       'Unsupported package manager',
       'correct error output',
     );
@@ -61,12 +61,12 @@ test('snyk test command should fail when --packageManager is not specified corre
 
 test('snyk test command should fail when iac file is not specified', (t) => {
   t.plan(1);
-  exec(`node ${main} iac test`, (err, stdout) => {
+  exec(`node ${main} iac test`, (err, stdout, stderr) => {
     if (err) {
       throw err;
     }
     t.match(
-      stdout.trim(),
+      stderr.trim(),
       'iac option works only with specified files',
       'correct error output',
     );
@@ -77,12 +77,12 @@ test('snyk test command should fail when iac file is not supported', (t) => {
   t.plan(1);
   exec(
     `node ${main} iac test --file=./test/acceptance/workspaces/empty/readme.md`,
-    (err, stdout) => {
+    (err, stdout, stderr) => {
       if (err) {
         throw err;
       }
       t.match(
-        stdout.trim(),
+        stderr.trim(),
         'CustomError: Illegal infrastructure as code target file',
         'correct error output',
       );
@@ -94,12 +94,12 @@ test('snyk test command should fail when iac file is not supported', (t) => {
   t.plan(1);
   exec(
     `node ${main} iac test --file=./test/acceptance/workspaces/helmconfig/Chart.yaml`,
-    (err, stdout) => {
+    (err, stdout, stderr) => {
       if (err) {
         throw err;
       }
       t.match(
-        stdout.trim(),
+        stderr.trim(),
         'CustomError: Not supported infrastructure as code target files in',
         'correct error output',
       );
@@ -108,16 +108,19 @@ test('snyk test command should fail when iac file is not supported', (t) => {
 });
 test('`test multiple paths with --project-name=NAME`', (t) => {
   t.plan(1);
-  exec(`node ${main} test pathA pathB --project-name=NAME`, (err, stdout) => {
-    if (err) {
-      throw err;
-    }
-    t.match(
-      stdout.trim(),
-      'The following option combination is not currently supported: multiple paths + project-name',
-      'correct error output',
-    );
-  });
+  exec(
+    `node ${main} test pathA pathB --project-name=NAME`,
+    (err, stdout, stderr) => {
+      if (err) {
+        throw err;
+      }
+      t.match(
+        stderr.trim(),
+        'The following option combination is not currently supported: multiple paths + project-name',
+        'correct error output',
+      );
+    },
+  );
 });
 
 test('`test that running snyk without any args displays help text`', (t) => {
@@ -134,12 +137,12 @@ test('`test --file=file.sln --project-name=NAME`', (t) => {
   t.plan(1);
   exec(
     `node ${main} test --file=file.sln --project-name=NAME`,
-    (err, stdout) => {
+    (err, stdout, stderr) => {
       if (err) {
         throw err;
       }
       t.match(
-        stdout.trim(),
+        stderr.trim(),
         'The following option combination is not currently supported: file=*.sln + project-name',
         'correct error output',
       );
@@ -149,16 +152,19 @@ test('`test --file=file.sln --project-name=NAME`', (t) => {
 
 test('`test --file=blah --scan-all-unmanaged`', (t) => {
   t.plan(1);
-  exec(`node ${main} test --file=blah --scan-all-unmanaged`, (err, stdout) => {
-    if (err) {
-      throw err;
-    }
-    t.match(
-      stdout.trim(),
-      'The following option combination is not currently supported: file + scan-all-unmanaged',
-      'correct error output',
-    );
-  });
+  exec(
+    `node ${main} test --file=blah --scan-all-unmanaged`,
+    (err, stdout, stderr) => {
+      if (err) {
+        throw err;
+      }
+      t.match(
+        stderr.trim(),
+        'The following option combination is not currently supported: file + scan-all-unmanaged',
+        'correct error output',
+      );
+    },
+  );
 });
 
 const argsNotAllowedWithYarnWorkspaces = [
@@ -172,26 +178,32 @@ const argsNotAllowedWithYarnWorkspaces = [
 argsNotAllowedWithYarnWorkspaces.forEach((arg) => {
   test(`using --${arg} and --yarn-workspaces displays error message`, (t) => {
     t.plan(2);
-    exec(`node ${main} test --${arg} --yarn-workspaces`, (err, stdout) => {
-      if (err) {
-        throw err;
-      }
-      t.deepEqual(
-        stdout.trim(),
-        `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
-        'when using test',
-      );
-    });
-    exec(`node ${main} monitor --${arg} --yarn-workspaces`, (err, stdout) => {
-      if (err) {
-        throw err;
-      }
-      t.deepEqual(
-        stdout.trim(),
-        `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
-        'when using monitor',
-      );
-    });
+    exec(
+      `node ${main} test --${arg} --yarn-workspaces`,
+      (err, stdout, stderr) => {
+        if (err) {
+          throw err;
+        }
+        t.match(
+          stderr.trim(),
+          `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
+          'when using test',
+        );
+      },
+    );
+    exec(
+      `node ${main} monitor --${arg} --yarn-workspaces`,
+      (err, stdout, stderr) => {
+        if (err) {
+          throw err;
+        }
+        t.match(
+          stderr.trim(),
+          `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
+          'when using monitor',
+        );
+      },
+    );
   });
 });
 const argsNotAllowedWithAllProjects = [
@@ -206,37 +218,40 @@ const argsNotAllowedWithAllProjects = [
 argsNotAllowedWithAllProjects.forEach((arg) => {
   test(`using --${arg} and --all-projects displays error message`, (t) => {
     t.plan(2);
-    exec(`node ${main} test --${arg} --all-projects`, (err, stdout) => {
+    exec(`node ${main} test --${arg} --all-projects`, (err, stdout, stderr) => {
       if (err) {
         throw err;
       }
-      t.deepEqual(
-        stdout.trim(),
+      t.match(
+        stderr.trim(),
         `The following option combination is not currently supported: ${arg} + all-projects`,
         'when using test',
       );
     });
-    exec(`node ${main} monitor --${arg} --all-projects`, (err, stdout) => {
-      if (err) {
-        throw err;
-      }
-      t.deepEqual(
-        stdout.trim(),
-        `The following option combination is not currently supported: ${arg} + all-projects`,
-        'when using monitor',
-      );
-    });
+    exec(
+      `node ${main} monitor --${arg} --all-projects`,
+      (err, stdout, stderr) => {
+        if (err) {
+          throw err;
+        }
+        t.match(
+          stderr.trim(),
+          `The following option combination is not currently supported: ${arg} + all-projects`,
+          'when using monitor',
+        );
+      },
+    );
   });
 });
 
 test('`test --exclude without --all-project displays error message`', (t) => {
   t.plan(1);
-  exec(`node ${main} test --exclude=test`, (err, stdout) => {
+  exec(`node ${main} test --exclude=test`, (err, stdout, stderr) => {
     if (err) {
       throw err;
     }
-    t.equals(
-      stdout.trim(),
+    t.match(
+      stderr.trim(),
       'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
     );
   });
@@ -244,12 +259,12 @@ test('`test --exclude without --all-project displays error message`', (t) => {
 
 test('`test --exclude without any value displays error message`', (t) => {
   t.plan(1);
-  exec(`node ${main} test --all-projects --exclude`, (err, stdout) => {
+  exec(`node ${main} test --all-projects --exclude`, (err, stdout, stderr) => {
     if (err) {
       throw err;
     }
-    t.equals(
-      stdout.trim(),
+    t.match(
+      stderr.trim(),
       'Empty --exclude argument. Did you mean --exclude=subdirectory ?',
     );
   });
@@ -260,12 +275,12 @@ test('`test --exclude=path/to/dir displays error message`', (t) => {
   const exclude = 'path/to/dir'.replace(/\//g, sep);
   exec(
     `node ${main} test --all-projects --exclude=${exclude}`,
-    (err, stdout) => {
+    (err, stdout, stderr) => {
       if (err) {
         throw err;
       }
-      t.equals(
-        stdout.trim(),
+      t.match(
+        stderr.trim(),
         'The --exclude argument must be a comma separated list of directory names and cannot contain a path.',
       );
     },
@@ -290,16 +305,19 @@ test('`other commands not allowed with --json-file-output`', (t) => {
   t.plan(commandsNotCompatibleWithJsonFileOutput.length);
 
   for (const nextCommand of commandsNotCompatibleWithJsonFileOutput) {
-    exec(`node ${main} ${nextCommand} --json-file-output`, (err, stdout) => {
-      if (err) {
-        throw err;
-      }
-      t.match(
-        stdout.trim(),
-        `The following option combination is not currently supported: ${nextCommand} + json-file-output`,
-        `correct error output when ${nextCommand} is used with --json-file-output`,
-      );
-    });
+    exec(
+      `node ${main} ${nextCommand} --json-file-output`,
+      (err, stdout, stderr) => {
+        if (err) {
+          throw err;
+        }
+        t.match(
+          stderr.trim(),
+          `The following option combination is not currently supported: ${nextCommand} + json-file-output`,
+          `correct error output when ${nextCommand} is used with --json-file-output`,
+        );
+      },
+    );
   }
 });
 
@@ -315,12 +333,12 @@ test('`test --json-file-output no value produces error message`', (t) => {
 
   const validate = (jsonFileOutputOption: string) => {
     const fullCommand = `node ${main} test ${jsonFileOutputOption}`;
-    exec(fullCommand, (err, stdout) => {
+    exec(fullCommand, (err, stdout, stderr) => {
       if (err) {
         throw err;
       }
-      t.equals(
-        stdout.trim(),
+      t.match(
+        stderr.trim(),
         'Empty --json-file-output argument. Did you mean --file=path/to/output-file.json ?',
       );
     });
@@ -338,7 +356,11 @@ test('`test --json-file-output can save JSON output to file while sending human 
       if (err) {
         throw err;
       }
-      t.match(stdout, 'Organization:', 'contains human readable output');
+      t.match(
+        stdout,
+        'dependencies for known issues, no vulnerable paths found',
+        'contains human readable output',
+      );
       const outputFileContents = readFileSync(
         'snyk-direct-json-test-output.json',
         'utf-8',

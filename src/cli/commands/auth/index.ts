@@ -2,7 +2,8 @@ import * as url from 'url';
 import * as open from 'open';
 import * as uuid from 'uuid';
 import * as Debug from 'debug';
-import { Spinner } from 'cli-spinner';
+import * as Spinner from 'ora';
+import chalk from 'chalk';
 
 import * as snyk from '../../../lib';
 import { verifyAPI } from './is-authed';
@@ -48,20 +49,19 @@ async function webAuth(via: AuthCliCommands) {
   }
 
   const msg =
-    '\nNow redirecting you to our auth page, go ahead and log in,\n' +
+    'Now redirecting you to our auth page, go ahead and log in,\n' +
     "and once the auth is complete, return to this prompt and you'll\n" +
-    "be ready to start using snyk.\n\nIf you can't wait use this url:\n" +
-    urlStr +
+    "be ready to start using Snyk.\n\nIf you can't wait use this url:\n" +
+    chalk.underline(urlStr) +
     '\n';
 
+  const spinner = Spinner('Waiting...').start();
   // suppress this message in CI
   if (!isCI()) {
-    console.log(msg);
+    spinner.info(msg).start();
   } else {
     return Promise.reject(MisconfiguredAuthInCI());
   }
-  const spinner = new Spinner('Waiting...');
-  spinner.setSpinnerString('|/-\\');
 
   const ipFamily = await getIpFamily();
 
@@ -73,7 +73,7 @@ async function webAuth(via: AuthCliCommands) {
 
     return await testAuthComplete(token, ipFamily);
   } finally {
-    spinner.stop(true);
+    spinner.stop();
   }
 }
 
@@ -144,10 +144,7 @@ async function auth(apiToken: string, via: AuthCliCommands): Promise<string> {
 
     if (res.statusCode === 200 || res.statusCode === 201) {
       snyk.config.set('api', body.api);
-      return (
-        '\nYour account has been authenticated. Snyk is now ready to ' +
-        'be used.\n'
-      );
+      return 'Your account has been authenticated. Snyk is now ready to be used.';
     }
     throw errorForFailedAuthAttempt(res, body);
   });

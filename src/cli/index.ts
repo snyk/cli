@@ -2,6 +2,7 @@
 import 'source-map-support/register';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
+import * as Spinner from 'ora';
 
 // assert supported node runtime version
 import * as runtime from './runtime';
@@ -12,7 +13,6 @@ import * as sln from '../lib/sln';
 import { args as argsLib, Args } from './args';
 import { TestCommandResult } from './commands/types';
 import { copy } from './copy';
-import spinner = require('../lib/spinner');
 import errors = require('../lib/errors/legacy-errors');
 import ansiEscapes = require('ansi-escapes');
 import { isPathToPackageFile } from '../lib/detect';
@@ -41,13 +41,23 @@ import {
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
-  VULNS_FOUND: 1,
-  ERROR: 2,
+  SUCCESS: {
+    code: 0,
+    message: 'Congratulations, no vulnerabilities found!',
+  },
+  VULNS_FOUND: {
+    code: 1,
+    message: 'Vulnerabilities found.',
+  },
+  ERROR: {
+    code: 2,
+    message: 'Encountered an error.',
+  },
 };
 
 async function runCommand(args: Args) {
+  debug(`Running \`snyk ${args.command}\``);
   const commandResult = await args.method(...args.options._);
-
   const res = analytics({
     args: args.options._,
     command: args.command,
@@ -59,62 +69,68 @@ async function runCommand(args: Args) {
   }
 
   const result = commandResult.toString();
-
+  const exitCode = EXIT_CODES.SUCCESS.code;
   if (result && !args.options.quiet) {
+    const userMessage = `${EXIT_CODES.SUCCESS.message} Exited with code: ${exitCode}.\n`;
+    debug(userMessage);
     if (args.options.copy) {
       copy(result);
-      console.log('Result copied to clipboard');
+      console.log('Result copied to clipboard.');
     } else {
       console.log(result);
     }
   }
-
   // also save the json (in error.json) to file if option is set
-  if (args.command === 'test') {
-    const jsonOutputFile = args.options['json-file-output'];
-    if (jsonOutputFile) {
-      const jsonOutputFileStr = jsonOutputFile as string;
-      const fullOutputFilePath = getFullPath(jsonOutputFileStr);
-      saveJsonResultsToFile(
-        stripAnsi((commandResult as TestCommandResult).getJsonResult()),
-        fullOutputFilePath,
-      );
-    }
+  const jsonOutputFile = args.options['json-file-output'];
+  if (args.command === 'test' && jsonOutputFile) {
+    saveJsonResultsToFile(
+      stripAnsi((commandResult as TestCommandResult).getJsonResult()),
+      getFullPath(jsonOutputFile as string),
+    );
   }
-
   return res;
 }
 
 async function handleError(args, error) {
-  spinner.clearAll();
   let command = 'bad-command';
-  let exitCode = EXIT_CODES.ERROR;
+  let exitReason = EXIT_CODES.ERROR;
+  const spinner = Spinner().start();
 
   const vulnsFound = error.code === 'VULNS';
+  const outputCmd = vulnsFound ? console.log : spinner.fail;
+
   if (vulnsFound) {
     // this isn't a bad command, so we won't record it as such
     command = args.command;
-    exitCode = EXIT_CODES.VULNS_FOUND;
+    exitReason = EXIT_CODES.VULNS_FOUND;
   }
+  const exitCode = exitReason.code;
 
   if (args.options.debug && !args.options.json) {
     const output = vulnsFound ? error.message : error.stack;
-    console.log(output);
+    vulnsFound ? console.log(output) : spinner.fail(output);
   } else if (args.options.json) {
-    console.log(stripAnsi(error.json || error.stack));
+    const output = stripAnsi(error.json || error.stack);
+    vulnsFound ? console.log(output) : spinner.fail(output);
+    outputCmd(stripAnsi(error.json || error.stack));
   } else {
     if (!args.options.quiet) {
       const result = errors.message(error);
+      const userMessage = `${exitReason.message} Exited with code: ${exitCode}.\n`;
+      debug(userMessage);
       if (args.options.copy) {
         copy(result);
-        console.log('Result copied to clipboard');
+        const msg = `Result copied to clipboard. ${userMessage[exitCode]}`;
+        vulnsFound ? console.log(msg) : spinner.fail(msg);
       } else {
         if (`${error.code}`.indexOf('AUTH_') === 0) {
           // remove the last few lines
           const erase = ansiEscapes.eraseLines(4);
           process.stdout.write(erase);
         }
-        console.log(result);
+        vulnsFound
+          ? console.log(userMessage + result)
+          : spinner.fail(userMessage + result);
       }
     }
   }
@@ -159,7 +175,7 @@ async function handleError(args, error) {
     command,
     org: args.options.org,
   });
-
+  spinner.stop();
   return { res, exitCode };
 }
 
@@ -201,7 +217,7 @@ function checkRuntime() {
         `runtime! Supported runtime range is '${runtime.supportedRange}'`,
     );
     console.error('Please upgrade your nodejs runtime version and try again.');
-    process.exit(EXIT_CODES.ERROR);
+    process.exit(EXIT_CODES.ERROR.code);
   }
 }
 
@@ -232,7 +248,7 @@ async function main() {
   const args = argsLib(process.argv);
   let res;
   let failed = false;
-  let exitCode = EXIT_CODES.ERROR;
+  let exitCode = EXIT_CODES.ERROR.code;
   try {
     modeValidation(args);
     // TODO: fix this, we do transformation to options and teh type doesn't reflect it
@@ -299,7 +315,6 @@ async function main() {
   }
 
   if (!process.env.TAP && failed) {
-    debug('Exit code: ' + exitCode);
     process.exitCode = exitCode;
   }
 
@@ -309,7 +324,7 @@ async function main() {
 const cli = main().catch((e) => {
   console.error('Something unexpected went wrong: ', e.stack);
   console.error('Exit code: ' + EXIT_CODES.ERROR);
-  process.exit(EXIT_CODES.ERROR);
+  process.exit(EXIT_CODES.ERROR.code);
 });
 
 if (module.parent) {

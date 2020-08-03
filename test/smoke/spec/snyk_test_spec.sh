@@ -5,6 +5,7 @@ Describe "Snyk test command"
     It "finds vulns in a project"
       When run snyk test "../fixtures/basic-npm"
       The status should be failure
+      The output should include "Node.js 8 reached End Of Life on December 31, 2019 and the Snyk CLI will stop supporting it in the near future."
       The output should include "https://snyk.io/vuln/npm:minimatch:20160620"
       The stderr should equal ""
     End

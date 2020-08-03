@@ -55,10 +55,11 @@ Describe "Snyk CLI basics"
   Describe "snyk auth"
     It "fails if given bogus token"
       When run snyk auth abc123
-      The output should include "Authentication failed. Please check the API token"
+      The output should include ""
       The status should be failure
       # TODO: unusable with our current docker issues
-      The stderr should equal ""
+      The stderr should include "✖ Encountered an error. Exited with code: 2."
+      The stderr should include "Authentication failed. Please check the API token on https://snyk.io"
     End
 
     It "updates config file if given legit token"
