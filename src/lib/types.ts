@@ -165,12 +165,20 @@ export type SupportedUserReachableFacingCliArgs =
   | 'reachable'
   | 'reachable-vulns'
   | 'reachable-timeout'
-  | 'reachable-vulns-timeout';
+  | 'reachable-vulns-timeout'
+  | 'integration-name'
+  | 'integration-version';
 
-export type SupportedCliCommands =
-  | 'protect'
-  | 'test'
-  | 'monitor'
-  | 'wizard'
-  | 'ignore'
-  | 'woof';
+export enum SupportedCliCommands {
+  version = 'version',
+  help = 'help',
+  // config = 'config', // TODO: cleanup `$ snyk config` parsing logic before adding it here
+  auth = 'auth',
+  test = 'test',
+  monitor = 'monitor',
+  protect = 'protect',
+  policy = 'policy',
+  ignore = 'ignore',
+  wizard = 'wizard',
+  woof = 'woof',
+}
