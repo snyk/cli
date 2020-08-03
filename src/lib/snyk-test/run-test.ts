@@ -373,9 +373,13 @@ async function assembleLocalPayloads(
     }
 
     for (const scannedProject of deps.scannedProjects) {
-      if (!scannedProject.depTree && !scannedProject.depGraph) {
+      if (
+        !scannedProject.depTree &&
+        !scannedProject.depGraph &&
+        !scannedProject.artifacts
+      ) {
         debug(
-          'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+          'scannedProject is missing depGraph, depTree or artifacts, cannot run test/monitor',
         );
         throw new FailedToRunTestError(
           'Your test request could not be completed. Please email support@snyk.io',
@@ -384,15 +388,23 @@ async function assembleLocalPayloads(
 
       // prefer dep-graph fallback on dep tree
       // TODO: clean up once dep-graphs only
-      const pkg:
-        | DepTree
-        | depGraphLib.DepGraph
-        | undefined = scannedProject.depGraph
-        ? scannedProject.depGraph
-        : scannedProject.depTree;
+      const maybeDepGraphArtifact = scannedProject.artifacts?.find(
+        (artifact) => artifact.type === 'depGraph',
+      )?.data;
+      const maybeDepTreeArtifact = scannedProject.artifacts?.find(
+        (artifact) => artifact.type === 'depTree',
+      )?.data;
+      const pkg: DepTree | depGraphLib.DepGraph | undefined =
+        maybeDepGraphArtifact ||
+        maybeDepTreeArtifact ||
+        scannedProject.depGraph ||
+        scannedProject.depTree;
 
       if (options['print-deps']) {
-        if (scannedProject.depGraph) {
+        // NOTE: Lots of these if-statements in the code...
+        // What if we need to work with a different artifact type like jarList...
+        // The abstraction starts to leak as we need to work with concrete things.
+        if (maybeDepGraphArtifact || scannedProject.depGraph) {
           await spinner.clear<void>(spinnerLbl)();
           maybePrintDepGraph(options, pkg as depGraphLib.DepGraph);
         } else {
@@ -409,6 +421,7 @@ async function assembleLocalPayloads(
           (pkg as DepTree).docker.baseImage = options['base-image'];
         }
 
+        // TODO(ivanstanev)
         if (baseImageFromDockerfile && deps.plugin && deps.plugin.imageLayers) {
           analytics.add('BaseImage', baseImageFromDockerfile);
           analytics.add('imageLayers', deps.plugin.imageLayers);
@@ -431,6 +444,7 @@ async function assembleLocalPayloads(
         targetFileDir = dir;
       }
 
+      // TODO(ivanstanev)
       const policy = await findAndLoadPolicy(
         root,
         options.docker ? 'docker' : packageManager!,
@@ -442,19 +456,19 @@ async function assembleLocalPayloads(
       );
 
       analytics.add('packageManager', packageManager);
-      if (scannedProject.depGraph) {
+      if (maybeDepGraphArtifact || scannedProject.depGraph) {
         const depGraph = pkg as depGraphLib.DepGraph;
         addPackageAnalytics(depGraph.rootPkg.name, depGraph.rootPkg.version!);
       }
-      if (scannedProject.depTree) {
+      if (maybeDepTreeArtifact || scannedProject.depTree) {
         const depTree = pkg as DepTree;
         addPackageAnalytics(depTree.name!, depTree.version!);
       }
 
-      let target: GitTarget | ContainerTarget | null;
-      if (scannedProject.depGraph) {
+      let target: GitTarget | ContainerTarget | null = null;
+      if (maybeDepGraphArtifact || scannedProject.depGraph) {
         target = await projectMetadata.getInfo(scannedProject, options);
-      } else {
+      } else if (maybeDepTreeArtifact || scannedProject.depTree) {
         target = await projectMetadata.getInfo(
           scannedProject,
           options,
@@ -462,9 +476,10 @@ async function assembleLocalPayloads(
         );
       }
 
-      const originalProjectName = scannedProject.depGraph
-        ? (pkg as depGraphLib.DepGraph).rootPkg.name
-        : (pkg as DepTree).name;
+      const originalProjectName =
+        maybeDepGraphArtifact || scannedProject.depGraph
+          ? (pkg as depGraphLib.DepGraph).rootPkg.name
+          : (pkg as DepTree).name;
 
       let body: PayloadBody = {
         // WARNING: be careful changing this as it affects project uniqueness
@@ -480,6 +495,8 @@ async function assembleLocalPayloads(
         docker: (pkg as DepTree).docker,
         hasDevDependencies: (pkg as any).hasDevDependencies,
         target,
+
+        artifacts: project.artifacts,
       };
 
       if (options.vulnEndpoint) {
@@ -487,8 +504,8 @@ async function assembleLocalPayloads(
         body = { ...body, ...pkg };
       } else {
         let depGraph: depGraphLib.DepGraph;
-        if (scannedProject.depGraph) {
-          depGraph = scannedProject.depGraph;
+        if (maybeDepGraphArtifact || scannedProject.depGraph) {
+          depGraph = maybeDepGraphArtifact || scannedProject.depGraph;
         } else {
           // Graphs are more compact and robust representations.
           // Legacy parts of the code are still using trees, but will eventually be fully migrated.

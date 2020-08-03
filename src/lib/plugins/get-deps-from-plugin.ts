@@ -92,11 +92,40 @@ export async function getDepsFromPlugin(
 
     return convertSingleResultToMultiCustom(inspectRes, options.packageManager);
   }
+
+  // ----------
+  // NOTE: How is projectNames used? Do we need to pull out the names
+  // ----------
+
   // We are using "options" to store some information returned from plugin that we need to use later,
   // but don't want to send to Registry in the Payload.
   // TODO(kyegupov): decouple inspect and payload so that we don't need this hack
-  (options as any).projectNames = inspectRes.scannedProjects.map(
-    (scannedProject) => scannedProject?.depTree?.name,
+  const hasScannedProjects = inspectRes.scannedProjects !== undefined;
+  const scannedProjectDoesNotHaveArtifacts = inspectRes.scannedProjects?.every(
+    (project) => project.artifacts === undefined,
   );
+  if (hasScannedProjects && scannedProjectDoesNotHaveArtifacts) {
+    (options as any).projectNames = inspectRes.scannedProjects.map(
+      (scannedProject) => scannedProject?.depTree?.name,
+    );
+  } else {
+    const projectsWithDepTreeArtifacts = inspectRes.scannedProjects.filter(
+      (scannedProject) =>
+        scannedProject.artifacts?.some(
+          (artifact) => artifact.type === 'depTree',
+        ),
+    );
+    (options as any).projectNames = projectsWithDepTreeArtifacts.reduce<
+      string[]
+    >((prev, curr) => {
+      // We have previously identified that this project contains a DepTree, so it can't be null.
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const depTreeArtifact = curr.artifacts!.find(
+        (artifact) => artifact.type === 'depTree',
+      )!;
+      prev.push(depTreeArtifact.data?.name);
+      return prev;
+    }, []);
+  }
   return convertMultiResultToMultiCustom(inspectRes, options.packageManager);
 }

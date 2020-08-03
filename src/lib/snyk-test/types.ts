@@ -2,9 +2,11 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import { DepTree } from '../types';
 import { IacScan } from './payload-schema';
+import { ScannedArtifact } from '@snyk/cli-interface/legacy/common';
 
 export interface PayloadBody {
   depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
+  artifacts?: ScannedArtifact[]; // NEW
   callGraph?: any;
   policy?: string;
   targetFile?: string;

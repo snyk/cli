@@ -103,7 +103,11 @@ export async function monitor(
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
 
-  if (scannedProject.depGraph) {
+  const maybeDepGraphArtifact = scannedProject.artifacts?.find(
+    (artifact) => artifact.type === 'depGraph',
+  )?.data;
+
+  if (maybeDepGraphArtifact || scannedProject.depGraph) {
     return await monitorDepGraph(
       root,
       meta,
@@ -352,7 +356,11 @@ export async function monitorDepGraph(
   const packageManager = meta.packageManager;
   analytics.add('monitorDepGraph', true);
 
-  let depGraph = scannedProject.depGraph;
+  const maybeDepGraphArtifact = scannedProject.artifacts?.find(
+    (artifact) => artifact.type === 'depGraph',
+  )?.data;
+
+  let depGraph = maybeDepGraphArtifact || scannedProject.depGraph;
 
   if (!depGraph) {
     debug(

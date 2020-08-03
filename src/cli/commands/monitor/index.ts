@@ -186,7 +186,11 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       // Post the project dependencies to the Registry
       for (const projectDeps of perProjectResult.scannedProjects) {
         try {
-          if (!projectDeps.depGraph && !projectDeps.depTree) {
+          if (
+            !projectDeps.depGraph &&
+            !projectDeps.depTree &&
+            !projectDeps.artifacts
+          ) {
             debug(
               'scannedProject is missing depGraph or depTree, cannot run test/monitor',
             );
@@ -204,16 +208,24 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
           let projectName;
 
-          if (projectDeps.depGraph) {
-            debug(`Processing ${projectDeps.depGraph.rootPkg.name}...`);
-            maybePrintDepGraph(options, projectDeps.depGraph);
-            projectName = projectDeps.depGraph.rootPkg.name;
-          }
+          const maybeDepGraphArtifact = projectDeps.artifacts?.find(
+            (artifact) => artifact.type === 'depGraph',
+          )?.data;
+          const maybeDepTreeArtifact = projectDeps.artifacts?.find(
+            (artifact) => artifact.type === 'depTree',
+          )?.data;
 
-          if (projectDeps.depTree) {
-            debug(`Processing ${projectDeps.depTree.name}...`);
-            maybePrintDepTree(options, projectDeps.depTree);
-            projectName = projectDeps.depTree.name;
+          if (maybeDepGraphArtifact || projectDeps.depGraph) {
+            const graph = maybeDepGraphArtifact || projectDeps.depGraph;
+            debug(`Processing ${graph.rootPkg.name}...`);
+            maybePrintDepGraph(options, graph);
+            projectName = graph.rootPkg.name;
+          }
+          if (maybeDepTreeArtifact || projectDeps.depTree) {
+            const tree = maybeDepTreeArtifact || projectDeps.depTree;
+            debug(`Processing ${tree.name}...`);
+            maybePrintDepTree(options, tree);
+            projectName = tree.name;
           }
 
           const tFile = projectDeps.targetFile || targetFile;
