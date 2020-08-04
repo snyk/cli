@@ -3,7 +3,10 @@ import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { find } from '../find-files';
 import { Options, TestOptions, MonitorOptions } from '../types';
 import { NoSupportedManifestsFoundError } from '../errors';
-import { getMultiPluginResult } from './get-multi-plugin-result';
+import {
+  getMultiPluginResult,
+  MultiProjectResultCustom,
+} from './get-multi-plugin-result';
 import { getSinglePluginResult } from './get-single-plugin-result';
 import {
   detectPackageFile,
@@ -32,7 +35,7 @@ const multiProjectProcessors = {
 export async function getDepsFromPlugin(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
-): Promise<pluginApi.MultiProjectResult> {
+): Promise<pluginApi.MultiProjectResult | MultiProjectResultCustom> {
   let inspectRes: pluginApi.InspectResult;
 
   if (Object.keys(multiProjectProcessors).some((key) => options[key])) {

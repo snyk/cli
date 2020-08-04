@@ -110,7 +110,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     testOpts.path = path;
     testOpts.projectName = testOpts['project-name'];
 
-    let res;
+    let res: (TestResult | TestResult[]) | Error;
 
     try {
       res = await snyk.test(path, testOpts);
