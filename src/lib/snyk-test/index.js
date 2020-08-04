@@ -1,7 +1,7 @@
 module.exports = test;
 
 const detect = require('../detect');
-const runTest = require('./run-test');
+const { runTest } = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
 const iacProjects = require('../iac/iac-projects');

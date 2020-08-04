@@ -17,7 +17,7 @@ const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 
 // Import has to happen after setting SNYK_API
-import runTest = require('../../src/lib/snyk-test/run-test');
+import { runTest } from '../../src/lib/snyk-test/run-test';
 import { TestOptions, Options } from '../../src/lib/types';
 
 // @later: remove this config stuff.
