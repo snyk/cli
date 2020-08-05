@@ -1,9 +1,11 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
-import { IacTestResult } from '../../../lib/snyk-test/iac-test-result';
+import {
+  IacTestResponse,
+  AnnotatedIacIssue,
+} from '../../../lib/snyk-test/iac-test-result';
 import { getSeverityValue } from './formatters';
 import { printPath } from './formatters/remediation-based-format-issues';
-import { AnnotatedIacIssue } from '../../../lib/snyk-test/iac-test-result';
 import { titleCaseText } from './formatters/legacy-format-issue';
 const debug = Debug('iac-output');
 
@@ -66,7 +68,7 @@ function extractOverview(description: string): string {
 }
 
 export function getIacDisplayedOutput(
-  res: IacTestResult,
+  iacTest: IacTestResponse,
   testedInfoText: string,
   meta: string,
   prefix: string,
@@ -77,7 +79,7 @@ export function getIacDisplayedOutput(
 
   const NotNew = false;
 
-  const issues: AnnotatedIacIssue[] = res.result.cloudConfigResults;
+  const issues: AnnotatedIacIssue[] = iacTest.result.cloudConfigResults;
   debug(`iac display output - ${issues.length} issues`);
 
   issues

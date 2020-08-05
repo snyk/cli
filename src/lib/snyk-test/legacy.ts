@@ -221,7 +221,7 @@ interface TestDepGraphResult {
   remediation?: RemediationChanges;
 }
 
-interface TestDepGraphMeta {
+export interface TestDepGraphMeta {
   isPublic: boolean;
   isLicensesEnabled: boolean;
   licensesPolicy?: {
