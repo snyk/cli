@@ -52,6 +52,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'Pipfile',
   'requirements.txt',
   'build.sbt',
+  'build.gradle',
 ];
 
 // when file is specified with --file, we look it up here

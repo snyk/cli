@@ -213,18 +213,15 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
           analytics.add('packageManager', extractedPackageManager);
 
-          let projectName;
-
+          const projectName = getProjectName(projectDeps);
           if (projectDeps.depGraph) {
-            debug(`Processing ${projectDeps.depGraph.rootPkg.name}...`);
+            debug(`Processing ${projectDeps.depGraph.rootPkg?.name}...`);
             maybePrintDepGraph(options, projectDeps.depGraph);
-            projectName = projectDeps.depGraph.rootPkg.name;
           }
 
           if (projectDeps.depTree) {
             debug(`Processing ${projectDeps.depTree.name}...`);
             maybePrintDepTree(options, projectDeps.depTree);
-            projectName = projectDeps.depTree.name;
           }
 
           const tFile = projectDeps.targetFile || targetFile;
@@ -318,4 +315,12 @@ function validateMonitorPath(path: string, isDocker?: boolean): void {
   if (!exists && !isDocker) {
     throw new Error('"' + path + '" is not a valid path for "snyk monitor"');
   }
+}
+
+function getProjectName(projectDeps): string {
+  return (
+    projectDeps.meta?.gradleProjectName ||
+    projectDeps.depGraph?.rootPkg?.name ||
+    projectDeps.depTree?.name
+  );
 }

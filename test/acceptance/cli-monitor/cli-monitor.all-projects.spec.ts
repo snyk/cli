@@ -1,6 +1,7 @@
 import * as sinon from 'sinon';
 import * as _ from '@snyk/lodash';
 import * as path from 'path';
+import * as depGraphLib from '@snyk/dep-graph';
 
 interface AcceptanceTests {
   language: string;
@@ -729,6 +730,107 @@ export const AllProjectsTests: AcceptanceTests = {
         t.match(
           req.url,
           /\/api\/v1\/monitor\/(npm\/graph|golangdep|gomodules|govendor)/,
+          'puts at correct url',
+        );
+        t.notOk(req.body.targetFile, "doesn't send the targetFile");
+        t.equal(req.method, 'PUT', 'makes PUT request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+      });
+    },
+    '`monitor gradle-monorepo with --all-projects`': (params, utils) => async (
+      t,
+    ) => {
+      utils.chdirWorkspaces();
+      const simpleGradleGraph = depGraphLib.createFromJSON({
+        schemaVersion: '1.2.0',
+        pkgManager: {
+          name: 'gradle',
+        },
+        pkgs: [
+          {
+            id: 'gradle-monorepo@0.0.0',
+            info: {
+              name: 'gradle-monorepo',
+              version: '0.0.0',
+            },
+          },
+        ],
+        graph: {
+          rootNodeId: 'root-node',
+          nodes: [
+            {
+              nodeId: 'root-node',
+              pkgId: 'gradle-monorepo@0.0.0',
+              deps: [],
+            },
+          ],
+        },
+      });
+      const plugin = {
+        async inspect() {
+          return {
+            plugin: {
+              name: 'bundled:gradle',
+              runtime: 'unknown',
+              meta: {},
+            },
+            scannedProjects: [
+              {
+                meta: {
+                  gradleProjectName: 'root-proj',
+                  versionBuildInfo: {
+                    gradleVersion: '6.5',
+                  },
+                },
+                depGraph: simpleGradleGraph,
+              },
+              {
+                meta: {
+                  gradleProjectName: 'root-proj/subproj',
+                  versionBuildInfo: {
+                    gradleVersion: '6.5',
+                  },
+                },
+                depGraph: simpleGradleGraph,
+              },
+            ],
+          };
+        },
+      };
+      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('gradle').returns(plugin);
+      loadPlugin.callThrough();
+      const result = await params.cli.monitor('gradle-monorepo', {
+        allProjects: true,
+        detectionDepth: 3,
+        d: true,
+      });
+      t.match(
+        result,
+        'gradle/graph/some/project-id',
+        'gradle project was monitored',
+      );
+      t.match(
+        result,
+        'npm/graph/some/project-id',
+        'gradle project was monitored',
+      );
+
+      // Pop one extra call to server and filter out call to `featureFlag` endpoint
+      const requests = params.server
+        .popRequests(4)
+        .filter((req) => req.url.includes('/monitor/'));
+      t.equal(requests.length, 3, 'correct amount of monitor requests');
+      requests.forEach((req) => {
+        t.match(
+          req.url,
+          /\/api\/v1\/monitor\/(npm\/graph|gradle\/graph)/,
           'puts at correct url',
         );
         t.notOk(req.body.targetFile, "doesn't send the targetFile");

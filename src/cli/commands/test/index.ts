@@ -434,6 +434,7 @@ function displayResult(
   const advertiseGradleSubProjectsCount =
     projectType === 'gradle' &&
     !options['gradle-sub-project'] &&
+    !options.allProjects &&
     foundProjectCount;
   if (advertiseGradleSubProjectsCount) {
     multiProjAdvice = chalk.bold.white(

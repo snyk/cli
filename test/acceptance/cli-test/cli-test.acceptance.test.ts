@@ -150,7 +150,7 @@ if (!isWindows) {
     }
   });
 
-  // @later: try and remove this config stuff
+  // TODO: try and remove this config stuff
   // Was copied straight from ../src/cli-server.js
   after('teardown', async (t) => {
     t.plan(4);

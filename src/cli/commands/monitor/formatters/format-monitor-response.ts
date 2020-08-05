@@ -14,7 +14,9 @@ export function formatMonitorOutput(
 ): string {
   const manageUrl = buildManageUrl(res.id, res.org);
   const advertiseGradleSubProjectsCount =
-    packageManager === 'gradle' && !options['gradle-sub-project'];
+    packageManager === 'gradle' &&
+    !options['gradle-sub-project'] &&
+    !options.allProjects;
   const advertiseAllProjectsCount =
     packageManager !== 'gradle' && !options.allProjects && foundProjectCount;
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
