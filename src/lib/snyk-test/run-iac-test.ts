@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as pathUtil from 'path';
 import { TestResult } from './legacy';
-import { IacTestResult } from './iac-test-result';
+import { IacTestResponse } from './iac-test-result';
 import * as snyk from '..';
 import { isCI } from '../is-ci';
 import * as common from './common';
@@ -14,7 +14,7 @@ import { SEVERITY } from './legacy';
 import * as pathLib from 'path';
 
 export async function parseIacTestResult(
-  res: IacTestResult,
+  res: IacTestResponse,
   targetFile: string | undefined,
   projectName: any,
   severityThreshold?: SEVERITY,

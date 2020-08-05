@@ -1,13 +1,38 @@
 import * as _ from '@snyk/lodash';
-import { getWorkspaceJSON } from '../workspace-helper';
+import {
+  iacTest,
+  iacTestJson,
+  iacErrorTest,
+  iacTestMetaAssertions,
+  iacTestJsonAssertions,
+  iacTestResponseFixturesByThreshold,
+} from './cli-test.iac-k8s.utils';
 import { CommandResult } from '../../../src/cli/commands/types';
 
 import { AcceptanceTests } from './cli-test.acceptance.test';
 
+/**
+ * There's a Super weird bug when referncing Typescript Enum values (i.e. SEVERITY.medium), which causes all the to tests breaks.
+ * Probably some bad compatability with the Tap library & Ts-Node for supporting ENUMS.
+ * */
+
 export const IacK8sTests: AcceptanceTests = {
   language: 'Iac (Kubernetes)',
   tests: {
-    '`iac test multi-file.yaml - no issues`': (params, utils) => async (t) => {
+    '`iac test multi-file.yaml --json - no issues`': (params, utils) => async (
+      t,
+    ) => {
+      utils.chdirWorkspaces();
+      const commandResult: CommandResult = await params.cli.test(
+        'iac-kubernetes/multi-file.yaml',
+        {
+          iac: true,
+        },
+      );
+      const res: any = JSON.parse((commandResult as any).jsonResult);
+      iacTestJsonAssertions(t, res, null, false);
+    },
+    '`iac test multi.yaml - no issues`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
       await params.cli.test('iac-kubernetes/multi-file.yaml', {
@@ -25,41 +50,23 @@ export const IacK8sTests: AcceptanceTests = {
       t.equal(req.body.type, 'k8sconfig');
     },
 
-    '`iac test - no file`': (params, utils) => async (t) => {
-      utils.chdirWorkspaces();
+    '`iac test - no file`': (params, utils) => async (t) =>
+      await iacErrorTest(
+        t,
+        utils,
+        params,
+        'iac-kubernetes',
+        'iac test option currently supports only a single local file',
+      ),
 
-      try {
-        await params.cli.test('iac-kubernetes', {
-          iac: true,
-        });
-        t.fail('should have failed');
-      } catch (err) {
-        t.pass('throws err');
-        t.match(
-          err.message,
-          'iac test option currently supports only a single local file',
-          'shows err',
-        );
-      }
-    },
-
-    '`iac test - not a real dir`': (params, utils) => async (t) => {
-      utils.chdirWorkspaces();
-
-      try {
-        await params.cli.test('nonono', {
-          iac: true,
-        });
-        t.fail('should have failed');
-      } catch (err) {
-        t.pass('throws err');
-        t.match(
-          err.message,
-          'iac test option currently supports only a single local file',
-          'shows err',
-        );
-      }
-    },
+    '`iac test - not a real dir`': (params, utils) => async (t) =>
+      await iacErrorTest(
+        t,
+        utils,
+        params,
+        'nonono',
+        'iac test option currently supports only a single local file',
+      ),
 
     '`iac test multi-file.yaml meta - no issues': (params, utils) => async (
       t,
@@ -72,35 +79,13 @@ export const IacK8sTests: AcceptanceTests = {
         },
       );
       const res = commandResult.getDisplayResults();
-
-      const meta = res.slice(res.indexOf('Organization:')).split('\n');
-      t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-      t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
-      t.match(
-        meta[2],
-        /Target file:\s+iac-kubernetes\/multi-file.yaml/,
-        'target file displayed',
-      );
-      t.match(
-        meta[3],
-        /Project name:\s+iac-kubernetes/,
-        'project name displayed',
-      );
-      t.match(meta[4], /Open source:\s+no/, 'open source displayed');
-      t.match(meta[5], /Project path:\s+iac-kubernetes/, 'path displayed');
-      t.notMatch(
-        meta[5],
-        /Local Snyk policy:\s+found/,
-        'local policy not displayed',
-      );
+      iacTestMetaAssertions(t, res);
     },
 
     '`iac test multi-file.yaml`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
-      params.server.setNextResponse(
-        getWorkspaceJSON('iac-kubernetes', 'test-iac-result.json'),
-      );
+      params.server.setNextResponse(iacTestResponseFixturesByThreshold['low']);
 
       try {
         await params.cli.test('iac-kubernetes/multi-file.yaml', {
@@ -123,361 +108,50 @@ export const IacK8sTests: AcceptanceTests = {
           )
           .split('\n');
         t.ok(issues[1].includes('[SNYK-CC-K8S-'), 'Snyk id');
-
         t.ok(
           issues[2].trim().startsWith('introduced by'),
           'Introduced by line',
         );
-
         t.ok(issues[3], 'description');
-
         t.ok(issues[4] === '', 'Empty line after description');
-
         t.ok(issues[5].includes('[SNYK-CC-K8S-'), 'Snyk id');
-
         t.ok(
           issues[6].trim().startsWith('introduced by'),
           'Introduced by line',
         );
-
         t.ok(issues[7], 'description');
-
         t.ok(issues[8] === '', 'Empty line after description');
-
-        const meta = res.slice(res.indexOf('Organization:')).split('\n');
-        t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-        t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
-        t.match(
-          meta[2],
-          /Target file:\s+iac-kubernetes\/multi-file.yaml/,
-          'target file displayed',
-        );
-        t.match(
-          meta[3],
-          /Project name:\s+iac-kubernetes/,
-          'project name displayed',
-        );
-        t.match(meta[4], /Open source:\s+no/, 'open source displayed');
-        t.match(meta[5], /Project path:\s+iac-kubernetes/, 'path displayed');
-        t.notMatch(
-          meta[5],
-          /Local Snyk policy:\s+found/,
-          'local policy not displayed',
-        );
+        iacTestMetaAssertions(t, res);
       }
     },
-
     '`iac test multi-file.yaml --severity-threshold=low`': (
       params,
       utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-
-      params.server.setNextResponse(
-        getWorkspaceJSON('iac-kubernetes', 'test-iac-result.json'),
-      );
-
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
-          iac: true,
-          severityThreshold: 'low',
-        });
-        t.fail('should have thrown');
-      } catch (err) {
-        const res = err.message;
-
-        t.match(
-          res,
-          'Tested iac-kubernetes/multi-file.yaml for known issues, found 3 issues',
-          '3 issue',
-        );
-
-        const meta = res.slice(res.indexOf('Organization:')).split('\n');
-        t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-        t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
-        t.match(
-          meta[2],
-          /Target file:\s+iac-kubernetes\/multi-file.yaml/,
-          'target file displayed',
-        );
-        t.match(
-          meta[3],
-          /Project name:\s+iac-kubernetes/,
-          'project name displayed',
-        );
-        t.match(meta[4], /Open source:\s+no/, 'open source displayed');
-        t.match(meta[5], /Project path:\s+iac-kubernetes/, 'path displayed');
-        t.notMatch(
-          meta[5],
-          /Local Snyk policy:\s+found/,
-          'local policy not displayed',
-        );
-      }
-    },
-
-    '`iac test multi-file.yaml --severity-threshold=low --json`': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-
-      params.server.setNextResponse(
-        getWorkspaceJSON('iac-kubernetes', 'test-iac-result.json'),
-      );
-
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
-          iac: true,
-          severityThreshold: 'low',
-          json: true,
-        });
-        t.fail('should have thrown');
-      } catch (err) {
-        const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'low');
-
-        const res = JSON.parse(err.message);
-
-        const expected = getWorkspaceJSON(
-          'iac-kubernetes',
-          'test-iac-result.json',
-        );
-
-        t.deepEqual(res.org, 'test-org', 'org is ok');
-        t.deepEqual(res.projectType, 'k8sconfig', 'projectType is ok');
-        t.deepEqual(res.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
-        t.deepEqual(res.projectName, 'iac-kubernetes', 'projectName is ok');
-        t.deepEqual(
-          res.targetFile,
-          'iac-kubernetes/multi-file.yaml',
-          'targetFile is ok',
-        );
-        t.deepEqual(res.dependencyCount, 0, 'dependencyCount is 0');
-        t.deepEqual(res.vulnerabilities, [], 'vulnerabilities is empty');
-
-        t.deepEqual(
-          _.sortBy(res.cloudConfigResults, 'id'),
-          _.sortBy(expected.result.cloudConfigResults, 'id'),
-          'issues are the same',
-        );
-      }
-    },
+    ) => async (t) => await iacTest(t, utils, params, 'low', 3),
 
     '`iac test multi-file.yaml --severity-threshold=medium`': (
       params,
       utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-
-      params.server.setNextResponse(
-        getWorkspaceJSON('iac-kubernetes', 'test-iac-medium-result.json'),
-      );
-
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
-          iac: true,
-          severityThreshold: 'medium',
-        });
-        t.fail('should have thrown');
-      } catch (err) {
-        const res = err.message;
-
-        t.match(
-          res,
-          'Tested iac-kubernetes/multi-file.yaml for known issues, found 2 issues',
-          '2 issue',
-        );
-
-        const meta = res.slice(res.indexOf('Organization:')).split('\n');
-        t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-        t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
-        t.match(
-          meta[2],
-          /Target file:\s+iac-kubernetes\/multi-file.yaml/,
-          'target file displayed',
-        );
-        t.match(
-          meta[3],
-          /Project name:\s+iac-kubernetes/,
-          'project name displayed',
-        );
-        t.match(meta[4], /Open source:\s+no/, 'open source displayed');
-        t.match(meta[5], /Project path:\s+iac-kubernetes/, 'path displayed');
-        t.notMatch(
-          meta[5],
-          /Local Snyk policy:\s+found/,
-          'local policy not displayed',
-        );
-      }
-    },
-
-    '`iac test multi-file.yaml --severity-threshold=medium --json`': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-
-      params.server.setNextResponse(
-        getWorkspaceJSON('iac-kubernetes', 'test-iac-medium-result.json'),
-      );
-
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
-          iac: true,
-          severityThreshold: 'medium',
-          json: true,
-        });
-        t.fail('should have thrown');
-      } catch (err) {
-        const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'medium');
-
-        const res = JSON.parse(err.message);
-
-        const expected = getWorkspaceJSON(
-          'iac-kubernetes',
-          'test-iac-medium-result.json',
-        );
-
-        t.deepEqual(res.org, 'test-org', 'org is ok');
-        t.deepEqual(res.projectType, 'k8sconfig', 'projectType is ok');
-        t.deepEqual(res.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
-        t.deepEqual(res.projectName, 'iac-kubernetes', 'projectName is ok');
-        t.deepEqual(
-          res.targetFile,
-          'iac-kubernetes/multi-file.yaml',
-          'targetFile is ok',
-        );
-        t.deepEqual(res.dependencyCount, 0, 'dependencyCount is 0');
-        t.deepEqual(res.vulnerabilities, [], 'vulnerabilities is empty');
-
-        t.deepEqual(
-          _.sortBy(res.cloudConfigResults, 'id'),
-          _.sortBy(expected.result.cloudConfigResults, 'id'),
-          'issues are the same',
-        );
-      }
-    },
+    ) => async (t) => await iacTest(t, utils, params, 'medium', 2),
 
     '`iac test multi-file.yaml --severity-threshold=high`': (
       params,
       utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
+    ) => async (t) => await iacTest(t, utils, params, 'high', 1),
 
-      params.server.setNextResponse(
-        getWorkspaceJSON('iac-kubernetes', 'test-iac-high-result.json'),
-      );
+    '`iac test multi-file.yaml --severity-threshold=low --json`': (
+      params,
+      utils,
+    ) => async (t) => await iacTestJson(t, utils, params, 'low'),
 
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
-          iac: true,
-          severityThreshold: 'high',
-        });
-        t.fail('should have thrown');
-      } catch (err) {
-        const res = err.message;
-
-        t.match(
-          res,
-          'Tested iac-kubernetes/multi-file.yaml for known issues, found 1 issues',
-          '1 issue',
-        );
-
-        const meta = res.slice(res.indexOf('Organization:')).split('\n');
-        t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
-        t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
-        t.match(
-          meta[2],
-          /Target file:\s+iac-kubernetes\/multi-file.yaml/,
-          'target file displayed',
-        );
-        t.match(
-          meta[3],
-          /Project name:\s+iac-kubernetes/,
-          'project name displayed',
-        );
-        t.match(meta[4], /Open source:\s+no/, 'open source displayed');
-        t.match(meta[5], /Project path:\s+iac-kubernetes/, 'path displayed');
-        t.notMatch(
-          meta[5],
-          /Local Snyk policy:\s+found/,
-          'local policy not displayed',
-        );
-      }
-    },
+    '`iac test multi-file.yaml --severity-threshold=medium --json`': (
+      params,
+      utils,
+    ) => async (t) => await iacTestJson(t, utils, params, 'medium'),
 
     '`iac test multi-file.yaml --severity-threshold=high --json`': (
       params,
       utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-
-      params.server.setNextResponse(
-        getWorkspaceJSON('iac-kubernetes', 'test-iac-high-result.json'),
-      );
-
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
-          iac: true,
-          severityThreshold: 'high',
-          json: true,
-        });
-        t.fail('should have thrown');
-      } catch (err) {
-        const req = params.server.popRequest();
-        t.is(req.query.severityThreshold, 'high');
-
-        const res = JSON.parse(err.message);
-
-        const expected = getWorkspaceJSON(
-          'iac-kubernetes',
-          'test-iac-high-result.json',
-        );
-
-        t.deepEqual(res.org, 'test-org', 'org is ok');
-        t.deepEqual(res.projectType, 'k8sconfig', 'projectType is ok');
-        t.deepEqual(res.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
-        t.deepEqual(res.projectName, 'iac-kubernetes', 'projectName is ok');
-        t.deepEqual(
-          res.targetFile,
-          'iac-kubernetes/multi-file.yaml',
-          'targetFile is ok',
-        );
-        t.deepEqual(res.dependencyCount, 0, 'dependencyCount is 0');
-        t.deepEqual(res.vulnerabilities, [], 'vulnerabilities is empty');
-
-        t.deepEqual(
-          _.sortBy(res.cloudConfigResults, 'id'),
-          _.sortBy(expected.result.cloudConfigResults, 'id'),
-          'issues are the same',
-        );
-      }
-    },
-
-    '`iac test multi-file.yaml --json - no issues`': (params, utils) => async (
-      t,
-    ) => {
-      utils.chdirWorkspaces();
-      const commandResult: CommandResult = await params.cli.test(
-        'iac-kubernetes/multi-file.yaml',
-        {
-          iac: true,
-        },
-      );
-      const res: any = JSON.parse((commandResult as any).jsonResult);
-
-      t.deepEqual(res.org, 'test-org', 'org is ok');
-      t.deepEqual(res.projectType, 'k8sconfig', 'projectType is ok');
-      t.deepEqual(res.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
-      t.deepEqual(res.projectName, 'iac-kubernetes', 'projectName is ok');
-      t.deepEqual(
-        res.targetFile,
-        'iac-kubernetes/multi-file.yaml',
-        'targetFile is ok',
-      );
-      t.deepEqual(res.dependencyCount, 0, 'dependencyCount is 0');
-      t.deepEqual(res.vulnerabilities, [], 'vulnerabilities is empty');
-    },
+    ) => async (t) => await iacTestJson(t, utils, params, 'high'),
   },
 };

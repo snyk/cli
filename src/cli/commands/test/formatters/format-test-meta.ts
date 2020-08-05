@@ -2,11 +2,11 @@ import chalk from 'chalk';
 import { rightPadWithSpaces } from '../../../../lib/right-pad';
 import { TestOptions, Options } from '../../../../lib/types';
 import { TestResult } from '../../../../lib/snyk-test/legacy';
-import { IacTestResult } from '../../../../lib/snyk-test/iac-test-result';
+import { IacTestResponse } from '../../../../lib/snyk-test/iac-test-result';
 import { capitalizePackageManager } from '../iac-output';
 
 export function formatTestMeta(
-  res: TestResult | IacTestResult,
+  res: TestResult | IacTestResponse,
   options: Options & TestOptions,
 ): string {
   const padToLength = 19; // chars to align

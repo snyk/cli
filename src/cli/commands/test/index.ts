@@ -24,7 +24,10 @@ import {
   TestResult,
   VulnMetaData,
 } from '../../../lib/snyk-test/legacy';
-import { IacTestResult } from '../../../lib/snyk-test/iac-test-result';
+import {
+  IacTestResponse,
+  mapIacTestResult,
+} from '../../../lib/snyk-test/iac-test-result';
 import {
   SupportedPackageManagers,
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
@@ -181,7 +184,8 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   // values depend on `options.json` value - string or object
   const errorMappedResults = !options.iac
     ? createErrorMappedResultsForJsonOutput(results)
-    : createErrorMappedResultsForJsonOutputForIac(results);
+    : results.map(mapIacTestResult);
+
   // backwards compat - strip array IFF only one result
   const dataToSend =
     errorMappedResults.length === 1
@@ -305,25 +309,6 @@ function createErrorMappedResultsForJsonOutput(results) {
       };
     }
     return result;
-  });
-
-  return errorMappedResults;
-}
-
-function createErrorMappedResultsForJsonOutputForIac(results) {
-  const errorMappedResults = results.map((result) => {
-    // add json for when thrown exception
-    if (result instanceof Error) {
-      return {
-        ok: false,
-        error: result.message,
-        path: (result as any).path,
-      };
-    }
-    const res = { ...result, ...result.result };
-    delete res.result;
-    delete res.meta;
-    return res;
   });
 
   return errorMappedResults;
@@ -488,7 +473,7 @@ function displayResult(
 
   if (res.packageManager === 'k8sconfig') {
     return getIacDisplayedOutput(
-      (res as any) as IacTestResult,
+      (res as any) as IacTestResponse,
       testedInfoText,
       meta,
       prefix,
