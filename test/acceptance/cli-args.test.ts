@@ -67,16 +67,34 @@ test('snyk test command should fail when iac file is not specified', (t) => {
     }
     t.match(
       stdout.trim(),
-      'iac option works only with specified files',
+      'iac test option currently supports only a single local file',
       'correct error output',
     );
   });
 });
 
+test('snyk test command should fail when iac --file is specified', (t) => {
+  t.plan(1);
+  exec(
+    `node ${main} iac test --file=./test/acceptance/workspaces/iac-kubernetes/multi-file.yaml`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.match(
+        stdout.trim(),
+        'Not a recognised option, did you mean "snyk iac test ./test/acceptance/workspaces/iac-kubernetes/multi-file.yaml"? ' +
+          'Check other options by running snyk iac --help',
+        'correct error output',
+      );
+    },
+  );
+});
+
 test('snyk test command should fail when iac file is not supported', (t) => {
   t.plan(1);
   exec(
-    `node ${main} iac test --file=./test/acceptance/workspaces/empty/readme.md`,
+    `node ${main} iac test ./test/acceptance/workspaces/empty/readme.md`,
     (err, stdout) => {
       if (err) {
         throw err;
@@ -93,7 +111,7 @@ test('snyk test command should fail when iac file is not supported', (t) => {
 test('snyk test command should fail when iac file is not supported', (t) => {
   t.plan(1);
   exec(
-    `node ${main} iac test --file=./test/acceptance/workspaces/helmconfig/Chart.yaml`,
+    `node ${main} iac test ./test/acceptance/workspaces/helmconfig/Chart.yaml`,
     (err, stdout) => {
       if (err) {
         throw err;
