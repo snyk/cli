@@ -519,16 +519,17 @@ async function assembleLocalPayloads(
 
       if (
         options.reachableVulns &&
-        (scannedProject.callGraph as CallGraphError).innerError
+        (scannedProject.callGraph as CallGraphError).message
       ) {
         const err = scannedProject.callGraph as CallGraphError;
-        analytics.add(
-          'callGraphError',
-          abridgeErrorMessage(
-            err.innerError.toString(),
+        const analyticsError = err.innerError || err;
+        analytics.add('callGraphError', {
+          errorType: analyticsError.constructor?.name,
+          message: abridgeErrorMessage(
+            analyticsError.message.toString(),
             ANALYTICS_PAYLOAD_MAX_LENGTH,
           ),
-        );
+        });
         alerts.registerAlerts([
           {
             type: 'error',
