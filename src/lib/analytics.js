@@ -5,6 +5,10 @@ const snyk = require('../lib');
 const config = require('./config');
 const version = require('./version');
 const request = require('./request');
+const {
+  getIntegrationName,
+  getIntegrationVersion,
+} = require('./analytics-sources');
 const isCI = require('./is-ci').isCI;
 const debug = require('debug')('snyk');
 const os = require('os');
@@ -21,12 +25,6 @@ function analytics(data) {
   if (!data) {
     data = {};
   }
-
-  analytics.add('integrationName', process.env.SNYK_INTEGRATION_NAME || '');
-  analytics.add(
-    'integrationVersion',
-    process.env.SNYK_INTEGRATION_VERSION || '',
-  );
 
   // merge any new data with data we picked up along the way
   if (Array.isArray(data.args)) {
@@ -67,6 +65,8 @@ function postAnalytics(data) {
       data.os = osName(os.platform(), os.release());
       data.nodeVersion = process.version;
       data.standalone = isStandalone;
+      data.integrationName = getIntegrationName(data.args);
+      data.integrationVersion = getIntegrationVersion(data.args);
 
       const seed = uuid.v4();
       const shasum = crypto.createHash('sha1');

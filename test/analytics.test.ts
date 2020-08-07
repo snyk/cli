@@ -64,7 +64,12 @@ test('analytics', (t) => {
 
   return analytics({
     command: '__test__',
-    args: [],
+    args: [
+      {
+        integrationName: 'JENKINS',
+        integrationVersion: '1.2.3',
+      },
+    ],
   }).then(() => {
     const body = spy.lastCall.args[0].body.data;
     t.deepEqual(
@@ -80,6 +85,8 @@ test('analytics', (t) => {
         'nodeVersion',
         'standalone',
         'durationMs',
+        'integrationName',
+        'integrationVersion',
       ].sort(),
       'keys as expected',
     );
@@ -115,6 +122,8 @@ test('analytics with args', (t) => {
         'nodeVersion',
         'standalone',
         'durationMs',
+        'integrationName',
+        'integrationVersion',
       ].sort(),
       'keys as expected',
     );
@@ -152,6 +161,8 @@ test('analytics with args and org', (t) => {
         'standalone',
         'durationMs',
         'org',
+        'integrationName',
+        'integrationVersion',
       ].sort(),
       'keys as expected',
     );

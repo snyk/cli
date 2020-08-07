@@ -174,16 +174,7 @@ export function args(rawArgv: string[]): Args {
     argv['imageSavePath'] = imageSavePath;
   }
 
-  const commands: SupportedCliCommands[] = [
-    'protect',
-    'test',
-    'monitor',
-    'wizard',
-    'ignore',
-    'woof',
-  ];
-  // TODO decide why we can't do this cart blanche...
-  if (commands.indexOf(command as SupportedCliCommands) !== -1) {
+  if (command in SupportedCliCommands) {
     // copy all the options across to argv._ as an object
     argv._.push(argv);
   }
@@ -209,6 +200,8 @@ export function args(rawArgv: string[]): Args {
     'reachable-vulns',
     'reachable-timeout',
     'reachable-vulns-timeout',
+    'integration-name',
+    'integration-version',
   ];
   for (const dashedArg of argumentsToTransform) {
     if (argv[dashedArg]) {
