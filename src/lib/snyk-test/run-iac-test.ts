@@ -45,11 +45,8 @@ export async function assembleIacLocalPayloads(
   options: Options & TestOptions,
 ): Promise<Payload[]> {
   const payloads: Payload[] = [];
-  if (!options.file) {
-    return payloads;
-  }
   // Forcing options.path to be a string as pathUtil requires is to be stringified
-  const targetFile = pathLib.resolve(root, options.file);
+  const targetFile = pathLib.resolve(root, '.');
   const targetFileRelativePath = targetFile
     ? pathUtil.join(pathUtil.resolve(`${options.path}`), targetFile)
     : '';
@@ -60,7 +57,7 @@ export async function assembleIacLocalPayloads(
       fileContent,
       fileType: 'yaml',
     },
-    targetFile: options.file,
+    targetFile: root,
     type: 'k8sconfig',
     //TODO(orka): future - support policy
     policy: '',

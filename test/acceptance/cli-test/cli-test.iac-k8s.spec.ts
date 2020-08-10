@@ -7,13 +7,10 @@ import { AcceptanceTests } from './cli-test.acceptance.test';
 export const IacK8sTests: AcceptanceTests = {
   language: 'Iac (Kubernetes)',
   tests: {
-    '`iac test --file=multi.yaml - no issues`': (params, utils) => async (
-      t,
-    ) => {
+    '`iac test multi-file.yaml - no issues`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
-      await params.cli.test('iac-kubernetes', {
-        file: 'multi-file.yaml',
+      await params.cli.test('iac-kubernetes/multi-file.yaml', {
         iac: true,
       });
 
@@ -28,7 +25,7 @@ export const IacK8sTests: AcceptanceTests = {
       t.equal(req.body.type, 'k8sconfig');
     },
 
-    '`iac test - no --file`': (params, utils) => async (t) => {
+    '`iac test - no file`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
       try {
@@ -40,7 +37,7 @@ export const IacK8sTests: AcceptanceTests = {
         t.pass('throws err');
         t.match(
           err.message,
-          'iac option works only with specified files',
+          'iac test option currently supports only a single local file',
           'shows err',
         );
       }
@@ -58,20 +55,19 @@ export const IacK8sTests: AcceptanceTests = {
         t.pass('throws err');
         t.match(
           err.message,
-          "iac option doesn't support lookup as repo",
+          'iac test option currently supports only a single local file',
           'shows err',
         );
       }
     },
 
-    '`iac test --file=multi.yaml meta - no issues': (params, utils) => async (
+    '`iac test multi-file.yaml meta - no issues': (params, utils) => async (
       t,
     ) => {
       utils.chdirWorkspaces();
       const commandResult: CommandResult = await params.cli.test(
-        'iac-kubernetes',
+        'iac-kubernetes/multi-file.yaml',
         {
-          file: 'multi-file.yaml',
           iac: true,
         },
       );
@@ -82,7 +78,7 @@ export const IacK8sTests: AcceptanceTests = {
       t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
       t.match(
         meta[2],
-        /Target file:\s+multi-file.yaml/,
+        /Target file:\s+iac-kubernetes\/multi-file.yaml/,
         'target file displayed',
       );
       t.match(
@@ -99,7 +95,7 @@ export const IacK8sTests: AcceptanceTests = {
       );
     },
 
-    '`iac test --file=multi.yaml`': (params, utils) => async (t) => {
+    '`iac test multi-file.yaml`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
       params.server.setNextResponse(
@@ -107,8 +103,7 @@ export const IacK8sTests: AcceptanceTests = {
       );
 
       try {
-        await params.cli.test('iac-kubernetes', {
-          file: 'multi-file.yaml',
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
           iac: true,
         });
         t.fail('should have thrown');
@@ -117,7 +112,7 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested iac-kubernetes for known issues, found 3 issues',
+          'Tested iac-kubernetes/multi-file.yaml for known issues, found 3 issues',
           '3 issue',
         );
 
@@ -154,7 +149,7 @@ export const IacK8sTests: AcceptanceTests = {
         t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
         t.match(
           meta[2],
-          /Target file:\s+multi-file.yaml/,
+          /Target file:\s+iac-kubernetes\/multi-file.yaml/,
           'target file displayed',
         );
         t.match(
@@ -172,7 +167,7 @@ export const IacK8sTests: AcceptanceTests = {
       }
     },
 
-    '`iac test --file=multi.yaml --severity-threshold=low`': (
+    '`iac test multi-file.yaml --severity-threshold=low`': (
       params,
       utils,
     ) => async (t) => {
@@ -183,8 +178,7 @@ export const IacK8sTests: AcceptanceTests = {
       );
 
       try {
-        await params.cli.test('iac-kubernetes', {
-          file: 'multi-file.yaml',
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
           iac: true,
           severityThreshold: 'low',
         });
@@ -194,7 +188,7 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested iac-kubernetes for known issues, found 3 issues',
+          'Tested iac-kubernetes/multi-file.yaml for known issues, found 3 issues',
           '3 issue',
         );
 
@@ -203,7 +197,7 @@ export const IacK8sTests: AcceptanceTests = {
         t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
         t.match(
           meta[2],
-          /Target file:\s+multi-file.yaml/,
+          /Target file:\s+iac-kubernetes\/multi-file.yaml/,
           'target file displayed',
         );
         t.match(
@@ -221,7 +215,7 @@ export const IacK8sTests: AcceptanceTests = {
       }
     },
 
-    '`iac test --file=multi.yaml --severity-threshold=low --json`': (
+    '`iac test multi-file.yaml --severity-threshold=low --json`': (
       params,
       utils,
     ) => async (t) => {
@@ -232,8 +226,7 @@ export const IacK8sTests: AcceptanceTests = {
       );
 
       try {
-        await params.cli.test('iac-kubernetes', {
-          file: 'multi-file.yaml',
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
           iac: true,
           severityThreshold: 'low',
           json: true,
@@ -252,9 +245,13 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.deepEqual(res.org, 'test-org', 'org is ok');
         t.deepEqual(res.projectType, 'k8sconfig', 'projectType is ok');
-        t.deepEqual(res.path, 'iac-kubernetes', 'path is ok');
+        t.deepEqual(res.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
         t.deepEqual(res.projectName, 'iac-kubernetes', 'projectName is ok');
-        t.deepEqual(res.targetFile, 'multi-file.yaml', 'targetFile is ok');
+        t.deepEqual(
+          res.targetFile,
+          'iac-kubernetes/multi-file.yaml',
+          'targetFile is ok',
+        );
         t.deepEqual(res.dependencyCount, 0, 'dependencyCount is 0');
         t.deepEqual(res.vulnerabilities, [], 'vulnerabilities is empty');
 
@@ -266,7 +263,7 @@ export const IacK8sTests: AcceptanceTests = {
       }
     },
 
-    '`iac test --file=multi.yaml --severity-threshold=medium`': (
+    '`iac test multi-file.yaml --severity-threshold=medium`': (
       params,
       utils,
     ) => async (t) => {
@@ -277,8 +274,7 @@ export const IacK8sTests: AcceptanceTests = {
       );
 
       try {
-        await params.cli.test('iac-kubernetes', {
-          file: 'multi-file.yaml',
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
           iac: true,
           severityThreshold: 'medium',
         });
@@ -288,7 +284,7 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested iac-kubernetes for known issues, found 2 issues',
+          'Tested iac-kubernetes/multi-file.yaml for known issues, found 2 issues',
           '2 issue',
         );
 
@@ -297,7 +293,7 @@ export const IacK8sTests: AcceptanceTests = {
         t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
         t.match(
           meta[2],
-          /Target file:\s+multi-file.yaml/,
+          /Target file:\s+iac-kubernetes\/multi-file.yaml/,
           'target file displayed',
         );
         t.match(
@@ -315,7 +311,7 @@ export const IacK8sTests: AcceptanceTests = {
       }
     },
 
-    '`iac test --file=multi.yaml --severity-threshold=medium --json`': (
+    '`iac test multi-file.yaml --severity-threshold=medium --json`': (
       params,
       utils,
     ) => async (t) => {
@@ -326,8 +322,7 @@ export const IacK8sTests: AcceptanceTests = {
       );
 
       try {
-        await params.cli.test('iac-kubernetes', {
-          file: 'multi-file.yaml',
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
           iac: true,
           severityThreshold: 'medium',
           json: true,
@@ -346,9 +341,13 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.deepEqual(res.org, 'test-org', 'org is ok');
         t.deepEqual(res.projectType, 'k8sconfig', 'projectType is ok');
-        t.deepEqual(res.path, 'iac-kubernetes', 'path is ok');
+        t.deepEqual(res.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
         t.deepEqual(res.projectName, 'iac-kubernetes', 'projectName is ok');
-        t.deepEqual(res.targetFile, 'multi-file.yaml', 'targetFile is ok');
+        t.deepEqual(
+          res.targetFile,
+          'iac-kubernetes/multi-file.yaml',
+          'targetFile is ok',
+        );
         t.deepEqual(res.dependencyCount, 0, 'dependencyCount is 0');
         t.deepEqual(res.vulnerabilities, [], 'vulnerabilities is empty');
 
@@ -360,7 +359,7 @@ export const IacK8sTests: AcceptanceTests = {
       }
     },
 
-    '`iac test --file=multi.yaml --severity-threshold=high`': (
+    '`iac test multi-file.yaml --severity-threshold=high`': (
       params,
       utils,
     ) => async (t) => {
@@ -371,8 +370,7 @@ export const IacK8sTests: AcceptanceTests = {
       );
 
       try {
-        await params.cli.test('iac-kubernetes', {
-          file: 'multi-file.yaml',
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
           iac: true,
           severityThreshold: 'high',
         });
@@ -382,7 +380,7 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested iac-kubernetes for known issues, found 1 issues',
+          'Tested iac-kubernetes/multi-file.yaml for known issues, found 1 issues',
           '1 issue',
         );
 
@@ -391,7 +389,7 @@ export const IacK8sTests: AcceptanceTests = {
         t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
         t.match(
           meta[2],
-          /Target file:\s+multi-file.yaml/,
+          /Target file:\s+iac-kubernetes\/multi-file.yaml/,
           'target file displayed',
         );
         t.match(
@@ -409,7 +407,7 @@ export const IacK8sTests: AcceptanceTests = {
       }
     },
 
-    '`iac test --file=multi.yaml --severity-threshold=high --json`': (
+    '`iac test multi-file.yaml --severity-threshold=high --json`': (
       params,
       utils,
     ) => async (t) => {
@@ -420,8 +418,7 @@ export const IacK8sTests: AcceptanceTests = {
       );
 
       try {
-        await params.cli.test('iac-kubernetes', {
-          file: 'multi-file.yaml',
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
           iac: true,
           severityThreshold: 'high',
           json: true,
@@ -440,9 +437,13 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.deepEqual(res.org, 'test-org', 'org is ok');
         t.deepEqual(res.projectType, 'k8sconfig', 'projectType is ok');
-        t.deepEqual(res.path, 'iac-kubernetes', 'path is ok');
+        t.deepEqual(res.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
         t.deepEqual(res.projectName, 'iac-kubernetes', 'projectName is ok');
-        t.deepEqual(res.targetFile, 'multi-file.yaml', 'targetFile is ok');
+        t.deepEqual(
+          res.targetFile,
+          'iac-kubernetes/multi-file.yaml',
+          'targetFile is ok',
+        );
         t.deepEqual(res.dependencyCount, 0, 'dependencyCount is 0');
         t.deepEqual(res.vulnerabilities, [], 'vulnerabilities is empty');
 
@@ -454,15 +455,13 @@ export const IacK8sTests: AcceptanceTests = {
       }
     },
 
-    '`iac test --file=multi.yaml --json - no issues`': (
-      params,
-      utils,
-    ) => async (t) => {
+    '`iac test multi-file.yaml --json - no issues`': (params, utils) => async (
+      t,
+    ) => {
       utils.chdirWorkspaces();
       const commandResult: CommandResult = await params.cli.test(
-        'iac-kubernetes',
+        'iac-kubernetes/multi-file.yaml',
         {
-          file: 'multi-file.yaml',
           iac: true,
         },
       );
@@ -470,9 +469,13 @@ export const IacK8sTests: AcceptanceTests = {
 
       t.deepEqual(res.org, 'test-org', 'org is ok');
       t.deepEqual(res.projectType, 'k8sconfig', 'projectType is ok');
-      t.deepEqual(res.path, 'iac-kubernetes', 'path is ok');
+      t.deepEqual(res.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
       t.deepEqual(res.projectName, 'iac-kubernetes', 'projectName is ok');
-      t.deepEqual(res.targetFile, 'multi-file.yaml', 'targetFile is ok');
+      t.deepEqual(
+        res.targetFile,
+        'iac-kubernetes/multi-file.yaml',
+        'targetFile is ok',
+      );
       t.deepEqual(res.dependencyCount, 0, 'dependencyCount is 0');
       t.deepEqual(res.vulnerabilities, [], 'vulnerabilities is empty');
     },
