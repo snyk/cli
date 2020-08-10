@@ -547,34 +547,6 @@ export const AllProjectsTests: AcceptanceTests = {
       );
     },
 
-    '`test large-mono-repo with --all-projects and --detection-depth=2`': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-      const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
-      t.teardown(spyPlugin.restore);
-      await params.cli.test('large-mono-repo', {
-        allProjects: true,
-        detectionDepth: 2,
-      });
-      t.equals(
-        spyPlugin.withArgs('rubygems').callCount,
-        1,
-        'calls rubygems plugin once',
-      );
-      t.equals(
-        spyPlugin.withArgs('npm').callCount,
-        19,
-        'calls npm plugin 19 times',
-      );
-      t.equals(
-        spyPlugin.withArgs('maven').callCount,
-        1,
-        'calls maven plugin once',
-      );
-    },
-
     '`test large-mono-repo with --all-projects and --detection-depth=7`': (
       params,
       utils,
@@ -595,6 +567,16 @@ export const AllProjectsTests: AcceptanceTests = {
         spyPlugin.withArgs('npm').callCount,
         19,
         'calls npm plugin 19 times',
+      );
+      t.equals(
+        spyPlugin.withArgs('gradle').callCount,
+        2,
+        'calls gradle plugin 2 times',
+      );
+      t.equals(
+        spyPlugin.withArgs('gradle').args[0][1].allSubProjects,
+        true,
+        'calls gradle plugin with allSubProjects property',
       );
       t.equals(
         spyPlugin.withArgs('maven').callCount,
@@ -741,6 +723,11 @@ export const AllProjectsTests: AcceptanceTests = {
         spyPlugin.withArgs('npm').callCount,
         19,
         'calls npm plugin 19 times',
+      );
+      t.equals(
+        spyPlugin.withArgs('gradle').callCount,
+        2,
+        'calls gradle plugin 2 times',
       );
       t.equals(
         spyPlugin.withArgs('maven').callCount,

@@ -55,6 +55,8 @@ export async function getDepsFromPlugin(
     if (targetFiles.length === 0) {
       throw NoSupportedManifestsFoundError([root]);
     }
+    // enable full sub-project scan for gradle
+    options.allSubProjects = true;
     inspectRes = await multiProjectProcessors[scanType].handler(
       root,
       options,

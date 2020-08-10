@@ -20,7 +20,8 @@ test('find all files in test fixture', async (t) => {
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
-    path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
+    path.join(testFixture, 'gradle-multiple', 'gradle/build.gradle'),
+    path.join(testFixture, 'gradle-multiple', 'gradle-another/build.gradle'),
     path.join(testFixture, 'maven', 'pom.xml'),
     path.join(testFixture, 'maven', 'test.txt'),
     path.join(testFixture, 'npm-with-lockfile', 'package-lock.json'),
@@ -51,7 +52,8 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
-    path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
+    path.join(testFixture, 'gradle-multiple', 'gradle/build.gradle'),
+    path.join(testFixture, 'gradle-multiple', 'gradle-another/build.gradle'),
     path.join(testFixture, 'maven', 'pom.xml'),
     path.join(testFixture, 'maven', 'test.txt'),
     path.join(testFixture, 'mvn', 'pom.xml'),
@@ -148,10 +150,6 @@ test('find pom.xml files in test fixture', async (t) => {
     path.join(testFixture, 'mvn', 'pom.xml'),
   ].sort();
   t.same(result.sort(), expected, 'should return expected files');
-});
-
-test('find build.gradle, but stop at first build.gradle found', async (t) => {
-  t.todo('stop recursion for given file names');
 });
 
 test('find path that does not exist', async (t) => {

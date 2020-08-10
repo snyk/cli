@@ -113,7 +113,7 @@ async function findInDirectory(
   return Array.prototype.concat.apply([], found);
 }
 
-function filterForDefaultManifests(files: string[]) {
+function filterForDefaultManifests(files: string[]): string[] {
   // take all the files in the same dir & filter out
   // based on package Manager
   if (files.length <= 1) {
@@ -129,23 +129,28 @@ function filterForDefaultManifests(files: string[]) {
       ...pathLib.parse(p),
       packageManager: detectProjectTypeFromFile(p),
     }))
+    .sortBy('dir')
     .groupBy('dir')
     .value();
 
   for (const directory of Object.keys(foundFiles)) {
     const filesInDirectory = foundFiles[directory];
-    if (filesInDirectory.length <= 1) {
-      filteredFiles.push(filesInDirectory[0].path);
-      continue;
-    }
-
     const groupedFiles = _(filesInDirectory)
       .groupBy('packageManager')
       .value();
 
     for (const packageManager of Object.keys(groupedFiles)) {
       const filesPerPackageManager = groupedFiles[packageManager];
+
       if (filesPerPackageManager.length <= 1) {
+        const shouldSkip = shouldSkipAddingFile(
+          packageManager,
+          filesPerPackageManager[0].path,
+          filteredFiles,
+        );
+        if (shouldSkip) {
+          continue;
+        }
         filteredFiles.push(filesPerPackageManager[0].path);
         continue;
       }
@@ -154,6 +159,14 @@ function filterForDefaultManifests(files: string[]) {
         packageManager,
       );
       if (defaultManifestFileName) {
+        const shouldSkip = shouldSkipAddingFile(
+          packageManager,
+          filesPerPackageManager[0].path,
+          filteredFiles,
+        );
+        if (shouldSkip) {
+          continue;
+        }
         filteredFiles.push(defaultManifestFileName);
       }
     }
@@ -171,6 +184,24 @@ function detectProjectTypeFromFile(file: string): string | null {
   } catch (error) {
     return null;
   }
+}
+
+function shouldSkipAddingFile(
+  packageManager: string,
+  filePath: string,
+  filteredFiles: string[],
+): boolean {
+  if (['gradle'].includes(packageManager) && filePath) {
+    const rootGradleFile = filteredFiles
+      .filter((targetFile) => targetFile.endsWith('build.gradle'))
+      .filter((targetFile) => {
+        const parsedPath = pathLib.parse(targetFile);
+        const relativePath = pathLib.relative(parsedPath.dir, filePath);
+        return !relativePath.startsWith(`..${pathLib.sep}`);
+      });
+    return !!rootGradleFile.length;
+  }
+  return false;
 }
 
 function chooseBestManifest(
