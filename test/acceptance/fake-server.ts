@@ -1,6 +1,4 @@
 import * as restify from 'restify';
-import { AnnotatedIacIssue } from '../../src/lib/snyk-test/iac-test-result';
-import { SEVERITY } from '../../src/lib/snyk-test/legacy';
 
 interface FakeServer extends restify.Server {
   _reqLog: restify.Request[];
