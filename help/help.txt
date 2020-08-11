@@ -29,7 +29,6 @@ Options:
 
   --all-projects ..... (test & monitor commands only)
                        Auto detect all projects in working directory.
-                       Note gradle is not supported, use --all-sub-projects instead.
   --detection-depth=<number>
                        (test & monitor commands only)
                        Use with --all-projects or --yarn-workspaces to indicate how many sub-directories to search.
