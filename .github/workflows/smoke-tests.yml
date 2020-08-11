@@ -82,6 +82,13 @@ jobs:
           which shellspec
           shellspec --version
 
+      - name: Install brew on macOS
+        if: ${{ matrix.os == 'macos-latest' }}
+        # We need "timeout" util and we'll use brew to check our brew package as well
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+          brew install coreutils
+
       - name: Install Shellspec - Windows
         shell: powershell
         if: ${{ matrix.os == 'windows-latest' }}

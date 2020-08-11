@@ -14,6 +14,12 @@ Before you start adding specs, those files are bash scripts, it's recommended to
 
 It's recommended to have a branch named `feat/smoke-test`, as [this branch will run the GitHub Action](https://github.com/snyk/snyk/blob/f35f39e96ef7aa69b22a846315dda015b12a4564/.github/workflows/smoke-tests.yml#L3-L5).
 
+To run these tests locally, install shellspec, cd into `test/smoke` folder and run:
+
+```sh
+CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
+```
+
 ## TODO
 
 ### Missing scenarios
