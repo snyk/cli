@@ -14,6 +14,7 @@ import { AcceptanceTests } from './cli-test.acceptance.test';
 /**
  * There's a Super weird bug when referncing Typescript Enum values (i.e. SEVERITY.medium), which causes all the to tests breaks.
  * Probably some bad compatability with the Tap library & Ts-Node for supporting ENUMS.
+ *
  * */
 
 export const IacK8sTests: AcceptanceTests = {
