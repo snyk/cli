@@ -16,7 +16,6 @@ export async function tryGetSpec(
   name: string,
 ): Promise<File | null> {
   const filePath = path.resolve(dir, name);
-
   if (fs.existsSync(filePath)) {
     return {
       name,

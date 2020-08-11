@@ -2,31 +2,42 @@ import * as path from 'path';
 import { tryGetSpec } from './try-get-spec';
 import { Spec } from './index';
 
-const pattern = /^Gemfile(\.lock)*$/;
+/* Supported example patterns:
+ * Gemfile
+ * Gemfile.lock
+ * rails.2.4.5.gemfile
+ * rails.2.4.5.gemfile.lock
+ * gemfiles/Gemfile.rails-2.4.5.lock
+ * gemfiles/Gemfile.lock.rails-2.4.5
+ */
+
+const gemfileOrLockfilePattern = /.*[gG]emfile.*(\.lock)?.*$/;
+const gemfileLockPattern = /.*[gG]emfile.*(\.lock).*$/;
 
 export function canHandle(file: string): boolean {
-  return !!file && pattern.test(path.basename(file));
+  return !!file && gemfileOrLockfilePattern.test(path.basename(file));
 }
 
 export async function gatherSpecs(root: string, target: string): Promise<Spec> {
-  const targetName = path.basename(target);
-  const targetDir = path.dirname(target);
-
+  const { dir, name } = path.parse(target);
+  const isGemfileLock = gemfileLockPattern.test(target);
+  // if the target is a Gemfile we treat is as the lockfile
   const gemfileLock = await tryGetSpec(
     root,
-    path.join(targetDir, 'Gemfile.lock'),
+    isGemfileLock ? target : path.join(dir, name + '.lock'),
   );
 
   if (gemfileLock) {
     return {
       packageName: path.basename(root),
-      targetFile: path.join(targetDir, targetName),
+      targetFile: path.join(dir, name),
       files: { gemfileLock },
     };
   } else {
     throw new Error(
-      "Missing Gemfile.lock file: we can't test " +
-        'without dependencies.\nPlease run `bundle install` first.',
+      `Could not read ${target || 'Gemfile.lock'} lockfile: can't test ` +
+        'without dependencies.\nPlease run `bundle install` first or' +
+        ' if this is a custom file name re-run with --file=path/to/custom.gemfile.lock --package-manager=rubygems',
     );
   }
 }
