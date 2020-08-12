@@ -1,6 +1,9 @@
 #shellcheck shell=sh
 
 Describe "Snyk test command"
+  Before snyk_login
+  After snyk_logout
+
   Describe "basic npm test"
     It "finds vulns in a project"
       When run snyk test "../fixtures/basic-npm"
