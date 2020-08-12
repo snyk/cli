@@ -134,6 +134,23 @@ describe('when have a valid mode and command', () => {
     expect(cliArgs['docker']).toBeTruthy();
     expect(cliArgs['experimental']).toBeTruthy();
   });
+
+  it('"source test" should set source option and test command', () => {
+    const expectedCommand = 'test';
+    const expectedArgs = {
+      _: [],
+      source: true,
+    };
+    const cliCommand = 'source';
+    const cliArgs = {
+      _: ['test'],
+    };
+
+    const command = parseMode(cliCommand, cliArgs);
+    expect(command).toBe(expectedCommand);
+    expect(cliArgs).toEqual(expectedArgs);
+    expect(cliArgs['source']).toBeTruthy();
+  });
 });
 
 describe('when have a valid mode, command and exists a command alias', () => {
