@@ -30,7 +30,7 @@ if (endpoint && endpoint !== config.API) {
   if (!parsedEndpoint || !parsedEndpoint.protocol || !parsedEndpoint.host) {
     throw new InvalidEndpointConfigError();
   }
-  console.info(
+  console.warn(
     'Using a custom API endpoint from `snyk config` (tip: it should contain path to `/api`):',
     endpoint,
   );
