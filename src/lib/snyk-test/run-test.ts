@@ -360,13 +360,15 @@ async function assembleLocalPayloads(
     const failedResults = (deps as MultiProjectResultCustom).failedResults;
     if (failedResults?.length) {
       await spinner.clear<void>(spinnerLbl)();
-      console.warn(
-        chalk.bold.red(
-          `✗ ${failedResults.length}/${failedResults.length +
-            deps.scannedProjects
-              .length} potential projects failed to get dependencies. Run with \`-d\` for debug output.`,
-        ),
-      );
+      if (!options.json) {
+        console.warn(
+          chalk.bold.red(
+            `✗ ${failedResults.length}/${failedResults.length +
+              deps.scannedProjects
+                .length} potential projects failed to get dependencies. Run with \`-d\` for debug output.`,
+          ),
+        );
+      }
     }
     analytics.add('pluginName', deps.plugin.name);
     const javaVersion = _.get(
