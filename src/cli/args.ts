@@ -32,6 +32,9 @@ alias.t = 'test';
 const DEBUG_DEFAULT_NAMESPACES = [
   'snyk-test',
   'snyk',
+  'snyk:find-files',
+  'snyk:run-test',
+  'snyk:prune',
   'snyk-gradle-plugin',
   'snyk-sbt-plugin',
   'snyk-mvn-plugin',

@@ -62,7 +62,7 @@ import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
 import { getDockerToken } from '../api-token';
 
-const debug = debugModule('snyk');
+const debug = debugModule('snyk:run-test');
 
 const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
 
