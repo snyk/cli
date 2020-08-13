@@ -256,6 +256,15 @@ function chooseBestManifest(
       )[0];
       return defaultManifest.path;
     }
+    case 'gradle': {
+      debug(
+        'Encountered multiple gradle manifest files, defaulting to build.gradle',
+      );
+      const defaultManifest = files.filter((path) =>
+        ['build.gradle'].includes(path.base),
+      )[0];
+      return defaultManifest.path;
+    }
     default: {
       return null;
     }
