@@ -53,7 +53,7 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
-    path.join(testFixture, 'gradle-multiple', 'gradle/build.gradle'),
+    path.join(testFixture, 'gradle-kts', 'build.gradle.kts'),
     path.join(testFixture, 'gradle-multiple', 'gradle/build.gradle'),
     path.join(testFixture, 'gradle-multiple', 'gradle-another/build.gradle'),
     path.join(testFixture, 'maven', 'pom.xml'),
