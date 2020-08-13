@@ -18,6 +18,12 @@ verify_login_url() {
   echo "$1" | grep https | grep -E "^https://(dev\.)?(test\.)?snyk\.io/login\?token=[a-z0-9]{8}-([a-z0-9]{4}-){3}[a-z0-9]{12}\&.*$"
 }
 
+# Consume stdout and checks validates whether it's a valid JSON
+check_valid_json() {
+  printf %s "$1" | jq . > /dev/null
+  echo $?
+}
+
 # These 2 commands should run in succession, some CLI functionality uses isCI detection
 disable_is_ci_flags() {
   # save original value and unset

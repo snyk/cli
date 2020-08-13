@@ -14,9 +14,16 @@ Before you start adding specs, those files are bash scripts, it's recommended to
 
 It's recommended to have a branch named `feat/smoke-test`, as [this branch will run the GitHub Action](https://github.com/snyk/snyk/blob/f35f39e96ef7aa69b22a846315dda015b12a4564/.github/workflows/smoke-tests.yml#L3-L5).
 
-To run these tests locally, install shellspec, cd into `test/smoke` folder and run:
+To run these tests locally, install:
+
+- [Shellspec](https://shellspec.info)
+- [jq](https://stedolan.github.io/jq/)
+- timeout (if not available on your platform)
+
+cd into `test/smoke` folder and run:
 
 ```sh
+cd test/smoke
 CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
 ```
 
@@ -26,7 +33,8 @@ CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
 
 - [x] basics: version, help, config
 - [x] auth [TOKEN]
-- [ ] test [--json][npm project, java-goof]
+- [x] test [--json][npm project]
+- [ ] test [--json][java-goof]
 - [ ] policy, ignore
 - [ ] monitor
 - [ ] wizard - possibly impossible? (maybe a basic test that it even loads)
