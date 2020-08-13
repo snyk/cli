@@ -1,12 +1,127 @@
-import { AcceptanceTests } from './cli-test.acceptance.test';
-import { getWorkspaceJSON } from '../workspace-helper';
 import * as path from 'path';
 import * as sinon from 'sinon';
+import * as depGraphLib from '@snyk/dep-graph';
 import { CommandResult } from '../../../src/cli/commands/types';
+import { AcceptanceTests } from './cli-test.acceptance.test';
+import { getWorkspaceJSON } from '../workspace-helper';
 
 export const AllProjectsTests: AcceptanceTests = {
   language: 'Mixed',
   tests: {
+    '`test kotlin-monorepo --all-projects` scans kotlin files': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const simpleGradleGraph = depGraphLib.createFromJSON({
+        schemaVersion: '1.2.0',
+        pkgManager: {
+          name: 'gradle',
+        },
+        pkgs: [
+          {
+            id: 'gradle-monorepo@0.0.0',
+            info: {
+              name: 'gradle-monorepo',
+              version: '0.0.0',
+            },
+          },
+        ],
+        graph: {
+          rootNodeId: 'root-node',
+          nodes: [
+            {
+              nodeId: 'root-node',
+              pkgId: 'gradle-monorepo@0.0.0',
+              deps: [],
+            },
+          ],
+        },
+      });
+      const plugin = {
+        async inspect() {
+          return {
+            plugin: {
+              name: 'bundled:gradle',
+              runtime: 'unknown',
+              meta: {},
+            },
+            scannedProjects: [
+              {
+                meta: {
+                  gradleProjectName: 'root-proj',
+                  versionBuildInfo: {
+                    gradleVersion: '6.5',
+                  },
+                },
+                depGraph: simpleGradleGraph,
+              },
+              {
+                meta: {
+                  gradleProjectName: 'root-proj/subproj',
+                  versionBuildInfo: {
+                    gradleVersion: '6.5',
+                  },
+                },
+                depGraph: simpleGradleGraph,
+              },
+            ],
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('gradle').returns(plugin);
+      loadPlugin.callThrough();
+
+      const result: CommandResult = await params.cli.test('kotlin-monorepo', {
+        allProjects: true,
+        detectionDepth: 3,
+      });
+      t.ok(loadPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
+      t.ok(loadPlugin.withArgs('gradle').calledOnce, 'calls gradle plugin');
+
+      params.server.popRequests(2).forEach((req) => {
+        t.equal(req.method, 'POST', 'makes POST request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+        t.match(req.url, '/api/v1/test-dep-graph', 'posts to correct url');
+        t.ok(req.body.depGraph, 'body contains depGraph');
+        t.match(
+          req.body.depGraph.pkgManager.name,
+          /(gradle|rubygems)/,
+          'depGraph has package manager',
+        );
+      });
+      t.match(
+        result.getDisplayResults(),
+        'Tested 3 projects',
+        'Detected 3 projects',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Package manager:   rubygems',
+        'contains package manager rubygems',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Package manager:   gradle',
+        'contains package manager gradle',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Target file:       Gemfile.lock',
+        'contains target file Gemfile.lock',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Target file:       build.gradle.kts',
+        'contains target file build.gradle.kts',
+      );
+    },
     '`test yarn-out-of-sync` out of sync fails': (params, utils) => async (
       t,
     ) => {
