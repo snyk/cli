@@ -43,6 +43,7 @@ import {
   execShell,
 } from '../../../lib/monitor/dev-count-analysis';
 import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
+import { processScanResults } from './scan-results';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -166,7 +167,17 @@ async function monitor(...args0: MethodArgs): Promise<any> {
         }),
         spinner.clear(analyzingDepsSpinnerLabel),
       );
-      analytics.add('pluginName', inspectResult.plugin.name);
+      analytics.add('pluginName', inspectResult?.plugin?.name);
+
+      if ((inspectResult as any).scanResults) {
+        return await processScanResults(
+          inspectResult as any,
+          path,
+          results,
+          options,
+          contributors,
+        );
+      }
 
       // We send results from "all-sub-projects" scanning as different Monitor objects
       // multi result will become default, so start migrating code to always work with it

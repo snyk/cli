@@ -20,6 +20,7 @@ import {
   Contributors,
 } from '../types';
 import * as projectMetadata from '../project-metadata';
+import * as uuidv4 from 'uuid/v4';
 
 import {
   MonitorError,
@@ -52,6 +53,7 @@ import {
 import { countPathsToGraphRoot } from '../utils';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
+import { ScanResult } from 'snyk-docker-plugin';
 
 const debug = Debug('snyk');
 
@@ -102,6 +104,18 @@ export async function monitor(
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
+
+  if ((scannedProject as any).artifacts) {
+    return await monitorArtifacts(
+      root,
+      meta,
+      scannedProject as any,
+      pluginMeta,
+      options,
+      targetFileRelativePath,
+      contributors,
+    );
+  }
 
   if (scannedProject.depGraph) {
     return await monitorDepGraph(
@@ -323,6 +337,109 @@ async function monitorDepTree(
           return reject(error);
         }
 
+        if (res.statusCode >= 200 && res.statusCode <= 299) {
+          resolve(body as MonitorResult);
+        } else {
+          let err;
+          const userMessage = body && body.userMessage;
+          if (!userMessage && res.statusCode === 504) {
+            err = new ConnectionTimeoutError();
+          } else {
+            err = new MonitorError(res.statusCode, userMessage);
+          }
+          reject(err);
+        }
+      },
+    );
+  });
+}
+
+export async function monitorArtifacts(
+  root: string,
+  meta: MonitorMeta,
+  scanResult: ScanResult,
+  pluginMeta: PluginMetadata,
+  options: MonitorOptions & PolicyOptions,
+  targetFileRelativePath?: string,
+  contributors?: Contributors[],
+): Promise<MonitorResult> {
+  const packageManager = meta.packageManager;
+
+  let targetFileDir;
+
+  if (targetFileRelativePath) {
+    const { dir } = path.parse(targetFileRelativePath);
+    targetFileDir = dir;
+  }
+
+  const policy = await findAndLoadPolicy(
+    root,
+    meta.isDocker ? 'docker' : packageManager,
+    options,
+    undefined,
+    targetFileDir,
+  );
+
+  const target = await projectMetadata.getInfo(scanResult as any, meta);
+  if (isGitTarget(target) && target.branch) {
+    analytics.add('targetBranch', target.branch);
+  }
+
+  return new Promise((resolve, reject) => {
+    if (scanResult.artifacts.length === 0) {
+      return reject(
+        new FailedToRunTestError(
+          'Your monitor request could not be completed. Please email support@snyk.io',
+        ),
+      );
+    }
+    request(
+      {
+        body: {
+          meta: {
+            method: meta.method,
+            hostname: os.hostname(),
+            id: snyk.id || uuidv4(),
+            ci: isCI(),
+            pid: process.pid,
+            node: process.version,
+            master: snyk.config.isMaster,
+            name: uuidv4() /* getNameDepGraph(scannedProject, depGraph, meta), */,
+            version: uuidv4() /* depGraph.rootPkg.version, */,
+            org: config.org ? decodeURIComponent(config.org) : undefined,
+            pluginName: pluginMeta.name,
+            pluginRuntime: pluginMeta.runtime,
+            projectName: uuidv4() /* getProjectName(scannedProject, meta), */,
+            monitorGraph: true,
+            versionBuildInfo: JSON.stringify(
+              {},
+              /* scannedProject.meta?.versionBuildInfo, */
+            ),
+            gradleProjectName: scanResult.artifacts.find(
+              (artifact) => artifact.meta?.gradleProjectName,
+            )?.meta?.gradleProjectName as string | undefined,
+          },
+          policy: policy ? policy.toString() : undefined,
+          // we take the targetFile from the plugin,
+          // because we want to send it only for specific package-managers
+          target,
+          targetFile: getTargetFile(scanResult as any, pluginMeta),
+          targetFileRelativePath,
+          contributors,
+        } as MonitorBody,
+        gzip: true,
+        method: 'PUT',
+        headers: {
+          authorization: 'token ' + snyk.api,
+          'content-encoding': 'gzip',
+        },
+        url: `${config.API}/monitor/${packageManager}/graph`,
+        json: true,
+      },
+      (error, res, body) => {
+        if (error) {
+          return reject(error);
+        }
         if (res.statusCode >= 200 && res.statusCode <= 299) {
           resolve(body as MonitorResult);
         } else {

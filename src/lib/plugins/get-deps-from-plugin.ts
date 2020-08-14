@@ -83,6 +83,10 @@ export async function getDepsFromPlugin(
   }
   inspectRes = await getSinglePluginResult(root, options);
 
+  if ((inspectRes as any).scanResults) {
+    return inspectRes as any;
+  }
+
   if (!pluginApi.isMultiResult(inspectRes)) {
     if (!inspectRes.package && !inspectRes.dependencyGraph) {
       // something went wrong if both are not present...
