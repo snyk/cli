@@ -75,6 +75,7 @@ commands:
     steps:
       - run: curl -fsSL https://git.io/shellspec | sh -s -- -y
       - run: sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
+      - run: sudo apt-get install jq
   show_node_version:
     description: Log Node and npm version
     steps:
