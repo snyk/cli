@@ -57,6 +57,7 @@ export function formatIssuesWithRemediation(
     const vulnData = {
       title: vuln.title,
       severity: vuln.severity,
+      originalSeverity: vuln.originalSeverity,
       isNew: vuln.isNew,
       name: vuln.name,
       type: vuln.metadata.type,
@@ -175,6 +176,7 @@ function constructLicenseText(
       basicLicenseInfo[id].paths,
       testOptions,
       basicLicenseInfo[id].note,
+      undefined, // We can never override license rules, so no originalSeverity here
       basicLicenseInfo[id].legalInstructions,
     );
     licenseTextArray.push('\n' + licenseText);
@@ -217,6 +219,7 @@ function constructPatchesText(
       basicVulnInfo[id].paths,
       testOptions,
       basicVulnInfo[id].note,
+      basicVulnInfo[id].originalSeverity,
     );
     patchedTextArray.push(patchedText + thisPatchFixes);
   }
@@ -247,6 +250,7 @@ function thisUpgradeFixes(
         basicVulnInfo[id].paths,
         testOptions,
         basicVulnInfo[id].note,
+        basicVulnInfo[id].originalSeverity,
         [],
         basicVulnInfo[id].reachability,
         basicVulnInfo[id].sampleReachablePaths,
@@ -400,6 +404,7 @@ function constructUnfixableText(
         issueInfo.paths,
         testOptions,
         issueInfo.note,
+        issueInfo.originalSeverity,
         [],
         issue.reachability,
       ) + `${extraInfo}`,
@@ -428,6 +433,7 @@ export function formatIssue(
   paths: string[][],
   testOptions: TestOptions,
   note: string | false,
+  originalSeverity?: SEVERITY,
   legalInstructions?: LegalInstruction[],
   reachability?: REACHABILITY,
   sampleReachablePaths?: SampleReachablePaths,
@@ -493,11 +499,16 @@ export function formatIssue(
     reachablePathsTemplate,
   );
 
+  let originalSeverityStr = '';
+  if (originalSeverity && originalSeverity !== severity) {
+    originalSeverityStr = ` (originally ${titleCaseText(originalSeverity)})`;
+  }
+
   return (
     severitiesColourMapping[severity].colorFunc(
       `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(
         severity,
-      )} Severity]`,
+      )} Severity${originalSeverityStr}]`,
     ) +
     reachabilityText +
     `[${config.ROOT}/vuln/${id}]` +

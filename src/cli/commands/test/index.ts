@@ -651,6 +651,7 @@ function groupVulnerabilities(vulns): GroupedVuln[] {
       map[curr.id].title = curr.title;
       map[curr.id].note = curr.note;
       map[curr.id].severity = curr.severity as SEVERITY;
+      map[curr.id].originalSeverity = curr.originalSeverity as SEVERITY;
       map[curr.id].isNew = isNewVuln(curr);
       map[curr.id].name = curr.name;
       map[curr.id].version = curr.version;
