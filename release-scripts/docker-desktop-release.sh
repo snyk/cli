@@ -16,15 +16,19 @@ cp ./release-scripts/snyk-mac.sh ./dist/docker/
 cd ./dist/docker
 
 npm install --production
+rm -rf package-lock.json
 
 # Download macOS NodeJS binary, using same as pkg
-curl "https://nodejs.org/dist/v14.6.0/node-v14.6.0-darwin-x64.tar.gz" | tar -xz
+curl "https://nodejs.org/dist/v12.18.3/node-v12.18.3-darwin-x64.tar.gz" | tar -xz
 
 cd ..
 
 # Create bundle, resolve symlinks
 tar czfh docker-mac-signed-bundle.tar.gz ./docker
+# final package must be at root, otherwise it gets included in /dist folder
+cd ..
+mv ./dist/docker-mac-signed-bundle.tar.gz .
 
 sha256sum docker-mac-signed-bundle.tar.gz > docker-mac-signed-bundle.tar.gz.sha256
 
-rm -rf ./docker
+rm -rf ./dist/docker
