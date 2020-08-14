@@ -9,7 +9,7 @@
     {
       "//": "build the alpine, macos, linux and windows binaries",
       "path": "@semantic-release/exec",
-      "cmd": "pkg . -t node14-alpine-x64,node14-linux-x64,node14-macos-x64,node14-win-x64"
+      "cmd": "pkg . -t node12-alpine-x64,node12-linux-x64,node12-macos-x64,node12-win-x64"
     },
     {
       "//": "build docker package",
@@ -78,9 +78,14 @@
           "label": "snyk-alpine.sha256"
         },
         {
-          "path": "./dist/docker-mac-signed-bundle.tar.gz",
+          "path": "./docker-mac-signed-bundle.tar.gz",
           "name": "docker-mac-signed-bundle.tar.gz",
           "label": "docker-mac-signed-bundle.tar.gz"
+        },
+        {
+          "path": "./docker-mac-signed-bundle.tar.gz.sha256",
+          "name": "docker-mac-signed-bundle.tar.gz.sha256",
+          "label": "docker-mac-signed-bundle.tar.gz.sha256"
         }
       ]
     }

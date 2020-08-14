@@ -7,9 +7,8 @@
     "dist",
     "config.default.json",
     "SECURITY.md",
-    "README.md",
-    "Contributor-Agreement.md",
-    ".snyk"
+    "LICENSE",
+    "README.md"
   ],
   "directories": {
     "test": "test"
