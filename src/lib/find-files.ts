@@ -105,6 +105,7 @@ async function findInDirectory(
   const files = await readDirectory(path);
   const toFind = files
     .filter((file) => !ignore.includes(file))
+    .filter((file) => fs.existsSync(pathLib.resolve(path, file)))
     .map((file) => {
       const resolvedPath = pathLib.resolve(path, file);
       return find(resolvedPath, ignore, filter, levelsDeep);
