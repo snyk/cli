@@ -1,0 +1,10 @@
+{
+  "name": "tomatoes",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "main": "./src/index.js",
+  "dependencies": {
+    "node-fetch": "2.2.0",
+    "object-assign": "4.1.1"
+  }
+}
