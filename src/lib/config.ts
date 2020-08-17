@@ -52,7 +52,7 @@ if (!config.org && org) {
 // invalid (non-numeric) value will fallback to the default
 const timeout = userConfig.get('timeout');
 if (!config.timeout) {
-  config.timeout = +timeout ? +timeout : DEFAULT_TIMEOUT;
+  config.timeout = timeout && +timeout ? +timeout : DEFAULT_TIMEOUT;
 }
 
 // this is a bit of an assumption that our web site origin is the same
