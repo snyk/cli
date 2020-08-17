@@ -7,9 +7,24 @@
       "cmd": "echo '' > dist/STANDALONE"
     },
     {
-      "//": "build the alpine, macos, linux and windows binaries",
+      "//": "build the Alpine executable",
       "path": "@semantic-release/exec",
-      "cmd": "pkg . -t node14-alpine-x64,node12-linux-x64,node12-macos-x64,node12-win-x64"
+      "cmd": "pkg . -t node14-alpine-x64 -o snyk-alpine"
+    },
+    {
+      "//": "build the Linux executable",
+      "path": "@semantic-release/exec",
+      "cmd": "pkg . -t node12-linux-x64 -o snyk-linux"
+    },
+    {
+      "//": "build the macOS executable",
+      "path": "@semantic-release/exec",
+      "cmd": "pkg . -t node12-macos-x64 -o snyk-macos"
+    },
+    {
+      "//": "build the windows executable",
+      "path": "@semantic-release/exec",
+      "cmd": "pkg . -t node12-win-x64 -o snyk-win.exe"
     },
     {
       "//": "build docker package",
