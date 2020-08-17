@@ -29,6 +29,10 @@ CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
 
 ## TODO
 
+### Wishlist
+
+- [ ] be able to run against PR
+
 ### Missing scenarios
 
 - [x] basics: version, help, config
@@ -41,7 +45,15 @@ CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
 
 ### Missing environments
 
-- [ ] Alpine binary
+- [x] Alpine binary
 - [ ] Docker: current images can't output a clear stderr, because of an extraneous --json flag. Also released version is currently lagging behind the latest GitHub tag by a few hours
 - [ ] yarn installation (see https://github.com/snyk/snyk/issues/1270)
 - [ ] scoop package
+- [ ] homebrew
+
+## Current workarounds and limitations
+
+### Alpine
+
+- Needs to run in a Docker container because GitHub Actions don't support Alpine as a host OS. Using shellspec container, as it's based on alpine and ready to run the tests.
+- Need to skip a test that normally tries to open browser for login, but that fails horribly on Alpine.

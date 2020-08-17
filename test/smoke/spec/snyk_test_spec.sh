@@ -54,7 +54,6 @@ Describe "Snyk test command"
     It "won't output to stderr when one project fails and json flag is set"
       When run snyk_test_json_all
       The status should be failure # issues found
-      The output should include '"error": "package' # we expect some error
       The stderr should equal ""
       The result of function check_valid_json should be success
     End

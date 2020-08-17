@@ -16,6 +16,10 @@ Describe "Snyk CLI Authorization"
     After restore_is_ci_flags
 
     It "fails when run without token set"
+      # Alpine can't open browser, misses xdg-open utility and errors out
+      is_alpine() { grep "Alpine Linux" < /etc/os-release; }
+      Skip if "function returns success" is_alpine
+
       # Using timeout to not wait for browser confirmation
       When run timeout 5 snyk auth
       The output should include "Now redirecting you to our auth page, go ahead and log in,"
