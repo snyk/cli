@@ -26,6 +26,7 @@ const alias = abbrev(
 );
 alias.d = 'debug'; // always make `-d` debug
 alias.t = 'test';
+alias.p = 'prune-repeated-subdependencies';
 
 // The -d flag enables printing the messages for predefined namespaces.
 // Additional ones can be specified (comma-separated) in the DEBUG environment variable.
@@ -202,6 +203,7 @@ export function args(rawArgv: string[]): Args {
     'reachable-vulns-timeout',
     'integration-name',
     'integration-version',
+    'prune-repeated-subdependencies',
   ];
   for (const dashedArg of argumentsToTransform) {
     if (argv[dashedArg]) {
