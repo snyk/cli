@@ -193,7 +193,11 @@ function shouldSkipAddingFile(
 ): boolean {
   if (['gradle'].includes(packageManager) && filePath) {
     const rootGradleFile = filteredFiles
-      .filter((targetFile) => targetFile.endsWith('build.gradle'))
+      .filter(
+        (targetFile) =>
+          targetFile.endsWith('build.gradle') ||
+          targetFile.endsWith('build.gradle.kts'),
+      )
       .filter((targetFile) => {
         const parsedPath = pathLib.parse(targetFile);
         const relativePath = pathLib.relative(parsedPath.dir, filePath);
@@ -238,7 +242,7 @@ function chooseBestManifest(
     }
     case 'cocoapods': {
       debug(
-        'Encountered multiple cocoapod manifest files, defaulting to Podfile',
+        'Encountered multiple cocoapods manifest files, defaulting to Podfile',
       );
       const defaultManifest = files.filter((path) =>
         ['Podfile'].includes(path.base),
@@ -249,6 +253,15 @@ function chooseBestManifest(
       debug('Encountered multiple pip manifest files, defaulting to Pipfile');
       const defaultManifest = files.filter((path) =>
         ['Pipfile'].includes(path.base),
+      )[0];
+      return defaultManifest.path;
+    }
+    case 'gradle': {
+      debug(
+        'Encountered multiple gradle manifest files, defaulting to build.gradle',
+      );
+      const defaultManifest = files.filter((path) =>
+        ['build.gradle'].includes(path.base),
       )[0];
       return defaultManifest.path;
     }

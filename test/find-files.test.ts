@@ -20,6 +20,8 @@ test('find all files in test fixture', async (t) => {
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
+    path.join(testFixture, 'gradle-kts', 'build.gradle.kts'),
+    path.join(testFixture, 'gradle-and-kotlin', 'build.gradle'),
     path.join(testFixture, 'gradle-multiple', 'gradle/build.gradle'),
     path.join(testFixture, 'gradle-multiple', 'gradle-another/build.gradle'),
     path.join(testFixture, 'maven', 'pom.xml'),
@@ -52,6 +54,8 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
     path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
     path.join(testFixture, 'golang', 'golang-gomodules', 'go.mod'),
     path.join(testFixture, 'gradle', 'build.gradle'),
+    path.join(testFixture, 'gradle-kts', 'build.gradle.kts'),
+    path.join(testFixture, 'gradle-and-kotlin', 'build.gradle'),
     path.join(testFixture, 'gradle-multiple', 'gradle/build.gradle'),
     path.join(testFixture, 'gradle-multiple', 'gradle-another/build.gradle'),
     path.join(testFixture, 'maven', 'pom.xml'),
@@ -97,6 +101,19 @@ test('find package-lock.json file in test fixture (ignore package.json in the sa
     1,
   );
   const expected = [path.join(npmLockfilePath, 'package-lock.json')];
+  t.same(result, expected, 'should return expected file');
+});
+
+test('find build.gradle file in test fixture (ignore build.gradle in the same folder)', async (t) => {
+  const buildGradle = path.join(testFixture, 'gradle-and-kotlin');
+
+  const result = await find(
+    buildGradle,
+    [],
+    ['build.gradle.kts', 'build.gradle'],
+    1,
+  );
+  const expected = [path.join(buildGradle, 'build.gradle')];
   t.same(result, expected, 'should return expected file');
 });
 

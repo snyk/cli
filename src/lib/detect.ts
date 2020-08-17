@@ -57,6 +57,7 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'requirements.txt',
   'build.sbt',
   'build.gradle',
+  'build.gradle.kts',
 ];
 
 // when file is specified with --file, we look it up here
