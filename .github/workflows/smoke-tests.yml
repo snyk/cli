@@ -9,10 +9,10 @@ on:
 jobs:
   smoke_test:
     # The type of runner that the job will run on
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu, macos, windows]
         snyk_install_method: [binary, npm]
         node_version: [8, 10, 12]
         exclude:
@@ -22,16 +22,19 @@ jobs:
             node_version: 10
         include:
           - snyk_install_method: binary
-            os: ubuntu-latest
+            os: ubuntu
             snyk_cli_dl_file: snyk-linux
           - snyk_install_method: binary
-            os: macos-latest
+            os: macos
             snyk_cli_dl_file: snyk-macos
+          - snyk_install_method: alpine-binary
+            os: ubuntu
+            snyk_cli_dl_file: snyk-alpine
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v1 # Needed for fixtures installation
         with:
           node-version: ${{ matrix.node_version }}
 
@@ -48,8 +51,16 @@ jobs:
         run: |
           npm install
 
+      - name: Run alpine test
+        if: ${{ matrix.snyk_install_method == 'alpine-binary' }}
+        env:
+          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+        run: |
+          docker build -t snyk-cli-alpine -f ./test/smoke/alpine/Dockerfile ./test
+          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN snyk-cli-alpine
+
       - name: Install Snyk with binary - Non-Windows
-        if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows-latest' }}
+        if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
         run: |
           echo "install snyk with binary"
           export latest_version=$(curl -Is "https://github.com/snyk/snyk/releases/latest" | grep location | sed s#.*tag/##g | tr -d "\r")
@@ -57,13 +68,12 @@ jobs:
           snyk_cli_dl_linux="https://github.com/snyk/snyk/releases/download/${latest_version}/${{ matrix.snyk_cli_dl_file }}"
           echo "snyk_cli_dl_linux: ${snyk_cli_dl_linux}"
           curl -Lo ./snyk-cli $snyk_cli_dl_linux
-          echo "snyk_cli_dl_linux: ${snyk_cli_dl_linux}"
           chmod -R +x ./snyk-cli
           sudo mv ./snyk-cli /usr/local/bin/snyk
           snyk --version
 
       - name: Install Snyk with binary - Windows
-        if: ${{ matrix.snyk_install_method == 'binary' && matrix.os == 'windows-latest' }}
+        if: ${{ matrix.snyk_install_method == 'binary' && matrix.os == 'windows' }}
         shell: powershell
         run: |
           echo "install snyk with binary"
@@ -71,7 +81,7 @@ jobs:
           sh ./test/smoke/install-snyk-binary-win.sh
 
       - name: Install Shellspec - non-windows
-        if: ${{ matrix.os != 'windows-latest' }}
+        if: ${{ matrix.os != 'windows' && matrix.snyk_install_method != 'alpine-binary' }}
         run: |
           curl -fsSL https://git.io/shellspec | sh -s -- -y
           sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
@@ -83,7 +93,7 @@ jobs:
           shellspec --version
 
       - name: Install brew on macOS
-        if: ${{ matrix.os == 'macos-latest' }}
+        if: ${{ matrix.os == 'macos' }}
         # We need "timeout" and "jq" util and we'll use brew to check our brew package as well
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
@@ -91,26 +101,26 @@ jobs:
           brew install jq
 
       - name: Install scoop on Windows
-        if: ${{ matrix.os == 'windows-latest'}}
+        if: ${{ matrix.os == 'windows'}}
         run: |
           iwr -useb get.scoop.sh | iex
           scoop install jq
 
       - name: Install jq on Ubuntu
-        if: ${{ matrix.os == 'ubuntu-latest' }}
+        if: ${{ matrix.os == 'ubuntu' && matrix.snyk_install_method != 'alpine-binary'}}
         run: |
           sudo apt-get install jq
 
       - name: Install Shellspec - Windows
         shell: powershell
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os == 'windows' }}
         run: |
           Get-Host | Select-Object Version
           Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
           sh ./test/smoke/install-shellspec-win.sh
 
       - name: Run shellspec tests - non-Windows
-        if: ${{ matrix.os != 'windows-latest' }}
+        if: ${{ matrix.os != 'windows' && matrix.snyk_install_method != 'alpine-binary'}}
         working-directory: test/smoke
         env:
           SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
@@ -119,7 +129,7 @@ jobs:
           shellspec -f d
 
       - name: Run shellspec tests - Windows
-        if: ${{ matrix.os == 'windows-latest' }}
+        if: ${{ matrix.os == 'windows' }}
         working-directory: test/smoke
         shell: powershell
         env:
