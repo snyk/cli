@@ -42,7 +42,7 @@ export async function getDepsFromPlugin(
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
-    const targetFiles = await find(
+    const { files: targetFiles } = await find(
       root,
       ignore,
       multiProjectProcessors[scanType].files,

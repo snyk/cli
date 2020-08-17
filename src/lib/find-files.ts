@@ -47,16 +47,20 @@ export async function getStats(path: string): Promise<fs.Stats> {
  * @param filter (optional) file names to find. If not provided all files are returned.
  * @param levelsDeep (optional) how many levels deep to search, defaults to two, this path and one sub directory.
  */
+interface FindFilesRes {
+  files: string[];
+}
+
 export async function find(
   path: string,
   ignore: string[] = [],
   filter: string[] = [],
   levelsDeep = 4,
-): Promise<string[]> {
+): Promise<FindFilesRes> {
   const found: string[] = [];
   // ensure we ignore find against node_modules path.
   if (path.endsWith('node_modules')) {
-    return found;
+    return { files: found };
   }
   // ensure node_modules is always ignored
   if (!ignore.includes('node_modules')) {
@@ -64,13 +68,13 @@ export async function find(
   }
   try {
     if (levelsDeep < 0) {
-      return found;
+      return { files: found };
     } else {
       levelsDeep--;
     }
     const fileStats = await getStats(path);
     if (fileStats.isDirectory()) {
-      const files = await findInDirectory(path, ignore, filter, levelsDeep);
+      const { files } = await findInDirectory(path, ignore, filter, levelsDeep);
       found.push(...files);
     } else if (fileStats.isFile()) {
       const fileFound = findFile(path, filter);
@@ -78,8 +82,7 @@ export async function find(
         found.push(fileFound);
       }
     }
-
-    return filterForDefaultManifests(found);
+    return { files: filterForDefaultManifests(found) };
   } catch (err) {
     throw new Error(`Error finding files in path '${path}'.\n${err.message}`);
   }
@@ -102,7 +105,7 @@ async function findInDirectory(
   ignore: string[] = [],
   filter: string[] = [],
   levelsDeep = 4,
-): Promise<string[]> {
+): Promise<FindFilesRes> {
   const files = await readDirectory(path);
   const toFind = files
     .filter((file) => !ignore.includes(file))
@@ -110,12 +113,18 @@ async function findInDirectory(
       const resolvedPath = pathLib.resolve(path, file);
       if (!fs.existsSync(resolvedPath)) {
         debug('File does not seem to exist, skipping: ', file);
-        return [];
+        return { files: [] };
       }
       return find(resolvedPath, ignore, filter, levelsDeep);
     });
+
   const found = await Promise.all(toFind);
-  return Array.prototype.concat.apply([], found);
+  return {
+    files: Array.prototype.concat.apply(
+      [],
+      found.map((f) => f.files),
+    ),
+  };
 }
 
 function filterForDefaultManifests(files: string[]): string[] {
