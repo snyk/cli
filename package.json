@@ -75,7 +75,7 @@
     "proxy-from-env": "^1.0.0",
     "semver": "^6.0.0",
     "snyk-config": "3.1.0",
-    "snyk-docker-plugin": "3.16.0",
+    "snyk-docker-plugin": "3.17.0",
     "snyk-go-plugin": "1.16.0",
     "snyk-gradle-plugin": "3.5.1",
     "snyk-module": "3.1.0",
