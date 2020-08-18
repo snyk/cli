@@ -8,7 +8,6 @@ interface File {
 
 export interface Files {
   gemfileLock?: File;
-  gemfile?: File;
   gemspec?: File;
 }
 

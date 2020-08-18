@@ -30,12 +30,6 @@ export async function gatherSpecs(root: string, target: string): Promise<Spec> {
     files.gemfileLock = gemfileLock;
   }
 
-  const gemfile = await tryGetSpec(root, path.join(targetDir, 'Gemfile'));
-
-  if (gemfile) {
-    files.gemfile = gemfile;
-  }
-
   return {
     packageName: path.basename(root),
     targetFile: path.join(targetDir, targetName),
