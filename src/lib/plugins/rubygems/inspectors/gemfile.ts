@@ -24,7 +24,7 @@ export async function gatherSpecs(root: string, target: string): Promise<Spec> {
   // if the target is a Gemfile we treat is as the lockfile
   const gemfileLock = await tryGetSpec(
     root,
-    isGemfileLock ? target : path.join(dir, name + '.lock'),
+    isGemfileLock ? target : path.join(target + '.lock'),
   );
 
   if (gemfileLock) {

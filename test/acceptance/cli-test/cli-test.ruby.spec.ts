@@ -77,6 +77,60 @@ export const RubyTests: AcceptanceTests = {
         'depGraph looks fine',
       );
     },
+    '`test ruby-app-custom-names --file=123.gemfile --package-manager=rubygems`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.test('ruby-app-custom-names', {
+        file: '123.gemfile',
+        packageManager: 'rubygems',
+      });
+
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+
+      const depGraph = req.body.depGraph;
+      t.equal(depGraph.pkgManager.name, 'rubygems');
+      t.same(
+        depGraph.pkgs.map((p) => p.id).sort(),
+        [
+          'crass@1.0.4',
+          'lynx@0.4.0',
+          'mini_portile2@2.3.0',
+          'nokogiri@1.8.5',
+          'nokogumbo@1.5.0',
+          'ruby-app-custom-names@',
+          'sanitize@4.6.2',
+          'yard@0.8.0',
+        ].sort(),
+        'depGraph looks fine',
+      );
+    },
+
+    '`test ruby-app-custom-names --file=gemfiles/Gemfile.rails-2.3.6 --package-manager=rubygems`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      try {
+        await params.cli.test('ruby-app-custom-names', {
+          file: 'gemfiles/Gemfile.rails-2.3.6',
+          packageManager: 'rubygems',
+        });
+      } catch (e) {
+        t.match(
+          e.message,
+          'if this is a custom file name re-run with --file=path/to/custom.gemfile.lock --package-manager=rubygems',
+        );
+      }
+    },
 
     '`test ruby-app-custom-names --file=gemfiles/Gemfile.rails-2.4.5.lock --package-manager=rubygems`': (
       params,
