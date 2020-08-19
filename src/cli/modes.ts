@@ -7,6 +7,13 @@ interface ModeData {
 }
 
 const modes: Record<string, ModeData> = {
+  source: {
+    allowedCommands: ['test'],
+    config: (args): [] => {
+      args['source'] = true;
+      return args;
+    },
+  },
   container: {
     allowedCommands: ['test', 'monitor'],
     config: (args): [] => {
