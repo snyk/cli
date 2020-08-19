@@ -53,7 +53,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/cli-interface": "2.8.1",
-    "@snyk/dep-graph": "1.18.3",
+    "@snyk/dep-graph": "1.19.3",
     "@snyk/gemfile": "1.2.0",
     "@snyk/graphlib": "2.1.9-patch",
     "@snyk/inquirer": "6.2.2-patch",
@@ -109,7 +109,7 @@
     "@typescript-eslint/parser": "^2.0.0",
     "eslint": "6.8.0",
     "eslint-config-prettier": "^6.1.0",
-    "madge": "^3.4.4",
+    "madge": "3.4.4",
     "nock": "^10.0.6",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.18.2",
