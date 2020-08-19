@@ -48,5 +48,5 @@ async function gatherSpecs(root, targetFile): Promise<Spec> {
     }
   }
 
-  throw new Error(`Could not handle file: ${targetFile}`);
+  throw new Error(`Could not handle rubygems file: ${targetFile}`);
 }
