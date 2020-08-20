@@ -3,7 +3,7 @@ import * as pathLib from 'path';
 import * as _ from '@snyk/lodash';
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
-const debug = debugModule('snyk');
+const debug = debugModule('snyk:find-files');
 
 // TODO: use util.promisify once we move to node 8
 
@@ -78,6 +78,7 @@ export async function find(
         found.push(fileFound);
       }
     }
+
     return filterForDefaultManifests(found);
   } catch (err) {
     throw new Error(`Error finding files in path '${path}'.\n${err.message}`);
@@ -107,6 +108,10 @@ async function findInDirectory(
     .filter((file) => !ignore.includes(file))
     .map((file) => {
       const resolvedPath = pathLib.resolve(path, file);
+      if (!fs.existsSync(resolvedPath)) {
+        debug('File does not seem to exist, skipping: ', file);
+        return [];
+      }
       return find(resolvedPath, ignore, filter, levelsDeep);
     });
   const found = await Promise.all(toFind);
@@ -124,6 +129,7 @@ function filterForDefaultManifests(files: string[]): string[] {
 
   const foundFiles = _(files)
     .filter(Boolean)
+    .filter((p) => fs.existsSync(p))
     .map((p) => ({
       path: p,
       ...pathLib.parse(p),
@@ -136,6 +142,7 @@ function filterForDefaultManifests(files: string[]): string[] {
   for (const directory of Object.keys(foundFiles)) {
     const filesInDirectory = foundFiles[directory];
     const groupedFiles = _(filesInDirectory)
+      .filter((p) => !!p.packageManager)
       .groupBy('packageManager')
       .value();
 
@@ -217,52 +224,54 @@ function chooseBestManifest(
       const lockFile = files.filter((path) =>
         ['package-lock.json', 'yarn.lock'].includes(path.base),
       )[0];
+      debug(
+        `Encountered multiple node lockfiles files, defaulting to ${lockFile.path}`,
+      );
       if (lockFile) {
-        debug(
-          'Encountered multiple npm manifest files, defaulting to package-lock.json / yarn.lock',
-        );
         return lockFile.path;
       }
       const packageJson = files.filter((path) =>
         ['package.json'].includes(path.base),
       )[0];
       debug(
-        'Encountered multiple npm manifest files, defaulting to package.json',
+        `Encountered multiple npm manifest files, defaulting to ${packageJson.path}`,
       );
       return packageJson.path;
     }
     case 'rubygems': {
-      debug(
-        'Encountered multiple gem manifest files, defaulting to Gemfile.lock',
-      );
       const defaultManifest = files.filter((path) =>
         ['Gemfile.lock'].includes(path.base),
       )[0];
+      debug(
+        `Encountered multiple gem manifest files, defaulting to ${defaultManifest.path}`,
+      );
       return defaultManifest.path;
     }
     case 'cocoapods': {
-      debug(
-        'Encountered multiple cocoapods manifest files, defaulting to Podfile',
-      );
       const defaultManifest = files.filter((path) =>
         ['Podfile'].includes(path.base),
       )[0];
+      debug(
+        `Encountered multiple cocoapods manifest files, defaulting to ${defaultManifest.path}`,
+      );
       return defaultManifest.path;
     }
     case 'pip': {
-      debug('Encountered multiple pip manifest files, defaulting to Pipfile');
       const defaultManifest = files.filter((path) =>
         ['Pipfile'].includes(path.base),
       )[0];
+      debug(
+        `Encountered multiple pip manifest files, defaulting to ${defaultManifest.path}`,
+      );
       return defaultManifest.path;
     }
     case 'gradle': {
-      debug(
-        'Encountered multiple gradle manifest files, defaulting to build.gradle',
-      );
       const defaultManifest = files.filter((path) =>
         ['build.gradle'].includes(path.base),
       )[0];
+      debug(
+        `Encountered multiple gradle manifest files, defaulting to ${defaultManifest.path}`,
+      );
       return defaultManifest.path;
     }
     default: {
