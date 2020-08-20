@@ -12,7 +12,6 @@ Options:
 
   -h, --help
   --json .................................. Return results in JSON format.
-  --project-name=<string> ................. Specify a custom Snyk project name.
   --severity-threshold=<low|medium|high>... Only report issues of provided level or higher.
 
 Examples:
