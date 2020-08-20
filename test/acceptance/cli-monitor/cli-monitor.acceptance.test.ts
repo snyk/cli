@@ -240,7 +240,7 @@ if (!isWindows) {
     chdirWorkspaces();
 
     await cli.monitor('npm-package-pruneable', {
-      'prune-repeated-subdependencies': true,
+      pruneRepeatedSubdependencies: true,
     });
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -271,7 +271,7 @@ if (!isWindows) {
     chdirWorkspaces();
 
     await cli.monitor('npm-package-pruneable', {
-      'prune-repeated-subdependencies': true,
+      pruneRepeatedSubdependencies: true,
       'experimental-dep-graph': true,
     });
     const req = server.popRequest();

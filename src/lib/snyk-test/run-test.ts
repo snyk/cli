@@ -521,7 +521,7 @@ async function assembleLocalPayloads(
           });
         }
 
-        const pruneIsRequired = options['prune-repeated-subdependencies'];
+        const pruneIsRequired = options.pruneRepeatedSubdependencies;
 
         if (packageManager) {
           depGraph = await pruneGraph(

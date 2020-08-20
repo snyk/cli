@@ -304,7 +304,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     'policy-path': options['policy-path'],
     'project-name': options['project-name'] || config.PROJECT_NAME,
     isDocker: !!options.docker,
-    prune: !!options['prune-repeated-subdependencies'],
+    prune: !!options.pruneRepeatedSubdependencies,
     'experimental-dep-graph': !!options['experimental-dep-graph'],
     'remote-repo-url': options['remote-repo-url'],
   };

@@ -15,7 +15,7 @@ export type ShowVulnPaths = 'none' | 'some' | 'all';
 export interface TestOptions {
   traverseNodeModules: boolean;
   interactive: boolean;
-  'prune-repeated-subdependencies'?: boolean;
+  pruneRepeatedSubdependencies?: boolean;
   showVulnPaths: ShowVulnPaths;
   failOn?: FailOn;
   reachableVulns?: boolean;
@@ -88,7 +88,7 @@ export interface MonitorOptions {
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
-  'prune-repeated-subdependencies'?: boolean;
+  pruneRepeatedSubdependencies?: boolean;
   // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
