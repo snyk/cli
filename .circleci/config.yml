@@ -87,7 +87,7 @@ commands:
           command: npm --version
 
 jobs:
-  smoke-test:
+  regression-test:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
@@ -129,16 +129,6 @@ jobs:
             unset SNYK_API
             unset SNYK_API_KEY
             shellspec -f d
-
-  danger:
-    <<: *defaults
-    docker:
-      - image: circleci/node:<< parameters.node_version >>
-    steps:
-      - checkout
-      - run:
-          name: Danger Zone
-          command: npx danger ci --failOnErrors
 
   test-windows:
     <<: *defaults
@@ -206,19 +196,10 @@ workflows:
   version: 2
   test_and_release:
     jobs:
-      - danger:
-          name: Danger Zone
-          node_version: '8'
-          filters:
-            branches:
-              ignore:
-                - master
-      - smoke-test:
-          name: Smoke Test
+      - regression-test:
+          name: Regression Test
           context: nodejs-install
           node_version: '8'
-          requires:
-            - Danger Zone
           filters:
             branches:
               ignore:
@@ -228,7 +209,7 @@ workflows:
           context: nodejs-install
           node_version: '12.0.0'
           requires:
-            - Smoke Test
+            - Regression Test
           filters:
             branches:
               ignore:
@@ -238,7 +219,7 @@ workflows:
           context: nodejs-install
           node_version: '14'
           requires:
-            - Smoke Test
+            - Regression Test
           filters:
             branches:
               ignore:
@@ -248,7 +229,7 @@ workflows:
           context: nodejs-install
           node_version: '10.21.0'
           requires:
-            - Smoke Test
+            - Regression Test
           filters:
             branches:
               ignore:
@@ -258,7 +239,7 @@ workflows:
           context: nodejs-install
           node_version: '8.17.0'
           requires:
-            - Smoke Test
+            - Regression Test
           filters:
             branches:
               ignore:
@@ -268,7 +249,7 @@ workflows:
           context: nodejs-install
           node_version: '12.16.2'
           requires:
-            - Smoke Test
+            - Regression Test
           filters:
             branches:
               ignore:
@@ -278,7 +259,7 @@ workflows:
           context: nodejs-install
           node_version: '14'
           requires:
-            - Smoke Test
+            - Regression Test
           filters:
             branches:
               ignore:
@@ -288,7 +269,7 @@ workflows:
           context: nodejs-install
           node_version: '10'
           requires:
-            - Smoke Test
+            - Regression Test
           filters:
             branches:
               ignore:
@@ -298,7 +279,7 @@ workflows:
           context: nodejs-install
           node_version: '8'
           requires:
-            - Smoke Test
+            - Regression Test
           filters:
             branches:
               ignore:
