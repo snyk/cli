@@ -109,12 +109,16 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
 
   const ecosystem = getEcosystem(options);
   if (ecosystem) {
-    const commandResult = await testEcosystem(
-      ecosystem,
-      args as string[],
-      options,
-    );
-    return commandResult;
+    try {
+      const commandResult = await testEcosystem(
+        ecosystem,
+        args as string[],
+        options,
+      );
+      return commandResult;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   // Promise waterfall to test all other paths sequentially
@@ -141,6 +145,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
       //
       // To standardise this, make sure we use the best _object_ to
       // describe the error.
+
       if (error instanceof Error) {
         res = error;
       } else if (typeof error !== 'object') {
