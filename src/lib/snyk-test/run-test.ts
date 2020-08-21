@@ -57,7 +57,7 @@ import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
 import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
 import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
-import { CallGraphError } from '@snyk/cli-interface/legacy/common';
+import { CallGraph, CallGraphError } from '@snyk/cli-interface/legacy/common';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
 import { getDockerToken } from '../api-token';
@@ -65,6 +65,9 @@ import { getDockerToken } from '../api-token';
 const debug = debugModule('snyk');
 
 const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
+
+const CALL_GRAPH_GENERIC_ERROR_MESSAGE =
+  'Failed to scan the project for reachable vulnerabilities. Please run the command again passing -d to get more details.';
 
 async function sendAndParseResults(
   payloads: Payload[],
@@ -533,47 +536,63 @@ async function assembleLocalPayloads(
         body.depGraph = depGraph;
       }
 
-      if (
-        options.reachableVulns &&
-        (scannedProject.callGraph as CallGraphError).message
-      ) {
-        const err = scannedProject.callGraph as CallGraphError;
-        const analyticsError = err.innerError || err;
-        analytics.add('callGraphError', {
-          errorType: analyticsError.constructor?.name,
-          message: abridgeErrorMessage(
-            analyticsError.message.toString(),
-            ANALYTICS_PAYLOAD_MAX_LENGTH,
-          ),
-        });
-        alerts.registerAlerts([
-          {
-            type: 'error',
-            name: 'missing-call-graph',
-            msg: err.message,
-          },
-        ]);
-      } else if (scannedProject.callGraph) {
-        const {
-          callGraph,
-          nodeCount,
-          edgeCount,
-        } = serializeCallGraphWithMetrics(scannedProject.callGraph);
-        debug(
-          `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
-        );
+      if (options.reachableVulns) {
+        if ((scannedProject.callGraph as CallGraph).isDirected) {
+          const {
+            callGraph,
+            nodeCount,
+            edgeCount,
+          } = serializeCallGraphWithMetrics(scannedProject.callGraph);
+          debug(
+            `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
+          );
 
-        const callGraphMetrics = _.get(
-          deps.plugin,
-          'meta.callGraphMetrics',
-          {},
-        );
-        analytics.add('callGraphMetrics', {
-          callGraphEdgeCount: edgeCount,
-          callGraphNodeCount: nodeCount,
-          ...callGraphMetrics,
-        });
-        body.callGraph = callGraph;
+          const callGraphMetrics = _.get(
+            deps.plugin,
+            'meta.callGraphMetrics',
+            {},
+          );
+          analytics.add('callGraphMetrics', {
+            callGraphEdgeCount: edgeCount,
+            callGraphNodeCount: nodeCount,
+            ...callGraphMetrics,
+          });
+          body.callGraph = callGraph;
+        } else if (
+          (scannedProject?.callGraph as CallGraphError).message ||
+          (scannedProject?.callGraph as CallGraphError).innerError
+        ) {
+          const err = scannedProject.callGraph as CallGraphError;
+          const analyticsError = err.innerError || err;
+          analytics.add('callGraphError', {
+            errorType: analyticsError.constructor?.name,
+            message: abridgeErrorMessage(
+              analyticsError.message.toString(),
+              ANALYTICS_PAYLOAD_MAX_LENGTH,
+            ),
+          });
+          alerts.registerAlerts([
+            {
+              type: 'error',
+              name: 'missing-call-graph',
+              msg: err.message || CALL_GRAPH_GENERIC_ERROR_MESSAGE,
+            },
+          ]);
+        } else {
+          debug(
+            'The call graph for the project is neither a valid call graph object, nor a call graph error.',
+            {
+              callGraph: scannedProject.callGraph,
+            },
+          );
+          alerts.registerAlerts([
+            {
+              type: 'error',
+              name: 'missing-call-graph',
+              msg: CALL_GRAPH_GENERIC_ERROR_MESSAGE,
+            },
+          ]);
+        }
       }
       const reqUrl =
         config.API +
