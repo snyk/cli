@@ -1,6 +1,7 @@
 import * as sinon from 'sinon';
 
 import { AcceptanceTests } from './cli-test.acceptance.test';
+const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
 
 export const YarnWorkspacesTests: AcceptanceTests = {
   language: 'Yarn',
@@ -217,10 +218,61 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       });
       t.equal(policyCount, 2, '2 policies found in a workspace');
     },
+    'test --yarn-workspaces --detection-depth=5 --strict-out-of-sync=false (yarn v2)': (
+      params,
+      utils,
+    ) => async (t) => {
+      // Yarn workspaces for Yarn 2 is only supported on Node 10+
+      if (nodeVersion < 10) {
+        return t.skip();
+      }
+      utils.chdirWorkspaces();
+      const result = await params.cli.test('yarn-workspaces-v2', {
+        yarnWorkspaces: true,
+        detectionDepth: 5,
+        strictOutOfSync: false,
+      });
+      const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      // the parser is used directly
+      t.ok(loadPlugin.withArgs('yarn').notCalled, 'skips load plugin');
+      t.teardown(() => {
+        loadPlugin.restore();
+      });
+      t.match(
+        result.getDisplayResults(),
+        '✓ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
+        'correctly showing dep number',
+      );
+      t.match(result.getDisplayResults(), 'Package manager:   yarn\n');
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      package.json',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      tomatoes',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      apples',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Tested 3 projects, no vulnerable paths were found.',
+        'no vulnerable paths found as both policies detected and applied.',
+      );
+    },
     'test --yarn-workspaces --detection-depth=5 multiple workspaces found': (
       params,
       utils,
     ) => async (t) => {
+      // Yarn workspaces for Yarn 2 is only supported on Node 10+
+      if (nodeVersion < 10) {
+        return t.skip();
+      }
       utils.chdirWorkspaces();
       const result = await params.cli.test({
         yarnWorkspaces: true,
@@ -256,8 +308,8 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       );
       t.match(
         result.getDisplayResults(),
-        'Tested 6 projects, no vulnerable paths were found.',
-        'Tested 6 projects',
+        'Tested 9 projects, no vulnerable paths were found.',
+        'Tested 9 projects',
       );
       let policyCount = 0;
       const applesWorkspace =
@@ -273,7 +325,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
           ? '\\yarn-workspaces\\package.json'
           : 'yarn-workspaces/package.json';
 
-      params.server.popRequests(3).forEach((req) => {
+      params.server.popRequests(6).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
@@ -309,7 +361,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
           'depGraph has package manager',
         );
       });
-      t.equal(policyCount, 2, '2 policies found in a workspace');
+      t.equal(policyCount, 3, '3 policies found in a workspace');
     },
   },
 };
