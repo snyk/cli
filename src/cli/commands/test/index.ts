@@ -49,6 +49,7 @@ import {
 import * as utils from './utils';
 import { getIacDisplayedOutput } from './iac-output';
 import { getEcosystem, testEcosystem } from '../../../lib/ecosystems';
+import { TestLimitReachedError } from '../../../lib/errors';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -100,6 +101,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   } catch (err) {
     if (options.docker && getDockerToken()) {
       options.testDepGraphDockerEndpoint = '/docker-jwt/test-dep-graph';
+      options.isDockerUser = true;
     } else {
       throw err;
     }
@@ -274,6 +276,13 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     // first one
     error.code = errorResults[0].code;
     error.userMessage = errorResults[0].userMessage;
+    if (
+      error.userMessage === TestLimitReachedError().userMessage &&
+      options.isDockerUser
+    ) {
+      error.userMessage =
+        'You have reached your scan limit. Sign up to Snyk for additional free scans https://dockr.ly/3ePqVcp';
+    }
     throw error;
   }
 
@@ -472,13 +481,17 @@ function displayResult(
     )
       ? '\n\nTip: Snyk only tests production dependencies by default. You can try re-running with the `--dev` flag.'
       : '';
+
+    const dockerCTA = dockerUserCTA(options);
     return (
       prefix +
       meta +
       '\n\n' +
       summaryOKText +
       multiProjAdvice +
-      (isCI() ? '' : dockerAdvice + nextStepsText + snykPackageTestTip)
+      (isCI()
+        ? ''
+        : dockerAdvice + nextStepsText + snykPackageTestTip + dockerCTA)
     );
   }
 
@@ -562,23 +575,7 @@ function getDisplayedOutput(
       '\n\nRun `snyk wizard` to address these issues.',
     );
   }
-  let dockerSuggestion = '';
-  if (options.docker && config.disableSuggestions !== 'true') {
-    const optOutSuggestions =
-      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`';
-    if (!options.file) {
-      dockerSuggestion +=
-        chalk.bold.white(
-          '\n\nPro tip: use `--file` option to get base image remediation advice.' +
-            `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`,
-        ) + optOutSuggestions;
-    } else if (!options['exclude-base-image-vulns']) {
-      dockerSuggestion +=
-        chalk.bold.white(
-          '\n\nPro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.',
-        ) + optOutSuggestions;
-    }
-  }
+  const dockerSuggestion = getDockerSuggestionText(options, config);
 
   const vulns = res.vulnerabilities || [];
   const groupedVulns: GroupedVuln[] = groupVulnerabilities(vulns);
@@ -632,13 +629,15 @@ function getDisplayedOutput(
   }
 
   const ignoredIssues = '';
+  const dockerCTA = dockerUserCTA(options);
   return (
     prefix +
     body +
     multiProjAdvice +
     ignoredIssues +
     dockerAdvice +
-    dockerSuggestion
+    dockerSuggestion +
+    dockerCTA
   );
 }
 
@@ -707,4 +706,36 @@ function metadataForVuln(vuln): VulnMetaData {
     version: vuln.version,
     packageManager: vuln.packageManager,
   };
+}
+
+function getDockerSuggestionText(options, config): string {
+  if (!options.docker || options.isDockerUser) {
+    return '';
+  }
+
+  let dockerSuggestion = '';
+  if (config && config.disableSuggestions !== 'true') {
+    const optOutSuggestions =
+      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`';
+    if (!options.file) {
+      dockerSuggestion +=
+        chalk.bold.white(
+          '\n\nPro tip: use `--file` option to get base image remediation advice.' +
+            `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`,
+        ) + optOutSuggestions;
+    } else if (!options['exclude-base-image-vulns']) {
+      dockerSuggestion +=
+        chalk.bold.white(
+          '\n\nPro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.',
+        ) + optOutSuggestions;
+    }
+  }
+  return dockerSuggestion;
+}
+
+function dockerUserCTA(options) {
+  if (options.isDockerUser) {
+    return '\n\nFor more free scans that keep your images secure, sign up to Snyk at https://dockr.ly/3ePqVcp';
+  }
+  return '';
 }
