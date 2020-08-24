@@ -22,6 +22,7 @@ export interface TestOptions {
   reachableVulnsTimeout?: number;
   yarnWorkspaces?: boolean;
   testDepGraphDockerEndpoint?: string | null;
+  isDockerUser?: boolean;
 }
 
 export interface WizardOptions {

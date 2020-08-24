@@ -120,6 +120,94 @@ test('`snyk test` without docker flag - docker token and no api key', async (t) 
   }
 });
 
+test('`snyk test` with docker flag - displays CTA', async (t) => {
+  stubDockerPluginResponse(
+    plugins,
+    {
+      plugin: {
+        packageManager: 'deb',
+      },
+      package: {
+        name: 'docker-image',
+        dependencies: {
+          'apt/libapt-pkg5.0': {
+            version: '1.6.3ubuntu0.1',
+            dependencies: {
+              'bzip2/libbz2-1.0': {
+                version: '1.0.6-8.1',
+              },
+            },
+          },
+          'bzip2/libbz2-1.0': {
+            version: '1.0.6-8.1',
+          },
+        },
+      },
+    },
+    t,
+  );
+  const vulns = require('./fixtures/docker/find-result.json');
+  server.setNextResponse(vulns);
+
+  try {
+    await cli.test('foo:latest', {
+      docker: true,
+    });
+  } catch (err) {
+    const msg = err.message;
+    t.match(
+      msg,
+      'For more free scans that keep your images secure, sign up to Snyk at https://dockr.ly/3ePqVcp',
+      'displays docker CTA for scan with vulns',
+    );
+  }
+});
+
+test('`snyk test` with docker flag - does not display CTA', async (t) => {
+  stubDockerPluginResponse(
+    plugins,
+    {
+      plugin: {
+        packageManager: 'deb',
+      },
+      package: {
+        name: 'docker-image',
+        dependencies: {
+          'apt/libapt-pkg5.0': {
+            version: '1.6.3ubuntu0.1',
+            dependencies: {
+              'bzip2/libbz2-1.0': {
+                version: '1.0.6-8.1',
+              },
+            },
+          },
+          'bzip2/libbz2-1.0': {
+            version: '1.0.6-8.1',
+          },
+        },
+      },
+    },
+    t,
+  );
+  const vulns = require('./fixtures/docker/find-result.json');
+  server.setNextResponse(vulns);
+  await cli.config('set', 'api=' + apiKey);
+  try {
+    await cli.test('foo:latest', {
+      docker: true,
+    });
+  } catch (err) {
+    const msg = err.message;
+    t.notMatch(
+      msg,
+      'For more free scans that keep your images secure, sign up to Snyk at https://dockr.ly/3ePqVcp',
+      'does not display docker CTA if API key was used',
+    );
+  }
+  await cli.config('unset', 'api');
+  t.end();
+});
+
 test('teardown', async (t) => {
   t.plan(4);
 
