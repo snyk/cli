@@ -50,6 +50,7 @@ import * as utils from './utils';
 import { getIacDisplayedOutput } from './iac-output';
 import { getEcosystem, testEcosystem } from '../../../lib/ecosystems';
 import { TestLimitReachedError } from '../../../lib/errors';
+import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -449,8 +450,7 @@ function displayResult(
   }
   const advertiseAllProjectsCount =
     projectType !== 'gradle' &&
-    !options.allProjects &&
-    !options.yarnWorkspaces &&
+    !isMultiProjectScan(options) &&
     foundProjectCount;
   if (advertiseAllProjectsCount) {
     multiProjAdvice = chalk.bold.white(
