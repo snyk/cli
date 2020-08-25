@@ -320,25 +320,21 @@ if (module.parent) {
 function validateUnsupportedOptionCombinations(
   options: AllSupportedCliOptions,
 ): void {
-  const unsupportedAllProjectsCombinations: {
+  const unsupportedMultiScanCombinations: {
     [name: string]: SupportedUserReachableFacingCliArgs;
   } = {
     'project-name': 'project-name',
     file: 'file',
-    yarnWorkspaces: 'yarn-workspaces',
     packageManager: 'package-manager',
     docker: 'docker',
     allSubProjects: 'all-sub-projects',
   };
 
-  const unsupportedYarnWorkspacesCombinations: {
+  const unsupportedAllProjectsCombinations: {
     [name: string]: SupportedUserReachableFacingCliArgs;
   } = {
-    'project-name': 'project-name',
-    file: 'file',
-    packageManager: 'package-manager',
-    docker: 'docker',
-    allSubProjects: 'all-sub-projects',
+    yarnWorkspaces: 'yarn-workspaces',
+    ...unsupportedMultiScanCombinations,
   };
 
   if (options.scanAllUnmanaged && options.file) {
@@ -357,7 +353,7 @@ function validateUnsupportedOptionCombinations(
   }
 
   if (options.yarnWorkspaces) {
-    for (const option in unsupportedYarnWorkspacesCombinations) {
+    for (const option in unsupportedMultiScanCombinations) {
       if (options[option]) {
         throw new UnsupportedOptionCombinationError([
           unsupportedAllProjectsCombinations[option],
