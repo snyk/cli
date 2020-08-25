@@ -29,3 +29,5 @@ export interface Plugin {
     options?: Options,
   ) => Promise<InspectResult>;
 }
+
+export type MultiScanType = 'allProjects' | 'yarnWorkspaces';

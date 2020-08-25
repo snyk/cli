@@ -16,13 +16,13 @@ import {
 import analytics = require('../analytics');
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
-import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
+import { processNodePackages } from './nodejs-plugin/node-packages-parser';
 
 const debug = debugModule('snyk-test');
 
 const multiProjectProcessors = {
   yarnWorkspaces: {
-    handler: processYarnWorkspaces,
+    handler: processNodePackages,
     files: ['package.json'],
   },
   allProjects: {
@@ -61,6 +61,7 @@ export async function getDepsFromPlugin(
       root,
       options,
       targetFiles,
+      scanType,
     );
     const analyticData = {
       scannedProjects: inspectRes.scannedProjects.length,

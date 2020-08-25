@@ -13,6 +13,7 @@ import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-m
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 import { FailedToRunTestError } from '../errors';
+import { MultiScanType } from './types';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -37,9 +38,11 @@ export async function getMultiPluginResult(
   root: string,
   options: Options & (TestOptions | MonitorOptions),
   targetFiles: string[],
+  type: MultiScanType,
 ): Promise<MultiProjectResultCustom> {
   const allResults: ScannedProjectCustom[] = [];
   const failedResults: FailedProjectScanError[] = [];
+  debug(`Processing ${targetFiles.length} manifests (${type}`);
 
   for (const targetFile of targetFiles) {
     const optionsClone = _.cloneDeep(options);
