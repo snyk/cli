@@ -533,10 +533,7 @@ async function assembleLocalPayloads(
         body.depGraph = depGraph;
       }
 
-      if (
-        options.reachableVulns &&
-        (scannedProject.callGraph as CallGraphError).message
-      ) {
+      if (options.reachableVulns && scannedProject.callGraph?.message) {
         const err = scannedProject.callGraph as CallGraphError;
         const analyticsError = err.innerError || err;
         analytics.add('callGraphError', {
