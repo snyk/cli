@@ -6,7 +6,7 @@ export function NotSupportedIacFileError(atLocations: string[]) {
   const errorMsg =
     'Not supported infrastructure as code target files in ' +
     locationsStr +
-    '.\nPlease see our documentation for supported target files: ' +
+    '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
     chalk.underline(
       'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
     ) +
@@ -23,7 +23,7 @@ export function IllegalIacFileError(atLocations: string[]): CustomError {
   const errorMsg =
     'Illegal infrastructure as code target file ' +
     locationsStr +
-    '.\nPlease see our documentation for supported target files: ' +
+    '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
     chalk.underline(
       'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
     ) +

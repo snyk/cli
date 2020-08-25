@@ -2,7 +2,7 @@ Usage:
 
   $ snyk iac [command] [options] <path>
 
-Find security issues in your Infrastructure as Code files.
+Find security issues in your Infrastructure as Code files (currently we support Kubernetes files only).
 
 Commands:
 
