@@ -47,7 +47,7 @@ function executeTest(root, options) {
         // Return only one result if only one found as this is the default usecase
         return results[0];
       }
-      // For gradle, yarnWorkspaces, allProjects we may be returning more than one result
+      // For gradle, yarnWorkspaces, allProjects, lernaPackages we may be returning more than one result
       return results;
     });
   } catch (error) {

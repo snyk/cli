@@ -30,4 +30,4 @@ export interface Plugin {
   ) => Promise<InspectResult>;
 }
 
-export type MultiScanType = 'allProjects' | 'yarnWorkspaces';
+export type MultiScanType = 'allProjects' | 'yarnWorkspaces' | 'lernaPackages';

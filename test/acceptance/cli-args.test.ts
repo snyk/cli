@@ -255,7 +255,7 @@ test('`test --exclude without --all-project displays error message`', (t) => {
     }
     t.equals(
       stdout.trim(),
-      'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
+      'The --exclude option can only be use in combination with --all-projects or --lerna-packages or --yarn-workspaces.',
     );
   });
 });

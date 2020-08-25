@@ -21,6 +21,7 @@ export interface TestOptions {
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
   yarnWorkspaces?: boolean;
+  lernaPackages?: boolean;
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
 }
@@ -97,6 +98,7 @@ export interface MonitorOptions {
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
   yarnWorkspaces?: boolean;
+  lernaPackages?: boolean;
 }
 
 export interface MonitorMeta {
@@ -162,6 +164,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'fail-on'
   | 'all-projects'
   | 'yarn-workspaces'
+  | 'lerna-packages'
   | 'detection-depth'
   | 'project-name'
   | 'reachable'

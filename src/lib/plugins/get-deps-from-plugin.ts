@@ -17,11 +17,16 @@ import analytics = require('../analytics');
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processNodePackages } from './nodejs-plugin/node-packages-parser';
+import { MultiScanType } from './types';
 
 const debug = debugModule('snyk-test');
 
 const multiProjectProcessors = {
   yarnWorkspaces: {
+    handler: processNodePackages,
+    files: ['package.json'],
+  },
+  lernaPackages: {
     handler: processNodePackages,
     files: ['package.json'],
   },
@@ -39,7 +44,7 @@ export async function getDepsFromPlugin(
   let inspectRes: pluginApi.InspectResult;
 
   if (Object.keys(multiProjectProcessors).some((key) => options[key])) {
-    const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
+    const scanType = determineScanType(options);
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
     const targetFiles = await find(
@@ -105,4 +110,14 @@ export async function getDepsFromPlugin(
     (scannedProject) => scannedProject?.depTree?.name,
   );
   return convertMultiResultToMultiCustom(inspectRes, options.packageManager);
+}
+
+function determineScanType(options): MultiScanType {
+  if (options.yarnWorkspaces) {
+    return 'yarnWorkspaces';
+  }
+  if (options.lernaPackages) {
+    return 'lernaPackages';
+  }
+  return 'allProjects';
 }

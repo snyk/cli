@@ -334,6 +334,7 @@ function validateUnsupportedOptionCombinations(
     [name: string]: SupportedUserReachableFacingCliArgs;
   } = {
     yarnWorkspaces: 'yarn-workspaces',
+    lernaPackages: 'lerna-packages',
     ...unsupportedMultiScanCombinations,
   };
 
@@ -363,11 +364,23 @@ function validateUnsupportedOptionCombinations(
     }
   }
 
+  if (options.lernaPackages) {
+    for (const option in unsupportedMultiScanCombinations) {
+      if (options[option]) {
+        throw new UnsupportedOptionCombinationError([
+          unsupportedAllProjectsCombinations[option],
+          'lerna-packages',
+        ]);
+      }
+    }
+  }
+
   if (options.exclude) {
     if (!(options.allProjects || options.yarnWorkspaces)) {
       throw new OptionMissingErrorError('--exclude', [
         '--yarn-workspaces',
         '--all-projects',
+        '--lerna-packages',
       ]);
     }
     if (typeof options.exclude !== 'string') {

@@ -4,6 +4,7 @@ import * as url from 'url';
 
 import { MonitorResult } from '../../../../lib/types';
 import * as config from '../../../../lib/config';
+import { isMultiProjectScan } from '../../../../lib/is-multi-project-scan';
 
 export function formatMonitorOutput(
   packageManager,
@@ -18,7 +19,9 @@ export function formatMonitorOutput(
     !options['gradle-sub-project'] &&
     !options.allProjects;
   const advertiseAllProjectsCount =
-    packageManager !== 'gradle' && !options.allProjects && foundProjectCount;
+    packageManager !== 'gradle' &&
+    !isMultiProjectScan(options) &&
+    foundProjectCount;
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
   const humanReadableName = projectName
     ? `${res.path} (${projectName})`
