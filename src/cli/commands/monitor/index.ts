@@ -43,6 +43,7 @@ import {
   execShell,
 } from '../../../lib/monitor/dev-count-analysis';
 import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
+import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -120,7 +121,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       validateMonitorPath(path, options.docker);
       let analysisType = 'all';
       let packageManager;
-      if (options.allProjects || options.yarnWorkspaces) {
+      if (isMultiProjectScan(options)) {
         analysisType = 'all';
       } else if (options.docker) {
         analysisType = 'docker';

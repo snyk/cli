@@ -12,6 +12,7 @@ import {
   UnsupportedFeatureFlagError,
 } from './errors';
 import { MonitorOptions, Options, TestOptions } from './types';
+import { isMultiProjectScan } from './is-multi-project-scan';
 
 const featureFlag = 'reachableVulns';
 
@@ -36,8 +37,7 @@ export async function validatePayload(
 ): Promise<boolean> {
   if (
     packageManager &&
-    !options.allProjects &&
-    !options.yarnWorkspaces &&
+    !isMultiProjectScan(options) &&
     !REACHABLE_VULNS_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
   ) {
     throw new FeatureNotSupportedByPackageManagerError(

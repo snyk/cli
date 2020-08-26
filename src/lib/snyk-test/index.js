@@ -9,6 +9,7 @@ const {
   UnsupportedPackageManagerError,
   NotSupportedIacFileError,
 } = require('../errors');
+const { isMultiProjectScan } = require('../is-multi-project-scan');
 
 async function test(root, options, callback) {
   if (typeof options === 'function') {
@@ -69,8 +70,7 @@ function validateProjectType(options, projectType) {
     if (
       !(
         options.docker ||
-        options.allProjects ||
-        options.yarnWorkspaces ||
+        isMultiProjectScan(options) ||
         pm.SUPPORTED_PACKAGE_MANAGER_NAME[projectType]
       )
     ) {
