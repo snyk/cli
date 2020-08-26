@@ -1,6 +1,9 @@
 import { test } from 'tap';
 import { exec } from 'child_process';
-import { sep } from 'path';
+import { sep, join } from 'path';
+import { readFileSync, unlinkSync, rmdirSync, mkdirSync, existsSync } from 'fs';
+import { v4 as uuidv4 } from 'uuid';
+import { UnsupportedOptionCombinationError } from '../../src/lib/errors/unsupported-option-combination-error';
 
 const osName = require('os-name');
 
@@ -343,4 +346,174 @@ test('`test --json-file-output no value produces error message`', (t) => {
   };
 
   optionsToTest.forEach(validate);
+});
+
+test('`test --json-file-output can save JSON output to file while sending human readable output to stdout`', (t) => {
+  t.plan(2);
+
+  exec(
+    `node ${main} test --json-file-output=snyk-direct-json-test-output.json`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.match(stdout, 'Organization:', 'contains human readable output');
+      const outputFileContents = readFileSync(
+        'snyk-direct-json-test-output.json',
+        'utf-8',
+      );
+      unlinkSync('./snyk-direct-json-test-output.json');
+      const jsonObj = JSON.parse(outputFileContents);
+      const okValue = jsonObj.ok as boolean;
+      t.ok(okValue, 'JSON output ok');
+    },
+  );
+});
+
+test('`test --json-file-output produces same JSON output as normal JSON output to stdout`', (t) => {
+  t.plan(1);
+
+  exec(
+    `node ${main} test --json --json-file-output=snyk-direct-json-test-output.json`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      const stdoutJson = stdout;
+      const outputFileContents = readFileSync(
+        'snyk-direct-json-test-output.json',
+        'utf-8',
+      );
+      unlinkSync('./snyk-direct-json-test-output.json');
+      t.equals(stdoutJson, outputFileContents);
+    },
+  );
+});
+
+test('`test --json-file-output can handle a relative path`', (t) => {
+  t.plan(1);
+
+  // if 'test-output' doesn't exist, created it
+  if (!existsSync('test-output')) {
+    mkdirSync('test-output');
+  }
+
+  const tempFolder = uuidv4();
+  const outputPath = `test-output/${tempFolder}/snyk-direct-json-test-output.json`;
+
+  exec(
+    `node ${main} test --json --json-file-output=${outputPath}`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      const stdoutJson = stdout;
+      const outputFileContents = readFileSync(outputPath, 'utf-8');
+      unlinkSync(outputPath);
+      rmdirSync(`test-output/${tempFolder}`);
+      t.equals(stdoutJson, outputFileContents);
+    },
+  );
+});
+
+test(
+  '`test --json-file-output can handle an absolute path`',
+  { skip: iswindows },
+  (t) => {
+    t.plan(1);
+
+    // if 'test-output' doesn't exist, created it
+    if (!existsSync('test-output')) {
+      mkdirSync('test-output');
+    }
+
+    const tempFolder = uuidv4();
+    const outputPath = join(
+      process.cwd(),
+      `test-output/${tempFolder}/snyk-direct-json-test-output.json`,
+    );
+
+    exec(
+      `node ${main} test --json --json-file-output=${outputPath}`,
+      (err, stdout) => {
+        if (err) {
+          throw err;
+        }
+        const stdoutJson = stdout;
+        const outputFileContents = readFileSync(outputPath, 'utf-8');
+        unlinkSync(outputPath);
+        rmdirSync(`test-output/${tempFolder}`);
+        t.equals(stdoutJson, outputFileContents);
+      },
+    );
+  },
+);
+
+test('flags not allowed with --sarif', (t) => {
+  t.plan(1);
+  exec(`node ${main} test --sarif --json`, (err, stdout) => {
+    if (err) {
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
+        .userMessage,
+    );
+  });
+});
+
+test('test --sarif-file-output no value produces error message', (t) => {
+  const optionsToTest = [
+    '--sarif-file-output',
+    '--sarif-file-output=',
+    '--sarif-file-output=""',
+    "--sarif-file-output=''",
+  ];
+
+  t.plan(optionsToTest.length);
+
+  const validate = (sarifFileOutputOption: string) => {
+    const fullCommand = `node ${main} test ${sarifFileOutputOption}`;
+    exec(fullCommand, (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      t.equals(
+        stdout.trim(),
+        'Empty --sarif-file-output argument. Did you mean --file=path/to/output-file.json ?',
+      );
+    });
+  };
+
+  optionsToTest.forEach(validate);
+});
+
+test('`test --json-file-output can be used at the same time as --sarif-file-output`', (t) => {
+  t.plan(3);
+
+  exec(
+    `node ${main} test --json-file-output=snyk-direct-json-test-output.json --sarif-file-output=snyk-direct-sarif-test-output.json`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+
+      const sarifOutput = JSON.parse(
+        readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
+      );
+      const jsonOutput = JSON.parse(
+        readFileSync('snyk-direct-json-test-output.json', 'utf-8'),
+      );
+
+      unlinkSync('./snyk-direct-json-test-output.json');
+      unlinkSync('./snyk-direct-sarif-test-output.json');
+
+      t.match(stdout, 'Organization:', 'contains human readable output');
+
+      t.ok(jsonOutput.ok, 'JSON output OK');
+      t.match(sarifOutput.version, '2.1.0', 'SARIF output OK');
+      t.end();
+    },
+  );
 });

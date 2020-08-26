@@ -9,7 +9,7 @@ import * as runtime from './runtime';
 import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
-import { args as argsLib, Args } from './args';
+import { args as argsLib, Args, ArgsOptions } from './args';
 import { TestCommandResult } from './commands/types';
 import { copy } from './copy';
 import spinner = require('../lib/spinner');
@@ -23,6 +23,7 @@ import {
   OptionMissingErrorError,
   UnsupportedOptionCombinationError,
   ExcludeFlagBadInputError,
+  CustomError,
 } from '../lib/errors';
 import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
@@ -38,6 +39,7 @@ import {
   MonitorOptions,
   SupportedUserReachableFacingCliArgs,
 } from '../lib/types';
+import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -72,15 +74,10 @@ async function runCommand(args: Args) {
 
   // also save the json (in error.json) to file if option is set
   if (args.command === 'test') {
-    const jsonOutputFile = args.options['json-file-output'];
-    if (jsonOutputFile) {
-      const jsonOutputFileStr = jsonOutputFile as string;
-      const fullOutputFilePath = getFullPath(jsonOutputFileStr);
-      saveJsonResultsToFile(
-        stripAnsi((commandResult as TestCommandResult).getJsonResult()),
-        fullOutputFilePath,
-      );
-    }
+    const jsonResults = (commandResult as TestCommandResult).getJsonResult();
+    saveResultsToFile(args.options, 'json', jsonResults);
+    const sarifResults = (commandResult as TestCommandResult).getSarifResult();
+    saveResultsToFile(args.options, 'sarif', sarifResults);
   }
 
   return res;
@@ -127,15 +124,8 @@ async function handleError(args, error) {
     }
   }
 
-  // also save the json (in error.json) to file if `--json-file-output` option is set
-  const jsonOutputFile = args.options['json-file-output'];
-  if (jsonOutputFile && error.jsonStringifiedResults) {
-    const fullOutputFilePath = getFullPath(jsonOutputFile);
-    saveJsonResultsToFile(
-      stripAnsi(error.jsonStringifiedResults),
-      fullOutputFilePath,
-    );
-  }
+  saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
+  saveResultsToFile(args.options, 'sarif', error.jsonStringifiedResults);
 
   const analyticsError = vulnsFound
     ? {
@@ -272,24 +262,10 @@ async function main() {
       throw new FileFlagBadInputError();
     }
 
-    if (args.options['json-file-output'] && args.command !== 'test') {
-      throw new UnsupportedOptionCombinationError([
-        args.command,
-        'json-file-output',
-      ]);
-    }
+    validateUnsupportedSarifCombinations(args);
 
-    const jsonFileOptionSet: boolean = 'json-file-output' in args.options;
-    if (jsonFileOptionSet) {
-      const jsonFileOutputValue = args.options['json-file-output'];
-      if (!jsonFileOutputValue || typeof jsonFileOutputValue !== 'string') {
-        throw new JsonFileOutputBadInputError();
-      }
-      // On Windows, seems like quotes get passed in
-      if (jsonFileOutputValue === "''" || jsonFileOutputValue === '""') {
-        throw new JsonFileOutputBadInputError();
-      }
-    }
+    validateOutputFile(args.options, 'json', new JsonFileOutputBadInputError());
+    validateOutputFile(args.options, 'sarif', new SarifFileOutputEmptyError());
 
     checkPaths(args);
 
@@ -388,5 +364,82 @@ function validateUnsupportedOptionCombinations(
     if (options.exclude.indexOf(pathLib.sep) > -1) {
       throw new ExcludeFlagInvalidInputError();
     }
+  }
+}
+
+function validateUnsupportedSarifCombinations(args) {
+  if (args.options['json-file-output'] && args.command !== 'test') {
+    throw new UnsupportedOptionCombinationError([
+      args.command,
+      'json-file-output',
+    ]);
+  }
+
+  if (args.options['sarif'] && args.command !== 'test') {
+    throw new UnsupportedOptionCombinationError([args.command, 'sarif']);
+  }
+
+  if (args.options['sarif'] && args.options['json']) {
+    throw new UnsupportedOptionCombinationError([
+      args.command,
+      'sarif',
+      'json',
+    ]);
+  }
+
+  if (args.options['sarif-file-output'] && args.command !== 'test') {
+    throw new UnsupportedOptionCombinationError([
+      args.command,
+      'sarif-file-output',
+    ]);
+  }
+
+  if (
+    args.options['sarif'] &&
+    args.options['docker'] &&
+    !args.options['file']
+  ) {
+    throw new OptionMissingErrorError('sarif', ['--file']);
+  }
+
+  if (
+    args.options['sarif-file-output'] &&
+    args.options['docker'] &&
+    !args.options['file']
+  ) {
+    throw new OptionMissingErrorError('sarif-file-output', ['--file']);
+  }
+}
+
+function saveResultsToFile(
+  options: ArgsOptions,
+  outputType: string,
+  jsonResults: string,
+) {
+  const outputFile = options[`${outputType}-file-output`];
+  if (outputFile && jsonResults) {
+    const outputFileStr = outputFile as string;
+    const fullOutputFilePath = getFullPath(outputFileStr);
+    saveJsonResultsToFile(stripAnsi(jsonResults), fullOutputFilePath);
+  }
+}
+
+function validateOutputFile(
+  options: ArgsOptions,
+  outputType: string,
+  error: CustomError,
+) {
+  const fileOutputValue = options[`${outputType}-file-output`];
+
+  if (fileOutputValue === undefined) {
+    return;
+  }
+
+  if (!fileOutputValue || typeof fileOutputValue !== 'string') {
+    throw error;
+  }
+  // On Windows, seems like quotes get passed in
+  if (fileOutputValue === "''" || fileOutputValue === '""') {
+    throw error;
   }
 }

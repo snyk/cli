@@ -1,0 +1,59 @@
+{
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Snyk Container",
+          "rules": [
+            {
+              "id": "SNYK-LINUX-BZIP2-106947",
+              "shortDescription": {
+                "text": "low severity Denial of Service (DoS) vulnerability in bzip2"
+              },
+              "fullDescription": {
+                "text": "(CVE-2016-3189) bzip2/libbz2-1.0@1.0.6-8.1"
+              },
+              "help": {
+                "text": "",
+                "markdown": "## Overview\nUse-after-free vulnerability in bzip2recover in bzip2 1.0.6 allows remote attackers to cause a denial of service (crash) via a crafted bzip2 file, related to block ends set to before the start of the block.\n\n## References\n- [GENTOO](https://security.gentoo.org/glsa/201708-08)\n- [CONFIRM](https://bugzilla.redhat.com/show_bug.cgi?id=1319648)\n- [SECTRACK](http://www.securitytracker.com/id/1036132)\n- [BID](http://www.securityfocus.com/bid/91297)\n- [CONFIRM](http://www.oracle.com/technetwork/topics/security/bulletinjul2016-3090568.html)\n- [MLIST](http://www.openwall.com/lists/oss-security/2016/06/20/1)\n"
+              },
+              "defaultConfiguration": { "level": "warning" },
+              "properties": { "tags": ["security"] }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "SNYK-LINUX-BZIP2-106947",
+          "message": {
+            "text": "This file introduces a vulnerable bzip2 package with a low severity vulnerability."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {},
+                "region": { "startLine": 1 }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "SNYK-LINUX-BZIP2-106947",
+          "message": {
+            "text": "This file introduces a vulnerable bzip2 package with a low severity vulnerability."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {},
+                "region": { "startLine": 1 }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

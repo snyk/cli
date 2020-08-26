@@ -17,15 +17,26 @@ export class CommandResult {
 
 export abstract class TestCommandResult extends CommandResult {
   protected jsonResult = '';
+  protected sarifResult = '';
+
   public getJsonResult(): string {
     return this.jsonResult;
+  }
+
+  public getSarifResult(): string {
+    return this.sarifResult;
   }
 
   public static createHumanReadableTestCommandResult(
     humanReadableResult: string,
     jsonResult: string,
+    sarifResult?: string,
   ): HumanReadableTestCommandResult {
-    return new HumanReadableTestCommandResult(humanReadableResult, jsonResult);
+    return new HumanReadableTestCommandResult(
+      humanReadableResult,
+      jsonResult,
+      sarifResult,
+    );
   }
 
   public static createJsonTestCommandResult(
@@ -37,14 +48,26 @@ export abstract class TestCommandResult extends CommandResult {
 
 class HumanReadableTestCommandResult extends TestCommandResult {
   protected jsonResult = '';
+  protected sarifResult = '';
 
-  constructor(humanReadableResult: string, jsonResult: string) {
+  constructor(
+    humanReadableResult: string,
+    jsonResult: string,
+    sarifResult?: string,
+  ) {
     super(humanReadableResult);
     this.jsonResult = jsonResult;
+    if (sarifResult) {
+      this.sarifResult = sarifResult;
+    }
   }
 
   public getJsonResult(): string {
     return this.jsonResult;
+  }
+
+  public getSarifResult(): string {
+    return this.sarifResult;
   }
 }
 

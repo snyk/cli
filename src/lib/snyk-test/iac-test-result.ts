@@ -13,6 +13,7 @@ export interface AnnotatedIacIssue {
   // Legacy fields from Registry, unused.
   name?: string;
   from?: string[];
+  lineNumber?: number;
 }
 
 type FILTERED_OUT_FIELDS = 'cloudConfigPath' | 'name' | 'from';

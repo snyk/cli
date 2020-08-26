@@ -2,10 +2,13 @@ import * as _ from 'lodash';
 import {
   iacTest,
   iacTestJson,
+  iacTestSarif,
   iacErrorTest,
   iacTestMetaAssertions,
   iacTestJsonAssertions,
+  iacTestSarifAssertions,
   iacTestResponseFixturesByThreshold,
+  iacTestSarifFileOutput,
 } from './cli-test.iac-k8s.utils';
 import { CommandResult } from '../../../src/cli/commands/types';
 
@@ -20,19 +23,6 @@ import { AcceptanceTests } from './cli-test.acceptance.test';
 export const IacK8sTests: AcceptanceTests = {
   language: 'Iac (Kubernetes)',
   tests: {
-    '`iac test multi-file.yaml --json - no issues`': (params, utils) => async (
-      t,
-    ) => {
-      utils.chdirWorkspaces();
-      const commandResult: CommandResult = await params.cli.test(
-        'iac-kubernetes/multi-file.yaml',
-        {
-          iac: true,
-        },
-      );
-      const res: any = JSON.parse((commandResult as any).jsonResult);
-      iacTestJsonAssertions(t, res, null, false);
-    },
     '`iac test multi.yaml - no issues`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
@@ -140,6 +130,23 @@ export const IacK8sTests: AcceptanceTests = {
       utils,
     ) => async (t) => await iacTest(t, utils, params, 'high', 1),
 
+    '`iac test multi-file.yaml --json - no issues`': (params, utils) => async (
+      t,
+    ) => {
+      utils.chdirWorkspaces();
+      let testableObject;
+      try {
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
+          iac: true,
+          json: true,
+        });
+        t.fail('should have thrown');
+      } catch (error) {
+        testableObject = error;
+      }
+      const res: any = JSON.parse(testableObject.message);
+      iacTestJsonAssertions(t, res, null, false);
+    },
     '`iac test multi-file.yaml --severity-threshold=low --json`': (
       params,
       utils,
@@ -154,5 +161,42 @@ export const IacK8sTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => await iacTestJson(t, utils, params, 'high'),
+
+    '`iac test multi-file.yaml --sarif - no issues`': (params, utils) => async (
+      t,
+    ) => {
+      utils.chdirWorkspaces();
+      let testableObject;
+      try {
+        await params.cli.test('iac-kubernetes/multi-file.yaml', {
+          iac: true,
+          sarif: true,
+        });
+        t.fail('should have thrown');
+      } catch (error) {
+        testableObject = error;
+      }
+      const res: any = JSON.parse(testableObject.message);
+      iacTestSarifAssertions(t, res, null, false);
+    },
+    '`iac test multi-file.yaml --severity-threshold=low --sarif`': (
+      params,
+      utils,
+    ) => async (t) => await iacTestSarif(t, utils, params, 'low'),
+
+    '`iac test multi-file.yaml --severity-threshold=medium --sarif`': (
+      params,
+      utils,
+    ) => async (t) => await iacTestSarif(t, utils, params, 'medium'),
+
+    '`iac test multi-file.yaml --severity-threshold=high --sarif`': (
+      params,
+      utils,
+    ) => async (t) => await iacTestSarif(t, utils, params, 'high'),
+
+    '`iac test multi-file.yaml --severity-threshold=high --sarif --sarif-file-output=test.json`': (
+      params,
+      utils,
+    ) => async (t) => await iacTestSarifFileOutput(t, utils, params, 'high'),
   },
 };

@@ -466,6 +466,36 @@ export const DockerTests: AcceptanceTests = {
         t.match(msg, 'Fixed in: 5.15.1');
       }
     },
+
+    '`test --docker --file=Dockerfile --sarif `': (params, utils) => async (
+      t,
+    ) => {
+      const testableObject = await testSarif(t, utils, params, { sarif: true });
+      const results = JSON.parse(testableObject.message);
+      const sarifResults = require('../fixtures/docker/sarif-container-result.json');
+      t.deepEqual(results, sarifResults, 'stdout containing sarif results');
+      t.end();
+    },
+
+    '`test --docker --file=Dockerfile --sarif --sarif-output-file`': (
+      params,
+      utils,
+    ) => async (t) => {
+      const testableObject = await testSarif(t, utils, params, {
+        sarif: true,
+        'sarif-output-file': 'sarif-test-file.json',
+      });
+      const results = JSON.parse(testableObject.message);
+      const sarifStringifiedResults = JSON.parse(
+        testableObject.sarifStringifiedResults,
+      );
+      t.deepEqual(
+        results,
+        sarifStringifiedResults,
+        'stdout and stringified sarif results are the same',
+      );
+      t.end();
+    },
   },
 };
 
@@ -484,4 +514,59 @@ function stubDockerPluginResponse(plugins, fixture: string | object, t) {
   t.teardown(loadPlugin.restore);
 
   return spyPlugin;
+}
+
+async function testSarif(t, utils, params, flags) {
+  stubDockerPluginResponse(
+    params.plugins,
+    {
+      plugin: {
+        packageManager: 'deb',
+      },
+      package: {
+        name: 'docker-image',
+        dependencies: {
+          'apt/libapt-pkg5.0': {
+            version: '1.6.3ubuntu0.1',
+            dependencies: {
+              'bzip2/libbz2-1.0': {
+                version: '1.0.6-8.1',
+              },
+            },
+          },
+          'bzip2/libbz2-1.0': {
+            version: '1.0.6-8.1',
+          },
+          'bzr/libbz2-1.0': {
+            version: '1.0.6-8.1',
+          },
+        },
+        docker: {
+          binaries: {
+            Analysis: [{ name: 'node', version: '5.10.1' }],
+          },
+        },
+      },
+    },
+    t,
+  );
+
+  const testableObject = await testPrep(t, utils, params, flags);
+  return testableObject;
+}
+
+async function testPrep(t, utils, params, additionaLpropsForCli) {
+  utils.chdirWorkspaces();
+  const vulns = require('../fixtures/docker/find-result.json');
+  params.server.setNextResponse(vulns);
+
+  try {
+    await params.cli.test('test alpine', {
+      docker: true,
+      ...additionaLpropsForCli,
+    });
+    t.fail('should have thrown');
+  } catch (testableObject) {
+    return testableObject;
+  }
 }
