@@ -19,9 +19,13 @@ ENV PROJECT_PATH /project
 COPY docker-entrypoint.sh .
 COPY snyk_report.css .
 
+ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
+# This image is currently being used for nuget, composer and ruby
+# If we see a tons of usage, we can split the analytics
+ENV SNYK_INTEGRATION_VERSION npm
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Default command is `snyk test`
 # Override with `docker run ... snyk/snyk-cli <command> <args>`
 CMD ["test"]
-

@@ -22,6 +22,9 @@ ENV PROJECT_PATH /project
 COPY docker-entrypoint.sh .
 COPY snyk_report.css .
 
+ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
+ENV SNYK_INTEGRATION_VERSION docker
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Default command is `snyk test`

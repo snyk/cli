@@ -25,9 +25,11 @@ COPY docker-python-entrypoint.sh .
 COPY docker-entrypoint.sh .
 COPY snyk_report.css .
 
+ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
+ENV SNYK_INTEGRATION_VERSION python-2
+
 ENTRYPOINT ["./docker-python-entrypoint.sh"]
 
 # Default command is `snyk test`
 # Override with `docker run ... snyk/snyk-cli <command> <args>`
 CMD ["test"]
-

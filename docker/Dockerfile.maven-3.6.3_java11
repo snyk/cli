@@ -28,6 +28,9 @@ ENV PROJECT_PATH /project
 ADD docker-entrypoint.sh .
 ADD snyk_report.css .
 
+ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
+ENV SNYK_INTEGRATION_VERSION maven-3.6.3_java11
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
 
 # Default command is `snyk test`
