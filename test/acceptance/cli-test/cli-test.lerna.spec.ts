@@ -3,26 +3,26 @@ import * as sinon from 'sinon';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
 
-export const YarnWorkspacesTests: AcceptanceTests = {
-  language: 'Yarn',
+export const LernaPackagesTests: AcceptanceTests = {
+  language: 'Lerna',
   tests: {
     // yarn lockfile based testing is only supported for node 4+
-    '`test yarn-workspace-out-of-sync --yarn-workspaces` out of sync fails': (
+    '`test yarn-lerna-out-of-sync --lerna-packages` out of sync fails': (
       params,
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
       try {
-        await params.cli.test('yarn-workspace-out-of-sync', {
+        await params.cli.test('yarn-lerna-out-of-sync', {
           dev: true,
-          yarnWorkspaces: true,
+          lernaPackages: true,
           detectionDepth: 3,
         });
         t.fail('Should fail');
       } catch (e) {
         t.equal(
           e.message,
-          '\nTesting yarn-workspace-out-of-sync...\n\n' +
+          '\nTesting yarn-lerna-out-of-sync...\n\n' +
             'Dependency snyk was not found in yarn.lock.' +
             ' Your package.json and yarn.lock are probably out of sync.' +
             ' Please run "yarn install" and try again.',
@@ -30,18 +30,25 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         );
       }
     },
-    '`test yarn-workspace-out-of-sync --yarn-workspaces --strict-out-of-sync=false --dev` passes': (
+    '`test yarn-lerna-out-of-sync --lerna-packages --strict-out-of-sync=false --dev` passes': (
       params,
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const result = await params.cli.test('yarn-workspace-out-of-sync', {
+      const result = await params.cli.test('yarn-lerna-out-of-sync', {
         dev: true,
         strictOutOfSync: false,
-        yarnWorkspaces: true,
+        lernaPackages: true,
       });
       params.server.popRequests(3).forEach((req) => {
         t.ok(req.body.depGraph, 'body contains depGraph');
+        t.true(
+          req.body.depGraph.pkgs
+            .map((p) => p.id)
+            .sort()
+            .includes('ansi-regex@2.1.1'),
+          'contains dev packages',
+        );
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
@@ -72,12 +79,12 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         'yarn project in output',
       );
     },
-    'test --yarn-workspaces --detection-depth=5': (params, utils) => async (
+    'test --lerna-packages --detection-depth=5': (params, utils) => async (
       t,
     ) => {
       utils.chdirWorkspaces();
       const result = await params.cli.test('yarn-workspaces', {
-        yarnWorkspaces: true,
+        lernaPackages: true,
         detectionDepth: 5,
       });
       const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
@@ -88,8 +95,8 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       });
       t.match(
         result.getDisplayResults(),
-        '✓ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
-        'correctly showing dep number',
+        'Tested 3 projects, no vulnerable paths were found.',
+        'correctly showing project number',
       );
       t.match(result.getDisplayResults(), 'Package manager:   yarn\n');
       t.match(
@@ -165,7 +172,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       });
       t.equal(policyCount, 2, '2 policies found in a workspace');
     },
-    'test --yarn-workspaces --detection-depth=5 --strict-out-of-sync=false (yarn v2)': (
+    'test --lerna-packages --detection-depth=5 --strict-out-of-sync=false (yarn v2)': (
       params,
       utils,
     ) => async (t) => {
@@ -175,7 +182,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       }
       utils.chdirWorkspaces();
       const result = await params.cli.test('yarn-workspaces-v2', {
-        yarnWorkspaces: true,
+        lernaPackages: true,
         detectionDepth: 5,
         strictOutOfSync: false,
       });
@@ -212,7 +219,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         'no vulnerable paths found as both policies detected and applied.',
       );
     },
-    'test --yarn-workspaces --detection-depth=5 multiple workspaces found': (
+    'test --lerna-packages multiple package monorepos found': (
       params,
       utils,
     ) => async (t) => {
@@ -222,7 +229,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       }
       utils.chdirWorkspaces();
       const result = await params.cli.test({
-        yarnWorkspaces: true,
+        lernaPackages: true,
         strictOutOfSync: false,
       });
       const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');

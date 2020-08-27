@@ -28,8 +28,9 @@ import { YarnTests } from './cli-test.yarn.spec';
 import { IacK8sTests } from './cli-test.iac-k8s.spec';
 import { YarnWorkspacesTests } from './cli-test.yarn-workspaces.spec';
 import { AllProjectsTests } from './cli-test.all-projects.spec';
+import { LernaPackagesTests } from './cli-test.lerna.spec';
 
-const languageTests: AcceptanceTests[] = [
+const ProjectTypeTests: AcceptanceTests[] = [
   CocoapodsTests,
   ComposerTests,
   DockerTests,
@@ -44,6 +45,7 @@ const languageTests: AcceptanceTests[] = [
   YarnTests,
   IacK8sTests,
   YarnWorkspacesTests,
+  LernaPackagesTests,
 ];
 
 const { test, only } = tap;
@@ -135,7 +137,7 @@ if (!isWindows) {
   });
 
   test('Languages', async (t) => {
-    for (const languageTest of languageTests) {
+    for (const languageTest of ProjectTypeTests) {
       t.test(languageTest.language, async (tt) => {
         for (const testName of Object.keys(languageTest.tests)) {
           tt.test(

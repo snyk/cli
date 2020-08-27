@@ -1,0 +1,19 @@
+{
+  "resolutions": {
+    "node-fetch": "^2.3.0"
+  },
+  "engines": {
+    "node": "^8.11.1 || ^10.11.0",
+    "yarn": "1.10.1"
+  },
+  "devDependencies": {
+    "lerna": "^3.22.1",
+    "wsrun": "^3.6.2"
+  },
+  "dependencies": {
+    "ansi-regex": "^2.0.0",
+    "node-fetch": "^2.3.0",
+    "snyk": "1.320.0"
+  },
+  "name": "npm-lerna"
+}
