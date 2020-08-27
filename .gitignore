@@ -3,7 +3,7 @@ config.local.json
 /node_modules/
 local.log
 /patches/
-/dist
+**/dist
 tmp
 .DS_Store
 /package-lock.json

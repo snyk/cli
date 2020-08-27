@@ -39,6 +39,11 @@ export async function getStats(path: string): Promise<fs.Stats> {
   });
 }
 
+interface FindFilesRes {
+  files: string[];
+  allFilesFound: string[];
+}
+
 /**
  * Find all files in given search path. Returns paths to files found.
  *
@@ -47,10 +52,6 @@ export async function getStats(path: string): Promise<fs.Stats> {
  * @param filter (optional) file names to find. If not provided all files are returned.
  * @param levelsDeep (optional) how many levels deep to search, defaults to two, this path and one sub directory.
  */
-interface FindFilesRes {
-  files: string[];
-}
-
 export async function find(
   path: string,
   ignore: string[] = [],
@@ -58,9 +59,11 @@ export async function find(
   levelsDeep = 4,
 ): Promise<FindFilesRes> {
   const found: string[] = [];
+  const foundAll: string[] = [];
+
   // ensure we ignore find against node_modules path.
   if (path.endsWith('node_modules')) {
-    return { files: found };
+    return { files: found, allFilesFound: foundAll };
   }
   // ensure node_modules is always ignored
   if (!ignore.includes('node_modules')) {
@@ -68,21 +71,36 @@ export async function find(
   }
   try {
     if (levelsDeep < 0) {
-      return { files: found };
+      return { files: found, allFilesFound: foundAll };
     } else {
       levelsDeep--;
     }
     const fileStats = await getStats(path);
     if (fileStats.isDirectory()) {
-      const { files } = await findInDirectory(path, ignore, filter, levelsDeep);
+      const { files, allFilesFound } = await findInDirectory(
+        path,
+        ignore,
+        filter,
+        levelsDeep,
+      );
       found.push(...files);
+      foundAll.push(...allFilesFound);
     } else if (fileStats.isFile()) {
       const fileFound = findFile(path, filter);
       if (fileFound) {
         found.push(fileFound);
+        foundAll.push(fileFound);
       }
     }
-    return { files: filterForDefaultManifests(found) };
+    const filteredOutFiles = foundAll.filter((f) => !found.includes(f));
+    if (filteredOutFiles.length) {
+      debug(
+        `Filtered out ${filteredOutFiles.length}/${
+          foundAll.length
+        } files: ${foundAll.join(', ')}`,
+      );
+    }
+    return { files: filterForDefaultManifests(found), allFilesFound: foundAll };
   } catch (err) {
     throw new Error(`Error finding files in path '${path}'.\n${err.message}`);
   }
@@ -113,7 +131,7 @@ async function findInDirectory(
       const resolvedPath = pathLib.resolve(path, file);
       if (!fs.existsSync(resolvedPath)) {
         debug('File does not seem to exist, skipping: ', file);
-        return { files: [] };
+        return { files: [], allFilesFound: [] };
       }
       return find(resolvedPath, ignore, filter, levelsDeep);
     });
@@ -123,6 +141,10 @@ async function findInDirectory(
     files: Array.prototype.concat.apply(
       [],
       found.map((f) => f.files),
+    ),
+    allFilesFound: Array.prototype.concat.apply(
+      [],
+      found.map((f) => f.allFilesFound),
     ),
   };
 }

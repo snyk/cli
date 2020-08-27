@@ -6,7 +6,7 @@ const testFixture = path.join(__dirname, 'fixtures', 'find-files');
 
 test('find all files in test fixture', async (t) => {
   // six levels deep to find all
-  const { files: result } = await find(testFixture, [], [], 6);
+  const { files: result, allFilesFound } = await find(testFixture, [], [], 6);
   const expected = [
     path.join(
       testFixture,
@@ -29,8 +29,41 @@ test('find all files in test fixture', async (t) => {
     path.join(testFixture, 'ruby', 'Gemfile.lock'),
     path.join(testFixture, 'yarn', 'yarn.lock'),
   ];
+  const filteredOut = [
+    path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
+    path.join(testFixture, 'README.md'),
+    path.join(testFixture, 'yarn', 'package.json'),
+    path.join(testFixture, 'ruby', 'Gemfile'),
+    path.join(testFixture, 'gradle-kts', 'subproj', 'build.gradle.kts'),
+    path.join(testFixture, 'npm-with-lockfile', 'package.json'),
+    path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
+    path.join(testFixture, 'gradle-and-kotlin', 'build.gradle.kts'),
+    path.join(
+      testFixture,
+      'gradle-multiple',
+      'gradle',
+      'subproject',
+      'build.gradle',
+    ),
+    path.join(
+      testFixture,
+      'gradle-multiple',
+      'gradle-another',
+      'subproject',
+      'build.gradle',
+    ),
+    path.join(testFixture, 'maven', 'test.txt'),
+    path.join(testFixture, 'mvn', 'test.txt'),
+    path.join(testFixture, 'npm', 'test.txt'),
+    path.join(testFixture, 'ruby', 'test.txt'),
+  ];
   t.same(result.length, expected.length, 'should be the same length');
   t.same(result.sort(), expected.sort(), 'should return all files');
+  t.same(
+    allFilesFound.filter((f) => !f.endsWith('broken-symlink')).sort(),
+    [...filteredOut, ...expected].sort(),
+    'should return all unfiltered files',
+  );
 });
 
 test('find all files in test fixture ignoring node_modules', async (t) => {
