@@ -1,120 +1,63 @@
-[
-  {
-    "result": {
-      "affectedPkgs": {},
-      "issuesData": {}
-    },
-    "meta": {
-      "isPrivate": true,
-      "isLicensesEnabled": true,
-      "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.19.0\nignore: {}\npatch: {}\n",
-      "ignoreSettings": null,
-      "org": "snyk",
-      "licensesPolicy": {
-        "severities": {},
-        "orgLicenseRules": {
-          "AGPL-1.0": {
-            "licenseType": "AGPL-1.0",
-            "severity": "high",
-            "instructions": ""
-          },
-          "AGPL-3.0": {
-            "licenseType": "AGPL-3.0",
-            "severity": "high",
-            "instructions": ""
-          },
-          "Artistic-1.0": {
-            "licenseType": "Artistic-1.0",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "Artistic-2.0": {
-            "licenseType": "Artistic-2.0",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "CDDL-1.0": {
-            "licenseType": "CDDL-1.0",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "CPOL-1.02": {
-            "licenseType": "CPOL-1.02",
-            "severity": "high",
-            "instructions": ""
-          },
-          "GPL-2.0": {
-            "licenseType": "GPL-2.0",
-            "severity": "high",
-            "instructions": ""
-          },
-          "GPL-3.0": {
-            "licenseType": "GPL-3.0",
-            "severity": "high",
-            "instructions": ""
-          },
-          "LGPL-2.0": {
-            "licenseType": "LGPL-2.0",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "LGPL-2.1": {
-            "licenseType": "LGPL-2.1",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "LGPL-3.0": {
-            "licenseType": "LGPL-3.0",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "MPL-1.1": {
-            "licenseType": "MPL-1.1",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "MPL-2.0": {
-            "licenseType": "MPL-2.0",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "MS-RL": {
-            "licenseType": "MS-RL",
-            "severity": "medium",
-            "instructions": ""
-          },
-          "SimPL-2.0": {
-            "licenseType": "SimPL-2.0",
-            "severity": "high",
-            "instructions": ""
-          }
-        }
-      }
-    },
-    "depGraph": {
-      "schemaVersion": "1.2.0",
-      "pkgManager": {
-        "name": "cpp"
+{
+  "affectedPkgs": {
+    "add@1.2.3": {
+      "pkg": {
+        "name": "add",
+        "version": "1.2.3"
       },
-      "pkgs": [
-        {
-          "id": "_root@0.0.0",
-          "info": {
-            "name": "_root",
-            "version": "0.0.0"
-          }
+      "issues": {
+        "cpp:add:20161130": {
+          "issueId": "cpp:add:20161130"
         }
-      ],
-      "graph": {
-        "rootNodeId": "root-node",
-        "nodes": [
-          {
-            "nodeId": "root-node",
-            "pkgId": "_root@0.0.0",
-            "deps": []
-          }
-        ]
       }
     }
+  },
+  "issuesData": {
+    "cpp:add:20161130": {
+      "id": "cpp:add:20161130",
+      "severity": "medium",
+      "title": "Cross-site Scripting (XSS)"
+    }
+  },
+  "depGraph": {
+    "schemaVersion": "1.2.0",
+    "pkgManager": {
+      "name": "cpp"
+    },
+    "pkgs": [
+      {
+        "id": "app@1.0.0",
+        "info": {
+          "name": "app",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "add@1.2.3",
+        "info": {
+          "name": "add",
+          "version": "1.2.3"
+        }
+      }
+    ],
+    "graph": {
+      "rootNodeId": "root-node",
+      "nodes": [
+        {
+          "nodeId": "root-node",
+          "pkgId": "app@1.0.0",
+          "deps": [
+            {
+              "nodeId": "add@1.2.3"
+            }
+          ]
+        },
+        {
+          "nodeId": "add@1.2.3",
+          "pkgId": "add@1.2.3",
+          "deps": []
+        }
+      ]
+    }
   }
-]
+}

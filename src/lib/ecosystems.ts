@@ -1,19 +1,18 @@
 import * as cppPlugin from 'snyk-cpp-plugin';
-import { Options } from './types';
-import { TestCommandResult } from '../cli/commands/types';
+import { DepGraphData } from '@snyk/dep-graph';
+import * as snyk from './index';
 import * as config from './config';
 import { isCI } from './is-ci';
-import * as snyk from './';
-import request = require('./request');
-import { DepGraphData } from '@snyk/dep-graph';
-
-interface Artifact {
+import { makeRequest } from './request/promise';
+import { Options } from './types';
+import { TestCommandResult } from '../cli/commands/types';
+export interface Artifact {
   type: string;
   data: any;
   meta: { [key: string]: any };
 }
 
-interface ScanResult {
+export interface ScanResult {
   type: string;
   artifacts: Artifact[];
   meta: {
@@ -21,7 +20,7 @@ interface ScanResult {
   };
 }
 
-interface TestResults {
+export interface TestResult {
   depGraph: DepGraphData;
   affectedPkgs: {
     [pkgId: string]: {
@@ -49,7 +48,7 @@ export interface EcosystemPlugin {
   scan: (options: Options) => Promise<ScanResult[]>;
   display: (
     scanResults: ScanResult[],
-    testResults: TestResults[],
+    testResults: TestResult[],
     errors: string[],
   ) => Promise<string>;
 }
@@ -80,12 +79,10 @@ export async function testEcosystem(
 ): Promise<TestCommandResult> {
   const plugin = getPlugin(ecosystem);
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
-  let scanResults: ScanResult[] = [];
   for (const path of paths) {
     options.path = path;
     const results = await plugin.scan(options);
     scanResultsByPath[path] = results;
-    scanResults = scanResults.concat(results);
   }
 
   const [testResults, errors] = await testDependencies(scanResultsByPath);
@@ -93,6 +90,8 @@ export async function testEcosystem(
   if (options.json) {
     return TestCommandResult.createJsonTestCommandResult(stringifiedData);
   }
+  const emptyResults: ScanResult[] = [];
+  const scanResults = emptyResults.concat(...Object.values(scanResultsByPath));
   const readableResult = await plugin.display(scanResults, testResults, errors);
 
   return TestCommandResult.createHumanReadableTestCommandResult(
@@ -103,8 +102,8 @@ export async function testEcosystem(
 
 export async function testDependencies(scans: {
   [dir: string]: ScanResult[];
-}): Promise<[TestResults[], string[]]> {
-  const results: TestResults[] = [];
+}): Promise<[TestResult[], string[]]> {
+  const results: TestResult[] = [];
   const errors: string[] = [];
   for (const [path, scanResults] of Object.entries(scans)) {
     for (const scanResult of scanResults) {
@@ -117,16 +116,16 @@ export async function testDependencies(scans: {
           authorization: 'token ' + snyk.api,
         },
         body: {
-          type: 'cpp',
+          type: scanResult.type,
           artifacts: scanResult.artifacts,
           meta: {},
         },
       };
       try {
-        const response = await makeRequest(payload);
+        const response = await makeRequest<TestResult>(payload);
         results.push(response);
       } catch (error) {
-        if (error.code !== 200) {
+        if (error.code >= 400 && error.code < 500) {
           throw new Error(error.message);
         }
         errors.push('Could not test dependencies in ' + path);
@@ -134,21 +133,4 @@ export async function testDependencies(scans: {
     }
   }
   return [results, errors];
-}
-
-export async function makeRequest(payload: any): Promise<TestResults> {
-  return new Promise((resolve, reject) => {
-    request(payload, (error, res, body) => {
-      if (error) {
-        return reject(error);
-      }
-      if (res.statusCode !== 200) {
-        return reject({
-          code: res.statusCode,
-          message: res?.body?.message || 'Error testing dependencies',
-        });
-      }
-      resolve(body);
-    });
-  });
 }
