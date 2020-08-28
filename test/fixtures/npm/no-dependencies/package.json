@@ -8,8 +8,5 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "debug": "3.6.7"
-  }
+  "license": "ISC"
 }

@@ -3,7 +3,6 @@ import * as pathUtil from 'path';
 import * as _ from '@snyk/lodash';
 
 const debug = baseDebug('snyk:yarn-workspaces');
-import * as fs from 'fs';
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
 import * as path from 'path';
 import { NoSupportedManifestsFoundError } from '../../errors';
@@ -11,6 +10,7 @@ import {
   MultiProjectResultCustom,
   ScannedProjectCustom,
 } from '../get-multi-plugin-result';
+import { getFileContents } from '../../get-file-contents';
 
 export async function processYarnWorkspaces(
   root: string,
@@ -89,7 +89,7 @@ export async function processYarnWorkspaces(
       );
       const project: ScannedProjectCustom = {
         packageManager: 'yarn',
-        targetFile: path.relative(root, packageJson.name),
+        targetFile: path.relative(root, packageJson.fileName),
         depTree: res as any,
         plugin: {
           name: 'snyk-nodejs-lockfile-parser',
@@ -102,26 +102,6 @@ export async function processYarnWorkspaces(
   return result;
 }
 
-function getFileContents(
-  root: string,
-  fileName: string,
-): {
-  content: string;
-  name: string;
-} {
-  const fullPath = path.resolve(root, fileName);
-  if (!fs.existsSync(fullPath)) {
-    throw new Error(
-      'Manifest ' + fileName + ' not found at location: ' + fileName,
-    );
-  }
-  const content = fs.readFileSync(fullPath, 'utf-8');
-  return {
-    content,
-    name: fileName,
-  };
-}
-
 interface YarnWorkspacesMap {
   [packageJsonName: string]: {
     workspaces: string[];
@@ -130,7 +110,7 @@ interface YarnWorkspacesMap {
 
 export function getWorkspacesMap(file: {
   content: string;
-  name: string;
+  fileName: string;
 }): YarnWorkspacesMap {
   const yarnWorkspacesMap = {};
   if (!file) {
@@ -143,7 +123,7 @@ export function getWorkspacesMap(file: {
     );
 
     if (rootFileWorkspacesDefinitions && rootFileWorkspacesDefinitions.length) {
-      yarnWorkspacesMap[file.name] = {
+      yarnWorkspacesMap[file.fileName] = {
         workspaces: rootFileWorkspacesDefinitions,
       };
     }
