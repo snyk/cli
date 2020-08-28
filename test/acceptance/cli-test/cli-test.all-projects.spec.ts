@@ -4,40 +4,112 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { CommandResult } from '../../../src/cli/commands/types';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
+import * as getDepsFromPlugin from '../../../src/lib/plugins/get-deps-from-plugin';
+
+const simpleGradleGraph = depGraphLib.createFromJSON({
+  schemaVersion: '1.2.0',
+  pkgManager: {
+    name: 'gradle',
+  },
+  pkgs: [
+    {
+      id: 'gradle-monorepo@0.0.0',
+      info: {
+        name: 'gradle-monorepo',
+        version: '0.0.0',
+      },
+    },
+  ],
+  graph: {
+    rootNodeId: 'root-node',
+    nodes: [
+      {
+        nodeId: 'root-node',
+        pkgId: 'gradle-monorepo@0.0.0',
+        deps: [],
+      },
+    ],
+  },
+});
 
 export const AllProjectsTests: AcceptanceTests = {
   language: 'Mixed',
   tests: {
+    '`test gradle-with-orphaned-build-file --all-projects` warns user': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const plugin = {
+        async inspect() {
+          return {
+            plugin: {
+              name: 'bundled:gradle',
+              runtime: 'unknown',
+              meta: {},
+            },
+            scannedProjects: [
+              {
+                meta: {
+                  gradleProjectName: 'root-proj',
+                  versionBuildInfo: {
+                    gradleVersion: '6.5',
+                  },
+                  targetFile: 'build.gradle',
+                },
+                depGraph: simpleGradleGraph,
+              },
+              {
+                meta: {
+                  gradleProjectName: 'root-proj/subproj',
+                  versionBuildInfo: {
+                    gradleVersion: '6.5',
+                  },
+                  targetFile: 'subproj/build.gradle',
+                },
+                depGraph: simpleGradleGraph,
+              },
+            ],
+          };
+        },
+      };
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('gradle').returns(plugin);
+      loadPlugin.callThrough();
+      // read data from console.log
+      let stdoutMessages = '';
+      const stubConsoleLog = (msg: string) => (stdoutMessages += msg);
+      const stubbedConsole = sinon
+        .stub(console, 'warn')
+        .callsFake(stubConsoleLog);
+      const result: CommandResult = await params.cli.test(
+        'gradle-with-orphaned-build-file',
+        {
+          allProjects: true,
+          detectionDepth: 3,
+        },
+      );
+      t.same(
+        stdoutMessages,
+        '✗ 1/3 detected Gradle manifests did not return dependencies.\n' +
+          'They may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with `-d` for more info.',
+      );
+      stubbedConsole.restore();
+      t.ok(stubbedConsole.calledOnce);
+      t.ok(loadPlugin.withArgs('gradle').calledOnce, 'calls gradle plugin');
+
+      t.match(
+        result.getDisplayResults(),
+        'Tested 2 projects',
+        'Detected 2 projects',
+      );
+    },
     '`test kotlin-monorepo --all-projects` scans kotlin files': (
       params,
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const simpleGradleGraph = depGraphLib.createFromJSON({
-        schemaVersion: '1.2.0',
-        pkgManager: {
-          name: 'gradle',
-        },
-        pkgs: [
-          {
-            id: 'gradle-monorepo@0.0.0',
-            info: {
-              name: 'gradle-monorepo',
-              version: '0.0.0',
-            },
-          },
-        ],
-        graph: {
-          rootNodeId: 'root-node',
-          nodes: [
-            {
-              nodeId: 'root-node',
-              pkgId: 'gradle-monorepo@0.0.0',
-              deps: [],
-            },
-          ],
-        },
-      });
       const plugin = {
         async inspect() {
           return {

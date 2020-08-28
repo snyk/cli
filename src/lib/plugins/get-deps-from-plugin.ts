@@ -1,4 +1,6 @@
 import * as debugModule from 'debug';
+import * as pathLib from 'path';
+import chalk from 'chalk';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { find } from '../find-files';
 import { Options, TestOptions, MonitorOptions } from '../types';
@@ -17,6 +19,7 @@ import analytics = require('../analytics');
 import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-to-multi-custom';
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
+import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
 const debug = debugModule('snyk-test');
 
@@ -42,7 +45,7 @@ export async function getDepsFromPlugin(
     const scanType = options.yarnWorkspaces ? 'yarnWorkspaces' : 'allProjects';
     const levelsDeep = options.detectionDepth;
     const ignore = options.exclude ? options.exclude.split(',') : [];
-    const { files: targetFiles } = await find(
+    const { files: targetFiles, allFilesFound } = await find(
       root,
       ignore,
       multiProjectProcessors[scanType].files,
@@ -62,8 +65,9 @@ export async function getDepsFromPlugin(
       options,
       targetFiles,
     );
+    const scannedProjects = inspectRes.scannedProjects;
     const analyticData = {
-      scannedProjects: inspectRes.scannedProjects.length,
+      scannedProjects: scannedProjects.length,
       targetFiles,
       packageManagers: targetFiles.map((file) =>
         detectPackageManagerFromFile(file),
@@ -72,6 +76,18 @@ export async function getDepsFromPlugin(
       ignore,
     };
     analytics.add(scanType, analyticData);
+    debug(
+      `Found ${scannedProjects.length} projects from ${allFilesFound.length} detected manifests`,
+    );
+    const userWarningMessage = warnSomeGradleManifestsNotScanned(
+      scannedProjects,
+      allFilesFound,
+      root,
+    );
+
+    if (!options.json && userWarningMessage) {
+      console.warn(chalk.bold.red(userWarningMessage));
+    }
     return inspectRes;
   }
 
@@ -104,4 +120,36 @@ export async function getDepsFromPlugin(
     (scannedProject) => scannedProject?.depTree?.name,
   );
   return convertMultiResultToMultiCustom(inspectRes, options.packageManager);
+}
+
+export function warnSomeGradleManifestsNotScanned(
+  scannedProjects: ScannedProject[],
+  allFilesFound: string[],
+  root: string,
+): string | null {
+  const gradleTargetFilesFilter = (targetFile) =>
+    targetFile &&
+    (targetFile.endsWith('build.gradle') ||
+      targetFile.endsWith('build.gradle.kts'));
+  const scannedGradleFiles = scannedProjects
+    .map((p) => {
+      const targetFile = p.meta?.targetFile || p.targetFile;
+      return targetFile ? pathLib.resolve(root, targetFile) : null;
+    })
+    .filter(gradleTargetFilesFilter);
+  const detectedGradleFiles = allFilesFound.filter(gradleTargetFilesFilter);
+  const diff = detectedGradleFiles.filter(
+    (file) => !scannedGradleFiles.includes(file),
+  );
+
+  debug(
+    `These Gradle manifests did not return any dependency results:\n${diff.join(
+      ',\n',
+    )}`,
+  );
+
+  if (diff.length > 0) {
+    return `✗ ${diff.length}/${detectedGradleFiles.length} detected Gradle manifests did not return dependencies.\nThey may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with \`-d\` for more info.`;
+  }
+  return null;
 }
