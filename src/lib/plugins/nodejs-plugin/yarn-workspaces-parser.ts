@@ -3,7 +3,6 @@ import * as pathUtil from 'path';
 import * as _ from '@snyk/lodash';
 
 const debug = baseDebug('snyk:yarn-workspaces');
-import * as fs from 'fs';
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
 import * as path from 'path';
 import { NoSupportedManifestsFoundError } from '../../errors';
@@ -11,6 +10,7 @@ import {
   MultiProjectResultCustom,
   ScannedProjectCustom,
 } from '../get-multi-plugin-result';
+import { getFileContents } from '../../get-file-contents';
 
 export async function processYarnWorkspaces(
   root: string,
@@ -100,26 +100,6 @@ export async function processYarnWorkspaces(
     }
   }
   return result;
-}
-
-function getFileContents(
-  root: string,
-  fileName: string,
-): {
-  content: string;
-  name: string;
-} {
-  const fullPath = path.resolve(root, fileName);
-  if (!fs.existsSync(fullPath)) {
-    throw new Error(
-      'Manifest ' + fileName + ' not found at location: ' + fileName,
-    );
-  }
-  const content = fs.readFileSync(fullPath, 'utf-8');
-  return {
-    content,
-    name: fileName,
-  };
 }
 
 interface YarnWorkspacesMap {
