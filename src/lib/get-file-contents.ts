@@ -6,7 +6,7 @@ export function getFileContents(
   fileName: string,
 ): {
   content: string;
-  name: string;
+  fileName: string;
 } {
   const fullPath = path.resolve(root, fileName);
   if (!fs.existsSync(fullPath)) {
@@ -17,6 +17,6 @@ export function getFileContents(
   const content = fs.readFileSync(fullPath, 'utf-8');
   return {
     content,
-    name: fileName,
+    fileName,
   };
 }

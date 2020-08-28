@@ -89,7 +89,7 @@ export async function processYarnWorkspaces(
       );
       const project: ScannedProjectCustom = {
         packageManager: 'yarn',
-        targetFile: path.relative(root, packageJson.name),
+        targetFile: path.relative(root, packageJson.fileName),
         depTree: res as any,
         plugin: {
           name: 'snyk-nodejs-lockfile-parser',
@@ -110,7 +110,7 @@ interface YarnWorkspacesMap {
 
 export function getWorkspacesMap(file: {
   content: string;
-  name: string;
+  fileName: string;
 }): YarnWorkspacesMap {
   const yarnWorkspacesMap = {};
   if (!file) {
@@ -123,7 +123,7 @@ export function getWorkspacesMap(file: {
     );
 
     if (rootFileWorkspacesDefinitions && rootFileWorkspacesDefinitions.length) {
-      yarnWorkspacesMap[file.name] = {
+      yarnWorkspacesMap[file.fileName] = {
         workspaces: rootFileWorkspacesDefinitions,
       };
     }

@@ -36,6 +36,7 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk:find-files',
   'snyk:run-test',
   'snyk:prune',
+  'snyk-nodejs-plugin',
   'snyk-gradle-plugin',
   'snyk-sbt-plugin',
   'snyk-mvn-plugin',
