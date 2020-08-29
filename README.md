@@ -14,6 +14,10 @@
 <p align="center">
   <a href="https://snyk.io/test/github/snyk/snyk"><img src="https://snyk.io/test/github/snyk/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
   <a href="https://snyk.io/features/"><img src="https://badgen.net/npm/dm/snyk" alt="Monthly Downloads"/></a>
+  <a href="https://img.shields.io/github/search/snyk/snyk/snyk"><img src="https://img.shields.io/github/search/snyk/snyk/snyk" alt="Counter"/></a>
+    <a href="https://img.shields.io/github/issues-pr/snyk/snyk"><img src="https://img.shields.io/github/issues-pr/snyk/snyk" alt="Counter"/></a>
+  
+  
 </p>
 
 ---
