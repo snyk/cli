@@ -10,7 +10,7 @@ Describe "Snyk monitor command"
       snyk monitor
     }
 
-    It "finds vulns in a project in the same folder"
+    It "monitors a project in the same folder"
       When run run_monitor_in_subfolder
       The status should be success
       The output should include "Explore this snapshot at https://app.snyk.io/org/"
@@ -18,7 +18,7 @@ Describe "Snyk monitor command"
       The stderr should equal ""
     End
 
-    It "finds vulns in a project when pointing to a folder"
+    It "monitors a project when pointing to a folder"
       When run snyk monitor ../fixtures/basic-npm
       The status should be success
       The output should include "Explore this snapshot at https://app.snyk.io/org/"
@@ -26,7 +26,7 @@ Describe "Snyk monitor command"
       The stderr should equal ""
     End
 
-    It "finds vulns in a project when pointing to a file"
+    It "monitors a project when pointing to a file"
       When run snyk monitor --file=../fixtures/basic-npm/package.json
       The status should be success
       The output should include "Explore this snapshot at https://app.snyk.io/org/"
@@ -36,7 +36,7 @@ Describe "Snyk monitor command"
   End
 
   Describe "monitor npm project with JSON output"
-    It "outputs a valid JSON with vulns"
+    It "monitors a project and outputs a valid JSON"
       When run snyk monitor ../fixtures/basic-npm --json
       The status should be success # issues found
       The output should include '"ok": true,'
