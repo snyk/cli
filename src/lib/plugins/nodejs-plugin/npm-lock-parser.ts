@@ -58,6 +58,6 @@ export async function parse(
       strictOutOfSync,
     );
   } finally {
-    await spinner.clear(resolveModuleSpinnerLabel);
+    await spinner.clear<void>(resolveModuleSpinnerLabel)();
   }
 }

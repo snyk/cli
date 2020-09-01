@@ -6,7 +6,7 @@ const testFixture = path.join(__dirname, 'fixtures', 'find-files');
 
 test('find all files in test fixture', async (t) => {
   // six levels deep to find all
-  const result = await find(testFixture, [], [], 6);
+  const { files: result, allFilesFound } = await find(testFixture, [], [], 6);
   const expected = [
     path.join(
       testFixture,
@@ -29,13 +29,46 @@ test('find all files in test fixture', async (t) => {
     path.join(testFixture, 'ruby', 'Gemfile.lock'),
     path.join(testFixture, 'yarn', 'yarn.lock'),
   ];
+  const filteredOut = [
+    path.join(testFixture, 'golang', 'golang-app', 'Gopkg.toml'),
+    path.join(testFixture, 'README.md'),
+    path.join(testFixture, 'yarn', 'package.json'),
+    path.join(testFixture, 'ruby', 'Gemfile'),
+    path.join(testFixture, 'gradle-kts', 'subproj', 'build.gradle.kts'),
+    path.join(testFixture, 'npm-with-lockfile', 'package.json'),
+    path.join(testFixture, 'gradle', 'subproject', 'build.gradle'),
+    path.join(testFixture, 'gradle-and-kotlin', 'build.gradle.kts'),
+    path.join(
+      testFixture,
+      'gradle-multiple',
+      'gradle',
+      'subproject',
+      'build.gradle',
+    ),
+    path.join(
+      testFixture,
+      'gradle-multiple',
+      'gradle-another',
+      'subproject',
+      'build.gradle',
+    ),
+    path.join(testFixture, 'maven', 'test.txt'),
+    path.join(testFixture, 'mvn', 'test.txt'),
+    path.join(testFixture, 'npm', 'test.txt'),
+    path.join(testFixture, 'ruby', 'test.txt'),
+  ];
   t.same(result.length, expected.length, 'should be the same length');
   t.same(result.sort(), expected.sort(), 'should return all files');
+  t.same(
+    allFilesFound.filter((f) => !f.endsWith('broken-symlink')).sort(),
+    [...filteredOut, ...expected].sort(),
+    'should return all unfiltered files',
+  );
 });
 
 test('find all files in test fixture ignoring node_modules', async (t) => {
   // six levels deep to ensure node_modules is tested
-  const result = await find(testFixture, ['node_modules'], [], 6);
+  const { files: result } = await find(testFixture, ['node_modules'], [], 6);
   const expected = [
     path.join(
       testFixture,
@@ -64,14 +97,19 @@ test('find all files in test fixture ignoring node_modules', async (t) => {
 test('find package.json file in test fixture ignoring node_modules', async (t) => {
   // six levels deep to ensure node_modules is tested
   const nodeModulesPath = path.join(testFixture, 'node_modules');
-  const result = await find(nodeModulesPath, [], ['package.json'], 6);
+  const { files: result } = await find(
+    nodeModulesPath,
+    [],
+    ['package.json'],
+    6,
+  );
   const expected = [];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
 
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
   // six levels deep to ensure node_modules is tested
-  const result = await find(testFixture, [], ['package.json'], 6);
+  const { files: result } = await find(testFixture, [], ['package.json'], 6);
   const expected = [
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm-with-lockfile', 'package.json'),
@@ -83,7 +121,7 @@ test('find package.json file in test fixture (by default ignoring node_modules)'
 test('find package-lock.json file in test fixture (ignore package.json in the same folder)', async (t) => {
   const npmLockfilePath = path.join(testFixture, 'npm-with-lockfile');
 
-  const result = await find(
+  const { files: result } = await find(
     npmLockfilePath,
     [],
     ['package.json', 'package-lock.json'],
@@ -96,7 +134,7 @@ test('find package-lock.json file in test fixture (ignore package.json in the sa
 test('find build.gradle file in test fixture (ignore build.gradle in the same folder)', async (t) => {
   const buildGradle = path.join(testFixture, 'gradle-and-kotlin');
 
-  const result = await find(
+  const { files: result } = await find(
     buildGradle,
     [],
     ['build.gradle.kts', 'build.gradle'],
@@ -109,7 +147,7 @@ test('find build.gradle file in test fixture (ignore build.gradle in the same fo
 test('find Gemfile.lock file in test fixture (ignore Gemfile in the same folder)', async (t) => {
   const npmLockfilePath = path.join(testFixture, 'ruby');
 
-  const result = await find(
+  const { files: result } = await find(
     npmLockfilePath,
     [],
     ['Gemfile', 'Gemfile.lock'],
@@ -122,7 +160,7 @@ test('find Gemfile.lock file in test fixture (ignore Gemfile in the same folder)
 test('find yarn.lock file in test fixture (ignore package.json in the same folder)', async (t) => {
   const yarnLockfilePath = path.join(testFixture, 'yarn');
 
-  const result = await find(
+  const { files: result } = await find(
     yarnLockfilePath,
     [],
     ['package.json', 'yarn.lock'],
@@ -134,7 +172,7 @@ test('find yarn.lock file in test fixture (ignore package.json in the same folde
 
 test('find package.json file in test fixture (by default ignoring node_modules)', async (t) => {
   // four levels deep to ensure node_modules is tested
-  const result = await find(testFixture, [], ['package.json'], 4);
+  const { files: result } = await find(testFixture, [], ['package.json'], 4);
   const expected = [
     path.join(testFixture, 'npm', 'package.json'),
     path.join(testFixture, 'npm-with-lockfile', 'package.json'),
@@ -144,13 +182,13 @@ test('find package.json file in test fixture (by default ignoring node_modules)'
 });
 
 test('find Gemfile file in test fixture', async (t) => {
-  const result = await find(testFixture, [], ['Gemfile']);
+  const { files: result } = await find(testFixture, [], ['Gemfile']);
   const expected = [path.join(testFixture, 'ruby', 'Gemfile')];
   t.same(result.sort(), expected.sort(), 'should return expected file');
 });
 
 test('find pom.xml files in test fixture', async (t) => {
-  const result = await find(testFixture, [], ['pom.xml']);
+  const { files: result } = await find(testFixture, [], ['pom.xml']);
   const expected = [
     path.join(testFixture, 'maven', 'pom.xml'),
     path.join(testFixture, 'mvn', 'pom.xml'),
