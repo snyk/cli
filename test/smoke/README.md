@@ -40,7 +40,8 @@ CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
 - [x] test [--json][npm project]
 - [ ] test [--json][java-goof]
 - [ ] policy, ignore
-- [ ] monitor
+- [x] monitor [--json][npm project]
+- [ ] monitor [--json][java-goof]
 - [ ] wizard - possibly impossible? (maybe a basic test that it even loads)
 
 ### Missing environments
