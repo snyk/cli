@@ -149,7 +149,7 @@ export function warnSomeGradleManifestsNotScanned(
   );
 
   if (diff.length > 0) {
-    return `✗ ${diff.length}/${detectedGradleFiles.length} detected Gradle manifests did not return dependencies.\nThey may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with \`-d\` for more info.`;
+    return `✗ ${diff.length}/${detectedGradleFiles.length} detected Gradle manifests did not return dependencies. They may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with \`-d\` for more info.`;
   }
   return null;
 }
