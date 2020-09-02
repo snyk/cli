@@ -51,7 +51,9 @@ function executeTest(root, options) {
       return results;
     });
   } catch (error) {
-    return Promise.reject(chalk.red.bold(error));
+    return Promise.reject(
+      chalk.red.bold(error.message ? error.message : error),
+    );
   }
 }
 
