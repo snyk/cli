@@ -43,6 +43,7 @@ const debug = Debug('snyk');
 const EXIT_CODES = {
   VULNS_FOUND: 1,
   ERROR: 2,
+  NO_SUPPORTED_MANIFESTS_FOUND: 3,
 };
 
 async function runCommand(args: Args) {
@@ -89,6 +90,13 @@ async function handleError(args, error) {
   spinner.clearAll();
   let command = 'bad-command';
   let exitCode = EXIT_CODES.ERROR;
+  const noSupportedManifestsFound = error.message?.includes(
+    'Could not detect supported target files in',
+  );
+
+  if (noSupportedManifestsFound) {
+    exitCode = EXIT_CODES.NO_SUPPORTED_MANIFESTS_FOUND;
+  }
 
   const vulnsFound = error.code === 'VULNS';
   if (vulnsFound) {
