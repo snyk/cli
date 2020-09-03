@@ -4,7 +4,9 @@ Design goal is to have a single test suite, that can detect if CLI is not workin
 
 CLI is being tested by a series of tests using [Shellspec](https://shellspec.info). See them in a `test/smoke/spec` folder.
 
-Spec in this folder is used as a 1) **"Smoke test" step in CircleCI** to verify that built CLI can run 2) **["Smoke Tests"](https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22) GitHub Action** to verify that our distribution channels are working.
+Spec in this folder is used as a
+1) **"Smoke test" step in CircleCI** to verify that built CLI can run
+2) **["Smoke Tests"](https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22) GitHub Action** to verify that our distribution channels are working.
 
 ## How to add a new smoke test
 
@@ -14,18 +16,18 @@ Before you start adding specs, those files are bash scripts, it's recommended to
 
 It's recommended to have a branch named `feat/smoke-test`, as [this branch will run the GitHub Action](https://github.com/snyk/snyk/blob/f35f39e96ef7aa69b22a846315dda015b12a4564/.github/workflows/smoke-tests.yml#L3-L5).
 
-To run these tests locally, install:
+To run these tests locally:
 
-- [Shellspec](https://shellspec.info)
-- [jq](https://stedolan.github.io/jq/)
-- timeout (if not available on your platform)
+1. Install:
 
-cd into `test/smoke` folder and run:
-
-```sh
-cd test/smoke
-CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
-```
+   - [Shellspec](https://shellspec.info)
+   - [jq](https://stedolan.github.io/jq/)
+   - timeout (if not available on your platform)
+2. Run:
+    ```sh
+    cd test/smoke
+    CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
+    ```
 
 ## TODO
 
