@@ -175,6 +175,7 @@ Possible exit statuses and their meaning:
   - 0: success, no vulns found
   - 1: action_needed, vulns found
   - 2: failure, try to re-run command
+  - 3: failure, no supported projects detected
 
 Pro tip: use `snyk test` in your test scripts, if a vulnerability is
 found, the process will exit with a non-zero exit code.
