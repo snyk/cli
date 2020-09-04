@@ -5,8 +5,9 @@ Design goal is to have a single test suite, that can detect if CLI is not workin
 CLI is being tested by a series of tests using [Shellspec](https://shellspec.info). See them in a `test/smoke/spec` folder.
 
 Spec in this folder is used as a
-1) **"Smoke test" step in CircleCI** to verify that built CLI can run
-2) **["Smoke Tests"](https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22) GitHub Action** to verify that our distribution channels are working.
+
+1. **"Smoke test" step in CircleCI** to verify that built CLI can run
+2. **["Smoke Tests"](https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22) GitHub Action** to verify that our distribution channels are working.
 
 ## How to add a new smoke test
 
@@ -23,11 +24,21 @@ To run these tests locally:
    - [Shellspec](https://shellspec.info)
    - [jq](https://stedolan.github.io/jq/)
    - timeout (if not available on your platform)
+
 2. Run:
-    ```sh
-    cd test/smoke
-    CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
-    ```
+
+```sh
+cd test/smoke
+CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
+```
+
+To run the Alpine test in Docker locally:
+
+```
+ docker build -f ./test/smoke/alpine/Dockerfile -t snyk-cli-alpine ./test/ && docker run --rm -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN snyk-cli-alpine
+```
+
+_Note: Alpine image is not copying/mounting everything, so you might need to add anything new to the `test/smoke/alpine/Dockerfile`_
 
 ## TODO
 
