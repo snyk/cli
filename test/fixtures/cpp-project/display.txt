@@ -1,15 +1,15 @@
-Dependency Fingerprints
------------------------
+[97mFingerprints[39m
 52d1b046047db9ea0c581cafd4c68fe5 add.cpp
 aeca71a6e39f99a24ecf4c088eee9cb8 add.h
 ad3365b3370ef6b1c3e778f875055f19 main.cpp
 
-Dependencies
-------------
+[97mDependencies[39m
 add@1.2.3
 
-Issues
-------
-Tested 1 dependency for known issues, found 1 issue.
+[97mIssues[39m
+[93m✗ Cross-site Scripting (XSS) [medium][39m
+  https://snyk.io/vuln/cpp:add:20161130
+  in add@1.2.3
+  fix version 1.2.4
 
-✗ Cross-site Scripting (XSS) [medium severity][https://snyk.io/vuln/cpp:add:20161130] in add@1.2.3
+Tested 1 dependency for known issues, found [91m1 issue[39m.
