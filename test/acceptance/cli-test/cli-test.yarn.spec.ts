@@ -316,30 +316,30 @@ export const YarnTests: AcceptanceTests = {
         'depGraph looks fine',
       );
     },
-    '`test` on a yarn v2 package': (params, utils) => async (t) => {
-      const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
-
-      if (nodeVersion < 10) {
-        return t.skip();
-      }
-
-      utils.chdirWorkspaces('yarn-v2');
-      await params.cli.test();
-      const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
-      t.equal(
-        req.headers['x-snyk-cli-version'],
-        params.versionNumber,
-        'sends version number',
-      );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.match(req.body.targetFile, undefined, 'target is undefined');
-      const depGraph = req.body.depGraph;
-      t.same(
-        depGraph.pkgs.map((p) => p.id).sort(),
-        ['yarn-v2@1.0.0', 'lodash@4.17.0'].sort(),
-        'depGraph looks fine',
-      );
-    },
+    // '`test` on a yarn v2 package': (params, utils) => async (t) => {
+    //   const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
+    //
+    //   if (nodeVersion < 10) {
+    //     return t.skip();
+    //   }
+    //
+    //   utils.chdirWorkspaces('yarn-v2');
+    //   await params.cli.test();
+    //   const req = params.server.popRequest();
+    //   t.equal(req.method, 'POST', 'makes POST request');
+    //   t.equal(
+    //     req.headers['x-snyk-cli-version'],
+    //     params.versionNumber,
+    //     'sends version number',
+    //   );
+    //   t.match(req.url, '/test-dep-graph', 'posts to correct url');
+    //   t.match(req.body.targetFile, undefined, 'target is undefined');
+    //   const depGraph = req.body.depGraph;
+    //   t.same(
+    //     depGraph.pkgs.map((p) => p.id).sort(),
+    //     ['yarn-v2@1.0.0', 'lodash@4.17.0'].sort(),
+    //     'depGraph looks fine',
+    //   );
+    // },
   },
 };
