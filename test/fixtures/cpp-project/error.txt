@@ -1,10 +1,7 @@
-Dependency Fingerprints
------------------------
+[97mFingerprints[39m
 52d1b046047db9ea0c581cafd4c68fe5 add.cpp
 aeca71a6e39f99a24ecf4c088eee9cb8 add.h
 ad3365b3370ef6b1c3e778f875055f19 main.cpp
 
-
-Errors
-------
+[91mErrors[39m
 Could not test dependencies in .

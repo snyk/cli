@@ -6,6 +6,8 @@ import { isCI } from './is-ci';
 import { makeRequest } from './request/promise';
 import { Options } from './types';
 import { TestCommandResult } from '../cli/commands/types';
+import * as spinner from '../lib/spinner';
+
 export interface Artifact {
   type: string;
   data: any;
@@ -13,35 +15,33 @@ export interface Artifact {
 }
 
 export interface ScanResult {
-  type: string;
   artifacts: Artifact[];
   meta: {
     [key: string]: any;
   };
 }
 
+export interface Issue {
+  pkgName: string;
+  pkgVersion?: string;
+  issueId: string;
+  fixInfo: {
+    nearestFixedInVersion?: string;
+  };
+}
+
+export interface IssuesData {
+  [issueId: string]: {
+    id: string;
+    severity: string;
+    title: string;
+  };
+}
+
 export interface TestResult {
-  depGraph: DepGraphData;
-  affectedPkgs: {
-    [pkgId: string]: {
-      pkg: {
-        name: string;
-        version: string;
-      };
-      issues: {
-        [issueId: string]: {
-          issueId: string;
-        };
-      };
-    };
-  };
-  issuesData: {
-    [issueId: string]: {
-      id: string;
-      severity: string;
-      title: string;
-    };
-  };
+  issues: Issue[];
+  issuesData: IssuesData;
+  depGraphData: DepGraphData;
 }
 
 export interface EcosystemPlugin {
@@ -84,7 +84,6 @@ export async function testEcosystem(
     const results = await plugin.scan(options);
     scanResultsByPath[path] = results;
   }
-
   const [testResults, errors] = await testDependencies(scanResultsByPath);
   const stringifiedData = JSON.stringify(testResults, null, 2);
   if (options.json) {
@@ -106,6 +105,7 @@ export async function testDependencies(scans: {
   const results: TestResult[] = [];
   const errors: string[] = [];
   for (const [path, scanResults] of Object.entries(scans)) {
+    await spinner(`Testing dependencies in ${path}`);
     for (const scanResult of scanResults) {
       const payload = {
         method: 'POST',
@@ -116,7 +116,6 @@ export async function testDependencies(scans: {
           authorization: 'token ' + snyk.api,
         },
         body: {
-          type: scanResult.type,
           artifacts: scanResult.artifacts,
           meta: {},
         },
@@ -132,5 +131,6 @@ export async function testDependencies(scans: {
       }
     }
   }
+  spinner.clearAll();
   return [results, errors];
 }

@@ -1,17 +1,12 @@
 {
-  "affectedPkgs": {
-    "add@1.2.3": {
-      "pkg": {
-        "name": "add",
-        "version": "1.2.3"
-      },
-      "issues": {
-        "cpp:add:20161130": {
-          "issueId": "cpp:add:20161130"
-        }
-      }
+  "issues": [{
+    "pkgName": "add",
+    "pkgVersion": "1.2.3",
+    "issueId": "cpp:add:20161130",
+    "fixInfo": {
+      "nearestFixedInVersion": "1.2.4"
     }
-  },
+  }],
   "issuesData": {
     "cpp:add:20161130": {
       "id": "cpp:add:20161130",
@@ -19,7 +14,7 @@
       "title": "Cross-site Scripting (XSS)"
     }
   },
-  "depGraph": {
+  "depGraphData": {
     "schemaVersion": "1.2.0",
     "pkgManager": {
       "name": "cpp"
