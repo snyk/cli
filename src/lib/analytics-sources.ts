@@ -25,7 +25,7 @@ enum TrackedIntegration {
   DOCKER_SNYK = 'DOCKER_SNYK', // docker snyk/snyk
 
   // IDE plugins - tracked by passing flag or envvar on CLI invocation
-  INTELLIJ = 'INTELLIJ',
+  JETBRAINS_IDE = 'JETBRAINS_IDE',
   ECLIPSE = 'ECLIPSE',
   VS_CODE_VULN_COST = 'VS_CODE_VULN_COST',
 
