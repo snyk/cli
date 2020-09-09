@@ -10,8 +10,8 @@
   "license": "private",
   "dependencies": {
     "autocache": "^0.6.1",
-    "express": "^3.21.1",
-    "less": "^2.5.1",
-    "marked": "^0.2.10"
+    "express": "^4.16.0",
+    "less": "^3.0.2",
+    "marked": "^1.1.1"
   }
 }
