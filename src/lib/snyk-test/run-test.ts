@@ -57,7 +57,7 @@ import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
 import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
 import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
-import { CallGraphError } from '@snyk/cli-interface/legacy/common';
+import { CallGraphError, CallGraph } from '@snyk/cli-interface/legacy/common';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
 import { getDockerToken } from '../api-token';
@@ -533,7 +533,10 @@ async function assembleLocalPayloads(
         body.depGraph = depGraph;
       }
 
-      if (options.reachableVulns && scannedProject.callGraph?.message) {
+      if (
+        options.reachableVulns &&
+        (scannedProject.callGraph as CallGraphError)?.message
+      ) {
         const err = scannedProject.callGraph as CallGraphError;
         const analyticsError = err.innerError || err;
         analytics.add('callGraphError', {
@@ -555,7 +558,9 @@ async function assembleLocalPayloads(
           callGraph,
           nodeCount,
           edgeCount,
-        } = serializeCallGraphWithMetrics(scannedProject.callGraph);
+        } = serializeCallGraphWithMetrics(
+          scannedProject.callGraph as CallGraph,
+        );
         debug(
           `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
         );
