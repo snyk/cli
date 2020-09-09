@@ -10,12 +10,12 @@ import * as debugModule from 'debug';
 const debug = debugModule('snyk');
 
 import * as path from 'path';
-import * as inquirer from '@snyk/inquirer';
+import * as inquirer from 'inquirer';
 import * as fs from 'fs';
 import * as tryRequire from 'snyk-try-require';
 import chalk from 'chalk';
 import * as url from 'url';
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { exec } from 'child_process';
 import { apiTokenExists } from '../../../lib/api-token';
 import * as auth from '../auth/is-authed';

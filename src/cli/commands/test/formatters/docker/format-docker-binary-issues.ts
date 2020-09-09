@@ -1,4 +1,4 @@
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { createDockerBinaryHeading } from './format-docker-binary-heading';
 import { Options, TestOptions } from '../../../../../lib/types';
 import { formatIssues } from '../legacy-format-issue';

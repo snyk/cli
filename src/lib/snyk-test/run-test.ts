@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import * as path from 'path';
 import * as debugModule from 'debug';
 import chalk from 'chalk';

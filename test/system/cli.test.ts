@@ -1,5 +1,5 @@
 import * as util from 'util';
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
 import { makeTmpDirectory, silenceLog } from '../utils';

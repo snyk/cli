@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
 const debug = debugModule('snyk:find-files');

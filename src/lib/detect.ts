@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { NoSupportedManifestsFoundError } from './errors';
 import { SupportedPackageManagers } from './package-managers';
 import { validateK8sFile } from './iac/iac-parser';

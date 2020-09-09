@@ -1,4 +1,4 @@
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import { Options, TestOptions, ShowVulnPaths } from '../../../../lib/types';

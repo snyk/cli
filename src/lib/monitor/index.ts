@@ -7,7 +7,7 @@ import { apiTokenExists } from '../api-token';
 import request = require('../request');
 import * as config from '../config';
 import * as os from 'os';
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
 import {
@@ -221,7 +221,10 @@ async function monitorDepTree(
   depTree = dropEmptyDeps(depTree);
 
   let callGraphPayload;
-  if (options.reachableVulns && scannedProject.callGraph?.innerError) {
+  if (
+    options.reachableVulns &&
+    (scannedProject.callGraph as CallGraphError)?.innerError
+  ) {
     const err = scannedProject.callGraph as CallGraphError;
     analytics.add(
       'callGraphError',
@@ -239,7 +242,7 @@ async function monitorDepTree(
     ]);
   } else if (scannedProject.callGraph) {
     const { callGraph, nodeCount, edgeCount } = serializeCallGraphWithMetrics(
-      scannedProject.callGraph,
+      scannedProject.callGraph as CallGraph,
     );
     debug(
       `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,

@@ -1,4 +1,4 @@
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
 import { CommandResult } from '../../../src/cli/commands/types';

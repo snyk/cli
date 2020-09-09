@@ -1,4 +1,4 @@
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import chalk from 'chalk';
 import * as url from 'url';
 

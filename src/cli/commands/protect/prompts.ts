@@ -9,7 +9,7 @@ export {
   startOver,
 };
 
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import * as semver from 'semver';
 import { format as fmt } from 'util';
 import * as debugModule from 'debug';

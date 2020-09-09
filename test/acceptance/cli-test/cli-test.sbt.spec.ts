@@ -1,7 +1,7 @@
 import * as sinon from 'sinon';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 
 export const SbtTests: AcceptanceTests = {
   language: 'SBT',
