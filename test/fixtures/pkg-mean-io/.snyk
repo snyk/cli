@@ -1,0 +1,16 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:debug:20170905':
+    - meanio > morgan > debug:
+        patched: '2020-09-09T04:15:05.690Z'
+  'npm:ms:20170412':
+    - meanio > morgan > debug > ms:
+        patched: '2020-09-09T04:15:05.690Z'
+  'npm:uglify-js:20151024':
+    - swig > uglify-js:
+        patched: '2020-09-09T04:15:05.690Z'
+    - meanio > swig > uglify-js:
+        patched: '2020-09-09T04:15:05.690Z'

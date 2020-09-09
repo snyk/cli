@@ -42,7 +42,7 @@
     "morgan": "latest",
     "ms": "latest",
     "nodemailer": "latest",
-    "npm": "^3.0.0",
+    "npm": "^6.14.6",
     "passport-facebook": "latest",
     "passport-github": "latest",
     "passport-google-oauth": "latest",
@@ -55,7 +55,7 @@
     "shelljs": "latest",
     "swig": "latest",
     "view-helpers": "latest",
-    "snyk": "*"
+    "snyk": "^1.392.1"
   },
   "devDependencies": {
     "del": "latest",
