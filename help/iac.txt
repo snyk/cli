@@ -2,7 +2,7 @@ Usage:
 
   $ snyk iac [command] [options] <path>
 
-Find security issues in your Infrastructure as Code files (currently we support Kubernetes files only).
+Find security issues in your Infrastructure as Code files (currently we support Kubernetes & Terraform files only).
 
 Commands:
 
@@ -26,6 +26,7 @@ Options:
 Examples:
 
   $ snyk iac test /path/to/Kubernetes.yaml
+  $ snyk iac test /path/to/terraform_file.tf
 
 
 For more information see https://support.snyk.io/hc/en-us/categories/360001342678-Infrastructure-as-code

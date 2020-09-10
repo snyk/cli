@@ -1,5 +1,5 @@
 //TODO(orka): future - change this file
-import { IacProjectTypes } from '../iac/iac-projects';
+import { IacProjectTypes } from '../iac/constants';
 
 interface Scan {
   type: string;
@@ -9,7 +9,7 @@ interface Scan {
 
 export interface IacFile {
   fileContent: string;
-  fileType: 'yaml' | 'yml' | 'json';
+  fileType: 'yaml' | 'yml' | 'json' | 'tf';
 }
 
 export interface IacScan extends Scan {

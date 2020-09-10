@@ -1,5 +1,5 @@
 import { SupportedPackageManagers } from './package-managers';
-import { IacProjectTypes } from './iac/iac-projects';
+import { IacProjectTypes } from './iac/constants';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { SEVERITY } from './snyk-test/legacy';
 import { FailOn } from './snyk-test/common';

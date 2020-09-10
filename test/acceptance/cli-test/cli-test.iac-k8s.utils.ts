@@ -225,7 +225,7 @@ export function iacTestSarifAssertions(
     const expectedIssue = expectedResults.infrastructureAsCodeIssues[i];
     t.deepEqual(sarifIssue.ruleId, expectedIssue.id, 'issue id is ok');
 
-    const messageText = `This line contains a potential ${expectedIssue.severity} severity misconfiguration affacting the Kubernetes ${expectedIssue.subType}`;
+    const messageText = `This line contains a potential ${expectedIssue.severity} severity misconfiguration affecting the Kubernetes ${expectedIssue.subType}`;
     t.deepEqual(sarifIssue.message.text, messageText, 'issue message is ok');
     t.deepEqual(
       sarifIssue.locations![0].physicalLocation!.region!.startLine,

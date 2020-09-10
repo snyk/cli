@@ -150,6 +150,11 @@ function getIssueLevel(severity: SEVERITY): sarif.ReportingConfiguration.level {
   return severity === SEVERITY.HIGH ? 'error' : 'warning';
 }
 
+const iacTypeToText = {
+  k8s: 'Kubernetes',
+  terraform: 'Terraform',
+};
+
 export function mapIacTestResponseToSarifTool(
   iacTestResponse: IacTestResponse,
 ): sarif.Tool {
@@ -172,7 +177,7 @@ export function mapIacTestResponseToSarifTool(
           text: `${upperFirst(iacIssue.severity)} - ${iacIssue.title}`,
         },
         fullDescription: {
-          text: `Kubernetes ${iacIssue.subType}`,
+          text: `${iacTypeToText[iacIssue.type]} ${iacIssue.subType}`,
         },
         help: {
           text: '',
@@ -182,7 +187,7 @@ export function mapIacTestResponseToSarifTool(
           level: getIssueLevel(iacIssue.severity),
         },
         properties: {
-          tags: ['security', `kubernetes/${iacIssue.subType}`],
+          tags: ['security', `${iacIssue.type}/${iacIssue.subType}`],
         },
       });
       pushedIds[iacIssue.id] = true;
@@ -198,7 +203,11 @@ export function mapIacTestResponseToSarifResults(
     (iacIssue: AnnotatedIacIssue) => ({
       ruleId: iacIssue.id,
       message: {
-        text: `This line contains a potential ${iacIssue.severity} severity misconfiguration affacting the Kubernetes ${iacIssue.subType}`,
+        text: `This line contains a potential ${
+          iacIssue.severity
+        } severity misconfiguration affecting the ${
+          iacTypeToText[iacIssue.type]
+        } ${iacIssue.subType}`,
       },
       locations: [
         {

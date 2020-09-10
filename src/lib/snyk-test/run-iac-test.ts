@@ -12,6 +12,7 @@ import { Payload } from './types';
 import { IacScan } from './payload-schema';
 import { SEVERITY } from './legacy';
 import * as pathLib from 'path';
+import { projectTypeByFileType, IacFileTypes } from '../iac/constants';
 
 export async function parseIacTestResult(
   res: IacTestResponse,
@@ -52,20 +53,22 @@ export async function assembleIacLocalPayloads(
     : '';
 
   const fileContent = fs.readFileSync(targetFile, 'utf8');
+  const fileType = root.substr(root.lastIndexOf('.') + 1);
+  const projectType = projectTypeByFileType[fileType];
+
   const body: IacScan = {
     data: {
       fileContent,
-      fileType: 'yaml',
+      fileType: fileType as IacFileTypes,
     },
     targetFile: root,
-    type: 'k8sconfig',
+    type: projectType,
     //TODO(orka): future - support policy
     policy: '',
     targetFileRelativePath: `${targetFileRelativePath}`, // Forcing string
     originalProjectName: path.basename(path.dirname(targetFile)),
     projectNameOverride: options.projectName,
   };
-
   const payload: Payload = {
     method: 'POST',
     url: config.API + (options.vulnEndpoint || '/test-iac'),

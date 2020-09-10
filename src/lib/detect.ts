@@ -2,13 +2,18 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
 import * as _ from 'lodash';
-import { NoSupportedManifestsFoundError } from './errors';
+import { IllegalIacFileError, NoSupportedManifestsFoundError } from './errors';
 import { SupportedPackageManagers } from './package-managers';
-import { validateK8sFile } from './iac/iac-parser';
+import {
+  validateK8sFile,
+  makeValidateTerraformRequest,
+} from './iac/iac-parser';
+import { projectTypeByFileType, IacProjectType } from './iac/constants';
 import {
   SupportLocalFileOnlyIacError,
   UnsupportedOptionFileIacError,
 } from './errors/unsupported-options-iac-error';
+import { IllegalTerraformFileError } from './errors/invalid-iac-file';
 
 const debug = debugLib('snyk-detect');
 
@@ -145,7 +150,7 @@ export function detectPackageManager(root: string, options) {
   return packageManager;
 }
 
-export function isIacProject(root: string, options): string {
+export async function isIacProject(root: string, options): Promise<string> {
   if (options.file) {
     debug('Iac - --file specified ' + options.file);
     throw UnsupportedOptionFileIacError(options.file);
@@ -162,8 +167,27 @@ export function isIacProject(root: string, options): string {
 
   const filePath = pathLib.resolve(root, '.');
   const fileContent = fs.readFileSync(filePath, 'utf-8');
-  validateK8sFile(fileContent, filePath, root);
-  return 'k8sconfig';
+  const fileType = root.substr(root.lastIndexOf('.') + 1);
+  const projectType = projectTypeByFileType[fileType];
+  switch (projectType) {
+    case IacProjectType.K8S:
+      validateK8sFile(fileContent, filePath, root);
+      break;
+    case IacProjectType.TERRAFORM: {
+      const {
+        isValidTerraformFile,
+        reason,
+      } = await makeValidateTerraformRequest(fileContent);
+      if (!isValidTerraformFile) {
+        throw IllegalTerraformFileError([root], reason);
+      }
+      break;
+    }
+    default:
+      throw IllegalIacFileError([root]);
+  }
+
+  return projectType;
 }
 
 // User supplied a "local" file, but that file doesn't exist
