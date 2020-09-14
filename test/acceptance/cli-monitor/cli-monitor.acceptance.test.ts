@@ -1796,6 +1796,60 @@ if (!isWindows) {
     );
   });
 
+  test('`monitor foo:latest --docker --experimental --platform=linux/arm64`', async (t) => {
+    const dockerImageId =
+      'ca0b6709748d024a67c502558ea88dc8a1f8a858d380f5ddafa1504126a3b018';
+    const platform = 'linux/arm64';
+    const spyPlugin = stubDockerPluginResponse(
+      {
+        plugin: {
+          dockerImageId,
+        },
+        scannedProjects: [
+          {
+            packageManager: 'apk',
+            depTree: {},
+            meta: {
+              platform,
+            },
+          },
+        ],
+      },
+      t,
+    );
+
+    await cli.monitor('foo:latest', {
+      platform,
+      docker: true,
+      experimental: true,
+    });
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    t.equal(req.body.meta.platform, platform, 'sends platform');
+    t.same(
+      spyPlugin.getCall(0).args,
+      [
+        'foo:latest',
+        null,
+        {
+          args: null,
+          docker: true,
+          experimental: true,
+          file: null,
+          packageManager: null,
+          path: 'foo:latest',
+          platform,
+        },
+      ],
+      'calls docker plugin with expected arguments',
+    );
+  });
+
   test('monitor --json multiple folders', async (t) => {
     chdirWorkspaces('fail-on');
 

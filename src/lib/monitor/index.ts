@@ -300,6 +300,7 @@ async function monitorDepTree(
               scannedProject.meta?.versionBuildInfo,
             ),
             gradleProjectName: scannedProject.meta?.gradleProjectName,
+            platform: scannedProject.meta?.platform,
           },
           policy: policy ? policy.toString() : undefined,
           package: depTree,
