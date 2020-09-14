@@ -146,7 +146,7 @@ export async function runGitLog(
   fnShellout: (cmd: string, workingDirectory: string) => Promise<string>,
 ): Promise<string> {
   try {
-    const gitLogCommand = `git --no-pager log --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI" --after="${timestampEpochSecondsStartOfPeriod}"`;
+    const gitLogCommand = `git --no-pager log --no-merges --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI" --after="${timestampEpochSecondsStartOfPeriod}"`;
     const gitLogStdout: string = await fnShellout(gitLogCommand, repoPath);
     return gitLogStdout;
   } catch {
