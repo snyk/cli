@@ -58,6 +58,7 @@ describe('ecosystems', () => {
       }
 
       const displayTxt = readFixture('display.txt');
+      const debugDisplayTxt = readFixture('debug-display.txt');
       const errorTxt = readFixture('error.txt');
       const testResult = readJsonFixture(
         'testResults.json',
@@ -101,6 +102,22 @@ describe('ecosystems', () => {
         const actual = await ecosystems.testEcosystem('cpp', ['.'], {
           path: '',
           json: true,
+        });
+        expect(mock).toHaveBeenCalled();
+        expect(actual).toEqual(expected);
+      });
+
+      it('should return fingerprints when debug option is set', async () => {
+        const mock = jest
+          .spyOn(request, 'makeRequest')
+          .mockResolvedValue(testResult);
+        const expected = TestCommandResult.createHumanReadableTestCommandResult(
+          debugDisplayTxt,
+          stringifyTestResults,
+        );
+        const actual = await ecosystems.testEcosystem('cpp', ['.'], {
+          path: '',
+          debug: true,
         });
         expect(mock).toHaveBeenCalled();
         expect(actual).toEqual(expected);

@@ -50,6 +50,7 @@ export interface EcosystemPlugin {
     scanResults: ScanResult[],
     testResults: TestResult[],
     errors: string[],
+    options: Options,
   ) => Promise<string>;
 }
 
@@ -91,7 +92,12 @@ export async function testEcosystem(
   }
   const emptyResults: ScanResult[] = [];
   const scanResults = emptyResults.concat(...Object.values(scanResultsByPath));
-  const readableResult = await plugin.display(scanResults, testResults, errors);
+  const readableResult = await plugin.display(
+    scanResults,
+    testResults,
+    errors,
+    options,
+  );
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     readableResult,
