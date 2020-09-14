@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as resolveNodeDeps from 'snyk-resolve-deps';
 import * as baseDebug from 'debug';
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 
 import * as spinner from '../../spinner';
 import * as analytics from '../../analytics';

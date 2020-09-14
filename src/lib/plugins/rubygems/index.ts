@@ -1,7 +1,7 @@
 import { inspectors, Spec } from './inspectors';
 import { MissingTargetFileError } from '../../errors/missing-targetfile-error';
 import gemfileLockToDependencies = require('./gemfile-lock-to-dependencies');
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 
 export async function inspect(

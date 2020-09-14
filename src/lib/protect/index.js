@@ -9,7 +9,7 @@ const protect = (module.exports = {
 });
 
 const debug = require('debug')('snyk');
-const _ = require('@snyk/lodash');
+const _ = require('lodash');
 
 function generatePolicy(policy, tasks, live, packageManager) {
   const promises = ['ignore', 'update', 'patch']

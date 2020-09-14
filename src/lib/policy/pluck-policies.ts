@@ -1,4 +1,4 @@
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import { PackageExpanded } from 'snyk-resolve-deps';
 
 export function pluckPolicies(pkg: PackageExpanded): string[] | string {

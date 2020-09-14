@@ -2,12 +2,12 @@ const test = require('tap').test;
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const spy = sinon.spy();
-const _ = require('@snyk/lodash');
+const _ = require('lodash');
 const dir = __dirname + '/fixtures/protect-via-snyk/';
 const fixture = require('./fixtures/protect-via-snyk/package.json');
 
 const wizard = proxyquire('../src/cli/commands/protect/wizard', {
-  '@snyk/inquirer': {
+  inquirer: {
     prompt: function(q, cb) {
       cb(q);
     },

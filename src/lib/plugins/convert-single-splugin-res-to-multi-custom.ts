@@ -1,6 +1,7 @@
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { MultiProjectResultCustom } from './get-multi-plugin-result';
 import { SupportedPackageManagers } from '../package-managers';
+import { CallGraph } from '@snyk/cli-interface/legacy/common';
 
 export function convertSingleResultToMultiCustom(
   inspectRes: pluginApi.SinglePackageResult,
@@ -28,7 +29,7 @@ function convertDepGraphResult(
       {
         plugin: plugin as any,
         depGraph,
-        callGraph,
+        callGraph: callGraph as CallGraph,
         meta,
         targetFile: plugin.targetFile,
         packageManager,
@@ -63,7 +64,7 @@ function convertDepTreeResult(
       {
         plugin: plugin as any,
         depTree,
-        callGraph,
+        callGraph: callGraph as CallGraph,
         meta,
         targetFile: plugin.targetFile,
         packageManager,

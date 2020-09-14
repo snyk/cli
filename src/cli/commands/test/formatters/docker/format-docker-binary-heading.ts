@@ -1,4 +1,4 @@
-import * as _ from '@snyk/lodash';
+import * as _ from 'lodash';
 import chalk from 'chalk';
 
 export function createDockerBinaryHeading(pkgInfo): string {
