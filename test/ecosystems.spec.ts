@@ -5,6 +5,12 @@ import * as ecosystems from '../src/lib/ecosystems';
 import * as request from '../src/lib/request/promise';
 import { Options } from '../src/lib/types';
 import { TestCommandResult } from '../src/cli/commands/types';
+const osName = require('os-name');
+
+const isWindows =
+  osName()
+    .toLowerCase()
+    .indexOf('windows') === 0;
 
 describe('ecosystems', () => {
   describe('getPlugin', () => {
@@ -48,6 +54,10 @@ describe('ecosystems', () => {
       const cwd = process.cwd();
 
       function readFixture(filename: string) {
+        if (isWindows) {
+          filename = filename.replace('.txt', '-windows.txt');
+        }
+
         const filePath = path.join(fixturePath, filename);
         return fs.readFileSync(filePath, 'utf-8');
       }
