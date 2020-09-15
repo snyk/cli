@@ -74,6 +74,7 @@ export interface Options {
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;
   debug?: boolean;
+  sarif?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -136,6 +137,13 @@ export interface SpinnerOptions {
   label?: string;
   unref?: any;
   cleanup?: any;
+}
+
+export interface OutputDataTypes {
+  stdout: any;
+  stringifiedData: string;
+  stringifiedJsonData: string;
+  stringifiedSarifData: string;
 }
 
 export type SupportedProjectTypes = IacProjectTypes | SupportedPackageManagers;

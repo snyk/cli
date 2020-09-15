@@ -4,6 +4,7 @@ import {
   AnnotatedIacIssue,
   IacTestResponse,
 } from '../../../src/lib/snyk-test/iac-test-result';
+import { Log, Run, Result } from 'sarif';
 
 export async function iacTestPrep(
   t,
@@ -58,6 +59,52 @@ export async function iacTestJson(t, utils, params, severityThreshold) {
   );
 
   iacTestJsonAssertions(t, results, expectedResults);
+}
+
+export async function iacTestSarif(t, utils, params, severityThreshold) {
+  const testableObject = await iacTestPrep(
+    t,
+    utils,
+    params,
+    severityThreshold,
+    { severityThreshold, sarif: true },
+  );
+  const req = params.server.popRequest();
+  t.is(req.query.severityThreshold, severityThreshold);
+
+  const results = JSON.parse(testableObject.message);
+  const expectedResults = mapIacTestResult(
+    iacTestResponseFixturesByThreshold[severityThreshold],
+  );
+
+  iacTestSarifAssertions(t, results, expectedResults);
+}
+
+export async function iacTestSarifFileOutput(
+  t,
+  utils,
+  params,
+  severityThreshold,
+) {
+  const testableObject = await iacTestPrep(
+    t,
+    utils,
+    params,
+    severityThreshold,
+    { severityThreshold, sarif: true },
+  );
+  const req = params.server.popRequest();
+  t.is(req.query.severityThreshold, severityThreshold);
+
+  const results = JSON.parse(testableObject.message);
+  const sarifStringifiedResults = JSON.parse(
+    testableObject.sarifStringifiedResults,
+  );
+  t.deepEqual(
+    results,
+    sarifStringifiedResults,
+    'stdout and stringified sarif results are the same',
+  );
 }
 
 export async function iacTest(
@@ -131,6 +178,63 @@ export function iacTestJsonAssertions(
   }
 }
 
+function getDistinctIssueIds(infrastructureAsCodeIssues): string[] {
+  const issueIdsSet = new Set<string>();
+  infrastructureAsCodeIssues.forEach((issue) => {
+    issueIdsSet.add(issue.id);
+  });
+  return [...new Set(issueIdsSet)];
+}
+
+export function iacTestSarifAssertions(
+  t,
+  results: Log,
+  expectedResults,
+  foundIssues = true,
+) {
+  t.deepEqual(results.version, '2.1.0', 'version is ok');
+  t.deepEqual(results.runs.length, 1, 'number of runs is ok');
+  const run: Run = results.runs[0];
+  t.deepEqual(
+    run.tool.driver.name,
+    'Snyk Infrastructure as Code',
+    'tool name is ok',
+  );
+  if (!foundIssues) {
+    t.deepEqual(run.tool.driver.rules!.length, 0, 'number of rules is ok');
+    t.deepEqual(run.results!.length, 0, 'number of issues is ok');
+
+    return;
+  }
+
+  const distictIssueIds = getDistinctIssueIds(
+    expectedResults.infrastructureAsCodeIssues,
+  );
+  t.deepEqual(
+    run.tool.driver.rules!.length,
+    distictIssueIds.length,
+    'number of rules is ok',
+  );
+  t.deepEqual(
+    run.results!.length,
+    expectedResults.infrastructureAsCodeIssues.length,
+    'number of issues is ok',
+  );
+  for (let i = 0; i < run.results!.length; i++) {
+    const sarifIssue: Result = run.results![i];
+    const expectedIssue = expectedResults.infrastructureAsCodeIssues[i];
+    t.deepEqual(sarifIssue.ruleId, expectedIssue.id, 'issue id is ok');
+
+    const messageText = `This line contains a potential ${expectedIssue.severity} severity misconfiguration affacting the Kubernetes ${expectedIssue.subType}`;
+    t.deepEqual(sarifIssue.message.text, messageText, 'issue message is ok');
+    t.deepEqual(
+      sarifIssue.locations![0].physicalLocation!.region!.startLine,
+      expectedIssue.lineNumber,
+      'issue message is ok',
+    );
+  }
+}
+
 function generateDummyIssue(severity): AnnotatedIacIssue {
   return {
     id: 'SNYK-CC-K8S-1',
@@ -150,6 +254,7 @@ function generateDummyIssue(severity): AnnotatedIacIssue {
     type: 'k8s',
     subType: 'Deployment',
     path: [],
+    lineNumber: 1,
   };
 }
 
