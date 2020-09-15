@@ -8,6 +8,7 @@ const woofs = {
   en: 'Woof!',
   he: ' !הב ',
   ru: ' Гав!',
+  es: 'Guau!',
 };
 
 export = function woof(...args0: MethodArgs) {
