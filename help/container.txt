@@ -16,6 +16,9 @@ Options:
   --file=<string> ......................... Include the path to the image's Dockerfile for more detailed advice.
   -h, --help
   --json
+  --platform=<string> ..................... For multi-architecture images, specify the platform to test. Options are:
+                                            [linux/amd64, linux/arm64, linux/riscv64, linux/ppc64le, linux/s390x,
+                                            linux/386, linux/arm/v7 orlinux/arm/v6]
   --print-deps ............................ Print the dependency tree before sending it for analysis.
   --project-name=<string> ................. Specify a custom Snyk project name.
   --policy-path=<path> .................... Manually pass a path to a snyk policy file.
@@ -24,6 +27,7 @@ Options:
 Examples:
 
   $ snyk container test alpine
+  $ snyk container test --platform=linux/arm64 debian
   $ snyk container monitor alpine
   $ snyk container test docker-archive:archive.tar
   $ snyk container test oci-archive:archive.tar
