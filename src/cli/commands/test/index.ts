@@ -223,7 +223,11 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true) then return the json
     if (errorMappedResults.every((res) => res.ok)) {
-      return TestCommandResult.createJsonTestCommandResult(stringifiedData);
+      return TestCommandResult.createJsonTestCommandResult(
+        stringifiedData,
+        stringifiedJsonData,
+        stringifiedSarifData,
+      );
     }
 
     const err = new Error(stringifiedData) as any;
@@ -233,7 +237,11 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
         const fail = shouldFail(vulnerableResults, options.failOn);
         if (!fail) {
           // return here to prevent failure
-          return TestCommandResult.createJsonTestCommandResult(stringifiedData);
+          return TestCommandResult.createJsonTestCommandResult(
+            stringifiedData,
+            stringifiedJsonData,
+            stringifiedSarifData,
+          );
         }
       }
       err.code = 'VULNS';

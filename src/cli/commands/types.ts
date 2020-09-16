@@ -40,9 +40,11 @@ export abstract class TestCommandResult extends CommandResult {
   }
 
   public static createJsonTestCommandResult(
-    jsonResult: string,
+    stdout: string,
+    jsonResult?: string,
+    sarifResult?: string,
   ): JsonTestCommandResult {
-    return new JsonTestCommandResult(jsonResult);
+    return new JsonTestCommandResult(stdout, jsonResult, sarifResult);
   }
 }
 
@@ -72,11 +74,23 @@ class HumanReadableTestCommandResult extends TestCommandResult {
 }
 
 class JsonTestCommandResult extends TestCommandResult {
-  constructor(jsonResult: string) {
-    super(jsonResult);
+  constructor(stdout: string, jsonResult?: string, sarifResult?: string) {
+    super(stdout);
+    if (jsonResult) {
+      this.jsonResult = jsonResult;
+    }
+    if (sarifResult) {
+      this.sarifResult = sarifResult;
+    } else {
+      this.jsonResult = stdout;
+    }
   }
 
   public getJsonResult(): string {
-    return this.result;
+    return this.jsonResult;
+  }
+
+  public getSarifResult(): string {
+    return this.sarifResult;
   }
 }

@@ -125,7 +125,7 @@ async function handleError(args, error) {
   }
 
   saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
-  saveResultsToFile(args.options, 'sarif', error.jsonStringifiedResults);
+  saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
 
   const analyticsError = vulnsFound
     ? {
@@ -416,7 +416,8 @@ function saveResultsToFile(
   outputType: string,
   jsonResults: string,
 ) {
-  const outputFile = options[`${outputType}-file-output`];
+  const flag = `${outputType}-file-output`;
+  const outputFile = options[flag];
   if (outputFile && jsonResults) {
     const outputFileStr = outputFile as string;
     const fullOutputFilePath = getFullPath(outputFileStr);
