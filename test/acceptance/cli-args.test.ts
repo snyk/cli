@@ -489,11 +489,11 @@ test('test --sarif-file-output no value produces error message', (t) => {
   optionsToTest.forEach(validate);
 });
 
-test('`test --json-file-output can be used at the same time as --sarif-file-output`', (t) => {
+test('`container test --json-file-output can be used at the same time as --sarif-file-output`', (t) => {
   t.plan(3);
 
   exec(
-    `node ${main} test --json-file-output=snyk-direct-json-test-output.json --sarif-file-output=snyk-direct-sarif-test-output.json`,
+    `node ${main} container test alpine --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json --json-file-output=snyk-direct-json-test-output.json`,
     (err, stdout) => {
       if (err) {
         throw err;
@@ -513,6 +513,73 @@ test('`test --json-file-output can be used at the same time as --sarif-file-outp
 
       t.ok(jsonOutput.ok, 'JSON output OK');
       t.match(sarifOutput.version, '2.1.0', 'SARIF output OK');
+      t.end();
+    },
+  );
+});
+
+test('`test --sarif-file-output can be used at the same time as --sarif`', (t) => {
+  t.plan(2);
+
+  exec(
+    `node ${main} container test alpine --sarif --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      const sarifOutput = JSON.parse(
+        readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
+      );
+
+      unlinkSync('./snyk-direct-sarif-test-output.json');
+
+      t.match(stdout, 'rules', 'stdout is sarif');
+
+      t.match(sarifOutput.version, '2.1.0', 'SARIF output file OK');
+      t.end();
+    },
+  );
+});
+
+test('`test --sarif-file-output without vulns`', (t) => {
+  t.plan(1);
+
+  exec(
+    `node ${main} container test alpine --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json`,
+    (err) => {
+      if (err) {
+        throw err;
+      }
+      const sarifOutput = JSON.parse(
+        readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
+      );
+
+      unlinkSync('./snyk-direct-sarif-test-output.json');
+
+      t.match(sarifOutput.version, '2.1.0', 'SARIF output file OK');
+      t.end();
+    },
+  );
+});
+
+test('`test --sarif-file-output can be used at the same time as --json with vulns`', (t) => {
+  t.plan(2);
+
+  exec(
+    `node ${main} container test ubuntu --json --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json`,
+    (err, stdout) => {
+      if (err) {
+        throw err;
+      }
+      const sarifOutput = JSON.parse(
+        readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
+      );
+
+      unlinkSync('./snyk-direct-sarif-test-output.json');
+
+      const jsonObj = JSON.parse(stdout);
+      t.notEqual(jsonObj.vulnerabilities.length, 0, 'has vulns');
+      t.match(sarifOutput.version, '2.1.0', 'SARIF output file OK');
       t.end();
     },
   );
