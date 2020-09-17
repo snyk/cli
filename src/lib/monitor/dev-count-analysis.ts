@@ -8,6 +8,7 @@
  */
 import * as crypto from 'crypto';
 import { exec } from 'child_process';
+import { Contributor } from '../types';
 
 export const SERIOUS_DELIMITER = '_SNYK_SEPARATOR_';
 export const CONTRIBUTING_DEVELOPER_PERIOD_DAYS = 90;
@@ -60,9 +61,9 @@ export class GitRepoCommitStats {
     return uniqueAuthorHashedEmails;
   }
 
-  public getRepoContributors(): { userId: string; lastCommitDate: string }[] {
+  public getRepoContributors(): Contributor[] {
     const uniqueAuthorHashedEmails = this.getUniqueAuthorHashedEmails();
-    const contributors: { userId: string; lastCommitDate: string }[] = [];
+    const contributors: Contributor[] = [];
 
     // for each uniqueAuthorHashedEmails, get the latest commit
     for (const nextUniqueAuthorHashedEmail of uniqueAuthorHashedEmails) {

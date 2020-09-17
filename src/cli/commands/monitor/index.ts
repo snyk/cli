@@ -13,7 +13,7 @@ import {
   MonitorResult,
   Options,
   PolicyOptions,
-  Contributors,
+  Contributor,
 } from '../../../lib/types';
 import * as config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
@@ -93,7 +93,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   apiTokenExists();
 
-  let contributors: Contributors[] = [];
+  let contributors: Contributor[] = [];
   if (!options.docker && analytics.allowAnalytics()) {
     try {
       const repoPath = process.cwd();
