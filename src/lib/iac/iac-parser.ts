@@ -2,6 +2,10 @@
 import * as YAML from 'js-yaml';
 import * as debugLib from 'debug';
 import { IllegalIacFileError, NotSupportedIacFileError } from '../errors';
+import request = require('../request');
+import { api as getApiToken } from '../api-token';
+import * as config from './../config';
+import { IacValidateTerraformResponse } from './constants';
 
 const debug = debugLib('snyk-detect');
 
@@ -13,7 +17,7 @@ const mandatoryKeysForSupportedK8sKinds = {
   networkpolicy: ['apiVersion', 'metadata', 'spec'],
 };
 
-function getFileType(filePath: string): string {
+export function getFileType(filePath: string): string {
   const filePathSplit = filePath.split('.');
   return filePathSplit[filePathSplit.length - 1].toLowerCase();
 }
@@ -87,4 +91,27 @@ export function validateK8sFile(
   }
 
   debug(`k8s config found (${filePath})`);
+}
+
+export async function makeValidateTerraformRequest(
+  terraformFileContent: string,
+): Promise<{
+  isValidTerraformFile: boolean;
+  reason: string;
+}> {
+  const response = (await request({
+    body: {
+      contentBase64: Buffer.from(terraformFileContent).toString('base64'),
+    },
+    url: `${config.API}/iac-validate/terraform`,
+    method: 'POST',
+    json: true,
+    headers: {
+      Authorization: `token ${getApiToken()}`,
+    },
+  })) as IacValidateTerraformResponse;
+  return {
+    isValidTerraformFile: !!response.body?.isValidTerraformFile,
+    reason: response.body?.reason || '',
+  };
 }

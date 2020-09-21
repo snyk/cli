@@ -53,6 +53,11 @@ import { getEcosystem, testEcosystem } from '../../../lib/ecosystems';
 import { TestLimitReachedError } from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { createSarifOutputForContainers } from './sarif-output';
+import {
+  IacProjectType,
+  IacProjectTypes,
+  TEST_SUPPORTED_IAC_PROJECTS,
+} from '../../../lib/iac/constants';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -448,7 +453,8 @@ function displayResult(
     return prefix + res.message;
   }
   const issuesText =
-    res.licensesPolicy || projectType === 'k8sconfig'
+    res.licensesPolicy ||
+    TEST_SUPPORTED_IAC_PROJECTS.includes(projectType as IacProjectTypes)
       ? 'issues'
       : 'vulnerabilities';
   let pathOrDepsText = '';
@@ -520,7 +526,9 @@ function displayResult(
     );
   }
 
-  if (res.packageManager === 'k8sconfig') {
+  if (
+    TEST_SUPPORTED_IAC_PROJECTS.includes(res.packageManager as IacProjectType)
+  ) {
     return getIacDisplayedOutput(
       (res as any) as IacTestResponse,
       testedInfoText,
