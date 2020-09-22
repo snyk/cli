@@ -3,7 +3,7 @@ FROM shellspec/shellspec:latest
 COPY ./smoke/ /snyk/smoke/
 COPY ./fixtures/basic-npm/ /snyk/fixtures/basic-npm/
 COPY ./fixtures/empty/ /snyk/fixtures/empty/
-COPY ./fixtures/iac-terraform/ /snyk/fixtures/iac-terraform/ 
+COPY ./fixtures/iac/ /snyk/fixtures/iac/ 
 
 RUN shellspec --version
 RUN apk add curl jq libgcc libstdc++

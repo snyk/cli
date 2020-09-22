@@ -12,6 +12,7 @@ src/lib/snyk-test/payload-schema.ts @snyk/cloudconfig
 src/lib/snyk-test/run-iac-test.ts @snyk/cloudconfig
 test/acceptance/cli-test/cli-test.iac-k8s.spec.ts @snyk/cloudconfig
 test/acceptance/cli-test/cli-test.iac-k8s.utils.ts @snyk/cloudconfig
-test/fixtures/iac-terraform/* @snyk/cloudconfig
+test/fixtures/iac/* @snyk/cloudconfig
+test/smoke/spec/iac/* @snyk/cloudconfig
 src/lib/errors/invalid-iac-file.ts @snyk/cloudconfig
 src/lib/errors/unsupported-options-iac-error.ts @snyk/cloudconfig

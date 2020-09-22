@@ -9,13 +9,7 @@ import { IacValidateTerraformResponse } from './constants';
 
 const debug = debugLib('snyk-detect');
 
-const mandatoryKeysForSupportedK8sKinds = {
-  deployment: ['apiVersion', 'metadata', 'spec'],
-  pod: ['apiVersion', 'metadata', 'spec'],
-  service: ['apiVersion', 'metadata', 'spec'],
-  podsecuritypolicy: ['apiVersion', 'metadata', 'spec'],
-  networkpolicy: ['apiVersion', 'metadata', 'spec'],
-};
+const requiredK8SObjectFields = ['apiVersion', 'kind', 'metadata', 'spec'];
 
 export function getFileType(filePath: string): string {
   const filePathSplit = filePath.split('.');
@@ -49,8 +43,6 @@ function parseYamlOrJson(fileContent: string, filePath: string): any {
 }
 
 // This function validates that there is at least one valid doc with a k8s object kind.
-// A valid k8s object has a kind key (.kind) from the keys of `mandatoryKeysForSupportedK8sKinds`
-// and all of the keys from `mandatoryKeysForSupportedK8sKinds[kind]`.
 // If there is a doc with a supported kind, but invalid, we should fail
 // The function return true if the yaml is a valid k8s one, or false otherwise
 export function validateK8sFile(
@@ -70,17 +62,11 @@ export function validateK8sFile(
       continue;
     }
 
-    const kind = k8sObject.kind.toLowerCase();
-    if (!Object.keys(mandatoryKeysForSupportedK8sKinds).includes(kind)) {
-      continue;
-    }
-
     numOfSupportedKeyDocs++;
 
-    for (let i = 0; i < mandatoryKeysForSupportedK8sKinds[kind].length; i++) {
-      const key = mandatoryKeysForSupportedK8sKinds[kind][i];
+    for (const key of requiredK8SObjectFields) {
       if (!k8sObject[key]) {
-        debug(`Missing key (${key}) from supported k8s object kind (${kind})`);
+        debug(`Missing required field (${key})`);
         throw IllegalIacFileError([root]);
       }
     }
