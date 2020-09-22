@@ -1,5 +1,5 @@
 import { SupportedPackageManagers } from './package-managers';
-import { IacProjectTypes } from './iac/constants';
+import { IacProjectTypes, IacFileTypes } from './iac/constants';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { SEVERITY } from './snyk-test/legacy';
 import { FailOn } from './snyk-test/common';
@@ -23,6 +23,7 @@ export interface TestOptions {
   yarnWorkspaces?: boolean;
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
+  iacDirFiles?: IacFileInDirectory[];
 }
 
 export interface WizardOptions {
@@ -192,4 +193,11 @@ export enum SupportedCliCommands {
   ignore = 'ignore',
   wizard = 'wizard',
   woof = 'woof',
+}
+
+export interface IacFileInDirectory {
+  filePath: string;
+  fileType: IacFileTypes;
+  projectType?: IacProjectTypes;
+  failureReason?: string;
 }

@@ -21,5 +21,7 @@ export { UnsupportedOptionCombinationError } from './unsupported-option-combinat
 export { FeatureNotSupportedByPackageManagerError } from './feature-not-supported-by-package-manager-error';
 export {
   NotSupportedIacFileError,
-  IllegalIacFileError,
+  NotSupportedIacFileErrorMsg,
+  IllegalIacFileErrorMsg,
+  NotSupportedIacAllProjects,
 } from './invalid-iac-file';

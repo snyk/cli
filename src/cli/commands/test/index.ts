@@ -8,6 +8,7 @@ import { isCI } from '../../../lib/is-ci';
 import { apiTokenExists, getDockerToken } from '../../../lib/api-token';
 import { FAIL_ON, FailOn, SEVERITIES } from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
+import * as pathLib from 'path';
 import {
   Options,
   ShowVulnPaths,
@@ -48,7 +49,11 @@ import {
   summariseVulnerableResults,
 } from './formatters';
 import * as utils from './utils';
-import { getIacDisplayedOutput, createSarifOutputForIac } from './iac-output';
+import {
+  getIacDisplayedOutput,
+  getIacDisplayErrorFileOutput,
+  createSarifOutputForIac,
+} from './iac-output';
 import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { createSarifOutputForContainers } from './sarif-output';
@@ -141,6 +146,9 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
 
     try {
       res = await snyk.test(path, testOpts);
+      if (testOpts.iacDirFiles) {
+        options.iacDirFiles = testOpts.iacDirFiles;
+      }
     } catch (error) {
       // Possible error cases:
       // - the test found some vulns. `error.message` is a
@@ -284,13 +292,27 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   }
 
   let summaryMessage = '';
+  let errorResultsLength = errorResults.length;
+
+  if (options.iac && options.iacDirFiles) {
+    const iacDirFilesErrors = options.iacDirFiles?.filter(
+      (iacFile) => iacFile.failureReason,
+    );
+    errorResultsLength = iacDirFilesErrors?.length || errorResults.length;
+
+    if (iacDirFilesErrors) {
+      for (const iacFileError of iacDirFilesErrors) {
+        response += chalk.bold.red(getIacDisplayErrorFileOutput(iacFileError));
+      }
+    }
+  }
 
   if (results.length > 1) {
     const projects = results.length === 1 ? 'project' : 'projects';
     summaryMessage =
       `\n\n\nTested ${results.length} ${projects}` +
       summariseVulnerableResults(vulnerableResults, options) +
-      summariseErrorResults(errorResults.length) +
+      summariseErrorResults(errorResultsLength) +
       '\n';
   }
 
@@ -435,8 +457,8 @@ function displayResult(
     (res.packageManager as SupportedProjectTypes) || options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
   let testingPath = options.path;
-  if (options.iac && options.file) {
-    testingPath = options.file;
+  if (options.iac && options.iacDirFiles && res.targetFile) {
+    testingPath = pathLib.basename(res.targetFile);
   }
   const prefix = chalk.bold.white('\nTesting ' + testingPath + '...\n\n');
 
@@ -453,6 +475,8 @@ function displayResult(
 
   if (res.dependencyCount) {
     pathOrDepsText += res.dependencyCount + ' dependencies';
+  } else if (options.iacDirFiles && res.targetFile) {
+    pathOrDepsText += pathLib.basename(res.targetFile);
   } else {
     pathOrDepsText += options.path;
   }

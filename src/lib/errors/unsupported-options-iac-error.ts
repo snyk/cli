@@ -8,3 +8,7 @@ export function UnsupportedOptionFileIacError(path: string): string {
     'Check other options by running snyk iac --help'
   );
 }
+
+export function IacDirectoryWithoutAnyIacFileError(): string {
+  return 'iac test support single valid file or a directory of valid files';
+}

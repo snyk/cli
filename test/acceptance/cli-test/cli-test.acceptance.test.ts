@@ -25,7 +25,8 @@ import { PythonTests } from './cli-test.python.spec';
 import { RubyTests } from './cli-test.ruby.spec';
 import { SbtTests } from './cli-test.sbt.spec';
 import { YarnTests } from './cli-test.yarn.spec';
-import { IacK8sTests } from './cli-test.iac-k8s.spec';
+import { IacK8sTests } from './iac/cli-test.iac-k8s.spec';
+import { IacDirTests } from './iac/cli-test.iac-dir.spec';
 import { YarnWorkspacesTests } from './cli-test.yarn-workspaces.spec';
 // import { AllProjectsTests } from './cli-test.all-projects.spec'; TODO @boost temporary disable flaky test
 
@@ -43,6 +44,7 @@ const languageTests: AcceptanceTests[] = [
   SbtTests,
   YarnTests,
   IacK8sTests,
+  IacDirTests,
   YarnWorkspacesTests,
 ];
 

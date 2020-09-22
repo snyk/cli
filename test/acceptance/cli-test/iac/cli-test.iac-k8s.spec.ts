@@ -9,10 +9,11 @@ import {
   iacTestSarifAssertions,
   iacTestResponseFixturesByThreshold,
   iacTestSarifFileOutput,
-} from './cli-test.iac-k8s.utils';
-import { CommandResult } from '../../../src/cli/commands/types';
+  IacAcceptanceTestType,
+} from './cli-test.iac-utils';
+import { CommandResult } from '../../../../src/cli/commands/types';
 
-import { AcceptanceTests } from './cli-test.acceptance.test';
+import { AcceptanceTests } from '../cli-test.acceptance.test';
 
 /**
  * There's a Super weird bug when referncing Typescript Enum values (i.e. SEVERITY.medium), which causes all the to tests breaks.
@@ -41,15 +42,6 @@ export const IacK8sTests: AcceptanceTests = {
       t.equal(req.body.type, 'k8sconfig');
     },
 
-    '`iac test - no file`': (params, utils) => async (t) =>
-      await iacErrorTest(
-        t,
-        utils,
-        params,
-        'iac-kubernetes',
-        'iac test option currently supports only a single local file',
-      ),
-
     '`iac test - not a real dir`': (params, utils) => async (t) =>
       await iacErrorTest(
         t,
@@ -70,7 +62,7 @@ export const IacK8sTests: AcceptanceTests = {
         },
       );
       const res = commandResult.getDisplayResults();
-      iacTestMetaAssertions(t, res);
+      iacTestMetaAssertions(t, res, IacAcceptanceTestType.SINGLE_K8S_FILE);
     },
 
     '`iac test multi-file.yaml`': (params, utils) => async (t) => {
@@ -112,23 +104,47 @@ export const IacK8sTests: AcceptanceTests = {
         );
         t.ok(issues[7], 'description');
         t.ok(issues[8] === '', 'Empty line after description');
-        iacTestMetaAssertions(t, res);
+        iacTestMetaAssertions(t, res, IacAcceptanceTestType.SINGLE_K8S_FILE);
       }
     },
     '`iac test multi-file.yaml --severity-threshold=low`': (
       params,
       utils,
-    ) => async (t) => await iacTest(t, utils, params, 'low', 3),
+    ) => async (t) =>
+      await iacTest(
+        t,
+        utils,
+        params,
+        'low',
+        3,
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --severity-threshold=medium`': (
       params,
       utils,
-    ) => async (t) => await iacTest(t, utils, params, 'medium', 2),
+    ) => async (t) =>
+      await iacTest(
+        t,
+        utils,
+        params,
+        'medium',
+        2,
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --severity-threshold=high`': (
       params,
       utils,
-    ) => async (t) => await iacTest(t, utils, params, 'high', 1),
+    ) => async (t) =>
+      await iacTest(
+        t,
+        utils,
+        params,
+        'high',
+        1,
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --json - no issues`': (params, utils) => async (
       t,
@@ -145,22 +161,49 @@ export const IacK8sTests: AcceptanceTests = {
         testableObject = error;
       }
       const res: any = JSON.parse(testableObject.message);
-      iacTestJsonAssertions(t, res, null, false);
+      iacTestJsonAssertions(
+        t,
+        res,
+        null,
+        false,
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      );
     },
     '`iac test multi-file.yaml --severity-threshold=low --json`': (
       params,
       utils,
-    ) => async (t) => await iacTestJson(t, utils, params, 'low'),
+    ) => async (t) =>
+      await iacTestJson(
+        t,
+        utils,
+        params,
+        'low',
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --severity-threshold=medium --json`': (
       params,
       utils,
-    ) => async (t) => await iacTestJson(t, utils, params, 'medium'),
+    ) => async (t) =>
+      await iacTestJson(
+        t,
+        utils,
+        params,
+        'medium',
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --severity-threshold=high --json`': (
       params,
       utils,
-    ) => async (t) => await iacTestJson(t, utils, params, 'high'),
+    ) => async (t) =>
+      await iacTestJson(
+        t,
+        utils,
+        params,
+        'high',
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --sarif - no issues`': (params, utils) => async (
       t,
@@ -182,21 +225,49 @@ export const IacK8sTests: AcceptanceTests = {
     '`iac test multi-file.yaml --severity-threshold=low --sarif`': (
       params,
       utils,
-    ) => async (t) => await iacTestSarif(t, utils, params, 'low'),
+    ) => async (t) =>
+      await iacTestSarif(
+        t,
+        utils,
+        params,
+        'low',
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --severity-threshold=medium --sarif`': (
       params,
       utils,
-    ) => async (t) => await iacTestSarif(t, utils, params, 'medium'),
+    ) => async (t) =>
+      await iacTestSarif(
+        t,
+        utils,
+        params,
+        'medium',
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --severity-threshold=high --sarif`': (
       params,
       utils,
-    ) => async (t) => await iacTestSarif(t, utils, params, 'high'),
+    ) => async (t) =>
+      await iacTestSarif(
+        t,
+        utils,
+        params,
+        'high',
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
 
     '`iac test multi-file.yaml --severity-threshold=high --sarif --sarif-file-output=test.json`': (
       params,
       utils,
-    ) => async (t) => await iacTestSarifFileOutput(t, utils, params, 'high'),
+    ) => async (t) =>
+      await iacTestSarifFileOutput(
+        t,
+        utils,
+        params,
+        'high',
+        IacAcceptanceTestType.SINGLE_K8S_FILE,
+      ),
   },
 };
