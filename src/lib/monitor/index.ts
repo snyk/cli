@@ -17,7 +17,7 @@ import {
   PolicyOptions,
   MonitorOptions,
   Options,
-  Contributors,
+  Contributor,
 } from '../types';
 import * as projectMetadata from '../project-metadata';
 
@@ -67,7 +67,7 @@ interface MonitorBody {
   target: {};
   targetFileRelativePath: string;
   targetFile: string;
-  contributors?: Contributors[];
+  contributors?: Contributor[];
 }
 
 interface Meta {
@@ -95,7 +95,7 @@ export async function monitor(
   options: Options & MonitorOptions & PolicyOptions,
   pluginMeta: PluginMetadata,
   targetFileRelativePath?: string,
-  contributors?: Contributors[],
+  contributors?: Contributor[],
 ): Promise<MonitorResult> {
   apiTokenExists();
 
@@ -162,7 +162,7 @@ async function monitorDepTree(
   pluginMeta: PluginMetadata,
   options: MonitorOptions & PolicyOptions,
   targetFileRelativePath?: string,
-  contributors?: Contributors[],
+  contributors?: Contributor[],
 ): Promise<MonitorResult> {
   let treeMissingDeps: string[] = [];
 
@@ -351,7 +351,7 @@ export async function monitorDepGraph(
   pluginMeta: PluginMetadata,
   options: MonitorOptions & PolicyOptions,
   targetFileRelativePath?: string,
-  contributors?: Contributors[],
+  contributors?: Contributor[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('monitorDepGraph', true);
@@ -475,7 +475,7 @@ async function experimentalMonitorDepGraphFromDepTree(
   pluginMeta: PluginMetadata,
   options: MonitorOptions & PolicyOptions,
   targetFileRelativePath?: string,
-  contributors?: Contributors[],
+  contributors?: Contributor[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('experimentalMonitorDepGraphFromDepTree', true);

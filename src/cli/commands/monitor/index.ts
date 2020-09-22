@@ -13,7 +13,7 @@ import {
   MonitorResult,
   Options,
   PolicyOptions,
-  Contributors,
+  Contributor,
 } from '../../../lib/types';
 import * as config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
@@ -34,14 +34,7 @@ import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-
 import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
 import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
-import {
-  CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
-  getTimestampStartOfContributingDevTimeframe,
-  parseGitLog,
-  runGitLog,
-  GitRepoCommitStats,
-  execShell,
-} from '../../../lib/monitor/dev-count-analysis';
+import { getContributors } from '../../../lib/monitor/dev-count-analysis';
 import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 
@@ -93,22 +86,10 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   apiTokenExists();
 
-  let contributors: Contributors[] = [];
+  let contributors: Contributor[] = [];
   if (!options.docker && analytics.allowAnalytics()) {
     try {
-      const repoPath = process.cwd();
-      const dNow = new Date();
-      const timestampStartOfContributingDeveloperPeriod = getTimestampStartOfContributingDevTimeframe(
-        dNow,
-        CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
-      );
-      const gitLogResults = await runGitLog(
-        timestampStartOfContributingDeveloperPeriod,
-        repoPath,
-        execShell,
-      );
-      const stats: GitRepoCommitStats = parseGitLog(gitLogResults);
-      contributors = stats.getRepoContributors();
+      contributors = await getContributors();
     } catch (err) {
       debug('error getting repo contributors', err);
     }

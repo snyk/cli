@@ -8,9 +8,30 @@
  */
 import * as crypto from 'crypto';
 import { exec } from 'child_process';
+import { Contributor } from '../types';
 
 export const SERIOUS_DELIMITER = '_SNYK_SEPARATOR_';
 export const CONTRIBUTING_DEVELOPER_PERIOD_DAYS = 90;
+
+export async function getContributors(
+  { endDate, periodDays, repoPath } = {
+    endDate: new Date(),
+    periodDays: CONTRIBUTING_DEVELOPER_PERIOD_DAYS,
+    repoPath: process.cwd(),
+  },
+): Promise<Contributor[]> {
+  const timestampStartOfContributingDeveloperPeriod = getTimestampStartOfContributingDevTimeframe(
+    endDate,
+    periodDays,
+  );
+  const gitLogResults = await runGitLog(
+    timestampStartOfContributingDeveloperPeriod,
+    repoPath,
+    execShell,
+  );
+  const stats: GitRepoCommitStats = parseGitLog(gitLogResults);
+  return stats.getRepoContributors();
+}
 
 export class GitCommitInfo {
   authorHashedEmail: string;
@@ -60,9 +81,9 @@ export class GitRepoCommitStats {
     return uniqueAuthorHashedEmails;
   }
 
-  public getRepoContributors(): { userId: string; lastCommitDate: string }[] {
+  public getRepoContributors(): Contributor[] {
     const uniqueAuthorHashedEmails = this.getUniqueAuthorHashedEmails();
-    const contributors: { userId: string; lastCommitDate: string }[] = [];
+    const contributors: Contributor[] = [];
 
     // for each uniqueAuthorHashedEmails, get the latest commit
     for (const nextUniqueAuthorHashedEmail of uniqueAuthorHashedEmails) {

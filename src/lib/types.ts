@@ -29,7 +29,7 @@ export interface WizardOptions {
   newPolicy: boolean;
 }
 
-export interface Contributors {
+export interface Contributor {
   userId: string;
   lastCommitDate: string;
 }
