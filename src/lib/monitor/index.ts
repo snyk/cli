@@ -390,6 +390,43 @@ export async function monitorDepGraph(
   // this graph will be pruned only if is too dense
   depGraph = await pruneGraph(depGraph, packageManager);
 
+  let callGraphPayload;
+  if (
+    options.reachableVulns &&
+    (scannedProject.callGraph as CallGraphError)?.innerError
+  ) {
+    const err = scannedProject.callGraph as CallGraphError;
+    analytics.add(
+      'callGraphError',
+      abridgeErrorMessage(
+        err.innerError.toString(),
+        ANALYTICS_PAYLOAD_MAX_LENGTH,
+      ),
+    );
+    alerts.registerAlerts([
+      {
+        type: 'error',
+        name: 'missing-call-graph',
+        msg: err.message,
+      },
+    ]);
+  } else if (scannedProject.callGraph) {
+    const { callGraph, nodeCount, edgeCount } = serializeCallGraphWithMetrics(
+      scannedProject.callGraph as CallGraph,
+    );
+    debug(
+      `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
+    );
+
+    const callGraphMetrics = _.get(pluginMeta, 'meta.callGraphMetrics', {});
+    analytics.add('callGraphMetrics', {
+      callGraphEdgeCount: edgeCount,
+      callGraphNodeCount: nodeCount,
+      ...callGraphMetrics,
+    });
+    callGraphPayload = callGraph;
+  }
+
   return new Promise((resolve, reject) => {
     if (!depGraph) {
       debug(
@@ -432,6 +469,7 @@ export async function monitorDepGraph(
           targetFile: getTargetFile(scannedProject, pluginMeta),
           targetFileRelativePath,
           contributors,
+          callGraph: callGraphPayload,
         } as MonitorBody,
         gzip: true,
         method: 'PUT',

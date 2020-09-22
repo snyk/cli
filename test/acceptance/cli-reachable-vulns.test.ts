@@ -48,7 +48,7 @@ before('prime config', async (t) => {
 
 test('test vulnerable project with --reachable-vulns not supported package manager', async (t) => {
   try {
-    await cli.test('gradle', {
+    await cli.test('npm-package', {
       reachableVulns: true,
     });
     t.fail('expected test to throw exception');
@@ -66,13 +66,13 @@ test('monitor vulnerable project with --reachable-vulns not supported package ma
   try {
     await cli.monitor('.', {
       reachableVulns: true,
-      packageManager: 'gradle',
+      packageManager: 'npm',
     });
     t.fail('expected test to throw exception');
   } catch (err) {
     t.match(
       err.message,
-      `'Reachable vulns' is not supported for package manager 'gradle'. For a list of supported package managers go to https://support.snyk.io/hc/en-us/articles/360010554837-Reachable-Vulnerabilities`,
+      `'Reachable vulns' is not supported for package manager 'npm'. For a list of supported package managers go to https://support.snyk.io/hc/en-us/articles/360010554837-Reachable-Vulnerabilities`,
     );
   }
 });

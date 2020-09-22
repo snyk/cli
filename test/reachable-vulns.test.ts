@@ -15,6 +15,7 @@ import {
 } from '../src/lib/reachable-vulns';
 import {
   SUPPORTED_PACKAGE_MANAGER_NAME,
+  REACHABLE_VULNS_SUPPORTED_PACKAGE_MANAGERS,
   SupportedPackageManagers,
 } from '../src/lib/package-managers';
 import * as featureFlags from '../src/lib/feature-flags';
@@ -166,9 +167,12 @@ test('formatReachablePaths', (t) => {
 });
 
 test('validatePayload - not supported package manager', async (t) => {
-  const pkgManagers = Object.keys(SUPPORTED_PACKAGE_MANAGER_NAME);
-  const mavenIndex = pkgManagers.indexOf('maven');
-  pkgManagers.splice(mavenIndex, 1); // remove maven as it's supported
+  const pkgManagers = Object.keys(SUPPORTED_PACKAGE_MANAGER_NAME).filter(
+    (name) =>
+      !REACHABLE_VULNS_SUPPORTED_PACKAGE_MANAGERS.includes(
+        name as SupportedPackageManagers,
+      ),
+  );
   t.plan(pkgManagers.length * 3);
 
   for (const pkgManager of pkgManagers) {
