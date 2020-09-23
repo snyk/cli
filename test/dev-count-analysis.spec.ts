@@ -46,7 +46,9 @@ describe('cli dev count via git log analysis', () => {
       '044c9c2a86c6e6780a9b64d245bb1e69735ea8b8',
       '0768695f32a8bd41b0eff550eae32013733fde2c',
     ];
-    expect(contributorUserIds).toEqual(expectedContributorUserIds);
+    expect(contributorUserIds.sort()).toEqual(
+      expectedContributorUserIds.sort(),
+    );
   });
 
   // This test proves that we don't pick up any commit author emails which are only found in merge commits.
