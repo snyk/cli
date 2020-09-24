@@ -56,7 +56,7 @@ test('test vulnerable project with --reachable-vulns not supported package manag
     t.equal(err.code, 422, 'should throw exception');
     t.equal(
       err.userMessage,
-      `'Reachable vulns' is not supported for package manager 'npm'.`,
+      `'Reachable vulns' is not supported for package manager 'npm'. For a list of supported package managers go to https://support.snyk.io/hc/en-us/articles/360010554837-Reachable-Vulnerabilities`,
       'correct user message',
     );
   }
@@ -72,7 +72,7 @@ test('monitor vulnerable project with --reachable-vulns not supported package ma
   } catch (err) {
     t.match(
       err.message,
-      `'Reachable vulns' is not supported for package manager 'gradle'.`,
+      `'Reachable vulns' is not supported for package manager 'gradle'. For a list of supported package managers go to https://support.snyk.io/hc/en-us/articles/360010554837-Reachable-Vulnerabilities`,
     );
   }
 });
