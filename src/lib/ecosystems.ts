@@ -8,17 +8,36 @@ import { Options } from './types';
 import { TestCommandResult } from '../cli/commands/types';
 import * as spinner from '../lib/spinner';
 
-export interface Artifact {
-  type: string;
-  data: any;
-  meta: { [key: string]: any };
+export interface PluginResponse {
+  scanResults: ScanResult[];
+}
+
+export interface GitTarget {
+  remoteUrl: string;
+  branch: string;
+}
+
+export interface ContainerTarget {
+  image: string;
 }
 
 export interface ScanResult {
-  artifacts: Artifact[];
-  meta: {
-    [key: string]: any;
-  };
+  identity: Identity;
+  facts: Facts[];
+  name?: string;
+  policy?: string;
+  target?: GitTarget | ContainerTarget;
+}
+
+export interface Identity {
+  type: string;
+  targetFile?: string;
+  args?: { [key: string]: string };
+}
+
+export interface Facts {
+  type: string;
+  data: any;
 }
 
 export interface Issue {
@@ -45,7 +64,7 @@ export interface TestResult {
 }
 
 export interface EcosystemPlugin {
-  scan: (options: Options) => Promise<ScanResult[]>;
+  scan: (options: Options) => Promise<PluginResponse>;
   display: (
     scanResults: ScanResult[],
     testResults: TestResult[],
@@ -82,8 +101,8 @@ export async function testEcosystem(
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
   for (const path of paths) {
     options.path = path;
-    const results = await plugin.scan(options);
-    scanResultsByPath[path] = results;
+    const pluginResponse = await plugin.scan(options);
+    scanResultsByPath[path] = pluginResponse.scanResults;
   }
   const [testResults, errors] = await testDependencies(scanResultsByPath);
   const stringifiedData = JSON.stringify(testResults, null, 2);
@@ -122,8 +141,7 @@ export async function testDependencies(scans: {
           authorization: 'token ' + snyk.api,
         },
         body: {
-          artifacts: scanResult.artifacts,
-          meta: {},
+          ...scanResult,
         },
       };
       try {

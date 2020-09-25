@@ -88,7 +88,7 @@ describe('ecosystems', () => {
       });
 
       it('should return human readable result when no json option given', async () => {
-        const mock = jest
+        const makeRequestSpy = jest
           .spyOn(request, 'makeRequest')
           .mockResolvedValue(testResult);
         const expected = TestCommandResult.createHumanReadableTestCommandResult(
@@ -98,12 +98,44 @@ describe('ecosystems', () => {
         const actual = await ecosystems.testEcosystem('cpp', ['.'], {
           path: '',
         });
-        expect(mock).toHaveBeenCalled();
+        expect(makeRequestSpy.mock.calls[0][0]).toEqual({
+          body: {
+            facts: [
+              {
+                type: 'cpp-fingerprints',
+                data: [
+                  {
+                    filePath: 'add.cpp',
+                    hash: '52d1b046047db9ea0c581cafd4c68fe5',
+                  },
+                  {
+                    filePath: 'add.h',
+                    hash: 'aeca71a6e39f99a24ecf4c088eee9cb8',
+                  },
+                  {
+                    filePath: 'main.cpp',
+                    hash: 'ad3365b3370ef6b1c3e778f875055f19',
+                  },
+                ],
+              },
+            ],
+            identity: {
+              type: 'cpp',
+            },
+          },
+          headers: {
+            authorization: expect.stringContaining('token'),
+            'x-is-ci': expect.any(Boolean),
+          },
+          json: true,
+          method: 'POST',
+          url: expect.stringContaining('/test-dependencies'),
+        });
         expect(actual).toEqual(expected);
       });
 
       it('should return json result when json option', async () => {
-        const mock = jest
+        const makeRequestSpy = jest
           .spyOn(request, 'makeRequest')
           .mockResolvedValue(testResult);
         const expected = TestCommandResult.createJsonTestCommandResult(
@@ -113,7 +145,39 @@ describe('ecosystems', () => {
           path: '',
           json: true,
         });
-        expect(mock).toHaveBeenCalled();
+        expect(makeRequestSpy.mock.calls[0][0]).toEqual({
+          body: {
+            facts: [
+              {
+                type: 'cpp-fingerprints',
+                data: [
+                  {
+                    filePath: 'add.cpp',
+                    hash: '52d1b046047db9ea0c581cafd4c68fe5',
+                  },
+                  {
+                    filePath: 'add.h',
+                    hash: 'aeca71a6e39f99a24ecf4c088eee9cb8',
+                  },
+                  {
+                    filePath: 'main.cpp',
+                    hash: 'ad3365b3370ef6b1c3e778f875055f19',
+                  },
+                ],
+              },
+            ],
+            identity: {
+              type: 'cpp',
+            },
+          },
+          headers: {
+            authorization: expect.stringContaining('token'),
+            'x-is-ci': expect.any(Boolean),
+          },
+          json: true,
+          method: 'POST',
+          url: expect.stringContaining('/test-dependencies'),
+        });
         expect(actual).toEqual(expected);
       });
 
