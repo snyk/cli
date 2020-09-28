@@ -43,6 +43,7 @@ export async function validatePayload(
     throw new FeatureNotSupportedByPackageManagerError(
       'Reachable vulns',
       packageManager,
+      `For a list of supported package managers go to https://support.snyk.io/hc/en-us/articles/360010554837-Reachable-Vulnerabilities`,
     );
   }
   const reachableVulnsSupportedRes = await isFeatureFlagSupportedForOrg(

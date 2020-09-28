@@ -169,7 +169,7 @@ test('validatePayload - not supported package manager', async (t) => {
   const pkgManagers = Object.keys(SUPPORTED_PACKAGE_MANAGER_NAME);
   const mavenIndex = pkgManagers.indexOf('maven');
   pkgManagers.splice(mavenIndex, 1); // remove maven as it's supported
-  t.plan(pkgManagers.length * 2);
+  t.plan(pkgManagers.length * 3);
 
   for (const pkgManager of pkgManagers) {
     try {
@@ -183,6 +183,11 @@ test('validatePayload - not supported package manager', async (t) => {
       t.equal(
         err.message,
         `Unsupported package manager ${pkgManager} for Reachable vulns.`,
+        'correct error message',
+      );
+      t.equal(
+        err.userMessage,
+        `'Reachable vulns' is not supported for package manager '${pkgManager}'. For a list of supported package managers go to https://support.snyk.io/hc/en-us/articles/360010554837-Reachable-Vulnerabilities`,
         'correct error message',
       );
       t.equal(err.code, 422, 'correct error code');
