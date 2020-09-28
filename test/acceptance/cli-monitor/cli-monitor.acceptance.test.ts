@@ -923,6 +923,22 @@ if (!isWindows) {
     );
   });
 
+  test('`monitor poetry-app`', async (t) => {
+    chdirWorkspaces();
+    await cli.monitor('poetry-app');
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    t.match(req.url, '/monitor/poetry/graph', 'puts at correct url');
+    t.equal(req.body.targetFile, 'pyproject.toml', 'sends targetFile');
+    const depGraphJSON = req.body.depGraphJSON;
+    t.ok(depGraphJSON);
+  });
+
   test('`monitor pip-app --file=requirements.txt`', async (t) => {
     chdirWorkspaces();
     const plugin = {

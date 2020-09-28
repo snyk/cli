@@ -34,7 +34,8 @@ export function loadPlugin(
     case 'yarn': {
       return nodejsPlugin;
     }
-    case 'pip': {
+    case 'pip':
+    case 'poetry': {
       return pythonPlugin;
     }
     case 'golangdep':

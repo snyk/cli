@@ -12,7 +12,8 @@ export type SupportedPackageManagers =
   | 'nuget'
   | 'paket'
   | 'composer'
-  | 'cocoapods';
+  | 'cocoapods'
+  | 'poetry';
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   readonly [packageManager in SupportedPackageManagers]: string;
@@ -31,6 +32,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   paket: 'Paket',
   composer: 'Composer',
   cocoapods: 'CocoaPods',
+  poetry: 'Poetry',
 };
 
 export const WIZARD_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
@@ -46,6 +48,7 @@ export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'sbt',
   'yarn',
   'rubygems',
+  'poetry',
 ];
 // For ecosystems with a flat set of libraries (e.g. Python, JVM), one can
 // "pin" a transitive dependency
