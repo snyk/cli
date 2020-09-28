@@ -1,1 +1,26 @@
-version: v1
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'npm:hawk:20160119':
+    - '@remy/protect-test > request > hawk':
+        patched: '2020-09-28T17:07:24.379Z'
+  'npm:hoek:20180212':
+    - '@remy/protect-test > request > hawk > hoek':
+        patched: '2020-09-28T17:07:24.379Z'
+    - '@remy/protect-test > request > hawk > boom > hoek':
+        patched: '2020-09-28T17:07:24.379Z'
+    - '@remy/protect-test > request > hawk > sntp > hoek':
+        patched: '2020-09-28T17:07:24.379Z'
+    - '@remy/protect-test > request > hawk > cryptiles > boom > hoek':
+        patched: '2020-09-28T17:07:24.379Z'
+  'npm:request:20160119':
+    - '@remy/protect-test > request':
+        patched: '2020-09-28T17:07:24.379Z'
+  'npm:semver:20150403':
+    - '@remy/protect-test > semver':
+        patched: '2020-09-28T17:07:24.379Z'
+  'npm:tunnel-agent:20170305':
+    - '@remy/protect-test > request > tunnel-agent':
+        patched: '2020-09-28T17:07:24.379Z'
