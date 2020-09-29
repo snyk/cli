@@ -39,6 +39,10 @@ enum TrackedIntegration {
 
   // Partner integrations - tracked by passing envvar on CLI invocation
   DOCKER_DESKTOP = 'DOCKER_DESKTOP',
+
+  // DevRel integrations and plugins
+  // Netlify plugin: https://github.com/snyk-labs/netlify-plugin-snyk
+  NETLIFY_PLUGIN = 'NETLIFY_PLUGIN',
 }
 
 // TODO: propagate these to the UTM params
