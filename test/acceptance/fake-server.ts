@@ -191,6 +191,15 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
+  server.put(root + '/monitor-dependencies', (req, res, next) => {
+    res.send({
+      id: 'monitor',
+      uri: `${req.params.registry}/some/project-id`,
+      isMonitored: true,
+    });
+    return next();
+  });
+
   server.put(root + '/monitor/:registry', (req, res, next) => {
     res.send({
       id: 'monitor',

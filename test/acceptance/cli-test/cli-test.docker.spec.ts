@@ -52,9 +52,7 @@ export const DockerTests: AcceptanceTests = {
       );
     },
 
-    '`test docker-archive:foo.tar --docker --experimental`': (params) => async (
-      t,
-    ) => {
+    '`test docker-archive:foo.tar --docker`': (params) => async (t) => {
       const spyPlugin = stubDockerPluginResponse(
         params.plugins,
         {
@@ -68,8 +66,7 @@ export const DockerTests: AcceptanceTests = {
 
       await params.cli.test('docker-archive:foo.tar', {
         docker: true,
-        org: 'experimental-org',
-        experimental: true,
+        org: 'container-org',
       });
       const req = params.server.popRequest();
       t.equal(req.method, 'POST', 'makes POST request');
@@ -89,12 +86,11 @@ export const DockerTests: AcceptanceTests = {
             args: null,
             file: null,
             docker: true,
-            org: 'experimental-org',
+            org: 'container-org',
             projectName: null,
             packageManager: null,
             path: 'docker-archive:foo.tar',
             showVulnPaths: 'some',
-            experimental: true,
           },
         ],
         'calls docker plugin with expected arguments',

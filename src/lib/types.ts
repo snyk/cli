@@ -45,6 +45,7 @@ export interface Options {
   org?: string | null;
   path: string;
   docker?: boolean;
+  container?: boolean; // Container Ecosystem Support
   iac?: boolean;
   source?: boolean; // C/C++ Ecosystem Support
   file?: string;
@@ -69,10 +70,6 @@ export interface Options {
   detectionDepth?: number;
   exclude?: string;
   strictOutOfSync?: boolean;
-  // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
-  experimental?: boolean;
-  // Used with the Docker plugin only. Allows application scanning.
-  'app-vulns'?: boolean;
   debug?: boolean;
   sarif?: boolean;
 }
@@ -92,10 +89,6 @@ export interface MonitorOptions {
   allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
   pruneRepeatedSubdependencies?: boolean;
-  // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
-  experimental?: boolean;
-  // Used with the Docker plugin only. Allows application scanning.
-  'app-vulns'?: boolean;
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
   yarnWorkspaces?: boolean;

@@ -1,4 +1,5 @@
 import * as abbrev from 'abbrev';
+import { getContainerImageSavePath } from '../lib/container';
 import { UnsupportedOptionCombinationError, CustomError } from '../lib/errors';
 
 interface ModeData {
@@ -18,9 +19,7 @@ const modes: Record<string, ModeData> = {
     allowedCommands: ['test', 'monitor'],
     config: (args): [] => {
       args['docker'] = true;
-      args['experimental'] = true;
-      args['app-vulns'] = args.json ? false : true;
-
+      args['imageSavePath'] = getContainerImageSavePath();
       return args;
     },
   },

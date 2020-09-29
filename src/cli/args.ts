@@ -7,7 +7,6 @@ import {
   SupportedCliCommands,
   SupportedUserReachableFacingCliArgs,
 } from '../lib/types';
-import { getContainerImageSavePath } from '../lib/container';
 
 export declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
@@ -170,13 +169,6 @@ export function args(rawArgv: string[]): Args {
     // if we failed to find a command, then default to an error
     method = require('../lib/errors/legacy-errors');
     argv._.push(command);
-  }
-
-  // TODO: Once experimental flag became default this block should be
-  // moved to inside the parseModes function for container mode
-  const imageSavePath = getContainerImageSavePath();
-  if (imageSavePath) {
-    argv['imageSavePath'] = imageSavePath;
   }
 
   if (command in SupportedCliCommands) {

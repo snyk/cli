@@ -117,8 +117,6 @@ describe('when have a valid mode and command', () => {
     const expectedArgs = {
       _: [],
       docker: true,
-      experimental: true,
-      'app-vulns': true,
       'package-manager': 'pip',
     };
     const cliCommand = 'container';
@@ -132,7 +130,6 @@ describe('when have a valid mode and command', () => {
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
     expect(cliArgs['docker']).toBeTruthy();
-    expect(cliArgs['experimental']).toBeTruthy();
   });
 
   it('"source test" should set source option and test command', () => {
@@ -159,8 +156,6 @@ describe('when have a valid mode, command and exists a command alias', () => {
     const expectedArgs = {
       _: [],
       docker: true,
-      experimental: true,
-      'app-vulns': true,
       'package-manager': 'pip',
     };
     const cliCommand = 'container';
@@ -174,17 +169,14 @@ describe('when have a valid mode, command and exists a command alias', () => {
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
     expect(cliArgs['docker']).toBeTruthy();
-    expect(cliArgs['experimental']).toBeTruthy();
   });
 
-  it('"container test" should set docker option and not app-vulns and test command', () => {
+  it('"container test" should set docker option and test command', () => {
     const expectedCommand = 't';
     const expectedArgs = {
       _: [],
       json: true,
       docker: true,
-      experimental: true,
-      'app-vulns': false,
       'package-manager': 'pip',
     };
     const cliCommand = 'container';
@@ -199,7 +191,6 @@ describe('when have a valid mode, command and exists a command alias', () => {
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
     expect(cliArgs['docker']).toBeTruthy();
-    expect(cliArgs['experimental']).toBeTruthy();
   });
 });
 
@@ -221,7 +212,6 @@ describe('when have a valid mode and not allowed command', () => {
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
     expect(cliArgs['docker']).toBeFalsy();
-    expect(cliArgs['experimental']).toBeFalsy();
   });
 });
 

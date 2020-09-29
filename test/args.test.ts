@@ -161,7 +161,6 @@ test('test command line "container test"', (t) => {
   ];
   const result = args(cliArgs);
   t.ok(result.options.docker);
-  t.ok(result.options.experimental);
   t.end();
 });
 
@@ -174,7 +173,6 @@ test('test command line "container monitor"', (t) => {
   ];
   const result = args(cliArgs);
   t.ok(result.options.docker);
-  t.ok(result.options.experimental);
   t.end();
 });
 
@@ -187,7 +185,6 @@ test('test command line "container protect"', (t) => {
   ];
   const result = args(cliArgs);
   t.notOk(result.options.docker);
-  t.notOk(result.options.experimental);
   t.end();
 });
 

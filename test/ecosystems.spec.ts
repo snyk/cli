@@ -37,6 +37,15 @@ describe('ecosystems', () => {
       const expected = 'cpp';
       expect(actual).toBe(expected);
     });
+    it('should return docker ecosystem when options docker is true', () => {
+      const options: Options = {
+        docker: true,
+        path: '',
+      };
+      const actual = ecosystems.getEcosystem(options);
+      const expected = 'docker';
+      expect(actual).toBe(expected);
+    });
     it('should return null when options source is false', () => {
       const options: Options = {
         source: false,
