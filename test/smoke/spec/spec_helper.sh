@@ -6,11 +6,11 @@ print_snyk_config() {
 }
 
 snyk_login() {
-  snyk auth "${SMOKE_TESTS_SNYK_TOKEN}"
+  snyk auth "${SMOKE_TESTS_SNYK_TOKEN}" > /dev/null 2>&1
 }
 
 snyk_logout() {
-  snyk config clear
+  snyk config clear > /dev/null 2>&1
 }
 
 verify_login_url() {
