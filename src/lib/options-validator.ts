@@ -3,6 +3,8 @@ import * as config from './config';
 import { SupportedPackageManagers } from './package-managers';
 import * as reachableVulns from './reachable-vulns';
 import { isMultiProjectScan } from './is-multi-project-scan';
+import { FeatureNotSupportedByPackageManagerError } from './errors';
+import * as alerts from './alerts';
 
 export async function validateOptions(
   options: (Options & TestOptions) | (Options & MonitorOptions),
@@ -14,6 +16,25 @@ export async function validateOptions(
       throw new Error('Could not determine package manager');
     }
     const org = options.org || config.org;
-    await reachableVulns.validatePayload(org, options, packageManager);
+
+    try {
+      await reachableVulns.validatePayload(org, options, packageManager);
+    } catch (err) {
+      if (
+        err instanceof FeatureNotSupportedByPackageManagerError &&
+        err.feature === 'Reachable vulns' &&
+        err.userMessage
+      ) {
+        alerts.registerAlerts([
+          {
+            type: 'error',
+            name: 'pkgman-not-supported',
+            msg: err.userMessage,
+          },
+        ]);
+      } else {
+        throw err;
+      }
+    }
   }
 }
