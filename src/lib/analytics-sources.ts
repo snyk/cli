@@ -10,6 +10,7 @@
 
 const debug = require('debug')('snyk');
 import * as fs from 'fs';
+import { ArgsOptions } from '../cli/args';
 
 export const INTEGRATION_NAME_HEADER = 'SNYK_INTEGRATION_NAME';
 export const INTEGRATION_VERSION_HEADER = 'SNYK_INTEGRATION_VERSION';
@@ -48,8 +49,7 @@ enum TrackedIntegration {
   NETLIFY_PLUGIN = 'NETLIFY_PLUGIN',
 }
 
-// TODO: propagate these to the UTM params
-export const getIntegrationName = (args: Array<any>): string => {
+export const getIntegrationName = (args: ArgsOptions[]): string => {
   const maybeScoop = isScoop() ? 'SCOOP' : '';
   const integrationName = String(
     args[0]?.integrationName || // Integration details passed through CLI flag
@@ -64,7 +64,7 @@ export const getIntegrationName = (args: Array<any>): string => {
   return '';
 };
 
-export const getIntegrationVersion = (args): string => {
+export const getIntegrationVersion = (args: ArgsOptions[]): string => {
   // Integration details passed through CLI flag
   const integrationVersion = String(
     args[0]?.integrationVersion ||
