@@ -17,7 +17,10 @@ Describe "Snyk CLI Authorization"
 
     It "fails when run without token set"
       # Alpine can't open browser, misses xdg-open utility and errors out
-      is_alpine() { grep "Alpine Linux" < /etc/os-release; }
+      is_alpine() {
+        grep "Alpine Linux" /etc/os-release > /dev/null 2>&1
+        return $?
+      }
       Skip if "function returns success" is_alpine
 
       # Using timeout to not wait for browser confirmation
