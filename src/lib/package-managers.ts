@@ -54,4 +54,5 @@ export const PINNING_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
 ];
 export const REACHABLE_VULNS_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'maven',
+  'gradle',
 ];

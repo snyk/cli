@@ -2,6 +2,7 @@ import * as sinon from 'sinon';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { CommandResult } from '../../../src/cli/commands/types';
+import { createCallGraph } from '../../utils';
 
 export const GradleTests: AcceptanceTests = {
   language: 'Gradle',
@@ -89,6 +90,64 @@ export const GradleTests: AcceptanceTests = {
         meta[5],
         /Local Snyk policy:\s+found/,
         'local policy not displayed',
+      );
+    },
+
+    '`test gradle-app --reachable-vulns` sends call graph': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const callGraphPayload = require('../fixtures/call-graphs/maven.json');
+      const callGraph = createCallGraph(callGraphPayload);
+      const plugin = {
+        async inspect() {
+          return {
+            package: {},
+            plugin: { name: 'testplugin', runtime: 'testruntime' },
+            callGraph,
+          };
+        },
+      };
+      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('gradle').returns(plugin);
+      await params.cli.test('gradle-app', {
+        reachableVulns: true,
+      });
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      t.match(req.body.targetFile, undefined, 'target is undefined');
+      t.equal(req.body.depGraph.pkgManager.name, 'gradle');
+      t.deepEqual(
+        req.body.callGraph,
+        callGraphPayload,
+        'correct call graph sent',
+      );
+      t.same(
+        spyPlugin.getCall(0).args,
+        [
+          'gradle-app',
+          'build.gradle',
+          {
+            args: null,
+            file: 'build.gradle',
+            org: null,
+            projectName: null,
+            packageManager: 'gradle',
+            path: 'gradle-app',
+            showVulnPaths: 'some',
+            reachableVulns: true,
+          },
+        ],
+        'calls gradle plugin',
       );
     },
 
