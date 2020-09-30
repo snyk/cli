@@ -9,7 +9,7 @@
             {
               "id": "SNYK-LINUX-BZIP2-106947",
               "shortDescription": {
-                "text": "low severity Denial of Service (DoS) vulnerability in bzip2"
+                "text": "Low severity - Denial of Service (DoS) vulnerability in bzip2"
               },
               "fullDescription": {
                 "text": "(CVE-2016-3189) bzip2/libbz2-1.0@1.0.6-8.1"

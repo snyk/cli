@@ -1,4 +1,5 @@
 import * as sarif from 'sarif';
+import { upperFirst } from 'lodash';
 
 export function createSarifOutputForContainers(testResult): sarif.Log {
   const sarifRes: sarif.Log = {
@@ -40,7 +41,9 @@ export function getTool(testResult): sarif.Tool {
       return {
         id: vuln.id,
         shortDescription: {
-          text: `${vuln.severity} severity ${vuln.title} vulnerability in ${vuln.packageName}`,
+          text: `${upperFirst(vuln.severity)} severity - ${
+            vuln.title
+          } vulnerability in ${vuln.packageName}`,
         },
         fullDescription: {
           text: cve

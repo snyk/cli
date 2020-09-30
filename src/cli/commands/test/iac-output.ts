@@ -174,7 +174,7 @@ export function mapIacTestResponseToSarifTool(
       tool.driver.rules?.push({
         id: iacIssue.id,
         shortDescription: {
-          text: `${upperFirst(iacIssue.severity)} - ${iacIssue.title}`,
+          text: `${upperFirst(iacIssue.severity)} severity - ${iacIssue.title}`,
         },
         fullDescription: {
           text: `${iacTypeToText[iacIssue.type]} ${iacIssue.subType}`,
