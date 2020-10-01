@@ -82,3 +82,37 @@ export interface EcosystemPlugin {
     options: Options,
   ) => Promise<string>;
 }
+
+export interface EcosystemMonitorError {
+  error: string;
+  path: string;
+  scanResult: ScanResult;
+}
+
+export interface MonitorDependenciesResponse {
+  ok: boolean;
+  org: string;
+  id: string;
+  isMonitored: boolean;
+  licensesPolicy: any;
+  uri: string;
+  trialStarted: boolean;
+  path: string;
+  projectName: string;
+}
+
+export interface EcosystemMonitorResult extends MonitorDependenciesResponse {
+  scanResult: ScanResult;
+}
+
+export interface MonitorDependenciesRequest {
+  scanResult: ScanResult;
+
+  /**
+   * If provided, overrides the default project name (usually equivalent to the root package).
+   * @deprecated Must not be set by new code! Prefer to set the "scanResult.name" within your plugin!
+   */
+  projectName?: string;
+  policy?: string;
+  method?: 'cli';
+}

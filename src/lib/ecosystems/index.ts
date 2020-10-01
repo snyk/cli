@@ -2,6 +2,7 @@ import { Options } from '../types';
 import { Ecosystem } from './types';
 
 export { testEcosystem } from './test';
+export { monitorEcosystem } from './monitor';
 export { getPlugin } from './plugins';
 
 /**
