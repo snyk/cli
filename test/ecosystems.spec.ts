@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cppPlugin from 'snyk-cpp-plugin';
 import * as ecosystems from '../src/lib/ecosystems';
+import * as ecosystemsTypes from '../src/lib/ecosystems/types';
 import * as request from '../src/lib/request/promise';
 import { Options } from '../src/lib/types';
 import { TestCommandResult } from '../src/cli/commands/types';
@@ -72,7 +73,7 @@ describe('ecosystems', () => {
       const errorTxt = readFixture('error.txt');
       const testResult = readJsonFixture(
         'testResults.json',
-      ) as ecosystems.TestResult;
+      ) as ecosystemsTypes.TestResult;
       const stringifyTestResults = JSON.stringify([testResult], null, 2);
 
       beforeAll(() => {
@@ -90,7 +91,7 @@ describe('ecosystems', () => {
       it('should return human readable result when no json option given', async () => {
         const makeRequestSpy = jest
           .spyOn(request, 'makeRequest')
-          .mockResolvedValue(testResult);
+          .mockResolvedValue({ result: testResult });
         const expected = TestCommandResult.createHumanReadableTestCommandResult(
           displayTxt,
           stringifyTestResults,
@@ -100,27 +101,29 @@ describe('ecosystems', () => {
         });
         expect(makeRequestSpy.mock.calls[0][0]).toEqual({
           body: {
-            facts: [
-              {
-                type: 'cpp-fingerprints',
-                data: [
-                  {
-                    filePath: 'add.cpp',
-                    hash: '52d1b046047db9ea0c581cafd4c68fe5',
-                  },
-                  {
-                    filePath: 'add.h',
-                    hash: 'aeca71a6e39f99a24ecf4c088eee9cb8',
-                  },
-                  {
-                    filePath: 'main.cpp',
-                    hash: 'ad3365b3370ef6b1c3e778f875055f19',
-                  },
-                ],
+            scanResult: {
+              facts: [
+                {
+                  type: 'cpp-fingerprints',
+                  data: [
+                    {
+                      filePath: 'add.cpp',
+                      hash: '52d1b046047db9ea0c581cafd4c68fe5',
+                    },
+                    {
+                      filePath: 'add.h',
+                      hash: 'aeca71a6e39f99a24ecf4c088eee9cb8',
+                    },
+                    {
+                      filePath: 'main.cpp',
+                      hash: 'ad3365b3370ef6b1c3e778f875055f19',
+                    },
+                  ],
+                },
+              ],
+              identity: {
+                type: 'cpp',
               },
-            ],
-            identity: {
-              type: 'cpp',
             },
           },
           headers: {
@@ -130,6 +133,7 @@ describe('ecosystems', () => {
           json: true,
           method: 'POST',
           url: expect.stringContaining('/test-dependencies'),
+          qs: expect.any(Object),
         });
         expect(actual).toEqual(expected);
       });
@@ -137,7 +141,7 @@ describe('ecosystems', () => {
       it('should return json result when json option', async () => {
         const makeRequestSpy = jest
           .spyOn(request, 'makeRequest')
-          .mockResolvedValue(testResult);
+          .mockResolvedValue({ result: testResult });
         const expected = TestCommandResult.createJsonTestCommandResult(
           stringifyTestResults,
         );
@@ -147,27 +151,29 @@ describe('ecosystems', () => {
         });
         expect(makeRequestSpy.mock.calls[0][0]).toEqual({
           body: {
-            facts: [
-              {
-                type: 'cpp-fingerprints',
-                data: [
-                  {
-                    filePath: 'add.cpp',
-                    hash: '52d1b046047db9ea0c581cafd4c68fe5',
-                  },
-                  {
-                    filePath: 'add.h',
-                    hash: 'aeca71a6e39f99a24ecf4c088eee9cb8',
-                  },
-                  {
-                    filePath: 'main.cpp',
-                    hash: 'ad3365b3370ef6b1c3e778f875055f19',
-                  },
-                ],
+            scanResult: {
+              facts: [
+                {
+                  type: 'cpp-fingerprints',
+                  data: [
+                    {
+                      filePath: 'add.cpp',
+                      hash: '52d1b046047db9ea0c581cafd4c68fe5',
+                    },
+                    {
+                      filePath: 'add.h',
+                      hash: 'aeca71a6e39f99a24ecf4c088eee9cb8',
+                    },
+                    {
+                      filePath: 'main.cpp',
+                      hash: 'ad3365b3370ef6b1c3e778f875055f19',
+                    },
+                  ],
+                },
+              ],
+              identity: {
+                type: 'cpp',
               },
-            ],
-            identity: {
-              type: 'cpp',
             },
           },
           headers: {
@@ -177,6 +183,7 @@ describe('ecosystems', () => {
           json: true,
           method: 'POST',
           url: expect.stringContaining('/test-dependencies'),
+          qs: expect.any(Object),
         });
         expect(actual).toEqual(expected);
       });
@@ -184,7 +191,7 @@ describe('ecosystems', () => {
       it('should return fingerprints when debug option is set', async () => {
         const mock = jest
           .spyOn(request, 'makeRequest')
-          .mockResolvedValue(testResult);
+          .mockResolvedValue({ result: testResult });
         const expected = TestCommandResult.createHumanReadableTestCommandResult(
           debugDisplayTxt,
           stringifyTestResults,
