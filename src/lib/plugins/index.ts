@@ -1,4 +1,4 @@
-import * as dockerPlugin from 'snyk-docker-plugin';
+import * as dockerPlugin from 'legacy-snyk-docker-plugin';
 import * as rubygemsPlugin from './rubygems';
 import * as mvnPlugin from 'snyk-mvn-plugin';
 import * as gradlePlugin from 'snyk-gradle-plugin';
