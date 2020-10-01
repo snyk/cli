@@ -2,7 +2,7 @@
   We are collecting Snyk CLI usage in our official integrations
 
   We distinguish them by either:
-  - Setting integrationNameHeader or integrationVersionHeader in environment when CLI is run
+  - Setting SNYK_INTEGRATION_NAME or SNYK_INTEGRATION_VERSION in environment when CLI is run
   - passing an --integration-name or --integration-version flags on CLI invocation
 
   Integration name is validated with a list
