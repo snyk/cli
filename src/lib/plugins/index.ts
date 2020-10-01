@@ -1,4 +1,3 @@
-import * as dockerPlugin from 'legacy-snyk-docker-plugin';
 import * as rubygemsPlugin from './rubygems';
 import * as mvnPlugin from 'snyk-mvn-plugin';
 import * as gradlePlugin from 'snyk-gradle-plugin';
@@ -15,12 +14,7 @@ import { UnsupportedPackageManagerError } from '../errors';
 
 export function loadPlugin(
   packageManager: SupportedPackageManagers | undefined,
-  options: types.Options = {},
 ): types.Plugin {
-  if (options.docker) {
-    return dockerPlugin;
-  }
-
   switch (packageManager) {
     case 'npm': {
       return nodejsPlugin;

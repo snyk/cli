@@ -124,11 +124,41 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.post(root + '/docker-jwt/test-dep-graph', (req, res, next) => {
+  server.post(root + '/docker-jwt/test-dependencies', (req, res, next) => {
     res.send({
       result: {
+        issues: [],
         issuesData: {},
-        affectedPkgs: {},
+        depGraphData: {
+          schemaVersion: '1.2.0',
+          pkgManager: {
+            name: 'rpm',
+            repositories: [{ alias: 'rhel:8.2' }],
+          },
+          pkgs: [
+            {
+              id: 'docker-image|foo@1.2.3',
+              info: {
+                name: 'docker-image|foo',
+                version: '1.2.3',
+              },
+            },
+          ],
+          graph: {
+            rootNodeId: 'root-node',
+            nodes: [
+              {
+                nodeId: 'root-node',
+                pkgId: 'docker-image|foo@1.2.3',
+                deps: [],
+              },
+            ],
+          },
+        },
+      },
+      meta: {
+        org: 'test-org',
+        isPublic: false,
       },
     });
     return next();
