@@ -15,7 +15,7 @@ Smoke tests should be fast. Ideally tests only things that could break when CLI 
 
 Before you start adding specs, those files are bash scripts, it's recommended to have a [ShellCheck](https://www.shellcheck.net) installed and running in your IDE. See [Shellspec reference](https://github.com/shellspec/shellspec/blob/master/docs/references.md#expectation) for available commands.
 
-It's recommended to have a branch named `feat/smoke-test`, as [this branch will run the GitHub Action](https://github.com/snyk/snyk/blob/f35f39e96ef7aa69b22a846315dda015b12a4564/.github/workflows/smoke-tests.yml#L3-L5).
+It's recommended to have a branch named `smoke/_SOMETHING_`, as [this branch will run the GitHub Action](https://github.com/snyk/snyk/blob/f35f39e96ef7aa69b22a846315dda015b12a4564/.github/workflows/smoke-tests.yml#L3-L5).
 
 To run these tests locally:
 

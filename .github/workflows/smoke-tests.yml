@@ -2,7 +2,7 @@ name: Smoke Tests
 
 on:
   push:
-    branches: [feat/smoke-test]
+    branches: [feat/smoke-test, smoke/**]
   release:
     types: [published]
   schedule:
