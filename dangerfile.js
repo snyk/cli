@@ -37,12 +37,12 @@ if (danger.github && danger.github.pr) {
   }
 
   // Forgotten tests check
-  const modifiedTest = danger.git.modified_files.some((f) =>
-    f.startsWith('test/'),
-  );
-  const modifiedSrc = danger.git.modified_files.some((f) =>
-    f.startsWith('src/'),
-  );
+  const modifiedTest =
+    danger.git.modified_files.some((f) => f.startsWith('test/')) ||
+    danger.git.created_files.some((f) => f.startsWith('test/'));
+  const modifiedSrc =
+    danger.git.modified_files.some((f) => f.startsWith('src/')) ||
+    danger.git.created_files.some((f) => f.startsWith('src/'));
 
   if (modifiedSrc && !modifiedTest) {
     // TODO: let's be careful about wording here. Maybe including Contributing guidelines and project goals document here
@@ -54,6 +54,7 @@ if (danger.github && danger.github.pr) {
   // Smoke test modification check
   const modifiedSmokeTest =
     danger.git.modified_files.some((f) => f.startsWith('test/smoke/')) ||
+    danger.git.created_files.some((f) => f.startsWith('test/smoke/')) ||
     danger.git.modified_files.includes(SMOKE_TEST_WORKFLOW_FILE_PATH);
 
   const isOnSmokeTestBranch = danger.github.pr.head.ref === SMOKE_TEST_BRANCH;
