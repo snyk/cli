@@ -8,7 +8,7 @@ const woofs = {
   cs: ' Haf!',
 };
 
-export = function woof(...args: MethodArgs) {
+export function getWoofLanguage(args: MethodArgs): string {
   const options = args.pop() as ArgsOptions;
   let lang = 'en';
 
@@ -18,6 +18,12 @@ export = function woof(...args: MethodArgs) {
   ) {
     lang = options.language;
   }
+
+  return lang;
+}
+
+export default function woof(...args: MethodArgs) {
+  const lang = getWoofLanguage(args);
   console.log(`
     |         |
    /|         |\\
@@ -34,4 +40,4 @@ export = function woof(...args: MethodArgs) {
         \\U/ --( ${woofs[lang]} )
                \\-----/
 `);
-};
+}
