@@ -387,8 +387,8 @@ export async function monitorDepGraph(
     analytics.add('targetBranch', target.branch);
   }
 
-  // this graph will be pruned only if is too dense
-  depGraph = await pruneGraph(depGraph, packageManager);
+  const pruneIsRequired = options.pruneRepeatedSubdependencies;
+  depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
 
   let callGraphPayload;
   if (

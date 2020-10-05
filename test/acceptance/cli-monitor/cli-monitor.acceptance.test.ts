@@ -236,6 +236,51 @@ if (!isWindows) {
     );
   });
 
+  test('`monitor gradle --prune-repeated-subdependencies`', async (t) => {
+    chdirWorkspaces();
+
+    const fixturePath = path.join(
+      __dirname,
+      '..',
+      '..',
+      'fixtures',
+      'gradle-prune-repeated-deps',
+    );
+
+    const manifestFile = path.join(fixturePath, 'build.gradle');
+
+    await cli.monitor({
+      file: manifestFile,
+      pruneRepeatedSubdependencies: true,
+    });
+
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    t.match(req.url, '/monitor/gradle/graph', 'puts at correct url');
+    t.deepEqual(req.body.meta.monitorGraph, true, 'correct meta set');
+    const depGraphJSON = req.body.depGraphJSON;
+    t.ok(depGraphJSON);
+
+    const actualDepGraph = JSON.stringify(depGraphJSON);
+    const expectedPrunedDepGraph = fs.readFileSync(
+      path.join(fixturePath, 'gradle-pruned-dep-graph.json'),
+      'utf8',
+    );
+
+    t.ok(expectedPrunedDepGraph);
+
+    t.equal(
+      actualDepGraph,
+      expectedPrunedDepGraph,
+      'verify if the generated depGraph from snyk monitor has been pruned',
+    );
+  });
+
   test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
     chdirWorkspaces();
 
