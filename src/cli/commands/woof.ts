@@ -1,9 +1,5 @@
 import { MethodArgs, ArgsOptions } from '../args';
 
-interface WoofOptions {
-  language?: string; // ISO 639-1 code
-}
-
 const woofs = {
   en: 'Woof!',
   he: ' !הב ',
@@ -12,13 +8,16 @@ const woofs = {
   cs: ' Haf!',
 };
 
-export = function woof(...args0: MethodArgs) {
-  const args = [...args0];
-  let options: WoofOptions = {};
-  if (typeof args[args.length - 1] === 'object') {
-    options = (args.pop() as ArgsOptions) as WoofOptions;
+export = function woof(...args: MethodArgs) {
+  const options = args.pop() as ArgsOptions;
+  let lang = 'en';
+
+  if (
+    typeof options.language === 'string' &&
+    Object.keys(woofs).includes(options.language)
+  ) {
+    lang = options.language;
   }
-  const lang = options.language || 'en';
   console.log(`
     |         |
    /|         |\\
