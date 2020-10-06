@@ -51,6 +51,19 @@ if (danger.github && danger.github.pr) {
     );
   }
 
+  const newTestFiles = danger.git.created_files.filter((f) => {
+    const inTestFolder = f.startsWith('test/');
+    const inLegacyAcceptanceTestsFolder = f.includes('test/acceptance/');
+    const testFilenameLooksLikeJest = f.includes('.spec.ts');
+    return inTestFolder && !inLegacyAcceptanceTestsFolder && !testFilenameLooksLikeJest;
+  });
+
+  if (newTestFiles) {
+    const joinedFileList = newTestFiles.map(f => '- `' + f + '`').join("\n");
+    const msg = `Looks like you added a new Tap test. Consider making it a Jest test instead. See files like \`test/*.spec.ts\` for examples. Files found:\n${joinedFileList}`;
+    warn(msg);
+  }
+
   // Smoke test modification check
   const modifiedSmokeTest =
     danger.git.modified_files.some((f) => f.startsWith('test/smoke/')) ||
