@@ -134,6 +134,53 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
+  server.post(root + '/test-dependencies', (req, res, next) => {
+    if (req.query.org && req.query.org === 'missing-org') {
+      res.status(404);
+      res.send({
+        code: 404,
+        userMessage: 'cli error message',
+      });
+      return next();
+    }
+
+    res.send({
+      result: {
+        issues: [],
+        issuesData: {},
+      },
+      meta: {
+        org: 'test-org',
+        isPublic: false,
+      },
+    });
+    return next();
+  });
+
+  server.put(root + '/monitor-dependencies', (req, res, next) => {
+    if (req.query.org && req.query.org === 'missing-org') {
+      res.status(404);
+      res.send({
+        code: 404,
+        userMessage: 'cli error message',
+      });
+      return next();
+    }
+
+    res.send({
+      ok: true,
+      org: 'test-org',
+      id: 'project-public-id',
+      isMonitored: true,
+      trialStarted: true,
+      licensesPolicy: {},
+      uri:
+        'http://example-url/project/project-public-id/history/snapshot-public-id',
+      projectName: 'test-project',
+    });
+    return next();
+  });
+
   server.post(root + '/test-iac', (req, res, next) => {
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);
