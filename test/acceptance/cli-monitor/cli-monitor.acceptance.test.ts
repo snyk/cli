@@ -33,6 +33,7 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../../src/lib/plugins/index';
+import * as ecosystemPlugins from '../../../src/lib/ecosystems/plugins';
 import { createCallGraph } from '../../utils';
 import { DepGraphBuilder } from '@snyk/dep-graph';
 
@@ -1571,16 +1572,19 @@ if (!isWindows) {
   });
 
   test('`monitor foo:latest --docker`', async (t) => {
-    const dockerImageId =
-      'sha256:' +
-      '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
     const spyPlugin = stubDockerPluginResponse(
       {
-        plugin: {
-          packageManager: 'rpm',
-          dockerImageId,
-        },
-        package: {},
+        scanResults: [
+          {
+            identity: {
+              type: 'rpm',
+            },
+            target: {
+              image: 'docker-image|foo',
+            },
+            facts: [{ type: 'depGraph', data: {} }],
+          },
+        ],
       },
       t,
     );
@@ -1596,23 +1600,29 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    t.match(
-      req.url,
-      '/monitor/rpm',
-      'puts at correct url (uses package manager from plugin response)',
+    t.deepEqual(
+      req.body,
+      {
+        method: 'cli',
+        scanResult: {
+          identity: {
+            type: 'rpm',
+          },
+          target: {
+            image: 'docker-image|foo',
+          },
+          facts: [{ type: 'depGraph', data: {} }],
+        },
+      },
+      'sends correct payload',
     );
-    t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
+    t.match(req.url, '/monitor-dependencies', 'puts at correct url');
     t.same(
       spyPlugin.getCall(0).args,
       [
-        'foo:latest',
-        null,
         {
-          args: null,
           docker: true,
-          file: null,
           org: 'explicit-org',
-          packageManager: null,
           path: 'foo:latest',
         },
       ],
@@ -1621,16 +1631,22 @@ if (!isWindows) {
   });
 
   test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
-    const dockerImageId =
-      'sha256:' +
-      '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
     const spyPlugin = stubDockerPluginResponse(
       {
-        plugin: {
-          packageManager: 'rpm',
-          dockerImageId,
-        },
-        package: { docker: 'base-image-name' },
+        scanResults: [
+          {
+            identity: {
+              type: 'rpm',
+            },
+            target: {
+              image: 'docker-image|foo',
+            },
+            facts: [
+              { type: 'depGraph', data: {} },
+              { type: 'dockerfileAnalysis', data: {} },
+            ],
+          },
+        ],
       },
       t,
     );
@@ -1647,24 +1663,34 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    t.match(
-      req.url,
-      '/monitor/rpm',
-      'puts at correct url (uses package manager from plugin response)',
+    t.match(req.url, '/monitor-dependencies', 'puts at correct url');
+
+    t.deepEqual(
+      req.body,
+      {
+        method: 'cli',
+        scanResult: {
+          identity: {
+            type: 'rpm',
+          },
+          target: {
+            image: 'docker-image|foo',
+          },
+          facts: [
+            { type: 'depGraph', data: {} },
+            { type: 'dockerfileAnalysis', data: {} },
+          ],
+        },
+      },
+      'sends correct payload',
     );
-    t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
-    t.equal(req.body.package.docker, 'base-image-name', 'sends base image');
     t.same(
       spyPlugin.getCall(0).args,
       [
-        'foo:latest',
-        'Dockerfile',
         {
-          args: null,
           docker: true,
           file: 'Dockerfile',
           org: 'explicit-org',
-          packageManager: null,
           path: 'foo:latest',
         },
       ],
@@ -1674,12 +1700,19 @@ if (!isWindows) {
 
   test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
     chdirWorkspaces('npm-package-policy');
-    const spyPlugin = stubDockerPluginResponse(
+    stubDockerPluginResponse(
       {
-        plugin: {
-          packageManager: 'rpm',
-        },
-        package: {},
+        scanResults: [
+          {
+            identity: {
+              type: 'rpm',
+            },
+            target: {
+              image: 'docker-image|foo',
+            },
+            facts: [{ type: 'depGraph', data: {} }],
+          },
+        ],
       },
       t,
     );
@@ -1689,57 +1722,27 @@ if (!isWindows) {
       org: 'explicit-org',
     });
     const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
-    );
-    t.match(
-      req.url,
-      '/monitor/rpm',
-      'puts at correct url (uses package manager from plugin response)',
-    );
-    t.same(
-      spyPlugin.getCall(0).args,
-      [
-        'foo:latest',
-        null,
-        {
-          args: null,
-          docker: true,
-          file: null,
-          org: 'explicit-org',
-          packageManager: null,
-          path: 'foo:latest',
-        },
-      ],
-      'calls docker plugin with expected arguments',
-    );
-
-    t.deepEqual(req.body.policy, undefined, 'no policy is sent');
+    t.deepEqual(req.body.scanResult.policy, undefined, 'no policy is sent');
   });
 
   test('`monitor foo:latest --docker` with custom policy path', async (t) => {
     chdirWorkspaces('npm-package-policy');
-    const plugin = {
-      async inspect() {
-        return {
-          plugin: {
-            packageManager: 'rpm',
-            name: 'docker',
+    const spyPlugin = stubDockerPluginResponse(
+      {
+        scanResults: [
+          {
+            identity: {
+              type: 'rpm',
+            },
+            target: {
+              image: 'docker-image|foo',
+            },
+            facts: [{ type: 'depGraph', data: {} }],
           },
-          package: {},
-        };
+        ],
       },
-    };
-    const spyPlugin = sinon.spy(plugin, 'inspect');
-
-    const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-    loadPlugin
-      .withArgs(sinon.match.any, sinon.match({ docker: true }))
-      .returns(plugin);
-    t.teardown(loadPlugin.restore);
+      t,
+    );
 
     await cli.monitor('foo:latest', {
       docker: true,
@@ -1747,29 +1750,13 @@ if (!isWindows) {
       'policy-path': 'custom-location',
     });
     const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
-    );
-    t.match(
-      req.url,
-      '/monitor/rpm',
-      'puts at correct url (uses package manager from plugin response)',
-    );
     t.same(
       spyPlugin.getCall(0).args,
       [
-        'foo:latest',
-        null,
         {
-          args: null,
           docker: true,
-          file: null,
           org: 'explicit-org',
           'policy-path': 'custom-location',
-          packageManager: null,
           path: 'foo:latest',
         },
       ],
@@ -1779,84 +1766,24 @@ if (!isWindows) {
       path.join('custom-location', '.snyk'),
       'utf8',
     );
-    const policyString = req.body.policy;
+    const policyString = req.body.scanResult.policy;
     t.deepEqual(policyString, expected, 'sends correct policy');
   });
 
-  test('`monitor docker-archive:foo.tar --docker --experimental`', async (t) => {
-    const dockerImageId =
-      'sha256:' +
-      '578c3e61a98cb5720e7c8fc152017be1dff373ebd72a32bbe6e328234efc8d1a';
-    const imageName = 'my-image';
-    const spyPlugin = stubDockerPluginResponse(
-      {
-        plugin: {
-          packageManager: 'rpm',
-          dockerImageId,
-        },
-        package: {},
-        meta: {
-          imageName,
-        },
-      },
-      t,
-    );
-
-    await cli.monitor('docker-archive:foo.tar', {
-      docker: true,
-      org: 'experimental-org',
-      experimental: true,
-    });
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
-    );
-    t.match(
-      req.url,
-      '/monitor/rpm',
-      'puts at correct url (uses package manager from plugin response)',
-    );
-    t.equal(req.body.meta.dockerImageId, dockerImageId, 'sends dockerImageId');
-    t.equal(req.body.meta.projectName, imageName, 'sends projectName');
-    t.equal(req.body.meta.name, imageName, 'sends name');
-    t.same(
-      spyPlugin.getCall(0).args,
-      [
-        'docker-archive:foo.tar',
-        null,
-        {
-          args: null,
-          docker: true,
-          file: null,
-          org: 'experimental-org',
-          packageManager: null,
-          path: 'docker-archive:foo.tar',
-          experimental: true,
-        },
-      ],
-      'calls docker plugin with expected arguments',
-    );
-  });
-
-  test('`monitor foo:latest --docker --experimental --platform=linux/arm64`', async (t) => {
-    const dockerImageId =
-      'ca0b6709748d024a67c502558ea88dc8a1f8a858d380f5ddafa1504126a3b018';
+  test('`monitor foo:latest --docker --platform=linux/arm64`', async (t) => {
     const platform = 'linux/arm64';
     const spyPlugin = stubDockerPluginResponse(
       {
-        plugin: {
-          dockerImageId,
-        },
-        scannedProjects: [
+        scanResults: [
           {
-            packageManager: 'apk',
-            depTree: {},
-            meta: {
-              platform,
+            identity: {
+              type: 'rpm',
+              args: { platform },
             },
+            target: {
+              image: 'docker-image|foo',
+            },
+            facts: [{ type: 'depGraph', data: {} }],
           },
         ],
       },
@@ -1866,27 +1793,30 @@ if (!isWindows) {
     await cli.monitor('foo:latest', {
       platform,
       docker: true,
-      experimental: true,
     });
     const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
+    t.deepEqual(
+      req.body,
+      {
+        method: 'cli',
+        scanResult: {
+          identity: {
+            type: 'rpm',
+            args: { platform },
+          },
+          target: {
+            image: 'docker-image|foo',
+          },
+          facts: [{ type: 'depGraph', data: {} }],
+        },
+      },
+      'sends correct payload',
     );
-    t.equal(req.body.meta.platform, platform, 'sends platform');
     t.same(
       spyPlugin.getCall(0).args,
       [
-        'foo:latest',
-        null,
         {
-          args: null,
           docker: true,
-          experimental: true,
-          file: null,
-          packageManager: null,
           path: 'foo:latest',
           platform,
         },
@@ -1962,15 +1892,16 @@ if (!isWindows) {
 // fixture can be fixture path or object
 function stubDockerPluginResponse(fixture: string | object, t) {
   const plugin = {
-    async inspect() {
+    async scan() {
       return typeof fixture === 'object' ? fixture : require(fixture);
     },
+    async display() {
+      return '';
+    },
   };
-  const spyPlugin = sinon.spy(plugin, 'inspect');
-  const loadPlugin = sinon.stub(plugins, 'loadPlugin');
-  loadPlugin
-    .withArgs(sinon.match.any, sinon.match({ docker: true }))
-    .returns(plugin);
+  const spyPlugin = sinon.spy(plugin, 'scan');
+  const loadPlugin = sinon.stub(ecosystemPlugins, 'getPlugin');
+  loadPlugin.withArgs(sinon.match.any).returns(plugin);
   t.teardown(loadPlugin.restore);
 
   return spyPlugin;
