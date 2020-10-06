@@ -118,7 +118,6 @@ describe('when have a valid mode and command', () => {
       _: [],
       docker: true,
       experimental: true,
-      'app-vulns': true,
       'package-manager': 'pip',
     };
     const cliCommand = 'container';
@@ -160,37 +159,11 @@ describe('when have a valid mode, command and exists a command alias', () => {
       _: [],
       docker: true,
       experimental: true,
-      'app-vulns': true,
       'package-manager': 'pip',
     };
     const cliCommand = 'container';
     const cliArgs = {
       _: ['t'],
-      'package-manager': 'pip',
-    };
-
-    const command = parseMode(cliCommand, cliArgs);
-
-    expect(command).toBe(expectedCommand);
-    expect(cliArgs).toEqual(expectedArgs);
-    expect(cliArgs['docker']).toBeTruthy();
-    expect(cliArgs['experimental']).toBeTruthy();
-  });
-
-  it('"container test" should set docker option and not app-vulns and test command', () => {
-    const expectedCommand = 't';
-    const expectedArgs = {
-      _: [],
-      json: true,
-      docker: true,
-      experimental: true,
-      'app-vulns': false,
-      'package-manager': 'pip',
-    };
-    const cliCommand = 'container';
-    const cliArgs = {
-      _: ['t'],
-      json: true,
       'package-manager': 'pip',
     };
 

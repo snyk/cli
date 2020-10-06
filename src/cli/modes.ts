@@ -19,7 +19,6 @@ const modes: Record<string, ModeData> = {
     config: (args): [] => {
       args['docker'] = true;
       args['experimental'] = true;
-      args['app-vulns'] = args.json ? false : true;
 
       return args;
     },
