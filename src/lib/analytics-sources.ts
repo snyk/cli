@@ -8,8 +8,8 @@
   Integration name is validated with a list
 */
 
-export const integrationNameHeader = 'SNYK_INTEGRATION_NAME';
-export const integrationVersionHeader = 'SNYK_INTEGRATION_VERSION';
+export const INTEGRATION_NAME_HEADER = 'SNYK_INTEGRATION_NAME';
+export const INTEGRATION_VERSION_HEADER = 'SNYK_INTEGRATION_VERSION';
 
 enum TrackedIntegration {
   // Distribution builds/packages
@@ -49,7 +49,7 @@ enum TrackedIntegration {
 export const getIntegrationName = (args: Array<any>): string => {
   const integrationName = String(
     args[0]?.integrationName || // Integration details passed through CLI flag
-      process.env[integrationNameHeader] ||
+      process.env[INTEGRATION_NAME_HEADER] ||
       '',
   ).toUpperCase();
   if (integrationName in TrackedIntegration) {
@@ -62,7 +62,9 @@ export const getIntegrationName = (args: Array<any>): string => {
 export const getIntegrationVersion = (args): string => {
   // Integration details passed through CLI flag
   const integrationVersion = String(
-    args[0]?.integrationVersion || process.env[integrationVersionHeader] || '',
+    args[0]?.integrationVersion ||
+      process.env[INTEGRATION_VERSION_HEADER] ||
+      '',
   );
 
   return integrationVersion;

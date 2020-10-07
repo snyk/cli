@@ -2,8 +2,8 @@ import * as tap from 'tap';
 import {
   getIntegrationName,
   getIntegrationVersion,
-  integrationNameHeader,
-  integrationVersionHeader,
+  INTEGRATION_NAME_HEADER,
+  INTEGRATION_VERSION_HEADER,
 } from '../src/lib/analytics-sources';
 
 const { test, beforeEach } = tap;
@@ -11,8 +11,8 @@ const { test, beforeEach } = tap;
 const emptyArgs = [];
 
 beforeEach((done) => {
-  delete process.env[integrationNameHeader];
-  delete process.env[integrationVersionHeader];
+  delete process.env[INTEGRATION_NAME_HEADER];
+  delete process.env[INTEGRATION_VERSION_HEADER];
   done();
 });
 
@@ -22,16 +22,16 @@ test('Integration name is empty by default', (t) => {
 });
 
 test('Integration name is loaded from envvar', (t) => {
-  process.env[integrationNameHeader] = 'NPM';
+  process.env[INTEGRATION_NAME_HEADER] = 'NPM';
   t.equal(getIntegrationName(emptyArgs), 'NPM');
 
-  process.env[integrationNameHeader] = 'STANDALONE';
+  process.env[INTEGRATION_NAME_HEADER] = 'STANDALONE';
   t.equal(getIntegrationName(emptyArgs), 'STANDALONE');
   t.end();
 });
 
 test('Integration name is empty when envvar is not recognized', (t) => {
-  process.env[integrationNameHeader] = 'INVALID';
+  process.env[INTEGRATION_NAME_HEADER] = 'INVALID';
   t.equal(getIntegrationName(emptyArgs), '');
   t.end();
 });
@@ -42,7 +42,7 @@ test('Integration version is empty by default', (t) => {
 });
 
 test('Integration version is loaded from envvar', (t) => {
-  process.env[integrationVersionHeader] = '1.2.3';
+  process.env[INTEGRATION_VERSION_HEADER] = '1.2.3';
   t.equal(getIntegrationVersion(emptyArgs), '1.2.3');
   t.end();
 });
