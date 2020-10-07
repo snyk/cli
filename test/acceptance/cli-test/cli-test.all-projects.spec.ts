@@ -4,7 +4,6 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { CommandResult } from '../../../src/cli/commands/types';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
-import * as getDepsFromPlugin from '../../../src/lib/plugins/get-deps-from-plugin';
 
 const simpleGradleGraph = depGraphLib.createFromJSON({
   schemaVersion: '1.2.0',
