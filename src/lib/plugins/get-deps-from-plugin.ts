@@ -142,13 +142,12 @@ export function warnSomeGradleManifestsNotScanned(
     (file) => !scannedGradleFiles.includes(file),
   );
 
-  debug(
-    `These Gradle manifests did not return any dependency results:\n${diff.join(
-      ',\n',
-    )}`,
-  );
-
   if (diff.length > 0) {
+    debug(
+      `These Gradle manifests did not return any dependency results:\n${diff.join(
+        ',\n',
+      )}`,
+    );
     return `✗ ${diff.length}/${detectedGradleFiles.length} detected Gradle manifests did not return dependencies. They may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with \`-d\` for more info.`;
   }
   return null;
