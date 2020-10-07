@@ -18,6 +18,7 @@ const server = fakeServer(BASE_API, apiKey);
 // This import needs to come after the server init
 // it causes the configured API url to be incorrect.
 import * as plugins from '../../src/lib/plugins/index';
+import * as ecosystemPlugins from '../../src/lib/ecosystems/plugins';
 
 test('setup', async (t) => {
   t.plan(3);
@@ -51,7 +52,7 @@ test('prime config', async (t) => {
 });
 
 test('`snyk test` with docker flag - docker token and no api key', async (t) => {
-  stubDockerPluginResponse(
+  stubLegacyDockerPluginResponse(
     plugins,
     {
       plugin: {
@@ -75,12 +76,18 @@ test('`snyk test` with docker flag - docker token and no api key', async (t) => 
 
 test('`snyk test` with docker flag - docker token and api key', async (t) => {
   stubDockerPluginResponse(
-    plugins,
     {
-      plugin: {
-        packageManager: 'deb',
-      },
-      package: {},
+      scanResults: [
+        {
+          facts: [{ type: 'depGraph', data: {} }],
+          identity: {
+            type: 'deb',
+          },
+          target: {
+            image: 'docker-image|foo',
+          },
+        },
+      ],
     },
     t,
   );
@@ -91,7 +98,7 @@ test('`snyk test` with docker flag - docker token and api key', async (t) => {
     });
     const req = server.popRequest();
     t.equal(req.method, 'POST', 'makes POST request');
-    t.match(req.url, 'test-dep-graph', 'posts to correct url');
+    t.match(req.url, 'test-dependencies', 'posts to correct url');
   } catch (err) {
     t.fail('did not expect exception to be thrown ' + err);
   }
@@ -101,12 +108,18 @@ test('`snyk test` with docker flag - docker token and api key', async (t) => {
 
 test('`snyk test` without docker flag - docker token and no api key', async (t) => {
   stubDockerPluginResponse(
-    plugins,
     {
-      plugin: {
-        packageManager: 'deb',
-      },
-      package: {},
+      scanResults: [
+        {
+          facts: [{ type: 'depGraph', data: {} }],
+          identity: {
+            type: 'deb',
+          },
+          target: {
+            image: 'docker-image|foo',
+          },
+        },
+      ],
     },
     t,
   );
@@ -121,7 +134,7 @@ test('`snyk test` without docker flag - docker token and no api key', async (t) 
 });
 
 test('`snyk test` with docker flag - displays CTA', async (t) => {
-  stubDockerPluginResponse(
+  stubLegacyDockerPluginResponse(
     plugins,
     {
       plugin: {
@@ -165,27 +178,18 @@ test('`snyk test` with docker flag - displays CTA', async (t) => {
 
 test('`snyk test` with docker flag - does not display CTA', async (t) => {
   stubDockerPluginResponse(
-    plugins,
     {
-      plugin: {
-        packageManager: 'deb',
-      },
-      package: {
-        name: 'docker-image',
-        dependencies: {
-          'apt/libapt-pkg5.0': {
-            version: '1.6.3ubuntu0.1',
-            dependencies: {
-              'bzip2/libbz2-1.0': {
-                version: '1.0.6-8.1',
-              },
-            },
+      scanResults: [
+        {
+          facts: [{ type: 'depGraph', data: {} }],
+          identity: {
+            type: 'deb',
           },
-          'bzip2/libbz2-1.0': {
-            version: '1.0.6-8.1',
+          target: {
+            image: 'docker-image|foo',
           },
         },
-      },
+      ],
     },
     t,
   );
@@ -238,7 +242,7 @@ test('teardown', async (t) => {
   t.end();
 });
 
-function stubDockerPluginResponse(plugins, fixture: string | object, t) {
+function stubLegacyDockerPluginResponse(plugins, fixture: string | object, t) {
   const plugin = {
     async inspect() {
       return typeof fixture === 'object' ? fixture : require(fixture);
@@ -249,6 +253,23 @@ function stubDockerPluginResponse(plugins, fixture: string | object, t) {
   loadPlugin
     .withArgs(sinon.match.any, sinon.match({ docker: true }))
     .returns(plugin);
+  t.teardown(loadPlugin.restore);
+
+  return spyPlugin;
+}
+
+function stubDockerPluginResponse(fixture: string | object, t) {
+  const plugin = {
+    async scan() {
+      return typeof fixture === 'object' ? fixture : require(fixture);
+    },
+    async display() {
+      return '';
+    },
+  };
+  const spyPlugin = sinon.spy(plugin, 'scan');
+  const loadPlugin = sinon.stub(ecosystemPlugins, 'getPlugin');
+  loadPlugin.withArgs(sinon.match.any).returns(plugin);
   t.teardown(loadPlugin.restore);
 
   return spyPlugin;
