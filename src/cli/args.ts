@@ -40,6 +40,7 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk-gradle-plugin',
   'snyk-sbt-plugin',
   'snyk-mvn-plugin',
+  'snyk-yarn-workspaces',
   'snyk-java-call-graph-builder',
 ];
 

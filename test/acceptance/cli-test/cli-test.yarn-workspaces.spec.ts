@@ -1,7 +1,6 @@
 import * as sinon from 'sinon';
 
 import { AcceptanceTests } from './cli-test.acceptance.test';
-const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
 
 export const YarnWorkspacesTests: AcceptanceTests = {
   language: 'Yarn',
