@@ -50,7 +50,6 @@ import {
 import * as utils from './utils';
 import { getIacDisplayedOutput, createSarifOutputForIac } from './iac-output';
 import { getEcosystem, testEcosystem } from '../../../lib/ecosystems';
-import { TestLimitReachedError } from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { createSarifOutputForContainers } from './sarif-output';
 import {
@@ -304,13 +303,6 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     // first one
     error.code = errorResults[0].code;
     error.userMessage = errorResults[0].userMessage;
-    if (
-      error.userMessage === TestLimitReachedError().userMessage &&
-      options.isDockerUser
-    ) {
-      error.userMessage =
-        'You have reached your scan limit. Sign up to Snyk for additional free scans https://dockr.ly/3ePqVcp';
-    }
     throw error;
   }
 

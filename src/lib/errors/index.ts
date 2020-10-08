@@ -23,4 +23,3 @@ export {
   NotSupportedIacFileError,
   IllegalIacFileError,
 } from './invalid-iac-file';
-export { TestLimitReachedError } from './test-limit-reached-error';
