@@ -51,4 +51,27 @@ Describe "Snyk CLI basics"
       The result of "print_snyk_config()" should not include "newvalue"
     End
   End
+
+  Describe "snyk woof"
+    It "Woofs in English by default"
+      When run snyk woof
+      The output should include "Woof!"
+      The status should be success
+      The stderr should equal ""
+    End
+
+    It "Woofs in English when passed unsopported language"
+      When run snyk woof --language=blalbla
+      The output should include "Woof!"
+      The status should be success
+      The stderr should equal ""
+    End
+
+    It "Woofs in Czech when passed 'cs'"
+      When run snyk woof --language=cs
+      The output should include "Haf!"
+      The status should be success
+      The stderr should equal ""
+    End
+  End
 End
