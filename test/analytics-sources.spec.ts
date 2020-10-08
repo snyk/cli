@@ -3,6 +3,8 @@ import {
   getIntegrationVersion,
   INTEGRATION_NAME_HEADER,
   INTEGRATION_VERSION_HEADER,
+  isScoop,
+  validateScoopManifestFile,
 } from '../src/lib/analytics-sources';
 
 const emptyArgs = [];
@@ -10,6 +12,35 @@ const emptyArgs = [];
 beforeEach(() => {
   delete process.env[INTEGRATION_NAME_HEADER];
   delete process.env[INTEGRATION_VERSION_HEADER];
+});
+
+describe('analytics-sources - scoop detection', () => {
+  it('detects if snyk is installed via scoop', () => {
+    const originalExecPath = process.execPath;
+    try {
+      process.execPath =
+        process.cwd() + '/test/fixtures/scoop/good-manifest/snyk-win.exe';
+      expect(isScoop()).toBe(true);
+
+      process.execPath = '/test/fixtures/scoop/bad-manifest/snyk-win.exe';
+      expect(isScoop()).toBe(false);
+    } finally {
+      process.execPath = originalExecPath;
+    }
+  });
+
+  it('validates scoop manifest file', () => {
+    let snykExecPath =
+      process.cwd() + '/test/fixtures/scoop/good-manifest/snyk-win.exe';
+    expect(validateScoopManifestFile(snykExecPath)).toBe(true);
+
+    snykExecPath =
+      process.cwd() + '/test/fixtures/scoop/bad-manifest/snyk-win.exe';
+    expect(validateScoopManifestFile(snykExecPath)).toBe(false);
+
+    snykExecPath = process.cwd() + '/test/fixtures/scoop/no-exist/snyk-win.exe';
+    expect(validateScoopManifestFile(snykExecPath)).toBe(false);
+  });
 });
 
 describe('analytics-sources - getIntegrationName', () => {
@@ -38,6 +69,17 @@ describe('analytics-sources - getIntegrationName', () => {
 
   it('integration name is loaded and validated from CLI flag', () => {
     expect(getIntegrationName([{ integrationName: 'invalid' }])).toBe('');
+  });
+
+  it('integration name SCOOP when snyk is installed with scoop', () => {
+    const originalExecPath = process.execPath;
+    try {
+      process.execPath =
+        process.cwd() + '/test/fixtures/scoop/good-manifest/snyk-win.exe';
+      expect(getIntegrationName(emptyArgs)).toBe('SCOOP');
+    } finally {
+      process.execPath = originalExecPath;
+    }
   });
 });
 

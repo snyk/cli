@@ -8,6 +8,9 @@
   Integration name is validated with a list
 */
 
+const debug = require('debug')('snyk');
+import * as fs from 'fs';
+
 export const INTEGRATION_NAME_HEADER = 'SNYK_INTEGRATION_NAME';
 export const INTEGRATION_VERSION_HEADER = 'SNYK_INTEGRATION_VERSION';
 
@@ -47,9 +50,11 @@ enum TrackedIntegration {
 
 // TODO: propagate these to the UTM params
 export const getIntegrationName = (args: Array<any>): string => {
+  const maybeScoop = isScoop() ? 'SCOOP' : '';
   const integrationName = String(
     args[0]?.integrationName || // Integration details passed through CLI flag
       process.env[INTEGRATION_NAME_HEADER] ||
+      maybeScoop ||
       '',
   ).toUpperCase();
   if (integrationName in TrackedIntegration) {
@@ -69,3 +74,43 @@ export const getIntegrationVersion = (args): string => {
 
   return integrationVersion;
 };
+
+export function isScoop(): boolean {
+  const currentProcessPath = process.execPath;
+  const looksLikeScoop =
+    currentProcessPath.includes('snyk-win.exe') &&
+    currentProcessPath.includes('scoop');
+
+  if (looksLikeScoop) {
+    return validateScoopManifestFile(currentProcessPath);
+  } else {
+    return false;
+  }
+}
+
+export function validateScoopManifestFile(snykExecutablePath: string): boolean {
+  // If this really is installed with scoop, there should be a `manifest.json` file adjacent to the running CLI executable (`snyk-win.exe`) which
+  // we can look at for further validation that this really is from scoop.
+  try {
+    const snykScoopManifiestPath = snykExecutablePath.replace(
+      'snyk-win.exe',
+      'manifest.json',
+    );
+    if (fs.existsSync(snykScoopManifiestPath)) {
+      const manifestJson = JSON.parse(
+        fs.readFileSync(snykScoopManifiestPath, 'utf8'),
+      );
+
+      const url = manifestJson.url;
+      if (
+        url.startsWith('https://github.com/snyk/snyk') &&
+        url.endsWith('snyk-win.exe')
+      ) {
+        return true;
+      }
+    }
+  } catch (error) {
+    debug('Error validating scoop manifest file', error);
+  }
+  return false;
+}
