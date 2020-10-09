@@ -62,11 +62,7 @@ function printDepsForTree(depDict: DepDict, prefix = '') {
       branch = '└─ ';
     }
     console.log(
-      prefix +
-        (prefix ? branch : '') +
-        dep.name +
-        ' @ ' +
-        (dep.version ? dep.version : ''),
+      prefix + (prefix ? branch : '') + dep.name + ' @ ' + dep.version,
     );
     if (dep.dependencies) {
       printDepsForTree(dep.dependencies, prefix + (last ? '   ' : '│  '));

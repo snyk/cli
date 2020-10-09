@@ -1,5 +1,4 @@
 import * as depGraphLib from '@snyk/dep-graph';
-import { ScanResult } from '../ecosystems/types';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import { DepTree } from '../types';
 import { IacScan } from './payload-schema';
@@ -19,10 +18,6 @@ export interface PayloadBody {
   target?: GitTarget | ContainerTarget | null;
 }
 
-export interface TestDependenciesRequest {
-  scanResult: ScanResult;
-}
-
 export interface DepTreeFromResolveDeps extends DepTree {
   numDependencies: number;
   pluck: any;
@@ -36,7 +31,7 @@ export interface Payload {
     'x-is-ci': boolean;
     authorization: string;
   };
-  body?: PayloadBody | IacScan | TestDependenciesRequest;
+  body?: PayloadBody | IacScan;
   qs?: object | null;
   modules?: DepTreeFromResolveDeps;
 }
