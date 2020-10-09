@@ -37,8 +37,6 @@ import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { getContributors } from '../../../lib/monitor/dev-count-analysis';
 import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
-import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
-import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -95,24 +93,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     } catch (err) {
       debug('error getting repo contributors', err);
     }
-  }
-
-  const ecosystem = getEcosystem(options);
-  if (ecosystem) {
-    const commandResult = await monitorEcosystem(
-      ecosystem,
-      args as string[],
-      options,
-    );
-
-    const [monitorResults, monitorErrors] = commandResult;
-
-    return await getFormattedMonitorOutput(
-      results,
-      monitorResults,
-      monitorErrors,
-      options,
-    );
   }
 
   // Part 1: every argument is a scan target; process them sequentially

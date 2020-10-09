@@ -64,7 +64,6 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../../src/lib/plugins/index';
-import * as ecoSystemPlugins from '../../../src/lib/ecosystems/plugins';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -142,7 +141,7 @@ if (!isWindows) {
           tt.test(
             testName,
             languageTest.tests[testName](
-              { server, plugins, ecoSystemPlugins, versionNumber, cli },
+              { server, plugins, versionNumber, cli },
               { chdirWorkspaces },
             ),
           );
