@@ -8,6 +8,10 @@ import {
 } from '../src/lib/analytics-sources';
 
 const emptyArgs = [];
+const defaultArgsParams = {
+  _: [],
+  _doubleDashArgs: [],
+};
 
 beforeEach(() => {
   delete process.env[INTEGRATION_NAME_HEADER];
@@ -62,13 +66,19 @@ describe('analytics-sources - getIntegrationName', () => {
   });
 
   it('integration name is loaded and formatted from CLI flag', () => {
-    expect(getIntegrationName([{ integrationName: 'homebrew' }])).toBe(
-      'HOMEBREW',
-    );
+    expect(
+      getIntegrationName([
+        { integrationName: 'homebrew', ...defaultArgsParams },
+      ]),
+    ).toBe('HOMEBREW');
   });
 
   it('integration name is loaded and validated from CLI flag', () => {
-    expect(getIntegrationName([{ integrationName: 'invalid' }])).toBe('');
+    expect(
+      getIntegrationName([
+        { integrationName: 'invalid', ...defaultArgsParams },
+      ]),
+    ).toBe('');
   });
 
   it('integration name SCOOP when snyk is installed with scoop', () => {
@@ -95,7 +105,9 @@ describe('analytics-sources - getIntegrationVersion', () => {
 
   it('integration version is loaded from CLI flag', () => {
     expect(
-      getIntegrationVersion([{ integrationVersion: '1.2.3-Crystal' }]),
+      getIntegrationVersion([
+        { integrationVersion: '1.2.3-Crystal', ...defaultArgsParams },
+      ]),
     ).toBe('1.2.3-Crystal');
   });
 });

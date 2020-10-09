@@ -7,6 +7,7 @@ import { Spinner } from 'cli-spinner';
 import * as snyk from '../../../lib';
 import { verifyAPI } from './is-authed';
 import { isCI } from '../../../lib/is-ci';
+import { args as argsLib } from '../../args';
 import * as config from '../../../lib/config';
 import request = require('../../../lib/request');
 import { CustomError } from '../../../lib/errors';
@@ -37,7 +38,9 @@ async function webAuth(via: AuthCliCommands) {
 
   let urlStr = authUrl + '/login?token=' + token;
 
-  const utmParams = getQueryParamsAsString();
+  // It's not optimal, but I have to parse args again here. Alternative is reworking everything about how we parse args
+  const args = [argsLib(process.argv).options];
+  const utmParams = getQueryParamsAsString(args);
   if (utmParams) {
     urlStr += '&' + utmParams;
   }
