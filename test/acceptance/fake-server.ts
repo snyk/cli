@@ -134,6 +134,79 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
+  server.post(root + '/test-dependencies', (req, res, next) => {
+    if (req.query.org && req.query.org === 'missing-org') {
+      res.status(404);
+      res.send({
+        code: 404,
+        userMessage: 'cli error message',
+      });
+      return next();
+    }
+
+    res.send({
+      result: {
+        issues: [],
+        issuesData: {},
+        depGraphData: {
+          schemaVersion: '1.2.0',
+          pkgManager: {
+            name: 'rpm',
+            repositories: [{ alias: 'rhel:8.2' }],
+          },
+          pkgs: [
+            {
+              id: 'docker-image|foo@1.2.3',
+              info: {
+                name: 'docker-image|foo',
+                version: '1.2.3',
+              },
+            },
+          ],
+          graph: {
+            rootNodeId: 'root-node',
+            nodes: [
+              {
+                nodeId: 'root-node',
+                pkgId: 'docker-image|foo@1.2.3',
+                deps: [],
+              },
+            ],
+          },
+        },
+      },
+      meta: {
+        org: 'test-org',
+        isPublic: false,
+      },
+    });
+    return next();
+  });
+
+  server.put(root + '/monitor-dependencies', (req, res, next) => {
+    if (req.query.org && req.query.org === 'missing-org') {
+      res.status(404);
+      res.send({
+        code: 404,
+        userMessage: 'cli error message',
+      });
+      return next();
+    }
+
+    res.send({
+      ok: true,
+      org: 'test-org',
+      id: 'project-public-id',
+      isMonitored: true,
+      trialStarted: true,
+      licensesPolicy: {},
+      uri:
+        'http://example-url/project/project-public-id/history/snapshot-public-id',
+      projectName: 'test-project',
+    });
+    return next();
+  });
+
   server.post(root + '/test-iac', (req, res, next) => {
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);

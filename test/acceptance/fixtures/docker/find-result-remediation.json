@@ -18,54 +18,29 @@
         ]
       }
     },
-    "affectedPkgs": {
-      "bzip2/libbz2-1.0@1.0.6-8.1": {
-        "pkg": {
-          "version": "1.0.6-8.1",
-          "name": "bzip2/libbz2-1.0"
-        },
-        "issues": {
-          "SNYK-LINUX-BZIP2-106947": {
-            "issueId": "SNYK-LINUX-BZIP2-106947",
-            "fixInfo": {
-              "upgradePaths": [],
-              "isPatchable": false
-            }
-          }
-        }
-      },
-      "curl@7.38.0-4+deb8u11": {
-        "pkg": {
-          "name": "curl",
-          "version": "7.38.0-4+deb8u11"
-        },
-        "issues": {
-          "SNYK-LINUX-CURL-100548": {
-            "issueId": "SNYK-LINUX-CURL-100548",
-            "fixInfo": {
-              "isPatchable": false,
-              "upgradePaths": []
-            }
-          }
+    "issues": [
+      {
+        "pkgName": "bzip2/libbz2-1.0",
+        "pkgVersion": "1.0.6-8.1",
+        "issueId": "SNYK-LINUX-BZIP2-106947",
+        "fixInfo": {
+          "upgradePaths": [],
+          "isPatchable": false
         }
       }
-    },
+    ],
     "issuesData": {
       "SNYK-LINUX-BZIP2-106947": {
         "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
         "alternativeIds": [],
         "creationTime": "2018-06-27T16:12:23.571063Z",
-        "credit": [
-          ""
-        ],
+        "credit": [""],
         "cvssScore": 6.5,
         "description": "## Overview\nUse-after-free vulnerability in bzip2recover in bzip2 1.0.6 allows remote attackers to cause a denial of service (crash) via a crafted bzip2 file, related to block ends set to before the start of the block.\n\n## References\n- [GENTOO](https://security.gentoo.org/glsa/201708-08)\n- [CONFIRM](https://bugzilla.redhat.com/show_bug.cgi?id=1319648)\n- [SECTRACK](http://www.securitytracker.com/id/1036132)\n- [BID](http://www.securityfocus.com/bid/91297)\n- [CONFIRM](http://www.oracle.com/technetwork/topics/security/bulletinjul2016-3090568.html)\n- [MLIST](http://www.openwall.com/lists/oss-security/2016/06/20/1)\n",
         "disclosureTime": null,
         "id": "SNYK-LINUX-BZIP2-106947",
         "identifiers": {
-          "CVE": [
-            "CVE-2016-3189"
-          ],
+          "CVE": ["CVE-2016-3189"],
           "CWE": []
         },
         "internal": {},
@@ -103,49 +78,21 @@
         ],
         "semver": {
           "vulnerableByDistro": {
-            "alpine:3.4": [
-              "<1.0.6-r5"
-            ],
-            "alpine:3.5": [
-              "<1.0.6-r5"
-            ],
-            "alpine:3.6": [
-              "<1.0.6-r5"
-            ],
-            "alpine:3.7": [
-              "<1.0.6-r5"
-            ],
-            "alpine:3.8": [
-              "<1.0.6-r5"
-            ],
-            "debian:10": [
-              "<1.0.6-8.1"
-            ],
-            "debian:8": [
-              "*"
-            ],
-            "debian:9": [
-              "<1.0.6-8.1"
-            ],
-            "debian:unstable": [
-              "<1.0.6-8.1"
-            ],
-            "ubuntu:12.04": [
-              "*"
-            ],
-            "ubuntu:14.04": [
-              "*"
-            ],
-            "ubuntu:16.04": [
-              "*"
-            ],
-            "ubuntu:18.04": [
-              "*"
-            ]
+            "alpine:3.4": ["<1.0.6-r5"],
+            "alpine:3.5": ["<1.0.6-r5"],
+            "alpine:3.6": ["<1.0.6-r5"],
+            "alpine:3.7": ["<1.0.6-r5"],
+            "alpine:3.8": ["<1.0.6-r5"],
+            "debian:10": ["<1.0.6-8.1"],
+            "debian:8": ["*"],
+            "debian:9": ["<1.0.6-8.1"],
+            "debian:unstable": ["<1.0.6-8.1"],
+            "ubuntu:12.04": ["*"],
+            "ubuntu:14.04": ["*"],
+            "ubuntu:16.04": ["*"],
+            "ubuntu:18.04": ["*"]
           },
-          "vulnerable": [
-            "*"
-          ]
+          "vulnerable": ["*"]
         },
         "severity": "low",
         "title": "Denial of Service (DoS)"
@@ -154,20 +101,14 @@
         "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:H/A:N",
         "alternativeIds": [],
         "creationTime": "2019-02-06T14:28:30.599712Z",
-        "credit": [
-          ""
-        ],
+        "credit": [""],
         "cvssScore": 5.3,
         "description": "## Overview\nThe (1) mbed_connect_step1 function in lib/vtls/mbedtls.c and (2) polarssl_connect_step1 function in lib/vtls/polarssl.c in cURL and libcurl before 7.49.0, when using SSLv3 or making a TLS connection to a URL that uses a numerical IP address, allow remote attackers to spoof servers via an arbitrary valid certificate.\n\n## References\n- [BID](http://www.securityfocus.com/bid/90726)\n- [CONFIRM](https://curl.haxx.se/CVE-2016-3739.patch)\n- [CONFIRM](https://curl.haxx.se/changes.html#7_49_0)\n- [CONFIRM](https://curl.haxx.se/docs/adv_20160518.html)\n- [CONFIRM](https://h20566.www2.hpe.com/portal/site/hpsc/public/kb/docDisplay?docId=emr_na-c05320149)\n- [CONFIRM](https://h20566.www2.hpe.com/portal/site/hpsc/public/kb/docDisplay?docId=emr_na-c05390722)\n- [GENTOO](https://security.gentoo.org/glsa/201701-47)\n- [SECTRACK](http://www.securitytracker.com/id/1035907)\n- [SLACKWARE](http://www.slackware.com/security/viewer.php?l=slackware-security&y=2016&m=slackware-security.495349)\n",
         "disclosureTime": null,
         "id": "SNYK-LINUX-CURL-100548",
         "identifiers": {
-          "CVE": [
-            "CVE-2016-3739"
-          ],
-          "CWE": [
-            "CWE-20"
-          ]
+          "CVE": ["CVE-2016-3739"],
+          "CWE": ["CWE-20"]
         },
         "language": "linux",
         "modificationTime": "2019-03-17T06:12:22.801004Z",
@@ -215,25 +156,62 @@
         ],
         "semver": {
           "vulnerableByDistro": {
-            "debian:10": [
-              "<7.50.1-1"
-            ],
-            "debian:8": [
-              "*"
-            ],
-            "debian:9": [
-              "<7.50.1-1"
-            ],
-            "debian:unstable": [
-              "<7.50.1-1"
-            ]
+            "debian:10": ["<7.50.1-1"],
+            "debian:8": ["*"],
+            "debian:9": ["<7.50.1-1"],
+            "debian:unstable": ["<7.50.1-1"]
           },
-          "vulnerable": [
-            "*"
-          ]
+          "vulnerable": ["*"]
         },
         "severity": "medium",
         "title": "Improper Input Validation"
+      }
+    },
+    "depGraphData": {
+      "schemaVersion": "1.2.0",
+      "pkgManager": {
+        "name": "rpm",
+        "repositories": [{ "alias": "rhel:8.2" }]
+      },
+      "pkgs": [
+        {
+          "id": "docker-image|snyk/kubernetes-monitor@1.32.2",
+          "info": {
+            "name": "docker-image|snyk/kubernetes-monitor",
+            "version": "1.32.2"
+          }
+        },
+        {
+          "id": "apt/libapt-pkg5.0@1.6.3ubuntu0.1",
+          "info": { "name": "apt/libapt-pkg5.0", "version": "1.6.3ubuntu0.1" }
+        },
+        {
+          "id": "bzip2/libbz2-1.0@1.0.6-8.1",
+          "info": { "name": "bzip2/libbz2-1.0", "version": "1.0.6-8.1" }
+        }
+      ],
+      "graph": {
+        "rootNodeId": "root-node",
+        "nodes": [
+          {
+            "nodeId": "root-node",
+            "pkgId": "docker-image|snyk/kubernetes-monitor@1.32.2",
+            "deps": [
+              { "nodeId": "apt/libapt-pkg5.0@1.6.3ubuntu0.1" },
+              { "nodeId": "bzip2/libbz2-1.0@1.0.6-8.1" }
+            ]
+          },
+          {
+            "nodeId": "apt/libapt-pkg5.0@1.6.3ubuntu0.1",
+            "pkgId": "apt/libapt-pkg5.0@1.6.3ubuntu0.1",
+            "deps": [{ "nodeId": "bzip2/libbz2-1.0@1.0.6-8.1" }]
+          },
+          {
+            "nodeId": "bzip2/libbz2-1.0@1.0.6-8.1",
+            "pkgId": "bzip2/libbz2-1.0@1.0.6-8.1",
+            "deps": []
+          }
+        ]
       }
     }
   },

@@ -49,7 +49,7 @@ import {
 } from './formatters';
 import * as utils from './utils';
 import { getIacDisplayedOutput, createSarifOutputForIac } from './iac-output';
-import { getEcosystem, testEcosystem } from '../../../lib/ecosystems';
+import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
 import { TestLimitReachedError } from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { createSarifOutputForContainers } from './sarif-output';
@@ -115,7 +115,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     }
   }
 
-  const ecosystem = getEcosystem(options);
+  const ecosystem = getEcosystemForTest(options);
   if (ecosystem) {
     try {
       const commandResult = await testEcosystem(
