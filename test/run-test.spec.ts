@@ -22,6 +22,7 @@ describe('CLI runTest - propagate correct user error', () => {
         };
 
         await expect(runTest(undefined, '', options))
+        .rejects.toThrow('just a random error');
     });
 
     it('returns userMessage for error code 404', async () => { 
