@@ -6,6 +6,7 @@ const woofs = {
   ru: ' Гав!',
   es: 'Guau!',
   cs: ' Haf!',
+  ua: ' Гав!',
 };
 
 export default function getWoof(args: MethodArgs): string {
