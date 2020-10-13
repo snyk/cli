@@ -32,7 +32,7 @@ Describe "Snyk iac test command"
       The output should include "Project name:      iac"
       The output should include "Open source:       no"
       The output should include "Project path:      ../fixtures/iac/pod-privileged.yaml"
-      The output should include "Tested ../fixtures/iac/pod-privileged.yaml for known issues, found 6 issues"
+      The output should include "Tested ../fixtures/iac/pod-privileged.yaml for known issues, found"
     End
 
     It "filters out issues when using severity threshold"
@@ -50,7 +50,7 @@ Describe "Snyk iac test command"
       The output should include "Project name:      iac"
       The output should include "Open source:       no"
       The output should include "Project path:      ../fixtures/iac/pod-privileged.yaml"
-      The output should include "Tested ../fixtures/iac/pod-privileged.yaml for known issues, found 1 issues"
+      The output should include "Tested ../fixtures/iac/pod-privileged.yaml for known issues, found"
     End
 
     It "outputs an error for files with no valid k8s objects"

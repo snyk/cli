@@ -21,7 +21,7 @@ Describe "Snyk iac test command"
       The output should include "Project name:      iac"
       The output should include "Open source:       no"
       The output should include "Project path:      ../fixtures/iac/sg_open_ssh.tf"
-      The output should include "Tested ../fixtures/iac/sg_open_ssh.tf for known issues, found 1 issues"
+      The output should include "Tested ../fixtures/iac/sg_open_ssh.tf for known issues, found"
     End
 
     It "filters out issues when using severity threshold"
@@ -38,7 +38,7 @@ Describe "Snyk iac test command"
       The output should include "Project name:      iac"
       The output should include "Open source:       no"
       The output should include "Project path:      ../fixtures/iac/sg_open_ssh.tf"
-      The output should include "Tested ../fixtures/iac/sg_open_ssh.tf for known issues, found 0 issues"
+      The output should include "Tested ../fixtures/iac/sg_open_ssh.tf for known issues, found"
     End
 
     It "outputs an error for invalid hcl2 tf files"
