@@ -377,7 +377,7 @@ export const AllProjectsTests: AcceptanceTests = {
     ) => async (t) => {
       utils.chdirWorkspaces();
 
-      // mock python plugin becuase CI tooling doesn't have pipenv installed
+      // // mock python plugin becuase CI tooling doesn't have pipenv installed
       const mockPipfile = {
         async inspect() {
           return {
@@ -442,7 +442,7 @@ export const AllProjectsTests: AcceptanceTests = {
         t.ok(req.body.depGraph, 'body contains depGraph');
         t.match(
           req.body.depGraph.pkgManager.name,
-          /(npm|rubygems|maven|nuget|paket|pip|sbt)/,
+          /(npm|rubygems|maven|nuget|paket|pip|sbt|gradle)/,
           'depGraph has package manager',
         );
       });
