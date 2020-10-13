@@ -15,23 +15,27 @@ import {
 } from '../../constants';
 
 const reachabilityLevels: {
-  [key in REACHABILITY]: { color: Function; text: string };
+  [key in REACHABILITY]: { color: Function; text: string; json: string };
 } = {
   [REACHABILITY.FUNCTION]: {
     color: chalk.redBright,
     text: 'Reachable',
+    json: 'reachable',
   },
   [REACHABILITY.PACKAGE]: {
     color: chalk.yellow,
     text: 'Potentially reachable',
+    json: 'potentially-reachable',
   },
   [REACHABILITY.NOT_REACHABLE]: {
     color: chalk.blueBright,
     text: 'Not reachable',
+    json: 'not-reachable',
   },
   [REACHABILITY.NO_INFO]: {
     color: (str) => str,
     text: '',
+    json: 'no-info',
   },
 };
 
@@ -55,6 +59,14 @@ export function getReachabilityText(reachability?: REACHABILITY): string {
   return reachableInfo ? reachableInfo.text : '';
 }
 
+export function getReachabilityJson(reachability?: REACHABILITY): string {
+  if (!reachability) {
+    return '';
+  }
+  const reachableInfo = reachabilityLevels[reachability];
+  return reachableInfo ? reachableInfo.json : '';
+}
+
 export function summariseReachableVulns(
   vulnerabilities: AnnotatedIssue[],
 ): string {
@@ -67,7 +79,6 @@ export function summariseReachableVulns(
       reachableVulnsCount === 1 ? 'vulnerability' : 'vulnerabilities';
     return `In addition, found ${reachableVulnsCount} ${vulnText} with a reachable path.`;
   }
-
   return '';
 }
 
