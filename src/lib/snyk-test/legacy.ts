@@ -146,6 +146,7 @@ export interface BasicResultData {
   summary: string;
   packageManager?: SupportedProjectTypes;
   severityThreshold?: string;
+  platform?: string;
 }
 
 export interface LegacyVulnApiResult extends BasicResultData {

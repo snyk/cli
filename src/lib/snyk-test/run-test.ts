@@ -109,6 +109,8 @@ function prepareEcosystemResponseForParsing(
   const projectName = payloadBody?.name || depGraph?.rootPkg.name;
   const packageManager = payloadBody?.identity?.type as SupportedProjectTypes;
   const targetFile = payloadBody?.identity?.targetFile || options.file;
+  const platform = payloadBody?.identity?.args?.platform;
+
   return {
     depGraph,
     dockerfilePackages,
@@ -118,6 +120,7 @@ function prepareEcosystemResponseForParsing(
     displayTargetFile: targetFile,
     foundProjectCount: undefined,
     payloadPolicy: payloadBody?.policy,
+    platform,
   };
 }
 
@@ -248,6 +251,7 @@ async function sendAndParseResults(
         foundProjectCount,
         displayTargetFile,
         dockerfilePackages,
+        platform,
       } = prepareResponseForParsing(
         payloadCopy,
         res as TestDependenciesResponse,
@@ -279,6 +283,7 @@ async function sendAndParseResults(
         projectName,
         foundProjectCount,
         displayTargetFile,
+        platform,
       });
     }
   }

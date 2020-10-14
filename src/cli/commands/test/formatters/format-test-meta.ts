@@ -43,6 +43,13 @@ export function formatTestMeta(
       chalk.bold(rightPadWithSpaces('Docker image: ', padToLength)) +
         options.path,
     );
+
+    if (res.platform) {
+      meta.push(
+        chalk.bold(rightPadWithSpaces('Platform: ', padToLength)) +
+          res.platform,
+      );
+    }
   } else {
     meta.push(
       chalk.bold(rightPadWithSpaces('Open source: ', padToLength)) + openSource,

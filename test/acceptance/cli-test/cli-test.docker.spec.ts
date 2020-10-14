@@ -76,6 +76,83 @@ export const DockerTests: AcceptanceTests = {
       );
     },
 
+    '`test foo:latest --docker --platform=linux/amd64`': (params) => async (
+      t,
+    ) => {
+      const spyPlugin = stubDockerPluginResponse(
+        params.ecoSystemPlugins,
+        {
+          scanResults: [
+            {
+              facts: [
+                { type: 'depGraph', data: {} },
+                { type: 'dockerfileAnalysis', data: {} },
+              ],
+              identity: {
+                type: 'deb',
+                args: {
+                  platform: 'linux/amd64',
+                },
+              },
+              target: {
+                image: 'docker-image|ubuntu',
+              },
+            },
+          ],
+        },
+        t,
+      );
+
+      await params.cli.test('foo:latest', {
+        docker: true,
+        org: 'explicit-org',
+      });
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dependencies', 'posts to correct url');
+      t.deepEqual(
+        req.body,
+        {
+          scanResult: {
+            facts: [
+              { type: 'depGraph', data: {} },
+              { type: 'dockerfileAnalysis', data: {} },
+            ],
+            identity: {
+              type: 'deb',
+              args: {
+                platform: 'linux/amd64',
+              },
+            },
+            target: {
+              image: 'docker-image|ubuntu',
+            },
+          },
+        },
+        'sends correct payload',
+      );
+      t.same(
+        spyPlugin.getCall(0).args,
+        [
+          {
+            docker: true,
+            org: 'explicit-org',
+            projectName: null,
+            packageManager: null,
+            pinningSupported: null,
+            path: 'foo:latest',
+            showVulnPaths: 'some',
+          },
+        ],
+        'calls docker plugin with expected arguments',
+      );
+    },
+
     '`test foo:latest --docker vulnerable paths`': (params) => async (t) => {
       stubDockerPluginResponse(
         params.ecoSystemPlugins,
