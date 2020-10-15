@@ -58,7 +58,7 @@ if (danger.github && danger.github.pr) {
     return inTestFolder && !inLegacyAcceptanceTestsFolder && !testFilenameLooksLikeJest;
   });
 
-  if (newTestFiles) {
+  if (newTestFiles.length) {
     const joinedFileList = newTestFiles.map(f => '- `' + f + '`').join("\n");
     const msg = `Looks like you added a new Tap test. Consider making it a Jest test instead. See files like \`test/*.spec.ts\` for examples. Files found:\n${joinedFileList}`;
     warn(msg);
