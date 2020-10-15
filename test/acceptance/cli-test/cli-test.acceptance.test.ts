@@ -27,7 +27,7 @@ import { SbtTests } from './cli-test.sbt.spec';
 import { YarnTests } from './cli-test.yarn.spec';
 import { IacK8sTests } from './cli-test.iac-k8s.spec';
 import { YarnWorkspacesTests } from './cli-test.yarn-workspaces.spec';
-import { AllProjectsTests } from './cli-test.all-projects.spec';
+// import { AllProjectsTests } from './cli-test.all-projects.spec'; TODO @boost temporary disable flaky test
 
 const languageTests: AcceptanceTests[] = [
   CocoapodsTests,
@@ -64,6 +64,7 @@ const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
 import * as plugins from '../../../src/lib/plugins/index';
+import * as ecoSystemPlugins from '../../../src/lib/ecosystems/plugins';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -122,17 +123,18 @@ if (!isWindows) {
     }
   });
 
-  test(AllProjectsTests.language, async (t) => {
-    for (const testName of Object.keys(AllProjectsTests.tests)) {
-      t.test(
-        testName,
-        AllProjectsTests.tests[testName](
-          { server, versionNumber, cli, plugins },
-          { chdirWorkspaces },
-        ),
-      );
-    }
-  });
+  // TODO @boost: temporary disabling this flaky test
+  // test(AllProjectsTests.language, async (t) => {
+  //   for (const testName of Object.keys(AllProjectsTests.tests)) {
+  //     t.test(
+  //       testName,
+  //       AllProjectsTests.tests[testName](
+  //         { server, versionNumber, cli, plugins },
+  //         { chdirWorkspaces },
+  //       ),
+  //     );
+  //   }
+  // });
 
   test('Languages', async (t) => {
     for (const languageTest of languageTests) {
@@ -141,7 +143,7 @@ if (!isWindows) {
           tt.test(
             testName,
             languageTest.tests[testName](
-              { server, plugins, versionNumber, cli },
+              { server, plugins, ecoSystemPlugins, versionNumber, cli },
               { chdirWorkspaces },
             ),
           );

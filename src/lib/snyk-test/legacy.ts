@@ -146,6 +146,7 @@ export interface BasicResultData {
   summary: string;
   packageManager?: SupportedProjectTypes;
   severityThreshold?: string;
+  platform?: string;
 }
 
 export interface LegacyVulnApiResult extends BasicResultData {
@@ -201,26 +202,46 @@ interface FixInfo {
   nearestFixedInVersion?: string;
 }
 
+export interface AffectedPackages {
+  [pkgId: string]: {
+    pkg: Pkg;
+    issues: {
+      [issueId: string]: Issue;
+    };
+  };
+}
+
 interface TestDepGraphResult {
   issuesData: {
     [issueId: string]: IssueData;
   };
-  affectedPkgs: {
-    [pkgId: string]: {
-      pkg: Pkg;
-      issues: {
-        [issueId: string]: {
-          issueId: string;
-          fixInfo: FixInfo;
-        };
-      };
-    };
-  };
+  affectedPkgs: AffectedPackages;
   docker: {
     binariesVulns?: TestDepGraphResult;
     baseImage?: any;
   };
   remediation?: RemediationChanges;
+}
+
+interface Issue {
+  pkgName: string;
+  pkgVersion?: string;
+  issueId: string;
+  fixInfo: FixInfo;
+}
+
+interface TestDependenciesResult {
+  issuesData: {
+    [issueId: string]: IssueData;
+  };
+  issues: Issue[];
+  docker?: {
+    baseImage: string;
+    baseImageRemediation: BaseImageRemediation;
+    binariesVulns: TestDepGraphResult;
+  };
+  remediation?: RemediationChanges;
+  depGraphData: depGraphLib.DepGraphData;
 }
 
 export interface TestDepGraphMeta {
@@ -239,6 +260,11 @@ export interface TestDepGraphMeta {
 
 export interface TestDepGraphResponse {
   result: TestDepGraphResult;
+  meta: TestDepGraphMeta;
+}
+
+export interface TestDependenciesResponse {
+  result: TestDependenciesResult;
   meta: TestDepGraphMeta;
 }
 

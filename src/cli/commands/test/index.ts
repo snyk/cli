@@ -49,7 +49,7 @@ import {
 } from './formatters';
 import * as utils from './utils';
 import { getIacDisplayedOutput, createSarifOutputForIac } from './iac-output';
-import { getEcosystem, testEcosystem } from '../../../lib/ecosystems';
+import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { createSarifOutputForContainers } from './sarif-output';
 import {
@@ -107,14 +107,14 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     apiTokenExists();
   } catch (err) {
     if (options.docker && getDockerToken()) {
-      options.testDepGraphDockerEndpoint = '/docker-jwt/test-dep-graph';
+      options.testDepGraphDockerEndpoint = '/docker-jwt/test-dependencies';
       options.isDockerUser = true;
     } else {
       throw err;
     }
   }
 
-  const ecosystem = getEcosystem(options);
+  const ecosystem = getEcosystemForTest(options);
   if (ecosystem) {
     try {
       const commandResult = await testEcosystem(

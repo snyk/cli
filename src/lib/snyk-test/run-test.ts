@@ -15,6 +15,8 @@ import {
   TestDepGraphResponse,
   convertTestDepGraphResultToLegacy,
   LegacyVulnApiResult,
+  TestDependenciesResponse,
+  AffectedPackages,
 } from './legacy';
 import { IacTestResponse } from './iac-test-result';
 import {
@@ -56,15 +58,161 @@ import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
 import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
-import { Payload, PayloadBody, DepTreeFromResolveDeps } from './types';
+import {
+  Payload,
+  PayloadBody,
+  DepTreeFromResolveDeps,
+  TestDependenciesRequest,
+} from './types';
 import { CallGraphError, CallGraph } from '@snyk/cli-interface/legacy/common';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
 import { getDockerToken } from '../api-token';
+import { getEcosystem } from '../ecosystems';
+import { Issue } from '../ecosystems/types';
+import { assembleEcosystemPayloads } from './assemble-payloads';
 
 const debug = debugModule('snyk:run-test');
 
 const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
+
+function prepareResponseForParsing(
+  payload: Payload,
+  response: TestDependenciesResponse,
+  options: Options & TestOptions,
+): any {
+  const ecosystem = getEcosystem(options);
+  return ecosystem
+    ? prepareEcosystemResponseForParsing(payload, response, options)
+    : prepareLanguagesResponseForParsing(payload);
+}
+
+function prepareEcosystemResponseForParsing(
+  payload: Payload,
+  response: TestDependenciesResponse,
+  options: Options & TestOptions,
+) {
+  const testDependenciesRequest = payload.body as
+    | TestDependenciesRequest
+    | undefined;
+  const payloadBody = testDependenciesRequest?.scanResult;
+  const depGraphData: depGraphLib.DepGraphData | undefined =
+    response?.result?.depGraphData;
+  const depGraph =
+    depGraphData !== undefined
+      ? depGraphLib.createFromJSON(depGraphData)
+      : undefined;
+  const dockerfileAnalysisFact = payloadBody?.facts.find(
+    (fact) => fact.type === 'dockerfileAnalysis',
+  );
+  const dockerfilePackages = dockerfileAnalysisFact?.data?.dockerfilePackages;
+  const projectName = payloadBody?.name || depGraph?.rootPkg.name;
+  const packageManager = payloadBody?.identity?.type as SupportedProjectTypes;
+  const targetFile = payloadBody?.identity?.targetFile || options.file;
+  const platform = payloadBody?.identity?.args?.platform;
+
+  return {
+    depGraph,
+    dockerfilePackages,
+    projectName,
+    targetFile,
+    pkgManager: packageManager,
+    displayTargetFile: targetFile,
+    foundProjectCount: undefined,
+    payloadPolicy: payloadBody?.policy,
+    platform,
+  };
+}
+
+function prepareLanguagesResponseForParsing(payload: Payload) {
+  const payloadBody = payload.body as PayloadBody | undefined;
+  const payloadPolicy = payloadBody && payloadBody.policy;
+  const depGraph = payloadBody && payloadBody.depGraph;
+  const pkgManager =
+    depGraph &&
+    depGraph.pkgManager &&
+    (depGraph.pkgManager.name as SupportedProjectTypes);
+  const targetFile = payloadBody && payloadBody.targetFile;
+  const projectName =
+    payloadBody?.projectNameOverride || payloadBody?.originalProjectName;
+  const foundProjectCount = payloadBody?.foundProjectCount;
+  const displayTargetFile = payloadBody?.displayTargetFile;
+  let dockerfilePackages;
+  if (
+    payloadBody &&
+    payloadBody.docker &&
+    payloadBody.docker.dockerfilePackages
+  ) {
+    dockerfilePackages = payloadBody.docker.dockerfilePackages;
+  }
+  analytics.add('depGraph', !!depGraph);
+  analytics.add('isDocker', !!(payloadBody && payloadBody.docker));
+  return {
+    depGraph,
+    payloadPolicy,
+    pkgManager,
+    targetFile,
+    projectName,
+    foundProjectCount,
+    displayTargetFile,
+    dockerfilePackages,
+  };
+}
+
+function isTestDependenciesResponse(
+  response:
+    | IacTestResponse
+    | TestDepGraphResponse
+    | TestDependenciesResponse
+    | LegacyVulnApiResult,
+): response is TestDependenciesResponse {
+  const assumedTestDependenciesResponse = response as TestDependenciesResponse;
+  return assumedTestDependenciesResponse?.result?.issues !== undefined;
+}
+
+function convertIssuesToAffectedPkgs(
+  response:
+    | IacTestResponse
+    | TestDepGraphResponse
+    | TestDependenciesResponse
+    | LegacyVulnApiResult,
+):
+  | IacTestResponse
+  | TestDepGraphResponse
+  | TestDependenciesResponse
+  | LegacyVulnApiResult {
+  if (!(response as any).result) {
+    return response;
+  }
+
+  if (!isTestDependenciesResponse(response)) {
+    return response;
+  }
+
+  response.result['affectedPkgs'] = getAffectedPkgsFromIssues(
+    response.result.issues,
+  );
+  return response;
+}
+
+function getAffectedPkgsFromIssues(issues: Issue[]): AffectedPackages {
+  const result: AffectedPackages = {};
+
+  for (const issue of issues) {
+    const packageId = `${issue.pkgName}@${issue.pkgVersion || ''}`;
+
+    if (result[packageId] === undefined) {
+      result[packageId] = {
+        pkg: { name: issue.pkgName, version: issue.pkgVersion },
+        issues: {},
+      };
+    }
+
+    result[packageId].issues[issue.issueId] = issue;
+  }
+
+  return result;
+}
 
 async function sendAndParseResults(
   payloads: Payload[],
@@ -91,36 +239,37 @@ async function sendAndParseResults(
       );
       results.push(result);
     } else {
-      const payloadBody: PayloadBody = payload.body as PayloadBody;
-      const payloadPolicy = payloadBody && payloadBody.policy;
-      const depGraph = payloadBody && payloadBody.depGraph;
-      const pkgManager =
-        depGraph &&
-        depGraph.pkgManager &&
-        (depGraph.pkgManager.name as SupportedProjectTypes);
-      const targetFile = payloadBody && payloadBody.targetFile;
-      const projectName =
-        _.get(payload, 'body.projectNameOverride') ||
-        _.get(payload, 'body.originalProjectName');
-      const foundProjectCount = _.get(payload, 'body.foundProjectCount');
-      const displayTargetFile = _.get(payload, 'body.displayTargetFile');
-      let dockerfilePackages;
-      if (
-        payloadBody &&
-        payloadBody.docker &&
-        payloadBody.docker.dockerfilePackages
-      ) {
-        dockerfilePackages = payloadBody.docker.dockerfilePackages;
+      /** TODO: comment why */
+      const payloadCopy = Object.assign({}, payload);
+      const res = await sendTestPayload(payload);
+      const {
+        depGraph,
+        payloadPolicy,
+        pkgManager,
+        targetFile,
+        projectName,
+        foundProjectCount,
+        displayTargetFile,
+        dockerfilePackages,
+        platform,
+      } = prepareResponseForParsing(
+        payloadCopy,
+        res as TestDependenciesResponse,
+        options,
+      );
+
+      const ecosystem = getEcosystem(options);
+      if (ecosystem && options['print-deps']) {
+        await spinner.clear<void>(spinnerLbl)();
+        await maybePrintDepGraph(options, depGraph);
       }
-      analytics.add('depGraph', !!depGraph);
-      analytics.add('isDocker', !!(payloadBody && payloadBody.docker));
-      // Type assertion might be a lie, but we are correcting that below
-      const res = (await sendTestPayload(payload)) as LegacyVulnApiResult;
+
+      const legacyRes = convertIssuesToAffectedPkgs(res);
 
       const result = await parseRes(
         depGraph,
         pkgManager,
-        res,
+        legacyRes as LegacyVulnApiResult,
         options,
         payload,
         payloadPolicy,
@@ -134,6 +283,7 @@ async function sendAndParseResults(
         projectName,
         foundProjectCount,
         displayTargetFile,
+        platform,
       });
     }
   }
@@ -267,8 +417,15 @@ async function parseRes(
 
 function sendTestPayload(
   payload: Payload,
-): Promise<LegacyVulnApiResult | TestDepGraphResponse | IacTestResponse> {
-  const filesystemPolicy = payload.body && !!payload.body.policy;
+): Promise<
+  | LegacyVulnApiResult
+  | TestDepGraphResponse
+  | IacTestResponse
+  | TestDependenciesResponse
+> {
+  const payloadBody = payload.body as any;
+  const filesystemPolicy =
+    payload.body && !!(payloadBody?.policy || payloadBody?.scanResult?.policy);
   return new Promise((resolve, reject) => {
     request(payload, (error, res, body) => {
       if (error) {
@@ -322,6 +479,11 @@ function assemblePayloads(
     isLocal = fs.existsSync(root);
   }
   analytics.add('local', isLocal);
+
+  const ecosystem = getEcosystem(options);
+  if (ecosystem) {
+    return assembleEcosystemPayloads(ecosystem, options);
+  }
   if (isLocal) {
     return assembleLocalPayloads(root, options);
   }
