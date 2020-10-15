@@ -27,7 +27,7 @@ import { SbtTests } from './cli-test.sbt.spec';
 import { YarnTests } from './cli-test.yarn.spec';
 import { IacK8sTests } from './cli-test.iac-k8s.spec';
 import { YarnWorkspacesTests } from './cli-test.yarn-workspaces.spec';
-import { AllProjectsTests } from './cli-test.all-projects.spec';
+// import { AllProjectsTests } from './cli-test.all-projects.spec'; TODO @boost temporary disable flaky test
 
 const languageTests: AcceptanceTests[] = [
   CocoapodsTests,
@@ -123,17 +123,18 @@ if (!isWindows) {
     }
   });
 
-  test(AllProjectsTests.language, async (t) => {
-    for (const testName of Object.keys(AllProjectsTests.tests)) {
-      t.test(
-        testName,
-        AllProjectsTests.tests[testName](
-          { server, versionNumber, cli, plugins },
-          { chdirWorkspaces },
-        ),
-      );
-    }
-  });
+  // TODO @boost: temporary disabling this flaky test
+  // test(AllProjectsTests.language, async (t) => {
+  //   for (const testName of Object.keys(AllProjectsTests.tests)) {
+  //     t.test(
+  //       testName,
+  //       AllProjectsTests.tests[testName](
+  //         { server, versionNumber, cli, plugins },
+  //         { chdirWorkspaces },
+  //       ),
+  //     );
+  //   }
+  // });
 
   test('Languages', async (t) => {
     for (const languageTest of languageTests) {
