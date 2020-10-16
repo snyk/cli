@@ -467,10 +467,11 @@ export function formatIssue(
   }
 
   let introducedBy = '';
+
   if (
     testOptions.showVulnPaths === 'some' &&
     paths &&
-    paths.find((p) => p.length > 2)
+    paths.find((p) => p.length > 1)
   ) {
     // In this mode, we show only one path by default, for compactness
     const pathStr = printPath(paths[0]);
@@ -493,6 +494,7 @@ export function formatIssue(
       )} other path(s)`;
     }
   }
+
   const reachableVia = formatReachablePaths(
     sampleReachablePaths,
     MAX_REACHABLE_PATHS,
