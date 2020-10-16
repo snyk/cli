@@ -80,6 +80,8 @@ async function monitorDependencies(
         options,
       );
 
+      const configOrg = config.org ? decodeURIComponent(config.org) : undefined;
+
       const payload = {
         method: 'PUT',
         url: `${config.API}/monitor-dependencies`,
@@ -89,6 +91,9 @@ async function monitorDependencies(
           authorization: 'token ' + snyk.api,
         },
         body: monitorDependenciesRequest,
+        qs: {
+          org: options.org || configOrg,
+        },
       };
       try {
         const response = await makeRequest<MonitorDependenciesResponse>(

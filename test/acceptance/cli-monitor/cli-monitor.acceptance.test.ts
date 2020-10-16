@@ -1825,6 +1825,38 @@ if (!isWindows) {
     );
   });
 
+  test('`monitor foo:latest --docker --org=fake-org`', async (t) => {
+    stubDockerPluginResponse(
+      {
+        scanResults: [
+          {
+            identity: {
+              type: 'rpm',
+            },
+            target: {
+              image: 'docker-image|foo',
+            },
+            facts: [{ type: 'depGraph', data: {} }],
+          },
+        ],
+      },
+      t,
+    );
+
+    await cli.monitor('foo:latest', {
+      docker: true,
+      org: 'fake-org',
+    });
+    const req = server.popRequest();
+    t.deepEqual(
+      req.query,
+      {
+        org: 'fake-org',
+      },
+      'sends correct payload',
+    );
+  });
+
   test('monitor --json multiple folders', async (t) => {
     chdirWorkspaces('fail-on');
 
