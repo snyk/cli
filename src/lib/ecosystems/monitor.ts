@@ -11,7 +11,7 @@ import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
 import { formatMonitorOutput } from '../../cli/commands/monitor/formatters/format-monitor-response';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
-import { MonitorError } from '../errors';
+import { AuthFailedError, MonitorError } from '../errors';
 import {
   Ecosystem,
   ScanResult,
@@ -105,8 +105,11 @@ async function monitorDependencies(
           scanResult,
         });
       } catch (error) {
+        if (error.code === 401) {
+          throw AuthFailedError();
+        }
         if (error.code >= 400 && error.code < 500) {
-          throw new Error(error.message);
+          throw new MonitorError(error.code, error.message);
         }
         errors.push({
           error: 'Could not monitor dependencies in ' + path,
