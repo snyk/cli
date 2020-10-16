@@ -11,6 +11,7 @@
 const debug = require('debug')('snyk');
 import * as fs from 'fs';
 import { ArgsOptions } from '../cli/args';
+import { join } from 'path';
 
 export const INTEGRATION_NAME_HEADER = 'SNYK_INTEGRATION_NAME';
 export const INTEGRATION_VERSION_HEADER = 'SNYK_INTEGRATION_VERSION';
@@ -50,10 +51,13 @@ enum TrackedIntegration {
 }
 
 export const getIntegrationName = (args: ArgsOptions[]): string => {
+  const maybeHomebrew = isHomebrew() ? 'HOMEBREW' : '';
   const maybeScoop = isScoop() ? 'SCOOP' : '';
+
   const integrationName = String(
     args[0]?.integrationName || // Integration details passed through CLI flag
       process.env[INTEGRATION_NAME_HEADER] ||
+      maybeHomebrew ||
       maybeScoop ||
       '',
   ).toUpperCase();
@@ -111,6 +115,30 @@ export function validateScoopManifestFile(snykExecutablePath: string): boolean {
     }
   } catch (error) {
     debug('Error validating scoop manifest file', error);
+  }
+  return false;
+}
+
+export function isHomebrew(): boolean {
+  const currentProcessPath = process.execPath;
+  const isHomebrewPath = currentProcessPath.includes('/Cellar/snyk/');
+  if (isHomebrewPath) {
+    return validateHomebrew(currentProcessPath);
+  } else {
+    return false;
+  }
+}
+
+export function validateHomebrew(snykExecutablePath: string): boolean {
+  try {
+    const expectedFormulaFilePath = join(
+      snykExecutablePath,
+      '../../.brew/snyk.rb',
+    );
+    const formulaFileExists = fs.existsSync(expectedFormulaFilePath);
+    return formulaFileExists;
+  } catch (error) {
+    debug('Error checking for Homebrew Formula file', error);
   }
   return false;
 }
