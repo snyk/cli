@@ -87,6 +87,8 @@ test('analytics', (t) => {
         'durationMs',
         'integrationName',
         'integrationVersion',
+        'integrationEnvironment',
+        'integrationEnvironmentVersion',
       ].sort(),
       'keys as expected',
     );
@@ -124,6 +126,8 @@ test('analytics with args', (t) => {
         'durationMs',
         'integrationName',
         'integrationVersion',
+        'integrationEnvironment',
+        'integrationEnvironmentVersion',
       ].sort(),
       'keys as expected',
     );
@@ -163,6 +167,8 @@ test('analytics with args and org', (t) => {
         'org',
         'integrationName',
         'integrationVersion',
+        'integrationEnvironment',
+        'integrationEnvironmentVersion',
       ].sort(),
       'keys as expected',
     );

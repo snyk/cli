@@ -8,6 +8,8 @@ const request = require('./request');
 const {
   getIntegrationName,
   getIntegrationVersion,
+  getIntegrationEnvironment,
+  getIntegrationEnvironmentVersion,
 } = require('./analytics-sources');
 const isCI = require('./is-ci').isCI;
 const debug = require('debug')('snyk');
@@ -67,6 +69,10 @@ function postAnalytics(data) {
       data.standalone = isStandalone;
       data.integrationName = getIntegrationName(data.args);
       data.integrationVersion = getIntegrationVersion(data.args);
+      data.integrationEnvironment = getIntegrationEnvironment(data.args);
+      data.integrationEnvironmentVersion = getIntegrationEnvironmentVersion(
+        data.args,
+      );
 
       const seed = uuid.v4();
       const shasum = crypto.createHash('sha1');
