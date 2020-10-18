@@ -6,9 +6,9 @@ Describe "Snyk iac test command"
 
   Describe "k8s single file scan"
     It "finds issues in k8s file"
-      When run snyk iac test ../fixtures/iac/pod-privileged.yaml
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml
       The status should be failure # issues found
-      The output should include "Testing ../fixtures/iac/pod-privileged.yaml..."
+      The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
@@ -28,17 +28,17 @@ Describe "Snyk iac test command"
       # Outputs Summary
       The output should include "Organization:"
       The output should include "Type:              Kubernetes"
-      The output should include "Target file:       ../fixtures/iac/pod-privileged.yaml"
-      The output should include "Project name:      iac"
+      The output should include "Target file:       ../fixtures/iac/kubernetes/pod-privileged.yaml"
+      The output should include "Project name:      kubernetes"
       The output should include "Open source:       no"
-      The output should include "Project path:      ../fixtures/iac/pod-privileged.yaml"
-      The output should include "Tested ../fixtures/iac/pod-privileged.yaml for known issues, found"
+      The output should include "Project path:      ../fixtures/iac/kubernetes/pod-privileged.yaml"
+      The output should include "Tested ../fixtures/iac/kubernetes/pod-privileged.yaml for known issues, found"
     End
 
     It "filters out issues when using severity threshold"
-      When run snyk iac test ../fixtures/iac/pod-privileged.yaml --severity-threshold=high
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --severity-threshold=high
       The status should be failure # one issue found
-      The output should include "Testing ../fixtures/iac/pod-privileged.yaml..."
+      The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
 
       The output should include "Infrastructure as code issues:"
       The output should include "✗ Container is running in privileged mode [High Severity] [SNYK-CC-K8S-1] in Deployment"
@@ -46,28 +46,28 @@ Describe "Snyk iac test command"
 
       The output should include "Organization:"
       The output should include "Type:              Kubernetes"
-      The output should include "Target file:       ../fixtures/iac/pod-privileged.yaml"
-      The output should include "Project name:      iac"
+      The output should include "Target file:       ../fixtures/iac/kubernetes/pod-privileged.yaml"
+      The output should include "Project name:      kubernetes"
       The output should include "Open source:       no"
-      The output should include "Project path:      ../fixtures/iac/pod-privileged.yaml"
-      The output should include "Tested ../fixtures/iac/pod-privileged.yaml for known issues, found"
+      The output should include "Project path:      ../fixtures/iac/kubernetes/pod-privileged.yaml"
+      The output should include "Tested ../fixtures/iac/kubernetes/pod-privileged.yaml for known issues, found"
     End
 
     It "outputs an error for files with no valid k8s objects"
-      When run snyk iac test ../fixtures/iac/pod-invalid.yaml
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml
       The status should be failure
-      The output should include "Illegal infrastructure as code target file ../fixtures/iac/pod-invalid.yaml"
+      The output should include "Illegal infrastructure as code target file pod-invalid.yaml"
     End
 
     It "outputs the expected text when running with --sarif flag"
-      When run snyk iac test ../fixtures/iac/pod-privileged.yaml --sarif
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --sarif
       The status should be failure
       The output should include '"id": "SNYK-CC-K8S-1",'
       The output should include '"ruleId": "SNYK-CC-K8S-1",'
     End
 
     It "outputs the expected text when running with --json flag"
-      When run snyk iac test ../fixtures/iac/pod-privileged.yaml --json
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --json
       The status should be failure
       The output should include '"id": "SNYK-CC-K8S-1",'
       The output should include '"packageManager": "k8sconfig",'

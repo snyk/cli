@@ -2,18 +2,8 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
 import * as _ from 'lodash';
-import { IllegalIacFileError, NoSupportedManifestsFoundError } from './errors';
+import { NoSupportedManifestsFoundError } from './errors';
 import { SupportedPackageManagers } from './package-managers';
-import {
-  validateK8sFile,
-  makeValidateTerraformRequest,
-} from './iac/iac-parser';
-import { projectTypeByFileType, IacProjectType } from './iac/constants';
-import {
-  SupportLocalFileOnlyIacError,
-  UnsupportedOptionFileIacError,
-} from './errors/unsupported-options-iac-error';
-import { IllegalTerraformFileError } from './errors/invalid-iac-file';
 
 const debug = debugLib('snyk-detect');
 
@@ -150,48 +140,8 @@ export function detectPackageManager(root: string, options) {
   return packageManager;
 }
 
-export async function isIacProject(root: string, options): Promise<string> {
-  if (options.file) {
-    debug('Iac - --file specified ' + options.file);
-    throw UnsupportedOptionFileIacError(options.file);
-  }
-
-  if (isLocalFolder(root)) {
-    debug('Iac - folder case ' + root);
-    throw SupportLocalFileOnlyIacError();
-  }
-
-  if (localFileSuppliedButNotFound(root, '.') || !fs.existsSync(root)) {
-    throw SupportLocalFileOnlyIacError();
-  }
-
-  const filePath = pathLib.resolve(root, '.');
-  const fileContent = fs.readFileSync(filePath, 'utf-8');
-  const fileType = root.substr(root.lastIndexOf('.') + 1);
-  const projectType = projectTypeByFileType[fileType];
-  switch (projectType) {
-    case IacProjectType.K8S:
-      validateK8sFile(fileContent, filePath, root);
-      break;
-    case IacProjectType.TERRAFORM: {
-      const {
-        isValidTerraformFile,
-        reason,
-      } = await makeValidateTerraformRequest(fileContent);
-      if (!isValidTerraformFile) {
-        throw IllegalTerraformFileError([root], reason);
-      }
-      break;
-    }
-    default:
-      throw IllegalIacFileError([root]);
-  }
-
-  return projectType;
-}
-
 // User supplied a "local" file, but that file doesn't exist
-function localFileSuppliedButNotFound(root, file) {
+export function localFileSuppliedButNotFound(root, file) {
   return (
     file && fs.existsSync(root) && !fs.existsSync(pathLib.resolve(root, file))
   );

@@ -41,32 +41,68 @@ export async function parseIacTestResult(
   };
 }
 
+export interface IacPayloadFileDetails {
+  fileType: string;
+  fileName: string;
+  filePath: string;
+  targetFileRelativePath: string;
+}
+
 export async function assembleIacLocalPayloads(
   root: string,
   options: Options & TestOptions,
 ): Promise<Payload[]> {
-  const payloads: Payload[] = [];
-  // Forcing options.path to be a string as pathUtil requires is to be stringified
-  const targetFile = pathLib.resolve(root, '.');
-  const targetFileRelativePath = targetFile
-    ? pathUtil.join(pathUtil.resolve(`${options.path}`), targetFile)
-    : '';
+  const filesToTest: IacPayloadFileDetails[] = [];
 
-  const fileContent = fs.readFileSync(targetFile, 'utf8');
-  const fileType = root.substr(root.lastIndexOf('.') + 1);
-  const projectType = projectTypeByFileType[fileType];
+  if (!options.iacDirFiles) {
+    const fileType = pathLib.extname(root).substr(1);
+    const targetFile = pathLib.resolve(root, '.');
+    const targetFileRelativePath = targetFile
+      ? pathUtil.join(pathUtil.resolve(`${options.path}`), targetFile)
+      : '';
+    filesToTest.push({
+      fileType,
+      fileName: root,
+      filePath: targetFile,
+      targetFileRelativePath,
+    });
+  } else {
+    for (const iacFile of options.iacDirFiles) {
+      if (iacFile.projectType) {
+        const targetFile = iacFile.filePath;
+        filesToTest.push({
+          fileType: iacFile.fileType,
+          fileName: path.basename(targetFile),
+          filePath: targetFile,
+          targetFileRelativePath: targetFile,
+        });
+      }
+    }
+  }
+
+  return filesToTest.map((iacFileDetails) => {
+    return assembleIacLocalPayload(iacFileDetails, options);
+  });
+}
+
+function assembleIacLocalPayload(
+  fileDetails: IacPayloadFileDetails,
+  options: Options & TestOptions,
+): Payload {
+  const fileContent = fs.readFileSync(fileDetails.filePath, 'utf8');
+  const projectType = projectTypeByFileType[fileDetails.fileType];
 
   const body: IacScan = {
     data: {
       fileContent,
-      fileType: fileType as IacFileTypes,
+      fileType: fileDetails.fileType as IacFileTypes,
     },
-    targetFile: root,
+    targetFile: fileDetails.fileName,
     type: projectType,
     //TODO(orka): future - support policy
     policy: '',
-    targetFileRelativePath: `${targetFileRelativePath}`, // Forcing string
-    originalProjectName: path.basename(path.dirname(targetFile)),
+    targetFileRelativePath: `${fileDetails.targetFileRelativePath}`, // Forcing string
+    originalProjectName: path.basename(path.dirname(fileDetails.filePath)),
     projectNameOverride: options.projectName,
   };
   const payload: Payload = {
@@ -81,6 +117,5 @@ export async function assembleIacLocalPayloads(
     body,
   };
 
-  payloads.push(payload);
-  return payloads;
+  return payload;
 }

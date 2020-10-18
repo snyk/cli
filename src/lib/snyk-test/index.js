@@ -1,6 +1,7 @@
 module.exports = test;
 
 const detect = require('../detect');
+const detectIac = require('../iac/detect-iac');
 const { runTest } = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
@@ -8,6 +9,7 @@ const iacProjects = require('../iac/constants');
 const {
   UnsupportedPackageManagerError,
   NotSupportedIacFileError,
+  NotSupportedIacAllProjects,
 } = require('../errors');
 const { isMultiProjectScan } = require('../is-multi-project-scan');
 
@@ -34,13 +36,24 @@ async function executeTest(root, options) {
   try {
     if (!options.allProjects) {
       options.packageManager = options.iac
-        ? await detect.isIacProject(root, options)
+        ? await detectIac.getProjectType(root, options)
         : detect.detectPackageManager(root, options);
     }
     return run(root, options).then((results) => {
       for (const res of results) {
         if (!res.packageManager) {
           res.packageManager = options.packageManager;
+        }
+
+        // For IaC Directory support - make sure the result get the right project type
+        // after finding this is a Directory case
+        if (
+          options.iac &&
+          res.result &&
+          res.result.projectType &&
+          options.packageManager === iacProjects.IacProjectType.MULTI_IAC
+        ) {
+          res.packageManager = res.result.projectType;
         }
       }
       if (results.length === 1) {
@@ -65,6 +78,9 @@ function run(root, options) {
 
 function validateProjectType(options, projectType) {
   if (options.iac) {
+    if (options.allProjects) {
+      throw new NotSupportedIacAllProjects(options.path);
+    }
     if (!iacProjects.TEST_SUPPORTED_IAC_PROJECTS.includes(projectType)) {
       throw new NotSupportedIacFileError(projectType);
     }

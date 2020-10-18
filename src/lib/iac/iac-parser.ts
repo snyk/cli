@@ -1,11 +1,14 @@
 //TODO(orka): take out into a new lib
 import * as YAML from 'js-yaml';
 import * as debugLib from 'debug';
-import { IllegalIacFileError, NotSupportedIacFileError } from '../errors';
+import { IllegalIacFileErrorMsg, NotSupportedIacFileErrorMsg } from '../errors';
 import request = require('../request');
 import { api as getApiToken } from '../api-token';
 import * as config from './../config';
-import { IacValidateTerraformResponse } from './constants';
+import {
+  IacValidateTerraformResponse,
+  IacValidationResponse,
+} from './constants';
 
 const debug = debugLib('snyk-detect');
 
@@ -48,11 +51,11 @@ function parseYamlOrJson(fileContent: string, filePath: string): any {
 export function validateK8sFile(
   fileContent: string,
   filePath: string,
-  root: string,
-) {
+  fileName: string,
+): IacValidationResponse {
   const k8sObjects: any[] = parseYamlOrJson(fileContent, filePath);
   if (!k8sObjects) {
-    throw IllegalIacFileError([root]);
+    return { isValidFile: false, reason: IllegalIacFileErrorMsg(fileName) };
   }
 
   let numOfSupportedKeyDocs = 0;
@@ -67,24 +70,28 @@ export function validateK8sFile(
     for (const key of requiredK8SObjectFields) {
       if (!k8sObject[key]) {
         debug(`Missing required field (${key})`);
-        throw IllegalIacFileError([root]);
+        return {
+          isValidFile: false,
+          reason: IllegalIacFileErrorMsg(fileName),
+        };
       }
     }
   }
 
   if (numOfSupportedKeyDocs === 0) {
-    throw NotSupportedIacFileError([root]);
+    return {
+      isValidFile: false,
+      reason: NotSupportedIacFileErrorMsg(fileName),
+    };
   }
 
   debug(`k8s config found (${filePath})`);
+  return { isValidFile: true, reason: '' };
 }
 
 export async function makeValidateTerraformRequest(
   terraformFileContent: string,
-): Promise<{
-  isValidTerraformFile: boolean;
-  reason: string;
-}> {
+): Promise<IacValidationResponse> {
   const response = (await request({
     body: {
       contentBase64: Buffer.from(terraformFileContent).toString('base64'),
@@ -97,7 +104,7 @@ export async function makeValidateTerraformRequest(
     },
   })) as IacValidateTerraformResponse;
   return {
-    isValidTerraformFile: !!response.body?.isValidTerraformFile,
+    isValidFile: !!response.body?.isValidTerraformFile,
     reason: response.body?.reason || '',
   };
 }

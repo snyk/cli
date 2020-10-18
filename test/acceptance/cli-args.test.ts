@@ -60,20 +60,6 @@ test('snyk test command should fail when --packageManager is not specified corre
   });
 });
 
-test('snyk test command should fail when iac file is not specified', (t) => {
-  t.plan(1);
-  exec(`node ${main} iac test`, (err, stdout) => {
-    if (err) {
-      throw err;
-    }
-    t.match(
-      stdout.trim(),
-      'iac test option currently supports only a single local file',
-      'correct error output',
-    );
-  });
-});
-
 test('snyk test command should fail when iac --file is specified', (t) => {
   t.plan(1);
   exec(

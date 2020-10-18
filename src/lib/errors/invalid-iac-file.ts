@@ -1,34 +1,47 @@
 import chalk from 'chalk';
 import { CustomError } from './custom-error';
 
-export function NotSupportedIacFileError(atLocations: string[]) {
-  const locationsStr = atLocations.join(', ');
-  const errorMsg =
+export function NotSupportedIacFileErrorMsg(fileName: string): string {
+  return (
     'Not supported infrastructure as code target files in ' +
-    locationsStr +
+    fileName +
     '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
     chalk.underline(
       'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
     ) +
-    ' and make sure you are in the right directory.';
+    ' and make sure you are in the right directory.'
+  );
+}
 
+export function IllegalIacFileErrorMsg(fileName: string): string {
+  return (
+    'Illegal infrastructure as code target file ' +
+    fileName +
+    '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
+    chalk.underline(
+      'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
+    ) +
+    ' and make sure you are in the right directory.'
+  );
+}
+
+export function NotSupportedIacFileError(fileName: string): CustomError {
+  const errorMsg = NotSupportedIacFileErrorMsg(fileName);
   const error = new CustomError(errorMsg);
   error.code = 422;
   error.userMessage = errorMsg;
   return error;
 }
 
-export function IllegalIacFileError(atLocations: string[]): CustomError {
-  const locationsStr = atLocations.join(', ');
-  const errorMsg =
-    'Illegal infrastructure as code target file ' +
-    locationsStr +
-    '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
-    chalk.underline(
-      'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
-    ) +
-    ' and make sure you are in the right directory.';
+export function IllegalIacCustomError(fileName: string): CustomError {
+  const errorMsg = IllegalIacFileErrorMsg(fileName);
+  const error = new CustomError(errorMsg);
+  error.code = 422;
+  error.userMessage = errorMsg;
+  return error;
+}
 
+export function InvalidK8SFileError(errorMsg: string): CustomError {
   const error = new CustomError(errorMsg);
   error.code = 422;
   error.userMessage = errorMsg;
@@ -48,6 +61,16 @@ export function IllegalTerraformFileError(
     ) +
     ' and make sure you are in the right directory.';
 
+  const error = new CustomError(errorMsg);
+  error.code = 422;
+  error.userMessage = errorMsg;
+  return error;
+}
+
+export function NotSupportedIacAllProjects(path: string): CustomError {
+  const errorMsg =
+    `Infrastructure as Code test does not support the "--all-projects" flag.\n` +
+    `Directories with multiple IaC files can be tested using "snyk iac test ${path}" command.`;
   const error = new CustomError(errorMsg);
   error.code = 422;
   error.userMessage = errorMsg;

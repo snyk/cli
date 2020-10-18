@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
+import * as pathLib from 'path';
 import {
   IacTestResponse,
   AnnotatedIacIssue,
@@ -9,6 +10,7 @@ import { printPath } from './formatters/remediation-based-format-issues';
 import { titleCaseText } from './formatters/legacy-format-issue';
 import * as sarif from 'sarif';
 import { SEVERITY } from '../../../lib/snyk-test/legacy';
+import { IacFileInDirectory } from '../../../lib/types';
 import upperFirst = require('lodash/upperFirst');
 const debug = Debug('iac-output');
 
@@ -107,6 +109,19 @@ export function getIacDisplayedOutput(
   body = body + '\n\n' + summary;
 
   return prefix + body;
+}
+
+export function getIacDisplayErrorFileOutput(
+  iacFileResult: IacFileInDirectory,
+): string {
+  const fileName = pathLib.basename(iacFileResult.filePath);
+  return `
+
+-------------------------------------------------------
+
+Testing ${fileName}...
+  
+${iacFileResult.failureReason}`;
 }
 
 export function capitalizePackageManager(type) {

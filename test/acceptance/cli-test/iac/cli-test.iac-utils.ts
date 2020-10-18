@@ -3,8 +3,24 @@ import {
   mapIacTestResult,
   AnnotatedIacIssue,
   IacTestResponse,
-} from '../../../src/lib/snyk-test/iac-test-result';
+} from '../../../../src/lib/snyk-test/iac-test-result';
 import { Log, Run, Result } from 'sarif';
+
+export enum IacAcceptanceTestType {
+  SINGLE_K8S_FILE = 1,
+  DIRECTORY = 2,
+}
+
+const testParams = {
+  [IacAcceptanceTestType.SINGLE_K8S_FILE]: {
+    testPath: 'iac-kubernetes/multi-file.yaml',
+    displayFilePath: 'iac-kubernetes/multi-file.yaml',
+  },
+  [IacAcceptanceTestType.DIRECTORY]: {
+    testPath: 'iac-kubernetes/',
+    displayFilePath: 'multi-file.yaml',
+  },
+};
 
 export async function iacTestPrep(
   t,
@@ -12,13 +28,14 @@ export async function iacTestPrep(
   params,
   severityThreshold,
   additionaLpropsForCli,
+  testType: IacAcceptanceTestType,
 ) {
   utils.chdirWorkspaces();
   const iacTestResponse = iacTestResponseFixturesByThreshold[severityThreshold];
   params.server.setNextResponse(iacTestResponse);
 
   try {
-    await params.cli.test('iac-kubernetes/multi-file.yaml', {
+    await params.cli.test(testParams[testType].testPath, {
       iac: true,
       ...additionaLpropsForCli,
     });
@@ -42,13 +59,20 @@ export async function iacErrorTest(t, utils, params, testArg, expectedError) {
   }
 }
 
-export async function iacTestJson(t, utils, params, severityThreshold) {
+export async function iacTestJson(
+  t,
+  utils,
+  params,
+  severityThreshold,
+  testType: IacAcceptanceTestType,
+) {
   const testableObject = await iacTestPrep(
     t,
     utils,
     params,
     severityThreshold,
     { severityThreshold, json: true },
+    testType,
   );
   const req = params.server.popRequest();
   t.is(req.query.severityThreshold, severityThreshold);
@@ -58,16 +82,23 @@ export async function iacTestJson(t, utils, params, severityThreshold) {
     iacTestResponseFixturesByThreshold[severityThreshold],
   );
 
-  iacTestJsonAssertions(t, results, expectedResults);
+  iacTestJsonAssertions(t, results, expectedResults, true, testType);
 }
 
-export async function iacTestSarif(t, utils, params, severityThreshold) {
+export async function iacTestSarif(
+  t,
+  utils,
+  params,
+  severityThreshold,
+  testType: IacAcceptanceTestType,
+) {
   const testableObject = await iacTestPrep(
     t,
     utils,
     params,
     severityThreshold,
     { severityThreshold, sarif: true },
+    testType,
   );
   const req = params.server.popRequest();
   t.is(req.query.severityThreshold, severityThreshold);
@@ -85,6 +116,7 @@ export async function iacTestSarifFileOutput(
   utils,
   params,
   severityThreshold,
+  testType: IacAcceptanceTestType,
 ) {
   const testableObject = await iacTestPrep(
     t,
@@ -92,6 +124,7 @@ export async function iacTestSarifFileOutput(
     params,
     severityThreshold,
     { severityThreshold, sarif: true },
+    testType,
   );
   const req = params.server.popRequest();
   t.is(req.query.severityThreshold, severityThreshold);
@@ -113,6 +146,7 @@ export async function iacTest(
   params,
   severityThreshold,
   numOfIssues,
+  testType: IacAcceptanceTestType,
 ) {
   const testableObject = await iacTestPrep(
     t,
@@ -120,23 +154,26 @@ export async function iacTest(
     params,
     severityThreshold,
     {},
+    testType,
   );
   const res = testableObject.message;
   t.match(
     res,
-    `Tested iac-kubernetes/multi-file.yaml for known issues, found ${numOfIssues} issues`,
+    `Tested ${testParams[testType].displayFilePath} for known issues, found ${numOfIssues} issues`,
     `${numOfIssues} issue`,
   );
-  iacTestMetaAssertions(t, res);
+  iacTestMetaAssertions(t, res, testType);
 }
 
-export function iacTestMetaAssertions(t, res) {
+export function iacTestMetaAssertions(t, res, testType: IacAcceptanceTestType) {
+  const currTestParams = testParams[testType];
+
   const meta = res.slice(res.indexOf('Organization:')).split('\n');
   t.match(meta[0], /Organization:\s+test-org/, 'organization displayed');
   t.match(meta[1], /Type:\s+Kubernetes/, 'Type displayed');
   t.match(
     meta[2],
-    /Target file:\s+iac-kubernetes\/multi-file.yaml/,
+    `Target file:       ${currTestParams.displayFilePath}`,
     'target file displayed',
   );
   t.match(meta[3], /Project name:\s+iac-kubernetes/, 'project name displayed');
@@ -154,14 +191,16 @@ export function iacTestJsonAssertions(
   results,
   expectedResults,
   foundIssues = true,
+  testType: IacAcceptanceTestType,
 ) {
+  const currTestParams = testParams[testType];
   t.deepEqual(results.org, 'test-org', 'org is ok');
   t.deepEqual(results.projectType, 'k8sconfig', 'projectType is ok');
-  t.deepEqual(results.path, 'iac-kubernetes/multi-file.yaml', 'path is ok');
+  t.deepEqual(results.path, currTestParams.testPath, 'path is ok');
   t.deepEqual(results.projectName, 'iac-kubernetes', 'projectName is ok');
   t.deepEqual(
     results.targetFile,
-    'iac-kubernetes/multi-file.yaml',
+    currTestParams.displayFilePath,
     'targetFile is ok',
   );
   t.deepEqual(results.dependencyCount, 0, 'dependencyCount is 0');
