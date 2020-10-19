@@ -62,6 +62,7 @@ import {
   IacProjectTypes,
   TEST_SUPPORTED_IAC_PROJECTS,
 } from '../../../lib/iac/constants';
+import { getReachabilityJson } from './formatters/format-reachability';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -446,6 +447,19 @@ function isVulnFixable(vuln) {
   return isVulnUpgradable(vuln) || isVulnPatchable(vuln);
 }
 
+function formatJsonOutput(jsonData) {
+  const jsonDataClone = _.cloneDeep(jsonData);
+
+  if (jsonDataClone.vulnerabilities) {
+    jsonDataClone.vulnerabilities.forEach((vuln) => {
+      if (vuln.reachability) {
+        vuln.reachability = getReachabilityJson(vuln.reachability);
+      }
+    });
+  }
+  return jsonDataClone;
+}
+
 function displayResult(
   res: TestResult,
   options: Options & TestOptions,
@@ -801,7 +815,11 @@ function extractDataToSendFromResults(
       : createSarifOutputForIac(results);
   }
 
-  const stringifiedJsonData = JSON.stringify(jsonData, null, 2);
+  const stringifiedJsonData = JSON.stringify(
+    formatJsonOutput(jsonData),
+    null,
+    2,
+  );
   const stringifiedSarifData = JSON.stringify(sarifData, null, 2);
 
   const dataToSend = options.sarif ? sarifData : jsonData;
