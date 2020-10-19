@@ -1,0 +1,296 @@
+import { Options, OutputDataTypes, TestOptions } from '../../../../lib/types';
+import {
+  getReachabilityJson,
+  summariseReachableVulns,
+} from './format-reachability';
+import {
+  GroupedVuln,
+  SEVERITY,
+  TestResult,
+  VulnMetaData,
+} from '../../../../lib/snyk-test/legacy';
+import chalk from 'chalk';
+import {
+  SupportedPackageManagers,
+  WIZARD_SUPPORTED_PACKAGE_MANAGERS,
+} from '../../../../lib/package-managers';
+import * as config from '../../../../lib/config';
+import * as _ from 'lodash';
+import * as analytics from '../../../../lib/analytics';
+import {
+  formatIssuesWithRemediation,
+  getSeverityValue,
+} from './remediation-based-format-issues';
+import { formatIssues } from './legacy-format-issue';
+import { formatDockerBinariesIssues } from './docker';
+import { createSarifOutputForContainers } from '../sarif-output';
+import { createSarifOutputForIac } from '../iac-output';
+import { isNewVuln, isVulnFixable } from '../vuln-helpers';
+
+export function formatJsonOutput(jsonData) {
+  const jsonDataClone = _.cloneDeep(jsonData);
+
+  if (jsonDataClone.vulnerabilities) {
+    jsonDataClone.vulnerabilities.forEach((vuln) => {
+      if (vuln.reachability) {
+        vuln.reachability = getReachabilityJson(vuln.reachability);
+      }
+    });
+  }
+  return jsonDataClone;
+}
+
+export function extractDataToSendFromResults(
+  results,
+  jsonData,
+  options: Options,
+): OutputDataTypes {
+  let sarifData = {};
+  if (options.sarif || options['sarif-file-output']) {
+    sarifData = !options.iac
+      ? createSarifOutputForContainers(results)
+      : createSarifOutputForIac(results);
+  }
+
+  const stringifiedJsonData = JSON.stringify(
+    formatJsonOutput(jsonData),
+    null,
+    2,
+  );
+  const stringifiedSarifData = JSON.stringify(sarifData, null, 2);
+
+  const dataToSend = options.sarif ? sarifData : jsonData;
+  const stringifiedData = options.sarif
+    ? stringifiedSarifData
+    : stringifiedJsonData;
+
+  return {
+    stdout: dataToSend,
+    stringifiedData,
+    stringifiedJsonData,
+    stringifiedSarifData,
+  };
+}
+
+export function createErrorMappedResultsForJsonOutput(results) {
+  const errorMappedResults = results.map((result) => {
+    // add json for when thrown exception
+    if (result instanceof Error) {
+      return {
+        ok: false,
+        error: result.message,
+        path: (result as any).path,
+      };
+    }
+    return result;
+  });
+
+  return errorMappedResults;
+}
+
+export function getDisplayedOutput(
+  res: TestResult,
+  options: Options & TestOptions,
+  testedInfoText: string,
+  localPackageTest: any,
+  projectType: string,
+  meta: string,
+  prefix: string,
+  multiProjAdvice: string,
+  dockerAdvice: string,
+): string {
+  const vulnCount = res.vulnerabilities && res.vulnerabilities.length;
+  const singleVulnText = res.licensesPolicy ? 'issue' : 'vulnerability';
+  const multipleVulnsText = res.licensesPolicy ? 'issues' : 'vulnerabilities';
+
+  // Text will look like so:
+  // 'found 232 vulnerabilities, 404 vulnerable paths.'
+  let vulnCountText =
+    `found ${res.uniqueCount} ` +
+    (res.uniqueCount === 1 ? singleVulnText : multipleVulnsText);
+
+  // Docker is currently not supported as num of paths is inaccurate due to trimming of paths to reduce size.
+  if (options.showVulnPaths && !options.docker) {
+    vulnCountText += `, ${vulnCount} vulnerable `;
+
+    if (vulnCount === 1) {
+      vulnCountText += 'path.';
+    } else {
+      vulnCountText += 'paths.';
+    }
+  } else {
+    vulnCountText += '.';
+  }
+
+  const reachableVulnsText =
+    options.reachableVulns && vulnCount > 0
+      ? ` ${summariseReachableVulns(res.vulnerabilities)}`
+      : '';
+
+  const summary =
+    testedInfoText +
+    ', ' +
+    chalk.red.bold(vulnCountText) +
+    chalk.blue.bold(reachableVulnsText);
+  let wizardAdvice = '';
+
+  if (
+    localPackageTest &&
+    WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(
+      projectType as SupportedPackageManagers,
+    )
+  ) {
+    wizardAdvice = chalk.bold.green(
+      '\n\nRun `snyk wizard` to address these issues.',
+    );
+  }
+  const dockerSuggestion = getDockerSuggestionText(options, config);
+
+  const vulns = res.vulnerabilities || [];
+  const groupedVulns: GroupedVuln[] = groupVulnerabilities(vulns);
+  const sortedGroupedVulns = _.orderBy(
+    groupedVulns,
+    ['metadata.severityValue', 'metadata.name'],
+    ['asc', 'desc'],
+  );
+  const filteredSortedGroupedVulns = sortedGroupedVulns.filter(
+    (vuln) => vuln.metadata.packageManager !== 'upstream',
+  );
+  const binariesSortedGroupedVulns = sortedGroupedVulns.filter(
+    (vuln) => vuln.metadata.packageManager === 'upstream',
+  );
+
+  let groupedVulnInfoOutput;
+  if (res.remediation) {
+    analytics.add('actionableRemediation', true);
+    groupedVulnInfoOutput = formatIssuesWithRemediation(
+      filteredSortedGroupedVulns,
+      res.remediation,
+      options,
+    );
+  } else {
+    analytics.add('actionableRemediation', false);
+    groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) =>
+      formatIssues(vuln, options),
+    );
+  }
+
+  const groupedDockerBinariesVulnInfoOutput =
+    res.docker && binariesSortedGroupedVulns.length
+      ? formatDockerBinariesIssues(
+          binariesSortedGroupedVulns,
+          res.docker.binariesVulns,
+          options,
+        )
+      : [];
+
+  let body =
+    groupedVulnInfoOutput.join('\n\n') +
+    '\n\n' +
+    groupedDockerBinariesVulnInfoOutput.join('\n\n') +
+    '\n\n' +
+    meta;
+
+  if (res.remediation) {
+    body = summary + body + wizardAdvice;
+  } else {
+    body = body + '\n\n' + summary + wizardAdvice;
+  }
+
+  const ignoredIssues = '';
+  const dockerCTA = dockerUserCTA(options);
+  return (
+    prefix +
+    body +
+    multiProjAdvice +
+    ignoredIssues +
+    dockerAdvice +
+    dockerSuggestion +
+    dockerCTA
+  );
+}
+
+export function dockerUserCTA(options) {
+  if (options.isDockerUser) {
+    return '\n\nFor more free scans that keep your images secure, sign up to Snyk at https://dockr.ly/3ePqVcp';
+  }
+  return '';
+}
+
+function getDockerSuggestionText(options, config): string {
+  if (!options.docker || options.isDockerUser) {
+    return '';
+  }
+
+  let dockerSuggestion = '';
+  if (config && config.disableSuggestions !== 'true') {
+    const optOutSuggestions =
+      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`';
+    if (!options.file) {
+      dockerSuggestion +=
+        chalk.bold.white(
+          '\n\nPro tip: use `--file` option to get base image remediation advice.' +
+            `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`,
+        ) + optOutSuggestions;
+    } else if (!options['exclude-base-image-vulns']) {
+      dockerSuggestion +=
+        chalk.bold.white(
+          '\n\nPro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.',
+        ) + optOutSuggestions;
+    }
+  }
+  return dockerSuggestion;
+}
+
+function groupVulnerabilities(vulns): GroupedVuln[] {
+  return vulns.reduce((map, curr) => {
+    if (!map[curr.id]) {
+      map[curr.id] = {};
+      map[curr.id].list = [];
+      map[curr.id].metadata = metadataForVuln(curr);
+      map[curr.id].isIgnored = false;
+      map[curr.id].isPatched = false;
+      // Extra added fields for ease of handling
+      map[curr.id].title = curr.title;
+      map[curr.id].note = curr.note;
+      map[curr.id].severity = curr.severity as SEVERITY;
+      map[curr.id].originalSeverity = curr.originalSeverity as SEVERITY;
+      map[curr.id].isNew = isNewVuln(curr);
+      map[curr.id].name = curr.name;
+      map[curr.id].version = curr.version;
+      map[curr.id].fixedIn = curr.fixedIn;
+      map[curr.id].dockerfileInstruction = curr.dockerfileInstruction;
+      map[curr.id].dockerBaseImage = curr.dockerBaseImage;
+      map[curr.id].nearestFixedInVersion = curr.nearestFixedInVersion;
+      map[curr.id].legalInstructionsArray = curr.legalInstructionsArray;
+      map[curr.id].reachability = curr.reachability;
+    }
+
+    map[curr.id].list.push(curr);
+    if (!map[curr.id].isFixable) {
+      map[curr.id].isFixable = isVulnFixable(curr);
+    }
+
+    if (!map[curr.id].note) {
+      map[curr.id].note = !!curr.note;
+    }
+
+    return map;
+  }, {});
+}
+
+function metadataForVuln(vuln): VulnMetaData {
+  return {
+    id: vuln.id,
+    title: vuln.title,
+    description: vuln.description,
+    type: vuln.type,
+    name: vuln.name,
+    info: vuln.info,
+    severity: vuln.severity,
+    severityValue: getSeverityValue(vuln.severity),
+    isNew: isNewVuln(vuln),
+    version: vuln.version,
+    packageManager: vuln.packageManager,
+  };
+}

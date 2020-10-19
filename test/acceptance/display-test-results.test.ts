@@ -122,7 +122,7 @@ test('test info is displayed when reachability with json flag', async (t) => {
   const stubbedResponse = JSON.parse(
     fs.readFileSync(
       __dirname +
-      '/workspaces/reachable-vulns/maven/test-dep-graph-response-reachable.json',
+        '/workspaces/reachable-vulns/maven/test-dep-graph-response-reachable.json',
       'utf8',
     ),
   );
