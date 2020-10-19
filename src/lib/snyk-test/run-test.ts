@@ -309,7 +309,8 @@ export async function runTest(
 
     const hasFailedToGetVulnerabilities =
       error.code === 404 &&
-      error.name.includes('FailedToGetVulnerabilitiesError');
+      error.name.includes('FailedToGetVulnerabilitiesError') &&
+      !error.userMessage;
 
     if (isFeatureNotAllowed) {
       throw NoSupportedManifestsFoundError([root]);
