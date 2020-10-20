@@ -6,7 +6,6 @@ import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
 import { apiTokenExists, getDockerToken } from '../../../lib/api-token';
-import { FAIL_ON, FailOn, SEVERITIES } from '../../../lib/snyk-test/common';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import {
@@ -14,54 +13,43 @@ import {
   ShowVulnPaths,
   SupportedProjectTypes,
   TestOptions,
-  OutputDataTypes,
 } from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
 import { MethodArgs } from '../../args';
 import { TestCommandResult } from '../../commands/types';
-import {
-  GroupedVuln,
-  LegacyVulnApiResult,
-  SEVERITY,
-  TestResult,
-  VulnMetaData,
-} from '../../../lib/snyk-test/legacy';
+import { LegacyVulnApiResult, TestResult } from '../../../lib/snyk-test/legacy';
 import {
   IacTestResponse,
   mapIacTestResult,
 } from '../../../lib/snyk-test/iac-test-result';
-import {
-  SupportedPackageManagers,
-  WIZARD_SUPPORTED_PACKAGE_MANAGERS,
-} from '../../../lib/package-managers';
 
-import * as analytics from '../../../lib/analytics';
 import { FailOnError } from '../../../lib/errors/fail-on-error.ts';
 import {
   dockerRemediationForDisplay,
-  formatDockerBinariesIssues,
-  formatIssues,
-  formatIssuesWithRemediation,
   formatTestMeta,
-  getSeverityValue,
   summariseErrorResults,
-  summariseReachableVulns,
   summariseVulnerableResults,
 } from './formatters';
 import * as utils from './utils';
 import {
   getIacDisplayedOutput,
   getIacDisplayErrorFileOutput,
-  createSarifOutputForIac,
 } from './iac-output';
 import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
-import { createSarifOutputForContainers } from './sarif-output';
 import {
   IacProjectType,
   IacProjectTypes,
   TEST_SUPPORTED_IAC_PROJECTS,
 } from '../../../lib/iac/constants';
+import { hasFixes, hasPatches, hasUpgrades } from './vuln-helpers';
+import { FAIL_ON, FailOn, SEVERITIES } from '../../../lib/snyk-test/common';
+import {
+  createErrorMappedResultsForJsonOutput,
+  dockerUserCTA,
+  extractDataToSendFromResults,
+  getDisplayedOutput,
+} from './formatters/format-test-results';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -363,22 +351,6 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   );
 }
 
-function createErrorMappedResultsForJsonOutput(results) {
-  const errorMappedResults = results.map((result) => {
-    // add json for when thrown exception
-    if (result instanceof Error) {
-      return {
-        ok: false,
-        error: result.message,
-        path: (result as any).path,
-      };
-    }
-    return result;
-  });
-
-  return errorMappedResults;
-}
-
 function shouldFail(vulnerableResults: any[], failOn: FailOn) {
   // find reasons not to fail
   if (failOn === 'all') {
@@ -394,56 +366,12 @@ function shouldFail(vulnerableResults: any[], failOn: FailOn) {
   return vulnerableResults.length > 0;
 }
 
-function isFixable(testResult: any): boolean {
-  return isUpgradable(testResult) || isPatchable(testResult);
+function validateSeverityThreshold(severityThreshold) {
+  return SEVERITIES.map((s) => s.verboseName).indexOf(severityThreshold) > -1;
 }
 
-function hasFixes(testResults: any[]): boolean {
-  return testResults.some(isFixable);
-}
-
-function isUpgradable(testResult: any): boolean {
-  if (testResult.remediation) {
-    const {
-      remediation: { upgrade = {}, pin = {} },
-    } = testResult;
-    return Object.keys(upgrade).length > 0 || Object.keys(pin).length > 0;
-  }
-  // if remediation is not available, fallback on vuln properties
-  const { vulnerabilities = {} } = testResult;
-  return vulnerabilities.some(isVulnUpgradable);
-}
-
-function hasUpgrades(testResults: any[]): boolean {
-  return testResults.some(isUpgradable);
-}
-
-function isPatchable(testResult: any): boolean {
-  if (testResult.remediation) {
-    const {
-      remediation: { patch = {} },
-    } = testResult;
-    return Object.keys(patch).length > 0;
-  }
-  // if remediation is not available, fallback on vuln properties
-  const { vulnerabilities = {} } = testResult;
-  return vulnerabilities.some(isVulnPatchable);
-}
-
-function hasPatches(testResults: any[]): boolean {
-  return testResults.some(isPatchable);
-}
-
-function isVulnUpgradable(vuln) {
-  return vuln.isUpgradable || vuln.isPinnable;
-}
-
-function isVulnPatchable(vuln) {
-  return vuln.isPatchable;
-}
-
-function isVulnFixable(vuln) {
-  return isVulnUpgradable(vuln) || isVulnPatchable(vuln);
+function validateFailOn(arg: FailOn) {
+  return Object.keys(FAIL_ON).includes(arg);
 }
 
 function displayResult(
@@ -521,6 +449,7 @@ function displayResult(
       : '';
     // user tested a package@version and got 0 vulns back, but there were dev deps
     // to consider
+    // to consider
     const snykPackageTestTip: string = !(
       options.docker ||
       localPackageTest ||
@@ -566,253 +495,4 @@ function displayResult(
     multiProjAdvice,
     dockerAdvice,
   );
-}
-
-function getDisplayedOutput(
-  res: TestResult,
-  options: Options & TestOptions,
-  testedInfoText: string,
-  localPackageTest: any,
-  projectType: string,
-  meta: string,
-  prefix: string,
-  multiProjAdvice: string,
-  dockerAdvice: string,
-): string {
-  const vulnCount = res.vulnerabilities && res.vulnerabilities.length;
-  const singleVulnText = res.licensesPolicy ? 'issue' : 'vulnerability';
-  const multipleVulnsText = res.licensesPolicy ? 'issues' : 'vulnerabilities';
-
-  // Text will look like so:
-  // 'found 232 vulnerabilities, 404 vulnerable paths.'
-  let vulnCountText =
-    `found ${res.uniqueCount} ` +
-    (res.uniqueCount === 1 ? singleVulnText : multipleVulnsText);
-
-  // Docker is currently not supported as num of paths is inaccurate due to trimming of paths to reduce size.
-  if (options.showVulnPaths && !options.docker) {
-    vulnCountText += `, ${vulnCount} vulnerable `;
-
-    if (vulnCount === 1) {
-      vulnCountText += 'path.';
-    } else {
-      vulnCountText += 'paths.';
-    }
-  } else {
-    vulnCountText += '.';
-  }
-
-  const reachableVulnsText =
-    options.reachableVulns && vulnCount > 0
-      ? ` ${summariseReachableVulns(res.vulnerabilities)}`
-      : '';
-
-  const summary =
-    testedInfoText +
-    ', ' +
-    chalk.red.bold(vulnCountText) +
-    chalk.blue.bold(reachableVulnsText);
-  let wizardAdvice = '';
-
-  if (
-    localPackageTest &&
-    WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(
-      projectType as SupportedPackageManagers,
-    )
-  ) {
-    wizardAdvice = chalk.bold.green(
-      '\n\nRun `snyk wizard` to address these issues.',
-    );
-  }
-  const dockerSuggestion = getDockerSuggestionText(options, config);
-
-  const vulns = res.vulnerabilities || [];
-  const groupedVulns: GroupedVuln[] = groupVulnerabilities(vulns);
-  const sortedGroupedVulns = _.orderBy(
-    groupedVulns,
-    ['metadata.severityValue', 'metadata.name'],
-    ['asc', 'desc'],
-  );
-  const filteredSortedGroupedVulns = sortedGroupedVulns.filter(
-    (vuln) => vuln.metadata.packageManager !== 'upstream',
-  );
-  const binariesSortedGroupedVulns = sortedGroupedVulns.filter(
-    (vuln) => vuln.metadata.packageManager === 'upstream',
-  );
-
-  let groupedVulnInfoOutput;
-  if (res.remediation) {
-    analytics.add('actionableRemediation', true);
-    groupedVulnInfoOutput = formatIssuesWithRemediation(
-      filteredSortedGroupedVulns,
-      res.remediation,
-      options,
-    );
-  } else {
-    analytics.add('actionableRemediation', false);
-    groupedVulnInfoOutput = filteredSortedGroupedVulns.map((vuln) =>
-      formatIssues(vuln, options),
-    );
-  }
-
-  const groupedDockerBinariesVulnInfoOutput =
-    res.docker && binariesSortedGroupedVulns.length
-      ? formatDockerBinariesIssues(
-          binariesSortedGroupedVulns,
-          res.docker.binariesVulns,
-          options,
-        )
-      : [];
-
-  let body =
-    groupedVulnInfoOutput.join('\n\n') +
-    '\n\n' +
-    groupedDockerBinariesVulnInfoOutput.join('\n\n') +
-    '\n\n' +
-    meta;
-
-  if (res.remediation) {
-    body = summary + body + wizardAdvice;
-  } else {
-    body = body + '\n\n' + summary + wizardAdvice;
-  }
-
-  const ignoredIssues = '';
-  const dockerCTA = dockerUserCTA(options);
-  return (
-    prefix +
-    body +
-    multiProjAdvice +
-    ignoredIssues +
-    dockerAdvice +
-    dockerSuggestion +
-    dockerCTA
-  );
-}
-
-function validateSeverityThreshold(severityThreshold) {
-  return SEVERITIES.map((s) => s.verboseName).indexOf(severityThreshold) > -1;
-}
-
-function validateFailOn(arg: FailOn) {
-  return Object.keys(FAIL_ON).includes(arg);
-}
-
-function groupVulnerabilities(vulns): GroupedVuln[] {
-  return vulns.reduce((map, curr) => {
-    if (!map[curr.id]) {
-      map[curr.id] = {};
-      map[curr.id].list = [];
-      map[curr.id].metadata = metadataForVuln(curr);
-      map[curr.id].isIgnored = false;
-      map[curr.id].isPatched = false;
-      // Extra added fields for ease of handling
-      map[curr.id].title = curr.title;
-      map[curr.id].note = curr.note;
-      map[curr.id].severity = curr.severity as SEVERITY;
-      map[curr.id].originalSeverity = curr.originalSeverity as SEVERITY;
-      map[curr.id].isNew = isNewVuln(curr);
-      map[curr.id].name = curr.name;
-      map[curr.id].version = curr.version;
-      map[curr.id].fixedIn = curr.fixedIn;
-      map[curr.id].dockerfileInstruction = curr.dockerfileInstruction;
-      map[curr.id].dockerBaseImage = curr.dockerBaseImage;
-      map[curr.id].nearestFixedInVersion = curr.nearestFixedInVersion;
-      map[curr.id].legalInstructionsArray = curr.legalInstructionsArray;
-      map[curr.id].reachability = curr.reachability;
-    }
-
-    map[curr.id].list.push(curr);
-    if (!map[curr.id].isFixable) {
-      map[curr.id].isFixable = isVulnFixable(curr);
-    }
-
-    if (!map[curr.id].note) {
-      map[curr.id].note = !!curr.note;
-    }
-
-    return map;
-  }, {});
-}
-// check if vuln was published in the last month
-function isNewVuln(vuln) {
-  const MONTH = 30 * 24 * 60 * 60 * 1000;
-  const publicationTime = new Date(vuln.publicationTime).getTime();
-  return publicationTime > Date.now() - MONTH;
-}
-
-function metadataForVuln(vuln): VulnMetaData {
-  return {
-    id: vuln.id,
-    title: vuln.title,
-    description: vuln.description,
-    type: vuln.type,
-    name: vuln.name,
-    info: vuln.info,
-    severity: vuln.severity,
-    severityValue: getSeverityValue(vuln.severity),
-    isNew: isNewVuln(vuln),
-    version: vuln.version,
-    packageManager: vuln.packageManager,
-  };
-}
-
-function getDockerSuggestionText(options, config): string {
-  if (!options.docker || options.isDockerUser) {
-    return '';
-  }
-
-  let dockerSuggestion = '';
-  if (config && config.disableSuggestions !== 'true') {
-    const optOutSuggestions =
-      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`';
-    if (!options.file) {
-      dockerSuggestion +=
-        chalk.bold.white(
-          '\n\nPro tip: use `--file` option to get base image remediation advice.' +
-            `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`,
-        ) + optOutSuggestions;
-    } else if (!options['exclude-base-image-vulns']) {
-      dockerSuggestion +=
-        chalk.bold.white(
-          '\n\nPro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.',
-        ) + optOutSuggestions;
-    }
-  }
-  return dockerSuggestion;
-}
-
-function dockerUserCTA(options) {
-  if (options.isDockerUser) {
-    return '\n\nFor more free scans that keep your images secure, sign up to Snyk at https://dockr.ly/3ePqVcp';
-  }
-  return '';
-}
-
-function extractDataToSendFromResults(
-  results,
-  jsonData,
-  options: Options,
-): OutputDataTypes {
-  let sarifData = {};
-  if (options.sarif || options['sarif-file-output']) {
-    sarifData = !options.iac
-      ? createSarifOutputForContainers(results)
-      : createSarifOutputForIac(results);
-  }
-
-  const stringifiedJsonData = JSON.stringify(jsonData, null, 2);
-  const stringifiedSarifData = JSON.stringify(sarifData, null, 2);
-
-  const dataToSend = options.sarif ? sarifData : jsonData;
-  const stringifiedData = options.sarif
-    ? stringifiedSarifData
-    : stringifiedJsonData;
-
-  return {
-    stdout: dataToSend,
-    stringifiedData,
-    stringifiedJsonData,
-    stringifiedSarifData,
-  };
 }

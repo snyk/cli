@@ -117,6 +117,42 @@ test('test reachability info is displayed', async (t) => {
   t.end();
 });
 
+test('test info is displayed when reachability with json flag', async (t) => {
+  chdirWorkspaces();
+  const stubbedResponse = JSON.parse(
+    fs.readFileSync(
+      __dirname +
+        '/workspaces/reachable-vulns/maven/test-dep-graph-response-reachable.json',
+      'utf8',
+    ),
+  );
+  const snykTestStub = sinon.stub(snyk, 'test').returns(stubbedResponse);
+  try {
+    await cli.test('maven-app', {
+      reachableVulns: true,
+      json: true,
+    });
+  } catch (error) {
+    let { message } = error;
+    message = JSON.parse(message);
+
+    const reachabilities = message.vulnerabilities.map(
+      (vuln) => vuln.reachability,
+    );
+
+    t.deepEqual(reachabilities, [
+      'potentially-reachable',
+      'no-info',
+      'reachable',
+    ]);
+    const resType = error.constructor.name;
+    t.equal(resType, 'Error');
+  }
+
+  snykTestStub.restore();
+  t.end();
+});
+
 test('`test npm-package-with-severity-override` show original severity upgrade', async (t) => {
   chdirWorkspaces();
   const stubbedResponse = JSON.parse(
