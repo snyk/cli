@@ -1,8 +1,12 @@
 import {
   getIntegrationName,
   getIntegrationVersion,
-  INTEGRATION_NAME_HEADER,
-  INTEGRATION_VERSION_HEADER,
+  getIntegrationEnvironment,
+  getIntegrationEnvironmentVersion,
+  INTEGRATION_NAME_ENVVAR,
+  INTEGRATION_VERSION_ENVVAR,
+  INTEGRATION_ENVIRONMENT_ENVVAR,
+  INTEGRATION_ENVIRONMENT_VERSION_ENVVAR,
   isScoop,
   isHomebrew,
   validateHomebrew,
@@ -18,8 +22,10 @@ const defaultArgsParams = {
 };
 
 beforeEach(() => {
-  delete process.env[INTEGRATION_NAME_HEADER];
-  delete process.env[INTEGRATION_VERSION_HEADER];
+  delete process.env[INTEGRATION_NAME_ENVVAR];
+  delete process.env[INTEGRATION_VERSION_ENVVAR];
+  delete process.env[INTEGRATION_ENVIRONMENT_ENVVAR];
+  delete process.env[INTEGRATION_ENVIRONMENT_VERSION_ENVVAR];
 });
 
 describe('analytics-sources - scoop detection', () => {
@@ -94,24 +100,24 @@ describe('analytics-sources - Homebrew detection', () => {
 });
 
 describe('analytics-sources - getIntegrationName', () => {
-  it('integration name is empty by default', () => {
+  it('returns empty integration name by default', () => {
     expect(getIntegrationName(emptyArgs)).toBe('');
   });
 
-  it('integration name is loaded from envvar', () => {
-    process.env[INTEGRATION_NAME_HEADER] = 'NPM';
+  it('loads integration name from envvar', () => {
+    process.env[INTEGRATION_NAME_ENVVAR] = 'NPM';
     expect(getIntegrationName(emptyArgs)).toBe('NPM');
 
-    process.env[INTEGRATION_NAME_HEADER] = 'STANDALONE';
+    process.env[INTEGRATION_NAME_ENVVAR] = 'STANDALONE';
     expect(getIntegrationName(emptyArgs)).toBe('STANDALONE');
   });
 
-  it('integration name is empty when envvar is not recognized', () => {
-    process.env[INTEGRATION_NAME_HEADER] = 'INVALID';
+  it('returns empty integration namewhen envvar is not recognized', () => {
+    process.env[INTEGRATION_NAME_ENVVAR] = 'INVALID';
     expect(getIntegrationName(emptyArgs)).toBe('');
   });
 
-  it('integration name is loaded and formatted from CLI flag', () => {
+  it('loads and formats integration name from CLI flag', () => {
     expect(
       getIntegrationName([
         { integrationName: 'homebrew', ...defaultArgsParams },
@@ -119,7 +125,7 @@ describe('analytics-sources - getIntegrationName', () => {
     ).toBe('HOMEBREW');
   });
 
-  it('integration name is loaded and validated from CLI flag', () => {
+  it('loads and validates integration name from CLI flag', () => {
     expect(
       getIntegrationName([
         { integrationName: 'invalid', ...defaultArgsParams },
@@ -127,7 +133,7 @@ describe('analytics-sources - getIntegrationName', () => {
     ).toBe('');
   });
 
-  it('integration name SCOOP when snyk is installed with scoop', () => {
+  it('returns integration name SCOOP when snyk is installed with scoop', () => {
     const originalExecPath = process.execPath;
     process.execPath =
       process.cwd() + '/test/fixtures/scoop/good-manifest/snyk-win.exe';
@@ -135,7 +141,7 @@ describe('analytics-sources - getIntegrationName', () => {
     process.execPath = originalExecPath;
   });
 
-  it('integration name HOMEBREW when snyk is installed with Homebrew', () => {
+  it('returns integration name HOMEBREW when snyk is installed with Homebrew', () => {
     const originalExecPath = process.execPath;
     process.execPath =
       process.cwd() + '/test/fixtures/homebrew/Cellar/snyk/vX/bin/snyk'; // relies on fixture at /test/fixtures/homebrew/Cellar/vX/.brew/snyk.rb
@@ -145,20 +151,58 @@ describe('analytics-sources - getIntegrationName', () => {
 });
 
 describe('analytics-sources - getIntegrationVersion', () => {
-  it('integration version is empty by default', () => {
+  it('returns empty integration version by default', () => {
     expect(getIntegrationVersion(emptyArgs)).toBe('');
   });
 
-  it('integration version is loaded from envvar', () => {
-    process.env[INTEGRATION_VERSION_HEADER] = '1.2.3';
+  it('loads integration version from envvar', () => {
+    process.env[INTEGRATION_VERSION_ENVVAR] = '1.2.3';
     expect(getIntegrationVersion(emptyArgs)).toBe('1.2.3');
   });
 
-  it('integration version is loaded from CLI flag', () => {
+  it('loads integration version from CLI flag', () => {
     expect(
       getIntegrationVersion([
         { integrationVersion: '1.2.3-Crystal', ...defaultArgsParams },
       ]),
     ).toBe('1.2.3-Crystal');
+  });
+});
+
+describe('analytics-sources - getIntegrationEnvironment', () => {
+  it('returns empty integration environment by default', () => {
+    expect(getIntegrationEnvironment(emptyArgs)).toBe('');
+  });
+
+  it('loads integration environment from envvar', () => {
+    process.env[INTEGRATION_ENVIRONMENT_ENVVAR] = 'WebStorm';
+    expect(getIntegrationEnvironment(emptyArgs)).toBe('WebStorm');
+  });
+
+  it('loads integration environment from CLI flag', () => {
+    expect(
+      getIntegrationEnvironment([
+        { integrationEnvironment: 'PhpStorm', ...defaultArgsParams },
+      ]),
+    ).toBe('PhpStorm');
+  });
+});
+
+describe('analytics-sources - getIntegrationEnvironment', () => {
+  it('returns empty integration environment version by default', () => {
+    expect(getIntegrationEnvironmentVersion(emptyArgs)).toBe('');
+  });
+
+  it('loads integration environment version from envvar', () => {
+    process.env[INTEGRATION_ENVIRONMENT_VERSION_ENVVAR] = '2020.2';
+    expect(getIntegrationEnvironmentVersion(emptyArgs)).toBe('2020.2');
+  });
+
+  it('loads integration environment version from CLI flag', () => {
+    expect(
+      getIntegrationEnvironmentVersion([
+        { integrationEnvironmentVersion: '7.0.0', ...defaultArgsParams },
+      ]),
+    ).toBe('7.0.0');
   });
 });
