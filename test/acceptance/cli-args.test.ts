@@ -1,28 +1,35 @@
 import { test } from 'tap';
 import { exec } from 'child_process';
-import { sep, join } from 'path';
-import { readFileSync, unlinkSync, rmdirSync, mkdirSync, existsSync } from 'fs';
+import * as path from 'path';
+import { readFileSync, mkdirSync, existsSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { UnsupportedOptionCombinationError } from '../../src/lib/errors/unsupported-option-combination-error';
 
 const osName = require('os-name');
 
-const main = './dist/cli/index.js'.replace(/\//g, sep);
-const iswindows =
+const main = path.normalize('./dist/cli/index.js');
+const isWindows =
   osName()
     .toLowerCase()
     .indexOf('windows') === 0;
 
-const islinux =
-  osName()
-    .toLowerCase()
-    .indexOf('linux') === 0;
+function randomTmpFolderPath(): string {
+  const tmpRootFolder = './tmp-test';
+  if (!existsSync(tmpRootFolder)) {
+    mkdirSync(tmpRootFolder);
+  }
+  const tmpPath = path.normalize(`${tmpRootFolder}/${uuidv4()}`);
+  mkdirSync(tmpPath);
+
+  return tmpPath;
+}
 
 // TODO(kyegupov): make these work in Windows
 test('snyk test command should fail when --file is not specified correctly', (t) => {
   t.plan(1);
   exec(`node ${main} test --file package-lock.json`, (err, stdout) => {
     if (err) {
+      console.log('CLI stdout: ', stdout);
       throw err;
     }
     t.match(
@@ -35,11 +42,12 @@ test('snyk test command should fail when --file is not specified correctly', (t)
 
 test(
   'snyk version command should show cli version or sha',
-  { skip: iswindows },
+  { skip: isWindows },
   (t) => {
     t.plan(1);
     exec(`node ${main} --version`, (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.match(
@@ -55,6 +63,7 @@ test('snyk test command should fail when --packageManager is not specified corre
   t.plan(1);
   exec(`node ${main} test --packageManager=hello`, (err, stdout) => {
     if (err) {
+      console.log('CLI stdout: ', stdout);
       throw err;
     }
     t.match(
@@ -71,6 +80,7 @@ test('snyk test command should fail when iac --file is specified', (t) => {
     `node ${main} iac test --file=./test/acceptance/workspaces/iac-kubernetes/multi-file.yaml`,
     (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.match(
@@ -89,6 +99,7 @@ test('snyk test command should fail when iac file is not supported', (t) => {
     `node ${main} iac test ./test/acceptance/workspaces/empty/readme.md`,
     (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.match(
@@ -106,6 +117,7 @@ test('snyk test command should fail when iac file is not supported', (t) => {
     `node ${main} iac test ./test/acceptance/workspaces/helmconfig/Chart.yaml`,
     (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.match(
@@ -120,6 +132,7 @@ test('`test multiple paths with --project-name=NAME`', (t) => {
   t.plan(1);
   exec(`node ${main} test pathA pathB --project-name=NAME`, (err, stdout) => {
     if (err) {
+      console.log('CLI stdout: ', stdout);
       throw err;
     }
     t.match(
@@ -134,6 +147,7 @@ test('`test that running snyk without any args displays help text`', (t) => {
   t.plan(1);
   exec(`node ${main}`, (err, stdout) => {
     if (err) {
+      console.log('CLI stdout: ', stdout);
       throw err;
     }
     t.match(stdout.trim(), /Usage/, '`snyk help` text is shown as output');
@@ -146,6 +160,7 @@ test('`test --file=file.sln --project-name=NAME`', (t) => {
     `node ${main} test --file=file.sln --project-name=NAME`,
     (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.match(
@@ -161,6 +176,7 @@ test('`test --file=blah --scan-all-unmanaged`', (t) => {
   t.plan(1);
   exec(`node ${main} test --file=blah --scan-all-unmanaged`, (err, stdout) => {
     if (err) {
+      console.log('CLI stdout: ', stdout);
       throw err;
     }
     t.match(
@@ -194,6 +210,7 @@ argsNotAllowedWithYarnWorkspaces.forEach((arg) => {
     });
     exec(`node ${main} monitor --${arg} --yarn-workspaces`, (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.deepEqual(
@@ -218,6 +235,7 @@ argsNotAllowedWithAllProjects.forEach((arg) => {
     t.plan(2);
     exec(`node ${main} test --${arg} --all-projects`, (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.deepEqual(
@@ -243,6 +261,7 @@ test('`test --exclude without --all-project displays error message`', (t) => {
   t.plan(1);
   exec(`node ${main} test --exclude=test`, (err, stdout) => {
     if (err) {
+      console.log('CLI stdout: ', stdout);
       throw err;
     }
     t.equals(
@@ -267,11 +286,12 @@ test('`test --exclude without any value displays error message`', (t) => {
 
 test('`test --exclude=path/to/dir displays error message`', (t) => {
   t.plan(1);
-  const exclude = 'path/to/dir'.replace(/\//g, sep);
+  const exclude = path.normalize('path/to/dir');
   exec(
     `node ${main} test --all-projects --exclude=${exclude}`,
     (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.equals(
@@ -302,6 +322,7 @@ test('`other commands not allowed with --json-file-output`', (t) => {
   for (const nextCommand of commandsNotCompatibleWithJsonFileOutput) {
     exec(`node ${main} ${nextCommand} --json-file-output`, (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.match(
@@ -327,6 +348,7 @@ test('`test --json-file-output no value produces error message`', (t) => {
     const fullCommand = `node ${main} test ${jsonFileOutputOption}`;
     exec(fullCommand, (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.equals(
@@ -341,41 +363,48 @@ test('`test --json-file-output no value produces error message`', (t) => {
 
 test('`test --json-file-output can save JSON output to file while sending human readable output to stdout`', (t) => {
   t.plan(2);
-
-  exec(
-    `node ${main} test --json-file-output=snyk-direct-json-test-output.json`,
-    (err, stdout) => {
-      if (err) {
-        throw err;
-      }
-      t.match(stdout, 'Organization:', 'contains human readable output');
-      const outputFileContents = readFileSync(
-        'snyk-direct-json-test-output.json',
-        'utf-8',
-      );
-      unlinkSync('./snyk-direct-json-test-output.json');
-      const jsonObj = JSON.parse(outputFileContents);
-      const okValue = jsonObj.ok as boolean;
-      t.ok(okValue, 'JSON output ok');
-    },
+  const tmpFolder = randomTmpFolderPath();
+  const jsonPath = path.normalize(
+    `${tmpFolder}/snyk-direct-json-test-output.json`,
   );
+
+  exec(`node ${main} test --json-file-output=${jsonPath}`, (err, stdout) => {
+    if (err) {
+      console.log('CLI stdout: ', stdout);
+      throw err;
+    }
+    if (!existsSync(jsonPath)) {
+      console.log('CLI stdout: ', stdout);
+    }
+    const outputFileContents = readFileSync(jsonPath, 'utf-8');
+    const jsonObj = JSON.parse(outputFileContents);
+    const okValue = jsonObj.ok as boolean;
+
+    t.match(stdout, 'Organization:', 'contains human readable output');
+    t.ok(okValue, 'JSON output ok');
+  });
 });
 
 test('`test --json-file-output produces same JSON output as normal JSON output to stdout`', (t) => {
   t.plan(1);
+  const tmpFolder = randomTmpFolderPath();
+  const jsonPath = path.normalize(
+    `${tmpFolder}/snyk-direct-json-test-output.json`,
+  );
 
   exec(
-    `node ${main} test --json --json-file-output=snyk-direct-json-test-output.json`,
+    `node ${main} test --json --json-file-output=${jsonPath}`,
     (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       const stdoutJson = stdout;
-      const outputFileContents = readFileSync(
-        'snyk-direct-json-test-output.json',
-        'utf-8',
-      );
-      unlinkSync('./snyk-direct-json-test-output.json');
+      if (!existsSync(jsonPath)) {
+        console.log('CLI stdout: ', stdout);
+      }
+      const outputFileContents = readFileSync(jsonPath, 'utf-8');
+
       t.equals(stdoutJson, outputFileContents);
     },
   );
@@ -383,25 +412,24 @@ test('`test --json-file-output produces same JSON output as normal JSON output t
 
 test('`test --json-file-output can handle a relative path`', (t) => {
   t.plan(1);
-
-  // if 'test-output' doesn't exist, created it
-  if (!existsSync('test-output')) {
-    mkdirSync('test-output');
-  }
-
-  const tempFolder = uuidv4();
-  const outputPath = `test-output/${tempFolder}/snyk-direct-json-test-output.json`;
+  const tmpFolder = randomTmpFolderPath();
+  const outputPath = path.normalize(
+    `${tmpFolder}/snyk-direct-json-test-output.json`,
+  );
 
   exec(
     `node ${main} test --json --json-file-output=${outputPath}`,
     (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       const stdoutJson = stdout;
+      if (!existsSync(outputPath)) {
+        console.log('CLI stdout: ', stdout);
+      }
       const outputFileContents = readFileSync(outputPath, 'utf-8');
-      unlinkSync(outputPath);
-      rmdirSync(`test-output/${tempFolder}`);
+
       t.equals(stdoutJson, outputFileContents);
     },
   );
@@ -409,31 +437,27 @@ test('`test --json-file-output can handle a relative path`', (t) => {
 
 test(
   '`test --json-file-output can handle an absolute path`',
-  { skip: iswindows },
+  { skip: isWindows },
   (t) => {
     t.plan(1);
-
-    // if 'test-output' doesn't exist, created it
-    if (!existsSync('test-output')) {
-      mkdirSync('test-output');
-    }
-
-    const tempFolder = uuidv4();
-    const outputPath = join(
-      process.cwd(),
-      `test-output/${tempFolder}/snyk-direct-json-test-output.json`,
+    const tmpFolder = randomTmpFolderPath();
+    const outputPath = path.normalize(
+      `${tmpFolder}/snyk-direct-json-test-output.json`,
     );
 
     exec(
       `node ${main} test --json --json-file-output=${outputPath}`,
       (err, stdout) => {
         if (err) {
+          console.log('CLI stdout: ', stdout);
           throw err;
         }
         const stdoutJson = stdout;
+        if (!existsSync(outputPath)) {
+          console.log('CLI stdout: ', stdout);
+        }
         const outputFileContents = readFileSync(outputPath, 'utf-8');
-        unlinkSync(outputPath);
-        rmdirSync(`test-output/${tempFolder}`);
+
         t.equals(stdoutJson, outputFileContents);
       },
     );
@@ -444,6 +468,7 @@ test('flags not allowed with --sarif', (t) => {
   t.plan(1);
   exec(`node ${main} test --sarif --json`, (err, stdout) => {
     if (err) {
+      console.log('CLI stdout: ', stdout);
       throw err;
     }
     t.match(
@@ -468,6 +493,7 @@ test('test --sarif-file-output no value produces error message', (t) => {
     const fullCommand = `node ${main} test ${sarifFileOutputOption}`;
     exec(fullCommand, (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
       t.equals(
@@ -480,161 +506,93 @@ test('test --sarif-file-output no value produces error message', (t) => {
   optionsToTest.forEach(validate);
 });
 
-test(
-  '`container test --json-file-output can be used at the same time as --sarif-file-output`',
-  { skip: iswindows },
-  (t) => {
-    t.plan(3);
-
-    exec(
-      `node ${main} container test alpine --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json --json-file-output=snyk-direct-json-test-output.json`,
-      (err, stdout) => {
-        if (err) {
-          throw err;
-        }
-
-        const sarifOutput = JSON.parse(
-          readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
-        );
-        const jsonOutput = JSON.parse(
-          readFileSync('snyk-direct-json-test-output.json', 'utf-8'),
-        );
-
-        unlinkSync('./snyk-direct-json-test-output.json');
-        unlinkSync('./snyk-direct-sarif-test-output.json');
-
-        t.match(stdout, 'Organization:', 'contains human readable output');
-
-        t.ok(jsonOutput.ok, 'JSON output OK');
-        t.match(sarifOutput.version, '2.1.0', 'SARIF output OK');
-        t.end();
-      },
-    );
-  },
-);
-
-test(
-  '`container test --json-file-output can be used at the same time as --sarif-file-output`',
-  { skip: islinux },
-  (t) => {
-    t.plan(3);
-
-    exec(
-      `node ${main} container test snyk/runtime-fixtures:alpine-windows --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json --json-file-output=snyk-direct-json-test-output.json`,
-      (err, stdout) => {
-        if (err) {
-          throw err;
-        }
-
-        const sarifOutput = JSON.parse(
-          readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
-        );
-        const jsonOutput = JSON.parse(
-          readFileSync('snyk-direct-json-test-output.json', 'utf-8'),
-        );
-
-        unlinkSync('./snyk-direct-json-test-output.json');
-        unlinkSync('./snyk-direct-sarif-test-output.json');
-
-        t.match(stdout, 'Organization:', 'contains human readable output');
-
-        t.ok(jsonOutput.ok, 'JSON output OK');
-        t.match(sarifOutput.version, '2.1.0', 'SARIF output OK');
-        t.end();
-      },
-    );
-  },
-);
-
-test(
-  '`test --sarif-file-output can be used at the same time as --sarif`',
-  { skip: iswindows },
-  (t) => {
-    t.plan(2);
-
-    exec(
-      `node ${main} container test alpine --sarif --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json`,
-      (err, stdout) => {
-        if (err) {
-          throw err;
-        }
-        const sarifOutput = JSON.parse(
-          readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
-        );
-
-        unlinkSync('./snyk-direct-sarif-test-output.json');
-
-        t.match(stdout, 'rules', 'stdout is sarif');
-
-        t.match(sarifOutput.version, '2.1.0', 'SARIF output file OK');
-        t.end();
-      },
-    );
-  },
-);
-
-test(
-  '`test --sarif-file-output can be used at the same time as --sarif`',
-  { skip: islinux },
-  (t) => {
-    t.plan(2);
-
-    exec(
-      `node ${main} container test snyk/runtime-fixtures:alpine-windows --sarif --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json`,
-      (err, stdout) => {
-        if (err) {
-          throw err;
-        }
-        const sarifOutput = JSON.parse(
-          readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
-        );
-
-        unlinkSync('./snyk-direct-sarif-test-output.json');
-
-        t.match(stdout, 'rules', 'stdout is sarif');
-
-        t.match(sarifOutput.version, '2.1.0', 'SARIF output file OK');
-        t.end();
-      },
-    );
-  },
-);
-
-test('`test --sarif-file-output without vulns`', { skip: iswindows }, (t) => {
-  t.plan(1);
+test('`container test --json-file-output can be used at the same time as --sarif-file-output`', (t) => {
+  t.plan(3);
+  const tmpFolder = randomTmpFolderPath();
+  const jsonPath = path.normalize(
+    `${tmpFolder}/snyk-direct-json-test-output.json`,
+  );
+  const sarifPath = path.normalize(
+    `${tmpFolder}/snyk-direct-sarif-test-output.json`,
+  );
+  const dockerfilePath = path.normalize(
+    'test/acceptance/fixtures/docker/Dockerfile',
+  );
 
   exec(
-    `node ${main} container test alpine --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json`,
-    (err) => {
+    `node ${main} container test hello-world --file=${dockerfilePath} --sarif-file-output=${sarifPath} --json-file-output=${jsonPath}`,
+    (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
-      const sarifOutput = JSON.parse(
-        readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
-      );
+      if (!existsSync(sarifPath)) {
+        console.log('CLI stdout: ', stdout);
+      }
+      if (!existsSync(jsonPath)) {
+        console.log('CLI stdout: ', stdout);
+      }
+      const sarifOutput = JSON.parse(readFileSync(sarifPath, 'utf-8'));
+      const jsonOutput = JSON.parse(readFileSync(jsonPath, 'utf-8'));
 
-      unlinkSync('./snyk-direct-sarif-test-output.json');
+      t.match(stdout, 'Organization:', 'contains human readable output');
+      t.ok(jsonOutput.ok, 'JSON output OK');
+      t.match(sarifOutput.version, '2.1.0', 'SARIF output OK');
+      t.end();
+    },
+  );
+});
 
+test('`test --sarif-file-output can be used at the same time as --sarif`', (t) => {
+  t.plan(2);
+  const tmpFolder = randomTmpFolderPath();
+  const sarifPath = path.normalize(
+    `${tmpFolder}/snyk-direct-sarif-test-output.json`,
+  );
+  const dockerfilePath = path.normalize(
+    'test/acceptance/fixtures/docker/Dockerfile',
+  );
+
+  exec(
+    `node ${main} container test hello-world --sarif --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
+    (err, stdout) => {
+      if (err) {
+        console.log('CLI stdout: ', stdout);
+        throw err;
+      }
+      if (!existsSync(sarifPath)) {
+        console.log('CLI stdout: ', stdout);
+      }
+      const sarifOutput = JSON.parse(readFileSync(sarifPath, 'utf-8'));
+
+      t.match(stdout, 'rules', 'stdout is sarif');
       t.match(sarifOutput.version, '2.1.0', 'SARIF output file OK');
       t.end();
     },
   );
 });
 
-test('`test --sarif-file-output without vulns`', { skip: islinux }, (t) => {
+test('`test --sarif-file-output without vulns`', (t) => {
   t.plan(1);
+  const tmpFolder = randomTmpFolderPath();
+  const sarifPath = path.normalize(
+    `${tmpFolder}/snyk-direct-sarif-test-output.json`,
+  );
+  const dockerfilePath = path.normalize(
+    'test/acceptance/fixtures/docker/Dockerfile',
+  );
 
   exec(
-    `node ${main} container test snyk/runtime-fixtures:alpine-windows --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json`,
-    (err) => {
+    `node ${main} container test hello-world --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
+    (err, stdout) => {
       if (err) {
+        console.log('CLI stdout: ', stdout);
         throw err;
       }
-      const sarifOutput = JSON.parse(
-        readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
-      );
-
-      unlinkSync('./snyk-direct-sarif-test-output.json');
+      if (!existsSync(sarifPath)) {
+        console.log('CLI stdout: ', stdout);
+      }
+      const sarifOutput = JSON.parse(readFileSync(sarifPath, 'utf-8'));
 
       t.match(sarifOutput.version, '2.1.0', 'SARIF output file OK');
       t.end();
@@ -644,21 +602,28 @@ test('`test --sarif-file-output without vulns`', { skip: islinux }, (t) => {
 
 test(
   '`test ubuntu --sarif-file-output can be used at the same time as --json with vulns`',
-  { skip: iswindows },
+  { skip: isWindows },
   (t) => {
     t.plan(2);
+    const tmpFolder = randomTmpFolderPath();
+    const sarifPath = path.normalize(
+      `${tmpFolder}/snyk-direct-sarif-test-output.json`,
+    );
+    const dockerfilePath = path.normalize(
+      'test/acceptance/fixtures/docker/Dockerfile',
+    );
 
     exec(
-      `node ${main} container test ubuntu --json --file=test/acceptance/fixtures/docker/Dockerfile --sarif-file-output=snyk-direct-sarif-test-output.json`,
+      `node ${main} container test ubuntu --json --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
       (err, stdout) => {
         if (err) {
+          console.log('CLI stdout: ', stdout);
           throw err;
         }
-        const sarifOutput = JSON.parse(
-          readFileSync('snyk-direct-sarif-test-output.json', 'utf-8'),
-        );
-
-        unlinkSync('./snyk-direct-sarif-test-output.json');
+        if (!existsSync(sarifPath)) {
+          console.log('CLI stdout: ', stdout);
+        }
+        const sarifOutput = JSON.parse(readFileSync(sarifPath, 'utf-8'));
 
         const jsonObj = JSON.parse(stdout);
         t.notEqual(jsonObj.vulnerabilities.length, 0, 'has vulns');
