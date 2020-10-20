@@ -11,19 +11,23 @@ Commands:
 
   auth [api-token] ... Authenticate use of the Snyk CLI tool with your Snyk account.
   test ............... Test for any known vulnerabilities.
-  wizard ............. Configure your policy file to update, auto patch and
-                       ignore vulnerabilities in npm & yarn projects. snyk wizard updates your .snyk file automatically.
+  monitor ............ Record the state of dependencies and any
+                       vulnerabilities on snyk.io.
+
+  container .......... Test container images for vulnerabilities.
+                       See snyk container --help for full instructions.
+
+  config ............. Manage Snyk's configuration, note that this configuration is stored
+  help [topic] ....... Display this detailed help about commands and options.
+                       on your machine and applies to all Snyk CLI calls.
+  ignore ............. Modifies the .snyk policy to ignore stated issues.
+                       For more information run `snyk help ignore`.
+  policy ............. Display the .snyk policy for a package.
   protect ............ Protect your code from vulnerabilities and
                        optionally suppress specific vulnerabilities.
                        Note: Node.js only.
-  monitor ............ Record the state of dependencies and any
-                       vulnerabilities on snyk.io.
-  policy ............. Display the .snyk policy for a package.
-  ignore ............. Modifies the .snyk policy to ignore stated issues.
-                       For more information run `snyk help ignore`.
-  help [topic] ....... Display this detailed help about commands and options.
-  config ............. Manage Snyk's configuration, note that this configuration is stored
-                       on your machine and applies to all Snyk CLI calls.
+  wizard ............. Configure your policy file to update, auto patch and
+                       ignore vulnerabilities in npm & yarn projects. snyk wizard updates your .snyk file automatically.
 
 Options:
 
@@ -150,14 +154,6 @@ Python options:
                        Allow skipping packages that are not found
                        in the environment.
 
-Docker options:
-  --docker (alias: --container)
-                       Test or monitor a local Docker image for Linux vulnerabilities.
-  --file=<string> .... Include the path to the image's Dockerfile for more detailed
-                       remediation advice.
-  --exclude-base-image-vulns
-                       Exclude from display Docker base image vulnerabilities.
-
 Examples:
 
   $ snyk test
@@ -165,8 +161,8 @@ Examples:
   $ snyk test --show-vulnerable-paths=false
   $ snyk monitor --org=my-team
   $ snyk monitor --project-name=my-project
-  $ snyk test --docker ubuntu:18.04 --org=my-team
-  $ snyk test --docker app:latest --file=Dockerfile --policy-path=path/to/.snyk
+  $ snyk container test ubuntu:18.04 --org=my-team
+  $ snyk container test app:latest --file=Dockerfile --policy-path=path/to/.snyk
   $ snyk test --yarn-workspaces  --detection-depth=4 --strict-out-of-sync=false
 
 
