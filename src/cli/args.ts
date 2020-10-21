@@ -44,7 +44,7 @@ const DEBUG_DEFAULT_NAMESPACES = [
   'snyk-java-call-graph-builder',
 ];
 
-// NOTE[muscar] This is accepted in seconds for UX reasons, the mavem plugin
+// NOTE[muscar] This is accepted in seconds for UX reasons, the maven plugin
 // turns it into milliseconds before calling the call graph generator
 const REACHABLE_VULNS_TIMEOUT = 5 * 60; // 5 min (in seconds)
 
