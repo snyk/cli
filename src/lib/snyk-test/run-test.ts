@@ -239,7 +239,7 @@ async function sendAndParseResults(
       );
       results.push(result);
     } else {
-      /** TODO: comment why */
+      /** sendTestPayload() deletes the request.body from the payload once completed. */
       const payloadCopy = Object.assign({}, payload);
       const res = await sendTestPayload(payload);
       const {
