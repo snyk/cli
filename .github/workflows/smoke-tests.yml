@@ -13,6 +13,7 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ${{ matrix.os }}-latest
     strategy:
+      fail-fast: false # we care about other platforms and channels building
       matrix:
         os: [ubuntu, macos, windows]
         snyk_install_method: [binary, npm]
