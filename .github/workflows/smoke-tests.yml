@@ -16,9 +16,15 @@ jobs:
       fail-fast: false # we care about other platforms and channels building
       matrix:
         os: [ubuntu, macos, windows]
-        snyk_install_method: [binary, npm]
+        snyk_install_method: [binary, npm, yarn]
         node_version: [8, 10, 12, 14, 15]
         exclude:
+          # Skip yarn for Node 8 for now (see https://github.com/snyk/snyk/issues/1270)
+          - snyk_install_method: yarn
+            node_version: 8
+          # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
+          - snyk_install_method: yarn
+            os: windows
           # For binary, use only the Node 14
           - snyk_install_method: binary
             node_version: 8
@@ -56,6 +62,15 @@ jobs:
           node -v
           echo "install snyk with npm"
           npm install -g snyk
+
+      - name: Install Snyk with Yarn globally
+        if: ${{ matrix.snyk_install_method == 'yarn' }}
+        run: |
+          npm install yarn -g
+          echo "Yarn global path"
+          yarn global bin
+          echo 'export PATH="$PATH:$(yarn global bin)"' >> ~/.bash_profile
+          yarn global add snyk
 
       - name: npm install for fixture project
         working-directory: test/fixtures/basic-npm
@@ -138,6 +153,7 @@ jobs:
       - name: Run shellspec tests - non-Windows
         if: ${{ matrix.os != 'windows' && matrix.snyk_install_method != 'alpine-binary'}}
         working-directory: test/smoke
+        shell: bash -l {0} # run bash with --login flag to load .bash_profile that's used by yarn install method
         env:
           SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
         run: |
