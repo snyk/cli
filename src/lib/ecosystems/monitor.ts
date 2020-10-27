@@ -36,6 +36,7 @@ export async function monitorEcosystem(
     options.path = path;
     const pluginResponse = await plugin.scan(options);
     scanResultsByPath[path] = pluginResponse.scanResults;
+    spinner.clearAll();
   }
   const [monitorResults, errors] = await monitorDependencies(
     scanResultsByPath,
@@ -118,8 +119,8 @@ async function monitorDependencies(
         });
       }
     }
+    spinner.clearAll();
   }
-  spinner.clearAll();
   return [results, errors];
 }
 
