@@ -17,7 +17,7 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         snyk_install_method: [binary, npm]
-        node_version: [8, 10, 12, 14]
+        node_version: [8, 10, 12, 14, 15]
         exclude:
           - snyk_install_method: binary
             node_version: 8
@@ -25,6 +25,8 @@ jobs:
             node_version: 10
           - snyk_install_method: binary
             node_version: 12
+          - snyk_install_method: binary
+            node_version: 15
         include:
           - snyk_install_method: binary
             os: ubuntu
