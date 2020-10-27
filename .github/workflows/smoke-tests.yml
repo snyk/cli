@@ -19,6 +19,7 @@ jobs:
         snyk_install_method: [binary, npm]
         node_version: [8, 10, 12, 14, 15]
         exclude:
+          # For binary, use only the Node 14
           - snyk_install_method: binary
             node_version: 8
           - snyk_install_method: binary
@@ -34,6 +35,9 @@ jobs:
           - snyk_install_method: binary
             os: macos
             snyk_cli_dl_file: snyk-macos
+          # Homebrew installation
+          - snyk_install_method: brew
+            os: macos
           - snyk_install_method: alpine-binary
             os: ubuntu
             snyk_cli_dl_file: snyk-alpine
@@ -105,6 +109,12 @@ jobs:
         run: |
           brew install coreutils
           brew install jq
+
+      - name: Install Snyk CLI with homebrew on macOS
+        if: ${{ matrix.snyk_install_method == 'brew' }}
+        run: |
+          brew tap snyk/tap
+          brew install snyk
 
       - name: Install scoop on Windows
         if: ${{ matrix.os == 'windows'}}
