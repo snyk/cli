@@ -1,0 +1,21 @@
+name: CLI alert
+
+on:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  check_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - run: npm install
+        working-directory: ./test/cli-alert/
+      - run: npm start
+        working-directory: ./test/cli-alert/
+        env:
+          USER_GITHUB_TOKEN: ${{ secrets.USER_GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
