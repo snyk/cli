@@ -61,9 +61,9 @@ _Note: Alpine image is not copying/mounting everything, so you might need to add
 
 - [x] Alpine binary
 - [ ] Docker: current images can't output a clear stderr, because of an extraneous --json flag. Also released version is currently lagging behind the latest GitHub tag by a few hours
-- [ ] yarn installation (see https://github.com/snyk/snyk/issues/1270)
+- [x] yarn installation
 - [ ] scoop package
-- [ ] homebrew
+- [x] homebrew
 
 ## Current workarounds and limitations
 
