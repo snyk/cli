@@ -18,8 +18,8 @@ Commands:
                        See snyk container --help for full instructions.
 
   config ............. Manage Snyk's configuration, note that this configuration is stored
-  help [topic] ....... Display this detailed help about commands and options.
                        on your machine and applies to all Snyk CLI calls.
+  help [topic] ....... Display this detailed help about commands and options.
   ignore ............. Modifies the .snyk policy to ignore stated issues.
                        For more information run `snyk help ignore`.
   policy ............. Display the .snyk policy for a package.
