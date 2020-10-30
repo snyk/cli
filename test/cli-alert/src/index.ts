@@ -80,21 +80,16 @@ async function run(octokit: Octokit) {
           run_id: runID,
         })
       ).data;
-      // Wait for 10 seconds
-      await new Promise((r) => setTimeout(r, 10000));
+      // Wait for 30 seconds
+      await new Promise((r) => setTimeout(r, 30_000));
       status = workflow.status;
       conclusion = workflow.conclusion;
       const time = (Date.now() - before) / 1000;
       const minutes = Math.floor(time / 60);
-      const seconds = Math.floor(time - minutes * 60);
       console.log(
-        'Corrent status: ' +
-          status +
-          '. Time: ' +
-          minutes +
-          ' minutes, ' +
-          seconds +
-          ' seconds.',
+        `Current status: "${status}". Elapsed: ${minutes} minute${
+          minutes !== 1 ? 's' : ''
+        }`,
       );
     }
 
