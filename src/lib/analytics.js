@@ -18,6 +18,7 @@ const osName = require('os-name');
 const crypto = require('crypto');
 const uuid = require('uuid');
 const stripAnsi = require('strip-ansi');
+const { MetricsCollector } = require('./metrics');
 
 const metadata = {};
 // analytics module is required at the beginning of the CLI run cycle
@@ -85,6 +86,15 @@ function postAnalytics(data) {
 
       data.ci = isCI();
       data.durationMs = Date.now() - startTime;
+
+      try {
+        const networkTime = MetricsCollector.NETWORK_TIME.getTotal();
+        const cpuTime = data.durationMs - networkTime;
+        MetricsCollector.CPU_TIME.createInstance().setValue(cpuTime);
+        data.metrics = MetricsCollector.getAllMetrics();
+      } catch (err) {
+        debug('Error with metrics', err);
+      }
 
       const queryStringParams = {};
       if (data.org) {
