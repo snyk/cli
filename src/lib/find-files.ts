@@ -305,6 +305,15 @@ function chooseBestManifest(
       );
       return defaultManifest.path;
     }
+    case 'poetry': {
+      const defaultManifest = files.filter((path) =>
+        ['pyproject.toml'].includes(path.base),
+      )[0];
+      debug(
+        `Encountered multiple poetry manifest files, defaulting to ${defaultManifest.path}`,
+      );
+      return defaultManifest.path;
+    }
     default: {
       return null;
     }

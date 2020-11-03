@@ -944,5 +944,38 @@ export const AllProjectsTests: AcceptanceTests = {
         );
       });
     },
+    '`monitor mono-repo-poetry with --all-projects --detection-depth=2`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const result = await params.cli.monitor('mono-repo-poetry', {
+        allProjects: true,
+        detectionDepth: 2,
+      });
+      t.match(
+        result,
+        'npm/graph/some/project-id',
+        'npm project was monitored ',
+      );
+      t.match(
+        result,
+        'poetry/graph/some/project-id',
+        'poetry project was monitored ',
+      );
+      const requests = params.server.popRequests(2);
+      requests.forEach((request) => {
+        const urlOk =
+          request.url === '/api/v1/monitor/npm' ||
+          '/api/v1/monitor/poetry/graph';
+        t.ok(urlOk, 'puts at correct url');
+        t.equal(request.method, 'PUT', 'makes PUT request');
+        t.equal(
+          request.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+      });
+    },
   },
 };
