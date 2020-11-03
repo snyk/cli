@@ -47,6 +47,8 @@ jobs:
           - snyk_install_method: alpine-binary
             os: ubuntu
             snyk_cli_dl_file: snyk-alpine
+          - snyk_install_method: npm-root-user
+            os: ubuntu
 
     steps:
       - uses: actions/checkout@v2
@@ -84,6 +86,14 @@ jobs:
         run: |
           docker build -t snyk-cli-alpine -f ./test/smoke/alpine/Dockerfile ./test
           docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN snyk-cli-alpine
+
+      - name: Run npm test with Root user
+        if: ${{ matrix.snyk_install_method == 'npm-root-user' }}
+        env:
+          SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+        run: |
+          docker build -t snyk-docker-root -f ./test/smoke/docker-root/Dockerfile ./test
+          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN snyk-docker-root
 
       - name: Install Snyk with binary - Non-Windows
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
@@ -138,7 +148,7 @@ jobs:
           scoop install jq
 
       - name: Install jq on Ubuntu
-        if: ${{ matrix.os == 'ubuntu' && matrix.snyk_install_method != 'alpine-binary'}}
+        if: ${{ matrix.os == 'ubuntu' && matrix.snyk_install_method != 'alpine-binary' && matrix.snyk_install_method != 'npm-root-user' }}
         run: |
           sudo apt-get install jq
 
@@ -151,7 +161,7 @@ jobs:
           sh ./test/smoke/install-shellspec-win.sh
 
       - name: Run shellspec tests - non-Windows
-        if: ${{ matrix.os != 'windows' && matrix.snyk_install_method != 'alpine-binary'}}
+        if: ${{ matrix.os != 'windows' && matrix.snyk_install_method != 'alpine-binary' && matrix.snyk_install_method != 'npm-root-user'  }}
         working-directory: test/smoke
         shell: bash -l {0} # run bash with --login flag to load .bash_profile that's used by yarn install method
         env:
