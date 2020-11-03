@@ -98,7 +98,12 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       );
       t.match(
         result.getDisplayResults(),
-        'Tested 3 projects, no vulnerable paths were found.',
+        'Project name:      apple-lib',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Tested 4 projects, no vulnerable paths were found.',
         'no vulnerable paths found as both policies detected and applied.',
       );
       let policyCount = 0;
@@ -115,7 +120,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
           ? '\\yarn-workspaces\\package.json'
           : 'yarn-workspaces/package.json';
 
-      params.server.popRequests(3).forEach((req) => {
+      params.server.popRequests(4).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
