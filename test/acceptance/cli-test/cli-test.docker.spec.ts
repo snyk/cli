@@ -671,6 +671,22 @@ export const DockerTests: AcceptanceTests = {
       );
       t.end();
     },
+
+    '`test --docker doesnotexist`': (params) => async (t) => {
+      try {
+        await params.cli.test('doesnotexist', {
+          docker: true,
+          org: 'explicit-org',
+        });
+        t.fail('should have thrown');
+      } catch (err) {
+        const msg = err.message;
+        t.match(
+          msg,
+          'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist.',
+        );
+      }
+    },
   },
 };
 

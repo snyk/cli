@@ -11,7 +11,11 @@ import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
 import { formatMonitorOutput } from '../../cli/commands/monitor/formatters/format-monitor-response';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
-import { AuthFailedError, MonitorError } from '../errors';
+import {
+  AuthFailedError,
+  DockerImageNotFoundError,
+  MonitorError,
+} from '../errors';
 import {
   Ecosystem,
   ScanResult,
@@ -32,11 +36,24 @@ export async function monitorEcosystem(
   const plugin = getPlugin(ecosystem);
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
   for (const path of paths) {
-    await spinner(`Analyzing dependencies in ${path}`);
-    options.path = path;
-    const pluginResponse = await plugin.scan(options);
-    scanResultsByPath[path] = pluginResponse.scanResults;
-    spinner.clearAll();
+    try {
+      await spinner(`Analyzing dependencies in ${path}`);
+      options.path = path;
+      const pluginResponse = await plugin.scan(options);
+      scanResultsByPath[path] = pluginResponse.scanResults;
+    } catch (error) {
+      if (
+        ecosystem === 'docker' &&
+        error.statusCode === 401 &&
+        error.message === 'authentication required'
+      ) {
+        throw new DockerImageNotFoundError(path);
+      }
+
+      throw error;
+    } finally {
+      spinner.clearAll();
+    }
   }
   const [monitorResults, errors] = await monitorDependencies(
     scanResultsByPath,
