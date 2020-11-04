@@ -69,6 +69,7 @@
     "graphlib": "^2.1.8",
     "inquirer": "^7.3.3",
     "lodash": "^4.17.20",
+    "micromatch": "4.0.2",
     "needle": "2.5.0",
     "open": "^7.0.3",
     "os-name": "^3.0.0",

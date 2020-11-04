@@ -1,6 +1,7 @@
 import * as baseDebug from 'debug';
 import * as pathUtil from 'path';
 import * as _ from 'lodash';
+import * as micromatch from 'micromatch';
 
 const debug = baseDebug('snyk-yarn-workspaces');
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
@@ -59,15 +60,13 @@ export async function processYarnWorkspaces(
       ...getWorkspacesMap(packageJson),
     };
     for (const workspaceRoot of Object.keys(yarnWorkspacesMap)) {
-      const workspaces = yarnWorkspacesMap[workspaceRoot].workspaces || [];
+      const match = packageJsonBelongsToWorkspace(
+        packageJsonFileName,
+        yarnWorkspacesMap,
+        workspaceRoot,
+      );
 
-      const match = workspaces
-        .map((pattern) => {
-          return packageJsonFileName.includes(pattern.replace(/\*/, ''));
-        })
-        .filter(Boolean);
-
-      if (match && match.length) {
+      if (match) {
         debug(`${packageJsonFileName} matches an existing workspace pattern`);
         yarnWorkspacesFilesMap[packageJsonFileName] = {
           root: workspaceRoot,
@@ -146,4 +145,22 @@ export function getWorkspacesMap(file: {
     debug('Failed to process a workspace', e.message);
   }
   return yarnWorkspacesMap;
+}
+
+function packageJsonBelongsToWorkspace(
+  packageJsonFileName: string,
+  yarnWorkspacesMap: YarnWorkspacesMap,
+  workspaceRoot,
+): boolean {
+  const workspaceRootFolder = path.dirname(workspaceRoot);
+  const workspacesGlobs = (
+    yarnWorkspacesMap[workspaceRoot].workspaces || []
+  ).map((p) => path.join(workspaceRootFolder, p));
+  const filePath = path.normalize(packageJsonFileName);
+
+  const match = micromatch.isMatch(
+    filePath,
+    workspacesGlobs.map((p) => (p.endsWith('/**') ? p : p + '/**')),
+  );
+  return match;
 }
