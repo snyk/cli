@@ -19,3 +19,11 @@ export function apiTokenExists() {
   }
   return configured;
 }
+
+export function authHeaderWithApiTokenOrDockerJWT() {
+  const dockerToken = getDockerToken();
+  if (dockerToken) {
+    return 'bearer ' + dockerToken;
+  }
+  return 'token ' + api();
+}

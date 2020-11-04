@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as snyk from '../';
 import * as config from '../config';
 import { isCI } from '../is-ci';
 import { getPlugin } from '../ecosystems';
@@ -9,6 +8,7 @@ import { Payload } from './types';
 import { assembleQueryString } from './common';
 import spinner = require('../spinner');
 import { findAndLoadPolicyForScanResult } from '../ecosystems/policy';
+import { authHeaderWithApiTokenOrDockerJWT } from '../../lib/api-token';
 
 export async function assembleEcosystemPayloads(
   ecosystem: Ecosystem,
@@ -58,7 +58,7 @@ export async function assembleEcosystemPayloads(
         json: true,
         headers: {
           'x-is-ci': isCI(),
-          authorization: 'token ' + snyk.api,
+          authorization: authHeaderWithApiTokenOrDockerJWT(),
         },
         body: {
           scanResult,

@@ -67,7 +67,7 @@ import {
 import { CallGraphError, CallGraph } from '@snyk/cli-interface/legacy/common';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
-import { getDockerToken } from '../api-token';
+import { authHeaderWithApiTokenOrDockerJWT } from '../api-token';
 import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
@@ -751,7 +751,7 @@ async function assembleLocalPayloads(
         json: true,
         headers: {
           'x-is-ci': isCI(),
-          authorization: getAuthHeader(),
+          authorization: authHeaderWithApiTokenOrDockerJWT(),
         },
         qs: common.assembleQueryString(options),
         body,
@@ -801,14 +801,6 @@ function addPackageAnalytics(name: string, version: string): void {
   analytics.add('packageName', name);
   analytics.add('packageVersion', version);
   analytics.add('package', name + '@' + version);
-}
-
-function getAuthHeader() {
-  const dockerToken = getDockerToken();
-  if (dockerToken) {
-    return 'bearer ' + dockerToken;
-  }
-  return 'token ' + snyk.api;
 }
 
 function countUniqueVulns(vulns: AnnotatedIssue[]): number {
