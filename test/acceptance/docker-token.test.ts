@@ -76,9 +76,18 @@ test('`snyk test` with docker flag - docker token and no api key', async (t) => 
       docker: true,
     });
     const req = server.popRequest();
+    t.match(
+      req.headers.authorization,
+      'bearer docker-jwt-token',
+      'sends correct authorization header',
+    );
     t.equal(req.method, 'POST', 'makes POST request');
     t.match(req.url, 'docker-jwt/test-dependencies', 'posts to correct url');
   } catch (err) {
+    if (err.code === 401) {
+      t.fail('did not send correct autorization header');
+      t.end();
+    }
     t.fail('did not expect exception to be thrown ' + err);
   }
 });
