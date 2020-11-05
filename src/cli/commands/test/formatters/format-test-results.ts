@@ -26,6 +26,7 @@ import { formatDockerBinariesIssues } from './docker';
 import { createSarifOutputForContainers } from '../sarif-output';
 import { createSarifOutputForIac } from '../iac-output';
 import { isNewVuln, isVulnFixable } from '../vuln-helpers';
+import { jsonStringifyLargeObject } from '../../../../lib/json';
 
 export function formatJsonOutput(jsonData) {
   const jsonDataClone = _.cloneDeep(jsonData);
@@ -46,18 +47,18 @@ export function extractDataToSendFromResults(
   options: Options,
 ): OutputDataTypes {
   let sarifData = {};
+  let stringifiedSarifData = '';
   if (options.sarif || options['sarif-file-output']) {
     sarifData = !options.iac
       ? createSarifOutputForContainers(results)
       : createSarifOutputForIac(results);
+    stringifiedSarifData = jsonStringifyLargeObject(sarifData);
   }
 
-  const stringifiedJsonData = JSON.stringify(
-    formatJsonOutput(jsonData),
-    null,
-    2,
-  );
-  const stringifiedSarifData = JSON.stringify(sarifData, null, 2);
+  let stringifiedJsonData = '';
+  if (options.json || options['json-file-output']) {
+    stringifiedJsonData = jsonStringifyLargeObject(formatJsonOutput(jsonData));
+  }
 
   const dataToSend = options.sarif ? sarifData : jsonData;
   const stringifiedData = options.sarif
@@ -65,10 +66,10 @@ export function extractDataToSendFromResults(
     : stringifiedJsonData;
 
   return {
-    stdout: dataToSend,
-    stringifiedData,
-    stringifiedJsonData,
-    stringifiedSarifData,
+    stdout: dataToSend, // this is for the human-readable stdout output and is set (but not used) even if --json or --sarif is set
+    stringifiedData, // this will be used to display either the Snyk or SARIF format JSON to stdout if --json or --sarif is set
+    stringifiedJsonData, // this will be used for the --json-file-output=<file.json> option
+    stringifiedSarifData, // this will be used for the --sarif-file-output=<file.json> option
   };
 }
 

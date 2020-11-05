@@ -1,0 +1,468 @@
+[
+  {
+    "vulnerabilities": [
+      {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [],
+        "creationTime": "2020-10-19T15:28:02.803289Z",
+        "credit": [
+          ""
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n[minimatch](https://www.npmjs.com/package/minimatch) is a minimal matching utility.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS) via complicated and illegal regexes.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `minimatch` to version 3.0.2 or higher.\n## References\n- [GitHub Commit](https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955)\n",
+        "disclosureTime": "2016-06-20T16:00:06Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "3.0.2"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-JS-MINIMATCH-1019388",
+        "identifiers": {
+          "CVE": [],
+          "CWE": [
+            "CWE-400"
+          ],
+          "NSP": [
+            118
+          ]
+        },
+        "language": "js",
+        "modificationTime": "2020-10-19T16:06:30.690479Z",
+        "moduleName": "minimatch",
+        "packageManager": "npm",
+        "packageName": "minimatch",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2016-06-20T16:00:06Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "<3.0.2"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "from": [
+          "package-file-basic@1.0.0",
+          "minimatch@3.0.0"
+        ],
+        "upgradePath": [
+          false,
+          "minimatch@3.0.2"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": "minimatch",
+        "version": "3.0.0",
+        "__filename": "/Users/someuser/snyk/test/fixtures/basic-npm/node_modules/minimatch/package.json",
+        "parentDepType": "prod"
+      },
+      {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [
+          "SNYK-JS-MINIMATCH-10105"
+        ],
+        "creationTime": "2016-06-20T16:00:06.484000Z",
+        "credit": [
+          ""
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n\n[minimatch](https://www.npmjs.com/package/minimatch) is a minimal matching utility.\n\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS).\n\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\r\n\r\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\r\n\r\nLet’s take the following regular expression as an example:\r\n```js\r\nregex = /A(B|C+)+D/\r\n```\r\n\r\nThis regular expression accomplishes the following:\r\n- `A` The string must start with the letter 'A'\r\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\r\n- `D` Finally, we ensure this section of the string ends with a 'D'\r\n\r\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\r\n\r\nIt most cases, it doesn't take very long for a regex engine to find a match:\r\n\r\n```bash\r\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\r\n0.04s user 0.01s system 95% cpu 0.052 total\r\n\r\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\r\n1.79s user 0.02s system 99% cpu 1.812 total\r\n```\r\n\r\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\r\n\r\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\r\n\r\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\r\n1. CCC\r\n2. CC+C\r\n3. C+CC\r\n4. C+C+C.\r\n\r\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\r\n\r\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\r\n\r\n| String | Number of C's | Number of steps |\r\n| -------|-------------:| -----:|\r\n| ACCCX | 3 | 38\r\n| ACCCCX | 4 | 71\r\n| ACCCCCX | 5 | 136\r\n| ACCCCCCCCCCCCCCX | 14 | 65,553\r\n\r\n\r\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\n\nUpgrade `minimatch` to version 3.0.2 or higher.\n\n\n## References\n\n- [GitHub Commit](https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955)\n",
+        "disclosureTime": "2016-06-20T15:52:52Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "3.0.2"
+        ],
+        "functions": [
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "minimatch.js",
+              "functionName": "braceExpand"
+            },
+            "version": [
+              ">0.0.5 <3.0.2"
+            ]
+          }
+        ],
+        "functions_new": [
+          {
+            "functionId": {
+              "filePath": "minimatch.js",
+              "functionName": "braceExpand"
+            },
+            "version": [
+              ">0.0.5 <3.0.2"
+            ]
+          }
+        ],
+        "id": "npm:minimatch:20160620",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-MINIMATCH-10105"
+          ],
+          "CVE": [
+            "CVE-2016-10540"
+          ],
+          "CWE": [
+            "CWE-400"
+          ],
+          "NSP": [
+            118
+          ]
+        },
+        "language": "js",
+        "modificationTime": "2019-12-23T13:08:07.045562Z",
+        "moduleName": "minimatch",
+        "packageManager": "npm",
+        "packageName": "minimatch",
+        "patches": [
+          {
+            "comments": [],
+            "id": "patch:npm:minimatch:20160620:0",
+            "modificationTime": "2019-12-03T11:40:45.833898Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/minimatch/20160620/minimatch_20160620_0_0_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+            ],
+            "version": "<=3.0.1 >2.0.5"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:minimatch:20160620:1",
+            "modificationTime": "2019-12-03T11:40:45.835000Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/minimatch/20160620/minimatch_20160620_0_1_6944abf9e0694bd22fd9dad293faa40c2bc8a955.patch"
+            ],
+            "version": "<=2.0.5 >0.0.5"
+          }
+        ],
+        "proprietary": false,
+        "publicationTime": "2016-06-20T15:52:52Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/isaacs/minimatch/commit/6944abf9e0694bd22fd9dad293faa40c2bc8a955"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "<3.0.2"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "from": [
+          "package-file-basic@1.0.0",
+          "minimatch@3.0.0"
+        ],
+        "upgradePath": [
+          false,
+          "minimatch@3.0.2"
+        ],
+        "isUpgradable": true,
+        "isPatchable": true,
+        "name": "minimatch",
+        "version": "3.0.0",
+        "__filename": "/Users/someuser/snyk/test/fixtures/basic-npm/node_modules/minimatch/package.json",
+        "parentDepType": "prod"
+      },
+      {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "alternativeIds": [
+          "SNYK-JS-DEBUG-10762"
+        ],
+        "creationTime": "2017-09-13T07:55:05.106000Z",
+        "credit": [
+          ""
+        ],
+        "cvssScore": 3.7,
+        "description": "## Overview\r\n[`debug`](https://www.npmjs.com/package/debug) is a JavaScript debugging utility modelled after Node.js core's debugging technique..\r\n\r\n`debug` uses [printf-style](https://wikipedia.org/wiki/Printf_format_string) formatting. Affected versions of this package are vulnerable to Regular expression Denial of Service (ReDoS) attacks via the the `%o` formatter (Pretty-print an Object all on a single line). It used a regular expression (`/\\s*\\n\\s*/g`) in order to strip whitespaces and replace newlines with spaces, in order to join the data into a single line. This can cause a very low impact of about 2 seconds matching time for data 50k characters long.\r\n\r\n## Details\r\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\r\n\r\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\r\n\r\nLet’s take the following regular expression as an example:\r\n```js\r\nregex = /A(B|C+)+D/\r\n```\r\n\r\nThis regular expression accomplishes the following:\r\n- `A` The string must start with the letter 'A'\r\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\r\n- `D` Finally, we ensure this section of the string ends with a 'D'\r\n\r\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\r\n\r\nIt most cases, it doesn't take very long for a regex engine to find a match:\r\n\r\n```bash\r\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\r\n0.04s user 0.01s system 95% cpu 0.052 total\r\n\r\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\r\n1.79s user 0.02s system 99% cpu 1.812 total\r\n```\r\n\r\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\r\n\r\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\r\n\r\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\r\n1. CCC\r\n2. CC+C\r\n3. C+CC\r\n4. C+C+C.\r\n\r\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\r\n\r\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\r\n\r\n| String | Number of C's | Number of steps |\r\n| -------|-------------:| -----:|\r\n| ACCCX | 3 | 38\r\n| ACCCCX | 4 | 71\r\n| ACCCCCX | 5 | 136\r\n| ACCCCCCCCCCCCCCX | 14 | 65,553\r\n\r\n\r\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\r\n\r\n\r\n## Remediation\r\nUpgrade `debug` to version 2.6.9, 3.1.0 or higher.\r\n\r\n## References\r\n- [GitHub Issue](https://github.com/visionmedia/debug/issues/501)\r\n- [GitHub PR](https://github.com/visionmedia/debug/pull/504)",
+        "disclosureTime": "2017-09-05T21:00:00Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "2.6.9",
+          "3.1.0"
+        ],
+        "functions": [
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "src/node.js",
+              "functionName": "exports.formatters.o"
+            },
+            "version": [
+              ">= 2.5.0 <2.6.9",
+              ">=3.0.0 <3.1.0"
+            ]
+          },
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "node.js",
+              "functionName": "exports.formatters.o"
+            },
+            "version": [
+              ">=1.0.0 <2.5.0"
+            ]
+          }
+        ],
+        "functions_new": [
+          {
+            "functionId": {
+              "filePath": "src/node.js",
+              "functionName": "exports.formatters.o"
+            },
+            "version": [
+              ">= 2.5.0 <2.6.9",
+              ">=3.0.0 <3.1.0"
+            ]
+          },
+          {
+            "functionId": {
+              "filePath": "node.js",
+              "functionName": "exports.formatters.o"
+            },
+            "version": [
+              ">=1.0.0 <2.5.0"
+            ]
+          }
+        ],
+        "id": "npm:debug:20170905",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-DEBUG-10762"
+          ],
+          "CVE": [
+            "CVE-2017-16137"
+          ],
+          "CWE": [
+            "CWE-400"
+          ],
+          "NSP": [
+            534
+          ]
+        },
+        "language": "js",
+        "modificationTime": "2019-12-02T14:38:59.642834Z",
+        "moduleName": "debug",
+        "packageManager": "npm",
+        "packageName": "debug",
+        "patches": [
+          {
+            "comments": [],
+            "id": "patch:npm:debug:20170905:0",
+            "modificationTime": "2019-12-03T11:40:45.872397Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_0_c38a0166c266a679c8de012d4eaccec3f944e685.patch"
+            ],
+            "version": ">= 3.0.0 <=3.0.1"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:debug:20170905:1",
+            "modificationTime": "2019-12-03T11:40:45.873422Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_1_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+            ],
+            "version": ">=2.5.1 <2.6.9"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:debug:20170905:2",
+            "modificationTime": "2019-12-03T11:40:45.874399Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_2_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+            ],
+            "version": ">=2.4.0 <2.5.0"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:debug:20170905:3",
+            "modificationTime": "2019-12-03T11:40:45.875363Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/debug/20170905/debug_20170905_0_3_f53962e944a87e6ca9bb622a2a12dffc22a9bb5a.patch"
+            ],
+            "version": ">=2.0.0 <2.4.0"
+          }
+        ],
+        "proprietary": false,
+        "publicationTime": "2017-09-26T03:55:05Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/visionmedia/debug/pull/504/commits/42a6ae0737f9243c80b6d3dbb08a69a7ae2a1061"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/visionmedia/debug/issues/501"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/visionmedia/debug/pull/504"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            ">=1.0.0 <2.6.9",
+            ">=3.0.0 <3.1.0"
+          ]
+        },
+        "severity": "low",
+        "severityWithCritical": "low",
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "from": [
+          "package-file-basic@1.0.0",
+          "debug@1.0.5"
+        ],
+        "upgradePath": [
+          false,
+          "debug@2.6.9"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": "debug",
+        "version": "1.0.5",
+        "__filename": "/Users/someuser/snyk/test/fixtures/basic-npm/node_modules/debug/package.json",
+        "parentDepType": "prod"
+      }
+    ],
+    "ok": false,
+    "dependencyCount": 6,
+    "org": "demo-applications",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.19.0\nignore: {}\npatch: {}\n",
+    "isPrivate": true,
+    "licensesPolicy": {
+      "severities": {},
+      "orgLicenseRules": {
+        "AGPL-1.0": {
+          "licenseType": "AGPL-1.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "AGPL-3.0": {
+          "licenseType": "AGPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Artistic-1.0": {
+          "licenseType": "Artistic-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "Artistic-2.0": {
+          "licenseType": "Artistic-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CDDL-1.0": {
+          "licenseType": "CDDL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CPOL-1.02": {
+          "licenseType": "CPOL-1.02",
+          "severity": "high",
+          "instructions": ""
+        },
+        "EPL-1.0": {
+          "licenseType": "EPL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "GPL-2.0": {
+          "licenseType": "GPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "GPL-3.0": {
+          "licenseType": "GPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "LGPL-2.0": {
+          "licenseType": "LGPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-2.1": {
+          "licenseType": "LGPL-2.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-3.0": {
+          "licenseType": "LGPL-3.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-1.1": {
+          "licenseType": "MPL-1.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-2.0": {
+          "licenseType": "MPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MS-RL": {
+          "licenseType": "MS-RL",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "SimPL-2.0": {
+          "licenseType": "SimPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        }
+      }
+    },
+    "packageManager": "npm",
+    "ignoreSettings": null,
+    "summary": "3 vulnerable dependency paths",
+    "remediation": {
+      "unresolved": [],
+      "upgrade": {
+        "debug@1.0.5": {
+          "upgradeTo": "debug@2.6.9",
+          "upgrades": [
+            "debug@1.0.5"
+          ],
+          "vulns": [
+            "npm:debug:20170905"
+          ]
+        },
+        "minimatch@3.0.0": {
+          "upgradeTo": "minimatch@3.0.2",
+          "upgrades": [
+            "minimatch@3.0.0",
+            "minimatch@3.0.0"
+          ],
+          "vulns": [
+            "SNYK-JS-MINIMATCH-1019388",
+            "npm:minimatch:20160620"
+          ]
+        }
+      },
+      "patch": {},
+      "ignore": {},
+      "pin": {}
+    },
+    "filesystemPolicy": false,
+    "filtered": {
+      "ignore": [],
+      "patch": []
+    },
+    "uniqueCount": 3,
+    "projectName": "package-file-basic",
+    "displayTargetFile": "package.json",
+    "path": "/Users/someuser/snyk/test/fixtures/basic-npm"
+  }
+]

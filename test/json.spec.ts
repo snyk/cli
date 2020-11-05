@@ -3,11 +3,11 @@ import { jsonStringifyLargeObject } from '../src/lib/json';
 describe('jsonStringifyLargeObject', () => {
   it('works normally with a small object', () => {
     const smallObject = {
-      name: 'Brian',
+      name: 'Mozart',
       isGoodBoy: true,
     };
     const s = jsonStringifyLargeObject(smallObject);
-    expect(s).toEqual('{\n  "name": "Brian",\n  "isGoodBoy": true\n}');
+    expect(s).toEqual('{\n  "name": "Mozart",\n  "isGoodBoy": true\n}');
   });
 
   it('fallsback on non-pretty-print on very large object', () => {
