@@ -1,4 +1,2 @@
 apiVersion: test
 kind: example
-metadata:
-  name: pod
