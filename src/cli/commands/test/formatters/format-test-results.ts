@@ -26,6 +26,7 @@ import { formatDockerBinariesIssues } from './docker';
 import { createSarifOutputForContainers } from '../sarif-output';
 import { createSarifOutputForIac } from '../iac-output';
 import { isNewVuln, isVulnFixable } from '../vuln-helpers';
+import { jsonStringifyLargeObject } from '../../../../lib/json';
 
 export function formatJsonOutput(jsonData) {
   const jsonDataClone = _.cloneDeep(jsonData);
@@ -52,12 +53,10 @@ export function extractDataToSendFromResults(
       : createSarifOutputForIac(results);
   }
 
-  const stringifiedJsonData = JSON.stringify(
+  const stringifiedJsonData = jsonStringifyLargeObject(
     formatJsonOutput(jsonData),
-    null,
-    2,
   );
-  const stringifiedSarifData = JSON.stringify(sarifData, null, 2);
+  const stringifiedSarifData = jsonStringifyLargeObject(sarifData);
 
   const dataToSend = options.sarif ? sarifData : jsonData;
   const stringifiedData = options.sarif
