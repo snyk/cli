@@ -12,7 +12,7 @@ import {
 
 const debug = debugLib('snyk-detect');
 
-const requiredK8SObjectFields = ['apiVersion', 'kind', 'metadata', 'spec'];
+const requiredK8SObjectFields = ['apiVersion', 'kind', 'metadata'];
 
 export function getFileType(filePath: string): string {
   const filePathSplit = filePath.split('.');
