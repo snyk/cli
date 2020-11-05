@@ -27,6 +27,7 @@ import {
   FailedToGetVulnsFromUnavailableResource,
   FailedToRunTestError,
   UnsupportedFeatureFlagError,
+  DockerImageNotFoundError,
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
@@ -317,6 +318,13 @@ export async function runTest(
     }
     if (hasFailedToGetVulnerabilities) {
       throw FailedToGetVulnsFromUnavailableResource(root, error.code);
+    }
+    if (
+      getEcosystem(options) === 'docker' &&
+      error.statusCode === 401 &&
+      error.message === 'authentication required'
+    ) {
+      throw new DockerImageNotFoundError(root);
     }
 
     throw new FailedToRunTestError(

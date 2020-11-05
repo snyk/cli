@@ -19,6 +19,7 @@ export { OptionMissingErrorError } from './option-missing-error';
 export { ExcludeFlagBadInputError } from './exclude-flag-bad-input';
 export { UnsupportedOptionCombinationError } from './unsupported-option-combination-error';
 export { FeatureNotSupportedByPackageManagerError } from './feature-not-supported-by-package-manager-error';
+export { DockerImageNotFoundError } from './docker-image-not-found-error';
 export {
   NotSupportedIacFileError,
   NotSupportedIacFileErrorMsg,

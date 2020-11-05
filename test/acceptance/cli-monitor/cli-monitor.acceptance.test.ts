@@ -1873,6 +1873,23 @@ if (!isWindows) {
     );
   });
 
+  test('`monitor doesnotexist --docker`', async (t) => {
+    try {
+      await cli.monitor('doesnotexist', {
+        docker: true,
+        org: 'explicit-org',
+      });
+      t.fail('should have failed');
+    } catch (err) {
+      t.match(
+        err.message,
+        'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist.',
+        'show err message',
+      );
+      t.pass('throws err');
+    }
+  });
+
   test('monitor --json multiple folders', async (t) => {
     chdirWorkspaces('fail-on');
 
