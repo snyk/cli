@@ -76,6 +76,7 @@ export interface Options {
   'app-vulns'?: boolean;
   debug?: boolean;
   sarif?: boolean;
+  quiet: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -100,6 +101,7 @@ export interface MonitorOptions {
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
   yarnWorkspaces?: boolean;
+  quiet?: boolean;
 }
 
 export interface MonitorMeta {

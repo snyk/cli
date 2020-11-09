@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.2.0",
+  "pkgManager": {
+    "name": "gomodules"
+  },
+  "pkgs": [
+    {
+      "id": "github.com/kr/text@v0.1.0",
+      "info": {
+        "name": "github.com/kr/text",
+        "version": "v0.1.0"
+      }
+    },
+    {
+      "id": "gopkg.in/check.v1@v0.0.0-20161208181325-20d25e280405",
+      "info": {
+        "name": "gopkg.in/check.v1",
+        "version": "v0.0.0-20161208181325-20d25e280405"
+      }
+    }
+  ],
+  "graph": {
+    "rootNodeId": "root-node",
+    "nodes": [
+      {
+        "nodeId": "root-node",
+        "pkgId": "github.com/kr/text@v0.1.0",
+        "deps": [
+          {
+            "nodeId": "gopkg.in/check.v1@v0.0.0-20161208181325-20d25e280405"
+          }
+        ]
+      },
+      {
+        "nodeId": "gopkg.in/check.v1@v0.0.0-20161208181325-20d25e280405",
+        "pkgId": "gopkg.in/check.v1@v0.0.0-20161208181325-20d25e280405",
+        "deps": []
+      }
+    ]
+  }
+}
