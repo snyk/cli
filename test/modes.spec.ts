@@ -150,6 +150,23 @@ describe('when have a valid mode and command', () => {
     expect(cliArgs).toEqual(expectedArgs);
     expect(cliArgs['source']).toBeTruthy();
   });
+
+  it('"source monitor" should set source option and monitor command', () => {
+    const expectedCommand = 'monitor';
+    const expectedArgs = {
+      _: [],
+      source: true,
+    };
+    const cliCommand = 'source';
+    const cliArgs = {
+      _: ['monitor'],
+    };
+
+    const command = parseMode(cliCommand, cliArgs);
+    expect(command).toBe(expectedCommand);
+    expect(cliArgs).toEqual(expectedArgs);
+    expect(cliArgs['source']).toBeTruthy();
+  });
 });
 
 describe('when have a valid mode, command and exists a command alias', () => {

@@ -1,0 +1,92 @@
+{
+    "result": {
+      "issues": [
+        {
+          "pkgName": "add",
+          "pkgVersion": "1.2.3",
+          "issueId": "cpp:add:20161130",
+          "fixInfo": {
+            "nearestFixedInVersion": "1.2.4"
+          }
+        }
+      ],
+      "issuesData": {
+        "cpp:add:20161130": {
+          "id": "cpp:add:20161130",
+          "severity": "medium",
+          "title": "Cross-site Scripting (XSS)"
+        }
+      },
+      "depGraphData": {
+        "schemaVersion": "1.2.0",
+        "pkgManager": {
+          "name": "cpp"
+        },
+        "pkgs": [
+          {
+            "id": "app@1.0.0",
+            "info": {
+              "name": "app",
+              "version": "1.0.0"
+            }
+          },
+          {
+            "id": "add@1.2.3",
+            "info": {
+              "name": "add",
+              "version": "1.2.3"
+            }
+          }
+        ],
+        "graph": {
+          "rootNodeId": "root-node",
+          "nodes": [
+            {
+              "nodeId": "root-node",
+              "pkgId": "app@1.0.0",
+              "deps": [
+                {
+                  "nodeId": "add@1.2.3"
+                }
+              ]
+            },
+            {
+              "nodeId": "add@1.2.3",
+              "pkgId": "add@1.2.3",
+              "deps": []
+            }
+          ]
+        }
+      }
+    },
+    "path": ".",
+    "scanResult": {
+      "facts": [
+        {
+          "type": "cpp-fingerprints",
+          "data": [
+            {
+              "filePath": "add.cpp",
+              "hash": "52d1b046047db9ea0c581cafd4c68fe5"
+            },
+            {
+              "filePath": "add.h",
+              "hash": "aeca71a6e39f99a24ecf4c088eee9cb8"
+            },
+            {
+              "filePath": "main.cpp",
+              "hash": "ad3365b3370ef6b1c3e778f875055f19"
+            }
+          ]
+        }
+      ],
+      "identity": {
+        "type": "cpp"
+      },
+      "name": "snyk",
+      "target": {
+        "remoteUrl": "git@github.com:snyk/snyk.git",
+        "branch": "feat/monitor-cpp-projects"
+      }
+    }
+  }

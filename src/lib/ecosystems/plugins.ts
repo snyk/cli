@@ -5,7 +5,7 @@ import { Ecosystem, EcosystemPlugin } from './types';
 const EcosystemPlugins: {
   readonly [ecosystem in Ecosystem]: EcosystemPlugin;
 } = {
-  cpp: cppPlugin,
+  cpp: cppPlugin as EcosystemPlugin,
   // TODO: not any
   docker: dockerPlugin as any,
 };
