@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import 'source-map-support/register';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
@@ -39,6 +40,7 @@ import {
   SupportedUserReachableFacingCliArgs,
 } from '../lib/types';
 import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
+import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -259,6 +261,14 @@ async function main() {
       sln.updateArgs(args);
     } else if (typeof args.options.file === 'boolean') {
       throw new FileFlagBadInputError();
+    }
+
+    if (
+      typeof args.options.detectionDepth !== 'undefined' &&
+      (args.options.detectionDepth <= 0 ||
+        Number.isNaN(args.options.detectionDepth))
+    ) {
+      throw new InvalidDetectionDepthValue();
     }
 
     validateUnsupportedSarifCombinations(args);
