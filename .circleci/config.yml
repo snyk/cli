@@ -152,7 +152,7 @@ jobs:
             echo "Checkout the README in test/smoke folder for more details about this step"
             unset SNYK_API
             unset SNYK_API_KEY
-            shellspec -f d
+            shellspec -f d -e REGRESSION_TEST=1
 
   test-windows:
     <<: *defaults

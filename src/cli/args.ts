@@ -148,11 +148,17 @@ export function args(rawArgv: string[]): Args {
     if (argv.help === true || command === 'help') {
       argv.help = 'help';
     }
-    command = 'help';
 
+    // If command has a value prior to running it over with “help” and argv.help contains "help", save the command in argv._
+    // so that no argument gets deleted or ignored. This ensures `snyk --help [command]` and `snyk [command] --help` return the
+    // specific help page instead of the generic one.
+    // This change also covers the scenario of 'snyk [mode] [command] --help' and 'snyk --help [mode] [command]`.
     if (!argv._.length) {
-      argv._.unshift((argv.help as string) || 'help');
+      command && argv.help === 'help'
+        ? argv._.unshift(command)
+        : argv._.unshift((argv.help as string) || 'help');
     }
+    command = 'help';
   }
 
   if (command && command.indexOf('config:') === 0) {
