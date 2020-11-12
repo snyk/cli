@@ -99,7 +99,10 @@ async function getDirectoryFiles(
   });
 
   for (const filePath of directoryPaths) {
-    const fileType = pathLib.extname(filePath).substr(1) as IacFileTypes;
+    const fileType = pathLib
+      .extname(filePath)
+      .substr(1)
+      .toLowerCase() as IacFileTypes;
     if (!fileType || !supportedExtensions.has(fileType)) {
       continue;
     }
