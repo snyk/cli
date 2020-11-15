@@ -28,6 +28,66 @@ Describe "Snyk CLI basics"
       The stderr should equal ""
     End
   End
+  
+  Describe "extensive snyk help"
+    Skip if "execute only in regression test" check_if_regression_test
+
+    It "prints help info when called with unknown argument"
+      When run snyk help hello
+      The output should include "$ snyk [command] [options] [package]"
+      The status should be success
+      # TODO: unusable with our current docker issues
+      The stderr should equal ""
+    End
+
+    It "prints help info when called with flag and unknown argument"
+      When run snyk --help hello
+      The output should include "$ snyk [command] [options] [package]"
+      The status should be success
+      # TODO: unusable with our current docker issues
+      The stderr should equal ""
+    End
+
+    It "prints specific help info"
+      When run snyk file --help
+      The output should include "you can specify the file that Snyk should inspect"
+      The status should be success
+      # TODO: unusable with our current docker issues
+      The stderr should equal ""
+    End
+
+    It "prints specific help info for container"
+      When run snyk -h container
+      The output should include "$ snyk container [command] [options] [image]"
+      The status should be success
+      # TODO: unusable with our current docker issues
+      The stderr should equal ""
+    End
+
+    It "prints specific help info for iac"
+      When run snyk iac -help
+      The output should include "$ snyk iac [command] [options] <path>"
+      The status should be success
+      # TODO: unusable with our current docker issues
+      The stderr should equal ""
+    End
+
+    It "prints specific help info when called with flag and equals sign"
+      When run snyk --help=file
+      The output should include "you can specify the file that Snyk should inspect"
+      The status should be success
+      # TODO: unusable with our current docker issues
+      The stderr should equal ""
+    End
+
+    It "prints help info for argument with mode"
+      When run snyk --help container test
+      The output should include "$ snyk container [command] [options] [image]"
+      The status should be success
+      # TODO: unusable with our current docker issues
+      The stderr should equal ""
+    End
+  End
 
   Describe "snyk config"
     It "prints config"

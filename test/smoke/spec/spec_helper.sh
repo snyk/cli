@@ -35,3 +35,5 @@ restore_is_ci_flags() {
   if [ -n "${CI}" ]; then CI=$CI_BACKUP_VALUE; unset CI_BACKUP_VALUE; fi
   if [ -n "${CIRCLECI}" ]; then CIRCLECI=$CIRCLECI_BACKUP_VALUE; unset CIRCLECI_BACKUP_VALUE; fi
 }
+
+check_if_regression_test() { ! [ "${REGRESSION_TEST}" = "1" ]; }

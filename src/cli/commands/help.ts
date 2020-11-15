@@ -1,7 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as Debug from 'debug';
-const debug = Debug('snyk');
 
 export = async function help(item: string | boolean) {
   if (!item || item === true || typeof item !== 'string') {
@@ -12,11 +10,10 @@ export = async function help(item: string | boolean) {
   // aka: /\W/g but figured this was easier to read
   item = item.replace(/[^a-z-]/gi, '');
 
-  const filename = path.resolve(__dirname, '../../../help', item + '.txt');
-  try {
-    return fs.readFileSync(filename, 'utf8');
-  } catch (error) {
-    debug(error);
-    return `'${item}' help can't be found at location: ${filename}`;
+  if (!fs.existsSync(path.resolve(__dirname, '../../../help', item + '.txt'))) {
+    item = 'help';
   }
+
+  const filename = path.resolve(__dirname, '../../../help', item + '.txt');
+  return fs.readFileSync(filename, 'utf8');
 };
