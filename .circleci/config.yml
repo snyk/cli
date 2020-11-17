@@ -78,7 +78,7 @@ commands:
   install_sbt_unix:
     description: Install SBT
     steps:
-      - run: 
+      - run:
           name: Installing sbt
           command: sdk install sbt 1.3.12
   install_node_npm:
@@ -109,6 +109,12 @@ commands:
       - run:
           name: NPM version
           command: npm --version
+  generate_help:
+    description: Generate CLI help files
+    steps:
+      - run:
+          name: Run CLI help text builder
+          command: npm run generate-help
 
 jobs:
   regression-test:
@@ -117,9 +123,13 @@ jobs:
       - image: circleci/node:<< parameters.node_version >>
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          # docker_layer_caching: true
       - install_shellspec
       - install_deps
       - build_ts
+      - generate_help
       - run:
           name: Run auth
           command: npm run snyk-auth
@@ -213,7 +223,11 @@ jobs:
     resource_class: small
     steps:
       - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          # docker_layer_caching: true
       - install_deps
+      - generate_help
       - run: sudo npm i -g semantic-release @semantic-release/exec pkg
       - run: sudo apt-get install -y osslsigncode
       - run:
