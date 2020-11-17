@@ -143,17 +143,6 @@ test('`test multiple paths with --project-name=NAME`', (t) => {
   });
 });
 
-test('`test that running snyk without any args displays help text`', (t) => {
-  t.plan(1);
-  exec(`node ${main}`, (err, stdout) => {
-    if (err) {
-      console.log('CLI stdout: ', stdout);
-      throw err;
-    }
-    t.match(stdout.trim(), /Usage/, '`snyk help` text is shown as output');
-  });
-});
-
 test('`test --file=file.sln --project-name=NAME`', (t) => {
   t.plan(1);
   exec(
