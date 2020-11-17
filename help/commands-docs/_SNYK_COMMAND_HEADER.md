@@ -6,7 +6,7 @@
 
 ## DESCRIPTION
 
-Snyk helps you find, fix and monitor known vulnerabilities in open-source dependencies.<br />
+Snyk helps you find, fix and monitor known vulnerabilities in open source dependencies.<br />
 For more information see https://snyk.io
 
 ### Not sure where to start?
@@ -21,13 +21,13 @@ To see command-specific flags and usage, see `help` command, e.g. `snyk containe
 Available top-level CLI commands:
 
 - `auth` \[<API_TOKEN>\]:
-  Authenticate Snyk CLI with a Snyk account
+  Authenticate Snyk CLI with a Snyk account.
 
 - `test`:
-  Test local project for vulnerabilities
+  Test local project for vulnerabilities.
 
 - `monitor`:
-  Snapshot and continuously monitor your project
+  Snapshot and continuously monitor your project.
 
 - `container`:
   Test container images for vulnerabilities. See `snyk container --help` for full instructions.
@@ -36,16 +36,16 @@ Available top-level CLI commands:
   Find security issues in your Infrastructure as Code files. See `snyk iac --help` for full instructions.
 
 - `config`:
-  Manage Snyk CLI configuration
+  Manage Snyk CLI configuration.
 
 - `protect`:
-  Applies the patches specified in your .snyk file to the local file system
+  Applies the patches specified in your .snyk file to the local file system.
 
 - `policy`:
   Display the .snyk policy for a package.
 
 - `ignore`:
-  Modifies the .snyk policy to ignore stated issues
+  Modifies the .snyk policy to ignore stated issues.
 
 - `wizard`:
   Configure your policy file to update, auto patch and ignore vulnerabilities. Snyk wizard updates your .snyk file.

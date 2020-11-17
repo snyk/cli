@@ -19,7 +19,6 @@ See `snyk container --help` for more details and examples:
 
     $ snyk container test ubuntu:18.04 --org=my-team
     $ snyk container test app:latest --file=Dockerfile --policy-path=path/to/.snyk
-    $ snyk test --yarn-workspaces --detection-depth=4 --strict-out-of-sync=false
 
 ### Infrastructure as Code (IAC) scanning
 

@@ -32,7 +32,7 @@ For advanced usage, we offer language and context specific flags, listed further
   Set or override the remote URL for the repository that you would like to monitor.
 
 - `--dev`:
-  Include devDependencies.
+  Include development-only dependencies. Applicable only for some package managers. E.g. _devDependencies_ in npm or _:development_ dependencies in Gemfile.
 
   Default: scan only production dependencies
 

@@ -13,3 +13,5 @@ You can set these environment variables to change CLI run settings. These keys w
 
 - `SNYK_CFG_`<KEY>:
   Allows you to override any key that's also available as `snyk config` option.
+
+  E.g. `SNYK_CFG_ORG`=myorg will override default org option in `config` with "myorg".
