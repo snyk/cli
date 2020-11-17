@@ -112,6 +112,9 @@ function prepareEcosystemResponseForParsing(
   const targetFile = payloadBody?.identity?.targetFile || options.file;
   const platform = payloadBody?.identity?.args?.platform;
 
+  analytics.add('depGraph', !!depGraph);
+  analytics.add('isDocker', !!options.docker);
+
   return {
     depGraph,
     dockerfilePackages,
