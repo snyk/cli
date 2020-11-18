@@ -1,9 +1,8 @@
 # Snyk Boost will be required for a review on every PR
 README.md  @snyk/content @snyk/boost
 src/cli/commands/test/formatters/format-reachability.ts  @snyk/flow
-help/  @snyk/content @snyk/boost
+help/  @snyk/hammer
 *  @snyk/hammer @snyk/boost
-help/iac.txt @snyk/cloudconfig
 src/cli/commands/test/iac-output.ts @snyk/cloudconfig
 src/lib/cloud-config-projects.ts @snyk/cloudconfig
 src/lib/iac/ @snyk/cloudconfig
@@ -15,3 +14,5 @@ test/fixtures/iac/ @snyk/cloudconfig
 test/smoke/spec/iac/ @snyk/cloudconfig
 src/lib/errors/invalid-iac-file.ts @snyk/cloudconfig
 src/lib/errors/unsupported-options-iac-error.ts @snyk/cloudconfig
+help/commands-docs/iac-examples.md @snyk/cloudconfig
+help/commands-docs/iac.md @snyk/cloudconfig

@@ -126,9 +126,15 @@ async function processWizardFlow(options) {
   if (options.ignoreDisabled) {
     debug('ignore disabled');
   }
-  const intro = __dirname + '/../../../../help/wizard.txt';
+  const intro = `Snyk's wizard will:
 
-  return Promise.resolve(fs.readFileSync(intro, 'utf8'))
+* Enumerate your local dependencies and query Snyk's servers for vulnerabilities
+* Guide you through fixing found vulnerabilities
+* Create a .snyk policy file to guide snyk commands such as \`test\` and \`protect\`
+* Remember your dependencies to alert you when new vulnerabilities are disclosed
+`;
+
+  return Promise.resolve(intro)
     .then((str) => {
       if (!isCI()) {
         console.log(str);

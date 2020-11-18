@@ -22,19 +22,19 @@ Describe "Snyk CLI basics"
   Describe "snyk help"
     It "prints help info"
       When run snyk help
-      The output should include "$ snyk [command] [options] [package]"
+      The output should include "CLI and build-time tool to find & fix known vulnerabilities in"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
     End
   End
-  
+
   Describe "extensive snyk help"
     Skip if "execute only in regression test" check_if_regression_test
 
     It "prints help info when called with unknown argument"
       When run snyk help hello
-      The output should include "$ snyk [command] [options] [package]"
+      The output should include "CLI and build-time tool to find & fix known vulnerabilities in"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
@@ -42,15 +42,15 @@ Describe "Snyk CLI basics"
 
     It "prints help info when called with flag and unknown argument"
       When run snyk --help hello
-      The output should include "$ snyk [command] [options] [package]"
+      The output should include "CLI and build-time tool to find & fix known vulnerabilities in"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
     End
 
     It "prints specific help info"
-      When run snyk file --help
-      The output should include "you can specify the file that Snyk should inspect"
+      When run snyk woof --help
+      The output should include "W00f"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
@@ -58,7 +58,7 @@ Describe "Snyk CLI basics"
 
     It "prints specific help info for container"
       When run snyk -h container
-      The output should include "$ snyk container [command] [options] [image]"
+      The output should include "Test container images for vulnerabilities"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
@@ -66,15 +66,15 @@ Describe "Snyk CLI basics"
 
     It "prints specific help info for iac"
       When run snyk iac -help
-      The output should include "$ snyk iac [command] [options] <path>"
+      The output should include "Find security issues in your Infrastructure as Code files"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
     End
 
     It "prints specific help info when called with flag and equals sign"
-      When run snyk --help=file
-      The output should include "you can specify the file that Snyk should inspect"
+      When run snyk --help=woof
+      The output should include "W00f"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
@@ -82,7 +82,7 @@ Describe "Snyk CLI basics"
 
     It "prints help info for argument with mode"
       When run snyk --help container test
-      The output should include "$ snyk container [command] [options] [image]"
+      The output should include "Test container images for vulnerabilities"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
