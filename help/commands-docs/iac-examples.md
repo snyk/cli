@@ -7,3 +7,6 @@
 
 - `Test terraform file`:
   \$ snyk iac test /path/to/terraform_file.tf
+
+- `Test matching files in a directory`:
+  \$ snyk iac test /path/to/directory
