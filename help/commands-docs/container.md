@@ -50,8 +50,14 @@ Find vulnerabilities in your container images.
 - `--project-name`=<PROJECT_NAME>:
   Specify a custom Snyk project name.
 
-- `--policy-path`=<PATH_TO_POLICY_FILE>`:
+- `--policy-path`=<PATH_TO_POLICY_FILE>:
   Manually pass a path to a snyk policy file.
 
 - `--severity-threshold`=low|medium|high:
   Only report vulnerabilities of provided level or higher.
+  
+- `--username`=<CONTAINER_REGISTRY_USERNAME>:
+  Specify a username to use when connecting to a container registry. This will be ignored in favour of local Docker binary credentials when Docker is present.
+  
+- `--password`=<CONTAINER_REGISTRY_PASSWORD>:
+  Specify a password to use when connecting to a container registry. This will be ignored in favour of local Docker binary credentials when Docker is present.
