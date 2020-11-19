@@ -49,12 +49,15 @@ describe('TimerMetricInstance', () => {
     expect(tmi.getValue()).toBeUndefined;
   });
 
-  it('can time things', async () => {
+  it('can time things with sufficient accuracy', async () => {
     const tmi = new TimerMetricInstance('timer/network_time');
     tmi.start();
     await sleep(10);
     tmi.stop();
-    expect(tmi.getValue()).toBeGreaterThan(9);
+    // Sleep() is backed by setTimeout(), and some Node runtimes might execute setTimeout callback before the specified
+    // delay, meaning that tmi.getValue() will occasionally return `9` at this point. An extra ms leeway in this
+    // assertion works round the issue. https://github.com/nodejs/node/issues/10154
+    expect(tmi.getValue()).toBeGreaterThanOrEqual(9);
   });
 
   it('.start() / .stop() logs start/top and improper use warnings if you try to start/stop it again after stopping it', async () => {
