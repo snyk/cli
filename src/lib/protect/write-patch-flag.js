@@ -3,11 +3,12 @@ module.exports = writePatchFlag;
 const debug = require('debug')('snyk');
 const fs = require('fs');
 const path = require('path');
+const datetime = require('./datetime');
 
 function writePatchFlag(now, vuln) {
   if (!vuln) {
     vuln = now;
-    now = new Date();
+    now = datetime();
   }
 
   debug('writing flag for %s', vuln.id);

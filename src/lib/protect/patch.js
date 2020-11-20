@@ -1,7 +1,5 @@
 module.exports = patch;
 
-const now = new Date();
-
 const debug = require('debug')('snyk');
 const chalk = require('chalk');
 const glob = require('glob');
@@ -18,6 +16,9 @@ const spinner = require('../spinner');
 const errors = require('../errors/legacy-errors');
 const analytics = require('../analytics');
 const getPatchFile = require('./fetch-patch');
+const datetime = require('./datetime');
+
+const now = datetime();
 
 function patch(vulns, live) {
   const lbl = 'Applying patches...';
