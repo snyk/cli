@@ -153,7 +153,7 @@ export function localFileSuppliedButNotFound(root, file) {
   );
 }
 
-export function isLocalFolder(root) {
+export function isLocalFolder(root: string) {
   try {
     return fs.lstatSync(root).isDirectory();
   } catch (e) {

@@ -17,6 +17,14 @@ Find security issues in your Infrastructure as Code files.
 
 ## OPTIONS
 
+- `--detection-depth`=<DEPTH>:
+  (only in `test` command)  
+  Indicate the maximum depth of sub-directories to search. <DEPTH> must be a number.
+
+  Default: No Limit  
+  Example: `--detection-depth=3`  
+  Will limit search to provided directory (or current directory if no <PATH> provided) plus two levels of subdirectories.
+
 - `--severity-threshold`=low|medium|high:
   Only report vulnerabilities of provided level or higher.
 
