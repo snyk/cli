@@ -325,7 +325,10 @@ export async function runTest(
     if (
       getEcosystem(options) === 'docker' &&
       error.statusCode === 401 &&
-      error.message === 'authentication required'
+      [
+        'authentication required',
+        '{"details":"incorrect username or password"}\n',
+      ].includes(error.message)
     ) {
       throw new DockerImageNotFoundError(root);
     }
