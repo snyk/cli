@@ -683,7 +683,7 @@ export const DockerTests: AcceptanceTests = {
         const msg = err.message;
         t.match(
           msg,
-          'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist.',
+          'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist, and that you are using the correct credentials.',
         );
       }
     },

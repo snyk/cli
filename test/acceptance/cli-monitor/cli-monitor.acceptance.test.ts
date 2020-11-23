@@ -1883,7 +1883,7 @@ if (!isWindows) {
     } catch (err) {
       t.match(
         err.message,
-        'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist.',
+        'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist, and that you are using the correct credentials.',
         'show err message',
       );
       t.pass('throws err');
