@@ -105,7 +105,10 @@ async function handleError(args, error) {
   if (args.options.debug && !args.options.json) {
     const output = vulnsFound ? error.message : error.stack;
     console.log(output);
-  } else if (args.options.json) {
+  } else if (
+    args.options.json &&
+    !(error instanceof UnsupportedOptionCombinationError)
+  ) {
     console.log(stripAnsi(error.json || error.stack));
   } else {
     if (!args.options.quiet) {
