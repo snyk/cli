@@ -28,8 +28,21 @@ import { createSarifOutputForIac } from '../iac-output';
 import { isNewVuln, isVulnFixable } from '../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../../../lib/json';
 
-export function formatJsonOutput(jsonData) {
+export function formatJsonOutput(jsonData, options: Options) {
   const jsonDataClone = _.cloneDeep(jsonData);
+
+  if (options['group-issues']) {
+    jsonDataClone.vulnerabilities = Object.values(
+      (jsonDataClone.vulnerabilities || []).reduce((acc, vuln): Record<
+        string,
+        any
+      > => {
+        vuln.from = [vuln.from].concat(acc[vuln.id]?.from || []);
+        acc[vuln.id] = vuln;
+        return acc;
+      }, {}),
+    );
+  }
 
   if (jsonDataClone.vulnerabilities) {
     jsonDataClone.vulnerabilities.forEach((vuln) => {
@@ -57,7 +70,9 @@ export function extractDataToSendFromResults(
 
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
-    stringifiedJsonData = jsonStringifyLargeObject(formatJsonOutput(jsonData));
+    stringifiedJsonData = jsonStringifyLargeObject(
+      formatJsonOutput(jsonData, options),
+    );
   }
 
   const dataToSend = options.sarif ? sarifData : jsonData;
