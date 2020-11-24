@@ -9,6 +9,7 @@ import { Ecosystem, ScanResult, TestResult } from './types';
 import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
 import { assembleQueryString } from '../snyk-test/common';
+import { findAndLoadPolicyForScanResult } from './policy';
 
 export async function testEcosystem(
   ecosystem: Ecosystem,
@@ -58,6 +59,10 @@ async function testDependencies(
   for (const [path, scanResults] of Object.entries(scans)) {
     await spinner(`Testing dependencies in ${path}`);
     for (const scanResult of scanResults) {
+      if (!scanResult.policy) {
+        // search for `.snyk` file if plugin doesn't provide a policy
+        scanResult.policy = await findPolicy(scanResult, options);
+      }
       const payload = {
         method: 'POST',
         url: `${config.API}/test-dependencies`,
@@ -88,4 +93,15 @@ async function testDependencies(
   }
   spinner.clearAll();
   return [results, errors];
+}
+
+async function findPolicy(
+  scanResult: ScanResult,
+  options: Options,
+): Promise<string | undefined> {
+  const policy = await findAndLoadPolicyForScanResult(scanResult, options);
+  if (policy !== undefined) {
+    return policy.toString();
+  }
+  return undefined;
 }
