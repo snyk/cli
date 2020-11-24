@@ -15,6 +15,14 @@ const octokitInstance = new Octokit({
 });
 const slackWebhook = new IncomingWebhook(SLACK_WEBHOOK_URL);
 
+function filterWorkflows(workflow) {
+  // Keep only workflows didn't succeed, and either completed or were triggered by release
+  return (
+    workflow.conclusion !== 'success' &&
+    (workflow.status === 'completed' || workflow.event === 'release')
+  );
+}
+
 async function run(octokit: Octokit) {
   try {
     // Get ID of smoke tests workflow
@@ -41,24 +49,26 @@ async function run(octokit: Octokit) {
         // eslint-disable-next-line @typescript-eslint/camelcase
         workflow_id: smokeTestsID,
         // eslint-disable-next-line @typescript-eslint/camelcase
-        per_page: 3,
+        per_page: 6,
       })
     ).data;
     console.log('Got latest smoke tests...');
 
-    // ID of the most recent smoke test run
-    const runID = workflows.workflow_runs[0].id;
+    // Check status of the smoke tests and filter out succeeding ones
+    console.log('Checking status of smoke tests...');
+    const filteredWorkflows = workflows.workflow_runs.filter(filterWorkflows);
 
-    // Check if last 3 smoke tests failed
-    for (const workflow of workflows.workflow_runs) {
-      if (workflow.conclusion !== 'failure') {
-        console.log('Not all latest smoke tests failed. No need to alert.');
-        return;
-      }
+    // Check if array is empty (and therefore, no need to alert), or if most of the latest smoke tests succeeded
+    if (!filteredWorkflows.length || filteredWorkflows.length < 3) {
+      console.log(
+        'Most of the latest smoke tests succeeded. No need to alert.',
+      );
+      return;
     }
 
-    // All 3 recent smoke tests failed - re-run!
-    console.log('All 3 latest smoke tests failed. Trying to re-run...');
+    // re-run last non-successful test!
+    const runID = filteredWorkflows[0].id;
+    console.log('Trying to re-run smoke test...');
     await octokit.actions.reRunWorkflow({
       owner: 'snyk',
       repo: 'snyk',
