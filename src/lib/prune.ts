@@ -26,10 +26,17 @@ export async function pruneGraph(
   analytics.add('prePrunedPathsCount', prePrunePathsCount);
   if (isDenseGraph || pruneIsRequired) {
     debug('Trying to prune the graph');
+    const pruneStartTime = Date.now();
     const prunedTree = (await graphToDepTree(depGraph, packageManager, {
       deduplicateWithinTopLevelDeps: true,
     })) as DepTree;
+    const graphToTreeEndTime = Date.now();
+    analytics.add(
+      'prune.graphToTreeDuration',
+      graphToTreeEndTime - pruneStartTime,
+    );
     const prunedGraph = await depTreeToGraph(prunedTree, packageManager);
+    analytics.add('prune.treeToGraphDuration', Date.now() - graphToTreeEndTime);
     const postPrunePathsCount = countPathsToGraphRoot(prunedGraph);
     analytics.add('postPrunedPathsCount', postPrunePathsCount);
     debug('postPrunePathsCount' + postPrunePathsCount);
