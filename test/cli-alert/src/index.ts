@@ -40,7 +40,7 @@ async function run(octokit: Octokit) {
       }
     }
 
-    // Get last 3 smoke tests workflows
+    // Get latest smoke tests workflows
     const workflows = (
       await octokit.actions.listWorkflowRuns({
         owner: 'snyk',
@@ -48,15 +48,15 @@ async function run(octokit: Octokit) {
         branch: 'master',
         // eslint-disable-next-line @typescript-eslint/camelcase
         workflow_id: smokeTestsID,
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        per_page: 6,
       })
     ).data;
     console.log('Got latest smoke tests...');
 
     // Check status of the smoke tests and filter out succeeding ones
     console.log('Checking status of smoke tests...');
-    const filteredWorkflows = workflows.workflow_runs.filter(filterWorkflows);
+    const filteredWorkflows = workflows.workflow_runs
+      .slice(0, 7)
+      .filter(filterWorkflows);
 
     // Check if array is empty (and therefore, no need to alert), or if most of the latest smoke tests succeeded
     if (!filteredWorkflows.length || filteredWorkflows.length < 3) {
@@ -110,7 +110,7 @@ async function run(octokit: Octokit) {
       const args: IncomingWebhookDefaultArguments = {
         username: 'Hammer Alerts',
         text:
-          'Smoke Tests failed more than 3 times in a row. \n <https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22|Smoke Tests Results>',
+          'Smoke Tests failed more than 3 times lately. \n <https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22|Smoke Tests Results>',
         // eslint-disable-next-line @typescript-eslint/camelcase
         icon_emoji: 'hammer',
       };
