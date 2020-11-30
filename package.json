@@ -58,8 +58,8 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/cli-interface": "2.9.2",
-    "@snyk/dep-graph": "1.19.4",
+    "@snyk/cli-interface": "2.11.0",
+    "@snyk/dep-graph": "1.21.0",
     "@snyk/gemfile": "1.2.0",
     "@snyk/snyk-cocoapods-plugin": "2.5.1",
     "abbrev": "^1.1.1",
