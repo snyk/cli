@@ -19,6 +19,7 @@ export interface AnnotatedIacIssue {
 type FILTERED_OUT_FIELDS = 'cloudConfigPath' | 'name' | 'from';
 
 export interface IacTestResponse extends BasicResultData {
+  path: string;
   targetFile: string;
   projectName: string;
   displayTargetFile: string; // used for display only
