@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import {
   iacTest,
   iacTestJson,

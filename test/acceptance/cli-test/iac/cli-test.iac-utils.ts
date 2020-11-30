@@ -267,6 +267,11 @@ export function iacTestSarifAssertions(
     const messageText = `This line contains a potential ${expectedIssue.severity} severity misconfiguration affecting the Kubernetes ${expectedIssue.subType}`;
     t.deepEqual(sarifIssue.message.text, messageText, 'issue message is ok');
     t.deepEqual(
+      sarifIssue.locations![0]!.physicalLocation!.artifactLocation!.uri,
+      'iac-kubernetes/multi-file.yaml',
+      'issue uri is ok',
+    );
+    t.deepEqual(
       sarifIssue.locations![0].physicalLocation!.region!.startLine,
       expectedIssue.lineNumber,
       'issue message is ok',
@@ -301,6 +306,7 @@ function generateDummyTestData(
   cloudConfigResults: Array<AnnotatedIacIssue>,
 ): IacTestResponse {
   return {
+    path: '',
     targetFile: '',
     projectName: '',
     displayTargetFile: '',
