@@ -454,8 +454,8 @@ test(
 );
 
 test('flags not allowed with --sarif', (t) => {
-  t.plan(1);
-  exec(`node ${main} test --sarif --json`, (err, stdout) => {
+  t.plan(4);
+  exec(`node ${main} test iac --sarif --json`, (err, stdout) => {
     if (err) {
       console.log('CLI stdout: ', stdout);
       throw err;
@@ -464,6 +464,30 @@ test('flags not allowed with --sarif', (t) => {
       stdout.trim(),
       new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
         .userMessage,
+      'Display unsupported combination error message (iac)',
+    );
+    t.equal(
+      stdout.trim().split('\n').length,
+      1,
+      'Error message should not include stacktrace (iac)',
+    );
+  });
+
+  exec(`node ${main} test container --sarif --json`, (err, stdout) => {
+    if (err) {
+      console.log('CLI stdout: ', stdout);
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
+        .userMessage,
+      'Display unsupported combination error message (container)',
+    );
+    t.equal(
+      stdout.trim().split('\n').length,
+      1,
+      'Error message should not include stacktrace (container)',
     );
   });
 });
