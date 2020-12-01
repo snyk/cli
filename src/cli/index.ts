@@ -246,6 +246,16 @@ async function main() {
           '—json only to get your image vulnerabilties, excluding the application ones.',
       ]);
     }
+    if (args.options['group-issues'] && args.options['iac']) {
+      throw new UnsupportedOptionCombinationError([
+        '--group-issues is currently not supported for Snyk IaC.',
+      ]);
+    }
+    if (args.options['group-issues'] && !args.options['json']) {
+      throw new UnsupportedOptionCombinationError([
+        'JSON output is required to use --group-issues, try adding --json.',
+      ]);
+    }
 
     if (
       args.options.file &&

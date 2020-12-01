@@ -76,6 +76,7 @@ export interface Options {
   'app-vulns'?: boolean;
   debug?: boolean;
   sarif?: boolean;
+  'group-issues'?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny

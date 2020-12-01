@@ -3,6 +3,7 @@ import * as jsonModule from '../src/lib/json';
 import { extractDataToSendFromResults } from '../src/cli/commands/test/formatters/format-test-results';
 import { Options } from '../src/lib/types';
 import * as fs from 'fs';
+import { deepEqual } from 'assert';
 
 describe('format-test-results', () => {
   describe('extractDataToSendFromResults', () => {
@@ -15,6 +16,15 @@ describe('format-test-results', () => {
     );
     const jsonDataFixture = JSON.parse(
       fs.readFileSync('test/fixtures/basic-npm/jsonData.json', 'utf-8'),
+    );
+    const resultsContainerFixture = JSON.parse(
+      fs.readFileSync('test/fixtures/basic-apk/results.json', 'utf-8'),
+    );
+    const jsonDataContainerFixture = JSON.parse(
+      fs.readFileSync('test/fixtures/basic-apk/jsonData.json', 'utf-8'),
+    );
+    const jsonDataGroupedContainerFixture = JSON.parse(
+      fs.readFileSync('test/fixtures/basic-apk/jsonDataGrouped.json', 'utf-8'),
     );
 
     it('should not create any JSON unless it is needed per options', () => {
@@ -125,6 +135,26 @@ describe('format-test-results', () => {
       expect(res.stringifiedData).not.toBe('');
       expect(res.stringifiedJsonData).toBe('');
       expect(res.stringifiedSarifData).not.toBe('');
+    });
+
+    it('should create Snyk grouped JSON for container image if `--json` and `--group-issues` are set in the options', () => {
+      const options = {
+        json: true,
+        'group-issues': true,
+      } as Options;
+      const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+      const res = extractDataToSendFromResults(
+        resultsContainerFixture,
+        jsonDataContainerFixture,
+        options,
+      );
+      expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+        jsonDataGroupedContainerFixture,
+      );
+      expect(res.stringifiedData).not.toBe('');
+      expect(res.stringifiedJsonData).not.toBe('');
+      expect(res.stringifiedSarifData).toBe('');
     });
   });
 });

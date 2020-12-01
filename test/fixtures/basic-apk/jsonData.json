@@ -1,0 +1,716 @@
+{
+  "vulnerabilities": [
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "pax-utils/scanelf@1.2.6-r0",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "alpine-baselayout/alpine-baselayout@3.2.0-r7",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "openssl/libcrypto1.1@1.1.1g-r0",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "openssl/libssl1.1@1.1.1g-r0",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "busybox/busybox@1.31.1-r19",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "apk-tools/apk-tools@2.10.5-r1",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "libtls-standalone/libtls-standalone@2.9.1-r1",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "busybox/ssl_client@1.31.1-r19",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "musl/musl-utils@1.1.24-r9",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "zlib/zlib@1.2.11-r3",
+        "musl/musl@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "musl/musl-utils@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl-utils",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    },
+    {
+      "title": "CVE-2020-28928",
+      "credit": [
+        ""
+      ],
+      "packageName": "musl",
+      "language": "linux",
+      "packageManager": "alpine:3.12",
+      "description": "## Overview\n\nAffected versions of this package are vulnerable to CVE-2020-28928. None\n## Remediation\nUpgrade `musl` to version  or higher.",
+      "identifiers": {
+        "ALTERNATIVE": [],
+        "CVE": [
+          "CVE-2020-28928"
+        ],
+        "CWE": []
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "cvssScore": null,
+      "CVSSv3": null,
+      "patches": [],
+      "references": [],
+      "creationTime": "2020-11-21T03:45:00.394040Z",
+      "modificationTime": "2020-11-21T03:45:00.397729Z",
+      "publicationTime": "2020-11-21T03:45:00.333919Z",
+      "disclosureTime": null,
+      "id": "SNYK-ALPINE312-MUSL-1042762",
+      "nvdSeverity": "low",
+      "relativeImportance": null,
+      "semver": {
+        "vulnerable": [
+          "<1.1.24-r10"
+        ]
+      },
+      "exploit": "Not Defined",
+      "from": [
+        "docker-image|alpine@3.12.1",
+        "libc-dev/libc-utils@0.7.2-r3",
+        "musl/musl-utils@1.1.24-r9"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl/musl-utils",
+      "version": "1.1.24-r9",
+      "nearestFixedInVersion": "1.1.24-r10"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 14,
+  "org": "matthias-wlw",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.19.0\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {
+    "severities": {},
+    "orgLicenseRules": {
+      "AGPL-1.0": {
+        "licenseType": "AGPL-1.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "AGPL-3.0": {
+        "licenseType": "AGPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "Artistic-1.0": {
+        "licenseType": "Artistic-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "Artistic-2.0": {
+        "licenseType": "Artistic-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CDDL-1.0": {
+        "licenseType": "CDDL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CPOL-1.02": {
+        "licenseType": "CPOL-1.02",
+        "severity": "high",
+        "instructions": ""
+      },
+      "EPL-1.0": {
+        "licenseType": "EPL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "GPL-2.0": {
+        "licenseType": "GPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "GPL-3.0": {
+        "licenseType": "GPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "LGPL-2.0": {
+        "licenseType": "LGPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-2.1": {
+        "licenseType": "LGPL-2.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-3.0": {
+        "licenseType": "LGPL-3.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-1.1": {
+        "licenseType": "MPL-1.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-2.0": {
+        "licenseType": "MPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MS-RL": {
+        "licenseType": "MS-RL",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "SimPL-2.0": {
+        "licenseType": "SimPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      }
+    }
+  },
+  "packageManager": "apk",
+  "ignoreSettings": null,
+  "docker": {},
+  "summary": "13 vulnerable dependency paths",
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 1,
+  "projectName": "docker-image|alpine",
+  "platform": "linux/amd64",
+  "path": "alpine:3.12.1"
+}
