@@ -10,6 +10,7 @@ const {
   getIntegrationVersion,
   getIntegrationEnvironment,
   getIntegrationEnvironmentVersion,
+  getCommandVersion,
 } = require('./analytics-sources');
 const isCI = require('./is-ci').isCI;
 const debug = require('debug')('snyk');
@@ -63,7 +64,7 @@ function postAnalytics(data) {
   // get snyk version
   return version
     .getVersion()
-    .then((version) => {
+    .then(async (version) => {
       data.version = version;
       data.os = osName(os.platform(), os.release());
       data.nodeVersion = process.version;
@@ -85,6 +86,10 @@ function postAnalytics(data) {
       }
 
       data.ci = isCI();
+
+      data.environment = {};
+      data.environment.npmVersion = isStandalone ? null : await getCommandVersion('npm');
+    
       data.durationMs = Date.now() - startTime;
 
       try {

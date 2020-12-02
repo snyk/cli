@@ -10,8 +10,10 @@
 
 const debug = require('debug')('snyk');
 import * as fs from 'fs';
+import * as semver from 'semver';
 import { ArgsOptions } from '../cli/args';
 import { join } from 'path';
+const { exec } = require('child_process');
 
 export const INTEGRATION_NAME_ENVVAR = 'SNYK_INTEGRATION_NAME';
 export const INTEGRATION_VERSION_ENVVAR = 'SNYK_INTEGRATION_VERSION';
@@ -148,4 +150,54 @@ export function validateHomebrew(snykExecutablePath: string): boolean {
     debug('Error checking for Homebrew Formula file', error);
   }
   return false;
+}
+
+function runCommand(cmd: string): Promise<string> {
+  return new Promise((resolve) => {
+    exec(cmd, (error, stdout, stderr) => {
+      if (error) {
+        console.warn(error);
+      }
+      return resolve(stdout ? stdout : stderr);
+    });
+  });
+}
+
+export async function isInstalled(commandToCheck: string): Promise<boolean> {
+  let whichCommand = 'which';
+  const os = process.platform;
+  if (os === 'win32') {
+    whichCommand = 'where';
+  } else if (os === 'android') {
+    whichCommand = 'adb shell which';
+  }
+
+  try {
+    await runCommand(`${whichCommand} ${commandToCheck}`);
+  } catch (error) {
+    return false;
+  }
+  return true;
+}
+
+export async function getCommandVersion(
+  commandToCheck: string,
+): Promise<string | null> {
+  const isCommandInstalled = await isInstalled(commandToCheck);
+
+  if (isCommandInstalled) {
+    try {
+      let version = await runCommand(`${commandToCheck} --version`);
+      version = version.replace('\n', '');
+      if (semver.valid(version) !== null) {
+        if (version.charAt(0) === 'v') {
+          version = version.substring(1);
+        }
+        return version;
+      }
+    } catch (error) {
+      return null;
+    }
+  }
+  return null;
 }
