@@ -4,6 +4,7 @@ import * as Proxyquire from 'proxyquire';
 const osName = require('os-name');
 import * as sinon from 'sinon';
 import * as snyk from '../src/lib';
+import * as semver from 'semver';
 let old;
 const iswindows =
   osName()
@@ -185,6 +186,33 @@ test('analytics with args and org', (t) => {
       { org: 'snyk' },
       'query string has the expected values',
     );
+  });
+});
+
+test('analytics', (t) => {
+  const spy = sinon.spy();
+  const analytics = proxyquire('../src/lib/analytics', {
+    './request': spy,
+  });
+
+  analytics.add('foo', 'bar');
+
+  return analytics({
+    command: '__test__',
+    args: [],
+  }).then(() => {
+    const body = spy.lastCall.args[0].body.data;
+    if (body.environment.npmVersion === null) {
+      t.ok(
+        semver.valid(body.environment.npmVersion) === null,
+        'captured npm version is valid',
+      );
+    } else {
+      t.ok(
+        semver.valid(body.environment.npmVersion) !== null,
+        'captured npm version is valid',
+      );
+    }
   });
 });
 
