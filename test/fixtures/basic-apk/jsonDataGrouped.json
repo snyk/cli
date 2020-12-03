@@ -103,7 +103,21 @@
       "upgradePath": [],
       "isUpgradable": false,
       "isPatchable": false,
-      "name": "musl/musl-utils",
+      "name": [
+        "musl/musl-utils",
+        "musl/musl-utils",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl",
+        "musl/musl"
+      ],
       "version": "1.1.24-r9",
       "nearestFixedInVersion": "1.1.24-r10"
     }
