@@ -18,10 +18,12 @@ export async function testEcosystem(
   const plugin = getPlugin(ecosystem);
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
   for (const path of paths) {
+    await spinner(`Scanning dependencies in ${path}`);
     options.path = path;
     const pluginResponse = await plugin.scan(options);
     scanResultsByPath[path] = pluginResponse.scanResults;
   }
+  spinner.clearAll();
   const [testResults, errors] = await testDependencies(
     scanResultsByPath,
     options,
