@@ -103,7 +103,7 @@ Below are flags that are influencing CLI behavior for specific projects, languag
 ### Maven options
 
 - `--scan-all-unmanaged`:
-  Auto detects maven jars and wars in given directory. Individual testing can be done with `--file`=<JAR_FILE_NAME>
+  Auto detects maven jars, aars, and wars in given directory. Individual testing can be done with `--file`=<JAR_FILE_NAME>
 
 - `--reachable`:
   (only in `test` and `monitor` commands)
