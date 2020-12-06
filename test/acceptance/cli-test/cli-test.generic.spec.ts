@@ -40,7 +40,7 @@ export const GenericTests: AcceptanceTests = {
       } catch (err) {
         t.equal(
           err.userMessage,
-          'cli error message',
+          "Couldn't find the requested package",
           'got correct err message',
         );
       }
@@ -58,7 +58,7 @@ export const GenericTests: AcceptanceTests = {
       } catch (err) {
         t.equal(
           err.userMessage,
-          'cli error message',
+          "Couldn't find the requested package",
           'got correct err message',
         );
       }
