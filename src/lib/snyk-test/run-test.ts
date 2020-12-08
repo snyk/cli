@@ -72,6 +72,7 @@ import { authHeaderWithApiTokenOrDockerJWT } from '../api-token';
 import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
+import { NonExistingPackageError } from '../errors/non-existing-package-error';
 
 const debug = debugModule('snyk:run-test');
 
@@ -465,6 +466,10 @@ function handleTestHttpErrorResponse(res, body) {
     case 401:
     case 403:
       err = AuthFailedError(userMessage, statusCode);
+      err.innerError = body.stack;
+      break;
+    case 404:
+      err = new NonExistingPackageError();
       err.innerError = body.stack;
       break;
     case 405:
