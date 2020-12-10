@@ -254,7 +254,11 @@ async function main() {
         '--group-issues is currently not supported for Snyk IaC.',
       ]);
     }
-    if (args.options['group-issues'] && !args.options['json']) {
+    if (
+      args.options['group-issues'] &&
+      !args.options['json'] &&
+      !args.options['json-file-output']
+    ) {
       throw new UnsupportedOptionCombinationError([
         'JSON output is required to use --group-issues, try adding --json.',
       ]);

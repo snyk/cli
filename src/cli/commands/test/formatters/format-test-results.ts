@@ -38,6 +38,7 @@ export function formatJsonOutput(jsonData, options: Options) {
         any
       > => {
         vuln.from = [vuln.from].concat(acc[vuln.id]?.from || []);
+        vuln.name = [vuln.name].concat(acc[vuln.id]?.name || []);
         acc[vuln.id] = vuln;
         return acc;
       }, {}),
