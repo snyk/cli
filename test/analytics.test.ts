@@ -4,6 +4,7 @@ import * as Proxyquire from 'proxyquire';
 const osName = require('os-name');
 import * as sinon from 'sinon';
 import * as snyk from '../src/lib';
+import * as semver from 'semver';
 let old;
 const iswindows =
   osName()
@@ -80,6 +81,7 @@ test('analytics', (t) => {
         'version',
         'id',
         'ci',
+        'environment',
         'metadata',
         'metrics',
         'args',
@@ -120,6 +122,7 @@ test('analytics with args', (t) => {
         'version',
         'id',
         'ci',
+        'environment',
         'metadata',
         'metrics',
         'args',
@@ -161,6 +164,7 @@ test('analytics with args and org', (t) => {
         'version',
         'id',
         'ci',
+        'environment',
         'metadata',
         'metrics',
         'args',
@@ -182,6 +186,33 @@ test('analytics with args and org', (t) => {
       { org: 'snyk' },
       'query string has the expected values',
     );
+  });
+});
+
+test('analytics npm version capture', (t) => {
+  const spy = sinon.spy();
+  const analytics = proxyquire('../src/lib/analytics', {
+    './request': spy,
+  });
+
+  analytics.add('foo', 'bar');
+
+  return analytics({
+    command: '__test__',
+    args: [],
+  }).then(() => {
+    const body = spy.lastCall.args[0].body.data;
+    if (body.environment.npmVersion === undefined) {
+      t.ok(
+        semver.valid(body.environment.npmVersion) === null,
+        'captured npm version is not valid as expected',
+      );
+    } else {
+      t.ok(
+        semver.valid(body.environment.npmVersion) !== null,
+        'captured npm version is valid',
+      );
+    }
   });
 });
 
@@ -286,38 +317,15 @@ test('vulns found (thrown as an error)', (t) => {
   });
 });
 
-test('test includes data', { skip: iswindows }, (t) => {
+test('analytics was called', (t) => {
   const spy = sinon.spy();
-  process.argv = ['node', 'script.js', 'test', 'snyk-demo-app', '-q'];
-
-  const analytics = proxyquire('../src/lib/analytics', {
-    './request': spy,
-  });
-
   const cli = proxyquire('../src/cli', {
-    '../lib/analytics': analytics,
-    './args': proxyquire('../src/cli/args', {
-      './commands': proxyquire('../src/cli/commands', {
-        '../../lib/hotload': proxyquire('../src/lib/hotload', {
-          '../cli/commands/test': proxyquire('../src/lib/snyk-test', {
-            './run-test': proxyquire('../src/lib/snyk-test/run-test', {
-              '../analytics': analytics,
-            }),
-          }),
-        }),
-      }),
+    '../lib/analytics': proxyquire('../src/lib/analytics', {
+      './request': spy,
     }),
   });
 
   return cli.then(() => {
     t.equal(spy.callCount, 1, 'analytics was called');
-
-    const payload = spy.args[0][0].body;
-    t.equal(payload.data.command, 'test', 'correct event name');
-    t.equal(
-      payload.data.metadata.package,
-      'snyk-demo-app@*',
-      'includes package',
-    );
   });
 });
