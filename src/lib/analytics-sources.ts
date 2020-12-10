@@ -156,7 +156,7 @@ function runCommand(cmd: string): Promise<string> {
   return new Promise((resolve) => {
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
-        console.warn(error);
+        debug("Error trying to get program's version", error);
       }
       return resolve(stdout ? stdout : stderr);
     });
@@ -180,24 +180,26 @@ export async function isInstalled(commandToCheck: string): Promise<boolean> {
   return true;
 }
 
+// This only works for programs that output a valid version when called with --version flag!
 export async function getCommandVersion(
   commandToCheck: string,
-): Promise<string | null> {
+): Promise<string | undefined> {
   const isCommandInstalled = await isInstalled(commandToCheck);
 
   if (isCommandInstalled) {
     try {
-      let version = await runCommand(`${commandToCheck} --version`);
-      version = version.replace('\n', '');
-      if (semver.valid(version) !== null) {
-        if (version.charAt(0) === 'v') {
-          version = version.substring(1);
-        }
+      let version: string | null = await runCommand(
+        `${commandToCheck} --version`,
+      );
+      // Remove newline
+      version = version.trim();
+      version = semver.valid(version);
+      if (version !== null) {
         return version;
       }
     } catch (error) {
-      return null;
+      return undefined;
     }
   }
-  return null;
+  return undefined;
 }

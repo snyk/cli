@@ -88,9 +88,9 @@ function postAnalytics(data) {
       data.ci = isCI();
 
       data.environment = {};
-      data.environment.npmVersion = isStandalone
-        ? null
-        : await getCommandVersion('npm');
+      if (!isStandalone) {
+        data.environment.npmVersion = await getCommandVersion('npm');
+      }
 
       data.durationMs = Date.now() - startTime;
 
