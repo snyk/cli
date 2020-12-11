@@ -14,7 +14,7 @@
   "dependencies": {
     "qs": "^6.3.0",
     "typescript-lazy-get-decorator": "^1.1.1",
-    "snyk": "^1.69.1"
+    "snyk-resolve": "^1.1.0"
   },
   "snyk": true
 }

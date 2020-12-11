@@ -64,7 +64,10 @@ test('`protect` should not fail for unauthorized users', (t) => {
   // temporally remove api param in userConfig to test for unauthenticated users
   userConfig.delete('api');
 
-  exec(`node ${main} protect`, (err, stdout, stderr) => {
+  let absoluteMain = path.join(process.cwd(), main);
+  chdirWorkspaces('npm-package-policy');
+
+  exec(`node ${absoluteMain} protect --file=`, (err, stdout, stderr) => {
     if (err) {
       throw err;
     }
@@ -161,7 +164,11 @@ test('`protect` with no policy', async (t) => {
     .readFileSync(__dirname + '/workspaces/npm-with-dep-missing-policy/.snyk')
     .toString();
 
-  await cli.protect();
+  try {
+    await cli.protect();
+  } catch (e) {
+    console.log(e); // this is expected
+  }
   const req = server.popRequest();
   const policySentToServer = req.body.policy;
   t.equal(policySentToServer, projectPolicy, 'sends correct policy');
