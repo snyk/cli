@@ -1,7 +1,7 @@
 const Configstore = require('configstore');
 const pkg = require(__dirname + '/../../package.json');
 
-class ConfigStoreWithEnvironmentVariables extends Configstore {
+export class ConfigStoreWithEnvironmentVariables extends Configstore {
   constructor(id, defaults = undefined, options = {}) {
     super(id, defaults, options);
   }
