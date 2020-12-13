@@ -4,7 +4,7 @@ describe('Analytics basic testing', () => {
   it('Has all analytics arguments', async () => {
     analytics.add('foo', 'bar');
     const data = { args: [], command: '__test__' };
-    const res = await analytics(data);
+    const res = await analytics.addDataAndSend(data);
     if (!res) {
       throw 'analytics creation failed!';
     }
@@ -34,7 +34,7 @@ describe('Analytics basic testing', () => {
   it('Has all analytics arguments when org is specified', async () => {
     analytics.add('foo', 'bar');
     const data = { args: [], command: '__test__', org: '__snyk__' };
-    const res = await analytics(data);
+    const res = await analytics.addDataAndSend(data);
     if (!res) {
       throw 'analytics creation failed!';
     }
@@ -68,7 +68,7 @@ describe('Analytics basic testing', () => {
       args: [{ integrationName: 'JENKINS', integrationVersion: '1.2.3' }],
       command: '__test__',
     };
-    const res = await analytics(data);
+    const res = await analytics.addDataAndSend(data);
     if (!res) {
       throw 'analytics creation failed!';
     }
@@ -102,7 +102,7 @@ describe('Analytics basic testing', () => {
       command: '__test__',
       org: '__snyk__',
     };
-    const res = await analytics(data);
+    const res = await analytics.addDataAndSend(data);
     if (!res) {
       throw 'analytics creation failed!';
     }
@@ -137,7 +137,7 @@ describe('Analytics basic testing', () => {
       command: '__test__',
       org: '__snyk__',
     };
-    const res = await analytics(data);
+    const res = await analytics.addDataAndSend(data);
     if (!res) {
       throw 'analytics creation failed!';
     }
