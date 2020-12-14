@@ -222,8 +222,14 @@ export function extractReportingDescriptor(
         text: `${iacTypeToText[issue.type]} ${issue.subType}`,
       },
       help: {
-        text: '',
-        markdown: issue.description,
+        text: `The issue is... \n${issue.iacDescription.issue}\n\n The impact of this is... \n ${issue.iacDescription.impact}\n\n You can resolve this by... \n${issue.iacDescription.resolve}`.replace(
+          /^\s+/g,
+          '',
+        ),
+        markdown: `**The issue is...** \n${issue.iacDescription.issue}\n\n **The impact of this is...** \n ${issue.iacDescription.impact}\n\n **You can resolve this by...** \n${issue.iacDescription.resolve}`.replace(
+          /^\s+/g,
+          '',
+        ),
       },
       defaultConfiguration: {
         level: getIssueLevel(issue.severity),

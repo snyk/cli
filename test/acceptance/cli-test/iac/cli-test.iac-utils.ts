@@ -281,6 +281,7 @@ export function iacTestSarifAssertions(
 
 function generateDummyIssue(severity): AnnotatedIacIssue {
   return {
+    iacDescription: { issue: '', impact: '', resolve: '' },
     id: 'SNYK-CC-K8S-1',
     title: 'Reducing the admission of containers with dropped capabilities',
     name: 'Reducing the admission of containers with dropped capabilities',
@@ -303,7 +304,7 @@ function generateDummyIssue(severity): AnnotatedIacIssue {
 }
 
 function generateDummyTestData(
-  cloudConfigResults: Array<AnnotatedIacIssue>,
+  cloudConfigResults: AnnotatedIacIssue[],
 ): IacTestResponse {
   return {
     path: '',
