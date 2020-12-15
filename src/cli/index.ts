@@ -52,7 +52,7 @@ const EXIT_CODES = {
 async function runCommand(args: Args) {
   const commandResult = await args.method(...args.options._);
 
-  const res = analytics({
+  const res = analytics.addDataAndSend({
     args: args.options._,
     command: args.command,
     org: args.options.org,
@@ -156,7 +156,7 @@ async function handleError(args, error) {
     analytics.add('command', args.command);
   }
 
-  const res = analytics({
+  const res = analytics.addDataAndSend({
     args: args.options._,
     command,
     org: args.options.org,

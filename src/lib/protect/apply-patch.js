@@ -7,7 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const uuid = require('uuid/v4');
 const semver = require('semver');
-const errorAnalytics = require('../analytics').single;
+const errorAnalytics = require('../analytics').postAnalytics;
 
 function applyPatch(patchFileName, vuln, live, patchUrl) {
   let cwd = vuln.source;

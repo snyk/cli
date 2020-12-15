@@ -1,6 +1,3 @@
-module.exports = analytics;
-module.exports.single = postAnalytics;
-
 const snyk = require('../lib');
 const config = require('./config');
 const version = require('./version');
@@ -19,13 +16,21 @@ const osName = require('os-name');
 const crypto = require('crypto');
 const uuid = require('uuid');
 const stripAnsi = require('strip-ansi');
+import * as needle from 'needle';
 const { MetricsCollector } = require('./metrics');
 
 const metadata = {};
 // analytics module is required at the beginning of the CLI run cycle
 const startTime = Date.now();
 
-function analytics(data) {
+/**
+ *
+ * @param data the data to merge into that data which has been staged thus far (with the {@link add} function)
+ * and then sent to the backend.
+ */
+export function addDataAndSend(
+  data,
+): Promise<void | { res: needle.NeedleResponse; body: any }> {
   if (!data) {
     data = {};
   }
@@ -43,18 +48,25 @@ function analytics(data) {
   return postAnalytics(data);
 }
 
-analytics.allowAnalytics = () => {
+export function allowAnalytics(): boolean {
   if (snyk.config.get('disable-analytics') || config.DISABLE_ANALYTICS) {
     return false;
   } else {
     return true;
   }
-};
+}
 
-function postAnalytics(data) {
+/**
+ * Actually send the analytics to the backend. This can be used standalone to send only the data
+ * given by the data parameter, or called from {@link addDataAndSend}.
+ * @param data the analytics data to send to the backend.
+ */
+export function postAnalytics(
+  data,
+): Promise<void | { res: needle.NeedleResponse; body: any }> {
   // if the user opt'ed out of analytics, then let's bail out early
   // ths applies to all sending to protect user's privacy
-  if (!analytics.allowAnalytics()) {
+  if (!allowAnalytics()) {
     debug('analytics disabled');
     return Promise.resolve();
   }
@@ -82,7 +94,7 @@ function postAnalytics(data) {
 
       const headers = {};
       if (snyk.api) {
-        headers.authorization = 'token ' + snyk.api;
+        headers['authorization'] = 'token ' + snyk.api;
       }
 
       data.ci = isCI();
@@ -105,7 +117,7 @@ function postAnalytics(data) {
 
       const queryStringParams = {};
       if (data.org) {
-        queryStringParams.org = data.org;
+        queryStringParams['org'] = data.org;
       }
 
       debug('analytics', data);
@@ -131,7 +143,13 @@ function postAnalytics(data) {
     });
 }
 
-analytics.add = function(key, value) {
+/**
+ * Adds a key-value pair to the analytics data `metadata` field. This doesn't send the analytis, just stages it for
+ * sending later (via the {@link addDataAndSend} function).
+ * @param key
+ * @param value
+ */
+export function add(key, value) {
   if (typeof value === 'string') {
     value = stripAnsi(value);
   }
@@ -143,4 +161,4 @@ analytics.add = function(key, value) {
   } else {
     metadata[key] = value;
   }
-};
+}

@@ -50,7 +50,7 @@ test('analytics disabled', (t) => {
     './request': spy,
   });
 
-  return analytics().then(() => {
+  return analytics.addDataAndSend().then(() => {
     t.equal(spy.called, false, 'the request should not have been made');
   });
 });
@@ -63,42 +63,44 @@ test('analytics', (t) => {
 
   analytics.add('foo', 'bar');
 
-  return analytics({
-    command: '__test__',
-    args: [
-      {
-        integrationName: 'JENKINS',
-        integrationVersion: '1.2.3',
-      },
-    ],
-  }).then(() => {
-    const body = spy.lastCall.args[0].body.data;
-    t.deepEqual(
-      Object.keys(body).sort(),
-      [
-        'command',
-        'os',
-        'version',
-        'id',
-        'ci',
-        'environment',
-        'metadata',
-        'metrics',
-        'args',
-        'nodeVersion',
-        'standalone',
-        'durationMs',
-        'integrationName',
-        'integrationVersion',
-        'integrationEnvironment',
-        'integrationEnvironmentVersion',
-      ].sort(),
-      'keys as expected',
-    );
+  return analytics
+    .addDataAndSend({
+      command: '__test__',
+      args: [
+        {
+          integrationName: 'JENKINS',
+          integrationVersion: '1.2.3',
+        },
+      ],
+    })
+    .then(() => {
+      const body = spy.lastCall.args[0].body.data;
+      t.deepEqual(
+        Object.keys(body).sort(),
+        [
+          'command',
+          'os',
+          'version',
+          'id',
+          'ci',
+          'environment',
+          'metadata',
+          'metrics',
+          'args',
+          'nodeVersion',
+          'standalone',
+          'durationMs',
+          'integrationName',
+          'integrationVersion',
+          'integrationEnvironment',
+          'integrationEnvironmentVersion',
+        ].sort(),
+        'keys as expected',
+      );
 
-    const queryString = spy.lastCall.args[0].qs;
-    t.deepEqual(queryString, undefined, 'query string is empty');
-  });
+      const queryString = spy.lastCall.args[0].qs;
+      t.deepEqual(queryString, undefined, 'query string is empty');
+    });
 });
 
 test('analytics with args', (t) => {
@@ -109,37 +111,39 @@ test('analytics with args', (t) => {
 
   analytics.add('foo', 'bar');
 
-  return analytics({
-    command: '__test__',
-    args: [],
-  }).then(() => {
-    const body = spy.lastCall.args[0].body.data;
-    t.deepEqual(
-      Object.keys(body).sort(),
-      [
-        'command',
-        'os',
-        'version',
-        'id',
-        'ci',
-        'environment',
-        'metadata',
-        'metrics',
-        'args',
-        'nodeVersion',
-        'standalone',
-        'durationMs',
-        'integrationName',
-        'integrationVersion',
-        'integrationEnvironment',
-        'integrationEnvironmentVersion',
-      ].sort(),
-      'keys as expected',
-    );
+  return analytics
+    .addDataAndSend({
+      command: '__test__',
+      args: [],
+    })
+    .then(() => {
+      const body = spy.lastCall.args[0].body.data;
+      t.deepEqual(
+        Object.keys(body).sort(),
+        [
+          'command',
+          'os',
+          'version',
+          'id',
+          'ci',
+          'environment',
+          'metadata',
+          'metrics',
+          'args',
+          'nodeVersion',
+          'standalone',
+          'durationMs',
+          'integrationName',
+          'integrationVersion',
+          'integrationEnvironment',
+          'integrationEnvironmentVersion',
+        ].sort(),
+        'keys as expected',
+      );
 
-    const queryString = spy.lastCall.args[0].qs;
-    t.deepEqual(queryString, undefined, 'query string is empty');
-  });
+      const queryString = spy.lastCall.args[0].qs;
+      t.deepEqual(queryString, undefined, 'query string is empty');
+    });
 });
 
 test('analytics with args and org', (t) => {
@@ -150,43 +154,45 @@ test('analytics with args and org', (t) => {
 
   analytics.add('foo', 'bar');
 
-  return analytics({
-    command: '__test__',
-    args: [],
-    org: 'snyk',
-  }).then(() => {
-    const body = spy.lastCall.args[0].body.data;
-    t.deepEqual(
-      Object.keys(body).sort(),
-      [
-        'command',
-        'os',
-        'version',
-        'id',
-        'ci',
-        'environment',
-        'metadata',
-        'metrics',
-        'args',
-        'nodeVersion',
-        'standalone',
-        'durationMs',
-        'org',
-        'integrationName',
-        'integrationVersion',
-        'integrationEnvironment',
-        'integrationEnvironmentVersion',
-      ].sort(),
-      'keys as expected',
-    );
+  return analytics
+    .addDataAndSend({
+      command: '__test__',
+      args: [],
+      org: 'snyk',
+    })
+    .then(() => {
+      const body = spy.lastCall.args[0].body.data;
+      t.deepEqual(
+        Object.keys(body).sort(),
+        [
+          'command',
+          'os',
+          'version',
+          'id',
+          'ci',
+          'environment',
+          'metadata',
+          'metrics',
+          'args',
+          'nodeVersion',
+          'standalone',
+          'durationMs',
+          'org',
+          'integrationName',
+          'integrationVersion',
+          'integrationEnvironment',
+          'integrationEnvironmentVersion',
+        ].sort(),
+        'keys as expected',
+      );
 
-    const queryString = spy.lastCall.args[0].qs;
-    t.deepEqual(
-      queryString,
-      { org: 'snyk' },
-      'query string has the expected values',
-    );
-  });
+      const queryString = spy.lastCall.args[0].qs;
+      t.deepEqual(
+        queryString,
+        { org: 'snyk' },
+        'query string has the expected values',
+      );
+    });
 });
 
 test('analytics npm version capture', (t) => {
@@ -197,23 +203,25 @@ test('analytics npm version capture', (t) => {
 
   analytics.add('foo', 'bar');
 
-  return analytics({
-    command: '__test__',
-    args: [],
-  }).then(() => {
-    const body = spy.lastCall.args[0].body.data;
-    if (body.environment.npmVersion === undefined) {
-      t.ok(
-        semver.valid(body.environment.npmVersion) === null,
-        'captured npm version is not valid as expected',
-      );
-    } else {
-      t.ok(
-        semver.valid(body.environment.npmVersion) !== null,
-        'captured npm version is valid',
-      );
-    }
-  });
+  return analytics
+    .addDataAndSend({
+      command: '__test__',
+      args: [],
+    })
+    .then(() => {
+      const body = spy.lastCall.args[0].body.data;
+      if (body.environment.npmVersion === undefined) {
+        t.ok(
+          semver.valid(body.environment.npmVersion) === null,
+          'captured npm version is not valid as expected',
+        );
+      } else {
+        t.ok(
+          semver.valid(body.environment.npmVersion) !== null,
+          'captured npm version is valid',
+        );
+      }
+    });
 });
 
 test('bad command', (t) => {
