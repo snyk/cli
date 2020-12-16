@@ -10,20 +10,121 @@ if (!process.env.USER_GITHUB_TOKEN || !process.env.SLACK_WEBHOOK_URL) {
 const GITHUB_TOKEN = process.env.USER_GITHUB_TOKEN;
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
 
-const octokitInstance = new Octokit({
+// Map from job id to it's name and conclusion
+const failedJobs: string[] = [];
+
+const octokit = new Octokit({
   auth: GITHUB_TOKEN,
 });
 const slackWebhook = new IncomingWebhook(SLACK_WEBHOOK_URL);
 
-function filterWorkflows(workflow) {
-  // Keep only workflows didn't succeed, and either completed or were triggered by release
-  return (
-    workflow.conclusion !== 'success' &&
-    (workflow.status === 'completed' || workflow.event === 'release')
-  );
+async function checkJobs(smokeTest1: number, smokeTest2: number) {
+  // Get all jobs of the latest 2 smoke tests
+  const jobs1 = (
+    await octokit.actions.listJobsForWorkflowRun({
+      owner: 'snyk',
+      repo: 'snyk',
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      run_id: smokeTest1,
+    })
+  ).data.jobs;
+
+  const jobs2 = (
+    await octokit.actions.listJobsForWorkflowRun({
+      owner: 'snyk',
+      repo: 'snyk',
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      run_id: smokeTest2,
+    })
+  ).data.jobs;
+
+  // If the same job failed in both smoke tests, it has been failing for 2 hours now. Save job to re-run later.
+  for (const jobName of jobs1.map((j) => j.name)) {
+    const job1 = jobs1.find((j) => j.name === jobName);
+    const job2 = jobs2.find((j) => j.name === jobName);
+
+    if (job1 === undefined || job2 === undefined) {
+      console.error(
+        `Could not find job ${jobName} in Smoke Tests ID: ${
+          job1 ? smokeTest2 : smokeTest1
+        }`,
+      );
+      process.exit(1);
+    } else if (
+      'failure' === job1.conclusion &&
+      job1?.conclusion === job2.conclusion
+    ) {
+      console.log(`Found a job that failed 2 times in a row: ${jobName}`);
+      failedJobs.push(jobName);
+    }
+  }
 }
 
-async function run(octokit: Octokit) {
+async function sendSlackAlert() {
+  console.log('Jobs failed again. Sending Slack alert...');
+  const args: IncomingWebhookDefaultArguments = {
+    username: 'Hammer Alerts',
+    text: `A Smoke Tests Job failed more than 2 times in a row. \n <https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22|Smoke Tests Results>. \n Failed Job/s: ${failedJobs.join(
+      ', ',
+    )}`,
+    // eslint-disable-next-line @typescript-eslint/camelcase
+    icon_emoji: 'hammer',
+  };
+  await slackWebhook.send(args);
+  console.log('Slack alert sent.');
+}
+
+async function waitForConclusion(runID: number): Promise<boolean> {
+  let status = 'queued';
+  const before = Date.now();
+  console.log('Re-run in progress...');
+
+  // Wait for run to finish
+  while (status !== 'completed') {
+    const smokeTest = (
+      await octokit.actions.getWorkflowRun({
+        owner: 'snyk',
+        repo: 'snyk',
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        run_id: runID,
+      })
+    ).data;
+
+    // Wait 30 seconds
+    await new Promise((r) => setTimeout(r, 30_000));
+    status = smokeTest.status;
+    const time = (Date.now() - before) / 1000;
+    const minutes = Math.floor(time / 60);
+    console.log(
+      `Current smoke test status: "${status}". Elapsed: ${minutes} minute${
+        minutes !== 1 ? 's' : ''
+      }`,
+    );
+  }
+
+  // Get conclusions of the jobs that failed before
+  const smokeTetsJobs = (
+    await octokit.actions.listJobsForWorkflowRun({
+      owner: 'snyk',
+      repo: 'snyk',
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      run_id: runID,
+    })
+  ).data.jobs;
+
+  // Return false if jobs that failed before failed again
+  const rerunJobs = smokeTetsJobs.filter((job) =>
+    failedJobs.includes(job.name),
+  );
+  for (const job of rerunJobs) {
+    if (job.conclusion === 'failure') {
+      return false;
+    }
+  }
+  return true;
+}
+
+async function run() {
   try {
     // Get ID of smoke tests workflow
     const allWorkflows = (
@@ -40,8 +141,8 @@ async function run(octokit: Octokit) {
       }
     }
 
-    // Get latest smoke tests workflows
-    const workflows = (
+    // Get latest smoke tests
+    const smokeTests = (
       await octokit.actions.listWorkflowRuns({
         owner: 'snyk',
         repo: 'snyk',
@@ -52,71 +153,35 @@ async function run(octokit: Octokit) {
     ).data;
     console.log('Got latest smoke tests...');
 
-    // Check status of the smoke tests and filter out succeeding ones
-    console.log('Checking status of smoke tests...');
-    const filteredWorkflows = workflows.workflow_runs
-      .slice(0, 7)
-      .filter(filterWorkflows);
+    // Check the latest 2 smoke tests for tests that had the same job fail 2 times in a row.
+    const latestSmokeTests = smokeTests.workflow_runs.slice(0, 2);
 
-    // Check if array is empty (and therefore, no need to alert), or if most of the latest smoke tests succeeded
-    if (!filteredWorkflows.length || filteredWorkflows.length < 3) {
+    console.log('Checking smoke tests jobs...');
+    await checkJobs(latestSmokeTests[0].id, latestSmokeTests[1].id);
+
+    if (!failedJobs.length || failedJobs.length < 1) {
       console.log(
-        'Most of the latest smoke tests succeeded. No need to alert.',
+        'There were no 2 consecutive fails on a job. No need to alert.',
       );
       return;
     }
 
-    // re-run last non-successful test!
-    const runID = filteredWorkflows[0].id;
     console.log('Trying to re-run smoke test...');
     await octokit.actions.reRunWorkflow({
       owner: 'snyk',
       repo: 'snyk',
       // eslint-disable-next-line @typescript-eslint/camelcase
-      run_id: runID,
+      run_id: latestSmokeTests[0].id,
     });
 
     // Wait for run to finish
-    let status = 'queued';
-    let conclusion = '';
-    const before = Date.now();
-    console.log('Re-run in progress...');
-    while (status !== 'completed') {
-      const workflow = (
-        await octokit.actions.getWorkflowRun({
-          owner: 'snyk',
-          repo: 'snyk',
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          run_id: runID,
-        })
-      ).data;
-      // Wait for 30 seconds
-      await new Promise((r) => setTimeout(r, 30_000));
-      status = workflow.status;
-      conclusion = workflow.conclusion;
-      const time = (Date.now() - before) / 1000;
-      const minutes = Math.floor(time / 60);
-      console.log(
-        `Current status: "${status}". Elapsed: ${minutes} minute${
-          minutes !== 1 ? 's' : ''
-        }`,
-      );
-    }
-
+    const succeeded = await waitForConclusion(latestSmokeTests[0].id);
     console.log('Re-run completed.');
+
     // If run failed again, send Slack alert
-    if (conclusion === 'failure') {
-      console.log('Smoke test failed again. Sending Slack alert...');
-      const args: IncomingWebhookDefaultArguments = {
-        username: 'Hammer Alerts',
-        text:
-          'Smoke Tests failed more than 3 times lately. \n <https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22|Smoke Tests Results>',
-        // eslint-disable-next-line @typescript-eslint/camelcase
-        icon_emoji: 'hammer',
-      };
-      await slackWebhook.send(args);
-      console.log('Slack alert sent.');
-    }
+    succeeded
+      ? console.log('Jobs succeeded after re-run. Do not alert.')
+      : await sendSlackAlert();
   } catch (error) {
     console.error(error);
     process.exit(1);
@@ -129,4 +194,4 @@ process.on('uncaughtException', (err) => {
 });
 
 // Exec
-run(octokitInstance);
+run();
