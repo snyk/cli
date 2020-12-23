@@ -97,7 +97,7 @@ export async function find(
       debug(
         `Filtered out ${filteredOutFiles.length}/${
           foundAll.length
-        } files: ${foundAll.join(', ')}`,
+        } files: ${filteredOutFiles.join(', ')}`,
       );
     }
     return { files: filterForDefaultManifests(found), allFilesFound: foundAll };
