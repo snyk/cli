@@ -2,7 +2,7 @@
 
 ## SYNOPSIS
 
-`snyk` `config` `get|set|clear` \[<KEY>\[=<VALUE>\]\] \[<OPTIONS>\]
+`snyk` `config` `get|set|clear` \[&lt;KEY&gt;\[=&lt;VALUE&gt;\]\] \[&lt;OPTIONS&gt;\]
 
 ## DESCRIPTION
 
@@ -12,13 +12,13 @@ This command does not manage the `.snyk` file that's part of your project. See `
 
 ## COMMANDS
 
-- `get` <KEY>:
+- `get` &lt;KEY&gt;:
   Print a config value.
 
-- `set` <KEY>=<VALUE>:
+- `set` &lt;KEY&gt;=&lt;VALUE&gt;:
   Create a new config value.
 
-- `unset` <KEY>:
+- `unset` &lt;KEY&gt;:
   Remove a config value.
 
 - `clear`:
@@ -26,7 +26,7 @@ This command does not manage the `.snyk` file that's part of your project. See `
 
 ## OPTIONS
 
-### Supported <KEY> values
+### Supported &lt;KEY&gt; values
 
 - `api`:
   API token to use when calling Snyk API.
