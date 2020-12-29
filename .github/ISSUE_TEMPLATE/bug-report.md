@@ -25,7 +25,7 @@ be used for testing.
 
 
 ### Debug log
-If applicable, please append the `--debug` flag on your command and include the output here **ensuring to remove any sensitive/personal details or tokens**.
+If applicable, please append the `--debug` flag on your command and include the output here **ensuring to remove any sensitive/personal details or tokens**. 
 
 
 ### Screenshots
