@@ -90,7 +90,6 @@ async function getDirectoryFiles(
   root: string,
   options: { maxDepth?: number } = {},
 ) {
-  const iacFiles: IacFileInDirectory[] = [];
   const dirPath = pathLib.resolve(root, '.');
   const supportedExtensions = new Set(Object.keys(projectTypeByFileType));
 
@@ -98,6 +97,7 @@ async function getDirectoryFiles(
     maxDepth: options.maxDepth,
   });
 
+  const promises: Promise<IacFileInDirectory>[] = [];
   for (const filePath of directoryPaths) {
     const fileType = pathLib
       .extname(filePath)
@@ -107,23 +107,28 @@ async function getDirectoryFiles(
       continue;
     }
 
-    try {
-      const projectType = await getProjectTypeForIacFile(filePath);
-      iacFiles.push({
-        filePath,
-        projectType,
-        fileType,
-      });
-    } catch (err) {
-      iacFiles.push({
-        filePath,
-        fileType,
-        failureReason:
-          err instanceof CustomError ? err.userMessage : 'Unhandled Error',
-      });
-    }
+    promises.push(
+      (async () => {
+        try {
+          const projectType = await getProjectTypeForIacFile(filePath);
+          return {
+            filePath,
+            projectType,
+            fileType,
+          };
+        } catch (err) {
+          return {
+            filePath,
+            fileType,
+            failureReason:
+              err instanceof CustomError ? err.userMessage : 'Unhandled Error',
+          };
+        }
+      })(),
+    );
   }
 
+  const iacFiles = await Promise.all(promises);
   if (iacFiles.length === 0) {
     throw IacDirectoryWithoutAnyIacFileError();
   }

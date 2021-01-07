@@ -226,23 +226,28 @@ async function sendAndParseResults(
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
+  const promises: Promise<TestResult>[] = [];
   for (const payload of payloads) {
     await spinner.clear<void>(spinnerLbl)();
     await spinner(spinnerLbl);
     if (options.iac) {
-      const iacScan: IacScan = payload.body as IacScan;
-      analytics.add('iac type', !!iacScan.type);
-      const res = (await sendTestPayload(payload)) as IacTestResponse;
+      promises.push(
+        (async () => {
+          const iacScan: IacScan = payload.body as IacScan;
+          analytics.add('iac type', !!iacScan.type);
+          const res = (await sendTestPayload(payload)) as IacTestResponse;
 
-      const projectName =
-        iacScan.projectNameOverride || iacScan.originalProjectName;
-      const result = await parseIacTestResult(
-        res,
-        iacScan.targetFile,
-        projectName,
-        options.severityThreshold,
+          const projectName =
+            iacScan.projectNameOverride || iacScan.originalProjectName;
+          const result = await parseIacTestResult(
+            res,
+            iacScan.targetFile,
+            projectName,
+            options.severityThreshold,
+          );
+          return result;
+        })(),
       );
-      results.push(result);
     } else {
       /** sendTestPayload() deletes the request.body from the payload once completed. */
       const payloadCopy = Object.assign({}, payload);
@@ -291,6 +296,10 @@ async function sendAndParseResults(
         platform,
       });
     }
+  }
+
+  if (promises.length) {
+    return await Promise.all(promises);
   }
   return results;
 }
