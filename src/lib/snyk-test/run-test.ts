@@ -7,6 +7,8 @@ import * as pathUtil from 'path';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import { IacScan } from './payload-schema';
+import * as Queue from 'promise-queue';
+import * as util from 'util';
 
 import {
   TestResult,
@@ -226,28 +228,27 @@ async function sendAndParseResults(
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
   const results: TestResult[] = [];
-  const promises: Promise<TestResult>[] = [];
+
+  const queue = new Queue(25, 2000);
   for (const payload of payloads) {
     await spinner.clear<void>(spinnerLbl)();
     await spinner(spinnerLbl);
     if (options.iac) {
-      promises.push(
-        (async () => {
-          const iacScan: IacScan = payload.body as IacScan;
-          analytics.add('iac type', !!iacScan.type);
-          const res = (await sendTestPayload(payload)) as IacTestResponse;
+      queue.add(async () => {
+        const iacScan: IacScan = payload.body as IacScan;
+        analytics.add('iac type', !!iacScan.type);
+        const res = (await sendTestPayload(payload)) as IacTestResponse;
 
-          const projectName =
-            iacScan.projectNameOverride || iacScan.originalProjectName;
-          const result = await parseIacTestResult(
-            res,
-            iacScan.targetFile,
-            projectName,
-            options.severityThreshold,
-          );
-          return result;
-        })(),
-      );
+        const projectName =
+          iacScan.projectNameOverride || iacScan.originalProjectName;
+        const result = await parseIacTestResult(
+          res,
+          iacScan.targetFile,
+          projectName,
+          options.severityThreshold,
+        );
+        results.push(result);
+      });
     } else {
       /** sendTestPayload() deletes the request.body from the payload once completed. */
       const payloadCopy = Object.assign({}, payload);
@@ -298,8 +299,9 @@ async function sendAndParseResults(
     }
   }
 
-  if (promises.length) {
-    return await Promise.all(promises);
+  const setTimeoutAsync = util.promisify(setTimeout);
+  while (queue.getQueueLength() + queue.getPendingLength() > 0) {
+    await setTimeoutAsync(100);
   }
   return results;
 }

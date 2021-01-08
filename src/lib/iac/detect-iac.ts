@@ -21,6 +21,8 @@ import {
   IllegalTerraformFileError,
 } from '../errors/invalid-iac-file';
 import { Options, TestOptions, IacFileInDirectory } from '../types';
+import * as Queue from 'promise-queue';
+import * as util from 'util';
 
 const debug = debugLib('snyk-detect-iac');
 
@@ -97,7 +99,9 @@ async function getDirectoryFiles(
     maxDepth: options.maxDepth,
   });
 
-  const promises: Promise<IacFileInDirectory>[] = [];
+  const iacFiles: IacFileInDirectory[] = [];
+  const queue = new Queue(50);
+
   for (const filePath of directoryPaths) {
     const fileType = pathLib
       .extname(filePath)
@@ -107,31 +111,31 @@ async function getDirectoryFiles(
       continue;
     }
 
-    promises.push(
-      (async () => {
-        try {
-          const projectType = await getProjectTypeForIacFile(filePath);
-          return {
-            filePath,
-            projectType,
-            fileType,
-          };
-        } catch (err) {
-          return {
-            filePath,
-            fileType,
-            failureReason:
-              err instanceof CustomError ? err.userMessage : 'Unhandled Error',
-          };
-        }
-      })(),
-    );
+    queue.add(async () => {
+      try {
+        const projectType = await getProjectTypeForIacFile(filePath);
+        iacFiles.push({
+          filePath,
+          projectType,
+          fileType,
+        });
+      } catch (err) {
+        iacFiles.push({
+          filePath,
+          fileType,
+          failureReason:
+            err instanceof CustomError ? err.userMessage : 'Unhandled Error',
+        });
+      }
+    });
   }
 
-  const iacFiles = await Promise.all(promises);
+  const setTimeoutAsync = util.promisify(setTimeout);
+  while (queue.getQueueLength() + queue.getPendingLength() > 0) {
+    await setTimeoutAsync(100);
+  }
   if (iacFiles.length === 0) {
     throw IacDirectoryWithoutAnyIacFileError();
   }
-
   return iacFiles;
 }

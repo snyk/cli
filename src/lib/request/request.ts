@@ -8,7 +8,6 @@ import { getProxyForUrl } from 'proxy-from-env';
 import * as ProxyAgent from 'proxy-agent';
 import * as analytics from '../analytics';
 import { Agent } from 'http';
-import * as https from 'https';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
 import { getVersion } from '../version';
@@ -94,7 +93,7 @@ export = function makeRequest(
           url = url + '?' + querystring.stringify(payload.qs);
           delete payload.qs;
         }
-        const agent = new https.Agent({ keepAlive: true, maxSockets: 10 });
+
         const options: needle.NeedleOptions = {
           json: payload.json,
           headers: payload.headers,
@@ -102,7 +101,6 @@ export = function makeRequest(
           // eslint-disable-next-line @typescript-eslint/camelcase
           follow_max: 5,
           family: payload.family,
-          agent,
         };
 
         const proxyUri = getProxyForUrl(url);
