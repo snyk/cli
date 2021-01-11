@@ -22,7 +22,6 @@ import {
 } from '../errors/invalid-iac-file';
 import { Options, TestOptions, IacFileInDirectory } from '../types';
 import * as Queue from 'promise-queue';
-import * as util from 'util';
 
 const debug = debugLib('snyk-detect-iac');
 
@@ -100,8 +99,10 @@ async function getDirectoryFiles(
   });
 
   const iacFiles: IacFileInDirectory[] = [];
-  const queue = new Queue(50);
+  const maxConcurrent = 50;
+  const queue = new Queue(maxConcurrent);
 
+  const promises: Array<Promise<IacFileInDirectory>> = [];
   for (const filePath of directoryPaths) {
     const fileType = pathLib
       .extname(filePath)
@@ -110,30 +111,31 @@ async function getDirectoryFiles(
     if (!fileType || !supportedExtensions.has(fileType)) {
       continue;
     }
-
-    queue.add(async () => {
-      try {
-        const projectType = await getProjectTypeForIacFile(filePath);
-        iacFiles.push({
-          filePath,
-          projectType,
-          fileType,
-        });
-      } catch (err) {
-        iacFiles.push({
-          filePath,
-          fileType,
-          failureReason:
-            err instanceof CustomError ? err.userMessage : 'Unhandled Error',
-        });
-      }
-    });
+    promises.push(
+      queue.add(async () => {
+        try {
+          const projectType = await getProjectTypeForIacFile(filePath);
+          iacFiles.push({
+            filePath,
+            projectType,
+            fileType,
+          });
+        } catch (err) {
+          iacFiles.push({
+            filePath,
+            fileType,
+            failureReason:
+              err instanceof CustomError ? err.userMessage : 'Unhandled Error',
+          });
+        }
+      }),
+    );
   }
 
-  const setTimeoutAsync = util.promisify(setTimeout);
-  while (queue.getQueueLength() + queue.getPendingLength() > 0) {
-    await setTimeoutAsync(100);
+  if (promises.length > 0) {
+    await Promise.all(promises);
   }
+
   if (iacFiles.length === 0) {
     throw IacDirectoryWithoutAnyIacFileError();
   }
