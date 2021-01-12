@@ -99,7 +99,7 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
         run: |
           echo "install snyk with binary"
-          export latest_version=$(curl -Is "https://github.com/snyk/snyk/releases/latest" | grep location | sed s#.*tag/##g | tr -d "\r")
+          export latest_version=$(curl -Is "https://github.com/snyk/snyk/releases/latest" | grep -i location | sed s#.*tag/##g | tr -d "\r")
           echo "latest_version: ${latest_version}"
           snyk_cli_dl_linux="https://github.com/snyk/snyk/releases/download/${latest_version}/${{ matrix.snyk_cli_dl_file }}"
           echo "snyk_cli_dl_linux: ${snyk_cli_dl_linux}"
