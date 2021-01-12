@@ -3,6 +3,8 @@ import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
 import * as needle from 'needle';
 import { Global } from '../src/cli/args';
+import * as http from 'http';
+import * as https from 'https';
 
 declare const global: Global;
 
@@ -49,7 +51,7 @@ test('request calls needle as expected and returns status code and body', (t) =>
             follow_max: 5, // default
             timeout: 300000, // default
             json: undefined, // default
-            agent: undefined, // should not be set when not using proxy
+            agent: sinon.match.instanceOf(http.Agent),
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
@@ -86,7 +88,7 @@ test('request to localhost calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 300000, // default
             json: undefined, // default
-            agent: undefined, // should not be set when not using proxy
+            agent: sinon.match.instanceOf(http.Agent),
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
@@ -124,7 +126,7 @@ test('request with timeout calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 100000, // provided
             json: undefined, // default
-            agent: undefined, // should not be set when not using proxy
+            agent: sinon.match.instanceOf(http.Agent),
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
@@ -165,7 +167,7 @@ test('request with query string calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 300000, // default
             json: undefined, // default
-            agent: undefined, // should not be set when not using proxy
+            agent: sinon.match.instanceOf(http.Agent),
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
@@ -203,7 +205,7 @@ test('request with json calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 300000, // default
             json: false, // provided
-            agent: undefined, // should not be set when not using proxy
+            agent: sinon.match.instanceOf(http.Agent),
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
@@ -244,7 +246,7 @@ test('request with custom header calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 300000, // default
             json: undefined, // default
-            agent: undefined, // should not be set when not using proxy
+            agent: sinon.match.instanceOf(http.Agent),
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
@@ -377,7 +379,7 @@ test('request with no proxy calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 300000, // default
             json: undefined, // default
-            agent: undefined, // should not be set when no proxy
+            agent: sinon.match.instanceOf(http.Agent),
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
@@ -415,7 +417,7 @@ test('request with insecure calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 300000, // default
             json: undefined, // default
-            agent: undefined, // should not be set when not using proxy
+            agent: sinon.match.instanceOf(http.Agent),
             rejectUnauthorized: false, // should be false when insecure mode enabled
           }),
           sinon.match.func, // callback function
