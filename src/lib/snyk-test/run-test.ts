@@ -225,21 +225,21 @@ async function sendAndParseResults(
   root: string,
   options: Options & TestOptions,
 ): Promise<TestResult[]> {
-  const results: TestResult[] = [];
-  const promises: Array<Promise<TestResult>> = [];
-
+  // Note for the IaC Test Flow:
   // There is a RATE_LIMIT setup for network requests within a time period.
   // To support this limit and avoid getting back 502 errors from registry,
   // we introduced a concurrent requests limit of 25. With that, we will only process MAX 25 requests at the same time.
   // In the future, we would probably want to introduce a RATE_LIMIT specific for IaC
-  const maxConcurrent = 25;
-  const queue = new Queue(maxConcurrent);
 
-  for (const payload of payloads) {
+  if (options.iac) {
+    const maxConcurrent = 25;
+    const queue = new Queue(maxConcurrent);
+    const iacResults: Array<Promise<TestResult>> = [];
+
     await spinner.clear<void>(spinnerLbl)();
     await spinner(spinnerLbl);
-    if (options.iac) {
-      promises.push(
+    for (const payload of payloads) {
+      iacResults.push(
         queue.add(async () => {
           const iacScan: IacScan = payload.body as IacScan;
           analytics.add('iac type', !!iacScan.type);
@@ -247,67 +247,68 @@ async function sendAndParseResults(
 
           const projectName =
             iacScan.projectNameOverride || iacScan.originalProjectName;
-          const result = await parseIacTestResult(
+          return await parseIacTestResult(
             res,
             iacScan.targetFile,
             projectName,
             options.severityThreshold,
           );
-          results.push(result);
         }),
       );
-    } else {
-      /** sendTestPayload() deletes the request.body from the payload once completed. */
-      const payloadCopy = Object.assign({}, payload);
-      const res = await sendTestPayload(payload);
-      const {
-        depGraph,
-        payloadPolicy,
-        pkgManager,
-        targetFile,
-        projectName,
-        foundProjectCount,
-        displayTargetFile,
-        dockerfilePackages,
-        platform,
-      } = prepareResponseForParsing(
-        payloadCopy,
-        res as TestDependenciesResponse,
-        options,
-      );
-
-      const ecosystem = getEcosystem(options);
-      if (ecosystem && options['print-deps']) {
-        await spinner.clear<void>(spinnerLbl)();
-        await maybePrintDepGraph(options, depGraph);
-      }
-
-      const legacyRes = convertIssuesToAffectedPkgs(res);
-
-      const result = await parseRes(
-        depGraph,
-        pkgManager,
-        legacyRes as LegacyVulnApiResult,
-        options,
-        payload,
-        payloadPolicy,
-        root,
-        dockerfilePackages,
-      );
-
-      results.push({
-        ...result,
-        targetFile,
-        projectName,
-        foundProjectCount,
-        displayTargetFile,
-        platform,
-      });
     }
+    return Promise.all(iacResults);
   }
 
-  if (promises.length > 0) {
-    await Promise.all(promises);
+  const results: TestResult[] = [];
+  for (const payload of payloads) {
+    await spinner.clear<void>(spinnerLbl)();
+    await spinner(spinnerLbl);
+    /** sendTestPayload() deletes the request.body from the payload once completed. */
+    const payloadCopy = Object.assign({}, payload);
+    const res = await sendTestPayload(payload);
+    const {
+      depGraph,
+      payloadPolicy,
+      pkgManager,
+      targetFile,
+      projectName,
+      foundProjectCount,
+      displayTargetFile,
+      dockerfilePackages,
+      platform,
+    } = prepareResponseForParsing(
+      payloadCopy,
+      res as TestDependenciesResponse,
+      options,
+    );
+
+    const ecosystem = getEcosystem(options);
+    if (ecosystem && options['print-deps']) {
+      await spinner.clear<void>(spinnerLbl)();
+      await maybePrintDepGraph(options, depGraph);
+    }
+
+    const legacyRes = convertIssuesToAffectedPkgs(res);
+
+    const result = await parseRes(
+      depGraph,
+      pkgManager,
+      legacyRes as LegacyVulnApiResult,
+      options,
+      payload,
+      payloadPolicy,
+      root,
+      dockerfilePackages,
+    );
+
+    results.push({
+      ...result,
+      targetFile,
+      projectName,
+      foundProjectCount,
+      displayTargetFile,
+      platform,
+    });
   }
   return results;
 }
