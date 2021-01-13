@@ -237,9 +237,9 @@ docker run -it
 
 The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
 
-Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Maven:
+Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Python:
 
-- *setup.py*
+- setup.py
 ```
 docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
@@ -250,7 +250,29 @@ docker run -it
   snyk/snyk-cli:python-3 test --org=my-org-name
 ```
 
-- *Pipfile*
+- requirements.txt
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -e "TARGET_FILE=requirement-dev.txt"
+    -v "<PROJECT_DIRECTORY>:/project"
+  snyk/snyk-cli:python-3 test --org=my-org-name
+```
+
+- Pipfile.lock
+```
+docker run -it
+    -e "SNYK_TOKEN=<TOKEN>"
+    -e "USER_ID=1234"
+    -e "MONITOR=true"
+    -e "TARGET_FILE=Pipfile.lock"
+    -v "<PROJECT_DIRECTORY>:/project"
+  snyk/snyk-cli:python-3 test --org=my-org-name
+```
+
+- Pipfile (*In this mode, the lock is updated before scanning*)
 ```
 docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
@@ -261,17 +283,6 @@ docker run -it
   snyk/snyk-cli:python-3 test --org=my-org-name
 ```
 
-- *requirements.txt*
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -e "TARGET_FILE=requirement-dev.txt"
-    -v "<PROJECT_DIRECTORY>:/project"
-  snyk/snyk-cli:python-3 test --org=my-org-name
-```
 
 ## Badge
 
