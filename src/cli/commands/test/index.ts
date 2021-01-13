@@ -196,6 +196,9 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
         res.result.cloudConfigResults &&
         res.result.cloudConfigResults.length),
   );
+  
+  // TODO Filter on policy violated key
+  const policyViolated = results.some((res) => res.isPolicyViolated);
   const errorResults = results.filter((res) => res instanceof Error);
   const notSuccess = errorResults.length > 0;
   const foundVulnerabilities = vulnerableResults.length > 0;
@@ -231,6 +234,13 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     }
 
     const err = new Error(stringifiedData) as any;
+
+    if (policyViolated) {
+      err.code = 'POLICY_VIOLATED';
+      const dataToSendNoVulns = dataToSend;
+      delete dataToSendNoVulns.vulnerabilities;
+      err.jsonNoVulns = dataToSendNoVulns;
+    }
 
     if (foundVulnerabilities) {
       if (options.failOn) {
@@ -313,6 +323,21 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     // first one
     error.code = errorResults[0].code;
     error.userMessage = errorResults[0].userMessage;
+    throw error;
+  }
+
+  if (policyViolated) {
+    response += chalk.bold.red("\n\nTHIS PROJECT VIOLATES POLICY SET UP BY YOUR GROUP ADMIN, RUUUUUUN!!!");
+    response += chalk.bold.red(summaryMessage);
+    const error = new Error(response) as any;
+    // take the code of the first problem to go through error
+    // translation
+    // HACK as there can be different errors, and we pass only the
+    // first one
+    error.code = 'POLICY_VIOLATED';
+    error.userMessage = vulnerableResults[0].userMessage;
+    error.jsonStringifiedResults = stringifiedJsonData;
+    error.sarifStringifiedResults = stringifiedSarifData;
     throw error;
   }
 

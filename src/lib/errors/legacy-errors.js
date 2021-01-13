@@ -72,8 +72,11 @@ module.exports = function error(command) {
 
 module.exports.message = function(error) {
   let message = error; // defaults to a string (which is super unlikely)
+
   if (error instanceof Error) {
     if (error.code === 'VULNS') {
+      return error.message;
+    } else if (error.code === 'POLICY_VIOLATED') {
       return error.message;
     }
 

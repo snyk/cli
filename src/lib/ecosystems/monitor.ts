@@ -105,7 +105,7 @@ async function monitorDependencies(
         url: `${config.API}/monitor-dependencies`,
         json: true,
         headers: {
-          'x-is-ci': isCI(),
+          'x-environment-is-ci': isCI(),
           authorization: 'token ' + snyk.api,
         },
         body: monitorDependenciesRequest,

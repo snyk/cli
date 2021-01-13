@@ -41,12 +41,14 @@ import {
 } from '../lib/types';
 import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
+import chalk from 'chalk';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
   VULNS_FOUND: 1,
   ERROR: 2,
   NO_SUPPORTED_MANIFESTS_FOUND: 3,
+  POLICY_VIOLATED: 4,
 };
 
 async function runCommand(args: Args) {
@@ -94,6 +96,13 @@ async function handleError(args, error) {
 
   if (noSupportedManifestsFound) {
     exitCode = EXIT_CODES.NO_SUPPORTED_MANIFESTS_FOUND;
+  }
+
+  const policyViolated = error.code === 'POLICY_VIOLATED';
+  if (policyViolated) {
+    // this isn't a bad command, so we won't record it as such
+    command = args.command;
+    exitCode = EXIT_CODES.POLICY_VIOLATED;
   }
 
   const vulnsFound = error.code === 'VULNS';
