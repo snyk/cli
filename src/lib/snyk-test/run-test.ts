@@ -246,7 +246,7 @@ async function sendAndParseResults(
       /** sendTestPayload() deletes the request.body from the payload once completed. */
       const payloadCopy = Object.assign({}, payload);
       const res = await sendTestPayload(payload);
-      const isPolicyViolated = !!(res as any)?.result?.policyMetadata?.failTest;
+      const failTest = (res as any)?.result?.policyMetadata?.failTest;
       const {
         depGraph,
         payloadPolicy,
@@ -289,7 +289,7 @@ async function sendAndParseResults(
         foundProjectCount,
         displayTargetFile,
         platform,
-        isPolicyViolated,
+        failTest,
       });
     }
   }

@@ -183,7 +183,7 @@ export interface TestResult extends LegacyVulnApiResult {
   projectName?: string;
   displayTargetFile?: string; // used for display only
   foundProjectCount?: number;
-  isPolicyViolated?: boolean;
+  failTest?: boolean | undefined;
 }
 
 interface UpgradePathItem {

@@ -198,10 +198,11 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   );
   
   // TODO Filter on policy violated key
-  const policyViolated = results.some((res) => res.isPolicyViolated);
+  const policyViolated = results.some((res) => res.failTest);
+  const enforcePolicy = results.some((res) => res.failTest === false);
   const errorResults = results.filter((res) => res instanceof Error);
   const notSuccess = errorResults.length > 0;
-  const foundVulnerabilities = vulnerableResults.length > 0;
+  let foundVulnerabilities = vulnerableResults.length > 0;
 
   // resultOptions is now an array of 1 or more options used for
   // the tests results is now an array of 1 or more test results
@@ -339,6 +340,25 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     error.jsonStringifiedResults = stringifiedJsonData;
     error.sarifStringifiedResults = stringifiedSarifData;
     throw error;
+  }
+
+  if (enforcePolicy) {
+    // response += chalk.bold.red("\n\nI'M NOT FAILING YOUR TEST, COS GROUP ADMIN SAID SO");
+    // response += chalk.bold.red(summaryMessage);
+    // console.log(summaryMessage);
+    // const error = new Error(response) as any;
+    // // take the code of the first problem to go through error
+    // // translation
+    // // HACK as there can be different errors, and we pass only the
+    // // first one
+    // error.code = 'ENFORCE_PASS';
+    // error.userMessage = vulnerableResults[0].userMessage;
+    // error.jsonStringifiedResults = stringifiedJsonData;
+    // error.sarifStringifiedResults = stringifiedSarifData;
+    // console.log(error);
+    // throw error;
+    response += chalk.bold.red("\n\nI'M NOT FAILING YOUR TEST, COS GROUP ADMIN SAID SO");
+    foundVulnerabilities = false;
   }
 
   if (foundVulnerabilities) {
