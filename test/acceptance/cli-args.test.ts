@@ -128,6 +128,25 @@ test('snyk test command should fail when iac file is not supported', (t) => {
     },
   );
 });
+
+test('snyk test command should fail when iac invalid yaml file is not supported', (t) => {
+  t.plan(1);
+  exec(
+    `node ${main} iac test ./test/acceptance/workspaces/helmconfig/templates/cluster-role-binding.yaml`,
+    (err, stdout) => {
+      if (err) {
+        console.log('CLI stdout: ', stdout);
+        throw err;
+      }
+      t.match(
+        stdout.trim(),
+        'Invalid YAML format in file cluster-role-binding.yaml.',
+        'correct error output',
+      );
+    },
+  );
+});
+
 test('`test multiple paths with --project-name=NAME`', (t) => {
   t.plan(1);
   exec(`node ${main} test pathA pathB --project-name=NAME`, (err, stdout) => {

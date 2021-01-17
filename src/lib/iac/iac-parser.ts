@@ -1,7 +1,12 @@
 //TODO(orka): take out into a new lib
 import * as YAML from 'js-yaml';
+import * as yamljs from 'yamljs';
 import * as debugLib from 'debug';
-import { IllegalIacFileErrorMsg, NotSupportedIacFileErrorMsg } from '../errors';
+import {
+  IllegalIacFileErrorMsg,
+  NotSupportedIacFileErrorMsg,
+  InvalidYamlFileErrorMsg,
+} from '../errors';
 import request = require('../request');
 import { api as getApiToken } from '../api-token';
 import * as config from './../config';
@@ -45,6 +50,19 @@ function parseYamlOrJson(fileContent: string, filePath: string): any {
   return undefined;
 }
 
+export function isValidYaml(filePath: string, fileContent: string): boolean {
+  const fileType = getFileType(filePath);
+  if (fileType === 'yaml' || fileType === 'yml') {
+    try {
+      yamljs.parse(fileContent);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+  return true;
+}
+
 // This function validates that there is at least one valid doc with a k8s object kind.
 // If there is a doc with a supported kind, but invalid, we should fail
 // The function return true if the yaml is a valid k8s one, or false otherwise
@@ -53,6 +71,13 @@ export function validateK8sFile(
   filePath: string,
   fileName: string,
 ): IacValidationResponse {
+  if (!isValidYaml(filePath, fileContent)) {
+    return {
+      isValidFile: false,
+      reason: InvalidYamlFileErrorMsg(fileName),
+    };
+  }
+
   const k8sObjects: any[] = parseYamlOrJson(fileContent, filePath);
   if (!k8sObjects) {
     return { isValidFile: false, reason: IllegalIacFileErrorMsg(fileName) };

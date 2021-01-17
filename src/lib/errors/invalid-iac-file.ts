@@ -25,6 +25,18 @@ export function IllegalIacFileErrorMsg(fileName: string): string {
   );
 }
 
+export function InvalidYamlFileErrorMsg(fileName: string): string {
+  return (
+    'Invalid YAML format in file ' +
+    fileName +
+    '.\nFor Helm template files you might use `Helm install` command and run `snyk iac test` with the generated files.' +
+    '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
+    chalk.underline(
+      'https://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool',
+    )
+  );
+}
+
 export function NotSupportedIacFileError(fileName: string): CustomError {
   const errorMsg = NotSupportedIacFileErrorMsg(fileName);
   const error = new CustomError(errorMsg);
