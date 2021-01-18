@@ -112,13 +112,14 @@ export = function makeRequest(
         const proxyUri = getProxyForUrl(url);
         if (proxyUri) {
           snykDebug('using proxy:', proxyUri);
+          // proxyAgent type is an EventEmitter and not an http Agent
           options.agent = (new ProxyAgent(proxyUri) as unknown) as http.Agent;
         } else {
           snykDebug('not using proxy');
         }
 
         if (global.ignoreUnknownCA) {
-          debug('Using insecure mode (ignore unkown certificate authority)');
+          debug('Using insecure mode (ignore unknown certificate authority)');
           options.rejectUnauthorized = false;
         }
 

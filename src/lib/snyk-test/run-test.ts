@@ -234,7 +234,7 @@ async function sendAndParseResults(
   if (options.iac) {
     const maxConcurrent = 25;
     const queue = new Queue(maxConcurrent);
-    const iacResults: Array<Promise<TestResult>> = [];
+    const iacResults: Promise<TestResult>[] = [];
 
     await spinner.clear<void>(spinnerLbl)();
     await spinner(spinnerLbl);

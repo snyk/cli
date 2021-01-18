@@ -99,10 +99,9 @@ async function getDirectoryFiles(
   });
 
   const iacFiles: IacFileInDirectory[] = [];
-  const maxConcurrent = 50;
+  const maxConcurrent = 25;
   const queue = new Queue(maxConcurrent);
 
-  const promises: Array<Promise<IacFileInDirectory>> = [];
   for (const filePath of directoryPaths) {
     const fileType = pathLib
       .extname(filePath)
@@ -111,33 +110,29 @@ async function getDirectoryFiles(
     if (!fileType || !supportedExtensions.has(fileType)) {
       continue;
     }
-    promises.push(
+    iacFiles.push(
       queue.add(async () => {
         try {
           const projectType = await getProjectTypeForIacFile(filePath);
-          iacFiles.push({
+          return {
             filePath,
             projectType,
             fileType,
-          });
+          };
         } catch (err) {
-          iacFiles.push({
+          return {
             filePath,
             fileType,
             failureReason:
               err instanceof CustomError ? err.userMessage : 'Unhandled Error',
-          });
+          };
         }
       }),
     );
   }
 
-  if (promises.length > 0) {
-    await Promise.all(promises);
-  }
-
   if (iacFiles.length === 0) {
     throw IacDirectoryWithoutAnyIacFileError();
   }
-  return iacFiles;
+  return Promise.all(iacFiles);
 }

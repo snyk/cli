@@ -4,7 +4,6 @@ import * as proxyquire from 'proxyquire';
 import * as needle from 'needle';
 import { Global } from '../src/cli/args';
 import * as http from 'http';
-import * as https from 'https';
 
 declare const global: Global;
 
