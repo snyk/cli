@@ -21,6 +21,7 @@ import {
   IllegalTerraformFileError,
 } from '../errors/invalid-iac-file';
 import { Options, TestOptions, IacFileInDirectory } from '../types';
+import * as Queue from 'promise-queue';
 
 const debug = debugLib('snyk-detect-iac');
 
@@ -90,13 +91,16 @@ async function getDirectoryFiles(
   root: string,
   options: { maxDepth?: number } = {},
 ) {
-  const iacFiles: IacFileInDirectory[] = [];
   const dirPath = pathLib.resolve(root, '.');
   const supportedExtensions = new Set(Object.keys(projectTypeByFileType));
 
   const directoryPaths = makeDirectoryIterator(dirPath, {
     maxDepth: options.maxDepth,
   });
+
+  const iacFiles: IacFileInDirectory[] = [];
+  const maxConcurrent = 25;
+  const queue = new Queue(maxConcurrent);
 
   for (const filePath of directoryPaths) {
     const fileType = pathLib
@@ -106,27 +110,29 @@ async function getDirectoryFiles(
     if (!fileType || !supportedExtensions.has(fileType)) {
       continue;
     }
-
-    try {
-      const projectType = await getProjectTypeForIacFile(filePath);
-      iacFiles.push({
-        filePath,
-        projectType,
-        fileType,
-      });
-    } catch (err) {
-      iacFiles.push({
-        filePath,
-        fileType,
-        failureReason:
-          err instanceof CustomError ? err.userMessage : 'Unhandled Error',
-      });
-    }
+    iacFiles.push(
+      queue.add(async () => {
+        try {
+          const projectType = await getProjectTypeForIacFile(filePath);
+          return {
+            filePath,
+            projectType,
+            fileType,
+          };
+        } catch (err) {
+          return {
+            filePath,
+            fileType,
+            failureReason:
+              err instanceof CustomError ? err.userMessage : 'Unhandled Error',
+          };
+        }
+      }),
+    );
   }
 
   if (iacFiles.length === 0) {
     throw IacDirectoryWithoutAnyIacFileError();
   }
-
-  return iacFiles;
+  return Promise.all(iacFiles);
 }

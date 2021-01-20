@@ -7,10 +7,11 @@ import * as config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
 import * as ProxyAgent from 'proxy-agent';
 import * as analytics from '../analytics';
-import { Agent } from 'http';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
 import { getVersion } from '../version';
+import * as https from 'https';
+import * as http from 'http';
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');
@@ -94,6 +95,10 @@ export = function makeRequest(
           delete payload.qs;
         }
 
+        const agent =
+          parsedUrl.protocol === 'http:'
+            ? new http.Agent({ keepAlive: true })
+            : new https.Agent({ keepAlive: true });
         const options: needle.NeedleOptions = {
           json: payload.json,
           headers: payload.headers,
@@ -101,18 +106,20 @@ export = function makeRequest(
           // eslint-disable-next-line @typescript-eslint/camelcase
           follow_max: 5,
           family: payload.family,
+          agent,
         };
 
         const proxyUri = getProxyForUrl(url);
         if (proxyUri) {
           snykDebug('using proxy:', proxyUri);
-          options.agent = (new ProxyAgent(proxyUri) as unknown) as Agent;
+          // proxyAgent type is an EventEmitter and not an http Agent
+          options.agent = (new ProxyAgent(proxyUri) as unknown) as http.Agent;
         } else {
           snykDebug('not using proxy');
         }
 
         if (global.ignoreUnknownCA) {
-          debug('Using insecure mode (ignore unkown certificate authority)');
+          debug('Using insecure mode (ignore unknown certificate authority)');
           options.rejectUnauthorized = false;
         }
 
