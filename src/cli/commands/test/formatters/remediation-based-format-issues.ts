@@ -454,6 +454,11 @@ export function formatIssue(
         return chalk.redBright(text);
       },
     },
+    critical: {
+      colorFunc(text) {
+        return chalk.magentaBright(`🚨` + text + ` 🚨 `);
+      },
+    },
   };
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';

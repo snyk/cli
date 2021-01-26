@@ -20,6 +20,7 @@ export enum SEVERITY {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
+  CRITICAL = 'critical',
 }
 
 export enum REACHABILITY {

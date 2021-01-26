@@ -111,6 +111,11 @@ function createSeverityBasedIssueHeading({
         return chalk.bold.red(text);
       },
     },
+    critical: {
+      colorFunc(text) {
+        return chalk.bold.magenta(text);
+      },
+    },
   };
 
   let originalSeverityStr = '';

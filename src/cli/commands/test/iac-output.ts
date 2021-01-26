@@ -35,6 +35,11 @@ function formatIacIssue(
         return chalk.redBright(text);
       },
     },
+    critical: {
+      colorFunc(text) {
+        return chalk.magentaBright(text);
+      },
+    },
   };
   const newBadge = isNew ? ' (new)' : '';
   const name = issue.subType ? ` in ${chalk.bold(issue.subType)}` : '';

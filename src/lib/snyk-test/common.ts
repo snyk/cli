@@ -24,6 +24,7 @@ export enum SEVERITY {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
+  CRITICAL = 'critical',
 }
 export const SEVERITIES: Array<{
   verboseName: SEVERITY;
@@ -40,6 +41,10 @@ export const SEVERITIES: Array<{
   {
     verboseName: SEVERITY.HIGH,
     value: 3,
+  },
+  {
+    verboseName: SEVERITY.CRITICAL,
+    value: 4,
   },
 ];
 
