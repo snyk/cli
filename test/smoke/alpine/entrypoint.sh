@@ -1,10 +1,9 @@
 #!/bin/sh
 
 echo "install snyk with binary"
-export latest_version=$(curl -Is "https://github.com/snyk/snyk/releases/latest" | grep -i location | sed s#.*tag/##g | tr -d "\r")
-echo "latest_version: ${latest_version}"
-snyk_cli_dl_linux="https://github.com/snyk/snyk/releases/download/${latest_version}/snyk-alpine"
-curl -Lo ./snyk-cli $snyk_cli_dl_linux
+snyk_cli_dl=$(curl https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "snyk-alpine") | .browser_download_url')
+echo "snyk_cli_dl: ${snyk_cli_dl}"
+curl -Lo ./snyk-cli $snyk_cli_dl
 chmod -R +x ./snyk-cli
 mv ./snyk-cli /usr/local/bin/snyk
 snyk --version
