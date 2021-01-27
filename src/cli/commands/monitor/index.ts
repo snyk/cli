@@ -154,8 +154,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       await spinner(analyzingDepsSpinnerLabel);
 
       // Scan the project dependencies via a plugin
-
-      analytics.add('pluginOptions', options);
       debug('getDepsFromPlugin ...');
 
       // each plugin will be asked to scan once per path
