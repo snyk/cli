@@ -1,24 +1,49 @@
-import * as tsc from '@deepcode/tsc';
+import * as codeClient from '@snyk/code-client';
+import { api } from '../../lib/api-token';
+import * as config from '../config';
+import spinner = require('../spinner');
+import * as analytics from '../analytics';
 
-tsc.emitter.on('scanFilesProgress', (processed: number) => {
+codeClient.emitter.on('scanFilesProgress', (processed: number) => {
   console.log(`Indexed ${processed} files`);
 });
 
 /** Bundle upload process is started with provided data */
-tsc.emitter.on('uploadBundleProgress', (processed: number, total: number) => {
-  console.log(`Upload bundle progress: ${processed}/${total}`);
-});
+codeClient.emitter.on(
+  'uploadBundleProgress',
+  (processed: number, total: number) => {
+    console.log(`Upload bundle progress: ${processed}/${total}`);
+  },
+);
 
 /** Receives an error object and logs an error message */
-tsc.emitter.on('sendError', (error) => {
+codeClient.emitter.on('sendError', (error) => {
   console.log(error);
 });
+
+export async function getCodeAnalysisAndParseResults(
+  spinnerLbl,
+  root,
+  options,
+) {
+  await spinner.clear<void>(spinnerLbl)();
+  await spinner(spinnerLbl);
+
+  analytics.add('Code type', true);
+  const res = await getCodeAnalysis(root);
+
+  return await parseCodeTestResult(res, options.severityThreshold);
+}
 export async function getCodeAnalysis(root) {
-  let baseURL = `snyk2deepcode-token-exchange.dev.snyk.io`;
-  let sessionToken = `insert token here`;
-  return await tsc.analyzeFolders(baseURL, sessionToken, false, 1, [root]);
+  let baseURL = config.SNYKCODE_PROXY;
+  let sessionToken = api();
+  return await codeClient.analyzeFolders(baseURL, sessionToken, false, 1, [
+    root,
+  ]);
 }
 
-export function parseCodeTestResult(result) {
-  console.log(result);
+export function parseCodeTestResult(result, severityThreshold) {
+  console.log(result, severityThreshold);
+  //filtering
+  return result;
 }

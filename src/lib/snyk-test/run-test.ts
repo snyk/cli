@@ -57,7 +57,11 @@ import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
 import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
+<<<<<<< HEAD
 import { parseCodeTestResult, getCodeAnalysis } from './run-code-test';
+=======
+import { getCodeAnalysisAndParseResults } from './run-code-test';
+>>>>>>> poc: add snykcode to the cli
 import {
   Payload,
   PayloadBody,
@@ -302,9 +306,15 @@ async function sendAndParseResults(
         options.severityThreshold,
       );
       results.push(result);
+<<<<<<< HEAD
     } else if (options.code) {
       const res = await getCodeAnalysis(root);
       console.log(res);
+=======
+    // } else if (options.code) {
+    //   const res = await getCodeAnalysis(root);
+    //   console.log(res);
+>>>>>>> poc: add snykcode to the cli
     } else {
       /** sendTestPayload() deletes the request.body from the payload once completed. */
       const payloadCopy = Object.assign({}, payload);
@@ -365,6 +375,9 @@ export async function runTest(
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     await validateOptions(options, options.packageManager);
+    if(options.code){
+      return await getCodeAnalysisAndParseResults(spinnerLbl, root, options)
+    }
     const payloads = await assemblePayloads(root, options);
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
   } catch (error) {

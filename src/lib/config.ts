@@ -15,6 +15,7 @@ interface Config {
   timeout: number;
   PROJECT_NAME: string;
   TOKEN: string;
+  SNYKCODE_PROXY: string;
 }
 
 // TODO: fix the types!
