@@ -57,6 +57,7 @@ import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
 import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
+import { parseCodeTestResult, getCodeAnalysis } from './run-code-test';
 import {
   Payload,
   PayloadBody,
@@ -267,6 +268,7 @@ async function sendAndParseResults(
   for (const payload of payloads) {
     await spinner.clear<void>(spinnerLbl)();
     await spinner(spinnerLbl);
+<<<<<<< HEAD
     /** sendTestPayload() deletes the request.body from the payload once completed. */
     const payloadCopy = Object.assign({}, payload);
     const res = await sendTestPayload(payload);
@@ -285,6 +287,44 @@ async function sendAndParseResults(
       res as TestDependenciesResponse,
       options,
     );
+=======
+    if (options.iac) {
+      const iacScan: IacScan = payload.body as IacScan;
+      analytics.add('iac type', !!iacScan.type);
+      const res = (await sendTestPayload(payload)) as IacTestResponse;
+
+      const projectName =
+        iacScan.projectNameOverride || iacScan.originalProjectName;
+      const result = await parseIacTestResult(
+        res,
+        iacScan.targetFile,
+        projectName,
+        options.severityThreshold,
+      );
+      results.push(result);
+    } else if (options.code) {
+      const res = await getCodeAnalysis(root);
+      console.log(res);
+    } else {
+      /** sendTestPayload() deletes the request.body from the payload once completed. */
+      const payloadCopy = Object.assign({}, payload);
+      const res = await sendTestPayload(payload);
+      const {
+        depGraph,
+        payloadPolicy,
+        pkgManager,
+        targetFile,
+        projectName,
+        foundProjectCount,
+        displayTargetFile,
+        dockerfilePackages,
+        platform,
+      } = prepareResponseForParsing(
+        payloadCopy,
+        res as TestDependenciesResponse,
+        options,
+      );
+>>>>>>> poc: add snykcode to the cli
 
     const ecosystem = getEcosystem(options);
     if (ecosystem && options['print-deps']) {
@@ -514,7 +554,7 @@ function assemblePayloads(
   options: Options & TestOptions,
 ): Promise<Payload[]> {
   let isLocal;
-  if (options.docker) {
+  if (options.docker || options.code) {
     isLocal = true;
   } else {
     // TODO: Refactor this check so we don't require files when tests are using mocks
@@ -539,7 +579,9 @@ async function assembleLocalPayloads(
 ): Promise<Payload[]> {
   // For --all-projects packageManager is yet undefined here. Use 'all'
   let analysisTypeText = 'all dependencies for ';
-  if (options.docker) {
+  if (options.code) {
+    analysisTypeText = 'code for';
+  } else if (options.docker) {
     analysisTypeText = 'docker dependencies for ';
   } else if (options.iac) {
     analysisTypeText = 'Infrastructure as code configurations for ';
@@ -559,6 +601,9 @@ async function assembleLocalPayloads(
     await spinner(spinnerLbl);
     if (options.iac) {
       return assembleIacLocalPayloads(root, options);
+    }
+    if (options.code) {
+      return [{} as Payload];
     }
     const deps = await getDepsFromPlugin(root, options);
     const failedResults = (deps as MultiProjectResultCustom).failedResults;

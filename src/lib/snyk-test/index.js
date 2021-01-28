@@ -6,6 +6,7 @@ const { runTest } = require('./run-test');
 const chalk = require('chalk');
 const pm = require('../package-managers');
 const iacProjects = require('../iac/constants');
+const codeProjects = require('../code/constants');
 const {
   UnsupportedPackageManagerError,
   NotSupportedIacFileError,
@@ -37,6 +38,8 @@ async function executeTest(root, options) {
     if (!options.allProjects) {
       options.packageManager = options.iac
         ? await detectIac.getProjectType(root, options)
+        : options.code
+        ? 'code'
         : detect.detectPackageManager(root, options);
     }
     return run(root, options).then((results) => {
@@ -52,6 +55,14 @@ async function executeTest(root, options) {
           res.result &&
           res.result.projectType &&
           options.packageManager === iacProjects.IacProjectType.MULTI_IAC
+        ) {
+          res.packageManager = res.result.projectType;
+        }
+        if (
+          options.code &&
+          res.result &&
+          res.result.projectType &&
+          options.packageManager === codeProjects.CODE
         ) {
           res.packageManager = res.result.projectType;
         }
@@ -77,6 +88,9 @@ function run(root, options) {
 }
 
 function validateProjectType(options, projectType) {
+  if (options.code) {
+    return;
+  }
   if (options.iac) {
     if (options.allProjects) {
       throw new NotSupportedIacAllProjects(options.path);
