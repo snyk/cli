@@ -250,6 +250,7 @@ async function sendAndParseResults(
           return await parseIacTestResult(
             res,
             iacScan.targetFile,
+            iacScan.targetFileRelativePath,
             projectName,
             options.severityThreshold,
           );
