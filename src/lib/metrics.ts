@@ -4,7 +4,6 @@ type MetricType = 'timer' | 'synthetic';
 export type MetricValue = number | undefined;
 export const METRIC_TYPE_TIMER = 'timer';
 export const METRIC_TYPE_SYNTHETIC = 'synthetic';
-
 export abstract class MetricInstance {
   abstract getValue(): MetricValue;
 }
