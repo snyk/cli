@@ -46,7 +46,7 @@ export function hasPatches(testResults: any[]): boolean {
 }
 
 export function isVulnUpgradable(vuln) {
-  return vuln.isUpgradable || vuln.isPinnable;
+  return vuln.isUpgradable || vuln.isPinnable || (vuln.fixedIn || []).length;
 }
 
 export function isVulnPatchable(vuln) {
