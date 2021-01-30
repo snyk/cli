@@ -38,18 +38,31 @@ export function createDirectory(newDirectoryFullPath: string): boolean {
   }
 }
 
-export function writeContentsToFileSwallowingErrors(
+/**
+ * Write the given contents to a file.
+ * If any errors are thrown in the process they are caught, logged, and discarded.
+ * @param jsonOutputFile the path of the file you want to write.
+ * @param contents the contents you want to write.
+ */
+export async function writeContentsToFileSwallowingErrors(
   jsonOutputFile: string,
   contents: string,
-) {
-  try {
-    const ws = createWriteStream(jsonOutputFile, { flags: 'w' });
-    ws.on('error', (err) => {
+): Promise<void> {
+  return new Promise((resolve) => {
+    try {
+      const ws = createWriteStream(jsonOutputFile, { flags: 'w' });
+      ws.on('error', (err) => {
+        console.error(err);
+        resolve();
+      });
+      ws.write(contents);
+      ws.end('\n');
+      ws.on('finish', () => {
+        resolve();
+      });
+    } catch (err) {
       console.error(err);
-    });
-    ws.write(contents);
-    ws.end('\n');
-  } catch (err) {
-    console.error(err);
-  }
+      return Promise.resolve();
+    }
+  });
 }

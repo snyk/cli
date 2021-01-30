@@ -357,21 +357,27 @@ test('`test --json-file-output can save JSON output to file while sending human 
     `${tmpFolder}/snyk-direct-json-test-output.json`,
   );
 
-  exec(`node ${main} test --json-file-output=${jsonPath}`, (err, stdout) => {
-    if (err) {
-      console.log('CLI stdout: ', stdout);
-      throw err;
-    }
-    if (!existsSync(jsonPath)) {
-      console.log('CLI stdout: ', stdout);
-    }
-    const outputFileContents = readFileSync(jsonPath, 'utf-8');
-    const jsonObj = JSON.parse(outputFileContents);
-    const okValue = jsonObj.ok as boolean;
+  const testFixture =
+    'test/acceptance/workspaces/npm-package-no-vulns/package.json';
 
-    t.match(stdout, 'Organization:', 'contains human readable output');
-    t.ok(okValue, 'JSON output ok');
-  });
+  exec(
+    `node ${main} test --file=${testFixture} --json-file-output=${jsonPath}`,
+    (err, stdout) => {
+      if (err) {
+        console.log('CLI stdout: ', stdout);
+        throw err;
+      }
+      if (!existsSync(jsonPath)) {
+        console.log('CLI stdout: ', stdout);
+      }
+      const outputFileContents = readFileSync(jsonPath, 'utf-8');
+      const jsonObj = JSON.parse(outputFileContents);
+      const okValue = jsonObj.ok as boolean;
+
+      t.match(stdout, 'Organization:', 'contains human readable output');
+      t.ok(okValue, 'JSON output ok');
+    },
+  );
 });
 
 test('`test --json-file-output produces same JSON output as normal JSON output to stdout`', (t) => {
@@ -380,9 +386,10 @@ test('`test --json-file-output produces same JSON output as normal JSON output t
   const jsonPath = path.normalize(
     `${tmpFolder}/snyk-direct-json-test-output.json`,
   );
-
+  const testFixture =
+    'test/acceptance/workspaces/npm-package-no-vulns/package.json';
   exec(
-    `node ${main} test --json --json-file-output=${jsonPath}`,
+    `node ${main} test --file=${testFixture} --json --json-file-output=${jsonPath}`,
     (err, stdout) => {
       if (err) {
         console.log('CLI stdout: ', stdout);
@@ -405,9 +412,10 @@ test('`test --json-file-output can handle a relative path`', (t) => {
   const outputPath = path.normalize(
     `${tmpFolder}/snyk-direct-json-test-output.json`,
   );
-
+  const testFixture =
+    'test/acceptance/workspaces/npm-package-no-vulns/package.json';
   exec(
-    `node ${main} test --json --json-file-output=${outputPath}`,
+    `node ${main} test --file=${testFixture} --json --json-file-output=${outputPath}`,
     (err, stdout) => {
       if (err) {
         console.log('CLI stdout: ', stdout);
@@ -433,9 +441,10 @@ test(
     const outputPath = path.normalize(
       `${tmpFolder}/snyk-direct-json-test-output.json`,
     );
-
+    const testFixture =
+      'test/acceptance/workspaces/npm-package-no-vulns/package.json';
     exec(
-      `node ${main} test --json --json-file-output=${outputPath}`,
+      `node ${main} test --file=${testFixture} --json --json-file-output=${outputPath}`,
       (err, stdout) => {
         if (err) {
           console.log('CLI stdout: ', stdout);
