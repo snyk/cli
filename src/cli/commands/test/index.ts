@@ -51,6 +51,8 @@ import {
   getDisplayedOutput,
 } from './formatters/format-test-results';
 
+import iacLocalProcessing from './iac-local-execution';
+
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -133,7 +135,11 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     let res: (TestResult | TestResult[]) | Error;
 
     try {
-      res = await snyk.test(path, testOpts);
+      if (options.iac && options.experimental) {
+        res = await iacLocalProcessing(path, options);
+      } else {
+        res = await snyk.test(path, testOpts);
+      }
       if (testOpts.iacDirFiles) {
         options.iacDirFiles = testOpts.iacDirFiles;
       }
