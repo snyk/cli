@@ -58,6 +58,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
+    "@open-policy-agent/opa-wasm": "git+https://github.com/open-policy-agent/npm-opa-wasm.git#f4a21fe6f4d70706f85106dc6ea867983747e040",
     "@snyk/cli-interface": "2.11.0",
     "@snyk/dep-graph": "1.21.0",
     "@snyk/gemfile": "1.2.0",
