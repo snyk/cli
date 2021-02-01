@@ -165,7 +165,7 @@ export function detectPackageFile(root) {
   for (const file of DETECTABLE_FILES) {
     if (fs.existsSync(pathLib.resolve(root, file))) {
       debug('found package file ' + file + ' in ' + root);
-      return file;
+      return pathLib.resolve(root, file);
     }
   }
 
@@ -194,6 +194,18 @@ export function detectPackageManagerFromFile(
   if (!(key in DETECTABLE_PACKAGE_MANAGERS)) {
     // we throw and error here because the file was specified by the user
     throw new Error('Could not detect package manager for file: ' + file);
+  }
+  if (DETECTABLE_PACKAGE_MANAGERS[key] === 'npm' && key === 'package.json') {
+    const absolutePath = pathLib.resolve(__dirname, file);
+    let packageJson;
+    try {
+      packageJson = JSON.parse(fs.readFileSync(absolutePath, 'utf8'));
+    } catch (error) {
+      throw new Error('Invalid package.json: ' + file);
+    }
+    if (!packageJson.dependencies || !packageJson.devDependencies) {
+      throw new Error('Missing dependencies field in package.json: ' + file);
+    }
   }
   return DETECTABLE_PACKAGE_MANAGERS[key];
 }
