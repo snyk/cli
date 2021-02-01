@@ -76,9 +76,9 @@ async function runCommand(args: Args) {
   // also save the json (in error.json) to file if option is set
   if (args.command === 'test') {
     const jsonResults = (commandResult as TestCommandResult).getJsonResult();
-    saveResultsToFile(args.options, 'json', jsonResults);
+    await saveResultsToFile(args.options, 'json', jsonResults);
     const sarifResults = (commandResult as TestCommandResult).getSarifResult();
-    saveResultsToFile(args.options, 'sarif', sarifResults);
+    await saveResultsToFile(args.options, 'sarif', sarifResults);
   }
 
   return res;
@@ -128,8 +128,8 @@ async function handleError(args, error) {
     }
   }
 
-  saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
-  saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
+  await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
+  await saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
 
   const analyticsError = vulnsFound
     ? {
@@ -174,7 +174,7 @@ function getFullPath(filepathFragment: string): string {
   }
 }
 
-function saveJsonResultsToFile(
+async function saveJsonResultsToFile(
   stringifiedJson: string,
   jsonOutputFile: string,
 ) {
@@ -192,7 +192,7 @@ function saveJsonResultsToFile(
   const dirPath = pathLib.dirname(jsonOutputFile);
   const createDirSuccess = createDirectory(dirPath);
   if (createDirSuccess) {
-    writeContentsToFileSwallowingErrors(jsonOutputFile, stringifiedJson);
+    await writeContentsToFileSwallowingErrors(jsonOutputFile, stringifiedJson);
   }
 }
 
@@ -437,7 +437,7 @@ function validateUnsupportedSarifCombinations(args) {
   }
 }
 
-function saveResultsToFile(
+async function saveResultsToFile(
   options: ArgsOptions,
   outputType: string,
   jsonResults: string,
@@ -447,7 +447,7 @@ function saveResultsToFile(
   if (outputFile && jsonResults) {
     const outputFileStr = outputFile as string;
     const fullOutputFilePath = getFullPath(outputFileStr);
-    saveJsonResultsToFile(stripAnsi(jsonResults), fullOutputFilePath);
+    await saveJsonResultsToFile(stripAnsi(jsonResults), fullOutputFilePath);
   }
 }
 
