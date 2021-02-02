@@ -1,5 +1,6 @@
 const analytics = require('../src/lib/analytics');
 
+
 describe('Analytics basic testing', () => {
   it('Has all analytics arguments', async () => {
     analytics.add('foo', 'bar');
