@@ -35,7 +35,7 @@ const reachabilityLevels: {
   [REACHABILITY.NO_INFO]: {
     color: (str) => str,
     text: '',
-    json: 'no-info',
+    json: 'no-path-found',
   },
 };
 
