@@ -130,6 +130,16 @@ Below are flags that are influencing CLI behavior for specific projects, languag
 
 - `--configuration-attributes`=<ATTRIBUTE>[,<ATTRIBUTE>]...:
   Select certain values of configuration attributes to resolve the dependencies. E.g. `buildtype:release,usage:java-runtime`
+ 
+- `--reachable`:
+  (only in `test` and `monitor` commands)
+  Analyze your source code to find which vulnerable
+  functions and packages are called.
+
+- `--reachable-timeout`=<TIMEOUT>:
+  The amount of time (in seconds) to wait for Snyk to gather reachability data. If it takes longer than <TIMEOUT>, Reachable Vulnerabilities are not reported. This does not affect regular test or monitor output.
+
+  Default: 300 (5 minutes).
 
 ### .Net & NuGet options
 
