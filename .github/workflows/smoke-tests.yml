@@ -86,14 +86,15 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'alpine-binary' }}
         env:
           SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build -t snyk-cli-alpine -f ./test/smoke/alpine/Dockerfile ./test
-          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN snyk-cli-alpine
+          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
 
       - name: Install snyk from Docker bundle
         if: ${{ matrix.snyk_install_method == 'docker-bundle' }}
         run: |
-          snyk_cli_dl=$(curl https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "${{ matrix.snyk_cli_dl_file }}") | .browser_download_url')
+          snyk_cli_dl=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "${{ matrix.snyk_cli_dl_file }}") | .browser_download_url')
           echo "snyk_cli_dl: ${snyk_cli_dl}"
           curl -Lo ./snyk-cli.tar.gz $snyk_cli_dl
           sudo mkdir -p /usr/local/bin/snyk-mac
@@ -117,7 +118,7 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
         run: |
           echo "install snyk with binary"
-          snyk_cli_dl=$(curl https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "${{ matrix.snyk_cli_dl_file }}") | .browser_download_url')
+          snyk_cli_dl=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "${{ matrix.snyk_cli_dl_file }}") | .browser_download_url')
           echo "snyk_cli_dl: ${snyk_cli_dl}"
           curl -Lo ./snyk-cli $snyk_cli_dl
           chmod -R +x ./snyk-cli
@@ -126,6 +127,8 @@ jobs:
 
       - name: Install Snyk with binary - Windows
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os == 'windows' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: powershell
         run: |
           echo "install snyk with binary"
