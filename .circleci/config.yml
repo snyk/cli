@@ -260,7 +260,7 @@ jobs:
           name: Run tests
           command: npm test
 
-  release:
+  dev-release:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
@@ -269,8 +269,6 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
-          # docker_layer_caching: true
-      
       - install_github_cli
       - run:
           name: Install npm@7
@@ -286,20 +284,19 @@ jobs:
       - run:
           name: Update package versions
           command: ./release-scripts/update-versions.sh
-
       - run:
-          name: Make git ignore changes relating to version updates and to .npmrc
+          name: Make git ignore changes relating to version updates
           command: |
             git update-index --skip-worktree -- ./lerna.json
             git update-index --skip-worktree -- ./package.json
             git update-index --skip-worktree -- ./packages/snyk-protect/package.json
             git update-index --skip-worktree -- ./.npmrc
-
       - run:
-          name: Lerna Publish
+          name: Dev Lerna Publish
           command: |
-            lerna publish minor --yes --no-push --no-git-tag-version
-
+            dev_version="1.0.0-dev-${CIRCLE_SHA1}"
+            echo "dev_version: ${dev_version}"
+            lerna publish ${dev_version} --yes --no-push --no-git-tag-version --dist-tag hammertest
       - run: 
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
@@ -308,17 +305,61 @@ jobs:
           command: |
             ./release-scripts/make-binaries.sh
             ls -la ./binary-releases
-
       - store_artifacts:
           path: ./binary-releases
 
+  release:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    resource_class: small
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
+          # docker_layer_caching: true
+      - install_github_cli
+      - run:
+          name: Install npm@7
+          command: |
+            sudo npm install -g npm@7
+      - show_node_version
+      - run:
+          name: Setup Lerna
+          command: sudo npm install -g lerna
+      - update_local_npmrc_linux
+      - install_deps
+      - generate_help
+      - run:
+          name: Update package versions
+          command: ./release-scripts/update-versions.sh
+      - run:
+          name: Make git ignore changes relating to version updates and to .npmrc
+          command: |
+            git update-index --skip-worktree -- ./lerna.json
+            git update-index --skip-worktree -- ./package.json
+            git update-index --skip-worktree -- ./packages/snyk-protect/package.json
+            git update-index --skip-worktree -- ./.npmrc
+      - run:
+          name: Lerna Publish
+          command: |
+            lerna publish minor --yes --no-push --no-git-tag-version
+      - run: 
+          name: Install osslsigncode
+          command: sudo apt-get install -y osslsigncode
+      - run:
+          name: Create Binaries
+          command: |
+            ./release-scripts/make-binaries.sh
+            ls -la ./binary-releases
+      - store_artifacts:
+          path: ./binary-releases
       - run:
           name: Create a GitHub release
           command: |
             latest_version=$(cat lerna.json | jq .version -r)
             new_tag="v${latest_version}"
             gh release create ${new_tag} --title "${new_tag}" -n "Release notes not implemented yet" --prerelease
-
       - run:
           name: Add Assets to GitHub Release
           command: |
@@ -344,6 +385,16 @@ workflows:
           name: Regression Test
           context: nodejs-install
           node_version: '12.16.2'
+          filters:
+            branches:
+              ignore:
+                - master
+      - dev-release:
+          name: Dev Release
+          node_version: '14'
+          context: nodejs-app-release
+          requires:
+            - Regression Test
           filters:
             branches:
               ignore:
@@ -430,7 +481,6 @@ workflows:
             branches:
               ignore:
                 - master
-
       - release:
           name: Release
           context: nodejs-app-release
