@@ -3,13 +3,13 @@
 # create files as needed
 CERT_FILE=cert.pem
 if [ ! -f "$CERT_FILE" ]; then
-  echo "$SIGNING_CERT" | base64 --decode > "$CERT_FILE"
+  echo "$SIGNING_CERT" | base64 --decode >"$CERT_FILE"
 fi
 
 # create files as needed
 KEY_FILE=key.pem
 if [ ! -f "$KEY_FILE" ]; then
-  echo "$SIGNING_KEY" | base64 --decode > "$KEY_FILE"
+  echo "$SIGNING_KEY" | base64 --decode >"$KEY_FILE"
 fi
 
 osslsigncode sign -h sha512 \
@@ -22,4 +22,7 @@ osslsigncode sign -h sha512 \
   -out binary-releases/snyk-win.exe
 
 rm binary-releases/snyk-win-unsigned.exe
-sha256sum binary-releases/snyk-win.exe > binary-releases/snyk-win.exe.sha256
+
+pushd binary-releases
+sha256sum snyk-win.exe >snyk-win.exe.sha256
+popd
