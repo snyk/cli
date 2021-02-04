@@ -1,0 +1,52 @@
+{
+  "name": "@snyk/protect",
+  "version": "1.0.0-monorepo",
+  "description": "Snyk protect library and utility",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "help",
+    "dist",
+    "SECURITY.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "bin": {
+    "snyk-protect": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "security",
+    "vulnerabilities",
+    "advisories",
+    "audit",
+    "snyk",
+    "scan",
+    "docker",
+    "container",
+    "scanning"
+  ],
+  "author": "snyk.io",
+  "license": "Apache-2.0",
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snyk/snyk.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
+}

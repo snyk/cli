@@ -18,7 +18,8 @@ osslsigncode sign -h sha512 \
   -n "Snyk CLI" \
   -i "https://snyk.io" \
   -t "http://timestamp.comodoca.com/authenticode" \
-  -in snyk-win.exe \
-  -out snyk-win-signed.exe
+  -in binary-releases/snyk-win-unsigned.exe \
+  -out binary-releases/snyk-win.exe
 
-sha256sum snyk-win-signed.exe > snyk-win-signed.exe.sha256
+rm binary-releases/snyk-win-unsigned.exe
+sha256sum binary-releases/snyk-win.exe > binary-releases/snyk-win.exe.sha256

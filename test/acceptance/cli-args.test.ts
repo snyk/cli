@@ -41,7 +41,7 @@ test('snyk test command should fail when --file is not specified correctly', (t)
 });
 
 test(
-  'snyk version command should show cli version or sha',
+  'snyk version command should show cli version',
   { skip: isWindows },
   (t) => {
     t.plan(1);
@@ -50,11 +50,7 @@ test(
         console.log('CLI stdout: ', stdout);
         throw err;
       }
-      t.match(
-        stdout.trim(),
-        ':', // can't guess branch or sha or dirty files, but we do always add `:`
-        'version is shown',
-      );
+      t.match(stdout.trim(), /[0-9]+\.[0-9]+\.[0-9]+/, 'version is shown');
     });
   },
 );
