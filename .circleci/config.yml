@@ -307,6 +307,11 @@ jobs:
             ls -la ./binary-releases
       - store_artifacts:
           path: ./binary-releases
+      - run:
+          name: Validate binary release checksums
+          working_directory: ~/snyk/binary-releases
+          command: |
+            ../release-scripts/validate-checksums.sh
 
   release:
     <<: *defaults
@@ -354,6 +359,11 @@ jobs:
             ls -la ./binary-releases
       - store_artifacts:
           path: ./binary-releases
+      - run:
+          name: Validate binary release checksums
+          working_directory: ~/snyk/binary-releases
+          command: |
+            ../release-scripts/validate-checksums.sh
       - run:
           name: Create a GitHub release
           command: |
