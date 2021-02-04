@@ -359,7 +359,7 @@ jobs:
           command: |
             latest_version=$(cat lerna.json | jq .version -r)
             new_tag="v${latest_version}"
-            gh release create ${new_tag} --title "${new_tag}" -n "Release notes not implemented yet" --prerelease
+            gh release create ${new_tag} --title "${new_tag}" -n "Release Notes pending"
       - run:
           name: Add Assets to GitHub Release
           command: |
