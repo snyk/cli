@@ -5,7 +5,7 @@ Describe "Snyk iac test --experimental command"
   After snyk_logout
 
   Describe "k8s single file scan"
-    It "finds issues in k8s file"
+    It "finds issues in k8s file TEST"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental
       The status should be failure # issues found
       The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
