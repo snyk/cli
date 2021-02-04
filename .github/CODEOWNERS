@@ -4,7 +4,6 @@ src/cli/commands/test/formatters/format-reachability.ts  @snyk/flow
 help/  @snyk/hammer
 *  @snyk/hammer @snyk/boost
 src/cli/commands/test/iac-output.ts @snyk/cloudconfig
-src/cli/commands/test/iac-local-execution/ @snyk/cloudconfig
 src/lib/cloud-config-projects.ts @snyk/cloudconfig
 src/lib/iac/ @snyk/cloudconfig
 src/lib/snyk-test/iac-test-result.ts @snyk/cloudconfig
@@ -13,7 +12,6 @@ src/lib/snyk-test/run-iac-test.ts @snyk/cloudconfig
 test/acceptance/cli-test/iac/ @snyk/cloudconfig
 test/fixtures/iac/ @snyk/cloudconfig
 test/smoke/spec/iac/ @snyk/cloudconfig
-test/smoke/.iac-data/ @snyk/cloudconfig
 src/lib/errors/invalid-iac-file.ts @snyk/cloudconfig
 src/lib/errors/unsupported-options-iac-error.ts @snyk/cloudconfig
 help/commands-docs/iac-examples.md @snyk/cloudconfig

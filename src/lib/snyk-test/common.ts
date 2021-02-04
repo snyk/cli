@@ -20,7 +20,7 @@ export function assembleQueryString(options) {
   return Object.keys(qs).length !== 0 ? qs : null;
 }
 
-export enum SEVERITY {
+enum SEVERITY {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
