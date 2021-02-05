@@ -66,7 +66,7 @@ commands:
     description: Install SBT
     steps:
       - run: choco install sbt
-  install_sdkman_unix:
+  install_sdkman_linux:
     description: Install SDKMAN
     steps:
       - run:
@@ -75,25 +75,25 @@ commands:
             curl -s "https://get.sdkman.io?rcupdate=false" | bash
             echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
             source $BASH_ENV
-  install_jdk_unix:
+  install_jdk_linux:
     description: Install JDK
     steps:
       - run:
           name: Installing JDK
           command: sdk install java $(sdk list java | grep -o -m1 "11\.[0-9\.]\+hs-adpt")
-  install_gradle_unix:
+  install_gradle_linux:
     description: Install gradle
     steps:
       - run:
           name: Installing Gradle
           command: sdk install gradle 6.4.1
-  install_maven_unix:
+  install_maven_linux:
     description: Install maven
     steps:
       - run:
           name: Installing maven
           command: sdk install maven 3.6.3
-  install_sbt_unix:
+  install_sbt_linux:
     description: Install SBT
     steps:
       - run:
@@ -266,11 +266,11 @@ jobs:
     docker:
       - image: circleci/node:<< parameters.node_version >>
     steps:
-      - install_sdkman_unix
-      - install_jdk_unix
-      - install_gradle_unix
-      - install_maven_unix
-      - install_sbt_unix
+      - install_sdkman_linux
+      - install_jdk_linux
+      - install_gradle_linux
+      - install_maven_linux
+      - install_sbt_linux
       - show_node_version
       - checkout
       - attach_workspace:
