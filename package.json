@@ -63,6 +63,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
+    "@open-policy-agent/opa-wasm": "^1.2.0",
     "@snyk/cli-interface": "2.11.0",
     "@snyk/dep-graph": "1.21.0",
     "@snyk/gemfile": "1.2.0",

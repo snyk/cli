@@ -29,3 +29,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /test/acceptance/workspaces/**/target/
 test/acceptance/workspaces/**/.gradle
 test/**/.gradle
+.iac-data
+!test/smoke/.iac-data
