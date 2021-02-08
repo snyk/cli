@@ -85,6 +85,7 @@ export interface IssueData {
   fixedIn: string[];
   legalInstructions?: string;
   reachability?: REACHABILITY;
+  packageManager?: SupportedProjectTypes;
 }
 
 export type CallPath = string[];
@@ -123,6 +124,9 @@ interface AnnotatedIssue extends IssueData {
   publicationTime?: string;
 
   reachablePaths?: ReachablePaths;
+  identifiers?: {
+    [name: string]: string[];
+  };
 }
 
 // Mixin, to be added to GroupedVuln / AnnotatedIssue
