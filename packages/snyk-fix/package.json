@@ -1,0 +1,60 @@
+{
+  "name": "@snyk/fix",
+  "version": "1.0.0-monorepo",
+  "description": "Snyk fix library and utility",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "help",
+    "dist",
+    "SECURITY.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "directories": {
+    "lib": "src",
+    "test": "test"
+  },
+  "bin": {
+    "snyk-fix": "dist/index.js"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "keywords": [
+    "security",
+    "vulnerabilities",
+    "advisories",
+    "audit",
+    "snyk",
+    "scan",
+    "docker",
+    "container",
+    "scanning"
+  ],
+  "author": "snyk.io",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@snyk/dep-graph": "^1.21.0",
+    "debug": "^4.3.1"
+  },
+  "devDependencies": {
+    "@types/jest": "26.0.20",
+    "@types/node": "14.14.25",
+    "jest": "26.6.3",
+    "ts-jest": "26.5.0",
+    "typescript": "4.1.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snyk/snyk.git"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
+}
