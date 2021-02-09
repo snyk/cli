@@ -27,6 +27,7 @@ import { createSarifOutputForContainers } from '../sarif-output';
 import { createSarifOutputForIac } from '../iac-output';
 import { isNewVuln, isVulnFixable } from '../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../../../lib/json';
+import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 
 export function formatJsonOutput(jsonData, options: Options) {
   const jsonDataClone = _.cloneDeep(jsonData);
@@ -63,9 +64,13 @@ export function extractDataToSendFromResults(
   let sarifData = {};
   let stringifiedSarifData = '';
   if (options.sarif || options['sarif-file-output']) {
-    sarifData = !options.iac
-      ? createSarifOutputForContainers(results)
-      : createSarifOutputForIac(results);
+    if (options.iac) {
+      sarifData = createSarifOutputForIac(results);
+    } else if (options.docker) {
+      sarifData = createSarifOutputForContainers(results);
+    } else {
+      sarifData = createSarifOutputForOpenSource(results);
+    }
     stringifiedSarifData = jsonStringifyLargeObject(sarifData);
   }
 

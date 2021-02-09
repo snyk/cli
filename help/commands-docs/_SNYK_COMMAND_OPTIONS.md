@@ -78,6 +78,14 @@ For advanced usage, we offer language and context specific flags, listed further
   Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
   This is especially useful if you want to display the human-readable test output via stdout and at the same time save the JSON format output to a file.
 
+- `--sarif`:
+  Return results in SARIF format.
+
+- `--sarif-file-output`=<OUTPUT_FILE_PATH>:
+  (only in `test` command)
+  Save test output in SARIF format directly to the <OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
+  This is especially useful if you want to display the human-readable test output via stdout and at the same time save the SARIF format output to a file.
+
 - `--severity-threshold`=low|medium|high:
   Only report vulnerabilities of provided level or higher.
 
