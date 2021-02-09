@@ -2,58 +2,6 @@
   "ok": false,
   "vulnerabilities": [
     {
-      "CVSSv3": "CVSS:3.0/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L",
-      "alternativeIds": [],
-      "creationTime": "2016-09-21T12:36:57Z",
-      "credit": [
-        "Unknown"
-      ],
-      "cvssScore": 5.6,
-      "description": "## Overview\n[`lynx`](https://rubygems.org/gems/lynx) is a command line wrapper for MySQL.\nAffected versions of this gem are vulnerable to arbitrary command executions due to a flaw in `lib/lynx/pipe/run.rb`.\n\n## References\n- http://rubysec.com/advisories/OSVDB-108579\n",
-      "disclosureTime": "2014-06-29T21:00:00Z",
-      "functions": [],
-      "id": "SNYK-RUBY-LYNX-20160",
-      "identifiers": {
-        "CVE": [],
-        "CWE": [
-          "CWE-77"
-        ],
-        "OSVDB": [
-          "OSVDB-108579"
-        ]
-      },
-      "language": "ruby",
-      "methods": [],
-      "modificationTime": "2018-11-18T11:50:42.661168Z",
-      "moduleName": "lynx",
-      "packageManager": "rubygems",
-      "packageName": "lynx",
-      "patches": [],
-      "publicationTime": "2014-06-29T21:00:00Z",
-      "references": [
-        {
-          "title": "RUBYSEC.COM",
-          "url": "http://rubysec.com/advisories/OSVDB-108579"
-        }
-      ],
-      "semver": {
-        "vulnerable": [
-          ">= 0"
-        ]
-      },
-      "severity": "high",
-      "title": "Arbitrary Command Execution",
-      "from": [
-        "ruby-app-thresholds@*",
-        "lynx@0.4.0"
-      ],
-      "upgradePath": [],
-      "version": "0.4.0",
-      "name": "lynx",
-      "isUpgradable": false,
-      "isPatchable": false
-    },
-    {
       "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
       "alternativeIds": [],
       "creationTime": "2017-01-12T12:37:00Z",
@@ -94,7 +42,7 @@
           ">= 1.5.4"
         ]
       },
-      "severity": "high",
+      "severity": "critical",
       "title": "XML External Entity (XXE) Injection",
       "from": [
         "ruby-app-thresholds@*",
@@ -148,7 +96,7 @@
           ">= 1.5.4"
         ]
       },
-      "severity": "high",
+      "severity": "critical",
       "title": "XML External Entity (XXE) Injection",
       "from": [
         "ruby-app-thresholds@*",
@@ -161,64 +109,6 @@
       "name": "nokogiri",
       "isUpgradable": false,
       "isPatchable": false
-    },
-    {
-      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-      "alternativeIds": [],
-      "creationTime": "2017-12-24T17:44:10.116000Z",
-      "credit": [
-        "Unknown"
-      ],
-      "cvssScore": 7.5,
-      "description": "## Overview\n[`yard`](https://rubygems.org/gems/yard) is a documentation generation tool for the Ruby programming language.\n\nAffected versions of this package are vulnerable to Directory Traversal via the `lib/yard/core_ext/file.rb` method in the server. It does not block relative paths with an initial `../` sequence, which allows attackers to conduct directory traversal attacks and read arbitrary files.\n\n## Details\nA Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \"dot-dot-slash (../)\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.\n\nDirectory Traversal vulnerabilities can be generally divided into two types:\n\n- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.\n\n`st` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the `public` route.\n\nIf an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.\n\n```\ncurl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa\n```\n**Note** `%2e` is the URL encoded version of `.` (dot).\n\n- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as `Zip-Slip`. \n\nOne way to achieve this is by using a malicious `zip` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.\n\nThe following is an example of a `zip` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in `/root/.ssh/` overwriting the `authorized_keys` file:\n\n```\n2018-04-15 22:04:29 .....           19           19  good.txt\n2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys\n```\n\n\n## References\n- [GitHub Commit](https://github.com/lsegal/yard/commit/b0217b3e30dc53d057b1682506333335975e62b4)\n- [NVD](https://nvd.nist.gov/vuln/detail/CVE-2017-17042)\n",
-      "disclosureTime": "2017-11-23T17:44:10.116000Z",
-      "functions": [],
-      "id": "SNYK-RUBY-YARD-22004",
-      "identifiers": {
-        "CVE": [
-          "CVE-2017-17042"
-        ],
-        "CWE": [
-          "CWE-22"
-        ]
-      },
-      "language": "ruby",
-      "methods": [],
-      "modificationTime": "2018-11-18T11:50:51.823161Z",
-      "moduleName": "yard",
-      "packageManager": "rubygems",
-      "packageName": "yard",
-      "patches": [],
-      "publicationTime": "2017-12-25T15:44:10.116000Z",
-      "references": [
-        {
-          "title": "NVD",
-          "url": "https://nvd.nist.gov/vuln/detail/CVE-2017-17042"
-        },
-        {
-          "title": "GitHub Commit",
-          "url": "https://github.com/lsegal/yard/commit/b0217b3e30dc53d057b1682506333335975e62b4"
-        }
-      ],
-      "semver": {
-        "vulnerable": [
-          "< 0.9.11"
-        ]
-      },
-      "severity": "high",
-      "title": "Directory Traversal",
-      "from": [
-        "ruby-app-thresholds@*",
-        "yard@0.8.0"
-      ],
-      "upgradePath": [
-        false,
-        "yard@0.9.11"
-      ],
-      "version": "0.8.0",
-      "name": "yard",
-      "isUpgradable": true,
-      "isPatchable": false
     }
   ],
   "dependencyCount": 7,
@@ -228,8 +118,8 @@
   "packageManager": "rubygems",
   "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\nignore: {}\npatch: {}\n",
   "ignoreSettings": null,
-  "severityThreshold": "high",
-  "summary": "4 high or critical severity vulnerable dependency paths",
+  "severityThreshold": "critical",
+  "summary": "2 critical severity vulnerable dependency paths",
   "displayTargetFile": "Gemfile",
   "filesystemPolicy": false,
   "filtered": {
@@ -237,6 +127,6 @@
     "patch": []
   },
   "projectName": "ruby-app-thresholds",
-  "uniqueCount": 3,
+  "uniqueCount": 1,
   "path": "ruby-app-thresholds"
 }

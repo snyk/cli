@@ -1,4 +1,5 @@
 import * as config from '../config';
+import chalk from 'chalk';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -47,6 +48,58 @@ export const SEVERITIES: Array<{
     value: 4,
   },
 ];
+
+export const severitiesColourMapping = {
+  low: {
+    colorFunc(text) {
+      return chalk.blueBright(text);
+    },
+  },
+  medium: {
+    colorFunc(text) {
+      return chalk.yellowBright(text);
+    },
+  },
+  high: {
+    colorFunc(text) {
+      return chalk.redBright(text);
+    },
+  },
+  critical: {
+    colorFunc(text) {
+      return chalk.magentaBright(text);
+    },
+  },
+};
+
+export const legacySeveritiesColourMapping = {
+  low: {
+    colorFunc(text) {
+      return chalk.bold.blue(text);
+    },
+  },
+  medium: {
+    colorFunc(text) {
+      return chalk.bold.yellow(text);
+    },
+  },
+  high: {
+    colorFunc(text) {
+      return chalk.bold.red(text);
+    },
+  },
+  critical: {
+    colorFunc(text) {
+      return chalk.bold.magenta(text);
+    },
+  },
+};
+
+export const defaultSeverityColor = {
+  colorFunc(text) {
+    return chalk.grey(text);
+  },
+};
 
 export enum FAIL_ON {
   all = 'all',

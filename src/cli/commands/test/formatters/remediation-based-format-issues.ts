@@ -14,7 +14,11 @@ import {
   SEVERITY,
   UpgradeRemediation,
 } from '../../../../lib/snyk-test/legacy';
-import { SEVERITIES } from '../../../../lib/snyk-test/common';
+import {
+  SEVERITIES,
+  severitiesColourMapping,
+  defaultSeverityColor,
+} from '../../../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
 import {
   formatReachability,
@@ -438,28 +442,10 @@ export function formatIssue(
   reachability?: REACHABILITY,
   sampleReachablePaths?: SampleReachablePaths,
 ): string {
-  const severitiesColourMapping = {
-    low: {
-      colorFunc(text) {
-        return chalk.blueBright(text);
-      },
-    },
-    medium: {
-      colorFunc(text) {
-        return chalk.yellowBright(text);
-      },
-    },
-    high: {
-      colorFunc(text) {
-        return chalk.redBright(text);
-      },
-    },
-    critical: {
-      colorFunc(text) {
-        return chalk.magentaBright(`🚨` + text + ` 🚨 `);
-      },
-    },
-  };
+  const severityColor = severitiesColourMapping[severity]
+    ? severitiesColourMapping[severity]
+    : defaultSeverityColor;
+
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
   let legalLicenseInstructionsText;
@@ -512,7 +498,7 @@ export function formatIssue(
   }
 
   return (
-    severitiesColourMapping[severity].colorFunc(
+    severityColor.colorFunc(
       `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(
         severity,
       )} Severity${originalSeverityStr}]`,
