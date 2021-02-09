@@ -1,6 +1,8 @@
 import * as sarif from 'sarif';
-import * as _ from 'lodash';
-import { upperFirst } from 'lodash';
+const upperFirst = require('lodash.upperfirst');
+const groupBy = require('lodash.groupby');
+const map = require('lodash.map');
+
 import {
   TestResult,
   SEVERITY,
@@ -50,27 +52,26 @@ function replaceLockfileWithManifest(testResult: TestResult): TestResult {
 }
 
 export function getRules(testResult: TestResult): sarif.ReportingDescriptor[] {
-  return _.chain(testResult.vulnerabilities)
-    .groupBy('id')
-    .values()
-    .map(
-      ([vuln, ...moreVulns]): sarif.ReportingDescriptor => {
-        const cves = vuln.identifiers?.CVE?.join();
-        return {
-          id: vuln.id,
-          shortDescription: {
-            text: `${upperFirst(vuln.severity)} severity - ${
-              vuln.title
-            } vulnerability in ${vuln.packageName}`,
-          },
-          fullDescription: {
-            text: cves
-              ? `(${cves}) ${vuln.name}@${vuln.version}`
-              : `${vuln.name}@${vuln.version}`,
-          },
-          help: {
-            text: '',
-            markdown: `* Package Manager: ${testResult.packageManager}
+  const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
+  return map(
+    groupedVulnerabilities,
+    ([vuln, ...moreVulns]): sarif.ReportingDescriptor => {
+      const cves = vuln.identifiers?.CVE?.join();
+      return {
+        id: vuln.id,
+        shortDescription: {
+          text: `${upperFirst(vuln.severity)} severity - ${
+            vuln.title
+          } vulnerability in ${vuln.packageName}`,
+        },
+        fullDescription: {
+          text: cves
+            ? `(${cves}) ${vuln.name}@${vuln.version}`
+            : `${vuln.name}@${vuln.version}`,
+        },
+        help: {
+          text: '',
+          markdown: `* Package Manager: ${testResult.packageManager}
 * ${vuln.type === 'license' ? 'Module' : 'Vulnerable module'}: ${vuln.name}
 * Introduced through: ${getIntroducedThrough(vuln)}
 #### Detailed paths
@@ -78,19 +79,18 @@ ${[vuln, ...moreVulns]
   .map((item) => `* _Introduced through_: ${item.from.join(' › ')}`)
   .join('\n')}
 ${vuln.description}`.replace(/##\s/g, '# '),
-          },
-          properties: {
-            tags: [
-              'security',
-              ...(vuln.identifiers?.CWE || []),
-              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-              testResult.packageManager!,
-            ],
-          },
-        };
-      },
-    )
-    .value();
+        },
+        properties: {
+          tags: [
+            'security',
+            ...(vuln.identifiers?.CWE || []),
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            testResult.packageManager!,
+          ],
+        },
+      };
+    },
+  );
 }
 
 export function getResults(testResult): sarif.Result[] {

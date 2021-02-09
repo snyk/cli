@@ -11,7 +11,7 @@ import { titleCaseText } from './formatters/legacy-format-issue';
 import * as sarif from 'sarif';
 import { SEVERITY } from '../../../lib/snyk-test/legacy';
 import { IacFileInDirectory } from '../../../lib/types';
-import upperFirst = require('lodash/upperFirst');
+import upperFirst = require('lodash.upperfirst');
 const debug = Debug('iac-output');
 
 function formatIacIssue(

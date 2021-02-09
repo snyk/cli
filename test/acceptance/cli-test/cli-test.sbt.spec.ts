@@ -1,7 +1,8 @@
 import * as sinon from 'sinon';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 
-import * as _ from 'lodash';
+const omit = require('lodash.omit');
+const sortBy = require('lodash.sortby');
 
 export const SbtTests: AcceptanceTests = {
   language: 'SBT',
@@ -38,8 +39,8 @@ export const SbtTests: AcceptanceTests = {
         const expected = require('../workspaces/sbt-simple-struts/legacy-res-json.json');
 
         t.deepEqual(
-          _.omit(res, ['vulnerabilities', 'packageManager']),
-          _.omit(expected, ['vulnerabilities', 'packageManager']),
+          omit(res, ['vulnerabilities', 'packageManager']),
+          omit(expected, ['vulnerabilities', 'packageManager']),
           'metadata is ok',
         );
         // NOTE: decided to keep this discrepancy
@@ -49,8 +50,8 @@ export const SbtTests: AcceptanceTests = {
           'pacakgeManager is sbt, altough it was mavn with the legacy api',
         );
         t.deepEqual(
-          _.sortBy(res.vulnerabilities, 'id'),
-          _.sortBy(expected.vulnerabilities, 'id'),
+          sortBy(res.vulnerabilities, 'id'),
+          sortBy(expected.vulnerabilities, 'id'),
           'vulns are the same',
         );
       }

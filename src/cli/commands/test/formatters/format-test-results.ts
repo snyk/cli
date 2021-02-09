@@ -15,7 +15,8 @@ import {
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
 } from '../../../../lib/package-managers';
 import * as config from '../../../../lib/config';
-import * as _ from 'lodash';
+const cloneDeep = require('lodash.clonedeep');
+const orderBy = require('lodash.orderby');
 import * as analytics from '../../../../lib/analytics';
 import {
   formatIssuesWithRemediation,
@@ -30,7 +31,7 @@ import { jsonStringifyLargeObject } from '../../../../lib/json';
 import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 
 export function formatJsonOutput(jsonData, options: Options) {
-  const jsonDataClone = _.cloneDeep(jsonData);
+  const jsonDataClone = cloneDeep(jsonData);
 
   if (options['group-issues']) {
     jsonDataClone.vulnerabilities = Object.values(
@@ -170,7 +171,7 @@ export function getDisplayedOutput(
 
   const vulns = res.vulnerabilities || [];
   const groupedVulns: GroupedVuln[] = groupVulnerabilities(vulns);
-  const sortedGroupedVulns = _.orderBy(
+  const sortedGroupedVulns = orderBy(
     groupedVulns,
     ['metadata.severityValue', 'metadata.name'],
     ['asc', 'desc'],

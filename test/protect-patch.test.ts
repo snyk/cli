@@ -1,4 +1,4 @@
-import * as protect from '../src/lib/protect';
+const protect = require('../src/lib/protect');
 import * as path from 'path';
 import { test } from 'tap';
 import * as fs from 'fs';

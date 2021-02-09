@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import * as _ from 'lodash';
+const sortBy = require('lodash.sortby');
+const groupBy = require('lodash.groupby');
 import { detectPackageManagerFromFile } from './detect';
 import * as debugModule from 'debug';
 const debug = debugModule('snyk:find-files');
@@ -158,24 +159,22 @@ function filterForDefaultManifests(files: string[]): string[] {
 
   const filteredFiles: string[] = [];
 
-  const foundFiles = _(files)
+  const beforeSort = files
     .filter(Boolean)
     .filter((p) => fs.existsSync(p))
     .map((p) => ({
       path: p,
       ...pathLib.parse(p),
       packageManager: detectProjectTypeFromFile(p),
-    }))
-    .sortBy('dir')
-    .groupBy('dir')
-    .value();
+    }));
+  const sorted = sortBy(beforeSort, 'dir');
+  const foundFiles = groupBy(sorted, 'dir');
 
   for (const directory of Object.keys(foundFiles)) {
     const filesInDirectory = foundFiles[directory];
-    const groupedFiles = _(filesInDirectory)
-      .filter((p) => !!p.packageManager)
-      .groupBy('packageManager')
-      .value();
+    const beforeGroup = filesInDirectory.filter((p) => !!p.packageManager);
+
+    const groupedFiles = groupBy(beforeGroup, 'packageManager');
 
     for (const packageManager of Object.keys(groupedFiles)) {
       const filesPerPackageManager = groupedFiles[packageManager];
