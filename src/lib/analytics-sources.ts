@@ -37,6 +37,7 @@ enum TrackedIntegration {
   // IDE plugins - tracked by passing flag or envvar on CLI invocation
   JETBRAINS_IDE = 'JETBRAINS_IDE',
   ECLIPSE = 'ECLIPSE',
+  VISUAL_STUDIO = 'VISUAL_STUDIO',
   VS_CODE_VULN_COST = 'VS_CODE_VULN_COST',
 
   // CI - tracked by passing flag or envvar on CLI invocation
