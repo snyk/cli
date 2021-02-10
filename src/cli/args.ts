@@ -248,6 +248,7 @@ export function args(rawArgv: string[]): Args {
   }
 
   if (
+    (argv.reachableVulns || argv.reachable) &&
     argv.reachableTimeout === undefined &&
     argv.reachableVulnsTimeout === undefined
   ) {
