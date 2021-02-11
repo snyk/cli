@@ -104,10 +104,13 @@ function prepareEcosystemResponseForParsing(
     depGraphData !== undefined
       ? depGraphLib.createFromJSON(depGraphData)
       : undefined;
-  const dockerfileAnalysisFact = payloadBody?.facts.find(
-    (fact) => fact.type === 'dockerfileAnalysis',
+  const imageUserInstructions = payloadBody?.facts.find(
+    (fact) =>
+      fact.type === 'dockerfileAnalysis' ||
+      fact.type === 'autoDetectedUserInstructions',
   );
-  const dockerfilePackages = dockerfileAnalysisFact?.data?.dockerfilePackages;
+
+  const dockerfilePackages = imageUserInstructions?.data?.dockerfilePackages;
   const projectName = payloadBody?.name || depGraph?.rootPkg.name;
   const packageManager = payloadBody?.identity?.type as SupportedProjectTypes;
   const targetFile = payloadBody?.identity?.targetFile || options.file;
