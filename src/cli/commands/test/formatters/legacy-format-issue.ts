@@ -136,11 +136,12 @@ export function titleCaseText(text) {
 
 function dockerfileInstructionText(vuln) {
   if (vuln.dockerfileInstruction) {
-    return `\n  Introduced in your Dockerfile by '${vuln.dockerfileInstruction}'`;
+    JSON.stringify(vuln.dockerfileInstruction);
+    return `\n  Image layer: '${vuln.dockerfileInstruction}'`;
   }
 
   if (vuln.dockerBaseImage) {
-    return `\n  Introduced by your base image (${vuln.dockerBaseImage})`;
+    return `\n  Image layer: Introduced by your base image (${vuln.dockerBaseImage})`;
   }
 
   return '';
