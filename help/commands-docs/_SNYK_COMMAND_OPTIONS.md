@@ -149,6 +149,9 @@ Below are flags that are influencing CLI behavior for specific projects, languag
 
   Default: 300 (5 minutes).
 
+- `--init-script`=<FILE>
+  For projects that contain a gradle initialization script.
+  
 ### .Net & NuGet options
 
 - `--assets-project-name`:
