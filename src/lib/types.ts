@@ -100,6 +100,7 @@ export interface MonitorOptions {
   'app-vulns'?: boolean;
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
+  initScript?: string;
   yarnWorkspaces?: boolean;
 }
 
@@ -179,7 +180,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'reachable-vulns'
   | 'reachable-timeout'
   | 'reachable-vulns-timeout'
-  | 'init'
+  | 'init-script'
   | 'integration-name'
   | 'integration-version';
 

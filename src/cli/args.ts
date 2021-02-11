@@ -212,7 +212,7 @@ export function args(rawArgv: string[]): Args {
     'reachable-vulns',
     'reachable-timeout',
     'reachable-vulns-timeout',
-    'init',
+    'init-script',
     'integration-name',
     'integration-version',
     'prune-repeated-subdependencies',
