@@ -1,8 +1,15 @@
 import { EntityToFix } from '../types';
 
-export type FixHandler = (entities: EntityToFix[]) => Promise<FixHandlerResult[]>;
+export type FixHandler = (
+  entities: EntityToFix[],
+) => Promise<FixHandlerResultByPlugin>;
 
-export interface FixHandlerResult {
-  succeeded: EntityToFix[];
-  failed: EntityToFix[];
+export interface FixHandlerResultByPlugin {
+  [pluginId: string]: {
+    succeeded: EntityToFix[];
+    failed: EntityToFix[];
+    skipped: EntityToFix[];
+  };
 }
+// ecosystem is the plugin
+export type Ecosystem = 'python';

@@ -1,9 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Snyk fix Snyk fix returns results for supported type 1`] = `
+exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
 Array [
   Object {
     "failed": Array [],
+    "skipped": Array [
+      Object {
+        "scanResult": Object {
+          "facts": Array [
+            Object {
+              "data": "not-implemented",
+              "type": "not-implemented",
+            },
+          ],
+          "identity": Object {
+            "targetFile": "Pipfile",
+            "type": "pip",
+          },
+        },
+        "testResult": Object {
+          "depGraphData": "",
+          "issues": Array [
+            Object {
+              "fixInfo": Object {},
+              "issueId": "VULN_ID_1",
+              "pkgName": "package@version",
+            },
+          ],
+          "issuesData": Object {
+            "vuln-id": Object {
+              "id": "VULN_ID_1",
+              "severity": "high",
+              "title": "Fake vuln",
+            },
+          },
+        },
+      },
+    ],
     "succeeded": Array [
       Object {
         "scanResult": Object {
@@ -40,3 +73,50 @@ Array [
   },
 ]
 `;
+
+exports[`Snyk fix Snyk fix returns results for supported type 1`] = `
+Object {
+  "exceptionsByScanType": Object {},
+  "resultsByPlugin": Object {
+    "requirements.txt": Object {
+      "failed": Array [],
+      "skipped": Array [],
+      "succeeded": Array [
+        Object {
+          "scanResult": Object {
+            "facts": Array [
+              Object {
+                "data": "not-implemented",
+                "type": "not-implemented",
+              },
+            ],
+            "identity": Object {
+              "targetFile": "requirements.txt",
+              "type": "pip",
+            },
+          },
+          "testResult": Object {
+            "depGraphData": "",
+            "issues": Array [
+              Object {
+                "fixInfo": Object {},
+                "issueId": "VULN_ID_1",
+                "pkgName": "package@version",
+              },
+            ],
+            "issuesData": Object {
+              "vuln-id": Object {
+                "id": "VULN_ID_1",
+                "severity": "high",
+                "title": "Fake vuln",
+              },
+            },
+          },
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Snyk fix Snyk fix throws error when called with unsupported type 1`] = `"Error G10 (UnsupportedTypeError) npm is not supported."`;

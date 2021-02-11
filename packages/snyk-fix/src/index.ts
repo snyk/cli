@@ -1,6 +1,7 @@
 import * as debugLib from 'debug';
+import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
 import { loadPlugin } from './plugins/load-plugin';
-import { FixHandlerResult } from './plugins/types';
+import { FixHandlerResultByPlugin } from './plugins/types';
 
 import { EntityToFix } from './types';
 
@@ -8,21 +9,34 @@ const debug = debugLib('snyk-fix:main');
 
 export async function fix(
   entities: EntityToFix[],
-): Promise<FixHandlerResult[]> {
+): Promise<{
+  resultsByPlugin: FixHandlerResultByPlugin;
+  exceptionsByScanType: { [ecosystem: string]: Error[] };
+}> {
   debug(`Requested to fix ${entities.length} projects.`);
-  const entitiesPerType = groupEntitiesPerType(entities);
-  const allResults: FixHandlerResult[] = [];
+  let resultsByPlugin: FixHandlerResultByPlugin = {};
+  const entitiesPerType = groupEntitiesPerScanType(entities);
+  const exceptionsByScanType: { [ecosystem: string]: Error[] } = {};
   // TODO: pMap this?
-  for (const type of Object.keys(entitiesPerType)) {
-    const handler = loadPlugin(type);
-    const results = await handler(entitiesPerType[type]);
-    allResults.push(results);
+  for (const scanType of Object.keys(entitiesPerType)) {
+    try {
+      const fixPlugin = loadPlugin(scanType);
+      const results = await fixPlugin(entitiesPerType[scanType]);
+      resultsByPlugin = {...resultsByPlugin, ...results};
+    } catch (e) {
+      // TODO: use ora?
+      console.error(convertErrorToUserMessage(e));
+      if (!exceptionsByScanType[scanType]) {
+        exceptionsByScanType[scanType] = [e];
+      } else {
+        exceptionsByScanType[scanType].push(e);
+      }
+    }
   }
-
-  return allResults;
+  return { resultsByPlugin, exceptionsByScanType };
 }
 
-function groupEntitiesPerType(
+export function groupEntitiesPerScanType(
   entities: EntityToFix[],
 ): {
   [type: string]: EntityToFix[];
@@ -31,7 +45,7 @@ function groupEntitiesPerType(
     [type: string]: EntityToFix[];
   } = {};
   for (const entity of entities) {
-    const type = entity.scanResult.identity.type;
+    const type = entity.scanResult?.identity?.type || 'missing-type';
     if (entitiesPerType[type]) {
       entitiesPerType[type].push(entity);
       continue;
@@ -40,3 +54,4 @@ function groupEntitiesPerType(
   }
   return entitiesPerType;
 }
+
