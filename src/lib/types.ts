@@ -179,6 +179,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'reachable-vulns'
   | 'reachable-timeout'
   | 'reachable-vulns-timeout'
+  | 'init'
   | 'integration-name'
   | 'integration-version';
 
