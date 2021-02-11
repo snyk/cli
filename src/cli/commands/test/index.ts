@@ -133,6 +133,8 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     testOpts.path = path;
     testOpts.projectName = testOpts['project-name'];
 
+    // TODO add SARIF TYPE
+    // TODO check what type we're returning results
     let res: (TestResult | TestResult[]) | Error;
 
     try {
@@ -201,7 +203,8 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
       (res.vulnerabilities && res.vulnerabilities.length) ||
       (res.result &&
         res.result.cloudConfigResults &&
-        res.result.cloudConfigResults.length),
+        res.result.cloudConfigResults.length) ||
+      (res.runs?.[0].results?.length),
   );
   const errorResults = results.filter((res) => res instanceof Error);
   const notSuccess = errorResults.length > 0;
@@ -489,6 +492,15 @@ function displayResult(
     );
   }
 
+<<<<<<< HEAD
+=======
+  if (options.code) {
+    return getCodeDisplayedOutput((res as any),
+      meta,
+      prefix);
+  }
+
+>>>>>>> feat: more formating, and exit code support
   // NOT OK => We found some vulns, let's format the vulns info
 
   return getDisplayedOutput(

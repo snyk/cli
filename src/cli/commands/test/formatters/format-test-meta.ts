@@ -13,9 +13,17 @@ export function formatTestMeta(
   const packageManager = res.packageManager || options.packageManager;
   const targetFile = res.targetFile || res.displayTargetFile || options.file;
   const openSource = res.isPrivate ? 'no' : 'yes';
+<<<<<<< HEAD
   const meta = [
     chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org,
   ];
+=======
+  const orgName = res.org || options.org;
+  const meta = [
+    chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + orgName,
+  ];
+
+>>>>>>> feat: more formating, and exit code support
   if (options.iac) {
     meta.push(
       chalk.bold(rightPadWithSpaces('Type: ', padToLength)) +

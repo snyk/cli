@@ -76,8 +76,12 @@ import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
 import { NonExistingPackageError } from '../errors/non-existing-package-error';
+<<<<<<< HEAD
 import request = require('../request');
 import spinner = require('../spinner');
+=======
+import { isFeatureFlagSupportedForOrg } from '../feature-flags';
+>>>>>>> feat: more formating, and exit code support
 
 const debug = debugModule('snyk:run-test');
 
@@ -307,6 +311,7 @@ async function sendAndParseResults(
       );
       results.push(result);
 <<<<<<< HEAD
+<<<<<<< HEAD
     } else if (options.code) {
       const res = await getCodeAnalysis(root);
       console.log(res);
@@ -315,6 +320,8 @@ async function sendAndParseResults(
     //   const res = await getCodeAnalysis(root);
     //   console.log(res);
 >>>>>>> poc: add snykcode to the cli
+=======
+>>>>>>> feat: more formating, and exit code support
     } else {
       /** sendTestPayload() deletes the request.body from the payload once completed. */
       const payloadCopy = Object.assign({}, payload);
@@ -375,8 +382,14 @@ export async function runTest(
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     await validateOptions(options, options.packageManager);
+<<<<<<< HEAD
     if(options.code){
       return await getCodeAnalysisAndParseResults(spinnerLbl, root, options)
+=======
+    const isCodeTestRun = await isCodeTest(options);
+    if (isCodeTestRun) {
+      return await getCodeAnalysisAndParseResults(spinnerLbl, root, options);
+>>>>>>> feat: more formating, and exit code support
     }
     const payloads = await assemblePayloads(root, options);
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
@@ -418,6 +431,33 @@ export async function runTest(
   } finally {
     spinner.clear<void>(spinnerLbl)();
   }
+}
+
+async function isCodeTest(options: Options & TestOptions) {
+  if (!options.code) {
+    return false;
+  }
+  const org = options.org || config.org;
+  const featureFlag = 'snykCode';
+  const snykCodeRes = await isFeatureFlagSupportedForOrg(
+    featureFlag,
+    org,
+  );
+
+  if (snykCodeRes.code === 401 || snykCodeRes.code === 403) {
+    throw AuthFailedError(
+      snykCodeRes.error,
+      snykCodeRes.code,
+    );
+  }
+
+  if (snykCodeRes.userMessage) {
+    throw new UnsupportedFeatureFlagError(
+      featureFlag,
+      snykCodeRes.userMessage,
+    );
+  }
+  return true;
 }
 
 async function parseRes(
@@ -592,9 +632,7 @@ async function assembleLocalPayloads(
 ): Promise<Payload[]> {
   // For --all-projects packageManager is yet undefined here. Use 'all'
   let analysisTypeText = 'all dependencies for ';
-  if (options.code) {
-    analysisTypeText = 'code for';
-  } else if (options.docker) {
+  if (options.docker) {
     analysisTypeText = 'docker dependencies for ';
   } else if (options.iac) {
     analysisTypeText = 'Infrastructure as code configurations for ';

@@ -3,5 +3,7 @@
   "devDeps": false,
   "PRUNE_DEPS_THRESHOLD": 40000,
   "MAX_PATH_COUNT": 1500000,
-  "SNYKCODE_PROXY": "snyk2deepcode-token-exchange.dev.snyk.io"
+  "_SNYKCODE_PROXY": "http://deeproxy.dev.snyk.io",
+  "SNYKCODE_PROXY": "http://localhost:11981",
+  "CODE_LOGGING": false
 }

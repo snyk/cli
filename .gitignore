@@ -4,6 +4,7 @@ config.local.json
 local.log
 /patches/
 **/dist
+.dccache
 tmp
 .DS_Store
 /package-lock.json
