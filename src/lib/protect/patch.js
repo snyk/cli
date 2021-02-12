@@ -8,7 +8,8 @@ const glob = require('glob');
 const tempfile = require('tempfile');
 const fs = require('fs');
 const path = require('path');
-const _ = require('lodash');
+const flatten = require('lodash.flatten');
+const cloneDeep = require('lodash.clonedeep');
 const applyPatch = require('./apply-patch');
 const stripVersions = require('./strip-versions');
 const getVulnSource = require('./get-vuln-source');
@@ -149,7 +150,7 @@ function patch(vulns, live) {
 
         const promise = promises
           .then((res) => {
-            const patched = _.flatten(res).filter(Boolean);
+            const patched = flatten(res).filter(Boolean);
 
             if (!live) {
               debug('[skipping - dry run]');
@@ -169,7 +170,7 @@ function patch(vulns, live) {
               const vuln = patched[i];
               if (vuln.grouped && vuln.grouped.includes) {
                 vuln.grouped.includes.forEach((id) => {
-                  const rule = _.cloneDeep(curr);
+                  const rule = cloneDeep(curr);
                   rule.vulnId = id;
                   acc.push(rule);
                 });

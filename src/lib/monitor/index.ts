@@ -7,7 +7,8 @@ import { apiTokenExists } from '../api-token';
 import request = require('../request');
 import * as config from '../config';
 import * as os from 'os';
-import * as _ from 'lodash';
+const get = require('lodash.get');
+const camelCase = require('lodash.camelcase');
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
 import {
@@ -118,7 +119,7 @@ export async function monitor(
   // TODO @boost: delete this once 'experimental-dep-graph' ff is deleted
   if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
-      _.camelCase('experimental-dep-graph'),
+      camelCase('experimental-dep-graph'),
       options.org || config.org,
     );
 
@@ -248,7 +249,7 @@ async function monitorDepTree(
       `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
     );
 
-    const callGraphMetrics = _.get(pluginMeta, 'meta.callGraphMetrics', {});
+    const callGraphMetrics = get(pluginMeta, 'meta.callGraphMetrics', {});
     analytics.add('callGraphMetrics', {
       callGraphEdgeCount: edgeCount,
       callGraphNodeCount: nodeCount,
@@ -418,7 +419,7 @@ export async function monitorDepGraph(
       `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
     );
 
-    const callGraphMetrics = _.get(pluginMeta, 'meta.callGraphMetrics', {});
+    const callGraphMetrics = get(pluginMeta, 'meta.callGraphMetrics', {});
     analytics.add('callGraphMetrics', {
       callGraphEdgeCount: edgeCount,
       callGraphNodeCount: nodeCount,

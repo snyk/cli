@@ -2,7 +2,7 @@ import * as path from 'path';
 import { exec } from 'child_process';
 
 import { test } from 'tap';
-import * as protect from '../src/lib/protect';
+const protect = require('../src/lib/protect');
 import { loadJson } from './utils';
 
 const vulns = loadJson(__dirname + '/fixtures/lodash@4.17.11-vuln.json')

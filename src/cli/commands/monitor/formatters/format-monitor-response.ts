@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+const assign = require('lodash.assign');
 import chalk from 'chalk';
 import * as url from 'url';
 
@@ -63,7 +63,7 @@ export function formatMonitorOutput(
 
   return options.json
     ? JSON.stringify(
-        _.assign({}, res, {
+        assign({}, res, {
           manageUrl,
           packageManager,
         }),

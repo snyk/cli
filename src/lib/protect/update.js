@@ -4,7 +4,8 @@ module.exports.installDev = installDev;
 
 const debug = require('debug')('snyk');
 const chalk = require('chalk');
-const _ = require('lodash');
+const uniq = require('lodash.uniq');
+const isEmpty = require('lodash.isempty');
 const { parsePackageString: moduleToObject } = require('snyk-module');
 const semver = require('semver');
 const errors = require('../errors/legacy-errors');
@@ -72,10 +73,10 @@ function update(packages, live, pkgManager) {
               (upgrade.prod && upgrade.prod.map(stripVersion)) || [];
             const devToUninstall =
               (upgrade.dev && upgrade.dev.map(stripVersion)) || [];
-            const toUninstall = _.uniq(prodToUninstall.concat(devToUninstall));
+            const toUninstall = uniq(prodToUninstall.concat(devToUninstall));
             debug('to uninstall', toUninstall);
 
-            if (!_.isEmpty(toUninstall)) {
+            if (!isEmpty(toUninstall)) {
               return uninstall(pkgManager, toUninstall, live);
             }
           })

@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+const uniq = require('lodash.uniq');
 import chalk from 'chalk';
 import * as config from '../../../../lib/config';
 import { Options, TestOptions, ShowVulnPaths } from '../../../../lib/types';
@@ -26,7 +26,7 @@ export function formatIssues(
   const vulnID = vuln.list[0].id;
   const packageManager = options.packageManager!;
   const localPackageTest = isLocalFolder(options.path);
-  const uniquePackages = _.uniq(
+  const uniquePackages = uniq(
     vuln.list.map((i) => {
       if (i.from[1]) {
         return i.from && i.from[1];
@@ -234,7 +234,7 @@ function createRemediationText(
   }
 
   if (vuln.isFixable === true) {
-    const upgradePathsArray = _.uniq(
+    const upgradePathsArray = uniq(
       vuln.list.map((v) => {
         const shouldUpgradeItself = !!v.upgradePath[0];
         const shouldUpgradeDirectDep = !!v.upgradePath[1];

@@ -1,6 +1,7 @@
 export = test;
 
-import * as _ from 'lodash';
+const cloneDeep = require('lodash.clonedeep');
+const assign = require('lodash.assign');
 import chalk from 'chalk';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
@@ -128,7 +129,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     // Create a copy of the options so a specific test can
     // modify them i.e. add `options.file` etc. We'll need
     // these options later.
-    const testOpts = _.cloneDeep(options);
+    const testOpts = cloneDeep(options);
     testOpts.path = path;
     testOpts.projectName = testOpts['project-name'];
 
@@ -180,16 +181,14 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
         path,
         resArray[i],
       );
-      results.push(
-        _.assign(resArray[i], { path: pathWithOptionalProjectName }),
-      );
+      results.push(assign(resArray[i], { path: pathWithOptionalProjectName }));
       // currently testOpts are identical for each test result returned even if it's for multiple projects.
       // we want to return the project names, so will need to be crafty in a way that makes sense.
       if (!testOpts.projectNames) {
         resultOptions.push(testOpts);
       } else {
         resultOptions.push(
-          _.assign(_.cloneDeep(testOpts), {
+          assign(cloneDeep(testOpts), {
             projectName: testOpts.projectNames[i],
           }),
         );

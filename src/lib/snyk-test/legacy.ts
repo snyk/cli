@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+const values = require('lodash.values');
 import * as depGraphLib from '@snyk/dep-graph';
 import { SupportedPackageManagers } from '../package-managers';
 import { SupportedProjectTypes } from '../types';
@@ -339,8 +339,8 @@ function convertTestDepGraphResultToLegacy(
 
   const upgradePathsMap = new Map<string, string[]>();
 
-  for (const pkgInfo of _.values(result.affectedPkgs)) {
-    for (const pkgIssue of _.values(pkgInfo.issues)) {
+  for (const pkgInfo of values(result.affectedPkgs)) {
+    for (const pkgIssue of values(pkgInfo.issues)) {
       if (pkgIssue.fixInfo && pkgIssue.fixInfo.upgradePaths) {
         for (const upgradePath of pkgIssue.fixInfo.upgradePaths) {
           const legacyFromPath = pkgPathToLegacyPath(upgradePath.path);
@@ -360,10 +360,10 @@ function convertTestDepGraphResultToLegacy(
   //   use the upgradePathsMap to find available upgrade-paths
   const vulns: AnnotatedIssue[] = [];
 
-  for (const pkgInfo of _.values(result.affectedPkgs)) {
+  for (const pkgInfo of values(result.affectedPkgs)) {
     for (const vulnPkgPath of depGraph.pkgPathsToRoot(pkgInfo.pkg)) {
       const legacyFromPath = pkgPathToLegacyPath(vulnPkgPath.reverse());
-      for (const pkgIssue of _.values(pkgInfo.issues)) {
+      for (const pkgIssue of values(pkgInfo.issues)) {
         const vulnPathString = getVulnPathString(
           pkgIssue.issueId,
           legacyFromPath,
@@ -396,8 +396,8 @@ function convertTestDepGraphResultToLegacy(
 
   if (dockerRes && dockerRes.binariesVulns) {
     const binariesVulns = dockerRes.binariesVulns;
-    for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
-      for (const pkgIssue of _.values(pkgInfo.issues)) {
+    for (const pkgInfo of values(binariesVulns.affectedPkgs)) {
+      for (const pkgIssue of values(pkgInfo.issues)) {
         const pkgAndVersion = (pkgInfo.pkg.name +
           '@' +
           pkgInfo.pkg.version) as string;
