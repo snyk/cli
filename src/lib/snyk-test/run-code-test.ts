@@ -1,16 +1,20 @@
-// import * as jsonschema from 'jsonschema';
+import * as path from 'path';
+import * as Debug from 'debug';
+import * as jsonschema from 'jsonschema';
 import {
   AnalysisSeverity,
   analyzeFolders,
 } from '@snyk/code-client';
 import { Log } from 'sarif';
 import { SEVERITY } from './legacy';
-import { api } from '../../lib/api-token';
+import { api } from '../api-token';
 import * as config from '../config';
 import spinner = require('../spinner');
 import { Options } from '../types';
-// import * as sarifSchema from '../../lib/code/sarif-validator/sarif-schema-2.1.0.json';
+// tslint:disable-next-line:no-var-requires
+const sarifSchema = require(path.resolve('src/lib/code/sarif-validator/sarif-schema-2.1.0.json'));
 
+const debug = Debug('code-output');
 // codeClient.emitter.on('scanFilesProgress', (processed: number) => {
 //   console.log(`Indexed ${processed} files`);
 // });
@@ -68,12 +72,12 @@ async function getCodeAnalysis(
       sarif,
     );
 
-  // add validation on sarifResults response
-  // const validationResult = jsonschema.validate(result.sarifResults, sarifSchema);
+  const validationResult = jsonschema.validate(result.sarifResults, sarifSchema);
 
-  // validationResult.errors.length
+  if (validationResult.errors.length > 0) {
+    debug('sarif result from the tested project, is not valid');
+  }
 
-  // since sarif = true, we are certain that we have the sarifResults obj
   return result.sarifResults!;
 }
 

@@ -1,28 +1,41 @@
 import * as Sarif from 'sarif';
+import * as Debug from 'debug';
 import chalk from 'chalk';
 
+const debug = Debug('code-output');
+
 export function getCodeDisplayedOutput(codeTest: Sarif.Log, meta: string, prefix: string) {
-  const results = codeTest.runs[0].results;
   let issues: { [index: string]: string[]; } = {
     low: [],
     medium: [],
     high: [],
   };
 
-  if (results) {
+  if (codeTest.runs[0].results) {
+    const results: Sarif.Result[] = codeTest.runs[0].results;
+
+    const rulesMap: { [ruleId: string]: Sarif.ReportingDescriptor } = getRulesMap(
+      codeTest.runs[0].tool.driver.rules || [],
+    );
+
     issues = results.reduce((acc, res) => {
       if (res.locations?.length) {
         const location = res.locations[0].physicalLocation;
         if (res.level && location?.artifactLocation && location?.region) {
           const severity = sarifToSeverityLevel(res.level);
-          const ruleIdseverityText = severitiesColourMapping[severity].colorFunc(
-            ` ✗ [${severity}] ${res.ruleId}`,
+          const ruleId = res.ruleId!;
+          if (!(ruleId in rulesMap)) {
+            debug('Rule ID does not exist in the rules list');
+          }
+          const ruleName = rulesMap[ruleId].name;
+          const ruleIdSeverityText = severitiesColourMapping[severity].colorFunc(
+            ` ✗ [${severity}] ${ruleName}`,
           );
           const artifactLocationUri = location.artifactLocation.uri;
           const startLine = location.region.startLine;
           const markdown = res.message.markdown;
 
-          const title = ruleIdseverityText;
+          const title = ruleIdSeverityText;
           const path = `    Path: ${artifactLocationUri}, line ${startLine}`;
           const info = `    Info: ${markdown}`;
           acc[severity.toLowerCase()].push(`${title} \n ${path} \n ${info}\n\n`);
@@ -57,7 +70,16 @@ export function getCodeDisplayedOutput(codeTest: Sarif.Log, meta: string, prefix
     '\n\n' +
     codeIssue;
 }
-// ✗ %s %s %s introduced %s %s
+
+function getRulesMap(rules: Sarif.ReportingDescriptor[]) {
+  const rulesMapByID = rules.reduce((acc, rule) => {
+    acc[rule.id] = rule;
+    return acc;
+  }, {});
+
+  return rulesMapByID;
+}
+
 function sarifToSeverityLevel(
   sarifConfigurationLevel: Sarif.ReportingConfiguration.level,
 ): string {
