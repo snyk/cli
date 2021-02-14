@@ -4,8 +4,12 @@ import chalk from 'chalk';
 
 const debug = Debug('code-output');
 
-export function getCodeDisplayedOutput(codeTest: Sarif.Log, meta: string, prefix: string) {
-  let issues: { [index: string]: string[]; } = {
+export function getCodeDisplayedOutput(
+  codeTest: Sarif.Log,
+  meta: string,
+  prefix: string,
+) {
+  let issues: { [index: string]: string[] } = {
     low: [],
     medium: [],
     high: [],
@@ -14,9 +18,9 @@ export function getCodeDisplayedOutput(codeTest: Sarif.Log, meta: string, prefix
   if (codeTest.runs[0].results) {
     const results: Sarif.Result[] = codeTest.runs[0].results;
 
-    const rulesMap: { [ruleId: string]: Sarif.ReportingDescriptor } = getRulesMap(
-      codeTest.runs[0].tool.driver.rules || [],
-    );
+    const rulesMap: {
+      [ruleId: string]: Sarif.ReportingDescriptor;
+    } = getRulesMap(codeTest.runs[0].tool.driver.rules || []);
 
     issues = results.reduce((acc, res) => {
       if (res.locations?.length) {
@@ -28,9 +32,9 @@ export function getCodeDisplayedOutput(codeTest: Sarif.Log, meta: string, prefix
             debug('Rule ID does not exist in the rules list');
           }
           const ruleName = rulesMap[ruleId].name;
-          const ruleIdSeverityText = severitiesColourMapping[severity].colorFunc(
-            ` ✗ [${severity}] ${ruleName}`,
-          );
+          const ruleIdSeverityText = severitiesColourMapping[
+            severity
+          ].colorFunc(` ✗ [${severity}] ${ruleName}`);
           const artifactLocationUri = location.artifactLocation.uri;
           const startLine = location.region.startLine;
           const markdown = res.message.markdown;
@@ -38,37 +42,54 @@ export function getCodeDisplayedOutput(codeTest: Sarif.Log, meta: string, prefix
           const title = ruleIdSeverityText;
           const path = `    Path: ${artifactLocationUri}, line ${startLine}`;
           const info = `    Info: ${markdown}`;
-          acc[severity.toLowerCase()].push(`${title} \n ${path} \n ${info}\n\n`);
+          acc[severity.toLowerCase()].push(
+            `${title} \n ${path} \n ${info}\n\n`,
+          );
         }
       }
       return acc;
     }, issues);
   }
 
-  const issuesText = issues.low.join('') + issues.medium.join('') + issues.high.join('');
+  const issuesText =
+    issues.low.join('') + issues.medium.join('') + issues.high.join('');
 
-  const lowSeverityText = issues.low.length ?
-    severitiesColourMapping.Low.colorFunc(` ${issues.low.length} [Low] `) : '';
-  const mediumSeverityText = issues.medium.length ?
-    severitiesColourMapping.Medium.colorFunc(` ${issues.medium.length} [Medium] `) : '';
-  const highSeverityText = issues.high.length ?
-    severitiesColourMapping.High.colorFunc(`${issues.high.length} [High] `) : '';
+  const lowSeverityText = issues.low.length
+    ? severitiesColourMapping.Low.colorFunc(` ${issues.low.length} [Low] `)
+    : '';
+  const mediumSeverityText = issues.medium.length
+    ? severitiesColourMapping.Medium.colorFunc(
+        ` ${issues.medium.length} [Medium] `,
+      )
+    : '';
+  const highSeverityText = issues.high.length
+    ? severitiesColourMapping.High.colorFunc(`${issues.high.length} [High] `)
+    : '';
 
   const vulnPathsText = chalk.green('✔ Awesome! No issues were found.');
   const summaryOKText = chalk.green('✓ Test completed');
-  const codeIssueCount = issues.low.length + issues.medium.length + issues.high.length;
-  const codeIssueFound = `${codeIssueCount} Code issue${codeIssueCount > 0 ? 's' : ''} found`;
-  const issuesBySeverityText = highSeverityText + mediumSeverityText + lowSeverityText;
-  const codeIssue = codeIssueCount > 0 ? codeIssueFound + '\n' + issuesBySeverityText : vulnPathsText;
+  const codeIssueCount =
+    issues.low.length + issues.medium.length + issues.high.length;
+  const codeIssueFound = `${codeIssueCount} Code issue${
+    codeIssueCount > 0 ? 's' : ''
+  } found`;
+  const issuesBySeverityText =
+    highSeverityText + mediumSeverityText + lowSeverityText;
+  const codeIssue =
+    codeIssueCount > 0
+      ? codeIssueFound + '\n' + issuesBySeverityText
+      : vulnPathsText;
 
-  return prefix +
+  return (
+    prefix +
     issuesText +
     '\n' +
     summaryOKText +
     '\n\n' +
     meta +
     '\n\n' +
-    codeIssue;
+    codeIssue
+  );
 }
 
 function getRulesMap(rules: Sarif.ReportingDescriptor[]) {

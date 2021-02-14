@@ -107,10 +107,12 @@ function prepareEcosystemResponseForParsing(
     depGraphData !== undefined
       ? depGraphLib.createFromJSON(depGraphData)
       : undefined;
-  const dockerfileAnalysisFact = payloadBody?.facts.find(
-    (fact) => fact.type === 'dockerfileAnalysis',
+  const imageUserInstructions = payloadBody?.facts.find(
+    (fact) =>
+      fact.type === 'dockerfileAnalysis' ||
+      fact.type === 'autoDetectedUserInstructions',
   );
-  const dockerfilePackages = dockerfileAnalysisFact?.data?.dockerfilePackages;
+  const dockerfilePackages = imageUserInstructions?.data?.dockerfilePackages;
   const projectName = payloadBody?.name || depGraph?.rootPkg.name;
   const packageManager = payloadBody?.identity?.type as SupportedProjectTypes;
   const targetFile = payloadBody?.identity?.targetFile || options.file;
@@ -284,7 +286,7 @@ async function sendAndParseResults(
       payloadCopy,
       res as TestDependenciesResponse,
       options,
-      );
+    );
 
     const ecosystem = getEcosystem(options);
     if (ecosystem && options['print-deps']) {
@@ -377,23 +379,14 @@ async function isCodeTest(options: Options & TestOptions) {
   }
   const org = options.org || config.org;
   const featureFlag = 'snykCode';
-  const snykCodeRes = await isFeatureFlagSupportedForOrg(
-    featureFlag,
-    org,
-  );
+  const snykCodeRes = await isFeatureFlagSupportedForOrg(featureFlag, org);
 
   if (snykCodeRes.code === 401 || snykCodeRes.code === 403) {
-    throw AuthFailedError(
-      snykCodeRes.error,
-      snykCodeRes.code,
-    );
+    throw AuthFailedError(snykCodeRes.error, snykCodeRes.code);
   }
 
   if (snykCodeRes.userMessage) {
-    throw new UnsupportedFeatureFlagError(
-      featureFlag,
-      snykCodeRes.userMessage,
-    );
+    throw new UnsupportedFeatureFlagError(featureFlag, snykCodeRes.userMessage);
   }
   return true;
 }

@@ -36,9 +36,7 @@ import {
   getIacDisplayedOutput,
   getIacDisplayErrorFileOutput,
 } from './iac-output';
-import {
-  getCodeDisplayedOutput,
-} from './code-output';
+import { getCodeDisplayedOutput } from './code-output';
 import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import {
@@ -207,7 +205,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
       (res.result &&
         res.result.cloudConfigResults &&
         res.result.cloudConfigResults.length) ||
-      (res.runs?.[0].results?.length),
+      res.runs?.[0].results?.length,
   );
   const errorResults = results.filter((res) => res instanceof Error);
   const notSuccess = errorResults.length > 0;
@@ -496,9 +494,7 @@ function displayResult(
   }
 
   if (options.code) {
-    return getCodeDisplayedOutput((res as any),
-      meta,
-      prefix);
+    return getCodeDisplayedOutput(res as any, meta, prefix);
   }
 
   // NOT OK => We found some vulns, let's format the vulns info

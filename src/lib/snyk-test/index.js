@@ -38,8 +38,8 @@ async function executeTest(root, options) {
       options.packageManager = options.iac
         ? await detectIac.getProjectType(root, options)
         : options.code
-          ? 'code'
-          : detect.detectPackageManager(root, options);
+        ? 'code'
+        : detect.detectPackageManager(root, options);
     }
     return run(root, options).then((results) => {
       if (!options.code) {

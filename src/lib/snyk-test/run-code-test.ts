@@ -1,10 +1,7 @@
 import * as path from 'path';
 import * as Debug from 'debug';
 import * as jsonschema from 'jsonschema';
-import {
-  AnalysisSeverity,
-  analyzeFolders,
-} from '@snyk/code-client';
+import { AnalysisSeverity, analyzeFolders } from '@snyk/code-client';
 import { Log } from 'sarif';
 import { SEVERITY } from './legacy';
 import { api } from '../api-token';
@@ -12,7 +9,9 @@ import * as config from '../config';
 import spinner = require('../spinner');
 import { Options } from '../types';
 // tslint:disable-next-line:no-var-requires
-const sarifSchema = require(path.resolve('src/lib/code/sarif-validator/sarif-schema-2.1.0.json'));
+const sarifSchema = require(path.resolve(
+  'src/lib/code/sarif-validator/sarif-schema-2.1.0.json',
+));
 
 const debug = Debug('code-output');
 // codeClient.emitter.on('scanFilesProgress', (processed: number) => {
@@ -42,10 +41,7 @@ export async function getCodeAnalysisAndParseResults(
   return await getCodeAnalysis(root, options);
 }
 
-async function getCodeAnalysis(
-  root: string,
-  options: Options,
-): Promise<Log> {
+async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
   const baseURL = config.SNYKCODE_PROXY;
   const sessionToken = api();
 
@@ -59,20 +55,22 @@ async function getCodeAnalysis(
   const defaultFileIgnores = undefined;
   const sarif = true;
 
-  const result =
-    await analyzeFolders(
-      baseURL,
-      sessionToken,
-      includeLint,
-      severityLevel,
-      paths,
-      symlinksEnabled,
-      maxPayload,
-      defaultFileIgnores,
-      sarif,
-    );
+  const result = await analyzeFolders(
+    baseURL,
+    sessionToken,
+    includeLint,
+    severityLevel,
+    paths,
+    symlinksEnabled,
+    maxPayload,
+    defaultFileIgnores,
+    sarif,
+  );
 
-  const validationResult = jsonschema.validate(result.sarifResults, sarifSchema);
+  const validationResult = jsonschema.validate(
+    result.sarifResults,
+    sarifSchema,
+  );
 
   if (validationResult.errors.length > 0) {
     debug('sarif result from the tested project, is not valid');
