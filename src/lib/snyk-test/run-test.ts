@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as pathUtil from 'path';
 import * as debugModule from 'debug';
 import chalk from 'chalk';
+import * as Sarif from 'sarif';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import { IacScan } from './payload-schema';
@@ -57,11 +58,7 @@ import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import { validateOptions } from '../options-validator';
 import { findAndLoadPolicy } from '../policy';
 import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
-<<<<<<< HEAD
-import { parseCodeTestResult, getCodeAnalysis } from './run-code-test';
-=======
 import { getCodeAnalysisAndParseResults } from './run-code-test';
->>>>>>> poc: add snykcode to the cli
 import {
   Payload,
   PayloadBody,
@@ -76,12 +73,9 @@ import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
 import { NonExistingPackageError } from '../errors/non-existing-package-error';
-<<<<<<< HEAD
+import { isFeatureFlagSupportedForOrg } from '../feature-flags';
 import request = require('../request');
 import spinner = require('../spinner');
-=======
-import { isFeatureFlagSupportedForOrg } from '../feature-flags';
->>>>>>> feat: more formating, and exit code support
 
 const debug = debugModule('snyk:run-test');
 
@@ -113,13 +107,10 @@ function prepareEcosystemResponseForParsing(
     depGraphData !== undefined
       ? depGraphLib.createFromJSON(depGraphData)
       : undefined;
-  const imageUserInstructions = payloadBody?.facts.find(
-    (fact) =>
-      fact.type === 'dockerfileAnalysis' ||
-      fact.type === 'autoDetectedUserInstructions',
+  const dockerfileAnalysisFact = payloadBody?.facts.find(
+    (fact) => fact.type === 'dockerfileAnalysis',
   );
-
-  const dockerfilePackages = imageUserInstructions?.data?.dockerfilePackages;
+  const dockerfilePackages = dockerfileAnalysisFact?.data?.dockerfilePackages;
   const projectName = payloadBody?.name || depGraph?.rootPkg.name;
   const packageManager = payloadBody?.identity?.type as SupportedProjectTypes;
   const targetFile = payloadBody?.identity?.targetFile || options.file;
@@ -276,7 +267,6 @@ async function sendAndParseResults(
   for (const payload of payloads) {
     await spinner.clear<void>(spinnerLbl)();
     await spinner(spinnerLbl);
-<<<<<<< HEAD
     /** sendTestPayload() deletes the request.body from the payload once completed. */
     const payloadCopy = Object.assign({}, payload);
     const res = await sendTestPayload(payload);
@@ -294,54 +284,7 @@ async function sendAndParseResults(
       payloadCopy,
       res as TestDependenciesResponse,
       options,
-    );
-=======
-    if (options.iac) {
-      const iacScan: IacScan = payload.body as IacScan;
-      analytics.add('iac type', !!iacScan.type);
-      const res = (await sendTestPayload(payload)) as IacTestResponse;
-
-      const projectName =
-        iacScan.projectNameOverride || iacScan.originalProjectName;
-      const result = await parseIacTestResult(
-        res,
-        iacScan.targetFile,
-        projectName,
-        options.severityThreshold,
       );
-      results.push(result);
-<<<<<<< HEAD
-<<<<<<< HEAD
-    } else if (options.code) {
-      const res = await getCodeAnalysis(root);
-      console.log(res);
-=======
-    // } else if (options.code) {
-    //   const res = await getCodeAnalysis(root);
-    //   console.log(res);
->>>>>>> poc: add snykcode to the cli
-=======
->>>>>>> feat: more formating, and exit code support
-    } else {
-      /** sendTestPayload() deletes the request.body from the payload once completed. */
-      const payloadCopy = Object.assign({}, payload);
-      const res = await sendTestPayload(payload);
-      const {
-        depGraph,
-        payloadPolicy,
-        pkgManager,
-        targetFile,
-        projectName,
-        foundProjectCount,
-        displayTargetFile,
-        dockerfilePackages,
-        platform,
-      } = prepareResponseForParsing(
-        payloadCopy,
-        res as TestDependenciesResponse,
-        options,
-      );
->>>>>>> poc: add snykcode to the cli
 
     const ecosystem = getEcosystem(options);
     if (ecosystem && options['print-deps']) {
@@ -378,18 +321,13 @@ export async function runTest(
   projectType: SupportedProjectTypes | undefined,
   root: string,
   options: Options & TestOptions,
-): Promise<TestResult[]> {
+): Promise<TestResult[] | Sarif.Log> {
   const spinnerLbl = 'Querying vulnerabilities database...';
   try {
     await validateOptions(options, options.packageManager);
-<<<<<<< HEAD
-    if(options.code){
-      return await getCodeAnalysisAndParseResults(spinnerLbl, root, options)
-=======
     const isCodeTestRun = await isCodeTest(options);
     if (isCodeTestRun) {
       return await getCodeAnalysisAndParseResults(spinnerLbl, root, options);
->>>>>>> feat: more formating, and exit code support
     }
     const payloads = await assemblePayloads(root, options);
     return await sendAndParseResults(payloads, spinnerLbl, root, options);
@@ -607,7 +545,7 @@ function assemblePayloads(
   options: Options & TestOptions,
 ): Promise<Payload[]> {
   let isLocal;
-  if (options.docker || options.code) {
+  if (options.docker) {
     isLocal = true;
   } else {
     // TODO: Refactor this check so we don't require files when tests are using mocks
@@ -652,9 +590,6 @@ async function assembleLocalPayloads(
     await spinner(spinnerLbl);
     if (options.iac) {
       return assembleIacLocalPayloads(root, options);
-    }
-    if (options.code) {
-      return [{} as Payload];
     }
     const deps = await getDepsFromPlugin(root, options);
     const failedResults = (deps as MultiProjectResultCustom).failedResults;

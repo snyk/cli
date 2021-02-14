@@ -36,6 +36,9 @@ import {
   getIacDisplayedOutput,
   getIacDisplayErrorFileOutput,
 } from './iac-output';
+import {
+  getCodeDisplayedOutput,
+} from './code-output';
 import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import {
@@ -492,15 +495,12 @@ function displayResult(
     );
   }
 
-<<<<<<< HEAD
-=======
   if (options.code) {
     return getCodeDisplayedOutput((res as any),
       meta,
       prefix);
   }
 
->>>>>>> feat: more formating, and exit code support
   // NOT OK => We found some vulns, let's format the vulns info
 
   return getDisplayedOutput(
