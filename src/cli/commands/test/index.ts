@@ -9,6 +9,7 @@ import { isCI } from '../../../lib/is-ci';
 import { apiTokenExists, getDockerToken } from '../../../lib/api-token';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
+import * as sarif from 'sarif';
 import {
   Options,
   ShowVulnPaths,
@@ -134,9 +135,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     testOpts.path = path;
     testOpts.projectName = testOpts['project-name'];
 
-    // TODO add SARIF TYPE
-    // TODO check what type we're returning results
-    let res: (TestResult | TestResult[]) | Error;
+    let res: (TestResult | TestResult[] | sarif.Log) | Error;
 
     try {
       if (options.iac && options.experimental) {
@@ -267,20 +266,35 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     throw err;
   }
 
-  const pinningSupported: LegacyVulnApiResult = results.find(
-    (res) => res.packageManager === 'pip',
-  );
+  let response: string;
+  if (resultOptions?.[0].code && results.length === 1) {
+    const result = results[0];
+    const testingPath = resultOptions[0].path;
+    const meta = formatTestMeta(result, resultOptions[0]);
+    const prefix = chalk.bold.white('\nTesting ' + testingPath + '...\n\n');
 
-  let response = results
-    .map((result, i) => {
-      resultOptions[i].pinningSupported = pinningSupported;
-      return displayResult(
-        results[i] as LegacyVulnApiResult,
-        resultOptions[i],
-        result.foundProjectCount,
-      );
-    })
-    .join(`\n${SEPARATOR}`);
+    // handle errors by extracting their message
+    if (result instanceof Error) {
+      response = prefix + result.message;
+    } else {
+      response = getCodeDisplayedOutput(result as sarif.Log, meta, prefix);
+    }
+  } else {
+    const pinningSupported: LegacyVulnApiResult = results.find(
+      (res) => res.packageManager === 'pip',
+    );
+
+    response = results
+      .map((result, i) => {
+        resultOptions[i].pinningSupported = pinningSupported;
+        return displayResult(
+          results[i] as LegacyVulnApiResult,
+          resultOptions[i],
+          result.foundProjectCount,
+        );
+      })
+      .join(`\n${SEPARATOR}`);
+  }
 
   if (notSuccess) {
     debug(`Failed to test ${errorResults.length} projects, errors:`);
@@ -492,11 +506,6 @@ function displayResult(
       prefix,
     );
   }
-
-  if (options.code) {
-    return getCodeDisplayedOutput(res as any, meta, prefix);
-  }
-
   // NOT OK => We found some vulns, let's format the vulns info
 
   return getDisplayedOutput(

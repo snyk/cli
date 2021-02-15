@@ -23,6 +23,11 @@ export function formatTestMeta(
       chalk.bold(rightPadWithSpaces('Type: ', padToLength)) +
         capitalizePackageManager(packageManager),
     );
+  } else if (options.code) {
+    meta.push(
+      chalk.bold(rightPadWithSpaces('Test type: ', padToLength)) +
+        'Static code analysis',
+    );
   } else {
     meta.push(
       chalk.bold(rightPadWithSpaces('Package manager: ', padToLength)) +
