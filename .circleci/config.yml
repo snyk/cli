@@ -26,7 +26,7 @@ commands:
       - run:
           name: Install dependencies
           command: npm install
-  update_local_npmrc_linux: 
+  update_local_npmrc_linux:
     description: Update local .npmrc file (Linux)
     steps:
       - run:
@@ -170,7 +170,7 @@ jobs:
           command: rm -rf node_modules/
       - run:
           name: Install only production dependencies
-          command: npx npm@6 install  # kludge because npm@7 will invoke the lifecycle scripts (thus running prepare -> tsc) even if we use --ignore-scripts
+          command: npx npm@6 install # kludge because npm@7 will invoke the lifecycle scripts (thus running prepare -> tsc) even if we use --ignore-scripts
           environment:
             NODE_ENV: production
       - run:
@@ -206,7 +206,7 @@ jobs:
       - attach_workspace:
           at: ~/snyk
       - when:
-          condition:  << parameters.use_npm7 >>
+          condition: << parameters.use_npm7 >>
           steps:
             - run: npm install -g npm@7
       - show_node_version
@@ -215,7 +215,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
       - run:
           name: Install dependencies (Windows)
-          command: npm install --ignore-scripts  # ignore-scripts required because of postinstall script in snyk-resolve-deps package
+          command: npm install --ignore-scripts # ignore-scripts required because of postinstall script in snyk-resolve-deps package
       - build_ts
       - run:
           name: npm version
@@ -243,7 +243,7 @@ jobs:
       - attach_workspace:
           at: ~/snyk
       - when:
-          condition:  << parameters.use_npm7 >>
+          condition: << parameters.use_npm7 >>
           steps:
             - run: sudo npm install -g npm@7
       - show_node_version
@@ -297,7 +297,7 @@ jobs:
             dev_version="1.0.0-dev-${CIRCLE_SHA1}"
             echo "dev_version: ${dev_version}"
             lerna publish ${dev_version} --yes --no-push --no-git-tag-version --dist-tag hammertest
-      - run: 
+      - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
       - run:
@@ -323,6 +323,17 @@ jobs:
       - setup_remote_docker:
           version: 19.03.13
           # docker_layer_caching: true
+      - run:
+          name: Should I release?
+          command: |
+            echo "Considering these commits:"
+            git --no-pager log $(git describe --tags --abbrev=0 @^)..@ --pretty=format:'%s' --no-merges
+            echo "\n---\nChecking for feat, fix or revert commit"
+            git log $(git describe --tags --abbrev=0 @^)..@ --pretty=format:'%s' --no-merges | grep -Ei "^(feat|fix|revert)"
+            if [ "$?" = "1" ]; then
+              echo "No changes to release, stopping"
+              circleci-agent step halt
+            fi
       - install_github_cli
       - run:
           name: Install npm@7
@@ -349,7 +360,7 @@ jobs:
           name: Lerna Publish
           command: |
             lerna publish minor --yes --no-push --no-git-tag-version
-      - run: 
+      - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
       - run:
@@ -369,7 +380,8 @@ jobs:
           command: |
             latest_version=$(cat lerna.json | jq .version -r)
             new_tag="v${latest_version}"
-            gh release create ${new_tag} --title "${new_tag}" -n "Release Notes pending"
+            npx conventional-changelog-cli -p angular -l -r 1 > RELEASE_NOTES.txt
+            gh release create ${new_tag} --title "${new_tag}" --notes-file RELEASE_NOTES.txt
       - run:
           name: Add Assets to GitHub Release
           command: |
