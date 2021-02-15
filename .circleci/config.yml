@@ -325,15 +325,7 @@ jobs:
           # docker_layer_caching: true
       - run:
           name: Should I release?
-          command: |
-            echo "Considering these commits:"
-            git --no-pager log $(git describe --tags --abbrev=0 @^)..@ --pretty=format:'%s' --no-merges
-            echo "\n---\nChecking for feat, fix or revert commit"
-            git log $(git describe --tags --abbrev=0 @^)..@ --pretty=format:'%s' --no-merges | grep -Ei "^(feat|fix|revert)"
-            if [ "$?" = "1" ]; then
-              echo "No changes to release, stopping"
-              circleci-agent step halt
-            fi
+          command: ./release-scripts/should-i-release.sh
       - install_github_cli
       - run:
           name: Install npm@7
