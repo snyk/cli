@@ -5,10 +5,6 @@ describe('verify supported nodejs runtime versions', () => {
     expect(runtime.isSupported(process.versions.node)).toBeTruthy();
   });
 
-  it('v8.0.0 is supported', async () => {
-    expect(runtime.isSupported('8.0.0')).toBeTruthy();
-  });
-
   it('pre-release is supported', async () => {
     expect(runtime.isSupported('11.0.0-pre')).toBeTruthy();
   });
@@ -33,5 +29,9 @@ describe('verify unsupported nodejs runtime versions', () => {
 
   it('verifies v6.4.0 is not supported', async () => {
     expect(runtime.isSupported('6.4.0')).toBeFalsy();
+  });
+
+  it('verifies v8.0.0 is not supported', async () => {
+    expect(runtime.isSupported('8.0.0')).toBeFalsy();
   });
 });
