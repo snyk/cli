@@ -16,8 +16,7 @@ import {
 } from '../../../../lib/snyk-test/legacy';
 import {
   SEVERITIES,
-  severitiesColourMapping,
-  defaultSeverityColor,
+  getSeveritiesColour,
 } from '../../../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
 import {
@@ -442,9 +441,7 @@ export function formatIssue(
   reachability?: REACHABILITY,
   sampleReachablePaths?: SampleReachablePaths,
 ): string {
-  const severityColor = severitiesColourMapping[severity]
-    ? severitiesColourMapping[severity]
-    : defaultSeverityColor;
+  const severityColor = getSeveritiesColour(severity);
 
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';

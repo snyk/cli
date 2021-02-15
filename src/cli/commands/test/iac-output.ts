@@ -10,10 +10,7 @@ import { printPath } from './formatters/remediation-based-format-issues';
 import { titleCaseText } from './formatters/legacy-format-issue';
 import * as sarif from 'sarif';
 import { SEVERITY } from '../../../lib/snyk-test/legacy';
-import {
-  severitiesColourMapping,
-  defaultSeverityColor,
-} from '../../../lib/snyk-test/common';
+import { getSeveritiesColour } from '../../../lib/snyk-test/common';
 import { IacFileInDirectory } from '../../../lib/types';
 import upperFirst = require('lodash.upperfirst');
 const debug = Debug('iac-output');
@@ -35,9 +32,7 @@ function formatIacIssue(
 
   const description = extractOverview(issue.description).trim();
   const descriptionLine = `\n    ${description}\n`;
-  const severityColor = severitiesColourMapping[issue.severity]
-    ? severitiesColourMapping[issue.severity]
-    : defaultSeverityColor;
+  const severityColor = getSeveritiesColour(issue.severity);
 
   return (
     severityColor.colorFunc(

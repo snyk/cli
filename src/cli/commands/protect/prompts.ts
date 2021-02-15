@@ -20,10 +20,7 @@ import * as config from '../../../lib/config';
 import * as snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
 import { AnnotatedIssue, SEVERITY } from '../../../lib/snyk-test/legacy';
-import {
-  legacySeveritiesColourMapping,
-  defaultSeverityColor,
-} from '../../../lib/snyk-test/common';
+import { getLegacySeveritiesColour } from '../../../lib/snyk-test/common';
 import { titleCaseText } from '../test/formatters/legacy-format-issue';
 
 const debug = debugModule('snyk');
@@ -50,9 +47,7 @@ function sort(prop) {
 
 function createSeverityBasedIssueHeading(msg: string, severity: SEVERITY) {
   // Example: ✗ Medium severity vulnerability found in xmldom
-  const severityColor = legacySeveritiesColourMapping[severity]
-    ? legacySeveritiesColourMapping[severity]
-    : defaultSeverityColor;
+  const severityColor = getLegacySeveritiesColour(severity);
   return severityColor.colorFunc(msg);
 }
 

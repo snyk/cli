@@ -18,10 +18,7 @@ import {
 import { formatLegalInstructions } from './legal-license-instructions';
 import { getReachabilityText } from './format-reachability';
 import { PATH_SEPARATOR } from '../../constants';
-import {
-  legacySeveritiesColourMapping,
-  defaultSeverityColor,
-} from '../../../../lib/snyk-test/common';
+import { getLegacySeveritiesColour } from '../../../../lib/snyk-test/common';
 
 export function formatIssues(
   vuln: GroupedVuln,
@@ -99,9 +96,7 @@ function createSeverityBasedIssueHeading({
 }: CreateSeverityBasedIssueHeading) {
   // Example: ✗ Medium severity vulnerability found in xmldom
   const vulnTypeText = type === 'license' ? 'issue' : 'vulnerability';
-  const severityColor = legacySeveritiesColourMapping[severity]
-    ? legacySeveritiesColourMapping[severity]
-    : defaultSeverityColor;
+  const severityColor = getLegacySeveritiesColour(severity);
 
   let originalSeverityStr = '';
   if (originalSeverity && originalSeverity !== severity) {

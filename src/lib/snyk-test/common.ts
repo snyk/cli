@@ -101,6 +101,14 @@ export const defaultSeverityColor = {
   },
 };
 
+export function getSeveritiesColour(severity: string) {
+  return severitiesColourMapping[severity] || defaultSeverityColor;
+}
+
+export function getLegacySeveritiesColour(severity: string) {
+  return legacySeveritiesColourMapping[severity] || defaultSeverityColor;
+}
+
 export enum FAIL_ON {
   all = 'all',
   upgradable = 'upgradable',
