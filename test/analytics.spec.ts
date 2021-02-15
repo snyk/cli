@@ -29,7 +29,7 @@ describe('Analytics basic testing', () => {
         'integrationEnvironmentVersion',
       ].sort(),
     );
-  });
+  }, 10000);
 
   it('Has all analytics arguments when org is specified', async () => {
     analytics.add('foo', 'bar');
@@ -60,7 +60,7 @@ describe('Analytics basic testing', () => {
         'integrationEnvironmentVersion',
       ].sort(),
     );
-  });
+  }, 10000);
 
   it('Has all analytics arguments when args are given', async () => {
     analytics.add('foo', 'bar');
@@ -93,7 +93,7 @@ describe('Analytics basic testing', () => {
         'integrationEnvironmentVersion',
       ].sort(),
     );
-  });
+  }, 10000);
 
   it('Has all analytics arguments when org is specified and args are given', async () => {
     analytics.add('foo', 'bar');
@@ -128,7 +128,7 @@ describe('Analytics basic testing', () => {
         'integrationEnvironmentVersion',
       ].sort(),
     );
-  });
+  }, 10000);
 
   it('Has analytics given values', async () => {
     analytics.add('foo', 'bar');

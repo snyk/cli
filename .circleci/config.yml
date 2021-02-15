@@ -49,7 +49,7 @@ commands:
     steps:
       - run:
           name: Build
-          command: npm run build
+          command: lerna run build --stream
       - persist_to_workspace:
           root: .
           paths:
@@ -163,6 +163,9 @@ jobs:
           name: Install npm@7
           command: |
             sudo npm install -g npm@7
+      - run:
+          name: Install Lerna
+          command: sudo npm install -g lerna
       - show_node_version
       - update_local_npmrc_linux
       - install_deps
@@ -227,7 +230,10 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
       - run:
           name: Install dependencies (Windows)
-          command: npm install --ignore-scripts # ignore-scripts required because of postinstall script in snyk-resolve-deps package
+          command: npm install
+      - run:
+          name: Install Lerna
+          command: npm install -g lerna
       - build_ts
       - run:
           name: npm version
@@ -241,25 +247,25 @@ jobs:
           steps:
             - run:
                 name: Run "Root" tap tests
-                command: npm run test:test
+                command: lerna run test:test --stream
       - when:
           condition: << parameters.jest_tests >>
           steps:
             - run:
                 name: Run Jest tests
-                command: npm run test:jest
+                command: lerna run test:jest --stream
       - when:
           condition: << parameters.acceptance_tests >>
           steps:
             - run:
                 name: Run Acceptance tests
-                command: npm run test:acceptance-windows
+                command: lerna run test:acceptance-windows --stream
       - when:
           condition: << parameters.system_tests >>
           steps:
             - run:
                 name: Run System tests
-                command: npm run test:system
+                command: lerna run test:system --stream
 
   test-linux:
     <<: *defaults
@@ -279,6 +285,9 @@ jobs:
           condition: << parameters.use_npm7 >>
           steps:
             - run: sudo npm install -g npm@7
+      - run:
+          name: Install Lerna
+          command: sudo npm install -g lerna
       - show_node_version
       - update_local_npmrc_linux
       - install_deps
