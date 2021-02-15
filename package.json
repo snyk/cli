@@ -21,7 +21,7 @@
     "snyk": "dist/cli/index.js"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "workspaces": [
     ".",
@@ -132,7 +132,7 @@
     "@types/jest": "^25.2.3",
     "@types/lodash": "^4.14.161",
     "@types/needle": "^2.0.4",
-    "@types/node": "8.10.59",
+    "@types/node": "^10.0.0",
     "@types/restify": "^8.4.2",
     "@types/sarif": "^2.1.2",
     "@types/sinon": "^7.5.0",

@@ -443,17 +443,6 @@ workflows:
             branches:
               ignore:
                 - master
-      - test-windows:
-          name: Windows Tests for Node v8 support
-          context: nodejs-install
-          node_version: '8.17.0'
-          use_npm7: false
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
       - test-unix:
           name: Unix Tests for Node v12 support
           context: nodejs-install
@@ -484,17 +473,7 @@ workflows:
             branches:
               ignore:
                 - master
-      - test-unix:
-          name: Unix Tests for Node v8 support
-          context: nodejs-install
-          node_version: '8.17.0'
-          use_npm7: false
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
+
       - release:
           name: Release
           context: nodejs-app-release

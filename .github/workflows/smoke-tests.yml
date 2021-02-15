@@ -17,17 +17,12 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         snyk_install_method: [binary, npm, yarn]
-        node_version: [8, 10, 12, 14, 15]
+        node_version: [10, 12, 14, 15]
         exclude:
-          # Skip yarn for Node 8 for now (see https://github.com/snyk/snyk/issues/1270)
-          - snyk_install_method: yarn
-            node_version: 8
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
           - snyk_install_method: yarn
             os: windows
           # For binary, use only the Node 14
-          - snyk_install_method: binary
-            node_version: 8
           - snyk_install_method: binary
             node_version: 10
           - snyk_install_method: binary
