@@ -463,7 +463,6 @@ workflows:
           context: nodejs-app-release
           requires:
             - Regression Test
-
       - test-windows:
           name: Windows, Node 14 - Jest, Acceptance, System tests
           context: nodejs-install
@@ -473,7 +472,6 @@ workflows:
           system_tests: true
           requires:
             - Regression Test
-
       - test-windows:
           name: Windows, Node 14 - "Root" tap tests
           context: nodejs-install
@@ -481,7 +479,6 @@ workflows:
           root_tap_tests: true
           requires:
             - Regression Test
-
       - test-windows:
           name: Windows, Node 12 - Jest, Acceptance, System tests
           context: nodejs-install
@@ -491,7 +488,6 @@ workflows:
           system_tests: true
           requires:
             - Regression Test
-
       - test-windows:
           name: Windows, Node 12 - "Root" tap tests
           context: nodejs-install
@@ -509,7 +505,6 @@ workflows:
           system_tests: true
           requires:
             - Regression Test
-
       - test-windows:
           name: Windows, Node 10 - "Root" tap tests
           context: nodejs-install
@@ -517,7 +512,6 @@ workflows:
           root_tap_tests: true
           requires:
             - Regression Test
-
       - test-linux:
           name: Linux, Node 14 - Jest, Acceptance, System tests
           context: nodejs-install
@@ -527,7 +521,6 @@ workflows:
           system_tests: true
           requires:
             - Regression Test
-
       - test-linux:
           name: Linux, Node 14 - "Root" tap tests
           context: nodejs-install
@@ -553,7 +546,6 @@ workflows:
           root_tap_tests: true
           requires:
             - Regression Test
-
       - test-linux:
           name: Linux, Node 10 - Jest, Acceptance, System tests
           context: nodejs-install
@@ -563,7 +555,6 @@ workflows:
           system_tests: true
           requires:
             - Regression Test
-
       - test-linux:
           name: Linux, Node 10 - "Root" tap tests
           context: nodejs-install
@@ -571,7 +562,6 @@ workflows:
           root_tap_tests: true
           requires:
             - Regression Test
-
       - release:
           name: Release
           context: nodejs-app-release
