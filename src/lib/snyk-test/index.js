@@ -37,28 +37,32 @@ async function executeTest(root, options) {
     if (!options.allProjects) {
       options.packageManager = options.iac
         ? await detectIac.getProjectType(root, options)
+        : options.code
+        ? 'code'
         : detect.detectPackageManager(root, options);
     }
     return run(root, options).then((results) => {
-      for (const res of results) {
-        if (!res.packageManager) {
-          res.packageManager = options.packageManager;
-        }
+      if (!options.code) {
+        for (const res of results) {
+          if (!res.packageManager) {
+            res.packageManager = options.packageManager;
+          }
 
-        // For IaC Directory support - make sure the result get the right project type
-        // after finding this is a Directory case
-        if (
-          options.iac &&
-          res.result &&
-          res.result.projectType &&
-          options.packageManager === iacProjects.IacProjectType.MULTI_IAC
-        ) {
-          res.packageManager = res.result.projectType;
+          // For IaC Directory support - make sure the result get the right project type
+          // after finding this is a Directory case
+          if (
+            options.iac &&
+            res.result &&
+            res.result.projectType &&
+            options.packageManager === iacProjects.IacProjectType.MULTI_IAC
+          ) {
+            res.packageManager = res.result.projectType;
+          }
         }
-      }
-      if (results.length === 1) {
-        // Return only one result if only one found as this is the default usecase
-        return results[0];
+        if (results.length === 1) {
+          // Return only one result if only one found as this is the default usecase
+          return results[0];
+        }
       }
       // For gradle, yarnWorkspaces, allProjects we may be returning more than one result
       return results;
@@ -88,6 +92,7 @@ function validateProjectType(options, projectType) {
     if (
       !(
         options.docker ||
+        options.code ||
         isMultiProjectScan(options) ||
         pm.SUPPORTED_PACKAGE_MANAGER_NAME[projectType]
       )
