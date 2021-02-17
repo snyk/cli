@@ -1,6 +1,10 @@
 import * as Sarif from 'sarif';
 import * as Debug from 'debug';
 import chalk from 'chalk';
+import {
+  getLegacySeveritiesColour,
+  SEVERITY,
+} from '../../../lib/snyk-test/common';
 
 const debug = Debug('code-output');
 
@@ -32,9 +36,9 @@ export function getCodeDisplayedOutput(
             debug('Rule ID does not exist in the rules list');
           }
           const ruleName = rulesMap[ruleId].name;
-          const ruleIdSeverityText = severitiesColourMapping[
-            severity
-          ].colorFunc(` ✗ [${severity}] ${ruleName}`);
+          const ruleIdSeverityText = getLegacySeveritiesColour(
+            severity.toLowerCase(),
+          ).colorFunc(` ✗ [${severity}] ${ruleName}`);
           const artifactLocationUri = location.artifactLocation.uri;
           const startLine = location.region.startLine;
           const markdown = res.message.markdown;
@@ -55,15 +59,19 @@ export function getCodeDisplayedOutput(
     issues.low.join('') + issues.medium.join('') + issues.high.join('');
 
   const lowSeverityText = issues.low.length
-    ? severitiesColourMapping.Low.colorFunc(` ${issues.low.length} [Low] `)
+    ? getLegacySeveritiesColour(SEVERITY.LOW).colorFunc(
+        ` ${issues.low.length} [Low] `,
+      )
     : '';
   const mediumSeverityText = issues.medium.length
-    ? severitiesColourMapping.Medium.colorFunc(
+    ? getLegacySeveritiesColour(SEVERITY.MEDIUM).colorFunc(
         ` ${issues.medium.length} [Medium] `,
       )
     : '';
   const highSeverityText = issues.high.length
-    ? severitiesColourMapping.High.colorFunc(`${issues.high.length} [High] `)
+    ? getLegacySeveritiesColour(SEVERITY.HIGH).colorFunc(
+        `${issues.high.length} [High] `,
+      )
     : '';
 
   const vulnPathsText = chalk.green('✔ Awesome! No issues were found.');
@@ -112,21 +120,3 @@ function sarifToSeverityLevel(
 
   return severityLevel[sarifConfigurationLevel] as string;
 }
-
-const severitiesColourMapping = {
-  Low: {
-    colorFunc(text) {
-      return chalk.blueBright(text);
-    },
-  },
-  Medium: {
-    colorFunc(text) {
-      return chalk.yellowBright(text);
-    },
-  },
-  High: {
-    colorFunc(text) {
-      return chalk.redBright(text);
-    },
-  },
-};
