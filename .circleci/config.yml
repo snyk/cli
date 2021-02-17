@@ -11,6 +11,18 @@ defaults: &defaults
     use_npm7:
       type: boolean
       default: true
+    root_tap_tests:
+      type: boolean
+      default: false
+    jest_tests:
+      type: boolean
+      default: false
+    acceptance_tests:
+      type: boolean
+      default: false
+    system_tests:
+      type: boolean
+      default: false
   working_directory: ~/snyk
 
 windows_defaults: &windows_defaults
@@ -54,7 +66,7 @@ commands:
     description: Install SBT
     steps:
       - run: choco install sbt
-  install_sdkman_unix:
+  install_sdkman_linux:
     description: Install SDKMAN
     steps:
       - run:
@@ -63,25 +75,25 @@ commands:
             curl -s "https://get.sdkman.io?rcupdate=false" | bash
             echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
             source $BASH_ENV
-  install_jdk_unix:
+  install_jdk_linux:
     description: Install JDK
     steps:
       - run:
           name: Installing JDK
           command: sdk install java $(sdk list java | grep -o -m1 "11\.[0-9\.]\+hs-adpt")
-  install_gradle_unix:
+  install_gradle_linux:
     description: Install gradle
     steps:
       - run:
           name: Installing Gradle
           command: sdk install gradle 6.4.1
-  install_maven_unix:
+  install_maven_linux:
     description: Install maven
     steps:
       - run:
           name: Installing maven
           command: sdk install maven 3.6.3
-  install_sbt_unix:
+  install_sbt_linux:
     description: Install SBT
     steps:
       - run:
@@ -145,7 +157,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
-          # docker_layer_caching: true
+          docker_layer_caching: true
       - install_shellspec
       - run:
           name: Install npm@7
@@ -224,20 +236,41 @@ jobs:
           name: Run auth
           shell: bash.exe
           command: npm run snyk-auth-windows
-      - run:
-          name: Run tests
-          command: npm run test-windows
+      - when:
+          condition: << parameters.root_tap_tests >>
+          steps:
+            - run:
+                name: Run "Root" tap tests
+                command: npm run test:test
+      - when:
+          condition: << parameters.jest_tests >>
+          steps:
+            - run:
+                name: Run Jest tests
+                command: npm run test:jest
+      - when:
+          condition: << parameters.acceptance_tests >>
+          steps:
+            - run:
+                name: Run Acceptance tests
+                command: npm run test:acceptance-windows
+      - when:
+          condition: << parameters.system_tests >>
+          steps:
+            - run:
+                name: Run System tests
+                command: npm run test:system
 
-  test-unix:
+  test-linux:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
     steps:
-      - install_sdkman_unix
-      - install_jdk_unix
-      - install_gradle_unix
-      - install_maven_unix
-      - install_sbt_unix
+      - install_sdkman_linux
+      - install_jdk_linux
+      - install_gradle_linux
+      - install_maven_linux
+      - install_sbt_linux
       - show_node_version
       - checkout
       - attach_workspace:
@@ -256,9 +289,30 @@ jobs:
       - run:
           name: Run auth
           command: npm run snyk-auth
-      - run:
-          name: Run tests
-          command: npm test
+      - when:
+          condition: << parameters.root_tap_tests >>
+          steps:
+            - run:
+                name: Run "Root" tap tests
+                command: npm run test:test
+      - when:
+          condition: << parameters.jest_tests >>
+          steps:
+            - run:
+                name: Run Jest tests
+                command: npm run test:jest
+      - when:
+          condition: << parameters.acceptance_tests >>
+          steps:
+            - run:
+                name: Run Acceptance tests
+                command: npm run test:acceptance
+      - when:
+          condition: << parameters.system_tests >>
+          steps:
+            - run:
+                name: Run System tests
+                command: npm run test:system
 
   dev-release:
     <<: *defaults
@@ -322,7 +376,7 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
-          # docker_layer_caching: true
+          docker_layer_caching: true
       - run:
           name: Should I release?
           command: ./release-scripts/should-i-release.sh
@@ -409,71 +463,105 @@ workflows:
           context: nodejs-app-release
           requires:
             - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
       - test-windows:
-          name: Windows Tests for Node v12 support
-          context: nodejs-install
-          node_version: '12.16.2'
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-windows:
-          name: Windows Tests for Node v14 support
+          name: Windows, Node 14 - Jest, Acceptance, System tests
           context: nodejs-install
           node_version: '14.15.4'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
           requires:
             - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
       - test-windows:
-          name: Windows Tests for Node v10 support
-          context: nodejs-install
-          node_version: '10.23.1'
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-unix:
-          name: Unix Tests for Node v12 support
-          context: nodejs-install
-          node_version: '12.16.2'
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-unix:
-          name: Unix Tests for Node v14 support
+          name: Windows, Node 14 - "Root" tap tests
           context: nodejs-install
           node_version: '14.15.4'
+          root_tap_tests: true
           requires:
             - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-unix:
-          name: Unix Tests for Node v10 support
+      - test-windows:
+          name: Windows, Node 12 - Jest, Acceptance, System tests
           context: nodejs-install
-          node_version: '10.23.1'
+          node_version: '12.16.2'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
           requires:
             - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
+      - test-windows:
+          name: Windows, Node 12 - "Root" tap tests
+          context: nodejs-install
+          node_version: '12.16.2'
+          root_tap_tests: true
+          requires:
+            - Regression Test
 
+      - test-windows:
+          name: Windows, Node 10 - Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '10.23.1'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          requires:
+            - Regression Test
+      - test-windows:
+          name: Windows, Node 10 - "Root" tap tests
+          context: nodejs-install
+          node_version: '10.23.1'
+          root_tap_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 14 - Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '14.15.4'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 14 - "Root" tap tests
+          context: nodejs-install
+          node_version: '14.15.4'
+          root_tap_tests: true
+          requires:
+            - Regression Test
+
+      - test-linux:
+          name: Linux, Node 12 - Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '12.16.2'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          requires:
+            - Regression Test
+
+      - test-linux:
+          name: Linux, Node 12 - "Root" tap tests
+          context: nodejs-install
+          node_version: '12.16.2'
+          root_tap_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 10 - Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '10.23.1'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 10 - "Root" tap tests
+          context: nodejs-install
+          node_version: '10.23.1'
+          root_tap_tests: true
+          requires:
+            - Regression Test
       - release:
           name: Release
           context: nodejs-app-release
