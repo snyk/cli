@@ -10,6 +10,7 @@ import { printPath } from './formatters/remediation-based-format-issues';
 import { titleCaseText } from './formatters/legacy-format-issue';
 import * as sarif from 'sarif';
 import { SEVERITY } from '../../../lib/snyk-test/legacy';
+import { getSeveritiesColour } from '../../../lib/snyk-test/common';
 import { IacFileInDirectory } from '../../../lib/types';
 import upperFirst = require('lodash.upperfirst');
 const debug = Debug('iac-output');
@@ -19,23 +20,6 @@ function formatIacIssue(
   isNew: boolean,
   path: string[],
 ): string {
-  const severitiesColourMapping = {
-    low: {
-      colorFunc(text) {
-        return chalk.blueBright(text);
-      },
-    },
-    medium: {
-      colorFunc(text) {
-        return chalk.yellowBright(text);
-      },
-    },
-    high: {
-      colorFunc(text) {
-        return chalk.redBright(text);
-      },
-    },
-  };
   const newBadge = isNew ? ' (new)' : '';
   const name = issue.subType ? ` in ${chalk.bold(issue.subType)}` : '';
 
@@ -48,9 +32,10 @@ function formatIacIssue(
 
   const description = extractOverview(issue.description).trim();
   const descriptionLine = `\n    ${description}\n`;
+  const severityColor = getSeveritiesColour(issue.severity);
 
   return (
-    severitiesColourMapping[issue.severity].colorFunc(
+    severityColor.colorFunc(
       `  ✗ ${chalk.bold(issue.title)}${newBadge} [${titleCaseText(
         issue.severity,
       )} Severity]`,

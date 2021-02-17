@@ -456,6 +456,81 @@ export const RubyTests: AcceptanceTests = {
       }
     },
 
+    '`test ruby-app-thresholds --severity-threshold=critical': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+
+      params.server.setNextResponse(
+        getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-graph-result-critical-severity.json',
+        ),
+      );
+
+      try {
+        await params.cli.test('ruby-app-thresholds', {
+          severityThreshold: 'critical',
+        });
+        t.fail('should have thrown');
+      } catch (err) {
+        const req = params.server.popRequest();
+        t.is(req.query.severityThreshold, 'critical');
+
+        const res = err.message;
+
+        t.match(
+          res,
+          'Tested 7 dependencies for known vulnerabilities, found 1 vulnerability, 2 vulnerable paths',
+          '1 vuln',
+        );
+      }
+    },
+
+    '`test ruby-app-thresholds --severity-threshold=critical --json`': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+
+      params.server.setNextResponse(
+        getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-graph-result-critical-severity.json',
+        ),
+      );
+
+      try {
+        await params.cli.test('ruby-app-thresholds', {
+          severityThreshold: 'critical',
+          json: true,
+        });
+        t.fail('should have thrown');
+      } catch (err) {
+        const req = params.server.popRequest();
+        t.is(req.query.severityThreshold, 'critical');
+
+        const res = JSON.parse(err.message);
+
+        const expected = getWorkspaceJSON(
+          'ruby-app-thresholds',
+          'test-result-critical-severity.json',
+        );
+
+        t.deepEqual(
+          omit(res, ['vulnerabilities']),
+          omit(expected, ['vulnerabilities']),
+          'metadata is ok',
+        );
+        t.deepEqual(
+          sortBy(res.vulnerabilities, 'id'),
+          sortBy(expected.vulnerabilities, 'id'),
+          'vulns are the same',
+        );
+      }
+    },
+
     '`test ruby-app-policy`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 

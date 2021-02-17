@@ -1,0 +1,76 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "nokogiri@1.8.5": {
+        "pkg": {
+          "name": "nokogiri",
+          "version": "1.8.5"
+        },
+        "issues": {
+          "SNYK-RUBY-NOKOGIRI-20299": {
+            "issueId": "SNYK-RUBY-NOKOGIRI-20299",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": []
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-RUBY-NOKOGIRI-20299": {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "alternativeIds": [],
+        "creationTime": "2017-01-12T12:37:00Z",
+        "credit": [
+          "Snyk Security Research Team"
+        ],
+        "cvssScore": 7.3,
+        "description": "## Overview\n[nokogiri](https://rubygems.org/gems/nokogiri) is an HTML, XML, SAX, and Reader parser, with the ability to search documents via XPath or CSS3 selectors.\n\nAffected versions of this Gem are vulnerable to XML External Entity (XXE) attacks when opting into the `DTDLOAD` option and opting out of the `NONET` option.\n`Nokogiri` is affected by series of vulnerabilities in libxml2 and libxslt, which are libraries it depends on. When handling the expansion of XML external entities (XXE) in libxml2, you can specify documents to be read. Opting into the `DTDLOAD` option and opting out of the `NONET` option in `Nokogiri` allows unknown documents to be loaded from the network. This can be used by attackers to load specially crafted XML documents on an internal XML parsing service and may lead to unauthorized disclosure of potentially sensitive information.\n\n**Note:** This vulnerability exists also in versions `< 1.5.4` regardless of the options opted into or out of. See information [here](https://snyk.io/vuln/SNYK-RUBY-NOKOGIRI-20298)\n\n## Details\n\nXXE Injection is a type of attack against an application that parses XML input.\nXML is a markup language that defines a set of rules for encoding documents in a format that is both human-readable and machine-readable. By default, many XML processors allow specification of an external entity, a URI that is dereferenced and evaluated during XML processing. When an XML document is being parsed, the parser can make a request and include the content at the specified URI inside of the XML document.\n\nAttacks can include disclosing local files, which may contain sensitive data such as passwords or private user data, using file: schemes or relative paths in the system identifier.\n\nFor example, below is a sample XML document, containing an XML element- username.\n\n```xml\n<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n   <username>John</username>\n</xml>\n```\n\nAn external XML entity - `xxe`, is defined using a system identifier and present within a DOCTYPE header. These entities can access local or remote content. For example the below code contains an external XML entity that would fetch the content of  `/etc/passwd` and display it to the user rendered by `username`.\n\n```xml\n<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n<!DOCTYPE foo [\n   <!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]>\n   <username>&xxe;</username>\n</xml>\n```\n\nOther XXE Injection attacks can access local resources that may not stop returning data, possibly impacting application availability and leading to Denial of Service.\n\n## Remediation\nNokogiri suggests not to opt-out of `NONET` unless only trusted documents are being parsed.\nThere currently is no fix in libxml2 as of September 17th, 2017.\n`Nokogiri` will be waiting for a fix upstream to update.\n\n## Disclosure Timeline\n- January 11th, 2017 - Reported the issue to [Mike Dalessio](https://github.com/flavorjones) of Nokogiri Core.\n- January 11th, 2017 - Issue triaged and acknowledged by [Mike Dalessio](https://github.com/flavorjones) of Nokogiri Core.\n\n## References\n- [GitHub Issue](https://github.com/sparklemotion/nokogiri/issues/1582)\n- [CVE-2016-9318](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-9318)\n",
+        "disclosureTime": "2017-01-11T21:00:00Z",
+        "functions": [],
+        "id": "SNYK-RUBY-NOKOGIRI-20299",
+        "identifiers": {
+          "CVE": [],
+          "CWE": [
+            "CWE-611"
+          ]
+        },
+        "language": "ruby",
+        "methods": [],
+        "modificationTime": "2018-11-21T10:10:04.153595Z",
+        "moduleName": "nokogiri",
+        "packageManager": "rubygems",
+        "packageName": "nokogiri",
+        "patches": [],
+        "publicationTime": "2017-01-16T21:00:00Z",
+        "references": [
+          {
+            "title": "CVE-2016-9318",
+            "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-9318"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/sparklemotion/nokogiri/issues/1582"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            ">= 1.5.4"
+          ]
+        },
+        "severity": "critical",
+        "title": "XML External Entity (XXE) Injection"
+      }
+    }
+  },
+  "meta": {
+    "isPublic": false,
+    "isLicensesEnabled": false,
+    "licensesPolicy": null,
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.13.1\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "test-org"
+  },
+  "filesystemPolicy": false
+}
