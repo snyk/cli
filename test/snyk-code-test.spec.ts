@@ -69,28 +69,20 @@ describe('Test snyk code', () => {
     expect(res).toStrictEqual(sampleSarifResponse);
   });
 
-  it('analyzeFolders should be called with the right parameters', async () => {
+  it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
     const sessionToken = fakeApiKey;
-    const includeLint = false;
-    const severityLevel = AnalysisSeverity.info;
+    const severity = AnalysisSeverity.info;
     const paths: string[] = ['.'];
-    const symlinksEnabled = false;
-    const maxPayload = undefined;
-    const defaultFileIgnores = undefined;
     const sarif = true;
 
-    const codeAnalysisAndParseResultsArgs = [
+    const codeAnalysisArgs = {
       baseURL,
       sessionToken,
-      includeLint,
-      severityLevel,
+      severity,
       paths,
-      symlinksEnabled,
-      maxPayload,
-      defaultFileIgnores,
       sarif,
-    ];
+    };
 
     const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
       sampleAnalyzeFoldersResponse,
@@ -100,15 +92,7 @@ describe('Test snyk code', () => {
       code: true,
     });
 
-    for (
-      let index = 0;
-      index < getCodeAnalysisAndParseResults.length;
-      index++
-    ) {
-      expect(analyzeFoldersSpy.mock.calls[0][index]).toEqual(
-        codeAnalysisAndParseResultsArgs[index],
-      );
-    }
+    expect(analyzeFoldersSpy.mock.calls[0]).toEqual([codeAnalysisArgs]);
   });
 
   it('analyzeFolders should should return the right sarif response', async () => {

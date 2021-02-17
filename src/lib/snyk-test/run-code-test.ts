@@ -21,29 +21,21 @@ export async function getCodeAnalysisAndParseResults(
 
 async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
   const baseURL = config.CODE_CLIENT_PROXY_URL;
-  const sessionToken = api();
+  const sessionToken = api() || '';
 
-  const includeLint = false;
-  const severityLevel = options.severityThreshold
+  const severity = options.severityThreshold
     ? severityToAnalysisSeverity(options.severityThreshold)
     : AnalysisSeverity.info;
   const paths: string[] = [root];
-  const symlinksEnabled = false;
-  const maxPayload = undefined;
-  const defaultFileIgnores = undefined;
   const sarif = true;
 
-  const result = await analyzeFolders(
+  const result = await analyzeFolders({
     baseURL,
     sessionToken,
-    includeLint,
-    severityLevel,
+    severity,
     paths,
-    symlinksEnabled,
-    maxPayload,
-    defaultFileIgnores,
     sarif,
-  );
+  });
 
   return result.sarifResults!;
 }
