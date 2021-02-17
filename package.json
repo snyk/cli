@@ -102,7 +102,7 @@
     "proxy-agent": "^3.1.1",
     "proxy-from-env": "^1.0.0",
     "semver": "^6.0.0",
-    "snyk-config": "4.0.0-rc.2",
+    "snyk-config": "4.0.0",
     "snyk-cpp-plugin": "2.2.1",
     "snyk-docker-plugin": "4.17.2",
     "snyk-go-plugin": "1.16.5",
