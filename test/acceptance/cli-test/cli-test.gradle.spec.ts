@@ -151,6 +151,66 @@ export const GradleTests: AcceptanceTests = {
       );
     },
 
+    '`test gradle-app --reachable-vulns and --init-script` sends call graph': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const callGraphPayload = require('../fixtures/call-graphs/maven.json');
+      const callGraph = createCallGraph(callGraphPayload);
+      const plugin = {
+        async inspect() {
+          return {
+            package: {},
+            plugin: { name: 'testplugin', runtime: 'testruntime' },
+            callGraph,
+          };
+        },
+      };
+      const spyPlugin = sinon.spy(plugin, 'inspect');
+      const loadPlugin = sinon.stub(params.plugins, 'loadPlugin');
+      t.teardown(loadPlugin.restore);
+      loadPlugin.withArgs('gradle').returns(plugin);
+      await params.cli.test('gradle-app', {
+        reachableVulns: true,
+        initScript: 'somescript.gradle',
+      });
+      const req = params.server.popRequest();
+      t.equal(req.method, 'POST', 'makes POST request');
+      t.equal(
+        req.headers['x-snyk-cli-version'],
+        params.versionNumber,
+        'sends version number',
+      );
+      t.match(req.url, '/test-dep-graph', 'posts to correct url');
+      t.match(req.body.targetFile, undefined, 'target is undefined');
+      t.equal(req.body.depGraph.pkgManager.name, 'gradle');
+      t.deepEqual(
+        req.body.callGraph,
+        callGraphPayload,
+        'correct call graph sent',
+      );
+      t.same(
+        spyPlugin.getCall(0).args,
+        [
+          'gradle-app',
+          'build.gradle',
+          {
+            args: null,
+            file: 'build.gradle',
+            org: null,
+            projectName: null,
+            packageManager: 'gradle',
+            path: 'gradle-app',
+            showVulnPaths: 'some',
+            reachableVulns: true,
+            initScript: 'somescript.gradle',
+          },
+        ],
+        'calls gradle plugin',
+      );
+    },
+
     '`test gradle-app --all-sub-projects` sends `allSubProjects` argument to plugin': (
       params,
       utils,
