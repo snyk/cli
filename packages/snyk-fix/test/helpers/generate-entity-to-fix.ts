@@ -1,7 +1,11 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { EntityToFix, ScanResult, TestResult, FixInfo } from '../../src/types';
 
-export function generateEntityToFix(type: string, targetFile: string, contents: string): EntityToFix {
+export function generateEntityToFix(
+  type: string,
+  targetFile: string,
+  contents: string,
+): EntityToFix {
   const scanResult = generateScanResult(type, targetFile);
   const testResult = generateTestResult();
   const workspace = generateWorkspace(contents);
@@ -13,9 +17,15 @@ function generateWorkspace(contents: string) {
     readFile: async () => {
       return contents;
     },
+    writeFile: async () => {
+      return;
+    },
   };
 }
-function generateScanResult(type: string, targetFile: string): ScanResult {
+export function generateScanResult(
+  type: string,
+  targetFile: string,
+): ScanResult {
   return {
     identity: {
       type,
@@ -30,7 +40,7 @@ function generateScanResult(type: string, targetFile: string): ScanResult {
   };
 }
 
-function generateTestResult(): TestResult {
+export function generateTestResult(): TestResult {
   const issueId = 'VULN_ID_1';
   return {
     issues: [
@@ -48,5 +58,12 @@ function generateTestResult(): TestResult {
       },
     },
     depGraphData: ('' as unknown) as DepGraphData,
+    remediation: {
+      unresolved: [],
+      upgrade: {},
+      patch: {},
+      ignore: {},
+      pin: {},
+    },
   };
 }

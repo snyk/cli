@@ -19,7 +19,7 @@
     "snyk-fix": "dist/index.js"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "scripts": {
     "build": "tsc",
@@ -40,8 +40,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/dep-graph": "^1.21.0",
-    "debug": "^4.3.1",
-    "micromatch": "4.0.2"
+    "debug": "^4.3.1"
   },
   "devDependencies": {
     "@types/jest": "26.0.20",

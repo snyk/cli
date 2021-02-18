@@ -8,7 +8,6 @@ export interface GitTarget {
   remoteUrl: string;
   branch: string;
 }
-
 export interface ContainerTarget {
   image: string;
 }
@@ -100,10 +99,6 @@ export interface PinRemediation extends UpgradeVulns {
   isTransitive: boolean;
 }
 
-export interface DependencyPins {
-  [name: string]: PinRemediation;
-}
-
 // Remediation changes to be applied to the project,
 // including information on all and unresolved issues.
 export interface RemediationChanges {
@@ -113,7 +108,7 @@ export interface RemediationChanges {
     [name: string]: PatchRemediation;
   };
   ignore: unknown;
-  pin: DependencyPins;
+  pin: DependencyUpdates;
 }
 
 export interface IssueData {
@@ -163,6 +158,7 @@ export enum SEVERITY {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
+  CRITICAL = 'critical',
 }
 
 /* End Remediation Data
@@ -177,6 +173,7 @@ export type SupportedScanTypes = 'pip';
 export interface EntityToFix {
   workspace: {
     readFile: (path: string) => Promise<string>;
+    writeFile: (path: string, content: string) => Promise<void>;
   };
   scanResult: ScanResult;
   testResult: TestResult;

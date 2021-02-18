@@ -1,5 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Error handling Snyk fix throws error when called with unsupported type 1`] = `"Error G10 (UnsupportedTypeError) npm is not supported."`;
+
 exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
 Object {
   "exceptionsByScanType": Object {},
@@ -36,9 +38,17 @@ Object {
                 "title": "Fake vuln",
               },
             },
+            "remediation": Object {
+              "ignore": Object {},
+              "patch": Object {},
+              "pin": Object {},
+              "unresolved": Array [],
+              "upgrade": Object {},
+            },
           },
           "workspace": Object {
             "readFile": [Function],
+            "writeFile": [Function],
           },
         },
       ],
@@ -72,9 +82,17 @@ Object {
                 "title": "Fake vuln",
               },
             },
+            "remediation": Object {
+              "ignore": Object {},
+              "patch": Object {},
+              "pin": Object {},
+              "unresolved": Array [],
+              "upgrade": Object {},
+            },
           },
           "workspace": Object {
             "readFile": [Function],
+            "writeFile": [Function],
           },
         },
       ],
@@ -120,9 +138,17 @@ Object {
                 "title": "Fake vuln",
               },
             },
+            "remediation": Object {
+              "ignore": Object {},
+              "patch": Object {},
+              "pin": Object {},
+              "unresolved": Array [],
+              "upgrade": Object {},
+            },
           },
           "workspace": Object {
             "readFile": [Function],
+            "writeFile": [Function],
           },
         },
       ],
@@ -130,5 +156,3 @@ Object {
   },
 }
 `;
-
-exports[`Snyk fix Snyk fix throws error when called with unsupported type 1`] = `"Error G10 (UnsupportedTypeError) npm is not supported."`;

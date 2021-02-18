@@ -1,38 +1,23 @@
 import * as snykFix from '../../src';
 import { generateEntityToFix } from '../helpers/generate-entity-to-fix';
 describe('Snyk fix', () => {
-  it('Snyk fix throws error when called with unsupported type', () => {
-    // read data from console.error
-    let stdoutMessages = '';
-    const stubConsoleError = (msg: string) => (stdoutMessages += msg);
-    const origConsoleLog = console.error;
-    console.error = stubConsoleError;
-
-    const projectTestResult = generateEntityToFix(
-      'npm',
-      'package.json',
-      JSON.stringify({}),
-    );
-    expect(
-      snykFix.fix([projectTestResult]),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '"Provided scan type is not supported"',
-    );
-    expect(stdoutMessages).toMatchSnapshot();
-    // restore original console.error
-    console.log = origConsoleLog;
-  });
   it('Snyk fix returns results for supported type', async () => {
+    // Arrange
     const projectTestResult = generateEntityToFix(
       'pip',
       'requirements.txt',
       JSON.stringify({}),
     );
+
+    // Act
     const res = await snykFix.fix([projectTestResult]);
+
+    // Assert
     expect(res).toMatchSnapshot();
   });
 
   it('Snyk fix returns results for supported & unsupported type', async () => {
+    // Arrange
     const projectTestResult = generateEntityToFix(
       'pip',
       'requirements.txt',
@@ -43,14 +28,19 @@ describe('Snyk fix', () => {
       'Pipfile',
       JSON.stringify({}),
     );
+
+    // Act
     const res = await snykFix.fix([
       projectTestResult,
       pipfileProjectTestResult,
     ]);
+
+    // Assert
     expect(res).toMatchSnapshot();
   });
 
   it('Snyk fix returns results as expected', async () => {
+    // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
@@ -66,11 +56,15 @@ describe('Snyk fix', () => {
       'Pipfile',
       JSON.stringify({}),
     );
+
+    // Act
     const res = await snykFix.fix([
       txtDevProjectTestResult,
       txtProdProjectTestResult,
       pipfileProjectTestResult,
     ]);
+
+    // Assert
     expect(res.exceptionsByScanType).toEqual({});
     expect(Object.keys(res.resultsByPlugin)).toHaveLength(1);
     expect(Object.keys(res.resultsByPlugin)[0]).toEqual('python');
@@ -92,6 +86,7 @@ describe('Snyk fix', () => {
     ).toEqual('prod.txt');
   });
   it('Snyk fix returns results as expected when 1 fails to fix', async () => {
+    // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
@@ -112,11 +107,15 @@ describe('Snyk fix', () => {
       'Pipfile',
       JSON.stringify({}),
     );
+
+    // Act
     const res = await snykFix.fix([
       txtDevProjectTestResult,
       txtProdProjectTestResult,
       pipfileProjectTestResult,
     ]);
+
+    // Assert
     expect(res.exceptionsByScanType).toEqual({});
     expect(Object.keys(res.resultsByPlugin)).toHaveLength(1);
     expect(Object.keys(res.resultsByPlugin)[0]).toEqual('python');
@@ -142,6 +141,7 @@ describe('Snyk fix', () => {
 
 describe('groupEntitiesPerScanType', () => {
   it('It correctly groups related entities per handler type (pip)', () => {
+    // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
@@ -157,15 +157,20 @@ describe('groupEntitiesPerScanType', () => {
       'Pipfile',
       JSON.stringify({}),
     );
+
+    // Act
     const res = snykFix.groupEntitiesPerScanType([
       txtProdProjectTestResult,
       txtDevProjectTestResult,
       pipfileProjectTestResult,
     ]);
+
+    // Assert
     expect(Object.keys(res)[0]).toEqual('pip');
     expect(Object.keys(res)[0]).toHaveLength(3);
   });
   it('It correctly groups related entities per handler type (mixed)', () => {
+    // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
@@ -181,17 +186,22 @@ describe('groupEntitiesPerScanType', () => {
       'package.json',
       JSON.stringify({}),
     );
+
+    // Act
     const res = snykFix.groupEntitiesPerScanType([
       txtProdProjectTestResult,
       txtDevProjectTestResult,
       npmProjectTestResult,
     ]);
+
+    // Assert
     expect(Object.keys(res).sort()).toEqual(['npm', 'pip']);
     expect(res.npm).toHaveLength(1);
     expect(res.pip).toHaveLength(2);
   });
 
   it('It correctly groups related entities per handler type with missing type', () => {
+    // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
@@ -209,13 +219,44 @@ describe('groupEntitiesPerScanType', () => {
     );
     delete missingProjectTestResult.scanResult.identity.type;
 
+    // Act
     const res = snykFix.groupEntitiesPerScanType([
       txtProdProjectTestResult,
       txtDevProjectTestResult,
       missingProjectTestResult,
     ]);
+
+    // Assert
     expect(Object.keys(res).sort()).toEqual(['missing-type', 'pip']);
     expect(res['missing-type']).toHaveLength(1);
     expect(res.pip).toHaveLength(2);
+  });
+});
+
+describe('Error handling', () => {
+  it('Snyk fix throws error when called with unsupported type', () => {
+    // Arrange
+    // read data from console.error
+    let stdoutMessages = '';
+    const stubConsoleError = (msg: string) => (stdoutMessages += msg);
+    const origConsoleLog = console.error;
+    console.error = stubConsoleError;
+
+    // Act
+    const projectTestResult = generateEntityToFix(
+      'npm',
+      'package.json',
+      JSON.stringify({}),
+    );
+
+    // Assert
+    expect(
+      snykFix.fix([projectTestResult]),
+    ).rejects.toThrowErrorMatchingInlineSnapshot(
+      '"Provided scan type is not supported"',
+    );
+    expect(stdoutMessages).toMatchSnapshot();
+    // restore original console.error
+    console.log = origConsoleLog;
   });
 });
