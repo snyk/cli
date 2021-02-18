@@ -51,7 +51,12 @@ export async function pipRequirementsTxt(
 }
 
 export async function fixIndividualRequirementsTxt(entity: EntityToFix) {
-  const content = fileContent(entity.scanResult);
+  const fileName = entity.scanResult.identity.targetFile;
+  if (!fileName) {
+    // TODO: is this possible?
+    throw new Error('Requirements file name required');
+  }
+  const content = await entity.workspace.readFile(fileName);
   const parsedRequirements = await parseRequirementsTxt(content);
   debug('Parsed manifest ' + parsedRequirements);
   return entity;
@@ -59,17 +64,4 @@ export async function fixIndividualRequirementsTxt(entity: EntityToFix) {
 
 export async function parseRequirementsTxt(content: string) {
   return JSON.parse(content);
-}
-
-// TODO: should client with fileContent() implementation
-// be required alongside each scanResult & testResult?
-export function fileContent(scanResult: ScanResult) {
-  const fileName = scanResult.identity.targetFile;
-  if (!fileName) {
-    // TODO: is this possible?
-    throw new Error('Requirements file name required');
-  }
-  const content = fs.readFileSync(fileName, 'utf-8');
-
-  return content;
 }

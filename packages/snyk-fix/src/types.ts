@@ -175,6 +175,9 @@ export enum SEVERITY {
 export type SupportedScanTypes = 'pip';
 
 export interface EntityToFix {
+  workspace: {
+    readFile: (path: string) => Promise<string>;
+  };
   scanResult: ScanResult;
   testResult: TestResult;
 }

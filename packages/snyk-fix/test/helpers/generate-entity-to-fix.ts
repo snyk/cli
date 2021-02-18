@@ -1,12 +1,20 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { EntityToFix, ScanResult, TestResult, FixInfo } from '../../src/types';
 
-export function generateEntityToFix(type: string, targetFile: string): EntityToFix {
+export function generateEntityToFix(type: string, targetFile: string, contents: string): EntityToFix {
   const scanResult = generateScanResult(type, targetFile);
   const testResult = generateTestResult();
-  return { scanResult, testResult };
+  const workspace = generateWorkspace(contents);
+  return { scanResult, testResult, workspace };
 }
 
+function generateWorkspace(contents: string) {
+  return {
+    readFile: async () => {
+      return contents;
+    },
+  };
+}
 function generateScanResult(type: string, targetFile: string): ScanResult {
   return {
     identity: {

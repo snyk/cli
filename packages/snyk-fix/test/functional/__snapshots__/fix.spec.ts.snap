@@ -1,84 +1,93 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
-Array [
-  Object {
-    "failed": Array [],
-    "skipped": Array [
-      Object {
-        "scanResult": Object {
-          "facts": Array [
-            Object {
-              "data": "not-implemented",
-              "type": "not-implemented",
-            },
-          ],
-          "identity": Object {
-            "targetFile": "Pipfile",
-            "type": "pip",
-          },
-        },
-        "testResult": Object {
-          "depGraphData": "",
-          "issues": Array [
-            Object {
-              "fixInfo": Object {},
-              "issueId": "VULN_ID_1",
-              "pkgName": "package@version",
-            },
-          ],
-          "issuesData": Object {
-            "vuln-id": Object {
-              "id": "VULN_ID_1",
-              "severity": "high",
-              "title": "Fake vuln",
+Object {
+  "exceptionsByScanType": Object {},
+  "resultsByPlugin": Object {
+    "python": Object {
+      "failed": Array [],
+      "skipped": Array [
+        Object {
+          "scanResult": Object {
+            "facts": Array [
+              Object {
+                "data": "not-implemented",
+                "type": "not-implemented",
+              },
+            ],
+            "identity": Object {
+              "targetFile": "Pipfile",
+              "type": "pip",
             },
           },
-        },
-      },
-    ],
-    "succeeded": Array [
-      Object {
-        "scanResult": Object {
-          "facts": Array [
-            Object {
-              "data": "not-implemented",
-              "type": "not-implemented",
-            },
-          ],
-          "identity": Object {
-            "targetFile": "requirements.txt",
-            "type": "pip",
-          },
-        },
-        "testResult": Object {
-          "depGraphData": "",
-          "issues": Array [
-            Object {
-              "fixInfo": Object {},
-              "issueId": "VULN_ID_1",
-              "pkgName": "package@version",
-            },
-          ],
-          "issuesData": Object {
-            "vuln-id": Object {
-              "id": "VULN_ID_1",
-              "severity": "high",
-              "title": "Fake vuln",
+          "testResult": Object {
+            "depGraphData": "",
+            "issues": Array [
+              Object {
+                "fixInfo": Object {},
+                "issueId": "VULN_ID_1",
+                "pkgName": "package@version",
+              },
+            ],
+            "issuesData": Object {
+              "vuln-id": Object {
+                "id": "VULN_ID_1",
+                "severity": "high",
+                "title": "Fake vuln",
+              },
             },
           },
+          "workspace": Object {
+            "readFile": [Function],
+          },
         },
-      },
-    ],
+      ],
+      "succeeded": Array [
+        Object {
+          "scanResult": Object {
+            "facts": Array [
+              Object {
+                "data": "not-implemented",
+                "type": "not-implemented",
+              },
+            ],
+            "identity": Object {
+              "targetFile": "requirements.txt",
+              "type": "pip",
+            },
+          },
+          "testResult": Object {
+            "depGraphData": "",
+            "issues": Array [
+              Object {
+                "fixInfo": Object {},
+                "issueId": "VULN_ID_1",
+                "pkgName": "package@version",
+              },
+            ],
+            "issuesData": Object {
+              "vuln-id": Object {
+                "id": "VULN_ID_1",
+                "severity": "high",
+                "title": "Fake vuln",
+              },
+            },
+          },
+          "workspace": Object {
+            "readFile": [Function],
+          },
+        },
+      ],
+    },
   },
-]
+}
 `;
 
 exports[`Snyk fix Snyk fix returns results for supported type 1`] = `
 Object {
   "exceptionsByScanType": Object {},
   "resultsByPlugin": Object {
-    "requirements.txt": Object {
+    "python": Object {
       "failed": Array [],
       "skipped": Array [],
       "succeeded": Array [
@@ -111,6 +120,9 @@ Object {
                 "title": "Fake vuln",
               },
             },
+          },
+          "workspace": Object {
+            "readFile": [Function],
           },
         },
       ],

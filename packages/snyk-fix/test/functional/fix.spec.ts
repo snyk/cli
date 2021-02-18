@@ -1,8 +1,5 @@
-import * as fs from 'fs';
-
 import * as snykFix from '../../src';
 import { generateEntityToFix } from '../helpers/generate-entity-to-fix';
-import * as pipRequirementsFix from '../../src/plugins/python/handlers/pip-requirements';
 describe('Snyk fix', () => {
   it('Snyk fix throws error when called with unsupported type', () => {
     // read data from console.error
@@ -11,7 +8,11 @@ describe('Snyk fix', () => {
     const origConsoleLog = console.error;
     console.error = stubConsoleError;
 
-    const projectTestResult = generateEntityToFix('npm', 'package.json');
+    const projectTestResult = generateEntityToFix(
+      'npm',
+      'package.json',
+      JSON.stringify({}),
+    );
     expect(
       snykFix.fix([projectTestResult]),
     ).rejects.toThrowErrorMatchingInlineSnapshot(
@@ -22,14 +23,26 @@ describe('Snyk fix', () => {
     console.log = origConsoleLog;
   });
   it('Snyk fix returns results for supported type', async () => {
-    const projectTestResult = generateEntityToFix('pip', 'requirements.txt');
+    const projectTestResult = generateEntityToFix(
+      'pip',
+      'requirements.txt',
+      JSON.stringify({}),
+    );
     const res = await snykFix.fix([projectTestResult]);
     expect(res).toMatchSnapshot();
   });
 
   it('Snyk fix returns results for supported & unsupported type', async () => {
-    const projectTestResult = generateEntityToFix('pip', 'requirements.txt');
-    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile');
+    const projectTestResult = generateEntityToFix(
+      'pip',
+      'requirements.txt',
+      JSON.stringify({}),
+    );
+    const pipfileProjectTestResult = generateEntityToFix(
+      'pip',
+      'Pipfile',
+      JSON.stringify({}),
+    );
     const res = await snykFix.fix([
       projectTestResult,
       pipfileProjectTestResult,
@@ -38,9 +51,21 @@ describe('Snyk fix', () => {
   });
 
   it('Snyk fix returns results as expected', async () => {
-    const txtProdProjectTestResult = generateEntityToFix('pip', 'prod.txt');
-    const txtDevProjectTestResult = generateEntityToFix('pip', 'dev.txt');
-    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile');
+    const txtProdProjectTestResult = generateEntityToFix(
+      'pip',
+      'prod.txt',
+      JSON.stringify({}),
+    );
+    const txtDevProjectTestResult = generateEntityToFix(
+      'pip',
+      'dev.txt',
+      JSON.stringify({}),
+    );
+    const pipfileProjectTestResult = generateEntityToFix(
+      'pip',
+      'Pipfile',
+      JSON.stringify({}),
+    );
     const res = await snykFix.fix([
       txtDevProjectTestResult,
       txtProdProjectTestResult,
@@ -66,17 +91,27 @@ describe('Snyk fix', () => {
       res.resultsByPlugin.python.succeeded[1].scanResult.identity.targetFile,
     ).toEqual('prod.txt');
   });
-  it.only('Snyk fix returns results as expected when 1 fails to fix', async () => {
-    jest.spyOn(fs, 'readFileSync').mockImplementation((fileName) => {
-      if (fileName === 'dev.txt') {
+  it('Snyk fix returns results as expected when 1 fails to fix', async () => {
+    const txtProdProjectTestResult = generateEntityToFix(
+      'pip',
+      'prod.txt',
+      JSON.stringify({}),
+    );
+    const txtDevProjectTestResult = generateEntityToFix(
+      'pip',
+      'dev.txt',
+      JSON.stringify({}),
+    );
+    jest
+      .spyOn(txtDevProjectTestResult.workspace, 'readFile')
+      .mockImplementation(() => {
         throw new Error('Invalid encoding');
-      } else {
-        return JSON.stringify({ django: { version: '^1.9.0', line: 3 } });
-      }
-    });
-    const txtProdProjectTestResult = generateEntityToFix('pip', 'prod.txt');
-    const txtDevProjectTestResult = generateEntityToFix('pip', 'dev.txt');
-    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile');
+      });
+    const pipfileProjectTestResult = generateEntityToFix(
+      'pip',
+      'Pipfile',
+      JSON.stringify({}),
+    );
     const res = await snykFix.fix([
       txtDevProjectTestResult,
       txtProdProjectTestResult,
@@ -107,9 +142,21 @@ describe('Snyk fix', () => {
 
 describe('groupEntitiesPerScanType', () => {
   it('It correctly groups related entities per handler type (pip)', () => {
-    const txtProdProjectTestResult = generateEntityToFix('pip', 'prod.txt');
-    const txtDevProjectTestResult = generateEntityToFix('pip', 'dev.txt');
-    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile');
+    const txtProdProjectTestResult = generateEntityToFix(
+      'pip',
+      'prod.txt',
+      JSON.stringify({}),
+    );
+    const txtDevProjectTestResult = generateEntityToFix(
+      'pip',
+      'dev.txt',
+      JSON.stringify({}),
+    );
+    const pipfileProjectTestResult = generateEntityToFix(
+      'pip',
+      'Pipfile',
+      JSON.stringify({}),
+    );
     const res = snykFix.groupEntitiesPerScanType([
       txtProdProjectTestResult,
       txtDevProjectTestResult,
@@ -119,9 +166,21 @@ describe('groupEntitiesPerScanType', () => {
     expect(Object.keys(res)[0]).toHaveLength(3);
   });
   it('It correctly groups related entities per handler type (mixed)', () => {
-    const txtProdProjectTestResult = generateEntityToFix('pip', 'prod.txt');
-    const txtDevProjectTestResult = generateEntityToFix('pip', 'dev.txt');
-    const npmProjectTestResult = generateEntityToFix('npm', 'package.json');
+    const txtProdProjectTestResult = generateEntityToFix(
+      'pip',
+      'prod.txt',
+      JSON.stringify({}),
+    );
+    const txtDevProjectTestResult = generateEntityToFix(
+      'pip',
+      'dev.txt',
+      JSON.stringify({}),
+    );
+    const npmProjectTestResult = generateEntityToFix(
+      'npm',
+      'package.json',
+      JSON.stringify({}),
+    );
     const res = snykFix.groupEntitiesPerScanType([
       txtProdProjectTestResult,
       txtDevProjectTestResult,
@@ -133,9 +192,21 @@ describe('groupEntitiesPerScanType', () => {
   });
 
   it('It correctly groups related entities per handler type with missing type', () => {
-    const txtProdProjectTestResult = generateEntityToFix('pip', 'prod.txt');
-    const txtDevProjectTestResult = generateEntityToFix('pip', 'dev.txt');
-    const missingProjectTestResult = generateEntityToFix('npm', 'package.json');
+    const txtProdProjectTestResult = generateEntityToFix(
+      'pip',
+      'prod.txt',
+      JSON.stringify({}),
+    );
+    const txtDevProjectTestResult = generateEntityToFix(
+      'pip',
+      'dev.txt',
+      JSON.stringify({}),
+    );
+    const missingProjectTestResult = generateEntityToFix(
+      'npm',
+      'package.json',
+      JSON.stringify({}),
+    );
     delete missingProjectTestResult.scanResult.identity.type;
 
     const res = snykFix.groupEntitiesPerScanType([
