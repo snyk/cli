@@ -1,5 +1,5 @@
 {
-  "name": "protect-fixture-1",
+  "name": "single-patchable-module",
   "version": "1.0.1",
   "description": "A test fixture",
   "repository": {
