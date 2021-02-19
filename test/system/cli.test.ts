@@ -2,6 +2,7 @@ import * as util from 'util';
 import * as _ from 'lodash';
 import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
+import * as dockerChecker from '../../src/lib/is-docker';
 import { makeTmpDirectory, silenceLog } from '../utils';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
@@ -101,6 +102,8 @@ test('auth with no args', async (t) => {
   const auth = proxyquire('../../src/cli/commands/auth', { open });
   // stub CI check (ensure returns false for system test)
   const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
+  // ensure this works on circleCI as when running outside of a container
+  const dockerStub = sinon.stub(dockerChecker, 'isDocker').returns(false);
   // disable console.log
   const enableLog = silenceLog();
   try {
@@ -117,6 +120,7 @@ test('auth with no args', async (t) => {
       'opens login with token param',
     );
     ciStub.restore();
+    dockerStub.restore();
   } catch (e) {
     t.threw(e);
   }
@@ -130,6 +134,8 @@ test('auth with UTMs in environment variables', async (t) => {
   const auth = proxyquire('../../src/cli/commands/auth', { open });
   // stub CI check (ensure returns false for system test)
   const ciStub = sinon.stub(ciChecker, 'isCI').returns(false);
+  // ensure this works on circleCI as when running outside of a container
+  const dockerStub = sinon.stub(dockerChecker, 'isDocker').returns(false);
 
   // read data from console.log
   let stdoutMessages = '';
@@ -161,6 +167,7 @@ test('auth with UTMs in environment variables', async (t) => {
     delete process.env.SNYK_UTM_CAMPAIGN;
     // clean up stubs
     ciStub.restore();
+    dockerStub.restore();
 
     // restore original console.log
     console.log = origConsoleLog;
