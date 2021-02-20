@@ -30,8 +30,6 @@ function formatIacIssue(
     introducedBy = `\n    introduced by ${pathStr}`;
   }
 
-  const description = extractOverview(issue.description).trim();
-  const descriptionLine = `\n    ${description}\n`;
   const severityColor = getSeveritiesColour(issue.severity);
 
   return (
@@ -43,18 +41,8 @@ function formatIacIssue(
     ` [${issue.id}]` +
     name +
     introducedBy +
-    descriptionLine
+    '\n'
   );
-}
-
-function extractOverview(description: string): string {
-  if (!description) {
-    return '';
-  }
-
-  const overviewRegExp = /## Overview([\s\S]*?)(?=##|(# Details))/m;
-  const overviewMatches = overviewRegExp.exec(description);
-  return (overviewMatches && overviewMatches[1]) || '';
 }
 
 export function getIacDisplayedOutput(

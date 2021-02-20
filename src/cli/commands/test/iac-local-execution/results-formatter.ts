@@ -1,5 +1,6 @@
-import { IacFileScanResult, PolicyMetadata } from './types';
+import { EngineType, IacFileScanResult, PolicyMetadata } from './types';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
+import { IacProjectType } from '../../../../lib/iac/constants';
 // import {
 //   issuesToLineNumbers,
 //   CloudConfigFileTypes,
@@ -34,6 +35,11 @@ export function formatResults(
 //   }
 // }
 
+const engineTypeToProjectType = {
+  [EngineType.Kubernetes]: IacProjectType.K8S,
+  [EngineType.Terraform]: IacProjectType.TERRAFORM,
+};
+
 function iacLocalFileScanToFormattedResult(
   iacFileScanResult: IacFileScanResult,
   severityThreshold?: SEVERITY,
@@ -41,9 +47,10 @@ function iacLocalFileScanToFormattedResult(
   const formattedIssues = iacFileScanResult.violatedPolicies.map((policy) => {
     // TODO: make sure we handle this issue with annotations:
     // https://github.com/snyk/registry/pull/17277
-    const cloudConfigPath = [`[DocId:${iacFileScanResult.docId}]`].concat(
-      policy.msg.split('.'),
-    );
+    const cloudConfigPath =
+      iacFileScanResult.docId !== undefined
+        ? [`[DocId:${iacFileScanResult.docId}]`].concat(policy.msg.split('.'))
+        : policy.msg.split('.');
     const lineNumber = -1;
     // TODO: once package becomes public, restore the commented out code for having the issue-to-line-number functionality
     // try {
@@ -80,7 +87,7 @@ function iacLocalFileScanToFormattedResult(
       ),
     },
     isPrivate: true,
-    packageManager: 'k8sconfig',
+    packageManager: engineTypeToProjectType[iacFileScanResult.engineType],
     targetFile: iacFileScanResult.filePath,
   };
 }
