@@ -1,6 +1,6 @@
 import {
   OpaWasmInstance,
-  IacFileData,
+  IacFileParsed,
   IacFileScanResult,
   PolicyMetadata,
   EngineType,
@@ -9,14 +9,26 @@ import { loadPolicy } from '@open-policy-agent/opa-wasm';
 import * as fs from 'fs';
 import { getLocalCachePath, LOCAL_POLICY_ENGINE_DIR } from './local-cache';
 
-export async function getPolicyEngine(
-  engineType: EngineType,
-): Promise<PolicyEngine> {
+export async function scanFiles(
+  parsedFiles: Array<IacFileParsed>,
+): Promise<IacFileScanResult[]> {
+  // TODO: gracefully handle failed scans
+  const scanResults: IacFileScanResult[] = [];
+  for (const parsedFile of parsedFiles) {
+    const policyEngine = await getPolicyEngine(parsedFile.engineType);
+    const result = policyEngine.scanFile(parsedFile);
+    scanResults.push(result);
+  }
+
+  return scanResults;
+}
+
+async function getPolicyEngine(engineType: EngineType): Promise<PolicyEngine> {
   if (policyEngineCache[engineType]) {
     return policyEngineCache[engineType]!;
   }
-
-  policyEngineCache[engineType] = await buildPolicyEngine(engineType);
+  const policyEngine = await buildPolicyEngine(engineType);
+  policyEngineCache[engineType] = policyEngine;
   return policyEngineCache[engineType]!;
 }
 
@@ -62,7 +74,7 @@ class PolicyEngine {
     return this.opaWasmInstance.evaluate(data)[0].result;
   }
 
-  public scanFile(iacFile: IacFileData): IacFileScanResult {
+  public scanFile(iacFile: IacFileParsed): IacFileScanResult {
     try {
       const violatedPolicies = this.evaluate(iacFile.jsonContent);
       return {
