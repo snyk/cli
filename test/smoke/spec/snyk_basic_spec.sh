@@ -87,6 +87,30 @@ Describe "Snyk CLI basics"
       # TODO: unusable with our current docker issues
       The stderr should equal ""
     End
+
+    Describe "prints help info without ascii escape sequences"
+      It "has NO_COLOR set"
+        snyk_help_no_color() {
+          NO_COLOR='' snyk help
+        }
+
+        When run snyk_help_no_color
+        The output should not include "[1mN"
+        The output should not include "[0m"
+        The output should not include "[4mC"
+      End
+
+      It "is not tty"
+        snyk_help_no_tty() {
+          snyk help | cat
+        }
+
+        When run snyk_help_no_tty
+        The output should not include "[1mN"
+        The output should not include "[0m"
+        The output should not include "[4mC"
+      End
+    End
   End
 
   Describe "snyk config"
