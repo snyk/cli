@@ -13,11 +13,11 @@ export interface ContainerTarget {
 }
 
 export interface ScanResult {
-  identity: Identity;
-  facts: Facts[];
-  name?: string;
-  policy?: string;
-  target?: GitTarget | ContainerTarget;
+  readonly identity: Identity;
+  readonly facts: Facts[];
+  readonly name?: string;
+  readonly policy?: string;
+  readonly target?: GitTarget | ContainerTarget;
 }
 
 export interface Identity {
@@ -36,10 +36,10 @@ export interface Facts {
  * after the relevant plugin extracts dependencies
  */
 export interface TestResult {
-  issues: Issue[];
-  issuesData: IssuesData;
-  depGraphData: DepGraphData;
-  remediation?: RemediationChanges; // TODO: not yet in the CLI TestResults type
+  readonly issues: Issue[];
+  readonly issuesData: IssuesData;
+  readonly depGraphData: DepGraphData;
+  readonly remediation?: RemediationChanges; // TODO: not yet in the CLI TestResults type
 }
 
 export interface Issue {
@@ -171,10 +171,10 @@ export enum SEVERITY {
 export type SupportedScanTypes = 'pip';
 
 export interface EntityToFix {
-  workspace: {
+  readonly workspace: {
     readFile: (path: string) => Promise<string>;
     writeFile: (path: string, content: string) => Promise<void>;
   };
-  scanResult: ScanResult;
-  testResult: TestResult;
+  readonly scanResult: ScanResult;
+  readonly testResult: TestResult;
 }

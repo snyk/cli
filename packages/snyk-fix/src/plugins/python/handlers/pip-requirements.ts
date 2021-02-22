@@ -23,12 +23,12 @@ export async function pipRequirementsTxt(
   };
   for (const entity of entities) {
     try {
-      if (await notSupported(entity)) {
+      if (await isSupported(entity)) {
+        const fixedEntity = await fixIndividualRequirementsTxt(entity);
+        handlerResult.succeeded.push(fixedEntity);
+      } else {
         handlerResult.skipped.push(entity);
-        continue;
       }
-      const fixedEntity = await fixIndividualRequirementsTxt(entity);
-      handlerResult.succeeded.push(fixedEntity);
     } catch (e) {
       console.error(e); // TODO: use spinner & propagate error back
       handlerResult.failed.push(entity);
@@ -37,16 +37,16 @@ export async function pipRequirementsTxt(
   return handlerResult;
 }
 
-export async function notSupported(entity: EntityToFix): Promise<boolean> {
+export async function isSupported(entity: EntityToFix): Promise<boolean> {
   const remediationData = entity.testResult.remediation;
   if (!remediationData) {
-    return true;
+    return false;
   }
 
   if (await containsRequireDirective(entity)) {
-    return true;
+    return false;
   }
-  return false;
+  return true;
 }
 
 /* Requires like -r, -c are not supported at the moment, as multiple files

@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import * as path from 'path';
-import { updateDependencies } from '../../../../../src/plugins/python/handlers/update-dependencies';
+import { updateDependencies } from '../../../../../../src/plugins/python/handlers/update-dependencies';
 
 describe('remediation', () => {
   it('does not add extra new lines', () => {
@@ -150,7 +150,7 @@ describe('remediation', () => {
     const manifestContents = readFileSync(
       path.resolve(
         __dirname,
-        '../',
+        '../../',
         'workspaces',
         'pip-app',
         'requirements.txt',
@@ -171,7 +171,7 @@ describe('remediation', () => {
     const manifestContents = readFileSync(
       path.resolve(
         __dirname,
-        '../',
+        '../../',
         'workspaces',
         'pip-app-with-python-markers',
         'requirements.txt',
@@ -190,7 +190,7 @@ describe('remediation', () => {
     const manifestContents = readFileSync(
       path.resolve(
         __dirname,
-        '../',
+        '../../',
         'workspaces',
         'pip-app',
         'requirements.txt',

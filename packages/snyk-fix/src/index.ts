@@ -1,4 +1,5 @@
 import * as debugLib from 'debug';
+import * as pMap from 'p-map';
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
 import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
@@ -17,22 +18,28 @@ export async function fix(
   let resultsByPlugin: FixHandlerResultByPlugin = {};
   const entitiesPerType = groupEntitiesPerScanType(entities);
   const exceptionsByScanType: { [ecosystem: string]: Error[] } = {};
-  // TODO: pMap this?
-  for (const scanType of Object.keys(entitiesPerType)) {
-    try {
-      const fixPlugin = loadPlugin(scanType);
-      const results = await fixPlugin(entitiesPerType[scanType]);
-      resultsByPlugin = {...resultsByPlugin, ...results};
-    } catch (e) {
-      // TODO: use ora?
-      console.error(convertErrorToUserMessage(e));
-      if (!exceptionsByScanType[scanType]) {
-        exceptionsByScanType[scanType] = [e];
-      } else {
-        exceptionsByScanType[scanType].push(e);
+
+  await pMap(
+    Object.keys(entitiesPerType),
+    async (scanType) => {
+      try {
+        const fixPlugin = loadPlugin(scanType);
+        const results = await fixPlugin(entitiesPerType[scanType]);
+        resultsByPlugin = { ...resultsByPlugin, ...results };
+      } catch (e) {
+        // TODO: use ora?
+        console.error(convertErrorToUserMessage(e));
+        if (!exceptionsByScanType[scanType]) {
+          exceptionsByScanType[scanType] = [e];
+        } else {
+          exceptionsByScanType[scanType].push(e);
+        }
       }
-    }
-  }
+    },
+    {
+      concurrency: 3,
+    },
+  );
   return { resultsByPlugin, exceptionsByScanType };
 }
 
@@ -54,4 +61,3 @@ export function groupEntitiesPerScanType(
   }
   return entitiesPerType;
 }
-

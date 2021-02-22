@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Error handling Snyk fix returns error when called with unsupported type 1`] = `
+Object {
+  "exceptionsByScanType": Object {
+    "npm": Array [
+      [UnsupportedTypeError: Provided scan type is not supported],
+    ],
+  },
+  "resultsByPlugin": Object {},
+}
+`;
+
+exports[`Error handling Snyk fix returns error when called with unsupported type 2`] = `"Error G10 (UnsupportedTypeError) npm is not supported."`;
+
 exports[`Error handling Snyk fix throws error when called with unsupported type 1`] = `"Error G10 (UnsupportedTypeError) npm is not supported."`;
 
 exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `

@@ -76,7 +76,6 @@ describe('Snyk fix', () => {
 
     // first *.txt throws because of the mock above
     expect(res.resultsByPlugin.python.failed).toHaveLength(0);
-    // TODO: only 1 should succeed once implemented the fix
     expect(res.resultsByPlugin.python.succeeded).toHaveLength(2);
     expect(
       res.resultsByPlugin.python.succeeded[0].scanResult.identity.targetFile,
@@ -217,6 +216,7 @@ describe('groupEntitiesPerScanType', () => {
       'package.json',
       JSON.stringify({}),
     );
+    // @ts-ignore: The operand of a 'delete' operator must be optional
     delete missingProjectTestResult.scanResult.identity.type;
 
     // Act
@@ -234,27 +234,24 @@ describe('groupEntitiesPerScanType', () => {
 });
 
 describe('Error handling', () => {
-  it('Snyk fix throws error when called with unsupported type', () => {
+  it('Snyk fix returns error when called with unsupported type', async () => {
     // Arrange
     // read data from console.error
     let stdoutMessages = '';
     const stubConsoleError = (msg: string) => (stdoutMessages += msg);
     const origConsoleLog = console.error;
     console.error = stubConsoleError;
-
-    // Act
     const projectTestResult = generateEntityToFix(
       'npm',
       'package.json',
       JSON.stringify({}),
     );
-
+    // Act
+    const res = await snykFix.fix([projectTestResult]);
     // Assert
     expect(
-      snykFix.fix([projectTestResult]),
-    ).rejects.toThrowErrorMatchingInlineSnapshot(
-      '"Provided scan type is not supported"',
-    );
+      res,
+    ).toMatchSnapshot();
     expect(stdoutMessages).toMatchSnapshot();
     // restore original console.error
     console.log = origConsoleLog;

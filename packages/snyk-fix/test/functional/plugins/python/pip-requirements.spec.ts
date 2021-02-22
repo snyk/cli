@@ -1,7 +1,7 @@
-import { notSupported } from '../../../../src/plugins/python/handlers/pip-requirements';
+import { isSupported } from '../../../../src/plugins/python/handlers/pip-requirements';
 import { generateEntityToFix } from '../../../helpers/generate-entity-to-fix';
 
-describe('notSupported', () => {
+describe('isSupported', () => {
   it('with missing remediation is not supported', async () => {
     const entity = generateEntityToFix(
       'pip',
@@ -9,7 +9,7 @@ describe('notSupported', () => {
       JSON.stringify({}),
     );
     delete entity.testResult.remediation;
-    expect(await notSupported(entity)).toBeTruthy();
+    expect(await isSupported(entity)).toBeFalsy();
   });
   it('with -r directive in the manifest not supported', async () => {
     const entity = generateEntityToFix(
@@ -17,7 +17,7 @@ describe('notSupported', () => {
       'requirements.txt',
       '-r prod.txt\nDjango==1.6.1',
     );
-    expect(await notSupported(entity)).toBeTruthy();
+    expect(await isSupported(entity)).toBeFalsy();
   });
   it('with -c directive in the manifest not supported', async () => {
     const entity = generateEntityToFix(
@@ -25,14 +25,10 @@ describe('notSupported', () => {
       'requirements.txt',
       '-c constraints.txt',
     );
-    expect(await notSupported(entity)).toBeTruthy();
+    expect(await isSupported(entity)).toBeFalsy();
   });
   it('with -e directive in the manifest is supported', async () => {
-    const entity = generateEntityToFix(
-      'pip',
-      'requirements.txt',
-      '-e .',
-    );
-    expect(await notSupported(entity)).toBeFalsy();
+    const entity = generateEntityToFix('pip', 'requirements.txt', '-e .');
+    expect(await isSupported(entity)).toBeTruthy();
   });
 });
