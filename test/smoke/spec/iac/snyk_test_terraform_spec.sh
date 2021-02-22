@@ -5,6 +5,7 @@ Describe "Snyk iac test command"
   After snyk_logout
 
   Describe "terraform single file scan"
+    Skip if "execute only in regression test" check_if_regression_test
     It "finds issues in terraform file"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf
       The status should be failure # issues found
