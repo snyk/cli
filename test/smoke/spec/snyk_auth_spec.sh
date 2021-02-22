@@ -25,7 +25,7 @@ Describe "Snyk CLI Authorization"
 
       # Using timeout to not wait for browser confirmation
       When run timeout 5 snyk auth
-      The output should include "To authenticate your account, open the below URL in your browser."
+      The result of function check_auth_output should be success
       The result of function verify_login_url should include "snyk.io/login?token=" # URL found
       The status should be failure
       # TODO: unusable with our current docker issues
