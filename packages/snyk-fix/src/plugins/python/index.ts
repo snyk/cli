@@ -29,10 +29,9 @@ export async function pythonFix(
   for (const entity of entities) {
     const type = getProjectType(entity);
     if (!type) {
-      debug(
-        `Skipping project: ${entity.scanResult.identity.targetFile} as it is not supported`,
-      );
-      handlerResult[pluginId].skipped.push(entity);
+      const userMessage = `Skipping project: ${entity.scanResult.identity.targetFile} as it is not supported`;
+      debug(userMessage);
+      handlerResult[pluginId].skipped.push({ original: entity, userMessage });
       continue;
     }
     entitiesPerType[type].push(entity);

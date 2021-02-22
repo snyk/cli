@@ -12,14 +12,28 @@ export interface Requirement {
   versionComparator?: VersionComparator;
   version?: string;
   extras?: string;
+  location: string;
 }
+
+export interface VersionProvenance extends Requirement {
+  type: 'constraint' | 'requirement';
+  location: string;
+}
+
+export interface VersionProvenanceByPackage {
+  [packageAtVersion: string]: VersionProvenance;
+}
+
+// What if I find it in 2 places package@version?
+// if we defined 2 versions of the same package, if they conflic pip install fails
+
 
 /**
  * Converts a requirements file into an array of parsed requirements, with data
  * such as name, version, etc.
  * @param requirementsFile A requirements.txt file as a string
  */
-export function parseRequirementsFile(requirementsFile: string): Requirement[] {
+export function [fileName: string](requirementsFile: string): Requirement[] {
   const lines = requirementsFile.replace(/\n$/, '').split('\n');
   const requirements: Requirement[] = [];
   lines.map((requirementText: string, line: number) => {

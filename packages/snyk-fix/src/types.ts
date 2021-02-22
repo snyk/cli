@@ -23,6 +23,7 @@ export interface ScanResult {
 export interface Identity {
   type: string;
   targetFile?: string;
+  // options used to scan should be here
   args?: { [key: string]: string };
 }
 
@@ -164,7 +165,7 @@ export enum SEVERITY {
 /* End Remediation Data
  */
 
-/* Python fix types
+/* Snyk fix types
  * Types for concepts introduced as part of this lib
  */
 
@@ -177,4 +178,15 @@ export interface EntityToFix {
   };
   readonly scanResult: ScanResult;
   readonly testResult: TestResult;
+  // options
+}
+
+export interface WithError<Original> {
+  original: Original;
+  error: Error;
+}
+
+export interface WithUserMessage<Original> {
+  original: Original;
+  userMessage: string;
 }

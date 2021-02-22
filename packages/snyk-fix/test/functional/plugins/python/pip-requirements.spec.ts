@@ -8,8 +8,10 @@ describe('isSupported', () => {
       'requirements.txt',
       JSON.stringify({}),
     );
+    // @ts-ignore: for test purpose only
     delete entity.testResult.remediation;
-    expect(await isSupported(entity)).toBeFalsy();
+    const res = await isSupported(entity);
+    expect(res.supported).toBeFalsy();
   });
   it('with -r directive in the manifest not supported', async () => {
     const entity = generateEntityToFix(
@@ -17,7 +19,8 @@ describe('isSupported', () => {
       'requirements.txt',
       '-r prod.txt\nDjango==1.6.1',
     );
-    expect(await isSupported(entity)).toBeFalsy();
+    const res = await isSupported(entity);
+    expect(res.supported).toBeFalsy();
   });
   it('with -c directive in the manifest not supported', async () => {
     const entity = generateEntityToFix(
@@ -25,10 +28,15 @@ describe('isSupported', () => {
       'requirements.txt',
       '-c constraints.txt',
     );
-    expect(await isSupported(entity)).toBeFalsy();
+    const res = await isSupported(entity);
+    expect(res.supported).toBeFalsy();
   });
   it('with -e directive in the manifest is supported', async () => {
     const entity = generateEntityToFix('pip', 'requirements.txt', '-e .');
-    expect(await isSupported(entity)).toBeTruthy();
+    entity.testResult.remediation!.pin = {
+      'django@1.6.1': { upgradeTo: 'django@2.0.1', vulns: [], upgrades: [] },
+    };
+    const res = await isSupported(entity);
+    expect(res.supported).toBeTruthy();
   });
 });

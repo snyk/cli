@@ -13,8 +13,6 @@ Object {
 
 exports[`Error handling Snyk fix returns error when called with unsupported type 2`] = `"Error G10 (UnsupportedTypeError) npm is not supported."`;
 
-exports[`Error handling Snyk fix throws error when called with unsupported type 1`] = `"Error G10 (UnsupportedTypeError) npm is not supported."`;
-
 exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
 Object {
   "exceptionsByScanType": Object {},
@@ -23,90 +21,108 @@ Object {
       "failed": Array [],
       "skipped": Array [
         Object {
-          "scanResult": Object {
-            "facts": Array [
-              Object {
-                "data": "not-implemented",
-                "type": "not-implemented",
-              },
-            ],
-            "identity": Object {
-              "targetFile": "Pipfile",
-              "type": "pip",
-            },
-          },
-          "testResult": Object {
-            "depGraphData": "",
-            "issues": Array [
-              Object {
-                "fixInfo": Object {},
-                "issueId": "VULN_ID_1",
-                "pkgName": "package@version",
-              },
-            ],
-            "issuesData": Object {
-              "vuln-id": Object {
-                "id": "VULN_ID_1",
-                "severity": "high",
-                "title": "Fake vuln",
+          "original": Object {
+            "scanResult": Object {
+              "facts": Array [
+                Object {
+                  "data": "not-implemented",
+                  "type": "not-implemented",
+                },
+              ],
+              "identity": Object {
+                "targetFile": "Pipfile",
+                "type": "pip",
               },
             },
-            "remediation": Object {
-              "ignore": Object {},
-              "patch": Object {},
-              "pin": Object {},
-              "unresolved": Array [],
-              "upgrade": Object {},
+            "testResult": Object {
+              "depGraphData": "",
+              "issues": Array [
+                Object {
+                  "fixInfo": Object {},
+                  "issueId": "VULN_ID_1",
+                  "pkgName": "package@version",
+                },
+              ],
+              "issuesData": Object {
+                "vuln-id": Object {
+                  "id": "VULN_ID_1",
+                  "severity": "high",
+                  "title": "Fake vuln",
+                },
+              },
+              "remediation": Object {
+                "ignore": Object {},
+                "patch": Object {},
+                "pin": Object {
+                  "django@1.6.1": Object {
+                    "upgradeTo": "django@2.0.1",
+                    "upgrades": Array [],
+                    "vulns": Array [],
+                  },
+                },
+                "unresolved": Array [],
+                "upgrade": Object {},
+              },
+            },
+            "workspace": Object {
+              "readFile": [Function],
+              "writeFile": [Function],
             },
           },
-          "workspace": Object {
-            "readFile": [Function],
-            "writeFile": [Function],
-          },
+          "userMessage": "Skipping project: Pipfile as it is not supported",
         },
       ],
       "succeeded": Array [
         Object {
-          "scanResult": Object {
-            "facts": Array [
-              Object {
-                "data": "not-implemented",
-                "type": "not-implemented",
-              },
-            ],
-            "identity": Object {
-              "targetFile": "requirements.txt",
-              "type": "pip",
-            },
-          },
-          "testResult": Object {
-            "depGraphData": "",
-            "issues": Array [
-              Object {
-                "fixInfo": Object {},
-                "issueId": "VULN_ID_1",
-                "pkgName": "package@version",
-              },
-            ],
-            "issuesData": Object {
-              "vuln-id": Object {
-                "id": "VULN_ID_1",
-                "severity": "high",
-                "title": "Fake vuln",
+          "original": Object {
+            "scanResult": Object {
+              "facts": Array [
+                Object {
+                  "data": "not-implemented",
+                  "type": "not-implemented",
+                },
+              ],
+              "identity": Object {
+                "targetFile": "requirements.txt",
+                "type": "pip",
               },
             },
-            "remediation": Object {
-              "ignore": Object {},
-              "patch": Object {},
-              "pin": Object {},
-              "unresolved": Array [],
-              "upgrade": Object {},
+            "testResult": Object {
+              "depGraphData": "",
+              "issues": Array [
+                Object {
+                  "fixInfo": Object {},
+                  "issueId": "VULN_ID_1",
+                  "pkgName": "package@version",
+                },
+              ],
+              "issuesData": Object {
+                "vuln-id": Object {
+                  "id": "VULN_ID_1",
+                  "severity": "high",
+                  "title": "Fake vuln",
+                },
+              },
+              "remediation": Object {
+                "ignore": Object {},
+                "patch": Object {},
+                "pin": Object {
+                  "django@1.6.1": Object {
+                    "upgradeTo": "django@2.0.1",
+                    "upgrades": Array [],
+                    "vulns": Array [],
+                  },
+                },
+                "unresolved": Array [],
+                "upgrade": Object {},
+              },
+            },
+            "workspace": Object {
+              "readFile": [Function],
+              "writeFile": [Function],
             },
           },
-          "workspace": Object {
-            "readFile": [Function],
-            "writeFile": [Function],
-          },
+          "userMessage": "TODO",
         },
       ],
     },
@@ -123,46 +139,55 @@ Object {
       "skipped": Array [],
       "succeeded": Array [
         Object {
-          "scanResult": Object {
-            "facts": Array [
-              Object {
-                "data": "not-implemented",
-                "type": "not-implemented",
-              },
-            ],
-            "identity": Object {
-              "targetFile": "requirements.txt",
-              "type": "pip",
-            },
-          },
-          "testResult": Object {
-            "depGraphData": "",
-            "issues": Array [
-              Object {
-                "fixInfo": Object {},
-                "issueId": "VULN_ID_1",
-                "pkgName": "package@version",
-              },
-            ],
-            "issuesData": Object {
-              "vuln-id": Object {
-                "id": "VULN_ID_1",
-                "severity": "high",
-                "title": "Fake vuln",
+          "original": Object {
+            "scanResult": Object {
+              "facts": Array [
+                Object {
+                  "data": "not-implemented",
+                  "type": "not-implemented",
+                },
+              ],
+              "identity": Object {
+                "targetFile": "requirements.txt",
+                "type": "pip",
               },
             },
-            "remediation": Object {
-              "ignore": Object {},
-              "patch": Object {},
-              "pin": Object {},
-              "unresolved": Array [],
-              "upgrade": Object {},
+            "testResult": Object {
+              "depGraphData": "",
+              "issues": Array [
+                Object {
+                  "fixInfo": Object {},
+                  "issueId": "VULN_ID_1",
+                  "pkgName": "package@version",
+                },
+              ],
+              "issuesData": Object {
+                "vuln-id": Object {
+                  "id": "VULN_ID_1",
+                  "severity": "high",
+                  "title": "Fake vuln",
+                },
+              },
+              "remediation": Object {
+                "ignore": Object {},
+                "patch": Object {},
+                "pin": Object {
+                  "django@1.6.1": Object {
+                    "upgradeTo": "django@2.0.1",
+                    "upgrades": Array [],
+                    "vulns": Array [],
+                  },
+                },
+                "unresolved": Array [],
+                "upgrade": Object {},
+              },
+            },
+            "workspace": Object {
+              "readFile": [Function],
+              "writeFile": [Function],
             },
           },
-          "workspace": Object {
-            "readFile": [Function],
-            "writeFile": [Function],
-          },
+          "userMessage": "TODO",
         },
       ],
     },

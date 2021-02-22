@@ -70,18 +70,21 @@ describe('Snyk fix', () => {
     expect(Object.keys(res.resultsByPlugin)[0]).toEqual('python');
     // skipped unsupported
     expect(res.resultsByPlugin.python.skipped).toHaveLength(1);
-    expect(res.resultsByPlugin.python.skipped[0]).toEqual(
-      pipfileProjectTestResult,
-    );
+    expect(res.resultsByPlugin.python.skipped[0]).toEqual({
+      original: pipfileProjectTestResult,
+      userMessage: 'Skipping project: Pipfile as it is not supported',
+    });
 
     // first *.txt throws because of the mock above
     expect(res.resultsByPlugin.python.failed).toHaveLength(0);
     expect(res.resultsByPlugin.python.succeeded).toHaveLength(2);
     expect(
-      res.resultsByPlugin.python.succeeded[0].scanResult.identity.targetFile,
+      res.resultsByPlugin.python.succeeded[0].original.scanResult.identity
+        .targetFile,
     ).toEqual('dev.txt');
     expect(
-      res.resultsByPlugin.python.succeeded[1].scanResult.identity.targetFile,
+      res.resultsByPlugin.python.succeeded[1].original.scanResult.identity
+        .targetFile,
     ).toEqual('prod.txt');
   });
   it('Snyk fix returns results as expected when 1 fails to fix', async () => {
@@ -120,20 +123,26 @@ describe('Snyk fix', () => {
     expect(Object.keys(res.resultsByPlugin)[0]).toEqual('python');
     // skipped unsupported
     expect(res.resultsByPlugin.python.skipped).toHaveLength(1);
-    expect(res.resultsByPlugin.python.skipped[0]).toEqual(
-      pipfileProjectTestResult,
-    );
+    expect(res.resultsByPlugin.python.skipped[0]).toEqual({
+      userMessage: 'Skipping project: Pipfile as it is not supported',
+      original: pipfileProjectTestResult,
+    });
 
     // first *.txt throws because of the mock above
     expect(res.resultsByPlugin.python.failed).toHaveLength(1);
     expect(
-      res.resultsByPlugin.python.failed[0].scanResult.identity.targetFile,
+      res.resultsByPlugin.python.failed[0].original.scanResult.identity
+        .targetFile,
     ).toEqual('dev.txt');
+    expect(res.resultsByPlugin.python.failed[0].error.message).toEqual(
+      'Invalid encoding',
+    );
 
     expect(res.resultsByPlugin.python.succeeded).toHaveLength(1);
 
     expect(
-      res.resultsByPlugin.python.succeeded[0].scanResult.identity.targetFile,
+      res.resultsByPlugin.python.succeeded[0].original.scanResult.identity
+        .targetFile,
     ).toEqual('prod.txt');
   });
 });
@@ -249,9 +258,7 @@ describe('Error handling', () => {
     // Act
     const res = await snykFix.fix([projectTestResult]);
     // Assert
-    expect(
-      res,
-    ).toMatchSnapshot();
+    expect(res).toMatchSnapshot();
     expect(stdoutMessages).toMatchSnapshot();
     // restore original console.error
     console.log = origConsoleLog;

@@ -1,6 +1,7 @@
 import * as debugLib from 'debug';
 import * as pMap from 'p-map';
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
+import { showResultsSummary } from './lib/output-formatters/show-results-summary';
 import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
 
@@ -27,8 +28,6 @@ export async function fix(
         const results = await fixPlugin(entitiesPerType[scanType]);
         resultsByPlugin = { ...resultsByPlugin, ...results };
       } catch (e) {
-        // TODO: use ora?
-        console.error(convertErrorToUserMessage(e));
         if (!exceptionsByScanType[scanType]) {
           exceptionsByScanType[scanType] = [e];
         } else {
@@ -40,6 +39,8 @@ export async function fix(
       concurrency: 3,
     },
   );
+  await showResultsSummary(resultsByPlugin, exceptionsByScanType);
+
   return { resultsByPlugin, exceptionsByScanType };
 }
 

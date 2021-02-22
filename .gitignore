@@ -1,6 +1,7 @@
 config.local.json
 /.nyc_output/
 /node_modules/
+packages/**/node_modules/
 local.log
 /patches/
 **/dist

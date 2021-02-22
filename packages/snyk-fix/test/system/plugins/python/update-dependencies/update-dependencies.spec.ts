@@ -70,7 +70,13 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       resultsByPlugin: {
         python: {
           failed: [],
-          skipped: [entityToFix],
+          skipped: [
+            {
+              original: entityToFix,
+              userMessage:
+                'Requirements with -r or -c directive are not yet supported',
+            },
+          ],
           succeeded: [],
         },
       },
@@ -144,7 +150,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [entityToFix],
+          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
         },
       },
     });
@@ -218,7 +224,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [entityToFix],
+          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
         },
       },
     });
@@ -293,7 +299,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [entityToFix],
+          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
         },
       },
     });
@@ -362,7 +368,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [entityToFix],
+          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
         },
       },
     });
@@ -432,7 +438,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [entityToFix],
+          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
         },
       },
     });
@@ -501,7 +507,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [entityToFix],
+          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
         },
       },
     });
@@ -571,7 +577,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [entityToFix],
+          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
         },
       },
     });
@@ -632,7 +638,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [entityToFix],
+          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
         },
       },
     });
