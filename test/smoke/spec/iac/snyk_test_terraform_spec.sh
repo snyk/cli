@@ -48,13 +48,6 @@ Describe "Snyk iac test command"
       The output should include "Validation Error Reason: Invalid HCL2 Format."
     End
 
-    It "outputs an error for invalid tf files with go templates"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_go_templates.tf
-      The status should be failure
-      The output should include "Illegal Terraform target file sg_open_ssh_invalid_go_templates.tf"
-      The output should include "Validation Error Reason: Go Template placeholders found in Terraform file."
-    End
-
     It "outputs the expected text when running with --sarif flag"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --sarif
       The status should be failure
