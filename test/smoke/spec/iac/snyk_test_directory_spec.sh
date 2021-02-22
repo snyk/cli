@@ -4,6 +4,7 @@ Describe "Snyk iac test command"
   Before snyk_login
   After snyk_logout
   Describe "terraform directory scan"
+    Skip if "execute only in regression test" check_if_regression_test
     It "finds issues in terraform directory"
       When run snyk iac test ../fixtures/iac/terraform/
       The status should be failure # issues found

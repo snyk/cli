@@ -5,6 +5,7 @@ Describe "Snyk iac test command"
   After snyk_logout
 
   Describe "k8s single file scan"
+    Skip if "execute only in regression test" check_if_regression_test
     It "finds issues in k8s file"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml
       The status should be failure # issues found
