@@ -2,5 +2,6 @@
   "API": "https://snyk.io/api/v1",
   "devDeps": false,
   "PRUNE_DEPS_THRESHOLD": 40000,
-  "MAX_PATH_COUNT": 1500000
+  "MAX_PATH_COUNT": 1500000,
+  "CODE_CLIENT_PROXY_URL": "http://deeproxy.snyk.io"
 }
