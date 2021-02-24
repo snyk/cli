@@ -23,6 +23,9 @@ defaults: &defaults
     system_tests:
       type: boolean
       default: false
+    package_tests:
+      type: boolean
+      default: false
   working_directory: ~/snyk
 
 windows_defaults: &windows_defaults
@@ -223,6 +226,9 @@ jobs:
             - run: npm install -g npm@7
       - show_node_version
       - run:
+          name: Setup Lerna
+          command: npm install -g lerna
+      - run:
           name: Update local .npmrc file (Windows)
           command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
       - run:
@@ -236,6 +242,18 @@ jobs:
           name: Run auth
           shell: bash.exe
           command: npm run snyk-auth-windows
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package unit tests
+                command: npm run test:packages-unit
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package acceptance tests
+                command: npm run test:packages-acceptance
       - when:
           condition: << parameters.root_tap_tests >>
           steps:
@@ -280,6 +298,9 @@ jobs:
           steps:
             - run: sudo npm install -g npm@7
       - show_node_version
+      - run:
+          name: Setup Lerna
+          command: sudo npm install -g lerna
       - update_local_npmrc_linux
       - install_deps
       - build_ts
@@ -289,6 +310,18 @@ jobs:
       - run:
           name: Run auth
           command: npm run snyk-auth
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package unit tests
+                command: npm run test:packages-unit
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package acceptance tests
+                command: npm run test:packages-acceptance
       - when:
           condition: << parameters.root_tap_tests >>
           steps:
@@ -448,12 +481,13 @@ workflows:
           requires:
             - Regression Test
       - test-windows:
-          name: Windows, Node 14 - Jest, Acceptance, System tests
+          name: Windows, Node 14 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
           node_version: '14.15.4'
           jest_tests: true
           acceptance_tests: true
           system_tests: true
+          package_tests: true
           requires:
             - Regression Test
       - test-windows:
@@ -464,12 +498,13 @@ workflows:
           requires:
             - Regression Test
       - test-windows:
-          name: Windows, Node 12 - Jest, Acceptance, System tests
+          name: Windows, Node 12 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
           node_version: '12.16.2'
           jest_tests: true
           acceptance_tests: true
           system_tests: true
+          package_tests: true
           requires:
             - Regression Test
       - test-windows:
@@ -481,12 +516,13 @@ workflows:
             - Regression Test
 
       - test-windows:
-          name: Windows, Node 10 - Jest, Acceptance, System tests
+          name: Windows, Node 10 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
           node_version: '10.23.1'
           jest_tests: true
           acceptance_tests: true
           system_tests: true
+          package_tests: true
           requires:
             - Regression Test
       - test-windows:
@@ -497,12 +533,13 @@ workflows:
           requires:
             - Regression Test
       - test-linux:
-          name: Linux, Node 14 - Jest, Acceptance, System tests
+          name: Linux, Node 14 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
           node_version: '14.15.4'
           jest_tests: true
           acceptance_tests: true
           system_tests: true
+          package_tests: true
           requires:
             - Regression Test
       - test-linux:
@@ -512,17 +549,16 @@ workflows:
           root_tap_tests: true
           requires:
             - Regression Test
-
       - test-linux:
-          name: Linux, Node 12 - Jest, Acceptance, System tests
+          name: Linux, Node 12 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
           node_version: '12.16.2'
           jest_tests: true
           acceptance_tests: true
           system_tests: true
+          package_tests: true
           requires:
             - Regression Test
-
       - test-linux:
           name: Linux, Node 12 - "Root" tap tests
           context: nodejs-install
@@ -531,12 +567,13 @@ workflows:
           requires:
             - Regression Test
       - test-linux:
-          name: Linux, Node 10 - Jest, Acceptance, System tests
+          name: Linux, Node 10 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
           node_version: '10.23.1'
           jest_tests: true
           acceptance_tests: true
           system_tests: true
+          package_tests: true
           requires:
             - Regression Test
       - test-linux:
