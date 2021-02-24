@@ -17,6 +17,9 @@ export function getEcosystemForTest(options: Options): Ecosystem | null {
   if (options.source) {
     return 'cpp';
   }
+  if (options.code) {
+    return 'code';
+  }
   return null;
 }
 
