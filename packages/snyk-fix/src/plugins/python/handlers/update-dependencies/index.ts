@@ -1,4 +1,4 @@
-import { DependencyUpdates } from '../../../../types';
+import { DependencyPins, FixChangesSummary } from '../../../../types';
 import { parseRequirementsFile, Requirement } from './requirements-file-parser';
 
 /*
@@ -10,8 +10,8 @@ import { parseRequirementsFile, Requirement } from './requirements-file-parser';
  */
 export function updateDependencies(
   requirementsTxt: string,
-  upgrades: DependencyUpdates,
-): { updatedManifest: string; appliedChangesSummary: string } {
+  upgrades: DependencyPins,
+): { updatedManifest: string; changes: FixChangesSummary[] } {
   const parsedRequirementsData = parseRequirementsFile(requirementsTxt);
 
   // Lowercase the upgrades object. This might be overly defensive, given that
@@ -25,7 +25,7 @@ export function updateDependencies(
 
   // TODO: record failed upgrades & pins and send them back
   // to be shown in the UI,  do not break PR creation
-  const { updatedRequirements, updatedSummary } = applyUpgrades(
+  const { updatedRequirements, changes: upgradedChanges } = applyUpgrades(
     parsedRequirementsData,
     lowerCasedUpgrades,
   );
@@ -34,7 +34,7 @@ export function updateDependencies(
     .map(({ name }) => name && name.toLowerCase())
     .filter(isDefined);
 
-  const { pinnedRequirements, pinnedSummary } = applyPins(
+  const { pinnedRequirements, changes: pinChanges } = applyPins(
     topLevelDeps,
     lowerCasedUpgrades,
   );
@@ -47,9 +47,14 @@ export function updateDependencies(
   if (requirementsTxt.endsWith('\n')) {
     updatedManifest += '\n';
   }
+
+  if (updatedManifest === requirementsTxt) {
+    throw new Error('Looks like no fixes could be applied.');
+  }
+
   return {
     updatedManifest,
-    appliedChangesSummary: `${updatedSummary}\n${pinnedSummary}`,
+    changes: [...pinChanges, ...upgradedChanges],
   };
 }
 
@@ -62,8 +67,8 @@ function isDefined<T>(t: T | undefined): t is T {
 function applyPins(
   topLevelDeps: string[],
   lowerCasedUpgrades: { [upgradeFrom: string]: string },
-): { pinnedRequirements: string[]; pinnedSummary: string } {
-  let pinnedSummary = '';
+): { pinnedRequirements: string[]; changes: FixChangesSummary[] } {
+  const changes: FixChangesSummary[] = [];
   const pinnedRequirements = Object.keys(lowerCasedUpgrades)
     .map((pkgNameAtVersion) => {
       const [pkgName, version] = pkgNameAtVersion.split('@');
@@ -75,22 +80,25 @@ function applyPins(
 
       const newVersion = lowerCasedUpgrades[pkgNameAtVersion].split('@')[1];
       const newRequirement = `${pkgName}>=${newVersion}`;
-      pinnedSummary += `Pinned ${pkgName} from ${version} to ${newVersion}\n`;
+      changes.push({
+        success: true,
+        userMessage: `Pinned ${pkgName} from ${version} to ${newVersion}`,
+      });
       return `${newRequirement} # not directly required, pinned by Snyk to avoid a vulnerability`;
     })
     .filter(isDefined);
 
   return {
     pinnedRequirements,
-    pinnedSummary,
+    changes,
   };
 }
 
 function applyUpgrades(
   requirements: Requirement[],
   lowerCasedUpgrades: { [upgradeFrom: string]: string },
-): { updatedRequirements: string[]; updatedSummary: string } {
-  const updatedSummary: string[] = [];
+): { updatedRequirements: string[]; changes: FixChangesSummary[] } {
+  const changes: FixChangesSummary[] = [];
   const updatedRequirements: string[] = requirements.map(
     ({
       name,
@@ -123,13 +131,16 @@ function applyUpgrades(
       }
       const newVersion = lowerCasedUpgrades[upgrade].split('@')[1];
       const updatedRequirement = `${originalName}${versionComparator}${newVersion}`;
-      updatedSummary.push(`Upgraded ${originalName} from ${version} to ${newVersion}`);
+      changes.push({
+        success: true,
+        userMessage: `Upgraded ${originalName} from ${version} to ${newVersion}`,
+      });
       return `${updatedRequirement}${extras ? extras : ''}`;
     },
   );
 
   return {
     updatedRequirements,
-    updatedSummary: updatedSummary.join('\n'),
+    changes,
   };
 }

@@ -1,5 +1,8 @@
 import * as debugLib from 'debug';
 import * as pMap from 'p-map';
+import * as micromatch from 'micromatch';
+import * as ora from 'ora';
+import * as chalk from 'chalk';
 
 import { EntityToFix } from '../../types';
 import { FixHandlerResultByPlugin } from '../types';
@@ -11,7 +14,9 @@ const debug = debugLib('snyk-fix:python');
 export async function pythonFix(
   entities: EntityToFix[],
 ): Promise<FixHandlerResultByPlugin> {
-  debug(`Preparing to fix ${entities.length} Python projects`);
+  const spinner = ora(
+    'Looking for supported Python items',
+  ).start();
   const pluginId = 'python';
   const handlerResult: FixHandlerResultByPlugin = {
     [pluginId]: {
@@ -29,18 +34,22 @@ export async function pythonFix(
   for (const entity of entities) {
     const type = getProjectType(entity);
     if (!type) {
-      const userMessage = `Skipping project: ${entity.scanResult.identity.targetFile} as it is not supported`;
+      const userMessage = `${entity.scanResult.identity.targetFile} is not supported`;
       debug(userMessage);
       handlerResult[pluginId].skipped.push({ original: entity, userMessage });
       continue;
     }
     entitiesPerType[type].push(entity);
   }
+  spinner.succeed();
 
   await pMap(
     Object.keys(entitiesPerType),
     async (projectType) => {
-      const projectsToFix = entitiesPerType[projectType];
+      const projectsToFix: EntityToFix[] = entitiesPerType[projectType];
+
+      spinner.text = `Processing ${projectsToFix.length} ${projectType} items.`;
+      spinner.render();
 
       try {
         const handler = loadHandler(projectType as SUPPORTED_PROJECT_TYPES);
@@ -52,19 +61,27 @@ export async function pythonFix(
         debug(
           `Failed to fix ${projectsToFix.length} ${projectType} projects.\nError: ${e.message}`,
         );
-        handlerResult[pluginId].failed.push(...projectsToFix);
+        handlerResult[pluginId].failed.push(
+          ...projectsToFix.map((p) => ({ original: p, error: e })),
+        );
       }
     },
     {
       concurrency: 5,
     },
   );
-
+  spinner.succeed();
   return handlerResult;
 }
 
 export function isRequirementsTxtManifest(targetFile: string): boolean {
-  return targetFile.endsWith('.txt');
+  return micromatch.isMatch(
+    targetFile,
+    // micromatch needs **/* to match filenames that may include folders
+    ['*req*.txt', 'requirements/*.txt', 'requirements*', '*.txt'].map(
+      (f) => '**/' + f,
+    ),
+  );
 }
 
 export function getProjectType(

@@ -72,7 +72,7 @@ describe('Snyk fix', () => {
     expect(res.resultsByPlugin.python.skipped).toHaveLength(1);
     expect(res.resultsByPlugin.python.skipped[0]).toEqual({
       original: pipfileProjectTestResult,
-      userMessage: 'Skipping project: Pipfile as it is not supported',
+      userMessage: 'Pipfile is not supported',
     });
 
     // first *.txt throws because of the mock above
@@ -124,7 +124,7 @@ describe('Snyk fix', () => {
     // skipped unsupported
     expect(res.resultsByPlugin.python.skipped).toHaveLength(1);
     expect(res.resultsByPlugin.python.skipped[0]).toEqual({
-      userMessage: 'Skipping project: Pipfile as it is not supported',
+      userMessage: 'Pipfile is not supported',
       original: pipfileProjectTestResult,
     });
 
@@ -245,11 +245,6 @@ describe('groupEntitiesPerScanType', () => {
 describe('Error handling', () => {
   it('Snyk fix returns error when called with unsupported type', async () => {
     // Arrange
-    // read data from console.error
-    let stdoutMessages = '';
-    const stubConsoleError = (msg: string) => (stdoutMessages += msg);
-    const origConsoleLog = console.error;
-    console.error = stubConsoleError;
     const projectTestResult = generateEntityToFix(
       'npm',
       'package.json',
@@ -259,8 +254,5 @@ describe('Error handling', () => {
     const res = await snykFix.fix([projectTestResult]);
     // Assert
     expect(res).toMatchSnapshot();
-    expect(stdoutMessages).toMatchSnapshot();
-    // restore original console.error
-    console.log = origConsoleLog;
   });
 });

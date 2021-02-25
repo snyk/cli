@@ -1,9 +1,9 @@
-import { UnsupportedTypeError } from "./unsupported-type-error";
+import { CustomError } from './custom-error';
+import { UnsupportedTypeError } from './unsupported-type-error';
 
-export function convertErrorToUserMessage(error) {
-  const errorMessagePrefix = `Error ${error.errorCode} (${error.name})`;
+export function convertErrorToUserMessage(error: CustomError) {
   if (error instanceof UnsupportedTypeError) {
-    return `${errorMessagePrefix} ${error.scanType} is not supported.`;
+    return `${error.scanType} is not supported.`;
   }
-
+  return error.message;
 }

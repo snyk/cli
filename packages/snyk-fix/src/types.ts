@@ -100,6 +100,10 @@ export interface PinRemediation extends UpgradeVulns {
   isTransitive: boolean;
 }
 
+export interface DependencyPins {
+  [name: string]: PinRemediation;
+}
+
 // Remediation changes to be applied to the project,
 // including information on all and unresolved issues.
 export interface RemediationChanges {
@@ -109,7 +113,7 @@ export interface RemediationChanges {
     [name: string]: PatchRemediation;
   };
   ignore: unknown;
-  pin: DependencyUpdates;
+  pin: DependencyPins;
 }
 
 export interface IssueData {
@@ -186,7 +190,30 @@ export interface WithError<Original> {
   error: Error;
 }
 
+export interface WithFixChangesApplied<Original> {
+  original: Original;
+  changes: FixChangesSummary[];
+}
+
 export interface WithUserMessage<Original> {
   original: Original;
   userMessage: string;
+}
+
+export type FixChangesSummary = FixChangesSuccess | FixChangesError;
+
+interface FixChangesSuccess {
+  success: true;
+  userMessage: string;
+}
+
+interface FixChangesError {
+  success: false;
+  userMessage: string;
+  reason: string;
+  tip: string;
+}
+
+export interface ErrorsByEcoSystem {
+  [ecosystem: string]: { originals: EntityToFix[]; userMessage: string };
 }

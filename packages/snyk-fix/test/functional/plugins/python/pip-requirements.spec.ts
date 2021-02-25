@@ -34,7 +34,11 @@ describe('isSupported', () => {
   it('with -e directive in the manifest is supported', async () => {
     const entity = generateEntityToFix('pip', 'requirements.txt', '-e .');
     entity.testResult.remediation!.pin = {
-      'django@1.6.1': { upgradeTo: 'django@2.0.1', vulns: [], upgrades: [] },
+      'django@1.6.1': {
+        upgradeTo: 'django@2.0.1',
+        vulns: [],
+        isTransitive: false,
+      },
     };
     const res = await isSupported(entity);
     expect(res.supported).toBeTruthy();

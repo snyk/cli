@@ -27,12 +27,12 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: false,
           },
           'transitive@1.0.0': {
             upgradeTo: 'transitive@1.1.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: true,
           },
         },
       },
@@ -63,7 +63,6 @@ describe('fix *req*.txt / *.txt Python projects', () => {
 
     // Act
     const result = await snykFix.fix([entityToFix]);
-
     // Assert
     expect(result).toMatchObject({
       exceptionsByScanType: {},
@@ -73,8 +72,9 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           skipped: [
             {
               original: entityToFix,
-              userMessage:
-                'Requirements with -r or -c directive are not yet supported',
+              userMessage: expect.stringContaining(
+                'directive are not yet supported',
+              ),
             },
           ],
           succeeded: [],
@@ -101,12 +101,12 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: false,
           },
           'transitive@1.0.0': {
             upgradeTo: 'transitive@1.1.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: true,
           },
         },
       },
@@ -150,7 +150,21 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                },
+              ],
+            },
+          ],
         },
       },
     });
@@ -175,12 +189,12 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: false,
           },
           'transitive@1.0.0': {
             upgradeTo: 'transitive@1.1.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: true,
           },
         },
       },
@@ -224,7 +238,21 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                },
+              ],
+            },
+          ],
         },
       },
     });
@@ -249,12 +277,12 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: false,
           },
           'transitive@1.0.0': {
             upgradeTo: 'transitive@1.1.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: true,
           },
         },
       },
@@ -299,7 +327,21 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                },
+              ],
+            },
+          ],
         },
       },
     });
@@ -324,7 +366,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           'Django@1.6.1': {
             upgradeTo: 'Django@2.0.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: false,
           },
         },
       },
@@ -368,7 +410,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded django from 1.6.1 to 2.0.1',
+                },
+              ],
+            },
+          ],
         },
       },
     });
@@ -394,7 +446,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
             // matches as the same when file has Django
             upgradeTo: 'django@2.0.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: false,
           },
         },
       },
@@ -438,7 +490,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                },
+              ],
+            },
+          ],
         },
       },
     });
@@ -463,7 +525,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           'foo@12.123.14': {
             upgradeTo: 'foo@55.66.7',
             vulns: [],
-            upgrades: [],
+            isTransitive: false,
           },
         },
       },
@@ -507,7 +569,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded foo from 12.123.14 to 55.66.7',
+                },
+              ],
+            },
+          ],
         },
       },
     });
@@ -532,9 +604,13 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
             vulns: [],
-            upgrades: [],
+            isTransitive: false,
           },
-          'click@7.0': { upgradeTo: 'click@7.1', vulns: [], upgrades: [] },
+          'click@7.0': {
+            upgradeTo: 'click@7.1',
+            vulns: [],
+            isTransitive: false,
+          },
         },
       },
     };
@@ -577,7 +653,21 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded django from 1.6.1 to 2.0.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Upgraded click from 7.0 to 7.1',
+                },
+              ],
+            },
+          ],
         },
       },
     });
@@ -598,7 +688,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'click@7.0': { upgradeTo: 'click@7.1', vulns: [], upgrades: [] },
+          'click@7.0': {
+            upgradeTo: 'click@7.1',
+            vulns: [],
+            isTransitive: false,
+          },
         },
       },
     };
@@ -638,7 +732,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         python: {
           failed: [],
           skipped: [],
-          succeeded: [{ original: entityToFix, userMessage: 'TODO' }],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded click from 7.0 to 7.1',
+                },
+              ],
+            },
+          ],
         },
       },
     });

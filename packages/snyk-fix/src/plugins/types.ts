@@ -1,11 +1,16 @@
-import { EntityToFix, WithError, WithUserMessage } from '../types';
+import {
+  EntityToFix,
+  WithError,
+  WithFixChangesApplied,
+  WithUserMessage,
+} from '../types';
 
 export type FixHandler = (
   entities: EntityToFix[],
 ) => Promise<FixHandlerResultByPlugin>;
 
 export interface PluginFixResponse {
-  succeeded: Array<WithUserMessage<EntityToFix>>;
+  succeeded: Array<WithFixChangesApplied<EntityToFix>>;
   failed: Array<WithError<EntityToFix>>;
   skipped: Array<WithUserMessage<EntityToFix>>;
 }

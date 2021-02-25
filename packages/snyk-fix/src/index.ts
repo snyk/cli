@@ -1,11 +1,14 @@
 import * as debugLib from 'debug';
 import * as pMap from 'p-map';
-import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
+import * as ora from 'ora';
+import * as chalk from 'chalk';
+
 import { showResultsSummary } from './lib/output-formatters/show-results-summary';
 import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
 
-import { EntityToFix } from './types';
+import { EntityToFix, ErrorsByEcoSystem } from './types';
+import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
 
 const debug = debugLib('snyk-fix:main');
 
@@ -13,13 +16,12 @@ export async function fix(
   entities: EntityToFix[],
 ): Promise<{
   resultsByPlugin: FixHandlerResultByPlugin;
-  exceptionsByScanType: { [ecosystem: string]: Error[] };
+  exceptionsByScanType: ErrorsByEcoSystem;
 }> {
-  debug(`Requested to fix ${entities.length} projects.`);
+  const spinner = ora().start();
   let resultsByPlugin: FixHandlerResultByPlugin = {};
   const entitiesPerType = groupEntitiesPerScanType(entities);
-  const exceptionsByScanType: { [ecosystem: string]: Error[] } = {};
-
+  const exceptionsByScanType: ErrorsByEcoSystem = {};
   await pMap(
     Object.keys(entitiesPerType),
     async (scanType) => {
@@ -28,19 +30,23 @@ export async function fix(
         const results = await fixPlugin(entitiesPerType[scanType]);
         resultsByPlugin = { ...resultsByPlugin, ...results };
       } catch (e) {
-        if (!exceptionsByScanType[scanType]) {
-          exceptionsByScanType[scanType] = [e];
-        } else {
-          exceptionsByScanType[scanType].push(e);
-        }
+        debug(`Failed to processes ${scanType}`, e);
+        exceptionsByScanType[scanType] = {
+          originals: entitiesPerType[scanType],
+          userMessage: convertErrorToUserMessage(e),
+        };
       }
     },
     {
       concurrency: 3,
     },
   );
-  await showResultsSummary(resultsByPlugin, exceptionsByScanType);
-
+  const fixSummary = await showResultsSummary(
+    resultsByPlugin,
+    exceptionsByScanType,
+  );
+  spinner.stopAndPersist({ text: 'Done', symbol: chalk.green('✔') });
+  spinner.stopAndPersist({ text: `\n${fixSummary}` });
   return { resultsByPlugin, exceptionsByScanType };
 }
 
