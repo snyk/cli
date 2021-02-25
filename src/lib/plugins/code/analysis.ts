@@ -5,6 +5,7 @@ import { api } from '../../api-token';
 import * as config from '../../config';
 import spinner = require('../../spinner');
 import { Options } from '../../types';
+import { FeatureNotSupportedBySnykCodeError } from '../../errors/unsupported-feature-snyk-code-error';
 
 export async function getCodeAnalysisAndParseResults(
   spinnerLbl: string,
@@ -40,6 +41,9 @@ async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
 }
 
 function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {
+  if (severity === SEVERITY.CRITICAL) {
+    throw new FeatureNotSupportedBySnykCodeError(SEVERITY.CRITICAL);
+  }
   const severityLevel = {
     low: 1,
     medium: 2,
