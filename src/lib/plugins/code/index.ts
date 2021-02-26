@@ -1,10 +1,12 @@
 import { getCodeAnalysisAndParseResults } from './analysis';
+import { isCodeTest } from './validate';
 import {
   getCodeDisplayedOutput,
   getPrefix,
   getMeta,
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
+import errors = require('../../errors/legacy-errors');
 
 export const codePlugin: EcosystemPlugin = {
   async scan(options) {
@@ -14,6 +16,10 @@ export const codePlugin: EcosystemPlugin = {
     return '';
   },
   async test(paths, options) {
+    const isCodeTestRun = await isCodeTest(options);
+    if (!isCodeTestRun) {
+      errors('code');
+    }
     const spinnerLbl = 'Querying vulnerabilities database...';
     // Currently code supports only one path
     const path = paths[0];
