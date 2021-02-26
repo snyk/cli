@@ -1,4 +1,4 @@
-import { AnalysisSeverity, analyzeFolders } from '@snyk/code-client';
+import { analyzeFolders, emitter as codeEmitter, AnalysisSeverity } from '@snyk/code-client';
 import { Log, ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
 import { api } from '../../api-token';
@@ -8,13 +8,38 @@ import { Options } from '../../types';
 import { FeatureNotSupportedBySnykCodeError } from '../../errors/unsupported-feature-snyk-code-error';
 
 export async function getCodeAnalysisAndParseResults(
-  spinnerLbl: string,
   root: string,
   options: Options,
 ): Promise<Log> {
-  await spinner.clear<void>(spinnerLbl)();
-  await spinner(spinnerLbl);
+  let currentLabel = '';
+  await spinner.clearAll();
+  codeEmitter.on('scanFilesProgress', async (processed: number) => {
+    const spinnerLbl = `Indexed ${processed} files`;
+    spinner.clear<void>(currentLabel)();
+    currentLabel = spinnerLbl;
+    await spinner(spinnerLbl);
+  });
+  codeEmitter.on(
+    'uploadBundleProgress',
+    async (processed: number, total: number) => {
+      const spinnerLbl = `Upload bundle progress: ${processed}/${total}`;
+      spinner.clear<void>(currentLabel)();
+      currentLabel = spinnerLbl;
+      await spinner(spinnerLbl);
+    },
+  );
+  codeEmitter.on('analyseProgress', async (data: any) => {
+    const spinnerLbl = `Analysis ${data.status}: ${Math.round(
+      data.progress * 100,
+    )}%`;
+    spinner.clear<void>(currentLabel)();
+    currentLabel = spinnerLbl;
+    await spinner(spinnerLbl);
+  });
 
+  codeEmitter.on('sendError', (error) => {
+    throw error;
+  });
   const codeAnalysis = await getCodeAnalysis(root, options);
   spinner.clearAll();
   return parseSecurityResults(codeAnalysis);
@@ -41,7 +66,9 @@ async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
   return result.sarifResults!;
 }
 
-function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {
+function severityToAnalysisSeverity(
+  severity: SEVERITY,
+): AnalysisSeverity {
   if (severity === SEVERITY.CRITICAL) {
     throw new FeatureNotSupportedBySnykCodeError(SEVERITY.CRITICAL);
   }
