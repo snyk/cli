@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 const osName = require('os-name');
 
 const main = './dist/cli/index.js'.replace(/\//g, sep);
-const testTimeout = 40000;
+const testTimeout = 50000;
 const isWindows =
   osName()
     .toLowerCase()
@@ -28,7 +28,7 @@ describe('test --json-file-output ', () => {
             throw err;
           }
           // give file a little time to be finished to be written
-          await new Promise((r) => setTimeout(r, 3000));
+          await new Promise((r) => setTimeout(r, 5000));
           expect(stdout).toMatch('Organization:');
           const outputFileContents = readFileSync(
             'snyk-direct-json-test-output.json',
@@ -88,7 +88,7 @@ describe('test --json-file-output ', () => {
             throw err;
           }
           // give file a little time to be finished to be written
-          await new Promise((r) => setTimeout(r, 3000));
+          await new Promise((r) => setTimeout(r, 5000));
           const stdoutJson = stdout;
           const outputFileContents = readFileSync(outputPath, 'utf-8');
           unlinkSync(outputPath);
@@ -123,7 +123,7 @@ describe('test --json-file-output ', () => {
               throw err;
             }
             // give file a little time to be finished to be written
-            await new Promise((r) => setTimeout(r, 3000));
+            await new Promise((r) => setTimeout(r, 5000));
             const stdoutJson = stdout;
             const outputFileContents = readFileSync(outputPath, 'utf-8');
             unlinkSync(outputPath);
