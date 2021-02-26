@@ -1,6 +1,9 @@
-
 import { getCodeAnalysisAndParseResults } from './analysis';
-import { getCodeDisplayedOutput } from './format/output-format';
+import {
+  getCodeDisplayedOutput,
+  getPrefix,
+  getMeta,
+} from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
 
 export const codePlugin: EcosystemPlugin = {
@@ -13,10 +16,19 @@ export const codePlugin: EcosystemPlugin = {
   async test(paths, options) {
     const spinnerLbl = 'Querying vulnerabilities database...';
     // Currently code supports only one path
-    const sarifTypedResult = await getCodeAnalysisAndParseResults(spinnerLbl, paths[0], options);
-    const meta = 'Meta temp';
-    const prefix = 'Prefix temp';
-    const readableResult = await getCodeDisplayedOutput(sarifTypedResult, meta, prefix);
+    const path = paths[0];
+    const sarifTypedResult = await getCodeAnalysisAndParseResults(
+      spinnerLbl,
+      path,
+      options,
+    );
+    const meta = getMeta(options, path);
+    const prefix = getPrefix(path);
+    const readableResult = await getCodeDisplayedOutput(
+      sarifTypedResult,
+      meta,
+      prefix,
+    );
     return { readableResult };
   },
 };

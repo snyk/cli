@@ -1,10 +1,8 @@
 import * as Sarif from 'sarif';
 import * as Debug from 'debug';
 import chalk from 'chalk';
-import {
-  getLegacySeveritiesColour,
-  SEVERITY,
-} from '../../../snyk-test/common';
+import { getLegacySeveritiesColour, SEVERITY } from '../../../snyk-test/common';
+import { rightPadWithSpaces } from '../../../right-pad';
 
 const debug = Debug('code-output');
 
@@ -60,26 +58,27 @@ export function getCodeDisplayedOutput(
 
   const lowSeverityText = issues.low.length
     ? getLegacySeveritiesColour(SEVERITY.LOW).colorFunc(
-      ` ${issues.low.length} [Low] `,
-    )
+        ` ${issues.low.length} [Low] `,
+      )
     : '';
   const mediumSeverityText = issues.medium.length
     ? getLegacySeveritiesColour(SEVERITY.MEDIUM).colorFunc(
-      ` ${issues.medium.length} [Medium] `,
-    )
+        ` ${issues.medium.length} [Medium] `,
+      )
     : '';
   const highSeverityText = issues.high.length
     ? getLegacySeveritiesColour(SEVERITY.HIGH).colorFunc(
-      `${issues.high.length} [High] `,
-    )
+        `${issues.high.length} [High] `,
+      )
     : '';
 
   const vulnPathsText = chalk.green('✔ Awesome! No issues were found.');
   const summaryOKText = chalk.green('✓ Test completed');
   const codeIssueCount =
     issues.low.length + issues.medium.length + issues.high.length;
-  const codeIssueFound = `${codeIssueCount} Code issue${codeIssueCount > 0 ? 's' : ''
-    } found`;
+  const codeIssueFound = `${codeIssueCount} Code issue${
+    codeIssueCount > 0 ? 's' : ''
+  } found`;
   const issuesBySeverityText =
     highSeverityText + mediumSeverityText + lowSeverityText;
   const codeIssue =
@@ -118,4 +117,26 @@ function sarifToSeverityLevel(
   };
 
   return severityLevel[sarifConfigurationLevel] as string;
+}
+
+export function getMeta(options, path) {
+  const padToLength = 19; // chars to align
+  const orgName = options.org;
+  const projectPath = options.path || path;
+  const meta = [
+    chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + orgName,
+  ];
+  meta.push(
+    chalk.bold(rightPadWithSpaces('Test type: ', padToLength)) +
+      'Static code analysis',
+  );
+  meta.push(
+    chalk.bold(rightPadWithSpaces('Project path: ', padToLength)) + projectPath,
+  );
+
+  return meta.join('\n');
+}
+
+export function getPrefix(path) {
+  return chalk.bold.white('\nTesting ' + path + ' ...\n\n');
 }
