@@ -7,7 +7,7 @@ import {
   hashData,
 } from '../src/lib/monitor/dev-count-analysis';
 
-const testTimeout = 30000;
+const testTimeout = 60000;
 describe('cli dev count via git log analysis', () => {
   let expectedContributorUserIds: string[] = [];
   let expectedMergeOnlyUserIds: string[] = [];
@@ -52,7 +52,7 @@ describe('cli dev count via git log analysis', () => {
     expectedMergeOnlyUserIds = uniqueEmailsContainingOnlyMergeCommits.map(
       hashData,
     );
-  });
+  }, testTimeout);
 
   it(
     'returns contributors',
