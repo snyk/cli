@@ -1,7 +1,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import stripAnsi from 'strip-ansi';
 
 const DEFAULT_HELP = 'snyk';
+
+function readHelpFile(filename: string): string {
+  const file = fs.readFileSync(filename, 'utf8');
+  if (typeof process.env.NO_COLOR !== 'undefined' || !process.stdout.isTTY) {
+    return stripAnsi(file);
+  }
+  return file;
+}
 
 export = async function help(item: string | boolean) {
   if (!item || item === true || typeof item !== 'string' || item === 'help') {
@@ -18,13 +27,13 @@ export = async function help(item: string | boolean) {
       '../../../help/commands-txt',
       item === DEFAULT_HELP ? DEFAULT_HELP + '.txt' : `snyk-${item}.txt`,
     );
-    return fs.readFileSync(filename, 'utf8');
+    return readHelpFile(filename);
   } catch (error) {
     const filename = path.resolve(
       __dirname,
       '../../../help/commands-txt',
       DEFAULT_HELP + '.txt',
     );
-    return fs.readFileSync(filename, 'utf8');
+    return readHelpFile(filename);
   }
 };
