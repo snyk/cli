@@ -7,6 +7,7 @@ import {
   hashData,
 } from '../src/lib/monitor/dev-count-analysis';
 
+const testTimeout = 30000;
 describe('cli dev count via git log analysis', () => {
   let expectedContributorUserIds: string[] = [];
   let expectedMergeOnlyUserIds: string[] = [];
@@ -53,30 +54,38 @@ describe('cli dev count via git log analysis', () => {
     );
   });
 
-  it('returns contributors', async () => {
-    const contributors = await getContributors({
-      endDate: new Date(1590174610000),
-      periodDays: 10,
-      repoPath: process.cwd(),
-    });
-    const contributorUserIds = contributors.map((c) => c.userId);
-    expect(contributorUserIds.sort()).toEqual(
-      expectedContributorUserIds.sort(),
-    );
-  });
+  it(
+    'returns contributors',
+    async () => {
+      const contributors = await getContributors({
+        endDate: new Date(1590174610000),
+        periodDays: 10,
+        repoPath: process.cwd(),
+      });
+      const contributorUserIds = contributors.map((c) => c.userId);
+      expect(contributorUserIds.sort()).toEqual(
+        expectedContributorUserIds.sort(),
+      );
+    },
+    testTimeout,
+  );
 
-  it('does not include contributors who have only merged pull requests', async () => {
-    const contributors = await getContributors({
-      endDate: new Date(1590174610000),
-      periodDays: 10,
-      repoPath: process.cwd(),
-    });
-    const contributorUserIds = contributors.map((c) => c.userId);
+  it(
+    'does not include contributors who have only merged pull requests',
+    async () => {
+      const contributors = await getContributors({
+        endDate: new Date(1590174610000),
+        periodDays: 10,
+        repoPath: process.cwd(),
+      });
+      const contributorUserIds = contributors.map((c) => c.userId);
 
-    // make sure none of uniqueEmailsContainingOnlyMergeCommits are in contributorUserIds
-    const legitUserIdsWhichAreAlsoInMergeOnlyUserIds = expectedMergeOnlyUserIds.filter(
-      (user) => contributorUserIds.includes(user),
-    );
-    expect(legitUserIdsWhichAreAlsoInMergeOnlyUserIds).toHaveLength(0);
-  });
+      // make sure none of uniqueEmailsContainingOnlyMergeCommits are in contributorUserIds
+      const legitUserIdsWhichAreAlsoInMergeOnlyUserIds = expectedMergeOnlyUserIds.filter(
+        (user) => contributorUserIds.includes(user),
+      );
+      expect(legitUserIdsWhichAreAlsoInMergeOnlyUserIds).toHaveLength(0);
+    },
+    testTimeout,
+  );
 });
