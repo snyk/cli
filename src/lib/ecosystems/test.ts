@@ -16,6 +16,12 @@ export async function testEcosystem(
   options: Options,
 ): Promise<TestCommandResult> {
   const plugin = getPlugin(ecosystem);
+  // TODO: the is an intermediate step before consolidating ecosystem plugins
+  // to accept flows that act differently in the testDependencies step
+  if (plugin.test) {
+    const { readableResult: res } = await plugin.test(paths, options);
+    return TestCommandResult.createHumanReadableTestCommandResult(res, '');
+  }
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
   for (const path of paths) {
     await spinner(`Scanning dependencies in ${path}`);

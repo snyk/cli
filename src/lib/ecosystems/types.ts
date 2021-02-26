@@ -1,7 +1,7 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { Options } from '../types';
 
-export type Ecosystem = 'cpp' | 'docker';
+export type Ecosystem = 'cpp' | 'docker' | 'code';
 
 export interface PluginResponse {
   scanResults: ScanResult[];
@@ -81,6 +81,10 @@ export interface EcosystemPlugin {
     errors: string[],
     options: Options,
   ) => Promise<string>;
+  test?: (
+    paths: string[],
+    options: Options,
+  ) => Promise<{ readableResult: string }>;
 }
 
 export interface EcosystemMonitorError {

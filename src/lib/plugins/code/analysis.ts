@@ -16,6 +16,7 @@ export async function getCodeAnalysisAndParseResults(
   await spinner(spinnerLbl);
 
   const codeAnalysis = await getCodeAnalysis(root, options);
+  spinner.clearAll();
   return parseSecurityResults(codeAnalysis);
 }
 
