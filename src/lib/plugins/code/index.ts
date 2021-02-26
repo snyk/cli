@@ -9,7 +9,7 @@ import { EcosystemPlugin } from '../../ecosystems/types';
 import errors = require('../../errors/legacy-errors');
 
 export const codePlugin: EcosystemPlugin = {
-  async scan(options) {
+  async scan() {
     return null as any;
   },
   async display() {

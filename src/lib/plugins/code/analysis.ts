@@ -1,4 +1,8 @@
-import { analyzeFolders, emitter as codeEmitter, AnalysisSeverity } from '@snyk/code-client';
+import {
+  analyzeFolders,
+  emitter as codeEmitter,
+  AnalysisSeverity,
+} from '@snyk/code-client';
 import { Log, ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
 import { api } from '../../api-token';
@@ -66,9 +70,7 @@ async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
   return result.sarifResults!;
 }
 
-function severityToAnalysisSeverity(
-  severity: SEVERITY,
-): AnalysisSeverity {
+function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {
   if (severity === SEVERITY.CRITICAL) {
     throw new FeatureNotSupportedBySnykCodeError(SEVERITY.CRITICAL);
   }
