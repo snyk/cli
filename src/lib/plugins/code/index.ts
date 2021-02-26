@@ -20,11 +20,9 @@ export const codePlugin: EcosystemPlugin = {
     if (!isCodeTestRun) {
       errors('code');
     }
-    const spinnerLbl = 'Querying vulnerabilities database...';
     // Currently code supports only one path
     const path = paths[0];
     const sarifTypedResult = await getCodeAnalysisAndParseResults(
-      spinnerLbl,
       path,
       options,
     );
