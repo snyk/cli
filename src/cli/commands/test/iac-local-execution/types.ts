@@ -5,6 +5,7 @@ export type IacFileMetadata = IacFileInDirectory;
 export interface IacFileData extends IacFileMetadata {
   jsonContent: Record<string, any>;
   fileContent: string;
+  engineType: EngineType;
   docId?: number;
 }
 export interface IacFileScanResult extends IacFileData {
@@ -16,6 +17,10 @@ export interface OpaWasmInstance {
   setData: (data: Record<string, any>) => void;
 }
 
+export enum EngineType {
+  Kubernetes,
+  Terraform,
+}
 export interface PolicyMetadata {
   id: string;
   publicId: string;

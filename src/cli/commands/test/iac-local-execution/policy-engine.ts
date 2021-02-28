@@ -3,18 +3,36 @@ import {
   IacFileData,
   IacFileScanResult,
   PolicyMetadata,
+  EngineType,
 } from './types';
 import { loadPolicy } from '@open-policy-agent/opa-wasm';
 import * as fs from 'fs';
-import * as path from 'path';
+import { getLocalCachePath, LOCAL_POLICY_ENGINE_DIR } from './local-cache';
 
-const LOCAL_POLICY_ENGINE_DIR = `.iac-data`;
-const LOCAL_POLICY_ENGINE_WASM_PATH = `${LOCAL_POLICY_ENGINE_DIR}${path.sep}policy.wasm`;
-const LOCAL_POLICY_ENGINE_DATA_PATH = `${LOCAL_POLICY_ENGINE_DIR}${path.sep}data.json`;
+export async function getPolicyEngine(
+  engineType: EngineType,
+): Promise<PolicyEngine> {
+  if (policyEngineCache[engineType]) {
+    return policyEngineCache[engineType]!;
+  }
 
-export async function buildPolicyEngine(): Promise<PolicyEngine> {
-  const policyEngineCoreDataPath = `${process.cwd()}/${LOCAL_POLICY_ENGINE_WASM_PATH}`;
-  const policyEngineMetaDataPath = `${process.cwd()}/${LOCAL_POLICY_ENGINE_DATA_PATH}`;
+  policyEngineCache[engineType] = await buildPolicyEngine(engineType);
+  return policyEngineCache[engineType]!;
+}
+
+const policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
+  [EngineType.Kubernetes]: null,
+  [EngineType.Terraform]: null,
+};
+
+async function buildPolicyEngine(
+  engineType: EngineType,
+): Promise<PolicyEngine> {
+  const [
+    policyEngineCoreDataPath,
+    policyEngineMetaDataPath,
+  ] = getLocalCachePath(engineType);
+
   try {
     const wasmFile = fs.readFileSync(policyEngineCoreDataPath);
     const policyMetaData = fs.readFileSync(policyEngineMetaDataPath);
@@ -44,17 +62,13 @@ class PolicyEngine {
     return this.opaWasmInstance.evaluate(data)[0].result;
   }
 
-  public async scanFiles(
-    filesToScan: IacFileData[],
-  ): Promise<IacFileScanResult[]> {
+  public scanFile(iacFile: IacFileData): IacFileScanResult {
     try {
-      return filesToScan.map((iacFile: IacFileData) => {
-        const violatedPolicies = this.evaluate(iacFile.jsonContent);
-        return {
-          ...iacFile,
-          violatedPolicies,
-        };
-      });
+      const violatedPolicies = this.evaluate(iacFile.jsonContent);
+      return {
+        ...iacFile,
+        violatedPolicies,
+      };
     } catch (err) {
       // TODO: to distinguish between different failure reasons
       throw new Error(`Failed to run policy engine: ${err}`);

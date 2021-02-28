@@ -94,15 +94,13 @@ export const IacK8sTests: AcceptanceTests = {
           issues[2].trim().startsWith('introduced by'),
           'Introduced by line',
         );
-        t.ok(issues[3], 'description');
-        t.ok(issues[4] === '', 'Empty line after description');
-        t.ok(issues[5].includes('[SNYK-CC-K8S-'), 'Snyk id');
+        t.ok(issues[3] === '', 'description');
+        t.ok(issues[4].includes('[SNYK-CC-K8S-'), 'Snyk id');
         t.ok(
-          issues[6].trim().startsWith('introduced by'),
+          issues[5].trim().startsWith('introduced by'),
           'Introduced by line',
         );
-        t.ok(issues[7], 'description');
-        t.ok(issues[8] === '', 'Empty line after description');
+        t.ok(issues[6] === '', 'Empty line after description');
         iacTestMetaAssertions(t, res, IacAcceptanceTestType.SINGLE_K8S_FILE);
       }
     },
