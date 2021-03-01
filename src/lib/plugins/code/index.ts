@@ -9,6 +9,8 @@ import {
 import { EcosystemPlugin } from '../../ecosystems/types';
 
 export const codePlugin: EcosystemPlugin = {
+  // We currently don't use scan/display. we will need to consolidate ecosystem plugins
+  // to accept flows that act differently in the `testDependencies` step, as we have here
   async scan() {
     return null as any;
   },

@@ -1,6 +1,5 @@
 import { Options } from '../../types';
 import * as config from '../../config';
-import { isFeatureFlagSupportedForOrg } from '../../feature-flags';
 import { AuthFailedError, FeatureNotSupportedForOrgError } from '../../errors';
 
 export async function validateCodeTest(options: Options) {
@@ -10,6 +9,9 @@ export async function validateCodeTest(options: Options) {
   if (!options.code) {
     throw new FeatureNotSupportedForOrgError(org);
   }
+
+  // TODO: We would nee to remove this once we fix circular import issue
+  const { isFeatureFlagSupportedForOrg } = require('../../feature-flags');
   const snykCodeRes = await isFeatureFlagSupportedForOrg(featureFlag, org);
 
   if (snykCodeRes.code === 401 || snykCodeRes.code === 403) {
