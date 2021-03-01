@@ -73,21 +73,25 @@ async function discoverConsecutiveFailures(
 }
 
 async function sendPagerDuty() {
-  await event({
-    data: {
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      routing_key: PD_ROUTING_KEY,
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      event_action: 'trigger',
-      payload: {
-        summary: 'CLI Alert. Smoke tests failing',
-        source: 'Snyk CLI Smoke tests',
-        severity: 'warning',
+  try {
+    const res = await event({
+      data: {
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        routing_key: PD_ROUTING_KEY,
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        event_action: 'trigger',
+        payload: {
+          summary: 'CLI Alert. Smoke tests failing',
+          source: 'Snyk CLI Smoke tests',
+          severity: 'warning',
+        },
       },
-    },
-  })
-    .then(console.log)
-    .catch(console.error);
+    });
+    console.log(res);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
 }
 
 async function sendSlackAlert(failedJobs: string[]) {
@@ -219,7 +223,7 @@ async function run() {
       latestWorkflowRuns[1].id,
     );
 
-    if (!failedWorkflows.length || failedWorkflows.length < 1) {
+    if (!failedWorkflows.length) {
       console.log(
         'There were no 2 consecutive fails on a job. No need to alert.',
       );
