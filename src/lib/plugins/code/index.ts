@@ -28,7 +28,7 @@ export const codePlugin: EcosystemPlugin = {
       );
       const meta = getMeta(options, path);
       const prefix = getPrefix(path);
-      const readableResult = await getCodeDisplayedOutput(
+      const readableResult = getCodeDisplayedOutput(
         sarifTypedResult,
         meta,
         prefix,
@@ -46,6 +46,8 @@ export const codePlugin: EcosystemPlugin = {
         err = error;
       } else if (isCodeClientError(error)) {
         err = new Error(chalk.bold.red(error.statusText));
+      } else if (error.code >= 400 && error.code < 500) {
+        err = new Error(error.message);
       } else {
         err = new Error(error);
       }
