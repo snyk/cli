@@ -500,7 +500,7 @@ workflows:
       - test-windows:
           name: Windows, Node 12 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
-          node_version: '12.16.2'
+          node_version: '12.21.0'
           jest_tests: true
           acceptance_tests: true
           system_tests: true
@@ -510,7 +510,7 @@ workflows:
       - test-windows:
           name: Windows, Node 12 - "Root" tap tests
           context: nodejs-install
-          node_version: '12.16.2'
+          node_version: '12.21.0'
           root_tap_tests: true
           requires:
             - Regression Test
@@ -552,7 +552,7 @@ workflows:
       - test-linux:
           name: Linux, Node 12 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
-          node_version: '12.16.2'
+          node_version: '12.21.0'
           jest_tests: true
           acceptance_tests: true
           system_tests: true
@@ -562,7 +562,7 @@ workflows:
       - test-linux:
           name: Linux, Node 12 - "Root" tap tests
           context: nodejs-install
-          node_version: '12.16.2'
+          node_version: '12.21.0'
           root_tap_tests: true
           requires:
             - Regression Test

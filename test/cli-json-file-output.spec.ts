@@ -20,21 +20,18 @@ describe('test --json-file-output ', () => {
   );
   it(
     '`can save JSON output to file while sending human readable output to stdout`',
-    async (done) => {
-      return exec(
-        `node ${main} test ${noVulnsProjectPath} --json-file-output=snyk-direct-json-test-output.json`,
-        async (err, stdout) => {
+    (done) => {
+      const jsonOutputFilename = `${uuidv4()}.json`;
+      exec(
+        `node ${main} test ${noVulnsProjectPath} --json-file-output=${jsonOutputFilename}`,
+        (err, stdout) => {
           if (err) {
             throw err;
           }
-          // give file a little time to be finished to be written
-          await new Promise((r) => setTimeout(r, 5000));
+
           expect(stdout).toMatch('Organization:');
-          const outputFileContents = readFileSync(
-            'snyk-direct-json-test-output.json',
-            'utf-8',
-          );
-          unlinkSync('./snyk-direct-json-test-output.json');
+          const outputFileContents = readFileSync(jsonOutputFilename, 'utf-8');
+          unlinkSync(`./${jsonOutputFilename}`);
           const jsonObj = JSON.parse(outputFileContents);
           const okValue = jsonObj.ok as boolean;
           expect(okValue).toBeTruthy();
@@ -48,8 +45,9 @@ describe('test --json-file-output ', () => {
   it(
     '`test --json-file-output produces same JSON output as normal JSON output to stdout`',
     (done) => {
+      const jsonOutputFilename = `${uuidv4()}.json`;
       return exec(
-        `node ${main} test ${noVulnsProjectPath} --json --json-file-output=snyk-direct-json-test-output.json`,
+        `node ${main} test ${noVulnsProjectPath} --json --json-file-output=${jsonOutputFilename}`,
         async (err, stdout) => {
           if (err) {
             throw err;
@@ -57,11 +55,8 @@ describe('test --json-file-output ', () => {
           // give file a little time to be finished to be written
           await new Promise((r) => setTimeout(r, 3000));
           const stdoutJson = stdout;
-          const outputFileContents = readFileSync(
-            'snyk-direct-json-test-output.json',
-            'utf-8',
-          );
-          unlinkSync('./snyk-direct-json-test-output.json');
+          const outputFileContents = readFileSync(jsonOutputFilename, 'utf-8');
+          unlinkSync(`./${jsonOutputFilename}`);
           expect(stdoutJson).toEqual(outputFileContents);
           done();
         },
