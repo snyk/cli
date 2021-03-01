@@ -13,7 +13,7 @@ const isWindows =
     .toLowerCase()
     .indexOf('windows') === 0;
 
-const testTimeout = 1000;
+const testTimeout = 5000;
 describe('testEcosystem - cpp', () => {
   const fixturePath = path.join(__dirname, 'fixtures', 'cpp-project');
   const cwd = process.cwd();
