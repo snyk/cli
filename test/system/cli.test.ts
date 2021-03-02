@@ -11,6 +11,18 @@ import stripAnsi from 'strip-ansi';
 import * as os from 'os';
 import * as isDocker from '../../src/lib/is-docker';
 
+type Ignore = {
+  [path: string]: {
+    reason: string;
+    expires: Date;
+    created?: Date;
+  }
+}
+
+type Policy = {
+  [id: string]: Ignore[];
+}
+
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
 const apiKey = '123456789';
@@ -227,7 +239,8 @@ test('cli tests error paths', async (t) => {
 });
 
 test('snyk ignore - all options', async (t) => {
-  const fullPolicy = {
+  const clock = sinon.useFakeTimers(new Date(2016, 11, 1).getTime());
+  const fullPolicy: Policy = {
     ID: [
       {
         '*': {
@@ -238,6 +251,7 @@ test('snyk ignore - all options', async (t) => {
     ],
   };
   try {
+    fullPolicy.ID[0]['*'].created = new Date();
     const dir = await makeTmpDirectory();
     await cli.ignore({
       id: 'ID',
@@ -247,6 +261,7 @@ test('snyk ignore - all options', async (t) => {
     });
     const pol = await policy.load(dir);
     t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
+    clock.restore();
   } catch (err) {
     t.throws(err, 'ignore should succeed');
   }
@@ -273,6 +288,7 @@ test('snyk ignore - no ID', async (t) => {
 });
 
 test('snyk ignore - default options', async (t) => {
+  const clock = sinon.useFakeTimers(new Date(2016, 11, 1).getTime());
   try {
     const dir = await makeTmpDirectory();
     await cli.ignore({
@@ -291,8 +307,14 @@ test('snyk ignore - default options', async (t) => {
     t.true(
       expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
         expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
-      'policy (default) expiry wirtten correctly',
+      'policy (default) expiry written correctly',
     );
+    t.strictEquals(
+      pol.ignore.ID3[0]['*'].created.getTime(),
+      new Date().getTime(),
+      'created date is the current date',
+    );
+  clock.restore();
   } catch (e) {
     t.fail(e, 'ignore should succeed');
   }
