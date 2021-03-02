@@ -1,14 +1,22 @@
 import { Octokit } from '@octokit/rest';
 import { IncomingWebhook } from '@slack/webhook';
 import { IncomingWebhookDefaultArguments } from '@slack/webhook';
+import { event } from '@pagerduty/pdjs';
 
-if (!process.env.USER_GITHUB_TOKEN || !process.env.SLACK_WEBHOOK_URL) {
-  console.error('Missing USER_GITHUB_TOKEN or SLACK_WEBHOOK_URL');
+if (
+  !process.env.USER_GITHUB_TOKEN ||
+  !process.env.SLACK_WEBHOOK_URL ||
+  !process.env.PD_ROUTING_KEY
+) {
+  console.error(
+    'Missing USER_GITHUB_TOKEN, SLACK_WEBHOOK_URL or PD_ROUTING_KEY',
+  );
   process.exit(1);
 }
 
 const GITHUB_TOKEN = process.env.USER_GITHUB_TOKEN;
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL;
+const PD_ROUTING_KEY = process.env.PD_ROUTING_KEY;
 
 const octokit = new Octokit({
   auth: GITHUB_TOKEN,
@@ -54,7 +62,7 @@ async function discoverConsecutiveFailures(
       process.exit(1);
     } else if (
       'failure' === firstJob.conclusion &&
-      firstJob?.conclusion === secondJob.conclusion
+      firstJob.conclusion === secondJob.conclusion
     ) {
       console.log(`Found a job that failed 2 times in a row: ${jobName}`);
       failedJobs.push(jobName);
@@ -62,6 +70,28 @@ async function discoverConsecutiveFailures(
   }
 
   return failedJobs;
+}
+
+async function sendPagerDuty() {
+  try {
+    const res = await event({
+      data: {
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        routing_key: PD_ROUTING_KEY,
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        event_action: 'trigger',
+        payload: {
+          summary: 'CLI Alert. Smoke tests failing',
+          source: 'Snyk CLI Smoke tests',
+          severity: 'warning',
+        },
+      },
+    });
+    console.log(res);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
 }
 
 async function sendSlackAlert(failedJobs: string[]) {
@@ -170,21 +200,6 @@ async function run() {
 
     // Check the latest 2 smoke tests for tests that had the same job fail 2 times in a row.
     const latestWorkflowRuns = workflowRuns.workflow_runs.slice(0, 2);
-
-    console.log('Checking smoke tests jobs...');
-    const failedWorkflows = await discoverConsecutiveFailures(
-      latestWorkflowRuns[0].id,
-      latestWorkflowRuns[1].id,
-    );
-
-    if (!failedWorkflows.length || failedWorkflows.length < 1) {
-      console.log(
-        'There were no 2 consecutive fails on a job. No need to alert.',
-      );
-      return;
-    }
-
-    console.log('Trying to re-run smoke test...');
     const id = latestWorkflowRuns[0].id;
 
     // Check current status of smoke test workflow and wait if it's still running
@@ -202,6 +217,21 @@ async function run() {
       await waitForConclusion(id);
     }
 
+    console.log('Checking smoke tests jobs...');
+    const failedWorkflows = await discoverConsecutiveFailures(
+      latestWorkflowRuns[0].id,
+      latestWorkflowRuns[1].id,
+    );
+
+    if (!failedWorkflows.length) {
+      console.log(
+        'There were no 2 consecutive fails on a job. No need to alert.',
+      );
+      return;
+    }
+
+    console.log('Trying to re-run smoke test...');
+
     // After making sure smoke test isn't currently running - try to re-run
     console.log(`Starting re-run of Smoke Test. ID number: ${id}...`);
     await octokit.actions.reRunWorkflow({
@@ -216,10 +246,13 @@ async function run() {
     const failedAgainJobs = await checkJobConclusion(id, failedWorkflows);
     console.log('Re-run completed.');
 
-    // If run failed again, send Slack alert
-    failedAgainJobs.length > 0
-      ? await sendSlackAlert(failedAgainJobs)
-      : console.log('Jobs succeeded after re-run. Do not alert.');
+    // If run failed again, send Slack alert and PagerDuty
+    if (failedAgainJobs.length > 0) {
+      await sendSlackAlert(failedAgainJobs);
+      await sendPagerDuty();
+    } else {
+      console.log('Jobs succeeded after re-run. Do not alert.');
+    }
   } catch (error) {
     console.error(error);
     process.exit(1);
