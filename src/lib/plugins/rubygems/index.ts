@@ -1,7 +1,7 @@
 import { inspectors, Spec } from './inspectors';
 import { MissingTargetFileError } from '../../errors/missing-targetfile-error';
 import gemfileLockToDependencies = require('./gemfile-lock-to-dependencies');
-import * as _ from 'lodash';
+const get = require('lodash.get');
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 
 export async function inspect(
@@ -31,8 +31,8 @@ export async function inspect(
 }
 
 function getDependenciesFromSpecs(specs) {
-  const gemfileLockBase64 = _.get(specs, 'files.gemfileLock.contents');
-  const gemspecBase64 = _.get(specs, 'files.gemspec.contents');
+  const gemfileLockBase64 = get(specs, 'files.gemfileLock.contents');
+  const gemspecBase64 = get(specs, 'files.gemspec.contents');
   const contents = Buffer.from(
     gemfileLockBase64 || gemspecBase64,
     'base64',

@@ -1,39 +1,88 @@
-# Snyk CLI tool contributor agreement
+This Contributor Licence Agreement (“Agreement”) sets out the terms under which contributions are made to open source projects of Snyk Ltd (“Snyk”) by or on behalf of the Contributor. This Agreement is legally binding on the Contributor.
 
-This Snyk CLI tool Agreement (this **"Agreement"**) applies to any Contribution you make to any Work. 
+ 
+Who the “Contributor” is depends on whether the person submitting the contribution is a private individual acting on their own behalf, or is acting on behalf of someone else (for example, their employer). The “Contributor” in this Agreement is therefore either: (i) if the individual who Submits a Contribution does so on behalf of their employer or another Legal Entity, any Legal Entity on behalf of whom a Contribution has been received by Snyk; or in all other cases (ii) the individual who Submits a Contribution to Snyk. "Legal Entity" means an entity which is not a natural person (for example, a limited company or corporation).
 
-This is a binding legal agreement on you and any organization you represent. If you are signing this Agreement on behalf of your employer or other organization, you represent and warrant that you have the authority to agree to this Agreement on behalf of the organization. 
 
-## 1. Definitions
+** 1. Interpretation**
 
-**"Contribution"** means any original work, including any modification of or addition to an existing work, that you submit to Snyk CLI tool repo in any manner for inclusion in any Work. 
 
-**"Snyk", "we"** and **"use"** means Snyk Ltd. 
+The following definitions and rules of interpretation apply in this Agreement.
 
-**"Work"** means any project, work or materials owned or managed by Snyk Ltd. 
 
-**"You"** and **"your"** means you and any organization on whose behalf you are entering this Agreement. 
+1.1	Definitions:
 
-## 2. Copyright Assignment, License and Waiver
+**Affiliates**: means, in respect of a Legal Entity, any other Legal Entities that control, are controlled by, or under common control with that Legal Entity.
 
-**(a) Assignment.** By submitting a Contribution, you assign to Snyk all right, title and interest in any copright you have in the Contribution, and you waive any rights, including any moral rights, database rights, etc., that may affect your ownership of the copyright in the Contribution. 
 
-**(b) License to Snyk.** If your assignment in Section 2(a) is ineffective for any reason, you grant to us and to any recipient of any Work distributed by use, a perpetual, worldwide, transferable, non-exclusive, no-charge, royalty-free, irrevocable, and sublicensable licence to use, reproduce, prepare derivative works of, publicly display, publicly perform, sublicense, and distribute Contributions and any derivative work created based on a Contribution. If your license grant is ineffective for any reason, you irrevocably waive and covenant to not assert any claim you may have against us, our successors in interest, and any of our direct or indirect licensees and customers, arising out of our, our successors in interest's, or any of our direct or indirect licensees' or customers' use, reproduction, preparation of derivative works, public display, public performance, sublicense, and distribution of a Contribution. You also agree that we may publicly use your name and the name of any organization on whose behalf you're entering into this Agreement in connection with publicizing the Work.
+**Contribution**: means any software or code that is Submitted by the Contributor to Snyk for inclusion in a Project.
 
-**(c) License to you.** We grant to you a perpetual, worldwide, transferable, non-exclusive, no-charge, royalty-free, irrevocable, and sublicensable license to use, reproduce, prepare derivative works of, publicly display, publicly perform, sublicense, and distribute a Contribution and any derivative works you create based on a Contribution. 
 
-## 3. Patent License
-You grant to us and to any recipient of any Work distributed by us, a perpetual, worldwide, transferable, non-exclusive, no-charge, royalty-free, irrevocable, and sublicensable patent license to make, have made, use, sell, offer to sell, import, and otherwise transfer the Contribution in whole or in part, along or included in any Work under any patent you own, or license from a third party, that is necessarily infringed by the Contribution or by combination of the Contribution with any Work. 
+**Copyright**: all copyright and rights in the nature of copyright subsisting in the Contribution in any part of the world, to which the Contributor is, or may become, entitled. 
 
-## 4. Your Representation and Warranties. 
-By submitting a Contribution, you represent and warrant that: (a) each Contribution you submit is an original work and you can legally grant the rights set out in this Agreement; (b) the Contribution does not, and any exercise of the rights granted by you will not, infringe any third party's intellectual property or other right; and (c) you are not aware of any claims, suits, or actions pertaining to the Contribution. You will notify us immediately if you become aware or have reason to believe that any of your representations and warranties is or becomes inaccurate. 
 
-##5. Intellectual Property
-Except for the assignment and licenses set forth in this Agreement, this Agreement does not transfer any right, title or interest in any intellectual property right of either party to the other. If you choose to provide us with suggestions, ideas for improvement, recommendations or other feedback, on any Work we may use your feedback without any restriction or payment. 
+**Effective Date**: the earlier of the date on which the Contributor Submits the Contribution, or the date of the Contributor’s acceptance of this Agreement.
 
-## Miscellaneous
-English law governs this Agreement, excluding any applicable conflict of laws rules or principles, and the parties agree to the exclusive jurisdiction of the courts in England, UK. This Agreement does not create a partnership, agency relationship, or joint venture between the parties. We may assign this Agreement without notice or restriction. If any provision of this Agreement is unenforcable, that provision will be modified to render it enforceable to the extent possible to effect the parties' intention and the remaining provisions will not be affected. The parties may amend this Agreement only in a written amendment signed by both parties. This Agreement comprises the parties' entire agreement relating to the subject matter of this Agreement. 
 
-**Agreed and accepted on my behalf and on behalf of my organization**
+**Patent Rights**: any patent claims which the Contributor or its Affiliates owns, controls or has the right to grant, now or in the future, to the extent infringed by the exercise of the rights licensed under this Agreement.
 
-Our contributor agreement is based on the [mongoDB contributor agreement] (https://www.mongodb.com/legal/contributor-agreement).
+
+**Project**: a software project to which the Contribution is Submitted.
+
+
+**Submit**: means to submit or send to Snyk or its representatives by any form of electronic, verbal, or written communication, for example, by means of code repositories or control systems, and issue tracking systems, that are managed by or on behalf of Snyk.
+
+
+**2.  Licence Grant**
+
+
+2.1  Copyright: The Contributor grants to Snyk a perpetual, irrevocable, worldwide, transferable, fully sublicenseable through multiple tiers, fee-free, non-exclusive licence under the Copyright to do the following acts, subject to, and in accordance with, the terms of this Agreement: to reproduce, prepare derivative works of, publicly display, publicly perform, communicate to the public, and distribute by any means Contributions and such derivative works.
+
+
+2.2.  Patent Rights: The Contributor grants to Snyk a perpetual, irrevocable, worldwide, transferable, fully sublicenseable through multiple tiers, fee-free, non-exclusive licence under the Patent Rights to do the following acts, subject to, and in accordance with, the terms of this Agreement: to make, have made, use, sell, offer for sale, import and otherwise transfer the Contribution and the Contribution in combination with a Project (and portions of such combination).
+
+
+2.3  The Contributor acknowledges that Snyk is not obliged to include the Contribution in any Project. 
+
+
+2.4  If Snyk includes the Contribution in a Project, Snyk may license the Contribution under any licence terms, including copyleft, permissive, commercial, or proprietary licenses, provided that it shall also license the Contribution under the terms of any licenses which are approved by the Open Source Initiative on or after the Effective Date, including both permissive and copyleft licenses, whether or not such licenses are subsequently disapproved (including any right to adopt any future version of a license if permitted).
+
+
+2.5  In the event that any moral rights apply in respect of the Contribution, the Contributor, being the sole author of the Contribution, waives all moral rights in respect of the use to be made of the Contribution under this Agreement to which the Contributor may now or at any future time be entitled.
+
+
+**3.  Warranties and Disclaimers**
+
+
+3.1	 The Contributor warrants and represents that:
+
+
+(a) it is the sole owner of the Copyright and any Patent Rights and legally entitled to grant the licence in section 2;
+
+(b) the Contribution is its own original creation;
+
+
+(c) the licence in section 2 does not conflict with or infringe any rights granted by the Contributor or (if applicable) its Affiliates; and
+
+
+(d) it is not aware of any claims, suits, or actions in respect of the Contribution.
+
+
+3.2  All other conditions, warranties or other terms which might have effect between the parties in respect of the Contribution or be implied or incorporated into this Agreement are excluded. 
+
+3.3 The Contributor is not required to provide any support for the Contribution.
+
+
+**4.  Other important terms**
+
+
+4.1 Assignment/Transfer: Snyk may assign and transfer all of its rights and obligations under this Agreement to any person.
+
+
+4.2  Further Assurance: The Contributor shall at Snyk’s expense execute and deliver such documents and perform such acts as may reasonably be required by Snyk for the purpose of giving full effect to this Agreement.
+
+
+4.3   Agreement: This Agreement constitutes the entire Agreement between the parties and supersedes and extinguishes all previous Agreements, promises, assurances, warranties, representations and understandings between them, whether written or oral, relating to its subject matter.
+
+
+4.4  Governing law: This Agreement and any dispute or claim (including non-contractual disputes or claims) arising out of or in connection with it or its subject matter or formation shall be governed by and construed in accordance with the law of England and Wales.

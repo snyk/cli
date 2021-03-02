@@ -642,6 +642,102 @@ export const DockerTests: AcceptanceTests = {
       }
     },
 
+    '`test foo:latest --docker with dockerfile instructions`': (
+      params,
+    ) => async (t) => {
+      stubDockerPluginResponse(
+        params.ecoSystemPlugins,
+        {
+          scanResults: [
+            {
+              facts: [
+                { type: 'depGraph', data: {} },
+                {
+                  type: 'dockerfileAnalysis',
+                  data: {
+                    dockerfilePackages: {
+                      bzip2: {
+                        instruction: 'RUN test instruction',
+                      },
+                    },
+                  },
+                },
+              ],
+              identity: {
+                type: 'deb',
+              },
+              target: {
+                image: 'docker-image|ubuntu',
+              },
+            },
+          ],
+        },
+        t,
+      );
+
+      const vulns = require('../fixtures/docker/find-result-remediation.json');
+      params.server.setNextResponse(vulns);
+
+      try {
+        await params.cli.test('foo:latest', {
+          docker: true,
+          org: 'explicit-org',
+        });
+        t.fail('should have found vuln');
+      } catch (err) {
+        const msg = err.message;
+        t.match(msg, "Image layer: 'RUN test instruction'");
+      }
+    },
+
+    '`test foo:latest --docker with auto detected instructions`': (
+      params,
+    ) => async (t) => {
+      stubDockerPluginResponse(
+        params.ecoSystemPlugins,
+        {
+          scanResults: [
+            {
+              facts: [
+                { type: 'depGraph', data: {} },
+                {
+                  type: 'autoDetectedUserInstructions',
+                  data: {
+                    dockerfilePackages: {
+                      bzip2: {
+                        instruction: 'RUN test instruction',
+                      },
+                    },
+                  },
+                },
+              ],
+              identity: {
+                type: 'deb',
+              },
+              target: {
+                image: 'docker-image|ubuntu',
+              },
+            },
+          ],
+        },
+        t,
+      );
+
+      const vulns = require('../fixtures/docker/find-result-remediation.json');
+      params.server.setNextResponse(vulns);
+
+      try {
+        await params.cli.test('foo:latest', {
+          docker: true,
+          org: 'explicit-org',
+        });
+        t.fail('should have found vuln');
+      } catch (err) {
+        const msg = err.message;
+        t.match(msg, "Image layer: 'RUN test instruction'");
+      }
+    },
+
     '`test --docker --file=Dockerfile --sarif `': (params, utils) => async (
       t,
     ) => {

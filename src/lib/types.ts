@@ -20,6 +20,7 @@ export interface TestOptions {
   failOn?: FailOn;
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
+  initScript?: string;
   yarnWorkspaces?: boolean;
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
@@ -100,6 +101,7 @@ export interface MonitorOptions {
   'app-vulns'?: boolean;
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
+  initScript?: string;
   yarnWorkspaces?: boolean;
 }
 
@@ -179,6 +181,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'reachable-vulns'
   | 'reachable-timeout'
   | 'reachable-vulns-timeout'
+  | 'init-script'
   | 'integration-name'
   | 'integration-version';
 

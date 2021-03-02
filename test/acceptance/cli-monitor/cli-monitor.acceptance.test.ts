@@ -9,7 +9,9 @@ import * as subProcess from '../../../src/lib/sub-process';
 import { getVersion } from '../../../src/lib/version';
 import { config as userConfig } from '../../../src/lib/user-config';
 import { chdirWorkspaces, getWorkspaceJSON } from '../workspace-helper';
-import * as _ from 'lodash';
+const isEmpty = require('lodash.isempty');
+const isObject = require('lodash.isobject');
+const get = require('lodash.get');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -225,7 +227,7 @@ if (!isWindows) {
     });
     const req = server.popRequest();
     t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
     t.deepEqual(
       req.body.meta.missingDeps,
       ['body-parser@^1.18.2'],
@@ -323,7 +325,7 @@ if (!isWindows) {
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
   });
 
   test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
@@ -335,7 +337,7 @@ if (!isWindows) {
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
   });
 
   test('`monitor npm-package-pruneable experimental for no-flag org`', async (t) => {
@@ -377,7 +379,7 @@ if (!isWindows) {
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/sbt/graph', 'puts at correct url');
-    t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
     if (process.platform === 'win32') {
       t.true(
         req.body.targetFileRelativePath.endsWith(
@@ -1904,7 +1906,7 @@ if (!isWindows) {
         json: true,
       });
       const res = JSON.parse(response);
-      if (_.isObject(res)) {
+      if (isObject(res)) {
         t.pass('monitor outputted JSON');
       } else {
         t.fail('Failed parsing monitor JSON output');
@@ -1914,7 +1916,7 @@ if (!isWindows) {
       t.equal(res.length, 2, 'Two monitor responses in the array');
       res.forEach((project) => {
         keyList.forEach((k) => {
-          !_.get(project, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
+          !get(project, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
         });
       });
     } catch (error) {

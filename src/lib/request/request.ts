@@ -83,7 +83,11 @@ export = function makeRequest(
           payload.timeout = config.timeout * 1000; // s -> ms
         }
 
-        debug('request payload: ', JSON.stringify(payload));
+        try {
+          debug('request payload: ', JSON.stringify(payload));
+        } catch (e) {
+          debug('request payload is too big to log', e);
+        }
 
         const method = (
           payload.method || 'get'

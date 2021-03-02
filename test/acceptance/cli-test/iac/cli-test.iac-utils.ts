@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+const sortBy = require('lodash.sortby');
 import {
   mapIacTestResult,
   AnnotatedIacIssue,
@@ -208,8 +208,8 @@ export function iacTestJsonAssertions(
   t.equal(results.cloudConfigResults, undefined);
   if (foundIssues) {
     t.deepEqual(
-      _.sortBy(results.infrastructureAsCodeIssues, 'id'),
-      _.sortBy(expectedResults.infrastructureAsCodeIssues, 'id'),
+      sortBy(results.infrastructureAsCodeIssues, 'id'),
+      sortBy(expectedResults.infrastructureAsCodeIssues, 'id'),
       'issues are the same',
     );
   } else {

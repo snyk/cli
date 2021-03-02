@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import * as _ from 'lodash';
+const get = require('lodash.get');
 import * as path from 'path';
 import * as pathUtil from 'path';
 import * as debugModule from 'debug';
@@ -104,10 +104,13 @@ function prepareEcosystemResponseForParsing(
     depGraphData !== undefined
       ? depGraphLib.createFromJSON(depGraphData)
       : undefined;
-  const dockerfileAnalysisFact = payloadBody?.facts.find(
-    (fact) => fact.type === 'dockerfileAnalysis',
+  const imageUserInstructions = payloadBody?.facts.find(
+    (fact) =>
+      fact.type === 'dockerfileAnalysis' ||
+      fact.type === 'autoDetectedUserInstructions',
   );
-  const dockerfilePackages = dockerfileAnalysisFact?.data?.dockerfilePackages;
+
+  const dockerfilePackages = imageUserInstructions?.data?.dockerfilePackages;
   const projectName = payloadBody?.name || depGraph?.rootPkg.name;
   const packageManager = payloadBody?.identity?.type as SupportedProjectTypes;
   const targetFile = payloadBody?.identity?.targetFile || options.file;
@@ -572,12 +575,12 @@ async function assembleLocalPayloads(
       }
     }
     analytics.add('pluginName', deps.plugin.name);
-    const javaVersion = _.get(
+    const javaVersion = get(
       deps.plugin,
       'meta.versionBuildInfo.metaBuildVersion.javaVersion',
       null,
     );
-    const mvnVersion = _.get(
+    const mvnVersion = get(
       deps.plugin,
       'meta.versionBuildInfo.metaBuildVersion.mvnVersion',
       null,
@@ -766,11 +769,7 @@ async function assembleLocalPayloads(
           `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
         );
 
-        const callGraphMetrics = _.get(
-          deps.plugin,
-          'meta.callGraphMetrics',
-          {},
-        );
+        const callGraphMetrics = get(deps.plugin, 'meta.callGraphMetrics', {});
         analytics.add('callGraphMetrics', {
           callGraphEdgeCount: edgeCount,
           callGraphNodeCount: nodeCount,

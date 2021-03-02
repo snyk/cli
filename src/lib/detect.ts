@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
-import * as _ from 'lodash';
+const endsWith = require('lodash.endswith');
 import { NoSupportedManifestsFoundError } from './errors';
 import { SupportedPackageManagers } from './package-managers';
 
@@ -96,7 +96,7 @@ const DETECTABLE_PACKAGE_MANAGERS: {
 
 export function isPathToPackageFile(path) {
   for (const fileName of DETECTABLE_FILES) {
-    if (_.endsWith(path, fileName)) {
+    if (endsWith(path, fileName)) {
       return true;
     }
   }

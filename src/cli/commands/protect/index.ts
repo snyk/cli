@@ -1,7 +1,7 @@
 import * as debugModule from 'debug';
 import * as snyk from '../../../lib/';
 import * as types from '../../../lib/types';
-import * as protect from '../../../lib/protect';
+const protect = require('../../../lib/protect');
 import * as analytics from '../../../lib/analytics';
 import * as detect from '../../../lib/detect';
 import * as pm from '../../../lib/package-managers';

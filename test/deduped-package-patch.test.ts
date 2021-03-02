@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import * as protect from '../src/lib/protect';
+const protect = require('../src/lib/protect');
 import * as fs from 'fs';
 
 test('npm deduped packages are found and patched correctly', async (t) => {

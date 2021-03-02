@@ -37,3 +37,8 @@ restore_is_ci_flags() {
 }
 
 check_if_regression_test() { ! [ "${REGRESSION_TEST}" = "1" ]; }
+
+check_auth_output() {
+  printf %s "$1" | grep -F -e "To authenticate your account, open the below URL in your browser." -e "Now redirecting you to our auth page, go ahead and log in," > /dev/null
+  echo $?
+}

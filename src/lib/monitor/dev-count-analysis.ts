@@ -194,14 +194,7 @@ export function execShell(
   return new Promise((resolve, reject) => {
     exec(cmd, options, (error, stdout, stderr) => {
       if (error) {
-        // TODO: we can probably remove this after unshipping Node 8 support
-        // and then just directly get the error code like `error.code`
-        let exitCode = 0;
-        try {
-          exitCode = parseInt(error['code']);
-        } catch {
-          exitCode = -1;
-        }
+        const exitCode = error.code;
 
         const e = new ShellOutError(
           error.message,
