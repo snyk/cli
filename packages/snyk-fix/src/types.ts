@@ -212,7 +212,7 @@ interface FixChangesError {
   success: false;
   userMessage: string;
   reason: string;
-  tip: string;
+  tip?: string;
 }
 
 export interface ErrorsByEcoSystem {

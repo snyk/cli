@@ -18,7 +18,10 @@ export async function showResultsSummary(
     resultsByPlugin,
     exceptionsByScanType,
   );
-  const overallSummary = '';
+  const overallSummary = generateFixedAndFailedSummary(
+    resultsByPlugin,
+    exceptionsByScanType,
+  );
   return `${successfulFixesSummary}\n\n${unresolvedSummary}\n\n${overallSummary}`;
 }
 
@@ -90,23 +93,33 @@ export function generateUnresolvedSummary(
   return '';
 }
 
-export function generateOverallSummary(
+export function generateFixedAndFailedSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
+  exceptionsByScanType: ErrorsByEcoSystem,
 ): string {
-  const sectionTitle = 'Successful fixes:';
-  const formattedTitleHeader = `${chalk.bold(sectionTitle)}\n\n`;
-  let summary = '';
+  const sectionTitle = 'Summary:';
+  const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
+  let fixedItems = 0;
+  let failedItems = 0;
+  for (const plugin of Object.keys(resultsByPlugin)) {
+    fixedItems += resultsByPlugin[plugin].succeeded.length;
+  }
 
   for (const plugin of Object.keys(resultsByPlugin)) {
-    const fixedSuccessfully = resultsByPlugin[plugin].succeeded;
-    if (fixedSuccessfully.length > 0) {
-      summary += fixedSuccessfully
-        .map((s) => formatChangesSummary(s.original, s.changes))
-        .join('\n\n');
+    const results = resultsByPlugin[plugin];
+    failedItems += results.failed.length + results.skipped.length;
+  }
+
+  if (Object.keys(exceptionsByScanType).length) {
+    for (const ecosystem of Object.keys(exceptionsByScanType)) {
+      const unresolved = exceptionsByScanType[ecosystem];
+      failedItems += unresolved.originals.length;
     }
   }
-  if (summary) {
-    return formattedTitleHeader + summary;
-  }
-  return chalk.red('✖ No successful fixes');
+
+  return `${formattedTitleHeader}\n\n${chalk.bold.red(
+    failedItems,
+  )} items were not fixed\n${chalk.green.bold(
+    fixedItems,
+  )} items were successfully fixed`;
 }

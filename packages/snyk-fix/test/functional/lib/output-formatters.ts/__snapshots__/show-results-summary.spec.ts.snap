@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generateFixedAndFailedSummary has failed only 1`] = `
+"[1mSummary:[22m
+
+[1m[31m1[39m[22m items were not fixed
+[32m[1m0[22m[39m items were successfully fixed"
+`;
+
+exports[`generateFixedAndFailedSummary has fixed & failed 1`] = `
+"[1mSummary:[22m
+
+[1m[31m1[39m[22m items were not fixed
+[32m[1m1[22m[39m items were successfully fixed"
+`;
+
+exports[`generateFixedAndFailedSummary has fixed only 1`] = `
+"[1mSummary:[22m
+
+[1m[31m0[39m[22m items were not fixed
+[32m[1m1[22m[39m items were successfully fixed"
+`;
+
+exports[`generateFixedAndFailedSummary has skipped & failed & plugin errors 1`] = `
+"[1mSummary:[22m
+
+[1m[31m2[39m[22m items were not fixed
+[32m[1m1[22m[39m items were successfully fixed"
+`;
+
+exports[`generateSuccessfulFixesSummary has fixed & failed 1`] = `
+"[1mSuccessful fixes:[22m
+
+  requirements.txt
+  [32m✔[39m Upgraded Django from 1.6.1 to 2.0.1
+  [31mx[39m [31mFailed to upgrade transitive from 6.1.0 to 6.2.1[39m
+  Reason:  Version not compatible.
+  Tip:     Apply the changes manually"
+`;
+
+exports[`generateUnresolvedSummary has failed, skipped & plugin errors 1`] = `
+"[1mUnresolved items:[22m
+
+  package.json
+  [31m✖[39m [31mnpm is not supported[39m"
+`;

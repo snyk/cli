@@ -10,9 +10,9 @@ export function formatChangesSummary(
   entity: EntityToFix,
   changes: FixChangesSummary[],
 ): string {
-  return `${PADDING_SPACE}${entity.scanResult.identity.targetFile}\n${changes.map((c) =>
-    formatAppliedChange(c),
-  )}`;
+  return `${PADDING_SPACE}${
+    entity.scanResult.identity.targetFile
+  }\n${changes.map((c) => formatAppliedChange(c)).join('\n')}`;
 }
 
 // TODO:
@@ -22,12 +22,11 @@ function formatAppliedChange(change: FixChangesSummary): string | null {
     return `${PADDING_SPACE}${chalk.green('✔')} ${change.userMessage}`;
   }
   if (change.success === false) {
-    return `${PADDING_SPACE}${chalk.red('x')} ${chalk.red(change.userMessage)}${
-      change.tip
-        ? `.\nTip:\`${change.tip}\``
-        : undefined
+    return `${PADDING_SPACE}${chalk.red('x')} ${chalk.red(
+      change.userMessage,
+    )}\n${PADDING_SPACE}Reason:${PADDING_SPACE}${change.reason}${
+      change.tip ? `.\n${PADDING_SPACE}Tip:     ${change.tip}` : undefined
     }`;
   }
-  // not supported
-  return null;
+  return '';
 }
