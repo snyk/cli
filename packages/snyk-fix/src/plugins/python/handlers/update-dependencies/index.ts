@@ -1,3 +1,4 @@
+import { NoFixesCouldBeAppliedError } from '../../../../lib/errors/no-fixes-applied';
 import { DependencyPins, FixChangesSummary } from '../../../../types';
 import { parseRequirementsFile, Requirement } from './requirements-file-parser';
 
@@ -49,7 +50,7 @@ export function updateDependencies(
   }
 
   if (updatedManifest === requirementsTxt) {
-    throw new Error('Looks like no fixes could be applied.');
+    throw new NoFixesCouldBeAppliedError();
   }
 
   return {

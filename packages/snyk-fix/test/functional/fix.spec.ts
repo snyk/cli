@@ -173,6 +173,35 @@ describe('Snyk fix', () => {
         .targetFile,
     ).toEqual('prod.txt');
   });
+
+  it('Snyk fix returns results as expected when remediation data is empty', async () => {
+    // Arrange
+    const txtProdProjectTestResult = generateEntityToFix(
+      'pip',
+      'prod.txt',
+      JSON.stringify({}),
+    );
+    // @ts-ignore: The operand of a 'delete' operator must be optional
+    delete txtProdProjectTestResult.testResult.remediation;
+
+    // Act
+    const res = await snykFix.fix([txtProdProjectTestResult], { quiet: true });
+    // Assert
+    expect(res.exceptionsByScanType).toEqual({});
+    expect(Object.keys(res.resultsByPlugin)).toHaveLength(1);
+    expect(Object.keys(res.resultsByPlugin)[0]).toEqual('python');
+
+    // first *.txt throws because remediation is empty
+    expect(res.resultsByPlugin.python.failed).toHaveLength(0);
+    expect(res.resultsByPlugin.python.skipped).toHaveLength(1);
+    expect(
+      res.resultsByPlugin.python.skipped[0].original.scanResult.identity
+        .targetFile,
+    ).toEqual('prod.txt');
+    expect(res.resultsByPlugin.python.skipped[0].userMessage).toEqual(
+      'No remediation data available',
+    );
+  });
 });
 
 describe('groupEntitiesPerScanType', () => {

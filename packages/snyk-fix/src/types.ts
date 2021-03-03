@@ -1,4 +1,5 @@
 import { DepGraphData } from '@snyk/dep-graph';
+import { CustomError } from './lib/errors/custom-error';
 
 /* Scan Result
  * this data is returned by the CLI plugins to identify
@@ -187,7 +188,7 @@ export interface EntityToFix {
 
 export interface WithError<Original> {
   original: Original;
-  error: Error;
+  error: CustomError;
 }
 
 export interface WithFixChangesApplied<Original> {

@@ -4,6 +4,8 @@ import * as chalk from 'chalk';
 import { EntityToFix, FixOptions, WithFixChangesApplied } from '../../../types';
 import { PluginFixResponse } from '../../types';
 import { updateDependencies } from './update-dependencies';
+import { MissingRemediationDataError } from '../../../lib/errors/missing-remediation-data';
+import { MissingFileNameError } from '../../../lib/errors/missing-file-name';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -104,10 +106,10 @@ export async function fixIndividualRequirementsTxt(
   const fileName = entity.scanResult.identity.targetFile;
   const remediationData = entity.testResult.remediation;
   if (!remediationData) {
-    throw new Error('Fixing is not available without remediation data');
+    throw new MissingRemediationDataError();
   }
   if (!fileName) {
-    throw new Error('Requirements file name required');
+    throw new MissingFileNameError();
   }
   const requirementsTxt = await entity.workspace.readFile(fileName);
   // TODO: allow handlers per fix type (later also strategies or combine with strategies)

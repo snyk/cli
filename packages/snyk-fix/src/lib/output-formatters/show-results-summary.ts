@@ -2,6 +2,7 @@ import * as chalk from 'chalk';
 
 import { FixHandlerResultByPlugin } from '../../plugins/types';
 import { ErrorsByEcoSystem } from '../../types';
+import { convertErrorToUserMessage } from '../errors/error-to-user-message';
 import { formatChangesSummary } from './format-successful-item';
 import { formatUnresolved } from './format-unresolved-item';
 export const PADDING_SPACE = '  '; // 2 spaces
@@ -59,6 +60,16 @@ export function generateUnresolvedSummary(
         '\n\n' +
         skipped
           .map((s) => formatUnresolved(s.original, s.userMessage))
+          .join('\n\n');
+    }
+    const failed = resultsByPlugin[plugin].failed;
+    if (failed.length > 0) {
+      summary +=
+        '\n\n' +
+        failed
+          .map((s) =>
+            formatUnresolved(s.original, convertErrorToUserMessage(s.error)),
+          )
           .join('\n\n');
     }
   }
