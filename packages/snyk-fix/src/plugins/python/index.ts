@@ -2,9 +2,8 @@ import * as debugLib from 'debug';
 import * as pMap from 'p-map';
 import * as micromatch from 'micromatch';
 import * as ora from 'ora';
-import * as chalk from 'chalk';
 
-import { EntityToFix } from '../../types';
+import { EntityToFix, FixOptions } from '../../types';
 import { FixHandlerResultByPlugin } from '../types';
 import { loadHandler } from './load-handler';
 import { SUPPORTED_PROJECT_TYPES } from './supported-project-types';
@@ -13,10 +12,11 @@ const debug = debugLib('snyk-fix:python');
 
 export async function pythonFix(
   entities: EntityToFix[],
+  options: FixOptions,
 ): Promise<FixHandlerResultByPlugin> {
-  const spinner = ora(
-    'Looking for supported Python items',
-  ).start();
+  const spinner = ora({ isSilent: options.quiet });
+  spinner.text = 'Looking for supported Python items';
+  spinner.start();
   const pluginId = 'python';
   const handlerResult: FixHandlerResultByPlugin = {
     [pluginId]: {

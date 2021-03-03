@@ -10,7 +10,7 @@ describe('Snyk fix', () => {
     );
 
     // Act
-    const res = await snykFix.fix([projectTestResult]);
+    const res = await snykFix.fix([projectTestResult], { quiet: true });
 
     // Assert
     expect(res).toMatchSnapshot();
@@ -30,10 +30,10 @@ describe('Snyk fix', () => {
     );
 
     // Act
-    const res = await snykFix.fix([
-      projectTestResult,
-      pipfileProjectTestResult,
-    ]);
+    const res = await snykFix.fix(
+      [projectTestResult, pipfileProjectTestResult],
+      { quiet: true },
+    );
 
     // Assert
     expect(res).toMatchSnapshot();
@@ -58,11 +58,14 @@ describe('Snyk fix', () => {
     );
 
     // Act
-    const res = await snykFix.fix([
-      txtDevProjectTestResult,
-      txtProdProjectTestResult,
-      pipfileProjectTestResult,
-    ]);
+    const res = await snykFix.fix(
+      [
+        txtDevProjectTestResult,
+        txtProdProjectTestResult,
+        pipfileProjectTestResult,
+      ],
+      { quiet: true },
+    );
 
     // Assert
     expect(res.exceptionsByScanType).toEqual({});
@@ -111,11 +114,14 @@ describe('Snyk fix', () => {
     );
 
     // Act
-    const res = await snykFix.fix([
-      txtDevProjectTestResult,
-      txtProdProjectTestResult,
-      pipfileProjectTestResult,
-    ]);
+    const res = await snykFix.fix(
+      [
+        txtDevProjectTestResult,
+        txtProdProjectTestResult,
+        pipfileProjectTestResult,
+      ],
+      { quiet: true },
+    );
 
     // Assert
     expect(res.exceptionsByScanType).toEqual({});
@@ -251,7 +257,7 @@ describe('Error handling', () => {
       JSON.stringify({}),
     );
     // Act
-    const res = await snykFix.fix([projectTestResult]);
+    const res = await snykFix.fix([projectTestResult], { quiet: true });
     // Assert
     expect(res).toMatchSnapshot();
   });

@@ -7,18 +7,22 @@ import { showResultsSummary } from './lib/output-formatters/show-results-summary
 import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
 
-import { EntityToFix, ErrorsByEcoSystem } from './types';
+import { EntityToFix, ErrorsByEcoSystem, FixOptions } from './types';
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
 
 const debug = debugLib('snyk-fix:main');
 
 export async function fix(
   entities: EntityToFix[],
+  options: FixOptions = {
+    dryRun: false,
+    quiet: false,
+  },
 ): Promise<{
   resultsByPlugin: FixHandlerResultByPlugin;
   exceptionsByScanType: ErrorsByEcoSystem;
 }> {
-  const spinner = ora().start();
+  const spinner = ora({ isSilent: options.quiet });
   let resultsByPlugin: FixHandlerResultByPlugin = {};
   const entitiesPerType = groupEntitiesPerScanType(entities);
   const exceptionsByScanType: ErrorsByEcoSystem = {};
@@ -27,7 +31,7 @@ export async function fix(
     async (scanType) => {
       try {
         const fixPlugin = loadPlugin(scanType);
-        const results = await fixPlugin(entitiesPerType[scanType]);
+        const results = await fixPlugin(entitiesPerType[scanType], options);
         resultsByPlugin = { ...resultsByPlugin, ...results };
       } catch (e) {
         debug(`Failed to processes ${scanType}`, e);
@@ -45,6 +49,8 @@ export async function fix(
     resultsByPlugin,
     exceptionsByScanType,
   );
+
+  spinner.start();
   spinner.stopAndPersist({ text: 'Done', symbol: chalk.green('✔') });
   spinner.stopAndPersist({ text: `\n${fixSummary}` });
   return { resultsByPlugin, exceptionsByScanType };

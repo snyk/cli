@@ -1,5 +1,6 @@
 import {
   EntityToFix,
+  FixOptions,
   WithError,
   WithFixChangesApplied,
   WithUserMessage,
@@ -7,6 +8,7 @@ import {
 
 export type FixHandler = (
   entities: EntityToFix[],
+  options: FixOptions,
 ) => Promise<FixHandlerResultByPlugin>;
 
 export interface PluginFixResponse {

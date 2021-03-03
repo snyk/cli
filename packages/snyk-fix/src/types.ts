@@ -217,3 +217,7 @@ interface FixChangesError {
 export interface ErrorsByEcoSystem {
   [ecosystem: string]: { originals: EntityToFix[]; userMessage: string };
 }
+export interface FixOptions {
+  dryRun?: boolean;
+  quiet?: boolean;
+}
