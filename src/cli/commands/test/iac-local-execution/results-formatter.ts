@@ -1,4 +1,9 @@
-import { EngineType, IacFileScanResult, PolicyMetadata } from './types';
+import {
+  EngineType,
+  FormattedResult,
+  IacFileScanResult,
+  PolicyMetadata,
+} from './types';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
 // import {
@@ -8,16 +13,22 @@ import { IacProjectType } from '../../../../lib/iac/constants';
 
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
-export function formatResults(
+export function formatScanResults(
   iacLocalExecutionResults: Array<IacFileScanResult>,
   options: { severityThreshold?: SEVERITY },
-) {
+): FormattedResult[] {
   const iacLocalExecutionGroupedResults = groupMultiDocResults(
     iacLocalExecutionResults,
   );
-  return iacLocalExecutionGroupedResults.map((iacScanResult) =>
-    iacLocalFileScanToFormattedResult(iacScanResult, options.severityThreshold),
+  const formattedResults = iacLocalExecutionGroupedResults.map(
+    (iacScanResult) =>
+      iacLocalFileScanToFormattedResult(
+        iacScanResult,
+        options.severityThreshold,
+      ),
   );
+
+  return formattedResults;
 }
 
 //
@@ -43,7 +54,7 @@ const engineTypeToProjectType = {
 function iacLocalFileScanToFormattedResult(
   iacFileScanResult: IacFileScanResult,
   severityThreshold?: SEVERITY,
-) {
+): FormattedResult {
   const formattedIssues = iacFileScanResult.violatedPolicies.map((policy) => {
     // TODO: make sure we handle this issue with annotations:
     // https://github.com/snyk/registry/pull/17277

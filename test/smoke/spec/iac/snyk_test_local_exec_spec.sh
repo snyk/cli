@@ -94,4 +94,44 @@ Describe "Snyk iac test --experimental command"
       The result of function check_valid_json should be success
     End
   End
+
+  Describe "directory scanning"
+    Skip if "execute only in regression test" check_if_regression_test
+
+    It "finds issues in a directory with Terraform files"
+      When run snyk iac test ../fixtures/iac/terraform/ --experimental
+      The status should be failure # issues found
+      # First File
+      The output should include "Testing sg_open_ssh.tf..."
+      The output should include "Infrastructure as code issues:"
+      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
+      The output should include "introduced by resource > aws_security_group[allow_ssh] > ingress"
+      The output should include "Tested sg_open_ssh.tf for known issues, found 1 issues"
+
+      # Second File (the parser used in local-exec doesn't fail on invalid HCL! will be fixed soon)
+      The output should include "Testing sg_open_ssh_invalid_hcl2.tf..."
+      The output should include "Infrastructure as code issues:"
+      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
+      The output should include "introduced by resource > aws_security_group[allow_ssh] > ingress"
+      The output should include "Tested sg_open_ssh_invalid_hcl2.tf for known issues, found 1 issues"
+
+      # Directory scan summary
+      The output should include "Tested 3 projects, 2 contained issues."
+    End
+
+    It "finds issues in a directory with Kubernetes files"
+      When run snyk iac test ../fixtures/iac/kubernetes/ --experimental
+      The status should be failure # issues found
+      # First File
+      The output should include "Testing pod-privileged.yaml..."
+      The output should include "Infrastructure as code issues:"
+      The output should include "✗ Container is running in privileged mode [High Severity] [SNYK-CC-K8S-1] in Deployment"
+      The output should include "introduced by input > spec > containers[example] > securityContext > privileged"
+      The output should include "Tested pod-privileged.yaml for known issues, found 1 issues"
+
+      # Second File
+      The output should include "Testing pod-invalid.yaml..."
+      The output should include "Invalid K8s File!"
+    End
+  End
 End
