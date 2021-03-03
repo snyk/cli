@@ -56,7 +56,7 @@ export const codePlugin: EcosystemPlugin = {
   },
 };
 
-function isCodeClientError(error: any) {
+function isCodeClientError(error: object): boolean {
   return (
     error.hasOwnProperty('statusCode') &&
     error.hasOwnProperty('statusText') &&
@@ -64,7 +64,7 @@ function isCodeClientError(error: any) {
   );
 }
 
-function hasVulnerabilities(readableResult) {
+function hasVulnerabilities(readableResult: string): Error {
   const err = new Error(readableResult) as any;
   err.code = 'VULNS';
 

@@ -8,6 +8,6 @@ export class FeatureNotSupportedForOrgError extends CustomError {
     this.code = 422;
     this.org = org;
 
-    this.userMessage = `feature is not supported for org ${org}. ${additionalUserHelp}`;
+    this.userMessage = `Feature is not supported for org ${org}. ${additionalUserHelp}`;
   }
 }

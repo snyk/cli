@@ -8,7 +8,7 @@ const analyzeFoldersMock = analyzeFolders as jest.Mock;
 import { loadJson } from './utils';
 import * as featureFlags from '../src/lib/feature-flags';
 import { config as userConfig } from '../src/lib/user-config';
-import { getCodeAnalysisAndParseResults } from '../src/lib/plugins/code/analysis';
+import { getCodeAnalysisAndParseResults } from '../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../src/lib/types';
 import * as ecosystems from '../src/lib/ecosystems';
 const osName = require('os-name');
@@ -18,17 +18,17 @@ describe('Test snyk code', () => {
   let isFeatureFlagSupportedForOrgSpy;
   const fakeApiKey = '123456789';
   const sampleSarifResponse = loadJson(
-    __dirname + '/fixtures/code/sample-sarif.json',
+    __dirname + '/fixtures/sast/sample-sarif.json',
   );
   const sampleAnalyzeFoldersResponse = loadJson(
-    __dirname + '/fixtures/code/sample-analyze-folders-response.json',
+    __dirname + '/fixtures/sast/sample-analyze-folders-response.json',
   );
 
   const isWindows =
     osName()
       .toLowerCase()
       .indexOf('windows') === 0;
-  const fixturePath = path.join(__dirname, 'fixtures', 'code');
+  const fixturePath = path.join(__dirname, 'fixtures', 'sast');
   const cwd = process.cwd();
 
   function readFixture(filename: string) {

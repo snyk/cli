@@ -10,15 +10,15 @@ export async function validateCodeTest(options: Options) {
     throw new FeatureNotSupportedForOrgError(org);
   }
 
-  // TODO: We would nee to remove this once we fix circular import issue
+  // TODO: We would need to remove this once we fix circular import issue
   const { isFeatureFlagSupportedForOrg } = require('../../feature-flags');
-  const snykCodeRes = await isFeatureFlagSupportedForOrg(featureFlag, org);
+  const isFeatureFlagRes = await isFeatureFlagSupportedForOrg(featureFlag, org);
 
-  if (snykCodeRes.code === 401 || snykCodeRes.code === 403) {
-    throw AuthFailedError(snykCodeRes.error, snykCodeRes.code);
+  if (isFeatureFlagRes.code === 401 || isFeatureFlagRes.code === 403) {
+    throw AuthFailedError(isFeatureFlagRes.error, isFeatureFlagRes.code);
   }
 
-  if (snykCodeRes.userMessage) {
+  if (isFeatureFlagRes.userMessage) {
     throw new FeatureNotSupportedForOrgError(org);
   }
 }

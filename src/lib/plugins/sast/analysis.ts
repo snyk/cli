@@ -1,49 +1,20 @@
-import {
-  analyzeFolders,
-  emitter as codeEmitter,
-  AnalysisSeverity,
-} from '@snyk/code-client';
+import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
 import { Log, ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
 import { api } from '../../api-token';
 import * as config from '../../config';
 import spinner = require('../../spinner');
 import { Options } from '../../types';
+import { analysisProgressUpdate } from './utils';
 import { FeatureNotSupportedBySnykCodeError } from './errors/unsupported-feature-snyk-code-error';
 
 export async function getCodeAnalysisAndParseResults(
   root: string,
   options: Options,
 ): Promise<Log> {
-  let currentLabel = '';
+  const currentLabel = '';
   await spinner.clearAll();
-  codeEmitter.on('scanFilesProgress', async (processed: number) => {
-    const spinnerLbl = `Indexed ${processed} files`;
-    spinner.clear<void>(currentLabel)();
-    currentLabel = spinnerLbl;
-    await spinner(spinnerLbl);
-  });
-  codeEmitter.on(
-    'uploadBundleProgress',
-    async (processed: number, total: number) => {
-      const spinnerLbl = `Upload bundle progress: ${processed}/${total}`;
-      spinner.clear<void>(currentLabel)();
-      currentLabel = spinnerLbl;
-      await spinner(spinnerLbl);
-    },
-  );
-  codeEmitter.on('analyseProgress', async (data: any) => {
-    const spinnerLbl = `Analysis ${data.status}: ${Math.round(
-      data.progress * 100,
-    )}%`;
-    spinner.clear<void>(currentLabel)();
-    currentLabel = spinnerLbl;
-    await spinner(spinnerLbl);
-  });
-
-  codeEmitter.on('sendError', (error) => {
-    throw error;
-  });
+  await analysisProgressUpdate(currentLabel);
   const codeAnalysis = await getCodeAnalysis(root, options);
   spinner.clearAll();
   return parseSecurityResults(codeAnalysis);
@@ -83,19 +54,19 @@ function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {
 }
 
 function parseSecurityResults(codeAnalysis: Log): Log {
-  let securityRules;
+  let securityRulesMap;
 
   const rules = codeAnalysis.runs[0].tool.driver.rules;
   const results = codeAnalysis.runs[0].results;
 
   if (rules) {
-    securityRules = getSecurityRulesMap(rules);
-    codeAnalysis.runs[0].tool.driver.rules = Object.values(securityRules);
+    securityRulesMap = getSecurityRulesMap(rules);
+    codeAnalysis.runs[0].tool.driver.rules = Object.values(securityRulesMap);
   }
-  if (results && securityRules) {
-    codeAnalysis.runs[0].results = getSecurityResults(
+  if (results && securityRulesMap) {
+    codeAnalysis.runs[0].results = getSecurityResultsOnly(
       results,
-      Object.keys(securityRules),
+      Object.keys(securityRulesMap),
     );
   }
 
@@ -105,7 +76,7 @@ function parseSecurityResults(codeAnalysis: Log): Log {
 function getSecurityRulesMap(
   rules: ReportingDescriptor[],
 ): { [ruleId: string]: ReportingDescriptor[] } {
-  const securityRules = rules.reduce((acc, rule) => {
+  const securityRulesMap = rules.reduce((acc, rule) => {
     const { id: ruleId, properties } = rule;
     const isSecurityRule = properties?.tags?.some(
       (tag) => tag.toLowerCase() === 'security',
@@ -116,10 +87,10 @@ function getSecurityRulesMap(
     return acc;
   }, {});
 
-  return securityRules;
+  return securityRulesMap;
 }
 
-function getSecurityResults(
+function getSecurityResultsOnly(
   results: Result[],
   securityRules: string[],
 ): Result[] {
