@@ -183,72 +183,85 @@ Object {
 }
 `;
 
-exports[`Snyk fix Snyk fix returns results for supported type 1`] = `
+exports[`Snyk fix Snyk fix returns results for supported type 1`] = `Object {}`;
+
+exports[`Snyk fix Snyk fix returns results for supported type 2`] = `
 Object {
-  "exceptionsByScanType": Object {},
-  "resultsByPlugin": Object {
-    "python": Object {
-      "failed": Array [],
-      "skipped": Array [],
-      "succeeded": Array [
-        Object {
-          "changes": Array [
-            Object {
-              "success": true,
-              "userMessage": "Pinned django from 1.6.1 to 2.0.1",
+  "python": Object {
+    "failed": Array [],
+    "skipped": Array [],
+    "succeeded": Array [
+      Object {
+        "changes": Array [
+          Object {
+            "success": true,
+            "userMessage": "Pinned django from 1.6.1 to 2.0.1",
+          },
+        ],
+        "original": Object {
+          "scanResult": Object {
+            "facts": Array [
+              Object {
+                "data": "not-implemented",
+                "type": "not-implemented",
+              },
+            ],
+            "identity": Object {
+              "targetFile": "requirements.txt",
+              "type": "pip",
             },
-          ],
-          "original": Object {
-            "scanResult": Object {
-              "facts": Array [
+          },
+          "testResult": Object {
+            "depGraphData": "",
+            "issues": Array [
+              Object {
+                "fixInfo": Object {},
+                "issueId": "VULN_ID_1",
+                "pkgName": "package@version",
+              },
+            ],
+            "issuesData": Object {
+              "vuln-id": Object {
+                "id": "VULN_ID_1",
+                "severity": "high",
+                "title": "Fake vuln",
+              },
+            },
+            "remediation": Object {
+              "ignore": Object {},
+              "patch": Object {},
+              "pin": Object {
+                "django@1.6.1": Object {
+                  "upgradeTo": "django@2.0.1",
+                  "upgrades": Array [],
+                  "vulns": Array [],
+                },
+              },
+              "unresolved": Array [],
+              "upgrade": Object {},
+            },
+          },
+          "workspace": Object {
+            "readFile": [Function],
+            "writeFile": [MockFunction] {
+              "calls": Array [
+                Array [
+                  "requirements.txt",
+                  "{}
+django>=2.0.1 # not directly required, pinned by Snyk to avoid a vulnerability",
+                ],
+              ],
+              "results": Array [
                 Object {
-                  "data": "not-implemented",
-                  "type": "not-implemented",
+                  "type": "return",
+                  "value": Promise {},
                 },
               ],
-              "identity": Object {
-                "targetFile": "requirements.txt",
-                "type": "pip",
-              },
-            },
-            "testResult": Object {
-              "depGraphData": "",
-              "issues": Array [
-                Object {
-                  "fixInfo": Object {},
-                  "issueId": "VULN_ID_1",
-                  "pkgName": "package@version",
-                },
-              ],
-              "issuesData": Object {
-                "vuln-id": Object {
-                  "id": "VULN_ID_1",
-                  "severity": "high",
-                  "title": "Fake vuln",
-                },
-              },
-              "remediation": Object {
-                "ignore": Object {},
-                "patch": Object {},
-                "pin": Object {
-                  "django@1.6.1": Object {
-                    "upgradeTo": "django@2.0.1",
-                    "upgrades": Array [],
-                    "vulns": Array [],
-                  },
-                },
-                "unresolved": Array [],
-                "upgrade": Object {},
-              },
-            },
-            "workspace": Object {
-              "readFile": [Function],
-              "writeFile": [Function],
             },
           },
         },
-      ],
-    },
+      },
+    ],
   },
 }
 `;

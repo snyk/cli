@@ -1,4 +1,3 @@
-import { FixHandler } from '../types';
 import { pipRequirementsTxt } from './handlers/pip-requirements';
 import { SUPPORTED_PROJECT_TYPES } from './supported-project-types';
 

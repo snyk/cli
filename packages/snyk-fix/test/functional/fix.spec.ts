@@ -1,3 +1,4 @@
+import { writeFile } from 'fs';
 import * as snykFix from '../../src';
 import { generateEntityToFix } from '../helpers/generate-entity-to-fix';
 describe('Snyk fix', () => {
@@ -8,12 +9,33 @@ describe('Snyk fix', () => {
       'requirements.txt',
       JSON.stringify({}),
     );
+    const writeFileSpy = jest.spyOn(projectTestResult.workspace, 'writeFile');
 
     // Act
     const res = await snykFix.fix([projectTestResult], { quiet: true });
 
     // Assert
-    expect(res).toMatchSnapshot();
+    expect(writeFileSpy).toHaveBeenCalled();
+    expect(res.exceptionsByScanType).toMatchSnapshot();
+    expect(res.resultsByPlugin).toMatchSnapshot();
+  });
+
+  it('Snyk fix returns results for supported type in dryRun mode (no write)', async () => {
+    // Arrange
+    const projectTestResult = generateEntityToFix(
+      'pip',
+      'requirements.txt',
+      JSON.stringify({}),
+    );
+    const writeFileSpy = jest.spyOn(projectTestResult.workspace, 'writeFile');
+    // Act
+    await snykFix.fix([projectTestResult], {
+      quiet: true,
+      dryRun: true,
+    });
+
+    // Assert
+    expect(writeFileSpy).not.toHaveBeenCalled();
   });
 
   it('Snyk fix returns results for supported & unsupported type', async () => {

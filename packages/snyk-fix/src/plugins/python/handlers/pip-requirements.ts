@@ -1,8 +1,7 @@
 import * as debugLib from 'debug';
 import * as chalk from 'chalk';
 
-
-import { EntityToFix, WithFixChangesApplied } from '../../../types';
+import { EntityToFix, FixOptions, WithFixChangesApplied } from '../../../types';
 import { PluginFixResponse } from '../../types';
 import { updateDependencies } from './update-dependencies';
 
@@ -10,6 +9,7 @@ const debug = debugLib('snyk-fix:python:requirements.txt');
 
 export async function pipRequirementsTxt(
   entities: EntityToFix[],
+  options: FixOptions,
 ): Promise<PluginFixResponse> {
   debug(`Preparing to fix ${entities.length} Python requirements.txt projects`);
   const handlerResult: PluginFixResponse = {
@@ -25,7 +25,7 @@ export async function pipRequirementsTxt(
     try {
       const isSupportedResponse = await isSupported(entity);
       if (projectTypeSupported(isSupportedResponse)) {
-        const fixedEntity = await fixIndividualRequirementsTxt(entity);
+        const fixedEntity = await fixIndividualRequirementsTxt(entity, options);
         handlerResult.succeeded.push(fixedEntity);
       } else {
         handlerResult.skipped.push({
@@ -63,9 +63,9 @@ export async function isSupported(
   if (await containsRequireDirective(entity)) {
     return {
       supported: false,
-      reason: `Requirements with ${chalk.bold(
-        '-r',
-      )} or ${chalk.bold('-c')} directive are not yet supported`,
+      reason: `Requirements with ${chalk.bold('-r')} or ${chalk.bold(
+        '-c',
+      )} directive are not yet supported`,
     };
   }
 
@@ -99,6 +99,7 @@ async function containsRequireDirective(entity: EntityToFix): Promise<boolean> {
 // TODO: optionally verify the deps install
 export async function fixIndividualRequirementsTxt(
   entity: EntityToFix,
+  options: FixOptions,
 ): Promise<WithFixChangesApplied<EntityToFix>> {
   const fileName = entity.scanResult.identity.targetFile;
   const remediationData = entity.testResult.remediation;
@@ -114,7 +115,9 @@ export async function fixIndividualRequirementsTxt(
     requirementsTxt,
     remediationData.pin,
   );
-  await entity.workspace.writeFile(fileName, updatedManifest);
+  if (!options.dryRun) {
+    await entity.workspace.writeFile(fileName, updatedManifest);
+  }
 
   return {
     original: entity,

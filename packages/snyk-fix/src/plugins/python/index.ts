@@ -53,7 +53,10 @@ export async function pythonFix(
 
       try {
         const handler = loadHandler(projectType as SUPPORTED_PROJECT_TYPES);
-        const { failed, skipped, succeeded } = await handler(projectsToFix);
+        const { failed, skipped, succeeded } = await handler(
+          projectsToFix,
+          options,
+        );
         handlerResult[pluginId].failed.push(...failed);
         handlerResult[pluginId].skipped.push(...skipped);
         handlerResult[pluginId].succeeded.push(...succeeded);
