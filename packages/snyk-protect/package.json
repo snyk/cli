@@ -24,8 +24,8 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run test:unit && npm run test:acceptance",
-    "test:unit": "jest test/unit/*.spec.ts",
-    "test:acceptance": "jest test/acceptance/*.spec.ts",
+    "test:unit": "jest \"test\/unit\/((.*)\/)*.*\\.spec.ts\"",
+    "test:acceptance": "jest \"test\/acceptance\/((.*)\/)*.*\\.spec.ts\"",
     "format": "prettier --write '{src,test,scripts}/**/*.{js,ts}'"
   },
   "keywords": [
