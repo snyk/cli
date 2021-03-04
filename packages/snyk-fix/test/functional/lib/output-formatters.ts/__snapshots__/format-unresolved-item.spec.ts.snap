@@ -1,0 +1,6 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`format unresolved item successful item & changes formatted 1`] = `
+"  requirements.txt
+  [31m✖[39m [31mFailed to process item[39m"
+`;

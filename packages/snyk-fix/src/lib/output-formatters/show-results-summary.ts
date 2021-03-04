@@ -117,7 +117,7 @@ export function generateFixedAndFailedSummary(
     }
   }
 
-  return `${formattedTitleHeader}\n\n${chalk.bold.red(
+  return `${PADDING_SPACE}${formattedTitleHeader}\n\n${PADDING_SPACE}${chalk.bold.red(
     failedItems,
   )} items were not fixed\n${chalk.green.bold(
     fixedItems,

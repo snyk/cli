@@ -19,10 +19,6 @@ export async function pipRequirementsTxt(
     failed: [],
     skipped: [],
   };
-  // TODO:
-  // find related files
-  // process related first
-  // process the rest 1 by 1
   for (const entity of entities) {
     try {
       const isSupportedResponse = await isSupported(entity);
@@ -61,8 +57,13 @@ export async function isSupported(
   if (!remediationData) {
     return { supported: false, reason: 'No remediation data available' };
   }
+  // TODO: recursive inclusions?
+  // TODO: fix the non null assertion here
+  const fileName = entity.scanResult.identity.targetFile!;
+  const requirementsTxt = await entity.workspace.readFile(fileName);
+  const { containsRequire } = await containsRequireDirective(requirementsTxt);
 
-  if (await containsRequireDirective(entity)) {
+  if (containsRequire) {
     return {
       supported: false,
       reason: `Requirements with ${chalk.bold('-r')} or ${chalk.bold(
@@ -84,18 +85,18 @@ export async function isSupported(
  * would have to be identified and fixed together
  * https://pip.pypa.io/en/stable/reference/pip_install/#options
  */
-async function containsRequireDirective(entity: EntityToFix): Promise<boolean> {
-  const REQUIRE_PATTERN = /^[^\S\n]*-(r|c)\s+.+/;
-  // -r ../base.txt => fileRead('../base.txt');
-  // TODO: recursive inclusions?
-  // TODO: fix the non null assertion here
-  const fileName = entity.scanResult.identity.targetFile!;
-  const requirementsTxt = await entity.workspace.readFile(fileName);
-  const match = REQUIRE_PATTERN.exec(requirementsTxt);
-  if (match && match.length > 1) {
-    return true;
+export async function containsRequireDirective(
+  requirementsTxt: string,
+): Promise<{ containsRequire: boolean; matches: RegExpMatchArray[] }> {
+  const allMatches: RegExpMatchArray[] = [];
+  const REQUIRE_PATTERN = new RegExp(/^[^\S\n]*-(r|c)\s+(.+)/, 'gm');
+  const matches = requirementsTxt.matchAll(REQUIRE_PATTERN);
+  for (const match of matches) {
+    if (match && match.length > 1) {
+      allMatches.push(match);
+    }
   }
-  return false;
+  return { containsRequire: allMatches.length > 0, matches: allMatches };
 }
 
 // TODO: optionally verify the deps install

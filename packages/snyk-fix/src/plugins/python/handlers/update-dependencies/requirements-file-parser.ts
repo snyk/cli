@@ -14,9 +14,6 @@ export interface Requirement {
   extras?: string;
 }
 
-// What if I find it in 2 places package@version?
-// if we defined 2 versions of the same package, if they conflict pip install fails
-
 /**
  * Converts a requirements file into an array of parsed requirements, with data
  * such as name, version, etc.

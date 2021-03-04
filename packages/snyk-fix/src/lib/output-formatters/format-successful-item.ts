@@ -15,8 +15,6 @@ export function formatChangesSummary(
   }\n${changes.map((c) => formatAppliedChange(c)).join('\n')}`;
 }
 
-// TODO:
-// write test for these
 function formatAppliedChange(change: FixChangesSummary): string | null {
   if (change.success === true) {
     return `${PADDING_SPACE}${chalk.green('✔')} ${change.userMessage}`;

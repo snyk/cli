@@ -24,8 +24,6 @@ export function updateDependencies(
     lowerCasedUpgrades[upgrade.toLowerCase()] = upgradeTo.toLowerCase();
   });
 
-  // TODO: record failed upgrades & pins and send them back
-  // to be shown in the UI,  do not break PR creation
   const { updatedRequirements, changes: upgradedChanges } = applyUpgrades(
     parsedRequirementsData,
     lowerCasedUpgrades,
