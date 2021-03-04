@@ -67,7 +67,7 @@ export function generateTestResult(): TestResult {
         'django@1.6.1': {
           upgradeTo: 'django@2.0.1',
           vulns: [],
-          upgrades: [],
+          isTransitive: false,
         },
       },
     },

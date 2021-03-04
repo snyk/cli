@@ -1,30 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`generateFixedAndFailedSummary has failed only 1`] = `
-"[1mSummary:[22m
+"  [1mSummary:[22m
 
-[1m[31m1[39m[22m items were not fixed
+  [1m[31m1[39m[22m items were not fixed
 [32m[1m0[22m[39m items were successfully fixed"
 `;
 
 exports[`generateFixedAndFailedSummary has fixed & failed 1`] = `
-"[1mSummary:[22m
+"  [1mSummary:[22m
 
-[1m[31m1[39m[22m items were not fixed
+  [1m[31m1[39m[22m items were not fixed
 [32m[1m1[22m[39m items were successfully fixed"
 `;
 
 exports[`generateFixedAndFailedSummary has fixed only 1`] = `
-"[1mSummary:[22m
+"  [1mSummary:[22m
 
-[1m[31m0[39m[22m items were not fixed
+  [1m[31m0[39m[22m items were not fixed
 [32m[1m1[22m[39m items were successfully fixed"
 `;
 
 exports[`generateFixedAndFailedSummary has skipped & failed & plugin errors 1`] = `
-"[1mSummary:[22m
+"  [1mSummary:[22m
 
-[1m[31m2[39m[22m items were not fixed
+  [1m[31m2[39m[22m items were not fixed
 [32m[1m1[22m[39m items were successfully fixed"
 `;
 

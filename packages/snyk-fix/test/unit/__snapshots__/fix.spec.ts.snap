@@ -1,42 +1,267 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Snyk fix Snyk fix returns results for supported type 1`] = `
-Array [
-  Object {
-    "failed": Array [],
-    "succeeded": Array [
-      Object {
-        "scanResult": Object {
-          "facts": Array [
-            Object {
-              "data": "not-implemented",
-              "type": "not-implemented",
+exports[`Error handling Snyk fix returns error when called with unsupported type 1`] = `
+Object {
+  "exceptionsByScanType": Object {
+    "npm": Object {
+      "originals": Array [
+        Object {
+          "scanResult": Object {
+            "facts": Array [
+              Object {
+                "data": "not-implemented",
+                "type": "not-implemented",
+              },
+            ],
+            "identity": Object {
+              "targetFile": "package.json",
+              "type": "npm",
             },
-          ],
-          "identity": Object {
-            "targetFile": "requirements.txt",
-            "type": "pip",
+          },
+          "testResult": Object {
+            "depGraphData": "",
+            "issues": Array [
+              Object {
+                "fixInfo": Object {},
+                "issueId": "VULN_ID_1",
+                "pkgName": "package@version",
+              },
+            ],
+            "issuesData": Object {
+              "vuln-id": Object {
+                "id": "VULN_ID_1",
+                "severity": "high",
+                "title": "Fake vuln",
+              },
+            },
+            "remediation": Object {
+              "ignore": Object {},
+              "patch": Object {},
+              "pin": Object {
+                "django@1.6.1": Object {
+                  "isTransitive": false,
+                  "upgradeTo": "django@2.0.1",
+                  "vulns": Array [],
+                },
+              },
+              "unresolved": Array [],
+              "upgrade": Object {},
+            },
+          },
+          "workspace": Object {
+            "readFile": [Function],
+            "writeFile": [Function],
           },
         },
-        "testResult": Object {
-          "depGraphData": "",
-          "issues": Array [
+      ],
+      "userMessage": "npm is not supported.",
+    },
+  },
+  "resultsByPlugin": Object {},
+}
+`;
+
+exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
+Object {
+  "exceptionsByScanType": Object {},
+  "resultsByPlugin": Object {
+    "python": Object {
+      "failed": Array [],
+      "skipped": Array [
+        Object {
+          "original": Object {
+            "scanResult": Object {
+              "facts": Array [
+                Object {
+                  "data": "not-implemented",
+                  "type": "not-implemented",
+                },
+              ],
+              "identity": Object {
+                "targetFile": "Pipfile",
+                "type": "pip",
+              },
+            },
+            "testResult": Object {
+              "depGraphData": "",
+              "issues": Array [
+                Object {
+                  "fixInfo": Object {},
+                  "issueId": "VULN_ID_1",
+                  "pkgName": "package@version",
+                },
+              ],
+              "issuesData": Object {
+                "vuln-id": Object {
+                  "id": "VULN_ID_1",
+                  "severity": "high",
+                  "title": "Fake vuln",
+                },
+              },
+              "remediation": Object {
+                "ignore": Object {},
+                "patch": Object {},
+                "pin": Object {
+                  "django@1.6.1": Object {
+                    "isTransitive": false,
+                    "upgradeTo": "django@2.0.1",
+                    "vulns": Array [],
+                  },
+                },
+                "unresolved": Array [],
+                "upgrade": Object {},
+              },
+            },
+            "workspace": Object {
+              "readFile": [Function],
+              "writeFile": [Function],
+            },
+          },
+          "userMessage": "Pipfile is not supported",
+        },
+      ],
+      "succeeded": Array [
+        Object {
+          "changes": Array [
             Object {
-              "fixInfo": Object {},
-              "issueId": "VULN_ID_1",
-              "pkgName": "package@version",
+              "success": true,
+              "userMessage": "Pinned django from 1.6.1 to 2.0.1",
             },
           ],
-          "issuesData": Object {
-            "vuln-id": Object {
-              "id": "VULN_ID_1",
-              "severity": "high",
-              "title": "Fake vuln",
+          "original": Object {
+            "scanResult": Object {
+              "facts": Array [
+                Object {
+                  "data": "not-implemented",
+                  "type": "not-implemented",
+                },
+              ],
+              "identity": Object {
+                "targetFile": "requirements.txt",
+                "type": "pip",
+              },
+            },
+            "testResult": Object {
+              "depGraphData": "",
+              "issues": Array [
+                Object {
+                  "fixInfo": Object {},
+                  "issueId": "VULN_ID_1",
+                  "pkgName": "package@version",
+                },
+              ],
+              "issuesData": Object {
+                "vuln-id": Object {
+                  "id": "VULN_ID_1",
+                  "severity": "high",
+                  "title": "Fake vuln",
+                },
+              },
+              "remediation": Object {
+                "ignore": Object {},
+                "patch": Object {},
+                "pin": Object {
+                  "django@1.6.1": Object {
+                    "isTransitive": false,
+                    "upgradeTo": "django@2.0.1",
+                    "vulns": Array [],
+                  },
+                },
+                "unresolved": Array [],
+                "upgrade": Object {},
+              },
+            },
+            "workspace": Object {
+              "readFile": [Function],
+              "writeFile": [Function],
+            },
+          },
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`Snyk fix Snyk fix returns results for supported type 1`] = `Object {}`;
+
+exports[`Snyk fix Snyk fix returns results for supported type 2`] = `
+Object {
+  "python": Object {
+    "failed": Array [],
+    "skipped": Array [],
+    "succeeded": Array [
+      Object {
+        "changes": Array [
+          Object {
+            "success": true,
+            "userMessage": "Pinned django from 1.6.1 to 2.0.1",
+          },
+        ],
+        "original": Object {
+          "scanResult": Object {
+            "facts": Array [
+              Object {
+                "data": "not-implemented",
+                "type": "not-implemented",
+              },
+            ],
+            "identity": Object {
+              "targetFile": "requirements.txt",
+              "type": "pip",
+            },
+          },
+          "testResult": Object {
+            "depGraphData": "",
+            "issues": Array [
+              Object {
+                "fixInfo": Object {},
+                "issueId": "VULN_ID_1",
+                "pkgName": "package@version",
+              },
+            ],
+            "issuesData": Object {
+              "vuln-id": Object {
+                "id": "VULN_ID_1",
+                "severity": "high",
+                "title": "Fake vuln",
+              },
+            },
+            "remediation": Object {
+              "ignore": Object {},
+              "patch": Object {},
+              "pin": Object {
+                "django@1.6.1": Object {
+                  "isTransitive": false,
+                  "upgradeTo": "django@2.0.1",
+                  "vulns": Array [],
+                },
+              },
+              "unresolved": Array [],
+              "upgrade": Object {},
+            },
+          },
+          "workspace": Object {
+            "readFile": [Function],
+            "writeFile": [MockFunction] {
+              "calls": Array [
+                Array [
+                  "requirements.txt",
+                  "{}
+django>=2.0.1 # not directly required, pinned by Snyk to avoid a vulnerability",
+                ],
+              ],
+              "results": Array [
+                Object {
+                  "type": "return",
+                  "value": Promise {},
+                },
+              ],
             },
           },
         },
       },
     ],
   },
-]
+}
 `;
