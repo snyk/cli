@@ -90,13 +90,24 @@ export async function containsRequireDirective(
 ): Promise<{ containsRequire: boolean; matches: RegExpMatchArray[] }> {
   const allMatches: RegExpMatchArray[] = [];
   const REQUIRE_PATTERN = new RegExp(/^[^\S\n]*-(r|c)\s+(.+)/, 'gm');
-  const matches = requirementsTxt.matchAll(REQUIRE_PATTERN);
+  const matches = getAllMatchedGroups(REQUIRE_PATTERN, requirementsTxt);
   for (const match of matches) {
     if (match && match.length > 1) {
       allMatches.push(match);
     }
   }
   return { containsRequire: allMatches.length > 0, matches: allMatches };
+}
+
+function getAllMatchedGroups(re: RegExp, str: string) {
+  const groups: RegExpExecArray[] = [];
+  let match: RegExpExecArray | null;
+  // tslint:disable-next-line:no-conditional-assignment
+  while ((match = re.exec(str))) {
+    groups.push(match);
+  }
+
+  return groups;
 }
 
 // TODO: optionally verify the deps install
