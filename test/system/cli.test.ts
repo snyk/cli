@@ -1,5 +1,6 @@
 import * as util from 'util';
-import * as _ from 'lodash';
+import * as get from 'lodash.get';
+import * as isObject from 'lodash.isobject';
 import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
 import * as dockerChecker from '../../src/lib/is-docker';
@@ -16,12 +17,12 @@ type Ignore = {
     reason: string;
     expires: Date;
     created?: Date;
-  }
-}
+  };
+};
 
 type Policy = {
   [id: string]: Ignore[];
-}
+};
 
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
@@ -314,7 +315,7 @@ test('snyk ignore - default options', async (t) => {
       new Date().getTime(),
       'created date is the current date',
     );
-  clock.restore();
+    clock.restore();
   } catch (e) {
     t.fail(e, 'ignore should succeed');
   }
@@ -363,7 +364,7 @@ test('monitor --json', async (t) => {
     const response = await cli.monitor(undefined, { json: true });
     const res = JSON.parse(response);
 
-    if (_.isObject(res)) {
+    if (isObject(res)) {
       t.pass('monitor outputted JSON');
     } else {
       t.fail('Failed parsing monitor JSON output');
@@ -372,7 +373,7 @@ test('monitor --json', async (t) => {
     const keyList = ['packageManager', 'manageUrl'];
 
     keyList.forEach((k) => {
-      !_.get(res, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
+      !get(res, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
     });
   } catch (error) {
     t.fail(error);
@@ -387,7 +388,7 @@ test('monitor --json no supported target files', async (t) => {
   } catch (error) {
     const jsonResponse = error.json;
 
-    if (_.isObject(jsonResponse)) {
+    if (isObject(jsonResponse)) {
       t.pass('monitor outputted JSON');
     } else {
       t.fail('Failed parsing monitor JSON output');
@@ -397,7 +398,7 @@ test('monitor --json no supported target files', async (t) => {
     t.equals(jsonResponse.ok, false, 'result is an error');
 
     keyList.forEach((k) => {
-      t.ok(_.get(jsonResponse, k, null), `${k} present`);
+      t.ok(get(jsonResponse, k, null), `${k} present`);
     });
   }
 });
