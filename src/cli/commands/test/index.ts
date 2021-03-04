@@ -120,11 +120,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
       );
       return commandResult;
     } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      } else {
-        throw new Error(error);
-      }
+      throw new Error(error);
     }
   }
 
