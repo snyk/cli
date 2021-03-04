@@ -15,6 +15,7 @@ export { UnsupportedPackageManagerError } from './unsupported-package-manager-er
 export { FailedToRunTestError } from './failed-to-run-test-error';
 export { TooManyVulnPaths } from './too-many-vuln-paths';
 export { AuthFailedError } from './authentication-failed-error';
+export { FeatureNotSupportedForOrgError } from './unsupported-feature-for-org-error';
 export { OptionMissingErrorError } from './option-missing-error';
 export { ExcludeFlagBadInputError } from './exclude-flag-bad-input';
 export { UnsupportedOptionCombinationError } from './unsupported-option-combination-error';
