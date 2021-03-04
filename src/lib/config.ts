@@ -15,7 +15,6 @@ interface Config {
   timeout: number;
   PROJECT_NAME: string;
   TOKEN: string;
-  CODE_CLIENT_PROXY_URL: string;
 }
 
 // TODO: fix the types!
