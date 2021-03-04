@@ -19,5 +19,3 @@ export interface PluginFixResponse {
 export interface FixHandlerResultByPlugin {
   [pluginId: string]: PluginFixResponse;
 }
-// ecosystem is the plugin
-export type Ecosystem = 'python';

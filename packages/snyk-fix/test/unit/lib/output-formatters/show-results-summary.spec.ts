@@ -1,3 +1,4 @@
+import stripAnsi = require('strip-ansi');
 import {
   CustomError,
   ERROR_CODES,
@@ -47,7 +48,7 @@ describe('generateFixedAndFailedSummary', () => {
       },
     };
     const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
-    expect(res).toMatchSnapshot();
+    expect(stripAnsi(res)).toMatchSnapshot();
   });
 
   it('has fixed only', async () => {
@@ -74,7 +75,7 @@ describe('generateFixedAndFailedSummary', () => {
       },
     };
     const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
-    expect(res).toMatchSnapshot();
+    expect(stripAnsi(res)).toMatchSnapshot();
   });
 
   it('has failed only', async () => {
@@ -96,7 +97,7 @@ describe('generateFixedAndFailedSummary', () => {
       },
     };
     const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
-    expect(res).toMatchSnapshot();
+    expect(stripAnsi(res)).toMatchSnapshot();
   });
 
   it('has skipped & failed & plugin errors', async () => {
@@ -140,7 +141,7 @@ describe('generateFixedAndFailedSummary', () => {
       },
     };
     const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
-    expect(res).toMatchSnapshot();
+    expect(stripAnsi(res)).toMatchSnapshot();
   });
 });
 
@@ -175,7 +176,7 @@ describe('generateSuccessfulFixesSummary', () => {
       },
     };
     const res = await generateSuccessfulFixesSummary(resultsByPlugin);
-    expect(res).toMatchSnapshot();
+    expect(stripAnsi(res)).toMatchSnapshot();
   });
 });
 
@@ -225,6 +226,66 @@ describe('generateUnresolvedSummary', () => {
       resultsByPlugin,
       exceptionsByScanType,
     );
-    expect(res).toMatchSnapshot();
+    expect(stripAnsi(res)).toMatchSnapshot();
+  });
+});
+
+describe('showResultsSummary', () => {
+  it('has failed, skipped, successful & plugin errors', async () => {
+    const entity = generateEntityToFix(
+      'pip',
+      'requirements.txt',
+      JSON.stringify({}),
+    );
+    const entityNotSupported = generateEntityToFix(
+      'npm',
+      'package.json',
+      JSON.stringify({}),
+    );
+    const entityFailed = generateEntityToFix(
+      'npm',
+      'package.json',
+      JSON.stringify({}),
+    );
+    const resultsByPlugin: FixHandlerResultByPlugin = {
+      python: {
+        succeeded: [
+          {
+            original: entity,
+            changes: [
+              {
+                success: true,
+                userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+              },
+              {
+                success: false,
+                reason: 'Version not compatible',
+                userMessage: 'Failed to upgrade transitive from 6.1.0 to 6.2.1',
+                tip: 'Apply the changes manually',
+              },
+            ],
+          },
+        ],
+        failed: [
+          {
+            original: entityFailed,
+            error: new CustomError(
+              'Missing required file name',
+              ERROR_CODES.MissingFileName,
+            ),
+          },
+        ],
+        skipped: [],
+      },
+    };
+    const exceptionsByScanType: ErrorsByEcoSystem = {
+      python: {
+        originals: [entityNotSupported],
+        userMessage: 'npm is not supported',
+      },
+    };
+
+    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
+    expect(stripAnsi(res)).toMatchSnapshot();
   });
 });

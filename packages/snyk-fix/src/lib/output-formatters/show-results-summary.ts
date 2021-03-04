@@ -51,7 +51,7 @@ export function generateSuccessfulFixesSummary(
 export function generateUnresolvedSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
-): string | void {
+): string {
   const sectionTitle = 'Unresolved items:';
   const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
   let summary = '';
@@ -117,9 +117,9 @@ export function generateFixedAndFailedSummary(
     }
   }
 
-  return `${PADDING_SPACE}${formattedTitleHeader}\n\n${PADDING_SPACE}${chalk.bold.red(
+  return `${formattedTitleHeader}\n\n${PADDING_SPACE}${chalk.bold.red(
     failedItems,
-  )} items were not fixed\n${chalk.green.bold(
+  )} items were not fixed\n${PADDING_SPACE}${chalk.green.bold(
     fixedItems,
   )} items were successfully fixed`;
 }

@@ -1,3 +1,4 @@
+import stripAnsi = require('strip-ansi');
 import { formatChangesSummary } from '../../../../src/lib/output-formatters/format-successful-item';
 import { FixChangesSummary } from '../../../../src/types';
 import { generateEntityToFix } from '../../../helpers/generate-entity-to-fix';
@@ -16,6 +17,6 @@ describe('format successful item', () => {
       },
     ];
     const res = await formatChangesSummary(entity, changesSummary);
-    expect(res).toMatchSnapshot();
+    expect(stripAnsi(res)).toMatchSnapshot();
   });
 });

@@ -2,5 +2,5 @@
 
 exports[`format successful item successful item & changes formatted 1`] = `
 "  requirements.txt
-  [32m✔[39m Upgraded Django from 1.6.1 to 2.0.1"
+  ✔ Upgraded Django from 1.6.1 to 2.0.1"
 `;
