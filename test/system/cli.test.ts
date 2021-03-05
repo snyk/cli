@@ -1,5 +1,6 @@
 import * as util from 'util';
-import * as _ from 'lodash';
+import * as get from 'lodash.get';
+import * as isObject from 'lodash.isobject';
 import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
 import * as dockerChecker from '../../src/lib/is-docker';
@@ -10,6 +11,18 @@ import * as policy from 'snyk-policy';
 import stripAnsi from 'strip-ansi';
 import * as os from 'os';
 import * as isDocker from '../../src/lib/is-docker';
+
+type Ignore = {
+  [path: string]: {
+    reason: string;
+    expires: Date;
+    created?: Date;
+  };
+};
+
+type Policy = {
+  [id: string]: Ignore[];
+};
 
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
@@ -227,7 +240,8 @@ test('cli tests error paths', async (t) => {
 });
 
 test('snyk ignore - all options', async (t) => {
-  const fullPolicy = {
+  const clock = sinon.useFakeTimers(new Date(2016, 11, 1).getTime());
+  const fullPolicy: Policy = {
     ID: [
       {
         '*': {
@@ -238,6 +252,7 @@ test('snyk ignore - all options', async (t) => {
     ],
   };
   try {
+    fullPolicy.ID[0]['*'].created = new Date();
     const dir = await makeTmpDirectory();
     await cli.ignore({
       id: 'ID',
@@ -247,6 +262,7 @@ test('snyk ignore - all options', async (t) => {
     });
     const pol = await policy.load(dir);
     t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
+    clock.restore();
   } catch (err) {
     t.throws(err, 'ignore should succeed');
   }
@@ -273,6 +289,7 @@ test('snyk ignore - no ID', async (t) => {
 });
 
 test('snyk ignore - default options', async (t) => {
+  const clock = sinon.useFakeTimers(new Date(2016, 11, 1).getTime());
   try {
     const dir = await makeTmpDirectory();
     await cli.ignore({
@@ -291,8 +308,14 @@ test('snyk ignore - default options', async (t) => {
     t.true(
       expiryFromNow <= 30 * 24 * 60 * 60 * 1000 &&
         expiryFromNow >= 30 * 24 * 59 * 60 * 1000,
-      'policy (default) expiry wirtten correctly',
+      'policy (default) expiry written correctly',
     );
+    t.strictEquals(
+      pol.ignore.ID3[0]['*'].created.getTime(),
+      new Date().getTime(),
+      'created date is the current date',
+    );
+    clock.restore();
   } catch (e) {
     t.fail(e, 'ignore should succeed');
   }
@@ -341,7 +364,7 @@ test('monitor --json', async (t) => {
     const response = await cli.monitor(undefined, { json: true });
     const res = JSON.parse(response);
 
-    if (_.isObject(res)) {
+    if (isObject(res)) {
       t.pass('monitor outputted JSON');
     } else {
       t.fail('Failed parsing monitor JSON output');
@@ -350,7 +373,7 @@ test('monitor --json', async (t) => {
     const keyList = ['packageManager', 'manageUrl'];
 
     keyList.forEach((k) => {
-      !_.get(res, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
+      !get(res, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
     });
   } catch (error) {
     t.fail(error);
@@ -365,7 +388,7 @@ test('monitor --json no supported target files', async (t) => {
   } catch (error) {
     const jsonResponse = error.json;
 
-    if (_.isObject(jsonResponse)) {
+    if (isObject(jsonResponse)) {
       t.pass('monitor outputted JSON');
     } else {
       t.fail('Failed parsing monitor JSON output');
@@ -375,7 +398,7 @@ test('monitor --json no supported target files', async (t) => {
     t.equals(jsonResponse.ok, false, 'result is an error');
 
     keyList.forEach((k) => {
-      t.ok(_.get(jsonResponse, k, null), `${k} present`);
+      t.ok(get(jsonResponse, k, null), `${k} present`);
     });
   }
 });

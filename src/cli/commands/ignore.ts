@@ -69,6 +69,7 @@ function ignore(options): Promise<MethodResult> {
               '*': {
                 reason: options.reason,
                 expires: options.expiry,
+                created: new Date(),
               },
             },
           ];
