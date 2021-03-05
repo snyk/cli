@@ -202,8 +202,8 @@ async function processWizardFlow(options) {
 
         return snyk.policy.loadFromText(res.policy).then((combinedPolicy) => {
           return tryRequire(packageFile).then((pkg) => {
-            options.packageLeading = pkg.prefix;
-            options.packageTrailing = pkg.suffix;
+            options.packageLeading = pkg.leading;
+            options.packageTrailing = pkg.trailing;
             return interactive(
               res,
               pkg,
