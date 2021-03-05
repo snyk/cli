@@ -12,6 +12,7 @@ const commands = {
   ignore: hotload('./ignore'),
   modules: hotload('./modules'),
   monitor: hotload('./monitor'),
+  fix: hotload('./fix'),
   policy: hotload('./policy'),
   protect: hotload('./protect'),
   test: hotload('./test'),

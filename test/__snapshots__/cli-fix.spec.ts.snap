@@ -1,0 +1,75 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snyk fix (system tests) \`shows expected response when Python project was skipped because of missing remediation data --all-projects\` 1`] = `
+"✔ Done
+✖ No successful fixes
+
+Unresolved items:
+
+  package.json
+  ✖ npm is not supported.
+
+Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed
+
+"
+`;
+
+exports[`snyk fix (system tests) \`shows expected response when Python project was skipped because of missing remediation data --file and custom name\` 1`] = `
+"- Looking for supported Python items
+✔ Looking for supported Python items
+⠋ Processing 1 requirements.txt items.✔ Processing 1 requirements.txt items.
+✔ Done
+✖ No successful fixes
+
+Unresolved items:
+
+  /Users/lili/www/snyk/snyk/test/acceptance/workspaces/pip-app-custom/base.txt
+  ✖ No remediation data available
+
+Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed
+
+"
+`;
+
+exports[`snyk fix (system tests) \`shows expected response when Python project was skipped because of missing remediation data --file\` 1`] = `
+"- Looking for supported Python items
+✔ Looking for supported Python items
+⠋ Processing 1 requirements.txt items.✔ Processing 1 requirements.txt items.
+✔ Done
+✖ No successful fixes
+
+Unresolved items:
+
+  /Users/lili/www/snyk/snyk/test/acceptance/workspaces/pip-app/requirements.txt
+  ✖ No remediation data available
+
+Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed
+
+"
+`;
+
+exports[`snyk fix (system tests) \`shows expected response when nothing could be fixed + returns exit code 2\` 1`] = `
+"✔ Done
+✖ No successful fixes
+
+Unresolved items:
+
+  package.json
+  ✖ npm is not supported.
+
+Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed
+
+"
+`;

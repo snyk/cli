@@ -8,7 +8,7 @@ interface ModeData {
 
 const modes: Record<string, ModeData> = {
   source: {
-    allowedCommands: ['test', 'monitor'],
+    allowedCommands: ['test', 'monitor', 'fix'],
     config: (args): [] => {
       args['source'] = true;
       return args;

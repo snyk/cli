@@ -1,0 +1,327 @@
+{
+  "vulnerabilities": [
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
+      "alternativeIds": [],
+      "creationTime": "2021-02-01T13:11:56.558734Z",
+      "credit": [
+        "Wang Baohua"
+      ],
+      "cvssScore": 3.1,
+      "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to Directory Traversal via the `django.utils.archive.extract()` function, which is used by `startapp --template` and `startproject --template`. This can happen via an archive with absolute paths or relative paths with dot segments.\n\n## Details\n\nA Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \"dot-dot-slash (../)\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.\n\nDirectory Traversal vulnerabilities can be generally divided into two types:\n\n- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.\n\n`st` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the `public` route.\n\nIf an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.\n\n```\ncurl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa\n```\n**Note** `%2e` is the URL encoded version of `.` (dot).\n\n- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as `Zip-Slip`. \n\nOne way to achieve this is by using a malicious `zip` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.\n\nThe following is an example of a `zip` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in `/root/.ssh/` overwriting the `authorized_keys` file:\n\n```\n2018-04-15 22:04:29 .....           19           19  good.txt\n2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys\n```\n\n## Remediation\nUpgrade `django` to version 2.2.18, 3.0.12, 3.1.6 or higher.\n## References\n- [Django Advisory](https://www.djangoproject.com/weblog/2021/feb/01/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23)\n",
+      "disclosureTime": "2021-02-01T12:56:31Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "2.2.18",
+        "3.0.12",
+        "3.1.6"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-DJANGO-1066259",
+      "identifiers": {
+        "CVE": [
+          "CVE-2021-3281"
+        ],
+        "CWE": [
+          "CWE-22"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2021-02-01T15:11:08.053324Z",
+      "moduleName": "django",
+      "packageManager": "pip",
+      "packageName": "django",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2021-02-01T15:11:08.261009Z",
+      "references": [
+        {
+          "title": "Django Advisory",
+          "url": "https://www.djangoproject.com/weblog/2021/feb/01/security-releases/"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[1.4,2.2.18)",
+          "[3.0a1,3.0.12)",
+          "[3.1a1,3.1.6)"
+        ]
+      },
+      "severity": "low",
+      "severityWithCritical": "low",
+      "title": "Directory Traversal",
+      "from": [
+        "pip-app@0.0.0",
+        "django@1.6.1"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "django",
+      "version": "1.6.1"
+    },
+    {
+      "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:N",
+      "alternativeIds": [],
+      "creationTime": "2019-01-08T15:45:12.317736Z",
+      "credit": [
+        "Jerbi Nessim"
+      ],
+      "cvssScore": 4.3,
+      "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to Content Spoofing. The default 404 page did not properly handle user-supplied data, an attacker could supply content to the web application, typically via a parameter value, that is reflected back to the user. This presented the user with a modified page under the context of the trusted domain.\n## Remediation\nUpgrade `django` to version 1.11.18, 2.0.10, 2.1.5 or higher.\n## References\n- [Django Project Security Blog](https://www.djangoproject.com/weblog/2019/jan/04/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/1ecc0a395)\n- [RedHat Bugzilla Bug](https://bugzilla.redhat.com/show_bug.cgi?id=1663722)\n",
+      "disclosureTime": "2019-01-04T22:34:17Z",
+      "exploit": "Not Defined",
+      "fixedIn": [
+        "1.11.18",
+        "2.0.10",
+        "2.1.5"
+      ],
+      "functions": [],
+      "functions_new": [],
+      "id": "SNYK-PYTHON-DJANGO-72888",
+      "identifiers": {
+        "CVE": [
+          "CVE-2019-3498"
+        ],
+        "CWE": [
+          "CWE-148"
+        ]
+      },
+      "language": "python",
+      "modificationTime": "2020-06-12T14:36:55.736404Z",
+      "moduleName": "django",
+      "packageManager": "pip",
+      "packageName": "django",
+      "patches": [],
+      "proprietary": false,
+      "publicationTime": "2019-01-08T16:10:39.792267Z",
+      "references": [
+        {
+          "title": "Django Project Security Blog",
+          "url": "https://www.djangoproject.com/weblog/2019/jan/04/security-releases/"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/django/django/commit/1ecc0a395"
+        },
+        {
+          "title": "RedHat Bugzilla Bug",
+          "url": "https://bugzilla.redhat.com/show_bug.cgi?id=1663722"
+        }
+      ],
+      "semver": {
+        "vulnerable": [
+          "[,1.11.18)",
+          "[2.0.0, 2.0.10)",
+          "[2.1.0, 2.1.5)"
+        ]
+      },
+      "severity": "medium",
+      "severityWithCritical": "medium",
+      "title": "Content Spoofing",
+      "from": [
+        "pip-app@0.0.0",
+        "django@1.6.1"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "django",
+      "version": "1.6.1"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 2,
+  "org": "lili",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.19.0\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {
+    "severities": {},
+    "orgLicenseRules": {
+      "AGPL-1.0": {
+        "licenseType": "AGPL-1.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "AGPL-3.0": {
+        "licenseType": "AGPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "Artistic-1.0": {
+        "licenseType": "Artistic-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "Artistic-2.0": {
+        "licenseType": "Artistic-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CDDL-1.0": {
+        "licenseType": "CDDL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "CPOL-1.02": {
+        "licenseType": "CPOL-1.02",
+        "severity": "high",
+        "instructions": ""
+      },
+      "EPL-1.0": {
+        "licenseType": "EPL-1.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "GPL-2.0": {
+        "licenseType": "GPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "GPL-3.0": {
+        "licenseType": "GPL-3.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "LGPL-2.0": {
+        "licenseType": "LGPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-2.1": {
+        "licenseType": "LGPL-2.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "LGPL-3.0": {
+        "licenseType": "LGPL-3.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-1.1": {
+        "licenseType": "MPL-1.1",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MPL-2.0": {
+        "licenseType": "MPL-2.0",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "MS-RL": {
+        "licenseType": "MS-RL",
+        "severity": "medium",
+        "instructions": ""
+      },
+      "SimPL-2.0": {
+        "licenseType": "SimPL-2.0",
+        "severity": "high",
+        "instructions": ""
+      },
+      "MIT": {
+        "licenseType": "MIT",
+        "severity": "high",
+        "instructions": "Not suitable to use, please find a different package."
+      }
+    }
+  },
+  "packageManager": "pip",
+  "ignoreSettings": null,
+  "summary": "32 vulnerable dependency paths",
+  "remediation": {
+    "unresolved": [
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
+        "alternativeIds": [],
+        "creationTime": "2021-02-01T13:11:56.558734Z",
+        "credit": [
+          "Wang Baohua"
+        ],
+        "cvssScore": 3.1,
+        "description": "## Overview\n[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.\n\nAffected versions of this package are vulnerable to Directory Traversal via the `django.utils.archive.extract()` function, which is used by `startapp --template` and `startproject --template`. This can happen via an archive with absolute paths or relative paths with dot segments.\n\n## Details\n\nA Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \"dot-dot-slash (../)\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.\n\nDirectory Traversal vulnerabilities can be generally divided into two types:\n\n- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.\n\n`st` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the `public` route.\n\nIf an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.\n\n```\ncurl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa\n```\n**Note** `%2e` is the URL encoded version of `.` (dot).\n\n- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as `Zip-Slip`. \n\nOne way to achieve this is by using a malicious `zip` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.\n\nThe following is an example of a `zip` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in `/root/.ssh/` overwriting the `authorized_keys` file:\n\n```\n2018-04-15 22:04:29 .....           19           19  good.txt\n2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys\n```\n\n## Remediation\nUpgrade `django` to version 2.2.18, 3.0.12, 3.1.6 or higher.\n## References\n- [Django Advisory](https://www.djangoproject.com/weblog/2021/feb/01/security-releases/)\n- [GitHub Commit](https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23)\n",
+        "disclosureTime": "2021-02-01T12:56:31Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "2.2.18",
+          "3.0.12",
+          "3.1.6"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-PYTHON-DJANGO-1066259",
+        "identifiers": {
+          "CVE": [
+            "CVE-2021-3281"
+          ],
+          "CWE": [
+            "CWE-22"
+          ]
+        },
+        "language": "python",
+        "modificationTime": "2021-02-01T15:11:08.053324Z",
+        "moduleName": "django",
+        "packageManager": "pip",
+        "packageName": "django",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2021-02-01T15:11:08.261009Z",
+        "references": [
+          {
+            "title": "Django Advisory",
+            "url": "https://www.djangoproject.com/weblog/2021/feb/01/security-releases/"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[1.4,2.2.18)",
+            "[3.0a1,3.0.12)",
+            "[3.1a1,3.1.6)"
+          ]
+        },
+        "severity": "low",
+        "severityWithCritical": "low",
+        "title": "Directory Traversal",
+        "from": [
+          "pip-app@0.0.0",
+          "django@1.6.1"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "isPinnable": true,
+        "name": "django",
+        "version": "1.6.1"
+      }
+    ],
+    "upgrade": {},
+    "patch": {},
+    "ignore": {},
+    "pin": {
+      "django@1.6.1": {
+        "upgradeTo": "django@2.2.18",
+        "vulns": [
+          "SNYK-PYTHON-DJANGO-72888"
+        ],
+        "isTransitive": false
+      }
+    }
+  },
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 32,
+  "projectName": "pip-app",
+  "foundProjectCount": 2,
+  "displayTargetFile": "requirements.txt"
+}

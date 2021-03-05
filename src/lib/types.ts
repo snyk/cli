@@ -195,6 +195,7 @@ export enum SupportedCliCommands {
   // auth = 'auth', // TODO: auth does not support argv._ at the moment
   test = 'test',
   monitor = 'monitor',
+  fix = 'fix',
   protect = 'protect',
   policy = 'policy',
   ignore = 'ignore',

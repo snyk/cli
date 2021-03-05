@@ -2,7 +2,7 @@
 
 exports[`Error handling Snyk fix returns error when called with unsupported type 1`] = `
 Object {
-  "exceptions": Object {
+  "exceptionsByScanType": Object {
     "npm": Object {
       "originals": Array [
         Object {
@@ -57,22 +57,18 @@ Object {
       "userMessage": "npm is not supported.",
     },
   },
-  "fixSummary": "✖ No successful fixes
+  "fixSummary": "[31m✖ No successful fixes[39m
 
-Unresolved items:
+[1mUnresolved items:[22m
 
   package.json
-  ✖ npm is not supported.
+  [31m✖[39m [31mnpm is not supported.[39m
 
-Summary:
+[1mSummary:[22m
 
-  1 items were not fixed
-  0 items were successfully fixed",
-  "meta": Object {
-    "failed": 1,
-    "fixed": 0,
-  },
-  "results": Object {},
+  [1m[31m1[39m[22m items were not fixed
+  [32m[1m0[22m[39m items were successfully fixed",
+  "resultsByPlugin": Object {},
 }
 `;
 
@@ -161,26 +157,22 @@ Summary:
 
 exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
 Object {
-  "exceptions": Object {},
-  "fixSummary": "Successful fixes:
+  "exceptionsByScanType": Object {},
+  "fixSummary": "[1mSuccessful fixes:[22m
 
   requirements.txt
-  ✔ Upgraded django from 1.6.1 to 2.0.1
+  [32m✔[39m Pinned django from 1.6.1 to 2.0.1
 
-Unresolved items:
+[1mUnresolved items:[22m
 
   Pipfile
-  ✖ Pipfile is not supported
+  [31m✖[39m [31mPipfile is not supported[39m
 
-Summary:
+[1mSummary:[22m
 
-  1 items were not fixed
-  1 items were successfully fixed",
-  "meta": Object {
-    "failed": 1,
-    "fixed": 1,
-  },
-  "results": Object {
+  [1m[31m1[39m[22m items were not fixed
+  [32m[1m1[22m[39m items were successfully fixed",
+  "resultsByPlugin": Object {
     "python": Object {
       "failed": Array [],
       "skipped": Array [

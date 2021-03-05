@@ -1,4 +1,5 @@
 import { DepGraphData } from '@snyk/dep-graph';
+import { RemediationChanges } from '../snyk-test/legacy';
 import { Options } from '../types';
 
 export type Ecosystem = 'cpp' | 'docker' | 'code';
@@ -71,6 +72,7 @@ export interface TestResult {
   issues: Issue[];
   issuesData: IssuesData;
   depGraphData: DepGraphData;
+  remediation?: RemediationChanges;
 }
 
 export interface EcosystemPlugin {

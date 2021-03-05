@@ -7,6 +7,7 @@ import stripAnsi = require('strip-ansi');
 import * as outputFormatter from './lib/output-formatters/show-results-summary';
 import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
+export { EntityToFix } from './types';
 
 import { EntityToFix, ErrorsByEcoSystem, FixedMeta, FixOptions } from './types';
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
