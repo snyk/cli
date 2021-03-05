@@ -1,0 +1,52 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Convert legacy TestResult to ScanResult can convert npm test result with no remediation 1`] = `
+Object {
+  "facts": Array [],
+  "identity": Object {
+    "targetFile": "package-lock.json",
+    "type": "npm",
+  },
+  "name": "shallow-goof",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+patch: {}
+",
+  "target": Object {},
+}
+`;
+
+exports[`Convert legacy TestResult to ScanResult can convert npm test result with remediation 1`] = `
+Object {
+  "facts": Array [],
+  "identity": Object {
+    "targetFile": "package-lock.json",
+    "type": "npm",
+  },
+  "name": "shallow-goof",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+patch: {}
+",
+  "target": Object {},
+}
+`;
+
+exports[`Convert legacy TestResult to ScanResult can convert pip test result with remediation (pins) 1`] = `
+Object {
+  "facts": Array [],
+  "identity": Object {
+    "targetFile": "requirements.txt",
+    "type": "pip",
+  },
+  "name": "pip-app",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+patch: {}
+",
+  "target": Object {},
+}
+`;
