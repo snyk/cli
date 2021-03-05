@@ -6,7 +6,6 @@ import chalk from 'chalk';
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
-import { apiTokenExists, getDockerToken } from '../../../lib/api-token';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import {
@@ -53,6 +52,7 @@ import {
 } from './formatters/format-test-results';
 
 import * as iacLocalExecution from './iac-local-execution';
+import { validateCredentials } from './validate-credentials';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -99,16 +99,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     return Promise.reject(chalk.red.bold(error.message));
   }
 
-  try {
-    apiTokenExists();
-  } catch (err) {
-    if (options.docker && getDockerToken()) {
-      options.testDepGraphDockerEndpoint = '/docker-jwt/test-dependencies';
-      options.isDockerUser = true;
-    } else {
-      throw err;
-    }
-  }
+  validateCredentials(options);
 
   const ecosystem = getEcosystemForTest(options);
   if (ecosystem) {
