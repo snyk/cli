@@ -1,14 +1,13 @@
-import * as hclToJson from 'hcl-to-json';
-import * as YAML from 'js-yaml';
+import { tryParsingKubernetesFile } from './parsers/kubernetes-parser';
+import { tryParsingTerraformFile } from './parsers/terraform-file-parser';
+import { tryParsingTerraformPlan } from './parsers/terraform-plan-parser';
+import * as path from 'path';
 import {
-  EngineType,
   IacFileParsed,
   IacFileData,
   ParsingResults,
   IacFileParseFailure,
 } from './types';
-
-const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];
 
 export async function parseFiles(
   filesData: IacFileData[],
@@ -45,53 +44,22 @@ function generateFailedParsedFile(
   };
 }
 
+const TF_PLAN_NAME = 'tf-plan.json';
+
 function tryParseIacFile(fileData: IacFileData): Array<IacFileParsed> {
   switch (fileData.fileType) {
     case 'yaml':
     case 'yml':
     case 'json':
+      // TODO: this is a temporary approach for the internal release only
+      if (path.basename(fileData.filePath) === TF_PLAN_NAME) {
+        return tryParsingTerraformPlan(fileData);
+      }
+
       return tryParsingKubernetesFile(fileData);
     case 'tf':
       return tryParsingTerraformFile(fileData);
     default:
       throw new Error('Invalid IaC file');
-  }
-}
-
-function tryParsingKubernetesFile(fileData: IacFileData): IacFileParsed[] {
-  const yamlDocuments = YAML.safeLoadAll(fileData.fileContent);
-
-  return yamlDocuments.map((parsedYamlDocument, docId) => {
-    if (
-      REQUIRED_K8S_FIELDS.every((requiredField) =>
-        parsedYamlDocument.hasOwnProperty(requiredField),
-      )
-    ) {
-      return {
-        ...fileData,
-        jsonContent: parsedYamlDocument,
-        engineType: EngineType.Kubernetes,
-        docId,
-      };
-    } else {
-      throw new Error('Invalid K8s File!');
-    }
-  });
-}
-
-function tryParsingTerraformFile(fileData: IacFileData): Array<IacFileParsed> {
-  try {
-    // TODO: This parser does not fail on inavlid Terraform files! it is here temporarily.
-    // cloud-config team will replace it to a valid parser for the beta release.
-    const parsedData = hclToJson(fileData.fileContent);
-    return [
-      {
-        ...fileData,
-        jsonContent: parsedData,
-        engineType: EngineType.Terraform,
-      },
-    ];
-  } catch (err) {
-    throw new Error('Invalid Terraform File!');
   }
 }

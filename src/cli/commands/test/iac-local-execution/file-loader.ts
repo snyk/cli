@@ -9,8 +9,9 @@ import { isLocalFolder } from '../../../../lib/detect';
 const loadFileContents = util.promisify(fs.readFile);
 const DEFAULT_ENCODING = 'utf-8';
 
-export async function loadFiles(pathToScan): Promise<IacFileData[]> {
+export async function loadFiles(pathToScan: string): Promise<IacFileData[]> {
   let filePaths = [pathToScan];
+
   if (isLocalFolder(pathToScan)) {
     filePaths = await getFilePathsFromDirectory(pathToScan);
   }

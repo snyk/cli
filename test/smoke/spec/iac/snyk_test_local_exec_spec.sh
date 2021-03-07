@@ -1,11 +1,11 @@
 #shellcheck shell=sh
 
 Describe "Snyk iac test --experimental command"
+  Skip if "execute only in regression test" check_if_regression_test 
   Before snyk_login
   After snyk_logout
 
   Describe "k8s single file scan"
-    Skip if "execute only in regression test" check_if_regression_test
     It "finds issues in k8s file"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental
       The status should be failure # issues found
@@ -50,7 +50,6 @@ Describe "Snyk iac test --experimental command"
   End
 
   Describe "terraform single file scan"
-    Skip if "execute only in regression test" check_if_regression_test
     It "finds issues in terraform file"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental
       The status should be failure # issues found
@@ -96,8 +95,6 @@ Describe "Snyk iac test --experimental command"
   End
 
   Describe "directory scanning"
-    Skip if "execute only in regression test" check_if_regression_test
-
     It "finds issues in a directory with Terraform files"
       When run snyk iac test ../fixtures/iac/terraform/ --experimental
       The status should be failure # issues found
@@ -132,6 +129,25 @@ Describe "Snyk iac test --experimental command"
       # Second File
       The output should include "Testing pod-invalid.yaml..."
       The output should include "Invalid K8s File!"
+    End
+  End
+
+  Describe "Terraform plan scanning"
+    It "finds issues in a Terraform plan file"
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental
+      The status should be failure # issues found
+      The output should include "Testing ../fixtures/iac/terraform-plan/tf-plan.json"
+
+      # Outputs issues
+      The output should include "Infrastructure as code issues:"
+      # Root module
+      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
+      The output should include "  introduced by resource > aws_security_group[terra_ci_allow_outband] > ingress"
+      # Child modules
+      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
+      The output should include "  introduced by resource > aws_security_group[CHILD_MODULE_terra_ci_allow_outband_0] > ingress"
+
+      The output should include "../fixtures/iac/terraform-plan/tf-plan.json for known issues, found 2 issues"
     End
   End
 End
