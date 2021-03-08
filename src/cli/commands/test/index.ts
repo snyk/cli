@@ -23,7 +23,6 @@ import {
   mapIacTestResult,
 } from '../../../lib/snyk-test/iac-test-result';
 
-import { FailOnError } from '../../../lib/errors/fail-on-error.ts';
 import {
   dockerRemediationForDisplay,
   formatTestMeta,
@@ -43,7 +42,7 @@ import {
   TEST_SUPPORTED_IAC_PROJECTS,
 } from '../../../lib/iac/constants';
 import { hasFixes, hasPatches, hasUpgrades } from './vuln-helpers';
-import { FAIL_ON, FailOn, SEVERITIES } from '../../../lib/snyk-test/common';
+import { FailOn } from '../../../lib/snyk-test/common';
 import {
   createErrorMappedResultsForJsonOutput,
   dockerUserCTA,
@@ -54,6 +53,7 @@ import {
 import * as iacLocalExecution from './iac-local-execution';
 import { validateCredentials } from './validate-credentials';
 import { generateSnykTestError } from './generate-snyk-test-error';
+import { validateTestOptions } from './validate-test-options';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -86,18 +86,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   const svpSupplied = (options['show-vulnerable-paths'] || '').toLowerCase();
   options.showVulnPaths = showVulnPathsMapping[svpSupplied] || 'some';
 
-  if (
-    options.severityThreshold &&
-    !validateSeverityThreshold(options.severityThreshold)
-  ) {
-    return Promise.reject(new Error('INVALID_SEVERITY_THRESHOLD'));
-  }
-
-  if (options.failOn && !validateFailOn(options.failOn)) {
-    const error = new FailOnError();
-    return Promise.reject(chalk.red.bold(error.message));
-  }
-
+  validateTestOptions(options);
   validateCredentials(options);
 
   const ecosystem = getEcosystemForTest(options);
@@ -347,14 +336,6 @@ function shouldFail(vulnerableResults: any[], failOn: FailOn) {
   }
   // should fail by default when there are vulnerable results
   return vulnerableResults.length > 0;
-}
-
-function validateSeverityThreshold(severityThreshold) {
-  return SEVERITIES.map((s) => s.verboseName).indexOf(severityThreshold) > -1;
-}
-
-function validateFailOn(arg: FailOn) {
-  return Object.keys(FAIL_ON).includes(arg);
 }
 
 function displayResult(
