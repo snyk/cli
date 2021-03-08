@@ -54,6 +54,7 @@ import * as iacLocalExecution from './iac-local-execution';
 import { validateCredentials } from './validate-credentials';
 import { generateSnykTestError } from './generate-snyk-test-error';
 import { validateTestOptions } from './validate-test-options';
+import { processCommandArgs } from '../process-command-args';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -69,16 +70,7 @@ const showVulnPathsMapping: Record<string, ShowVulnPaths> = {
 // TODO: avoid using `as any` whenever it's possible
 
 async function test(...args: MethodArgs): Promise<TestCommandResult> {
-  let options = ({} as any) as Options & TestOptions;
-
-  if (typeof args[args.length - 1] === 'object') {
-    options = (args.pop() as any) as Options & TestOptions;
-  }
-
-  // populate with default path (cwd) if no path given
-  if (args.length === 0) {
-    args.unshift(process.cwd());
-  }
+  const { options, paths } = processCommandArgs(...args);
   // org fallback to config unless specified
   options.org = options.org || config.org;
 
@@ -92,11 +84,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   const ecosystem = getEcosystemForTest(options);
   if (ecosystem) {
     try {
-      const commandResult = await testEcosystem(
-        ecosystem,
-        args as string[],
-        options,
-      );
+      const commandResult = await testEcosystem(ecosystem, paths, options);
       return commandResult;
     } catch (error) {
       if (error instanceof Error) {
@@ -111,7 +99,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   const results = [] as any[];
 
   // Promise waterfall to test all other paths sequentially
-  for (const path of args as string[]) {
+  for (const path of paths) {
     // Create a copy of the options so a specific test can
     // modify them i.e. add `options.file` etc. We'll need
     // these options later.
