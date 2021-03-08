@@ -11,5 +11,7 @@ export class CustomError extends Error {
 }
 
 export enum ERROR_CODES {
-  UnsupportedTypeError = 'G1',
+  UnsupportedTypeError = 'G10',
+  MissingRemediationData = 'G11',
+  MissingFileName = 'G12',
 }

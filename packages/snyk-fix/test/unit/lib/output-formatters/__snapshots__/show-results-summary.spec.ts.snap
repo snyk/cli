@@ -1,0 +1,69 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generateFixedAndFailedSummary has failed only 1`] = `
+"Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed"
+`;
+
+exports[`generateFixedAndFailedSummary has fixed & failed 1`] = `
+"Summary:
+
+  1 items were not fixed
+  1 items were successfully fixed"
+`;
+
+exports[`generateFixedAndFailedSummary has fixed only 1`] = `
+"Summary:
+
+  0 items were not fixed
+  1 items were successfully fixed"
+`;
+
+exports[`generateFixedAndFailedSummary has skipped & failed & plugin errors 1`] = `
+"Summary:
+
+  2 items were not fixed
+  1 items were successfully fixed"
+`;
+
+exports[`generateSuccessfulFixesSummary has fixed & failed 1`] = `
+"Successful fixes:
+
+  requirements.txt
+  ✔ Upgraded Django from 1.6.1 to 2.0.1
+  x Failed to upgrade transitive from 6.1.0 to 6.2.1
+  Reason:  Version not compatible.
+  Tip:     Apply the changes manually"
+`;
+
+exports[`generateUnresolvedSummary has failed, skipped & plugin errors 1`] = `
+"Unresolved items:
+
+  package.json
+  ✖ npm is not supported"
+`;
+
+exports[`showResultsSummary has failed, skipped, successful & plugin errors 1`] = `
+"Successful fixes:
+
+  requirements.txt
+  ✔ Upgraded Django from 1.6.1 to 2.0.1
+  x Failed to upgrade transitive from 6.1.0 to 6.2.1
+  Reason:  Version not compatible.
+  Tip:     Apply the changes manually
+
+Unresolved items:
+
+  package.json
+  ✖ Missing required file name
+
+  package.json
+  ✖ npm is not supported
+
+Summary:
+
+  2 items were not fixed
+  1 items were successfully fixed"
+`;

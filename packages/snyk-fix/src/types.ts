@@ -1,4 +1,5 @@
 import { DepGraphData } from '@snyk/dep-graph';
+import { CustomError } from './lib/errors/custom-error';
 
 /* Scan Result
  * this data is returned by the CLI plugins to identify
@@ -8,22 +9,22 @@ export interface GitTarget {
   remoteUrl: string;
   branch: string;
 }
-
 export interface ContainerTarget {
   image: string;
 }
 
 export interface ScanResult {
-  identity: Identity;
-  facts: Facts[];
-  name?: string;
-  policy?: string;
-  target?: GitTarget | ContainerTarget;
+  readonly identity: Identity;
+  readonly facts: Facts[];
+  readonly name?: string;
+  readonly policy?: string;
+  readonly target?: GitTarget | ContainerTarget;
 }
 
 export interface Identity {
   type: string;
   targetFile?: string;
+  // options used to scan should be here
   args?: { [key: string]: string };
 }
 
@@ -37,10 +38,10 @@ export interface Facts {
  * after the relevant plugin extracts dependencies
  */
 export interface TestResult {
-  issues: Issue[];
-  issuesData: IssuesData;
-  depGraphData: DepGraphData;
-  remediation?: RemediationChanges; // TODO: not yet in the CLI TestResults type
+  readonly issues: Issue[];
+  readonly issuesData: IssuesData;
+  readonly depGraphData: DepGraphData;
+  readonly remediation?: RemediationChanges; // TODO: not yet in the CLI TestResults type
 }
 
 export interface Issue {
@@ -163,18 +164,61 @@ export enum SEVERITY {
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
+  CRITICAL = 'critical',
 }
 
 /* End Remediation Data
  */
 
-/* Python fix types
+/* Snyk fix types
  * Types for concepts introduced as part of this lib
  */
 
 export type SupportedScanTypes = 'pip';
 
 export interface EntityToFix {
-  scanResult: ScanResult;
-  testResult: TestResult;
+  readonly workspace: {
+    readFile: (path: string) => Promise<string>;
+    writeFile: (path: string, content: string) => Promise<void>;
+  };
+  readonly scanResult: ScanResult;
+  readonly testResult: TestResult;
+  // options
+}
+
+export interface WithError<Original> {
+  original: Original;
+  error: CustomError;
+}
+
+export interface WithFixChangesApplied<Original> {
+  original: Original;
+  changes: FixChangesSummary[];
+}
+
+export interface WithUserMessage<Original> {
+  original: Original;
+  userMessage: string;
+}
+
+export type FixChangesSummary = FixChangesSuccess | FixChangesError;
+
+interface FixChangesSuccess {
+  success: true;
+  userMessage: string;
+}
+
+interface FixChangesError {
+  success: false;
+  userMessage: string;
+  reason: string;
+  tip?: string;
+}
+
+export interface ErrorsByEcoSystem {
+  [ecosystem: string]: { originals: EntityToFix[]; userMessage: string };
+}
+export interface FixOptions {
+  dryRun?: boolean;
+  quiet?: boolean;
 }

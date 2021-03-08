@@ -1,13 +1,31 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { EntityToFix, ScanResult, TestResult, FixInfo } from '../../src/types';
 
-export function generateEntityToFix(type: string, targetFile: string): EntityToFix {
+export function generateEntityToFix(
+  type: string,
+  targetFile: string,
+  contents: string,
+): EntityToFix {
   const scanResult = generateScanResult(type, targetFile);
   const testResult = generateTestResult();
-  return { scanResult, testResult };
+  const workspace = generateWorkspace(contents);
+  return { scanResult, testResult, workspace };
 }
 
-function generateScanResult(type: string, targetFile: string): ScanResult {
+function generateWorkspace(contents: string) {
+  return {
+    readFile: async () => {
+      return contents;
+    },
+    writeFile: async () => {
+      return;
+    },
+  };
+}
+export function generateScanResult(
+  type: string,
+  targetFile: string,
+): ScanResult {
   return {
     identity: {
       type,
@@ -22,7 +40,7 @@ function generateScanResult(type: string, targetFile: string): ScanResult {
   };
 }
 
-function generateTestResult(): TestResult {
+export function generateTestResult(): TestResult {
   const issueId = 'VULN_ID_1';
   return {
     issues: [
@@ -40,5 +58,18 @@ function generateTestResult(): TestResult {
       },
     },
     depGraphData: ('' as unknown) as DepGraphData,
+    remediation: {
+      unresolved: [],
+      upgrade: {},
+      patch: {},
+      ignore: {},
+      pin: {
+        'django@1.6.1': {
+          upgradeTo: 'django@2.0.1',
+          vulns: [],
+          isTransitive: false,
+        },
+      },
+    },
   };
 }

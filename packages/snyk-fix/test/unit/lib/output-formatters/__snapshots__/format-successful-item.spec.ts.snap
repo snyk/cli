@@ -1,0 +1,6 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`format successful item successful item & changes formatted 1`] = `
+"  requirements.txt
+  ✔ Upgraded Django from 1.6.1 to 2.0.1"
+`;
