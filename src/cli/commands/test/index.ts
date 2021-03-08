@@ -53,6 +53,7 @@ import {
 
 import * as iacLocalExecution from './iac-local-execution';
 import { validateCredentials } from './validate-credentials';
+import { generateSnykTestError } from './generate-snyk-test-error';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -68,8 +69,6 @@ const showVulnPathsMapping: Record<string, ShowVulnPaths> = {
 // TODO: avoid using `as any` whenever it's possible
 
 async function test(...args: MethodArgs): Promise<TestCommandResult> {
-  const resultOptions = [] as any[];
-  const results = [] as any[];
   let options = ({} as any) as Options & TestOptions;
 
   if (typeof args[args.length - 1] === 'object') {
@@ -119,6 +118,9 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     }
   }
 
+  const resultOptions = [] as any[];
+  const results = [] as any[];
+
   // Promise waterfall to test all other paths sequentially
   for (const path of args as string[]) {
     // Create a copy of the options so a specific test can
@@ -142,28 +144,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
         options.iacDirFiles = testOpts.iacDirFiles;
       }
     } catch (error) {
-      // Possible error cases:
-      // - the test found some vulns. `error.message` is a
-      // JSON-stringified
-      //   test result.
-      // - the flow failed, `error` is a real Error object.
-      // - the flow failed, `error` is a number or string
-      // describing the problem.
-      //
-      // To standardise this, make sure we use the best _object_ to
-      // describe the error.
-
-      if (error instanceof Error) {
-        res = error;
-      } else if (typeof error !== 'object') {
-        res = new Error(error);
-      } else {
-        try {
-          res = JSON.parse(error.message);
-        } catch (unused) {
-          res = error;
-        }
-      }
+      res = generateSnykTestError(error);
     }
 
     // Not all test results are arrays in order to be backwards compatible
