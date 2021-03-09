@@ -107,7 +107,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     }
   }
 
-  const resultOptions = [] as any[];
+  const resultOptions: Array<Options & TestOptions> = [];
   const results = [] as any[];
 
   // Promise waterfall to test all other paths sequentially
@@ -228,13 +228,8 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     throw err;
   }
 
-  const pinningSupported: LegacyVulnApiResult = results.find(
-    (res) => res.packageManager === 'pip',
-  );
-
   let response = results
     .map((result, i) => {
-      resultOptions[i].pinningSupported = pinningSupported;
       return displayResult(
         results[i] as LegacyVulnApiResult,
         resultOptions[i],
