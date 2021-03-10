@@ -12,17 +12,16 @@ function terraformPlanReducer(
   resource: TerraformPlanResource,
 ): TerraformScanInput {
   // TODO: investigate if this reduction logic covers all edge-cases (nested modules, similar names, etc')
-  const { type, name } = resource;
-  if (scanInput.resource[resource.type]) {
+  const { type, name, mode, index, values } = resource;
+  const inputKey: keyof TerraformScanInput =
+    mode === 'data' ? 'data' : 'resource';
+  if (scanInput[inputKey][type]) {
     // add new resources of the same type with different names
-    scanInput.resource[type][
-      resource.index !== undefined
-        ? `${resource.name}_${resource.index}`
-        : resource.name
-    ] = resource.values || {};
+    scanInput[inputKey][type][index !== undefined ? `${name}_${index}` : name] =
+      values || {};
   } else {
     // add a new resource type
-    scanInput.resource[type] = { [name]: resource.values };
+    scanInput[inputKey][type] = { [name]: values };
   }
 
   return scanInput;
@@ -59,7 +58,7 @@ export function tryParsingTerraformPlan(
   const parsedInput = [
     ...rootModuleResources,
     ...childModuleResources,
-  ].reduce(terraformPlanReducer, { resource: {} });
+  ].reduce(terraformPlanReducer, { resource: {}, data: {} });
   return [
     {
       ...terraformPlanFile,
