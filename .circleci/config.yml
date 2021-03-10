@@ -400,6 +400,11 @@ jobs:
           command: ./release-scripts/should-i-release.sh
       - install_github_cli
       - run:
+          name: Install AWS CLI
+          command: |
+            sudo apt-get install -y aws-cli
+            aws --version
+      - run:
           name: Install npm@7
           command: |
             sudo npm install -g npm@7
