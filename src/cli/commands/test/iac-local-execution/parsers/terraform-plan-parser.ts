@@ -30,14 +30,14 @@ function terraformPlanReducer(
 function extractRootModuleResources(
   terraformPlanJson: TerraformPlanJson,
 ): Array<TerraformPlanResource> {
-  return terraformPlanJson?.planned_values?.root_module?.resources;
+  return terraformPlanJson?.planned_values?.root_module?.resources || [];
 }
 
 function extractChildModulesResources(
   terraformPlanJson: TerraformPlanJson,
 ): Array<TerraformPlanResource> {
   const childModules =
-    terraformPlanJson?.planned_values?.root_module?.child_modules;
+    terraformPlanJson?.planned_values?.root_module?.child_modules || [];
   const extractedChildModuleResources = childModules.flatMap(
     (childModule) => childModule.resources,
   );
@@ -47,23 +47,35 @@ function extractChildModulesResources(
 export function tryParsingTerraformPlan(
   terraformPlanFile: IacFileData,
 ): Array<IacFileParsed> {
-  // TODO: Handle failed parses with a meaningfull error message
-  const terraformPlanJson = JSON.parse(
-    terraformPlanFile.fileContent,
-  ) as TerraformPlanJson;
+  let terraformPlanJson;
+  try {
+    terraformPlanJson = JSON.parse(
+      terraformPlanFile.fileContent,
+    ) as TerraformPlanJson;
+  } catch (err) {
+    throw new Error('Failed to parse Terraform plan JSON file.');
+  }
 
-  // TODO: Handle missing fields in plan json with a meaningfull error message
-  const rootModuleResources = extractRootModuleResources(terraformPlanJson);
-  const childModuleResources = extractChildModulesResources(terraformPlanJson);
-  const parsedInput = [
-    ...rootModuleResources,
-    ...childModuleResources,
-  ].reduce(terraformPlanReducer, { resource: {}, data: {} });
-  return [
-    {
-      ...terraformPlanFile,
-      jsonContent: parsedInput,
-      engineType: EngineType.Terraform,
-    },
-  ];
+  try {
+    const rootModuleResources = extractRootModuleResources(terraformPlanJson);
+    const childModuleResources = extractChildModulesResources(
+      terraformPlanJson,
+    );
+    const parsedInput = [
+      ...rootModuleResources,
+      ...childModuleResources,
+    ].reduce(terraformPlanReducer, { resource: {}, data: {} });
+
+    return [
+      {
+        ...terraformPlanFile,
+        jsonContent: parsedInput,
+        engineType: EngineType.Terraform,
+      },
+    ];
+  } catch (err) {
+    throw new Error(
+      'Failed to extract resources from Terraform plan JSON file.',
+    );
+  }
 }
