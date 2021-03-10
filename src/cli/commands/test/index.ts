@@ -4,13 +4,11 @@ const cloneDeep = require('lodash.clonedeep');
 const assign = require('lodash.assign');
 import chalk from 'chalk';
 import * as snyk from '../../../lib';
-import * as config from '../../../lib/config';
 import { isCI } from '../../../lib/is-ci';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import {
   Options,
-  ShowVulnPaths,
   SupportedProjectTypes,
   TestOptions,
 } from '../../../lib/types';
@@ -54,30 +52,17 @@ import * as iacLocalExecution from './iac-local-execution';
 import { validateCredentials } from './validate-credentials';
 import { generateSnykTestError } from './generate-snyk-test-error';
 import { validateTestOptions } from './validate-test-options';
+import { setDefaultTestOptions } from './set-default-test-options';
 import { processCommandArgs } from '../process-command-args';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
-const showVulnPathsMapping: Record<string, ShowVulnPaths> = {
-  false: 'none',
-  none: 'none',
-  true: 'some',
-  some: 'some',
-  all: 'all',
-};
-
 // TODO: avoid using `as any` whenever it's possible
 
 async function test(...args: MethodArgs): Promise<TestCommandResult> {
-  const { options, paths } = processCommandArgs(...args);
-  // org fallback to config unless specified
-  options.org = options.org || config.org;
-
-  // making `show-vulnerable-paths` 'some' by default.
-  const svpSupplied = (options['show-vulnerable-paths'] || '').toLowerCase();
-  options.showVulnPaths = showVulnPathsMapping[svpSupplied] || 'some';
-
+  const { options: originalOptions, paths } = processCommandArgs(...args);
+  const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
 
