@@ -3,6 +3,7 @@ import * as tar from 'tar';
 import * as path from 'path';
 
 export function createIacDir(): void {
+  // this path will be able to be customised by the user in the future
   const iacPath: fs.PathLike = path.join('.iac-data/');
   try {
     if (!fs.existsSync(iacPath)) {

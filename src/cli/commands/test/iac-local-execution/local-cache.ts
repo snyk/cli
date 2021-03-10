@@ -30,8 +30,7 @@ export const REQUIRED_LOCAL_CACHE_FILES = [
   TERRAFORM_POLICY_ENGINE_WASM_PATH,
   TERRAFORM_POLICY_ENGINE_DATA_PATH,
 ];
-
-export function isLocalCacheExists(): boolean {
+function doesLocalCacheExist(): boolean {
   return REQUIRED_LOCAL_CACHE_FILES.every(fs.existsSync);
 }
 
@@ -58,10 +57,10 @@ export async function initLocalCache(): Promise<void> {
     const fileName: fs.PathLike = path.join('.iac-data/bundle.tar.gz');
 
     createIacDir();
-    const response: ReadableStream = await needle.get(preSignedUrl);
+    const response: ReadableStream = needle.get(preSignedUrl);
     await extractBundle(response, fileName);
   }
-  if (!isLocalCacheExists()) {
+  if (!doesLocalCacheExist()) {
     throw Error(
       `Missing IaC local cache data, please validate you have: \n${REQUIRED_LOCAL_CACHE_FILES.join(
         '\n',
