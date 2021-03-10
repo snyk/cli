@@ -97,6 +97,7 @@ export interface TerraformPlanJson {
 export interface TerraformScanInput {
   // within the resource field, resources are stored: [type] => [name] => [values]
   resource: Record<string, Record<string, unknown>>;
+  data: Record<string, Record<string, unknown>>;
 }
 
 export interface TerraformPlanResource {
