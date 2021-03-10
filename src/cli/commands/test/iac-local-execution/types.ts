@@ -8,7 +8,7 @@ export interface IacFileData extends IacFileInDirectory {
 export const VALID_FILE_TYPES = ['tf', 'json', 'yaml', 'yml'];
 
 export interface IacFileParsed extends IacFileData {
-  jsonContent: Record<string, unknown>;
+  jsonContent: Record<string, unknown> | TerraformScanInput;
   engineType: EngineType;
   docId?: number;
 }
@@ -67,4 +67,40 @@ export interface PolicyMetadata {
   impact: string;
   resolve: string;
   references: string[];
+}
+
+export interface IacOptionFlags {
+  iacDirFiles?: Array<IacFileData>;
+  severityThreshold?: SEVERITY;
+}
+
+export interface TerraformPlanResource {
+  address: string; // "aws_cloudwatch_log_group.terra_ci",
+  mode: string; // "managed",
+  type: string; // "aws_cloudwatch_log_group",
+  name: string; // "terra_ci",
+  provider_name: string; // "registry.terraform.io/hashicorp/aws",
+  schema_version: number;
+  values: Record<string, unknown>; // the values in the resource
+  index: number;
+}
+
+export interface TerraformPlanJson {
+  // there are more values, but these are the required ones for us to scan
+  planned_values: {
+    root_module: {
+      resources: Array<TerraformPlanResource>;
+      child_modules: Array<{ resources: Array<TerraformPlanResource> }>;
+    };
+  };
+}
+export interface TerraformScanInput {
+  // within the resource field, resources are stored: [type] => [name] => [values]
+  resource: Record<string, Record<string, unknown>>;
+}
+
+export interface TerraformPlanResource {
+  type: string;
+  name: string;
+  values: Record<string, unknown>;
 }

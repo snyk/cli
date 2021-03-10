@@ -2,6 +2,7 @@ import {
   EngineType,
   FormattedResult,
   IacFileScanResult,
+  IacOptionFlags,
   PolicyMetadata,
 } from './types';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
@@ -15,7 +16,7 @@ const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
 export function formatScanResults(
   iacLocalExecutionResults: Array<IacFileScanResult>,
-  options: { severityThreshold?: SEVERITY },
+  options: IacOptionFlags,
 ): FormattedResult[] {
   const iacLocalExecutionGroupedResults = groupMultiDocResults(
     iacLocalExecutionResults,
