@@ -1,6 +1,6 @@
 import { debug as debugModule } from 'debug';
 import * as needle from 'needle';
-import { parse, format } from 'url';
+import { parse } from 'url';
 import * as querystring from 'querystring';
 import * as zlib from 'zlib';
 import * as config from '../config';
@@ -68,15 +68,6 @@ export = function makeRequest(
         }
 
         const parsedUrl = parse(payload.url);
-
-        if (
-          parsedUrl.protocol === 'http:' &&
-          parsedUrl.hostname !== 'localhost'
-        ) {
-          debug('forcing api request to https');
-          parsedUrl.protocol = 'https:';
-          payload.url = format(parsedUrl);
-        }
 
         // prefer config timeout unless payload specified
         if (!payload.hasOwnProperty('timeout')) {
