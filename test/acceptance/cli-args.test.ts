@@ -81,9 +81,8 @@ test('snyk test command should fail when iac --file is specified', (t) => {
       }
       t.match(
         stdout.trim(),
-        'Not a recognised option, did you mean "snyk iac test ./test/acceptance/workspaces/iac-kubernetes/multi-file.yaml"? ' +
-          'Check other options by running snyk iac --help',
-        'correct error output',
+        'Unsupported flag',
+        'failed with Unsupported flag error',
       );
     },
   );

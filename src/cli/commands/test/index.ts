@@ -54,6 +54,7 @@ import { generateSnykTestError } from './generate-snyk-test-error';
 import { validateTestOptions } from './validate-test-options';
 import { setDefaultTestOptions } from './set-default-test-options';
 import { processCommandArgs } from '../process-command-args';
+import { assertIaCOptionsFlags } from './iac-local-execution/assert-iac-options-flag';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -95,7 +96,14 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     let res: (TestResult | TestResult[]) | Error;
 
     try {
-      if (options.iac && options.experimental) {
+      if (options.iac) {
+        // Ensure that all flags are correct. We do this to ensure that the
+        // caller doesn't accidentally mistype --experimental and send their
+        // configuration files to our backend by accident.
+        assertIaCOptionsFlags(process.argv);
+      }
+
+      if (options.iac && testOpts.experimental) {
         // this path is an experimental feature feature for IaC which does issue scanning locally without sending files to our Backend servers.
         // once ready for GA, it is aimed to deprecate our remote-processing model, so IaC file scanning in the CLI is done locally.
         res = await iacLocalExecution.test(path, testOpts);

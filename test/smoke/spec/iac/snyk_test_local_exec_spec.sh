@@ -6,6 +6,14 @@ Describe "Snyk iac test --experimental command"
   Before snyk_login
   After snyk_logout
 
+  Describe "basic usage"
+    It "outputs an error if the --experimental flag is mistyped"
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml --experimentl
+      The status should be failure
+      The output should include "Unsupported flag"
+    End
+  End
+
   Describe "logging regression tests"
     It "does not include file content in analytics logs"
       # Run with the -d flag on directory to output network requests and analytics data.
