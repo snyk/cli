@@ -18,13 +18,8 @@ export function createIacDir(): void {
   }
 }
 
-export function extractBundle(
-  response,
-  bundlePath: fs.PathLike,
-): Promise<void> {
+export function extractBundle(response): Promise<void> {
   return new Promise((resolve, reject) => {
-    fs.createWriteStream(bundlePath).on('error', (err) => reject(err));
-
     response
       .pipe(
         tar.x({

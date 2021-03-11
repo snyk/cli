@@ -21,7 +21,7 @@ describe('initLocalCache - SNYK_IAC_SKIP_BUNDLE_DOWNLOAD is not set', () => {
 
     localCacheModule.initLocalCache();
 
-    expect(spy).toHaveBeenCalledWith(mockReadable, '.iac-data/bundle.tar.gz');
+    expect(spy).toHaveBeenCalledWith(mockReadable);
   });
 });
 

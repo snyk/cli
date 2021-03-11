@@ -54,11 +54,10 @@ export async function initLocalCache(): Promise<void> {
   if (!process.env.SNYK_IAC_SKIP_BUNDLE_DOWNLOAD) {
     const preSignedUrl =
       'https://cloud-config-policy-bundles.s3-eu-west-1.amazonaws.com/bundle.tar.gz';
-    const fileName: fs.PathLike = path.join('.iac-data/bundle.tar.gz');
 
     createIacDir();
     const response: ReadableStream = needle.get(preSignedUrl);
-    await extractBundle(response, fileName);
+    await extractBundle(response);
   }
   if (!doesLocalCacheExist()) {
     throw Error(
