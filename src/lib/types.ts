@@ -184,7 +184,9 @@ export type SupportedUserReachableFacingCliArgs =
   | 'reachable-vulns-timeout'
   | 'init-script'
   | 'integration-name'
-  | 'integration-version';
+  | 'integration-version'
+  | 'project-name-prefix'
+  | 'assets-project-name';
 
 export enum SupportedCliCommands {
   version = 'version',

@@ -216,6 +216,8 @@ export function args(rawArgv: string[]): Args {
     'integration-name',
     'integration-version',
     'prune-repeated-subdependencies',
+    'project-name-prefix',
+    'assets-project-name',
   ];
   for (const dashedArg of argumentsToTransform) {
     if (argv[dashedArg]) {
