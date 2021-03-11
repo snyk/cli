@@ -13,8 +13,7 @@ export type DepTree = legacyApi.DepTree;
 export type ShowVulnPaths = 'none' | 'some' | 'all';
 
 export interface TestOptions {
-  traverseNodeModules: boolean;
-  interactive: boolean;
+  traverseNodeModules?: boolean;
   pruneRepeatedSubdependencies?: boolean;
   showVulnPaths: ShowVulnPaths;
   failOn?: FailOn;
@@ -27,7 +26,8 @@ export interface TestOptions {
   iacDirFiles?: IacFileInDirectory[];
 }
 
-export interface WizardOptions {
+export interface ProtectOptions {
+  interactive?: boolean;
   newPolicy: boolean;
 }
 
@@ -184,7 +184,8 @@ export type SupportedUserReachableFacingCliArgs =
   | 'reachable-vulns-timeout'
   | 'init-script'
   | 'integration-name'
-  | 'integration-version';
+  | 'integration-version'
+  | 'show-vulnerable-paths';
 
 export enum SupportedCliCommands {
   version = 'version',
