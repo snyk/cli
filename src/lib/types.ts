@@ -26,6 +26,29 @@ export interface TestOptions {
   iacDirFiles?: IacFileInDirectory[];
 }
 
+// Collection of all options supported by `iac test` command.
+// TODO: Needs to be fixed at the args module level.
+export type IaCTestOptions = Pick<
+  Options & TestOptions,
+  | 'insecure'
+  | 'debug'
+  | 'experimental'
+  | 'detectionDepth'
+  | 'severityThreshold'
+  | 'json'
+  | 'sarif'
+> & {
+  // Supported flags not yet covered by Options or TestOptions
+  'json-file-output'?: string;
+  'sarif-file-output'?: string;
+  v?: boolean;
+  version?: boolean;
+  h?: boolean;
+  help?: 'help';
+  q?: boolean;
+  quiet?: boolean;
+};
+
 export interface ProtectOptions {
   interactive?: boolean;
   newPolicy: boolean;
@@ -72,7 +95,7 @@ export interface Options {
   detectionDepth?: number;
   exclude?: string;
   strictOutOfSync?: boolean;
-  // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
+  // Used only with the IaC mode & Docker plugin. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;
