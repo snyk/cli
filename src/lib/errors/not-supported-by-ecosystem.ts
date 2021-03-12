@@ -13,6 +13,6 @@ export class FeatureNotSupportedByEcosystemError extends CustomError {
     this.code = 422;
     this.feature = feature;
 
-    this.userMessage = `'${feature}' is not supported for ecosystem '${ecosystem}'`;
+    this.userMessage = `\`${feature}\` is not supported for ecosystem '${ecosystem}'`;
   }
 }

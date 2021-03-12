@@ -52,15 +52,10 @@ import {
 
 import { test as iacTest } from './iac-test-shim';
 import { validateCredentials } from './validate-credentials';
-<<<<<<< HEAD
-import { generateSnykTestError } from './generate-snyk-test-error';
 import { validateTestOptions } from './validate-test-options';
 import { setDefaultTestOptions } from './set-default-test-options';
-=======
->>>>>>> feat: introduce `snyk fix` CLI command
 import { processCommandArgs } from '../process-command-args';
 import { formatTestError } from './format-test-error';
-import { validateTestOptions } from './validate-test-options';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';

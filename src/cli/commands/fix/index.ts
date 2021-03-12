@@ -32,9 +32,12 @@ async function fix(...args: MethodArgs): Promise<string> {
   debug(
     `Organization has ${snykFixFeatureFlag} feature flag enabled for experimental Snyk fix functionality`,
   );
-  await snykFix.fix(results);
-  // TODO: what is being returned if anything?
-  return '';
+  const { fixSummary, meta } = await snykFix.fix(results);
+
+  if (meta.fixed === 0) {
+    throw new Error(fixSummary);
+  }
+  return fixSummary;
 }
 
 /* @deprecated
