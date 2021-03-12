@@ -26,8 +26,26 @@ async function fix(...args: MethodArgs): Promise<string> {
   validateCredentials(options);
 
   const results: snykFix.EntityToFix[] = [];
+  results.push(...(await runSnykTestLegacy(options, paths)));
 
-  // TODO: once project envelope is default all code below will be deleted
+  // fix
+  debug(
+    `Organization has ${snykFixFeatureFlag} feature flag enabled for experimental Snyk fix functionality`,
+  );
+  await snykFix.fix(results);
+  // TODO: what is being returned if anything?
+  return '';
+}
+
+/* @deprecated
+ * TODO: once project envelope is default all code below will be deleted
+ * we should be calling test via new Ecosystems instead
+ */
+async function runSnykTestLegacy(
+  options,
+  paths,
+): Promise<snykFix.EntityToFix[]> {
+  const results: snykFix.EntityToFix[] = [];
   for (const path of paths) {
     // Create a copy of the options so a specific test can
     // modify them i.e. add `options.file` etc. We'll need
@@ -44,20 +62,11 @@ async function fix(...args: MethodArgs): Promise<string> {
       testResults = await snyk.test(path, snykTestOptions);
     } catch (error) {
       const testError = formatTestError(error);
-      // TODO: what should be done here?
-      console.error(testError);
-      throw new Error(error);
+      throw testError;
     }
     const resArray = Array.isArray(testResults) ? testResults : [testResults];
     const newRes = convertLegacyTestResultToFixEntities(resArray, path);
     results.push(...newRes);
   }
-
-  // fix
-  debug(
-    `Organization has ${snykFixFeatureFlag} feature flag enabled for experimental Snyk fix functionality`,
-  );
-  await snykFix.fix(results);
-  // TODO: what is being returned if anything?
-  return '';
+  return results;
 }
