@@ -2,7 +2,7 @@
 
 exports[`Error handling Snyk fix returns error when called with unsupported type 1`] = `
 Object {
-  "exceptionsByScanType": Object {
+  "exceptions": Object {
     "npm": Object {
       "originals": Array [
         Object {
@@ -57,14 +57,47 @@ Object {
       "userMessage": "npm is not supported.",
     },
   },
-  "resultsByPlugin": Object {},
+  "fixSummary": "✖ No successful fixes
+
+Unresolved items:
+
+  package.json
+  ✖ npm is not supported.
+
+Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed",
+  "meta": Object {
+    "failed": 1,
+    "fixed": 0,
+  },
+  "results": Object {},
 }
 `;
 
 exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
 Object {
-  "exceptionsByScanType": Object {},
-  "resultsByPlugin": Object {
+  "exceptions": Object {},
+  "fixSummary": "Successful fixes:
+
+  requirements.txt
+  ✔ Pinned django from 1.6.1 to 2.0.1
+
+Unresolved items:
+
+  Pipfile
+  ✖ Pipfile is not supported
+
+Summary:
+
+  1 items were not fixed
+  1 items were successfully fixed",
+  "meta": Object {
+    "failed": 1,
+    "fixed": 1,
+  },
+  "results": Object {
     "python": Object {
       "failed": Array [],
       "skipped": Array [
