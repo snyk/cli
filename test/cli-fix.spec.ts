@@ -1,5 +1,6 @@
 import { exec } from 'child_process';
 import * as pathLib from 'path';
+import stripAnsi from 'strip-ansi';
 
 import { fakeServer } from './acceptance/fake-server';
 import cli = require('../src/cli/commands');
@@ -81,7 +82,13 @@ describe('snyk fix (system tests)', () => {
             SNYK_HOST,
           },
         },
-        (err, stdout) => {
+        (err, stdout, stderr) => {
+          if (!err) {
+            throw new Error('Test expected to return an error');
+          }
+          expect(stderr).toBe('');
+          expect(err.message).toMatch('Command failed');
+          expect(err.code).toEqual(2);
           expect(stdout).toMatch(
             "`snyk fix` is not supported for org 'no-flag'",
           );
@@ -104,7 +111,13 @@ describe('snyk fix (system tests)', () => {
             SNYK_HOST,
           },
         },
-        (err, stdout) => {
+        (err, stdout, stderr) => {
+          if (!err) {
+            throw new Error('Test expected to return an error');
+          }
+          expect(stderr).toBe('');
+          expect(err.message).toMatch('Command failed');
+          expect(err.code).toEqual(2);
           expect(stdout).toMatch(
             "`snyk fix` is not supported for ecosystem 'cpp'",
           );
@@ -128,7 +141,13 @@ describe('snyk fix (system tests)', () => {
             SNYK_HOST,
           },
         },
-        (err, stdout) => {
+        (err, stdout, stderr) => {
+          if (!err) {
+            throw new Error('Test expected to return an error');
+          }
+          expect(stderr).toBe('');
+          expect(err.message).toMatch('Command failed');
+          expect(err.code).toEqual(2);
           expect(stdout).toMatch(
             "`snyk fix` is not supported for ecosystem 'docker'",
           );
@@ -139,8 +158,10 @@ describe('snyk fix (system tests)', () => {
     testTimeout,
   );
 
-  // TODO: this is only showing help when fails?
-  it.skip(
+  /* this command is different
+   * it shows help text not an error when command is not supported
+   */
+  it(
     '`shows error when called with container (deprecated)`',
     (done) => {
       exec(
@@ -153,10 +174,10 @@ describe('snyk fix (system tests)', () => {
             SNYK_HOST,
           },
         },
-        (err, stdout) => {
-          expect(stdout).toMatch(
-            "`snyk fix` is not supported for ecosystem 'docker'",
-          );
+        (err, stdout, stderr) => {
+          expect(stderr).toBe('');
+          expect(stdout).toMatch('COMMANDS');
+          expect(err).toBe(null);
           done();
         },
       );
@@ -176,7 +197,13 @@ describe('snyk fix (system tests)', () => {
             SNYK_HOST,
           },
         },
-        (err, stdout) => {
+        (err, stdout, stderr) => {
+          if (!err) {
+            throw new Error('Test expected to return an error');
+          }
+          expect(stderr).toBe('');
+          expect(err.message).toMatch('Command failed');
+          expect(err.code).toEqual(2);
           expect(stdout).toMatch(
             "`snyk fix` is not supported for ecosystem 'code'",
           );
@@ -205,7 +232,7 @@ describe('snyk fix (system tests)', () => {
             throw new Error('Test expected to return an error');
           }
           expect(stderr).toBe('');
-          expect(stdout).toMatchSnapshot();
+          expect(stripAnsi(stdout)).toMatchSnapshot();
           expect(err.message).toMatch('Command failed');
           expect(err.code).toBe(2);
           done();
@@ -231,7 +258,7 @@ describe('snyk fix (system tests)', () => {
           },
         },
         (err, stdout) => {
-          expect(stdout).toMatchSnapshot();
+          expect(stripAnsi(stdout)).toMatchSnapshot();
           done();
         },
       );
@@ -252,7 +279,7 @@ describe('snyk fix (system tests)', () => {
           },
         },
         (err, stdout) => {
-          expect(stdout).toMatchSnapshot();
+          expect(stripAnsi(stdout)).toMatchSnapshot();
           done();
         },
       );
@@ -273,7 +300,7 @@ describe('snyk fix (system tests)', () => {
           },
         },
         (err, stdout) => {
-          expect(stdout).toMatchSnapshot();
+          expect(stripAnsi(stdout)).toMatchSnapshot();
           done();
         },
       );
