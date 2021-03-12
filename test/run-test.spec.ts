@@ -15,7 +15,6 @@ describe('CLI runTest - propagate correct user error', () => {
     const options: Options & TestOptions = {
       path: '',
       traverseNodeModules: false,
-      interactive: false,
       showVulnPaths: 'none',
     };
 
@@ -37,7 +36,6 @@ describe('CLI runTest - propagate correct user error', () => {
     const options: Options & TestOptions = {
       path: '',
       traverseNodeModules: false,
-      interactive: false,
       showVulnPaths: 'none',
     };
 
@@ -59,7 +57,6 @@ describe('CLI runTest - propagate correct user error', () => {
     const options: Options & TestOptions = {
       path: '',
       traverseNodeModules: false,
-      interactive: false,
       showVulnPaths: 'none',
     };
 

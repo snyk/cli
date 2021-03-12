@@ -12,7 +12,10 @@ import * as errors from '../../../lib/errors';
 const debug = debugModule('snyk');
 
 async function protectFunc(
-  options: types.PolicyOptions & types.Options & types.TestOptions,
+  options: types.PolicyOptions &
+    types.Options &
+    types.TestOptions &
+    types.ProtectOptions,
 ) {
   const protectOptions = { ...options };
   protectOptions.loose = true; // replace missing policies with empty ones

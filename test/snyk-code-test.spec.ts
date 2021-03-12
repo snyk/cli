@@ -63,7 +63,6 @@ describe('Test snyk code', () => {
     const options: Options & TestOptions = {
       path: '',
       traverseNodeModules: false,
-      interactive: false,
       showVulnPaths: 'none',
     };
     isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ code: 401 });
@@ -82,7 +81,6 @@ describe('Test snyk code', () => {
     const options: Options & TestOptions = {
       path: '',
       traverseNodeModules: false,
-      interactive: false,
       showVulnPaths: 'none',
       code: true,
     };
