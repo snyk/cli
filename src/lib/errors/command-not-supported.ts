@@ -10,7 +10,7 @@ export class CommandNotSupportedError extends CustomError {
     this.command = command;
     this.org = org;
 
-    this.userMessage = `\`${command}\`' is not supported ${
+    this.userMessage = `\`${command}\` is not supported ${
       org ? `for org '${org}'` : ''
     }`;
   }
