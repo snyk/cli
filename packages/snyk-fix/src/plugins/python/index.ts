@@ -14,7 +14,7 @@ export async function pythonFix(
   entities: EntityToFix[],
   options: FixOptions,
 ): Promise<FixHandlerResultByPlugin> {
-  const spinner = ora({ isSilent: options.quiet });
+  const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
   spinner.text = 'Looking for supported Python items';
   spinner.start();
   const pluginId = 'python';

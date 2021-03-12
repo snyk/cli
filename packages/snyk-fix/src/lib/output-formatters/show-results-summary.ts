@@ -22,7 +22,9 @@ export async function showResultsSummary(
     resultsByPlugin,
     exceptionsByScanType,
   );
-  return `${successfulFixesSummary}\n\n${unresolvedSummary}\n\n${overallSummary}`;
+  return `${successfulFixesSummary}${
+    unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
+  }\n\n${overallSummary}`;
 }
 
 export function generateSuccessfulFixesSummary(

@@ -26,7 +26,7 @@ export async function fix(
   meta: { fixed: number; failed: number };
   fixSummary: string;
 }> {
-  const spinner = ora({ isSilent: options.quiet });
+  const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
   let resultsByPlugin: FixHandlerResultByPlugin = {};
   const entitiesPerType = groupEntitiesPerScanType(entities);
   const exceptionsByScanType: ErrorsByEcoSystem = {};
