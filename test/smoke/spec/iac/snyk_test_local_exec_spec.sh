@@ -1,9 +1,22 @@
 #shellcheck shell=sh
 
 Describe "Snyk iac test --experimental command"
-  Skip if "execute only in regression test" check_if_regression_test 
+  Skip if "execute only in regression test" check_if_regression_test
+
   Before snyk_login
   After snyk_logout
+
+  Describe "logging regression tests"
+    It "does not include file content in analytics logs"
+      # Run with the -d flag on directory to output network requests and analytics data.
+      When run snyk iac test ../fixtures/iac/file-logging -d --experimental
+      # We expect the output, specifically the analytics block not to include
+      # the following text from the file.
+      The status should be success
+      The output should not include "PRIVATE_FILE_CONTENT_CHECK"
+      The error should not include "PRIVATE_FILE_CONTENT_CHECK"
+    End
+  End
 
   Describe "k8s single file scan"
     It "finds issues in k8s file"
@@ -71,7 +84,7 @@ Describe "Snyk iac test --experimental command"
     End
 
     # TODO: currently skipped because the parser we're using doesn't fail on invalid terraform
-    # will be fixed before beta 
+    # will be fixed before beta
     xIt "outputs an error for invalid terraforom files"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf --experimental
       The status should be failure

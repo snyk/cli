@@ -221,5 +221,4 @@ export interface ErrorsByEcoSystem {
 export interface FixOptions {
   dryRun?: boolean;
   quiet?: boolean;
-  stripAnsi?: boolean;
 }

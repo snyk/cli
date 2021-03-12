@@ -120,7 +120,7 @@ export function postAnalytics(
         queryStringParams['org'] = data.org;
       }
 
-      debug('analytics', data);
+      debug('analytics', JSON.stringify(data, null, '  '));
 
       const queryString =
         Object.keys(queryStringParams).length > 0

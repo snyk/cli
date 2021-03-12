@@ -49,6 +49,11 @@ export interface OpaWasmInstance {
   setData: (data: Record<string, any>) => void;
 }
 
+export type SafeAnalyticsOutput = Omit<
+  IacFileParsed | IacFileParseFailure,
+  'fileContent' | 'jsonContent' | 'engineType'
+>;
+
 export enum EngineType {
   Kubernetes,
   Terraform,
@@ -70,7 +75,7 @@ export interface PolicyMetadata {
 }
 
 export interface IacOptionFlags {
-  iacDirFiles?: Array<IacFileData>;
+  iacDirFiles?: Array<IacFileInDirectory>;
   severityThreshold?: SEVERITY;
 }
 
