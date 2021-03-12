@@ -11,12 +11,15 @@ describe('Snyk fix', () => {
     const writeFileSpy = jest.spyOn(projectTestResult.workspace, 'writeFile');
 
     // Act
-    const res = await snykFix.fix([projectTestResult], { quiet: true });
+    const res = await snykFix.fix([projectTestResult], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     expect(writeFileSpy).toHaveBeenCalled();
-    expect(res.exceptionsByScanType).toMatchSnapshot();
-    expect(res.resultsByPlugin).toMatchSnapshot();
+    expect(res.exceptions).toMatchSnapshot();
+    expect(res.results).toMatchSnapshot();
   });
 
   it('Snyk fix returns results for supported type in dryRun mode (no write)', async () => {
@@ -53,7 +56,7 @@ describe('Snyk fix', () => {
     // Act
     const res = await snykFix.fix(
       [projectTestResult, pipfileProjectTestResult],
-      { quiet: true },
+      { quiet: true, stripAnsi: true },
     );
 
     // Assert
@@ -85,30 +88,28 @@ describe('Snyk fix', () => {
         txtProdProjectTestResult,
         pipfileProjectTestResult,
       ],
-      { quiet: true },
+      { quiet: true, stripAnsi: true },
     );
 
     // Assert
-    expect(res.exceptionsByScanType).toEqual({});
-    expect(Object.keys(res.resultsByPlugin)).toHaveLength(1);
-    expect(Object.keys(res.resultsByPlugin)[0]).toEqual('python');
+    expect(res.exceptions).toEqual({});
+    expect(Object.keys(res.results)).toHaveLength(1);
+    expect(Object.keys(res.results)[0]).toEqual('python');
     // skipped unsupported
-    expect(res.resultsByPlugin.python.skipped).toHaveLength(1);
-    expect(res.resultsByPlugin.python.skipped[0]).toEqual({
+    expect(res.results.python.skipped).toHaveLength(1);
+    expect(res.results.python.skipped[0]).toEqual({
       original: pipfileProjectTestResult,
       userMessage: 'Pipfile is not supported',
     });
 
     // first *.txt throws because of the mock above
-    expect(res.resultsByPlugin.python.failed).toHaveLength(0);
-    expect(res.resultsByPlugin.python.succeeded).toHaveLength(2);
+    expect(res.results.python.failed).toHaveLength(0);
+    expect(res.results.python.succeeded).toHaveLength(2);
     expect(
-      res.resultsByPlugin.python.succeeded[0].original.scanResult.identity
-        .targetFile,
+      res.results.python.succeeded[0].original.scanResult.identity.targetFile,
     ).toEqual('dev.txt');
     expect(
-      res.resultsByPlugin.python.succeeded[1].original.scanResult.identity
-        .targetFile,
+      res.results.python.succeeded[1].original.scanResult.identity.targetFile,
     ).toEqual('prod.txt');
   });
   it('Snyk fix returns results as expected when 1 fails to fix', async () => {
@@ -141,35 +142,33 @@ describe('Snyk fix', () => {
         txtProdProjectTestResult,
         pipfileProjectTestResult,
       ],
-      { quiet: true },
+      { quiet: true, stripAnsi: true },
     );
 
     // Assert
-    expect(res.exceptionsByScanType).toEqual({});
-    expect(Object.keys(res.resultsByPlugin)).toHaveLength(1);
-    expect(Object.keys(res.resultsByPlugin)[0]).toEqual('python');
+    expect(res.exceptions).toEqual({});
+    expect(Object.keys(res.results)).toHaveLength(1);
+    expect(Object.keys(res.results)[0]).toEqual('python');
     // skipped unsupported
-    expect(res.resultsByPlugin.python.skipped).toHaveLength(1);
-    expect(res.resultsByPlugin.python.skipped[0]).toEqual({
+    expect(res.results.python.skipped).toHaveLength(1);
+    expect(res.results.python.skipped[0]).toEqual({
       userMessage: 'Pipfile is not supported',
       original: pipfileProjectTestResult,
     });
 
     // first *.txt throws because of the mock above
-    expect(res.resultsByPlugin.python.failed).toHaveLength(1);
+    expect(res.results.python.failed).toHaveLength(1);
     expect(
-      res.resultsByPlugin.python.failed[0].original.scanResult.identity
-        .targetFile,
+      res.results.python.failed[0].original.scanResult.identity.targetFile,
     ).toEqual('dev.txt');
-    expect(res.resultsByPlugin.python.failed[0].error.message).toEqual(
+    expect(res.results.python.failed[0].error.message).toEqual(
       'Invalid encoding',
     );
 
-    expect(res.resultsByPlugin.python.succeeded).toHaveLength(1);
+    expect(res.results.python.succeeded).toHaveLength(1);
 
     expect(
-      res.resultsByPlugin.python.succeeded[0].original.scanResult.identity
-        .targetFile,
+      res.results.python.succeeded[0].original.scanResult.identity.targetFile,
     ).toEqual('prod.txt');
   });
 
@@ -184,20 +183,22 @@ describe('Snyk fix', () => {
     delete txtProdProjectTestResult.testResult.remediation;
 
     // Act
-    const res = await snykFix.fix([txtProdProjectTestResult], { quiet: true });
+    const res = await snykFix.fix([txtProdProjectTestResult], {
+      quiet: true,
+      stripAnsi: true,
+    });
     // Assert
-    expect(res.exceptionsByScanType).toEqual({});
-    expect(Object.keys(res.resultsByPlugin)).toHaveLength(1);
-    expect(Object.keys(res.resultsByPlugin)[0]).toEqual('python');
+    expect(res.exceptions).toEqual({});
+    expect(Object.keys(res.results)).toHaveLength(1);
+    expect(Object.keys(res.results)[0]).toEqual('python');
 
     // first *.txt throws because remediation is empty
-    expect(res.resultsByPlugin.python.failed).toHaveLength(0);
-    expect(res.resultsByPlugin.python.skipped).toHaveLength(1);
+    expect(res.results.python.failed).toHaveLength(0);
+    expect(res.results.python.skipped).toHaveLength(1);
     expect(
-      res.resultsByPlugin.python.skipped[0].original.scanResult.identity
-        .targetFile,
+      res.results.python.skipped[0].original.scanResult.identity.targetFile,
     ).toEqual('prod.txt');
-    expect(res.resultsByPlugin.python.skipped[0].userMessage).toEqual(
+    expect(res.results.python.skipped[0].userMessage).toEqual(
       'No remediation data available',
     );
   });
@@ -307,7 +308,10 @@ describe('Error handling', () => {
       JSON.stringify({}),
     );
     // Act
-    const res = await snykFix.fix([projectTestResult], { quiet: true });
+    const res = await snykFix.fix([projectTestResult], {
+      quiet: true,
+      stripAnsi: true,
+    });
     // Assert
     expect(res).toMatchSnapshot();
   });

@@ -99,27 +99,41 @@ export function generateFixedAndFailedSummary(
 ): string {
   const sectionTitle = 'Summary:';
   const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
-  let fixedItems = 0;
-  let failedItems = 0;
-  for (const plugin of Object.keys(resultsByPlugin)) {
-    fixedItems += resultsByPlugin[plugin].succeeded.length;
-  }
-
-  for (const plugin of Object.keys(resultsByPlugin)) {
-    const results = resultsByPlugin[plugin];
-    failedItems += results.failed.length + results.skipped.length;
-  }
-
-  if (Object.keys(exceptionsByScanType).length) {
-    for (const ecosystem of Object.keys(exceptionsByScanType)) {
-      const unresolved = exceptionsByScanType[ecosystem];
-      failedItems += unresolved.originals.length;
-    }
-  }
+  const fixedItems = calculateFixed(resultsByPlugin);
+  const failedItems = calculateFailed(resultsByPlugin, exceptionsByScanType);
 
   return `${formattedTitleHeader}\n\n${PADDING_SPACE}${chalk.bold.red(
     failedItems,
   )} items were not fixed\n${PADDING_SPACE}${chalk.green.bold(
     fixedItems,
   )} items were successfully fixed`;
+}
+
+export function calculateFixed(
+  resultsByPlugin: FixHandlerResultByPlugin,
+): number {
+  let fixed = 0;
+  for (const plugin of Object.keys(resultsByPlugin)) {
+    fixed += resultsByPlugin[plugin].succeeded.length;
+  }
+  return fixed;
+}
+
+export function calculateFailed(
+  resultsByPlugin: FixHandlerResultByPlugin,
+  exceptionsByScanType: ErrorsByEcoSystem,
+): number {
+  let failed = 0;
+  for (const plugin of Object.keys(resultsByPlugin)) {
+    const results = resultsByPlugin[plugin];
+    failed += results.failed.length + results.skipped.length;
+  }
+
+  if (Object.keys(exceptionsByScanType).length) {
+    for (const ecosystem of Object.keys(exceptionsByScanType)) {
+      const unresolved = exceptionsByScanType[ecosystem];
+      failed += unresolved.originals.length;
+    }
+  }
+  return failed;
 }

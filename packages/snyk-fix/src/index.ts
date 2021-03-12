@@ -2,8 +2,9 @@ import * as debugLib from 'debug';
 import * as pMap from 'p-map';
 import * as ora from 'ora';
 import * as chalk from 'chalk';
+import stripAnsi = require('strip-ansi');
 
-import { showResultsSummary } from './lib/output-formatters/show-results-summary';
+import * as outputFormatter from './lib/output-formatters/show-results-summary';
 import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
 
@@ -17,10 +18,13 @@ export async function fix(
   options: FixOptions = {
     dryRun: false,
     quiet: false,
+    stripAnsi: false,
   },
 ): Promise<{
-  resultsByPlugin: FixHandlerResultByPlugin;
-  exceptionsByScanType: ErrorsByEcoSystem;
+  results: FixHandlerResultByPlugin;
+  exceptions: ErrorsByEcoSystem;
+  meta: { fixed: number; failed: number };
+  fixSummary: string;
 }> {
   const spinner = ora({ isSilent: options.quiet });
   let resultsByPlugin: FixHandlerResultByPlugin = {};
@@ -45,15 +49,26 @@ export async function fix(
       concurrency: 3,
     },
   );
-  const fixSummary = await showResultsSummary(
+  const fixSummary = await outputFormatter.showResultsSummary(
     resultsByPlugin,
     exceptionsByScanType,
   );
 
+  const failed = outputFormatter.calculateFailed(
+    resultsByPlugin,
+    exceptionsByScanType,
+  );
+  const fixed = outputFormatter.calculateFixed(resultsByPlugin);
+
   spinner.start();
   spinner.stopAndPersist({ text: 'Done', symbol: chalk.green('✔') });
   spinner.stopAndPersist({ text: `\n${fixSummary}` });
-  return { resultsByPlugin, exceptionsByScanType };
+  return {
+    results: resultsByPlugin,
+    exceptions: exceptionsByScanType,
+    fixSummary: options.stripAnsi ? stripAnsi(fixSummary) : fixSummary,
+    meta: { fixed, failed },
+  };
 }
 
 export function groupEntitiesPerScanType(

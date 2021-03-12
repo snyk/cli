@@ -62,11 +62,14 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
     // Assert
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [
@@ -136,7 +139,10 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     const expectedManifest =
@@ -145,8 +151,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toEqual(expectedManifest);
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [],
@@ -224,7 +230,10 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     const expectedManifest =
@@ -233,8 +242,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toEqual(expectedManifest);
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [],
@@ -312,7 +321,10 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     const expectedManifest =
@@ -322,8 +334,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toEqual(expectedManifest);
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [],
@@ -396,7 +408,10 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     const expectedManifest = 'django==2.0.1\n';
@@ -405,8 +420,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toEqual(expectedManifest);
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [],
@@ -476,7 +491,10 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     const expectedManifest = 'Django==2.0.1';
@@ -485,8 +503,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toEqual(expectedManifest);
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [],
@@ -555,7 +573,10 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     const expectedManifest = 'foo==55.66.7\n';
@@ -564,8 +585,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toEqual(expectedManifest);
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [],
@@ -639,7 +660,10 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     const expectedManifest = 'django>=2.0.1\nclick>7.1\n';
@@ -648,8 +672,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toEqual(expectedManifest);
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [],
@@ -721,14 +745,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     };
 
     // Act
-    const result = await snykFix.fix([entityToFix], { quiet: true });
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
 
     // Assert
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toMatchSnapshot();
     expect(result).toMatchObject({
-      exceptionsByScanType: {},
-      resultsByPlugin: {
+      exceptions: {},
+      results: {
         python: {
           failed: [],
           skipped: [],
