@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   win: circleci/windows@2.2.0
+  aws-cli: circleci/aws-cli@1.4.0
 
 defaults: &defaults
   parameters:
@@ -399,11 +400,7 @@ jobs:
           name: Should I release?
           command: ./release-scripts/should-i-release.sh
       - install_github_cli
-      - run:
-          name: Install AWS CLI
-          command: |
-            sudo apt-get install -y aws-cli
-            aws --version
+      - aws-cli/install
       - run:
           name: Install npm@7
           command: |
