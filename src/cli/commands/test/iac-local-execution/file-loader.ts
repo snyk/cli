@@ -13,13 +13,13 @@ export async function loadFiles(pathToScan: string): Promise<IacFileData[]> {
   let filePaths = [pathToScan];
 
   if (isLocalFolder(pathToScan)) {
-    filePaths = await getFilePathsFromDirectory(pathToScan);
+    filePaths = getFilePathsFromDirectory(pathToScan);
   }
 
   const filesToScan: IacFileData[] = [];
   for (const filePath of filePaths) {
     const fileData = await tryLoadFileData(filePath);
-    if (fileData) filesToScan.push(fileData!);
+    if (fileData) filesToScan.push(fileData);
   }
 
   if (filesToScan.length === 0) {

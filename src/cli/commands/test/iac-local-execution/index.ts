@@ -3,7 +3,12 @@ import { parseFiles } from './file-parser';
 import { scanFiles } from './file-scanner';
 import { formatScanResults } from './results-formatter';
 import { isLocalFolder } from '../../../../lib/detect';
-import { IacOptionFlags } from './types';
+import {
+  IacOptionFlags,
+  IacFileParsed,
+  IacFileParseFailure,
+  SafeAnalyticsOutput,
+} from './types';
 import { initLocalCache } from './local-cache';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
@@ -19,9 +24,26 @@ export async function test(pathToScan: string, options: IacOptionFlags) {
 
   if (isLocalFolder(pathToScan)) {
     // TODO: This mutation is here merely to support how the old/current directory scan printing works.
-    options.iacDirFiles = [...parsedFiles, ...failedFiles];
+    // NOTE: No file or parsed file data should leave this function.
+    options.iacDirFiles = [...parsedFiles, ...failedFiles].map(
+      removeFileContent,
+    );
   }
 
   // TODO: add support for proper typing of old TestResult interface.
   return formattedResults as any;
+}
+
+export function removeFileContent({
+  filePath,
+  fileType,
+  failureReason,
+  projectType,
+}: IacFileParsed | IacFileParseFailure): SafeAnalyticsOutput {
+  return {
+    filePath,
+    fileType,
+    failureReason,
+    projectType,
+  };
 }

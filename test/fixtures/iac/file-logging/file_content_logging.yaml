@@ -1,0 +1,13 @@
+# NOTE: Kubernetes file with no issues used to detect
+# if our analytics/logs contain file content.
+# PRIVATE_FILE_CONTENT_CHECK
+apiVersion: v1
+kind: Pod
+metadata:
+  name: example
+spec:
+  containers:
+    - name: example
+      image: example:latest
+      securityContext:
+        privileged: false
