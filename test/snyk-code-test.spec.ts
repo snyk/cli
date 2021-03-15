@@ -118,6 +118,30 @@ describe('Test snyk code', () => {
     }
   });
 
+  it('succeed testing with correct error messages - with sarif output', async () => {
+    const options: Options & TestOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      sarif: true,
+    };
+
+    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
+    isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+
+    try {
+      await ecosystems.testEcosystem('code', ['some/path'], options);
+    } catch (error) {
+      const errMessage = stripAscii(stripAnsi(error.message.trim()));
+      const expectedOutput = stripAscii(stripAnsi(sampleSarifResponse.trim()));
+
+      // exit code 1
+      expect(error.code).toBe('VULNS');
+      expect(errMessage).toBe(expectedOutput);
+    }
+  });
+
   it.each([
     [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
     [{ code: 500 }, failedCodeTestMessage],
