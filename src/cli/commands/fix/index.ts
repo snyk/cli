@@ -2,6 +2,8 @@ export = fix;
 
 import * as Debug from 'debug';
 import * as snykFix from '@snyk/fix';
+import * as pathLib from 'path';
+import * as ora from 'ora';
 
 import { MethodArgs } from '../../args';
 import * as snyk from '../../../lib';
@@ -14,17 +16,24 @@ import { validateCredentials } from '../test/validate-credentials';
 import { validateTestOptions } from '../test/validate-test-options';
 import { setDefaultTestOptions } from '../test/set-default-test-options';
 import { validateFixCommandIsSupported } from './validate-fix-command-is-supported';
+import { Options, TestOptions } from '../../../lib/types';
 
 const debug = Debug('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
 
+interface FixOptions {
+  dryRun?: boolean;
+  quiet?: boolean;
+}
 async function fix(...args: MethodArgs): Promise<string> {
-  const { options: rawOptions, paths } = await processCommandArgs(...args);
-  const options = setDefaultTestOptions(rawOptions);
+  const { options: rawOptions, paths } = await processCommandArgs<FixOptions>(
+    ...args,
+  );
+  const options = setDefaultTestOptions<FixOptions>(rawOptions);
+  debug(options);
   await validateFixCommandIsSupported(options);
   validateTestOptions(options);
   validateCredentials(options);
-
   const results: snykFix.EntityToFix[] = [];
   results.push(...(await runSnykTestLegacy(options, paths)));
 
@@ -32,8 +41,8 @@ async function fix(...args: MethodArgs): Promise<string> {
   debug(
     `Organization has ${snykFixFeatureFlag} feature flag enabled for experimental Snyk fix functionality`,
   );
-  const { fixSummary, meta } = await snykFix.fix(results);
-
+  const { dryRun, quiet } = options;
+  const { fixSummary, meta } = await snykFix.fix(results, { dryRun, quiet });
   if (meta.fixed === 0) {
     throw new Error(fixSummary);
   }
@@ -45,31 +54,57 @@ async function fix(...args: MethodArgs): Promise<string> {
  * we should be calling test via new Ecosystems instead
  */
 async function runSnykTestLegacy(
-  options,
-  paths,
+  options: Options & TestOptions & FixOptions,
+  paths: string[],
 ): Promise<snykFix.EntityToFix[]> {
   const results: snykFix.EntityToFix[] = [];
+  const stdOutSpinner = ora({
+    isSilent: options.quiet,
+    stream: process.stdout,
+  });
+  const stdErrSpinner = ora({
+    isSilent: options.quiet,
+    stream: process.stdout,
+  });
+  stdErrSpinner.start();
+  stdOutSpinner.start();
+
   for (const path of paths) {
-    // Create a copy of the options so a specific test can
-    // modify them i.e. add `options.file` etc. We'll need
-    // these options later.
-    const snykTestOptions = {
-      ...options,
-      path,
-      projectName: options['project-name'],
-    };
-
-    let testResults: TestResult | TestResult[];
-
+    let relativePath = path;
     try {
-      testResults = await snyk.test(path, snykTestOptions);
+      const { dir } = pathLib.parse(path);
+      relativePath = pathLib.relative(process.cwd(), dir);
+      stdOutSpinner.info(`Running \`snyk test\` for ${relativePath}`);
+      // Create a copy of the options so a specific test can
+      // modify them i.e. add `options.file` etc. We'll need
+      // these options later.
+      const snykTestOptions = {
+        ...options,
+        path,
+        projectName: options['project-name'],
+      };
+
+      const testResults: TestResult[] = [];
+
+      const testResultForPath: TestResult | TestResult[] = await snyk.test(
+        path,
+        { ...snykTestOptions, quiet: true },
+      );
+      testResults.push(
+        ...(Array.isArray(testResultForPath)
+          ? testResultForPath
+          : [testResultForPath]),
+      );
+      const newRes = convertLegacyTestResultToFixEntities(testResults, path);
+      results.push(...newRes);
     } catch (error) {
       const testError = formatTestError(error);
-      throw testError;
+      const userMessage = `Test for ${relativePath} failed with error: ${testError.message}.\nRun \`snyk test ${relativePath} -d\` for more information.`;
+      stdErrSpinner.fail(userMessage);
+      debug(userMessage);
     }
-    const resArray = Array.isArray(testResults) ? testResults : [testResults];
-    const newRes = convertLegacyTestResultToFixEntities(resArray, path);
-    results.push(...newRes);
   }
+  stdOutSpinner.stop();
+  stdErrSpinner.stop();
   return results;
 }
