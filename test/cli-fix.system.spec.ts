@@ -25,21 +25,6 @@ describe('snyk fix (system tests)', () => {
     'no-vulns',
   );
 
-  const pipRequirementsTxt = pathLib.join(
-    __dirname,
-    '/acceptance',
-    'workspaces',
-    'pip-app',
-  );
-
-  const pipCustomRequirementsTxt = pathLib.join(
-    __dirname,
-    '/acceptance',
-    'workspaces',
-    'pip-app-custom',
-    'base.txt',
-  );
-
   beforeAll(async () => {
     let key = await cli.config('get', 'api');
     oldkey = key;
@@ -161,8 +146,8 @@ describe('snyk fix (system tests)', () => {
   /* this command is different
    * it shows help text not an error when command is not supported
    */
-  it(
-    '`shows error when called with container (deprecated)`',
+  it.skip(
+    '`shows error when called with container`',
     (done) => {
       exec(
         `node ${main} container fix`,
@@ -235,51 +220,6 @@ describe('snyk fix (system tests)', () => {
           expect(stripAnsi(stdout)).toMatchSnapshot();
           expect(err.message).toMatch('Command failed');
           expect(err.code).toBe(2);
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
-  it(
-    '`shows expected response when Python project was skipped because of missing remediation data --file`',
-    (done) => {
-      exec(
-        `node ${main} fix --file=${pathLib.join(
-          pipRequirementsTxt,
-          'requirements.txt',
-        )}`,
-        {
-          env: {
-            PATH: process.env.PATH,
-            SNYK_TOKEN: apiKey,
-            SNYK_API,
-            SNYK_HOST,
-          },
-        },
-        (err, stdout) => {
-          expect(stripAnsi(stdout)).toMatchSnapshot();
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
-  it(
-    '`shows expected response when Python project was skipped because of missing remediation data --file and custom name`',
-    (done) => {
-      exec(
-        `node ${main} fix --file=${pipCustomRequirementsTxt} --package-manager=pip`,
-        {
-          env: {
-            PATH: process.env.PATH,
-            SNYK_TOKEN: apiKey,
-            SNYK_API,
-            SNYK_HOST,
-          },
-        },
-        (err, stdout) => {
-          expect(stripAnsi(stdout)).toMatchSnapshot();
           done();
         },
       );
