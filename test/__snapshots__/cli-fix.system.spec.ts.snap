@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snyk fix (system tests) \`shows expected response when Python project was skipped because of missing remediation data --all-projects\` 1`] = `
+"ℹ Running \`snyk test\` for test/acceptance/workspaces
+✖ Done
+✖ No successful fixes
+
+Unresolved items:
+
+  package.json
+  ✖ npm is not supported.
+
+Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed
+
+"
+`;
+
+exports[`snyk fix (system tests) \`shows expected response when nothing could be fixed + returns exit code 2\` 1`] = `
+"ℹ Running \`snyk test\` for test/acceptance/workspaces
+✖ Done
+✖ No successful fixes
+
+Unresolved items:
+
+  package.json
+  ✖ npm is not supported.
+
+Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed
+
+"
+`;
