@@ -6,7 +6,10 @@ export function formatUnresolved(
   entity: EntityToFix,
   userMessage: string,
 ): string {
-  return `${PADDING_SPACE}${entity.scanResult.identity.targetFile}\n${PADDING_SPACE}${chalk.red(
+  const name =
+    entity.scanResult.identity.targetFile ||
+    `${entity.scanResult.identity.type} project`;
+  return `${PADDING_SPACE}${name}\n${PADDING_SPACE}${chalk.red(
     '✖',
   )} ${chalk.red(userMessage)}`;
 }
