@@ -9,6 +9,7 @@ import {
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError } from '../../errors/failed-to-run-test-error';
+import { jsonStringifyLargeObject } from '../../json';
 
 const debug = debugLib('snyk-code-test');
 
@@ -30,6 +31,9 @@ export const codePlugin: EcosystemPlugin = {
         path,
         options,
       );
+      if (options.sarif || options.json) {
+        return { readableResult: jsonStringifyLargeObject(sarifTypedResult) };
+      }
       const meta = getMeta(options, path);
       const prefix = getPrefix(path);
       const readableResult = getCodeDisplayedOutput(
