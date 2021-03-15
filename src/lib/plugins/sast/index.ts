@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import * as debugLib from 'debug';
 import { getCodeAnalysisAndParseResults } from './analysis';
 import { validateCodeTest } from './validate';
 import {
@@ -7,6 +8,9 @@ import {
   getMeta,
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
+import { FailedToRunTestError } from '../../errors/failed-to-run-test-error';
+
+const debug = debugLib('snyk-code-test');
 
 export const codePlugin: EcosystemPlugin = {
   // We currently don't use scan/display. we will need to consolidate ecosystem plugins
@@ -42,15 +46,22 @@ export const codePlugin: EcosystemPlugin = {
       return { readableResult };
     } catch (error) {
       let err: Error;
-      if (error instanceof Error) {
+      if (isCodeClientError(error)) {
+        const isUnauthorized = isUnauthorizedError(error)
+          ? 'Unauthorized: '
+          : '';
+        err = new FailedToRunTestError(
+          `${isUnauthorized}Failed to run 'code test'`,
+          error.statusCode,
+        );
+      } else if (error instanceof Error) {
         err = error;
-      } else if (isCodeClientError(error)) {
-        err = new Error(chalk.bold.red(error.statusText));
-      } else if (error.code >= 400 && error.code < 500) {
-        err = new Error(error.message);
+      } else if (isUnauthorizedError(error)) {
+        err = new FailedToRunTestError(error.message, error.code);
       } else {
         err = new Error(error);
       }
+      debug(chalk.bold.red(error.statusText || error.message));
       throw err;
     }
   },
@@ -61,6 +72,13 @@ function isCodeClientError(error: object): boolean {
     error.hasOwnProperty('statusCode') &&
     error.hasOwnProperty('statusText') &&
     error.hasOwnProperty('apiName')
+  );
+}
+
+function isUnauthorizedError(error: any): boolean {
+  return (
+    (error.statusCode >= 400 && error.statusCode < 500) ||
+    (error.code >= 400 && error.code < 500)
   );
 }
 

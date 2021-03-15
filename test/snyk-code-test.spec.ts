@@ -8,14 +8,17 @@ const analyzeFoldersMock = analyzeFolders as jest.Mock;
 import { loadJson } from './utils';
 import * as featureFlags from '../src/lib/feature-flags';
 import { config as userConfig } from '../src/lib/user-config';
-import { getCodeAnalysisAndParseResults } from '../src/lib/plugins/sast/analysis';
+import * as analysis from '../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../src/lib/types';
 import * as ecosystems from '../src/lib/ecosystems';
+import { FailedToRunTestError } from '../src/lib/errors/failed-to-run-test-error';
+const { getCodeAnalysisAndParseResults } = analysis;
 const osName = require('os-name');
 
 describe('Test snyk code', () => {
   let apiUserConfig;
   let isFeatureFlagSupportedForOrgSpy;
+  const failedCodeTestMessage = "Failed to run 'code test'";
   const fakeApiKey = '123456789';
   const sampleSarifResponse = loadJson(
     __dirname + '/fixtures/sast/sample-sarif.json',
@@ -114,6 +117,33 @@ describe('Test snyk code', () => {
       expect(error).toEqual(expected);
     }
   });
+
+  it.each([
+    [{ code: 401 }, `Unauthorized: ${failedCodeTestMessage}`],
+    [{ code: 500 }, failedCodeTestMessage],
+  ])(
+    'given %p argument, we fail with error message %p',
+    async (errorCodeObj, expectedResult) => {
+      const codeClientError = {
+        statusCode: errorCodeObj.code,
+        statusText: 'Unauthorized action',
+        apiName: '/some-api',
+      };
+      jest
+        .spyOn(analysis, 'getCodeAnalysisAndParseResults')
+        .mockRejectedValue(codeClientError);
+      isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+
+      try {
+        await ecosystems.testEcosystem('code', ['.'], {
+          path: '',
+          code: true,
+        });
+      } catch (error) {
+        expect(error.message).toEqual(expectedResult);
+      }
+    },
+  );
 
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
