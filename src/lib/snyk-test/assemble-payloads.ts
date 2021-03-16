@@ -31,7 +31,9 @@ export async function assembleEcosystemPayloads(
       path.relative('..', '.') + ' project dir');
 
   spinner.clear<void>(spinnerLbl)();
-  await spinner(spinnerLbl);
+  if (!options.quiet) {
+    await spinner(spinnerLbl);
+  }
 
   try {
     const plugin = getPlugin(ecosystem);
