@@ -1,2 +1,5 @@
 test/fixtures/**/*
 packages/**/test/fixtures/**/*
+
+# Has empty lines for templating convenience
+.github/PULL_REQUEST_TEMPLATE.md
