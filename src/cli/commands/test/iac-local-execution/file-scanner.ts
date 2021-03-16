@@ -32,7 +32,15 @@ async function getPolicyEngine(engineType: EngineType): Promise<PolicyEngine> {
   return policyEngineCache[engineType]!;
 }
 
-const policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
+// used in tests only
+export function clearPolicyEngineCache() {
+  policyEngineCache = {
+    [EngineType.Kubernetes]: null,
+    [EngineType.Terraform]: null,
+  };
+}
+
+let policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
   [EngineType.Kubernetes]: null,
   [EngineType.Terraform]: null,
 };

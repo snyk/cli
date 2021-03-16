@@ -1,5 +1,5 @@
 const mockFs = require('mock-fs');
-import { loadFiles } from '../../src/cli/commands/test/iac-local-execution/file-loader';
+import { loadFiles } from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
 import {
   k8sFileStub,
   anotherK8sFileStub,
@@ -95,7 +95,7 @@ describe('loadFiles', () => {
             anotherTerraformFileStub.fileContent,
         });
 
-        const loadedFiles = await loadFiles('./');
+        const loadedFiles = await loadFiles('.');
         expect(loadedFiles).toEqual([
           k8sFileStub,
           anotherK8sFileStub,
