@@ -1,4 +1,4 @@
-import { parseFiles } from '../../src/cli/commands/test/iac-local-execution/file-parser';
+import { parseFiles } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
 import {
   expectedKubernetesParsingResult,
   expectedTerraformParsingResult,

@@ -9,6 +9,7 @@ module.exports = {
     '<rootDir>/test/*.spec.ts',
     '<rootDir>/test/iac-unit-tests/*.spec.ts',
     '<rootDir>/packages/**/test/**/*.spec.ts',
+    '<rootDir>/test/jest/unit/**/*.spec.ts',
   ],
   modulePathIgnorePatterns: [
     '<rootDir>/test/.*fixtures',
