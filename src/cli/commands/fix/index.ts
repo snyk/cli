@@ -2,7 +2,6 @@ export = fix;
 
 import * as Debug from 'debug';
 import * as snykFix from '@snyk/fix';
-import * as pathLib from 'path';
 import * as ora from 'ora';
 
 import { MethodArgs } from '../../args';
@@ -17,6 +16,7 @@ import { validateTestOptions } from '../test/validate-test-options';
 import { setDefaultTestOptions } from '../test/set-default-test-options';
 import { validateFixCommandIsSupported } from './validate-fix-command-is-supported';
 import { Options, TestOptions } from '../../../lib/types';
+import { getDisplayPath } from './get-display-path';
 
 const debug = Debug('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
@@ -70,11 +70,10 @@ async function runSnykTestLegacy(
   stdOutSpinner.start();
 
   for (const path of paths) {
-    let relativePath = path;
+    let displayPath = path;
     try {
-      const { dir } = pathLib.parse(path);
-      relativePath = pathLib.relative(process.cwd(), dir);
-      stdOutSpinner.info(`Running \`snyk test\` for ${relativePath}`);
+      displayPath = getDisplayPath(path);
+      stdOutSpinner.info(`Running \`snyk test\` for ${displayPath}`);
       // Create a copy of the options so a specific test can
       // modify them i.e. add `options.file` etc. We'll need
       // these options later.
@@ -99,7 +98,7 @@ async function runSnykTestLegacy(
       results.push(...newRes);
     } catch (error) {
       const testError = formatTestError(error);
-      const userMessage = `Test for ${relativePath} failed with error: ${testError.message}.\nRun \`snyk test ${relativePath} -d\` for more information.`;
+      const userMessage = `Test for ${displayPath} failed with error: ${testError.message}.\nRun \`snyk test ${displayPath} -d\` for more information.`;
       stdErrSpinner.fail(userMessage);
       debug(userMessage);
     }

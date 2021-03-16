@@ -85,7 +85,7 @@ export async function getDepsFromPlugin(
       root,
     );
 
-    if (!options.json && userWarningMessage) {
+    if (!options.json && !options.quiet && userWarningMessage) {
       console.warn(chalk.bold.red(userWarningMessage));
     }
     return inspectRes;
