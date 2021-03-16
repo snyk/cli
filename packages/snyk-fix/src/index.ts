@@ -10,6 +10,7 @@ import { FixHandlerResultByPlugin } from './plugins/types';
 
 import { EntityToFix, ErrorsByEcoSystem, FixOptions } from './types';
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
+export { EntityToFix } from './types';
 
 const debug = debugLib('snyk-fix:main');
 
@@ -61,8 +62,10 @@ export async function fix(
   const fixed = outputFormatter.calculateFixed(resultsByPlugin);
 
   spinner.start();
-  spinner.stopAndPersist({ text: 'Done', symbol: chalk.green('✔') });
-  spinner.stopAndPersist({ text: `\n${fixSummary}` });
+  spinner.stopAndPersist({
+    text: 'Done',
+    symbol: fixed === 0 ? chalk.red('✖') : chalk.green('✔') ,
+  });
   return {
     results: resultsByPlugin,
     exceptions: exceptionsByScanType,
