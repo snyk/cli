@@ -80,6 +80,7 @@ export interface Options {
   debug?: boolean;
   sarif?: boolean;
   'group-issues'?: boolean;
+  quiet?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny

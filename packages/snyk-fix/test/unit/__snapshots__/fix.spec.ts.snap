@@ -165,7 +165,7 @@ Object {
   "fixSummary": "Successful fixes:
 
   requirements.txt
-  ✔ Pinned django from 1.6.1 to 2.0.1
+  ✔ Upgraded django from 1.6.1 to 2.0.1
 
 Unresolved items:
 

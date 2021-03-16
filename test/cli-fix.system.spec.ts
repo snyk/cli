@@ -217,30 +217,9 @@ describe('snyk fix (system tests)', () => {
             throw new Error('Test expected to return an error');
           }
           expect(stderr).toBe('');
-          expect(stripAnsi(stdout)).toMatchSnapshot();
+          expect(stripAnsi(stdout)).toMatch('No successful fixes');
           expect(err.message).toMatch('Command failed');
           expect(err.code).toBe(2);
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
-  it(
-    '`shows expected response when Python project was skipped because of missing remediation data --all-projects`',
-    (done) => {
-      exec(
-        `node ${main} fix ${noVulnsProjectPath}`,
-        {
-          env: {
-            PATH: process.env.PATH,
-            SNYK_TOKEN: apiKey,
-            SNYK_API,
-            SNYK_HOST,
-          },
-        },
-        (err, stdout) => {
-          expect(stripAnsi(stdout)).toMatchSnapshot();
           done();
         },
       );

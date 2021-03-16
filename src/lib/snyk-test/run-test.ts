@@ -240,7 +240,9 @@ async function sendAndParseResults(
     const iacResults: Promise<TestResult>[] = [];
 
     await spinner.clear<void>(spinnerLbl)();
-    await spinner(spinnerLbl);
+    if (!options.quiet) {
+      await spinner(spinnerLbl);
+    }
     for (const payload of payloads) {
       iacResults.push(
         queue.add(async () => {
@@ -266,7 +268,9 @@ async function sendAndParseResults(
   const results: TestResult[] = [];
   for (const payload of payloads) {
     await spinner.clear<void>(spinnerLbl)();
-    await spinner(spinnerLbl);
+    if (!options.quiet) {
+      await spinner(spinnerLbl);
+    }
     /** sendTestPayload() deletes the request.body from the payload once completed. */
     const payloadCopy = Object.assign({}, payload);
     const res = await sendTestPayload(payload);
@@ -556,7 +560,9 @@ async function assembleLocalPayloads(
   try {
     const payloads: Payload[] = [];
     await spinner.clear<void>(spinnerLbl)();
-    await spinner(spinnerLbl);
+    if (!options.quiet) {
+      await spinner(spinnerLbl);
+    }
     if (options.iac) {
       return assembleIacLocalPayloads(root, options);
     }
@@ -564,7 +570,7 @@ async function assembleLocalPayloads(
     const failedResults = (deps as MultiProjectResultCustom).failedResults;
     if (failedResults?.length) {
       await spinner.clear<void>(spinnerLbl)();
-      if (!options.json) {
+      if (!options.json && !options.quiet) {
         console.warn(
           chalk.bold.red(
             `✗ ${failedResults.length}/${failedResults.length +
