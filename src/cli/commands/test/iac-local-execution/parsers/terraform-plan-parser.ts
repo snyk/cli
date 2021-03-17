@@ -38,8 +38,11 @@ function extractChildModulesResources(
 ): Array<TerraformPlanResource> {
   const childModules =
     terraformPlanJson?.planned_values?.root_module?.child_modules || [];
-  const extractedChildModuleResources = childModules.flatMap(
-    (childModule) => childModule.resources,
+  const extractedChildModuleResources: Array<TerraformPlanResource> = [];
+  childModules.forEach((childModule) =>
+    childModule.resources.forEach((resource) =>
+      extractedChildModuleResources.push(resource),
+    ),
   );
   return extractedChildModuleResources;
 }
