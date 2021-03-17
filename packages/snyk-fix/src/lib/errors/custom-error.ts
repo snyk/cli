@@ -14,4 +14,5 @@ export enum ERROR_CODES {
   UnsupportedTypeError = 'G10',
   MissingRemediationData = 'G11',
   MissingFileName = 'G12',
+  FailedToParseManifest = 'G13',
 }

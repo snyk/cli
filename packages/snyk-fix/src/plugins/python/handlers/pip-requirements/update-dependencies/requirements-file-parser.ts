@@ -34,7 +34,7 @@ export function parseRequirementsFile(requirementsFile: string): Requirement[] {
 function extractDependencyDataFromLine(
   requirementText: string,
   line: number,
-): Requirement | false {
+): Requirement | void {
   try {
     const requirement: Requirement = { originalText: requirementText, line };
     const trimmedText = requirementText.trim();

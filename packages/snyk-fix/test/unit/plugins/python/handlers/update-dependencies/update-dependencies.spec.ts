@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import * as path from 'path';
-import { updateDependencies } from '../../../../../../src/plugins/python/handlers/update-dependencies';
+import { updateDependencies } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies';
 
 describe('remediation', () => {
   it('does not add extra new lines', () => {
@@ -273,9 +273,7 @@ describe('remediation', () => {
     );
     expect(result.updatedManifest).toMatchSnapshot();
   });
-
-  // TODO: this assertion is not working as expected
-  it.skip('handles no-op upgrades', () => {
+  it('handles no-op upgrades', () => {
     const upgrades = {};
 
     const manifestContents = readFileSync(
@@ -288,8 +286,10 @@ describe('remediation', () => {
       ),
       'utf8',
     );
-    expect(
-      updateDependencies(manifestContents, upgrades),
-    ).toThrowErrorMatchingInlineSnapshot('err');
+    try {
+      updateDependencies(manifestContents, upgrades);
+    } catch (e) {
+      expect(e.message).toEqual('No fixes could be applied. Please contact support@snyk.io');
+    }
   });
 });

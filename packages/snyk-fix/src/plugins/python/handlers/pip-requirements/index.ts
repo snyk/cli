@@ -1,11 +1,15 @@
 import * as debugLib from 'debug';
 import * as chalk from 'chalk';
 
-import { EntityToFix, FixOptions, WithFixChangesApplied } from '../../../types';
-import { PluginFixResponse } from '../../types';
+import {
+  EntityToFix,
+  FixOptions,
+  WithFixChangesApplied,
+} from '../../../../types';
+import { PluginFixResponse } from '../../../types';
 import { updateDependencies } from './update-dependencies';
-import { MissingRemediationDataError } from '../../../lib/errors/missing-remediation-data';
-import { MissingFileNameError } from '../../../lib/errors/missing-file-name';
+import { MissingRemediationDataError } from '../../../../lib/errors/missing-remediation-data';
+import { MissingFileNameError } from '../../../../lib/errors/missing-file-name';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -130,7 +134,10 @@ export async function fixIndividualRequirementsTxt(
     remediationData.pin,
   );
   if (!options.dryRun) {
+    debug('Writing changes to file');
     await entity.workspace.writeFile(fileName, updatedManifest);
+  } else {
+    debug('Skipping writing changes to file in --dry-run mode');
   }
 
   return {
