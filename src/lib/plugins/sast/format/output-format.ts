@@ -91,7 +91,8 @@ function getIssues(
         if (!(ruleId in rulesMap)) {
           debug('Rule ID does not exist in the rules list');
         }
-        const ruleName = rulesMap[ruleId].name;
+        const ruleName =
+          rulesMap[ruleId].shortDescription?.text || rulesMap[ruleId].name;
         const ruleIdSeverityText = getLegacySeveritiesColour(
           severity.toLowerCase(),
         ).colorFunc(` ✗ [${severity}] ${ruleName}`);
