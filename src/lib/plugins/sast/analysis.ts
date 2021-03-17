@@ -78,8 +78,8 @@ function getSecurityRulesMap(
 ): { [ruleId: string]: ReportingDescriptor[] } {
   const securityRulesMap = rules.reduce((acc, rule) => {
     const { id: ruleId, properties } = rule;
-    const isSecurityRule = properties?.tags?.some(
-      (tag) => tag.toLowerCase() === 'security',
+    const isSecurityRule = properties?.categories?.some(
+      (category) => category.toLowerCase() === 'security',
     );
     if (isSecurityRule) {
       acc[ruleId] = rule;

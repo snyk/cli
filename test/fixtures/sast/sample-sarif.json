@@ -27,9 +27,9 @@
                   "javascript",
                   "maintenance",
                   "http",
-                  "server",
-                  "Security"
+                  "server"
                 ],
+                "categories":["Security"],
                 "precision": "very-high",
                 "cwe": [
                   "CWE-319"
@@ -55,9 +55,9 @@
                   "maintenance",
                   "express",
                   "server",
-                  "helmet",
-                  "Security"
+                  "helmet"
                 ],
+                "categories":["Security"],
                 "precision": "very-high",
                 "cwe": [
                   "CWE-200"
@@ -83,9 +83,9 @@
                   "maintenance",
                   "tests",
                   "adapter",
-                  "database",
-                  "Security"
+                  "database"
                 ],
+                "categories":["Security"],
                 "precision": "very-high",
                 "cwe": [
                   "CWE-89"
@@ -110,9 +110,9 @@
                   "javascript",
                   "maintenance",
                   "file",
-                  "server",
-                  "Security"
+                  "server"
                 ],
+                "categories":["Security"],
                 "precision": "very-high",
                 "cwe": [
                   "CWE-770"
@@ -139,9 +139,9 @@
                   "usability",
                   "knot",
                   "tests",
-                  "tap",
-                  "Security"
+                  "tap"
                 ],
+                "categories":["Security"],
                 "precision": "very-high",
                 "cwe": [
                   "CWE-78"
@@ -167,9 +167,9 @@
                   "maintenance",
                   "server",
                   "API",
-                  "tests",
-                  "Security"
+                  "tests"
                 ],
+                "categories":["Security"],
                 "precision": "very-high",
                 "cwe": [
                   "CWE-79"

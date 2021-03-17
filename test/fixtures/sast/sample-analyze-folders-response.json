@@ -2928,9 +2928,9 @@
                     "javascript",
                     "maintenance",
                     "http",
-                    "server",
-                    "Security"
+                    "server"
                   ],
+                  "categories":["Security"],
                   "precision": "very-high",
                   "cwe": [
                     "CWE-319"
@@ -2956,9 +2956,9 @@
                     "maintenance",
                     "express",
                     "server",
-                    "helmet",
-                    "Security"
+                    "helmet"
                   ],
+                  "categories":["Security"],
                   "precision": "very-high",
                   "cwe": [
                     "CWE-200"
@@ -2980,9 +2980,9 @@
                 },
                 "properties": {
                   "tags": [
-                    "javascript",
-                    "Check"
+                    "javascript"
                   ],
+                  "categories":["Check"],
                   "precision": "very-high"
                 }
               },
@@ -3005,9 +3005,9 @@
                     "maintenance",
                     "tests",
                     "adapter",
-                    "database",
-                    "Security"
+                    "database"
                   ],
+                  "categories":["Security"],
                   "precision": "very-high",
                   "cwe": [
                     "CWE-89"
@@ -3035,9 +3035,9 @@
                     "bug",
                     "newline",
                     "favicon",
-                    "auth",
-                    "Defect"
+                    "auth"
                   ],
+                  "categories":["Defect"],
                   "precision": "very-high"
                 }
               },
@@ -3059,9 +3059,9 @@
                     "javascript",
                     "maintenance",
                     "file",
-                    "server",
-                    "Security"
+                    "server"
                   ],
+                  "categories":["Security"],
                   "precision": "very-high",
                   "cwe": [
                     "CWE-770"
@@ -3086,9 +3086,9 @@
                     "javascript",
                     "maintenance",
                     "file",
-                    "server",
-                    "Security"
+                    "server"
                   ],
+                  "categories":["Security"],
                   "precision": "very-high",
                   "cwe": [
                     "CWE-770"
@@ -3115,9 +3115,9 @@
                     "usability",
                     "knot",
                     "tests",
-                    "tap",
-                    "Security"
+                    "tap"
                   ],
+                  "categories":["Security"],
                   "precision": "very-high",
                   "cwe": [
                     "CWE-78"
@@ -3143,9 +3143,9 @@
                     "maintenance",
                     "server",
                     "API",
-                    "tests",
-                    "Security"
+                    "tests"
                   ],
+                  "categories":["Security"],
                   "precision": "very-high",
                   "cwe": [
                     "CWE-79"
@@ -3171,9 +3171,9 @@
                     "maintenance",
                     "bug",
                     "tests",
-                    "support",
-                    "Defect"
+                    "support"
                   ],
+                  "categories":["Defect"],
                   "precision": "very-high"
                 }
               },
@@ -3197,9 +3197,9 @@
                     "bug",
                     "header",
                     "contentlength",
-                    "stream",
-                    "Defect"
+                    "stream"
                   ],
+                  "categories":["Defect"],
                   "precision": "very-high"
                 }
               }
