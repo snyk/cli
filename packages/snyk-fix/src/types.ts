@@ -176,11 +176,12 @@ export enum SEVERITY {
 
 export type SupportedScanTypes = 'pip';
 
+export interface Workspace {
+  readFile: (path: string) => Promise<string>;
+  writeFile: (path: string, content: string) => Promise<void>;
+}
 export interface EntityToFix {
-  readonly workspace: {
-    readFile: (path: string) => Promise<string>;
-    writeFile: (path: string, content: string) => Promise<void>;
-  };
+  readonly workspace: Workspace;
   readonly scanResult: ScanResult;
   readonly testResult: TestResult;
   // options
