@@ -40,6 +40,7 @@
     "test:acceptance-windows": "tap test/acceptance/**/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test:system": "tap test/system/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test:jest": "jest --runInBand \"\/test\/[^/]+\\.spec\\.ts\"",
+    "test:jest-unit": "jest --runInBand \"\/test\/jest\/unit\/((.+)\/)*[^/]+\\.spec\\.ts\"",
     "test:packages-unit": "jest \"\/packages\/(.+)\/test\/unit\/((.+)\/)*[^/]+\\.spec\\.ts\"",
     "test:packages-acceptance": "jest \"\/packages\/(.+)\/test\/acceptance\/((.+)\/)*[^/]+\\.spec\\.ts\"",
     "test:test": "tap test/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",

@@ -2,8 +2,8 @@ import {
   EngineType,
   IacFileParsed,
   PolicyMetadata,
-} from '../../src/cli/commands/test/iac-local-execution/types';
-import { SEVERITY } from '../../src/lib/snyk-test/common';
+} from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { SEVERITY } from '../../../../src/lib/snyk-test/common';
 
 export const expectedViolatedPoliciesForK8s: Array<PolicyMetadata> = [
   {

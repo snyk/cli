@@ -164,7 +164,7 @@ describe('test --json-file-output ', () => {
   );
 
   if (isWindows) {
-    test(
+    test.skip(
       '`test --json-file-output can handle an absolute path`',
       () => {
         // if 'test-output' doesn't exist, created it

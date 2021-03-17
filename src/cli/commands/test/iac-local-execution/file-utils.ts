@@ -21,6 +21,7 @@ export function createIacDir(): void {
 export function extractBundle(response): Promise<void> {
   return new Promise((resolve, reject) => {
     response
+      .on('error', reject)
       .pipe(
         tar.x({
           C: path.join('.iac-data'),

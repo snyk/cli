@@ -269,8 +269,11 @@ jobs:
           condition: << parameters.jest_tests >>
           steps:
             - run:
-                name: Run Jest tests
+                name: Run Jest tests in root (to remove)
                 command: npm run test:jest
+            - run:
+                name: Run Jest Unit Tests
+                command: npm run test:jest-unit
       - when:
           condition: << parameters.acceptance_tests >>
           steps:
@@ -335,8 +338,11 @@ jobs:
           condition: << parameters.jest_tests >>
           steps:
             - run:
-                name: Run Jest tests
+                name: Run Jest tests in root (to remove)
                 command: npm run test:jest
+            - run:
+                name: Run Jest Unit Tests
+                command: npm run test:jest-unit
       - when:
           condition: << parameters.acceptance_tests >>
           steps:

@@ -1,7 +1,10 @@
 const mockFs = require('mock-fs');
 import * as path from 'path';
-import { scanFiles } from '../../src/cli/commands/test/iac-local-execution/file-scanner';
-import { IacFileParsed } from '../../src/cli/commands/test/iac-local-execution/types';
+import {
+  scanFiles,
+  clearPolicyEngineCache,
+} from '../../../../src/cli/commands/test/iac-local-execution/file-scanner';
+import { IacFileParsed } from '../../../../src/cli/commands/test/iac-local-execution/types';
 
 import {
   paresdKubernetesFileStub,
@@ -16,18 +19,19 @@ describe('scanFiles', () => {
     parsedTerraformFileStub,
   ];
 
-  beforeAll(() => {
-    mockFs({
-      [path.resolve(__dirname, '../../.iac-data')]: mockFs.load(
-        path.resolve(__dirname, '../smoke/.iac-data'),
-      ),
-    });
+  afterEach(() => {
+    mockFs.restore();
+    clearPolicyEngineCache();
   });
-
-  afterAll(mockFs.restore);
 
   describe('with parsed files', () => {
     it('returns the expected viloated policies', async () => {
+      mockFs({
+        [path.resolve(__dirname, '../../../../.iac-data')]: mockFs.load(
+          path.resolve(__dirname, '../../../smoke/.iac-data'),
+        ),
+      });
+
       const scanResults = await scanFiles(parsedFiles);
       expect(scanResults[0].violatedPolicies).toEqual(
         expectedViolatedPoliciesForK8s,
@@ -43,7 +47,7 @@ describe('scanFiles', () => {
   describe('missing policy engine wasm files', () => {
     it('throws an error', async () => {
       mockFs({
-        [path.resolve(__dirname, '../../.iac-data')]: {},
+        [path.resolve(__dirname, '../../../../.iac-data')]: {},
       });
 
       await expect(scanFiles(parsedFiles)).rejects.toThrow();

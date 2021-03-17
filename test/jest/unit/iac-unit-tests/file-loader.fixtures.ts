@@ -1,10 +1,10 @@
 import * as path from 'path';
 
 const fileContent = 'dont-care';
-const mixedDirectory = path.join(__dirname, '/mixed');
+const mixedDirectory = path.join(__dirname, 'mixed');
 
-export const k8sDirectory = path.join(__dirname, '/kubernetes/files');
-export const emptyDirectory = path.join(__dirname, '/empty-dir');
+export const k8sDirectory = path.join(__dirname, 'kubernetes', 'files');
+export const emptyDirectory = path.join(__dirname, 'empty-dir');
 export const k8sFileStub = {
   fileContent,
   filePath: path.join(k8sDirectory, 'k8s.yaml'),
@@ -16,7 +16,7 @@ export const anotherK8sFileStub = {
   filePath: path.join(k8sDirectory, 'pod.yaml'),
 };
 
-export const terraformDirectory = path.join(__dirname, '/terraform/files');
+export const terraformDirectory = path.join(__dirname, 'terraform', 'files');
 
 export const terraformFileStub = {
   fileContent,

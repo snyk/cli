@@ -1,12 +1,10 @@
 import { makeDirectoryIterator } from '../../../../lib/iac/makeDirectoryIterator';
-import * as fs from 'fs';
-import * as util from 'util';
+import { promises as fs } from 'fs';
 import { IacFileData, VALID_FILE_TYPES } from './types';
 import { getFileType } from '../../../../lib/iac/iac-parser';
 import { IacFileTypes } from '../../../../lib/iac/constants';
 import { isLocalFolder } from '../../../../lib/detect';
 
-const loadFileContents = util.promisify(fs.readFile);
 const DEFAULT_ENCODING = 'utf-8';
 
 export async function loadFiles(pathToScan: string): Promise<IacFileData[]> {
@@ -47,9 +45,13 @@ async function tryLoadFileData(
     return null;
   }
 
+  const fileContent = (
+    await fs.readFile(pathToScan, DEFAULT_ENCODING)
+  ).toString();
+
   return {
     filePath: pathToScan,
     fileType: fileType as IacFileTypes,
-    fileContent: await loadFileContents(pathToScan, DEFAULT_ENCODING),
+    fileContent,
   };
 }

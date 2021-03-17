@@ -2,7 +2,7 @@ import {
   EngineType,
   IacFileData,
   IacFileParsed,
-} from '../../src/cli/commands/test/iac-local-execution/types';
+} from '../../../../src/cli/commands/test/iac-local-execution/types';
 
 const kubernetesFileContent = `
 apiVersion: v1
