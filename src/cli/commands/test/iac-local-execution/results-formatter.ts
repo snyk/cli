@@ -15,18 +15,13 @@ import { IacProjectType } from '../../../../lib/iac/constants';
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
 export function formatScanResults(
-  iacLocalExecutionResults: Array<IacFileScanResult>,
+  scanResults: Array<IacFileScanResult>,
   options: IacOptionFlags,
 ): FormattedResult[] {
-  const iacLocalExecutionGroupedResults = groupMultiDocResults(
-    iacLocalExecutionResults,
-  );
-  const formattedResults = iacLocalExecutionGroupedResults.map(
-    (iacScanResult) =>
-      iacLocalFileScanToFormattedResult(
-        iacScanResult,
-        options.severityThreshold,
-      ),
+  // Relevant only for multi-doc yaml files
+  const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);
+  const formattedResults = scannedResultsGroupedByDocId.map((iacScanResult) =>
+    formatScanResult(iacScanResult, options.severityThreshold),
   );
 
   return formattedResults;
@@ -52,16 +47,16 @@ const engineTypeToProjectType = {
   [EngineType.Terraform]: IacProjectType.TERRAFORM,
 };
 
-function iacLocalFileScanToFormattedResult(
-  iacFileScanResult: IacFileScanResult,
+function formatScanResult(
+  scanResult: IacFileScanResult,
   severityThreshold?: SEVERITY,
 ): FormattedResult {
-  const formattedIssues = iacFileScanResult.violatedPolicies.map((policy) => {
+  const formattedIssues = scanResult.violatedPolicies.map((policy) => {
     // TODO: make sure we handle this issue with annotations:
     // https://github.com/snyk/registry/pull/17277
     const cloudConfigPath =
-      iacFileScanResult.docId !== undefined
-        ? [`[DocId:${iacFileScanResult.docId}]`].concat(policy.msg.split('.'))
+      scanResult.docId !== undefined
+        ? [`[DocId:${scanResult.docId}]`].concat(policy.msg.split('.'))
         : policy.msg.split('.');
     const lineNumber = -1;
     // TODO: once package becomes public, restore the commented out code for having the issue-to-line-number functionality
@@ -78,7 +73,6 @@ function iacLocalFileScanToFormattedResult(
     return {
       ...policy,
       id: policy.publicId,
-      from: [],
       name: policy.title,
       cloudConfigPath,
       isIgnored: false,
@@ -99,8 +93,8 @@ function iacLocalFileScanToFormattedResult(
       ),
     },
     isPrivate: true,
-    packageManager: engineTypeToProjectType[iacFileScanResult.engineType],
-    targetFile: iacFileScanResult.filePath,
+    packageManager: engineTypeToProjectType[scanResult.engineType],
+    targetFile: scanResult.filePath,
   };
 }
 
