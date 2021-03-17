@@ -274,6 +274,12 @@ jobs:
             - run:
                 name: Run Jest Unit Tests
                 command: npm run test:jest-unit
+            - run:
+                name: Run Jest System Tests
+                command: npm run test:jest-system
+            - run:
+                name: Run Jest Acceptance Tests
+                command: npm run test:jest-acceptance
       - when:
           condition: << parameters.acceptance_tests >>
           steps:
@@ -343,6 +349,12 @@ jobs:
             - run:
                 name: Run Jest Unit Tests
                 command: npm run test:jest-unit
+            - run:
+                name: Run Jest System Tests
+                command: npm run test:jest-system
+            - run:
+                name: Run Jest Acceptance Tests
+                command: npm run test:jest-acceptance
       - when:
           condition: << parameters.acceptance_tests >>
           steps:
