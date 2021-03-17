@@ -171,7 +171,7 @@ describe('Test snyk code', () => {
 
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
-    const sessionToken = fakeApiKey;
+    const sessionToken = expect.any(String);
     const severity = AnalysisSeverity.info;
     const paths: string[] = ['.'];
     const sarif = true;
