@@ -6,7 +6,7 @@ describe('Snyk fix', () => {
     const projectTestResult = generateEntityToFix(
       'pip',
       'requirements.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const writeFileSpy = jest.spyOn(projectTestResult.workspace, 'writeFile');
 
@@ -27,7 +27,7 @@ describe('Snyk fix', () => {
     const projectTestResult = generateEntityToFix(
       'pip',
       'requirements.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const writeFileSpy = jest.spyOn(projectTestResult.workspace, 'writeFile');
     // Act
@@ -45,12 +45,12 @@ describe('Snyk fix', () => {
     const projectTestResult = generateEntityToFix(
       'pip',
       'requirements.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const pipfileProjectTestResult = generateEntityToFix(
       'pip',
       'Pipfile',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
 
     // Act
@@ -68,17 +68,17 @@ describe('Snyk fix', () => {
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const txtDevProjectTestResult = generateEntityToFix(
       'pip',
       'dev.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const pipfileProjectTestResult = generateEntityToFix(
       'pip',
       'Pipfile',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
 
     // Act
@@ -117,12 +117,12 @@ describe('Snyk fix', () => {
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const txtDevProjectTestResult = generateEntityToFix(
       'pip',
       'dev.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     jest
       .spyOn(txtDevProjectTestResult.workspace, 'readFile')
@@ -132,7 +132,7 @@ describe('Snyk fix', () => {
     const pipfileProjectTestResult = generateEntityToFix(
       'pip',
       'Pipfile',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
 
     // Act
@@ -177,7 +177,7 @@ describe('Snyk fix', () => {
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     // @ts-ignore: The operand of a 'delete' operator must be optional
     delete txtProdProjectTestResult.testResult.remediation;
@@ -210,17 +210,17 @@ describe('groupEntitiesPerScanType', () => {
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const txtDevProjectTestResult = generateEntityToFix(
       'pip',
       'dev.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const pipfileProjectTestResult = generateEntityToFix(
       'pip',
       'Pipfile',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
 
     // Act
@@ -239,17 +239,17 @@ describe('groupEntitiesPerScanType', () => {
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const txtDevProjectTestResult = generateEntityToFix(
       'pip',
       'dev.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const npmProjectTestResult = generateEntityToFix(
       'npm',
       'package.json',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
 
     // Act
@@ -270,17 +270,17 @@ describe('groupEntitiesPerScanType', () => {
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
       'prod.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const txtDevProjectTestResult = generateEntityToFix(
       'pip',
       'dev.txt',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     const missingProjectTestResult = generateEntityToFix(
       'npm',
       'package.json',
-      JSON.stringify({}),
+      'django===1.6.1',
     );
     // @ts-ignore: The operand of a 'delete' operator must be optional
     delete missingProjectTestResult.scanResult.identity.type;
@@ -306,6 +306,22 @@ describe('Error handling', () => {
       'npm',
       'package.json',
       JSON.stringify({}),
+    );
+    // Act
+    const res = await snykFix.fix([projectTestResult], {
+      quiet: true,
+      stripAnsi: true,
+    });
+    // Assert
+    expect(res).toMatchSnapshot();
+  });
+
+  it('Snyk fix returns error when manifest can not be parsed', async () => {
+    // Arrange
+    const projectTestResult = generateEntityToFix(
+      'pip',
+      'requirements.txt',
+      'django@===1.6.1', // invalid requirements
     );
     // Act
     const res = await snykFix.fix([projectTestResult], {
