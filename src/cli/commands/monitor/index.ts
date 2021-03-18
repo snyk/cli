@@ -253,7 +253,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   }
   // Part 2: process the output from the Registry
   if (options.json) {
-    return processJsonMonitorResponse(results);
+    return processJsonMonitorResponse(results, options);
   }
 
   const output = results
