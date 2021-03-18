@@ -34,7 +34,10 @@ export const GenericTests: AcceptanceTests = {
       t.end();
     },
 
-    'userMessage correctly bubbles with npm': (params, utils) => async (t) => {
+    'userMessage and error code correctly bubbles with npm': (
+      params,
+      utils,
+    ) => async (t) => {
       utils.chdirWorkspaces();
       try {
         await params.cli.test('npm-package', { org: 'missing-org' });
@@ -45,6 +48,29 @@ export const GenericTests: AcceptanceTests = {
           "Couldn't find the requested package",
           'got correct err message',
         );
+        t.equal(err.code, 404);
+      }
+      t.end();
+    },
+
+    'userMessage and error code correctly bubbles with npm and json output': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      try {
+        await params.cli.test('npm-package', {
+          org: 'missing-org',
+          json: true,
+        });
+        t.fail('expect to err');
+      } catch (err) {
+        t.has(
+          err.jsonStringifiedResults,
+          "Couldn't find the requested package",
+          'got correct err message',
+        );
+        t.equal(err.code, 404);
       }
       t.end();
     },

@@ -195,6 +195,14 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
       err.jsonNoVulns = dataToSendNoVulns;
     }
 
+    if (notSuccess) {
+      // Take the code of the first problem to go through error
+      // translation.
+      // Note: this is done based on the logic done below
+      // for non-json/sarif outputs, where we take the code of
+      // the first error.
+      err.code = errorResults[0].code;
+    }
     err.json = stringifiedData;
     err.jsonStringifiedResults = stringifiedJsonData;
     err.sarifStringifiedResults = stringifiedSarifData;
