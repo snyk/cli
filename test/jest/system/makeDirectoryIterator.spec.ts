@@ -1,8 +1,11 @@
-import { makeDirectoryIterator } from '../src/lib/iac/makeDirectoryIterator';
+import { makeDirectoryIterator } from '../../../src/lib/iac/makeDirectoryIterator';
 import * as path from 'path';
 
 describe('makeDirectoryIterator', () => {
-  const fixturePath = path.join(__dirname, 'fixtures/iac/depth_detection');
+  const fixturePath = path.join(
+    __dirname,
+    '../../fixtures/iac/depth_detection',
+  );
 
   it('iterates over all files in the directory tree', () => {
     const it = makeDirectoryIterator(fixturePath);

@@ -1,4 +1,4 @@
-const analytics = require('../src/lib/analytics');
+const analytics = require('../../../src/lib/analytics');
 
 const testTimeout = 50000;
 describe('Analytics basic testing', () => {

@@ -1,5 +1,5 @@
-import { createSarifOutputForOpenSource } from '../src/cli/commands/test/open-source-sarif-output';
-import { SEVERITY, TestResult } from '../src/lib/snyk-test/legacy';
+import { createSarifOutputForOpenSource } from '../../../src/cli/commands/test/open-source-sarif-output';
+import { SEVERITY, TestResult } from '../../../src/lib/snyk-test/legacy';
 
 describe('createSarifOutputForOpenSource', () => {
   it('general', () => {

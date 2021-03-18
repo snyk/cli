@@ -1,6 +1,6 @@
 import * as cppPlugin from 'snyk-cpp-plugin';
-import * as ecosystems from '../src/lib/ecosystems';
-import { Options } from '../src/lib/types';
+import * as ecosystems from '../../../src/lib/ecosystems';
+import { Options } from '../../../src/lib/types';
 
 describe('ecosystems', () => {
   describe('getPlugin', () => {

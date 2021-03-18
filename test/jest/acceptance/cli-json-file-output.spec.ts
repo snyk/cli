@@ -2,8 +2,8 @@ import { exec } from 'child_process';
 import { sep, join } from 'path';
 import { readFileSync, unlinkSync, rmdirSync, mkdirSync, existsSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import { fakeServer } from './acceptance/fake-server';
-import cli = require('../src/cli/commands');
+import { fakeServer } from '../../acceptance/fake-server';
+import cli = require('../../../src/cli/commands');
 
 const osName = require('os-name');
 
@@ -27,7 +27,7 @@ describe('test --json-file-output ', () => {
 
   const noVulnsProjectPath = join(
     __dirname,
-    '/acceptance',
+    '../../acceptance',
     'workspaces',
     'no-vulns',
   );

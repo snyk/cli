@@ -1,4 +1,4 @@
-import { jsonStringifyLargeObject } from '../src/lib/json';
+import { jsonStringifyLargeObject } from '../../../src/lib/json';
 
 describe('jsonStringifyLargeObject', () => {
   it('works normally with a small object', () => {

@@ -11,7 +11,7 @@ import {
   isHomebrew,
   validateHomebrew,
   validateScoopManifestFile,
-} from '../src/lib/analytics-sources';
+} from '../../../src/lib/analytics-sources';
 
 import * as fs from 'fs';
 
