@@ -147,7 +147,12 @@ test('runGitLog returns empty string and does not throw error when git log comma
   };
 
   try {
-    const gitLog = await runGitLog(123456789, '/some/fake/path', mockExecShell);
+    const gitLog = await runGitLog(
+      123456789,
+      123456989,
+      '/some/fake/path',
+      mockExecShell,
+    );
     t.equals(gitLog, '');
   } catch (e) {
     t.fail('should not throw');

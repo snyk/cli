@@ -12,6 +12,8 @@ import { Contributor } from '../types';
 
 export const SERIOUS_DELIMITER = '_SNYK_SEPARATOR_';
 export const CONTRIBUTING_DEVELOPER_PERIOD_DAYS = 90;
+// Limit the number of commits returned from `git log` command to stay within maxBuffer limit
+export const MAX_COMMITS_IN_GIT_LOG = 500;
 
 export async function getContributors(
   { endDate, periodDays, repoPath } = {
@@ -26,6 +28,7 @@ export async function getContributors(
   );
   const gitLogResults = await runGitLog(
     timestampStartOfContributingDeveloperPeriod,
+    Math.floor(endDate.getTime() / 1000),
     repoPath,
     execShell,
   );
@@ -163,11 +166,12 @@ export function getTimestampStartOfContributingDevTimeframe(
 
 export async function runGitLog(
   timestampEpochSecondsStartOfPeriod: number,
+  timestampEpochSecondsEndOfPeriod: number,
   repoPath: string,
   fnShellout: (cmd: string, workingDirectory: string) => Promise<string>,
 ): Promise<string> {
   try {
-    const gitLogCommand = `git --no-pager log --no-merges --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI" --after="${timestampEpochSecondsStartOfPeriod}"`;
+    const gitLogCommand = `git --no-pager log --no-merges --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI" --after="${timestampEpochSecondsStartOfPeriod}" --until="${timestampEpochSecondsEndOfPeriod}" --max-count=${MAX_COMMITS_IN_GIT_LOG}`;
     const gitLogStdout: string = await fnShellout(gitLogCommand, repoPath);
     return gitLogStdout;
   } catch {
