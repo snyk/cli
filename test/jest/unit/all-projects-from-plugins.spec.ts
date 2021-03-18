@@ -1,6 +1,6 @@
-import { Options } from '../src/lib/types';
+import { Options } from '../../../src/lib/types';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { getExtraProjectCount } from '../src/lib/plugins/get-extra-project-count';
+import { getExtraProjectCount } from '../../../src/lib/plugins/get-extra-project-count';
 
 describe('Detect extra projects available that could be tested using --all-projects', () => {
   it('should return `undefined` when exists a single project', async () => {

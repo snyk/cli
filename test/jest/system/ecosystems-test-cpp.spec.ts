@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import * as ecosystems from '../src/lib/ecosystems';
-import * as ecosystemsTypes from '../src/lib/ecosystems/types';
-import * as request from '../src/lib/request/promise';
+import * as ecosystems from '../../../src/lib/ecosystems';
+import * as ecosystemsTypes from '../../../src/lib/ecosystems/types';
+import * as request from '../../../src/lib/request/promise';
 
-import { TestCommandResult } from '../src/cli/commands/types';
+import { TestCommandResult } from '../../../src/cli/commands/types';
 const osName = require('os-name');
 
 const isWindows =
@@ -15,7 +15,7 @@ const isWindows =
 
 const testTimeout = 5000;
 describe('testEcosystem - cpp', () => {
-  const fixturePath = path.join(__dirname, 'fixtures', 'cpp-project');
+  const fixturePath = path.join(__dirname, '../../fixtures', 'cpp-project');
   const cwd = process.cwd();
 
   function readFixture(filename: string) {

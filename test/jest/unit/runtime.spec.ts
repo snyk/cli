@@ -1,4 +1,4 @@
-import * as runtime from '../src/cli/runtime';
+import * as runtime from '../../../src/cli/runtime';
 
 describe('verify supported nodejs runtime versions', () => {
   it('current runtime is supported', async () => {

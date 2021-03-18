@@ -1,8 +1,12 @@
 import {
   UnsupportedOptionCombinationError,
   CustomError,
-} from '../src/lib/errors';
-import { parseMode, modeValidation, displayModeHelp } from '../src/cli/modes';
+} from '../../../src/lib/errors';
+import {
+  parseMode,
+  modeValidation,
+  displayModeHelp,
+} from '../../../src/cli/modes';
 
 describe('display help message', () => {
   it('should do nothing when it is missing command', () => {

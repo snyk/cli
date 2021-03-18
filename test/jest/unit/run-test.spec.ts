@@ -1,7 +1,7 @@
-import { runTest } from '../src/lib/snyk-test/run-test';
-import * as optionsValidator from '../src/lib/options-validator';
-import { CustomError } from '../src/lib/errors/custom-error';
-import { Options, TestOptions } from '../src/lib/types';
+import { runTest } from '../../../src/lib/snyk-test/run-test';
+import * as optionsValidator from '../../../src/lib/options-validator';
+import { CustomError } from '../../../src/lib/errors/custom-error';
+import { Options, TestOptions } from '../../../src/lib/types';
 
 describe('CLI runTest - propagate correct user error', () => {
   it('returns userMessage for a default error code', async () => {

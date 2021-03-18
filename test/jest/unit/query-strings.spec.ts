@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import * as url from 'url';
-import { getQueryParamsAsString } from '../src/lib/query-strings';
+import { getQueryParamsAsString } from '../../../src/lib/query-strings';
 
 describe('Query strings', () => {
   it('returns a string', () => {

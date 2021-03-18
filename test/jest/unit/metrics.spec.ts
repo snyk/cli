@@ -11,7 +11,7 @@ import {
   TimerMetricInstance,
   SyntheticMetricInstance,
   MetricsCollector,
-} from '../src/lib/metrics';
+} from '../../../src/lib/metrics';
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

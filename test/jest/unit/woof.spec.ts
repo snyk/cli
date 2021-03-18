@@ -1,4 +1,4 @@
-import getWoof from '../src/cli/commands/woof/getWoof';
+import getWoof from '../../../src/cli/commands/woof/getWoof';
 
 describe('Woof command - Language option', () => {
   it('Default language is "en"', () => {

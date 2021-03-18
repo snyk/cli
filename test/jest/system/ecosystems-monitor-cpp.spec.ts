@@ -1,16 +1,16 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as config from '../src/lib/config';
-import * as request from '../src/lib/request/promise';
+import * as config from '../../../src/lib/config';
+import * as request from '../../../src/lib/request/promise';
 
-import { Options } from '../src/lib/types';
-import * as ecosystems from '../src/lib/ecosystems';
-import * as ecosystemsTypes from '../src/lib/ecosystems/types';
-import { getFormattedMonitorOutput } from '../src/lib/ecosystems/monitor';
-import { GoodResult, BadResult } from '../src/cli/commands/monitor/types';
+import { Options } from '../../../src/lib/types';
+import * as ecosystems from '../../../src/lib/ecosystems';
+import * as ecosystemsTypes from '../../../src/lib/ecosystems/types';
+import { getFormattedMonitorOutput } from '../../../src/lib/ecosystems/monitor';
+import { GoodResult, BadResult } from '../../../src/cli/commands/monitor/types';
 
 describe('monitorEcosystem cpp', () => {
-  const fixturePath = path.join(__dirname, 'fixtures', 'cpp-project');
+  const fixturePath = path.join(__dirname, '../../fixtures', 'cpp-project');
   const cwd = process.cwd();
 
   function readFixture(filename: string) {
