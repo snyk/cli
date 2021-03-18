@@ -313,6 +313,15 @@ function chooseBestManifest(
       );
       return defaultManifest.path;
     }
+    case 'hex': {
+      const defaultManifest = files.filter((path) =>
+        ['mix.exs'].includes(path.base),
+      )[0];
+      debug(
+        `Encountered multiple hex manifest files, defaulting to ${defaultManifest.path}`,
+      );
+      return defaultManifest.path;
+    }
     default: {
       return null;
     }
