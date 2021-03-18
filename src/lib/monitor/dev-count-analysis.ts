@@ -189,6 +189,7 @@ export function execShell(
 ): Promise<string> {
   const options = {
     cwd: workingDirectory,
+    maxBuffer: 1024 * 500,
   };
 
   return new Promise((resolve, reject) => {
