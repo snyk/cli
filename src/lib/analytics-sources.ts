@@ -47,6 +47,7 @@ enum TrackedIntegration {
   AZURE_PIPELINES = 'AZURE_PIPELINES',
   CIRCLECI_ORB = 'CIRCLECI_ORB',
   GITHUB_ACTIONS = 'GITHUB_ACTIONS',
+  MAVEN_PLUGIN = 'MAVEN_PLUGIN',
 
   // Partner integrations - tracked by passing envvar on CLI invocation
   DOCKER_DESKTOP = 'DOCKER_DESKTOP',
