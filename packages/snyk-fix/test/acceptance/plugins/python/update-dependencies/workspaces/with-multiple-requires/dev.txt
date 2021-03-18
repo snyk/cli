@@ -1,0 +1,4 @@
+-r reqs/base.txt
+-r base.txt
+-c reqs/constraints.txt
+Django==1.6.1
