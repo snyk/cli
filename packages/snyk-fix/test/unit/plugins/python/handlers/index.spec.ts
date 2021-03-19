@@ -2,7 +2,7 @@ import {
   getProjectType,
   isRequirementsTxtManifest,
 } from '../../../../../src/plugins/python';
-import { SUPPORTED_PROJECT_TYPES } from '../../../../../src/plugins/python/supported-project-types';
+import { SUPPORTED_HANDLER_TYPES } from '../../../../../src/plugins/python/supported-handler-types';
 import { generateEntityToFix } from '../../../../helpers/generate-entity-to-fix';
 
 describe('isRequirementsTxtManifest', () => {
@@ -25,7 +25,7 @@ describe('getProjectType', () => {
       'requirements.txt',
       '-c constraints.txt',
     );
-    expect(getProjectType(entity)).toBe(SUPPORTED_PROJECT_TYPES.REQUIREMENTS);
+    expect(getProjectType(entity)).toBe(SUPPORTED_HANDLER_TYPES.REQUIREMENTS);
   });
 
   it('pip + dev.txt is supported project type `requirements.txt`', () => {
@@ -34,7 +34,7 @@ describe('getProjectType', () => {
       'dev.txt',
       'django==1.6.1',
     );
-    expect(getProjectType(entity)).toBe(SUPPORTED_PROJECT_TYPES.REQUIREMENTS);
+    expect(getProjectType(entity)).toBe(SUPPORTED_HANDLER_TYPES.REQUIREMENTS);
   });
 
   it('pip + Pipfile is NOT supported so returns null', () => {

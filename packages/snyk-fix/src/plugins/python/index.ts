@@ -6,7 +6,7 @@ import * as ora from 'ora';
 import { EntityToFix, FixOptions } from '../../types';
 import { FixHandlerResultByPlugin } from '../types';
 import { loadHandler } from './load-handler';
-import { SUPPORTED_PROJECT_TYPES } from './supported-project-types';
+import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
 
 const debug = debugLib('snyk-fix:python');
 
@@ -27,9 +27,9 @@ export async function pythonFix(
   };
 
   const entitiesPerType: {
-    [projectType in SUPPORTED_PROJECT_TYPES]: EntityToFix[];
+    [projectType in SUPPORTED_HANDLER_TYPES]: EntityToFix[];
   } = {
-    [SUPPORTED_PROJECT_TYPES.REQUIREMENTS]: [],
+    [SUPPORTED_HANDLER_TYPES.REQUIREMENTS]: [],
   };
   for (const entity of entities) {
     const type = getProjectType(entity);
@@ -52,7 +52,7 @@ export async function pythonFix(
       spinner.render();
 
       try {
-        const handler = loadHandler(projectType as SUPPORTED_PROJECT_TYPES);
+        const handler = loadHandler(projectType as SUPPORTED_HANDLER_TYPES);
         const { failed, skipped, succeeded } = await handler(
           projectsToFix,
           options,
@@ -89,14 +89,14 @@ export function isRequirementsTxtManifest(targetFile: string): boolean {
 
 export function getProjectType(
   entity: EntityToFix,
-): SUPPORTED_PROJECT_TYPES | null {
+): SUPPORTED_HANDLER_TYPES | null {
   const targetFile = entity.scanResult.identity.targetFile;
   if (!targetFile) {
     return null;
   }
   const isRequirementsTxt = isRequirementsTxtManifest(targetFile);
   if (isRequirementsTxt) {
-    return SUPPORTED_PROJECT_TYPES.REQUIREMENTS;
+    return SUPPORTED_HANDLER_TYPES.REQUIREMENTS;
   }
   return null;
 }
