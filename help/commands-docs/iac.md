@@ -43,3 +43,8 @@ Find security issues in your Infrastructure as Code files.
   (only in `test` command)
   Save test output in SARIF format directly to the <OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
   This is especially useful if you want to display the human-readable test output via stdout and at the same time save the SARIF format output to a file.
+
+- `--experimental`:
+  (only in `test` command)
+  Enable an experimental feature to scan configuration files locally on your machine. 
+  This feature also gives you the ability to scan terraform plan JSON files.

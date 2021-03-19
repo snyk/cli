@@ -360,3 +360,67 @@ test('test command line "snyk monitor --assets-project-name" should add a proper
   );
   t.end();
 });
+
+test('test command line "iac" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(result.options.help, 'iac', 'help option should be assigned to iac');
+  t.end();
+});
+
+test('test command line "iac --help" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    '--help',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(result.options.help, 'iac', 'help option should be assigned to iac');
+  t.end();
+});
+
+test('test command line "iac test --help" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    'test',
+    '--help',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(result.options.help, 'iac', 'help option should be assigned to iac');
+  t.end();
+});
+
+test('test command line "snyk iac --experimental" should be true on options', (t) => {
+  const cliArgsWithFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    '--experimental',
+  ];
+  const resultWithFlag = args(cliArgsWithFlag);
+  t.ok(
+    resultWithFlag.options['experimental'],
+    'expected options[experimental] to be true',
+  );
+  const cliArgsWithoutFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+  ];
+  const resultWithoutFlag = args(cliArgsWithoutFlag);
+  t.notOk(
+    resultWithoutFlag.options['experimental'],
+    'expected options[experimental] to be false',
+  );
+  t.end();
+});
