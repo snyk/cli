@@ -5,6 +5,6 @@
   ],
   "npmClient": "npm",
   "useWorkspaces": true,
-  "version": "1.500.0",
+  "version": "1.501.0",
   "independent": false
 }

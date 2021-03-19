@@ -1,6 +1,6 @@
 {
   "name": "@snyk/fix",
-  "version": "1.500.0",
+  "version": "1.501.0",
   "description": "Snyk fix library and utility",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

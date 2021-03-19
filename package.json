@@ -1,6 +1,6 @@
 {
   "name": "snyk",
-  "version": "1.500.0",
+  "version": "1.501.0",
   "description": "snyk library and cli utility",
   "main": "dist/lib/index.js",
   "files": [
@@ -67,11 +67,11 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
-    "@snyk/fix": "file:packages/snyk-fix",
     "@open-policy-agent/opa-wasm": "^1.2.0",
     "@snyk/cli-interface": "2.11.0",
     "@snyk/code-client": "3.1.4",
     "@snyk/dep-graph": "^1.27.1",
+    "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
     "@snyk/graphlib": "^2.1.9-patch.3",
     "@snyk/inquirer": "^7.3.3-patch",
