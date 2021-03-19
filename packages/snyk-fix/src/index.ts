@@ -54,23 +54,19 @@ export async function fix(
     resultsByPlugin,
     exceptionsByScanType,
   );
-
-  const failed = outputFormatter.calculateFailed(
-    resultsByPlugin,
-    exceptionsByScanType,
-  );
-  const fixed = outputFormatter.calculateFixed(resultsByPlugin);
+  const meta = extractMeta(resultsByPlugin, exceptionsByScanType);
 
   spinner.start();
   spinner.stopAndPersist({
     text: 'Done',
-    symbol: fixed === 0 ? chalk.red('✖') : chalk.green('✔') ,
+    symbol: meta.fixed === 0 ? chalk.red('✖') : chalk.green('✔'),
   });
+
   return {
     results: resultsByPlugin,
     exceptions: exceptionsByScanType,
     fixSummary: options.stripAnsi ? stripAnsi(fixSummary) : fixSummary,
-    meta: { fixed, failed },
+    meta,
   };
 }
 
@@ -91,4 +87,20 @@ export function groupEntitiesPerScanType(
     entitiesPerType[type] = [entity];
   }
   return entitiesPerType;
+}
+
+export function extractMeta(
+  resultsByPlugin: FixHandlerResultByPlugin,
+  exceptionsByScanType: ErrorsByEcoSystem,
+): {
+  fixed: number;
+  failed: number;
+} {
+  const failed = outputFormatter.calculateFailed(
+    resultsByPlugin,
+    exceptionsByScanType,
+  );
+  const fixed = outputFormatter.calculateFixed(resultsByPlugin);
+
+  return { fixed, failed };
 }
