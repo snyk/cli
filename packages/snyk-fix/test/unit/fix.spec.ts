@@ -172,7 +172,7 @@ describe('Snyk fix', () => {
     ).toEqual('prod.txt');
   });
 
-  it('Snyk fix returns results as expected when remediation data is empty', async () => {
+  it.only('Snyk fix returns results as expected when remediation data is empty', async () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
