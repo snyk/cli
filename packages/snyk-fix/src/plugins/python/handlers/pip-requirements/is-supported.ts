@@ -1,6 +1,6 @@
 import * as chalk from 'chalk';
 
-import { EntityToFix } from '../../../../types';
+import { EntityToFix, WithUserMessage } from '../../../../types';
 import { containsRequireDirective } from './contains-require-directive';
 
 interface Supported {
@@ -48,4 +48,26 @@ export async function isSupported(
   }
 
   return { supported: true };
+}
+
+export async function partitionByFixable(
+  entities: EntityToFix[],
+): Promise<{
+  skipped: Array<WithUserMessage<EntityToFix>>;
+  fixable: EntityToFix[];
+}> {
+  const fixable: EntityToFix[] = [];
+  const skipped: Array<WithUserMessage<EntityToFix>> = [];
+  for (const entity of entities) {
+    const isSupportedResponse = await isSupported(entity);
+    if (projectTypeSupported(isSupportedResponse)) {
+      fixable.push(entity);
+      continue;
+    }
+    skipped.push({
+      original: entity,
+      userMessage: isSupportedResponse.reason,
+    });
+  }
+  return { fixable, skipped };
 }

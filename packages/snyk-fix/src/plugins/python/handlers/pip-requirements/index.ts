@@ -9,7 +9,7 @@ import { PluginFixResponse } from '../../../types';
 import { updateDependencies } from './update-dependencies';
 import { MissingRemediationDataError } from '../../../../lib/errors/missing-remediation-data';
 import { MissingFileNameError } from '../../../../lib/errors/missing-file-name';
-import { isSupported, projectTypeSupported } from './is-supported';
+import { partitionByFixable } from './is-supported';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -24,18 +24,13 @@ export async function pipRequirementsTxt(
     skipped: [],
   };
 
-  for (const entity of entities) {
+  const { fixable, skipped } = await partitionByFixable(entities);
+  handlerResult.skipped.push(...skipped);
+
+  for (const entity of fixable) {
     try {
-      const isSupportedResponse = await isSupported(entity);
-      if (projectTypeSupported(isSupportedResponse)) {
-        const fixedEntity = await fixIndividualRequirementsTxt(entity, options);
-        handlerResult.succeeded.push(fixedEntity);
-      } else {
-        handlerResult.skipped.push({
-          original: entity,
-          userMessage: isSupportedResponse.reason,
-        });
-      }
+      const fixedEntity = await fixIndividualRequirementsTxt(entity, options);
+      handlerResult.succeeded.push(fixedEntity);
     } catch (e) {
       handlerResult.failed.push({ original: entity, error: e });
     }
