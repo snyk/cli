@@ -1,6 +1,6 @@
 {
   "name": "snyk",
-  "version": "1.0.0-monorepo",
+  "version": "1.500.0",
   "description": "snyk library and cli utility",
   "main": "dist/lib/index.js",
   "files": [
@@ -39,10 +39,10 @@
     "test:acceptance": "tap test/acceptance/**/*.test.* test/acceptance/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test:acceptance-windows": "tap test/acceptance/**/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test:system": "tap test/system/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
-    "test:jest": "jest --runInBand \"\/test\/[^/]+\\.spec\\.ts\"",
-    "test:jest-unit": "jest --runInBand \"\/test\/jest\/unit\/((.+)\/)*[^/]+\\.spec\\.ts\"",
-    "test:packages-unit": "jest \"\/packages\/(.+)\/test\/unit\/((.+)\/)*[^/]+\\.spec\\.ts\"",
-    "test:packages-acceptance": "jest \"\/packages\/(.+)\/test\/acceptance\/((.+)\/)*[^/]+\\.spec\\.ts\"",
+    "test:jest": "jest --runInBand \"/test/[^/]+\\.spec\\.ts\"",
+    "test:jest-unit": "jest --runInBand \"/test/jest/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
+    "test:packages-unit": "jest \"/packages/(.+)/test/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
+    "test:packages-acceptance": "jest \"/packages/(.+)/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:test": "tap test/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test": "npm run test:acceptance && npm run test:system && npm run test:test && npm run test:jest && test:packages-unit && test:packages-acceptance",
     "test-windows": "npm run test:acceptance-windows && npm run test:system && npm run test:test && npm run test:jest",
@@ -67,6 +67,7 @@
   "author": "snyk.io",
   "license": "Apache-2.0",
   "dependencies": {
+    "@snyk/fix": "file:packages/snyk-fix",
     "@open-policy-agent/opa-wasm": "^1.2.0",
     "@snyk/cli-interface": "2.11.0",
     "@snyk/code-client": "3.1.4",

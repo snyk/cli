@@ -1,6 +1,6 @@
 {
   "name": "@snyk/protect",
-  "version": "1.0.0-monorepo",
+  "version": "1.500.0",
   "description": "Snyk protect library and utility",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
