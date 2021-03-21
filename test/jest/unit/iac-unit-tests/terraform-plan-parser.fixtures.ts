@@ -29,11 +29,21 @@ const resource = {
     type: 'ingress',
   },
 };
-export const expectedParsingResult: TerraformScanInput = {
+export const expectedParsingResultFullScan: TerraformScanInput = {
   resource: {
     aws_security_group: {
       terra_ci_allow_outband: resource,
       CHILD_MODULE_terra_ci_allow_outband_0: resource,
+    },
+  },
+  data: {},
+};
+
+export const expectedParsingResultDeltaScan: TerraformScanInput = {
+  resource: {
+    aws_security_group: {
+      some_updated_resource: resource,
+      some_created_resource: resource,
     },
   },
   data: {},

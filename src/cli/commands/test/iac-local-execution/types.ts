@@ -85,10 +85,17 @@ export interface TerraformPlanResource {
   mode: string; // "managed",
   type: string; // "aws_cloudwatch_log_group",
   name: string; // "terra_ci",
-  provider_name: string; // "registry.terraform.io/hashicorp/aws",
-  schema_version: number;
   values: Record<string, unknown>; // the values in the resource
   index: number;
+}
+
+export interface TerraformPlanResourceChange
+  extends Omit<TerraformPlanResource, 'values'> {
+  change: {
+    actions: ResourceActions;
+    before: Record<string, unknown> | null; // will be null when the action is `create`
+    after: Record<string, unknown> | null; // will be null when then action is `delete`
+  };
 }
 
 export interface TerraformPlanJson {
@@ -99,6 +106,7 @@ export interface TerraformPlanJson {
       child_modules: Array<{ resources: Array<TerraformPlanResource> }>;
     };
   };
+  resource_changes: Array<TerraformPlanResourceChange>;
 }
 export interface TerraformScanInput {
   // within the resource field, resources are stored: [type] => [name] => [values]
@@ -106,8 +114,15 @@ export interface TerraformScanInput {
   data: Record<string, Record<string, unknown>>;
 }
 
-export interface TerraformPlanResource {
-  type: string;
-  name: string;
-  values: Record<string, unknown>;
-}
+// taken from: https://www.terraform.io/docs/internals/json-format.html#change-representation
+type ResourceActions =
+  | ['no-op']
+  | ['create']
+  | ['read']
+  | ['update']
+  | ['delete', 'create'] // not sure what this pair does
+  | ['create', 'delete'] // not sure what this pair does
+  | ['delete'];
+
+// we will be scanning the `create` & `update` actions only.
+export const VALID_RESOURCE_ACTIONS = ['create', 'update'];

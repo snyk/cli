@@ -59,5 +59,143 @@
              }
           ]
        }
-    }
+    },
+    "resource_changes": [
+       {
+         "address":"aws_security_group.some_created_resource",
+         "mode":"managed",
+         "type":"aws_security_group",
+         "name":"some_created_resource",
+         "provider_name":"registry.terraform.io/hashicorp/aws",
+         "schema_version":2,
+         "change": {
+            "actions": ["create"],
+            "before": null,
+            "after": {
+               "ingress": {
+                  "cidr_blocks":[
+                     "0.0.0.0/0"
+                  ],
+                  "description":null,
+                  "from_port":0,
+                  "ipv6_cidr_blocks":null,
+                  "prefix_list_ids":null,
+                  "protocol":"tcp",
+                  "self":false,
+                  "to_port":65535,
+                  "type":"ingress"
+                }
+            }
+         }
+       },
+       {
+         "address":"aws_security_group.some_updated_resource",
+         "mode":"managed",
+         "type":"aws_security_group",
+         "name":"some_updated_resource",
+         "provider_name":"registry.terraform.io/hashicorp/aws",
+         "schema_version":2,
+         "change": {
+            "actions": ["update"],
+            "before": {
+               "ingress": {
+                  "cidr_blocks":[
+                     "123.45.67.89/0"
+                  ],
+                  "description":null,
+                  "from_port":0,
+                  "ipv6_cidr_blocks":null,
+                  "prefix_list_ids":null,
+                  "protocol":"tcp",
+                  "self":false,
+                  "to_port":65535,
+                  "type":"ingress"
+                }
+            },
+            "after": {
+               "ingress": {
+                  "cidr_blocks":[
+                     "0.0.0.0/0"
+                  ],
+                  "description":null,
+                  "from_port":0,
+                  "ipv6_cidr_blocks":null,
+                  "prefix_list_ids":null,
+                  "protocol":"tcp",
+                  "self":false,
+                  "to_port":65535,
+                  "type":"ingress"
+                }
+            }
+         }
+       },
+       {
+         "address":"aws_security_group.some_deleted_resource",
+         "mode":"managed",
+         "type":"aws_security_group",
+         "name":"some_deleted_resource",
+         "provider_name":"registry.terraform.io/hashicorp/aws",
+         "schema_version":2,
+         "change": {
+            "actions": ["delete"],
+            "before": {
+               "ingress": {
+                  "cidr_blocks":[
+                     "0.0.0.0/0"
+                  ],
+                  "description":null,
+                  "from_port":0,
+                  "ipv6_cidr_blocks":null,
+                  "prefix_list_ids":null,
+                  "protocol":"tcp",
+                  "self":false,
+                  "to_port":65535,
+                  "type":"ingress"
+                }
+            },
+            "after": null
+         }
+       },
+       {
+         "address":"aws_security_group.some_deleted_resource",
+         "mode":"managed",
+         "type":"aws_security_group",
+         "name":"some_deleted_resource",
+         "provider_name":"registry.terraform.io/hashicorp/aws",
+         "schema_version":2,
+         "change": {
+            "actions": ["no-op"],
+            "before": {
+               "ingress": {
+                  "cidr_blocks":[
+                     "0.0.0.0/0"
+                  ],
+                  "description":null,
+                  "from_port":0,
+                  "ipv6_cidr_blocks":null,
+                  "prefix_list_ids":null,
+                  "protocol":"tcp",
+                  "self":false,
+                  "to_port":65535,
+                  "type":"ingress"
+                }
+            },
+            "after": {
+               "ingress": {
+                  "cidr_blocks":[
+                     "0.0.0.0/0"
+                  ],
+                  "description":null,
+                  "from_port":0,
+                  "ipv6_cidr_blocks":null,
+                  "prefix_list_ids":null,
+                  "protocol":"tcp",
+                  "self":false,
+                  "to_port":65535,
+                  "type":"ingress"
+                }
+            }
+         }
+       }
+    ]
  }
