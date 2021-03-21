@@ -64,6 +64,7 @@ export interface PolicyMetadata {
   type: string;
   subType: string;
   title: string;
+  // Legacy field, still included in WASM eval output, but not in use.
   description: string;
   severity: SEVERITY;
   msg: string;
