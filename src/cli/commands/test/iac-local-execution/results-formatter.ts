@@ -2,7 +2,7 @@ import {
   EngineType,
   FormattedResult,
   IacFileScanResult,
-  IacOptionFlags,
+  IaCTestFlags,
   PolicyMetadata,
 } from './types';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
@@ -16,7 +16,7 @@ const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
 export function formatScanResults(
   scanResults: Array<IacFileScanResult>,
-  options: IacOptionFlags,
+  options: IaCTestFlags,
 ): FormattedResult[] {
   // Relevant only for multi-doc yaml files
   const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);

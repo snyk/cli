@@ -26,29 +26,6 @@ export interface TestOptions {
   iacDirFiles?: IacFileInDirectory[];
 }
 
-// Collection of all options supported by `iac test` command.
-// TODO: Needs to be fixed at the args module level.
-export type IaCTestOptions = Pick<
-  Options & TestOptions,
-  | 'insecure'
-  | 'debug'
-  | 'experimental'
-  | 'detectionDepth'
-  | 'severityThreshold'
-  | 'json'
-  | 'sarif'
-> & {
-  // Supported flags not yet covered by Options or TestOptions
-  'json-file-output'?: string;
-  'sarif-file-output'?: string;
-  v?: boolean;
-  version?: boolean;
-  h?: boolean;
-  help?: 'help';
-  q?: boolean;
-  quiet?: boolean;
-};
-
 export interface ProtectOptions {
   interactive?: boolean;
   newPolicy: boolean;

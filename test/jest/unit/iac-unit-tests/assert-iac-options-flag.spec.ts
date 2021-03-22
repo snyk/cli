@@ -1,5 +1,4 @@
-import { IaCTestOptions } from '../../src/lib/types';
-import { assertIaCOptionsFlags } from '../../src/cli/commands/test/iac-local-execution/assert-iac-options-flag';
+import { assertIaCOptionsFlags } from '../../../../src/cli/commands/test/iac-local-execution/assert-iac-options-flag';
 
 describe('assertIaCOptionsFlags()', () => {
   const command = ['node', 'cli', 'iac', 'test'];

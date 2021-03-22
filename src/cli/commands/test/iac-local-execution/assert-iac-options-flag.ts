@@ -1,11 +1,10 @@
 import { CustomError } from '../../../../lib/errors';
-import { IaCTestOptions } from '../../../../lib/types';
 import { args } from '../../../args';
+import { IaCTestFlags } from './types';
 
-const keys: (keyof IaCTestOptions)[] = [
+const keys: (keyof IaCTestFlags)[] = [
   'debug',
   'insecure',
-  'debug',
   'experimental',
   'detectionDepth',
   'severityThreshold',
@@ -27,7 +26,7 @@ function camelcaseToDash(key: string) {
 }
 
 class FlagError extends CustomError {
-  constructor(key) {
+  constructor(key: string) {
     const dashes = key.length === 1 ? '-' : '--';
     const flag = camelcaseToDash(key);
     const msg = `Unsupported flag "${dashes}${flag}" provided. Run snyk iac test --help for supported flags.`;

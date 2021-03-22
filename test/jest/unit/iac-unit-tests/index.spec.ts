@@ -38,16 +38,16 @@ jest.mock('../../../../src/lib/detect', () => ({
 import { test } from '../../../../src/cli/commands/test/iac-local-execution';
 import {
   IacFileParsed,
-  IacOptionFlags,
+  IaCTestFlags,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 describe('test()', () => {
   it('extends the options object with iacDirFiles when a local directory is provided', async () => {
-    const opts: IacOptionFlags = {};
-    await test('./storage/', opts);
+    const opts: IaCTestFlags = {};
+    const { files } = await test('./storage/', opts);
 
-    expect(opts.iacDirFiles).toEqual([
+    expect(files).toEqual([
       {
         filePath: './storage/storage.tf',
         fileType: 'tf',
@@ -55,7 +55,7 @@ describe('test()', () => {
         projectType: IacProjectType.TERRAFORM,
       },
     ]);
-    expect(opts.iacDirFiles).not.toEqual(
+    expect(files).not.toEqual(
       expect.arrayContaining([
         {
           fileContent: 'FAKE_FILE_CONTENT',
