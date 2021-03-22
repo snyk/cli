@@ -79,26 +79,31 @@ Summary:
 exports[`Error handling Snyk fix returns error when manifest can not be parsed 1`] = `
 Object {
   "exceptions": Object {},
-  "fixSummary": "✖ No successful fixes
-
-Unresolved items:
+  "fixSummary": "Successful fixes:
 
   requirements.txt
-  ✖ No fixes could be applied. Please contact support@snyk.io
+  ✔ Pinned django from 1.6.1 to 2.0.1
 
 Summary:
 
-  1 items were not fixed
-  0 items were successfully fixed",
+  0 items were not fixed
+  1 items were successfully fixed",
   "meta": Object {
-    "failed": 1,
-    "fixed": 0,
+    "failed": 0,
+    "fixed": 1,
   },
   "results": Object {
     "python": Object {
-      "failed": Array [
+      "failed": Array [],
+      "skipped": Array [],
+      "succeeded": Array [
         Object {
-          "error": [NoFixesCouldBeAppliedError: No fixes could be applied. Please contact support@snyk.io],
+          "changes": Array [
+            Object {
+              "success": true,
+              "userMessage": "Pinned django from 1.6.1 to 2.0.1",
+            },
+          ],
           "original": Object {
             "scanResult": Object {
               "facts": Array [
@@ -149,8 +154,6 @@ Summary:
           },
         },
       ],
-      "skipped": Array [],
-      "succeeded": Array [],
     },
   },
 }
