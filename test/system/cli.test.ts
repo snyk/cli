@@ -386,7 +386,8 @@ test('monitor --json no supported target files', async (t) => {
     await cli.monitor('no-supported-target-files', { json: true });
     t.fail('should have thrown');
   } catch (error) {
-    const jsonResponse = error.json;
+    // error.json is a stringified json used for error logging, parse before testing
+    const jsonResponse = JSON.parse(error.json);
 
     if (isObject(jsonResponse)) {
       t.pass('monitor outputted JSON');
