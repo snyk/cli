@@ -224,3 +224,8 @@ export interface FixOptions {
   quiet?: boolean;
   stripAnsi?: boolean;
 }
+
+export interface FixedMeta {
+  fixed: number;
+  failed: number;
+}
