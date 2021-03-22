@@ -66,7 +66,7 @@ function extractChildModulesResources(
 function extractResourceChanges(
   terraformPlanJson: TerraformPlanJson,
 ): Array<TerraformPlanResourceChange> {
-  return terraformPlanJson?.resource_changes || [];
+  return terraformPlanJson.resource_changes || [];
 }
 
 function extractResourcesForFullScan(
@@ -92,7 +92,7 @@ function extractResourcesForDeltaScan(
 
 export function tryParsingTerraformPlan(
   terraformPlanFile: IacFileData,
-  isFullScan = false,
+  { isFullScan }: { isFullScan: boolean } = { isFullScan: false },
 ): Array<IacFileParsed> {
   let terraformPlanJson;
   try {

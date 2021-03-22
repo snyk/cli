@@ -18,7 +18,9 @@ describe('tryParsingTerraformPlan', () => {
 
   describe('full scan', () => {
     it('returns the expected resources', () => {
-      const parsedTerraformPlan = tryParsingTerraformPlan(iacFileData, true);
+      const parsedTerraformPlan = tryParsingTerraformPlan(iacFileData, {
+        isFullScan: true,
+      });
       expect(parsedTerraformPlan[0]).toEqual({
         ...iacFileData,
         engineType: EngineType.Terraform,
@@ -29,7 +31,7 @@ describe('tryParsingTerraformPlan', () => {
     it('does not fail if no child-modules are present', () => {
       const parsedTerraformPlan = tryParsingTerraformPlan(
         iacFileDataNoChildModules,
-        true,
+        { isFullScan: true },
       );
       expect(parsedTerraformPlan[0]).toEqual({
         ...iacFileDataNoChildModules,
