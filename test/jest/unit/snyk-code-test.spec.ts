@@ -11,7 +11,8 @@ import { config as userConfig } from '../../../src/lib/user-config';
 import * as analysis from '../../../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../../../src/lib/types';
 import * as ecosystems from '../../../src/lib/ecosystems';
-import { FailedToRunTestError } from '../../../src/lib/errors/failed-to-run-test-error';
+import * as analytics from '../../../src/lib/analytics';
+
 const { getCodeAnalysisAndParseResults } = analysis;
 const osName = require('os-name');
 
@@ -121,7 +122,7 @@ describe('Test snyk code', () => {
     }
   });
 
-  it('succeed testing with correct error messages - with sarif output', async () => {
+  it('succeed testing with correct exit code - with sarif output', async () => {
     const options: Options & TestOptions = {
       path: '',
       traverseNodeModules: false,
@@ -142,6 +143,32 @@ describe('Test snyk code', () => {
       // exit code 1
       expect(error.code).toBe('VULNS');
       expect(errMessage).toBe(expectedOutput);
+    }
+  });
+
+  it('succeed testing with correct exit code - and analytics added', async () => {
+    const analyticSend = jest.spyOn(analytics, 'add');
+
+    const options: Options & TestOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+    };
+
+    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
+    isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+
+    try {
+      await ecosystems.testEcosystem('code', ['some/path'], options);
+    } catch (error) {
+      const errMessage = stripAscii(stripAnsi(error.message.trim()));
+      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
+
+      // exit code 1
+      expect(error.code).toBe('VULNS');
+      expect(errMessage).toBe(expectedOutput);
+      expect(analyticSend).toBeCalledTimes(2);
     }
   });
 
