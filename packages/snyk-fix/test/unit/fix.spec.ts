@@ -126,8 +126,8 @@ describe('Snyk fix', () => {
     );
     jest
       .spyOn(txtDevProjectTestResult.workspace, 'readFile')
-      .mockImplementation(() => {
-        throw new Error('Invalid encoding');
+      .mockImplementationOnce(() => {
+        throw new Error('Test Error: Invalid encoding');
       });
     const pipfileProjectTestResult = generateEntityToFix(
       'pip',
@@ -150,21 +150,17 @@ describe('Snyk fix', () => {
     expect(Object.keys(res.results)).toHaveLength(1);
     expect(Object.keys(res.results)[0]).toEqual('python');
     // skipped unsupported
-    expect(res.results.python.skipped).toHaveLength(1);
+    expect(res.results.python.skipped).toHaveLength(2);
     expect(res.results.python.skipped[0]).toEqual({
       userMessage: 'Pipfile is not supported',
       original: pipfileProjectTestResult,
     });
+    expect(res.results.python.skipped[1]).toEqual({
+      userMessage: 'Test Error: Invalid encoding',
+      original: txtDevProjectTestResult,
+    });
 
-    // first *.txt throws because of the mock above
-    expect(res.results.python.failed).toHaveLength(1);
-    expect(
-      res.results.python.failed[0].original.scanResult.identity.targetFile,
-    ).toEqual('dev.txt');
-    expect(res.results.python.failed[0].error.message).toEqual(
-      'Invalid encoding',
-    );
-
+    expect(res.results.python.failed).toHaveLength(0);
     expect(res.results.python.succeeded).toHaveLength(1);
 
     expect(
@@ -172,7 +168,7 @@ describe('Snyk fix', () => {
     ).toEqual('prod.txt');
   });
 
-  it.only('Snyk fix returns results as expected when remediation data is empty', async () => {
+  it('Snyk fix returns results as expected when remediation data is empty', async () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',

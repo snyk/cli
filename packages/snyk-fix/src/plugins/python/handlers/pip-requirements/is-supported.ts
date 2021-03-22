@@ -34,10 +34,18 @@ export async function isSupported(
   }
 
   // TODO: fix the non null assertion here
-  const fileName = entity.scanResult.identity.targetFile!;
-  const requirementsTxt = await entity.workspace.readFile(fileName);
-  const { containsRequire } = await containsRequireDirective(requirementsTxt);
+  let requirementsTxt;
+  try {
+    const fileName = entity.scanResult.identity.targetFile!;
+    requirementsTxt = await entity.workspace.readFile(fileName);
+  } catch (e) {
+    return {
+      supported: false,
+      reason: e.message,
+    };
+  }
 
+  const { containsRequire } = await containsRequireDirective(requirementsTxt);
   if (containsRequire) {
     return {
       supported: false,
