@@ -1,12 +1,12 @@
 import * as path from 'path';
 import * as debugLib from 'debug';
 
-import { containsRequireDirective } from '.';
 import {
   parseRequirementsFile,
   Requirement,
 } from './update-dependencies/requirements-file-parser';
 import { Workspace } from '../../../../types';
+import { containsRequireDirective } from './contains-require-directive';
 
 interface PythonProvenance {
   [fileName: string]: Requirement[];

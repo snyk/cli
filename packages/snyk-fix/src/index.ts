@@ -8,7 +8,7 @@ import * as outputFormatter from './lib/output-formatters/show-results-summary';
 import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
 
-import { EntityToFix, ErrorsByEcoSystem, FixOptions } from './types';
+import { EntityToFix, ErrorsByEcoSystem, FixedMeta, FixOptions } from './types';
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
 export { EntityToFix } from './types';
 
@@ -24,7 +24,7 @@ export async function fix(
 ): Promise<{
   results: FixHandlerResultByPlugin;
   exceptions: ErrorsByEcoSystem;
-  meta: { fixed: number; failed: number };
+  meta: FixedMeta;
   fixSummary: string;
 }> {
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
@@ -54,23 +54,19 @@ export async function fix(
     resultsByPlugin,
     exceptionsByScanType,
   );
-
-  const failed = outputFormatter.calculateFailed(
-    resultsByPlugin,
-    exceptionsByScanType,
-  );
-  const fixed = outputFormatter.calculateFixed(resultsByPlugin);
+  const meta = extractMeta(resultsByPlugin, exceptionsByScanType);
 
   spinner.start();
   spinner.stopAndPersist({
     text: 'Done',
-    symbol: fixed === 0 ? chalk.red('✖') : chalk.green('✔') ,
+    symbol: meta.fixed === 0 ? chalk.red('✖') : chalk.green('✔'),
   });
+
   return {
     results: resultsByPlugin,
     exceptions: exceptionsByScanType,
     fixSummary: options.stripAnsi ? stripAnsi(fixSummary) : fixSummary,
-    meta: { fixed, failed },
+    meta,
   };
 }
 
@@ -91,4 +87,17 @@ export function groupEntitiesPerScanType(
     entitiesPerType[type] = [entity];
   }
   return entitiesPerType;
+}
+
+export function extractMeta(
+  resultsByPlugin: FixHandlerResultByPlugin,
+  exceptionsByScanType: ErrorsByEcoSystem,
+): FixedMeta {
+  const failed = outputFormatter.calculateFailed(
+    resultsByPlugin,
+    exceptionsByScanType,
+  );
+  const fixed = outputFormatter.calculateFixed(resultsByPlugin);
+
+  return { fixed, failed };
 }

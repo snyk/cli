@@ -1,12 +1,12 @@
 import * as debugLib from 'debug';
 import * as pMap from 'p-map';
-import * as micromatch from 'micromatch';
 import * as ora from 'ora';
 
 import { EntityToFix, FixOptions } from '../../types';
 import { FixHandlerResultByPlugin } from '../types';
 import { loadHandler } from './load-handler';
-import { SUPPORTED_PROJECT_TYPES } from './supported-project-types';
+import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
+import { mapEntitiesPerHandlerType } from './map-entities-per-handler-type';
 
 const debug = debugLib('snyk-fix:python');
 
@@ -17,30 +17,20 @@ export async function pythonFix(
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
   spinner.text = 'Looking for supported Python items';
   spinner.start();
-  const pluginId = 'python';
+
   const handlerResult: FixHandlerResultByPlugin = {
-    [pluginId]: {
+    python: {
       succeeded: [],
       failed: [],
       skipped: [],
     },
   };
+  const results = handlerResult.python;
+  const { entitiesPerType, skipped: notSupported } = mapEntitiesPerHandlerType(
+    entities,
+  );
+  results.skipped.push(...notSupported);
 
-  const entitiesPerType: {
-    [projectType in SUPPORTED_PROJECT_TYPES]: EntityToFix[];
-  } = {
-    [SUPPORTED_PROJECT_TYPES.REQUIREMENTS]: [],
-  };
-  for (const entity of entities) {
-    const type = getProjectType(entity);
-    if (!type) {
-      const userMessage = `${entity.scanResult.identity.targetFile} is not supported`;
-      debug(userMessage);
-      handlerResult[pluginId].skipped.push({ original: entity, userMessage });
-      continue;
-    }
-    entitiesPerType[type].push(entity);
-  }
   spinner.succeed();
 
   await pMap(
@@ -52,19 +42,19 @@ export async function pythonFix(
       spinner.render();
 
       try {
-        const handler = loadHandler(projectType as SUPPORTED_PROJECT_TYPES);
+        const handler = loadHandler(projectType as SUPPORTED_HANDLER_TYPES);
         const { failed, skipped, succeeded } = await handler(
           projectsToFix,
           options,
         );
-        handlerResult[pluginId].failed.push(...failed);
-        handlerResult[pluginId].skipped.push(...skipped);
-        handlerResult[pluginId].succeeded.push(...succeeded);
+        results.failed.push(...failed);
+        results.skipped.push(...skipped);
+        results.succeeded.push(...succeeded);
       } catch (e) {
         debug(
           `Failed to fix ${projectsToFix.length} ${projectType} projects.\nError: ${e.message}`,
         );
-        handlerResult[pluginId].failed.push(
+        results.failed.push(
           ...projectsToFix.map((p) => ({ original: p, error: e })),
         );
       }
@@ -75,28 +65,4 @@ export async function pythonFix(
   );
   spinner.succeed();
   return handlerResult;
-}
-
-export function isRequirementsTxtManifest(targetFile: string): boolean {
-  return micromatch.isMatch(
-    targetFile,
-    // micromatch needs **/* to match filenames that may include folders
-    ['*req*.txt', 'requirements/*.txt', 'requirements*', '*.txt'].map(
-      (f) => '**/' + f,
-    ),
-  );
-}
-
-export function getProjectType(
-  entity: EntityToFix,
-): SUPPORTED_PROJECT_TYPES | null {
-  const targetFile = entity.scanResult.identity.targetFile;
-  if (!targetFile) {
-    return null;
-  }
-  const isRequirementsTxt = isRequirementsTxtManifest(targetFile);
-  if (isRequirementsTxt) {
-    return SUPPORTED_PROJECT_TYPES.REQUIREMENTS;
-  }
-  return null;
 }

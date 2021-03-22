@@ -1,9 +1,9 @@
 import { pipRequirementsTxt } from './handlers/pip-requirements';
-import { SUPPORTED_PROJECT_TYPES } from './supported-project-types';
+import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
 
-export function loadHandler(type: SUPPORTED_PROJECT_TYPES) {
+export function loadHandler(type: SUPPORTED_HANDLER_TYPES) {
   switch (type) {
-    case SUPPORTED_PROJECT_TYPES.REQUIREMENTS: {
+    case SUPPORTED_HANDLER_TYPES.REQUIREMENTS: {
       return pipRequirementsTxt;
     }
     default: {
