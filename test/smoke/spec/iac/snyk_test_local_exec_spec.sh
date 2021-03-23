@@ -146,7 +146,27 @@ Describe "Snyk iac test --experimental command"
   End
 
   Describe "Terraform plan scanning"
+    # Note that this now defaults to the delta scan, not the full scan.
+    # in the future a flag will be added to control this functionality.
     It "finds issues in a Terraform plan file"
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental
+      The status should be failure # issues found
+      The output should include "Testing ../fixtures/iac/terraform-plan/tf-plan.json"
+
+      # Outputs issues
+      The output should include "Infrastructure as code issues:"
+      # Root module
+      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
+      The output should include "  introduced by resource > aws_security_group[some_created_resource] > ingress"
+      # Child modules
+      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
+      The output should include "  introduced by resource > aws_security_group[some_updated_resource] > ingress"
+
+      The output should include "../fixtures/iac/terraform-plan/tf-plan.json for known issues, found 2 issues"
+    End
+
+    # The test below should be enabled once we add the full scan flag
+    xIt "finds issues in a Terraform plan file - full scan flag"
       When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental
       The status should be failure # issues found
       The output should include "Testing ../fixtures/iac/terraform-plan/tf-plan.json"

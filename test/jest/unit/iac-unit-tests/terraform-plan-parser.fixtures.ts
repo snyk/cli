@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import * as fs from 'fs';
 import * as path from 'path';
 import {
@@ -29,11 +30,53 @@ const resource = {
     type: 'ingress',
   },
 };
-export const expectedParsingResult: TerraformScanInput = {
+export const expectedParsingResultFullScan: TerraformScanInput = {
   resource: {
     aws_security_group: {
       terra_ci_allow_outband: resource,
       CHILD_MODULE_terra_ci_allow_outband_0: resource,
+    },
+  },
+  data: {},
+};
+
+export const expectedParsingResultDeltaScan: TerraformScanInput = {
+  resource: {
+    aws_security_group: {
+      some_updated_resource: resource,
+      some_created_resource: resource,
+    },
+    // "delete" | "create"
+    aws_iam_user_group_membership: {
+      some_delete_create_resource: {
+        groups: ['organization-administrators'],
+        user: 'p0tr3c',
+      },
+    },
+    // "create" | "delete"
+    aws_instance: {
+      some_create_delete_resource: {
+        ami: 'ami-0831162e2eb204b16',
+        associate_public_ip_address: true,
+        credit_specification: [],
+        disable_api_termination: null,
+        ebs_optimized: null,
+        get_password_data: false,
+        hibernation: null,
+        iam_instance_profile: null,
+        instance_initiated_shutdown_behavior: null,
+        instance_type: 't3.micro',
+        key_name: 'terra-ci',
+        monitoring: null,
+        source_dest_check: true,
+        subnet_id: 'subnet-050411f3bb5f9dbe4',
+        tags: null,
+        timeouts: null,
+        user_data: null,
+        user_data_base64: null,
+        volume_tags: null,
+        vpc_security_group_ids: ['sg-0455cfe38c670b7b3'],
+      },
     },
   },
   data: {},

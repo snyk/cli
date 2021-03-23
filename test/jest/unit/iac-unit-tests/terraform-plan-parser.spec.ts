@@ -3,7 +3,8 @@ import {
   iacFileData,
   invalidJsonIacFile,
   iacFileDataNoChildModules,
-  expectedParsingResult,
+  expectedParsingResultFullScan,
+  expectedParsingResultDeltaScan,
   expectedParsingResultWithoutChildModules,
 } from './terraform-plan-parser.fixtures';
 import { EngineType } from '../../../../src/cli/commands/test/iac-local-execution/types';
@@ -15,23 +16,39 @@ describe('tryParsingTerraformPlan', () => {
     );
   });
 
-  it('returns the expected resources', () => {
-    const parsedTerraformPlan = tryParsingTerraformPlan(iacFileData);
-    expect(parsedTerraformPlan[0]).toEqual({
-      ...iacFileData,
-      engineType: EngineType.Terraform,
-      jsonContent: expectedParsingResult,
+  describe('full scan', () => {
+    it('returns the expected resources', () => {
+      const parsedTerraformPlan = tryParsingTerraformPlan(iacFileData, {
+        isFullScan: true,
+      });
+      expect(parsedTerraformPlan[0]).toEqual({
+        ...iacFileData,
+        engineType: EngineType.Terraform,
+        jsonContent: expectedParsingResultFullScan,
+      });
+    });
+
+    it('does not fail if no child-modules are present', () => {
+      const parsedTerraformPlan = tryParsingTerraformPlan(
+        iacFileDataNoChildModules,
+        { isFullScan: true },
+      );
+      expect(parsedTerraformPlan[0]).toEqual({
+        ...iacFileDataNoChildModules,
+        engineType: EngineType.Terraform,
+        jsonContent: expectedParsingResultWithoutChildModules,
+      });
     });
   });
 
-  it('does not fail if no child-modules are present', () => {
-    const parsedTerraformPlan = tryParsingTerraformPlan(
-      iacFileDataNoChildModules,
-    );
-    expect(parsedTerraformPlan[0]).toEqual({
-      ...iacFileDataNoChildModules,
-      engineType: EngineType.Terraform,
-      jsonContent: expectedParsingResultWithoutChildModules,
+  describe('default delta scan', () => {
+    it('returns the expected resources', () => {
+      const parsedTerraformPlan = tryParsingTerraformPlan(iacFileData);
+      expect(parsedTerraformPlan[0]).toEqual({
+        ...iacFileData,
+        engineType: EngineType.Terraform,
+        jsonContent: expectedParsingResultDeltaScan,
+      });
     });
   });
 
