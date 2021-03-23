@@ -106,6 +106,7 @@ export type IaCTestFlags = Pick<
 // that are added at runtime and not part of the parsed
 // CLI flags.
 export type IaCTestOptions = IaCTestFlags & {
+  /** @deprecated Only used by the legacy `iac test` flow remove once local exec path is GA */
   iacDirFiles?: Array<IacFileInDirectory>;
 };
 

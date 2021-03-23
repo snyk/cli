@@ -23,7 +23,8 @@ export async function test(
   options: IaCTestFlags,
 ): Promise<{
   results: TestResult | TestResult[];
-  files: IacFileInDirectory[] | null;
+  /** All files scanned by IaC with parse errors */
+  failures?: IacFileInDirectory[];
 }> {
   await initLocalCache();
   const filesToParse = await loadFiles(pathToScan);
@@ -36,9 +37,9 @@ export async function test(
   return {
     results: (formattedResults as unknown) as TestResult[],
     // NOTE: No file or parsed file data should leave this function.
-    files: isLocalFolder(pathToScan)
-      ? [...parsedFiles, ...failedFiles].map(removeFileContent)
-      : null,
+    failures: isLocalFolder(pathToScan)
+      ? failedFiles.map(removeFileContent)
+      : undefined,
   };
 }
 

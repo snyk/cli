@@ -14,12 +14,22 @@ jest.mock(
         jsonContent: {},
         filePath: './storage/storage.tf',
         fileType: 'tf',
+        projectType: IacProjectType.TERRAFORM,
+      },
+    ];
+    const failedFiles: IacFileParsed[] = [
+      {
+        engineType: EngineType.Terraform,
+        fileContent: 'FAKE_FILE_CONTENT',
+        jsonContent: {},
+        filePath: './storage/storage.tf',
+        fileType: 'tf',
         failureReason: 'Mock Test',
         projectType: IacProjectType.TERRAFORM,
       },
     ];
     return {
-      parseFiles: async () => ({ parsedFiles, failedFiles: [] }),
+      parseFiles: async () => ({ parsedFiles, failedFiles }),
     };
   },
 );
@@ -43,11 +53,11 @@ import {
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 describe('test()', () => {
-  it('extends the options object with iacDirFiles when a local directory is provided', async () => {
+  it('returns the unparsable files excluding content', async () => {
     const opts: IaCTestFlags = {};
-    const { files } = await test('./storage/', opts);
+    const { failures } = await test('./storage/', opts);
 
-    expect(files).toEqual([
+    expect(failures).toEqual([
       {
         filePath: './storage/storage.tf',
         fileType: 'tf',
@@ -55,7 +65,7 @@ describe('test()', () => {
         projectType: IacProjectType.TERRAFORM,
       },
     ]);
-    expect(files).not.toEqual(
+    expect(failures).not.toEqual(
       expect.arrayContaining([
         {
           fileContent: 'FAKE_FILE_CONTENT',

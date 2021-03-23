@@ -16,7 +16,7 @@ export async function test(
   options: IaCTestOptions,
 ): Promise<{
   results: TestResult | TestResult[];
-  files: IacFileInDirectory[] | null;
+  failures?: IacFileInDirectory[];
 }> {
   // Ensure that all flags are correct. We do this to ensure that the
   // caller doesn't accidentally mistype --experimental and send their
@@ -30,5 +30,8 @@ export async function test(
   }
 
   const results = await legacyTest(pathToScan, options);
-  return { files: options.iacDirFiles ?? null, results };
+  return {
+    failures: options.iacDirFiles?.filter((file) => !!file.failureReason),
+    results,
+  };
 }

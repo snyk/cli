@@ -8,6 +8,7 @@ import { isCI } from '../../../lib/is-ci';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import {
+  IacFileInDirectory,
   Options,
   SupportedProjectTypes,
   TestOptions,
@@ -48,7 +49,7 @@ import {
   getDisplayedOutput,
 } from './formatters/format-test-results';
 
-import { test as iacTest } from './iac-test';
+import { test as iacTest } from './iac-test-shim';
 import { validateCredentials } from './validate-credentials';
 import { generateSnykTestError } from './generate-snyk-test-error';
 import { validateTestOptions } from './validate-test-options';
@@ -83,6 +84,9 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   const resultOptions: Array<Options & TestOptions> = [];
   const results = [] as any[];
 
+  // Holds an array of scanned file metadata for output.
+  let iacScanFailures: IacFileInDirectory[] | undefined;
+
   // Promise waterfall to test all other paths sequentially
   for (const path of paths) {
     // Create a copy of the options so a specific test can
@@ -93,16 +97,13 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
     testOpts.projectName = testOpts['project-name'];
 
     let res: (TestResult | TestResult[]) | Error;
-
     try {
       if (options.iac) {
         // this path is an experimental feature feature for IaC which does issue scanning locally without sending files to our Backend servers.
         // once ready for GA, it is aimed to deprecate our remote-processing model, so IaC file scanning in the CLI is done locally.
-        const { results, files } = await iacTest(path, testOpts);
+        const { results, failures } = await iacTest(path, testOpts);
         res = results;
-        if (files) {
-          options.iacDirFiles = files;
-        }
+        iacScanFailures = failures;
       } else {
         res = await snyk.test(path, testOpts);
       }
@@ -231,16 +232,11 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   let summaryMessage = '';
   let errorResultsLength = errorResults.length;
 
-  if (options.iac && options.iacDirFiles) {
-    const iacDirFilesErrors = options.iacDirFiles?.filter(
-      (iacFile) => iacFile.failureReason,
-    );
-    errorResultsLength = iacDirFilesErrors?.length || errorResults.length;
+  if (options.iac && iacScanFailures) {
+    errorResultsLength = iacScanFailures.length || errorResults.length;
 
-    if (iacDirFilesErrors) {
-      for (const iacFileError of iacDirFilesErrors) {
-        response += chalk.bold.red(getIacDisplayErrorFileOutput(iacFileError));
-      }
+    for (const reason of iacScanFailures) {
+      response += chalk.bold.red(getIacDisplayErrorFileOutput(reason));
     }
   }
 
@@ -326,7 +322,7 @@ function displayResult(
     (res.packageManager as SupportedProjectTypes) || options.packageManager;
   const localPackageTest = isLocalFolder(options.path);
   let testingPath = options.path;
-  if (options.iac && options.iacDirFiles && res.targetFile) {
+  if (options.iac && res.targetFile) {
     testingPath = pathLib.basename(res.targetFile);
   }
   const prefix = chalk.bold.white('\nTesting ' + testingPath + '...\n\n');
@@ -344,7 +340,7 @@ function displayResult(
 
   if (res.dependencyCount) {
     pathOrDepsText += res.dependencyCount + ' dependencies';
-  } else if (options.iacDirFiles && res.targetFile) {
+  } else if (options.iac && res.targetFile) {
     pathOrDepsText += pathLib.basename(res.targetFile);
   } else {
     pathOrDepsText += options.path;

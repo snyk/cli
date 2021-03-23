@@ -23,6 +23,7 @@ export interface TestOptions {
   yarnWorkspaces?: boolean;
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
+  /** @deprecated Only used by the legacy `iac test` flow remove once local exec path is GA */
   iacDirFiles?: IacFileInDirectory[];
 }
 
