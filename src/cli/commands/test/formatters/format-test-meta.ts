@@ -13,9 +13,9 @@ export function formatTestMeta(
   const packageManager = res.packageManager || options.packageManager;
   const targetFile = res.targetFile || res.displayTargetFile || options.file;
   const openSource = res.isPrivate ? 'no' : 'yes';
-  const meta = [
-    chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org,
-  ];
+  const meta = res.org
+    ? [chalk.bold(rightPadWithSpaces('Organization: ', padToLength)) + res.org]
+    : [];
   if (options.iac) {
     meta.push(
       chalk.bold(rightPadWithSpaces('Type: ', padToLength)) +
