@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import * as path from 'path';
 import { updateDependencies } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies';
+import { parseRequirementsFile } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
 
 describe('remediation', () => {
   it('does not add extra new lines', () => {
@@ -24,7 +25,8 @@ describe('remediation', () => {
     const expectedManifest =
       'Django==2.0.1\ntransitive>=1.1.1 # not directly required, pinned by Snyk to avoid a vulnerability';
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes.map((c) => c.userMessage).sort()).toEqual(
       [
         'Upgraded Django from 1.6.1 to 2.0.1',
@@ -56,7 +58,8 @@ describe('remediation', () => {
     const expectedManifest =
       'Django==2.0.1\ntransitive>=1.1.1 # not directly required, pinned by Snyk to avoid a vulnerability\n';
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes.map((c) => c.userMessage).sort()).toEqual(
       [
         'Upgraded Django from 1.6.1 to 2.0.1',
@@ -87,7 +90,8 @@ describe('remediation', () => {
     const expectedManifest =
       '\n#some comment\n\nDjango==2.0.1\ntransitive>=1.1.1 # not directly required, pinned by Snyk to avoid a vulnerability\n';
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes.map((c) => c.userMessage).sort()).toEqual(
       [
         'Upgraded Django from 1.6.1 to 2.0.1',
@@ -110,8 +114,8 @@ describe('remediation', () => {
     const manifestContents = 'django==1.6.1\n';
 
     const expectedManifest = 'django==2.0.1\n';
-
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes[0].userMessage).toEqual(
       'Upgraded django from 1.6.1 to 2.0.1',
     );
@@ -132,7 +136,8 @@ describe('remediation', () => {
 
     const expectedManifest = 'Django==2.0.1\n';
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes[0].userMessage).toEqual(
       'Upgraded Django from 1.6.1 to 2.0.1',
     );
@@ -153,7 +158,8 @@ describe('remediation', () => {
 
     const expectedManifest = 'foo==55.66.7\n';
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes[0].userMessage).toEqual(
       'Upgraded foo from 12.123.14 to 55.66.7',
     );
@@ -174,7 +180,8 @@ describe('remediation', () => {
 
     const expectedManifest = 'django==2.0.1 # this is a comment\n';
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes[0].userMessage).toEqual(
       'Upgraded django from 1.6.1 to 2.0.1',
     );
@@ -201,7 +208,8 @@ describe('remediation', () => {
 
     const expectedManifest = 'django>=2.0.1\nclick>7.1';
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes.map((c) => c.userMessage)).toEqual([
       'Upgraded django from 1.6.1 to 2.0.1',
       'Upgraded click from 7.0 to 7.1',
@@ -236,7 +244,8 @@ describe('remediation', () => {
       'utf8',
     );
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes.map((c) => c.userMessage).sort()).toEqual(
       [
         'Upgraded Django from 1.6.1 to 2.0.1',
@@ -267,7 +276,8 @@ describe('remediation', () => {
       'utf8',
     );
 
-    const result = updateDependencies(manifestContents, upgrades);
+    const requirements = parseRequirementsFile(manifestContents);
+    const result = updateDependencies(requirements, upgrades);
     expect(result.changes[0].userMessage).toEqual(
       'Upgraded click from 7.0 to 7.1',
     );
@@ -286,10 +296,14 @@ describe('remediation', () => {
       ),
       'utf8',
     );
+    const requirements = parseRequirementsFile(manifestContents);
+
     try {
-      updateDependencies(manifestContents, upgrades);
+      updateDependencies(requirements, upgrades);
     } catch (e) {
-      expect(e.message).toEqual('No fixes could be applied. Please contact support@snyk.io');
+      expect(e.message).toEqual(
+        'No fixes could be applied. Please contact support@snyk.io',
+      );
     }
   });
 });

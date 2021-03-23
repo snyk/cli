@@ -14,8 +14,8 @@ describe('generatePins', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = generatePins(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = generatePins(requirements, updates);
     expect(result.changes).toEqual([]);
     expect(result.pinnedRequirements).toEqual([]);
   });
@@ -38,8 +38,8 @@ describe('generatePins', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = generatePins(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = generatePins(requirements, updates);
     expect(result.changes.map((c) => c.userMessage).sort()).toEqual(
       ['Pinned transitive from 1.0.0 to 1.1.1'].sort(),
     );
@@ -66,8 +66,8 @@ describe('generatePins', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = generatePins(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = generatePins(requirements, updates);
     expect(result.changes.map((c) => c.userMessage).sort()).toEqual(
       ['Pinned transitive from 1.0.0 to 1.1.1'].sort(),
     );
