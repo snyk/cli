@@ -19,12 +19,13 @@ export interface Requirement {
  * such as name, version, etc.
  * @param requirementsFile A requirements.txt file as a string
  */
-export function parseRequirementsFile(
-  requirementsFile: string,
-): {
+export interface ParsedRequirements {
   requirements: Requirement[];
   endsWithNewLine: boolean;
-} {
+}
+export function parseRequirementsFile(
+  requirementsFile: string,
+): ParsedRequirements {
   const endsWithNewLine = requirementsFile.endsWith('\n');
   const lines = requirementsFile.replace(/\n$/, '').split('\n');
   const requirements: Requirement[] = [];

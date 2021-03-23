@@ -1,10 +1,9 @@
 import * as debugLib from 'debug';
 
-import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
 import { DependencyPins, FixChangesSummary } from '../../../../../types';
 import { generatePins } from './generate-pins';
 import { applyUpgrades } from './apply-upgrades';
-import { parseRequirementsFile } from './requirements-file-parser';
+import { ParsedRequirements } from './requirements-file-parser';
 import { generateUpgrades } from './generate-upgrades';
 import { FailedToParseManifest } from '../../../../../lib/errors/failed-to-parse-manifest';
 
@@ -18,15 +17,14 @@ const debug = debugLib('snyk-fix:python:update-dependencies');
  * `requirements.txt` must be in the manifests.
  */
 export function updateDependencies(
-  requirementsTxt: string,
+  parsedRequirementsData: ParsedRequirements,
   updates: DependencyPins,
 ): { updatedManifest: string; changes: FixChangesSummary[] } {
   const {
-    requirements: parsedRequirementsData,
+    requirements,
     endsWithNewLine: shouldEndWithNewLine,
-  } = parseRequirementsFile(requirementsTxt);
-
-  if (!parsedRequirementsData.length) {
+  } = parsedRequirementsData;
+  if (!requirements.length) {
     debug(
       'Error: Expected to receive parsed manifest data. Is manifest empty?',
     );
@@ -35,19 +33,19 @@ export function updateDependencies(
   debug('Finished parsing manifest');
 
   const { updatedRequirements, changes: upgradedChanges } = generateUpgrades(
-    parsedRequirementsData,
+    requirements,
     updates,
   );
   debug('Finished generating upgrades to apply');
 
   const { pinnedRequirements, changes: pinChanges } = generatePins(
-    parsedRequirementsData,
+    requirements,
     updates,
   );
   debug('Finished generating pins to apply');
 
   let updatedManifest = [
-    ...applyUpgrades(parsedRequirementsData, updatedRequirements),
+    ...applyUpgrades(requirements, updatedRequirements),
     ...pinnedRequirements,
   ].join('\n');
 
@@ -57,12 +55,6 @@ export function updateDependencies(
     updatedManifest += '\n';
   }
   debug('Finished applying changes to manifest');
-
-  // TODO: do this with the changes now that we only return new
-  if (updatedManifest === requirementsTxt) {
-    debug('Manifest has not changed!');
-    throw new NoFixesCouldBeAppliedError();
-  }
 
   return {
     updatedManifest,
