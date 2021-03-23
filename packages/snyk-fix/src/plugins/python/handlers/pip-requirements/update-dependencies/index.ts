@@ -21,7 +21,10 @@ export function updateDependencies(
   requirementsTxt: string,
   updates: DependencyPins,
 ): { updatedManifest: string; changes: FixChangesSummary[] } {
-  const parsedRequirementsData = parseRequirementsFile(requirementsTxt);
+  const {
+    requirements: parsedRequirementsData,
+    endsWithNewLine: shouldEndWithNewLine,
+  } = parseRequirementsFile(requirementsTxt);
 
   if (!parsedRequirementsData.length) {
     debug(
@@ -50,7 +53,7 @@ export function updateDependencies(
 
   // This is a bit of a hack, but an easy one to follow. If a file ends with a
   // new line, ensure we keep it this way. Don't hijack customers formatting.
-  if (requirementsTxt.endsWith('\n')) {
+  if (shouldEndWithNewLine) {
     updatedManifest += '\n';
   }
   debug('Finished applying changes to manifest');

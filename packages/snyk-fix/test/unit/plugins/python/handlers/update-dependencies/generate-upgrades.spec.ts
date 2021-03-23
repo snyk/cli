@@ -14,8 +14,8 @@ describe('generateUpgrades', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = generateUpgrades(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = generateUpgrades(requirements, updates);
     expect(result.changes).toEqual([]);
     expect(result.updatedRequirements).toEqual({});
   });
@@ -38,8 +38,8 @@ describe('generateUpgrades', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = generateUpgrades(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = generateUpgrades(requirements, updates);
     expect(result.changes).toEqual([]);
     expect(result.updatedRequirements).toEqual({});
   });
@@ -62,8 +62,8 @@ describe('generateUpgrades', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = generateUpgrades(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = generateUpgrades(requirements, updates);
     expect(result.changes.map((c) => c.userMessage).sort()).toEqual(
       ['Upgraded Django from 1.6.1 to 2.0.1'].sort(),
     );
@@ -90,8 +90,8 @@ describe('generateUpgrades', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = generateUpgrades(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = generateUpgrades(requirements, updates);
     expect(result.changes.map((c) => c.userMessage).sort()).toEqual(
       ['Upgraded Django from 1.6.1 to 2.0.1'].sort(),
     );

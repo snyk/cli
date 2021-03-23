@@ -19,7 +19,13 @@ export interface Requirement {
  * such as name, version, etc.
  * @param requirementsFile A requirements.txt file as a string
  */
-export function parseRequirementsFile(requirementsFile: string): Requirement[] {
+export function parseRequirementsFile(
+  requirementsFile: string,
+): {
+  requirements: Requirement[];
+  endsWithNewLine: boolean;
+} {
+  const endsWithNewLine = requirementsFile.endsWith('\n');
   const lines = requirementsFile.replace(/\n$/, '').split('\n');
   const requirements: Requirement[] = [];
   lines.map((requirementText: string, line: number) => {
@@ -28,7 +34,7 @@ export function parseRequirementsFile(requirementsFile: string): Requirement[] {
       requirements.push(requirement);
     }
   });
-  return requirements;
+  return { requirements, endsWithNewLine };
 }
 
 function extractDependencyDataFromLine(

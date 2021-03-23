@@ -7,9 +7,9 @@ describe('applyUpgrades', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = applyUpgrades(parseManifest, updates);
-    expect(result).toEqual(parseManifest.map((o) => o.originalText));
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = applyUpgrades(requirements, updates);
+    expect(result).toEqual(requirements.map((o) => o.originalText));
   });
 
   it('returns correctly when upgrade is to itself', () => {
@@ -19,8 +19,8 @@ describe('applyUpgrades', () => {
 
     const manifestContents = 'Django==1.6.1';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = applyUpgrades(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = applyUpgrades(requirements, updates);
     expect(result).toEqual(['Django==1.6.1']);
   });
 
@@ -31,8 +31,8 @@ describe('applyUpgrades', () => {
 
     const manifestContents = 'django>=1.6.1\nclick>7.0';
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = applyUpgrades(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = applyUpgrades(requirements, updates);
     expect(result.sort()).toEqual(['click>7.0', 'django==2.0.1'].sort());
   });
 
@@ -45,8 +45,8 @@ describe('applyUpgrades', () => {
     const manifestContents =
       "click==7.1 ; python_version > '1.0'\nconnexion[swagger-ui]==2.2.0";
 
-    const parseManifest = parseRequirementsFile(manifestContents);
-    const result = applyUpgrades(parseManifest, updates);
+    const { requirements } = parseRequirementsFile(manifestContents);
+    const result = applyUpgrades(requirements, updates);
     expect(result.sort()).toEqual(
       [
         'connexion[swagger-ui]==2.2.0',
