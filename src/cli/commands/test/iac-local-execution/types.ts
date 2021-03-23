@@ -115,14 +115,19 @@ export interface TerraformScanInput {
 }
 
 // taken from: https://www.terraform.io/docs/internals/json-format.html#change-representation
-type ResourceActions =
+export type ResourceActions =
   | ['no-op']
   | ['create']
   | ['read']
   | ['update']
-  | ['delete', 'create'] // not sure what this pair does
-  | ['create', 'delete'] // not sure what this pair does
+  | ['delete', 'create'] // resources you cannot update in place
+  | ['create', 'delete'] // for zero-downtime upgrades
   | ['delete'];
 
 // we will be scanning the `create` & `update` actions only.
-export const VALID_RESOURCE_ACTIONS = ['create', 'update'];
+export const VALID_RESOURCE_ACTIONS: ResourceActions[] = [
+  ['create'],
+  ['update'],
+  ['create', 'delete'],
+  ['delete', 'create'],
+];

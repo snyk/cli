@@ -4,6 +4,7 @@ import {
   IacFileParsed,
   TerraformPlanJson,
   TerraformPlanResource,
+  ResourceActions,
   VALID_RESOURCE_ACTIONS,
   TerraformScanInput,
   TerraformPlanResourceChange,
@@ -35,7 +36,7 @@ function resourceChangeReducer(
 ): TerraformScanInput {
   // TODO: investigate if we need to adress also `after_unknown` field.
   const { actions, after } = resource.change || { actions: [], after: {} };
-  if (actions.some((action) => VALID_RESOURCE_ACTIONS.includes(action))) {
+  if (isValidResourceActions(actions)) {
     const resourceForReduction = { ...resource, values: after || {} };
     return terraformPlanReducer(scanInput, resourceForReduction);
   }
@@ -43,10 +44,19 @@ function resourceChangeReducer(
   return scanInput;
 }
 
+function isValidResourceActions(action: ResourceActions): boolean {
+  return VALID_RESOURCE_ACTIONS.some((validAction: string[]) => {
+    if (action.length !== validAction.length) return false;
+    return validAction.every(
+      (field: string, idx: number) => action[idx] === field,
+    );
+  });
+}
+
 function extractRootModuleResources(
   terraformPlanJson: TerraformPlanJson,
 ): Array<TerraformPlanResource> {
-  return terraformPlanJson?.planned_values?.root_module?.resources || [];
+  return terraformPlanJson.planned_values?.root_module?.resources || [];
 }
 
 function extractChildModulesResources(
