@@ -9,7 +9,7 @@ Describe "Snyk iac test command"
     It "finds issues in k8s file"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml
       The status should be failure # issues found
-      The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
+      The output should include "Testing pod-privileged.yaml..."
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
@@ -33,13 +33,13 @@ Describe "Snyk iac test command"
       The output should include "Project name:      kubernetes"
       The output should include "Open source:       no"
       The output should include "Project path:      ../fixtures/iac/kubernetes/pod-privileged.yaml"
-      The output should include "Tested ../fixtures/iac/kubernetes/pod-privileged.yaml for known issues, found"
+      The output should include "Tested pod-privileged.yaml for known issues, found"
     End
 
     It "filters out issues when using severity threshold"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --severity-threshold=high
       The status should be failure # one issue found
-      The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
+      The output should include "Testing pod-privileged.yaml..."
 
       The output should include "Infrastructure as code issues:"
       The output should include "✗ Container is running in privileged mode [High Severity] [SNYK-CC-K8S-1] in Deployment"
@@ -51,7 +51,7 @@ Describe "Snyk iac test command"
       The output should include "Project name:      kubernetes"
       The output should include "Open source:       no"
       The output should include "Project path:      ../fixtures/iac/kubernetes/pod-privileged.yaml"
-      The output should include "Tested ../fixtures/iac/kubernetes/pod-privileged.yaml for known issues, found"
+      The output should include "Tested pod-privileged.yaml for known issues, found"
     End
 
     It "outputs an error for files with no valid k8s objects"

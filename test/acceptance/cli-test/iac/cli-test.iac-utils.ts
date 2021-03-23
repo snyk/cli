@@ -5,6 +5,7 @@ import {
   IacTestResponse,
 } from '../../../../src/lib/snyk-test/iac-test-result';
 import { Log, Run, Result } from 'sarif';
+import { basename } from 'path';
 
 export enum IacAcceptanceTestType {
   SINGLE_K8S_FILE = 1,
@@ -159,7 +160,9 @@ export async function iacTest(
   const res = testableObject.message;
   t.match(
     res,
-    `Tested ${testParams[testType].displayFilePath} for known issues, found ${numOfIssues} issues`,
+    `Tested ${basename(
+      testParams[testType].displayFilePath,
+    )} for known issues, found ${numOfIssues} issues`,
     `${numOfIssues} issue`,
   );
   iacTestMetaAssertions(t, res, testType);

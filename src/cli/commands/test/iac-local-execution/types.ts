@@ -1,6 +1,10 @@
 import { IacProjectType } from '../../../../lib/iac/constants';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
-import { IacFileInDirectory } from '../../../../lib/types';
+import {
+  IacFileInDirectory,
+  Options,
+  TestOptions,
+} from '../../../../lib/types';
 
 export interface IacFileData extends IacFileInDirectory {
   fileContent: string;
@@ -75,10 +79,36 @@ export interface PolicyMetadata {
   references: string[];
 }
 
-export interface IacOptionFlags {
+// Collection of all options supported by `iac test` command.
+// TODO: Needs to be fixed at the args module level.
+export type IaCTestFlags = Pick<
+  Options & TestOptions,
+  | 'insecure'
+  | 'debug'
+  | 'experimental'
+  | 'detectionDepth'
+  | 'severityThreshold'
+  | 'json'
+  | 'sarif'
+> & {
+  // Supported flags not yet covered by Options or TestOptions
+  'json-file-output'?: string;
+  'sarif-file-output'?: string;
+  v?: boolean;
+  version?: boolean;
+  h?: boolean;
+  help?: 'help';
+  q?: boolean;
+  quiet?: boolean;
+};
+
+// Includes all IaCTestOptions plus additional properties
+// that are added at runtime and not part of the parsed
+// CLI flags.
+export type IaCTestOptions = IaCTestFlags & {
+  /** @deprecated Only used by the legacy `iac test` flow remove once local exec path is GA */
   iacDirFiles?: Array<IacFileInDirectory>;
-  severityThreshold?: SEVERITY;
-}
+};
 
 export interface TerraformPlanResource {
   address: string; // "aws_cloudwatch_log_group.terra_ci",

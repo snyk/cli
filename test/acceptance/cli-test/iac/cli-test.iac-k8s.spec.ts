@@ -79,7 +79,7 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested iac-kubernetes/multi-file.yaml for known issues, found 3 issues',
+          'Tested multi-file.yaml for known issues, found 3 issues',
           '3 issue',
         );
 

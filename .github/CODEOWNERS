@@ -3,8 +3,9 @@ README.md  @snyk/content @snyk/boost
 src/cli/commands/test/formatters/format-reachability.ts  @snyk/flow
 help/  @snyk/hammer
 *  @snyk/hammer @snyk/boost
-src/cli/commands/test/iac-output.ts @snyk/cloudconfig
 src/cli/commands/test/iac-local-execution/ @snyk/cloudconfig
+src/cli/commands/test/iac-output.ts @snyk/cloudconfig
+src/cli/commands/test/iac-test-shim.ts @snyk/cloudconfig
 src/lib/cloud-config-projects.ts @snyk/cloudconfig
 src/lib/plugins/sast/ @snyk/sast-team
 src/lib/iac/ @snyk/cloudconfig

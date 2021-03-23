@@ -4,19 +4,28 @@ import { scanFiles } from './file-scanner';
 import { formatScanResults } from './results-formatter';
 import { isLocalFolder } from '../../../../lib/detect';
 import {
-  IacOptionFlags,
+  IaCTestFlags,
   IacFileParsed,
   IacFileParseFailure,
   SafeAnalyticsOutput,
 } from './types';
 import { initLocalCache } from './local-cache';
 import { addIacAnalytics } from './analytics';
+import { TestResult } from '../../../../lib/snyk-test/legacy';
+import { IacFileInDirectory } from '../../../../lib/types';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // the current version is dependent on files to be present locally which are not part of the source code.
 // without these files this method would fail.
 // if you're interested in trying out the experimental local execution model for IaC scanning, please reach-out.
-export async function test(pathToScan: string, options: IacOptionFlags) {
+export async function test(
+  pathToScan: string,
+  options: IaCTestFlags,
+): Promise<{
+  results: TestResult | TestResult[];
+  /** All files scanned by IaC with parse errors */
+  failures?: IacFileInDirectory[];
+}> {
   await initLocalCache();
   const filesToParse = await loadFiles(pathToScan);
   const { parsedFiles, failedFiles } = await parseFiles(filesToParse);
@@ -24,16 +33,14 @@ export async function test(pathToScan: string, options: IacOptionFlags) {
   const formattedResults = formatScanResults(scannedFiles, options);
   addIacAnalytics(formattedResults);
 
-  if (isLocalFolder(pathToScan)) {
-    // TODO: This mutation is here merely to support how the old/current directory scan printing works.
-    // NOTE: No file or parsed file data should leave this function.
-    options.iacDirFiles = [...parsedFiles, ...failedFiles].map(
-      removeFileContent,
-    );
-  }
-
   // TODO: add support for proper typing of old TestResult interface.
-  return formattedResults as any;
+  return {
+    results: (formattedResults as unknown) as TestResult[],
+    // NOTE: No file or parsed file data should leave this function.
+    failures: isLocalFolder(pathToScan)
+      ? failedFiles.map(removeFileContent)
+      : undefined,
+  };
 }
 
 export function removeFileContent({

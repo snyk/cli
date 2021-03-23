@@ -23,6 +23,7 @@ export interface TestOptions {
   yarnWorkspaces?: boolean;
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
+  /** @deprecated Only used by the legacy `iac test` flow remove once local exec path is GA */
   iacDirFiles?: IacFileInDirectory[];
 }
 
@@ -72,7 +73,7 @@ export interface Options {
   detectionDepth?: number;
   exclude?: string;
   strictOutOfSync?: boolean;
-  // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
+  // Used only with the IaC mode & Docker plugin. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;

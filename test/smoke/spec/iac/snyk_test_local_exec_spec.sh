@@ -6,6 +6,14 @@ Describe "Snyk iac test --experimental command"
   Before snyk_login
   After snyk_logout
 
+  Describe "basic usage"
+    It "outputs an error if the --experimental flag is mistyped"
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml --experimentl
+      The status should be failure
+      The output should include "Unsupported flag"
+    End
+  End
+
   Describe "logging regression tests"
     It "does not include file content in analytics logs"
       # Run with the -d flag on directory to output network requests and analytics data.
@@ -22,7 +30,7 @@ Describe "Snyk iac test --experimental command"
     It "finds issues in k8s file"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental
       The status should be failure # issues found
-      The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
+      The output should include "Testing pod-privileged.yaml..."
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
@@ -33,7 +41,7 @@ Describe "Snyk iac test --experimental command"
     It "filters out issues when using severity threshold"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental --severity-threshold=high
       The status should be failure # one issue found
-      The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
+      The output should include "Testing pod-privileged.yaml..."
 
       The output should include "Infrastructure as code issues:"
       The output should include "✗ Container is running in privileged mode [High Severity] [SNYK-CC-K8S-1] in Deployment"
@@ -66,7 +74,7 @@ Describe "Snyk iac test --experimental command"
     It "finds issues in terraform file"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental
       The status should be failure # issues found
-      The output should include "Testing ../fixtures/iac/terraform/sg_open_ssh.tf..."
+      The output should include "Testing sg_open_ssh.tf..."
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
@@ -77,10 +85,10 @@ Describe "Snyk iac test --experimental command"
     It "filters out issues when using severity threshold"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental --severity-threshold=high
       The status should be success # no issues found
-      The output should include "Testing ../fixtures/iac/terraform/sg_open_ssh.tf..."
+      The output should include "Testing sg_open_ssh.tf..."
 
       The output should include "Infrastructure as code issues:"
-      The output should include "Tested ../fixtures/iac/terraform/sg_open_ssh.tf for known issues, found 0 issues"
+      The output should include "Tested sg_open_ssh.tf for known issues, found 0 issues"
     End
 
     # TODO: currently skipped because the parser we're using doesn't fail on invalid terraform
@@ -151,7 +159,7 @@ Describe "Snyk iac test --experimental command"
     It "finds issues in a Terraform plan file"
       When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental
       The status should be failure # issues found
-      The output should include "Testing ../fixtures/iac/terraform-plan/tf-plan.json"
+      The output should include "Testing tf-plan.json"
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
@@ -180,7 +188,7 @@ Describe "Snyk iac test --experimental command"
       The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
       The output should include "  introduced by resource > aws_security_group[CHILD_MODULE_terra_ci_allow_outband_0] > ingress"
 
-      The output should include "../fixtures/iac/terraform-plan/tf-plan.json for known issues, found 2 issues"
+      The output should include "tf-plan.json for known issues, found 2 issues"
     End
   End
 End
