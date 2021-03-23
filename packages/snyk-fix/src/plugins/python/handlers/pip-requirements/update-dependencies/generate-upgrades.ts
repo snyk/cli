@@ -1,4 +1,5 @@
 import { DependencyPins, FixChangesSummary } from '../../../../../types';
+import { calculateRelevantFixes } from './calculate-relevant-fixes';
 import { Requirement } from './requirements-file-parser';
 import { UpgradedRequirements } from './types';
 
@@ -9,14 +10,11 @@ export function generateUpgrades(
   // Lowercase the upgrades object. This might be overly defensive, given that
   // we control this input internally, but its a low cost guard rail. Outputs a
   // mapping of upgrade to -> from, instead of the nested upgradeTo object.
-  const lowerCasedUpgrades: { [upgradeFrom: string]: string } = {};
-
-  Object.keys(updates).forEach((update) => {
-    const { upgradeTo, isTransitive } = updates[update];
-    if (!isTransitive) {
-      lowerCasedUpgrades[update.toLowerCase()] = upgradeTo.toLowerCase();
-    }
-  });
+  const lowerCasedUpgrades = calculateRelevantFixes(
+    requirements,
+    updates,
+    'direct-upgrades',
+  );
   if (Object.keys(lowerCasedUpgrades).length === 0) {
     return {
       updatedRequirements: {},
