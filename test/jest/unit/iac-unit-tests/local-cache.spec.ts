@@ -1,13 +1,11 @@
 import * as localCacheModule from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
-import { REQUIRED_LOCAL_CACHE_FILES } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
 import { PassThrough } from 'stream';
 import * as needle from 'needle';
 
-describe('initLocalCache - SNYK_IAC_SKIP_BUNDLE_DOWNLOAD is not set', () => {
+describe('initLocalCache - downloads bundle successfully', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    delete process.env.SNYK_IAC_SKIP_BUNDLE_DOWNLOAD;
   });
 
   const fs = require('fs');
@@ -25,31 +23,24 @@ describe('initLocalCache - SNYK_IAC_SKIP_BUNDLE_DOWNLOAD is not set', () => {
   });
 });
 
-describe('initLocalCache - SNYK_IAC_SKIP_BUNDLE_DOWNLOAD is true', () => {
+describe('initLocalCache - Missing IaC local cache data', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    process.env.SNYK_IAC_SKIP_BUNDLE_DOWNLOAD = 'true';
   });
 
   const fs = require('fs');
 
-  it('skips the download of the bundle', async () => {
-    fs.existsSync = jest.fn().mockReturnValue(true);
-    jest.spyOn(fileUtilsModule, 'extractBundle');
-
-    await localCacheModule.initLocalCache();
-
-    expect(fileUtilsModule.extractBundle).not.toHaveBeenCalled();
-  });
-
-  it('skips the download of the bundle but throws an error', () => {
+  it('throws an error on download', () => {
     const error = new Error(
-      `Missing IaC local cache data, please validate you have: \n${REQUIRED_LOCAL_CACHE_FILES.join(
-        '\n',
-      )}`,
+      'The .iac-data directory can not be created. ' +
+        'Please make sure that the current working directory has write permissions',
     );
+
     fs.existsSync = jest.fn().mockReturnValue(false);
     jest.spyOn(fileUtilsModule, 'extractBundle');
+    jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => {
+      throw error;
+    });
 
     const promise = localCacheModule.initLocalCache();
 

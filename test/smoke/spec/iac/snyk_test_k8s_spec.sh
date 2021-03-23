@@ -42,8 +42,8 @@ Describe "Snyk iac test command"
       The output should include "Testing pod-privileged.yaml..."
 
       The output should include "Infrastructure as code issues:"
-      The output should include "✗ Container is running in privileged mode [High Severity] [SNYK-CC-K8S-1] in Deployment"
-      The output should include "introduced by input > spec > containers[example] > securityContext > privileged"
+      The output should include "✗ Container is running in privileged mode"
+      The output should include "introduced by"
 
       The output should include "Organization:"
       The output should include "Type:              Kubernetes"
