@@ -1,4 +1,5 @@
 import * as debugLib from 'debug';
+import * as pathLib from 'path';
 
 import {
   EntityToFix,
@@ -11,7 +12,7 @@ import { MissingRemediationDataError } from '../../../../lib/errors/missing-reme
 import { MissingFileNameError } from '../../../../lib/errors/missing-file-name';
 import { partitionByFixable } from './is-supported';
 import { NoFixesCouldBeAppliedError } from '../../../../lib/errors/no-fixes-applied';
-import { parseRequirementsFile } from './update-dependencies/requirements-file-parser';
+import { extractProvenance } from './extract-version-provenance';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -53,17 +54,19 @@ export async function fixIndividualRequirementsTxt(
   if (!fileName) {
     throw new MissingFileNameError();
   }
-  const requirementsTxt = await entity.workspace.readFile(fileName);
-  const requirementsData = parseRequirementsFile(requirementsTxt);
-
+  const { dir, base } = pathLib.parse(fileName);
+  const versionProvenance = await extractProvenance(
+    entity.workspace,
+    dir,
+    base,
+  );
   // TODO: allow handlers per fix type (later also strategies or combine with strategies)
   const { updatedManifest, changes } = updateDependencies(
-    requirementsData,
+    versionProvenance[base],
     remediationData.pin,
   );
 
-  // TODO: do this with the changes now that we only return new
-  if (updatedManifest === requirementsTxt) {
+  if (!changes.length) {
     debug('Manifest has not changed!');
     throw new NoFixesCouldBeAppliedError();
   }

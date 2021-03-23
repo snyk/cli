@@ -20,7 +20,8 @@ export async function extractProvenance(
   fileName: string,
   provenance: PythonProvenance = {},
 ): Promise<PythonProvenance> {
-  const requirementsTxt = await workspace.readFile(path.join(dir, fileName));
+  const requirementsFileName = path.join(dir, fileName);
+  const requirementsTxt = await workspace.readFile(requirementsFileName);
   provenance = {
     ...provenance,
     [fileName]: parseRequirementsFile(requirementsTxt),
