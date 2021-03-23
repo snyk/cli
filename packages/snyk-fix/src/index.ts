@@ -61,6 +61,7 @@ export async function fix(
     text: 'Done',
     symbol: meta.fixed === 0 ? chalk.red('✖') : chalk.green('✔'),
   });
+
   return {
     results: resultsByPlugin,
     exceptions: exceptionsByScanType,

@@ -441,7 +441,7 @@ jobs:
       - run:
           name: Lerna Publish
           command: |
-            lerna publish minor --yes --no-push --no-git-tag-version
+            lerna publish minor --yes --no-push --no-git-tag-version --exact
       - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
