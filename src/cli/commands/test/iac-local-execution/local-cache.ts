@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { EngineType } from './types';
 import * as needle from 'needle';
+import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle } from './file-utils';
 import ReadableStream = NodeJS.ReadableStream;
 
@@ -63,5 +64,17 @@ export async function initLocalCache(): Promise<void> {
         '\n',
       )}`,
     );
+  }
+}
+
+export function cleanLocalCache() {
+  // path to delete is hardcoded for now
+  const iacPath: fs.PathLike = path.join(`${process.cwd()}`, '.iac-data');
+  if (fs.existsSync(iacPath)) {
+    try {
+      rimraf.sync(iacPath);
+    } catch (e) {
+      throw Error('The local cache directory could not be deleted');
+    }
   }
 }
