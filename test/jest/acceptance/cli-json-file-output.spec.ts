@@ -1,18 +1,13 @@
 import { exec } from 'child_process';
 import { sep, join } from 'path';
-import { readFileSync, unlinkSync, rmdirSync, mkdirSync, existsSync } from 'fs';
+import { readFileSync, unlinkSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { fakeServer } from '../../acceptance/fake-server';
 import cli = require('../../../src/cli/commands');
 
-const osName = require('os-name');
-
 const main = './dist/cli/index.js'.replace(/\//g, sep);
 const testTimeout = 50000;
-const isWindows =
-  osName()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+
 describe('test --json-file-output ', () => {
   let oldkey;
   let oldendpoint;
@@ -122,79 +117,4 @@ describe('test --json-file-output ', () => {
     },
     testTimeout,
   );
-
-  it(
-    '`test --json-file-output can handle a relative path`',
-
-    (done) => {
-      // if 'test-output' doesn't exist, created it
-      if (!existsSync('test-output')) {
-        mkdirSync('test-output');
-      }
-
-      const tempFolder = uuidv4();
-      const outputPath = `test-output/${tempFolder}/snyk-direct-json-test-output.json`;
-
-      exec(
-        `node ${main} test ${noVulnsProjectPath} --json --json-file-output=${outputPath}`,
-        {
-          env: {
-            PATH: process.env.PATH,
-            SNYK_TOKEN: apiKey,
-            SNYK_API,
-            SNYK_HOST,
-          },
-        },
-        async (err, stdout) => {
-          if (err) {
-            throw err;
-          }
-          // give file a little time to be finished to be written
-          await new Promise((r) => setTimeout(r, 5000));
-          const stdoutJson = stdout;
-          const outputFileContents = readFileSync(outputPath, 'utf-8');
-          unlinkSync(outputPath);
-          rmdirSync(`test-output/${tempFolder}`);
-          expect(stdoutJson).toEqual(outputFileContents);
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
-
-  if (isWindows) {
-    test.skip(
-      '`test --json-file-output can handle an absolute path`',
-      () => {
-        // if 'test-output' doesn't exist, created it
-        if (!existsSync('test-output')) {
-          mkdirSync('test-output');
-        }
-
-        const tempFolder = uuidv4();
-        const outputPath = join(
-          process.cwd(),
-          `test-output/${tempFolder}/snyk-direct-json-test-output.json`,
-        );
-
-        exec(
-          `node ${main} test ${noVulnsProjectPath} --json --json-file-output=${outputPath}`,
-          async (err, stdout) => {
-            if (err) {
-              throw err;
-            }
-            // give file a little time to be finished to be written
-            await new Promise((r) => setTimeout(r, 5000));
-            const stdoutJson = stdout;
-            const outputFileContents = readFileSync(outputPath, 'utf-8');
-            unlinkSync(outputPath);
-            rmdirSync(`test-output/${tempFolder}`);
-            expect(stdoutJson).toEqual(outputFileContents);
-          },
-        );
-      },
-      testTimeout,
-    );
-  }
 });

@@ -29,10 +29,7 @@ import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
-import {
-  createDirectory,
-  writeContentsToFileSwallowingErrors,
-} from '../lib/json-file-output';
+import { saveJsonToFileCreatingDirectoryIfRequired } from '../lib/json-file-output';
 import {
   Options,
   TestOptions,
@@ -188,12 +185,10 @@ async function saveJsonResultsToFile(
     return;
   }
 
-  // create the directory if it doesn't exist
-  const dirPath = pathLib.dirname(jsonOutputFile);
-  const createDirSuccess = createDirectory(dirPath);
-  if (createDirSuccess) {
-    await writeContentsToFileSwallowingErrors(jsonOutputFile, stringifiedJson);
-  }
+  await saveJsonToFileCreatingDirectoryIfRequired(
+    jsonOutputFile,
+    stringifiedJson,
+  );
 }
 
 function checkRuntime() {

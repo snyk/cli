@@ -1,5 +1,6 @@
 import { gte } from 'semver';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
+import * as path from 'path';
 
 export const MIN_VERSION_FOR_MKDIR_RECURSIVE = '10.12.0';
 
@@ -65,4 +66,15 @@ export async function writeContentsToFileSwallowingErrors(
       return Promise.resolve();
     }
   });
+}
+
+export async function saveJsonToFileCreatingDirectoryIfRequired(
+  jsonOutputFile: string,
+  contents: string,
+): Promise<void> {
+  const dirPath = path.dirname(jsonOutputFile);
+  const createDirSuccess = createDirectory(dirPath);
+  if (createDirSuccess) {
+    await writeContentsToFileSwallowingErrors(jsonOutputFile, contents);
+  }
 }
