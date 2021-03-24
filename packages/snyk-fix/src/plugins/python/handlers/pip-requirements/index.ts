@@ -3,8 +3,10 @@ import * as pathLib from 'path';
 
 import {
   EntityToFix,
+  FixChangesSummary,
   FixOptions,
-  WithFixChangesApplied,
+  RemediationChanges,
+  Workspace,
 } from '../../../../types';
 import { PluginFixResponse } from '../../../types';
 import { updateDependencies } from './update-dependencies';
@@ -12,7 +14,10 @@ import { MissingRemediationDataError } from '../../../../lib/errors/missing-reme
 import { MissingFileNameError } from '../../../../lib/errors/missing-file-name';
 import { partitionByFixable } from './is-supported';
 import { NoFixesCouldBeAppliedError } from '../../../../lib/errors/no-fixes-applied';
-import { extractProvenance } from './extract-version-provenance';
+import {
+  extractProvenance,
+  PythonProvenance,
+} from './extract-version-provenance';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -32,8 +37,18 @@ export async function pipRequirementsTxt(
 
   for (const entity of fixable) {
     try {
-      const fixedEntity = await fixIndividualRequirementsTxt(entity, options);
-      handlerResult.succeeded.push(fixedEntity);
+      const { remediation, targetFile, workspace } = getRequiredData(entity);
+      const { dir, base } = pathLib.parse(targetFile);
+      const provenance = await extractProvenance(workspace, dir, base);
+      const changes = await fixIndividualRequirementsTxt(
+        workspace,
+        dir,
+        base,
+        remediation,
+        provenance,
+        options,
+      );
+      handlerResult.succeeded.push({ original: entity, changes });
     } catch (e) {
       handlerResult.failed.push({ original: entity, error: e });
     }
@@ -41,29 +56,41 @@ export async function pipRequirementsTxt(
   return handlerResult;
 }
 
-// TODO: optionally verify the deps install
-export async function fixIndividualRequirementsTxt(
+export function getRequiredData(
   entity: EntityToFix,
-  options: FixOptions,
-): Promise<WithFixChangesApplied<EntityToFix>> {
-  const fileName = entity.scanResult.identity.targetFile;
-  const remediationData = entity.testResult.remediation;
-  if (!remediationData) {
+): {
+  remediation: RemediationChanges;
+  targetFile: string;
+  workspace: Workspace;
+} {
+  const { remediation } = entity.testResult;
+  if (!remediation) {
     throw new MissingRemediationDataError();
   }
-  if (!fileName) {
+  const { targetFile } = entity.scanResult.identity;
+  if (!targetFile) {
     throw new MissingFileNameError();
   }
-  const { dir, base } = pathLib.parse(fileName);
-  const versionProvenance = await extractProvenance(
-    entity.workspace,
-    dir,
-    base,
-  );
+  const { workspace } = entity;
+  if (!workspace) {
+    throw new NoFixesCouldBeAppliedError();
+  }
+  return { targetFile, remediation, workspace };
+}
+
+// TODO: optionally verify the deps install
+export async function fixIndividualRequirementsTxt(
+  workspace: Workspace,
+  dir: string,
+  fileName: string,
+  remediation: RemediationChanges,
+  provenance: PythonProvenance,
+  options: FixOptions,
+): Promise<FixChangesSummary[]> {
   // TODO: allow handlers per fix type (later also strategies or combine with strategies)
   const { updatedManifest, changes } = updateDependencies(
-    versionProvenance[base],
-    remediationData.pin,
+    provenance[fileName],
+    remediation.pin,
   );
 
   if (!changes.length) {
@@ -72,13 +99,10 @@ export async function fixIndividualRequirementsTxt(
   }
   if (!options.dryRun) {
     debug('Writing changes to file');
-    await entity.workspace.writeFile(fileName, updatedManifest);
+    await workspace.writeFile(pathLib.join(dir, fileName), updatedManifest);
   } else {
     debug('Skipping writing changes to file in --dry-run mode');
   }
 
-  return {
-    original: entity,
-    changes,
-  };
+  return changes;
 }
