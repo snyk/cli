@@ -2,14 +2,15 @@ import * as localCacheModule from '../../../../src/cli/commands/test/iac-local-e
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
 import { PassThrough } from 'stream';
 import * as needle from 'needle';
+import * as rimraf from 'rimraf';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('initLocalCache - downloads bundle successfully', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true);
   });
-
-  const fs = require('fs');
-  fs.existsSync = jest.fn().mockReturnValue(true);
 
   it('downloads and extracts the bundle successfully', () => {
     const mockReadable = new PassThrough();
@@ -21,22 +22,31 @@ describe('initLocalCache - downloads bundle successfully', () => {
 
     expect(spy).toHaveBeenCalledWith(mockReadable);
   });
+
+  it('cleans up the custom folder after finishes', () => {
+    const iacPath: fs.PathLike = path.join(`${process.cwd()}`, '.iac-data');
+    const stats: fs.Stats = new fs.Stats();
+    stats.isDirectory = jest.fn().mockReturnValue(true);
+    jest.spyOn(fs, 'lstatSync').mockReturnValueOnce(stats);
+    const spy = jest.spyOn(rimraf, 'sync');
+
+    localCacheModule.cleanLocalCache();
+
+    expect(spy).toHaveBeenCalledWith(iacPath);
+  });
 });
 
 describe('initLocalCache - Missing IaC local cache data', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false);
   });
-
-  const fs = require('fs');
 
   it('throws an error on download', () => {
     const error = new Error(
       'The .iac-data directory can not be created. ' +
         'Please make sure that the current working directory has write permissions',
     );
-
-    fs.existsSync = jest.fn().mockReturnValue(false);
     jest.spyOn(fileUtilsModule, 'extractBundle');
     jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => {
       throw error;
@@ -46,5 +56,13 @@ describe('initLocalCache - Missing IaC local cache data', () => {
 
     expect(fileUtilsModule.extractBundle).not.toHaveBeenCalled();
     expect(promise).rejects.toThrow(error);
+  });
+
+  it('does not delete the local cacheDir if it does not exist', () => {
+    const spy = jest.spyOn(rimraf, 'sync');
+
+    localCacheModule.cleanLocalCache();
+
+    expect(spy).not.toHaveBeenCalled();
   });
 });
