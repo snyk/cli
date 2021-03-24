@@ -117,6 +117,7 @@ export function getResults(testResult): sarif.Result[] {
 
 export function getLevel(vuln: AnnotatedIssue) {
   switch (vuln.severity) {
+    case SEVERITY.CRITICAL:
     case SEVERITY.HIGH:
       return 'error';
     case SEVERITY.MEDIUM:

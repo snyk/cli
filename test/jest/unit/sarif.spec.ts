@@ -11,6 +11,7 @@ describe('createSarifOutputForOpenSource', () => {
     expect(run.tool.driver.name).toEqual('Snyk Open Source');
     expect(run.tool.driver.rules).toHaveLength(1);
     expect(run.results).toHaveLength(1);
+    expect(run.results?.[0].level === 'error');
   });
 
   describe('replace lock-file to manifest-file', () => {
@@ -63,7 +64,7 @@ function getTestResult(testResultOverride = {}, vulnOverride = {}): TestResult {
         semver: {
           vulnerable: ['<6.12.3'],
         },
-        severity: SEVERITY.HIGH,
+        severity: SEVERITY.CRITICAL,
         title: 'Prototype Pollution',
         from: [
           'PROJECT_NAME@1.0.0',
