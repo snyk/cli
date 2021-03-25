@@ -19,6 +19,7 @@ const debug = debugLib('snyk-fix:python:update-dependencies');
 export function updateDependencies(
   parsedRequirementsData: ParsedRequirements,
   updates: DependencyPins,
+  directUpgradesOnly = false,
 ): { updatedManifest: string; changes: FixChangesSummary[] } {
   const {
     requirements,
@@ -38,11 +39,15 @@ export function updateDependencies(
   );
   debug('Finished generating upgrades to apply');
 
-  const { pinnedRequirements, changes: pinChanges } = generatePins(
-    requirements,
-    updates,
-  );
-  debug('Finished generating pins to apply');
+  let pinnedRequirements: string[] = [];
+  let pinChanges: FixChangesSummary[] = [];
+  if (!directUpgradesOnly) {
+    ({ pinnedRequirements, changes: pinChanges } = generatePins(
+      requirements,
+      updates,
+    ));
+    debug('Finished generating pins to apply');
+  }
 
   let updatedManifest = [
     ...applyUpgrades(requirements, updatedRequirements),
