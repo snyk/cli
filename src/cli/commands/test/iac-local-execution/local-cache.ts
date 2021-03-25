@@ -3,7 +3,10 @@ import * as fs from 'fs';
 import { EngineType } from './types';
 import * as needle from 'needle';
 import { createIacDir, extractBundle } from './file-utils';
+import * as Debug from 'debug';
 import ReadableStream = NodeJS.ReadableStream;
+
+const debug = Debug('iac-local-cache');
 
 export const LOCAL_POLICY_ENGINE_DIR = '.iac-data';
 
@@ -30,6 +33,7 @@ export const REQUIRED_LOCAL_CACHE_FILES = [
   TERRAFORM_POLICY_ENGINE_WASM_PATH,
   TERRAFORM_POLICY_ENGINE_DATA_PATH,
 ];
+
 function doesLocalCacheExist(): boolean {
   return REQUIRED_LOCAL_CACHE_FILES.every(fs.existsSync);
 }
@@ -50,20 +54,35 @@ export function getLocalCachePath(engineType: EngineType) {
 }
 
 export async function initLocalCache(): Promise<void> {
-  // temporarily use an ENV var to skip downloading of the bundles if we need to - e.g. smoke tests
-  if (!process.env.SNYK_IAC_SKIP_BUNDLE_DOWNLOAD) {
-    const preSignedUrl =
-      'https://cloud-config-policy-bundles.s3-eu-west-1.amazonaws.com/bundle.tar.gz';
+  const preSignedUrl =
+    'https://cloud-config-policy-bundles.s3-eu-west-1.amazonaws.com/bundle.tar.gz';
 
-    createIacDir();
-    const response: ReadableStream = needle.get(preSignedUrl);
-    await extractBundle(response);
-  }
+  createIacDir();
+  const response: ReadableStream = needle.get(preSignedUrl);
+  await extractBundle(response);
+
   if (!doesLocalCacheExist()) {
     throw Error(
       `Missing IaC local cache data, please validate you have: \n${REQUIRED_LOCAL_CACHE_FILES.join(
         '\n',
       )}`,
     );
+  }
+}
+
+export function cleanLocalCache() {
+  const iacPath: string = path.join(`${process.cwd()}`, '.iac-data');
+  if (fs.existsSync(iacPath) && fs.lstatSync(iacPath).isDirectory()) {
+    try {
+      fs.readdirSync(iacPath).forEach((file) => {
+        const curPath = path.join(iacPath, file);
+        fs.unlinkSync(curPath);
+      });
+      fs.rmdirSync(iacPath);
+    } catch (e) {
+      debug('The local cache directory could not be deleted');
+    }
+  } else {
+    console.log('Directory path not found');
   }
 }

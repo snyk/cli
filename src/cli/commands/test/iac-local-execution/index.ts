@@ -9,7 +9,7 @@ import {
   IacFileParseFailure,
   SafeAnalyticsOutput,
 } from './types';
-import { initLocalCache } from './local-cache';
+import { cleanLocalCache, initLocalCache } from './local-cache';
 import { addIacAnalytics } from './analytics';
 import { TestResult } from '../../../../lib/snyk-test/legacy';
 import { IacFileInDirectory } from '../../../../lib/types';
@@ -32,6 +32,7 @@ export async function test(
   const scannedFiles = await scanFiles(parsedFiles);
   const formattedResults = formatScanResults(scannedFiles, options);
   addIacAnalytics(formattedResults);
+  cleanLocalCache();
 
   // TODO: add support for proper typing of old TestResult interface.
   return {

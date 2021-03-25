@@ -1,17 +1,16 @@
 import * as localCacheModule from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
-import { REQUIRED_LOCAL_CACHE_FILES } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
 import { PassThrough } from 'stream';
 import * as needle from 'needle';
+import * as rimraf from 'rimraf';
+import * as fs from 'fs';
+import * as path from 'path';
 
-describe('initLocalCache - SNYK_IAC_SKIP_BUNDLE_DOWNLOAD is not set', () => {
+describe('Directory exists', () => {
   beforeEach(() => {
     jest.resetAllMocks();
-    delete process.env.SNYK_IAC_SKIP_BUNDLE_DOWNLOAD;
+    jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true);
   });
-
-  const fs = require('fs');
-  fs.existsSync = jest.fn().mockReturnValue(true);
 
   it('downloads and extracts the bundle successfully', () => {
     const mockReadable = new PassThrough();
@@ -23,37 +22,61 @@ describe('initLocalCache - SNYK_IAC_SKIP_BUNDLE_DOWNLOAD is not set', () => {
 
     expect(spy).toHaveBeenCalledWith(mockReadable);
   });
-});
 
-describe('initLocalCache - SNYK_IAC_SKIP_BUNDLE_DOWNLOAD is true', () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
-    process.env.SNYK_IAC_SKIP_BUNDLE_DOWNLOAD = 'true';
-  });
+  it('cleans up the local cache folder after test finishes', () => {
+    const iacPath: fs.PathLike = path.join(`${process.cwd()}`, '.iac-data');
+    const stats: fs.Stats = new fs.Stats();
+    stats.isDirectory = jest.fn().mockReturnValue(true);
+    jest.spyOn(fs, 'lstatSync').mockReturnValueOnce(stats);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    jest.spyOn(fs, 'readdirSync').mockReturnValue(['file1', 'file2']);
+    const rmdirSyncSpy = jest.spyOn(fs, 'rmdirSync');
+    const unlinkSyncSpy = jest
+      .spyOn(fs, 'unlinkSync')
+      .mockImplementation(() => null);
 
-  const fs = require('fs');
+    localCacheModule.cleanLocalCache();
 
-  it('skips the download of the bundle', async () => {
-    fs.existsSync = jest.fn().mockReturnValue(true);
-    jest.spyOn(fileUtilsModule, 'extractBundle');
-
-    await localCacheModule.initLocalCache();
-
-    expect(fileUtilsModule.extractBundle).not.toHaveBeenCalled();
-  });
-
-  it('skips the download of the bundle but throws an error', () => {
-    const error = new Error(
-      `Missing IaC local cache data, please validate you have: \n${REQUIRED_LOCAL_CACHE_FILES.join(
-        '\n',
-      )}`,
+    expect(unlinkSyncSpy).toHaveBeenNthCalledWith(
+      1,
+      path.join(iacPath, 'file1'),
     );
-    fs.existsSync = jest.fn().mockReturnValue(false);
-    jest.spyOn(fileUtilsModule, 'extractBundle');
+    expect(unlinkSyncSpy).toHaveBeenNthCalledWith(
+      2,
+      path.join(iacPath, 'file2'),
+    );
+    expect(rmdirSyncSpy).toHaveBeenCalledWith(iacPath);
+  });
 
-    const promise = localCacheModule.initLocalCache();
+  describe('Directory does not exist', () => {
+    beforeEach(() => {
+      jest.resetAllMocks();
+      jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false);
+    });
 
-    expect(fileUtilsModule.extractBundle).not.toHaveBeenCalled();
-    expect(promise).rejects.toThrow(error);
+    it('throws an error on download', () => {
+      const error = new Error(
+        'The .iac-data directory can not be created. ' +
+          'Please make sure that the current working directory has write permissions',
+      );
+      jest.spyOn(fileUtilsModule, 'extractBundle');
+      jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => {
+        throw error;
+      });
+
+      const promise = localCacheModule.initLocalCache();
+
+      expect(fileUtilsModule.extractBundle).not.toHaveBeenCalled();
+      expect(promise).rejects.toThrow(error);
+    });
+
+    it('does not delete the local cacheDir if it does not exist', () => {
+      const spy = jest.spyOn(rimraf, 'sync');
+
+      localCacheModule.cleanLocalCache();
+
+      expect(spy).not.toHaveBeenCalled();
+    });
   });
 });
