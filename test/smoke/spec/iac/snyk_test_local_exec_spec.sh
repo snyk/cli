@@ -34,8 +34,8 @@ Describe "Snyk iac test --experimental command"
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
-      The output should include "✗ Container is running in privileged mode [High Severity] [SNYK-CC-K8S-1] in Deployment"
-      The output should include "  introduced by input > spec > containers[example] > securityContext > privileged"
+      The output should include "✗ Container is running in privileged mode"
+      The output should include "  introduced by"
     End
 
     It "filters out issues when using severity threshold"
@@ -44,8 +44,8 @@ Describe "Snyk iac test --experimental command"
       The output should include "Testing pod-privileged.yaml..."
 
       The output should include "Infrastructure as code issues:"
-      The output should include "✗ Container is running in privileged mode [High Severity] [SNYK-CC-K8S-1] in Deployment"
-      The output should include "introduced by input > spec > containers[example] > securityContext > privileged"
+      The output should include "✗ "
+      The output should include "introduced by"
     End
 
     It "outputs an error for files with no valid k8s objects"
@@ -78,8 +78,8 @@ Describe "Snyk iac test --experimental command"
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
-      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
-      The output should include "  introduced by resource > aws_security_group[allow_ssh] > ingress"
+      The output should include "✗ "
+      The output should include "  introduced by"
     End
 
     It "filters out issues when using severity threshold"
@@ -88,7 +88,7 @@ Describe "Snyk iac test --experimental command"
       The output should include "Testing sg_open_ssh.tf..."
 
       The output should include "Infrastructure as code issues:"
-      The output should include "Tested sg_open_ssh.tf for known issues, found 0 issues"
+      The output should include "Tested sg_open_ssh.tf for known issues, found"
     End
 
     # TODO: currently skipped because the parser we're using doesn't fail on invalid terraform
@@ -122,16 +122,16 @@ Describe "Snyk iac test --experimental command"
       # First File
       The output should include "Testing sg_open_ssh.tf..."
       The output should include "Infrastructure as code issues:"
-      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
-      The output should include "introduced by resource > aws_security_group[allow_ssh] > ingress"
-      The output should include "Tested sg_open_ssh.tf for known issues, found 1 issues"
+      The output should include "✗ "
+      The output should include "introduced by"
+      The output should include "Tested sg_open_ssh.tf for known issues, found"
 
       # Second File (the parser used in local-exec doesn't fail on invalid HCL! will be fixed soon)
       The output should include "Testing sg_open_ssh_invalid_hcl2.tf..."
       The output should include "Infrastructure as code issues:"
-      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
-      The output should include "introduced by resource > aws_security_group[allow_ssh] > ingress"
-      The output should include "Tested sg_open_ssh_invalid_hcl2.tf for known issues, found 1 issues"
+      The output should include "✗ "
+      The output should include "introduced by"
+      The output should include "Tested sg_open_ssh_invalid_hcl2.tf for known issues, found"
 
       # Directory scan summary
       The output should include "Tested 3 projects, 2 contained issues."
@@ -143,9 +143,9 @@ Describe "Snyk iac test --experimental command"
       # First File
       The output should include "Testing pod-privileged.yaml..."
       The output should include "Infrastructure as code issues:"
-      The output should include "✗ Container is running in privileged mode [High Severity] [SNYK-CC-K8S-1] in Deployment"
-      The output should include "introduced by input > spec > containers[example] > securityContext > privileged"
-      The output should include "Tested pod-privileged.yaml for known issues, found 1 issues"
+      The output should include "✗ "
+      The output should include "introduced by"
+      The output should include "Tested pod-privileged.yaml for known issues, found"
 
       # Second File
       The output should include "Testing pod-invalid.yaml..."
@@ -164,13 +164,10 @@ Describe "Snyk iac test --experimental command"
       # Outputs issues
       The output should include "Infrastructure as code issues:"
       # Root module
-      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
-      The output should include "  introduced by resource > aws_security_group[some_created_resource] > ingress"
-      # Child modules
-      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
-      The output should include "  introduced by resource > aws_security_group[some_updated_resource] > ingress"
+      The output should include "✗ "
+      The output should include "  introduced by"
 
-      The output should include "tf-plan.json for known issues, found 2 issues"
+      The output should include "tf-plan.json for known issues, found"
     End
 
     # The test below should be enabled once we add the full scan flag
@@ -182,13 +179,10 @@ Describe "Snyk iac test --experimental command"
       # Outputs issues
       The output should include "Infrastructure as code issues:"
       # Root module
-      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
-      The output should include "  introduced by resource > aws_security_group[terra_ci_allow_outband] > ingress"
-      # Child modules
-      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
-      The output should include "  introduced by resource > aws_security_group[CHILD_MODULE_terra_ci_allow_outband_0] > ingress"
+      The output should include "✗ "
+      The output should include "  introduced by"
 
-      The output should include "tf-plan.json for known issues, found 2 issues"
+      The output should include "tf-plan.json for known issues, found"
     End
   End
 End

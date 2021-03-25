@@ -12,8 +12,8 @@ Describe "Snyk iac test command"
       The output should include "Testing sg_open_ssh.tf..."
       # Outputs issues   
       The output should include "Infrastructure as code issues:"
-      The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
-      The output should include "introduced by resource > aws_security_group[allow_ssh] > ingress"
+      The output should include "✗ "
+      The output should include "introduced by"
 
       # Outputs Summary
       The output should include "Organization:"
