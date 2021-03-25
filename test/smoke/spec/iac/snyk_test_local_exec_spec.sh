@@ -170,14 +170,14 @@ Describe "Snyk iac test --experimental command"
       The output should include "✗ Security Group allows open ingress [Medium Severity] [SNYK-CC-TF-1] in Security Group"
       The output should include "  introduced by resource > aws_security_group[some_updated_resource] > ingress"
 
-      The output should include "../fixtures/iac/terraform-plan/tf-plan.json for known issues, found 2 issues"
+      The output should include "tf-plan.json for known issues, found 2 issues"
     End
 
     # The test below should be enabled once we add the full scan flag
     xIt "finds issues in a Terraform plan file - full scan flag"
       When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental
       The status should be failure # issues found
-      The output should include "Testing ../fixtures/iac/terraform-plan/tf-plan.json"
+      The output should include "Testing tf-plan.json"
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
