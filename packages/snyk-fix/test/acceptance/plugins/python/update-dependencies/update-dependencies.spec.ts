@@ -12,7 +12,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     filesToDelete.map((f) => fs.unlinkSync(f));
   });
   const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
-  it('skips projects with a -r option', async () => {
+
+  it('fixes project with a -r option', async () => {
     // Arrange
     const targetFile = 'with-require/dev.txt';
 
@@ -72,15 +73,22 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       results: {
         python: {
           failed: [],
-          skipped: [
+          skipped: [],
+          succeeded: [
             {
               original: entityToFix,
-              userMessage: expect.stringContaining(
-                'directive are not yet supported',
-              ),
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                },
+              ],
             },
           ],
-          succeeded: [],
         },
       },
     });
