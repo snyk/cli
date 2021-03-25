@@ -34,6 +34,7 @@ export async function parse(
     const packageJson = JSON.parse(
       getFileContents(root, packageJsonFileName).content,
     );
+
     let dependencies = packageJson.dependencies;
     if (options.dev) {
       dependencies = { ...dependencies, ...packageJson.devDependencies };
@@ -41,7 +42,7 @@ export async function parse(
     if (isEmpty(dependencies)) {
       return new Promise((resolve) =>
         resolve({
-          name: packageJson.name,
+          name: packageJson.name || 'package.json',
           dependencies: {},
           version: packageJson.version,
         }),
