@@ -72,7 +72,7 @@
   "dependencies": {
     "@open-policy-agent/opa-wasm": "^1.2.0",
     "@snyk/cli-interface": "2.11.0",
-    "@snyk/code-client": "3.1.5",
+    "@snyk/code-client": "3.4.0",
     "@snyk/dep-graph": "^1.27.1",
     "@snyk/gemfile": "1.2.0",
     "@snyk/graphlib": "^2.1.9-patch.3",
