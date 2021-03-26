@@ -13,6 +13,43 @@ Array [
 ]
 `;
 
+exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -r with the same name (some were already fixed) 1`] = `
+"Successful fixes:
+
+  app-with-already-fixed/requirements.txt
+  ✔ Upgraded Django from 1.6.1 to 2.0.1
+  ✔ Upgraded Django from 1.6.1 to 2.0.1 (upgraded in core/requirements.txt)
+  ✔ Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in lib/requirements.txt)
+
+  app-with-already-fixed/core/requirements.txt
+  ✔ Previously fixed
+
+  app-with-already-fixed/lib/requirements.txt
+  ✔ Previously fixed
+
+Summary:
+
+  0 items were not fixed
+  3 items were successfully fixed"
+`;
+
+exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -r with the same name (some were already fixed) 2`] = `
+Array [
+  Object {
+    "success": true,
+    "userMessage": "Upgraded Django from 1.6.1 to 2.0.1",
+  },
+  Object {
+    "success": true,
+    "userMessage": "Upgraded Django from 1.6.1 to 2.0.1 (upgraded in core/requirements.txt)",
+  },
+  Object {
+    "success": true,
+    "userMessage": "Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in lib/requirements.txt)",
+  },
+]
+`;
+
 exports[`fix *req*.txt / *.txt Python projects retains python markers 1`] = `
 "amqp==2.4.2
 apscheduler==3.6.0
