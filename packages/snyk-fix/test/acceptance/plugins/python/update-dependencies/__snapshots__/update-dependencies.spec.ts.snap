@@ -1,5 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`fix *req*.txt / *.txt Python projects fixes multiple files that are included via -r 1`] = `
+Array [
+  Object {
+    "success": true,
+    "userMessage": "Upgraded Django from 1.6.1 to 2.0.1",
+  },
+  Object {
+    "success": true,
+    "userMessage": "Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in base2.txt)",
+  },
+]
+`;
+
 exports[`fix *req*.txt / *.txt Python projects retains python markers 1`] = `
 "amqp==2.4.2
 apscheduler==3.6.0

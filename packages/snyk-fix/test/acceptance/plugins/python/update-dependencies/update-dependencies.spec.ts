@@ -42,10 +42,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -80,11 +77,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
                 },
                 {
                   success: true,
-                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
                 },
               ],
             },
@@ -126,10 +123,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -170,11 +164,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
                 },
                 {
                   success: true,
-                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
                 },
               ],
             },
@@ -217,10 +211,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -261,11 +252,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
                 },
                 {
                   success: true,
-                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
                 },
               ],
             },
@@ -308,10 +299,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -353,11 +341,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
                 },
                 {
                   success: true,
-                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
                 },
               ],
             },
@@ -395,10 +383,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -478,10 +463,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -560,10 +542,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -647,10 +626,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -732,10 +708,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     const entityToFix = {
       workspace: {
         readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
+          return readFileHelper(workspacesPath, path);
         },
         writeFile: async (path: string, contents: string) => {
           const res = pathLib.parse(path);
@@ -782,4 +755,82 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     });
   });
+  it('fixes multiple files that are included via -r', async () => {
+    // Arrange
+    const targetFile = 'pip-app/requirements.txt';
+    filesToDelete = [
+      pathLib.resolve(workspacesPath, 'pip-app/fixed-requirements.txt'),
+      pathLib.resolve(workspacesPath, 'pip-app/fixed-base2.txt'),
+    ];
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: [],
+            isTransitive: false,
+          },
+          'Jinja2@2.7.2': {
+            upgradeTo: 'Jinja2@2.7.3',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+    const entityToFix = {
+      workspace: {
+        readFile: async (path: string) => {
+          return readFileHelper(workspacesPath, path);
+        },
+        writeFile: async (path: string, contents: string) => {
+          const res = pathLib.parse(path);
+          const fixedPath = pathLib.resolve(
+            workspacesPath,
+            res.dir,
+            `fixed-${res.base}`,
+          );
+          fs.writeFileSync(fixedPath, contents, 'utf-8');
+        },
+      },
+      scanResult: generateScanResult('pip', targetFile),
+      testResult,
+    };
+    const writeFileSpy = jest.spyOn(entityToFix.workspace, 'writeFile');
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
+
+    // 2 files needed to have changes
+    expect(writeFileSpy).toHaveBeenCalledTimes(2);
+    expect(result.results.python.succeeded[0].original).toEqual(entityToFix);
+    expect(result.results.python.succeeded[0].changes).toMatchSnapshot();
+  });
 });
+
+function readFileHelper(workspacesPath: string, path: string): string {
+  // because we write multiple time the file
+  // may be have already been updated in fixed-* name
+  // so try read that first
+  const res = pathLib.parse(path);
+  const fixedPath = pathLib.resolve(
+    workspacesPath,
+    res.dir,
+    `fixed-${res.base}`,
+  );
+  let file;
+  try {
+    file = fs.readFileSync(fixedPath, 'utf-8');
+  } catch (e) {
+    file = fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+  }
+  return file;
+}

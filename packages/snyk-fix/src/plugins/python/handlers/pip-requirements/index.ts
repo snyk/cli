@@ -2,6 +2,7 @@ import * as debugLib from 'debug';
 import * as pathLib from 'path';
 
 import {
+  DependencyPins,
   EntityToFix,
   FixChangesSummary,
   FixOptions,
@@ -18,6 +19,11 @@ import {
   extractProvenance,
   PythonProvenance,
 } from './extract-version-provenance';
+import {
+  ParsedRequirements,
+  parseRequirementsFile,
+  Requirement,
+} from './update-dependencies/requirements-file-parser';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -37,17 +43,18 @@ export async function pipRequirementsTxt(
 
   for (const entity of fixable) {
     try {
-      const { remediation, targetFile, workspace } = getRequiredData(entity);
-      const { dir, base } = pathLib.parse(targetFile);
-      const provenance = await extractProvenance(workspace, dir, base);
-      const changes = await fixIndividualRequirementsTxt(
-        workspace,
-        dir,
-        base,
-        remediation,
-        provenance,
+      const { changes } = await applyAllFixes(
+        entity,
+        // dir,
+        // base,
+        // remediation,
+        // provenance,
         options,
       );
+      if (!changes.length) {
+        debug('Manifest has not changed!');
+        throw new NoFixesCouldBeAppliedError();
+      }
       handlerResult.succeeded.push({ original: entity, changes });
     } catch (e) {
       handlerResult.failed.push({ original: entity, error: e });
@@ -82,27 +89,95 @@ export function getRequiredData(
 export async function fixIndividualRequirementsTxt(
   workspace: Workspace,
   dir: string,
+  entryFileName: string,
   fileName: string,
   remediation: RemediationChanges,
-  provenance: PythonProvenance,
+  parsedRequirements: ParsedRequirements,
   options: FixOptions,
-): Promise<FixChangesSummary[]> {
-  // TODO: allow handlers per fix type (later also strategies or combine with strategies)
-  const { updatedManifest, changes } = updateDependencies(
-    provenance[fileName],
+  directUpgradesOnly: boolean,
+): Promise<{ changes: FixChangesSummary[]; appliedRemediation: string[] }> {
+  const fullFilePath = pathLib.join(dir, fileName);
+  const { updatedManifest, changes, appliedRemediation } = updateDependencies(
+    parsedRequirements,
     remediation.pin,
+    directUpgradesOnly,
+    pathLib.join(dir, entryFileName) !== fullFilePath ? fileName : undefined,
   );
-
-  if (!changes.length) {
-    debug('Manifest has not changed!');
-    throw new NoFixesCouldBeAppliedError();
-  }
-  if (!options.dryRun) {
+  if (!options.dryRun && changes.length > 0) {
     debug('Writing changes to file');
     await workspace.writeFile(pathLib.join(dir, fileName), updatedManifest);
   } else {
     debug('Skipping writing changes to file in --dry-run mode');
   }
 
-  return changes;
+  return { changes, appliedRemediation };
+}
+
+export async function applyAllFixes(
+  entity: EntityToFix,
+  options: FixOptions,
+): Promise<{ changes: FixChangesSummary[] }> {
+  const { remediation, targetFile: entryFileName, workspace } = getRequiredData(
+    entity,
+  );
+  const { dir, base } = pathLib.parse(entryFileName);
+  const provenance = await extractProvenance(workspace, dir, base);
+  const upgradeChanges: FixChangesSummary[] = [];
+  const appliedUpgradeRemediation: string[] = [];
+  for (const fileName of Object.keys(provenance)) {
+    const skipApplyingPins = true;
+    const { changes, appliedRemediation } = await fixIndividualRequirementsTxt(
+      workspace,
+      dir,
+      base,
+      fileName,
+      remediation,
+      provenance[fileName],
+      options,
+      skipApplyingPins,
+    );
+    appliedUpgradeRemediation.push(...appliedRemediation);
+    // what if we saw the file before and already fixed it?
+    upgradeChanges.push(...changes);
+  }
+  // now do left overs as pins + add tests
+  const requirementsTxt = await workspace.readFile(entryFileName);
+
+  const toPin: RemediationChanges = filterOutAppliedUpgrades(
+    remediation,
+    appliedUpgradeRemediation,
+  );
+  const directUpgradesOnly = false;
+  const { changes: pinnedChanges } = await fixIndividualRequirementsTxt(
+    workspace,
+    dir,
+    base,
+    base,
+    toPin,
+    parseRequirementsFile(requirementsTxt),
+    options,
+    directUpgradesOnly,
+  );
+
+  return { changes: [...upgradeChanges, ...pinnedChanges] };
+}
+
+function filterOutAppliedUpgrades(
+  remediation: RemediationChanges,
+  appliedRemediation: string[],
+): RemediationChanges {
+  const pinRemediation: RemediationChanges = {
+    ...remediation,
+    pin: {}, // delete the pin remediation so we can add only not applied
+  };
+  const pins = remediation.pin;
+  const lowerCasedAppliedRemediation = appliedRemediation.map((i) =>
+    i.toLowerCase(),
+  );
+  for (const pkgAtVersion of Object.keys(pins)) {
+    if (!lowerCasedAppliedRemediation.includes(pkgAtVersion.toLowerCase())) {
+      pinRemediation.pin[pkgAtVersion] = pins[pkgAtVersion];
+    }
+  }
+  return pinRemediation;
 }
