@@ -2,8 +2,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { EngineType } from './types';
 import * as needle from 'needle';
+import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle } from './file-utils';
+import * as Debug from 'debug';
 import ReadableStream = NodeJS.ReadableStream;
+
+const debug = Debug('iac-local-cache');
 
 export const LOCAL_POLICY_ENGINE_DIR = '.iac-data';
 
@@ -30,6 +34,7 @@ export const REQUIRED_LOCAL_CACHE_FILES = [
   TERRAFORM_POLICY_ENGINE_WASM_PATH,
   TERRAFORM_POLICY_ENGINE_DATA_PATH,
 ];
+
 function doesLocalCacheExist(): boolean {
   return REQUIRED_LOCAL_CACHE_FILES.every(fs.existsSync);
 }
@@ -63,5 +68,19 @@ export async function initLocalCache(): Promise<void> {
         '\n',
       )}`,
     );
+  }
+}
+
+export function cleanLocalCache() {
+  // path to delete is hardcoded for now
+  const iacPath: fs.PathLike = path.join(`${process.cwd()}`, '.iac-data');
+  if (fs.existsSync(iacPath) && fs.lstatSync(iacPath).isDirectory()) {
+    try {
+      // when we support Node version >= 12.10.0 , we can replace rimraf
+      // with the native fs.rmdirSync(path, {recursive: true})
+      rimraf.sync(iacPath);
+    } catch (e) {
+      debug('The local cache directory could not be deleted');
+    }
   }
 }
