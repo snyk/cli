@@ -20,7 +20,7 @@ Describe "Snyk iac test --experimental command"
       When run snyk iac test ../fixtures/iac/file-logging -d --experimental
       # We expect the output, specifically the analytics block not to include
       # the following text from the file.
-      The status should be success
+      The status should be failure  # issues found
       The output should not include "PRIVATE_FILE_CONTENT_CHECK"
       The error should not include "PRIVATE_FILE_CONTENT_CHECK"
     End

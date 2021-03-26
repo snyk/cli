@@ -50,15 +50,13 @@ export function getLocalCachePath(engineType: EngineType) {
 }
 
 export async function initLocalCache(): Promise<void> {
-  // temporarily use an ENV var to skip downloading of the bundles if we need to - e.g. smoke tests
-  if (!process.env.SNYK_IAC_SKIP_BUNDLE_DOWNLOAD) {
-    const preSignedUrl =
-      'https://cloud-config-policy-bundles.s3-eu-west-1.amazonaws.com/bundle.tar.gz';
+  const preSignedUrl =
+    'https://cloud-config-policy-bundles.s3-eu-west-1.amazonaws.com/bundle.tar.gz';
 
-    createIacDir();
-    const response: ReadableStream = needle.get(preSignedUrl);
-    await extractBundle(response);
-  }
+  createIacDir();
+  const response: ReadableStream = needle.get(preSignedUrl);
+  await extractBundle(response);
+
   if (!doesLocalCacheExist()) {
     throw Error(
       `Missing IaC local cache data, please validate you have: \n${REQUIRED_LOCAL_CACHE_FILES.join(
