@@ -25,14 +25,13 @@ describe('initLocalCache - downloads bundle successfully', () => {
 
   it('cleans up the custom folder after finishes', () => {
     const iacPath: fs.PathLike = path.join(`${process.cwd()}`, '.iac-data');
-    const stats: fs.Stats = new fs.Stats();
-    stats.isDirectory = jest.fn().mockReturnValue(true);
-    jest.spyOn(fs, 'lstatSync').mockReturnValueOnce(stats);
     const spy = jest.spyOn(rimraf, 'sync');
 
     localCacheModule.cleanLocalCache();
 
     expect(spy).toHaveBeenCalledWith(iacPath);
+    jest.restoreAllMocks();
+    expect(fs.existsSync(iacPath)).toBeFalsy();
   });
 });
 
@@ -56,13 +55,5 @@ describe('initLocalCache - Missing IaC local cache data', () => {
 
     expect(fileUtilsModule.extractBundle).not.toHaveBeenCalled();
     expect(promise).rejects.toThrow(error);
-  });
-
-  it('does not delete the local cacheDir if it does not exist', () => {
-    const spy = jest.spyOn(rimraf, 'sync');
-
-    localCacheModule.cleanLocalCache();
-
-    expect(spy).not.toHaveBeenCalled();
   });
 });

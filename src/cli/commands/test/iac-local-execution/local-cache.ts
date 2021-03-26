@@ -74,13 +74,11 @@ export async function initLocalCache(): Promise<void> {
 export function cleanLocalCache() {
   // path to delete is hardcoded for now
   const iacPath: fs.PathLike = path.join(`${process.cwd()}`, '.iac-data');
-  if (fs.existsSync(iacPath) && fs.lstatSync(iacPath).isDirectory()) {
-    try {
-      // when we support Node version >= 12.10.0 , we can replace rimraf
-      // with the native fs.rmdirSync(path, {recursive: true})
-      rimraf.sync(iacPath);
-    } catch (e) {
-      debug('The local cache directory could not be deleted');
-    }
+  try {
+    // when we support Node version >= 12.10.0 , we can replace rimraf
+    // with the native fs.rmdirSync(path, {recursive: true})
+    rimraf.sync(iacPath);
+  } catch (e) {
+    debug('The local cache directory could not be deleted');
   }
 }
