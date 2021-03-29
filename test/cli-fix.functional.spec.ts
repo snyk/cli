@@ -3,8 +3,7 @@ import * as fs from 'fs';
 
 import cli = require('../src/cli/commands');
 import * as snyk from '../src/lib';
-
-import * as validateFixSupported from '../src/cli/commands/fix/validate-fix-command-is-supported';
+import * as featureFlags from '../src/lib/feature-flags';
 
 import stripAnsi from 'strip-ansi';
 
@@ -49,8 +48,8 @@ const pipWithRemediation = JSON.parse(
 describe('snyk fix (functional tests)', () => {
   beforeAll(async () => {
     jest
-      .spyOn(validateFixSupported, 'validateFixCommandIsSupported')
-      .mockResolvedValue(true);
+      .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
+      .mockResolvedValue({ ok: true });
   });
 
   afterAll(async () => {

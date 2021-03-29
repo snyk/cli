@@ -143,32 +143,6 @@ describe('snyk fix (system tests)', () => {
     testTimeout,
   );
 
-  /* this command is different
-   * it shows help text not an error when command is not supported
-   */
-  it.skip(
-    '`shows error when called with container`',
-    (done) => {
-      exec(
-        `node ${main} container fix`,
-        {
-          env: {
-            PATH: process.env.PATH,
-            SNYK_TOKEN: apiKey,
-            SNYK_API,
-            SNYK_HOST,
-          },
-        },
-        (err, stdout, stderr) => {
-          expect(stderr).toBe('');
-          expect(stdout).toMatch('COMMANDS');
-          expect(err).toBe(null);
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
   it(
     '`shows error when called with --code`',
     (done) => {
