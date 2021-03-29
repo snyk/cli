@@ -71,7 +71,8 @@ export = function makeRequest(
 
         if (
           parsedUrl.protocol === 'http:' &&
-          parsedUrl.hostname !== 'localhost'
+          parsedUrl.hostname !== 'localhost' &&
+          process.env.SNYK_HTTP_PROTOCOL_UPGRADE !== '0'
         ) {
           debug('forcing api request to https');
           parsedUrl.protocol = 'https:';
@@ -95,7 +96,10 @@ export = function makeRequest(
         let url = payload.url;
 
         if (payload.qs) {
-          url = url + '?' + querystring.stringify(payload.qs);
+          // Parse the URL and append the search part - this will take care of adding the '/?' part if it's missing
+          const urlObject = new URL(url);
+          urlObject.search = querystring.stringify(payload.qs);
+          url = urlObject.toString();
           delete payload.qs;
         }
 
