@@ -19,7 +19,13 @@ const debug = debugLib('snyk-fix:python:update-dependencies');
 export function updateDependencies(
   parsedRequirementsData: ParsedRequirements,
   updates: DependencyPins,
-): { updatedManifest: string; changes: FixChangesSummary[] } {
+  directUpgradesOnly = false,
+  referenceFileInChanges?: string,
+): {
+  updatedManifest: string;
+  changes: FixChangesSummary[];
+  appliedRemediation: string[];
+} {
   const {
     requirements,
     endsWithNewLine: shouldEndWithNewLine,
@@ -32,17 +38,24 @@ export function updateDependencies(
   }
   debug('Finished parsing manifest');
 
-  const { updatedRequirements, changes: upgradedChanges } = generateUpgrades(
-    requirements,
-    updates,
-  );
+  const {
+    updatedRequirements,
+    changes: upgradedChanges,
+    appliedRemediation,
+  } = generateUpgrades(requirements, updates, referenceFileInChanges);
   debug('Finished generating upgrades to apply');
 
-  const { pinnedRequirements, changes: pinChanges } = generatePins(
-    requirements,
-    updates,
-  );
-  debug('Finished generating pins to apply');
+  let pinnedRequirements: string[] = [];
+  let pinChanges: FixChangesSummary[] = [];
+  let appliedPinsRemediation: string[] = [];
+  if (!directUpgradesOnly) {
+    ({
+      pinnedRequirements,
+      changes: pinChanges,
+      appliedRemediation: appliedPinsRemediation,
+    } = generatePins(requirements, updates));
+    debug('Finished generating pins to apply');
+  }
 
   let updatedManifest = [
     ...applyUpgrades(requirements, updatedRequirements),
@@ -59,5 +72,6 @@ export function updateDependencies(
   return {
     updatedManifest,
     changes: [...pinChanges, ...upgradedChanges],
+    appliedRemediation: [...appliedPinsRemediation, ...appliedRemediation],
   };
 }

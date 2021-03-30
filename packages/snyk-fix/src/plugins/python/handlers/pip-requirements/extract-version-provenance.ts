@@ -8,7 +8,7 @@ import {
 import { Workspace } from '../../../../types';
 import { containsRequireDirective } from './contains-require-directive';
 
-interface PythonProvenance {
+export interface PythonProvenance {
   [fileName: string]: ParsedRequirements;
 }
 
@@ -20,7 +20,8 @@ export async function extractProvenance(
   fileName: string,
   provenance: PythonProvenance = {},
 ): Promise<PythonProvenance> {
-  const requirementsTxt = await workspace.readFile(path.join(dir, fileName));
+  const requirementsFileName = path.join(dir, fileName);
+  const requirementsTxt = await workspace.readFile(requirementsFileName);
   provenance = {
     ...provenance,
     [fileName]: parseRequirementsFile(requirementsTxt),

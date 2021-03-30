@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as snykFix from '../../../../../src';
+import { TestResult } from '../../../../../src/types';
 import {
   generateScanResult,
   generateTestResult,
@@ -12,9 +13,13 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     filesToDelete.map((f) => fs.unlinkSync(f));
   });
   const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
-  it('skips projects with a -r option', async () => {
+
+  it('fixes project with a -r option', async () => {
     // Arrange
     const targetFile = 'with-require/dev.txt';
+    filesToDelete = [
+      pathLib.join(workspacesPath, 'with-require/fixed-dev.txt'),
+    ];
 
     const testResult = {
       ...generateTestResult(),
@@ -38,28 +43,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -72,15 +60,22 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       results: {
         python: {
           failed: [],
-          skipped: [
+          skipped: [],
+          succeeded: [
             {
               original: entityToFix,
-              userMessage: expect.stringContaining(
-                'directive are not yet supported',
-              ),
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+              ],
             },
           ],
-          succeeded: [],
         },
       },
     });
@@ -92,6 +87,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       workspacesPath,
       'basic/fixed-prod.txt',
     );
+    filesToDelete = [fixedFilePath];
 
     const testResult = {
       ...generateTestResult(),
@@ -115,28 +111,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -162,11 +141,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
                 },
                 {
                   success: true,
-                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
                 },
               ],
             },
@@ -183,6 +162,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       workspacesPath,
       'basic-with-newline/fixed-prod.txt',
     );
+    filesToDelete = [fixedFilePath];
 
     const testResult = {
       ...generateTestResult(),
@@ -206,28 +186,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -253,11 +216,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
                 },
                 {
                   success: true,
-                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
                 },
               ],
             },
@@ -274,6 +237,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       workspacesPath,
       'with-custom-formatting/fixed-requirements.txt',
     );
+    filesToDelete = [fixedFilePath];
 
     const testResult = {
       ...generateTestResult(),
@@ -297,28 +261,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -345,11 +292,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
               changes: [
                 {
                   success: true,
-                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
                 },
                 {
                   success: true,
-                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
                 },
               ],
             },
@@ -366,6 +313,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       workspacesPath,
       'lower-case-dep/fixed-req.txt',
     );
+    filesToDelete = [fixedFilePath];
 
     const testResult = {
       ...generateTestResult(),
@@ -384,28 +332,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -448,6 +379,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       workspacesPath,
       'basic/fixed-prod.txt',
     );
+    filesToDelete = [fixedFilePath];
 
     const testResult = {
       ...generateTestResult(),
@@ -467,28 +399,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -531,6 +446,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       workspacesPath,
       'long-versions/fixed-prod.txt',
     );
+    filesToDelete = [fixedFilePath];
 
     const testResult = {
       ...generateTestResult(),
@@ -549,28 +465,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -613,6 +512,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       workspacesPath,
       'with-comparator/fixed-prod.txt',
     );
+    filesToDelete = [fixedFilePath];
 
     const testResult = {
       ...generateTestResult(),
@@ -636,28 +536,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -704,6 +587,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       'python-markers/fixed-prod.txt',
     );
 
+    filesToDelete = [fixedFilePath];
     const testResult = {
       ...generateTestResult(),
       remediation: {
@@ -721,28 +605,11 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = {
-      workspace: {
-        readFile: async (path: string) => {
-          return fs.readFileSync(
-            pathLib.resolve(workspacesPath, path),
-            'utf-8',
-          );
-        },
-        writeFile: async (path: string, contents: string) => {
-          const res = pathLib.parse(path);
-          const fixedPath = pathLib.resolve(
-            workspacesPath,
-            res.dir,
-            `fixed-${res.base}`,
-          );
-          filesToDelete = [fixedPath];
-          fs.writeFileSync(fixedPath, contents, 'utf-8');
-        },
-      },
-      scanResult: generateScanResult('pip', targetFile),
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
       testResult,
-    };
+    );
 
     // Act
     const result = await snykFix.fix([entityToFix], {
@@ -774,4 +641,166 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     });
   });
+  it('fixes multiple files that are included via -r', async () => {
+    // Arrange
+    const targetFile = 'pip-app/requirements.txt';
+    filesToDelete = [
+      pathLib.resolve(workspacesPath, 'pip-app/fixed-requirements.txt'),
+      pathLib.resolve(workspacesPath, 'pip-app/fixed-base2.txt'),
+    ];
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: [],
+            isTransitive: false,
+          },
+          'Jinja2@2.7.2': {
+            upgradeTo: 'Jinja2@2.7.3',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
+      testResult,
+    );
+    const writeFileSpy = jest.spyOn(entityToFix.workspace, 'writeFile');
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
+
+    // 2 files needed to have changes
+    expect(writeFileSpy).toHaveBeenCalledTimes(2);
+    expect(result.results.python.succeeded[0].original).toEqual(entityToFix);
+    expect(result.results.python.succeeded[0].changes).toMatchSnapshot();
+  });
+  it('fixes multiple files via -r with the same name (some were already fixed)', async () => {
+    // Arrange
+    const targetFile1 = 'app-with-already-fixed/requirements.txt';
+    const targetFile2 = 'app-with-already-fixed/lib/requirements.txt';
+    const targetFile3 = 'app-with-already-fixed/core/requirements.txt';
+
+    filesToDelete = [
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/fixed-requirements.txt',
+      ),
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/lib/fixed-requirements.txt',
+      ),
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/core/fixed-requirements.txt',
+      ),
+    ];
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: [],
+            isTransitive: false,
+          },
+          'Jinja2@2.7.2': {
+            upgradeTo: 'Jinja2@2.7.3',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+    const entityToFix1 = generateEntityToFix(
+      workspacesPath,
+      targetFile1,
+      testResult,
+    );
+    const entityToFix2 = generateEntityToFix(
+      workspacesPath,
+      targetFile2,
+      testResult,
+    );
+    const entityToFix3 = generateEntityToFix(
+      workspacesPath,
+      targetFile3,
+      testResult,
+    );
+    const writeFileSpy = jest.spyOn(entityToFix1.workspace, 'writeFile');
+    // Act
+    const result = await snykFix.fix(
+      [entityToFix2, entityToFix3, entityToFix1],
+      {
+        quiet: true,
+        stripAnsi: true,
+      },
+    );
+    // 3 files needed to have changes
+    expect(result.fixSummary).toMatchSnapshot();
+    expect(writeFileSpy).toHaveBeenCalledTimes(3);
+    expect(result.results.python.succeeded[0].original).toEqual(entityToFix1);
+    expect(result.results.python.succeeded[0].changes).toMatchSnapshot();
+  });
 });
+
+function readFileHelper(workspacesPath: string, path: string): string {
+  // because we write multiple time the file
+  // may be have already been updated in fixed-* name
+  // so try read that first
+  const res = pathLib.parse(path);
+  const fixedPath = pathLib.resolve(
+    workspacesPath,
+    res.dir,
+    `fixed-${res.base}`,
+  );
+  let file;
+  try {
+    file = fs.readFileSync(fixedPath, 'utf-8');
+  } catch (e) {
+    file = fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+  }
+  return file;
+}
+
+function generateEntityToFix(
+  workspacesPath: string,
+  targetFile: string,
+  testResult: TestResult,
+): snykFix.EntityToFix {
+  const entityToFix = {
+    workspace: {
+      readFile: async (path: string) => {
+        return readFileHelper(workspacesPath, path);
+      },
+      writeFile: async (path: string, contents: string) => {
+        const res = pathLib.parse(path);
+        const fixedPath = pathLib.resolve(
+          workspacesPath,
+          res.dir,
+          `fixed-${res.base}`,
+        );
+        fs.writeFileSync(fixedPath, contents, 'utf-8');
+      },
+    },
+    scanResult: generateScanResult('pip', targetFile),
+    testResult,
+  };
+  return entityToFix;
+}

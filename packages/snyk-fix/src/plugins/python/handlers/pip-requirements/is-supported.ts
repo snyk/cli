@@ -45,11 +45,13 @@ export async function isSupported(
     };
   }
 
-  const { containsRequire } = await containsRequireDirective(requirementsTxt);
-  if (containsRequire) {
+  const { containsRequire, matches } = await containsRequireDirective(
+    requirementsTxt,
+  );
+  if (containsRequire && matches.some((m) => m.includes('c'))) {
     return {
       supported: false,
-      reason: `Requirements with ${chalk.bold('-r')} or ${chalk.bold(
+      reason: `Requirements with ${chalk.bold(
         '-c',
       )} directive are not yet supported`,
     };

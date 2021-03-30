@@ -17,7 +17,7 @@ describe('Snyk fix', () => {
     });
 
     // Assert
-    expect(writeFileSpy).toHaveBeenCalled();
+    expect(writeFileSpy).toHaveBeenCalledTimes(1);
     expect(res.exceptions).toMatchSnapshot();
     expect(res.results).toMatchSnapshot();
   });
