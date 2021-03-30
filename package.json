@@ -34,6 +34,7 @@
     "format": "prettier --write '{src,test,scripts}/**/*.{js,ts}'",
     "format:changes": "./scripts/format/prettier-changes.sh",
     "prepare": "npm run build",
+    "goof-test":"",
     "generate-help": "./help/generator/generate-docs.sh",
     "test:common": "npm run check-tests && npm run lint",
     "test:acceptance": "tap test/acceptance/**/*.test.* test/acceptance/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
