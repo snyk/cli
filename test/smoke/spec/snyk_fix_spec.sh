@@ -2,7 +2,7 @@
 
 Describe "Snyk fix command"
   Describe "supported only with FF"
-
+    Skip if "execute only in regression test" check_if_regression_test
     It "by default snyk fix is not supported"
       When run snyk fix
       The status should be failure
