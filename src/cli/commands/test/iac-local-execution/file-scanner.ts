@@ -1,13 +1,15 @@
 import {
-  OpaWasmInstance,
+  EngineType,
+  IaCErrorCodes,
   IacFileParsed,
   IacFileScanResult,
+  OpaWasmInstance,
   PolicyMetadata,
-  EngineType,
 } from './types';
 import { loadPolicy } from '@open-policy-agent/opa-wasm';
 import * as fs from 'fs';
-import { getLocalCachePath, LOCAL_POLICY_ENGINE_DIR } from './local-cache';
+import { getLocalCachePath } from './local-cache';
+import { CustomError } from '../../../../lib/errors';
 
 export async function scanFiles(
   parsedFiles: Array<IacFileParsed>,
@@ -27,8 +29,7 @@ async function getPolicyEngine(engineType: EngineType): Promise<PolicyEngine> {
   if (policyEngineCache[engineType]) {
     return policyEngineCache[engineType]!;
   }
-  const policyEngine = await buildPolicyEngine(engineType);
-  policyEngineCache[engineType] = policyEngine;
+  policyEngineCache[engineType] = await buildPolicyEngine(engineType);
   return policyEngineCache[engineType]!;
 }
 
@@ -67,9 +68,7 @@ async function buildPolicyEngine(
 
     return new PolicyEngine(opaWasmInstance);
   } catch (err) {
-    throw new Error(
-      `Failed to build policy engine from path: ${LOCAL_POLICY_ENGINE_DIR}: \n err: ${err.message}`,
-    );
+    throw new FailedToBuildPolicyEngine();
   }
 }
 
@@ -91,7 +90,24 @@ class PolicyEngine {
       };
     } catch (err) {
       // TODO: to distinguish between different failure reasons
-      throw new Error(`Failed to run policy engine: ${err}`);
+      throw new FailedToExecutePolicyEngine();
     }
+  }
+}
+
+export class FailedToBuildPolicyEngine extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Failed to build policy engine');
+    this.code = IaCErrorCodes.FailedToBuildPolicyEngine;
+    this.userMessage =
+      'We were unable run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
+  }
+}
+export class FailedToExecutePolicyEngine extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Failed to execute policy engine');
+    this.code = IaCErrorCodes.FailedToExecutePolicyEngine;
+    this.userMessage =
+      'We were unable run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
   }
 }

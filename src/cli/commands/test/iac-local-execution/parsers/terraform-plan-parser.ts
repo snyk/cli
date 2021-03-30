@@ -8,7 +8,9 @@ import {
   VALID_RESOURCE_ACTIONS,
   TerraformScanInput,
   TerraformPlanResourceChange,
+  IaCErrorCodes,
 } from '../types';
+import { CustomError } from '../../../../../lib/errors';
 
 function terraformPlanReducer(
   scanInput: TerraformScanInput,
@@ -100,6 +102,15 @@ function extractResourcesForDeltaScan(
   });
 }
 
+function assertRequiredFields(terraformPlanJson: TerraformPlanJson): void {
+  if (
+    !terraformPlanJson.planned_values?.root_module ||
+    terraformPlanJson.resource_changes === undefined
+  ) {
+    throw new MissingRequiredFieldsInTerraformPlanError();
+  }
+}
+
 export function tryParsingTerraformPlan(
   terraformPlanFile: IacFileData,
   { isFullScan }: { isFullScan: boolean } = { isFullScan: false },
@@ -110,8 +121,10 @@ export function tryParsingTerraformPlan(
       terraformPlanFile.fileContent,
     ) as TerraformPlanJson;
   } catch (err) {
-    throw new Error('Failed to parse Terraform plan JSON file.');
+    throw new FailedToParseTerraformPlanJsonError();
   }
+
+  assertRequiredFields(terraformPlanJson);
   try {
     const scannableInput = isFullScan
       ? extractResourcesForFullScan(terraformPlanJson)
@@ -125,8 +138,35 @@ export function tryParsingTerraformPlan(
       },
     ];
   } catch (err) {
-    throw new Error(
-      'Failed to extract resources from Terraform plan JSON file.',
+    throw new FailedToExtractResourcesInTerraformPlanError();
+  }
+}
+
+export class FailedToParseTerraformPlanJsonError extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Failed to parse Terraform plan JSON file');
+    this.code = IaCErrorCodes.FailedToParseTerraformPlanJsonError;
+    this.userMessage =
+      'The Terraform plan file provided contains malformed JSON please regenerate it and try again';
+  }
+}
+export class MissingRequiredFieldsInTerraformPlanError extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Failed to parse Terraform plan JSON file');
+    this.code = IaCErrorCodes.MissingRequiredFieldsInTerraformPlanError;
+    this.userMessage =
+      'We failed to scan the provided Terraform plan file, it was expect to contain fields "planned_values.root_module" & "resource_changes", please contact support@snyk.io, if possible with a redacted version of the file';
+  }
+}
+
+// This error is due to the complex reduction logic, so it catches scenarios we might have not covered.
+export class FailedToExtractResourcesInTerraformPlanError extends CustomError {
+  constructor(message?: string) {
+    super(
+      message || 'Failed to extract resources from Terraform plan JSON file',
     );
+    this.code = IaCErrorCodes.FailedToExtractResourcesInTerraformPlanError;
+    this.userMessage =
+      'We failed to extract resource changes from the Terraform plan file, please contact support@snyk.io, if possible with a redacted version of the file';
   }
 }

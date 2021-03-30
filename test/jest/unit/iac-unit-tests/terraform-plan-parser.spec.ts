@@ -1,8 +1,15 @@
-import { tryParsingTerraformPlan } from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-plan-parser';
+import {
+  tryParsingTerraformPlan,
+  FailedToParseTerraformPlanJsonError,
+  FailedToExtractResourcesInTerraformPlanError,
+  MissingRequiredFieldsInTerraformPlanError,
+} from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-plan-parser';
 import {
   iacFileData,
   invalidJsonIacFile,
   iacFileDataNoChildModules,
+  iacFileDataWithoutRootModule,
+  iacFileDataWithoutResourceChanges,
   expectedParsingResultFullScan,
   expectedParsingResultDeltaScan,
   expectedParsingResultWithoutChildModules,
@@ -12,7 +19,7 @@ import { EngineType } from '../../../../src/cli/commands/test/iac-local-executio
 describe('tryParsingTerraformPlan', () => {
   it('throws an error for invalid JSON', () => {
     expect(() => tryParsingTerraformPlan(invalidJsonIacFile)).toThrowError(
-      'Failed to parse Terraform plan JSON file.',
+      FailedToParseTerraformPlanJsonError,
     );
   });
 
@@ -39,6 +46,14 @@ describe('tryParsingTerraformPlan', () => {
         jsonContent: expectedParsingResultWithoutChildModules,
       });
     });
+
+    it('throws an error for missing required fields', () => {
+      expect(() =>
+        tryParsingTerraformPlan(iacFileDataWithoutRootModule, {
+          isFullScan: true,
+        }),
+      ).toThrowError(MissingRequiredFieldsInTerraformPlanError);
+    });
   });
 
   describe('default delta scan', () => {
@@ -49,6 +64,12 @@ describe('tryParsingTerraformPlan', () => {
         engineType: EngineType.Terraform,
         jsonContent: expectedParsingResultDeltaScan,
       });
+    });
+
+    it('throws an error for missing required fields', () => {
+      expect(() =>
+        tryParsingTerraformPlan(iacFileDataWithoutResourceChanges),
+      ).toThrowError(MissingRequiredFieldsInTerraformPlanError);
     });
   });
 

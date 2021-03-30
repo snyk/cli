@@ -51,7 +51,7 @@ Describe "Snyk iac test --experimental command"
     It "outputs an error for files with no valid k8s objects"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml --experimental
       The status should be failure
-      The output should include "Invalid K8s File!"
+      The output should include "We were unable to detect whether the YAML file"
     End
 
     It "outputs the expected text when running with --sarif flag"
@@ -149,7 +149,7 @@ Describe "Snyk iac test --experimental command"
 
       # Second File
       The output should include "Testing pod-invalid.yaml..."
-      The output should include "Invalid K8s File!"
+      The output should include "Failed to detect Kubernetes file, missing required fields"
     End
   End
 

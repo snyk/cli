@@ -1,4 +1,5 @@
 import * as localCacheModule from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
+import { FailedToInitLocalCacheError } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
 import { PassThrough } from 'stream';
 import * as needle from 'needle';
@@ -35,13 +36,13 @@ describe('initLocalCache - downloads bundle successfully', () => {
   });
 });
 
-describe('initLocalCache - Missing IaC local cache data', () => {
+describe('initLocalCache - errors', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false);
   });
 
-  it('throws an error on download', () => {
+  it('throws an error on creation of cache dir', () => {
     const error = new Error(
       'The .iac-data directory can not be created. ' +
         'Please make sure that the current working directory has write permissions',
@@ -54,6 +55,6 @@ describe('initLocalCache - Missing IaC local cache data', () => {
     const promise = localCacheModule.initLocalCache();
 
     expect(fileUtilsModule.extractBundle).not.toHaveBeenCalled();
-    expect(promise).rejects.toThrow(error);
+    expect(promise).rejects.toThrow(FailedToInitLocalCacheError);
   });
 });

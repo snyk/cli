@@ -1,5 +1,11 @@
 import * as hclToJson from 'hcl-to-json';
-import { EngineType, IacFileData, IacFileParsed } from '../types';
+import {
+  EngineType,
+  IaCErrorCodes,
+  IacFileData,
+  IacFileParsed,
+} from '../types';
+import { CustomError } from '../../../../../lib/errors';
 
 export function tryParsingTerraformFile(
   fileData: IacFileData,
@@ -16,6 +22,14 @@ export function tryParsingTerraformFile(
       },
     ];
   } catch (err) {
-    throw new Error('Invalid Terraform File!');
+    throw new FailedToParseTerraformFileError(fileData.filePath);
+  }
+}
+
+class FailedToParseTerraformFileError extends CustomError {
+  constructor(filename: string) {
+    super('Failed to parse Terraform file');
+    this.code = IaCErrorCodes.FailedToParseTerraformFileError;
+    this.userMessage = `We were unable to parse the Terraform file "${filename}", please ensure it is valid HCL2. This can be done by running it through the 'terraform validate' command.`;
   }
 }

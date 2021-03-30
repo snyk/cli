@@ -1,3 +1,5 @@
+import { FailedToBuildPolicyEngine } from '../../../../dist/cli/commands/test/iac-local-execution/file-scanner';
+
 const mockFs = require('mock-fs');
 import * as path from 'path';
 import {
@@ -25,7 +27,7 @@ describe('scanFiles', () => {
   });
 
   describe('with parsed files', () => {
-    it('returns the expected viloated policies', async () => {
+    it('returns the expected violated policies', async () => {
       mockFs({
         [path.resolve(__dirname, '../../../../.iac-data')]: mockFs.load(
           path.resolve(__dirname, '../../../smoke/.iac-data'),
@@ -41,7 +43,7 @@ describe('scanFiles', () => {
       );
     });
 
-    // TODO: Extract policy engine & the cache mechinism, test them separately.
+    // TODO: Extract policy engine & the cache mechanism, test them separately.
   });
 
   describe('missing policy engine wasm files', () => {

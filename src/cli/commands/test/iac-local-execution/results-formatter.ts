@@ -1,12 +1,15 @@
 import {
   EngineType,
   FormattedResult,
+  IaCErrorCodes,
   IacFileScanResult,
   IaCTestFlags,
   PolicyMetadata,
 } from './types';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
+import { CustomError } from './../../../../lib/errors/custom-error';
+
 // import {
 //   issuesToLineNumbers,
 //   CloudConfigFileTypes,
@@ -18,13 +21,17 @@ export function formatScanResults(
   scanResults: Array<IacFileScanResult>,
   options: IaCTestFlags,
 ): FormattedResult[] {
-  // Relevant only for multi-doc yaml files
-  const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);
-  const formattedResults = scannedResultsGroupedByDocId.map((iacScanResult) =>
-    formatScanResult(iacScanResult, options.severityThreshold),
-  );
+  try {
+    // Relevant only for multi-doc yaml files
+    const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);
+    const formattedResults = scannedResultsGroupedByDocId.map((iacScanResult) =>
+      formatScanResult(iacScanResult, options.severityThreshold),
+    );
 
-  return formattedResults;
+    return formattedResults;
+  } catch (e) {
+    throw new FailedToFormatResults();
+  }
 }
 
 //
@@ -131,4 +138,13 @@ function filterPoliciesBySeverity(
   return violatedPolicies.filter((policy) =>
     severitiesToInclude.includes(policy.severity),
   );
+}
+
+export class FailedToFormatResults extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Failed to format results');
+    this.code = IaCErrorCodes.FailedToFormatResults;
+    this.userMessage =
+      'We failed printing the results, please contact support@snyk.io';
+  }
 }
