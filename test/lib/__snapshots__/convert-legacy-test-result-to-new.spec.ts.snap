@@ -1,0 +1,177 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Convert legacy TestResult to ScanResult can convert npm test result with no remediation 1`] = `
+Object {
+  "depGraphData": Object {},
+  "issues": Array [],
+  "issuesData": Object {},
+  "remediation": undefined,
+}
+`;
+
+exports[`Convert legacy TestResult to ScanResult can convert npm test result with remediation 1`] = `
+Object {
+  "depGraphData": Object {},
+  "issues": Array [],
+  "issuesData": Object {},
+  "remediation": Object {
+    "ignore": Object {},
+    "patch": Object {
+      "npm:node-uuid:20160328": Object {
+        "paths": Array [
+          Object {
+            "ms": Object {
+              "patched": "2019-11-29T15:08:55.159Z",
+            },
+          },
+        ],
+      },
+    },
+    "pin": Object {},
+    "unresolved": Array [],
+    "upgrade": Object {
+      "qs@0.0.6": Object {
+        "upgradeTo": "qs@6.0.4",
+        "upgrades": Array [
+          "qs@0.0.6",
+          "qs@0.0.6",
+          "qs@0.0.6",
+        ],
+        "vulns": Array [
+          "npm:qs:20170213",
+          "npm:qs:20140806",
+          "npm:qs:20140806-1",
+        ],
+      },
+    },
+  },
+}
+`;
+
+exports[`Convert legacy TestResult to ScanResult can convert pip test result with remediation (pins) 1`] = `
+Object {
+  "depGraphData": Object {},
+  "issues": Array [],
+  "issuesData": Object {},
+  "remediation": Object {
+    "ignore": Object {},
+    "patch": Object {},
+    "pin": Object {
+      "django@1.6.1": Object {
+        "isTransitive": false,
+        "upgradeTo": "django@2.2.18",
+        "vulns": Array [
+          "SNYK-PYTHON-DJANGO-72888",
+        ],
+      },
+    },
+    "unresolved": Array [
+      Object {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N",
+        "alternativeIds": Array [],
+        "creationTime": "2021-02-01T13:11:56.558734Z",
+        "credit": Array [
+          "Wang Baohua",
+        ],
+        "cvssScore": 3.1,
+        "description": "## Overview
+[django](https://pypi.org/project/Django/) is a high-level Python Web framework that encourages rapid development and clean, pragmatic design.
+
+Affected versions of this package are vulnerable to Directory Traversal via the \`django.utils.archive.extract()\` function, which is used by \`startapp --template\` and \`startproject --template\`. This can happen via an archive with absolute paths or relative paths with dot segments.
+
+## Details
+
+A Directory Traversal attack (also known as path traversal) aims to access files and directories that are stored outside the intended folder. By manipulating files with \\"dot-dot-slash (../)\\" sequences and its variations, or by using absolute file paths, it may be possible to access arbitrary files and directories stored on file system, including application source code, configuration, and other critical system files.
+
+Directory Traversal vulnerabilities can be generally divided into two types:
+
+- **Information Disclosure**: Allows the attacker to gain information about the folder structure or read the contents of sensitive files on the system.
+
+\`st\` is a module for serving static files on web pages, and contains a [vulnerability of this type](https://snyk.io/vuln/npm:st:20140206). In our example, we will serve files from the \`public\` route.
+
+If an attacker requests the following URL from our server, it will in turn leak the sensitive private key of the root user.
+
+\`\`\`
+curl http://localhost:8080/public/%2e%2e/%2e%2e/%2e%2e/%2e%2e/%2e%2e/root/.ssh/id_rsa
+\`\`\`
+**Note** \`%2e\` is the URL encoded version of \`.\` (dot).
+
+- **Writing arbitrary files**: Allows the attacker to create or replace existing files. This type of vulnerability is also known as \`Zip-Slip\`. 
+
+One way to achieve this is by using a malicious \`zip\` archive that holds path traversal filenames. When each filename in the zip archive gets concatenated to the target extraction folder, without validation, the final path ends up outside of the target folder. If an executable or a configuration file is overwritten with a file containing malicious code, the problem can turn into an arbitrary code execution issue quite easily.
+
+The following is an example of a \`zip\` archive with one benign file and one malicious file. Extracting the malicious file will result in traversing out of the target folder, ending up in \`/root/.ssh/\` overwriting the \`authorized_keys\` file:
+
+\`\`\`
+2018-04-15 22:04:29 .....           19           19  good.txt
+2018-04-15 22:04:42 .....           20           20  ../../../../../../root/.ssh/authorized_keys
+\`\`\`
+
+## Remediation
+Upgrade \`django\` to version 2.2.18, 3.0.12, 3.1.6 or higher.
+## References
+- [Django Advisory](https://www.djangoproject.com/weblog/2021/feb/01/security-releases/)
+- [GitHub Commit](https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23)
+",
+        "disclosureTime": "2021-02-01T12:56:31Z",
+        "exploit": "Not Defined",
+        "fixedIn": Array [
+          "2.2.18",
+          "3.0.12",
+          "3.1.6",
+        ],
+        "from": Array [
+          "pip-app@0.0.0",
+          "django@1.6.1",
+        ],
+        "functions": Array [],
+        "functions_new": Array [],
+        "id": "SNYK-PYTHON-DJANGO-1066259",
+        "identifiers": Object {
+          "CVE": Array [
+            "CVE-2021-3281",
+          ],
+          "CWE": Array [
+            "CWE-22",
+          ],
+        },
+        "isPatchable": false,
+        "isPinnable": true,
+        "isUpgradable": false,
+        "language": "python",
+        "modificationTime": "2021-02-01T15:11:08.053324Z",
+        "moduleName": "django",
+        "name": "django",
+        "packageManager": "pip",
+        "packageName": "django",
+        "patches": Array [],
+        "proprietary": false,
+        "publicationTime": "2021-02-01T15:11:08.261009Z",
+        "references": Array [
+          Object {
+            "title": "Django Advisory",
+            "url": "https://www.djangoproject.com/weblog/2021/feb/01/security-releases/",
+          },
+          Object {
+            "title": "GitHub Commit",
+            "url": "https://github.com/django/django/commit/05413afa8c18cdb978fcdf470e09f7a12b234a23",
+          },
+        ],
+        "semver": Object {
+          "vulnerable": Array [
+            "[1.4,2.2.18)",
+            "[3.0a1,3.0.12)",
+            "[3.1a1,3.1.6)",
+          ],
+        },
+        "severity": "low",
+        "severityWithCritical": "low",
+        "title": "Directory Traversal",
+        "upgradePath": Array [],
+        "version": "1.6.1",
+      },
+    ],
+    "upgrade": Object {},
+  },
+}
+`;

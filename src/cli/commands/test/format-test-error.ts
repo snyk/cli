@@ -1,4 +1,4 @@
-export function generateSnykTestError(error) {
+export function formatTestError(error) {
   // Possible error cases:
   // - the test found some vulns. `error.message` is a
   // JSON-stringified

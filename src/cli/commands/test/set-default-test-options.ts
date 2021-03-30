@@ -1,7 +1,9 @@
 import * as config from '../../../lib/config';
 import { Options, ShowVulnPaths, TestOptions } from '../../../lib/types';
 
-export function setDefaultTestOptions(options: Options): Options & TestOptions {
+export function setDefaultTestOptions<CommandOptions>(
+  options: Options & CommandOptions,
+): Options & TestOptions & CommandOptions {
   const svpSupplied = (options['show-vulnerable-paths'] || '')
     .toString()
     .toLowerCase();

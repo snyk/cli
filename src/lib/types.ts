@@ -80,6 +80,7 @@ export interface Options {
   debug?: boolean;
   sarif?: boolean;
   'group-issues'?: boolean;
+  quiet?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -195,6 +196,7 @@ export enum SupportedCliCommands {
   // auth = 'auth', // TODO: auth does not support argv._ at the moment
   test = 'test',
   monitor = 'monitor',
+  fix = 'fix',
   protect = 'protect',
   policy = 'policy',
   ignore = 'ignore',
