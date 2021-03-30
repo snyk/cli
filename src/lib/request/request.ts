@@ -21,6 +21,16 @@ declare const global: Global;
 export = function makeRequest(
   payload: Payload,
 ): Promise<{ res: needle.NeedleResponse; body: any }> {
+  // This ensures we support lowercase http(s)_proxy values as well
+  // The weird IF around it ensures we don't create an envvar with a value of undefined, which throws error when trying to use it as a proxy
+  if (process.env.HTTP_PROXY || process.env.http_proxy) {
+    process.env.HTTP_PROXY = process.env.HTTP_PROXY || process.env.http_proxy;
+  }
+  if (process.env.HTTPS_PROXY || process.env.https_proxy) {
+    process.env.HTTPS_PROXY =
+      process.env.HTTPS_PROXY || process.env.https_proxy;
+  }
+
   return getVersion().then(
     (versionNumber) =>
       new Promise((resolve, reject) => {
