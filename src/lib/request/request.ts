@@ -5,7 +5,7 @@ import * as querystring from 'querystring';
 import * as zlib from 'zlib';
 import * as config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
-import * as ProxyAgent from 'proxy-agent';
+import { bootstrap } from 'global-agent';
 import * as analytics from '../analytics';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
@@ -21,6 +21,16 @@ declare const global: Global;
 export = function makeRequest(
   payload: Payload,
 ): Promise<{ res: needle.NeedleResponse; body: any }> {
+  // This ensures we support lowercase http(s)_proxy values as well
+  // The weird IF around it ensures we don't create an envvar with a value of undefined, which throws error when trying to use it as a proxy
+  if (process.env.HTTP_PROXY || process.env.http_proxy) {
+    process.env.HTTP_PROXY = process.env.HTTP_PROXY || process.env.http_proxy;
+  }
+  if (process.env.HTTPS_PROXY || process.env.https_proxy) {
+    process.env.HTTPS_PROXY =
+      process.env.HTTPS_PROXY || process.env.https_proxy;
+  }
+
   return getVersion().then(
     (versionNumber) =>
       new Promise((resolve, reject) => {
@@ -120,8 +130,9 @@ export = function makeRequest(
         const proxyUri = getProxyForUrl(url);
         if (proxyUri) {
           snykDebug('using proxy:', proxyUri);
-          // proxyAgent type is an EventEmitter and not an http Agent
-          options.agent = (new ProxyAgent(proxyUri) as unknown) as http.Agent;
+          bootstrap({
+            environmentVariableNamespace: '',
+          });
         } else {
           snykDebug('not using proxy');
         }
