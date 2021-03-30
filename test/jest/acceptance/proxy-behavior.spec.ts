@@ -25,8 +25,9 @@ describe('Proxy configuration behavior', () => {
               throw err;
             }
 
+            // It will *attempt* to connect to a FAKE_HTTP_PROXY (and fails, because it's not a real proxy server)
             expect(stderr).toContain(
-              `snyk analytics Error: connect ECONNREFUSED 127.0.0.1:${
+              `Error: connect ECONNREFUSED 127.0.0.1:${
                 FAKE_HTTP_PROXY.split(':')[2]
               }`,
             );
@@ -53,6 +54,7 @@ describe('Proxy configuration behavior', () => {
               throw err;
             }
 
+            // It will *not attempt* to connect to a proxy and /analytics call won't fail
             expect(stderr).not.toContain('ECONNREFUSED');
             done();
           },
@@ -80,8 +82,9 @@ describe('Proxy configuration behavior', () => {
               throw err;
             }
 
+            // It will *attempt* to connect to a FAKE_HTTP_PROXY (and fails, because it's not a real proxy server)
             expect(stderr).toContain(
-              `snyk analytics Error: connect ECONNREFUSED 127.0.0.1:${
+              `Error: connect ECONNREFUSED 127.0.0.1:${
                 FAKE_HTTP_PROXY.split(':')[2]
               }`,
             );
@@ -105,7 +108,8 @@ describe('Proxy configuration behavior', () => {
             },
           },
           (err, stdout, stderr) => {
-            // TODO: incorrect behavior when Needle tries to upgrade connection after 301 http->https and the Agent option is set to a strict protocol
+            // TODO: incorrect behavior when Needle tries to upgrade connection after 301 http->https and the Agent option is set to a strict http/s protocol
+            // See lines with `keepAlive` in request.ts for more details
             expect(stderr).toContain(
               'TypeError [ERR_INVALID_PROTOCOL]: Protocol "https:" not supported. Expected "http:"',
             );
