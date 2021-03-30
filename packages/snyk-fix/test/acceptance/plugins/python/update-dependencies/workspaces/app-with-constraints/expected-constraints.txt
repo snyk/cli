@@ -1,0 +1,2 @@
+Django==2.0.1
+transitive>=2.0.1 # not directly required, pinned by Snyk to avoid a vulnerability
