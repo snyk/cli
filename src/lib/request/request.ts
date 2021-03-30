@@ -5,7 +5,7 @@ import * as querystring from 'querystring';
 import * as zlib from 'zlib';
 import * as config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
-import * as ProxyAgent from 'proxy-agent';
+import { bootstrap } from 'global-agent';
 import * as analytics from '../analytics';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
@@ -120,8 +120,9 @@ export = function makeRequest(
         const proxyUri = getProxyForUrl(url);
         if (proxyUri) {
           snykDebug('using proxy:', proxyUri);
-          // proxyAgent type is an EventEmitter and not an http Agent
-          options.agent = (new ProxyAgent(proxyUri) as unknown) as http.Agent;
+          bootstrap({
+            environmentVariableNamespace: '',
+          });
         } else {
           snykDebug('not using proxy');
         }

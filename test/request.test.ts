@@ -283,11 +283,7 @@ test('request with https proxy calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 300000, // default
             json: undefined, // default
-            agent: sinon.match({
-              proxy: sinon.match({
-                href: 'https://proxy:8443/', // should be set when using proxy
-              }),
-            }),
+            agent: sinon.match.truthy,
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
@@ -335,11 +331,7 @@ test('request with http proxy calls needle as expected', (t) => {
             follow_max: 5, // default
             timeout: 300000, // default
             json: undefined, // default
-            agent: sinon.match({
-              proxy: sinon.match({
-                href: 'http://proxy:8080/', // should be set when using proxy
-              }),
-            }),
+            agent: sinon.match.truthy,
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
