@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { convertLegacyTestResultToFixEntities } from '../../src/cli/commands/fix/convert-legacy-tests-results-to-fix-entities';
+import { convertLegacyTestResultToFixEntities } from '../../../../../../src/cli/commands/fix/convert-legacy-tests-results-to-fix-entities';
 
 describe('Convert legacy TestResult to ScanResult', () => {
   it('can convert npm test result with no remediation', () => {
@@ -9,7 +9,7 @@ describe('Convert legacy TestResult to ScanResult', () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          '..',
+          '../../../../../',
           'acceptance/fixtures/npm-package-with-severity-override/test-graph-result-no-remediation.json',
         ),
         'utf8',
@@ -27,7 +27,7 @@ describe('Convert legacy TestResult to ScanResult', () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          '..',
+          '../../../../../',
           'acceptance/fixtures/npm-package-with-severity-override/test-graph-result-patches.json',
         ),
         'utf8',
@@ -37,7 +37,7 @@ describe('Convert legacy TestResult to ScanResult', () => {
       withRemediation,
       path.resolve(
         __dirname,
-        '..',
+        '../../../../../',
         'acceptance/fixtures/npm-package-with-severity-override',
       ),
     );
@@ -48,7 +48,7 @@ describe('Convert legacy TestResult to ScanResult', () => {
       fs.readFileSync(
         path.resolve(
           __dirname,
-          '..',
+          '../../../../../',
           'acceptance/fixtures/pip-app-with-remediation/test-graph-results.json',
         ),
         'utf8',

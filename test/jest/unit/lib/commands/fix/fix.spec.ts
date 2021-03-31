@@ -1,9 +1,9 @@
 import * as pathLib from 'path';
 import * as fs from 'fs';
 
-import cli = require('../src/cli/commands');
-import * as snyk from '../src/lib';
-import * as featureFlags from '../src/lib/feature-flags';
+import cli = require('../../../../../../src/cli/commands');
+import * as snyk from '../../../../../../src/lib';
+import * as featureFlags from '../../../../../../src/lib/feature-flags';
 
 import stripAnsi from 'strip-ansi';
 
@@ -11,13 +11,15 @@ const testTimeout = 100000;
 
 const pipAppWorkspace = pathLib.join(
   __dirname,
-  '/acceptance',
+  '../../../../../',
+  'acceptance',
   'workspaces',
   'pip-app',
 );
 
 const npmWorkspace = pathLib.join(
   __dirname,
+  '../../../../../',
   'acceptance',
   'workspaces',
   'no-vulns',
@@ -27,7 +29,8 @@ const pipRequirementsTxt = pathLib.join(pipAppWorkspace, 'requirements.txt');
 
 const pipRequirementsCustomTxt = pathLib.join(
   __dirname,
-  '/acceptance',
+  '../../../../../',
+  'acceptance',
   'workspaces',
   'pip-app-custom',
   'base.txt',
@@ -37,6 +40,7 @@ const pipWithRemediation = JSON.parse(
   fs.readFileSync(
     pathLib.resolve(
       __dirname,
+      '../../../../../',
       'fixtures',
       'snyk-fix',
       'test-result-pip-with-remediation.json',
