@@ -78,7 +78,7 @@ test('`snyk test` with docker flag - docker token and no api key', async (t) => 
     const req = server.popRequest();
     t.match(
       req.headers.authorization,
-      'bearer docker-jwt-token',
+      'Bearer docker-jwt-token',
       'sends correct authorization header',
     );
     t.equal(req.method, 'POST', 'makes POST request');

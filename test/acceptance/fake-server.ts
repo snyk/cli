@@ -127,7 +127,7 @@ export function fakeServer(root, apikey) {
   server.post(root + '/docker-jwt/test-dependencies', (req, res, next) => {
     if (
       req.headers.authorization &&
-      !req.headers.authorization.includes('bearer')
+      !req.headers.authorization.includes('Bearer')
     ) {
       res.send(401);
     }

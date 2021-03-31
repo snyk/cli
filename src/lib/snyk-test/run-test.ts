@@ -66,7 +66,7 @@ import {
 import { CallGraphError, CallGraph } from '@snyk/cli-interface/legacy/common';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
-import { authHeaderWithApiTokenOrDockerJWT } from '../api-token';
+import { getAuthHeader } from '../api-token';
 import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
@@ -794,7 +794,7 @@ async function assembleLocalPayloads(
         json: true,
         headers: {
           'x-is-ci': isCI(),
-          authorization: authHeaderWithApiTokenOrDockerJWT(),
+          authorization: getAuthHeader(),
         },
         qs: common.assembleQueryString(options),
         body,

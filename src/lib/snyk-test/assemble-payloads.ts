@@ -8,7 +8,7 @@ import { Payload } from './types';
 import { assembleQueryString } from './common';
 import spinner = require('../spinner');
 import { findAndLoadPolicyForScanResult } from '../ecosystems/policy';
-import { authHeaderWithApiTokenOrDockerJWT } from '../../lib/api-token';
+import { getAuthHeader } from '../../lib/api-token';
 
 export async function assembleEcosystemPayloads(
   ecosystem: Ecosystem,
@@ -60,7 +60,7 @@ export async function assembleEcosystemPayloads(
         json: true,
         headers: {
           'x-is-ci': isCI(),
-          authorization: authHeaderWithApiTokenOrDockerJWT(),
+          authorization: getAuthHeader(),
         },
         body: {
           scanResult,
