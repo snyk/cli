@@ -13,7 +13,8 @@ export type SupportedPackageManagers =
   | 'paket'
   | 'composer'
   | 'cocoapods'
-  | 'poetry';
+  | 'poetry'
+  | 'hex';
 
 export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   readonly [packageManager in SupportedPackageManagers]: string;
@@ -33,6 +34,7 @@ export const SUPPORTED_PACKAGE_MANAGER_NAME: {
   composer: 'Composer',
   cocoapods: 'CocoaPods',
   poetry: 'Poetry',
+  hex: 'Hex',
 };
 
 export const WIZARD_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [

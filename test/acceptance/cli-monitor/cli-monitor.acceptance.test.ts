@@ -38,6 +38,7 @@ import * as plugins from '../../../src/lib/plugins/index';
 import * as ecosystemPlugins from '../../../src/lib/ecosystems/plugins';
 import { createCallGraph } from '../../utils';
 import { DepGraphBuilder } from '@snyk/dep-graph';
+import * as depGraphLib from '@snyk/dep-graph';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -1587,6 +1588,69 @@ if (!isWindows) {
     t.match(results[0].packageManager, 'composer', 'composer package manager');
     t.match(results[1].packageManager, 'rubygems', 'rubygems package manager');
     t.end();
+  });
+
+  test('`monitor elixir-hex --file=mix.exs`', async (t) => {
+    chdirWorkspaces();
+    const plugin = {
+      async inspect() {
+        return {
+          scannedProjects: [
+            {
+              packageManager: 'hex',
+              targetFile: 'mix.exs',
+              depGraph: await depGraphLib.createFromJSON({
+                schemaVersion: '1.2.0',
+                pkgManager: {
+                  name: 'hex',
+                },
+                pkgs: [
+                  {
+                    id: 'snowflex@0.3.1',
+                    info: {
+                      name: 'snowflex',
+                      version: '0.3.1',
+                    },
+                  },
+                ],
+                graph: {
+                  rootNodeId: 'root-node',
+                  nodes: [
+                    {
+                      nodeId: 'root-node',
+                      pkgId: 'snowflex@0.3.1',
+                      deps: [],
+                    },
+                  ],
+                },
+              }),
+            },
+          ],
+          plugin: {
+            name: 'testplugin',
+            runtime: 'testruntime',
+            targetFile: 'mix.exs',
+          },
+        };
+      },
+    };
+
+    const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+    t.teardown(loadPlugin.restore);
+    loadPlugin.withArgs('hex').returns(plugin);
+
+    await cli.monitor('elixir-hex', { file: 'mix.exs' });
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    t.match(req.url, '/monitor/hex/graph', 'puts at correct url');
+    t.equal(req.body.targetFile, 'mix.exs', 'sends targetFile');
+    const depGraphJSON = req.body.depGraphJSON;
+    t.ok(depGraphJSON);
   });
 
   test('`monitor foo:latest --docker`', async (t) => {
