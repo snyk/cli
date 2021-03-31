@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`snyk fix (functional tests) shows successful fixes Python requirements.txt project on stdout 1`] = `
+"⠋ ⠋ ℹ Running \`snyk test\` for 
+⠋ Looking for supported Python items✔ Looking for supported Python items
+⠋ Processing 1 requirements.txt items.✔ Processing 1 requirements.txt items.
+⠋ ✔ Done
+"
+`;

@@ -50,13 +50,16 @@ const pipWithRemediation = JSON.parse(
 );
 
 describe('snyk fix (functional tests)', () => {
+  let origStdWrite;
   beforeAll(async () => {
+    origStdWrite = process.stdout.write;
     jest
       .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
       .mockResolvedValue({ ok: true });
   });
 
   afterAll(async () => {
+    process.stdout.write = origStdWrite;
     jest.clearAllMocks();
   });
   it(
@@ -85,6 +88,58 @@ describe('snyk fix (functional tests)', () => {
       expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
       expect(stdoutMessages).toEqual('');
       expect(stderrMessages).toEqual('');
+    },
+    testTimeout,
+  );
+  it(
+    'shows successful fixes Python requirements.txt project was fixed via --file',
+    async () => {
+      // read data from console.log
+      let stdoutMessages = '';
+      let stderrMessages = '';
+      jest
+        .spyOn(console, 'log')
+        .mockImplementation((msg: string) => (stdoutMessages += msg));
+      jest
+        .spyOn(console, 'error')
+        .mockImplementation((msg: string) => (stderrMessages += msg));
+
+      jest.spyOn(snyk, 'test').mockResolvedValue({
+        ...pipWithRemediation,
+        // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
+        displayTargetFile: pipRequirementsTxt,
+      });
+      const res = await cli.fix('.', {
+        file: pipRequirementsTxt,
+        dryRun: true, // prevents write to disc
+        quiet: true,
+      });
+      expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
+      expect(stdoutMessages).toEqual('');
+      expect(stderrMessages).toEqual('');
+    },
+    testTimeout,
+  );
+  it(
+    'shows successful fixes Python requirements.txt project on stdout',
+    async () => {
+      // read data from console.log
+      let stdoutMessages = '';
+      process.stdout.write = (str) => {
+        stdoutMessages += str;
+        return true;
+      };
+      jest.spyOn(snyk, 'test').mockResolvedValue({
+        ...pipWithRemediation,
+        // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
+        displayTargetFile: pipRequirementsTxt,
+      });
+      const res = await cli.fix('.', {
+        file: pipRequirementsTxt,
+        dryRun: true, // prevents write to disc
+      });
+      expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
+      expect(stripAnsi(stdoutMessages)).toMatchSnapshot();
     },
     testTimeout,
   );
