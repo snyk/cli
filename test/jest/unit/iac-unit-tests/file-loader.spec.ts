@@ -1,15 +1,23 @@
+import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
+
 const mockFs = require('mock-fs');
-import { loadFiles } from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
 import {
-  k8sFileStub,
+  FailedToLoadFileError,
+  loadFiles,
+  NoFilesToScanError,
+  tryLoadFileData,
+} from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
+import * as fileLoader from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
+import {
   anotherK8sFileStub,
-  terraformFileStub,
-  anotherTerraformFileStub,
-  nonIacFileStub,
   anotherNonIacFileStub,
-  k8sDirectory,
-  terraformDirectory,
+  anotherTerraformFileStub,
   emptyDirectory,
+  k8sDirectory,
+  k8sFileStub,
+  nonIacFileStub,
+  terraformDirectory,
+  terraformFileStub,
 } from './file-loader.fixtures';
 
 describe('loadFiles', () => {
@@ -32,12 +40,22 @@ describe('loadFiles', () => {
       });
     });
 
-    describe('with a non iac file', () => {
-      it('throws an error', async () => {
+    describe('errors', () => {
+      it('throws an error when there is no valid iac file', async () => {
         mockFs({ [nonIacFileStub.filePath]: nonIacFileStub.fileContent });
         await expect(loadFiles(nonIacFileStub.filePath)).rejects.toThrow(
-          "Couldn't find valid IaC files",
+          NoFilesToScanError,
         );
+      });
+
+      it('throws an error when an error occurs when loading files', async () => {
+        jest.spyOn(fileLoader, 'tryLoadFileData').mockImplementation(() => {
+          throw FailedToLoadFileError;
+        });
+
+        const loadFilesFn = loadFiles(anotherK8sFileStub.filePath);
+
+        await expect(loadFilesFn).rejects.toThrow(FailedToLoadFileError);
       });
     });
   });
@@ -78,7 +96,7 @@ describe('loadFiles', () => {
         });
 
         await expect(loadFiles(nonIacFileStub.filePath)).rejects.toThrow(
-          "Couldn't find valid IaC files",
+          NoFilesToScanError,
         );
       });
     });

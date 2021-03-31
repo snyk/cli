@@ -161,3 +161,38 @@ export const VALID_RESOURCE_ACTIONS: ResourceActions[] = [
   ['create', 'delete'],
   ['delete', 'create'],
 ];
+
+// Error codes used for Analytics & Debugging
+// Within a single module, increments are in 1.
+// Between modules, increments are in 10, according to the order of execution.
+export enum IaCErrorCodes {
+  // local-cache errors
+  FailedToInitLocalCacheError = 1000,
+  FailedToCleanLocalCacheError = 1001,
+
+  // file-loader errors
+  NoFilesToScanError = 1010,
+  FailedToLoadFileError = 1011,
+
+  // file-parser errors
+  UnsupportedFileTypeError = 1020,
+
+  // kubernetes-parser errors
+  FailedToParseKubernetesYamlError = 1030,
+  MissingRequiredFieldsInKubernetesYamlError = 1031,
+
+  // terraform-file-parser errors
+  FailedToParseTerraformFileError = 1040,
+
+  // terraform-plan-parser errors
+  FailedToParseTerraformPlanJsonError = 1050,
+  MissingRequiredFieldsInTerraformPlanError = 1051,
+  FailedToExtractResourcesInTerraformPlanError = 1052,
+
+  // file-scanner errors
+  FailedToBuildPolicyEngine = 1060,
+  FailedToExecutePolicyEngine = 1061,
+
+  // results-formatter errors
+  FailedToFormatResults = 1070,
+}

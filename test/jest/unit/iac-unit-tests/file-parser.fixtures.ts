@@ -3,6 +3,7 @@ import {
   IacFileData,
   IacFileParsed,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
 
 const kubernetesFileContent = `
 apiVersion: v1
@@ -42,8 +43,10 @@ export const invalidK8sFileDataStub: IacFileData = {
 };
 
 export const expectedInvalidK8sFileParsingResult = {
-  err: new Error('Invalid K8s File!'),
-  failureReason: 'Invalid K8s File!',
+  err: new MissingRequiredFieldsInKubernetesYamlError(
+    'Failed to detect Kubernetes file, missing required fields',
+  ),
+  failureReason: 'Failed to detect Kubernetes file, missing required fields',
   fileType: 'yml',
   filePath: 'dont-care',
   fileContent: invalidK8sFileDataStub.fileContent,

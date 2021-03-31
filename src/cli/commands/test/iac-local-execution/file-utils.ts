@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as tar from 'tar';
 import * as path from 'path';
+import { FailedToInitLocalCacheError } from './local-cache';
 
 export function createIacDir(): void {
   // this path will be able to be customised by the user in the future
@@ -11,10 +12,7 @@ export function createIacDir(): void {
     }
     fs.accessSync(iacPath, fs.constants.W_OK);
   } catch {
-    throw Error(
-      'The .iac-data directory can not be created. ' +
-        'Please make sure that the current working directory has write permissions',
-    );
+    throw new FailedToInitLocalCacheError();
   }
 }
 

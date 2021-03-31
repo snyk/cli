@@ -1,10 +1,12 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { EngineType } from './types';
+import { EngineType, IaCErrorCodes } from './types';
 import * as needle from 'needle';
 import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle } from './file-utils';
 import * as Debug from 'debug';
+import { CustomError } from './../../../../lib/errors/custom-error';
+import * as analytics from '../../../../lib/analytics';
 import ReadableStream = NodeJS.ReadableStream;
 
 const debug = Debug('iac-local-cache');
@@ -35,10 +37,6 @@ export const REQUIRED_LOCAL_CACHE_FILES = [
   TERRAFORM_POLICY_ENGINE_DATA_PATH,
 ];
 
-function doesLocalCacheExist(): boolean {
-  return REQUIRED_LOCAL_CACHE_FILES.every(fs.existsSync);
-}
-
 export function getLocalCachePath(engineType: EngineType) {
   switch (engineType) {
     case EngineType.Kubernetes:
@@ -57,17 +55,12 @@ export function getLocalCachePath(engineType: EngineType) {
 export async function initLocalCache(): Promise<void> {
   const preSignedUrl =
     'https://cloud-config-policy-bundles.s3-eu-west-1.amazonaws.com/bundle.tar.gz';
-
-  createIacDir();
-  const response: ReadableStream = needle.get(preSignedUrl);
-  await extractBundle(response);
-
-  if (!doesLocalCacheExist()) {
-    throw Error(
-      `Missing IaC local cache data, please validate you have: \n${REQUIRED_LOCAL_CACHE_FILES.join(
-        '\n',
-      )}`,
-    );
+  try {
+    createIacDir();
+    const response: ReadableStream = needle.get(preSignedUrl);
+    await extractBundle(response);
+  } catch (e) {
+    throw new FailedToInitLocalCacheError();
   }
 }
 
@@ -79,6 +72,25 @@ export function cleanLocalCache() {
     // with the native fs.rmdirSync(path, {recursive: true})
     rimraf.sync(iacPath);
   } catch (e) {
+    const err = new FailedToCleanLocalCacheError();
+    analytics.add('error-code', err.code);
     debug('The local cache directory could not be deleted');
+  }
+}
+
+export class FailedToInitLocalCacheError extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Failed to initialize local cache');
+    this.code = IaCErrorCodes.FailedToInitLocalCacheError;
+    this.userMessage =
+      'We were unable to create a local directory to store the test assets, please ensure that the current working directory is writable';
+  }
+}
+
+class FailedToCleanLocalCacheError extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Failed to clean local cache');
+    this.code = IaCErrorCodes.FailedToCleanLocalCacheError;
+    this.userMessage = ''; // Not a user facing error.
   }
 }

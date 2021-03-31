@@ -105,3 +105,23 @@ export const expectedParsingResultWithoutChildModules: TerraformScanInput = {
   },
   data: {},
 };
+
+const planWithoutRootModule = (JSON.parse(
+  tfPlanFixture.toString(),
+) as unknown) as TerraformPlanJson;
+delete planWithoutRootModule.planned_values;
+export const iacFileDataWithoutRootModule: IacFileData = {
+  fileContent: JSON.stringify(planWithoutRootModule),
+  filePath: 'dont-care',
+  fileType: 'json',
+};
+
+const planWithoutResourceChanges = (JSON.parse(
+  tfPlanFixture.toString(),
+) as unknown) as TerraformPlanJson;
+delete planWithoutResourceChanges.resource_changes;
+export const iacFileDataWithoutResourceChanges: IacFileData = {
+  fileContent: JSON.stringify(planWithoutResourceChanges),
+  filePath: 'dont-care',
+  fileType: 'json',
+};
