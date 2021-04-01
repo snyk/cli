@@ -1,6 +1,7 @@
 import { DependencyPins } from '../../../../../types';
 import { isDefined } from './is-defined';
 import { Requirement } from './requirements-file-parser';
+import { standardizePackageName } from './standardize-package-name';
 
 export type FixesType = 'direct-upgrades' | 'transitive-pins';
 
@@ -10,16 +11,19 @@ export function calculateRelevantFixes(
   type: FixesType,
 ): { [upgradeFrom: string]: string } {
   const lowerCasedUpdates: { [upgradeFrom: string]: string } = {};
-  const topLevelDeps = requirements
-    .map(({ name }) => name && name.toLowerCase())
-    .filter(isDefined);
+  const topLevelDeps = requirements.map(({ name }) => name).filter(isDefined);
 
   Object.keys(updates).forEach((update) => {
     const { upgradeTo } = updates[update];
     const [pkgName] = update.split('@');
-    const isTransitive = topLevelDeps.indexOf(pkgName.toLowerCase()) < 0;
+    const isTransitive =
+      topLevelDeps.indexOf(standardizePackageName(pkgName)) < 0;
     if (type === 'transitive-pins' ? isTransitive : !isTransitive) {
-      lowerCasedUpdates[update.toLowerCase()] = upgradeTo.toLowerCase();
+      const [name, newVersion] = upgradeTo.split('@');
+
+      lowerCasedUpdates[update] = `${standardizePackageName(
+        name,
+      )}@${newVersion}`;
     }
   });
   return lowerCasedUpdates;

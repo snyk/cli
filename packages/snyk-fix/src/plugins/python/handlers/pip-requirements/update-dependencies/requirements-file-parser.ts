@@ -1,4 +1,5 @@
 import * as debugLib from 'debug';
+import { standardizePackageName } from './standardize-package-name';
 
 const debug = debugLib('snyk-fix:python:requirements-file-parser');
 
@@ -62,10 +63,10 @@ function extractDependencyDataFromLine(
 
     // Regex to match against a Python package specifier. Any invalid lines (or
     // lines we can't handle) should have been returned this point.
-    const regex = /([A-Z0-9]*)(!=|===|==|>=|<=|>|<|~=)(\d*\.?\d*\.?\d*[A-Z0-9]*)(.*)/i;
+    const regex = /([A-Z0-9-._]*)(!=|===|==|>=|<=|>|<|~=)(\d*\.?\d*\.?\d*[A-Z0-9]*)(.*)/i;
     const result = regex.exec(requirementText);
     if (result !== null) {
-      requirement.name = result[1].toLowerCase();
+      requirement.name = standardizePackageName(result[1]);
       requirement.originalName = result[1];
       requirement.versionComparator = result[2] as VersionComparator;
       requirement.version = result[3];

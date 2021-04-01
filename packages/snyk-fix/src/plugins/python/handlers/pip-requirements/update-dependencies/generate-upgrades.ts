@@ -1,6 +1,7 @@
 import { DependencyPins, FixChangesSummary } from '../../../../../types';
 import { calculateRelevantFixes } from './calculate-relevant-fixes';
 import { Requirement } from './requirements-file-parser';
+import { standardizePackageName } from './standardize-package-name';
 import { UpgradedRequirements } from './types';
 
 export function generateUpgrades(
@@ -52,10 +53,15 @@ export function generateUpgrades(
 
       // Check if we have an upgrade; if we do, replace the version string with
       // the upgrade, but keep the rest of the content
-      const upgrade = Object.keys(
-        lowerCasedUpgrades,
-      ).filter((packageVersionUpgrade: string) =>
-        packageVersionUpgrade.startsWith(`${name.toLowerCase()}@${version}`),
+      const upgrade = Object.keys(lowerCasedUpgrades).filter(
+        (packageVersionUpgrade: string) => {
+          const [pkgName, versionAndMore] = packageVersionUpgrade.split('@');
+          return `${standardizePackageName(
+            pkgName,
+          )}@${versionAndMore}`.startsWith(
+            `${standardizePackageName(name)}@${version}`,
+          );
+        },
       )[0];
 
       if (!upgrade) {
