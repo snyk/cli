@@ -1,6 +1,5 @@
 import {
   parseFiles,
-  tryParseIacFile,
   UnsupportedFileTypeError,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
 import * as fileParser from '../../../../src/cli/commands/test/iac-local-execution/file-parser';

@@ -11,7 +11,7 @@ import {
   IaCErrorCodes,
 } from './types';
 import * as analytics from '../../../../lib/analytics';
-import { CustomError } from './../../../../lib/errors/custom-error';
+import { CustomError } from '../../../../lib/errors';
 
 export async function parseFiles(
   filesData: IacFileData[],
@@ -22,7 +22,9 @@ export async function parseFiles(
     try {
       parsedFiles.push(...tryParseIacFile(fileData));
     } catch (err) {
-      if (filesData.length === 1) throw err;
+      if (filesData.length === 1) {
+        throw err;
+      }
       failedFiles.push(generateFailedParsedFile(fileData, err));
     }
   }

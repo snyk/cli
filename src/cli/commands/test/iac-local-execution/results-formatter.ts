@@ -8,7 +8,7 @@ import {
 } from './types';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
-import { CustomError } from './../../../../lib/errors/custom-error';
+import { CustomError } from '../../../../lib/errors';
 
 // import {
 //   issuesToLineNumbers,
@@ -18,17 +18,15 @@ import { CustomError } from './../../../../lib/errors/custom-error';
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
 export function formatScanResults(
-  scanResults: Array<IacFileScanResult>,
+  scanResults: IacFileScanResult[],
   options: IaCTestFlags,
 ): FormattedResult[] {
   try {
     // Relevant only for multi-doc yaml files
     const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);
-    const formattedResults = scannedResultsGroupedByDocId.map((iacScanResult) =>
+    return scannedResultsGroupedByDocId.map((iacScanResult) =>
       formatScanResult(iacScanResult, options.severityThreshold),
     );
-
-    return formattedResults;
   } catch (e) {
     throw new FailedToFormatResults();
   }
@@ -89,7 +87,7 @@ function formatScanResult(
         resolve: policy.resolve,
       },
       severity: policy.severity,
-      lineNumber: lineNumber,
+      lineNumber,
     };
   });
   return {
@@ -106,8 +104,8 @@ function formatScanResult(
 }
 
 function groupMultiDocResults(
-  scanResults: Array<IacFileScanResult>,
-): Array<IacFileScanResult> {
+  scanResults: IacFileScanResult[],
+): IacFileScanResult[] {
   const groupedData = scanResults.reduce((memo, result) => {
     if (memo[result.filePath]) {
       memo[result.filePath].violatedPolicies = memo[

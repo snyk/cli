@@ -1,5 +1,3 @@
-import { FailedToBuildPolicyEngine } from '../../../../dist/cli/commands/test/iac-local-execution/file-scanner';
-
 const mockFs = require('mock-fs');
 import * as path from 'path';
 import {

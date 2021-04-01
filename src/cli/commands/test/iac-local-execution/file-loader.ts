@@ -4,7 +4,7 @@ import { IaCErrorCodes, IacFileData, VALID_FILE_TYPES } from './types';
 import { getFileType } from '../../../../lib/iac/iac-parser';
 import { IacFileTypes } from '../../../../lib/iac/constants';
 import { isLocalFolder } from '../../../../lib/detect';
-import { CustomError } from './../../../../lib/errors/custom-error';
+import { CustomError } from '../../../../lib/errors';
 
 const DEFAULT_ENCODING = 'utf-8';
 
@@ -19,7 +19,9 @@ export async function loadFiles(pathToScan: string): Promise<IacFileData[]> {
   for (const filePath of filePaths) {
     try {
       const fileData = await tryLoadFileData(filePath);
-      if (fileData) filesToScan.push(fileData);
+      if (fileData) {
+        filesToScan.push(fileData);
+      }
     } catch (e) {
       throw new FailedToLoadFileError(filePath);
     }
@@ -32,7 +34,7 @@ export async function loadFiles(pathToScan: string): Promise<IacFileData[]> {
   return filesToScan;
 }
 
-function getFilePathsFromDirectory(pathToScan: string): Array<string> {
+function getFilePathsFromDirectory(pathToScan: string): string[] {
   const directoryPaths = makeDirectoryIterator(pathToScan);
 
   const directoryFilePaths: string[] = [];
