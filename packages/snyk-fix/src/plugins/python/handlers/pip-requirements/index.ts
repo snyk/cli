@@ -21,6 +21,7 @@ import {
   ParsedRequirements,
   parseRequirementsFile,
 } from './update-dependencies/requirements-file-parser';
+import { standardizePackageName } from './update-dependencies/standardize-package-name';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -208,11 +209,19 @@ function filterOutAppliedUpgrades(
     pin: {}, // delete the pin remediation so we can collect un-applied remediation
   };
   const pins = remediation.pin;
-  const lowerCasedAppliedRemediation = appliedRemediation.map((i) =>
-    i.toLowerCase(),
+  const normalizedAppliedRemediation = appliedRemediation.map(
+    (packageAtVersion) => {
+      const [pkgName, versionAndMore] = packageAtVersion.split('@');
+      return `${standardizePackageName(pkgName)}@${versionAndMore}`;
+    },
   );
   for (const pkgAtVersion of Object.keys(pins)) {
-    if (!lowerCasedAppliedRemediation.includes(pkgAtVersion.toLowerCase())) {
+    const [pkgName, versionAndMore] = pkgAtVersion.split('@');
+    if (
+      !normalizedAppliedRemediation.includes(
+        `${standardizePackageName(pkgName)}@${versionAndMore}`,
+      )
+    ) {
       pinRemediation.pin[pkgAtVersion] = pins[pkgAtVersion];
     }
   }

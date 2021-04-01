@@ -182,6 +182,13 @@ describe('fix *req*.txt / *.txt Python projects', () => {
             vulns: [],
             isTransitive: true,
           },
+          // in the manifest it is Clickhouse_Driver
+          // but package name on Pypi is clickhouse-driver
+          'clickhouse-driver@0.1.4': {
+            upgradeTo: 'clickhouse-driver@0.1.5',
+            vulns: [],
+            isTransitive: true,
+          },
         },
       },
     };
@@ -200,7 +207,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
 
     // Assert
     const expectedManifest =
-      'Django==2.0.1\ntransitive>=1.1.1 # not directly required, pinned by Snyk to avoid a vulnerability\n';
+      'Django==2.0.1\nClickhouse_Driver==0.1.5\nclickhouse-driver==0.1.5\ntransitive>=1.1.1 # not directly required, pinned by Snyk to avoid a vulnerability\n';
     // Note no extra newline was added to the expected manifest
     const fixedFileContent = fs.readFileSync(fixedFilePath, 'utf-8');
     expect(fixedFileContent).toEqual(expectedManifest);
@@ -217,6 +224,14 @@ describe('fix *req*.txt / *.txt Python projects', () => {
                 {
                   success: true,
                   userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Upgraded Clickhouse_Driver from 0.1.4 to 0.1.5',
+                },
+                {
+                  success: true,
+                  userMessage: 'Upgraded clickhouse-driver from 0.1.4 to 0.1.5',
                 },
                 {
                   success: true,
