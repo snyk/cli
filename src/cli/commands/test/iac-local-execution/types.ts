@@ -180,6 +180,7 @@ export enum IaCErrorCodes {
   // kubernetes-parser errors
   FailedToParseKubernetesYamlError = 1030,
   MissingRequiredFieldsInKubernetesYamlError = 1031,
+  FailedToParseHelmError = 1032,
 
   // terraform-file-parser errors
   FailedToParseTerraformFileError = 1040,
