@@ -242,8 +242,8 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       );
       t.match(
         result.getDisplayResults(),
-        'Tested 9 projects, no vulnerable paths were found.',
-        'Tested 9 projects',
+        'Tested 3 projects, 1 contained vulnerable paths.',
+        'Tested 3 projects',
       );
       let policyCount = 0;
       const applesWorkspace =
@@ -295,7 +295,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
           'depGraph has package manager',
         );
       });
-      t.equal(policyCount, 3, '3 policies found in a workspace');
+      t.equal(policyCount, 2, '2 policies found in a workspace');
     },
   },
 };
