@@ -10,6 +10,7 @@ import {
 import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError } from '../../errors/failed-to-run-test-error';
 import { jsonStringifyLargeObject } from '../../json';
+import * as analytics from '../../analytics';
 
 const debug = debugLib('snyk-code-test');
 
@@ -25,6 +26,7 @@ export const codePlugin: EcosystemPlugin = {
   async test(paths, options) {
     try {
       await validateCodeTest(options);
+      analytics.add('sast-scan', true);
       // Currently code supports only one path
       const path = paths[0];
       const sarifTypedResult = await getCodeAnalysisAndParseResults(
@@ -43,6 +45,7 @@ export const codePlugin: EcosystemPlugin = {
       );
 
       const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
+      analytics.add('sast-issues-found', numOfIssues);
       if (numOfIssues > 0) {
         hasIssues(readableResult);
       }
