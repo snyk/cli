@@ -36,7 +36,7 @@ function resourceChangeReducer(
   scanInput: TerraformScanInput,
   resource: TerraformPlanResourceChange,
 ): TerraformScanInput {
-  // TODO: investigate if we need to adress also `after_unknown` field.
+  // TODO: investigate if we need to address also `after_unknown` field.
   const { actions, after } = resource.change || { actions: [], after: {} };
   if (isValidResourceActions(actions)) {
     const resourceForReduction = { ...resource, values: after || {} };
@@ -48,7 +48,9 @@ function resourceChangeReducer(
 
 function isValidResourceActions(action: ResourceActions): boolean {
   return VALID_RESOURCE_ACTIONS.some((validAction: string[]) => {
-    if (action.length !== validAction.length) return false;
+    if (action.length !== validAction.length) {
+      return false;
+    }
     return validAction.every(
       (field: string, idx: number) => action[idx] === field,
     );

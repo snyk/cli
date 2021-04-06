@@ -1,11 +1,8 @@
-import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
-
 const mockFs = require('mock-fs');
 import {
   FailedToLoadFileError,
   loadFiles,
   NoFilesToScanError,
-  tryLoadFileData,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
 import * as fileLoader from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
 import {

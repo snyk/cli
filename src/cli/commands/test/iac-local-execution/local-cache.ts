@@ -5,7 +5,7 @@ import * as needle from 'needle';
 import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle } from './file-utils';
 import * as Debug from 'debug';
-import { CustomError } from './../../../../lib/errors/custom-error';
+import { CustomError } from '../../../../lib/errors';
 import * as analytics from '../../../../lib/analytics';
 import ReadableStream = NodeJS.ReadableStream;
 
@@ -29,13 +29,6 @@ const TERRAFORM_POLICY_ENGINE_DATA_PATH = path.join(
   LOCAL_POLICY_ENGINE_DIR,
   'tf_data.json',
 );
-
-export const REQUIRED_LOCAL_CACHE_FILES = [
-  KUBERNETES_POLICY_ENGINE_WASM_PATH,
-  KUBERNETES_POLICY_ENGINE_DATA_PATH,
-  TERRAFORM_POLICY_ENGINE_WASM_PATH,
-  TERRAFORM_POLICY_ENGINE_DATA_PATH,
-];
 
 export function getLocalCachePath(engineType: EngineType) {
   switch (engineType) {
