@@ -1,0 +1,14 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+click = ">7.0"
+aiohttp = ">=3.7.4"
+
+
+[requires]
+python_version = "3.6"

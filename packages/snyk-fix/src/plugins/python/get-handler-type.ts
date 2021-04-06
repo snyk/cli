@@ -1,3 +1,5 @@
+import * as pathLib from 'path';
+
 import { EntityToFix } from '../../types';
 import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
 
@@ -8,9 +10,11 @@ export function getHandlerType(
   if (!targetFile) {
     return null;
   }
-  const isRequirementsTxt = isRequirementsTxtManifest(targetFile);
-  if (isRequirementsTxt) {
+  const path = pathLib.parse(targetFile);
+  if (isRequirementsTxtManifest(targetFile)) {
     return SUPPORTED_HANDLER_TYPES.REQUIREMENTS;
+  } else if (['Pipfile'].includes(path.base)) {
+    return SUPPORTED_HANDLER_TYPES.PIPFILE;
   }
   return null;
 }

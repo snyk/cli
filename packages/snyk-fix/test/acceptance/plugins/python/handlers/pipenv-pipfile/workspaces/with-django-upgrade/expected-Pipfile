@@ -1,0 +1,14 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+dateparser = '*'
+
+[packages]
+ipaddress = '*'
+Django = "==2.0.1"
+
+[requires]
+python_version = "3.6"

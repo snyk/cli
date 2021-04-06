@@ -18,6 +18,7 @@ export function mapEntitiesPerHandlerType(
     [projectType in SUPPORTED_HANDLER_TYPES]: EntityToFix[];
   } = {
     [SUPPORTED_HANDLER_TYPES.REQUIREMENTS]: [],
+    [SUPPORTED_HANDLER_TYPES.PIPFILE]: [],
   };
 
   const skipped: Array<WithUserMessage<EntityToFix>> = [];

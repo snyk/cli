@@ -40,7 +40,9 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/dep-graph": "^1.21.0",
+    "bottleneck": "2.19.5",
     "chalk": "4.1.0",
+    "child_process": "1.0.2",
     "debug": "^4.3.1",
     "ora": "5.4.0",
     "p-map": "^4.0.0",

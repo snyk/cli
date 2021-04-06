@@ -196,30 +196,37 @@ Successful fixes:
   requirements.txt
   ✔ Upgraded django from 1.6.1 to 2.0.1
 
-Unresolved items:
-
   Pipfile
-  ✖ Pipfile is not supported
+  ✔ Upgraded django from 1.6.1 to 2.0.1
 
 Summary:
 
-  1 items were not fixed
-  1 items were successfully fixed
+  0 items were not fixed
+  2 items were successfully fixed
   2 total issues: 2 High
   2 fixable issues
-  1 fixed issues
-
-
-Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
+  2 fixed issues",
   "meta": Object {
-    "failed": 1,
-    "fixed": 1,
+    "failed": 0,
+    "fixed": 2,
   },
   "results": Object {
     "python": Object {
       "failed": Array [],
-      "skipped": Array [
+      "skipped": Array [],
+      "succeeded": Array [
         Object {
+          "changes": Array [
+            Object {
+              "from": "django@1.6.1",
+              "issueIds": Array [
+                "vuln-id",
+              ],
+              "success": true,
+              "to": "django@2.0.1",
+              "userMessage": "Upgraded django from 1.6.1 to 2.0.1",
+            },
+          ],
           "original": Object {
             "options": Object {
               "command": "python3",
@@ -232,7 +239,7 @@ Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the iss
                 },
               ],
               "identity": Object {
-                "targetFile": "Pipfile",
+                "targetFile": "requirements.txt",
                 "type": "pip",
               },
             },
@@ -274,10 +281,7 @@ Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the iss
               "writeFile": [Function],
             },
           },
-          "userMessage": "Pipfile is not supported",
         },
-      ],
-      "succeeded": Array [
         Object {
           "changes": Array [
             Object {
@@ -302,7 +306,7 @@ Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the iss
                 },
               ],
               "identity": Object {
-                "targetFile": "requirements.txt",
+                "targetFile": "Pipfile",
                 "type": "pip",
               },
             },
