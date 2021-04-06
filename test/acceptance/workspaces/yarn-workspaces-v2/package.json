@@ -3,11 +3,8 @@
   "workspaces": [
     "packages/*"
   ],
-  "resolutions": {
-    "node-fetch": "^2.3.0"
-  },
   "engines": {
-    "node": "^8.11.1 || ^10.11.0",
+    "node": "^10.11.0",
     "yarn": "1.10.1"
   },
   "devDependencies": {

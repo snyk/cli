@@ -439,49 +439,45 @@ if (!isWindows) {
     }
   });
 
-  // test('`monitor yarn v2 project`', async (t) => {
-  //   const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
-  //
-  //   if (nodeVersion < 10) {
-  //     return t.skip();
-  //   }
-  //
-  //   chdirWorkspaces();
-  //
-  //   await cli.monitor('yarn-v2');
-  //   const req = server.popRequest();
-  //   t.equal(req.method, 'PUT', 'makes PUT request');
-  //   t.equal(
-  //     req.headers['x-snyk-cli-version'],
-  //     versionNumber,
-  //     'sends version number',
-  //   );
-  //   t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
-  //
-  //   const depGraphJSON = req.body.depGraphJSON;
-  //   t.ok(depGraphJSON);
-  //   const lodash = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'lodash');
-  //
-  //   t.ok(lodash, 'dependency');
-  //   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-  //   t.notOk(depGraphJSON.from, 'no "from" array on root');
-  //   t.notOk(lodash.from, 'no "from" array on dep');
-  //   if (process.platform === 'win32') {
-  //     t.true(
-  //       req.body.targetFileRelativePath.endsWith(
-  //         '\\test\\acceptance\\workspaces\\yarn-v2\\yarn.lock',
-  //       ),
-  //       'matching file path win32',
-  //     );
-  //   } else {
-  //     t.true(
-  //       req.body.targetFileRelativePath.endsWith(
-  //         '/test/acceptance/workspaces/yarn-v2/yarn.lock',
-  //       ),
-  //       'matching file path',
-  //     );
-  //   }
-  // });
+  test('`monitor yarn v2 project`', async (t) => {
+    const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
+
+    chdirWorkspaces();
+
+    await cli.monitor('yarn-v2');
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
+
+    const depGraphJSON = req.body.depGraphJSON;
+    t.ok(depGraphJSON);
+    const lodash = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'lodash');
+
+    t.ok(lodash, 'dependency');
+    t.notOk(req.body.targetFile, 'doesnt send the targetFile');
+    t.notOk(depGraphJSON.from, 'no "from" array on root');
+    t.notOk(lodash.from, 'no "from" array on dep');
+    if (process.platform === 'win32') {
+      t.true(
+        req.body.targetFileRelativePath.endsWith(
+          '\\test\\acceptance\\workspaces\\yarn-v2\\yarn.lock',
+        ),
+        'matching file path win32',
+      );
+    } else {
+      t.true(
+        req.body.targetFileRelativePath.endsWith(
+          '/test/acceptance/workspaces/yarn-v2/yarn.lock',
+        ),
+        'matching file path',
+      );
+    }
+  });
 
   test('`monitor yarn-package from within folder`', async (t) => {
     chdirWorkspaces('yarn-package');
