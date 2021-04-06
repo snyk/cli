@@ -22,14 +22,14 @@ describe('isSupported', () => {
     const res = await isSupported(entity);
     expect(res.supported).toBeTruthy();
   });
-  it('with -c directive in the manifest not supported', async () => {
+  it('with -c directive in the manifest is supported', async () => {
     const entity = generateEntityToFix(
       'pip',
       'requirements.txt',
       '-c constraints.txt',
     );
     const res = await isSupported(entity);
-    expect(res.supported).toBeFalsy();
+    expect(res.supported).toBeTruthy();
   });
   it('with -e directive in the manifest is supported', async () => {
     const entity = generateEntityToFix('pip', 'requirements.txt', '-e .');

@@ -7,6 +7,7 @@ import { standardizePackageName } from './standardize-package-name';
 export function generatePins(
   requirements: Requirement[],
   updates: DependencyPins,
+  referenceFileInChanges?: string,
 ): {
   pinnedRequirements: string[];
   changes: FixChangesSummary[];
@@ -41,7 +42,9 @@ export function generatePins(
         success: true,
         userMessage: `Pinned ${standardizePackageName(
           pkgName,
-        )} from ${version} to ${newVersion}`,
+        )} from ${version} to ${newVersion}${
+          referenceFileInChanges ? ` (pinned in ${referenceFileInChanges})` : ''
+        }`,
       });
       appliedRemediation.push(pkgNameAtVersion);
       return `${newRequirement} # not directly required, pinned by Snyk to avoid a vulnerability`;

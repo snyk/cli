@@ -1,7 +1,4 @@
-import * as chalk from 'chalk';
-
 import { EntityToFix, WithUserMessage } from '../../../../types';
-import { containsRequireDirective } from './contains-require-directive';
 
 interface Supported {
   supported: true;
@@ -30,30 +27,6 @@ export async function isSupported(
     return {
       supported: false,
       reason: 'There is no actionable remediation to apply',
-    };
-  }
-
-  // TODO: fix the non null assertion here
-  let requirementsTxt;
-  try {
-    const fileName = entity.scanResult.identity.targetFile!;
-    requirementsTxt = await entity.workspace.readFile(fileName);
-  } catch (e) {
-    return {
-      supported: false,
-      reason: e.message,
-    };
-  }
-
-  const { containsRequire, matches } = await containsRequireDirective(
-    requirementsTxt,
-  );
-  if (containsRequire && matches.some((m) => m.includes('c'))) {
-    return {
-      supported: false,
-      reason: `Requirements with ${chalk.bold(
-        '-c',
-      )} directive are not yet supported`,
     };
   }
 

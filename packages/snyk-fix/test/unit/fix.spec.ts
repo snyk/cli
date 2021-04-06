@@ -126,7 +126,7 @@ describe('Snyk fix', () => {
     );
     jest
       .spyOn(txtDevProjectTestResult.workspace, 'readFile')
-      .mockImplementationOnce(() => {
+      .mockImplementation(() => {
         throw new Error('Test Error: Invalid encoding');
       });
     const pipfileProjectTestResult = generateEntityToFix(
@@ -150,17 +150,17 @@ describe('Snyk fix', () => {
     expect(Object.keys(res.results)).toHaveLength(1);
     expect(Object.keys(res.results)[0]).toEqual('python');
     // skipped unsupported
-    expect(res.results.python.skipped).toHaveLength(2);
+    expect(res.results.python.skipped).toHaveLength(1);
     expect(res.results.python.skipped[0]).toEqual({
       userMessage: 'Pipfile is not supported',
       original: pipfileProjectTestResult,
     });
-    expect(res.results.python.skipped[1]).toEqual({
-      userMessage: 'Test Error: Invalid encoding',
+    expect(res.results.python.failed[0]).toEqual({
+      error: new Error('Test Error: Invalid encoding'),
       original: txtDevProjectTestResult,
     });
 
-    expect(res.results.python.failed).toHaveLength(0);
+    expect(res.results.python.failed).toHaveLength(1);
     expect(res.results.python.succeeded).toHaveLength(1);
 
     expect(

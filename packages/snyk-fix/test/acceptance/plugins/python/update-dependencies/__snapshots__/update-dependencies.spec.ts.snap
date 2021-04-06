@@ -13,6 +13,54 @@ Array [
 ]
 `;
 
+exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -c & -r with the same name (some were already fixed) 1`] = `
+"Successful fixes:
+
+  app-with-constraints/requirements.txt
+  ✔ Upgraded Django from 1.6.1 to 2.0.1
+  ✔ Upgraded Django from 1.6.1 to 2.0.1 (upgraded in constraints.txt)
+  ✔ Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in lib/requirements.txt)
+  ✔ Pinned transitive from 1.0.1 to 2.0.1 (pinned in constraints.txt)
+
+  app-with-constraints/lib/requirements.txt
+  ✔ Previously fixed
+
+Summary:
+
+  0 items were not fixed
+  2 items were successfully fixed"
+`;
+
+exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -c & -r with the same name (some were already fixed) 2`] = `
+Array [
+  Object {
+    "success": true,
+    "userMessage": "Upgraded Django from 1.6.1 to 2.0.1",
+  },
+  Object {
+    "success": true,
+    "userMessage": "Upgraded Django from 1.6.1 to 2.0.1 (upgraded in constraints.txt)",
+  },
+  Object {
+    "success": true,
+    "userMessage": "Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in lib/requirements.txt)",
+  },
+  Object {
+    "success": true,
+    "userMessage": "Pinned transitive from 1.0.1 to 2.0.1 (pinned in constraints.txt)",
+  },
+]
+`;
+
+exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -c & -r with the same name (some were already fixed) 3`] = `
+Array [
+  Object {
+    "success": true,
+    "userMessage": "Previously fixed",
+  },
+]
+`;
+
 exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -r with the same name (some were already fixed) 1`] = `
 "Successful fixes:
 

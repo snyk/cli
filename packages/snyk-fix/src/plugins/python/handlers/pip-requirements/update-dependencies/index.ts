@@ -53,7 +53,7 @@ export function updateDependencies(
       pinnedRequirements,
       changes: pinChanges,
       appliedRemediation: appliedPinsRemediation,
-    } = generatePins(requirements, updates));
+    } = generatePins(requirements, updates, referenceFileInChanges));
     debug('Finished generating pins to apply');
   }
 

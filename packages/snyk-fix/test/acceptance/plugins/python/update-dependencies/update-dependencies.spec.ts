@@ -1,12 +1,140 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as snykFix from '../../../../../src';
+import { selectFileForPinning } from '../../../../../src/plugins/python/handlers/pip-requirements';
 import { TestResult } from '../../../../../src/types';
 import {
   generateScanResult,
   generateTestResult,
 } from '../../../../helpers/generate-entity-to-fix';
 
+describe('selectFileForPinning', () => {
+  const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
+
+  it('with a -r option chooses targetFile', async () => {
+    // Arrange
+    const targetFile = 'with-require/dev.txt';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: [],
+            isTransitive: false,
+          },
+          'transitive@1.0.0': {
+            upgradeTo: 'transitive@1.1.1',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
+      testResult,
+    );
+
+    // Act
+    const { fileName, fileContent } = await selectFileForPinning(entityToFix);
+    // Assert
+    expect(fileName).toEqual('dev.txt');
+    expect(fileContent).toEqual(
+      fs.readFileSync(pathLib.resolve(workspacesPath, targetFile), 'utf-8'),
+    );
+  });
+  it('without -r or -c option chooses targetFile', async () => {
+    // Arrange
+    const targetFile = 'basic/prod.txt';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: [],
+            isTransitive: false,
+          },
+          'transitive@1.0.0': {
+            upgradeTo: 'transitive@1.1.1',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
+      testResult,
+    );
+
+    // Act
+    const { fileName, fileContent } = await selectFileForPinning(entityToFix);
+    // Assert
+    expect(fileName).toEqual('prod.txt');
+    expect(fileContent).toEqual(
+      fs.readFileSync(pathLib.resolve(workspacesPath, targetFile), 'utf-8'),
+    );
+  });
+  it('with a -c option chooses constraints.txt file', async () => {
+    // Arrange
+    const targetFile = 'app-with-constraints/requirements.txt';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: [],
+            isTransitive: false,
+          },
+          'transitive@1.0.0': {
+            upgradeTo: 'transitive@1.1.1',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFix(
+      workspacesPath,
+      targetFile,
+      testResult,
+    );
+
+    // Act
+    const { fileName, fileContent } = await selectFileForPinning(entityToFix);
+    // Assert
+    expect(fileName).toEqual('constraints.txt');
+    expect(fileContent).toEqual(
+      fs.readFileSync(
+        pathLib.resolve(workspacesPath, 'app-with-constraints/constraints.txt'),
+        'utf-8',
+      ),
+    );
+  });
+});
 describe('fix *req*.txt / *.txt Python projects', () => {
   let filesToDelete: string[] = [];
   afterEach(() => {
@@ -767,11 +895,172 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         stripAnsi: true,
       },
     );
+    const requirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/fixed-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const expectedRequirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/expected-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const libRequirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/lib/fixed-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const ExpectedLibRequirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/lib/expected-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const coreRequirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/core/fixed-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const expectedCoreRequirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-already-fixed/core/fixed-requirements.txt',
+      ),
+      'utf-8',
+    );
+
+    expect(requirements).toEqual(expectedRequirements);
+    expect(libRequirements).toEqual(ExpectedLibRequirements);
+    expect(coreRequirements).toEqual(expectedCoreRequirements);
     // 3 files needed to have changes
     expect(result.fixSummary).toMatchSnapshot();
     expect(writeFileSpy).toHaveBeenCalledTimes(3);
     expect(result.results.python.succeeded[0].original).toEqual(entityToFix1);
     expect(result.results.python.succeeded[0].changes).toMatchSnapshot();
+  });
+  it('fixes multiple files via -c & -r with the same name (some were already fixed)', async () => {
+    // Arrange
+    const targetFile1 = 'app-with-constraints/requirements.txt';
+    const targetFile2 = 'app-with-constraints/lib/requirements.txt';
+
+    filesToDelete = [
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/fixed-requirements.txt',
+      ),
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/lib/fixed-requirements.txt',
+      ),
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/fixed-constraints.txt',
+      ),
+    ];
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: [],
+            isTransitive: false,
+          },
+          'Jinja2@2.7.2': {
+            upgradeTo: 'Jinja2@2.7.3',
+            vulns: [],
+            isTransitive: true,
+          },
+          'transitive@1.0.1': {
+            upgradeTo: 'transitive@2.0.1',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+    const entityToFix1 = generateEntityToFix(
+      workspacesPath,
+      targetFile1,
+      testResult,
+    );
+    const entityToFix2 = generateEntityToFix(
+      workspacesPath,
+      targetFile2,
+      testResult,
+    );
+    const writeFileSpy = jest.spyOn(entityToFix1.workspace, 'writeFile');
+    // Act
+    const result = await snykFix.fix([entityToFix2, entityToFix1], {
+      quiet: true,
+      stripAnsi: true,
+    });
+
+    const requirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/fixed-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const expectedRequirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/expected-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const libRequirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/lib/fixed-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const ExpectedLibRequirements = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/lib/expected-requirements.txt',
+      ),
+      'utf-8',
+    );
+    const constraints = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/fixed-constraints.txt',
+      ),
+      'utf-8',
+    );
+    const expectedConstraints = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        'app-with-constraints/expected-constraints.txt',
+      ),
+      'utf-8',
+    );
+    expect(requirements).toEqual(expectedRequirements);
+    expect(libRequirements).toEqual(ExpectedLibRequirements);
+    expect(constraints).toEqual(expectedConstraints);
+    expect(result.fixSummary).toMatchSnapshot();
+    // 3 files with upgrades + 1 more to apply pins
+    expect(writeFileSpy).toHaveBeenCalledTimes(4);
+    expect(result.results.python.succeeded[0].original).toEqual(entityToFix1);
+    expect(result.results.python.succeeded[1].original).toEqual(entityToFix2);
+    expect(result.results.python.succeeded[0].changes).toMatchSnapshot();
+    expect(result.results.python.succeeded[1].changes).toMatchSnapshot();
   });
 });
 

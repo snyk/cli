@@ -22,6 +22,7 @@ import {
   parseRequirementsFile,
 } from './update-dependencies/requirements-file-parser';
 import { standardizePackageName } from './update-dependencies/standardize-package-name';
+import { containsRequireDirective } from './contains-require-directive';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -179,20 +180,19 @@ export async function applyAllFixes(
   }
 
   /* Apply all left over remediation as pins in the entry targetFile */
-  const requirementsTxt = await workspace.readFile(entryFileName);
-
   const toPin: RemediationChanges = filterOutAppliedUpgrades(
     remediation,
     appliedUpgradeRemediation,
   );
   const directUpgradesOnly = false;
+  const fileForPinning = await selectFileForPinning(entity);
   const { changes: pinnedChanges } = await fixIndividualRequirementsTxt(
     workspace,
     dir,
     base,
-    base,
+    fileForPinning.fileName,
     toPin,
-    parseRequirementsFile(requirementsTxt),
+    parseRequirementsFile(fileForPinning.fileContent),
     options,
     directUpgradesOnly,
   );
@@ -247,4 +247,29 @@ function sortByDirectory(
 
   const sorted = sortBy(mapped, 'dir');
   return groupBy(sorted, 'dir');
+}
+
+export async function selectFileForPinning(
+  entity: EntityToFix,
+): Promise<{
+  fileName: string;
+  fileContent: string;
+}> {
+  const targetFile = entity.scanResult.identity.targetFile!;
+  const { dir, base } = pathLib.parse(targetFile);
+  const { workspace } = entity;
+  // default to adding pins in the scanned file
+  let fileName = base;
+  let requirementsTxt = await workspace.readFile(targetFile);
+
+  const { containsRequire, matches } = await containsRequireDirective(
+    requirementsTxt,
+  );
+  const constraintsMatch = matches.filter((m) => m.includes('c'));
+  if (containsRequire && constraintsMatch[0]) {
+    // prefer to pin in constraints file if present
+    fileName = constraintsMatch[0][2];
+    requirementsTxt = await workspace.readFile(pathLib.join(dir, fileName));
+  }
+  return { fileContent: requirementsTxt, fileName };
 }
