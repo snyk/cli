@@ -54,6 +54,13 @@ Describe "Snyk iac test --experimental command"
       The output should include "We were unable to detect whether the YAML file"
     End
 
+    It "outputs an error for Helm files"
+      When run snyk iac test ../fixtures/iac/kubernetes/helm-config.yaml --experimental
+      The status should be failure
+      The output should include "We were unable to parse the YAML file"
+      The output should include "do not support scanning of Helm files"
+    End
+
     It "outputs the expected text when running with --sarif flag"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental --sarif
       The status should be failure

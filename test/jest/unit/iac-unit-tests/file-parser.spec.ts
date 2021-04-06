@@ -1,8 +1,13 @@
+import * as fileParser from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
 import {
   parseFiles,
   UnsupportedFileTypeError,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
-import * as fileParser from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
+import * as k8sParser from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
+import {
+  HelmFileNotSupportedError,
+  MissingRequiredFieldsInKubernetesYamlError,
+} from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
 import {
   expectedInvalidK8sFileParsingResult,
   expectedKubernetesParsingResult,
@@ -11,12 +16,14 @@ import {
   kubernetesFileDataStub,
   terraformFileDataStub,
 } from './file-parser.fixtures';
-import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { tryParsingKubernetesFile } from '../../../../dist/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
 import { IacFileTypes } from '../../../../dist/lib/iac/constants';
-import { UnsupportedError } from 'snyk-nodejs-lockfile-parser/dist/errors';
-import * as fileLoader from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
-import { FailedToLoadFileError } from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
+import {
+  MissingRequiredFieldsInTerraformPlanError,
+  tryParsingTerraformPlan,
+} from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-plan-parser';
+import { iacFileDataWithoutResourceChanges } from './terraform-plan-parser.fixtures';
 
 const filesToParse: IacFileData[] = [
   kubernetesFileDataStub,
@@ -62,5 +69,17 @@ describe('parseFiles', () => {
     ]);
 
     await expect(parseFilesFn).rejects.toThrow(UnsupportedFileTypeError);
+  });
+
+  it('throws an error for a Helm file', async () => {
+    const helmFileData: IacFileData = {
+      fileContent: ' {{ something }}',
+      filePath: 'path/to/file',
+      fileType: 'yaml',
+    };
+
+    expect(() => tryParsingKubernetesFile(helmFileData)).toThrowError(
+      'Failed to parse Helm file',
+    );
   });
 });
