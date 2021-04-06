@@ -187,7 +187,8 @@ export type SupportedUserReachableFacingCliArgs =
   | 'init-script'
   | 'integration-name'
   | 'integration-version'
-  | 'show-vulnerable-paths';
+  | 'show-vulnerable-paths'
+  | 'dry-run';
 
 export enum SupportedCliCommands {
   version = 'version',

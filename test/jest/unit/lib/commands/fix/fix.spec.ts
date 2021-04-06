@@ -1,5 +1,6 @@
 import * as pathLib from 'path';
 import * as fs from 'fs';
+import * as snykFix from '@snyk/fix';
 
 import cli = require('../../../../../../src/cli/commands');
 import * as snyk from '../../../../../../src/lib';
@@ -50,27 +51,36 @@ const pipWithRemediation = JSON.parse(
 );
 
 describe('snyk fix (functional tests)', () => {
+  let origStdWrite;
+  let snykFixSpy: jest.SpyInstance;
+
   beforeAll(async () => {
+    origStdWrite = process.stdout.write;
     jest
       .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
       .mockResolvedValue({ ok: true });
   });
 
+  beforeEach(() => {
+    snykFixSpy = jest.spyOn(snykFix, 'fix');
+  });
+
+  afterEach(() => {
+    snykFixSpy.mockClear();
+  });
+
   afterAll(async () => {
+    process.stdout.write = origStdWrite;
     jest.clearAllMocks();
   });
   it(
     'shows successful fixes Python requirements.txt project was fixed via --file',
     async () => {
-      // read data from console.log
       let stdoutMessages = '';
-      let stderrMessages = '';
-      jest
-        .spyOn(console, 'log')
-        .mockImplementation((msg: string) => (stdoutMessages += msg));
-      jest
-        .spyOn(console, 'error')
-        .mockImplementation((msg: string) => (stderrMessages += msg));
+      process.stdout.write = (str) => {
+        stdoutMessages += str;
+        return true;
+      };
 
       jest.spyOn(snyk, 'test').mockResolvedValue({
         ...pipWithRemediation,
@@ -82,9 +92,41 @@ describe('snyk fix (functional tests)', () => {
         dryRun: true, // prevents write to disc
         quiet: true,
       });
+      expect(snykFixSpy).toHaveBeenCalledTimes(1);
+      expect(snykFixSpy.mock.calls[0][1]).toEqual({
+        dryRun: true,
+        quiet: true,
+      });
       expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
       expect(stdoutMessages).toEqual('');
-      expect(stderrMessages).toEqual('');
+    },
+    testTimeout,
+  );
+  it(
+    'shows successful fixes Python requirements.txt project on stdout',
+    async () => {
+      let stdoutMessages = '';
+      process.stdout.write = (str) => {
+        stdoutMessages += str;
+        return true;
+      };
+      jest.spyOn(snyk, 'test').mockResolvedValue({
+        ...pipWithRemediation,
+        // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
+        displayTargetFile: pipRequirementsTxt,
+      });
+      const res = await cli.fix('.', {
+        file: pipRequirementsTxt,
+        dryRun: true, // prevents write to disc
+      });
+      expect(snykFixSpy).toHaveBeenCalledTimes(1);
+      expect(snykFixSpy.mock.calls[0][1]).toEqual({
+        dryRun: true,
+      });
+      expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
+      expect(stripAnsi(stdoutMessages)).toMatch(
+        '✔ Looking for supported Python items',
+      );
     },
     testTimeout,
   );
@@ -110,6 +152,11 @@ describe('snyk fix (functional tests)', () => {
         file: pipRequirementsCustomTxt,
         packageManager: 'pip',
         dryRun: true, // prevents write to disc
+        quiet: true,
+      });
+      expect(snykFixSpy).toHaveBeenCalledTimes(1);
+      expect(snykFixSpy.mock.calls[0][1]).toEqual({
+        dryRun: true,
         quiet: true,
       });
       expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
@@ -144,6 +191,11 @@ describe('snyk fix (functional tests)', () => {
         dryRun: true, // prevents write to disc
         quiet: true,
       });
+      expect(snykFixSpy.mock.calls[0][1]).toEqual({
+        dryRun: true,
+        quiet: true,
+      });
+      expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
       // only use ora to output
       expect(stdoutMessages).toEqual('');
@@ -178,6 +230,11 @@ describe('snyk fix (functional tests)', () => {
       } catch (error) {
         res = error;
       }
+      expect(snykFixSpy).toHaveBeenCalledTimes(1);
+      expect(snykFixSpy.mock.calls[0][1]).toEqual({
+        dryRun: true,
+        quiet: true,
+      });
       expect(stripAnsi(res.message)).toMatch('No successful fixes');
       expect(stdoutMessages).toEqual('');
       expect(stderrMessages).toEqual('');
