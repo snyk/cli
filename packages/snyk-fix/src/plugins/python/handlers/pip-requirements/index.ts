@@ -95,7 +95,7 @@ async function fixAll(
     try {
       const { dir, base } = pathLib.parse(targetFile);
       // parse & join again to support correct separator
-      if (fixedCache.includes(pathLib.join(dir, base))) {
+      if (fixedCache.includes(pathLib.normalize(pathLib.join(dir, base)))) {
         handlerResult.succeeded.push({
           original: entity,
           changes: [{ success: true, userMessage: 'Previously fixed' }],
@@ -127,12 +127,14 @@ export async function fixIndividualRequirementsTxt(
   options: FixOptions,
   directUpgradesOnly: boolean,
 ): Promise<{ changes: FixChangesSummary[]; appliedRemediation: string[] }> {
-  const fullFilePath = pathLib.join(dir, fileName);
+  const fullFilePath = pathLib.normalize(pathLib.join(dir, fileName));
   const { updatedManifest, changes, appliedRemediation } = updateDependencies(
     parsedRequirements,
     remediation.pin,
     directUpgradesOnly,
-    pathLib.join(dir, entryFileName) !== fullFilePath ? fileName : undefined,
+    pathLib.normalize(pathLib.join(dir, entryFileName)) !== fullFilePath
+      ? fullFilePath
+      : undefined,
   );
 
   if (!changes.length) {
@@ -176,7 +178,7 @@ export async function applyAllFixes(
     );
     appliedUpgradeRemediation.push(...appliedRemediation);
     upgradeChanges.push(...changes);
-    fixedFiles.push(pathLib.join(dir, fileName));
+    fixedFiles.push(pathLib.normalize(pathLib.join(dir, fileName)));
   }
 
   /* Apply all left over remediation as pins in the entry targetFile */
