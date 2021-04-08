@@ -17,6 +17,7 @@ import { setDefaultTestOptions } from '../test/set-default-test-options';
 import { validateFixCommandIsSupported } from './validate-fix-command-is-supported';
 import { Options, TestOptions } from '../../../lib/types';
 import { getDisplayPath } from './get-display-path';
+import chalk from 'chalk';
 
 const debug = Debug('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
@@ -71,9 +72,12 @@ async function runSnykTestLegacy(
 
   for (const path of paths) {
     let displayPath = path;
+    const spinnerMessage = `Running \`snyk test\` for ${displayPath}`;
+
     try {
       displayPath = getDisplayPath(path);
-      stdOutSpinner.info(`Running \`snyk test\` for ${displayPath}`);
+      stdOutSpinner.text = spinnerMessage;
+      stdOutSpinner.render();
       // Create a copy of the options so a specific test can
       // modify them i.e. add `options.file` etc. We'll need
       // these options later.
@@ -96,10 +100,23 @@ async function runSnykTestLegacy(
       );
       const newRes = convertLegacyTestResultToFixEntities(testResults, path);
       results.push(...newRes);
+      stdOutSpinner.stopAndPersist({
+        text: spinnerMessage,
+        symbol: '\n►',
+      });
     } catch (error) {
       const testError = formatTestError(error);
-      const userMessage = `Test for ${displayPath} failed with error: ${testError.message}.\nRun \`snyk test ${displayPath} -d\` for more information.`;
-      stdErrSpinner.fail(userMessage);
+      const userMessage =
+        chalk.red(`Failed! ${testError.message}.`) +
+        `\n  Tip: run \`snyk test ${displayPath} -d\` for more information.`;
+      stdOutSpinner.stopAndPersist({
+        text: spinnerMessage,
+        symbol: '\n►',
+      });
+      stdErrSpinner.stopAndPersist({
+        text: userMessage,
+        symbol: chalk.red(' '),
+      });
       debug(userMessage);
     }
   }
