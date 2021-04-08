@@ -1118,7 +1118,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     expect(result.results.python.succeeded[1].changes).toEqual([
       {
         success: true,
-        userMessage: 'Previously fixed',
+        userMessage: 'Fixed through app-with-constraints/requirements.txt',
       },
     ]);
   });

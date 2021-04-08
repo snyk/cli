@@ -1,5 +1,6 @@
 import {
   EntityToFix,
+  FixChangesSummary,
   FixOptions,
   WithError,
   WithFixChangesApplied,
@@ -18,4 +19,10 @@ export interface PluginFixResponse {
 }
 export interface FixHandlerResultByPlugin {
   [pluginId: string]: PluginFixResponse;
+}
+
+export interface FixedCache {
+  [filePath: string]: {
+    fixedIn: string;
+  };
 }
