@@ -1,6 +1,6 @@
 import { makeDirectoryIterator } from '../../../../lib/iac/makeDirectoryIterator';
 import { promises as fs } from 'fs';
-import { IaCErrorCodes, IacFileData, VALID_FILE_TYPES } from './types';
+import { IaCErrorCodes, IacFileData, IaCTestFlags, VALID_FILE_TYPES } from './types';
 import { getFileType } from '../../../../lib/iac/iac-parser';
 import { IacFileTypes } from '../../../../lib/iac/constants';
 import { isLocalFolder } from '../../../../lib/detect';
@@ -8,11 +8,16 @@ import { CustomError } from '../../../../lib/errors';
 
 const DEFAULT_ENCODING = 'utf-8';
 
-export async function loadFiles(pathToScan: string): Promise<IacFileData[]> {
+export async function loadFiles(
+  pathToScan: string,
+  options: IaCTestFlags,
+): Promise<IacFileData[]> {
   let filePaths = [pathToScan];
 
   if (isLocalFolder(pathToScan)) {
-    filePaths = getFilePathsFromDirectory(pathToScan);
+    filePaths = getFilePathsFromDirectory(pathToScan, {
+      maxDepth: options.detectionDepth,
+    });
   }
 
   const filesToScan: IacFileData[] = [];
@@ -34,8 +39,13 @@ export async function loadFiles(pathToScan: string): Promise<IacFileData[]> {
   return filesToScan;
 }
 
-function getFilePathsFromDirectory(pathToScan: string): string[] {
-  const directoryPaths = makeDirectoryIterator(pathToScan);
+function getFilePathsFromDirectory(
+  pathToScan: string,
+  options: { maxDepth?: number } = {},
+): string[] {
+  const directoryPaths = makeDirectoryIterator(pathToScan, {
+    maxDepth: options.maxDepth,
+  });
 
   const directoryFilePaths: string[] = [];
   for (const filePath of directoryPaths) {
