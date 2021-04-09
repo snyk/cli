@@ -416,22 +416,6 @@ function validateUnsupportedSarifCombinations(args) {
       'sarif-file-output',
     ]);
   }
-
-  if (
-    args.options['sarif'] &&
-    args.options['docker'] &&
-    !args.options['file']
-  ) {
-    throw new OptionMissingErrorError('sarif', ['--file']);
-  }
-
-  if (
-    args.options['sarif-file-output'] &&
-    args.options['docker'] &&
-    !args.options['file']
-  ) {
-    throw new OptionMissingErrorError('sarif-file-output', ['--file']);
-  }
 }
 
 async function saveResultsToFile(
