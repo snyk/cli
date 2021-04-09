@@ -46,7 +46,8 @@ exports[`generateUnresolvedSummary has failed, skipped & plugin errors 1`] = `
 `;
 
 exports[`showResultsSummary has failed, skipped, successful & plugin errors 1`] = `
-"Successful fixes:
+"
+Successful fixes:
 
   requirements.txt
   ✔ Upgraded Django from 1.6.1 to 2.0.1

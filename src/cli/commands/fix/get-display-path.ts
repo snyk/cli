@@ -7,7 +7,7 @@ export function getDisplayPath(path: string): string {
     return path;
   }
   if (path === process.cwd()) {
-    return '.';
+    return pathLib.parse(path).name;
   }
   return pathLib.relative(process.cwd(), path);
 }

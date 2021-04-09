@@ -828,7 +828,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     // 2 files needed to have changes
     expect(writeFileSpy).toHaveBeenCalledTimes(2);
     expect(result.results.python.succeeded[0].original).toEqual(entityToFix);
-    expect(result.results.python.succeeded[0].changes).toMatchSnapshot();
+    const basePath = pathLib.normalize('pip-app/base2.txt');
+    expect(result.results.python.succeeded[0].changes).toEqual([
+      {
+        success: true,
+        userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+      },
+      {
+        success: true,
+        userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${basePath})`,
+      },
+    ]);
   });
   it('fixes multiple files via -r with the same name (some were already fixed)', async () => {
     // Arrange
@@ -942,10 +952,30 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     expect(libRequirements).toEqual(ExpectedLibRequirements);
     expect(coreRequirements).toEqual(expectedCoreRequirements);
     // 3 files needed to have changes
-    expect(result.fixSummary).toMatchSnapshot();
+    expect(result.fixSummary.replace(/\\/g, '/')).toMatchSnapshot();
     expect(writeFileSpy).toHaveBeenCalledTimes(3);
     expect(result.results.python.succeeded[0].original).toEqual(entityToFix1);
-    expect(result.results.python.succeeded[0].changes).toMatchSnapshot();
+
+    const coreRequirementsPath = pathLib.normalize(
+      'app-with-already-fixed/core/requirements.txt',
+    );
+    const libRequirementsPath = pathLib.normalize(
+      'app-with-already-fixed/lib/requirements.txt',
+    );
+    expect(result.results.python.succeeded[0].changes).toEqual([
+      {
+        success: true,
+        userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+      },
+      {
+        success: true,
+        userMessage: `Upgraded Django from 1.6.1 to 2.0.1 (upgraded in ${coreRequirementsPath})`,
+      },
+      {
+        success: true,
+        userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${libRequirementsPath})`,
+      },
+    ]);
   });
   it('fixes multiple files via -c & -r with the same name (some were already fixed)', async () => {
     // Arrange
@@ -1054,13 +1084,43 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     expect(requirements).toEqual(expectedRequirements);
     expect(libRequirements).toEqual(ExpectedLibRequirements);
     expect(constraints).toEqual(expectedConstraints);
-    expect(result.fixSummary).toMatchSnapshot();
+    expect(result.fixSummary.replace(/\\/g, '/')).toMatchSnapshot();
     // 3 files with upgrades + 1 more to apply pins
     expect(writeFileSpy).toHaveBeenCalledTimes(4);
     expect(result.results.python.succeeded[0].original).toEqual(entityToFix1);
     expect(result.results.python.succeeded[1].original).toEqual(entityToFix2);
-    expect(result.results.python.succeeded[0].changes).toMatchSnapshot();
-    expect(result.results.python.succeeded[1].changes).toMatchSnapshot();
+
+    const constraintsPath = pathLib.normalize(
+      'app-with-constraints/constraints.txt',
+    );
+    const libRequirementsPath = pathLib.normalize(
+      'app-with-constraints/lib/requirements.txt',
+    );
+
+    expect(result.results.python.succeeded[0].changes).toEqual([
+      {
+        success: true,
+        userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+      },
+      {
+        success: true,
+        userMessage: `Upgraded Django from 1.6.1 to 2.0.1 (upgraded in ${constraintsPath})`,
+      },
+      {
+        success: true,
+        userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${libRequirementsPath})`,
+      },
+      {
+        success: true,
+        userMessage: `Pinned transitive from 1.0.1 to 2.0.1 (pinned in ${constraintsPath})`,
+      },
+    ]);
+    expect(result.results.python.succeeded[1].changes).toEqual([
+      {
+        success: true,
+        userMessage: 'Previously fixed',
+      },
+    ]);
   });
 });
 
