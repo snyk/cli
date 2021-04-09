@@ -6,6 +6,7 @@ import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
 import { CommandNotSupportedError } from '../../../lib/errors/command-not-supported';
 import { FeatureNotSupportedByEcosystemError } from '../../../lib/errors/not-supported-by-ecosystem';
 import { Options, TestOptions } from '../../../lib/types';
+import { AuthFailedError } from '../../../lib/errors';
 
 const debug = Debug('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
@@ -27,8 +28,12 @@ export async function validateFixCommandIsSupported(
     options.org,
   );
 
+  if (snykFixSupported.code === 401 || snykFixSupported.code === 403) {
+    throw AuthFailedError(snykFixSupported.error, snykFixSupported.code);
+  }
+
   if (!snykFixSupported.ok) {
-    debug(snykFixSupported.userMessage);
+    debug('Feature flag check returned: ', snykFixSupported);
     throw new CommandNotSupportedError('snyk fix', options.org || undefined);
   }
 
