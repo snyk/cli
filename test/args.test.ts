@@ -424,3 +424,32 @@ test('test command line "snyk iac --experimental" should be true on options', (t
   );
   t.end();
 });
+
+test('test command line "snyk iac --experimental --detection-depth=1" should be 1 on options', (t) => {
+  const cliArgsWithFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    '--experimental',
+    '--detection-depth=1',
+  ];
+  const resultWithFlag = args(cliArgsWithFlag);
+  t.equal(
+    resultWithFlag.options['detectionDepth'],
+    1,
+    'expected options[detectionDepth] to be 1',
+  );
+  const cliArgsWithoutFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    '--experimental',
+  ];
+  const resultWithoutFlag = args(cliArgsWithoutFlag);
+  t.equal(
+    resultWithoutFlag.options['detectionDepth'],
+    undefined,
+    'expected options[detectionDepth] to be undefined',
+  );
+  t.end();
+});

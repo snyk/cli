@@ -158,6 +158,23 @@ Describe "Snyk iac test --experimental command"
       The output should include "Testing pod-invalid.yaml..."
       The output should include "Failed to detect Kubernetes file, missing required fields"
     End
+
+    It "limits the depth of the directories"
+      When run snyk iac test ../fixtures/iac/depth_detection/ --experimental --detection-depth=2
+      The status should be success # no issues found
+      # Only File
+      The output should include "Testing one.tf..."
+      The output should include "Infrastructure as code issues:"
+      The output should include "Tested one.tf for known issues, found 0 issues"
+
+      # Second File
+      The output should include "Testing root.tf..."
+      The output should include "Infrastructure as code issues:"
+      The output should include "Tested root.tf for known issues, found 0 issues"
+
+      # Directory scan summary
+      The output should include "Tested 2 projects, no vulnerable paths were found."
+    End
   End
 
   Describe "Terraform plan scanning"

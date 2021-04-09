@@ -1,6 +1,11 @@
 import { makeDirectoryIterator } from '../../../../lib/iac/makeDirectoryIterator';
 import { promises as fs } from 'fs';
-import { IaCErrorCodes, IacFileData, IaCTestFlags, VALID_FILE_TYPES } from './types';
+import {
+  IaCErrorCodes,
+  IacFileData,
+  IaCTestFlags,
+  VALID_FILE_TYPES,
+} from './types';
 import { getFileType } from '../../../../lib/iac/iac-parser';
 import { IacFileTypes } from '../../../../lib/iac/constants';
 import { isLocalFolder } from '../../../../lib/detect';
