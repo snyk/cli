@@ -57,7 +57,8 @@ Object {
       "userMessage": "npm is not supported.",
     },
   },
-  "fixSummary": "✖ No successful fixes
+  "fixSummary": "
+✖ No successful fixes
 
 Unresolved items:
 
@@ -79,7 +80,8 @@ Summary:
 exports[`Error handling Snyk fix returns error when manifest can not be parsed 1`] = `
 Object {
   "exceptions": Object {},
-  "fixSummary": "Successful fixes:
+  "fixSummary": "
+Successful fixes:
 
   requirements.txt
   ✔ Pinned django from 1.6.1 to 2.0.1
@@ -162,7 +164,8 @@ Summary:
 exports[`Snyk fix Snyk fix returns results for supported & unsupported type 1`] = `
 Object {
   "exceptions": Object {},
-  "fixSummary": "Successful fixes:
+  "fixSummary": "
+Successful fixes:
 
   requirements.txt
   ✔ Upgraded django from 1.6.1 to 2.0.1
