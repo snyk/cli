@@ -196,4 +196,5 @@ export enum IaCErrorCodes {
 
   // results-formatter errors
   FailedToFormatResults = 1070,
+  FailedToExtractLineNumberError = 1071,
 }
