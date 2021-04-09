@@ -1,12 +1,12 @@
 import { test } from 'tap';
-import * as config from '../src/cli/commands/config';
+import config = require('../src/cli/commands/config');
 
 test('can unset config values', async (t) => {
-  let before = null;
+  let before: string | null = null;
 
   config('get').catch(t.pass);
   config('unset').catch(t.pass);
-  config('foo').catch(t.pass);
+  config('foo' as any).catch(t.pass);
 
   await config()
     .then(function(v) {
