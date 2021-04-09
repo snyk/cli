@@ -735,7 +735,10 @@ export const DockerTests: AcceptanceTests = {
     '`test --docker --file=Dockerfile --sarif `': (params, utils) => async (
       t,
     ) => {
-      const testableObject = await testSarif(t, utils, params, { sarif: true });
+      const testableObject = await testSarif(t, utils, params, {
+        sarif: true,
+        file: 'Dockerfile',
+      });
       const results = JSON.parse(testableObject.message);
       const sarifResults = require('../fixtures/docker/sarif-container-result.json');
       t.deepEqual(results, sarifResults, 'stdout containing sarif results');

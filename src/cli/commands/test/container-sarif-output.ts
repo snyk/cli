@@ -73,24 +73,34 @@ export function getResults(testResult): sarif.Result[] {
     return results;
   }
   testResult.vulnerabilities.forEach((vuln) => {
-    results.push({
-      ruleId: vuln.id,
-      message: {
-        text: `This file introduces a vulnerable ${vuln.packageName} package with a ${vuln.severity} severity vulnerability.`,
-      },
-      locations: [
-        {
-          physicalLocation: {
-            artifactLocation: {
-              uri: testResult.displayTargetFile,
-            },
-            region: {
-              startLine: vuln.lineNumber || 1,
-            },
-          },
-        },
-      ],
-    });
+    results.push(getSarifResult(vuln, testResult.displayTargetFile));
   });
   return results;
+}
+
+export function getSarifResult(
+  vuln,
+  targetFile: string | undefined,
+): sarif.Result {
+  const result: sarif.Result = {
+    ruleId: vuln.id,
+    message: {
+      text: `This file introduces a vulnerable ${vuln.packageName} package with a ${vuln.severity} severity vulnerability.`,
+    },
+  };
+  if (targetFile) {
+    result.locations = [
+      {
+        physicalLocation: {
+          artifactLocation: {
+            uri: targetFile,
+          },
+          region: {
+            startLine: vuln.lineNumber || 1,
+          },
+        },
+      },
+    ];
+  }
+  return result;
 }

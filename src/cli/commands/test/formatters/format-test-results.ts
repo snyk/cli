@@ -24,7 +24,7 @@ import {
 } from './remediation-based-format-issues';
 import { formatIssues } from './legacy-format-issue';
 import { formatDockerBinariesIssues } from './docker';
-import { createSarifOutputForContainers } from '../sarif-output';
+import { createSarifOutputForContainers } from '../container-sarif-output';
 import { createSarifOutputForIac } from '../iac-output';
 import { isNewVuln, isVulnFixable } from '../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../../../lib/json';
