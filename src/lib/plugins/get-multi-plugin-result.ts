@@ -47,6 +47,12 @@ export async function getMultiPluginResult(
     optionsClone.packageManager = detectPackageManagerFromFile(
       path.basename(targetFile),
     );
+    if (allResults.some((x) => x.targetFile === optionsClone.file)) {
+      debug(
+        `File ${optionsClone.file} already scanned in previous iteration, skipping`,
+      );
+      continue;
+    }
     try {
       const inspectRes = await getSinglePluginResult(
         root,
