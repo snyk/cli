@@ -31,7 +31,8 @@ const DETECTABLE_FILES: string[] = [
   'Podfile.lock',
   'pyproject.toml',
   'poetry.lock',
-  // 'mix.exs', 'mix.lock' // todo @loki: remove when hex is going GA
+  'mix.exs',
+  'mix.lock',
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
@@ -58,7 +59,8 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'build.gradle.kts',
   'pyproject.toml',
   'poetry.lock',
-  // 'mix.exs', 'mix.lock' // todo @loki: remove when hex is going GA
+  'mix.exs',
+  'mix.lock',
 ];
 
 // when file is specified with --file, we look it up here
