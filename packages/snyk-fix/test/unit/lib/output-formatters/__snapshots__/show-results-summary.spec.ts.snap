@@ -1,5 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`formatIssueCountBySeverity Critical vulns 0 1`] = `"1 High | 2 Medium | 60 Low"`;
+
+exports[`formatIssueCountBySeverity all vuln severities 0 1`] = `""`;
+
+exports[`formatIssueCountBySeverity all vuln severities absent 1`] = `""`;
+
+exports[`formatIssueCountBySeverity all vuln severities present 1`] = `"1 Critical | 3 High | 15 Medium | 300 Low"`;
+
 exports[`generateFixedAndFailedSummary has failed only 1`] = `
 "Summary:
 
@@ -71,7 +79,9 @@ Unresolved items:
 Summary:
 
   2 items were not fixed
-  1 items were successfully fixed"
+  1 items were successfully fixed
+  3 total issues: 3 High
+  3 fixable issues"
 `;
 
 exports[`showResultsSummary has unresolved only 1`] = `
@@ -86,5 +96,7 @@ Unresolved items:
 Summary:
 
   1 items were not fixed
-  0 items were successfully fixed"
+  0 items were successfully fixed
+  1 total issues: 1 High
+  1 fixable issues"
 `;

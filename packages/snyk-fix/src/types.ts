@@ -56,8 +56,8 @@ interface UpgradePath {
 }
 
 export interface FixInfo {
-  upgradePaths: UpgradePath[];
-  isPatchable: boolean;
+  upgradePaths?: UpgradePath[];
+  isPatchable?: boolean;
   nearestFixedInVersion?: string;
 }
 
@@ -70,7 +70,7 @@ interface UpgradePathItem {
 export interface IssuesData {
   [issueId: string]: {
     id: string;
-    severity: string;
+    severity: SEVERITY;
     title: string;
   };
 }

@@ -7,6 +7,7 @@ import {
   generateFixedAndFailedSummary,
   generateSuccessfulFixesSummary,
   generateUnresolvedSummary,
+  formatIssueCountBySeverity,
   showResultsSummary,
 } from '../../../../src/lib/output-formatters/show-results-summary';
 import { FixHandlerResultByPlugin } from '../../../../src/plugins/types';
@@ -231,6 +232,43 @@ describe('generateUnresolvedSummary', () => {
     );
     expect(stripAnsi(res.summary)).toMatchSnapshot();
     expect(res.count).toEqual(1);
+  });
+});
+
+describe('formatIssueCountBySeverity', () => {
+  it('all vuln severities present', async () => {
+    const res = await formatIssueCountBySeverity({
+      critical: 1,
+      high: 3,
+      medium: 15,
+      low: 300,
+    });
+    expect(stripAnsi(res)).toMatchSnapshot();
+  });
+
+  it('all vuln severities absent', async () => {
+    const res = await formatIssueCountBySeverity({});
+    expect(stripAnsi(res)).toMatchSnapshot();
+  });
+
+  it('all vuln severities 0', async () => {
+    const res = await formatIssueCountBySeverity({
+      critical: 0,
+      high: 0,
+      medium: 0,
+      low: 0,
+    });
+    expect(stripAnsi(res)).toMatchSnapshot();
+  });
+
+  it('Critical vulns 0', async () => {
+    const res = await formatIssueCountBySeverity({
+      critical: 0,
+      high: 1,
+      medium: 2,
+      low: 60,
+    });
+    expect(stripAnsi(res)).toMatchSnapshot();
   });
 });
 
