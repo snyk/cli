@@ -165,12 +165,12 @@ Describe "Snyk iac test --experimental command"
       # Only File
       The output should include "Testing one.tf..."
       The output should include "Infrastructure as code issues:"
-      The output should include "Tested one.tf for known issues, found 0 issues"
+      The output should include "Tested one.tf for known issues, found"
 
       # Second File
       The output should include "Testing root.tf..."
       The output should include "Infrastructure as code issues:"
-      The output should include "Tested root.tf for known issues, found 0 issues"
+      The output should include "Tested root.tf for known issues, found"
 
       # Directory scan summary
       The output should include "Tested 2 projects, no vulnerable paths were found."

@@ -30,7 +30,7 @@ describe('loadFiles', () => {
     describe('with a k8s file', () => {
       it('returns an array with a single file', async () => {
         mockFs({ [k8sFileStub.filePath]: k8sFileStub.fileContent });
-        const loadedFiles = await loadFiles(k8sFileStub.filePath, {});
+        const loadedFiles = await loadFiles(k8sFileStub.filePath);
         expect(loadedFiles).toContainEqual(k8sFileStub);
       });
     });
@@ -38,7 +38,7 @@ describe('loadFiles', () => {
     describe('with a terraform file', () => {
       it('returns an array with a single file', async () => {
         mockFs({ [terraformFileStub.filePath]: terraformFileStub.fileContent });
-        const loadedFiles = await loadFiles(terraformFileStub.filePath, {});
+        const loadedFiles = await loadFiles(terraformFileStub.filePath);
         expect(loadedFiles).toContainEqual(terraformFileStub);
       });
     });
@@ -56,7 +56,7 @@ describe('loadFiles', () => {
           throw FailedToLoadFileError;
         });
 
-        const loadFilesFn = loadFiles(anotherK8sFileStub.filePath, {});
+        const loadFilesFn = loadFiles(anotherK8sFileStub.filePath);
 
         await expect(loadFilesFn).rejects.toThrow(FailedToLoadFileError);
       });
@@ -71,7 +71,7 @@ describe('loadFiles', () => {
           [anotherK8sFileStub.filePath]: anotherK8sFileStub.fileContent,
         });
 
-        const loadedFiles = await loadFiles(k8sDirectory, {});
+        const loadedFiles = await loadFiles(k8sDirectory);
         expect(loadedFiles).toEqual([k8sFileStub, anotherK8sFileStub]);
       });
     });
@@ -84,7 +84,7 @@ describe('loadFiles', () => {
             anotherTerraformFileStub.fileContent,
         });
 
-        const loadedFiles = await loadFiles(terraformDirectory, {});
+        const loadedFiles = await loadFiles(terraformDirectory);
         expect(loadedFiles).toEqual([
           terraformFileStub,
           anotherTerraformFileStub,
@@ -131,14 +131,14 @@ describe('loadFiles', () => {
 
       describe('with detectionDepth 3', () => {
         it('returns the files at level 2 and level 3', async () => {
-          const loadedFiles = await loadFiles(level1Directory, {});
+          const loadedFiles = await loadFiles(level1Directory);
           expect(loadedFiles).toEqual([level3FileStub, level2FileStub]);
         });
       });
 
       describe('with detectionDepth 4', () => {
         it('returns the files at level 2 and level 3', async () => {
-          const loadedFiles = await loadFiles(level1Directory, {});
+          const loadedFiles = await loadFiles(level1Directory);
           expect(loadedFiles).toEqual([level3FileStub, level2FileStub]);
         });
       });
@@ -168,7 +168,7 @@ describe('loadFiles', () => {
             anotherTerraformFileStub.fileContent,
         });
 
-        const loadedFiles = await loadFiles('.', {});
+        const loadedFiles = await loadFiles('.');
         expect(loadedFiles).toEqual([
           k8sFileStub,
           anotherK8sFileStub,

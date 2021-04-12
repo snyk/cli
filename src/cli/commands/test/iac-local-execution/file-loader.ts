@@ -15,7 +15,7 @@ const DEFAULT_ENCODING = 'utf-8';
 
 export async function loadFiles(
   pathToScan: string,
-  options: IaCTestFlags,
+  options: IaCTestFlags = {},
 ): Promise<IacFileData[]> {
   let filePaths = [pathToScan];
 
