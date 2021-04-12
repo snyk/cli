@@ -11,7 +11,7 @@ Successful fixes:
   ✔ Pinned transitive from 1.0.1 to 2.0.1 (pinned in app-with-constraints/constraints.txt)
 
   app-with-constraints/lib/requirements.txt
-  ✔ Previously fixed
+  ✔ Fixed through app-with-constraints/requirements.txt
 
 Summary:
 
@@ -29,10 +29,10 @@ Successful fixes:
   ✔ Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in app-with-already-fixed/lib/requirements.txt)
 
   app-with-already-fixed/core/requirements.txt
-  ✔ Previously fixed
+  ✔ Fixed through app-with-already-fixed/requirements.txt
 
   app-with-already-fixed/lib/requirements.txt
-  ✔ Previously fixed
+  ✔ Fixed through app-with-already-fixed/requirements.txt
 
 Summary:
 
