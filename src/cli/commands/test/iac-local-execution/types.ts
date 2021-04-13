@@ -1,5 +1,9 @@
-import { IacProjectType } from '../../../../lib/iac/constants';
+import { IacProjectType, IacProjectTypes } from '../../../../lib/iac/constants';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
+import {
+  AnnotatedIssue,
+  IgnoreSettings,
+} from '../../../../lib/snyk-test/legacy';
 import {
   IacFileInDirectory,
   Options,
@@ -42,10 +46,17 @@ export interface IacFileScanResult extends IacFileParsed {
 export type FormattedResult = {
   result: {
     cloudConfigResults: Array<PolicyMetadata>;
+    projectType: IacProjectTypes;
   };
   isPrivate: boolean;
   packageManager: IacProjectType;
   targetFile: string;
+  targetFilePath: string;
+  vulnerabilities: AnnotatedIssue[];
+  dependencyCount: number;
+  licensesPolicy: object | null;
+  ignoreSettings: IgnoreSettings | null;
+  projectName: string;
 };
 
 export interface OpaWasmInstance {
