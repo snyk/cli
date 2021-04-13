@@ -6,8 +6,12 @@ import {
   IaCTestFlags,
   PolicyMetadata,
 } from './types';
+import * as path from 'path';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
-import { IacProjectType } from '../../../../lib/iac/constants';
+import {
+  IacProjectType,
+  projectTypeByFileType,
+} from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
 import {
   issuesToLineNumbers,
@@ -93,16 +97,25 @@ function formatScanResult(
       lineNumber,
     };
   });
+
+  const targetFilePath = path.resolve(scanResult.filePath, '.');
   return {
     result: {
       cloudConfigResults: filterPoliciesBySeverity(
         formattedIssues,
         severityThreshold,
       ),
+      projectType: projectTypeByFileType[scanResult.fileType],
     },
     isPrivate: true,
     packageManager: engineTypeToProjectType[scanResult.engineType],
     targetFile: scanResult.filePath,
+    targetFilePath,
+    vulnerabilities: [],
+    dependencyCount: 0,
+    licensesPolicy: null,
+    ignoreSettings: null,
+    projectName: path.basename(path.dirname(targetFilePath)),
   };
 }
 

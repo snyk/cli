@@ -1,3 +1,4 @@
+import * as path from 'path';
 import {
   EngineType,
   IacFileScanResult,
@@ -74,8 +75,15 @@ export const expectedFormattedResults = {
         lineNumber: 3,
       },
     ],
+    projectType: 'k8sconfig',
   },
   isPrivate: true,
   packageManager: IacProjectType.K8S,
   targetFile: 'dont-care',
+  targetFilePath: path.resolve('dont-care', '.'),
+  vulnerabilities: [],
+  dependencyCount: 0,
+  ignoreSettings: null,
+  licensesPolicy: null,
+  projectName: 'snyk',
 };
