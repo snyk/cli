@@ -71,7 +71,7 @@ export const expectedFormattedResults = {
           resolve: anotherPolicyStub.resolve,
         },
         severity: anotherPolicyStub.severity,
-        lineNumber: -1,
+        lineNumber: 3,
       },
     ],
   },

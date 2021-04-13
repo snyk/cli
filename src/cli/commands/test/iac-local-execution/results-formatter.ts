@@ -9,12 +9,15 @@ import {
 import { SEVERITY } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
+import {
+  issuesToLineNumbers,
+  CloudConfigFileTypes,
+} from '@snyk/cloud-config-parser';
+import { UnsupportedFileTypeError } from './file-parser';
+import * as analytics from '../../../../lib/analytics';
+import * as Debug from 'debug';
 
-// import {
-//   issuesToLineNumbers,
-//   CloudConfigFileTypes,
-// } from '@snyk/cloud-config-parser';
-
+const debug = Debug('iac-results-formatter');
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
 export function formatScanResults(
@@ -32,20 +35,19 @@ export function formatScanResults(
   }
 }
 
-//
-// function getFileTypeForLineNumber(
-//   fileType: string,
-// ): CloudConfigFileTypes {
-//   switch (fileType) {
-//     case 'yaml':
-//     case 'yml':
-//       return CloudConfigFileTypes.YAML;
-//     case 'json':
-//       return CloudConfigFileTypes.JSON;
-//     default:
-//       return CloudConfigFileTypes.YAML;
-//   }
-// }
+function getFileTypeForLineNumber(fileType: string): CloudConfigFileTypes {
+  switch (fileType) {
+    case 'yaml':
+    case 'yml':
+      return CloudConfigFileTypes.YAML;
+    case 'json':
+      return CloudConfigFileTypes.JSON;
+    case 'tf':
+      return CloudConfigFileTypes.TF;
+    default:
+      throw new UnsupportedFileTypeError(fileType);
+  }
+}
 
 const engineTypeToProjectType = {
   [EngineType.Kubernetes]: IacProjectType.K8S,
@@ -57,23 +59,24 @@ function formatScanResult(
   severityThreshold?: SEVERITY,
 ): FormattedResult {
   const formattedIssues = scanResult.violatedPolicies.map((policy) => {
-    // TODO: make sure we handle this issue with annotations:
-    // https://github.com/snyk/registry/pull/17277
     const cloudConfigPath =
       scanResult.docId !== undefined
         ? [`[DocId:${scanResult.docId}]`].concat(policy.msg.split('.'))
         : policy.msg.split('.');
-    const lineNumber = -1;
-    // TODO: once package becomes public, restore the commented out code for having the issue-to-line-number functionality
-    // try {
-    //   lineNumber = issuesToLineNumbers(
-    //     iacFileScanResult.fileContent,
-    //     getFileTypeForLineNumber(iacFileScanResult.fileType),
-    //     cloudConfigPath,
-    //   );
-    // } catch (err) {
-    //   //
-    // }
+
+    let lineNumber: number;
+    try {
+      lineNumber = issuesToLineNumbers(
+        scanResult.fileContent,
+        getFileTypeForLineNumber(scanResult.fileType),
+        policy.msg.split('.'), // parser defaults to docId:0 and checks for the rest of the path
+      );
+    } catch {
+      const err = new FailedToExtractLineNumberError();
+      analytics.add('error-code', err.code);
+      debug('Parser library failed. Could not assign lineNumber to issue');
+      lineNumber = -1;
+    }
 
     return {
       ...policy,
@@ -144,5 +147,15 @@ export class FailedToFormatResults extends CustomError {
     this.code = IaCErrorCodes.FailedToFormatResults;
     this.userMessage =
       'We failed printing the results, please contact support@snyk.io';
+  }
+}
+
+class FailedToExtractLineNumberError extends CustomError {
+  constructor(message?: string) {
+    super(
+      message || 'Parser library failed. Could not assign lineNumber to issue',
+    );
+    this.code = IaCErrorCodes.FailedToExtractLineNumberError;
+    this.userMessage = ''; // Not a user facing error.
   }
 }
