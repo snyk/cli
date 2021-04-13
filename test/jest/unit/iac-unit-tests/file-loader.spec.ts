@@ -46,7 +46,7 @@ describe('loadFiles', () => {
     describe('errors', () => {
       it('throws an error when there is no valid iac file', async () => {
         mockFs({ [nonIacFileStub.filePath]: nonIacFileStub.fileContent });
-        await expect(loadFiles(nonIacFileStub.filePath, {})).rejects.toThrow(
+        await expect(loadFiles(nonIacFileStub.filePath)).rejects.toThrow(
           NoFilesToScanError,
         );
       });
@@ -131,14 +131,18 @@ describe('loadFiles', () => {
 
       describe('with detectionDepth 3', () => {
         it('returns the files at level 2 and level 3', async () => {
-          const loadedFiles = await loadFiles(level1Directory);
+          const loadedFiles = await loadFiles(level1Directory, {
+            detectionDepth: 3,
+          });
           expect(loadedFiles).toEqual([level3FileStub, level2FileStub]);
         });
       });
 
       describe('with detectionDepth 4', () => {
         it('returns the files at level 2 and level 3', async () => {
-          const loadedFiles = await loadFiles(level1Directory);
+          const loadedFiles = await loadFiles(level1Directory, {
+            detectionDepth: 4,
+          });
           expect(loadedFiles).toEqual([level3FileStub, level2FileStub]);
         });
       });
@@ -150,7 +154,7 @@ describe('loadFiles', () => {
           [emptyDirectory]: {},
         });
 
-        await expect(loadFiles(nonIacFileStub.filePath, {})).rejects.toThrow(
+        await expect(loadFiles(nonIacFileStub.filePath)).rejects.toThrow(
           NoFilesToScanError,
         );
       });
