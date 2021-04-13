@@ -27,7 +27,7 @@ export async function test(
   failures?: IacFileInDirectory[];
 }> {
   await initLocalCache();
-  const filesToParse = await loadFiles(pathToScan);
+  const filesToParse = await loadFiles(pathToScan, options);
   const { parsedFiles, failedFiles } = await parseFiles(filesToParse);
   const scannedFiles = await scanFiles(parsedFiles);
   const formattedResults = formatScanResults(scannedFiles, options);
