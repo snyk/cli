@@ -38,11 +38,16 @@ exports[`generateSuccessfulFixesSummary has fixed & failed 1`] = `
   Tip:     Apply the changes manually"
 `;
 
-exports[`generateUnresolvedSummary has failed, skipped & plugin errors 1`] = `
+exports[`generateUnresolvedSummary has failed upgrades & unsupported 1`] = `
 "Unresolved items:
 
   package.json
   ✖ npm is not supported"
+`;
+
+exports[`showResultsSummary called with nothing to fix 1`] = `
+"
+ ✖ No successful fixes"
 `;
 
 exports[`showResultsSummary has failed, skipped, successful & plugin errors 1`] = `
@@ -57,7 +62,7 @@ Successful fixes:
 
 Unresolved items:
 
-  package.json
+  pip project
   ✖ Missing required file name
 
   package.json
@@ -67,4 +72,19 @@ Summary:
 
   2 items were not fixed
   1 items were successfully fixed"
+`;
+
+exports[`showResultsSummary has unresolved only 1`] = `
+"
+ ✖ No successful fixes
+
+Unresolved items:
+
+  package.json
+  ✖ npm is not supported
+
+Summary:
+
+  1 items were not fixed
+  0 items were successfully fixed"
 `;

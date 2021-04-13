@@ -48,7 +48,7 @@ describe('generateFixedAndFailedSummary', () => {
       },
     };
     const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res.summary)).toMatchSnapshot();
   });
 
   it('has fixed only', async () => {
@@ -75,7 +75,8 @@ describe('generateFixedAndFailedSummary', () => {
       },
     };
     const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res.summary)).toMatchSnapshot();
+    expect(res.count).toEqual(1);
   });
 
   it('has failed only', async () => {
@@ -97,7 +98,8 @@ describe('generateFixedAndFailedSummary', () => {
       },
     };
     const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res.summary)).toMatchSnapshot();
+    expect(res.count).toEqual(1);
   });
 
   it('has skipped & failed & plugin errors', async () => {
@@ -141,7 +143,8 @@ describe('generateFixedAndFailedSummary', () => {
       },
     };
     const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res.summary)).toMatchSnapshot();
+    expect(res.count).toEqual(3);
   });
 });
 
@@ -181,7 +184,7 @@ describe('generateSuccessfulFixesSummary', () => {
 });
 
 describe('generateUnresolvedSummary', () => {
-  it('has failed, skipped & plugin errors', async () => {
+  it('has failed upgrades & unsupported', async () => {
     const entity = generateEntityToFix(
       'pip',
       'requirements.txt',
@@ -226,7 +229,8 @@ describe('generateUnresolvedSummary', () => {
       resultsByPlugin,
       exceptionsByScanType,
     );
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res.summary)).toMatchSnapshot();
+    expect(res.count).toEqual(1);
   });
 });
 
@@ -243,8 +247,8 @@ describe('showResultsSummary', () => {
       JSON.stringify({}),
     );
     const entityFailed = generateEntityToFix(
-      'npm',
-      'package.json',
+      'pip',
+      '',
       JSON.stringify({}),
     );
     const resultsByPlugin: FixHandlerResultByPlugin = {
@@ -284,6 +288,42 @@ describe('showResultsSummary', () => {
         userMessage: 'npm is not supported',
       },
     };
+
+    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
+    expect(stripAnsi(res)).toMatchSnapshot();
+  });
+  it('has unresolved only', async () => {
+    const entityFailed = generateEntityToFix(
+      'npm',
+      'package.json',
+      JSON.stringify({}),
+    );
+    const resultsByPlugin: FixHandlerResultByPlugin = {
+      python: {
+        succeeded: [],
+        failed: [],
+        skipped: [],
+      },
+    };
+    const exceptionsByScanType: ErrorsByEcoSystem = {
+      python: {
+        originals: [entityFailed],
+        userMessage: 'npm is not supported',
+      },
+    };
+
+    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
+    expect(stripAnsi(res)).toMatchSnapshot();
+  });
+  it('called with nothing to fix', async () => {
+    const resultsByPlugin: FixHandlerResultByPlugin = {
+      python: {
+        succeeded: [],
+        failed: [],
+        skipped: [],
+      },
+    };
+    const exceptionsByScanType: ErrorsByEcoSystem = {};
 
     const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
     expect(stripAnsi(res)).toMatchSnapshot();

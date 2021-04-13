@@ -14,17 +14,17 @@ export async function showResultsSummary(
   const successfulFixesSummary = generateSuccessfulFixesSummary(
     resultsByPlugin,
   );
-  const unresolvedSummary = generateUnresolvedSummary(
-    resultsByPlugin,
-    exceptionsByScanType,
-  );
-  const overallSummary = generateFixedAndFailedSummary(
-    resultsByPlugin,
-    exceptionsByScanType,
-  );
+  const {
+    summary: unresolvedSummary,
+    count: unresolvedCount,
+  } = generateUnresolvedSummary(resultsByPlugin, exceptionsByScanType);
+  const {
+    summary: overallSummary,
+    count: changedCount,
+  } = generateFixedAndFailedSummary(resultsByPlugin, exceptionsByScanType);
   return `\n${successfulFixesSummary}${
     unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
-  }\n\n${overallSummary}`;
+  }${unresolvedCount || changedCount ? `\n\n${overallSummary}` : ''}`;
 }
 
 export function generateSuccessfulFixesSummary(
@@ -47,20 +47,22 @@ export function generateSuccessfulFixesSummary(
   if (summary) {
     return formattedTitleHeader + summary;
   }
-  return chalk.red('✖ No successful fixes');
+  return chalk.red(' ✖ No successful fixes');
 }
 
 export function generateUnresolvedSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
-): string {
-  const sectionTitle = 'Unresolved items:';
-  const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
+): { summary: string; count: number } {
+  const title = 'Unresolved items:';
+  const formattedTitle = `${chalk.bold(title)}`;
   let summary = '';
+  let count = 0;
 
   for (const plugin of Object.keys(resultsByPlugin)) {
     const skipped = resultsByPlugin[plugin].skipped;
     if (skipped.length > 0) {
+      count += skipped.length;
       summary +=
         '\n\n' +
         skipped
@@ -69,6 +71,7 @@ export function generateUnresolvedSummary(
     }
     const failed = resultsByPlugin[plugin].failed;
     if (failed.length > 0) {
+      count += failed.length;
       summary +=
         '\n\n' +
         failed
@@ -82,6 +85,7 @@ export function generateUnresolvedSummary(
   if (Object.keys(exceptionsByScanType).length) {
     for (const ecosystem of Object.keys(exceptionsByScanType)) {
       const unresolved = exceptionsByScanType[ecosystem];
+      count += unresolved.originals.length;
       summary +=
         '\n\n' +
         unresolved.originals
@@ -90,25 +94,28 @@ export function generateUnresolvedSummary(
     }
   }
   if (summary) {
-    return formattedTitleHeader + summary;
+    return { summary: formattedTitle + summary, count };
   }
-  return '';
+  return { summary: '', count: 0 };
 }
 
 export function generateFixedAndFailedSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
-): string {
+): { summary: string; count: number } {
   const sectionTitle = 'Summary:';
   const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
-  const fixedItems = calculateFixed(resultsByPlugin);
-  const failedItems = calculateFailed(resultsByPlugin, exceptionsByScanType);
+  const fixed = calculateFixed(resultsByPlugin);
+  const failed = calculateFailed(resultsByPlugin, exceptionsByScanType);
 
-  return `${formattedTitleHeader}\n\n${PADDING_SPACE}${chalk.bold.red(
-    failedItems,
-  )} items were not fixed\n${PADDING_SPACE}${chalk.green.bold(
-    fixedItems,
-  )} items were successfully fixed`;
+  return {
+    summary: `${formattedTitleHeader}\n\n${PADDING_SPACE}${chalk.bold.red(
+      failed,
+    )} items were not fixed\n${PADDING_SPACE}${chalk.green.bold(
+      fixed,
+    )} items were successfully fixed`,
+    count: fixed + failed,
+  };
 }
 
 export function calculateFixed(
