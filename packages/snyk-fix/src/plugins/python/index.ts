@@ -63,6 +63,10 @@ export async function pythonFix(
         results.failed.push(
           ...projectsToFix.map((p) => ({ original: p, error: e })),
         );
+        spinner.stopAndPersist({
+          text: processingMessage,
+          symbol: chalk.green('✔'),
+        });
       }
       spinner.stopAndPersist({
         text: processingMessage,
