@@ -18,7 +18,8 @@ Summary:
   0 items were not fixed
   2 items were successfully fixed
   6 total issues: 2 High | 2 Medium | 2 Low
-  6 fixable issues"
+  6 fixable issues
+  8 fixed issues"
 `;
 
 exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -r with the same name (some were already fixed) 1`] = `
@@ -41,7 +42,8 @@ Summary:
   0 items were not fixed
   3 items were successfully fixed
   6 total issues: 3 High | 3 Medium
-  6 fixable issues"
+  6 fixable issues
+  9 fixed issues"
 `;
 
 exports[`fix *req*.txt / *.txt Python projects retains python markers 1`] = `

@@ -35,6 +35,7 @@ describe('generateFixedAndFailedSummary', () => {
               {
                 success: true,
                 userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                issueIds: ['vuln-2'],
               },
             ],
           },
@@ -67,6 +68,7 @@ describe('generateFixedAndFailedSummary', () => {
               {
                 success: true,
                 userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                issueIds: ['vuln-1'],
               },
             ],
           },
@@ -128,6 +130,7 @@ describe('generateFixedAndFailedSummary', () => {
               {
                 success: true,
                 userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                issueIds: ['vuln-1'],
               },
             ],
           },
@@ -165,12 +168,14 @@ describe('generateSuccessfulFixesSummary', () => {
               {
                 success: true,
                 userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                issueIds: ['vuln-2'],
               },
               {
                 success: false,
                 reason: 'Version not compatible',
                 userMessage: 'Failed to upgrade transitive from 6.1.0 to 6.2.1',
                 tip: 'Apply the changes manually',
+                issueIds: ['vuln-1'],
               },
             ],
           },
@@ -205,12 +210,14 @@ describe('generateUnresolvedSummary', () => {
               {
                 success: true,
                 userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                issueIds: ['vuln-2'],
               },
               {
                 success: false,
                 reason: 'Version not compatible',
                 userMessage: 'Failed to upgrade transitive from 6.1.0 to 6.2.1',
                 tip: 'Apply the changes manually',
+                issueIds: ['vuln-1'],
               },
             ],
           },
@@ -284,11 +291,7 @@ describe('showResultsSummary', () => {
       'package.json',
       JSON.stringify({}),
     );
-    const entityFailed = generateEntityToFix(
-      'pip',
-      '',
-      JSON.stringify({}),
-    );
+    const entityFailed = generateEntityToFix('pip', '', JSON.stringify({}));
     const resultsByPlugin: FixHandlerResultByPlugin = {
       python: {
         succeeded: [
@@ -298,12 +301,14 @@ describe('showResultsSummary', () => {
               {
                 success: true,
                 userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                issueIds: ['vuln-1'],
               },
               {
                 success: false,
                 reason: 'Version not compatible',
                 userMessage: 'Failed to upgrade transitive from 6.1.0 to 6.2.1',
                 tip: 'Apply the changes manually',
+                issueIds: ['vuln-2'],
               },
             ],
           },

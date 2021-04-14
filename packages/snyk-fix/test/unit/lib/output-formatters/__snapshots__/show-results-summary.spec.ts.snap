@@ -81,7 +81,8 @@ Summary:
   2 items were not fixed
   1 items were successfully fixed
   3 total issues: 3 High
-  3 fixable issues"
+  3 fixable issues
+  1 fixed issues"
 `;
 
 exports[`showResultsSummary has unresolved only 1`] = `
@@ -98,5 +99,6 @@ Summary:
   1 items were not fixed
   0 items were successfully fixed
   1 total issues: 1 High
-  1 fixable issues"
+  1 fixable issues
+  0 fixed issues"
 `;

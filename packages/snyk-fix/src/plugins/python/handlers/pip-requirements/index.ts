@@ -110,6 +110,7 @@ async function fixAll(
             {
               success: true,
               userMessage: `Fixed through ${fixedCache[filePath].fixedIn}`,
+              issueIds: fixedCache[filePath].issueIds,
             },
           ],
         });
@@ -120,9 +121,16 @@ async function fixAll(
         debug('Manifest has not changed!');
         throw new NoFixesCouldBeAppliedError();
       }
+
+      // can't use .flat() or .flatMap() because it's not supported in Node 10
+      const issueIds: string[] = [];
+      for (const c of changes) {
+        issueIds.push(...c.issueIds);
+      }
       Object.keys(fixedMeta).forEach((f) => {
         fixedCache[f] = {
           fixedIn: targetFile,
+          issueIds,
         };
       });
       handlerResult.succeeded.push({ original: entity, changes });
@@ -144,9 +152,9 @@ export async function fixIndividualRequirementsTxt(
   parsedRequirements: ParsedRequirements,
   options: FixOptions,
   directUpgradesOnly: boolean,
-): Promise<{ changes: FixChangesSummary[]; appliedRemediation: string[] }> {
+): Promise<{ changes: FixChangesSummary[] }> {
   const fullFilePath = pathLib.normalize(pathLib.join(dir, fileName));
-  const { updatedManifest, changes, appliedRemediation } = updateDependencies(
+  const { updatedManifest, changes } = updateDependencies(
     parsedRequirements,
     remediation.pin,
     directUpgradesOnly,
@@ -156,7 +164,7 @@ export async function fixIndividualRequirementsTxt(
   );
 
   if (!changes.length) {
-    return { changes, appliedRemediation };
+    return { changes };
   }
 
   if (!options.dryRun) {
@@ -166,7 +174,7 @@ export async function fixIndividualRequirementsTxt(
     debug('Skipping writing changes to file in --dry-run mode');
   }
 
-  return { changes, appliedRemediation };
+  return { changes };
 }
 
 export async function applyAllFixes(
@@ -189,7 +197,7 @@ export async function applyAllFixes(
   /* Apply all upgrades first across all files that are included */
   for (const fileName of Object.keys(provenance)) {
     const skipApplyingPins = true;
-    const { changes, appliedRemediation } = await fixIndividualRequirementsTxt(
+    const { changes } = await fixIndividualRequirementsTxt(
       workspace,
       dir,
       base,
@@ -199,7 +207,6 @@ export async function applyAllFixes(
       options,
       skipApplyingPins,
     );
-    appliedUpgradeRemediation.push(...appliedRemediation);
     upgradeChanges.push(...changes);
     fixedMeta[pathLib.normalize(pathLib.join(dir, fileName))] = upgradeChanges;
   }
@@ -207,7 +214,7 @@ export async function applyAllFixes(
   /* Apply all left over remediation as pins in the entry targetFile */
   const toPin: RemediationChanges = filterOutAppliedUpgrades(
     remediation,
-    appliedUpgradeRemediation,
+    upgradeChanges,
   );
   const directUpgradesOnly = false;
   const fileForPinning = await selectFileForPinning(entity);
@@ -227,19 +234,22 @@ export async function applyAllFixes(
 
 function filterOutAppliedUpgrades(
   remediation: RemediationChanges,
-  appliedRemediation: string[],
+  upgradeChanges: FixChangesSummary[],
 ): RemediationChanges {
   const pinRemediation: RemediationChanges = {
     ...remediation,
     pin: {}, // delete the pin remediation so we can collect un-applied remediation
   };
   const pins = remediation.pin;
-  const normalizedAppliedRemediation = appliedRemediation.map(
-    (packageAtVersion) => {
-      const [pkgName, versionAndMore] = packageAtVersion.split('@');
-      return `${standardizePackageName(pkgName)}@${versionAndMore}`;
-    },
-  );
+  const normalizedAppliedRemediation = upgradeChanges
+    .map((c) => {
+      if (c.success && c.from) {
+        const [pkgName, versionAndMore] = c.from?.split('@');
+        return `${standardizePackageName(pkgName)}@${versionAndMore}`;
+      }
+      return false;
+    })
+    .filter(Boolean);
   for (const pkgAtVersion of Object.keys(pins)) {
     const [pkgName, versionAndMore] = pkgAtVersion.split('@');
     if (

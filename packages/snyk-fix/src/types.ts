@@ -207,6 +207,9 @@ export type FixChangesSummary = FixChangesSuccess | FixChangesError;
 interface FixChangesSuccess {
   success: true;
   userMessage: string;
+  issueIds: string[];
+  from?: string;
+  to?: string;
 }
 
 interface FixChangesError {
@@ -214,6 +217,9 @@ interface FixChangesError {
   userMessage: string;
   reason: string;
   tip?: string;
+  issueIds: string[];
+  from?: string;
+  to?: string;
 }
 
 export interface ErrorsByEcoSystem {

@@ -11,7 +11,6 @@ export function generatePins(
 ): {
   pinnedRequirements: string[];
   changes: FixChangesSummary[];
-  appliedRemediation: string[];
 } {
   // Lowercase the upgrades object. This might be overly defensive, given that
   // we control this input internally, but its a low cost guard rail. Outputs a
@@ -26,19 +25,22 @@ export function generatePins(
     return {
       pinnedRequirements: [],
       changes: [],
-      appliedRemediation: [],
     };
   }
-  const appliedRemediation: string[] = [];
   const changes: FixChangesSummary[] = [];
   const pinnedRequirements = Object.keys(standardizedPins)
     .map((pkgNameAtVersion) => {
       const [pkgName, version] = pkgNameAtVersion.split('@');
-      const newVersion = standardizedPins[pkgNameAtVersion].split('@')[1];
+      const newVersion = standardizedPins[pkgNameAtVersion].upgradeTo.split(
+        '@',
+      )[1];
       const newRequirement = `${standardizePackageName(
         pkgName,
       )}>=${newVersion}`;
       changes.push({
+        from: `${pkgName}@${version}`,
+        to: `${pkgName}@${newVersion}`,
+        issueIds: standardizedPins[pkgNameAtVersion].vulns,
         success: true,
         userMessage: `Pinned ${standardizePackageName(
           pkgName,
@@ -46,7 +48,6 @@ export function generatePins(
           referenceFileInChanges ? ` (pinned in ${referenceFileInChanges})` : ''
         }`,
       });
-      appliedRemediation.push(pkgNameAtVersion);
       return `${newRequirement} # not directly required, pinned by Snyk to avoid a vulnerability`;
     })
     .filter(isDefined);
@@ -54,6 +55,5 @@ export function generatePins(
   return {
     pinnedRequirements,
     changes,
-    appliedRemediation,
   };
 }

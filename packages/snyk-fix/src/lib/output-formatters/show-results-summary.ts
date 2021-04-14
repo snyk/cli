@@ -29,11 +29,12 @@ export async function showResultsSummary(
     resultsByPlugin,
     exceptionsByScanType,
   );
+  const fixedIssuesSummary = `${calculateFixedIssues(resultsByPlugin)} fixed issues`;
   return `\n${successfulFixesSummary}${
     unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
   }${
     unresolvedCount || changedCount
-      ? `\n\n${overallSummary}\n${vulnsSummary}`
+      ? `\n\n${overallSummary}\n${vulnsSummary}\n${PADDING_SPACE}${fixedIssuesSummary}`
       : ''
   }`;
 }
@@ -142,11 +143,17 @@ export function calculateFixed(
 export function calculateFixedIssues(
   resultsByPlugin: FixHandlerResultByPlugin,
 ): number {
-  let fixed = 0;
+  const fixedIssues: string[] = [];
   for (const plugin of Object.keys(resultsByPlugin)) {
-    fixed += resultsByPlugin[plugin].succeeded.map((i) => i.changes).length;
+    for (const i of resultsByPlugin[plugin].succeeded) {
+      i.changes
+        .filter((c) => c.success)
+        .forEach((c) => {
+          fixedIssues.push(...c.issueIds);
+        });
+    }
   }
-  return fixed;
+  return  fixedIssues.length;
 }
 
 export function calculateFailed(
