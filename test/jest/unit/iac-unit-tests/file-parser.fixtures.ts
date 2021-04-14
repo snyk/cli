@@ -1,11 +1,14 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import {
   EngineType,
   IacFileData,
   IacFileParsed,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
+import { expectedParsingResultDeltaScan } from './terraform-plan-parser.fixtures';
 
-const kubernetesFileContent = `
+const kubernetesYamlFileContent = `
 apiVersion: v1
 kind: Pod
 metadata:
@@ -14,17 +17,51 @@ spec:
   containers:
     - name: whatever
       securityContext:
-        privileged: true 
-
+        privileged: true
 `;
 
-export const kubernetesFileDataStub: IacFileData = {
-  fileContent: kubernetesFileContent,
-  filePath: 'dont-care',
-  fileType: 'yml',
+const kubernetesJson = {
+  apiVersion: 'v1',
+  kind: 'Pod',
+  metadata: {
+    name: 'myapp-pod',
+  },
+  spec: {
+    containers: [
+      {
+        name: 'whatever',
+        securityContext: {
+          privileged: true,
+        },
+      },
+    ],
+  },
 };
+const kubernetesJsonFileContent = JSON.stringify(kubernetesJson);
 
-const kubernetesInvalidFileContent = `
+const multipleKubernetesYamlsFileContent = `
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+spec:
+  containers:
+    - name: whatever
+      securityContext:
+        privileged: true
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: myapp-pod
+spec:
+  containers:
+    - name: whatever
+      securityContext:
+        privileged: true
+`;
+
+const kubernetesYamlInvalidFileContent = `
 apiVersionXYZ: v1
 kind: Pod
 metadata:
@@ -33,23 +70,80 @@ spec:
   containers:
     - name: whatever
       securityContext:
-        privileged: true 
+        privileged: true
 `;
 
-export const invalidK8sFileDataStub: IacFileData = {
-  fileContent: kubernetesInvalidFileContent,
+const invalidJsonFile = '{ "foo": "bar"';
+
+const invalidYamlFile = `
+foo: "bar
+`;
+
+export const kubernetesYamlFileDataStub: IacFileData = {
+  fileContent: kubernetesYamlFileContent,
   filePath: 'dont-care',
   fileType: 'yml',
 };
 
-export const expectedInvalidK8sFileParsingResult = {
+export const kubernetesJsonFileDataStub: IacFileData = {
+  fileContent: kubernetesJsonFileContent,
+  filePath: 'dont-care',
+  fileType: 'json',
+};
+
+export const multipleKubernetesYamlsFileDataStub: IacFileData = {
+  fileContent: multipleKubernetesYamlsFileContent,
+  filePath: 'dont-care',
+  fileType: 'yml',
+};
+
+export const kubernetesYamlInvalidFileDataStub: IacFileData = {
+  fileContent: kubernetesYamlInvalidFileContent,
+  filePath: 'dont-care',
+  fileType: 'yml',
+};
+
+export const invalidJsonFileDataStub: IacFileData = {
+  fileContent: invalidJsonFile,
+  filePath: 'path/to/file',
+  fileType: 'json',
+};
+
+export const invalidYamlFileDataStub: IacFileData = {
+  fileContent: invalidYamlFile,
+  filePath: 'dont-care',
+  fileType: 'yml',
+};
+
+export const expectedKubernetesYamlParsingResult: IacFileParsed = {
+  ...kubernetesYamlFileDataStub,
+  docId: 0,
+  engineType: EngineType.Kubernetes,
+  jsonContent: kubernetesJson,
+};
+
+export const expectedKubernetesJsonParsingResult: IacFileParsed = {
+  ...kubernetesJsonFileDataStub,
+  docId: 0,
+  engineType: EngineType.Kubernetes,
+  jsonContent: kubernetesJson,
+};
+
+export const expectedMultipleKubernetesYamlsParsingResult: IacFileParsed = {
+  ...multipleKubernetesYamlsFileDataStub,
+  docId: 0,
+  engineType: EngineType.Kubernetes,
+  jsonContent: kubernetesJson,
+};
+
+export const expectedKubernetesYamlInvalidParsingResult = {
   err: new MissingRequiredFieldsInKubernetesYamlError(
     'Failed to detect Kubernetes file, missing required fields',
   ),
   failureReason: 'Failed to detect Kubernetes file, missing required fields',
   fileType: 'yml',
   filePath: 'dont-care',
-  fileContent: invalidK8sFileDataStub.fileContent,
+  fileContent: kubernetesYamlInvalidFileDataStub.fileContent,
   engineType: null,
   jsonContent: null,
 };
@@ -68,33 +162,33 @@ resource "aws_security_group" "allow_ssh" {
     }
 }`;
 
+const terraformPlanFileContent = fs.readFileSync(
+  path.resolve(__dirname, '../../../fixtures/iac/terraform-plan/tf-plan.json'),
+);
+
+const terraformPlanJson = JSON.parse(terraformPlanFileContent.toString());
+const terraformPlanMissingFieldsJson = { ...terraformPlanJson };
+delete terraformPlanMissingFieldsJson.planned_values;
+const terraformPlanMissingFieldsFileContent = JSON.stringify(
+  terraformPlanMissingFieldsJson,
+);
+
 export const terraformFileDataStub: IacFileData = {
   fileContent: terraformFileContent,
   filePath: 'dont-care',
   fileType: 'tf',
 };
 
-export const expectedKubernetesParsingResult: IacFileParsed = {
-  ...kubernetesFileDataStub,
-  docId: 0,
-  engineType: EngineType.Kubernetes,
-  jsonContent: {
-    apiVersion: 'v1',
-    kind: 'Pod',
-    metadata: {
-      name: 'myapp-pod',
-    },
-    spec: {
-      containers: [
-        {
-          name: 'whatever',
-          securityContext: {
-            privileged: true,
-          },
-        },
-      ],
-    },
-  },
+export const terraformPlanDataStub: IacFileData = {
+  fileContent: terraformPlanFileContent.toString(),
+  filePath: 'dont-care',
+  fileType: 'json',
+};
+
+export const terraformPlanMissingFieldsDataStub: IacFileData = {
+  fileContent: terraformPlanMissingFieldsFileContent.toString(),
+  filePath: 'dont-care',
+  fileType: 'json',
 };
 
 export const expectedTerraformParsingResult: IacFileParsed = {
@@ -117,4 +211,10 @@ export const expectedTerraformParsingResult: IacFileParsed = {
       },
     },
   },
+};
+
+export const expectedTerraformJsonParsingResult: IacFileParsed = {
+  ...terraformPlanDataStub,
+  engineType: EngineType.Terraform,
+  jsonContent: expectedParsingResultDeltaScan,
 };
