@@ -56,10 +56,6 @@ export async function pythonFix(
         results.failed.push(...failed);
         results.skipped.push(...skipped);
         results.succeeded.push(...succeeded);
-        spinner.stopAndPersist({
-          text: processingMessage,
-          symbol: chalk.green('✔'),
-        });
       } catch (e) {
         debug(
           `Failed to fix ${projectsToFix.length} ${projectType} projects.\nError: ${e.message}`,
@@ -68,6 +64,10 @@ export async function pythonFix(
           ...projectsToFix.map((p) => ({ original: p, error: e })),
         );
       }
+      spinner.stopAndPersist({
+        text: processingMessage,
+        symbol: chalk.green('✔'),
+      });
     },
     {
       concurrency: 5,
