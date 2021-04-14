@@ -28,12 +28,13 @@ export async function validateFixCommandIsSupported(
     options.org,
   );
 
+  debug('Feature flag check returned: ', snykFixSupported);
+
   if (snykFixSupported.code === 401 || snykFixSupported.code === 403) {
     throw AuthFailedError(snykFixSupported.error, snykFixSupported.code);
   }
 
   if (!snykFixSupported.ok) {
-    debug('Feature flag check returned: ', snykFixSupported);
     throw new CommandNotSupportedError('snyk fix', options.org || undefined);
   }
 
