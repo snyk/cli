@@ -1,13 +1,45 @@
 import { DepGraphData } from '@snyk/dep-graph';
-import { TestResult } from '../../../lib/ecosystems/types';
-import { TestResult as LegacyTestResult } from '../../../lib/snyk-test/legacy';
+import { IssuesData, Issue, TestResult } from '../../../lib/ecosystems/types';
+import {
+  AnnotatedIssue,
+  TestResult as LegacyTestResult,
+} from '../../../lib/snyk-test/legacy';
+
+function convertVulnerabilities(
+  vulns: AnnotatedIssue[],
+): {
+  issuesData: IssuesData;
+  issues: Issue[];
+} {
+  const issuesData: IssuesData = {};
+  const issues: Issue[] = [];
+
+  vulns.forEach((vuln) => {
+    issuesData[vuln.id] = {
+      id: vuln.id,
+      severity: vuln.severity,
+      title: vuln.title,
+    };
+    issues.push({
+      pkgName: vuln.packageName,
+      pkgVersion: vuln.version,
+      issueId: vuln.id,
+      // TODO: add fixInfo when needed
+      fixInfo: {} as any,
+    });
+  });
+  return { issuesData, issues };
+}
 
 export function convertLegacyTestResultToNew(
   testResult: LegacyTestResult,
 ): TestResult {
+  const { issues, issuesData } = convertVulnerabilities(
+    testResult.vulnerabilities,
+  );
   return {
-    issuesData: {} as any, // TODO: add converter
-    issues: [], // TODO: add converter
+    issuesData,
+    issues,
     remediation: testResult.remediation,
     // TODO: grab this once Ecosystems flow starts sending back ScanResult
     depGraphData: {} as DepGraphData,
