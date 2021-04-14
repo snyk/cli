@@ -104,21 +104,25 @@ function groupMultiDocResults(
   return Object.values(groupedData);
 }
 
-function filterPoliciesBySeverity(
+export function filterPoliciesBySeverity(
   violatedPolicies: PolicyMetadata[],
   severityThreshold?: SEVERITY,
 ): PolicyMetadata[] {
   if (!severityThreshold || severityThreshold === SEVERITY.LOW) {
-    return violatedPolicies;
+    return violatedPolicies.filter((violatedPolicy) => {
+      return violatedPolicy.severity !== 'none';
+    });
   }
 
   const severitiesToInclude = SEVERITIES.slice(
     SEVERITIES.indexOf(severityThreshold),
   );
-
-  return violatedPolicies.filter((policy) =>
-    severitiesToInclude.includes(policy.severity),
-  );
+  return violatedPolicies.filter((policy) => {
+    return (
+      policy.severity !== 'none' &&
+      severitiesToInclude.includes(policy.severity)
+    );
+  });
 }
 
 export class FailedToFormatResults extends CustomError {

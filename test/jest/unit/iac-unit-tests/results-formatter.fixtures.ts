@@ -7,7 +7,7 @@ import {
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
 
-const policyStub: PolicyMetadata = {
+export const policyStub: PolicyMetadata = {
   id: '1',
   description: '',
   impact:
