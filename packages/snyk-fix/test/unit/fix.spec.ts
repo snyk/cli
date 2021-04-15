@@ -40,7 +40,7 @@ describe('Snyk fix', () => {
     expect(writeFileSpy).not.toHaveBeenCalled();
   });
 
-  it.only('Snyk fix returns results for supported & unsupported type', async () => {
+  it('Snyk fix returns results for supported & unsupported type', async () => {
     // Arrange
     const projectTestResult = generateEntityToFix(
       'pip',

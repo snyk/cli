@@ -14,6 +14,7 @@ describe('format successful item', () => {
       {
         success: true,
         userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+        issueIds: ['vuln-2'],
       },
     ];
     const res = await formatChangesSummary(entity, changesSummary);

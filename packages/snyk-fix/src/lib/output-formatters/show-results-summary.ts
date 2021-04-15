@@ -29,7 +29,9 @@ export async function showResultsSummary(
     resultsByPlugin,
     exceptionsByScanType,
   );
-  const fixedIssuesSummary = `${calculateFixedIssues(resultsByPlugin)} fixed issues`;
+  const fixedIssuesSummary = `${chalk.bold(
+    calculateFixedIssues(resultsByPlugin),
+  )} fixed issues`;
   return `\n${successfulFixesSummary}${
     unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
   }${
@@ -145,15 +147,21 @@ export function calculateFixedIssues(
 ): number {
   const fixedIssues: string[] = [];
   for (const plugin of Object.keys(resultsByPlugin)) {
-    for (const i of resultsByPlugin[plugin].succeeded) {
-      i.changes
+    for (const entity of resultsByPlugin[plugin].succeeded) {
+      // count unique vulns fixed per scanned entity
+      // some fixed may need to be made in multiple places
+      // and would count multiple times otherwise.
+      const fixedPerEntity = new Set<string>();
+      entity.changes
         .filter((c) => c.success)
         .forEach((c) => {
-          fixedIssues.push(...c.issueIds);
+          c.issueIds.map((i) => fixedPerEntity.add(i));
         });
+      fixedIssues.push(...Array.from(fixedPerEntity));
     }
   }
-  return  fixedIssues.length;
+
+  return fixedIssues.length;
 }
 
 export function calculateFailed(
@@ -209,22 +217,22 @@ export const severitiesColourMapping: {
 } = {
   low: {
     colorFunc(text) {
-      return chalk.blueBright(text);
+      return chalk.hex('#BCBBC8')(text);
     },
   },
   medium: {
     colorFunc(text) {
-      return chalk.yellowBright(text);
+      return chalk.hex('#EDD55E')(text);
     },
   },
   high: {
     colorFunc(text) {
-      return chalk.redBright(text);
+      return chalk.hex('#FF872F')(text);
     },
   },
   critical: {
     colorFunc(text) {
-      return chalk.magentaBright(text);
+      return chalk.hex('#FF0B0B')(text);
     },
   },
 };

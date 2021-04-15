@@ -23,8 +23,8 @@ describe('selectFileForPinning', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -63,8 +63,8 @@ describe('selectFileForPinning', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -103,8 +103,8 @@ describe('selectFileForPinning', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -157,8 +157,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -225,8 +225,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -300,8 +300,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -390,8 +390,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -532,9 +532,9 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
+          'django@1.6.1': {
             // matches as the same when file has Django
-            upgradeTo: 'Django@2.0.1',
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -665,8 +665,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -799,8 +799,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: [],
             isTransitive: false,
           },
@@ -870,7 +870,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       ...generateTestResult(),
       issues: [
         {
-          pkgName: 'Django@1.6.1',
+          pkgName: 'django@1.6.1',
           issueId: 'SNYK-1',
           fixInfo: {},
         },
@@ -898,8 +898,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: ['SNYK-1'],
             isTransitive: false,
           },
@@ -1039,7 +1039,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       ...generateTestResult(),
       issues: [
         {
-          pkgName: 'Django@1.6.1',
+          pkgName: 'django@1.6.1',
           issueId: 'SNYK-1',
           fixInfo: {
             upgradePaths: [],
@@ -1092,8 +1092,8 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         patch: {},
         ignore: {},
         pin: {
-          'Django@1.6.1': {
-            upgradeTo: 'Django@2.0.1',
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
             vulns: ['SNYK-1'],
             isTransitive: false,
           },
@@ -1126,7 +1126,6 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       quiet: true,
       stripAnsi: true,
     });
-
     const requirements = fs.readFileSync(
       pathLib.resolve(
         workspacesPath,
@@ -1218,7 +1217,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     expect(result.results.python.succeeded[1].changes).toEqual([
       {
         success: true,
-        issueIds: ['SNYK-1', 'SNYK-1', 'SNYK-2', 'SNYK-3'],
+        issueIds: ['SNYK-1', 'SNYK-2', 'SNYK-3'],
         userMessage: 'Fixed through app-with-constraints/requirements.txt',
       },
     ]);

@@ -7,6 +7,7 @@ import {
   EntityToFix,
   FixChangesSummary,
   FixOptions,
+  Issue,
   RemediationChanges,
   Workspace,
 } from '../../../../types';
@@ -110,7 +111,10 @@ async function fixAll(
             {
               success: true,
               userMessage: `Fixed through ${fixedCache[filePath].fixedIn}`,
-              issueIds: fixedCache[filePath].issueIds,
+              issueIds: getFixedEntityIssues(
+                fixedCache[filePath].issueIds,
+                entity.testResult.issues,
+              ),
             },
           ],
         });
@@ -122,15 +126,16 @@ async function fixAll(
         throw new NoFixesCouldBeAppliedError();
       }
 
-      // can't use .flat() or .flatMap() because it's not supported in Node 10
-      const issueIds: string[] = [];
+      // keep fixed issues unique across files that are part of the same project
+      // the test result is for 1 entry entity.
+      const uniqueIssueIds = new Set<string>();
       for (const c of changes) {
-        issueIds.push(...c.issueIds);
+        c.issueIds.map((i) => uniqueIssueIds.add(i));
       }
       Object.keys(fixedMeta).forEach((f) => {
         fixedCache[f] = {
           fixedIn: targetFile,
-          issueIds,
+          issueIds: Array.from(uniqueIssueIds),
         };
       });
       handlerResult.succeeded.push({ original: entity, changes });
@@ -193,7 +198,6 @@ export async function applyAllFixes(
   const { dir, base } = pathLib.parse(entryFileName);
   const provenance = await extractProvenance(workspace, dir, base);
   const upgradeChanges: FixChangesSummary[] = [];
-  const appliedUpgradeRemediation: string[] = [];
   /* Apply all upgrades first across all files that are included */
   for (const fileName of Object.keys(provenance)) {
     const skipApplyingPins = true;
@@ -307,4 +311,17 @@ export async function selectFileForPinning(
     requirementsTxt = await workspace.readFile(pathLib.join(dir, fileName));
   }
   return { fileContent: requirementsTxt, fileName };
+}
+
+function getFixedEntityIssues(
+  fixedIssueIds: string[],
+  issues: Issue[],
+): string[] {
+  const fixed: string[] = [];
+  for (const { issueId } of issues) {
+    if (fixedIssueIds.includes(issueId)) {
+      fixed.push(issueId);
+    }
+  }
+  return fixed;
 }

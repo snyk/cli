@@ -72,7 +72,8 @@ Summary:
   1 items were not fixed
   0 items were successfully fixed
   1 total issues: 1 High
-  1 fixable issues",
+  1 fixable issues
+  0 fixed issues",
   "meta": Object {
     "failed": 1,
     "fixed": 0,
@@ -95,7 +96,8 @@ Summary:
   0 items were not fixed
   1 items were successfully fixed
   1 total issues: 1 High
-  1 fixable issues",
+  1 fixable issues
+  1 fixed issues",
   "meta": Object {
     "failed": 0,
     "fixed": 1,
@@ -108,10 +110,12 @@ Summary:
         Object {
           "changes": Array [
             Object {
+              "from": "django@1.6.1",
               "issueIds": Array [
                 "vuln-id",
               ],
               "success": true,
+              "to": "django@2.0.1",
               "userMessage": "Pinned django from 1.6.1 to 2.0.1",
             },
           ],
@@ -336,10 +340,12 @@ Object {
       Object {
         "changes": Array [
           Object {
+            "from": "django@1.6.1",
             "issueIds": Array [
               "vuln-id",
             ],
             "success": true,
+            "to": "django@2.0.1",
             "userMessage": "Upgraded django from 1.6.1 to 2.0.1",
           },
         ],
