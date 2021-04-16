@@ -1,74 +1,113 @@
-import * as fileParser from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
 import {
-  parseFiles,
+  FailedToDetectJsonFileError,
+  InvalidJsonFileError,
+  InvalidYamlFileError,
   UnsupportedFileTypeError,
+  parseFiles,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
-import * as k8sParser from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
+import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
 import {
-  HelmFileNotSupportedError,
-  MissingRequiredFieldsInKubernetesYamlError,
-} from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
-import {
-  expectedInvalidK8sFileParsingResult,
-  expectedKubernetesParsingResult,
+  expectedKubernetesYamlInvalidParsingResult,
+  expectedKubernetesYamlParsingResult,
   expectedTerraformParsingResult,
-  invalidK8sFileDataStub,
-  kubernetesFileDataStub,
+  expectedTerraformJsonParsingResult,
+  kubernetesYamlInvalidFileDataStub,
+  kubernetesYamlFileDataStub,
   terraformFileDataStub,
+  terraformPlanDataStub,
+  terraformPlanMissingFieldsDataStub,
+  kubernetesJsonFileDataStub,
+  expectedKubernetesJsonParsingResult,
+  multipleKubernetesYamlsFileDataStub,
+  expectedMultipleKubernetesYamlsParsingResult,
+  invalidYamlFileDataStub,
+  invalidJsonFileDataStub,
 } from './file-parser.fixtures';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { tryParsingKubernetesFile } from '../../../../dist/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
 import { IacFileTypes } from '../../../../dist/lib/iac/constants';
-import {
-  MissingRequiredFieldsInTerraformPlanError,
-  tryParsingTerraformPlan,
-} from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-plan-parser';
-import { iacFileDataWithoutResourceChanges } from './terraform-plan-parser.fixtures';
 
 const filesToParse: IacFileData[] = [
-  kubernetesFileDataStub,
+  kubernetesYamlFileDataStub,
+  kubernetesJsonFileDataStub,
   terraformFileDataStub,
+  terraformPlanDataStub,
+  multipleKubernetesYamlsFileDataStub,
 ];
 
 describe('parseFiles', () => {
-  it('parses iac files as expected', async () => {
+  it('parses multiple iac files as expected', async () => {
     const { parsedFiles, failedFiles } = await parseFiles(filesToParse);
-    expect(parsedFiles[0]).toEqual(expectedKubernetesParsingResult);
-    expect(parsedFiles[1]).toEqual(expectedTerraformParsingResult);
+    expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
+    expect(parsedFiles[1]).toEqual(expectedKubernetesJsonParsingResult);
+    expect(parsedFiles[2]).toEqual(expectedTerraformParsingResult);
+    expect(parsedFiles[3]).toEqual(expectedTerraformJsonParsingResult);
+    expect(parsedFiles[4]).toEqual(
+      expectedMultipleKubernetesYamlsParsingResult,
+    );
+    expect(parsedFiles[5]).toEqual({
+      ...expectedMultipleKubernetesYamlsParsingResult,
+      docId: 1,
+    });
     expect(failedFiles.length).toEqual(0);
   });
 
-  it('throws an error if a single file parse fails', async () => {
-    await expect(parseFiles([invalidK8sFileDataStub])).rejects.toThrow(
-      MissingRequiredFieldsInKubernetesYamlError,
-    );
+  it('throws an error for YAML file with missing fields for Kubernetes file', async () => {
+    await expect(
+      parseFiles([kubernetesYamlInvalidFileDataStub]),
+    ).rejects.toThrow(MissingRequiredFieldsInKubernetesYamlError);
+  });
+
+  it('throws an error for JSON file with missing fields for Kubernetes file', async () => {
+    await expect(
+      parseFiles([
+        {
+          ...kubernetesYamlInvalidFileDataStub,
+          fileType: 'json',
+        },
+      ]),
+    ).rejects.toThrow(FailedToDetectJsonFileError);
+  });
+
+  it('throws an error for JSON file with missing fields for Terraform Plan', async () => {
+    await expect(
+      parseFiles([terraformPlanMissingFieldsDataStub]),
+    ).rejects.toThrow(FailedToDetectJsonFileError);
   });
 
   it('does not throw an error if a file parse failed in a directory scan', async () => {
     const { parsedFiles, failedFiles } = await parseFiles([
-      kubernetesFileDataStub,
-      invalidK8sFileDataStub,
+      kubernetesYamlFileDataStub,
+      kubernetesYamlInvalidFileDataStub,
     ]);
     expect(parsedFiles.length).toEqual(1);
-    expect(parsedFiles[0]).toEqual(expectedKubernetesParsingResult);
+    expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
     expect(failedFiles.length).toEqual(1);
-    expect(failedFiles[0]).toEqual(expectedInvalidK8sFileParsingResult);
+    expect(failedFiles[0]).toEqual(expectedKubernetesYamlInvalidParsingResult);
   });
 
   it('throws an error for unsupported file types', async () => {
-    jest.spyOn(fileParser, 'tryParseIacFile').mockImplementation(() => {
-      throw UnsupportedFileTypeError;
-    });
+    await expect(
+      parseFiles([
+        {
+          fileContent: 'file.java',
+          filePath: 'path/to/file',
+          fileType: 'java' as IacFileTypes,
+        },
+      ]),
+    ).rejects.toThrow(UnsupportedFileTypeError);
+  });
 
-    const parseFilesFn = parseFiles([
-      {
-        fileContent: 'file.java',
-        filePath: 'path/to/file',
-        fileType: 'java' as IacFileTypes,
-      },
-    ]);
+  it('throws an error for invalid JSON file types', async () => {
+    await expect(parseFiles([invalidJsonFileDataStub])).rejects.toThrow(
+      InvalidJsonFileError,
+    );
+  });
 
-    await expect(parseFilesFn).rejects.toThrow(UnsupportedFileTypeError);
+  it('throws an error for invalid YAML file types', async () => {
+    await expect(parseFiles([invalidYamlFileDataStub])).rejects.toThrow(
+      InvalidYamlFileError,
+    );
   });
 
   it('throws an error for a Helm file', async () => {
@@ -78,7 +117,7 @@ describe('parseFiles', () => {
       fileType: 'yaml',
     };
 
-    expect(() => tryParsingKubernetesFile(helmFileData)).toThrowError(
+    expect(() => tryParsingKubernetesFile(helmFileData, [{}])).toThrowError(
       'Failed to parse Helm file',
     );
   });

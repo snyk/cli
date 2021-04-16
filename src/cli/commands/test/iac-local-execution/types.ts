@@ -187,9 +187,11 @@ export enum IaCErrorCodes {
 
   // file-parser errors
   UnsupportedFileTypeError = 1020,
+  InvalidJsonFileError = 1021,
+  InvalidYamlFileError = 1022,
+  FailedToDetectJsonFileError = 1023,
 
   // kubernetes-parser errors
-  FailedToParseKubernetesYamlError = 1030,
   MissingRequiredFieldsInKubernetesYamlError = 1031,
   FailedToParseHelmError = 1032,
 
@@ -197,8 +199,6 @@ export enum IaCErrorCodes {
   FailedToParseTerraformFileError = 1040,
 
   // terraform-plan-parser errors
-  FailedToParseTerraformPlanJsonError = 1050,
-  MissingRequiredFieldsInTerraformPlanError = 1051,
   FailedToExtractResourcesInTerraformPlanError = 1052,
 
   // file-scanner errors

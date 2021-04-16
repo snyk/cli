@@ -104,29 +104,18 @@ function extractResourcesForDeltaScan(
   });
 }
 
-function assertRequiredFields(terraformPlanJson: TerraformPlanJson): void {
-  if (
+export function isTerraformPlan(terraformPlanJson: TerraformPlanJson): boolean {
+  const missingRequiredFields =
     !terraformPlanJson.planned_values?.root_module ||
-    terraformPlanJson.resource_changes === undefined
-  ) {
-    throw new MissingRequiredFieldsInTerraformPlanError();
-  }
+    terraformPlanJson.resource_changes === undefined;
+  return !missingRequiredFields;
 }
 
 export function tryParsingTerraformPlan(
   terraformPlanFile: IacFileData,
+  terraformPlanJson: TerraformPlanJson,
   { isFullScan }: { isFullScan: boolean } = { isFullScan: false },
 ): Array<IacFileParsed> {
-  let terraformPlanJson;
-  try {
-    terraformPlanJson = JSON.parse(
-      terraformPlanFile.fileContent,
-    ) as TerraformPlanJson;
-  } catch (err) {
-    throw new FailedToParseTerraformPlanJsonError();
-  }
-
-  assertRequiredFields(terraformPlanJson);
   try {
     const scannableInput = isFullScan
       ? extractResourcesForFullScan(terraformPlanJson)
@@ -141,23 +130,6 @@ export function tryParsingTerraformPlan(
     ];
   } catch (err) {
     throw new FailedToExtractResourcesInTerraformPlanError();
-  }
-}
-
-export class FailedToParseTerraformPlanJsonError extends CustomError {
-  constructor(message?: string) {
-    super(message || 'Failed to parse Terraform plan JSON file');
-    this.code = IaCErrorCodes.FailedToParseTerraformPlanJsonError;
-    this.userMessage =
-      'The Terraform plan file provided contains malformed JSON please regenerate it and try again';
-  }
-}
-export class MissingRequiredFieldsInTerraformPlanError extends CustomError {
-  constructor(message?: string) {
-    super(message || 'Failed to parse Terraform plan JSON file');
-    this.code = IaCErrorCodes.MissingRequiredFieldsInTerraformPlanError;
-    this.userMessage =
-      'We failed to scan the provided Terraform plan file, it was expect to contain fields "planned_values.root_module" & "resource_changes", please contact support@snyk.io, if possible with a redacted version of the file';
   }
 }
 
