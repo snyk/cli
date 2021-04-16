@@ -13,15 +13,8 @@ import {
   projectTypeByFileType,
 } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
-import {
-  issuesToLineNumbers,
-  CloudConfigFileTypes,
-} from '@snyk/cloud-config-parser';
-import { UnsupportedFileTypeError } from './file-parser';
-import * as analytics from '../../../../lib/analytics';
-import * as Debug from 'debug';
+import { extractLineNumber } from './extract-line-number';
 
-const debug = Debug('iac-results-formatter');
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
 export function formatScanResults(
@@ -36,20 +29,6 @@ export function formatScanResults(
     );
   } catch (e) {
     throw new FailedToFormatResults();
-  }
-}
-
-function getFileTypeForLineNumber(fileType: string): CloudConfigFileTypes {
-  switch (fileType) {
-    case 'yaml':
-    case 'yml':
-      return CloudConfigFileTypes.YAML;
-    case 'json':
-      return CloudConfigFileTypes.JSON;
-    case 'tf':
-      return CloudConfigFileTypes.TF;
-    default:
-      throw new UnsupportedFileTypeError(fileType);
   }
 }
 
@@ -68,19 +47,7 @@ function formatScanResult(
         ? [`[DocId:${scanResult.docId}]`].concat(policy.msg.split('.'))
         : policy.msg.split('.');
 
-    let lineNumber: number;
-    try {
-      lineNumber = issuesToLineNumbers(
-        scanResult.fileContent,
-        getFileTypeForLineNumber(scanResult.fileType),
-        policy.msg.split('.'), // parser defaults to docId:0 and checks for the rest of the path
-      );
-    } catch {
-      const err = new FailedToExtractLineNumberError();
-      analytics.add('error-code', err.code);
-      debug('Parser library failed. Could not assign lineNumber to issue');
-      lineNumber = -1;
-    }
+    const lineNumber: number = extractLineNumber(scanResult, policy);
 
     return {
       ...policy,
@@ -160,15 +127,5 @@ export class FailedToFormatResults extends CustomError {
     this.code = IaCErrorCodes.FailedToFormatResults;
     this.userMessage =
       'We failed printing the results, please contact support@snyk.io';
-  }
-}
-
-class FailedToExtractLineNumberError extends CustomError {
-  constructor(message?: string) {
-    super(
-      message || 'Parser library failed. Could not assign lineNumber to issue',
-    );
-    this.code = IaCErrorCodes.FailedToExtractLineNumberError;
-    this.userMessage = ''; // Not a user facing error.
   }
 }
