@@ -30,6 +30,10 @@ describe('isRequirementsTxtManifest', () => {
   it('dev.txt is requirements.txt manifest', () => {
     expect(isRequirementsTxtManifest('dev.txt')).toBeTruthy();
   });
+
+  it('lib/prod.txt is requirements.txt manifest', () => {
+    expect(isRequirementsTxtManifest('dev.txt')).toBeTruthy();
+  });
   it('requirements.txt is correctly classed as requirements.txt manifest', () => {
     expect(isRequirementsTxtManifest('requirements.txt')).toBeTruthy();
   });

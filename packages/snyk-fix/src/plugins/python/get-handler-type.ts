@@ -1,5 +1,3 @@
-import * as micromatch from 'micromatch';
-
 import { EntityToFix } from '../../types';
 import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
 
@@ -18,11 +16,5 @@ export function getHandlerType(
 }
 
 export function isRequirementsTxtManifest(targetFile: string): boolean {
-  return micromatch.isMatch(
-    targetFile,
-    // micromatch needs **/* to match filenames that may include folders
-    ['*.txt'].map(
-      (f) => '**/' + f,
-    ),
-  );
+  return targetFile.endsWith('.txt');
 }
