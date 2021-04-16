@@ -1,4 +1,5 @@
 import { DepGraphData } from '@snyk/dep-graph';
+import { SEVERITY } from '../snyk-test/common';
 import { RemediationChanges } from '../snyk-test/legacy';
 import { Options } from '../types';
 
@@ -63,7 +64,7 @@ export interface Issue {
 export interface IssuesData {
   [issueId: string]: {
     id: string;
-    severity: string;
+    severity: SEVERITY;
     title: string;
   };
 }
