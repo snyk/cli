@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import * as snykFix from '../../../../../src';
-import { selectFileForPinning } from '../../../../../src/plugins/python/handlers/pip-requirements';
-import { TestResult } from '../../../../../src/types';
+import * as snykFix from '../../../../../../src';
+import { selectFileForPinning } from '../../../../../../src/plugins/python/handlers/pip-requirements';
+import { TestResult } from '../../../../../../src/types';
 import {
   generateScanResult,
   generateTestResult,
-} from '../../../../helpers/generate-entity-to-fix';
+} from '../../../../../helpers/generate-entity-to-fix';
 
 describe('selectFileForPinning', () => {
   const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
