@@ -1,8 +1,10 @@
 import * as chalk from 'chalk';
 
 import { FixHandlerResultByPlugin } from '../../plugins/types';
-import { ErrorsByEcoSystem } from '../../types';
+import { ErrorsByEcoSystem, Issue, TestResult } from '../../types';
 import { convertErrorToUserMessage } from '../errors/error-to-user-message';
+import { hasFixableIssues } from '../issues/fixable-issues';
+import { getIssueCountBySeverity } from '../issues/issues-by-severity';
 import { formatChangesSummary } from './format-successful-item';
 import { formatUnresolved } from './format-unresolved-item';
 export const PADDING_SPACE = '  '; // 2 spaces
@@ -22,9 +24,18 @@ export async function showResultsSummary(
     summary: overallSummary,
     count: changedCount,
   } = generateFixedAndFailedSummary(resultsByPlugin, exceptionsByScanType);
+
+  const vulnsSummary = generateIssueSummary(
+    resultsByPlugin,
+    exceptionsByScanType,
+  );
   return `\n${successfulFixesSummary}${
     unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
-  }${unresolvedCount || changedCount ? `\n\n${overallSummary}` : ''}`;
+  }${
+    unresolvedCount || changedCount
+      ? `\n\n${overallSummary}\n${vulnsSummary}`
+      : ''
+  }`;
 }
 
 export function generateSuccessfulFixesSummary(
@@ -128,6 +139,16 @@ export function calculateFixed(
   return fixed;
 }
 
+export function calculateFixedIssues(
+  resultsByPlugin: FixHandlerResultByPlugin,
+): number {
+  let fixed = 0;
+  for (const plugin of Object.keys(resultsByPlugin)) {
+    fixed += resultsByPlugin[plugin].succeeded.map((i) => i.changes).length;
+  }
+  return fixed;
+}
+
 export function calculateFailed(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
@@ -145,4 +166,124 @@ export function calculateFailed(
     }
   }
   return failed;
+}
+
+export function formatIssueCountBySeverity({
+  critical,
+  high,
+  medium,
+  low,
+}: {
+  [severity: string]: number;
+}): string {
+  const summary: string[] = [];
+  if (critical && critical > 0) {
+    summary.push(
+      severitiesColourMapping.critical.colorFunc(`${critical} Critical`),
+    );
+  }
+  if (high && high > 0) {
+    summary.push(severitiesColourMapping.high.colorFunc(`${high} High`));
+  }
+  if (medium && medium > 0) {
+    summary.push(severitiesColourMapping.medium.colorFunc(`${medium} Medium`));
+  }
+  if (low && low > 0) {
+    summary.push(severitiesColourMapping.low.colorFunc(`${low} Low`));
+  }
+
+  return summary.join(' | ');
+}
+
+export const severitiesColourMapping: {
+  [severity: string]: {
+    colorFunc: (arg: string) => string;
+  };
+} = {
+  low: {
+    colorFunc(text) {
+      return chalk.blueBright(text);
+    },
+  },
+  medium: {
+    colorFunc(text) {
+      return chalk.yellowBright(text);
+    },
+  },
+  high: {
+    colorFunc(text) {
+      return chalk.redBright(text);
+    },
+  },
+  critical: {
+    colorFunc(text) {
+      return chalk.magentaBright(text);
+    },
+  },
+};
+
+export const defaultSeverityColor = {
+  colorFunc(text) {
+    return chalk.grey(text);
+  },
+};
+
+export function getSeveritiesColour(severity: string) {
+  return severitiesColourMapping[severity] || defaultSeverityColor;
+}
+
+export function generateIssueSummary(
+  resultsByPlugin: FixHandlerResultByPlugin,
+  exceptionsByScanType: ErrorsByEcoSystem,
+): string {
+  const testResults: TestResult[] = getTestResults(
+    resultsByPlugin,
+    exceptionsByScanType,
+  );
+
+  const issueData = testResults.map((i) => i.issuesData);
+  const bySeverity = getIssueCountBySeverity(issueData);
+  const issuesBySeverityMessage = formatIssueCountBySeverity({
+    critical: bySeverity.critical.length,
+    high: bySeverity.high.length,
+    medium: bySeverity.medium.length,
+    low: bySeverity.low.length,
+  });
+
+  // can't use .flat() or .flatMap() because it's not supported in Node 10
+  const issues: Issue[] = [];
+  for (const result of testResults) {
+    issues.push(...result.issues);
+  }
+
+  let totalIssues = `${chalk.bold(issues.length)} total issues`;
+  if (issuesBySeverityMessage) {
+    totalIssues += `: ${issuesBySeverityMessage}`;
+  }
+
+  const { count: fixableCount } = hasFixableIssues(testResults);
+  const fixableIssues = `${chalk.bold(fixableCount)} fixable issues`;
+
+  return `${PADDING_SPACE}${totalIssues}\n${PADDING_SPACE}${fixableIssues}`;
+}
+
+function getTestResults(
+  resultsByPlugin: FixHandlerResultByPlugin,
+  exceptionsByScanType: ErrorsByEcoSystem,
+): TestResult[] {
+  const testResults: TestResult[] = [];
+  for (const plugin of Object.keys(resultsByPlugin)) {
+    const { skipped, failed, succeeded } = resultsByPlugin[plugin];
+    testResults.push(...skipped.map((i) => i.original.testResult));
+    testResults.push(...failed.map((i) => i.original.testResult));
+    testResults.push(...succeeded.map((i) => i.original.testResult));
+  }
+
+  if (Object.keys(exceptionsByScanType).length) {
+    for (const ecosystem of Object.keys(exceptionsByScanType)) {
+      const unresolved = exceptionsByScanType[ecosystem];
+      testResults.push(...unresolved.originals.map((i) => i.testResult));
+    }
+  }
+  return testResults;
 }

@@ -1,5 +1,5 @@
 import { DepGraphData } from '@snyk/dep-graph';
-import { EntityToFix, ScanResult, TestResult, FixInfo } from '../../src/types';
+import { EntityToFix, ScanResult, TestResult, FixInfo, SEVERITY } from '../../src/types';
 
 export function generateEntityToFix(
   type: string,
@@ -47,13 +47,13 @@ export function generateTestResult(): TestResult {
       {
         pkgName: 'package@version',
         issueId,
-        fixInfo: ({} as unknown) as FixInfo,
+        fixInfo: {} as FixInfo,
       },
     ],
     issuesData: {
       'vuln-id': {
         id: issueId,
-        severity: 'high',
+        severity: SEVERITY.HIGH,
         title: 'Fake vuln',
       },
     },
@@ -66,7 +66,7 @@ export function generateTestResult(): TestResult {
       pin: {
         'django@1.6.1': {
           upgradeTo: 'django@2.0.1',
-          vulns: [],
+          vulns: ['vuln-id'],
           isTransitive: false,
         },
       },

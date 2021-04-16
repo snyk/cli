@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as snykFix from '../../../../../../src';
 import { selectFileForPinning } from '../../../../../../src/plugins/python/handlers/pip-requirements';
-import { TestResult } from '../../../../../../src/types';
+import { SEVERITY, TestResult } from '../../../../../../src/types';
 import {
   generateScanResult,
   generateTestResult,
@@ -862,6 +862,35 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     ];
     const testResult = {
       ...generateTestResult(),
+      issues: [
+        {
+          pkgName: 'django@1.6.1',
+          issueId: 'SNYK-1',
+          fixInfo: {
+          },
+        },
+        {
+          pkgName: 'Jinja2@2.7.2',
+          issueId: 'SNYK-2',
+          fixInfo: {
+            upgradePaths: [],
+            isPatchable: false,
+            nearestFixedInVersion: '1.2.3',
+          },
+        },
+      ],
+      issuesData: {
+        'SNYK-1': {
+          id: 'SNYK-1',
+          severity: SEVERITY.HIGH,
+          title: 'Django vuln',
+        },
+        'SNYK-2': {
+          id: 'SNYK-2',
+          severity: SEVERITY.MEDIUM,
+          title: 'Jinja vuln',
+        },
+      },
       remediation: {
         unresolved: [],
         upgrade: {},
@@ -870,12 +899,12 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         pin: {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
-            vulns: [],
+            vulns: ['SNYK-1'],
             isTransitive: false,
           },
           'Jinja2@2.7.2': {
             upgradeTo: 'Jinja2@2.7.3',
-            vulns: [],
+            vulns: ['SNYK-2'],
             isTransitive: true,
           },
         },
@@ -998,6 +1027,55 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     ];
     const testResult = {
       ...generateTestResult(),
+      issues: [
+        {
+          pkgName: 'django@1.6.1',
+          issueId: 'SNYK-1',
+          fixInfo: {
+            upgradePaths: [],
+            isPatchable: false,
+            nearestFixedInVersion: '1.2.3',
+            isPinnable: true,
+          },
+        },
+        {
+          pkgName: 'Jinja2@2.7.2',
+          issueId: 'SNYK-2',
+          fixInfo: {
+            upgradePaths: [],
+            isPatchable: false,
+            nearestFixedInVersion: '1.2.3',
+            isPinnable: true,
+          },
+        },
+        {
+          pkgName: 'transitive@1.0.1',
+          issueId: 'SNYK-3',
+          fixInfo: {
+            upgradePaths: [],
+            isPatchable: false,
+            nearestFixedInVersion: '1.2.3',
+            isPinnable: true,
+          },
+        },
+      ],
+      issuesData: {
+        'SNYK-1': {
+          id: 'SNYK-1',
+          severity: SEVERITY.HIGH,
+          title: 'Django vuln',
+        },
+        'SNYK-2': {
+          id: 'SNYK-2',
+          severity: SEVERITY.MEDIUM,
+          title: 'Jinja vuln',
+        },
+        'SNYK-3': {
+          id: 'SNYK-3',
+          severity: SEVERITY.LOW,
+          title: 'Transitive vuln',
+        },
+      },
       remediation: {
         unresolved: [],
         upgrade: {},
@@ -1006,17 +1084,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         pin: {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
-            vulns: [],
+            vulns: ['SNYK-1'],
             isTransitive: false,
           },
           'Jinja2@2.7.2': {
             upgradeTo: 'Jinja2@2.7.3',
-            vulns: [],
+            vulns: ['SNYK-2'],
             isTransitive: true,
           },
           'transitive@1.0.1': {
             upgradeTo: 'transitive@2.0.1',
-            vulns: [],
+            vulns: ['SNYK-3'],
             isTransitive: true,
           },
         },

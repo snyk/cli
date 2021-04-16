@@ -41,7 +41,9 @@ Object {
                 "django@1.6.1": Object {
                   "isTransitive": false,
                   "upgradeTo": "django@2.0.1",
-                  "vulns": Array [],
+                  "vulns": Array [
+                    "vuln-id",
+                  ],
                 },
               },
               "unresolved": Array [],
@@ -68,7 +70,9 @@ Unresolved items:
 Summary:
 
   1 items were not fixed
-  0 items were successfully fixed",
+  0 items were successfully fixed
+  1 total issues: 1 High
+  1 fixable issues",
   "meta": Object {
     "failed": 1,
     "fixed": 0,
@@ -89,7 +93,9 @@ Successful fixes:
 Summary:
 
   0 items were not fixed
-  1 items were successfully fixed",
+  1 items were successfully fixed
+  1 total issues: 1 High
+  1 fixable issues",
   "meta": Object {
     "failed": 0,
     "fixed": 1,
@@ -142,7 +148,9 @@ Summary:
                   "django@1.6.1": Object {
                     "isTransitive": false,
                     "upgradeTo": "django@2.0.1",
-                    "vulns": Array [],
+                    "vulns": Array [
+                      "vuln-id",
+                    ],
                   },
                 },
                 "unresolved": Array [],
@@ -178,7 +186,9 @@ Unresolved items:
 Summary:
 
   1 items were not fixed
-  1 items were successfully fixed",
+  1 items were successfully fixed
+  2 total issues: 2 High
+  2 fixable issues",
   "meta": Object {
     "failed": 1,
     "fixed": 1,
@@ -224,7 +234,9 @@ Summary:
                   "django@1.6.1": Object {
                     "isTransitive": false,
                     "upgradeTo": "django@2.0.1",
-                    "vulns": Array [],
+                    "vulns": Array [
+                      "vuln-id",
+                    ],
                   },
                 },
                 "unresolved": Array [],
@@ -283,7 +295,9 @@ Summary:
                   "django@1.6.1": Object {
                     "isTransitive": false,
                     "upgradeTo": "django@2.0.1",
-                    "vulns": Array [],
+                    "vulns": Array [
+                      "vuln-id",
+                    ],
                   },
                 },
                 "unresolved": Array [],
@@ -353,7 +367,9 @@ Object {
                 "django@1.6.1": Object {
                   "isTransitive": false,
                   "upgradeTo": "django@2.0.1",
-                  "vulns": Array [],
+                  "vulns": Array [
+                    "vuln-id",
+                  ],
                 },
               },
               "unresolved": Array [],
