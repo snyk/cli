@@ -98,7 +98,11 @@ async function runSnykTestLegacy(
           ? testResultForPath
           : [testResultForPath]),
       );
-      const newRes = convertLegacyTestResultToFixEntities(testResults, path);
+      const newRes = convertLegacyTestResultToFixEntities(
+        testResults,
+        path,
+        options,
+      );
       results.push(...newRes);
       stdOutSpinner.stopAndPersist({
         text: spinnerMessage,

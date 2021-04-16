@@ -4,17 +4,21 @@ import { convertLegacyTestResultToNew } from './convert-legacy-test-result-to-ne
 import { convertLegacyTestResultToScanResult } from './convert-legacy-test-result-to-scan-result';
 import { TestResult } from '../../../lib/snyk-test/legacy';
 import { EntityToFix } from '@snyk/fix';
+import { Options, TestOptions } from '../../../lib/types';
 
 export function convertLegacyTestResultToFixEntities(
   testResults: (TestResult | TestResult[]) | Error,
   root: string,
+  options: Partial<Options & TestOptions>,
 ): EntityToFix[] {
   if (testResults instanceof Error) {
     return [];
   }
   const oldResults = Array.isArray(testResults) ? testResults : [testResults];
   return oldResults.map((res) => ({
+    options,
     workspace: {
+      path: root,
       readFile: async (path: string) => {
         return fs.readFileSync(pathLib.resolve(root, path), 'utf8');
       },
