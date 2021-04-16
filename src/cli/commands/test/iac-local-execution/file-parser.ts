@@ -57,10 +57,12 @@ function generateFailedParsedFile(
   };
 }
 
-function parseIacFileData(fileData: IacFileData): any[] {
+function parseYAMLOrJSONFileData(fileData: IacFileData): any[] {
   let yamlDocuments;
 
   try {
+    // the YAML library can parse both YAML and JSON content, as well as content with singe/multiple YAMLs
+    // by using this library we don't have to disambiguate between these different contents ourselves
     yamlDocuments = YAML.safeLoadAll(fileData.fileContent);
   } catch (e) {
     if (fileData.fileType === 'json') {
@@ -78,11 +80,11 @@ export function tryParseIacFile(fileData: IacFileData): IacFileParsed[] {
   switch (fileData.fileType) {
     case 'yaml':
     case 'yml': {
-      const parsedIacFile = parseIacFileData(fileData);
+      const parsedIacFile = parseYAMLOrJSONFileData(fileData);
       return tryParsingKubernetesFile(fileData, parsedIacFile);
     }
     case 'json': {
-      const parsedIacFile = parseIacFileData(fileData);
+      const parsedIacFile = parseYAMLOrJSONFileData(fileData);
       // the Kubernetes file can have more than one JSON object in it
       // but the Terraform plan can only have one
       if (parsedIacFile.length === 1 && isTerraformPlan(parsedIacFile[0])) {
