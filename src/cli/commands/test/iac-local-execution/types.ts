@@ -59,6 +59,17 @@ export type FormattedResult = {
   projectName: string;
 };
 
+export interface CustomPoliciesWithMeta {
+  meta: TestMeta;
+  customPolicies: Record<string, string>;
+}
+export interface TestMeta {
+  isPrivate: boolean;
+  isLicensesEnabled: boolean;
+  ignoreSettings: object;
+  org: string;
+}
+
 export interface OpaWasmInstance {
   evaluate: (data: Record<string, any>) => { results: PolicyMetadata[] };
   setData: (data: Record<string, any>) => void;
