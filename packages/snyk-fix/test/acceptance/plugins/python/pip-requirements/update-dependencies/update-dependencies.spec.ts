@@ -833,10 +833,16 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       {
         success: true,
         userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: [],
       },
       {
         success: true,
         userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${basePath})`,
+        from: 'Jinja2@2.7.2',
+        to: 'Jinja2@2.7.3',
+        issueIds: [],
       },
     ]);
   });
@@ -866,17 +872,12 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         {
           pkgName: 'django@1.6.1',
           issueId: 'SNYK-1',
-          fixInfo: {
-          },
+          fixInfo: {},
         },
         {
           pkgName: 'Jinja2@2.7.2',
           issueId: 'SNYK-2',
-          fixInfo: {
-            upgradePaths: [],
-            isPatchable: false,
-            nearestFixedInVersion: '1.2.3',
-          },
+          fixInfo: {},
         },
       ],
       issuesData: {
@@ -993,14 +994,23 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     );
     expect(result.results.python.succeeded[0].changes).toEqual([
       {
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: ['SNYK-1'],
         success: true,
         userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
       },
       {
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: ['SNYK-1'],
         success: true,
         userMessage: `Upgraded Django from 1.6.1 to 2.0.1 (upgraded in ${coreRequirementsPath})`,
       },
       {
+        from: 'Jinja2@2.7.2',
+        to: 'Jinja2@2.7.3',
+        issueIds: ['SNYK-2'],
         success: true,
         userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${libRequirementsPath})`,
       },
@@ -1116,7 +1126,6 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       quiet: true,
       stripAnsi: true,
     });
-
     const requirements = fs.readFileSync(
       pathLib.resolve(
         workspacesPath,
@@ -1177,18 +1186,30 @@ describe('fix *req*.txt / *.txt Python projects', () => {
 
     expect(result.results.python.succeeded[0].changes).toEqual([
       {
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: ['SNYK-1'],
         success: true,
         userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
       },
       {
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: ['SNYK-1'],
         success: true,
         userMessage: `Upgraded Django from 1.6.1 to 2.0.1 (upgraded in ${constraintsPath})`,
       },
       {
+        from: 'Jinja2@2.7.2',
+        to: 'Jinja2@2.7.3',
+        issueIds: ['SNYK-2'],
         success: true,
         userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${libRequirementsPath})`,
       },
       {
+        from: 'transitive@1.0.1',
+        to: 'transitive@2.0.1',
+        issueIds: ['SNYK-3'],
         success: true,
         userMessage: `Pinned transitive from 1.0.1 to 2.0.1 (pinned in ${constraintsPath})`,
       },
@@ -1196,6 +1217,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     expect(result.results.python.succeeded[1].changes).toEqual([
       {
         success: true,
+        issueIds: ['SNYK-1', 'SNYK-2', 'SNYK-3'],
         userMessage: 'Fixed through app-with-constraints/requirements.txt',
       },
     ]);

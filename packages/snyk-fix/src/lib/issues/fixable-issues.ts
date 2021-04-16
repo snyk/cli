@@ -41,5 +41,5 @@ function getUpgradableIssues(
     issues.push(...updates[id].vulns);
   }
 
-  return new Set(issues).size;
+  return issues.length;
 }

@@ -24,7 +24,6 @@ export function updateDependencies(
 ): {
   updatedManifest: string;
   changes: FixChangesSummary[];
-  appliedRemediation: string[];
 } {
   const {
     requirements,
@@ -38,22 +37,21 @@ export function updateDependencies(
   }
   debug('Finished parsing manifest');
 
-  const {
-    updatedRequirements,
-    changes: upgradedChanges,
-    appliedRemediation,
-  } = generateUpgrades(requirements, updates, referenceFileInChanges);
+  const { updatedRequirements, changes: upgradedChanges } = generateUpgrades(
+    requirements,
+    updates,
+    referenceFileInChanges,
+  );
   debug('Finished generating upgrades to apply');
 
   let pinnedRequirements: string[] = [];
   let pinChanges: FixChangesSummary[] = [];
-  let appliedPinsRemediation: string[] = [];
   if (!directUpgradesOnly) {
-    ({
-      pinnedRequirements,
-      changes: pinChanges,
-      appliedRemediation: appliedPinsRemediation,
-    } = generatePins(requirements, updates, referenceFileInChanges));
+    ({ pinnedRequirements, changes: pinChanges } = generatePins(
+      requirements,
+      updates,
+      referenceFileInChanges,
+    ));
     debug('Finished generating pins to apply');
   }
 
@@ -72,6 +70,5 @@ export function updateDependencies(
   return {
     updatedManifest,
     changes: [...pinChanges, ...upgradedChanges],
-    appliedRemediation: [...appliedPinsRemediation, ...appliedRemediation],
   };
 }

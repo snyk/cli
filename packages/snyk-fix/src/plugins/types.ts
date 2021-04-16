@@ -24,5 +24,6 @@ export interface FixHandlerResultByPlugin {
 export interface FixedCache {
   [filePath: string]: {
     fixedIn: string;
+    issueIds: string[];
   };
 }
