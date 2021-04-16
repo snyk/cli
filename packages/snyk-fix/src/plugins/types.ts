@@ -1,6 +1,5 @@
 import {
   EntityToFix,
-  FixChangesSummary,
   FixOptions,
   WithError,
   WithFixChangesApplied,
