@@ -42,7 +42,9 @@ export async function pythonFix(
     Object.keys(entitiesPerType),
     async (projectType) => {
       const projectsToFix: EntityToFix[] = entitiesPerType[projectType];
-
+      if (!projectsToFix.length) {
+        return;
+      }
       const processingMessage = `Processing ${projectsToFix.length} ${projectType} items`;
       spinner.text = processingMessage;
       spinner.render();
