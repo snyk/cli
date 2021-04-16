@@ -3,11 +3,12 @@ import * as pathLib from 'path';
 import { convertLegacyTestResultToNew } from './convert-legacy-test-result-to-new';
 import { convertLegacyTestResultToScanResult } from './convert-legacy-test-result-to-scan-result';
 import { TestResult } from '../../../lib/snyk-test/legacy';
+import { EntityToFix } from '@snyk/fix';
 
 export function convertLegacyTestResultToFixEntities(
   testResults: (TestResult | TestResult[]) | Error,
   root: string,
-): any {
+): EntityToFix[] {
   if (testResults instanceof Error) {
     return [];
   }
