@@ -1,5 +1,5 @@
-import { generatePins } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/generate-pins';
-import { parseRequirementsFile } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
+import { generatePins } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/generate-pins';
+import { parseRequirementsFile } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
 
 describe('generatePins', () => {
   it('returns empty if no pins could be generated', () => {

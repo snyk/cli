@@ -1,5 +1,5 @@
-import { applyUpgrades } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/apply-upgrades';
-import { parseRequirementsFile } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
+import { applyUpgrades } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/apply-upgrades';
+import { parseRequirementsFile } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
 
 describe('applyUpgrades', () => {
   it('returns original requirements if no upgrades available', () => {

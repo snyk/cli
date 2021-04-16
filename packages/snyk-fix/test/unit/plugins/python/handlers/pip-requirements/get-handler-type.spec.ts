@@ -1,9 +1,9 @@
 import {
   getHandlerType,
   isRequirementsTxtManifest,
-} from '../../../../../src/plugins/python/get-handler-type';
-import { SUPPORTED_HANDLER_TYPES } from '../../../../../src/plugins/python/supported-handler-types';
-import { generateEntityToFix } from '../../../../helpers/generate-entity-to-fix';
+} from '../../../../../../src/plugins/python/get-handler-type';
+import { SUPPORTED_HANDLER_TYPES } from '../../../../../../src/plugins/python/supported-handler-types';
+import { generateEntityToFix } from '../../../../../helpers/generate-entity-to-fix';
 
 describe('getHandlerType', () => {
   it('pip + requirements.txt is supported project type `requirements.txt`', () => {
