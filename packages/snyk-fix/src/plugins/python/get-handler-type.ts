@@ -18,3 +18,7 @@ export function getHandlerType(
 export function isRequirementsTxtManifest(targetFile: string): boolean {
   return targetFile.endsWith('.txt');
 }
+
+export function isPipfileManifest(targetFile: string): boolean {
+  return targetFile.endsWith('Pipfile') || targetFile.endsWith('Pipfile.lock');
+}

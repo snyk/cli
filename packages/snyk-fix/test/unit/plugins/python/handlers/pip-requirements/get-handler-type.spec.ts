@@ -1,5 +1,6 @@
 import {
   getHandlerType,
+  isPipfileManifest,
   isRequirementsTxtManifest,
 } from '../../../../../../src/plugins/python/get-handler-type';
 import { SUPPORTED_HANDLER_TYPES } from '../../../../../../src/plugins/python/supported-handler-types';
@@ -40,5 +41,18 @@ describe('isRequirementsTxtManifest', () => {
 
   it('package.json is correctly classed as NOT a requirements.txt manifest', () => {
     expect(isRequirementsTxtManifest('package.json')).toBeFalsy();
+  });
+});
+
+describe('isPipfileManifest', () => {
+  it('dev.txt is NOT a Pipfile file', () => {
+    expect(isPipfileManifest('dev.txt')).toBeFalsy();
+  });
+  it('path/to/Pipfile is Pipfile file', () => {
+    expect(isPipfileManifest('path/to/Pipfile')).toBeTruthy();
+  });
+
+  it('path/to/Pipfile.lock is Pipfile file', () => {
+    expect(isPipfileManifest('lib/Pipfile.lock')).toBeTruthy();
   });
 });
