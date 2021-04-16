@@ -13,9 +13,7 @@ import {
 } from '../../../../types';
 import { FixedCache, PluginFixResponse } from '../../../types';
 import { updateDependencies } from './update-dependencies';
-import { MissingRemediationDataError } from '../../../../lib/errors/missing-remediation-data';
-import { MissingFileNameError } from '../../../../lib/errors/missing-file-name';
-import { partitionByFixable } from './is-supported';
+import { partitionByFixable } from './../is-supported';
 import { NoFixesCouldBeAppliedError } from '../../../../lib/errors/no-fixes-applied';
 import { extractProvenance } from './extract-version-provenance';
 import {
@@ -24,6 +22,7 @@ import {
 } from './update-dependencies/requirements-file-parser';
 import { standardizePackageName } from './update-dependencies/standardize-package-name';
 import { containsRequireDirective } from './contains-require-directive';
+import { validateRequiredData } from '../valdidate-required-data';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -60,28 +59,6 @@ export async function pipRequirementsTxt(
     handlerResult.skipped.push(...skipped);
   }
   return handlerResult;
-}
-
-export function getRequiredData(
-  entity: EntityToFix,
-): {
-  remediation: RemediationChanges;
-  targetFile: string;
-  workspace: Workspace;
-} {
-  const { remediation } = entity.testResult;
-  if (!remediation) {
-    throw new MissingRemediationDataError();
-  }
-  const { targetFile } = entity.scanResult.identity;
-  if (!targetFile) {
-    throw new MissingFileNameError();
-  }
-  const { workspace } = entity;
-  if (!workspace) {
-    throw new NoFixesCouldBeAppliedError();
-  }
-  return { targetFile, remediation, workspace };
 }
 
 async function fixAll(
@@ -189,7 +166,7 @@ export async function applyAllFixes(
   changes: FixChangesSummary[];
   fixedMeta: { [filePath: string]: FixChangesSummary[] };
 }> {
-  const { remediation, targetFile: entryFileName, workspace } = getRequiredData(
+  const { remediation, targetFile: entryFileName, workspace } = validateRequiredData(
     entity,
   );
   const fixedMeta: {

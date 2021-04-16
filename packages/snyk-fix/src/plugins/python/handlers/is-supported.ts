@@ -1,4 +1,4 @@
-import { EntityToFix, WithUserMessage } from '../../../../types';
+import { EntityToFix, WithUserMessage } from '../../../types';
 
 interface Supported {
   supported: true;

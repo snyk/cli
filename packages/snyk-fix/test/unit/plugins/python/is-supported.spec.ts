@@ -1,4 +1,4 @@
-import { isSupported } from '../../../../src/plugins/python/handlers/pip-requirements/is-supported';
+import { isSupported } from '../../../../src/plugins/python/handlers/is-supported';
 import { generateEntityToFix } from '../../../helpers/generate-entity-to-fix';
 
 describe('isSupported', () => {
