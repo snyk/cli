@@ -80,7 +80,7 @@
     "@snyk/graphlib": "^2.1.9-patch.3",
     "@snyk/inquirer": "^7.3.3-patch",
     "@snyk/snyk-cocoapods-plugin": "2.5.2",
-    "@snyk/snyk-hex-plugin": "1.1.1",
+    "@snyk/snyk-hex-plugin": "1.1.2",
     "abbrev": "^1.1.1",
     "ansi-escapes": "3.2.0",
     "chalk": "^2.4.2",
