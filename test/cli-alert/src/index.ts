@@ -85,6 +85,8 @@ async function sendPagerDuty() {
           source: 'Snyk CLI Smoke tests',
           severity: 'warning',
         },
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        dedup_key: 'b0209ed890d34eb787b3ed58f31553cc',
       },
     });
     console.log(res);
