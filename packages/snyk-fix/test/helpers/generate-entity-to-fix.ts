@@ -15,7 +15,7 @@ export function generateEntityToFix(
 
 function generateWorkspace(contents: string, path?: string) {
   return {
-    path: path || 'src/lib',
+    path: path || '.',
     readFile: async () => {
       return contents;
     },

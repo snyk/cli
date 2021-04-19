@@ -23,6 +23,7 @@ import {
 import { standardizePackageName } from './update-dependencies/standardize-package-name';
 import { containsRequireDirective } from './contains-require-directive';
 import { validateRequiredData } from '../valdidate-required-data';
+import { formatDisplayName } from '../../../../lib/output-formatters/format-display-name';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -87,7 +88,13 @@ async function fixAll(
           changes: [
             {
               success: true,
-              userMessage: `Fixed through ${fixedCache[filePath].fixedIn}`,
+              userMessage: `Fixed through ${formatDisplayName(
+                entity.workspace.path,
+                {
+                  type: entity.scanResult.identity.type,
+                  targetFile: fixedCache[filePath].fixedIn,
+                },
+              )}`,
               issueIds: getFixedEntityIssues(
                 fixedCache[filePath].issueIds,
                 entity.testResult.issues,
@@ -135,13 +142,17 @@ export async function fixIndividualRequirementsTxt(
   options: FixOptions,
   directUpgradesOnly: boolean,
 ): Promise<{ changes: FixChangesSummary[] }> {
+  const entryFilePath = pathLib.normalize(pathLib.join(dir, entryFileName));
   const fullFilePath = pathLib.normalize(pathLib.join(dir, fileName));
   const { updatedManifest, changes } = updateDependencies(
     parsedRequirements,
     remediation.pin,
     directUpgradesOnly,
-    pathLib.normalize(pathLib.join(dir, entryFileName)) !== fullFilePath
-      ? fullFilePath
+    entryFilePath !== fullFilePath
+      ? formatDisplayName(workspace.path, {
+          type: 'pip',
+          targetFile: fullFilePath,
+        })
       : undefined,
   );
 
@@ -166,9 +177,11 @@ export async function applyAllFixes(
   changes: FixChangesSummary[];
   fixedMeta: { [filePath: string]: FixChangesSummary[] };
 }> {
-  const { remediation, targetFile: entryFileName, workspace } = validateRequiredData(
-    entity,
-  );
+  const {
+    remediation,
+    targetFile: entryFileName,
+    workspace,
+  } = validateRequiredData(entity);
   const fixedMeta: {
     [filePath: string]: FixChangesSummary[];
   } = {};

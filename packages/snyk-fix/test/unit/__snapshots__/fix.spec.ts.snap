@@ -51,7 +51,7 @@ Object {
             },
           },
           "workspace": Object {
-            "path": "src/lib",
+            "path": ".",
             "readFile": [Function],
             "writeFile": [Function],
           },
@@ -169,7 +169,7 @@ Summary:
               },
             },
             "workspace": Object {
-              "path": "src/lib",
+              "path": ".",
               "readFile": [Function],
               "writeFile": [Function],
             },
@@ -260,7 +260,7 @@ Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the iss
               },
             },
             "workspace": Object {
-              "path": "src/lib",
+              "path": ".",
               "readFile": [Function],
               "writeFile": [Function],
             },
@@ -327,7 +327,7 @@ Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the iss
               },
             },
             "workspace": Object {
-              "path": "src/lib",
+              "path": ".",
               "readFile": [Function],
               "writeFile": [Function],
             },
@@ -405,7 +405,7 @@ Object {
             },
           },
           "workspace": Object {
-            "path": "src/lib",
+            "path": ".",
             "readFile": [Function],
             "writeFile": [MockFunction] {
               "calls": Array [
