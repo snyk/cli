@@ -75,7 +75,7 @@
     "@snyk/cloud-config-parser": "^1.9.2",
     "@snyk/code-client": "3.4.1",
     "@snyk/dep-graph": "^1.27.1",
-    "@snyk/fix": "1.547.0",
+    "@snyk/fix": "1.554.0",
     "@snyk/gemfile": "1.2.0",
     "@snyk/graphlib": "^2.1.9-patch.3",
     "@snyk/inquirer": "^7.3.3-patch",
