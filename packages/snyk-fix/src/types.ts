@@ -190,6 +190,7 @@ export interface EntityToFix {
 export interface WithError<Original> {
   original: Original;
   error: CustomError;
+  tip?: string;
 }
 
 export interface WithFixChangesApplied<Original> {

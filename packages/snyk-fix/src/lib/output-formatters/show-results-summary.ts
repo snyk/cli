@@ -92,7 +92,11 @@ export function generateUnresolvedSummary(
         '\n\n' +
         failed
           .map((s) =>
-            formatUnresolved(s.original, convertErrorToUserMessage(s.error)),
+            formatUnresolved(
+              s.original,
+              convertErrorToUserMessage(s.error),
+              s.tip,
+            ),
           )
           .join('\n\n');
     }

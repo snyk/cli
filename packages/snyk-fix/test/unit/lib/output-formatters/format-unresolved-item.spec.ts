@@ -22,4 +22,14 @@ describe('format unresolved item', () => {
     const res = await formatUnresolved(entity, 'Failed to process item');
     expect(stripAnsi(res)).toMatchSnapshot();
   });
+
+  it('formats ok with tip', async () => {
+    const entity = generateEntityToFix(
+      'pip',
+      'Pipfile',
+      JSON.stringify({}),
+    );
+    const res = await formatUnresolved(entity, 'Failed to fix', 'Make sure you have pipenv installed');
+    expect(stripAnsi(res)).toMatchSnapshot();
+  });
 });
