@@ -1250,6 +1250,7 @@ function generateEntityToFix(
 ): snykFix.EntityToFix {
   const entityToFix = {
     workspace: {
+      path: workspacesPath,
       readFile: async (path: string) => {
         return readFileHelper(workspacesPath, path);
       },
