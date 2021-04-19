@@ -29,8 +29,11 @@ To run these tests locally you may use `npm run test:smoke`:
 
 3. Run shellspec locally:
 
+Note that you will need shellspec version `0.28.1` or higher.
+
+From the root of the `snyk` repo, run:
 ```sh
-SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN REGRESSION_TEST=1 shellspec --directory test/smoke -f d
+npm run test:smoke
 ```
 
 ### Notes on the local run
