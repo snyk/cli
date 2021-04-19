@@ -82,7 +82,10 @@ Summary:
   1 items were successfully fixed
   3 total issues: 3 High
   3 fixable issues
-  1 fixed issues"
+  1 fixed issues
+
+
+Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io"
 `;
 
 exports[`showResultsSummary has unresolved only 1`] = `
@@ -100,5 +103,8 @@ Summary:
   0 items were successfully fixed
   1 total issues: 1 High
   1 fixable issues
-  0 fixed issues"
+  0 fixed issues
+
+
+Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io"
 `;
