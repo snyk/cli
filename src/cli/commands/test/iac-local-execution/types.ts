@@ -222,4 +222,7 @@ export enum IaCErrorCodes {
 
   // get-iac-org-settings errors
   FailedToGetIacOrgSettingsError = 1080,
+
+  // assert-iac-options-flag
+  FlagError = 1090,
 }
