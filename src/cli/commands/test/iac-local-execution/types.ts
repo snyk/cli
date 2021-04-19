@@ -59,6 +59,17 @@ export type FormattedResult = {
   projectName: string;
 };
 
+export interface IacOrgSettings {
+  meta: TestMeta;
+  customPolicies: Record<string, { severity?: string }>;
+}
+export interface TestMeta {
+  isPrivate: boolean;
+  isLicensesEnabled: boolean;
+  org: string;
+  ignoreSettings?: IgnoreSettings | null;
+}
+
 export interface OpaWasmInstance {
   evaluate: (data: Record<string, any>) => { results: PolicyMetadata[] };
   setData: (data: Record<string, any>) => void;
@@ -81,7 +92,7 @@ export interface PolicyMetadata {
   title: string;
   // Legacy field, still included in WASM eval output, but not in use.
   description: string;
-  severity: SEVERITY;
+  severity: SEVERITY | 'none'; // the 'null' value can be provided by the backend
   msg: string;
   policyEngineType: 'opa';
   issue: string;
@@ -208,4 +219,7 @@ export enum IaCErrorCodes {
   // results-formatter errors
   FailedToFormatResults = 1070,
   FailedToExtractLineNumberError = 1071,
+
+  // get-iac-org-settings errors
+  FailedToGetIacOrgSettingsError = 1080,
 }
