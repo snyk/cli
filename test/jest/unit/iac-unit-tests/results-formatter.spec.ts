@@ -5,6 +5,7 @@ import {
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
 import {
   expectedFormattedResults,
+  meta,
   policyStub,
   scanResults,
 } from './results-formatter.fixtures';
@@ -16,9 +17,11 @@ jest.mock('@snyk/cloud-config-parser');
 describe('formatScanResults', () => {
   it('returns the formatted results as expected for output', () => {
     (issuesToLineNumbers as jest.Mock).mockReturnValue(3);
-    const formattedResults = formatScanResults(scanResults, {
-      severityThreshold: SEVERITY.HIGH,
-    });
+    const formattedResults = formatScanResults(
+      scanResults,
+      { severityThreshold: SEVERITY.HIGH },
+      meta,
+    );
     expect(formattedResults.length).toEqual(1);
     expect(formattedResults[0]).toEqual(expectedFormattedResults);
   });

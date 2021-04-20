@@ -3,6 +3,7 @@ import {
   EngineType,
   IacFileScanResult,
   PolicyMetadata,
+  TestMeta,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
@@ -57,6 +58,12 @@ export const scanResults: Array<IacFileScanResult> = [
   },
 ];
 
+export const meta: TestMeta = {
+  isPrivate: false,
+  isLicensesEnabled: false,
+  org: 'org-name',
+};
+
 export const expectedFormattedResults = {
   result: {
     cloudConfigResults: [
@@ -86,4 +93,12 @@ export const expectedFormattedResults = {
   ignoreSettings: null,
   licensesPolicy: null,
   projectName: 'snyk',
+  meta: {
+    ...meta,
+    policy: '',
+    projectId: '',
+  },
+  org: meta.org,
+  policy: '',
+  filesystemPolicy: false,
 };

@@ -45,6 +45,21 @@ jest.mock('../../../../src/lib/detect', () => ({
   isLocalFolder: () => true,
 }));
 
+jest.mock(
+  '../../../../src/cli/commands/test/iac-local-execution/org-settings/get-iac-org-settings.ts',
+  () => ({
+    getIacOrgSettings: async () => ({
+      meta: {
+        isPrivate: false,
+        isLicensesEnabled: false,
+        ignoreSettings: null,
+        org: 'org-name',
+      },
+      customPolicies: {},
+    }),
+  }),
+);
+
 import { test } from '../../../../src/cli/commands/test/iac-local-execution';
 import {
   IacFileParsed,
