@@ -8,7 +8,7 @@ You can set these environment variables to change CLI run settings.
   [How to get your account token](https://snyk.co/ucT6J)<br />
   [How to use Service Accounts](https://snyk.co/ucT6L)<br />
 
-- `SNYK_CFG_`<KEY>:
+- `SNYK_CFG_KEY`:
   Allows you to override any key that's also available as `snyk config` option.
 
   E.g. `SNYK_CFG_ORG`=myorg will override default org option in `config` with "myorg".
