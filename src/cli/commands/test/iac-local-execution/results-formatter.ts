@@ -68,7 +68,6 @@ function formatScanResult(
     };
   });
 
-  const policy = '';
   const targetFilePath = path.resolve(scanResult.filePath, '.');
 
   return {
@@ -82,9 +81,9 @@ function formatScanResult(
     meta: {
       ...meta,
       projectId: '', // we do not have a project at this stage
-      policy,
+      policy: '', // we do not have the concept of policy
     },
-    filesystemPolicy: !!policy,
+    filesystemPolicy: false, // we do not have the concept of policy
     vulnerabilities: [],
     dependencyCount: 0,
     licensesPolicy: null, // we do not have the concept of license policies
@@ -92,7 +91,7 @@ function formatScanResult(
     targetFile: scanResult.filePath,
     projectName: path.basename(path.dirname(targetFilePath)),
     org: meta.org,
-    policy,
+    policy: '', // we do not have the concept of policy
     isPrivate: true,
     targetFilePath,
     packageManager: engineTypeToProjectType[scanResult.engineType],
