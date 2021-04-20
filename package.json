@@ -89,7 +89,6 @@
     "debug": "^4.1.1",
     "diff": "^4.0.1",
     "global-agent": "^2.1.12",
-    "hcl-to-json": "^0.1.1",
     "lodash.assign": "^4.2.0",
     "lodash.camelcase": "^4.3.0",
     "lodash.clonedeep": "^4.5.0",

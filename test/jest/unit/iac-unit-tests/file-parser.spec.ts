@@ -7,6 +7,10 @@ import {
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
 import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
 import {
+  FailedToParseTerraformFileError,
+  tryParsingTerraformFile,
+} from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-file-parser';
+import {
   expectedKubernetesYamlInvalidParsingResult,
   expectedKubernetesYamlParsingResult,
   expectedTerraformParsingResult,
@@ -14,6 +18,7 @@ import {
   kubernetesYamlInvalidFileDataStub,
   kubernetesYamlFileDataStub,
   terraformFileDataStub,
+  invalidTerraformFileDataStub,
   terraformPlanDataStub,
   terraformPlanMissingFieldsDataStub,
   kubernetesJsonFileDataStub,
@@ -119,6 +124,12 @@ describe('parseFiles', () => {
 
     expect(() => tryParsingKubernetesFile(helmFileData, [{}])).toThrowError(
       'Failed to parse Helm file',
+    );
+  });
+
+  it('throws an error for an invalid HCL file', async () => {
+    expect(() => tryParsingTerraformFile(invalidTerraformFileDataStub)).toThrow(
+      FailedToParseTerraformFileError,
     );
   });
 });
