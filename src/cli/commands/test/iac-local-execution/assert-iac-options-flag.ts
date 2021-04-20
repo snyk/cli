@@ -1,6 +1,6 @@
 import { CustomError } from '../../../../lib/errors';
 import { args } from '../../../args';
-import { IaCTestFlags } from './types';
+import { IaCErrorCodes, IaCTestFlags } from './types';
 
 const keys: (keyof IaCTestFlags)[] = [
   'debug',
@@ -31,6 +31,7 @@ class FlagError extends CustomError {
     const flag = camelcaseToDash(key);
     const msg = `Unsupported flag "${dashes}${flag}" provided. Run snyk iac test --help for supported flags.`;
     super(msg);
+    this.code = IaCErrorCodes.FlagError;
     this.userMessage = msg;
   }
 }
