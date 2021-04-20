@@ -48,26 +48,34 @@ export type FormattedResult = {
     cloudConfigResults: Array<PolicyMetadata>;
     projectType: IacProjectTypes;
   };
-  isPrivate: boolean;
-  packageManager: IacProjectType;
-  targetFile: string;
-  targetFilePath: string;
+  meta: TestMeta;
+  filesystemPolicy: boolean;
   vulnerabilities: AnnotatedIssue[];
   dependencyCount: number;
   licensesPolicy: object | null;
   ignoreSettings: IgnoreSettings | null;
+  targetFile: string;
   projectName: string;
+  org: string;
+  policy: string;
+  isPrivate: boolean;
+  targetFilePath: string;
+  packageManager: IacProjectType;
 };
+
+export type IacCustomPolicies = Record<string, { severity?: string }>;
 
 export interface IacOrgSettings {
   meta: TestMeta;
-  customPolicies: Record<string, { severity?: string }>;
+  customPolicies: IacCustomPolicies;
 }
 export interface TestMeta {
   isPrivate: boolean;
   isLicensesEnabled: boolean;
   org: string;
   ignoreSettings?: IgnoreSettings | null;
+  projectId?: string;
+  policy?: string;
 }
 
 export interface OpaWasmInstance {

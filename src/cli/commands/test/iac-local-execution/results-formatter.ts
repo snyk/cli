@@ -5,6 +5,7 @@ import {
   IacFileScanResult,
   IaCTestFlags,
   PolicyMetadata,
+  TestMeta,
 } from './types';
 import * as path from 'path';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
@@ -20,12 +21,13 @@ const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 export function formatScanResults(
   scanResults: IacFileScanResult[],
   options: IaCTestFlags,
+  meta: TestMeta,
 ): FormattedResult[] {
   try {
     // Relevant only for multi-doc yaml files
     const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);
     return scannedResultsGroupedByDocId.map((iacScanResult) =>
-      formatScanResult(iacScanResult, options.severityThreshold),
+      formatScanResult(iacScanResult, meta, options.severityThreshold),
     );
   } catch (e) {
     throw new FailedToFormatResults();
@@ -39,6 +41,7 @@ const engineTypeToProjectType = {
 
 function formatScanResult(
   scanResult: IacFileScanResult,
+  meta: TestMeta,
   severityThreshold?: SEVERITY,
 ): FormattedResult {
   const formattedIssues = scanResult.violatedPolicies.map((policy) => {
@@ -65,7 +68,9 @@ function formatScanResult(
     };
   });
 
+  const policy = '';
   const targetFilePath = path.resolve(scanResult.filePath, '.');
+
   return {
     result: {
       cloudConfigResults: filterPoliciesBySeverity(
@@ -74,15 +79,23 @@ function formatScanResult(
       ),
       projectType: projectTypeByFileType[scanResult.fileType],
     },
-    isPrivate: true,
-    packageManager: engineTypeToProjectType[scanResult.engineType],
-    targetFile: scanResult.filePath,
-    targetFilePath,
+    meta: {
+      ...meta,
+      projectId: '', // we do not have a project at this stage
+      policy,
+    },
+    filesystemPolicy: !!policy,
     vulnerabilities: [],
     dependencyCount: 0,
-    licensesPolicy: null,
+    licensesPolicy: null, // we do not have the concept of license policies
     ignoreSettings: null,
+    targetFile: scanResult.filePath,
     projectName: path.basename(path.dirname(targetFilePath)),
+    org: meta.org,
+    policy,
+    isPrivate: true,
+    targetFilePath,
+    packageManager: engineTypeToProjectType[scanResult.engineType],
   };
 }
 
