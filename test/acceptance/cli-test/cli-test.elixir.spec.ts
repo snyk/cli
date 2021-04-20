@@ -57,7 +57,7 @@ export const ElixirTests: AcceptanceTests = {
       );
     },
 
-    "auto-detect doesn't works": (params, utils) => async (t) => {
+    '`test elixir-hex` auto-detects hex': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
       const plugin = {
         async inspect() {
@@ -77,16 +77,8 @@ export const ElixirTests: AcceptanceTests = {
       t.teardown(loadPlugin.restore);
       loadPlugin.withArgs('hex').returns(plugin);
 
-      try {
-        await params.cli.test('elixir-hex');
-        t.fail('should have failed');
-      } catch (err) {
-        t.pass('throws err');
-        t.match(err.message, 'Could not detect supported target files in');
-      }
+      await params.cli.test('elixir-hex');
 
-      // todo @loki: to be replaced when we enable auto-detect
-      /*
       const req = params.server.popRequest();
       t.equal(req.method, 'POST', 'makes POST request');
       t.equal(
@@ -114,7 +106,6 @@ export const ElixirTests: AcceptanceTests = {
         ],
         'calls elixir-hex plugin',
       );
-*/
     },
   },
 };
