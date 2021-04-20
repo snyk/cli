@@ -4,14 +4,14 @@ exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -c & -r 
 "
 Successful fixes:
 
-  app-with-constraints/requirements.txt
+  test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-constraints/requirements.txt
   ✔ Upgraded Django from 1.6.1 to 2.0.1
-  ✔ Upgraded Django from 1.6.1 to 2.0.1 (upgraded in app-with-constraints/constraints.txt)
-  ✔ Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in app-with-constraints/lib/requirements.txt)
-  ✔ Pinned transitive from 1.0.1 to 2.0.1 (pinned in app-with-constraints/constraints.txt)
+  ✔ Upgraded Django from 1.6.1 to 2.0.1 (upgraded in test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-constraints/constraints.txt)
+  ✔ Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-constraints/lib/requirements.txt)
+  ✔ Pinned transitive from 1.0.1 to 2.0.1 (pinned in test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-constraints/constraints.txt)
 
-  app-with-constraints/lib/requirements.txt
-  ✔ Fixed through app-with-constraints/requirements.txt
+  test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-constraints/lib/requirements.txt
+  ✔ Fixed through test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-constraints/requirements.txt
 
 Summary:
 
@@ -26,16 +26,16 @@ exports[`fix *req*.txt / *.txt Python projects fixes multiple files via -r with 
 "
 Successful fixes:
 
-  app-with-already-fixed/requirements.txt
+  test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-already-fixed/requirements.txt
   ✔ Upgraded Django from 1.6.1 to 2.0.1
-  ✔ Upgraded Django from 1.6.1 to 2.0.1 (upgraded in app-with-already-fixed/core/requirements.txt)
-  ✔ Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in app-with-already-fixed/lib/requirements.txt)
+  ✔ Upgraded Django from 1.6.1 to 2.0.1 (upgraded in test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-already-fixed/core/requirements.txt)
+  ✔ Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-already-fixed/lib/requirements.txt)
 
-  app-with-already-fixed/core/requirements.txt
-  ✔ Fixed through app-with-already-fixed/requirements.txt
+  test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-already-fixed/core/requirements.txt
+  ✔ Fixed through test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-already-fixed/requirements.txt
 
-  app-with-already-fixed/lib/requirements.txt
-  ✔ Fixed through app-with-already-fixed/requirements.txt
+  test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-already-fixed/lib/requirements.txt
+  ✔ Fixed through test/acceptance/plugins/python/handlers/update-dependencies/workspaces/app-with-already-fixed/requirements.txt
 
 Summary:
 

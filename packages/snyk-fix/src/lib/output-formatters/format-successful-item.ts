@@ -1,6 +1,7 @@
 import * as chalk from 'chalk';
 
 import { EntityToFix, FixChangesSummary } from '../../types';
+import { formatDisplayName } from './format-display-name';
 import { PADDING_SPACE } from './show-results-summary';
 
 /*
@@ -10,9 +11,10 @@ export function formatChangesSummary(
   entity: EntityToFix,
   changes: FixChangesSummary[],
 ): string {
-  return `${PADDING_SPACE}${
-    entity.scanResult.identity.targetFile
-  }\n${changes.map((c) => formatAppliedChange(c)).join('\n')}`;
+  return `${PADDING_SPACE}${formatDisplayName(
+    entity.workspace.path,
+    entity.scanResult.identity,
+  )}\n${changes.map((c) => formatAppliedChange(c)).join('\n')}`;
 }
 
 function formatAppliedChange(change: FixChangesSummary): string | null {

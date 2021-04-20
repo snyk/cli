@@ -5,15 +5,17 @@ export function generateEntityToFix(
   type: string,
   targetFile: string,
   contents: string,
+  path?: string,
 ): EntityToFix {
   const scanResult = generateScanResult(type, targetFile);
   const testResult = generateTestResult();
-  const workspace = generateWorkspace(contents);
+  const workspace = generateWorkspace(contents, path);
   return { scanResult, testResult, workspace };
 }
 
-function generateWorkspace(contents: string) {
+function generateWorkspace(contents: string, path?: string) {
   return {
+    path: path || '.',
     readFile: async () => {
       return contents;
     },

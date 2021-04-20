@@ -177,6 +177,7 @@ export enum SEVERITY {
 export type SupportedScanTypes = 'pip';
 
 export interface Workspace {
+  path: string;
   readFile: (path: string) => Promise<string>;
   writeFile: (path: string, content: string) => Promise<void>;
 }
