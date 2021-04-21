@@ -15,11 +15,12 @@ function convertVulnerabilities(
   const issues: Issue[] = [];
 
   vulns.forEach((vuln) => {
+    // TODO: map the rest as needed
     issuesData[vuln.id] = {
       id: vuln.id,
       severity: vuln.severity,
       title: vuln.title,
-    };
+    } as any;
     issues.push({
       pkgName: vuln.packageName,
       pkgVersion: vuln.version,

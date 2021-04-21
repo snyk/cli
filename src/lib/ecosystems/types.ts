@@ -1,6 +1,10 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { SEVERITY } from '../snyk-test/common';
-import { RemediationChanges } from '../snyk-test/legacy';
+import {
+  LegalInstruction,
+  ReachablePaths,
+  RemediationChanges,
+} from '../snyk-test/legacy';
 import { Options } from '../types';
 
 export type Ecosystem = 'cpp' | 'docker' | 'code';
@@ -62,11 +66,104 @@ export interface Issue {
 }
 
 export interface IssuesData {
-  [issueId: string]: {
-    id: string;
-    severity: SEVERITY;
-    title: string;
+  [issueId: string]: EnrichedVulnData;
+}
+
+export interface EnrichedVulnData extends RawVulnData {
+  // backwards compatibility for cli only
+  legalInstructions?: string;
+  legalInstructionsArray?: LegalInstruction[];
+  reachability?: Reachability;
+  reachablePaths?: ReachablePaths;
+}
+
+enum Reachability {
+  FUNCTION = 'function',
+  PACKAGE = 'package',
+  NO_INFO = 'no-info',
+}
+
+export type VulnType = 'vuln' | 'license';
+
+export interface RawVulnData {
+  readonly type?: VulnType;
+  readonly CVSSv3: string;
+  readonly alternativeIds: string[];
+  readonly creationTime: string;
+  readonly disclosureTime: string;
+  readonly modificationTime: string;
+  readonly publicationTime: string;
+  readonly cvssScore: number;
+  readonly credit: string[];
+  readonly id: string;
+  readonly packageManager: string;
+  readonly packageName: string;
+  readonly language: string;
+  readonly severity: SEVERITY;
+  readonly severityWithCritical: SEVERITY;
+  readonly originalSEVERITY?: SEVERITY;
+  readonly fixedIn?: string[];
+  readonly functions: string[]; // deprecated, this is an old format - please use `functions_new`
+  readonly functions_new?: VulnerableFunction[]; // contains the vulnerable function location
+  readonly mavenModuleName?: MavenModuleName;
+  readonly semver: {
+    vulnerable: string | string[];
+    vulnerableHashes?: string[];
+    vulnerableByDistro?: {
+      [distroNameAndVersion: string]: string[];
+    };
   };
+  readonly references: object[];
+  readonly internal: object;
+  readonly identifiers: {
+    [name: string]: string[];
+  };
+  readonly patches: Patch[];
+  readonly title: string;
+  readonly description: string;
+  readonly exploit: RawExploitTypes;
+  readonly license?: string;
+  readonly proprietary?: boolean;
+  readonly iacDescription?: IacDescription;
+  readonly nearestFixedInVersion?: string;
+}
+
+interface MavenModuleName {
+  groupId: string;
+  artifactId: string;
+}
+
+interface Patch {
+  version: string;
+  id: string;
+  urls: string[];
+  modificationTime: string;
+}
+
+// this matches the type of data of rawExploitMaturity.
+export enum RawExploitTypes {
+  NO_DATA = 'No Data',
+  NOT_DEFINED = 'Not Defined',
+  UNPROVEN = 'Unproven',
+  PROOF_OF_CONCEPT = 'Proof of Concept',
+  FUNCTIONAL = 'Functional',
+  HIGH = 'High',
+}
+
+export interface IacDescription {
+  issue: string | null;
+  impact: string | null;
+  resolve: string | null;
+  references?: string[];
+}
+
+export interface VulnerableFunction {
+  functionId: FunctionId;
+  version: string[];
+}
+interface FunctionId {
+  className: string;
+  functionName: string;
 }
 
 export interface TestResult {
