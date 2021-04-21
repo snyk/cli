@@ -45,6 +45,8 @@ export async function parse(
     lockFile: true,
     targetFile,
   });
+  analytics.add('npm version', npmVersion);
+
   const resolveModuleSpinnerLabel = `Analyzing npm dependencies for ${lockFileFullPath}`;
   debug(resolveModuleSpinnerLabel);
   try {

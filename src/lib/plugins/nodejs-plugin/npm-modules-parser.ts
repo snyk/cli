@@ -71,6 +71,7 @@ export async function parse(
     lockFile: false,
     targetFile,
   });
+  analytics.add('npm version', npmVersion);
 
   const resolveModuleSpinnerLabel =
     'Analyzing npm dependencies for ' +
