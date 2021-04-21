@@ -1,5 +1,6 @@
 const values = require('lodash.values');
 import * as depGraphLib from '@snyk/dep-graph';
+import { IssuesData } from '../ecosystems/types';
 import { SupportedPackageManagers } from '../package-managers';
 import { SupportedProjectTypes } from '../types';
 import { SEVERITIES } from './common';
@@ -235,11 +236,8 @@ interface Issue {
   issueId: string;
   fixInfo: FixInfo;
 }
-
 interface TestDependenciesResult {
-  issuesData: {
-    [issueId: string]: IssueData;
-  };
+  issuesData: IssuesData;
   issues: Issue[];
   docker?: {
     baseImage: string;
