@@ -1,12 +1,12 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import * as snykFix from '../../../../../src';
-import { selectFileForPinning } from '../../../../../src/plugins/python/handlers/pip-requirements';
-import { TestResult } from '../../../../../src/types';
+import * as snykFix from '../../../../../../../src';
+import { selectFileForPinning } from '../../../../../../../src/plugins/python/handlers/pip-requirements';
+import { SEVERITY, TestResult } from '../../../../../../../src/types';
 import {
   generateScanResult,
   generateTestResult,
-} from '../../../../helpers/generate-entity-to-fix';
+} from '../../../../../../helpers/generate-entity-to-fix';
 
 describe('selectFileForPinning', () => {
   const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
@@ -828,15 +828,20 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     // 2 files needed to have changes
     expect(writeFileSpy).toHaveBeenCalledTimes(2);
     expect(result.results.python.succeeded[0].original).toEqual(entityToFix);
-    const basePath = pathLib.normalize('pip-app/base2.txt');
     expect(result.results.python.succeeded[0].changes).toEqual([
       {
         success: true,
         userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: [],
       },
       {
         success: true,
-        userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${basePath})`,
+        userMessage: expect.stringContaining('base2.txt'),
+        from: 'Jinja2@2.7.2',
+        to: 'Jinja2@2.7.3',
+        issueIds: [],
       },
     ]);
   });
@@ -862,6 +867,30 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     ];
     const testResult = {
       ...generateTestResult(),
+      issues: [
+        {
+          pkgName: 'django@1.6.1',
+          issueId: 'SNYK-1',
+          fixInfo: {},
+        },
+        {
+          pkgName: 'Jinja2@2.7.2',
+          issueId: 'SNYK-2',
+          fixInfo: {},
+        },
+      ],
+      issuesData: {
+        'SNYK-1': {
+          id: 'SNYK-1',
+          severity: SEVERITY.HIGH,
+          title: 'Django vuln',
+        },
+        'SNYK-2': {
+          id: 'SNYK-2',
+          severity: SEVERITY.MEDIUM,
+          title: 'Jinja vuln',
+        },
+      },
       remediation: {
         unresolved: [],
         upgrade: {},
@@ -870,12 +899,12 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         pin: {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
-            vulns: [],
+            vulns: ['SNYK-1'],
             isTransitive: false,
           },
           'Jinja2@2.7.2': {
             upgradeTo: 'Jinja2@2.7.3',
-            vulns: [],
+            vulns: ['SNYK-2'],
             isTransitive: true,
           },
         },
@@ -952,28 +981,35 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     expect(libRequirements).toEqual(ExpectedLibRequirements);
     expect(coreRequirements).toEqual(expectedCoreRequirements);
     // 3 files needed to have changes
-    expect(result.fixSummary.replace(/\\/g, '/')).toMatchSnapshot();
+    expect(
+      result.fixSummary
+        .replace(/\\/g, '/')
+        .replace(/packages\/snyk-fix\//g, ''),
+    ).toMatchSnapshot();
     expect(writeFileSpy).toHaveBeenCalledTimes(3);
     expect(result.results.python.succeeded[0].original).toEqual(entityToFix1);
 
-    const coreRequirementsPath = pathLib.normalize(
-      'app-with-already-fixed/core/requirements.txt',
-    );
-    const libRequirementsPath = pathLib.normalize(
-      'app-with-already-fixed/lib/requirements.txt',
-    );
     expect(result.results.python.succeeded[0].changes).toEqual([
       {
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: ['SNYK-1'],
         success: true,
         userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
       },
       {
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: ['SNYK-1'],
         success: true,
-        userMessage: `Upgraded Django from 1.6.1 to 2.0.1 (upgraded in ${coreRequirementsPath})`,
+        userMessage: expect.stringContaining('requirements.txt'),
       },
       {
+        from: 'Jinja2@2.7.2',
+        to: 'Jinja2@2.7.3',
+        issueIds: ['SNYK-2'],
         success: true,
-        userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${libRequirementsPath})`,
+        userMessage: expect.stringContaining('requirements.txt'),
       },
     ]);
   });
@@ -998,6 +1034,55 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     ];
     const testResult = {
       ...generateTestResult(),
+      issues: [
+        {
+          pkgName: 'django@1.6.1',
+          issueId: 'SNYK-1',
+          fixInfo: {
+            upgradePaths: [],
+            isPatchable: false,
+            nearestFixedInVersion: '1.2.3',
+            isPinnable: true,
+          },
+        },
+        {
+          pkgName: 'Jinja2@2.7.2',
+          issueId: 'SNYK-2',
+          fixInfo: {
+            upgradePaths: [],
+            isPatchable: false,
+            nearestFixedInVersion: '1.2.3',
+            isPinnable: true,
+          },
+        },
+        {
+          pkgName: 'transitive@1.0.1',
+          issueId: 'SNYK-3',
+          fixInfo: {
+            upgradePaths: [],
+            isPatchable: false,
+            nearestFixedInVersion: '1.2.3',
+            isPinnable: true,
+          },
+        },
+      ],
+      issuesData: {
+        'SNYK-1': {
+          id: 'SNYK-1',
+          severity: SEVERITY.HIGH,
+          title: 'Django vuln',
+        },
+        'SNYK-2': {
+          id: 'SNYK-2',
+          severity: SEVERITY.MEDIUM,
+          title: 'Jinja vuln',
+        },
+        'SNYK-3': {
+          id: 'SNYK-3',
+          severity: SEVERITY.LOW,
+          title: 'Transitive vuln',
+        },
+      },
       remediation: {
         unresolved: [],
         upgrade: {},
@@ -1006,17 +1091,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         pin: {
           'django@1.6.1': {
             upgradeTo: 'django@2.0.1',
-            vulns: [],
+            vulns: ['SNYK-1'],
             isTransitive: false,
           },
           'Jinja2@2.7.2': {
             upgradeTo: 'Jinja2@2.7.3',
-            vulns: [],
+            vulns: ['SNYK-2'],
             isTransitive: true,
           },
           'transitive@1.0.1': {
             upgradeTo: 'transitive@2.0.1',
-            vulns: [],
+            vulns: ['SNYK-3'],
             isTransitive: true,
           },
         },
@@ -1038,7 +1123,6 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       quiet: true,
       stripAnsi: true,
     });
-
     const requirements = fs.readFileSync(
       pathLib.resolve(
         workspacesPath,
@@ -1060,7 +1144,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       ),
       'utf-8',
     );
-    const ExpectedLibRequirements = fs.readFileSync(
+    const expectedLibRequirements = fs.readFileSync(
       pathLib.resolve(
         workspacesPath,
         'app-with-constraints/lib/expected-requirements.txt',
@@ -1082,43 +1166,53 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       'utf-8',
     );
     expect(requirements).toEqual(expectedRequirements);
-    expect(libRequirements).toEqual(ExpectedLibRequirements);
+    expect(libRequirements).toEqual(expectedLibRequirements);
     expect(constraints).toEqual(expectedConstraints);
-    expect(result.fixSummary.replace(/\\/g, '/')).toMatchSnapshot();
+    expect(
+      result.fixSummary
+        .replace(/\\/g, '/')
+        .replace(/packages\/snyk-fix\//g, ''),
+    ).toMatchSnapshot();
     // 3 files with upgrades + 1 more to apply pins
     expect(writeFileSpy).toHaveBeenCalledTimes(4);
     expect(result.results.python.succeeded[0].original).toEqual(entityToFix1);
     expect(result.results.python.succeeded[1].original).toEqual(entityToFix2);
 
-    const constraintsPath = pathLib.normalize(
-      'app-with-constraints/constraints.txt',
-    );
-    const libRequirementsPath = pathLib.normalize(
-      'app-with-constraints/lib/requirements.txt',
-    );
-
     expect(result.results.python.succeeded[0].changes).toEqual([
       {
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: ['SNYK-1'],
         success: true,
         userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
       },
       {
+        from: 'Django@1.6.1',
+        to: 'Django@2.0.1',
+        issueIds: ['SNYK-1'],
         success: true,
-        userMessage: `Upgraded Django from 1.6.1 to 2.0.1 (upgraded in ${constraintsPath})`,
+        userMessage: expect.stringContaining('constraints.txt'),
       },
       {
+        from: 'Jinja2@2.7.2',
+        to: 'Jinja2@2.7.3',
+        issueIds: ['SNYK-2'],
         success: true,
-        userMessage: `Upgraded Jinja2 from 2.7.2 to 2.7.3 (upgraded in ${libRequirementsPath})`,
+        userMessage: expect.stringContaining('requirements.txt'),
       },
       {
+        from: 'transitive@1.0.1',
+        to: 'transitive@2.0.1',
+        issueIds: ['SNYK-3'],
         success: true,
-        userMessage: `Pinned transitive from 1.0.1 to 2.0.1 (pinned in ${constraintsPath})`,
+        userMessage: expect.stringContaining('constraints.txt'),
       },
     ]);
     expect(result.results.python.succeeded[1].changes).toEqual([
       {
         success: true,
-        userMessage: 'Previously fixed',
+        issueIds: ['SNYK-1', 'SNYK-2', 'SNYK-3'],
+        userMessage: expect.stringContaining('requirements.txt'),
       },
     ]);
   });
@@ -1150,6 +1244,7 @@ function generateEntityToFix(
 ): snykFix.EntityToFix {
   const entityToFix = {
     workspace: {
+      path: workspacesPath,
       readFile: async (path: string) => {
         return readFileHelper(workspacesPath, path);
       },

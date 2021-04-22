@@ -5,47 +5,34 @@ import {
   IacFileScanResult,
   IaCTestFlags,
   PolicyMetadata,
+  TestMeta,
 } from './types';
+import * as path from 'path';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
-import { IacProjectType } from '../../../../lib/iac/constants';
+import {
+  IacProjectType,
+  projectTypeByFileType,
+} from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
-
-// import {
-//   issuesToLineNumbers,
-//   CloudConfigFileTypes,
-// } from '@snyk/cloud-config-parser';
+import { extractLineNumber } from './extract-line-number';
 
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
 export function formatScanResults(
   scanResults: IacFileScanResult[],
   options: IaCTestFlags,
+  meta: TestMeta,
 ): FormattedResult[] {
   try {
     // Relevant only for multi-doc yaml files
     const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);
     return scannedResultsGroupedByDocId.map((iacScanResult) =>
-      formatScanResult(iacScanResult, options.severityThreshold),
+      formatScanResult(iacScanResult, meta, options.severityThreshold),
     );
   } catch (e) {
     throw new FailedToFormatResults();
   }
 }
-
-//
-// function getFileTypeForLineNumber(
-//   fileType: string,
-// ): CloudConfigFileTypes {
-//   switch (fileType) {
-//     case 'yaml':
-//     case 'yml':
-//       return CloudConfigFileTypes.YAML;
-//     case 'json':
-//       return CloudConfigFileTypes.JSON;
-//     default:
-//       return CloudConfigFileTypes.YAML;
-//   }
-// }
 
 const engineTypeToProjectType = {
   [EngineType.Kubernetes]: IacProjectType.K8S,
@@ -54,26 +41,16 @@ const engineTypeToProjectType = {
 
 function formatScanResult(
   scanResult: IacFileScanResult,
+  meta: TestMeta,
   severityThreshold?: SEVERITY,
 ): FormattedResult {
   const formattedIssues = scanResult.violatedPolicies.map((policy) => {
-    // TODO: make sure we handle this issue with annotations:
-    // https://github.com/snyk/registry/pull/17277
     const cloudConfigPath =
       scanResult.docId !== undefined
         ? [`[DocId:${scanResult.docId}]`].concat(policy.msg.split('.'))
         : policy.msg.split('.');
-    const lineNumber = -1;
-    // TODO: once package becomes public, restore the commented out code for having the issue-to-line-number functionality
-    // try {
-    //   lineNumber = issuesToLineNumbers(
-    //     iacFileScanResult.fileContent,
-    //     getFileTypeForLineNumber(iacFileScanResult.fileType),
-    //     cloudConfigPath,
-    //   );
-    // } catch (err) {
-    //   //
-    // }
+
+    const lineNumber: number = extractLineNumber(scanResult, policy);
 
     return {
       ...policy,
@@ -90,16 +67,34 @@ function formatScanResult(
       lineNumber,
     };
   });
+
+  const targetFilePath = path.resolve(scanResult.filePath, '.');
+
   return {
     result: {
       cloudConfigResults: filterPoliciesBySeverity(
         formattedIssues,
         severityThreshold,
       ),
+      projectType: projectTypeByFileType[scanResult.fileType],
     },
-    isPrivate: true,
-    packageManager: engineTypeToProjectType[scanResult.engineType],
+    meta: {
+      ...meta,
+      projectId: '', // we do not have a project at this stage
+      policy: '', // we do not have the concept of policy
+    },
+    filesystemPolicy: false, // we do not have the concept of policy
+    vulnerabilities: [],
+    dependencyCount: 0,
+    licensesPolicy: null, // we do not have the concept of license policies
+    ignoreSettings: null,
     targetFile: scanResult.filePath,
+    projectName: path.basename(path.dirname(targetFilePath)),
+    org: meta.org,
+    policy: '', // we do not have the concept of policy
+    isPrivate: true,
+    targetFilePath,
+    packageManager: engineTypeToProjectType[scanResult.engineType],
   };
 }
 
@@ -121,21 +116,25 @@ function groupMultiDocResults(
   return Object.values(groupedData);
 }
 
-function filterPoliciesBySeverity(
+export function filterPoliciesBySeverity(
   violatedPolicies: PolicyMetadata[],
   severityThreshold?: SEVERITY,
 ): PolicyMetadata[] {
   if (!severityThreshold || severityThreshold === SEVERITY.LOW) {
-    return violatedPolicies;
+    return violatedPolicies.filter((violatedPolicy) => {
+      return violatedPolicy.severity !== 'none';
+    });
   }
 
   const severitiesToInclude = SEVERITIES.slice(
     SEVERITIES.indexOf(severityThreshold),
   );
-
-  return violatedPolicies.filter((policy) =>
-    severitiesToInclude.includes(policy.severity),
-  );
+  return violatedPolicies.filter((policy) => {
+    return (
+      policy.severity !== 'none' &&
+      severitiesToInclude.includes(policy.severity)
+    );
+  });
 }
 
 export class FailedToFormatResults extends CustomError {

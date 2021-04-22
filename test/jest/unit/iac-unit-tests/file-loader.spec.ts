@@ -1,4 +1,5 @@
 const mockFs = require('mock-fs');
+import * as path from 'path';
 import {
   FailedToLoadFileError,
   loadFiles,
@@ -15,6 +16,11 @@ import {
   nonIacFileStub,
   terraformDirectory,
   terraformFileStub,
+  level1Directory,
+  level2Directory,
+  level2FileStub,
+  level3Directory,
+  level3FileStub,
 } from './file-loader.fixtures';
 
 describe('loadFiles', () => {
@@ -83,6 +89,62 @@ describe('loadFiles', () => {
           terraformFileStub,
           anotherTerraformFileStub,
         ]);
+      });
+    });
+
+    describe('with nested files inside multiple-level directories', () => {
+      beforeEach(() => {
+        mockFs({
+          [level1Directory]: {
+            [path.basename(level2Directory)]: {
+              [path.basename(
+                level2FileStub.filePath,
+              )]: level2FileStub.fileContent,
+              [path.basename(level3Directory)]: {
+                [path.basename(
+                  level3FileStub.filePath,
+                )]: level3FileStub.fileContent,
+              },
+            },
+          },
+        });
+      });
+
+      describe('with detectionDepth 1', () => {
+        it('throws an error as there are no files at that level', async () => {
+          await expect(
+            loadFiles(level1Directory, {
+              detectionDepth: 1,
+            }),
+          ).rejects.toThrow(NoFilesToScanError);
+        });
+      });
+
+      describe('with detectionDepth 2', () => {
+        it('returns the files at level 2', async () => {
+          const loadedFiles = await loadFiles(level1Directory, {
+            detectionDepth: 2,
+          });
+          expect(loadedFiles).toEqual([level2FileStub]);
+        });
+      });
+
+      describe('with detectionDepth 3', () => {
+        it('returns the files at level 2 and level 3', async () => {
+          const loadedFiles = await loadFiles(level1Directory, {
+            detectionDepth: 3,
+          });
+          expect(loadedFiles).toEqual([level3FileStub, level2FileStub]);
+        });
+      });
+
+      describe('with detectionDepth 4', () => {
+        it('returns the files at level 2 and level 3', async () => {
+          const loadedFiles = await loadFiles(level1Directory, {
+            detectionDepth: 4,
+          });
+          expect(loadedFiles).toEqual([level3FileStub, level2FileStub]);
+        });
       });
     });
 

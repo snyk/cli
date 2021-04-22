@@ -1,5 +1,9 @@
-import { IacProjectType } from '../../../../lib/iac/constants';
+import { IacProjectType, IacProjectTypes } from '../../../../lib/iac/constants';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
+import {
+  AnnotatedIssue,
+  IgnoreSettings,
+} from '../../../../lib/snyk-test/legacy';
 import {
   IacFileInDirectory,
   Options,
@@ -42,11 +46,37 @@ export interface IacFileScanResult extends IacFileParsed {
 export type FormattedResult = {
   result: {
     cloudConfigResults: Array<PolicyMetadata>;
+    projectType: IacProjectTypes;
   };
-  isPrivate: boolean;
-  packageManager: IacProjectType;
+  meta: TestMeta;
+  filesystemPolicy: boolean;
+  vulnerabilities: AnnotatedIssue[];
+  dependencyCount: number;
+  licensesPolicy: object | null;
+  ignoreSettings: IgnoreSettings | null;
   targetFile: string;
+  projectName: string;
+  org: string;
+  policy: string;
+  isPrivate: boolean;
+  targetFilePath: string;
+  packageManager: IacProjectType;
 };
+
+export type IacCustomPolicies = Record<string, { severity?: string }>;
+
+export interface IacOrgSettings {
+  meta: TestMeta;
+  customPolicies: IacCustomPolicies;
+}
+export interface TestMeta {
+  isPrivate: boolean;
+  isLicensesEnabled: boolean;
+  org: string;
+  ignoreSettings?: IgnoreSettings | null;
+  projectId?: string;
+  policy?: string;
+}
 
 export interface OpaWasmInstance {
   evaluate: (data: Record<string, any>) => { results: PolicyMetadata[] };
@@ -70,7 +100,7 @@ export interface PolicyMetadata {
   title: string;
   // Legacy field, still included in WASM eval output, but not in use.
   description: string;
-  severity: SEVERITY;
+  severity: SEVERITY | 'none'; // the 'null' value can be provided by the backend
   msg: string;
   policyEngineType: 'opa';
   issue: string;
@@ -176,9 +206,11 @@ export enum IaCErrorCodes {
 
   // file-parser errors
   UnsupportedFileTypeError = 1020,
+  InvalidJsonFileError = 1021,
+  InvalidYamlFileError = 1022,
+  FailedToDetectJsonFileError = 1023,
 
   // kubernetes-parser errors
-  FailedToParseKubernetesYamlError = 1030,
   MissingRequiredFieldsInKubernetesYamlError = 1031,
   FailedToParseHelmError = 1032,
 
@@ -186,8 +218,6 @@ export enum IaCErrorCodes {
   FailedToParseTerraformFileError = 1040,
 
   // terraform-plan-parser errors
-  FailedToParseTerraformPlanJsonError = 1050,
-  MissingRequiredFieldsInTerraformPlanError = 1051,
   FailedToExtractResourcesInTerraformPlanError = 1052,
 
   // file-scanner errors
@@ -196,4 +226,11 @@ export enum IaCErrorCodes {
 
   // results-formatter errors
   FailedToFormatResults = 1070,
+  FailedToExtractLineNumberError = 1071,
+
+  // get-iac-org-settings errors
+  FailedToGetIacOrgSettingsError = 1080,
+
+  // assert-iac-options-flag
+  FlagError = 1090,
 }

@@ -28,6 +28,7 @@ export async function fix(
   fixSummary: string;
 }> {
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
+
   let resultsByPlugin: FixHandlerResultByPlugin = {};
   const entitiesPerType = groupEntitiesPerScanType(entities);
   const exceptionsByScanType: ErrorsByEcoSystem = {};
@@ -57,10 +58,14 @@ export async function fix(
   const meta = extractMeta(resultsByPlugin, exceptionsByScanType);
 
   spinner.start();
-  spinner.stopAndPersist({
-    text: 'Done',
-    symbol: meta.fixed === 0 ? chalk.red('✖') : chalk.green('✔'),
-  });
+  if (meta.fixed > 0) {
+    spinner.stopAndPersist({
+      text: 'Done',
+      symbol: chalk.green('✔'),
+    });
+  } else {
+    spinner.stop();
+  }
 
   return {
     results: resultsByPlugin,

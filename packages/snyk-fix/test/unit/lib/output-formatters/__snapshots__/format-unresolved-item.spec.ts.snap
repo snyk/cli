@@ -5,6 +5,12 @@ exports[`format unresolved item formats ok when missing targetFile 1`] = `
   ✖ Failed to process item"
 `;
 
+exports[`format unresolved item formats ok with tip 1`] = `
+"  Pipfile
+  ✖ Failed to fix
+  Tip:     Make sure you have pipenv installed"
+`;
+
 exports[`format unresolved item formats unresolved as expected by default 1`] = `
 "  requirements.txt
   ✖ Failed to process item"

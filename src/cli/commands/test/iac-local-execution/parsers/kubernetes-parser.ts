@@ -1,4 +1,3 @@
-import * as YAML from 'js-yaml';
 import { CustomError } from '../../../../../lib/errors';
 import {
   EngineType,
@@ -7,7 +6,7 @@ import {
   IacFileParsed,
 } from '../types';
 
-const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];
+export const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];
 
 export function assertHelmAndThrow(fileData: IacFileData) {
   const lines: string[] = fileData.fileContent.split(/\r\n|\r|\n/);
@@ -22,15 +21,9 @@ export function assertHelmAndThrow(fileData: IacFileData) {
 
 export function tryParsingKubernetesFile(
   fileData: IacFileData,
+  yamlDocuments: any[],
 ): IacFileParsed[] {
-  let yamlDocuments;
-
   assertHelmAndThrow(fileData);
-  try {
-    yamlDocuments = YAML.safeLoadAll(fileData.fileContent);
-  } catch (e) {
-    throw new FailedToParseKubernetesYamlError(fileData.filePath);
-  }
 
   return yamlDocuments.map((parsedYamlDocument, docId) => {
     if (
@@ -50,14 +43,6 @@ export function tryParsingKubernetesFile(
   });
 }
 
-class FailedToParseKubernetesYamlError extends CustomError {
-  constructor(filename: string) {
-    super('Failed to parse Kubernetes YAML file');
-    this.code = IaCErrorCodes.FailedToParseKubernetesYamlError;
-    this.userMessage = `We were unable to parse the YAML file "${filename}". Please ensure that it contains properly structured YAML`;
-  }
-}
-
 export class HelmFileNotSupportedError extends CustomError {
   constructor(filename: string) {
     super('Failed to parse Helm file');
@@ -70,6 +55,8 @@ export class MissingRequiredFieldsInKubernetesYamlError extends CustomError {
   constructor(filename: string) {
     super('Failed to detect Kubernetes file, missing required fields');
     this.code = IaCErrorCodes.MissingRequiredFieldsInKubernetesYamlError;
-    this.userMessage = `We were unable to detect whether the YAML file "${filename}" is a valid Kubernetes file, it is missing the following fields: 'apiVersion', 'kind', 'metadata'`;
+    this.userMessage = `We were unable to detect whether the YAML file "${filename}" is a valid Kubernetes file, it is missing the following fields: "${REQUIRED_K8S_FIELDS.join(
+      '", "',
+    )}"`;
   }
 }

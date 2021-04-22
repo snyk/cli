@@ -7,14 +7,13 @@ import {
   EntityToFix,
   FixChangesSummary,
   FixOptions,
+  Issue,
   RemediationChanges,
   Workspace,
 } from '../../../../types';
-import { PluginFixResponse } from '../../../types';
+import { FixedCache, PluginFixResponse } from '../../../types';
 import { updateDependencies } from './update-dependencies';
-import { MissingRemediationDataError } from '../../../../lib/errors/missing-remediation-data';
-import { MissingFileNameError } from '../../../../lib/errors/missing-file-name';
-import { partitionByFixable } from './is-supported';
+import { partitionByFixable } from './../is-supported';
 import { NoFixesCouldBeAppliedError } from '../../../../lib/errors/no-fixes-applied';
 import { extractProvenance } from './extract-version-provenance';
 import {
@@ -23,6 +22,8 @@ import {
 } from './update-dependencies/requirements-file-parser';
 import { standardizePackageName } from './update-dependencies/standardize-package-name';
 import { containsRequireDirective } from './contains-require-directive';
+import { validateRequiredData } from '../valdidate-required-data';
+import { formatDisplayName } from '../../../../lib/output-formatters/format-display-name';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 
@@ -41,16 +42,19 @@ export async function pipRequirementsTxt(
   handlerResult.skipped.push(...notFixable);
 
   const ordered = sortByDirectory(fixable);
-  const fixedFilesCache: string[] = [];
+  let fixedFilesCache: FixedCache = {};
   for (const dir of Object.keys(ordered)) {
     debug(`Fixing entities in directory ${dir}`);
     const entitiesPerDirectory = ordered[dir].map((e) => e.entity);
-    const { failed, succeeded, skipped, fixedFiles } = await fixAll(
+    const { failed, succeeded, skipped, fixedCache } = await fixAll(
       entitiesPerDirectory,
       options,
       fixedFilesCache,
     );
-    fixedFilesCache.push(...fixedFiles);
+    fixedFilesCache = {
+      ...fixedFilesCache,
+      ...fixedCache,
+    };
     handlerResult.succeeded.push(...succeeded);
     handlerResult.failed.push(...failed);
     handlerResult.skipped.push(...skipped);
@@ -58,33 +62,11 @@ export async function pipRequirementsTxt(
   return handlerResult;
 }
 
-export function getRequiredData(
-  entity: EntityToFix,
-): {
-  remediation: RemediationChanges;
-  targetFile: string;
-  workspace: Workspace;
-} {
-  const { remediation } = entity.testResult;
-  if (!remediation) {
-    throw new MissingRemediationDataError();
-  }
-  const { targetFile } = entity.scanResult.identity;
-  if (!targetFile) {
-    throw new MissingFileNameError();
-  }
-  const { workspace } = entity;
-  if (!workspace) {
-    throw new NoFixesCouldBeAppliedError();
-  }
-  return { targetFile, remediation, workspace };
-}
-
 async function fixAll(
   entities: EntityToFix[],
   options: FixOptions,
-  fixedCache: string[],
-): Promise<PluginFixResponse & { fixedFiles: string[] }> {
+  fixedCache: FixedCache,
+): Promise<PluginFixResponse & { fixedCache: FixedCache }> {
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
@@ -95,27 +77,60 @@ async function fixAll(
     try {
       const { dir, base } = pathLib.parse(targetFile);
       // parse & join again to support correct separator
-      if (fixedCache.includes(pathLib.normalize(pathLib.join(dir, base)))) {
+      const filePath = pathLib.normalize(pathLib.join(dir, base));
+      if (
+        Object.keys(fixedCache).includes(
+          pathLib.normalize(pathLib.join(dir, base)),
+        )
+      ) {
         handlerResult.succeeded.push({
           original: entity,
-          changes: [{ success: true, userMessage: 'Previously fixed' }],
+          changes: [
+            {
+              success: true,
+              userMessage: `Fixed through ${formatDisplayName(
+                entity.workspace.path,
+                {
+                  type: entity.scanResult.identity.type,
+                  targetFile: fixedCache[filePath].fixedIn,
+                },
+              )}`,
+              issueIds: getFixedEntityIssues(
+                fixedCache[filePath].issueIds,
+                entity.testResult.issues,
+              ),
+            },
+          ],
         });
         continue;
       }
-      const { changes, fixedFiles } = await applyAllFixes(entity, options);
+      const { changes, fixedMeta } = await applyAllFixes(entity, options);
       if (!changes.length) {
         debug('Manifest has not changed!');
         throw new NoFixesCouldBeAppliedError();
       }
-      fixedCache.push(...fixedFiles);
+
+      // keep fixed issues unique across files that are part of the same project
+      // the test result is for 1 entry entity.
+      const uniqueIssueIds = new Set<string>();
+      for (const c of changes) {
+        c.issueIds.map((i) => uniqueIssueIds.add(i));
+      }
+      Object.keys(fixedMeta).forEach((f) => {
+        fixedCache[f] = {
+          fixedIn: targetFile,
+          issueIds: Array.from(uniqueIssueIds),
+        };
+      });
       handlerResult.succeeded.push({ original: entity, changes });
     } catch (e) {
       debug(`Failed to fix ${targetFile}.\nERROR: ${e}`);
       handlerResult.failed.push({ original: entity, error: e });
     }
   }
-  return { ...handlerResult, fixedFiles: [] };
+  return { ...handlerResult, fixedCache };
 }
+
 // TODO: optionally verify the deps install
 export async function fixIndividualRequirementsTxt(
   workspace: Workspace,
@@ -126,19 +141,23 @@ export async function fixIndividualRequirementsTxt(
   parsedRequirements: ParsedRequirements,
   options: FixOptions,
   directUpgradesOnly: boolean,
-): Promise<{ changes: FixChangesSummary[]; appliedRemediation: string[] }> {
+): Promise<{ changes: FixChangesSummary[] }> {
+  const entryFilePath = pathLib.normalize(pathLib.join(dir, entryFileName));
   const fullFilePath = pathLib.normalize(pathLib.join(dir, fileName));
-  const { updatedManifest, changes, appliedRemediation } = updateDependencies(
+  const { updatedManifest, changes } = updateDependencies(
     parsedRequirements,
     remediation.pin,
     directUpgradesOnly,
-    pathLib.normalize(pathLib.join(dir, entryFileName)) !== fullFilePath
-      ? fullFilePath
+    entryFilePath !== fullFilePath
+      ? formatDisplayName(workspace.path, {
+          type: 'pip',
+          targetFile: fullFilePath,
+        })
       : undefined,
   );
 
   if (!changes.length) {
-    return { changes, appliedRemediation };
+    return { changes };
   }
 
   if (!options.dryRun) {
@@ -148,25 +167,31 @@ export async function fixIndividualRequirementsTxt(
     debug('Skipping writing changes to file in --dry-run mode');
   }
 
-  return { changes, appliedRemediation };
+  return { changes };
 }
 
 export async function applyAllFixes(
   entity: EntityToFix,
   options: FixOptions,
-): Promise<{ changes: FixChangesSummary[]; fixedFiles: string[] }> {
-  const { remediation, targetFile: entryFileName, workspace } = getRequiredData(
-    entity,
-  );
-  const fixedFiles: string[] = [];
+): Promise<{
+  changes: FixChangesSummary[];
+  fixedMeta: { [filePath: string]: FixChangesSummary[] };
+}> {
+  const {
+    remediation,
+    targetFile: entryFileName,
+    workspace,
+  } = validateRequiredData(entity);
+  const fixedMeta: {
+    [filePath: string]: FixChangesSummary[];
+  } = {};
   const { dir, base } = pathLib.parse(entryFileName);
   const provenance = await extractProvenance(workspace, dir, base);
   const upgradeChanges: FixChangesSummary[] = [];
-  const appliedUpgradeRemediation: string[] = [];
   /* Apply all upgrades first across all files that are included */
   for (const fileName of Object.keys(provenance)) {
     const skipApplyingPins = true;
-    const { changes, appliedRemediation } = await fixIndividualRequirementsTxt(
+    const { changes } = await fixIndividualRequirementsTxt(
       workspace,
       dir,
       base,
@@ -176,15 +201,14 @@ export async function applyAllFixes(
       options,
       skipApplyingPins,
     );
-    appliedUpgradeRemediation.push(...appliedRemediation);
     upgradeChanges.push(...changes);
-    fixedFiles.push(pathLib.normalize(pathLib.join(dir, fileName)));
+    fixedMeta[pathLib.normalize(pathLib.join(dir, fileName))] = upgradeChanges;
   }
 
   /* Apply all left over remediation as pins in the entry targetFile */
   const toPin: RemediationChanges = filterOutAppliedUpgrades(
     remediation,
-    appliedUpgradeRemediation,
+    upgradeChanges,
   );
   const directUpgradesOnly = false;
   const fileForPinning = await selectFileForPinning(entity);
@@ -199,24 +223,27 @@ export async function applyAllFixes(
     directUpgradesOnly,
   );
 
-  return { changes: [...upgradeChanges, ...pinnedChanges], fixedFiles };
+  return { changes: [...upgradeChanges, ...pinnedChanges], fixedMeta };
 }
 
 function filterOutAppliedUpgrades(
   remediation: RemediationChanges,
-  appliedRemediation: string[],
+  upgradeChanges: FixChangesSummary[],
 ): RemediationChanges {
   const pinRemediation: RemediationChanges = {
     ...remediation,
     pin: {}, // delete the pin remediation so we can collect un-applied remediation
   };
   const pins = remediation.pin;
-  const normalizedAppliedRemediation = appliedRemediation.map(
-    (packageAtVersion) => {
-      const [pkgName, versionAndMore] = packageAtVersion.split('@');
-      return `${standardizePackageName(pkgName)}@${versionAndMore}`;
-    },
-  );
+  const normalizedAppliedRemediation = upgradeChanges
+    .map((c) => {
+      if (c.success && c.from) {
+        const [pkgName, versionAndMore] = c.from?.split('@');
+        return `${standardizePackageName(pkgName)}@${versionAndMore}`;
+      }
+      return false;
+    })
+    .filter(Boolean);
   for (const pkgAtVersion of Object.keys(pins)) {
     const [pkgName, versionAndMore] = pkgAtVersion.split('@');
     if (
@@ -274,4 +301,17 @@ export async function selectFileForPinning(
     requirementsTxt = await workspace.readFile(pathLib.join(dir, fileName));
   }
   return { fileContent: requirementsTxt, fileName };
+}
+
+function getFixedEntityIssues(
+  fixedIssueIds: string[],
+  issues: Issue[],
+): string[] {
+  const fixed: string[] = [];
+  for (const { issueId } of issues) {
+    if (fixedIssueIds.includes(issueId)) {
+      fixed.push(issueId);
+    }
+  }
+  return fixed;
 }

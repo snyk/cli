@@ -1,7 +1,8 @@
+
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import { extractProvenance } from '../../../../../src/plugins/python/handlers/pip-requirements/extract-version-provenance';
-import { parseRequirementsFile } from '../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
+import { extractProvenance } from '../../../../../../../src/plugins/python/handlers/pip-requirements/extract-version-provenance';
+import { parseRequirementsFile } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
 
 describe('extractProvenance', () => {
   const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
@@ -10,6 +11,7 @@ describe('extractProvenance', () => {
     const targetFile = pathLib.resolve(workspacesPath, 'with-require/dev.txt');
 
     const workspace = {
+      path: workspacesPath,
       readFile: async (path: string) => {
         return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
       },
@@ -40,6 +42,7 @@ describe('extractProvenance', () => {
     );
 
     const workspace = {
+      path: workspacesPath,
       readFile: async (path: string) => {
         return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
       },
@@ -69,6 +72,7 @@ describe('extractProvenance', () => {
     const targetFile = pathLib.resolve(workspacesPath, `${folder}/dev.txt`);
 
     const workspace = {
+      path: workspacesPath,
       readFile: async (path: string) => {
         return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
       },
@@ -112,6 +116,7 @@ describe('extractProvenance', () => {
     const targetFile = pathLib.resolve(workspacesPath, `${folder}/dev.txt`);
 
     const workspace = {
+      path: workspacesPath,
       readFile: async (path: string) => {
         return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
       },

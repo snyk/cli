@@ -7,6 +7,8 @@ import spinner = require('../../spinner');
 import { Options } from '../../types';
 import { analysisProgressUpdate } from './utils';
 import { FeatureNotSupportedBySnykCodeError } from './errors/unsupported-feature-snyk-code-error';
+import { getProxyForUrl } from 'proxy-from-env';
+import { bootstrap } from 'global-agent';
 
 export async function getCodeAnalysisAndParseResults(
   root: string,
@@ -22,6 +24,26 @@ export async function getCodeAnalysisAndParseResults(
 
 async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
   const baseURL = config.CODE_CLIENT_PROXY_URL;
+
+  // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
+  // This ensures we support lowercase http(s)_proxy values as well
+  // The weird IF around it ensures we don't create an envvar with
+  // a value of undefined, which throws error when trying to use it as a proxy
+  if (process.env.HTTP_PROXY || process.env.http_proxy) {
+    process.env.HTTP_PROXY = process.env.HTTP_PROXY || process.env.http_proxy;
+  }
+  if (process.env.HTTPS_PROXY || process.env.https_proxy) {
+    process.env.HTTPS_PROXY =
+      process.env.HTTPS_PROXY || process.env.https_proxy;
+  }
+
+  const proxyUrl = getProxyForUrl(baseURL);
+  if (proxyUrl) {
+    bootstrap({
+      environmentVariableNamespace: '',
+    });
+  }
+
   const sessionToken = api() || '';
 
   const severity = options.severityThreshold
@@ -29,7 +51,6 @@ async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
     : AnalysisSeverity.info;
   const paths: string[] = [root];
   const sarif = true;
-
   const result = await analyzeFolders({
     baseURL,
     sessionToken,

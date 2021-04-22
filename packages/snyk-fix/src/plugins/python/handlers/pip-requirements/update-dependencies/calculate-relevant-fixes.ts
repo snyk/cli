@@ -9,8 +9,8 @@ export function calculateRelevantFixes(
   requirements: Requirement[],
   updates: DependencyPins,
   type: FixesType,
-): { [upgradeFrom: string]: string } {
-  const lowerCasedUpdates: { [upgradeFrom: string]: string } = {};
+): DependencyPins {
+  const lowerCasedUpdates = {};
   const topLevelDeps = requirements.map(({ name }) => name).filter(isDefined);
 
   Object.keys(updates).forEach((update) => {
@@ -21,9 +21,10 @@ export function calculateRelevantFixes(
     if (type === 'transitive-pins' ? isTransitive : !isTransitive) {
       const [name, newVersion] = upgradeTo.split('@');
 
-      lowerCasedUpdates[update] = `${standardizePackageName(
-        name,
-      )}@${newVersion}`;
+      lowerCasedUpdates[update] = {
+        ...updates[update],
+        upgradeTo: `${standardizePackageName(name)}@${newVersion}`,
+      };
     }
   });
   return lowerCasedUpdates;

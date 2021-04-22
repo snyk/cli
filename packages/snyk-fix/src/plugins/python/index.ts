@@ -7,6 +7,7 @@ import { FixHandlerResultByPlugin } from '../types';
 import { loadHandler } from './load-handler';
 import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
 import { mapEntitiesPerHandlerType } from './map-entities-per-handler-type';
+import chalk = require('chalk');
 
 const debug = debugLib('snyk-fix:python');
 
@@ -15,7 +16,8 @@ export async function pythonFix(
   options: FixOptions,
 ): Promise<FixHandlerResultByPlugin> {
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
-  spinner.text = 'Looking for supported Python items';
+  const spinnerMessage = 'Looking for supported Python items';
+  spinner.text = spinnerMessage;
   spinner.start();
 
   const handlerResult: FixHandlerResultByPlugin = {
@@ -31,14 +33,20 @@ export async function pythonFix(
   );
   results.skipped.push(...notSupported);
 
-  spinner.succeed();
+  spinner.stopAndPersist({
+    text: spinnerMessage,
+    symbol: chalk.green('\n✔'),
+  });
 
   await pMap(
     Object.keys(entitiesPerType),
     async (projectType) => {
       const projectsToFix: EntityToFix[] = entitiesPerType[projectType];
-
-      spinner.text = `Processing ${projectsToFix.length} ${projectType} items.`;
+      if (!projectsToFix.length) {
+        return;
+      }
+      const processingMessage = `Processing ${projectsToFix.length} ${projectType} items`;
+      spinner.text = processingMessage;
       spinner.render();
 
       try {
@@ -58,11 +66,14 @@ export async function pythonFix(
           ...projectsToFix.map((p) => ({ original: p, error: e })),
         );
       }
+      spinner.stopAndPersist({
+        text: processingMessage,
+        symbol: chalk.green('✔'),
+      });
     },
     {
       concurrency: 5,
     },
   );
-  spinner.succeed();
   return handlerResult;
 }

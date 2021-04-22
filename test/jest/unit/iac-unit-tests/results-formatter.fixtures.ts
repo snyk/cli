@@ -1,12 +1,14 @@
+import * as path from 'path';
 import {
   EngineType,
   IacFileScanResult,
   PolicyMetadata,
+  TestMeta,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
 
-const policyStub: PolicyMetadata = {
+export const policyStub: PolicyMetadata = {
   id: '1',
   description: '',
   impact:
@@ -56,6 +58,12 @@ export const scanResults: Array<IacFileScanResult> = [
   },
 ];
 
+export const meta: TestMeta = {
+  isPrivate: false,
+  isLicensesEnabled: false,
+  org: 'org-name',
+};
+
 export const expectedFormattedResults = {
   result: {
     cloudConfigResults: [
@@ -71,11 +79,26 @@ export const expectedFormattedResults = {
           resolve: anotherPolicyStub.resolve,
         },
         severity: anotherPolicyStub.severity,
-        lineNumber: -1,
+        lineNumber: 3,
       },
     ],
+    projectType: 'k8sconfig',
   },
   isPrivate: true,
   packageManager: IacProjectType.K8S,
   targetFile: 'dont-care',
+  targetFilePath: path.resolve('dont-care', '.'),
+  vulnerabilities: [],
+  dependencyCount: 0,
+  ignoreSettings: null,
+  licensesPolicy: null,
+  projectName: 'snyk',
+  meta: {
+    ...meta,
+    policy: '',
+    projectId: '',
+  },
+  org: meta.org,
+  policy: '',
+  filesystemPolicy: false,
 };

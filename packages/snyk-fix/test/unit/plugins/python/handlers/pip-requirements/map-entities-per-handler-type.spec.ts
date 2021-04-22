@@ -1,6 +1,6 @@
-import { mapEntitiesPerHandlerType } from '../../../../../src/plugins/python/map-entities-per-handler-type';
-import { SUPPORTED_HANDLER_TYPES } from '../../../../../src/plugins/python/supported-handler-types';
-import { generateEntityToFix } from '../../../../helpers/generate-entity-to-fix';
+import { mapEntitiesPerHandlerType } from '../../../../../../src/plugins/python/map-entities-per-handler-type';
+import { SUPPORTED_HANDLER_TYPES } from '../../../../../../src/plugins/python/supported-handler-types';
+import { generateEntityToFix } from '../../../../../helpers/generate-entity-to-fix';
 
 describe('getHandlerType', () => {
   it('pip + requirements.txt is supported project type `requirements.txt`', () => {

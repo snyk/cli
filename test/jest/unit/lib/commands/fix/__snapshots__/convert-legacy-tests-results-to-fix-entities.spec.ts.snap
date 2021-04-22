@@ -3,6 +3,9 @@
 exports[`Convert legacy TestResult to ScanResult can convert npm test result with no remediation 1`] = `
 Array [
   Object {
+    "options": Object {
+      "allProjects": true,
+    },
     "scanResult": Object {
       "facts": Array [],
       "identity": Object {
@@ -19,11 +22,58 @@ patch: {}
     },
     "testResult": Object {
       "depGraphData": Object {},
-      "issues": Array [],
-      "issuesData": Object {},
+      "issues": Array [
+        Object {
+          "fixInfo": Object {},
+          "issueId": "npm:node-uuid:20160328",
+          "pkgName": "node-uuid",
+          "pkgVersion": "1.4.0",
+        },
+        Object {
+          "fixInfo": Object {},
+          "issueId": "npm:qs:20140806",
+          "pkgName": "qs",
+          "pkgVersion": "0.0.6",
+        },
+        Object {
+          "fixInfo": Object {},
+          "issueId": "npm:qs:20140806-1",
+          "pkgName": "qs",
+          "pkgVersion": "0.0.6",
+        },
+        Object {
+          "fixInfo": Object {},
+          "issueId": "npm:qs:20170213",
+          "pkgName": "qs",
+          "pkgVersion": "0.0.6",
+        },
+      ],
+      "issuesData": Object {
+        "npm:node-uuid:20160328": Object {
+          "id": "npm:node-uuid:20160328",
+          "severity": "low",
+          "title": "Insecure Randomness",
+        },
+        "npm:qs:20140806": Object {
+          "id": "npm:qs:20140806",
+          "severity": "low",
+          "title": "Denial of Service (DoS)",
+        },
+        "npm:qs:20140806-1": Object {
+          "id": "npm:qs:20140806-1",
+          "severity": "low",
+          "title": "Denial of Service (DoS)",
+        },
+        "npm:qs:20170213": Object {
+          "id": "npm:qs:20170213",
+          "severity": "low",
+          "title": "Prototype Override Protection Bypass",
+        },
+      },
       "remediation": undefined,
     },
     "workspace": Object {
+      "path": "acceptance/fixtures/npm-package-with-severity-override",
       "readFile": [Function],
       "writeFile": [Function],
     },
@@ -34,6 +84,9 @@ patch: {}
 exports[`Convert legacy TestResult to ScanResult can convert npm test result with remediation 1`] = `
 Array [
   Object {
+    "options": Object {
+      "allProjects": true,
+    },
     "scanResult": Object {
       "facts": Array [],
       "identity": Object {
@@ -50,8 +103,54 @@ patch: {}
     },
     "testResult": Object {
       "depGraphData": Object {},
-      "issues": Array [],
-      "issuesData": Object {},
+      "issues": Array [
+        Object {
+          "fixInfo": Object {},
+          "issueId": "npm:node-uuid:20160328",
+          "pkgName": "node-uuid",
+          "pkgVersion": "1.4.0",
+        },
+        Object {
+          "fixInfo": Object {},
+          "issueId": "npm:qs:20140806",
+          "pkgName": "qs",
+          "pkgVersion": "0.0.6",
+        },
+        Object {
+          "fixInfo": Object {},
+          "issueId": "npm:qs:20140806-1",
+          "pkgName": "qs",
+          "pkgVersion": "0.0.6",
+        },
+        Object {
+          "fixInfo": Object {},
+          "issueId": "npm:qs:20170213",
+          "pkgName": "qs",
+          "pkgVersion": "0.0.6",
+        },
+      ],
+      "issuesData": Object {
+        "npm:node-uuid:20160328": Object {
+          "id": "npm:node-uuid:20160328",
+          "severity": "low",
+          "title": "Insecure Randomness",
+        },
+        "npm:qs:20140806": Object {
+          "id": "npm:qs:20140806",
+          "severity": "low",
+          "title": "Denial of Service (DoS)",
+        },
+        "npm:qs:20140806-1": Object {
+          "id": "npm:qs:20140806-1",
+          "severity": "low",
+          "title": "Denial of Service (DoS)",
+        },
+        "npm:qs:20170213": Object {
+          "id": "npm:qs:20170213",
+          "severity": "low",
+          "title": "Prototype Override Protection Bypass",
+        },
+      },
       "remediation": Object {
         "ignore": Object {},
         "patch": Object {
@@ -85,6 +184,7 @@ patch: {}
       },
     },
     "workspace": Object {
+      "path": "acceptance/fixtures/npm-package-with-severity-override",
       "readFile": [Function],
       "writeFile": [Function],
     },
@@ -95,6 +195,7 @@ patch: {}
 exports[`Convert legacy TestResult to ScanResult can convert pip test result with remediation (pins) 1`] = `
 Array [
   Object {
+    "options": Object {},
     "scanResult": Object {
       "facts": Array [],
       "identity": Object {
@@ -111,8 +212,32 @@ patch: {}
     },
     "testResult": Object {
       "depGraphData": Object {},
-      "issues": Array [],
-      "issuesData": Object {},
+      "issues": Array [
+        Object {
+          "fixInfo": Object {},
+          "issueId": "SNYK-PYTHON-DJANGO-1066259",
+          "pkgName": "django",
+          "pkgVersion": "1.6.1",
+        },
+        Object {
+          "fixInfo": Object {},
+          "issueId": "SNYK-PYTHON-DJANGO-72888",
+          "pkgName": "django",
+          "pkgVersion": "1.6.1",
+        },
+      ],
+      "issuesData": Object {
+        "SNYK-PYTHON-DJANGO-1066259": Object {
+          "id": "SNYK-PYTHON-DJANGO-1066259",
+          "severity": "low",
+          "title": "Directory Traversal",
+        },
+        "SNYK-PYTHON-DJANGO-72888": Object {
+          "id": "SNYK-PYTHON-DJANGO-72888",
+          "severity": "medium",
+          "title": "Content Spoofing",
+        },
+      },
       "remediation": Object {
         "ignore": Object {},
         "patch": Object {},
@@ -235,6 +360,7 @@ Upgrade \`django\` to version 2.2.18, 3.0.12, 3.1.6 or higher.
       },
     },
     "workspace": Object {
+      "path": ".",
       "readFile": [Function],
       "writeFile": [Function],
     },

@@ -17,6 +17,10 @@ export const iacFileData: IacFileData = {
   fileType: 'json',
 };
 
+export const terraformPlanJson: TerraformPlanJson = JSON.parse(
+  iacFileData.fileContent,
+);
+
 const resource = {
   ingress: {
     cidr_blocks: ['0.0.0.0/0'],
@@ -92,10 +96,9 @@ export const iacFileDataNoChildModules: IacFileData = {
   fileType: 'json',
 };
 
-export const invalidJsonIacFile = {
-  ...iacFileData,
-  fileContent: tfPlanFixture.toString().slice(1),
-};
+export const terraformPlanNoChildModulesJson = JSON.parse(
+  iacFileDataNoChildModules.fileContent,
+);
 
 export const expectedParsingResultWithoutChildModules: TerraformScanInput = {
   resource: {

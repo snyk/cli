@@ -1,5 +1,5 @@
-import { generateUpgrades } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/generate-upgrades';
-import { parseRequirementsFile } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
+import { generateUpgrades } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/generate-upgrades';
+import { parseRequirementsFile } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
 
 describe('generateUpgrades', () => {
   it('returns empty if no upgrades could be generated', () => {

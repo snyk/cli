@@ -40,3 +40,17 @@ export const anotherNonIacFileStub = {
   filePath: path.join(mixedDirectory, 'this_also_shouldnt_load.js'),
   fileType: 'js',
 };
+
+export const level1Directory = path.join(__dirname, 'dir1');
+export const level2Directory = path.join(level1Directory, 'dir2');
+export const level3Directory = path.join(level2Directory, 'dir3');
+
+export const level3FileStub = {
+  ...terraformFileStub,
+  filePath: path.join(level3Directory, 'main.tf'),
+};
+
+export const level2FileStub = {
+  ...terraformFileStub,
+  filePath: path.join(level2Directory, 'main.tf'),
+};

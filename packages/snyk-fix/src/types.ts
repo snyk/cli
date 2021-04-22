@@ -56,8 +56,8 @@ interface UpgradePath {
 }
 
 export interface FixInfo {
-  upgradePaths: UpgradePath[];
-  isPatchable: boolean;
+  upgradePaths?: UpgradePath[];
+  isPatchable?: boolean;
   nearestFixedInVersion?: string;
 }
 
@@ -70,7 +70,7 @@ interface UpgradePathItem {
 export interface IssuesData {
   [issueId: string]: {
     id: string;
-    severity: string;
+    severity: SEVERITY;
     title: string;
   };
 }
@@ -177,6 +177,7 @@ export enum SEVERITY {
 export type SupportedScanTypes = 'pip';
 
 export interface Workspace {
+  path: string;
   readFile: (path: string) => Promise<string>;
   writeFile: (path: string, content: string) => Promise<void>;
 }
@@ -190,6 +191,7 @@ export interface EntityToFix {
 export interface WithError<Original> {
   original: Original;
   error: CustomError;
+  tip?: string;
 }
 
 export interface WithFixChangesApplied<Original> {
@@ -207,6 +209,9 @@ export type FixChangesSummary = FixChangesSuccess | FixChangesError;
 interface FixChangesSuccess {
   success: true;
   userMessage: string;
+  issueIds: string[];
+  from?: string;
+  to?: string;
 }
 
 interface FixChangesError {
@@ -214,6 +219,9 @@ interface FixChangesError {
   userMessage: string;
   reason: string;
   tip?: string;
+  issueIds: string[];
+  from?: string;
+  to?: string;
 }
 
 export interface ErrorsByEcoSystem {
