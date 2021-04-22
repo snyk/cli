@@ -1,8 +1,8 @@
 
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import { extractProvenance } from '../../../../../../src/plugins/python/handlers/pip-requirements/extract-version-provenance';
-import { parseRequirementsFile } from '../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
+import { extractProvenance } from '../../../../../../../src/plugins/python/handlers/pip-requirements/extract-version-provenance';
+import { parseRequirementsFile } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
 
 describe('extractProvenance', () => {
   const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
