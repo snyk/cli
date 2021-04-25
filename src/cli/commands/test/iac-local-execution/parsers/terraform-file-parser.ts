@@ -1,4 +1,4 @@
-import * as hclToJson from 'hcl-to-json';
+import hclToJson from './hcl-to-json';
 import {
   EngineType,
   IaCErrorCodes,
@@ -11,13 +11,10 @@ export function tryParsingTerraformFile(
   fileData: IacFileData,
 ): Array<IacFileParsed> {
   try {
-    // TODO: This parser does not fail on inavlid Terraform files! it is here temporarily.
-    // cloud-config team will replace it to a valid parser for the beta release.
-    const parsedData = hclToJson(fileData.fileContent);
     return [
       {
         ...fileData,
-        jsonContent: parsedData,
+        jsonContent: hclToJson(fileData.fileContent),
         engineType: EngineType.Terraform,
       },
     ];
@@ -26,7 +23,7 @@ export function tryParsingTerraformFile(
   }
 }
 
-class FailedToParseTerraformFileError extends CustomError {
+export class FailedToParseTerraformFileError extends CustomError {
   constructor(filename: string) {
     super('Failed to parse Terraform file');
     this.code = IaCErrorCodes.FailedToParseTerraformFileError;

@@ -100,10 +100,10 @@ Describe "Snyk iac test --experimental command"
 
     # TODO: currently skipped because the parser we're using doesn't fail on invalid terraform
     # will be fixed before beta
-    xIt "outputs an error for invalid terraforom files"
+    It "outputs an error for invalid terraforom files"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf --experimental
       The status should be failure
-      The output should include "Invalid Terraform File!"
+      The output should include "We were unable to parse the Terraform file"
     End
 
     It "outputs the expected text when running with --sarif flag"
@@ -133,15 +133,9 @@ Describe "Snyk iac test --experimental command"
       The output should include "introduced by"
       The output should include "Tested sg_open_ssh.tf for known issues, found"
 
-      # Second File (the parser used in local-exec doesn't fail on invalid HCL! will be fixed soon)
+      # Second File
       The output should include "Testing sg_open_ssh_invalid_hcl2.tf..."
-      The output should include "Infrastructure as code issues:"
-      The output should include "✗ "
-      The output should include "introduced by"
-      The output should include "Tested sg_open_ssh_invalid_hcl2.tf for known issues, found"
-
-      # Directory scan summary
-      The output should include "Tested 3 projects, 2 contained issues."
+      The output should include "Failed to parse Terraform file"
     End
 
     It "finds issues in a directory with Kubernetes files"

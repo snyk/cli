@@ -206,7 +206,7 @@ export const expectedTerraformParsingResult: IacFileParsed = {
             to_port: 22,
           },
           name: 'allow_ssh',
-          vpc_id: 123,
+          vpc_id: '123',
         },
       },
     },
@@ -217,4 +217,24 @@ export const expectedTerraformJsonParsingResult: IacFileParsed = {
   ...terraformPlanDataStub,
   engineType: EngineType.Terraform,
   jsonContent: expectedParsingResultDeltaScan,
+};
+
+const invalidTerraformFileContent = `
+resource "aws_security_group" "allow_ssh" {
+    name        = "allow_ssh"
+    description = "Allow SSH inbound from anywhere"
+    vpc_id      = "123"
+
+    ingress INVALID
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+}`;
+
+export const invalidTerraformFileDataStub: IacFileData = {
+  fileContent: invalidTerraformFileContent,
+  filePath: 'dont-care',
+  fileType: 'tf',
 };
