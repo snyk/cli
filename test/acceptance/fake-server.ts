@@ -55,7 +55,16 @@ export function fakeServer(root, apikey) {
   });
 
   server.use((req, res, next) => {
-    if (!server._nextResponse && !server._nextStatusCode) {
+    // these test don't run on the new experimental flow
+    // so once we deprecate legacy this check can be removed
+    const isExperimentalIac =
+      req.url !== undefined &&
+      (req.url.includes('/iac-org-settings') ||
+        req.url.includes('/feature-flags/experimentalLocalExecIac'));
+    if (
+      isExperimentalIac ||
+      (!server._nextResponse && !server._nextStatusCode)
+    ) {
       return next();
     }
     const response = server._nextResponse;
@@ -271,7 +280,10 @@ export function fakeServer(root, apikey) {
     root + '/cli-config/feature-flags/:featureFlag',
     (req, res, next) => {
       const flag = req.params.featureFlag;
-      if ((req as any).params.org === 'no-flag') {
+      if (
+        (req as any).params.org === 'no-flag' ||
+        flag === 'experimentalLocalExecIac'
+      ) {
         res.send({
           ok: false,
           userMessage: `Org ${
@@ -286,6 +298,20 @@ export function fakeServer(root, apikey) {
       return next();
     },
   );
+
+  server.get(root + '/iac-org-settings', (req, res, next) => {
+    res.status(200);
+    res.send({
+      meta: {
+        isPrivate: false,
+        isLicensesEnabled: false,
+        ignoreSettings: null,
+        org: 'test-org',
+      },
+      customPolicies: {},
+    });
+    return next();
+  });
 
   server.get(root + '/authorization/:action', (req, res, next) => {
     res.send({ result: { allowed: true } });
