@@ -120,6 +120,14 @@ Describe "Snyk iac test --experimental command"
       The output should include '"packageManager": "terraformconfig",'
       The result of function check_valid_json should be success
     End
+
+    It "outputs the expected text when running with --json flag and getting no vulnerabilities"
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental --severity-threshold=high --json
+      The status should be success # no issues found
+      The output should not include '"id": "SNYK-CC-TF-1",'
+      The output should include '"packageManager": "terraformconfig",'
+      The result of function check_valid_json should be success
+    End
   End
 
   Describe "directory scanning"
