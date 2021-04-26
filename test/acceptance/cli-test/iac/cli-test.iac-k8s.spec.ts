@@ -147,17 +147,14 @@ export const IacK8sTests: AcceptanceTests = {
       t,
     ) => {
       utils.chdirWorkspaces();
-      let testableObject;
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
+      const testableObject = await params.cli.test(
+        'iac-kubernetes/multi-file.yaml',
+        {
           iac: true,
           json: true,
-        });
-        t.fail('should have thrown');
-      } catch (error) {
-        testableObject = error;
-      }
-      const res: any = JSON.parse(testableObject.message);
+        },
+      );
+      const res: any = JSON.parse(testableObject);
       iacTestJsonAssertions(
         t,
         res,
@@ -206,17 +203,14 @@ export const IacK8sTests: AcceptanceTests = {
       t,
     ) => {
       utils.chdirWorkspaces();
-      let testableObject;
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
+      const testableObject = await params.cli.test(
+        'iac-kubernetes/multi-file.yaml',
+        {
           iac: true,
           sarif: true,
-        });
-        t.fail('should have thrown');
-      } catch (error) {
-        testableObject = error;
-      }
-      const res: any = JSON.parse(testableObject.message);
+        },
+      );
+      const res: any = JSON.parse(testableObject);
       iacTestSarifAssertions(t, res, null, false);
     },
     '`iac test multi-file.yaml --severity-threshold=low --sarif`': (
