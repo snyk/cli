@@ -244,9 +244,14 @@ async function main() {
       (args.options as unknown) as AllSupportedCliOptions,
     );
 
-    // modify args for IaC if experimental flag not provided based on feature flag
+    // IaC only: used for rolling out the experimental flow
+    // modify args if experimental flag not provided, based on feature flag
     // this can be removed once experimental becomes the default
-    if (args.options['iac'] && !args.options['experimental']) {
+    if (
+      args.options['iac'] &&
+      args.command === 'test' &&
+      !args.options['experimental']
+    ) {
       const iacOrgSettings = await getIacOrgSettings();
       const experimentalFlowEnabled = await isFeatureFlagSupportedForOrg(
         camelCase('experimental-local-exec-iac'),
