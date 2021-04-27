@@ -343,3 +343,13 @@ export const iacTestResponseFixturesByThreshold = {
     ['high', 'medium', 'low'].map((severity) => generateDummyIssue(severity)),
   ),
 };
+
+export const iacOrgSettings = {
+  meta: {
+    isPrivate: false,
+    isLicensesEnabled: false,
+    ignoreSettings: null,
+    org: 'test-org',
+  },
+  customPolicies: {},
+};
