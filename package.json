@@ -146,7 +146,7 @@
     "@types/jest": "^26.0.20",
     "@types/lodash": "^4.14.161",
     "@types/needle": "^2.0.4",
-    "@types/node": "^10.0.0",
+    "@types/node": "^14.14.31",
     "@types/restify": "^8.4.2",
     "@types/sarif": "^2.1.2",
     "@types/sinon": "^7.5.0",
