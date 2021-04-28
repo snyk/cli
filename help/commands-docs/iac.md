@@ -48,3 +48,10 @@ Find security issues in your Infrastructure as Code files.
   (only in `test` command)
   Enable an experimental feature to scan configuration files locally on your machine. 
   This feature also gives you the ability to scan terraform plan JSON files.
+
+- `--scan=`<TERRAFORM_PLAN_SCAN_MODE>:
+  Dedicated flag for Terraform plan scanning modes (available only under `--experimental` mode).  
+  It enables to control whether the scan should analyse the full final state (e.g. `planned-values`), or the proposed changes only  (e.g. `resource-changes`).  
+  Default: If the `--scan` flag is not provided it would scan the proposed changes only by default.  
+  Example #1: `--scan=planned-values` (full state scan)
+  Example #2: `--scan=resource-changes` (proposed changes scan)

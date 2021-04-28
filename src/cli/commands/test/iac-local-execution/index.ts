@@ -30,7 +30,7 @@ export async function test(
 }> {
   await initLocalCache();
   const filesToParse = await loadFiles(pathToScan, options);
-  const { parsedFiles, failedFiles } = await parseFiles(filesToParse);
+  const { parsedFiles, failedFiles } = await parseFiles(filesToParse, options);
   const scannedFiles = await scanFiles(parsedFiles);
   const iacOrgSettings = await getIacOrgSettings();
   const resultsWithCustomSeverities = await applyCustomSeverities(

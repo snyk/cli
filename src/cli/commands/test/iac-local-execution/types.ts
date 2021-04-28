@@ -130,7 +130,17 @@ export type IaCTestFlags = Pick<
   help?: 'help';
   q?: boolean;
   quiet?: boolean;
-};
+} & TerraformPlanFlags;
+
+// Flags specific for Terraform plan scanning
+interface TerraformPlanFlags {
+  scan?: TerraformPlanScanMode;
+}
+
+export enum TerraformPlanScanMode {
+  DeltaScan = 'resource-changes', // default value
+  FullScan = 'planned-values',
+}
 
 // Includes all IaCTestOptions plus additional properties
 // that are added at runtime and not part of the parsed
@@ -233,4 +243,5 @@ export enum IaCErrorCodes {
 
   // assert-iac-options-flag
   FlagError = 1090,
+  FlagValueError = 1091,
 }

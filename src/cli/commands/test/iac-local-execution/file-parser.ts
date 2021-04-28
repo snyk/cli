@@ -16,18 +16,21 @@ import {
   ParsingResults,
   IacFileParseFailure,
   IaCErrorCodes,
+  IaCTestFlags,
+  TerraformPlanScanMode,
 } from './types';
 import * as analytics from '../../../../lib/analytics';
 import { CustomError } from '../../../../lib/errors';
 
 export async function parseFiles(
   filesData: IacFileData[],
+  options: IaCTestFlags = {},
 ): Promise<ParsingResults> {
   const parsedFiles: IacFileParsed[] = [];
   const failedFiles: IacFileParseFailure[] = [];
   for (const fileData of filesData) {
     try {
-      parsedFiles.push(...tryParseIacFile(fileData));
+      parsedFiles.push(...tryParseIacFile(fileData, options));
     } catch (err) {
       if (filesData.length === 1) {
         throw err;
@@ -75,7 +78,10 @@ function parseYAMLOrJSONFileData(fileData: IacFileData): any[] {
   return yamlDocuments;
 }
 
-export function tryParseIacFile(fileData: IacFileData): IacFileParsed[] {
+export function tryParseIacFile(
+  fileData: IacFileData,
+  options: IaCTestFlags = {},
+): IacFileParsed[] {
   analytics.add('iac-terraform-plan', false);
   switch (fileData.fileType) {
     case 'yaml':
@@ -89,7 +95,9 @@ export function tryParseIacFile(fileData: IacFileData): IacFileParsed[] {
       // but the Terraform plan can only have one
       if (parsedIacFile.length === 1 && isTerraformPlan(parsedIacFile[0])) {
         analytics.add('iac-terraform-plan', true);
-        return tryParsingTerraformPlan(fileData, parsedIacFile[0]);
+        return tryParsingTerraformPlan(fileData, parsedIacFile[0], {
+          isFullScan: options.scan === TerraformPlanScanMode.FullScan,
+        });
       } else {
         try {
           return tryParsingKubernetesFile(fileData, parsedIacFile);
