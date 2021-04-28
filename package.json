@@ -143,6 +143,7 @@
   "devDependencies": {
     "@types/agent-base": "^4.2.1",
     "@types/diff": "^3.5.2",
+    "@types/fs-extra": "^9.0.11",
     "@types/jest": "^26.0.20",
     "@types/lodash": "^4.14.161",
     "@types/needle": "^2.0.4",
@@ -155,6 +156,7 @@
     "@typescript-eslint/parser": "^2.0.0",
     "eslint": "6.8.0",
     "eslint-config-prettier": "^6.1.0",
+    "fs-extra": "^9.1.0",
     "jest": "^26.6.3",
     "lodash": "^4.17.20",
     "lodash.countby": "^4.6.0",
