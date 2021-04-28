@@ -458,14 +458,11 @@ jobs:
           command: |
             ../release-scripts/validate-checksums.sh
       - run:
-          name: Create a GitHub release
+          name: Generate Release Notes
           command: |
-            latest_version=$(cat lerna.json | jq .version -r)
-            new_tag="v${latest_version}"
             npx conventional-changelog-cli -p angular -l -r 1 > RELEASE_NOTES.txt
-            gh release create ${new_tag} --title "${new_tag}" --notes-file RELEASE_NOTES.txt
       - run:
-          name: Upload assets to the GitHub Release and a public S3
+          name: Upload Artifacts
           command: ./release-scripts/upload-artifacts.sh
       - run:
           name: Handle failed CLI release
