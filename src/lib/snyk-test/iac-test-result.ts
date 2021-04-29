@@ -49,6 +49,8 @@ export function mapIacTestResult(
     };
   }
 
+  const infrastructureAsCodeIssues =
+    iacTest?.result?.cloudConfigResults.map(mapIacIssue) || [];
   const {
     result: { projectType },
     ...filteredIacTest
@@ -56,8 +58,8 @@ export function mapIacTestResult(
   return {
     ...filteredIacTest,
     projectType,
-    [IAC_ISSUES_KEY]:
-      iacTest?.result?.cloudConfigResults.map(mapIacIssue) || [],
+    ok: infrastructureAsCodeIssues.length === 0,
+    [IAC_ISSUES_KEY]: infrastructureAsCodeIssues,
   };
 }
 
