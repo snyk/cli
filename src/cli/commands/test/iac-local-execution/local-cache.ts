@@ -46,11 +46,10 @@ export function getLocalCachePath(engineType: EngineType) {
 }
 
 export async function initLocalCache(): Promise<void> {
-  const preSignedUrl =
-    'https://cloud-config-policy-bundles.s3-eu-west-1.amazonaws.com/bundle.tar.gz';
+  const BUNDLE_URL = 'https://static.snyk.io/cli/wasm/bundle.tar.gz';
   try {
     createIacDir();
-    const response: ReadableStream = needle.get(preSignedUrl);
+    const response: ReadableStream = needle.get(BUNDLE_URL);
     await extractBundle(response);
   } catch (e) {
     throw new FailedToInitLocalCacheError();
