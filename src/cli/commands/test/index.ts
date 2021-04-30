@@ -171,17 +171,8 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   } = extractDataToSendFromResults(results, jsonData, options);
 
   if (options.json || options.sarif) {
-    // the new experimental IaC flow does not have the ok field because it returns vulnerabilities and errors separately
-    // the legacy IaC flow may return errors that get mapped into errorMappedResults, but that flow will be removed soon
-    const successfulIacScanning =
-      options.iac &&
-      !foundVulnerabilities &&
-      (!iacScanFailures || iacScanFailures.length === 0);
-
-    // if running iac and it was successful, or
     // if all results are ok (.ok == true)
-    // then return the json
-    if (successfulIacScanning || errorMappedResults.every((res) => res.ok)) {
+    if (errorMappedResults.every((res) => res.ok)) {
       return TestCommandResult.createJsonTestCommandResult(
         stringifiedData,
         stringifiedJsonData,
