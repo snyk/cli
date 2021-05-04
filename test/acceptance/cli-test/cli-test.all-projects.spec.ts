@@ -1154,26 +1154,5 @@ export const AllProjectsTests: AcceptanceTests = {
         'Go dep package manager',
       );
     },
-    '`test mono-repo-poetry --all-projects`': (params, utils) => async (t) => {
-      utils.chdirWorkspaces();
-      const res: CommandResult = await params.cli.test('mono-repo-poetry', {
-        allProjects: true,
-      });
-      t.match(
-        res.getDisplayResults(),
-        /Tested 2 projects, no vulnerable paths were found./,
-        'Two projects tested',
-      );
-      t.match(
-        res.getDisplayResults(),
-        'Package manager:   npm',
-        'Npm package manager',
-      );
-      t.match(
-        res.getDisplayResults(),
-        'Package manager:   poetry',
-        'Poetry package manager',
-      );
-    },
   },
 };
