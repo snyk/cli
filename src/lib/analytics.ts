@@ -127,6 +127,17 @@ export function postAnalytics(
           ? queryStringParams
           : undefined;
 
+      // Log node 8 deprecation message
+      if (
+        !data.command.includes('--json') &&
+        data.nodeVersion.startsWith('v8')
+      ) {
+        console.error(
+          'Node.js 8 reached End Of Life on December 31, 2019 and the Snyk CLI will stop supporting it in the near future. ' +
+            '\nPlease consider upgrading your runtime version to Node 10 or higher in order to get Snyk CLI updates.',
+        );
+      }
+
       return request({
         body: {
           data: data,
