@@ -10,6 +10,7 @@ import { loadPolicy } from '@open-policy-agent/opa-wasm';
 import * as fs from 'fs';
 import { getLocalCachePath } from './local-cache';
 import { CustomError } from '../../../../lib/errors';
+import { validateBundleIntegrity } from './bundle-validator';
 
 export async function scanFiles(
   parsedFiles: Array<IacFileParsed>,
@@ -52,9 +53,18 @@ async function buildPolicyEngine(
   const [
     policyEngineCoreDataPath,
     policyEngineMetaDataPath,
+    policyEngineSignaturesPath,
+    policyEngineCertPath,
   ] = getLocalCachePath(engineType);
 
   try {
+    validateBundleIntegrity(
+      policyEngineSignaturesPath,
+      policyEngineCertPath,
+      policyEngineCoreDataPath,
+      policyEngineMetaDataPath,
+    );
+
     const wasmFile = fs.readFileSync(policyEngineCoreDataPath);
     const policyMetaData = fs.readFileSync(policyEngineMetaDataPath);
     const policyMetadataAsJson: Record<string, any> = JSON.parse(
@@ -68,6 +78,8 @@ async function buildPolicyEngine(
 
     return new PolicyEngine(opaWasmInstance);
   } catch (err) {
+    console.log('err', err);
+    // TODO: return proper error from validateBundleIntegrity?
     throw new FailedToBuildPolicyEngine();
   }
 }
@@ -89,6 +101,7 @@ class PolicyEngine {
         violatedPolicies,
       };
     } catch (err) {
+      console.log('err', err);
       // TODO: to distinguish between different failure reasons
       throw new FailedToExecutePolicyEngine();
     }

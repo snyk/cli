@@ -21,6 +21,10 @@ const KUBERNETES_POLICY_ENGINE_DATA_PATH = path.join(
   LOCAL_POLICY_ENGINE_DIR,
   'k8s_data.json',
 );
+const KUBERNETES_POLICY_ENGINE_SIGNATURES_PATH = path.join(
+  LOCAL_POLICY_ENGINE_DIR,
+  '.signatures.json',
+);
 const TERRAFORM_POLICY_ENGINE_WASM_PATH = path.join(
   LOCAL_POLICY_ENGINE_DIR,
   'tf_policy.wasm',
@@ -29,18 +33,33 @@ const TERRAFORM_POLICY_ENGINE_DATA_PATH = path.join(
   LOCAL_POLICY_ENGINE_DIR,
   'tf_data.json',
 );
-
+const TERRAFORM_POLICY_ENGINE_SIGNATURES_PATH = path.join(
+  LOCAL_POLICY_ENGINE_DIR,
+  '.signatures.json',
+);
+const POLICY_ENGINE_CERTIFICATE_PATH = path.join(
+  LOCAL_POLICY_ENGINE_DIR,
+  'cert.crt',
+);
 export function getLocalCachePath(engineType: EngineType) {
   switch (engineType) {
     case EngineType.Kubernetes:
       return [
         `${process.cwd()}/${KUBERNETES_POLICY_ENGINE_WASM_PATH}`,
         `${process.cwd()}/${KUBERNETES_POLICY_ENGINE_DATA_PATH}`,
+        `${process.cwd()}/ssCerts/.signatures.json`, // TODO: replace this with KUBERNETES_POLICY_ENGINE_SIGNATURES_PATH
+        // `${process.cwd()}/${KUBERNETES_POLICY_ENGINE_SIGNATURES_PATH}`,
+        `${process.cwd()}/ssCerts/teo.test.crt`, // TODO: replace this with POLICY_ENGINE_CERTIFICATE_PATH
+        // `${process.cwd()}/${POLICY_ENGINE_CERTIFICATE_PATH}`,
       ];
     case EngineType.Terraform:
       return [
         `${process.cwd()}/${TERRAFORM_POLICY_ENGINE_WASM_PATH}`,
         `${process.cwd()}/${TERRAFORM_POLICY_ENGINE_DATA_PATH}`,
+        `${process.cwd()}/ssCerts/.signatures.json`, // TODO: replace this with TERRAFORM_POLICY_ENGINE_SIGNATURES_PATH
+        // `${process.cwd()}/${TERRAFORM_POLICY_ENGINE_SIGNATURES_PATH}`,
+        `${process.cwd()}/ssCerts/teo.test.crt`, // TODO: replace this with POLICY_ENGINE_CERTIFICATE_PATH
+        // `${process.cwd()}/${POLICY_ENGINE_CERTIFICATE_PATH}`,
       ];
   }
 }
@@ -49,7 +68,10 @@ export async function initLocalCache(): Promise<void> {
   const BUNDLE_URL = 'https://static.snyk.io/cli/wasm/bundle.tar.gz';
   try {
     createIacDir();
-    const response: ReadableStream = needle.get(BUNDLE_URL);
+    // const response: ReadableStream = needle.get(BUNDLE_URL);
+    const response = fs.createReadStream(
+      `${process.cwd()}/ssCerts/bundle.tar.gz`,
+    );
     await extractBundle(response);
   } catch (e) {
     throw new FailedToInitLocalCacheError();

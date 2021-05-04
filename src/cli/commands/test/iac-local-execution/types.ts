@@ -233,4 +233,7 @@ export enum IaCErrorCodes {
 
   // assert-iac-options-flag
   FlagError = 1090,
+
+  // bundle-validator
+  FailedToValidateBundleIntegrity = 1100,
 }
