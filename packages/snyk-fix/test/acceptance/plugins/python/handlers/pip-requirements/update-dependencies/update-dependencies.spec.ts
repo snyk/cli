@@ -1243,6 +1243,9 @@ function generateEntityToFix(
   testResult: TestResult,
 ): snykFix.EntityToFix {
   const entityToFix = {
+    options: {
+      command: 'python3',
+    },
     workspace: {
       path: workspacesPath,
       readFile: async (path: string) => {

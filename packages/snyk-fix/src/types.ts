@@ -185,9 +185,16 @@ export interface EntityToFix {
   readonly workspace: Workspace;
   readonly scanResult: ScanResult;
   readonly testResult: TestResult;
-  // options
+  readonly options: CliTestOptions;
 }
 
+// Partial CLI test options interface
+// defining only what is used by @snyk/fix
+// add more as needed
+export interface PythonTestOptions {
+  command?: string; // python interpreter to use for python tests
+}
+export type CliTestOptions = PythonTestOptions;
 export interface WithError<Original> {
   original: Original;
   error: CustomError;
