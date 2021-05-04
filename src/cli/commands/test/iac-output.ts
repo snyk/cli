@@ -209,6 +209,7 @@ export function extractReportingDescriptor(
       },
       properties: {
         tags: ['security', `${issue.type}/${issue.subType}`],
+        documentation: issue.documentation,
       },
     };
   });
