@@ -5,13 +5,19 @@ import * as pathLib from 'path';
 
 const camelCase = require('lodash.camelcase');
 
+// import args as a first internal module
+import { args as argsLib, Args, ArgsOptions } from './args';
+// parse args as a first thing; argsLib modifies global namespace
+// therefore it is better to do it as a first thing to prevent bugs
+// when modules use this global setting during their require phase
+// TODO(code): remove once https://app.stepsize.com/issue/c2f6253e-7240-436f-943c-23a897558156/2-http-libraries-in-cli is solved
+const globalArgs = argsLib(process.argv);
 // assert supported node runtime version
 import * as runtime from './runtime';
 // require analytics as soon as possible to start measuring execution time
 import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
-import { args as argsLib, Args, ArgsOptions } from './args';
 import { TestCommandResult } from './commands/types';
 import { copy } from './copy';
 import spinner = require('../lib/spinner');
@@ -232,50 +238,48 @@ async function main() {
   updateCheck();
   checkRuntime();
 
-  const args = argsLib(process.argv);
-
   let res;
   let failed = false;
   let exitCode = EXIT_CODES.ERROR;
   try {
-    modeValidation(args);
+    modeValidation(globalArgs);
     // TODO: fix this, we do transformation to options and teh type doesn't reflect it
     validateUnsupportedOptionCombinations(
-      (args.options as unknown) as AllSupportedCliOptions,
+      (globalArgs.options as unknown) as AllSupportedCliOptions,
     );
 
     // IaC only: used for rolling out the experimental flow
     // modify args if experimental flag not provided, based on feature flag
     // this can be removed once experimental becomes the default
     if (
-      args.options['iac'] &&
-      args.command === 'test' &&
-      !args.options['experimental']
+      globalArgs.options['iac'] &&
+      globalArgs.command === 'test' &&
+      !globalArgs.options['experimental']
     ) {
       const iacOrgSettings = await getIacOrgSettings();
       const experimentalFlowEnabled = await isFeatureFlagSupportedForOrg(
         camelCase('experimental-local-exec-iac'),
         iacOrgSettings.meta.org,
       );
-      args.options['experimental'] = !!experimentalFlowEnabled.ok;
+      globalArgs.options['experimental'] = !!experimentalFlowEnabled.ok;
     }
 
-    if (args.options['app-vulns'] && args.options['json']) {
+    if (globalArgs.options['app-vulns'] && globalArgs.options['json']) {
       throw new UnsupportedOptionCombinationError([
         'Application vulnerabilities is currently not supported with JSON output. ' +
           'Please try using —app-vulns only to get application vulnerabilities, or ' +
           '—json only to get your image vulnerabilties, excluding the application ones.',
       ]);
     }
-    if (args.options['group-issues'] && args.options['iac']) {
+    if (globalArgs.options['group-issues'] && globalArgs.options['iac']) {
       throw new UnsupportedOptionCombinationError([
         '--group-issues is currently not supported for Snyk IaC.',
       ]);
     }
     if (
-      args.options['group-issues'] &&
-      !args.options['json'] &&
-      !args.options['json-file-output']
+      globalArgs.options['group-issues'] &&
+      !globalArgs.options['json'] &&
+      !globalArgs.options['json-file-output']
     ) {
       throw new UnsupportedOptionCombinationError([
         'JSON output is required to use --group-issues, try adding --json.',
@@ -283,46 +287,54 @@ async function main() {
     }
 
     if (
-      args.options.file &&
-      typeof args.options.file === 'string' &&
-      (args.options.file as string).match(/\.sln$/)
+      globalArgs.options.file &&
+      typeof globalArgs.options.file === 'string' &&
+      (globalArgs.options.file as string).match(/\.sln$/)
     ) {
-      if (args.options['project-name']) {
+      if (globalArgs.options['project-name']) {
         throw new UnsupportedOptionCombinationError([
           'file=*.sln',
           'project-name',
         ]);
       }
-      sln.updateArgs(args);
-    } else if (typeof args.options.file === 'boolean') {
+      sln.updateArgs(globalArgs);
+    } else if (typeof globalArgs.options.file === 'boolean') {
       throw new FileFlagBadInputError();
     }
 
     if (
-      typeof args.options.detectionDepth !== 'undefined' &&
-      (args.options.detectionDepth <= 0 ||
-        Number.isNaN(args.options.detectionDepth))
+      typeof globalArgs.options.detectionDepth !== 'undefined' &&
+      (globalArgs.options.detectionDepth <= 0 ||
+        Number.isNaN(globalArgs.options.detectionDepth))
     ) {
       throw new InvalidDetectionDepthValue();
     }
 
-    validateUnsupportedSarifCombinations(args);
+    validateUnsupportedSarifCombinations(globalArgs);
 
-    validateOutputFile(args.options, 'json', new JsonFileOutputBadInputError());
-    validateOutputFile(args.options, 'sarif', new SarifFileOutputEmptyError());
+    validateOutputFile(
+      globalArgs.options,
+      'json',
+      new JsonFileOutputBadInputError(),
+    );
+    validateOutputFile(
+      globalArgs.options,
+      'sarif',
+      new SarifFileOutputEmptyError(),
+    );
 
-    checkPaths(args);
+    checkPaths(globalArgs);
 
-    res = await runCommand(args);
+    res = await runCommand(globalArgs);
   } catch (error) {
     failed = true;
 
-    const response = await handleError(args, error);
+    const response = await handleError(globalArgs, error);
     res = response.res;
     exitCode = response.exitCode;
   }
 
-  if (!args.options.json) {
+  if (!globalArgs.options.json) {
     console.log(alerts.displayAlerts());
   }
 
