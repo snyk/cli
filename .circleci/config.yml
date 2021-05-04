@@ -58,18 +58,10 @@ commands:
           root: .
           paths:
             - dist/
-  install_gradle_windows:
-    description: Install gradle
+  install_windows_choco_dependencies:
+    description: Install test dependencies on Windows with Choco
     steps:
-      - run: choco install gradle
-  install_maven_windows:
-    description: Install maven
-    steps:
-      - run: choco install maven
-  install_sbt_windows:
-    description: Install SBT
-    steps:
-      - run: choco install sbt
+      - run: choco install gradle maven sbt
   install_sdkman_linux:
     description: Install SDKMAN
     steps:
@@ -215,13 +207,9 @@ jobs:
     <<: *windows_defaults
     steps:
       - run: git config --global core.autocrlf false
-      - install_gradle_windows
-      - install_maven_windows
-      - install_sbt_windows
-      - show_node_version
+      - install_windows_choco_dependencies
       - install_node_windows:
           node_version: << parameters.node_version >>
-      - show_node_version
       - checkout
       - attach_workspace:
           at: ~/snyk
@@ -229,7 +217,6 @@ jobs:
           condition: << parameters.use_npm7 >>
           steps:
             - run: npm install -g npm@7
-      - show_node_version
       - run:
           name: Setup Lerna
           command: npm install -g lerna@3.22.1
@@ -240,9 +227,6 @@ jobs:
           name: Install dependencies (Windows)
           command: npm install --ignore-scripts # ignore-scripts required because of postinstall script in snyk-resolve-deps package
       - build_ts
-      - run:
-          name: npm version
-          command: npm --version
       - run:
           name: Run auth
           shell: bash.exe
