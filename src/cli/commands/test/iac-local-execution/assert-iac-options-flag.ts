@@ -1,6 +1,6 @@
 import { CustomError } from '../../../../lib/errors';
 import { args } from '../../../args';
-import { IaCErrorCodes, IaCTestFlags } from './types';
+import { IaCErrorCodes, IaCTestFlags, TerraformPlanScanMode } from './types';
 
 const keys: (keyof IaCTestFlags)[] = [
   'debug',
@@ -18,6 +18,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'help',
   'q',
   'quiet',
+  'scan',
 ];
 const allowed = new Set<string>(keys);
 
@@ -25,13 +26,30 @@ function camelcaseToDash(key: string) {
   return key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
 }
 
+function getFlagName(key: string) {
+  const dashes = key.length === 1 ? '-' : '--';
+  const flag = camelcaseToDash(key);
+  return `${dashes}${flag}`;
+}
+
 class FlagError extends CustomError {
   constructor(key: string) {
-    const dashes = key.length === 1 ? '-' : '--';
-    const flag = camelcaseToDash(key);
-    const msg = `Unsupported flag "${dashes}${flag}" provided. Run snyk iac test --help for supported flags.`;
+    const flag = getFlagName(key);
+    const msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags.`;
     super(msg);
     this.code = IaCErrorCodes.FlagError;
+    this.userMessage = msg;
+  }
+}
+
+export class FlagValueError extends CustomError {
+  constructor(key: string, value: string) {
+    const flag = getFlagName(key);
+    const msg = `Unsupported value "${value}" provided to flag "${flag}".\nSupported values are: ${SUPPORTED_TF_PLAN_SCAN_MODES.join(
+      ', ',
+    )}`;
+    super(msg);
+    this.code = IaCErrorCodes.FlagValueError;
     this.userMessage = msg;
   }
 }
@@ -57,5 +75,24 @@ export function assertIaCOptionsFlags(argv: string[]) {
     if (key !== '_' && key !== 'iac' && !allowed.has(key)) {
       throw new FlagError(key);
     }
+  }
+
+  if (parsed.options.scan) {
+    assertTerraformPlanModes(parsed.options.scan as string);
+  }
+}
+
+const SUPPORTED_TF_PLAN_SCAN_MODES = [
+  TerraformPlanScanMode.DeltaScan,
+  TerraformPlanScanMode.FullScan,
+];
+
+function assertTerraformPlanModes(scanModeArgValue: string) {
+  if (
+    !SUPPORTED_TF_PLAN_SCAN_MODES.includes(
+      scanModeArgValue as TerraformPlanScanMode,
+    )
+  ) {
+    throw new FlagValueError('scan', scanModeArgValue);
   }
 }

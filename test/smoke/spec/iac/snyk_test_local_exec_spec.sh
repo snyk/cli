@@ -236,9 +236,8 @@ Describe "Snyk iac test --experimental command"
       The output should include "tf-plan.json for known issues, found"
     End
 
-    # The test below should be enabled once we add the full scan flag
-    xIt "finds issues in a Terraform plan file - full scan flag"
-      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental
+    It "finds issues in a Terraform plan file - full scan flag"
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental --scan=planned-values
       The status should equal 1 # issues found
       The output should include "Testing tf-plan.json"
 
@@ -249,6 +248,32 @@ Describe "Snyk iac test --experimental command"
       The output should include "  introduced by"
 
       The output should include "tf-plan.json for known issues, found"
+    End
+
+    It "finds issues in a Terraform plan file - explicit delta scan with flag"
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental --scan=resource-changes
+      The status should equal 1 # issues found
+      The output should include "Testing tf-plan.json"
+
+      # Outputs issues
+      The output should include "Infrastructure as code issues:"
+      # Root module
+      The output should include "✗ "
+      The output should include "  introduced by"
+
+      The output should include "tf-plan.json for known issues, found"
+    End
+
+    It "errors when a wrong value is passed to the --scan flag"
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental --scan=rsrc-changes
+      The status should equal 2 # failure
+      The output should include "Unsupported value"
+    End
+
+    It "errors when no value is provided to the --scan flag"
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan.json --experimental --scan
+      The status should equal 2 # failure
+      The output should include "Unsupported value"
     End
   End
 End
