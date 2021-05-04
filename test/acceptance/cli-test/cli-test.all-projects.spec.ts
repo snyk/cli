@@ -431,6 +431,7 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(loadPlugin.withArgs('sbt').calledOnce, 'calls sbt plugin');
       t.equals(loadPlugin.withArgs('pip').callCount, 2, 'calls pip plugin');
 
+      // Why are we triggering gradle here?
       params.server.popRequests(10).forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
