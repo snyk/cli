@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
-set -e
-
-gh_latest_release_tag=$(gh api repos/"${CIRCLE_PROJECT_USERNAME}"/"${CIRCLE_PROJECT_REPONAME}"/releases/latest | jq .tag_name -r)
-echo "gh_latest_release_tag: ${gh_latest_release_tag}"
-[[ ! $gh_latest_release_tag =~ ^v[0-9.]+$ ]] && echo "gh_latest_release_tag is not a valid version" && exit 1
+set -euo pipefail
 
 declare -a StaticFiles=(
   "binary-releases/snyk-alpine"
@@ -18,14 +14,17 @@ declare -a StaticFiles=(
   "binary-releases/docker-mac-signed-bundle.tar.gz.sha256"
 )
 
+latest_version=$(cat lerna.json | jq .version -r)
+new_tag="v${latest_version}"
+
 # Upload files to the GitHub release
-for filename in "${StaticFiles[@]}"; do
-  gh release upload "${gh_latest_release_tag}" "${filename}"
-done
+gh release create ${new_tag} ${StaticFiles[@]} \
+  --title "${new_tag}" \
+  --notes-file RELEASE_NOTES.txt
 
 # Upload files to the versioned folder
 for filename in "${StaticFiles[@]}"; do
-  aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${gh_latest_release_tag}"/
+  aws s3 cp "${filename}" s3://"${PUBLIC_S3_BUCKET}"/cli/"${new_tag}"/
 done
 
 # Upload files to the /latest folder

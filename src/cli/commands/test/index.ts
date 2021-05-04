@@ -171,7 +171,7 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   } = extractDataToSendFromResults(results, jsonData, options);
 
   if (options.json || options.sarif) {
-    // if all results are ok (.ok == true) then return the json
+    // if all results are ok (.ok == true)
     if (errorMappedResults.every((res) => res.ok)) {
       return TestCommandResult.createJsonTestCommandResult(
         stringifiedData,

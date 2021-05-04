@@ -24,3 +24,4 @@ src/lib/errors/unsupported-options-iac-error.ts @snyk/cloudconfig
 help/commands-docs/iac-examples.md @snyk/cloudconfig
 help/commands-docs/iac.md @snyk/cloudconfig
 packages/snyk-fix/ @snyk/tech-services
+packages/snyk-protect/ @snyk/hammer

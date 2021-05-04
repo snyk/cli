@@ -9,6 +9,11 @@ import { PhysicalModuleToPatch } from './types';
 async function protect(projectFolderPath: string) {
   const snykFilePath = path.resolve(projectFolderPath, '.snyk');
 
+  if (!fs.existsSync(snykFilePath)) {
+    console.log('No .snyk file found');
+    return;
+  }
+
   const snykFileContents = fs.readFileSync(snykFilePath, 'utf8');
   const snykFilePatchMetadata = extractPatchMetadata(snykFileContents);
 

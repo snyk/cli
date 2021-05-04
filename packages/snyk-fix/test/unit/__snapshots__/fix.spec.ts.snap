@@ -6,6 +6,9 @@ Object {
     "npm": Object {
       "originals": Array [
         Object {
+          "options": Object {
+            "command": "python3",
+          },
           "scanResult": Object {
             "facts": Array [
               Object {
@@ -124,6 +127,9 @@ Summary:
             },
           ],
           "original": Object {
+            "options": Object {
+              "command": "python3",
+            },
             "scanResult": Object {
               "facts": Array [
                 Object {
@@ -215,6 +221,9 @@ Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the iss
       "skipped": Array [
         Object {
           "original": Object {
+            "options": Object {
+              "command": "python3",
+            },
             "scanResult": Object {
               "facts": Array [
                 Object {
@@ -282,6 +291,9 @@ Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the iss
             },
           ],
           "original": Object {
+            "options": Object {
+              "command": "python3",
+            },
             "scanResult": Object {
               "facts": Array [
                 Object {
@@ -360,6 +372,9 @@ Object {
           },
         ],
         "original": Object {
+          "options": Object {
+            "command": "python3",
+          },
           "scanResult": Object {
             "facts": Array [
               Object {
