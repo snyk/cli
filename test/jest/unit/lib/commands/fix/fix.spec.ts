@@ -50,6 +50,19 @@ const pipWithRemediation = JSON.parse(
   ),
 );
 
+const pipNoIssues = JSON.parse(
+  fs.readFileSync(
+    pathLib.resolve(
+      __dirname,
+      '../../../../../',
+      'fixtures',
+      'snyk-fix',
+      'test-result-pip-no-vulns.json',
+    ),
+    'utf8',
+  ),
+);
+
 describe('snyk fix (functional tests)', () => {
   let origStdWrite;
   let snykFixSpy: jest.SpyInstance;
@@ -167,7 +180,7 @@ describe('snyk fix (functional tests)', () => {
   );
 
   it(
-    'snyk fix continues to fix when 1 path fails to test with `snyk fix path1 path2`',
+    'snyk fix continues to fix when 1 path fails to test with `snyk fix path1 path2` (exit code 0)',
     async () => {
       // read data from console.log
       let stdoutMessages = '';
@@ -205,7 +218,7 @@ describe('snyk fix (functional tests)', () => {
   );
 
   it(
-    'snyk fails to fix when all path fails to test with `snyk fix path1 path2`',
+    'snyk fails to fix when all path fails to test with `snyk fix path1 path2` (non 0 error code)',
     async () => {
       // read data from console.log
       let stdoutMessages = '';
@@ -236,6 +249,40 @@ describe('snyk fix (functional tests)', () => {
         quiet: true,
       });
       expect(stripAnsi(res.message)).toMatch('No successful fixes');
+      expect(stdoutMessages).toEqual('');
+      expect(stderrMessages).toEqual('');
+    },
+    testTimeout,
+  );
+
+  it(
+    'snyk succeeds to fix when no vulns `snyk fix path1` (exit code 0)',
+    async () => {
+      // read data from console.log
+      let stdoutMessages = '';
+      let stderrMessages = '';
+      jest
+        .spyOn(console, 'log')
+        .mockImplementation((msg: string) => (stdoutMessages += msg));
+      jest
+        .spyOn(console, 'error')
+        .mockImplementation((msg: string) => (stderrMessages += msg));
+
+      jest.spyOn(snyk, 'test').mockResolvedValue({
+        ...pipNoIssues,
+        // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
+        displayTargetFile: pipRequirementsTxt,
+      });
+      const res = await cli.fix(pipAppWorkspace, {
+        dryRun: true, // prevents write to disc
+        quiet: true,
+      });
+      expect(snykFixSpy).toHaveBeenCalledTimes(1);
+      expect(snykFixSpy.mock.calls[0][1]).toEqual({
+        dryRun: true,
+        quiet: true,
+      });
+      expect(stripAnsi(res)).toMatch('No successful fixes');
       expect(stdoutMessages).toEqual('');
       expect(stderrMessages).toEqual('');
     },

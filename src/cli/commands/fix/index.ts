@@ -37,14 +37,29 @@ async function fix(...args: MethodArgs): Promise<string> {
   validateCredentials(options);
   const results: snykFix.EntityToFix[] = [];
   results.push(...(await runSnykTestLegacy(options, paths)));
-
   // fix
   debug(
     `Organization has ${snykFixFeatureFlag} feature flag enabled for experimental Snyk fix functionality`,
   );
+  const vulnerableResults = results.filter(
+    (res) => Object.keys(res.testResult.issues).length,
+  );
   const { dryRun, quiet } = options;
   const { fixSummary, meta } = await snykFix.fix(results, { dryRun, quiet });
-  if (meta.fixed === 0) {
+
+  // `snyk test` did not return any test results
+  if (results.length === 0) {
+    throw new Error(fixSummary);
+  }
+  // `snyk test` returned no vulnerable results, so nothing to fix
+  if (vulnerableResults.length === 0) {
+    return fixSummary;
+  }
+  // `snyk test` returned vulnerable results
+  // however some errors occurred during `snyk fix` and nothing was fixed in the end
+  const anyFailed = meta.failed > 0;
+  const noneFixed = meta.fixed === 0;
+  if (anyFailed && noneFixed) {
     throw new Error(fixSummary);
   }
   return fixSummary;
