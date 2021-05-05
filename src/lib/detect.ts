@@ -148,7 +148,6 @@ export function detectPackageManager(root: string, options) {
   if (!packageManager) {
     throw NoSupportedManifestsFoundError([root]);
   }
-
   return packageManager;
 }
 
