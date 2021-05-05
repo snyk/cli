@@ -1,25 +1,21 @@
+import { CallGraph, CallGraphError } from '@snyk/cli-interface/legacy/common';
+import * as depGraphLib from '@snyk/dep-graph';
+import chalk from 'chalk';
+import * as debugModule from 'debug';
 import * as fs from 'fs';
-const get = require('lodash.get');
+import * as get from 'lodash.get';
 import * as path from 'path';
 import * as pathUtil from 'path';
-import * as debugModule from 'debug';
-import chalk from 'chalk';
-import { parsePackageString as moduleToObject } from 'snyk-module';
-import * as depGraphLib from '@snyk/dep-graph';
-import { IacScan } from './payload-schema';
 import * as Queue from 'promise-queue';
-
-import {
-  AffectedPackages,
-  AnnotatedIssue,
-  convertTestDepGraphResultToLegacy,
-  DockerIssue,
-  LegacyVulnApiResult,
-  TestDependenciesResponse,
-  TestDepGraphResponse,
-  TestResult,
-} from './legacy';
-import { IacTestResponse } from './iac-test-result';
+import { parsePackageString as moduleToObject } from 'snyk-module';
+import * as snyk from '../';
+import * as alerts from '../alerts';
+import * as analytics from '../analytics';
+import { getAuthHeader } from '../api-token';
+import * as config from '../config';
+import { getEcosystem } from '../ecosystems';
+import { Issue } from '../ecosystems/types';
+import { abridgeErrorMessage } from '../error-format';
 import {
   AuthFailedError,
   DockerImageNotFoundError,
@@ -30,14 +26,22 @@ import {
   NoSupportedManifestsFoundError,
   UnsupportedFeatureFlagError,
 } from '../errors';
-import * as snyk from '../';
+import { NonExistingPackageError } from '../errors/non-existing-package-error';
 import { isCI } from '../is-ci';
-import * as common from './common';
-import * as config from '../config';
-import * as analytics from '../analytics';
+import { validateOptions } from '../options-validator';
+import { extractPackageManager } from '../plugins/extract-package-manager';
+import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
+import { getExtraProjectCount } from '../plugins/get-extra-project-count';
+import {
+  MultiProjectResultCustom,
+  ScannedProjectCustom,
+} from '../plugins/get-multi-plugin-result';
+import { findAndLoadPolicy } from '../policy';
 import { maybePrintDepGraph, maybePrintDepTree } from '../print-deps';
-import { ContainerTarget, GitTarget } from '../project-metadata/types';
 import * as projectMetadata from '../project-metadata';
+import { ContainerTarget, GitTarget } from '../project-metadata/types';
+import { pruneGraph } from '../prune';
+import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import {
   DepTree,
   Options,
@@ -45,32 +49,28 @@ import {
   SupportedProjectTypes,
   TestOptions,
 } from '../types';
-import { pruneGraph } from '../prune';
-import { getDepsFromPlugin } from '../plugins/get-deps-from-plugin';
+import { assembleEcosystemPayloads } from './assemble-payloads';
+import * as common from './common';
+import { IacTestResponse } from './iac-test-result';
 import {
-  MultiProjectResultCustom,
-  ScannedProjectCustom,
-} from '../plugins/get-multi-plugin-result';
-import { extractPackageManager } from '../plugins/extract-package-manager';
-import { getExtraProjectCount } from '../plugins/get-extra-project-count';
-import { serializeCallGraphWithMetrics } from '../reachable-vulns';
-import { validateOptions } from '../options-validator';
-import { findAndLoadPolicy } from '../policy';
+  AffectedPackages,
+  AnnotatedIssue,
+  convertTestDepGraphResultToLegacy,
+  DockerIssue,
+  LegacyVulnApiResult,
+  TestDependenciesResponse,
+  TestDepGraphResponse,
+  TestResult,
+} from './legacy';
+import { IacScan } from './payload-schema';
 import { assembleIacLocalPayloads, parseIacTestResult } from './run-iac-test';
 import {
+  DepTreeFromResolveDeps,
   Payload,
   PayloadBody,
-  DepTreeFromResolveDeps,
   TestDependenciesRequest,
 } from './types';
-import { CallGraphError, CallGraph } from '@snyk/cli-interface/legacy/common';
-import * as alerts from '../alerts';
-import { abridgeErrorMessage } from '../error-format';
-import { getAuthHeader } from '../api-token';
-import { getEcosystem } from '../ecosystems';
-import { Issue } from '../ecosystems/types';
-import { assembleEcosystemPayloads } from './assemble-payloads';
-import { NonExistingPackageError } from '../errors/non-existing-package-error';
+
 import request = require('../request');
 import spinner = require('../spinner');
 

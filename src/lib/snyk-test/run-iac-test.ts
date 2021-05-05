@@ -1,18 +1,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as pathUtil from 'path';
-import { TestResult } from './legacy';
-import { IacTestResponse } from './iac-test-result';
-import * as snyk from '..';
-import { isCI } from '../is-ci';
-import * as common from './common';
-import * as config from '../config';
-import { Options, TestOptions } from '../types';
-import { Payload } from './types';
-import { IacScan } from './payload-schema';
-import { SEVERITY } from './legacy';
 import * as pathLib from 'path';
-import { projectTypeByFileType, IacFileTypes } from '../iac/constants';
+import * as pathUtil from 'path';
+import * as snyk from '..';
+import * as config from '../config';
+import { IacFileTypes, projectTypeByFileType } from '../iac/constants';
+import { isCI } from '../is-ci';
+import { Options, TestOptions } from '../types';
+import * as common from './common';
+import { IacTestResponse } from './iac-test-result';
+import { SEVERITY, TestResult } from './legacy';
+import { IacScan } from './payload-schema';
+import { Payload } from './types';
 
 export async function parseIacTestResult(
   res: IacTestResponse,

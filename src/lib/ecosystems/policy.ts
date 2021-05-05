@@ -1,5 +1,4 @@
 import * as path from 'path';
-
 import { SupportedPackageManagers } from '../package-managers';
 import { findAndLoadPolicy } from '../policy';
 import { Options, PolicyOptions } from '../types';

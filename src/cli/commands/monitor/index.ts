@@ -1,44 +1,44 @@
 export = monitor;
 
-import chalk from 'chalk';
-import * as fs from 'fs';
-import * as Debug from 'debug';
-import * as pathUtil from 'path';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
-import { validateOptions } from '../../../lib/options-validator';
-
-import {
-  MonitorOptions,
-  MonitorMeta,
-  MonitorResult,
-  Options,
-  Contributor,
-} from '../../../lib/types';
+import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
+import chalk from 'chalk';
+import * as Debug from 'debug';
+import * as fs from 'fs';
+import * as pathUtil from 'path';
+import * as analytics from '../../../lib/analytics';
+import { apiTokenExists } from '../../../lib/api-token';
 import * as config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
-import { GoodResult, BadResult } from './types';
-import * as spinner from '../../../lib/spinner';
-import * as analytics from '../../../lib/analytics';
-import { MethodArgs } from '../../args';
-import { apiTokenExists } from '../../../lib/api-token';
-import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
-import { monitor as snykMonitor } from '../../../lib/monitor';
-import { processJsonMonitorResponse } from './process-json-monitor';
-import snyk = require('../../../lib'); // TODO(kyegupov): fix import
-import { formatMonitorOutput } from './formatters/format-monitor-response';
-import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
-import { getExtraProjectCount } from '../../../lib/plugins/get-extra-project-count';
-import { extractPackageManager } from '../../../lib/plugins/extract-package-manager';
-import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-result';
-import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
-import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
-import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
-import { getContributors } from '../../../lib/monitor/dev-count-analysis';
-import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
-import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
+import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
+import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
+import { monitor as snykMonitor } from '../../../lib/monitor';
+import { getContributors } from '../../../lib/monitor/dev-count-analysis';
+import { validateOptions } from '../../../lib/options-validator';
+import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-multi-plugin-res-to-multi-custom';
+import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
+import { extractPackageManager } from '../../../lib/plugins/extract-package-manager';
+import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
+import { getExtraProjectCount } from '../../../lib/plugins/get-extra-project-count';
+import { MultiProjectResultCustom } from '../../../lib/plugins/get-multi-plugin-result';
+import { maybePrintDepGraph, maybePrintDepTree } from '../../../lib/print-deps';
+import * as spinner from '../../../lib/spinner';
+import {
+  Contributor,
+  MonitorMeta,
+  MonitorOptions,
+  MonitorResult,
+  Options,
+} from '../../../lib/types';
+import { MethodArgs } from '../../args';
 import { processCommandArgs } from '../process-command-args';
+import { formatMonitorOutput } from './formatters/format-monitor-response';
+import { processJsonMonitorResponse } from './process-json-monitor';
+import { BadResult, GoodResult } from './types';
+
+import snyk = require('../../../lib'); // TODO(kyegupov): fix import
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');

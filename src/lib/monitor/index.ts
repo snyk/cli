@@ -1,58 +1,57 @@
-import * as Debug from 'debug';
-import * as path from 'path';
-
-import * as depGraphLib from '@snyk/dep-graph';
-import * as snyk from '..';
-import { apiTokenExists } from '../api-token';
-import request = require('../request');
-import * as config from '../config';
-import * as os from 'os';
-const get = require('lodash.get');
-const camelCase = require('lodash.camelcase');
-import { isCI } from '../is-ci';
-import * as analytics from '../analytics';
-import {
-  DepTree,
-  MonitorMeta,
-  MonitorResult,
-  PolicyOptions,
-  MonitorOptions,
-  Options,
-  Contributor,
-} from '../types';
-import * as projectMetadata from '../project-metadata';
-
-import {
-  MonitorError,
-  ConnectionTimeoutError,
-  AuthFailedError,
-  FailedToRunTestError,
-} from '../errors';
-import { pruneGraph } from '../prune';
-import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
-import { isFeatureFlagSupportedForOrg } from '../feature-flags';
-import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
-import { filterOutMissingDeps } from './filter-out-missing-deps';
-import { dropEmptyDeps } from './drop-empty-deps';
-import { pruneTree } from './prune-dep-tree';
-import { findAndLoadPolicy } from '../policy';
-import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import {
   CallGraph,
   CallGraphError,
   ScannedProject,
 } from '@snyk/cli-interface/legacy/common';
+import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
+import * as depGraphLib from '@snyk/dep-graph';
+import * as Debug from 'debug';
+import * as camelCase from 'lodash.camelcase';
+import * as get from 'lodash.get';
+import * as os from 'os';
+import * as path from 'path';
+import * as snyk from '..';
+import * as alerts from '../alerts';
+import * as analytics from '../analytics';
+import { apiTokenExists } from '../api-token';
+import * as config from '../config';
+import { abridgeErrorMessage } from '../error-format';
+import {
+  AuthFailedError,
+  ConnectionTimeoutError,
+  FailedToRunTestError,
+  MonitorError,
+} from '../errors';
+import { isFeatureFlagSupportedForOrg } from '../feature-flags';
+import { isCI } from '../is-ci';
+import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
+import { findAndLoadPolicy } from '../policy';
+import * as projectMetadata from '../project-metadata';
 import { isGitTarget } from '../project-metadata/types';
+import { pruneGraph } from '../prune';
 import { serializeCallGraphWithMetrics } from '../reachable-vulns';
 import {
-  getNameDepTree,
+  Contributor,
+  DepTree,
+  MonitorMeta,
+  MonitorOptions,
+  MonitorResult,
+  Options,
+  PolicyOptions,
+} from '../types';
+import { countPathsToGraphRoot } from '../utils';
+import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
+import { dropEmptyDeps } from './drop-empty-deps';
+import { filterOutMissingDeps } from './filter-out-missing-deps';
+import { pruneTree } from './prune-dep-tree';
+import {
   getNameDepGraph,
+  getNameDepTree,
   getProjectName,
   getTargetFile,
 } from './utils';
-import { countPathsToGraphRoot } from '../utils';
-import * as alerts from '../alerts';
-import { abridgeErrorMessage } from '../error-format';
+
+import request = require('../request');
 
 const debug = Debug('snyk');
 
