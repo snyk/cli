@@ -5,7 +5,6 @@ import * as debugModule from 'debug';
 import * as fs from 'fs';
 import * as get from 'lodash.get';
 import * as path from 'path';
-import * as pathUtil from 'path';
 import * as Queue from 'promise-queue';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as snyk from '../';
@@ -645,17 +644,9 @@ async function assembleLocalPayloads(
       const targetFile =
         scannedProject.targetFile || deps.plugin.targetFile || options.file;
 
-      // Forcing options.path to be a string as pathUtil requires is to be stringified
       const targetFileRelativePath = targetFile
-        ? pathUtil.join(pathUtil.resolve(`${options.path || root}`), targetFile)
-        : '';
-
-      let targetFileDir;
-
-      if (targetFileRelativePath) {
-        const { dir } = path.parse(targetFileRelativePath);
-        targetFileDir = dir;
-      }
+        ? path.resolve(`${options.path || root}`, targetFile)
+        : undefined;
 
       const policy = await findAndLoadPolicy(
         root,
@@ -664,7 +655,9 @@ async function assembleLocalPayloads(
         // TODO: fix this and send only send when we used resolve-deps for node
         // it should be a ExpandedPkgTree type instead
         pkg,
-        targetFileDir,
+        targetFileRelativePath
+          ? path.dirname(targetFileRelativePath)
+          : undefined,
       );
 
       analytics.add('packageManager', packageManager);
@@ -697,7 +690,7 @@ async function assembleLocalPayloads(
         targetFile: project.plugin.targetFile,
 
         // TODO: Remove relativePath prop once we gather enough ruby related logs
-        targetFileRelativePath: `${targetFileRelativePath}`, // Forcing string
+        targetFileRelativePath,
         projectNameOverride: options.projectName,
         originalProjectName,
         policy: policy ? policy.toString() : undefined,

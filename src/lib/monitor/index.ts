@@ -195,13 +195,6 @@ async function monitorDepTree(
     treeMissingDeps = missingDeps;
   }
 
-  let targetFileDir;
-
-  if (targetFileRelativePath) {
-    const { dir } = path.parse(targetFileRelativePath);
-    targetFileDir = dir;
-  }
-
   const policy = await findAndLoadPolicy(
     root,
     meta.isDocker ? 'docker' : packageManager!,
@@ -209,7 +202,7 @@ async function monitorDepTree(
     // TODO: fix this and send only send when we used resolve-deps for node
     // it should be a ExpandedPkgTree type instead
     depTree,
-    targetFileDir,
+    targetFileRelativePath ? path.dirname(targetFileRelativePath) : undefined,
   );
 
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
@@ -367,19 +360,12 @@ export async function monitorDepGraph(
     );
   }
 
-  let targetFileDir;
-
-  if (targetFileRelativePath) {
-    const { dir } = path.parse(targetFileRelativePath);
-    targetFileDir = dir;
-  }
-
   const policy = await findAndLoadPolicy(
     root,
     meta.isDocker ? 'docker' : packageManager!,
     options,
     undefined,
-    targetFileDir,
+    targetFileRelativePath ? path.dirname(targetFileRelativePath) : undefined,
   );
 
   const target = await projectMetadata.getInfo(scannedProject, meta);
@@ -530,13 +516,6 @@ async function experimentalMonitorDepGraphFromDepTree(
     );
   }
 
-  let targetFileDir;
-
-  if (targetFileRelativePath) {
-    const { dir } = path.parse(targetFileRelativePath);
-    targetFileDir = dir;
-  }
-
   const policy = await findAndLoadPolicy(
     root,
     meta.isDocker ? 'docker' : packageManager!,
@@ -544,7 +523,7 @@ async function experimentalMonitorDepGraphFromDepTree(
     // TODO: fix this and send only send when we used resolve-deps for node
     // it should be a ExpandedPkgTree type instead
     depTree,
-    targetFileDir,
+    targetFileRelativePath ? path.dirname(targetFileRelativePath) : undefined,
   );
 
   if (['npm', 'yarn'].includes(meta.packageManager)) {

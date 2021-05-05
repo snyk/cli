@@ -212,7 +212,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
           const tFile = projectDeps.targetFile || targetFile;
           const targetFileRelativePath =
             projectDeps.plugin.targetFile ||
-            (tFile && pathUtil.join(pathUtil.resolve(path), tFile)) ||
+            (tFile && pathUtil.resolve(path, tFile)) ||
             '';
 
           const res: MonitorResult = await promiseOrCleanup(

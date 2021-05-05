@@ -8,11 +8,14 @@ export async function findAndLoadPolicyForScanResult(
   scanResult: ScanResult,
   options: Options & PolicyOptions,
 ): Promise<object | undefined> {
-  const targetFileRelativePath = scanResult.identity.targetFile
-    ? path.join(path.resolve(`${options.path}`), scanResult.identity.targetFile)
+  const targetFilePath = scanResult.identity.targetFile
+    ? path.resolve(
+        path.resolve(`${options.path}`),
+        scanResult.identity.targetFile,
+      )
     : undefined;
-  const targetFileDir = targetFileRelativePath
-    ? path.parse(targetFileRelativePath).dir
+  const targetFileDir = targetFilePath
+    ? path.dirname(targetFilePath)
     : undefined;
   const scanType = options.docker
     ? 'docker'

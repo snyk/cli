@@ -16,7 +16,7 @@ import { Payload } from './types';
 export async function parseIacTestResult(
   res: IacTestResponse,
   targetFile: string | undefined,
-  targetFileRelativePath: string | undefined,
+  targetFilePath: string | undefined,
   projectName: any,
   severityThreshold?: SEVERITY,
   //TODO(orka): future - return a proper type
@@ -38,7 +38,7 @@ export async function parseIacTestResult(
     policy: meta.policy,
     isPrivate: !meta.isPublic,
     severityThreshold,
-    targetFilePath: targetFileRelativePath,
+    targetFilePath,
   };
 }
 
@@ -59,7 +59,7 @@ export async function assembleIacLocalPayloads(
     const fileType = pathLib.extname(root).substr(1);
     const targetFile = pathLib.resolve(root, '.');
     const targetFileRelativePath = targetFile
-      ? pathUtil.join(pathUtil.resolve(`${options.path}`), targetFile)
+      ? pathUtil.resolve(`${options.path}`, targetFile)
       : '';
     filesToTest.push({
       fileType,
