@@ -1,8 +1,7 @@
-import * as fs from 'fs';
-import protect from '../../src/lib';
+import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as uuid from 'uuid';
-import * as fse from 'fs-extra';
+import protect from '../../src/lib';
 
 type TestProject = {
   path: string;
@@ -20,18 +19,18 @@ describe('@snyk/protect', () => {
       path: projectPath,
       file: (filePath: string) => {
         const fullFilePath = path.join(projectPath, filePath);
-        return fs.promises.readFile(fullFilePath, 'utf-8');
+        return fse.readFile(fullFilePath, 'utf-8');
       },
     };
   };
 
-  beforeAll(() => {
+  beforeAll(async () => {
     tempFolder = path.join(__dirname, '__output__', uuid.v4());
-    fs.mkdirSync(tempFolder, { recursive: true });
+    await fse.ensureDir(tempFolder);
   });
 
-  afterAll(() => {
-    fs.rmdirSync(tempFolder, { recursive: true });
+  afterAll(async () => {
+    await fse.remove(tempFolder);
   });
 
   afterEach(() => {
