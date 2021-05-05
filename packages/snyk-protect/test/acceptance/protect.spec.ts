@@ -24,16 +24,13 @@ describe('@snyk/protect', () => {
     };
   };
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     tempFolder = path.join(__dirname, '__output__', uuid.v4());
     await fse.ensureDir(tempFolder);
   });
 
-  afterAll(async () => {
+  afterEach(async () => {
     await fse.remove(tempFolder);
-  });
-
-  afterEach(() => {
     jest.restoreAllMocks();
   });
 
