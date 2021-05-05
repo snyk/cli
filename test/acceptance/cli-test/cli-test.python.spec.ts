@@ -294,7 +294,6 @@ export const PythonTests: AcceptanceTests = {
       );
       t.match(req.url, '/test-dep-graph', 'posts to correct url');
       t.equal(req.body.targetFile, 'pyproject.toml', 'specifies target');
-      t.equal(req.body.depGraph.pkgManager.name, 'poetry');
     },
   },
 };
