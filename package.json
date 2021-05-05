@@ -109,7 +109,7 @@
     "micromatch": "4.0.2",
     "needle": "2.6.0",
     "open": "^7.0.3",
-    "ora": "5.3.0",
+    "ora": "5.4.0",
     "os-name": "^3.0.0",
     "promise-queue": "^2.2.5",
     "proxy-from-env": "^1.0.0",
