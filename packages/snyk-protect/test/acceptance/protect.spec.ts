@@ -25,7 +25,7 @@ describe('@snyk/protect', () => {
   };
 
   beforeEach(async () => {
-    tempFolder = path.join(__dirname, '__output__', uuid.v4());
+    tempFolder = path.join(__dirname, '__outputs__', uuid.v4());
     await fse.ensureDir(tempFolder);
   });
 
