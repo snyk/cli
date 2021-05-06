@@ -80,6 +80,7 @@ export const expectedFormattedResults = {
         },
         severity: anotherPolicyStub.severity,
         lineNumber: 3,
+        documentation: `https://snyk.io/security-rules/${anotherPolicyStub.publicId}`,
       },
     ],
     projectType: 'k8sconfig',

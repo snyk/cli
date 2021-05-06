@@ -303,6 +303,7 @@ function generateDummyIssue(severity): AnnotatedIacIssue {
     subType: 'Deployment',
     path: [],
     lineNumber: 1,
+    documentation: 'https://snyk.io/security-rules/SNYK-CC-K8S-1',
   };
 }
 

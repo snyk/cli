@@ -1,0 +1,20 @@
+{
+  "vulnerabilities": [],
+  "ok": true,
+  "dependencyCount": 2,
+  "org": "bananaq",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.19.0\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": {},
+  "packageManager": "pip",
+  "ignoreSettings": null,
+  "summary": "Tested 1 project, no vulnerable paths were found.",
+  "filesystemPolicy": false,
+  "filtered": {
+    "ignore": [],
+    "patch": []
+  },
+  "uniqueCount": 4,
+  "projectName": "pip-app",
+  "foundProjectCount": 23
+}

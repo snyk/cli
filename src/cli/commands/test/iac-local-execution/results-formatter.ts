@@ -65,6 +65,7 @@ function formatScanResult(
       },
       severity: policy.severity,
       lineNumber,
+      documentation: `https://snyk.io/security-rules/${policy.publicId}`,
     };
   });
 

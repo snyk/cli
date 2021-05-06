@@ -10,6 +10,7 @@ export interface AnnotatedIacIssue {
   type: string;
   subType: string;
   path: string[];
+  documentation: string;
   // Legacy fields from Registry, unused.
   name?: string;
   from?: string[];

@@ -1,0 +1,155 @@
+{
+    "resource": {
+      "aws_codebuild_project": {
+        "terra_ci": {
+          "artifacts": [
+            {
+              "artifact_identifier": null,
+              "encryption_disabled": false,
+              "location": "terra-ci-artifacts-eu-west-1-000002",
+              "name": null,
+              "namespace_type": null,
+              "override_artifact_name": false,
+              "packaging": null,
+              "path": null,
+              "type": "S3"
+            }
+          ],
+          "badge_enabled": false,
+          "build_timeout": 10,
+          "cache": [],
+          "description": "Deploy environment configuration",
+          "environment": [
+            {
+              "certificate": null,
+              "compute_type": "BUILD_GENERAL1_SMALL",
+              "environment_variable": [],
+              "image": "aws/codebuild/amazonlinux2-x86_64-standard:2.0",
+              "image_pull_credentials_type": "CODEBUILD",
+              "privileged_mode": false,
+              "registry_credential": [],
+              "type": "LINUX_CONTAINER"
+            }
+          ],
+          "logs_config": [
+            {
+              "cloudwatch_logs": [
+                {
+                  "group_name": null,
+                  "status": "ENABLED",
+                  "stream_name": null
+                }
+              ],
+              "s3_logs": [
+                {
+                  "encryption_disabled": false,
+                  "location": null,
+                  "status": "DISABLED"
+                }
+              ]
+            }
+          ],
+          "name": "terra-ci-runner",
+          "queued_timeout": 480,
+          "secondary_artifacts": [],
+          "secondary_sources": [],
+          "source": [
+            {
+              "auth": [],
+              "buildspec": "version: 0.2\nphases:\n  install:\n    commands:\n      - make install_tools\n  build:\n    commands:\n      - make plan_local resource=$TERRA_CI_RESOURCE\nartifacts:\n  files:\n    - ./tfplan\n  name: $TERRA_CI_BUILD_NAME\n\n",
+              "git_clone_depth": 1,
+              "git_submodules_config": [],
+              "insecure_ssl": false,
+              "location": "https://github.com/p0tr3c-terraform/terra-ci-single-account.git",
+              "report_build_status": false,
+              "type": "GITHUB"
+            }
+          ],
+          "source_version": null,
+          "tags": null,
+          "vpc_config": []
+        }
+      },
+      "aws_iam_role": {
+        "terra_ci_job": {
+          "assume_role_policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"Service\": \"codebuild.amazonaws.com\"\n      },\n      \"Action\": \"sts:AssumeRole\"\n    }\n  ]\n}\n",
+          "description": null,
+          "force_detach_policies": false,
+          "max_session_duration": 3600,
+          "name": "terra_ci_job",
+          "name_prefix": null,
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null
+        },
+        "terra_ci_runner": {
+          "assume_role_policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Principal\": {\n        \"Service\": \"states.amazonaws.com\"\n      },\n      \"Action\": \"sts:AssumeRole\"\n    }\n  ]\n}\n",
+          "description": null,
+          "force_detach_policies": false,
+          "max_session_duration": 3600,
+          "name": "terra_ci_runner",
+          "name_prefix": null,
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": null
+        }
+      },
+      "aws_iam_role_policy": {
+        "terra_ci_job": {
+          "name_prefix": null,
+          "role": "terra_ci_job"
+        },
+        "terra_ci_runner": {
+          "name_prefix": null,
+          "role": "terra_ci_runner"
+        }
+      },
+      "aws_iam_role_policy_attachment": {
+        "terra_ci_job_ecr_access": {
+          "policy_arn": "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser",
+          "role": "terra_ci_job"
+        }
+      },
+      "aws_s3_bucket": {
+        "terra_ci": {
+          "acl": "private",
+          "bucket": "terra-ci-artifacts-eu-west-1-000002",
+          "bucket_prefix": null,
+          "cors_rule": [],
+          "force_destroy": false,
+          "grant": [],
+          "lifecycle_rule": [],
+          "logging": [],
+          "object_lock_configuration": [],
+          "policy": null,
+          "replication_configuration": [],
+          "server_side_encryption_configuration": [
+            {
+              "rule": [
+                {
+                  "apply_server_side_encryption_by_default": [
+                    {
+                      "kms_master_key_id": null,
+                      "sse_algorithm": "aws:kms"
+                    }
+                  ],
+                  "bucket_key_enabled": false
+                }
+              ]
+            }
+          ],
+          "tags": null,
+          "website": []
+        }
+      },
+      "aws_sfn_state_machine": {
+        "terra_ci_runner": {
+          "definition": "{\n  \"Comment\": \"Run Terragrunt Jobs\",\n  \"StartAt\": \"OnBranch?\",\n  \"States\": {\n    \"OnBranch?\": {\n      \"Type\": \"Choice\",\n      \"Choices\": [\n        {\n          \"Variable\": \"$.build.sourceversion\",\n          \"IsPresent\": true,\n          \"Next\": \"PlanBranch\"\n        }\n      ],\n      \"Default\": \"Plan\"\n    },\n    \"Plan\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:states:::codebuild:startBuild.sync\",\n      \"Parameters\": {\n        \"ProjectName\": \"terra-ci-runner\",\n        \"EnvironmentVariablesOverride\": [\n          {\n            \"Name\": \"TERRA_CI_BUILD_NAME\",\n            \"Value.$\": \"$$.Execution.Name\"\n          },\n          {\n            \"Name\": \"TERRA_CI_RESOURCE\",\n            \"Value.$\": \"$.build.environment.terra_ci_resource\"\n          }\n        ]\n      },\n      \"End\": true\n    },\n    \"PlanBranch\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:states:::codebuild:startBuild.sync\",\n      \"Parameters\": {\n        \"ProjectName\": \"terra-ci-runner\",\n        \"SourceVersion.$\": \"$.build.sourceversion\",\n        \"EnvironmentVariablesOverride\": [\n          {\n            \"Name\": \"TERRA_CI_RESOURCE\",\n            \"Value.$\": \"$.build.environment.terra_ci_resource\"\n          }\n        ]\n      },\n      \"End\": true\n    }\n  }\n}\n",
+          "name": "terra-ci-runner",
+          "tags": null,
+          "type": "STANDARD"
+        }
+      }
+    },
+    "data": {}
+  }
