@@ -170,12 +170,6 @@ export interface TerraformPlanResourceChange
 
 export interface TerraformPlanJson {
   // there are more values, but these are the required ones for us to scan
-  planned_values: {
-    root_module: {
-      resources: Array<TerraformPlanResource>;
-      child_modules: Array<{ resources: Array<TerraformPlanResource> }>;
-    };
-  };
   resource_changes: Array<TerraformPlanResourceChange>;
 }
 export interface TerraformScanInput {
@@ -195,11 +189,17 @@ export type ResourceActions =
   | ['delete'];
 
 // we will be scanning the `create` & `update` actions only.
-export const VALID_RESOURCE_ACTIONS: ResourceActions[] = [
+export const VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN: ResourceActions[] = [
   ['create'],
   ['update'],
   ['create', 'delete'],
   ['delete', 'create'],
+];
+
+// scans all actions including 'no-op' in order to iterate on all resources.
+export const VALID_RESOURCE_ACTIONS_FOR_FULL_SCAN: ResourceActions[] = [
+  ['no-op'],
+  ...VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN,
 ];
 
 // Error codes used for Analytics & Debugging

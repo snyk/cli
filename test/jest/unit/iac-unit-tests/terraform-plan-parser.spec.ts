@@ -1,58 +1,60 @@
 import { tryParsingTerraformPlan } from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-plan-parser';
 import {
-  iacFileData,
-  terraformPlanJson,
-  iacFileDataNoChildModules,
-  expectedParsingResultFullScan,
-  expectedParsingResultDeltaScan,
-  expectedParsingResultWithoutChildModules,
-  terraformPlanNoChildModulesJson,
+  getExpectedResult,
+  getTfPlanData,
+  scanModeCases,
+  planOutputCases,
 } from './terraform-plan-parser.fixtures';
-import { EngineType } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import {
+  EngineType,
+  TerraformPlanJson,
+} from '../../../../src/cli/commands/test/iac-local-execution/types';
 
 describe('tryParsingTerraformPlan', () => {
-  describe('full scan', () => {
-    it('returns the expected resources', () => {
-      const parsedTerraformPlan = tryParsingTerraformPlan(
-        iacFileData,
-        terraformPlanJson,
-        { isFullScan: true },
-      );
-      expect(parsedTerraformPlan[0]).toEqual({
-        ...iacFileData,
-        engineType: EngineType.Terraform,
-        jsonContent: expectedParsingResultFullScan,
-      });
-    });
+  /* 
+    This are regression tests that iterate on major real terraform plan outputs.
+    Used Plan cases are:
+    1. Plan which creates new resources
+    2. Plan which deletes resources
+    3. Plan which doesn't do anything
+    4. Plan which updates resources
+    These tests validate that the correct resources are being extracted, based on the give scan mode (Full/Delta).
+    These tests do not cover scanning for finding vulnerabilites, but only for the resource extraction logic.
+  **/
+  describe('Parsing regression testing', () => {
+    describe.each(scanModeCases)('if: %p', (scanOptions) => {
+      test.each(planOutputCases)(
+        'for %p, it extracts the expected resources',
+        (planOutputType) => {
+          // Arrange
+          const iacFileData = getTfPlanData(planOutputType);
+          const expectedResources = getExpectedResult(
+            scanOptions.isFullScan,
+            planOutputType,
+          );
+          const terraformPlanJson: TerraformPlanJson = JSON.parse(
+            iacFileData.fileContent,
+          );
 
-    it('does not fail if no child-modules are present', () => {
-      const parsedTerraformPlan = tryParsingTerraformPlan(
-        iacFileDataNoChildModules,
-        terraformPlanNoChildModulesJson,
-        { isFullScan: true },
+          // Act
+          const parsedTerraformPlan = tryParsingTerraformPlan(
+            iacFileData,
+            terraformPlanJson,
+            scanOptions,
+          );
+
+          console.debug(
+            `scanOptions.isFullScan: ${scanOptions.isFullScan} && planOutputType: ${planOutputType}`,
+          );
+
+          // Assert
+          expect(parsedTerraformPlan[0]).toEqual({
+            ...iacFileData,
+            engineType: EngineType.Terraform,
+            jsonContent: expectedResources,
+          });
+        },
       );
-      expect(parsedTerraformPlan[0]).toEqual({
-        ...iacFileDataNoChildModules,
-        engineType: EngineType.Terraform,
-        jsonContent: expectedParsingResultWithoutChildModules,
-      });
     });
   });
-
-  describe('default delta scan', () => {
-    it('returns the expected resources', () => {
-      const parsedTerraformPlan = tryParsingTerraformPlan(
-        iacFileData,
-        terraformPlanJson,
-      );
-      expect(parsedTerraformPlan[0]).toEqual({
-        ...iacFileData,
-        engineType: EngineType.Terraform,
-        jsonContent: expectedParsingResultDeltaScan,
-      });
-    });
-  });
-
-  // TODO: add test for extracting a resource from a data input source
-  // deferred as it required to re-generate a new wasm fixture with a rule that applies to a data-source
 });

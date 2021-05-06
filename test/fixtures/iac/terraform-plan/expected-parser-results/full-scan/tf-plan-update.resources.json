@@ -1,0 +1,98 @@
+{
+    "resource": {
+      "aws_codebuild_project": {
+        "some_projed": {
+          "arn": "arn:aws:codebuild:eu-west-1:719261439472:project/why-my-project-not-working",
+          "artifacts": [
+            {
+              "artifact_identifier": "",
+              "encryption_disabled": true,
+              "location": "terra-ci-artifacts-eu-west-1-000002",
+              "name": "why-my-project-not-working",
+              "namespace_type": "NONE",
+              "override_artifact_name": true,
+              "packaging": "NONE",
+              "path": "",
+              "type": "S3"
+            }
+          ],
+          "badge_enabled": false,
+          "badge_url": "",
+          "build_timeout": 10,
+          "cache": [
+            {
+              "location": "",
+              "modes": [],
+              "type": "NO_CACHE"
+            }
+          ],
+          "description": "Deploy environment configuration",
+          "encryption_key": "arn:aws:kms:eu-west-1:719261439472:alias/aws/s3",
+          "environment": [
+            {
+              "certificate": "",
+              "compute_type": "BUILD_GENERAL1_SMALL",
+              "environment_variable": [],
+              "image": "aws/codebuild/amazonlinux2-x86_64-standard:2.0",
+              "image_pull_credentials_type": "CODEBUILD",
+              "privileged_mode": false,
+              "registry_credential": [],
+              "type": "LINUX_CONTAINER"
+            }
+          ],
+          "id": "arn:aws:codebuild:eu-west-1:719261439472:project/why-my-project-not-working",
+          "logs_config": [
+            {
+              "cloudwatch_logs": [
+                {
+                  "group_name": "",
+                  "status": "ENABLED",
+                  "stream_name": ""
+                }
+              ],
+              "s3_logs": [
+                {
+                  "encryption_disabled": false,
+                  "location": "",
+                  "status": "DISABLED"
+                }
+              ]
+            }
+          ],
+          "name": "why-my-project-not-working",
+          "queued_timeout": 480,
+          "secondary_artifacts": [],
+          "secondary_sources": [],
+          "service_role": "arn:aws:iam::719261439472:role/terra_ci_job",
+          "source": [
+            {
+              "auth": [],
+              "buildspec": "version: 0.2\nphases:\n  install:\n    commands:\n      - make install_tools\n  build:\n    commands:\n      - make plan_local resource=$TERRA_CI_RESOURCE\nartifacts:\n  files:\n    - ./tfplan\n  name: $TERRA_CI_BUILD_NAME\n",
+              "git_clone_depth": 1,
+              "git_submodules_config": [],
+              "insecure_ssl": false,
+              "location": "https://github.com/p0tr3c-terraform/terra-ci-single-account.git",
+              "report_build_status": false,
+              "type": "GITHUB"
+            }
+          ],
+          "source_version": "",
+          "tags": {},
+          "vpc_config": []
+        }
+      },
+      "aws_iam_user": {
+        "ci": {
+          "arn": "arn:aws:iam::719261439472:user/ci",
+          "force_destroy": false,
+          "id": "ci",
+          "name": "ci",
+          "path": "/",
+          "permissions_boundary": null,
+          "tags": {},
+          "unique_id": "AIDA2O52SSXYORYI4EPXD"
+        }
+      }
+    },
+    "data": {}
+  }

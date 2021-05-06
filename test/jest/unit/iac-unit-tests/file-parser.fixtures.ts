@@ -6,7 +6,10 @@ import {
   IacFileParsed,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
-import { expectedParsingResultDeltaScan } from './terraform-plan-parser.fixtures';
+import {
+  getExpectedResult,
+  PlanOutputCase,
+} from './terraform-plan-parser.fixtures';
 
 const kubernetesYamlFileContent = `
 apiVersion: v1
@@ -163,12 +166,15 @@ resource "aws_security_group" "allow_ssh" {
 }`;
 
 const terraformPlanFileContent = fs.readFileSync(
-  path.resolve(__dirname, '../../../fixtures/iac/terraform-plan/tf-plan.json'),
+  path.resolve(
+    __dirname,
+    '../../../fixtures/iac/terraform-plan/tf-plan-create.json',
+  ),
 );
 
 const terraformPlanJson = JSON.parse(terraformPlanFileContent.toString());
 const terraformPlanMissingFieldsJson = { ...terraformPlanJson };
-delete terraformPlanMissingFieldsJson.planned_values;
+delete terraformPlanMissingFieldsJson.resource_changes;
 const terraformPlanMissingFieldsFileContent = JSON.stringify(
   terraformPlanMissingFieldsJson,
 );
@@ -216,7 +222,7 @@ export const expectedTerraformParsingResult: IacFileParsed = {
 export const expectedTerraformJsonParsingResult: IacFileParsed = {
   ...terraformPlanDataStub,
   engineType: EngineType.Terraform,
-  jsonContent: expectedParsingResultDeltaScan,
+  jsonContent: getExpectedResult(false, PlanOutputCase.Create),
 };
 
 const invalidTerraformFileContent = `
