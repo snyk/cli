@@ -933,7 +933,7 @@ if (!isWindows) {
       'sends version number',
     );
     t.match(req.url, '/monitor/poetry/graph', 'puts at correct url');
-    t.equal(req.body.targetFile, 'pyproject.toml', 'sends targetFile');
+    t.equal(req.body.targetFile, 'poetry.lock', 'sends targetFile');
     const depGraphJSON = req.body.depGraphJSON;
     t.ok(depGraphJSON);
   });
