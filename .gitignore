@@ -25,6 +25,7 @@ help/commands-man
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
 # test fixture build artifacts
 /test/acceptance/workspaces/**/project/
 /test/acceptance/workspaces/**/target/
@@ -33,5 +34,7 @@ test/**/.gradle
 .iac-data
 .dccache
 !test/smoke/.iac-data
+test-output
+
 # Jest
 coverage
