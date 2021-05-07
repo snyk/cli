@@ -1,15 +1,8 @@
-import { exec } from 'child_process';
-import { existsSync, mkdirSync, readFileSync } from 'fs';
+import { spawn } from 'child_process';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { UnsupportedOptionCombinationError } from '../../../src/lib/errors/unsupported-option-combination-error';
-import osName = require('os-name');
-
-const isWindows =
-  osName()
-    .toLowerCase()
-    .indexOf('windows') === 0;
 
 const createOutputDirectory = (): string => {
   const outputPath = path.normalize(`test-output/${uuidv4()}`);
@@ -25,13 +18,33 @@ type RunCLIResult = {
   stderr: string;
 };
 
-const runCLI = (options: string): Promise<RunCLIResult> => {
-  return new Promise((resolve) => {
-    exec(`node ${cliPath} ${options}`, (error, stdout, stderr) => {
+const runCLI = (args: string): Promise<RunCLIResult> => {
+  return new Promise((resolve, reject) => {
+    const cli = spawn('node', [cliPath, ...args.split(' ')]);
+    const stdout: Buffer[] = [];
+    const stderr: Buffer[] = [];
+
+    cli.on('error', (error) => {
+      reject(error);
+    });
+
+    cli.stdout.on('data', (chunk) => {
+      stdout.push(Buffer.from(chunk));
+    });
+
+    cli.stderr.on('data', (chunk) => {
+      stderr.push(Buffer.from(chunk));
+    });
+
+    cli.on('close', (code) => {
       resolve({
-        code: error?.code || 0,
-        stdout: stdout.trim(),
-        stderr: stderr.trim(),
+        code: code || 0,
+        stdout: Buffer.concat(stdout)
+          .toString('utf-8')
+          .trim(),
+        stderr: Buffer.concat(stderr)
+          .toString('utf-8')
+          .trim(),
       });
     });
   });
@@ -47,13 +60,11 @@ test('snyk test command should fail when --file is not specified correctly', asy
   expect(code).toEqual(2);
 });
 
-if (!isWindows) {
-  test('snyk version command should show cli version', async () => {
-    const { code, stdout } = await runCLI(`--version`);
-    expect(stdout).toMatch(/[0-9]+\.[0-9]+\.[0-9]+/);
-    expect(code).toEqual(0);
-  });
-}
+test('snyk version command should show cli version', async () => {
+  const { code, stdout } = await runCLI(`--version`);
+  expect(stdout).toMatch(/[0-9]+\.[0-9]+\.[0-9]+/);
+  expect(code).toEqual(0);
+});
 
 test('snyk test command should fail when --packageManager is not specified correctly', async () => {
   const { code, stdout } = await runCLI(`test --packageManager=hello`);
@@ -89,7 +100,8 @@ test('snyk test command should fail when iac file is not supported', async () =>
   );
   expect(code).toEqual(2);
 });
-test('`test multiple paths with --project-name=NAME`', async () => {
+
+test('test multiple paths with --project-name=NAME', async () => {
   const { code, stdout } = await runCLI(`test pathA pathB --project-name=NAME`);
   expect(stdout).toMatch(
     'The following option combination is not currently supported: multiple paths + project-name',
@@ -97,7 +109,7 @@ test('`test multiple paths with --project-name=NAME`', async () => {
   expect(code).toEqual(2);
 });
 
-test('`test --file=file.sln --project-name=NAME`', async () => {
+test('test --file=file.sln --project-name=NAME', async () => {
   const { code, stdout } = await runCLI(
     `test --file=file.sln --project-name=NAME`,
   );
@@ -108,7 +120,7 @@ test('`test --file=file.sln --project-name=NAME`', async () => {
   expect(code).toEqual(2);
 });
 
-test('`test --file=blah --scan-all-unmanaged`', async () => {
+test('test --file=blah --scan-all-unmanaged', async () => {
   const { code, stdout } = await runCLI(
     `test --file=blah --scan-all-unmanaged`,
   );
@@ -157,6 +169,7 @@ test('`test --file=blah --scan-all-unmanaged`', async () => {
     );
     expect(code).toEqual(2);
   });
+
   test(`monitor using --${arg} and --all-projects displays error message`, async () => {
     const { code, stdout } = await runCLI(`monitor --${arg} --all-projects`);
     expect(stdout).toEqual(
@@ -166,7 +179,7 @@ test('`test --file=blah --scan-all-unmanaged`', async () => {
   });
 });
 
-test('`test --exclude without --all-project displays error message`', async () => {
+test('test --exclude without --all-project displays error message', async () => {
   const { code, stdout } = await runCLI(`test --exclude=test`);
   expect(stdout).toEqual(
     'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
@@ -174,7 +187,7 @@ test('`test --exclude without --all-project displays error message`', async () =
   expect(code).toEqual(2);
 });
 
-test('`test --exclude without any value displays error message`', async () => {
+test('test --exclude without any value displays error message', async () => {
   const { code, stdout } = await runCLI(`test --all-projects --exclude`);
   expect(stdout).toEqual(
     'Empty --exclude argument. Did you mean --exclude=subdirectory ?',
@@ -182,7 +195,7 @@ test('`test --exclude without any value displays error message`', async () => {
   expect(code).toEqual(2);
 });
 
-test('`test --exclude=path/to/dir displays error message`', async () => {
+test('test --exclude=path/to/dir displays error message', async () => {
   const exclude = path.normalize('path/to/dir');
   const { code, stdout } = await runCLI(
     `test --all-projects --exclude=${exclude}`,
@@ -224,7 +237,7 @@ const optionsToTest = [
 ];
 
 optionsToTest.forEach((option) => {
-  test('`test --json-file-output no value produces error message`', async () => {
+  test('test --json-file-output no value produces error message', async () => {
     const { code, stdout } = await runCLI(`test ${option}`);
     expect(stdout).toEqual(
       'Empty --json-file-output argument. Did you mean --file=path/to/output-file.json ?',
@@ -268,7 +281,7 @@ test('iac container with flags not allowed with --sarif', async () => {
   });
 });
 
-test('`container test --json-file-output can be used at the same time as --sarif-file-output`', async () => {
+test('container test --json-file-output can be used at the same time as --sarif-file-output', async () => {
   const outputDir = createOutputDirectory();
   const jsonPath = path.normalize(
     `${outputDir}/snyk-direct-json-test-output.json`,
@@ -284,8 +297,8 @@ test('`container test --json-file-output can be used at the same time as --sarif
     `container test hello-world --file=${dockerfilePath} --sarif-file-output=${sarifPath} --json-file-output=${jsonPath}`,
   );
 
-  const sarifOutput = JSON.parse(readFileSync(sarifPath, 'utf-8'));
-  const jsonOutput = JSON.parse(readFileSync(jsonPath, 'utf-8'));
+  const sarifOutput = JSON.parse(await fse.readFile(sarifPath, 'utf-8'));
+  const jsonOutput = JSON.parse(await fse.readFile(jsonPath, 'utf-8'));
 
   expect(stdout).toMatch('Organization:');
   expect(jsonOutput.ok).toEqual(true);
@@ -293,7 +306,7 @@ test('`container test --json-file-output can be used at the same time as --sarif
   expect(code).toEqual(0);
 });
 
-test('`test --sarif-file-output can be used at the same time as --sarif`', async () => {
+test('container test --sarif-file-output can be used at the same time as --sarif', async () => {
   const outputDir = createOutputDirectory();
   const sarifPath = path.normalize(
     `${outputDir}/snyk-direct-sarif-test-output.json`,
@@ -306,14 +319,32 @@ test('`test --sarif-file-output can be used at the same time as --sarif`', async
     `container test hello-world --sarif --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
   );
 
-  const sarifOutput = JSON.parse(readFileSync(sarifPath, 'utf-8'));
+  const sarifOutput = JSON.parse(await fse.readFile(sarifPath, 'utf-8'));
 
   expect(stdout).toMatch('rules');
   expect(sarifOutput.version).toMatch('2.1.0');
   expect(code).toEqual(0);
 });
 
-test('`test --sarif-file-output without vulns`', async () => {
+test('container test --sarif-file-output without vulns', async () => {
+  const outputDir = createOutputDirectory();
+  const sarifPath = path.normalize(
+    `${outputDir}/snyk-direct-sarif-test-output.json`,
+  );
+  const dockerfilePath = path.normalize(
+    'test/acceptance/fixtures/docker/Dockerfile',
+  );
+
+  const { code } = await runCLI(
+    `container test hello-world --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
+  );
+
+  const sarifOutput = JSON.parse(await fse.readFile(sarifPath, 'utf-8'));
+  expect(sarifOutput.version).toMatch('2.1.0');
+  expect(code).toEqual(0);
+});
+
+test('container test --sarif-file-output can be used at the same time as --json', async () => {
   const outputDir = createOutputDirectory();
   const sarifPath = path.normalize(
     `${outputDir}/snyk-direct-sarif-test-output.json`,
@@ -323,33 +354,13 @@ test('`test --sarif-file-output without vulns`', async () => {
   );
 
   const { code, stdout } = await runCLI(
-    `container test hello-world --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
+    `container test hello-world --json --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
   );
 
-  const sarifOutput = JSON.parse(readFileSync(sarifPath, 'utf-8'));
+  const sarifOutput = JSON.parse(await fse.readFile(sarifPath, 'utf-8'));
+  const jsonOutput = JSON.parse(stdout);
+
+  expect(jsonOutput.ok).toEqual(true);
   expect(sarifOutput.version).toMatch('2.1.0');
   expect(code).toEqual(0);
 });
-
-if (!isWindows) {
-  test('`test ubuntu --sarif-file-output can be used at the same time as --json with vulns`', async () => {
-    const outputDir = createOutputDirectory();
-    const sarifPath = path.normalize(
-      `${outputDir}/snyk-direct-sarif-test-output.json`,
-    );
-    const dockerfilePath = path.normalize(
-      'test/acceptance/fixtures/docker/Dockerfile',
-    );
-
-    const { code, stdout } = await runCLI(
-      `container test ubuntu --json --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
-    );
-
-    const sarifOutput = JSON.parse(readFileSync(sarifPath, 'utf-8'));
-    const jsonObj = JSON.parse(stdout);
-
-    expect(jsonObj.vulnerabilities.length).toBeGreaterThan(0);
-    expect(sarifOutput.version).toMatch('2.1.0');
-    expect(code).toEqual(1);
-  });
-}
