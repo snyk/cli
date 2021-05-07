@@ -3,7 +3,7 @@ import * as path from 'path';
 
 import * as depGraphLib from '@snyk/dep-graph';
 import * as snyk from '..';
-import { apiTokenExists } from '../api-token';
+import { apiOrOAuthTokenExists, getAuthHeader } from '../api-token';
 import request = require('../request');
 import * as config from '../config';
 import * as os from 'os';
@@ -98,7 +98,7 @@ export async function monitor(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
 ): Promise<MonitorResult> {
-  apiTokenExists();
+  apiOrOAuthTokenExists();
 
   const packageManager = meta.packageManager;
   analytics.add('packageManager', packageManager);
@@ -317,7 +317,7 @@ async function monitorDepTree(
         gzip: true,
         method: 'PUT',
         headers: {
-          authorization: 'token ' + snyk.api,
+          authorization: getAuthHeader(),
           'content-encoding': 'gzip',
         },
         url: config.API + '/monitor/' + packageManager,
@@ -475,7 +475,7 @@ export async function monitorDepGraph(
         gzip: true,
         method: 'PUT',
         headers: {
-          authorization: 'token ' + snyk.api,
+          authorization: getAuthHeader(),
           'content-encoding': 'gzip',
         },
         url: `${config.API}/monitor/${packageManager}/graph`,
@@ -624,7 +624,7 @@ async function experimentalMonitorDepGraphFromDepTree(
         gzip: true,
         method: 'PUT',
         headers: {
-          authorization: 'token ' + snyk.api,
+          authorization: getAuthHeader(),
           'content-encoding': 'gzip',
         },
         url: `${config.API}/monitor/${packageManager}/graph`,

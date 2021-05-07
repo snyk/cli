@@ -1,7 +1,6 @@
 import { InspectResult } from '@snyk/cli-interface/legacy/plugin';
 import chalk from 'chalk';
 
-import * as snyk from '../index';
 import * as config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
@@ -25,6 +24,7 @@ import {
   MonitorDependenciesResponse,
 } from './types';
 import { findAndLoadPolicyForScanResult } from './policy';
+import { getAuthHeader } from '../api-token';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -106,7 +106,7 @@ async function monitorDependencies(
         json: true,
         headers: {
           'x-is-ci': isCI(),
-          authorization: 'token ' + snyk.api,
+          authorization: getAuthHeader(),
         },
         body: monitorDependenciesRequest,
         qs: {
