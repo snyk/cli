@@ -14,7 +14,8 @@ module.exports = {
     '<rootDir>/test/jest/acceptance/**/*.spec.ts'
   ],
   modulePathIgnorePatterns: [
-    '<rootDir>/test/.*fixtures',
+    '<rootDir>/test/.*fixtures/*',
+    '<rootDir>/packages/.+/test/.*fixtures/*',
     '<rootDir>/test/acceptance/*',
     '<rootDir>/test/acceptance/workspaces/*' // to avoid `jest-haste-map: Haste module naming collision` errors
   ],
