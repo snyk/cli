@@ -1,5 +1,5 @@
-import * as baseDebug from 'debug';
-const debug = baseDebug('snyk-test');
+const util = require('util');
+const debug = util.debuglog('snyk-test');
 import * as path from 'path';
 import * as spinner from '../../spinner';
 import * as analytics from '../../analytics';

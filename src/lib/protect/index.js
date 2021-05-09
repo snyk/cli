@@ -8,7 +8,8 @@ const protect = (module.exports = {
   generatePolicy: generatePolicy,
 });
 
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 const flattenDeep = require('lodash.flattendeep');
 const merge = require('lodash.merge');

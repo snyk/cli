@@ -1,6 +1,7 @@
 module.exports = ignore;
 
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const stripVersions = require('./strip-versions');
 const oneDay = 1000 * 60 * 60 * 24;
 

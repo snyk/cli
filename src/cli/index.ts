@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
-import * as Debug from 'debug';
 import * as pathLib from 'path';
 
+const util = require('util');
 const camelCase = require('lodash.camelcase');
 
 // import args as a first internal module
@@ -49,7 +49,7 @@ import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-dept
 import { getIacOrgSettings } from './commands/test/iac-local-execution/org-settings/get-iac-org-settings';
 import { isFeatureFlagSupportedForOrg } from '../lib/feature-flags';
 
-const debug = Debug('snyk');
+const debug = util.debuglog('snyk');
 const EXIT_CODES = {
   VULNS_FOUND: 1,
   ERROR: 2,

@@ -1,4 +1,3 @@
-import { debug as debugModule } from 'debug';
 import * as needle from 'needle';
 import { parse, format } from 'url';
 import * as querystring from 'querystring';
@@ -13,8 +12,9 @@ import { getVersion } from '../version';
 import * as https from 'https';
 import * as http from 'http';
 
-const debug = debugModule('snyk:req');
-const snykDebug = debugModule('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk:req');
+const snykDebug = util.debuglog('snyk');
 
 declare const global: Global;
 

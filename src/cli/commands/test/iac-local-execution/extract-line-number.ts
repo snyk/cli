@@ -6,8 +6,8 @@ import {
 } from '@snyk/cloud-config-parser';
 import { UnsupportedFileTypeError } from './file-parser';
 import * as analytics from '../../../../lib/analytics';
-import * as Debug from 'debug';
-const debug = Debug('iac-extract-line-number');
+const util = require('util');
+const debug = util.debuglog('iac-extract-line-number');
 
 function getFileTypeForLineNumber(fileType: string): CloudConfigFileTypes {
   switch (fileType) {

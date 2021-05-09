@@ -1,5 +1,3 @@
-import * as Debug from 'debug';
-
 import { getEcosystemForTest } from '../../../lib/ecosystems';
 
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
@@ -8,7 +6,8 @@ import { FeatureNotSupportedByEcosystemError } from '../../../lib/errors/not-sup
 import { Options, TestOptions } from '../../../lib/types';
 import { AuthFailedError } from '../../../lib/errors';
 
-const debug = Debug('snyk-fix');
+const util = require('util');
+const debug = util.debuglog('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
 
 export async function validateFixCommandIsSupported(

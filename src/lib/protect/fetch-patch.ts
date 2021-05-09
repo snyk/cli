@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as analytics from '../analytics';
-import * as debugModule from 'debug';
 import request = require('../request');
 
-const debug = debugModule('snyk:fetch-patch');
+const util = require('util');
+const debug = util.debuglog('snyk:fetch-patch');
 
 async function getPatchFile(
   patchUrl: string,

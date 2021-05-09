@@ -1,20 +1,21 @@
-var debug = require('debug')('snyk');
-var policy = require('snyk-policy');
-var path = require('path');
-var test = require('tap');
-var vulns = require('./fixtures/semver-vuln.json');
-var exec = require('child_process').exec;
+const util = require('util');
+const debug = util.debuglog('snyk');
+const policy = require('snyk-policy');
+const path = require('path');
+const test = require('tap');
+const vulns = require('./fixtures/semver-vuln.json');
+const exec = require('child_process').exec;
 
 // skipped intentially - only used for debugging tests
 test.skip(
   'patch is correctly skipped during tests',
   { timeout: 1000 * 60 * 3 },
   function(t) {
-    var dir = path.resolve(__dirname, 'fixtures/protect-via-snyk');
+    const dir = path.resolve(__dirname, 'fixtures/protect-via-snyk');
     npm('install', '', dir)
       .then(function() {
         debug('installing to %s', dir);
-        var rule = {
+        const rule = {
           patch: {
             'npm:semver:20150403': [
               {
@@ -27,7 +28,7 @@ test.skip(
           ignore: {},
         };
 
-        var res = policy.filter(vulns, rule, dir);
+        const res = policy.filter(vulns, rule, dir);
         t.equal(res.ok, true, 'all vulns removed');
       })
       .catch(function(error) {
@@ -52,7 +53,7 @@ function npm(method, packages, dir) {
     packages = [packages];
   }
   return new Promise(function(resolve, reject) {
-    var cmd = 'npm ' + method + ' ' + packages.join(' ');
+    const cmd = 'npm ' + method + ' ' + packages.join(' ');
     debug(cmd);
     exec(
       cmd,

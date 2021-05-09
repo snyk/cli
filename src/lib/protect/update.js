@@ -2,7 +2,8 @@ module.exports.update = update;
 module.exports.install = install;
 module.exports.installDev = installDev;
 
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const chalk = require('chalk');
 const uniq = require('lodash.uniq');
 const isEmpty = require('lodash.isempty');

@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import * as Debug from 'debug';
 import * as pathLib from 'path';
 import {
   IacTestResponse,
@@ -13,7 +12,8 @@ import { SEVERITY } from '../../../lib/snyk-test/legacy';
 import { getSeveritiesColour } from '../../../lib/snyk-test/common';
 import { IacFileInDirectory } from '../../../lib/types';
 import upperFirst = require('lodash.upperfirst');
-const debug = Debug('iac-output');
+const util = require('util');
+const debug = util.debuglog('iac-output');
 
 function formatIacIssue(
   issue: AnnotatedIacIssue,

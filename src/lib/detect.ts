@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import * as debugLib from 'debug';
 import { NoSupportedManifestsFoundError } from './errors';
 import {
   SupportedPackageManagers,
   SUPPORTED_MANIFEST_FILES,
 } from './package-managers';
 
-const debug = debugLib('snyk-detect');
+const util = require('util');
+const debug = util.debuglog('snyk-detect');
 
 const DETECTABLE_FILES: string[] = [
   'yarn.lock',

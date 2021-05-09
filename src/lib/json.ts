@@ -1,4 +1,5 @@
-const debug = require('debug')('snyk-json');
+const util = require('util');
+const debug = util.debuglog('snyk-json');
 
 /**
  * Attempt to json-stringify an object which is potentially very large and might exceed the string limit.

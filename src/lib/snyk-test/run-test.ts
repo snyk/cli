@@ -2,7 +2,6 @@ import * as fs from 'fs';
 const get = require('lodash.get');
 import * as path from 'path';
 import * as pathUtil from 'path';
-import * as debugModule from 'debug';
 import chalk from 'chalk';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
@@ -74,7 +73,8 @@ import { NonExistingPackageError } from '../errors/non-existing-package-error';
 import request = require('../request');
 import spinner = require('../spinner');
 
-const debug = debugModule('snyk:run-test');
+const util = require('util');
+const debug = util.debuglog('snyk:run-test');
 
 const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
 

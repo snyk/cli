@@ -2,7 +2,6 @@ export = monitor;
 
 import chalk from 'chalk';
 import * as fs from 'fs';
-import * as Debug from 'debug';
 import * as pathUtil from 'path';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { validateOptions } from '../../../lib/options-validator';
@@ -41,7 +40,8 @@ import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
 import { processCommandArgs } from '../process-command-args';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
-const debug = Debug('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 // This is used instead of `let x; try { x = await ... } catch { cleanup }` to avoid
 // declaring the type of x as possibly undefined.

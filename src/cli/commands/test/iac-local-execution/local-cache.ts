@@ -4,12 +4,12 @@ import { EngineType, IaCErrorCodes } from './types';
 import * as needle from 'needle';
 import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle } from './file-utils';
-import * as Debug from 'debug';
 import { CustomError } from '../../../../lib/errors';
 import * as analytics from '../../../../lib/analytics';
 import ReadableStream = NodeJS.ReadableStream;
 
-const debug = Debug('iac-local-cache');
+const util = require('util');
+const debug = util.debuglog('iac-local-cache');
 
 export const LOCAL_POLICY_ENGINE_DIR = '.iac-data';
 

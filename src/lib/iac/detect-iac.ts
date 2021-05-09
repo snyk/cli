@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
-import * as debugLib from 'debug';
 import { isLocalFolder, localFileSuppliedButNotFound } from '../detect';
 import { CustomError } from '../errors';
 import { validateK8sFile, makeValidateTerraformRequest } from './iac-parser';
@@ -23,7 +22,8 @@ import {
 import { Options, TestOptions, IacFileInDirectory } from '../types';
 import * as Queue from 'promise-queue';
 
-const debug = debugLib('snyk-detect-iac');
+const util = require('util');
+const debug = util.debuglog('snyk-detect-iac');
 
 export async function getProjectType(
   root: string,

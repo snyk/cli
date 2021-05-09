@@ -1,4 +1,3 @@
-import * as debugModule from 'debug';
 import * as snyk from '../../../lib/';
 import * as types from '../../../lib/types';
 const protect = require('../../../lib/protect');
@@ -9,7 +8,8 @@ import { CustomError } from '../../../lib/errors';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import * as errors from '../../../lib/errors';
 
-const debug = debugModule('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 async function protectFunc(
   options: types.PolicyOptions &

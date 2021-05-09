@@ -1,11 +1,11 @@
 import * as Sarif from 'sarif';
-import * as Debug from 'debug';
 import chalk from 'chalk';
 import { getLegacySeveritiesColour, SEVERITY } from '../../../snyk-test/common';
 import { rightPadWithSpaces } from '../../../right-pad';
 import { Options } from '../../../types';
 
-const debug = Debug('code-output');
+const util = require('util');
+const debug = util.debuglog('code-output');
 
 export function getCodeDisplayedOutput(
   codeTest: Sarif.Log,

@@ -1,5 +1,5 @@
-import * as debugModule from 'debug';
-const debug = debugModule('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const protect = require('../src/lib/protect');
 import * as path from 'path';
 import { test } from 'tap';

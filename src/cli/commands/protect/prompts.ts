@@ -13,7 +13,6 @@ const cloneDeep = require('lodash.clonedeep');
 const get = require('lodash.get');
 import * as semver from 'semver';
 import { format as fmt } from 'util';
-import * as debugModule from 'debug';
 const protect = require('../../../lib/protect');
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as config from '../../../lib/config';
@@ -23,7 +22,8 @@ import { AnnotatedIssue, SEVERITY } from '../../../lib/snyk-test/legacy';
 import { getLegacySeveritiesColour } from '../../../lib/snyk-test/common';
 import { titleCaseText } from '../test/formatters/legacy-format-issue';
 
-const debug = debugModule('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 const ignoreDisabledReasons = {
   notAdmin: 'Set to ignore (only administrators can ignore issues)',

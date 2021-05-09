@@ -1,7 +1,6 @@
 import * as abbrev from 'abbrev';
 import { MethodResult } from './commands/types';
 
-import debugModule = require('debug');
 import { parseMode, displayModeHelp } from './modes';
 import {
   SupportedCliCommands,
@@ -12,6 +11,9 @@ import { getContainerImageSavePath } from '../lib/container';
 export declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
 }
+
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 declare const global: Global;
 
@@ -29,7 +31,7 @@ alias.t = 'test';
 alias.p = 'prune-repeated-subdependencies';
 
 // The -d flag enables printing the messages for predefined namespaces.
-// Additional ones can be specified (comma-separated) in the DEBUG environment variable.
+// Additional ones can be specified (comma-separated) in the NODE_DEBUG environment variable.
 const DEBUG_DEFAULT_NAMESPACES = [
   'snyk-test',
   'snyk',
@@ -109,18 +111,16 @@ export function args(rawArgv: string[]): Args {
   // TODO(BST-648): sort this out reliably
   if (argv.debug) {
     let enable = DEBUG_DEFAULT_NAMESPACES.join(',');
-    if (process.env.DEBUG) {
-      enable += ',' + process.env.DEBUG;
+    if (process.env.NODE_DEBUG) {
+      enable += ',' + process.env.NODE_DEBUG;
     }
 
     // Storing in the global state, because just "debugModule.enable" call won't affect different instances of `debug`
     // module imported by plugins, libraries etc.
-    process.env.DEBUG = enable;
+    process.env.NODE_DEBUG = enable;
 
-    debugModule.enable(enable);
+    //debug.enable(enable);
   }
-
-  const debug = debugModule('snyk');
 
   // Late require, see the note re "debug" option above.
   const cli = require('./commands');

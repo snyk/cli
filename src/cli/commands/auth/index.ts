@@ -1,7 +1,6 @@
 import * as url from 'url';
 import * as open from 'open';
 import * as uuid from 'uuid';
-import * as Debug from 'debug';
 import { Spinner } from 'cli-spinner';
 
 import * as snyk from '../../../lib';
@@ -22,7 +21,8 @@ export = auth;
 
 const apiUrl = url.parse(config.API);
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;
-const debug = Debug('snyk-auth');
+const util = require('util');
+const debug = util.debuglog('snyk-auth');
 let attemptsLeft = 0;
 
 function resetAttempts() {

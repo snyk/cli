@@ -1,7 +1,7 @@
 export = answersToTasks;
 
-import * as debugModule from 'debug';
-const debug = debugModule('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const cloneDeep = require('lodash.clonedeep');
 
 function answersToTasks(answers) {

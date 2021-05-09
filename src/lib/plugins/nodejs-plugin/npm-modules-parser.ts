@@ -1,7 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as resolveNodeDeps from 'snyk-resolve-deps';
-import * as baseDebug from 'debug';
 const isEmpty = require('lodash.isempty');
 
 import * as spinner from '../../spinner';
@@ -9,7 +8,8 @@ import * as analytics from '../../analytics';
 import { Options } from '../types';
 import { getFileContents } from '../../get-file-contents';
 
-const debug = baseDebug('snyk-nodejs-plugin');
+const util = require('util');
+const debug = util.debuglog('snyk-nodejs-plugin');
 
 export async function parse(
   root: string,

@@ -1,5 +1,4 @@
 import * as snykPolicyLib from 'snyk-policy';
-import * as debugModule from 'debug';
 import { PackageExpanded } from 'snyk-resolve-deps';
 
 import { pluckPolicies } from '.';
@@ -7,7 +6,8 @@ import { SupportedPackageManagers } from '../package-managers';
 import { PackageJson, PolicyOptions } from '../types';
 import * as analytics from '../analytics';
 
-const debug = debugModule('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 export async function findAndLoadPolicy(
   root: string,

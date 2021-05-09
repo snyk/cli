@@ -2,7 +2,6 @@ const cloneDeep = require('lodash.clonedeep');
 import * as path from 'path';
 import * as cliInterface from '@snyk/cli-interface';
 import chalk from 'chalk';
-import * as debugModule from 'debug';
 
 import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';
@@ -14,7 +13,8 @@ import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 import { FailedToRunTestError } from '../errors';
 
-const debug = debugModule('snyk-test');
+const util = require('util');
+const debug = util.debuglog('snyk-test');
 export interface ScannedProjectCustom
   extends cliInterface.legacyCommon.ScannedProject {
   packageManager: SupportedPackageManagers;

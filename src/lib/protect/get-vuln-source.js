@@ -1,6 +1,7 @@
 module.exports = getVulnSource;
 
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const resolve = require('snyk-resolve');
 const path = require('path');
 const statSync = require('fs').statSync;

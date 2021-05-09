@@ -1,6 +1,7 @@
 module.exports = writePatchFlag;
 
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const fs = require('fs');
 const path = require('path');
 

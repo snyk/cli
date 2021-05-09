@@ -10,7 +10,8 @@ const {
   getCommandVersion,
 } = require('./analytics-sources');
 const isCI = require('./is-ci').isCI;
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const os = require('os');
 const osName = require('os-name');
 const crypto = require('crypto');

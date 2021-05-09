@@ -8,8 +8,8 @@ import { apiTokenExists } from '../../lib/api-token';
 import { isCI } from '../../lib/is-ci';
 import { MethodResult } from './types';
 
-import * as Debug from 'debug';
-const debug = Debug('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 import { MisconfiguredAuthInCI } from '../../lib/errors/misconfigured-auth-in-ci-error';
 

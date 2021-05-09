@@ -1,4 +1,3 @@
-import * as debugModule from 'debug';
 import * as pathLib from 'path';
 import chalk from 'chalk';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
@@ -21,7 +20,8 @@ import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-m
 import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 import { ScannedProject } from '@snyk/cli-interface/legacy/common';
 
-const debug = debugModule('snyk-test');
+const util = require('util');
+const debug = util.debuglog('snyk-test');
 
 const multiProjectProcessors = {
   yarnWorkspaces: {

@@ -1,7 +1,7 @@
 export = npm;
 
-import debugModule = require('debug');
-const debug = debugModule('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 import { exec } from 'child_process';
 
 function npm(

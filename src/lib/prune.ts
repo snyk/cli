@@ -1,4 +1,3 @@
-import * as _debug from 'debug';
 import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import { DepTree } from './types';
@@ -8,7 +7,8 @@ import * as analytics from '../lib/analytics';
 import { SupportedPackageManagers } from './package-managers';
 import { countPathsToGraphRoot } from './utils';
 
-const debug = _debug('snyk:prune');
+const util = require('util');
+const debug = util.debuglog('snyk:prune');
 
 const { depTreeToGraph, graphToDepTree } = legacy;
 

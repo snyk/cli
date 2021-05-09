@@ -140,9 +140,9 @@ function save(namespaces) {
   if (null == namespaces) {
     // If you set a process.env field to null or undefined, it gets cast to the
     // string 'null' or 'undefined'. Just delete instead.
-    delete process.env.DEBUG;
+    delete process.env.NODE_DEBUG;
   } else {
-    process.env.DEBUG = namespaces;
+    process.env.NODE_DEBUG = namespaces;
   }
 }
 
@@ -154,7 +154,7 @@ function save(namespaces) {
  */
 
 function load() {
-  return process.env.DEBUG;
+  return process.env.NODE_DEBUG;
 }
 
 /**
@@ -242,7 +242,7 @@ function init (debug) {
 }
 
 /**
- * Enable namespaces listed in `process.env.DEBUG` initially.
+ * Enable namespaces listed in `process.env.NODE_DEBUG` initially.
  */
 
 exports.enable(load());

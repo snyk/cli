@@ -1,6 +1,5 @@
 export = fix;
 
-import * as Debug from 'debug';
 import * as snykFix from '@snyk/fix';
 import * as ora from 'ora';
 
@@ -19,7 +18,8 @@ import { Options, TestOptions } from '../../../lib/types';
 import { getDisplayPath } from './get-display-path';
 import chalk from 'chalk';
 
-const debug = Debug('snyk-fix');
+const util = require('util');
+const debug = util.debuglog('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
 
 interface FixOptions {

@@ -1,6 +1,7 @@
 module.exports = applyPatch;
 
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const diff = require('diff');
 const exec = require('child_process').exec;
 const path = require('path');

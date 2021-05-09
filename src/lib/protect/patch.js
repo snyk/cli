@@ -2,7 +2,8 @@ module.exports = patch;
 
 const now = new Date();
 
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 const chalk = require('chalk');
 const glob = require('glob');
 const tempfile = require('tempfile');

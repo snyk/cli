@@ -1,14 +1,15 @@
-var tap = require('tap');
-var test = tap.test;
-var debug = require('debug')('snyk');
-var wizard = require('../src/cli/commands/protect/wizard');
-var policy = require('snyk-policy');
-var mockPolicy;
-var path = require('path');
-var fs = require('fs');
-var exec = require('child_process').exec;
-var vulns = require('./fixtures/debug-2.1.0-vuln.json').vulnerabilities;
-var iswindows =
+const tap = require('tap');
+const test = tap.test;
+const util = require('util');
+const debug = util.debuglog('snyk');
+const wizard = require('../src/cli/commands/protect/wizard');
+const policy = require('snyk-policy');
+let mockPolicy;
+const path = require('path');
+const fs = require('fs');
+const exec = require('child_process').exec;
+const vulns = require('./fixtures/debug-2.1.0-vuln.json').vulnerabilities;
+const iswindows =
   require('os-name')()
     .toLowerCase()
     .indexOf('windows') === 0;
@@ -24,14 +25,14 @@ test(
   'patch via wizard produces policy (on debug@2.1.0)',
   { skip: iswindows },
   function(t) {
-    var name = 'debug';
-    var version = '2.1.0';
-    var cwd = process.cwd();
-    var id = 'npm:ms:20151024';
+    const name = 'debug';
+    const version = '2.1.0';
+    const cwd = process.cwd();
+    const id = 'npm:ms:20151024';
 
     t.plan(3);
 
-    var dir = path.resolve(__dirname, 'fixtures/debug-package');
+    const dir = path.resolve(__dirname, 'fixtures/debug-package');
     npm('install', name + '@' + version, dir)
       .then(function() {
         debug(
@@ -42,7 +43,7 @@ test(
         process.chdir(dir + '/node_modules/debug');
       })
       .then(function() {
-        var answers = {
+        const answers = {
           // answers
           'misc-test-no-monitor': true,
         };
@@ -55,7 +56,7 @@ test(
         return wizard.processAnswers(answers, mockPolicy).then(function() {
           // now check if the policy file worked.
           return policy.load(process.cwd()).then(function(res) {
-            var patched = Object.keys(res.patch);
+            const patched = Object.keys(res.patch);
             t.equal(patched.length, 1, 'contains 1 patch');
             t.equal(patched[0], id, 'patch contains the correct vuln id');
           });
@@ -78,16 +79,16 @@ test(
   'patch via wizard produces policy (on openapi-node@3.0.3)',
   { skip: iswindows },
   function(t) {
-    var name = 'openapi-node';
-    var version = '3.0.3';
-    var cwd = process.cwd();
-    var id = 'npm:qs:20140806-1';
-    var altId = 'npm:qs:20140806';
-    var answers = require('./fixtures/openapi-node/answers.json');
+    const name = 'openapi-node';
+    const version = '3.0.3';
+    const cwd = process.cwd();
+    const id = 'npm:qs:20140806-1';
+    const altId = 'npm:qs:20140806';
+    const answers = require('./fixtures/openapi-node/answers.json');
 
     t.plan(3);
 
-    var dir = path.resolve(__dirname, 'fixtures/' + name);
+    const dir = path.resolve(__dirname, 'fixtures/' + name);
     npm('install', name + '@' + version, dir)
       .then(function() {
         // debug('installed to %s, cd-ing to %s', dir, dir + '/node_modules/' + name);
@@ -102,8 +103,8 @@ test(
         return wizard.processAnswers(answers, mockPolicy).then(function() {
           // now check if the policy file worked.
           return policy.load(process.cwd()).then(function(res) {
-            var patched = Object.keys(res.patch).sort();
-            var target = [id, altId].sort();
+            const patched = Object.keys(res.patch).sort();
+            const target = [id, altId].sort();
             t.equal(
               patched.length,
               2,
@@ -138,7 +139,7 @@ function npm(method, packages, dir) {
   return new Promise(function(resolve, reject) {
     // `--prefix .` forces the install to take place, even if we have it
     // installed ourselves
-    var cmd = 'npm ' + method + ' --prefix . ' + packages.join(' ');
+    const cmd = 'npm ' + method + ' --prefix . ' + packages.join(' ');
     debug('%s in %s', cmd, dir);
     exec(
       cmd,

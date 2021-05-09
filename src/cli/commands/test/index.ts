@@ -1,6 +1,5 @@
 export = test;
 
-import * as Debug from 'debug';
 import * as pathLib from 'path';
 const cloneDeep = require('lodash.clonedeep');
 const assign = require('lodash.assign');
@@ -57,7 +56,8 @@ import { setDefaultTestOptions } from './set-default-test-options';
 import { processCommandArgs } from '../process-command-args';
 import { formatTestError } from './format-test-error';
 
-const debug = Debug('snyk-test');
+const util = require('util');
+const debug = util.debuglog('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
 // TODO: avoid using `as any` whenever it's possible

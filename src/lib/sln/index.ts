@@ -2,10 +2,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as detect from '../detect';
 import { NoSupportedManifestsFoundError } from '../errors/no-supported-manifests-found';
-import * as Debug from 'debug';
 import { FileFlagBadInputError } from '../errors';
 
-const debug = Debug('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 // slnFile should exist.
 // returns array of project paths (path/to/manifest.file)

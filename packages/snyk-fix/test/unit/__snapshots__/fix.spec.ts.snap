@@ -80,7 +80,7 @@ Summary:
   0 fixed issues
 
 
-Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
+Re-run in debug mode to see more information: NODE_DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
   "meta": Object {
     "failed": 1,
     "fixed": 0,
@@ -210,7 +210,7 @@ Summary:
   1 fixed issues
 
 
-Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
+Re-run in debug mode to see more information: NODE_DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
   "meta": Object {
     "failed": 1,
     "fixed": 1,

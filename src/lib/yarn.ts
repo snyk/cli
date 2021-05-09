@@ -1,8 +1,8 @@
-import * as Debug from 'debug';
 import { exec } from 'child_process';
 import { CustomError } from './errors';
 
-const debug = Debug('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 export function yarn(
   method: string,

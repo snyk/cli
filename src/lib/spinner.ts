@@ -3,8 +3,8 @@ import { SpinnerOptions } from './types';
 export = createSpinner;
 createSpinner.isRequired = true;
 
-import debugModule = require('debug');
-const debug = debugModule('snyk:spinner');
+const util = require('util');
+const debug = util.debuglog('snyk:spinner');
 import { isCI } from './is-ci';
 const spinners = {};
 let sticky = false;

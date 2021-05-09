@@ -1,5 +1,4 @@
 import chalk from 'chalk';
-import * as debugLib from 'debug';
 import { getCodeAnalysisAndParseResults } from './analysis';
 import { validateCodeTest } from './validate';
 import {
@@ -12,7 +11,8 @@ import { FailedToRunTestError } from '../../errors/failed-to-run-test-error';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
 
-const debug = debugLib('snyk-code-test');
+const util = require('util');
+const debug = util.debuglog('snyk-code-test');
 
 export const codePlugin: EcosystemPlugin = {
   // We currently don't use scan/display. we will need to consolidate ecosystem plugins

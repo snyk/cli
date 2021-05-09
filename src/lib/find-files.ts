@@ -3,8 +3,8 @@ import * as pathLib from 'path';
 const sortBy = require('lodash.sortby');
 const groupBy = require('lodash.groupby');
 import { detectPackageManagerFromFile } from './detect';
-import * as debugModule from 'debug';
-const debug = debugModule('snyk:find-files');
+const util = require('util');
+const debug = util.debuglog('snyk:find-files');
 
 // TODO: use util.promisify once we move to node 8
 

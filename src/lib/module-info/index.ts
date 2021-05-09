@@ -1,8 +1,8 @@
 const merge = require('lodash.merge');
-import * as Debug from 'debug';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
-const debug = Debug('snyk-module-info');
+const util = require('util');
+const debug = util.debuglog('snyk-module-info');
 
 export function ModuleInfo(plugin, policy) {
   return {

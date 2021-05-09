@@ -1,4 +1,3 @@
-import * as Debug from 'debug';
 import * as path from 'path';
 
 import * as depGraphLib from '@snyk/dep-graph';
@@ -54,7 +53,8 @@ import { countPathsToGraphRoot } from '../utils';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
 
-const debug = Debug('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 
 const ANALYTICS_PAYLOAD_MAX_LENGTH = 1024;
 

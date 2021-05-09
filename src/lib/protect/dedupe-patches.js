@@ -1,6 +1,7 @@
 module.exports = dedupe;
 
-const debug = require('debug')('snyk:patch');
+const util = require('util');
+const debug = util.debuglog('snyk:patch');
 const patchesForPackage = require('./patches-for-package');
 
 function dedupe(source) {

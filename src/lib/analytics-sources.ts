@@ -8,7 +8,8 @@
   Integration name is validated with a list
 */
 
-const debug = require('debug')('snyk');
+const util = require('util');
+const debug = util.debuglog('snyk');
 import * as fs from 'fs';
 import * as semver from 'semver';
 import { ArgsOptions } from '../cli/args';

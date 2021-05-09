@@ -1,11 +1,11 @@
-import * as baseDebug from 'debug';
 import * as pathUtil from 'path';
 // import * as _ from 'lodash';
 const sortBy = require('lodash.sortby');
 const groupBy = require('lodash.groupby');
 import * as micromatch from 'micromatch';
 
-const debug = baseDebug('snyk-yarn-workspaces');
+const util = require('util');
+const debug = util.debuglog('snyk-yarn-workspaces');
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
 import * as path from 'path';
 import { NoSupportedManifestsFoundError } from '../../errors';

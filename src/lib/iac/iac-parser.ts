@@ -1,6 +1,5 @@
 //TODO(orka): take out into a new lib
 import * as YAML from 'js-yaml';
-import * as debugLib from 'debug';
 import {
   IllegalIacFileErrorMsg,
   InternalServerError,
@@ -15,7 +14,8 @@ import {
   IacValidationResponse,
 } from './constants';
 
-const debug = debugLib('snyk-detect');
+const util = require('util');
+const debug = util.debuglog('snyk-detect');
 
 const requiredK8SObjectFields = ['apiVersion', 'kind', 'metadata'];
 
