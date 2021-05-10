@@ -1,21 +1,23 @@
-import { loadFiles } from './file-loader';
-import { parseFiles } from './file-parser';
-import { scanFiles } from './file-scanner';
-import { formatScanResults } from './results-formatter';
 import { isLocalFolder } from '../../../../lib/detect';
 import {
   IaCTestFlags,
   IacFileParsed,
   IacFileParseFailure,
   SafeAnalyticsOutput,
+  TestReturnValue,
 } from './types';
-import { cleanLocalCache, initLocalCache } from './local-cache';
 import { addIacAnalytics } from './analytics';
 import { TestResult } from '../../../../lib/snyk-test/legacy';
-import { IacFileInDirectory } from '../../../../lib/types';
-import { applyCustomSeverities } from './org-settings/apply-custom-severities';
-import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
-
+import {
+  initLocalCache,
+  loadFiles,
+  parseFiles,
+  scanFiles,
+  getIacOrgSettings,
+  applyCustomSeverities,
+  formatScanResults,
+  cleanLocalCache,
+} from './measurable-methods';
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // the current version is dependent on files to be present locally which are not part of the source code.
 // without these files this method would fail.
@@ -23,11 +25,7 @@ import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
 export async function test(
   pathToScan: string,
   options: IaCTestFlags,
-): Promise<{
-  results: TestResult | TestResult[];
-  /** All files scanned by IaC with parse errors */
-  failures?: IacFileInDirectory[];
-}> {
+): Promise<TestReturnValue> {
   await initLocalCache();
   const filesToParse = await loadFiles(pathToScan, options);
   const { parsedFiles, failedFiles } = await parseFiles(filesToParse, options);

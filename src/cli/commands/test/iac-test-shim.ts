@@ -1,9 +1,7 @@
 import { assertIaCOptionsFlags } from './iac-local-execution/assert-iac-options-flag';
-import { IaCTestOptions } from './iac-local-execution/types';
-import { test as localTest } from './iac-local-execution';
+import { IaCTestOptions, TestReturnValue } from './iac-local-execution/types';
+import { localTest } from './iac-local-execution/measurable-methods';
 import { test as legacyTest } from '../../../lib';
-import { TestResult } from '../../../lib/snyk-test/legacy';
-import { IacFileInDirectory } from '../../../lib/types';
 
 /**
  * Shim around the new local execution test path and the existing remote
@@ -14,10 +12,7 @@ import { IacFileInDirectory } from '../../../lib/types';
 export async function test(
   pathToScan: string,
   options: IaCTestOptions,
-): Promise<{
-  results: TestResult | TestResult[];
-  failures?: IacFileInDirectory[];
-}> {
+): Promise<TestReturnValue> {
   // Ensure that all flags are correct. We do this to ensure that the
   // caller doesn't accidentally mistype --experimental and send their
   // configuration files to our backend by accident.
