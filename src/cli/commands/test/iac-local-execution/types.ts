@@ -98,6 +98,7 @@ export interface PolicyMetadata {
   type: string;
   subType: string;
   title: string;
+  documentation?: string; // e.g. "https://snyk.io/security-rules/SNYK-CC-K8S-2",
   // Legacy field, still included in WASM eval output, but not in use.
   description: string;
   severity: SEVERITY | 'none'; // the 'null' value can be provided by the backend

@@ -28,6 +28,7 @@ export const policyStub: PolicyMetadata = {
   subType: 'Deployment',
   title: 'Container is running in privileged mode',
   type: 'k8s',
+  documentation: 'https://snyk.io/security-rules/SNYK-CC-K8S-2',
 };
 
 const anotherPolicyStub: PolicyMetadata = {
@@ -37,26 +38,28 @@ const anotherPolicyStub: PolicyMetadata = {
   publicId: 'SNYK-CC-K8S-2',
 };
 
-export const scanResults: Array<IacFileScanResult> = [
-  {
-    violatedPolicies: [policyStub],
-    jsonContent: { dontCare: null },
-    docId: 0,
-    engineType: EngineType.Kubernetes,
-    fileContent: 'dont-care',
-    filePath: 'dont-care',
-    fileType: 'yaml',
-  },
-  {
-    violatedPolicies: [anotherPolicyStub],
-    jsonContent: { dontCare: null },
-    docId: 0,
-    engineType: EngineType.Kubernetes,
-    fileContent: 'dont-care',
-    filePath: 'dont-care',
-    fileType: 'yaml',
-  },
-];
+export function generateScanResults(): Array<IacFileScanResult> {
+  return [
+    {
+      violatedPolicies: [{ ...policyStub }],
+      jsonContent: { dontCare: null },
+      docId: 0,
+      engineType: EngineType.Kubernetes,
+      fileContent: 'dont-care',
+      filePath: 'dont-care',
+      fileType: 'yaml',
+    },
+    {
+      violatedPolicies: [{ ...anotherPolicyStub }],
+      jsonContent: { dontCare: null },
+      docId: 0,
+      engineType: EngineType.Kubernetes,
+      fileContent: 'dont-care',
+      filePath: 'dont-care',
+      fileType: 'yaml',
+    },
+  ];
+}
 
 export const meta: TestMeta = {
   isPrivate: false,
@@ -64,42 +67,53 @@ export const meta: TestMeta = {
   org: 'org-name',
 };
 
-export const expectedFormattedResults = {
-  result: {
-    cloudConfigResults: [
-      {
-        ...anotherPolicyStub,
-        id: anotherPolicyStub.publicId,
-        name: anotherPolicyStub.title,
-        cloudConfigPath: ['[DocId:0]'].concat(anotherPolicyStub.msg.split('.')),
-        isIgnored: false,
-        iacDescription: {
-          issue: anotherPolicyStub.issue,
-          impact: anotherPolicyStub.impact,
-          resolve: anotherPolicyStub.resolve,
+function generateFormattedResults(withLineNumber: boolean = true) {
+  return {
+    result: {
+      cloudConfigResults: [
+        {
+          ...anotherPolicyStub,
+          id: anotherPolicyStub.publicId,
+          name: anotherPolicyStub.title,
+          cloudConfigPath: ['[DocId:0]'].concat(
+            anotherPolicyStub.msg.split('.'),
+          ),
+          isIgnored: false,
+          iacDescription: {
+            issue: anotherPolicyStub.issue,
+            impact: anotherPolicyStub.impact,
+            resolve: anotherPolicyStub.resolve,
+          },
+          severity: anotherPolicyStub.severity,
+          lineNumber: withLineNumber ? 3 : -1,
+          documentation: anotherPolicyStub.documentation,
         },
-        severity: anotherPolicyStub.severity,
-        lineNumber: 3,
-        documentation: `https://snyk.io/security-rules/${anotherPolicyStub.publicId}`,
-      },
-    ],
-    projectType: 'k8sconfig',
-  },
-  isPrivate: true,
-  packageManager: IacProjectType.K8S,
-  targetFile: 'dont-care',
-  targetFilePath: path.resolve('dont-care', '.'),
-  vulnerabilities: [],
-  dependencyCount: 0,
-  ignoreSettings: null,
-  licensesPolicy: null,
-  projectName: 'snyk',
-  meta: {
-    ...meta,
+      ],
+      projectType: 'k8sconfig',
+    },
+    isPrivate: true,
+    packageManager: IacProjectType.K8S,
+    targetFile: 'dont-care',
+    targetFilePath: path.resolve('dont-care', '.'),
+    vulnerabilities: [],
+    dependencyCount: 0,
+    ignoreSettings: null,
+    licensesPolicy: null,
+    projectName: 'snyk',
+    meta: {
+      ...meta,
+      policy: '',
+      projectId: '',
+    },
+    org: meta.org,
     policy: '',
-    projectId: '',
-  },
-  org: meta.org,
-  policy: '',
-  filesystemPolicy: false,
-};
+    filesystemPolicy: false,
+  };
+}
+
+export const expectedFormattedResultsWithLineNumber = generateFormattedResults(
+  true,
+);
+export const expectedFormattedResultsWithoutLineNumber = generateFormattedResults(
+  false,
+);
