@@ -33,7 +33,14 @@ export const codePlugin: EcosystemPlugin = {
         path,
         options,
       );
+
+      const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
+      analytics.add('sast-issues-found', numOfIssues);
+
       if (options.sarif || options.json) {
+        if (numOfIssues > 0) {
+          hasIssues(jsonStringifyLargeObject(sarifTypedResult));
+        }
         return { readableResult: jsonStringifyLargeObject(sarifTypedResult) };
       }
       const meta = getMeta(options, path);
@@ -43,13 +50,9 @@ export const codePlugin: EcosystemPlugin = {
         meta,
         prefix,
       );
-
-      const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
-      analytics.add('sast-issues-found', numOfIssues);
       if (numOfIssues > 0) {
         hasIssues(readableResult);
       }
-
       return { readableResult };
     } catch (error) {
       let err: Error;
