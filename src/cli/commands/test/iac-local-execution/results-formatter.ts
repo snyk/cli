@@ -27,7 +27,7 @@ export function formatScanResults(
     // Relevant only for multi-doc yaml files
     const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);
     return scannedResultsGroupedByDocId.map((iacScanResult) =>
-      formatScanResult(iacScanResult, meta, options.severityThreshold),
+      formatScanResult(iacScanResult, meta, options),
     );
   } catch (e) {
     throw new FailedToFormatResults();
@@ -42,7 +42,7 @@ const engineTypeToProjectType = {
 function formatScanResult(
   scanResult: IacFileScanResult,
   meta: TestMeta,
-  severityThreshold?: SEVERITY,
+  { severityThreshold, json, sarif }: IaCTestFlags,
 ): FormattedResult {
   const formattedIssues = scanResult.violatedPolicies.map((policy) => {
     const cloudConfigPath =
@@ -50,7 +50,10 @@ function formatScanResult(
         ? [`[DocId:${scanResult.docId}]`].concat(policy.msg.split('.'))
         : policy.msg.split('.');
 
-    const lineNumber: number = extractLineNumber(scanResult, policy);
+    const shouldExtractLineNumber = json || sarif;
+    const lineNumber: number = shouldExtractLineNumber
+      ? extractLineNumber(scanResult, policy)
+      : -1;
 
     return {
       ...policy,
