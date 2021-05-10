@@ -1,4 +1,3 @@
-import * as snyk from '../index';
 import * as config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
@@ -9,6 +8,7 @@ import { Ecosystem, ScanResult, TestResult } from './types';
 import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
 import { assembleQueryString } from '../snyk-test/common';
+import { getAuthHeader } from '../api-token';
 
 export async function testEcosystem(
   ecosystem: Ecosystem,
@@ -70,7 +70,7 @@ async function testDependencies(
         json: true,
         headers: {
           'x-is-ci': isCI(),
-          authorization: 'token ' + snyk.api,
+          authorization: getAuthHeader(),
         },
         body: {
           scanResult,
