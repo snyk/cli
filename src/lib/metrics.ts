@@ -1,5 +1,4 @@
-const util = require('util');
-const debug = util.debuglog('snyk-metrics');
+const debug = require('debug')('snyk-metrics');
 
 type MetricType = 'timer' | 'synthetic';
 export type MetricValue = number | undefined;

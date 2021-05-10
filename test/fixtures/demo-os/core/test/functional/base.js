@@ -21,7 +21,7 @@
  * you must have phantomjs 1.9.1 and casperjs 1.1.0-DEV installed in order for these tests to work
  */
 /*jshint unused:false */
-var DEBUG = false, // TOGGLE THIS TO GET MORE SCREENSHOTS
+var NODE_DEBUG = false, // TOGGLE THIS TO GET MORE SCREENSHOTS
     host = casper.cli.options.host || 'localhost',
     noPort = casper.cli.options.noPort || false,
     port = casper.cli.options.port || '2368',
