@@ -3,6 +3,7 @@ import { SEVERITY } from '../../../../lib/snyk-test/common';
 import {
   AnnotatedIssue,
   IgnoreSettings,
+  TestResult,
 } from '../../../../lib/snyk-test/legacy';
 import {
   IacFileInDirectory,
@@ -244,4 +245,9 @@ export enum IaCErrorCodes {
   // assert-iac-options-flag
   FlagError = 1090,
   FlagValueError = 1091,
+}
+
+export interface TestReturnValue {
+  results: TestResult | TestResult[];
+  failures?: IacFileInDirectory[];
 }
