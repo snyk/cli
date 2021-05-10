@@ -11,7 +11,6 @@ describe('assertIaCOptionsFlags()', () => {
     const options = [
       '--debug',
       '--insecure',
-      '--experimental',
       '--detection-depth',
       '--severity-threshold',
       '--json',
@@ -24,6 +23,7 @@ describe('assertIaCOptionsFlags()', () => {
       '--help',
       '-q',
       '--quiet',
+      '--legacy',
     ];
     expect(() =>
       assertIaCOptionsFlags([...command, ...options, ...files]),

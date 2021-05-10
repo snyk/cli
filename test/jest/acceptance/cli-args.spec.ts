@@ -72,7 +72,7 @@ test('snyk test command should fail when iac --file is specified', async () => {
 
 test('snyk test command should fail when iac file is not supported', async () => {
   const { code, stdout } = await runCLI(
-    `iac test ./test/acceptance/workspaces/empty/readme.md`,
+    `iac test ./test/acceptance/workspaces/empty/readme.md --legacy`,
   );
 
   expect(stdout).toMatch('Illegal infrastructure as code target file');
@@ -81,7 +81,7 @@ test('snyk test command should fail when iac file is not supported', async () =>
 
 test('snyk test command should fail when iac file is not supported', async () => {
   const { code, stdout } = await runCLI(
-    `iac test ./test/acceptance/workspaces/helmconfig/Chart.yaml`,
+    `iac test ./test/acceptance/workspaces/helmconfig/Chart.yaml --legacy`,
   );
 
   expect(stdout).toMatch(

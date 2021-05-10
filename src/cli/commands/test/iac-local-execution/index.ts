@@ -19,9 +19,7 @@ import {
   cleanLocalCache,
 } from './measurable-methods';
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
-// the current version is dependent on files to be present locally which are not part of the source code.
-// without these files this method would fail.
-// if you're interested in trying out the experimental local execution model for IaC scanning, please reach-out.
+// this flow is the default GA flow for IAC scanning.
 export async function test(
   pathToScan: string,
   options: IaCTestFlags,

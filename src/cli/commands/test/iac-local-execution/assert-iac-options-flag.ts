@@ -6,7 +6,6 @@ import { IaCErrorCodes, IaCTestFlags, TerraformPlanScanMode } from './types';
 const keys: (keyof IaCTestFlags)[] = [
   'debug',
   'insecure',
-  'experimental',
   'detectionDepth',
   'severityThreshold',
   'json',
@@ -20,6 +19,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'q',
   'quiet',
   'scan',
+  'legacy',
 ];
 const allowed = new Set<string>(keys);
 
