@@ -5,6 +5,7 @@ import { isCI } from '../../../../../lib/is-ci';
 import { api } from '../../../../../lib/api-token';
 import request = require('../../../../../lib/request');
 import { CustomError } from '../../../../../lib/errors';
+import { getErrorStringCode } from '../error-utils';
 
 export function getIacOrgSettings(): Promise<IacOrgSettings> {
   const payload: Payload = {
@@ -34,6 +35,7 @@ export class FailedToGetIacOrgSettingsError extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to fetch IaC organization settings');
     this.code = IaCErrorCodes.FailedToGetIacOrgSettingsError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We failed to fetch your organization settings, including custom severity overrides for infrastructure-as-code policies. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
   }

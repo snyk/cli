@@ -10,6 +10,7 @@ import { loadPolicy } from '@open-policy-agent/opa-wasm';
 import * as fs from 'fs';
 import { getLocalCachePath } from './local-cache';
 import { CustomError } from '../../../../lib/errors';
+import { getErrorStringCode } from './error-utils';
 
 export async function scanFiles(
   parsedFiles: Array<IacFileParsed>,
@@ -99,6 +100,7 @@ export class FailedToBuildPolicyEngine extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to build policy engine');
     this.code = IaCErrorCodes.FailedToBuildPolicyEngine;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We were unable run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
   }
@@ -107,6 +109,7 @@ export class FailedToExecutePolicyEngine extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to execute policy engine');
     this.code = IaCErrorCodes.FailedToExecutePolicyEngine;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We were unable run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
   }

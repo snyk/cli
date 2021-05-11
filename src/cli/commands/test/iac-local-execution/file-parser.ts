@@ -21,6 +21,7 @@ import {
 } from './types';
 import * as analytics from '../../../../lib/analytics';
 import { CustomError } from '../../../../lib/errors';
+import { getErrorStringCode } from './error-utils';
 
 export async function parseFiles(
   filesData: IacFileData[],
@@ -121,6 +122,7 @@ export class UnsupportedFileTypeError extends CustomError {
   constructor(fileType: string) {
     super('Unsupported file extension');
     this.code = IaCErrorCodes.UnsupportedFileTypeError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Unable to process the file with extension ${fileType}. Supported file extensions are tf, yml, yaml & json.\nMore information can be found by running \`snyk iac test --help\` or through our documentation:\nhttps://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool\nhttps://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files-with-our-CLI-tool`;
   }
 }
@@ -129,6 +131,7 @@ export class InvalidJsonFileError extends CustomError {
   constructor(filename: string) {
     super('Failed to parse JSON file');
     this.code = IaCErrorCodes.InvalidJsonFileError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to parse the JSON file "${filename}". Please ensure that it contains properly structured JSON`;
   }
 }
@@ -137,6 +140,7 @@ export class InvalidYamlFileError extends CustomError {
   constructor(filename: string) {
     super('Failed to parse YAML file');
     this.code = IaCErrorCodes.InvalidYamlFileError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to parse the YAML file "${filename}". Please ensure that it contains properly structured YAML`;
   }
 }
@@ -147,6 +151,7 @@ export class FailedToDetectJsonFileError extends CustomError {
       'Failed to detect either a Kubernetes file or Terraform Plan, missing required fields',
     );
     this.code = IaCErrorCodes.FailedToDetectJsonFileError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to detect whether the JSON file "${filename}" is a valid Kubernetes file or Terraform Plan. For Kubernetes it is missing the following fields: "${REQUIRED_K8S_FIELDS.join(
       '", "',
     )}". For Terraform Plan it was expected to contain fields "planned_values.root_module" and "resource_changes". Please contact support@snyk.io, if possible with a redacted version of the file`;

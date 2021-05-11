@@ -7,6 +7,7 @@ import {
 import { UnsupportedFileTypeError } from './file-parser';
 import * as analytics from '../../../../lib/analytics';
 import * as Debug from 'debug';
+import { getErrorStringCode } from './error-utils';
 const debug = Debug('iac-extract-line-number');
 
 function getFileTypeForLineNumber(fileType: string): CloudConfigFileTypes {
@@ -47,6 +48,7 @@ class FailedToExtractLineNumberError extends CustomError {
       message || 'Parser library failed. Could not assign lineNumber to issue',
     );
     this.code = IaCErrorCodes.FailedToExtractLineNumberError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage = ''; // Not a user facing error.
   }
 }

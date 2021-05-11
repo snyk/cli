@@ -8,6 +8,7 @@ import * as Debug from 'debug';
 import { CustomError } from '../../../../lib/errors';
 import * as analytics from '../../../../lib/analytics';
 import ReadableStream = NodeJS.ReadableStream;
+import { getErrorStringCode } from './error-utils';
 
 const debug = Debug('iac-local-cache');
 
@@ -74,6 +75,7 @@ export class FailedToInitLocalCacheError extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to initialize local cache');
     this.code = IaCErrorCodes.FailedToInitLocalCacheError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We were unable to create a local directory to store the test assets, please ensure that the current working directory is writable';
   }
@@ -83,6 +85,7 @@ class FailedToCleanLocalCacheError extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to clean local cache');
     this.code = IaCErrorCodes.FailedToCleanLocalCacheError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage = ''; // Not a user facing error.
   }
 }
