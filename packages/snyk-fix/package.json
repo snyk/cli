@@ -40,10 +40,14 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/dep-graph": "^1.21.0",
+    "@snyk/fix-pipenv-pipfile": "0.3.4",
     "bottleneck": "2.19.5",
     "chalk": "4.1.0",
     "child_process": "1.0.2",
     "debug": "^4.3.1",
+    "lodash.groupby": "4.6.0",
+    "lodash.orderby": "^4.6.0",
+    "lodash.sortby": "^4.7.0",
     "ora": "5.4.0",
     "p-map": "^4.0.0",
     "strip-ansi": "6.0.0"

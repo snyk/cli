@@ -1,10 +1,10 @@
 import * as debugLib from 'debug';
 import * as ora from 'ora';
 import * as chalk from 'chalk';
+import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
 
 import { EntityToFix, FixOptions } from '../../../../types';
 import { PluginFixResponse } from '../../../types';
-import { execute, ExecuteResponse } from '../sub-process';
 import { updateDependencies } from './update-dependencies';
 
 const debug = debugLib('snyk-fix:python:Pipfile');
@@ -40,66 +40,8 @@ export async function pipenvPipfile(
   return handlerResult;
 }
 
-// TODO: move
-async function checkPipenvInstalled(): Promise<{ version: string | null }> {
-  let res: ExecuteResponse;
-  try {
-    res = await execute('pipenv', ['--version'], {});
-  } catch (e) {
-    debug('Execute failed with', e);
-    res = e;
-  }
-  if (res.exitCode !== 0) {
-    throw res.error;
-  }
-
-  return { version: extractPipenvVersion(res.stdout) };
-}
-
-// TODO: move
-function extractPipenvVersion(stdout: string): string | null {
-  /* stdout example:
-   * pipenv, version 2018.11.26\n
-   */
-  let version: string | null = null;
-  const re = new RegExp(/^pipenv,\sversion\s([0-9.]+)/, 'g');
-  const match = re.exec(stdout);
-  if (match) {
-    version = match[1];
-  }
-  return version;
-}
-
-// TODO: move
-function isSupportedPipenvVersion(
-  version: string,
-): { supported: boolean; versions: string[] } {
-  // https://pipenv.pypa.io/en/latest/changelog/
-  const SUPPORTED_PIPENV_VERSIONS = [
-    '2020.11.4',
-    '2020.8.13',
-    '2020.6.2',
-    '2020.5.28',
-    '2018.11.26',
-    '2018.11.14',
-    '2018.10.13',
-    '2018.10.9',
-    '2018.7.1',
-    '2018.6.25',
-  ];
-  let supported = false;
-  if (SUPPORTED_PIPENV_VERSIONS.includes(version)) {
-    supported = true;
-  }
-
-  return {
-    supported,
-    versions: SUPPORTED_PIPENV_VERSIONS,
-  };
-}
-
 async function checkPipenvSupport(options: FixOptions): Promise<void> {
-  const { version } = await checkPipenvInstalled();
+  const { version } = await pipenvPipfileFix.isPipenvInstalled();
 
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
   spinner.clear();
@@ -117,7 +59,8 @@ async function checkPipenvSupport(options: FixOptions): Promise<void> {
     return;
   }
 
-  const { supported, versions } = isSupportedPipenvVersion(version);
+  const { supported, versions } =
+    pipenvPipfileFix.isPipenvSupportedVersion(version);
   if (!supported) {
     const spinnerMessage = ` ${version} pipenv version detected. Currently the following pipenv versions are supported: ${versions.join(
       ',',

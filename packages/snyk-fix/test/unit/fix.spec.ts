@@ -1,6 +1,28 @@
+import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
+
 import * as snykFix from '../../src';
 import { generateEntityToFix } from '../helpers/generate-entity-to-fix';
+
+jest.mock('@snyk/fix-pipenv-pipfile');
+
 describe('Snyk fix', () => {
+  beforeAll(() => {
+    jest.spyOn(pipenvPipfileFix, 'isPipenvSupportedVersion').mockReturnValue({
+      supported: true,
+      versions: ['123.123.123'],
+    });
+    jest.spyOn(pipenvPipfileFix, 'isPipenvInstalled').mockResolvedValue({
+      version: '123.123.123',
+    });
+    jest.spyOn(pipenvPipfileFix, 'pipenvInstall').mockResolvedValue({
+      exitCode: 0,
+      stdout: '',
+      stderr: '',
+      command: 'pipenv install',
+      duration: 123,
+    });
+  });
+
   it('Snyk fix returns results for supported type', async () => {
     // Arrange
     const projectTestResult = generateEntityToFix(
@@ -40,28 +62,24 @@ describe('Snyk fix', () => {
     expect(writeFileSpy).not.toHaveBeenCalled();
   });
 
-  it.only('Snyk fix returns results for supported & unsupported type', async () => {
+  it('Snyk fix returns results for supported & unsupported type', async () => {
     // Arrange
     const projectTestResult = generateEntityToFix(
       'pip',
       'requirements.txt',
       'django===1.6.1',
     );
-    const pipfileProjectTestResult = generateEntityToFix(
-      'pip',
-      'Pipfile',
-      'django===1.6.1',
-    );
+    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile', '');
 
     // Act
     const res = await snykFix.fix(
       [projectTestResult, pipfileProjectTestResult],
-      { quiet: true, stripAnsi: true },
+      { quiet: true, stripAnsi: true, dryRun: true },
     );
 
     // Assert
     expect(res).toMatchSnapshot();
-  }, 10000);
+  });
 
   it('Snyk fix returns results as expected', async () => {
     // Arrange
@@ -75,11 +93,7 @@ describe('Snyk fix', () => {
       'dev.txt',
       'django===1.6.1',
     );
-    const pipfileProjectTestResult = generateEntityToFix(
-      'pip',
-      'Pipfile',
-      'django===1.6.1',
-    );
+    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile', '');
 
     // Act
     const res = await snykFix.fix(
@@ -88,7 +102,7 @@ describe('Snyk fix', () => {
         txtProdProjectTestResult,
         pipfileProjectTestResult,
       ],
-      { quiet: true, stripAnsi: true },
+      { quiet: true, stripAnsi: true, dryRun: true },
     );
 
     // Assert
@@ -96,20 +110,19 @@ describe('Snyk fix', () => {
     expect(Object.keys(res.results)).toHaveLength(1);
     expect(Object.keys(res.results)[0]).toEqual('python');
     // skipped unsupported
-    expect(res.results.python.skipped).toHaveLength(1);
-    expect(res.results.python.skipped[0]).toEqual({
-      original: pipfileProjectTestResult,
-      userMessage: 'Pipfile is not supported',
-    });
+    expect(res.results.python.skipped).toHaveLength(0);
 
     // first *.txt throws because of the mock above
     expect(res.results.python.failed).toHaveLength(0);
-    expect(res.results.python.succeeded).toHaveLength(2);
+    expect(res.results.python.succeeded).toHaveLength(3);
     expect(
       res.results.python.succeeded[0].original.scanResult.identity.targetFile,
-    ).toEqual('dev.txt');
+    ).toEqual('Pipfile');
     expect(
       res.results.python.succeeded[1].original.scanResult.identity.targetFile,
+    ).toEqual('dev.txt');
+    expect(
+      res.results.python.succeeded[2].original.scanResult.identity.targetFile,
     ).toEqual('prod.txt');
   });
   it('Snyk fix returns results as expected when 1 fails to fix', async () => {
@@ -129,11 +142,7 @@ describe('Snyk fix', () => {
       .mockImplementation(() => {
         throw new Error('Test Error: Invalid encoding');
       });
-    const pipfileProjectTestResult = generateEntityToFix(
-      'pip',
-      'Pipfile',
-      'django===1.6.1',
-    );
+    const pipfileProjectTestResult = generateEntityToFix('pip', 'Pipfile', '');
 
     // Act
     const res = await snykFix.fix(
@@ -142,29 +151,29 @@ describe('Snyk fix', () => {
         txtProdProjectTestResult,
         pipfileProjectTestResult,
       ],
-      { quiet: true, stripAnsi: true },
+      { quiet: true, stripAnsi: true, dryRun: true },
     );
 
     // Assert
     expect(res.exceptions).toEqual({});
     expect(Object.keys(res.results)).toHaveLength(1);
     expect(Object.keys(res.results)[0]).toEqual('python');
-    // skipped unsupported
-    expect(res.results.python.skipped).toHaveLength(1);
-    expect(res.results.python.skipped[0]).toEqual({
-      userMessage: 'Pipfile is not supported',
-      original: pipfileProjectTestResult,
-    });
+
+    expect(res.results.python.skipped).toHaveLength(0);
+
     expect(res.results.python.failed[0]).toEqual({
       error: new Error('Test Error: Invalid encoding'),
       original: txtDevProjectTestResult,
     });
 
     expect(res.results.python.failed).toHaveLength(1);
-    expect(res.results.python.succeeded).toHaveLength(1);
+    expect(res.results.python.succeeded).toHaveLength(2);
 
     expect(
       res.results.python.succeeded[0].original.scanResult.identity.targetFile,
+    ).toEqual('Pipfile');
+    expect(
+      res.results.python.succeeded[1].original.scanResult.identity.targetFile,
     ).toEqual('prod.txt');
   });
 

@@ -22,8 +22,8 @@ import {
 } from './update-dependencies/requirements-file-parser';
 import { standardizePackageName } from './update-dependencies/standardize-package-name';
 import { containsRequireDirective } from './contains-require-directive';
-import { formatDisplayName } from '../../../../lib/output-formatters/format-display-name';
 import { validateRequiredData } from '../validate-required-data';
+import { formatDisplayName } from '../../../../lib/output-formatters/format-display-name';
 
 const debug = debugLib('snyk-fix:python:requirements.txt');
 

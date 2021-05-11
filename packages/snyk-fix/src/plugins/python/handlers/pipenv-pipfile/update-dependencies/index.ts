@@ -1,7 +1,6 @@
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
-
-import Bottleneck from 'bottleneck';
+import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
 
 import { PluginFixResponse } from '../../../../types';
 import {
@@ -13,60 +12,10 @@ import {
 import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
 import { standardizePackageName } from '../../pip-requirements/update-dependencies/standardize-package-name';
 import { CommandFailedError } from '../../../../../lib/errors/command-failed-to-run-error';
-import { execute, ExecuteResponse } from '../../sub-process';
 import { validateRequiredData } from '../../validate-required-data';
+import { convertErrorToUserMessage } from '../../../../../lib/errors/error-to-user-message';
 
 const debug = debugLib('snyk-fix:python:Pipfile');
-
-interface PipEnvConfig {
-  pythonVersion?: '2' | '3';
-  command?: string; // use the provided Python interpreter
-}
-
-const limiter = new Bottleneck({
-  maxConcurrent: 4,
-});
-
-const runPipAddLimitedConcurrency = limiter.wrap(runPipEnvInstall);
-
-// TODO: move
-// https://pipenv.pypa.io/en/latest/advanced/#changing-default-python-versions
-function getPythonversionArgs(config: PipEnvConfig): string | void {
-  if (config.command) {
-    return '--python'; // Performs the installation in a virtualenv using the provided Python interpreter.
-  }
-  if (config.pythonVersion === '2') {
-    return '--two'; // Performs the installation in a virtualenv using the system python3 link.
-  }
-  if (config.pythonVersion === '3') {
-    return '--three'; // Performs the installation in a virtualenv using the system python2 link.
-  }
-}
-
-// TODO: move
-async function runPipEnvInstall(
-  projectPath: string,
-  requirements: string[],
-  config: PipEnvConfig,
-): Promise<ExecuteResponse> {
-  const args = ['install', ...requirements];
-
-  const pythonVersionArg = getPythonversionArgs(config);
-  if (pythonVersionArg) {
-    args.push(pythonVersionArg);
-  }
-
-  let res: ExecuteResponse;
-
-  try {
-    res = await execute('pipenv', args, { cwd: projectPath });
-  } catch (e) {
-    debug('Execute failed with', e);
-    res = e;
-  }
-
-  return res;
-}
 
 export async function updateDependencies(
   entity: EntityToFix,
@@ -90,14 +39,16 @@ export async function updateDependencies(
     // Currently this is not possible as there is no Pipfile parser that would do this.
     const upgrades = generateUpgrades(remediation.pin);
     if (!options.dryRun) {
-      const res = await runPipAddLimitedConcurrency(
+      const res = await pipenvPipfileFix.pipenvInstall(
         dir,
         upgrades,
-        {}, // TODO: get the CLI options
+        {
+          python: entity.options.command,
+        },
       );
       if (res.exitCode !== 0) {
         pipenvCommand = res.command;
-        throwPipenvError(res.stderr);
+        throwPipenvError(res.stderr, res.command);
       }
     }
     const changes = generateSuccessfulChanges(remediation.pin);
@@ -147,19 +98,20 @@ export function generateUpgrades(pins: DependencyPins): string[] {
   return upgrades;
 }
 
-function throwPipenvError(stderr: string) {
+function throwPipenvError(stderr: string, command?: string) {
+  const errorStr = stderr.toLowerCase();
   const incompatibleDeps =
     'There are incompatible versions in the resolved dependencies';
-  const lockingFailed = 'Locking Failed';
+  const lockingFailed = 'Locking failed';
   const versionNotFound = 'Could not find a version that matches';
-  if (stderr.includes(incompatibleDeps)) {
-    throw new CommandFailedError(incompatibleDeps);
+  if (stderr.includes(incompatibleDeps.toLocaleLowerCase())) {
+    throw new CommandFailedError(incompatibleDeps, command);
   }
-  if (stderr.includes(lockingFailed)) {
-    throw new CommandFailedError(lockingFailed);
+  if (errorStr.includes(lockingFailed.toLocaleLowerCase())) {
+    throw new CommandFailedError(lockingFailed, command);
   }
-  if (stderr.includes(versionNotFound)) {
-    throw new CommandFailedError(versionNotFound);
+  if (stderr.includes(versionNotFound.toLocaleLowerCase())) {
+    throw new CommandFailedError(versionNotFound, command);
   }
   throw new NoFixesCouldBeAppliedError();
 }

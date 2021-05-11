@@ -193,10 +193,10 @@ Object {
   "fixSummary": "
 Successful fixes:
 
-  requirements.txt
+  Pipfile
   ✔ Upgraded django from 1.6.1 to 2.0.1
 
-  Pipfile
+  requirements.txt
   ✔ Upgraded django from 1.6.1 to 2.0.1
 
 Summary:
@@ -239,7 +239,7 @@ Summary:
                 },
               ],
               "identity": Object {
-                "targetFile": "requirements.txt",
+                "targetFile": "Pipfile",
                 "type": "pip",
               },
             },
@@ -306,7 +306,7 @@ Summary:
                 },
               ],
               "identity": Object {
-                "targetFile": "Pipfile",
+                "targetFile": "requirements.txt",
                 "type": "pip",
               },
             },
