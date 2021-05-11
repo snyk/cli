@@ -203,6 +203,7 @@ export const VALID_RESOURCE_ACTIONS_FOR_FULL_SCAN: ResourceActions[] = [
 ];
 
 // Error codes used for Analytics & Debugging
+// Error names get converted to error string codes
 // Within a single module, increments are in 1.
 // Between modules, increments are in 10, according to the order of execution.
 export enum IaCErrorCodes {

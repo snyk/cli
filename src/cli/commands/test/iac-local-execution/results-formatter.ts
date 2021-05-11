@@ -15,6 +15,7 @@ import {
 } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
 import { extractLineNumber } from './extract-line-number';
+import { getErrorStringCode } from './error-utils';
 
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
@@ -142,6 +143,7 @@ export class FailedToFormatResults extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to format results');
     this.code = IaCErrorCodes.FailedToFormatResults;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We failed printing the results, please contact support@snyk.io';
   }

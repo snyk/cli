@@ -12,6 +12,7 @@ import {
   IaCErrorCodes,
 } from '../types';
 import { CustomError } from '../../../../../lib/errors';
+import { getErrorStringCode } from '../error-utils';
 
 function terraformPlanReducer(
   scanInput: TerraformScanInput,
@@ -116,6 +117,7 @@ export class FailedToExtractResourcesInTerraformPlanError extends CustomError {
       message || 'Failed to extract resources from Terraform plan JSON file',
     );
     this.code = IaCErrorCodes.FailedToExtractResourcesInTerraformPlanError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We failed to extract resource changes from the Terraform plan file, please contact support@snyk.io, if possible with a redacted version of the file';
   }
