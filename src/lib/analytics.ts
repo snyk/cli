@@ -16,7 +16,7 @@ const osName = require('os-name');
 const crypto = require('crypto');
 const uuid = require('uuid');
 const stripAnsi = require('strip-ansi');
-import * as needle from 'needle';
+import { SnykResponse } from './request/types';
 const { MetricsCollector } = require('./metrics');
 
 const metadata = {};
@@ -28,9 +28,7 @@ const startTime = Date.now();
  * @param data the data to merge into that data which has been staged thus far (with the {@link add} function)
  * and then sent to the backend.
  */
-export function addDataAndSend(
-  data,
-): Promise<void | { res: needle.NeedleResponse; body: any }> {
+export function addDataAndSend(data): Promise<void | SnykResponse> {
   if (!data) {
     data = {};
   }
@@ -61,9 +59,7 @@ export function allowAnalytics(): boolean {
  * given by the data parameter, or called from {@link addDataAndSend}.
  * @param data the analytics data to send to the backend.
  */
-export function postAnalytics(
-  data,
-): Promise<void | { res: needle.NeedleResponse; body: any }> {
+export function postAnalytics(data): Promise<void | SnykResponse> {
   // if the user opt'ed out of analytics, then let's bail out early
   // ths applies to all sending to protect user's privacy
   if (!allowAnalytics()) {

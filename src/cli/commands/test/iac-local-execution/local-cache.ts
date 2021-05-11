@@ -1,13 +1,12 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import { EngineType, IaCErrorCodes } from './types';
-import * as needle from 'needle';
+import { request } from '../../../../lib/request/http';
 import * as rimraf from 'rimraf';
 import { createIacDir, extractBundle } from './file-utils';
 import * as Debug from 'debug';
 import { CustomError } from '../../../../lib/errors';
 import * as analytics from '../../../../lib/analytics';
-import ReadableStream = NodeJS.ReadableStream;
 import { getErrorStringCode } from './error-utils';
 
 const debug = Debug('iac-local-cache');
@@ -50,8 +49,8 @@ export async function initLocalCache(): Promise<void> {
   const BUNDLE_URL = 'https://static.snyk.io/cli/wasm/bundle.tar.gz';
   try {
     createIacDir();
-    const response: ReadableStream = needle.get(BUNDLE_URL);
-    await extractBundle(response);
+    const { res } = await request(BUNDLE_URL);
+    await extractBundle(res);
   } catch (e) {
     throw new FailedToInitLocalCacheError();
   }

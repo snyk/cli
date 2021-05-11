@@ -15,7 +15,7 @@ import { CustomError } from '../../../lib/errors';
 import { AuthFailedError } from '../../../lib/errors';
 import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
-import { Payload } from '../../../lib/request/types';
+import { Payload, SnykResponse } from '../../../lib/request/types';
 import { getQueryParamsAsString } from '../../../lib/query-strings';
 
 export = auth;
@@ -79,7 +79,7 @@ async function webAuth(via: AuthCliCommands) {
 async function testAuthComplete(
   token: string,
   ipFamily?: number,
-): Promise<{ res; body }> {
+): Promise<SnykResponse> {
   const payload: Partial<Payload> = {
     body: {
       token,

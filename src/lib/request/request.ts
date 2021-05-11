@@ -1,7 +1,5 @@
 import { debug as debugModule } from 'debug';
 import { bootstrap } from 'global-agent';
-import * as http from 'http';
-import * as https from 'https';
 import { RequestOptions } from 'https';
 import { getProxyForUrl } from 'proxy-from-env';
 import * as querystring from 'querystring';
@@ -11,16 +9,15 @@ import { Global } from '../../cli/args';
 import * as analytics from '../analytics';
 import * as config from '../config';
 import { getVersion } from '../version';
-import { Payload } from './types';
+import { Payload, SnykResponse } from './types';
+import { request } from './http';
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');
 
 declare const global: Global;
 
-export = async function makeRequest(
-  payload: Payload,
-): Promise<{ res: http.IncomingMessage; body: any }> {
+export = async function makeRequest(payload: Payload): Promise<SnykResponse> {
   // This ensures we support lowercase http(s)_proxy values as well
   // The weird IF around it ensures we don't create an envvar with a value of undefined, which throws error when trying to use it as a proxy
   if (process.env.HTTP_PROXY || process.env.http_proxy) {
@@ -73,6 +70,7 @@ export = async function makeRequest(
     }
 
     payload.headers['content-encoding'] = 'gzip';
+    payload.headers['content-type'] = 'application/json';
     payload.headers['content-length'] = data.length;
   }
 
@@ -99,9 +97,6 @@ export = async function makeRequest(
     debug('request payload is too big to log', e);
   }
 
-  const method: Required<RequestOptions['method']> = (
-    payload.method || 'get'
-  ).toLowerCase();
   let url = payload.url;
 
   if (payload.qs) {
@@ -113,6 +108,7 @@ export = async function makeRequest(
   }
 
   const options: RequestOptions = {
+    method: (payload.method || 'get').toLowerCase(),
     headers: payload.headers,
     timeout: payload.timeout,
     family: payload.family,
@@ -134,43 +130,20 @@ export = async function makeRequest(
   }
 
   try {
-    const response = await request(method, url, data, options);
+    const response = await request(url, data, options);
     debug(
       'response (%s): ',
       response.res.statusCode,
       JSON.stringify(response.body),
     );
+
+    if (payload.json) {
+      response.body = JSON.parse(response.body);
+    }
+
     return response;
   } catch (err) {
     debug(err);
     throw err;
   }
 };
-
-async function request(
-  method: RequestOptions['method'],
-  url: string,
-  data?: any,
-  options: RequestOptions = {},
-): Promise<{ res: http.IncomingMessage; body: string }> {
-  return new Promise((resolve, reject) => {
-    const client = new URL(url).protocol === 'https:' ? https : http;
-    const requestOptions = {
-      ...options,
-      method,
-      agent: new client.Agent({ keepAlive: true }),
-    };
-    const request = client.request(url, requestOptions, (response) => {
-      const body: any[] = [];
-      response.on('data', (chunk: any) => body.push(Buffer.from(chunk)));
-      response.on('end', () =>
-        resolve({ res: response, body: Buffer.concat(body).toString('utf-8') }),
-      );
-    });
-    request.on('error', reject);
-
-    if (data) {
-      request.write(data);
-    }
-  });
-}
