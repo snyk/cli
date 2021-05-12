@@ -2,7 +2,8 @@ import * as tap from 'tap';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
-import * as needle from 'needle';
+import { IncomingMessage } from 'http';
+import * as requestLib from '../../../src/lib/request/http';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
@@ -173,9 +174,10 @@ if (!isWindows) {
   test('`monitor npm-package with experimental-dep-graph enabled, but bad auth token`', async (t) => {
     chdirWorkspaces();
 
-    const validTokenStub = sinon
-      .stub(needle, 'request')
-      .yields(null, null, { code: 401, error: 'Invalid auth token provided' });
+    const validTokenStub = sinon.stub(requestLib, 'request').resolves({
+      res: { statusCode: 401 } as IncomingMessage,
+      body: { code: 401, error: 'Invalid auth token provided' },
+    });
 
     try {
       await cli.monitor('npm-package', { 'experimental-dep-graph': true });
@@ -1994,7 +1996,7 @@ if (!isWindows) {
     delete process.env.SNYK_PORT;
     t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       server.close(resolve);
     });
     t.pass('server shutdown');

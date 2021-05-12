@@ -1,8 +1,8 @@
 import * as localCacheModule from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 import { FailedToInitLocalCacheError } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
-import { PassThrough } from 'stream';
-import * as needle from 'needle';
+import { IncomingMessage } from 'http';
+import * as requestLib from '../../../../src/lib/request/http';
 import * as rimraf from 'rimraf';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -13,15 +13,17 @@ describe('initLocalCache - downloads bundle successfully', () => {
     jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true);
   });
 
-  it('downloads and extracts the bundle successfully', () => {
-    const mockReadable = new PassThrough();
-    const spy = jest.spyOn(fileUtilsModule, 'extractBundle');
+  it('downloads and extracts the bundle successfully', async () => {
+    const res = { statusCode: 200 } as IncomingMessage;
+    const spy = jest
+      .spyOn(fileUtilsModule, 'extractBundle')
+      .mockResolvedValue();
     jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => null);
-    jest.spyOn(needle, 'get').mockReturnValue(mockReadable);
+    jest.spyOn(requestLib, 'request').mockResolvedValue({ res, body: '' });
 
-    localCacheModule.initLocalCache();
+    await localCacheModule.initLocalCache();
 
-    expect(spy).toHaveBeenCalledWith(mockReadable);
+    expect(spy).toHaveBeenCalledWith(res);
   });
 
   it('cleans up the custom folder after finishes', () => {

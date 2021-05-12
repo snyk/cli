@@ -7,16 +7,16 @@ import * as http from 'http';
 
 declare const global: Global;
 
-const needleStub = sinon.stub(requestLib, 'request');
+const requestStub = sinon.stub(requestLib, 'request');
 
 const request = proxyquire('../src/lib/request', {
   './http': {
-    request: needleStub,
+    request: requestStub,
   },
 });
 
 afterEach((done, t) => {
-  needleStub.resetHistory();
+  requestStub.resetHistory();
   delete process.env.https_proxy;
   delete process.env.http_proxy;
   delete process.env.no_proxy;
@@ -24,8 +24,8 @@ afterEach((done, t) => {
   done();
 });
 
-test('request calls needle as expected and returns status code and body', (t) => {
-  needleStub.resolves({
+test('request calls and returns status code and body', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -40,7 +40,7 @@ test('request calls needle as expected and returns status code and body', (t) =>
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'https://test.stub/', // turns http to https and appends /
           sinon.match.falsy, // no data
           sinon.match({
@@ -54,14 +54,14 @@ test('request calls needle as expected and returns status code and body', (t) =>
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request to localhost calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request to localhost calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -76,7 +76,7 @@ test('request to localhost calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'http://localhost', // does not force https
           sinon.match.falsy, // no data
           sinon.match({
@@ -90,14 +90,14 @@ test('request to localhost calls needle as expected', (t) => {
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request with timeout calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request with timeout calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -113,7 +113,7 @@ test('request with timeout calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'https://test.stub/', // turns http to https and appends /
           sinon.match.falsy, // no data
           sinon.match({
@@ -127,14 +127,14 @@ test('request with timeout calls needle as expected', (t) => {
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request with query string calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request with query string calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -153,7 +153,7 @@ test('request with query string calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'https://test.stub/?key=value&test=multi&test=value', // appends querystring
           sinon.match.falsy, // no data
           sinon.match({
@@ -167,14 +167,14 @@ test('request with query string calls needle as expected', (t) => {
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request with json calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request with json calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -190,7 +190,7 @@ test('request with json calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'https://test.stub/', // turns http to https and appends /
           sinon.match.falsy, // no data
           sinon.match({
@@ -204,14 +204,14 @@ test('request with json calls needle as expected', (t) => {
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request with custom header calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request with custom header calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -229,7 +229,7 @@ test('request with custom header calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'https://test.stub/', // turns http to https and appends /
           sinon.match.falsy, // no data
           sinon.match({
@@ -244,14 +244,14 @@ test('request with custom header calls needle as expected', (t) => {
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request with https proxy calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request with https proxy calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -267,7 +267,7 @@ test('request with https proxy calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'https://test.stub/', // turns http to https and appends /
           sinon.match.falsy, // no data
           sinon.match({
@@ -281,14 +281,14 @@ test('request with https proxy calls needle as expected', (t) => {
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request with http proxy calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request with http proxy calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -314,7 +314,7 @@ test('request with http proxy calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'http://localhost', // turns http to https and appends /
           sinon.match.falsy, // no data
           sinon.match({
@@ -328,14 +328,14 @@ test('request with http proxy calls needle as expected', (t) => {
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request with no proxy calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request with no proxy calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -352,7 +352,7 @@ test('request with no proxy calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'http://localhost', // turns http to https and appends /
           sinon.match.falsy, // no data
           sinon.match({
@@ -366,14 +366,14 @@ test('request with no proxy calls needle as expected', (t) => {
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request with insecure calls needle as expected', (t) => {
-  needleStub.resolves({
+test('request with insecure calls request as expected', (t) => {
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -389,7 +389,7 @@ test('request with insecure calls needle as expected', (t) => {
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'https://test.stub/', // turns http to https and appends /
           sinon.match.falsy, // no data
           sinon.match({
@@ -403,14 +403,14 @@ test('request with insecure calls needle as expected', (t) => {
             rejectUnauthorized: false, // should be false when insecure mode enabled
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));
 });
 
-test('request rejects if needle fails', (t) => {
-  needleStub.rejects({
+test('request rejects if request fails', (t) => {
+  requestStub.rejects({
     message: 'Unexpected Error',
   });
 
@@ -426,9 +426,9 @@ test('request rejects if needle fails', (t) => {
     });
 });
 
-test('request calls needle as expected and will not update HTTP to HTTPS if envvar is set', (t) => {
+test('request calls request as expected and will not update HTTP to HTTPS if envvar is set', (t) => {
   process.env.SNYK_HTTP_PROTOCOL_UPGRADE = '0';
-  needleStub.resolves({
+  requestStub.resolves({
     res: { statusCode: 200 } as http.IncomingMessage,
     body: 'text',
   });
@@ -444,7 +444,7 @@ test('request calls needle as expected and will not update HTTP to HTTPS if envv
         'response ok',
       );
       t.ok(
-        needleStub.calledWith(
+        requestStub.calledWith(
           'http://test.stub', // won't upgrade http to https
           sinon.match.falsy, // no data
           sinon.match({
@@ -458,7 +458,7 @@ test('request calls needle as expected and will not update HTTP to HTTPS if envv
             rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
         ),
-        'needle called as expected',
+        'request called as expected',
       );
     })
     .catch((e) => t.fail('should not throw error', e));

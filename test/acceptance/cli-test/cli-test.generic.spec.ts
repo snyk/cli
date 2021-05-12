@@ -1,7 +1,8 @@
 import * as sinon from 'sinon';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as needle from 'needle';
+import { IncomingMessage } from 'http';
+import * as requestLib from '../../../src/lib/request/http';
 import * as Ajv from 'ajv';
 import sarifSchema = require('../../support/sarif-schema-2.1.0');
 import { AcceptanceTests } from './cli-test.acceptance.test';
@@ -291,20 +292,15 @@ export const GenericTests: AcceptanceTests = {
 
       t.test('default (insecure false)', async (tt) => {
         const requestStub = sinon
-          .stub(needle, 'request')
-          .callsFake((a, b, c, d, cb) => {
-            if (cb) {
-              cb(new Error('bail'), {} as any, null);
-            }
-            return {} as any;
-          });
+          .stub(requestLib, 'request')
+          .rejects(new Error('bail'));
         tt.teardown(requestStub.restore);
         try {
           await params.cli.test('npm-package');
           tt.fail('should fail');
         } catch (e) {
           tt.notOk(
-            (requestStub.firstCall.args[3] as any).rejectUnauthorized,
+            (requestStub.firstCall.args[2] as any).rejectUnauthorized,
             'rejectUnauthorized not present (same as true)',
           );
         }
@@ -317,13 +313,8 @@ export const GenericTests: AcceptanceTests = {
         // NOTE: due to this we add tests to `args.test.js`
         (global as any).ignoreUnknownCA = true;
         const requestStub = sinon
-          .stub(needle, 'request')
-          .callsFake((a, b, c, d, cb) => {
-            if (cb) {
-              cb(new Error('bail'), {} as any, null);
-            }
-            return {} as any;
-          });
+          .stub(requestLib, 'request')
+          .rejects(new Error('bail'));
         tt.teardown(() => {
           delete (global as any).ignoreUnknownCA;
           requestStub.restore();
@@ -333,7 +324,7 @@ export const GenericTests: AcceptanceTests = {
           tt.fail('should fail');
         } catch (e) {
           tt.false(
-            (requestStub.firstCall.args[3] as any).rejectUnauthorized,
+            (requestStub.firstCall.args[2] as any).rejectUnauthorized,
             'rejectUnauthorized false',
           );
         }

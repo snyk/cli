@@ -108,8 +108,6 @@ describe('Proxy configuration behavior', () => {
             },
           },
           (err, stdout, stderr) => {
-            // TODO: incorrect behavior when Needle tries to upgrade connection after 301 http->https and the Agent option is set to a strict http/s protocol
-            // See lines with `keepAlive` in request.ts for more details
             expect(stderr).toContain(
               'TypeError [ERR_INVALID_PROTOCOL]: Protocol "https:" not supported. Expected "http:"',
             );
