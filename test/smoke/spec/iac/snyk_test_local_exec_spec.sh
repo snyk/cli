@@ -1,14 +1,14 @@
 #shellcheck shell=sh
 
-Describe "Snyk iac test --experimental command"
+Describe "Snyk iac local test command"
   Skip if "execute only in regression test" check_if_regression_test
 
   Before snyk_login
   After snyk_logout
 
   Describe "basic usage"
-    It "outputs an error if the --experimental flag is mistyped"
-      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml --experimentl
+    It "outputs an error if the flag is not supported or mistyped"
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml --experimental
       The status should equal 2
       The output should include "Unsupported flag"
     End
@@ -17,7 +17,7 @@ Describe "Snyk iac test --experimental command"
   Describe "logging regression tests"
     It "does not include file content in analytics logs"
       # Run with the -d flag on directory to output network requests and analytics data.
-      When run snyk iac test ../fixtures/iac/file-logging -d --experimental
+      When run snyk iac test ../fixtures/iac/file-logging -d
       # We expect the output, specifically the analytics block not to include
       # the following text from the file.
       The status should equal 1 # issues found
@@ -28,7 +28,7 @@ Describe "Snyk iac test --experimental command"
 
   Describe "k8s single file scan"
     It "finds issues in k8s file"
-      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml 
       The status should equal 1 # issues found
       The output should include "Testing pod-privileged.yaml..."
 
@@ -39,7 +39,7 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "filters out issues when using severity threshold"
-      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental --severity-threshold=high
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml  --severity-threshold=high
       The status should equal 1 # one issue found
       The output should include "Testing pod-privileged.yaml..."
 
@@ -49,27 +49,27 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "outputs an error for files with no valid k8s objects"
-      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml --experimental
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml 
       The status should equal 2
       The output should include "We were unable to detect whether the YAML file"
     End
 
     It "outputs an error for Helm files"
-      When run snyk iac test ../fixtures/iac/kubernetes/helm-config.yaml --experimental
+      When run snyk iac test ../fixtures/iac/kubernetes/helm-config.yaml 
       The status should equal 2
       The output should include "We were unable to parse the YAML file"
       The output should include "do not support scanning of Helm files"
     End
 
     It "outputs the expected text when running with --sarif flag"
-      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental --sarif
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --sarif
       The status should equal 1
       The output should include '"id": "SNYK-CC-K8S-1",'
       The output should include '"ruleId": "SNYK-CC-K8S-1",'
     End
 
     It "outputs the expected text when running with --json flag"
-      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --experimental --json
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml --json
       The status should equal 1
       The output should include '"id": "SNYK-CC-K8S-1",'
       The output should include '"packageManager": "k8sconfig",'
@@ -79,7 +79,7 @@ Describe "Snyk iac test --experimental command"
 
   Describe "terraform single file scan"
     It "finds issues in terraform file"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf
       The status should equal 1 # issues found
       The output should include "Testing sg_open_ssh.tf..."
 
@@ -90,7 +90,7 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "filters out issues when using severity threshold"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental --severity-threshold=high
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --severity-threshold=high
       The status should equal 0 # no issues found
       The output should include "Testing sg_open_ssh.tf..."
 
@@ -101,20 +101,20 @@ Describe "Snyk iac test --experimental command"
     # TODO: currently skipped because the parser we're using doesn't fail on invalid terraform
     # will be fixed before beta
     It "outputs an error for invalid terraforom files"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf --experimental
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf 
       The status should equal 2
       The output should include "We were unable to parse the Terraform file"
     End
 
     It "outputs the expected text when running with --sarif flag"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental --sarif
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --sarif
       The status should equal 1
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"ruleId": "SNYK-CC-TF-1",'
     End
 
     It "outputs the expected text when running with --json flag"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental --json
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --json
       The status should equal 1
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"packageManager": "terraformconfig",'
@@ -122,7 +122,7 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "outputs the expected text when running with --json flag and getting no vulnerabilities"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --experimental --severity-threshold=high --json
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --severity-threshold=high --json
       The status should equal 0 # no issues found
       The output should not include '"id": "SNYK-CC-TF-1",'
       The output should include '"packageManager": "terraformconfig",'
@@ -132,7 +132,7 @@ Describe "Snyk iac test --experimental command"
 
   Describe "directory scanning"
     It "finds issues in a directory with Terraform files"
-      When run snyk iac test ../fixtures/iac/terraform/ --experimental
+      When run snyk iac test ../fixtures/iac/terraform/ 
       The status should equal 1 # issues found
       # First File
       The output should include "Testing sg_open_ssh.tf..."
@@ -147,7 +147,7 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "finds issues in a directory with Kubernetes files"
-      When run snyk iac test ../fixtures/iac/kubernetes/ --experimental
+      When run snyk iac test ../fixtures/iac/kubernetes/ 
       The status should equal 1 # issues found
       # First File
       The output should include "Testing pod-privileged.yaml..."
@@ -162,7 +162,7 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "limits the depth of the directories"
-      When run snyk iac test ../fixtures/iac/depth_detection/ --experimental --detection-depth=2
+      When run snyk iac test ../fixtures/iac/depth_detection/  --detection-depth=2
       The status should equal 0 # no issues found
       # Only File
       The output should include "Testing one.tf..."
@@ -181,7 +181,7 @@ Describe "Snyk iac test --experimental command"
     Describe "Testing status code when issues found"
       Describe "Using the --json flag"
         It "returns 1 even if some files failed to parse"
-          When run snyk iac test ../fixtures/iac/kubernetes/ --experimental --json
+          When run snyk iac test ../fixtures/iac/kubernetes/  --json
           The status should equal 1
           The output should not equal ""
           The stderr should equal ""
@@ -190,7 +190,7 @@ Describe "Snyk iac test --experimental command"
 
       Describe "Not using the --json flag"
         It "returns 1 even if some files failed to parse"
-          When run snyk iac test ../fixtures/iac/kubernetes/ --experimental
+          When run snyk iac test ../fixtures/iac/kubernetes/ 
           The status should equal 1
           The output should not equal ""
           The stderr should equal ""
@@ -201,7 +201,7 @@ Describe "Snyk iac test --experimental command"
     Describe "Testing status code when no issues found"
       Describe "Using the --json flag"
         It "returns 0 even if some files failed to parse"
-          When run snyk iac test ../fixtures/iac/no_vulnerabilities/ --experimental --severity-threshold=high --json
+          When run snyk iac test ../fixtures/iac/no_vulnerabilities/  --severity-threshold=high --json
           The status should equal 0
           The output should not equal ""
           The stderr should equal ""
@@ -210,7 +210,7 @@ Describe "Snyk iac test --experimental command"
 
       Describe "Not using the --json flag"
         It "returns 0 even if some files failed to parse"
-          When run snyk iac test ../fixtures/iac/no_vulnerabilities/ --experimental --severity-threshold=high
+          When run snyk iac test ../fixtures/iac/no_vulnerabilities/  --severity-threshold=high
           The status should equal 0
           The output should not equal ""
           The stderr should equal ""
@@ -223,7 +223,7 @@ Describe "Snyk iac test --experimental command"
     # Note that this now defaults to the delta scan, not the full scan.
     # in the future a flag will be added to control this functionality.
     It "finds issues in a Terraform plan file"
-      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json --experimental
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json 
       The status should equal 1 # issues found
       The output should include "tf-plan-create.json"
 
@@ -237,7 +237,7 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "finds issues in a Terraform plan file - full scan flag"
-      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json --experimental --scan=planned-values
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json  --scan=planned-values
       The status should equal 1 # issues found
       The output should include "Testing tf-plan-create.json"
 
@@ -251,7 +251,7 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "finds issues in a Terraform plan file - explicit delta scan with flag"
-      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json --experimental --scan=resource-changes
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json  --scan=resource-changes
       The status should equal 1 # issues found
       The output should include "Testing tf-plan-create.json"
 
@@ -265,13 +265,13 @@ Describe "Snyk iac test --experimental command"
     End
 
     It "errors when a wrong value is passed to the --scan flag"
-      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json.json --experimental --scan=rsrc-changes
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json.json  --scan=rsrc-changes
       The status should equal 2 # failure
       The output should include "Unsupported value"
     End
 
     It "errors when no value is provided to the --scan flag"
-      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json.json --experimental --scan
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json.json  --scan
       The status should equal 2 # failure
       The output should include "Unsupported value"
     End

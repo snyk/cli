@@ -3,8 +3,6 @@ import 'source-map-support/register';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 
-const camelCase = require('lodash.camelcase');
-
 // import args as a first internal module
 import { args as argsLib, Args, ArgsOptions } from './args';
 // parse args as a first thing; argsLib modifies global namespace
@@ -46,8 +44,6 @@ import {
 } from '../lib/types';
 import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
-import { getIacOrgSettings } from './commands/test/iac-local-execution/org-settings/get-iac-org-settings';
-import { isFeatureFlagSupportedForOrg } from '../lib/feature-flags';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -248,22 +244,6 @@ async function main() {
     validateUnsupportedOptionCombinations(
       (globalArgs.options as unknown) as AllSupportedCliOptions,
     );
-
-    // IaC only: used for rolling out the experimental flow
-    // modify args if experimental flag not provided, based on feature flag
-    // this can be removed once experimental becomes the default
-    if (
-      globalArgs.options['iac'] &&
-      globalArgs.command === 'test' &&
-      !globalArgs.options['experimental']
-    ) {
-      const iacOrgSettings = await getIacOrgSettings();
-      const experimentalFlowEnabled = await isFeatureFlagSupportedForOrg(
-        camelCase('experimental-local-exec-iac'),
-        iacOrgSettings.meta.org,
-      );
-      globalArgs.options['experimental'] = !!experimentalFlowEnabled.ok;
-    }
 
     if (globalArgs.options['app-vulns'] && globalArgs.options['json']) {
       throw new UnsupportedOptionCombinationError([
