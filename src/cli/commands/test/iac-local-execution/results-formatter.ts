@@ -35,6 +35,7 @@ export function formatScanResults(
 const engineTypeToProjectType = {
   [EngineType.Kubernetes]: IacProjectType.K8S,
   [EngineType.Terraform]: IacProjectType.TERRAFORM,
+  [EngineType.Custom]: IacProjectType.CUSTOM,
 };
 
 function formatScanResult(

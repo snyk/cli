@@ -16,7 +16,7 @@ export function createIacDir(): void {
   }
 }
 
-export function extractBundle(response): Promise<void> {
+export function extractBundle(response: NodeJS.ReadableStream): Promise<void> {
   return new Promise((resolve, reject) => {
     response
       .on('error', reject)

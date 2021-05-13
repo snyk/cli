@@ -93,7 +93,9 @@ export type SafeAnalyticsOutput = Omit<
 export enum EngineType {
   Kubernetes,
   Terraform,
+  Custom,
 }
+
 export interface PolicyMetadata {
   id: string;
   publicId: string;
@@ -136,6 +138,8 @@ export type IaCTestFlags = Pick<
   // This flag is internal and is used merely to route the smoke tests of the old flow.
   // it should be removed together when the GA version completely deprecates the legacy remote processing flow.
   legacy?: boolean;
+  // Allows the caller to provide the path to a WASM bundle.
+  rules?: string;
 } & TerraformPlanFlags;
 
 // Flags specific for Terraform plan scanning
@@ -216,6 +220,8 @@ export enum IaCErrorCodes {
   // local-cache errors
   FailedToInitLocalCacheError = 1000,
   FailedToCleanLocalCacheError = 1001,
+  FailedToDownloadRulesError = 1002,
+  FailedToExtractCustomRulesError = 1003,
 
   // file-loader errors
   NoFilesToScanError = 1010,
