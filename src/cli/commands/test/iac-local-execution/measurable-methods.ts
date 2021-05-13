@@ -3,14 +3,6 @@ import { parseFiles } from './file-parser';
 import { scanFiles } from './file-scanner';
 import { formatScanResults } from './results-formatter';
 import { cleanLocalCache, initLocalCache } from './local-cache';
-import {
-  FormattedResult,
-  IacFileData,
-  IacFileScanResult,
-  IacOrgSettings,
-  ParsingResults,
-  TestReturnValue,
-} from './types';
 import { applyCustomSeverities } from './org-settings/apply-custom-severities';
 import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
 import { test } from './index';
@@ -19,17 +11,19 @@ import {
   performanceAnalyticsObject,
 } from './analytics';
 
-export type AsyncMeasurableMethod<ReturnValue> = (
-  ...args: unknown[]
-) => Promise<ReturnValue>;
+// Unwrap a promise: https://stackoverflow.com/questions/48011353/how-to-unwrap-type-of-a-promise
+type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
 
-export type MeasurableMethod<ReturnValue> = (...args: unknown[]) => ReturnValue;
-
-export function asyncPerformanceAnalyticsDecorator<ReturnValue>(
-  measurableMethod: AsyncMeasurableMethod<ReturnValue>,
+// Note: The return type of the returned async function needs to be Promise<Val> for
+// the compiler to be happy, so we need to unwrap it with the messy
+// Awaiter<ReturnType<T>> rather than just using ReturnType<T> directly.
+export function asyncPerformanceAnalyticsDecorator<
+  T extends (...args: any[]) => Promise<any>
+>(
+  measurableMethod: T,
   analyticsKey: PerformanceAnalyticsKey,
-) {
-  return async function(...args: unknown[]): Promise<ReturnValue> {
+): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
+  return async function(...args) {
     const startTime = Date.now();
     const returnValue = await measurableMethod(...args);
     const durationMs = Date.now() - startTime;
@@ -38,11 +32,13 @@ export function asyncPerformanceAnalyticsDecorator<ReturnValue>(
   };
 }
 
-export function performanceAnalyticsDecorator<ReturnValue>(
-  measurableMethod: MeasurableMethod<ReturnValue>,
+export function performanceAnalyticsDecorator<
+  T extends (...args: any[]) => any
+>(
+  measurableMethod: T,
   analyticsKey: PerformanceAnalyticsKey,
-) {
-  return function(...args: unknown[]): ReturnValue {
+): (...args: Parameters<T>) => ReturnType<T> {
+  return function(...args) {
     const startTime = Date.now();
     const returnValue = measurableMethod(...args);
     const durationMs = Date.now() - startTime;
@@ -51,58 +47,48 @@ export function performanceAnalyticsDecorator<ReturnValue>(
   };
 }
 
-const measurableInitLocalCache = asyncPerformanceAnalyticsDecorator<void>(
-  initLocalCache as AsyncMeasurableMethod<void>,
+const measurableInitLocalCache = asyncPerformanceAnalyticsDecorator(
+  initLocalCache,
   PerformanceAnalyticsKey.InitLocalCache,
 );
 
-const measurableLoadFiles = asyncPerformanceAnalyticsDecorator<IacFileData[]>(
-  loadFiles as AsyncMeasurableMethod<IacFileData[]>,
+const measurableLoadFiles = asyncPerformanceAnalyticsDecorator(
+  loadFiles,
   PerformanceAnalyticsKey.FileLoading,
 );
 
-const measurableParseFiles = asyncPerformanceAnalyticsDecorator<ParsingResults>(
-  parseFiles as AsyncMeasurableMethod<ParsingResults>,
+const measurableParseFiles = asyncPerformanceAnalyticsDecorator(
+  parseFiles,
   PerformanceAnalyticsKey.FileParsing,
 );
 
-const measurableScanFiles = asyncPerformanceAnalyticsDecorator<
-  IacFileScanResult[]
->(
-  scanFiles as AsyncMeasurableMethod<IacFileScanResult[]>,
+const measurableScanFiles = asyncPerformanceAnalyticsDecorator(
+  scanFiles,
   PerformanceAnalyticsKey.FileScanning,
 );
 
-const measurableGetIacOrgSettings = asyncPerformanceAnalyticsDecorator<
-  IacOrgSettings
->(
-  getIacOrgSettings as AsyncMeasurableMethod<IacOrgSettings>,
+const measurableGetIacOrgSettings = asyncPerformanceAnalyticsDecorator(
+  getIacOrgSettings,
   PerformanceAnalyticsKey.OrgSettings,
 );
 
-const measurableApplyCustomSeverities = asyncPerformanceAnalyticsDecorator<
-  IacFileScanResult[]
->(
-  applyCustomSeverities as AsyncMeasurableMethod<IacFileScanResult[]>,
+const measurableApplyCustomSeverities = asyncPerformanceAnalyticsDecorator(
+  applyCustomSeverities,
   PerformanceAnalyticsKey.CustomSeverities,
 );
 
-const measurableCleanLocalCache = performanceAnalyticsDecorator<void>(
-  cleanLocalCache as MeasurableMethod<void>,
+const measurableCleanLocalCache = performanceAnalyticsDecorator(
+  cleanLocalCache,
   PerformanceAnalyticsKey.CacheCleanup,
 );
 
-export const measurableFormatScanResults = performanceAnalyticsDecorator<
-  FormattedResult[]
->(
-  formatScanResults as MeasurableMethod<FormattedResult[]>,
+const measurableFormatScanResults = performanceAnalyticsDecorator(
+  formatScanResults,
   PerformanceAnalyticsKey.ResultFormatting,
 );
 
-export const measurableLocalTest = asyncPerformanceAnalyticsDecorator<
-  TestReturnValue
->(
-  test as AsyncMeasurableMethod<TestReturnValue>,
+const measurableLocalTest = asyncPerformanceAnalyticsDecorator(
+  test,
   PerformanceAnalyticsKey.Total,
 );
 
