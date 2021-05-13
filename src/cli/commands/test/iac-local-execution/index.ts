@@ -19,6 +19,9 @@ import {
   formatScanResults,
   cleanLocalCache,
 } from './measurable-methods';
+import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
+import { FlagError } from './assert-iac-options-flag';
+
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
 export async function test(
@@ -26,7 +29,13 @@ export async function test(
   options: IaCTestFlags,
 ): Promise<TestReturnValue> {
   try {
-    const customRulesPath = options.rules;
+    // TODO: This should support the --org flag and related env variables.
+    const iacOrgSettings = await getIacOrgSettings();
+    const customRulesPath = await customRulesPathForOrg(
+      options.rules,
+      iacOrgSettings.meta.org,
+    );
+
     await initLocalCache({ customRulesPath });
 
     const filesToParse = await loadFiles(pathToScan, options);
@@ -46,7 +55,6 @@ export async function test(
     }
 
     const scannedFiles = await scanFiles(parsedFiles);
-    const iacOrgSettings = await getIacOrgSettings();
     const resultsWithCustomSeverities = await applyCustomSeverities(
       scannedFiles,
       iacOrgSettings.customPolicies,
@@ -69,6 +77,21 @@ export async function test(
   } finally {
     cleanLocalCache();
   }
+}
+
+async function customRulesPathForOrg(
+  customRulesPath: string | undefined,
+  org: string,
+): Promise<string | undefined> {
+  if (!customRulesPath) return;
+
+  const isCustomRulesSupported =
+    (await isFeatureFlagSupportedForOrg('iacCustomRules', org)).ok === true;
+  if (isCustomRulesSupported) {
+    return customRulesPath;
+  }
+
+  throw new FlagError('rules');
 }
 
 export function removeFileContent({
