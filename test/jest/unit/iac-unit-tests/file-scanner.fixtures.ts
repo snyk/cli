@@ -3,6 +3,7 @@ import {
   IacFileParsed,
   PolicyMetadata,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { IacProjectType } from '../../../../src/lib/iac/constants';
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
 
 export const expectedViolatedPoliciesForK8s: Array<PolicyMetadata> = [
@@ -52,6 +53,7 @@ export const expectedViolatedPoliciesForTerraform: Array<PolicyMetadata> = [
 
 export const paresdKubernetesFileStub: IacFileParsed = {
   engineType: EngineType.Kubernetes,
+  projectType: IacProjectType.K8S,
   fileContent: 'dont-care',
   filePath: 'dont-care',
   fileType: 'yml',
@@ -75,6 +77,7 @@ export const paresdKubernetesFileStub: IacFileParsed = {
 };
 export const parsedTerraformFileStub: IacFileParsed = {
   engineType: EngineType.Terraform,
+  projectType: IacProjectType.TERRAFORM,
   fileContent: 'dont-care',
   filePath: 'dont-care',
   fileType: 'tf',

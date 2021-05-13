@@ -9,6 +9,7 @@ import {
   EngineType,
   TerraformPlanJson,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 describe('tryParsingTerraformPlan', () => {
   /* 
@@ -50,6 +51,7 @@ describe('tryParsingTerraformPlan', () => {
           // Assert
           expect(parsedTerraformPlan[0]).toEqual({
             ...iacFileData,
+            projectType: IacProjectType.TERRAFORM,
             engineType: EngineType.Terraform,
             jsonContent: expectedResources,
           });

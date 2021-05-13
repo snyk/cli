@@ -1,4 +1,5 @@
 import { CustomError } from '../../../../../lib/errors';
+import { IacProjectType } from '../../../../../lib/iac/constants';
 import { getErrorStringCode } from '../error-utils';
 import {
   EngineType,
@@ -35,6 +36,7 @@ export function tryParsingKubernetesFile(
       return {
         ...fileData,
         jsonContent: parsedYamlDocument,
+        projectType: IacProjectType.K8S,
         engineType: EngineType.Kubernetes,
         docId,
       };
