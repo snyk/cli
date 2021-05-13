@@ -73,6 +73,7 @@ Describe "Snyk iac local test command"
       The status should equal 1
       The output should include '"id": "SNYK-CC-K8S-1",'
       The output should include '"packageManager": "k8sconfig",'
+      The output should include '"projectType": "k8sconfig",'
       The result of function check_valid_json should be success
     End
   End
@@ -118,6 +119,7 @@ Describe "Snyk iac local test command"
       The status should equal 1
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"packageManager": "terraformconfig",'
+      The output should include '"projectType": "terraformconfig",'
       The result of function check_valid_json should be success
     End
 
@@ -274,6 +276,14 @@ Describe "Snyk iac local test command"
       When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json.json  --scan
       The status should equal 2 # failure
       The output should include "Unsupported value"
+    End
+
+    It "succesfully scans a TF-Plan with the --json output flag"
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json --json
+      The status should equal 1
+      The output should include '"packageManager": "terraformconfig",'
+      The output should include '"projectType": "terraformconfig",'
+      The result of function check_valid_json should be success
     End
   End
 End

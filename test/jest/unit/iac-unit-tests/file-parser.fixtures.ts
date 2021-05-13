@@ -10,6 +10,7 @@ import {
   getExpectedResult,
   PlanOutputCase,
 } from './terraform-plan-parser.fixtures';
+import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 const kubernetesYamlFileContent = `
 apiVersion: v1
@@ -121,6 +122,7 @@ export const invalidYamlFileDataStub: IacFileData = {
 export const expectedKubernetesYamlParsingResult: IacFileParsed = {
   ...kubernetesYamlFileDataStub,
   docId: 0,
+  projectType: IacProjectType.K8S,
   engineType: EngineType.Kubernetes,
   jsonContent: kubernetesJson,
 };
@@ -128,6 +130,7 @@ export const expectedKubernetesYamlParsingResult: IacFileParsed = {
 export const expectedKubernetesJsonParsingResult: IacFileParsed = {
   ...kubernetesJsonFileDataStub,
   docId: 0,
+  projectType: IacProjectType.K8S,
   engineType: EngineType.Kubernetes,
   jsonContent: kubernetesJson,
 };
@@ -135,6 +138,7 @@ export const expectedKubernetesJsonParsingResult: IacFileParsed = {
 export const expectedMultipleKubernetesYamlsParsingResult: IacFileParsed = {
   ...multipleKubernetesYamlsFileDataStub,
   docId: 0,
+  projectType: IacProjectType.K8S,
   engineType: EngineType.Kubernetes,
   jsonContent: kubernetesJson,
 };
@@ -200,6 +204,7 @@ export const terraformPlanMissingFieldsDataStub: IacFileData = {
 export const expectedTerraformParsingResult: IacFileParsed = {
   ...terraformFileDataStub,
   engineType: EngineType.Terraform,
+  projectType: IacProjectType.TERRAFORM,
   jsonContent: {
     resource: {
       aws_security_group: {
@@ -222,6 +227,7 @@ export const expectedTerraformParsingResult: IacFileParsed = {
 export const expectedTerraformJsonParsingResult: IacFileParsed = {
   ...terraformPlanDataStub,
   engineType: EngineType.Terraform,
+  projectType: IacProjectType.TERRAFORM,
   jsonContent: getExpectedResult(false, PlanOutputCase.Create),
 };
 

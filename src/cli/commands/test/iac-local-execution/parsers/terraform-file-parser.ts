@@ -7,6 +7,7 @@ import {
 } from '../types';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
+import { IacProjectType } from '../../../../../lib/iac/constants';
 
 export function tryParsingTerraformFile(
   fileData: IacFileData,
@@ -16,6 +17,7 @@ export function tryParsingTerraformFile(
       {
         ...fileData,
         jsonContent: hclToJson(fileData.fileContent),
+        projectType: IacProjectType.TERRAFORM,
         engineType: EngineType.Terraform,
       },
     ];

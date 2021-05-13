@@ -9,10 +9,7 @@ import {
 } from './types';
 import * as path from 'path';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
-import {
-  IacProjectType,
-  projectTypeByFileType,
-} from '../../../../lib/iac/constants';
+import { IacProjectType } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
 import { extractLineNumber } from './extract-line-number';
 import { getErrorStringCode } from './error-utils';
@@ -81,7 +78,7 @@ function formatScanResult(
         formattedIssues,
         severityThreshold,
       ),
-      projectType: projectTypeByFileType[scanResult.fileType],
+      projectType: scanResult.projectType,
     },
     meta: {
       ...meta,
