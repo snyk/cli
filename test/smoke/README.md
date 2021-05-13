@@ -21,7 +21,12 @@ To run these tests locally you may use `npm run test:smoke`:
 
 1. Install:
 
-   - [Shellspec](https://shellspec.info)
+   - [Shellspec](https://shellspec.info) reccomended installation is through brew:
+
+     - ### Install the latest stable version of shell spec
+     - brew tap shellspec/shellspec
+     - brew install shellspec
+
    - [jq](https://stedolan.github.io/jq/)
    - timeout (if not available on your platform)
 
@@ -32,6 +37,7 @@ To run these tests locally you may use `npm run test:smoke`:
 Note that you will need shellspec version `0.28.1` or higher.
 
 From the root of the `snyk` repo, run:
+
 ```sh
 npm run test:smoke
 ```

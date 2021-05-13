@@ -9,6 +9,7 @@ export class CustomError extends Error {
     Error.captureStackTrace(this, this.constructor);
     this.name = this.constructor.name;
     this.code = undefined;
+    this.strCode = undefined;
     this.innerError = undefined;
     this.userMessage = undefined;
   }

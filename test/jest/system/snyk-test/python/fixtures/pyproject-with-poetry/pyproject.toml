@@ -1,0 +1,12 @@
+[tool.poetry]
+name = "poetry-demo"
+version = "0.1.0"
+description = ""
+authors = []
+
+[tool.poetry.dependencies]
+flask = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "^3.4"
+

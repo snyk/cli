@@ -1,5 +1,5 @@
 import { applyCustomSeverities } from '../../../../src/cli/commands/test/iac-local-execution/org-settings/apply-custom-severities';
-import { scanResults } from './results-formatter.fixtures';
+import { generateScanResults } from './results-formatter.fixtures';
 
 describe('applyCustomSeverities', () => {
   const mockedCustomPolicies = {
@@ -8,6 +8,7 @@ describe('applyCustomSeverities', () => {
   };
 
   it('updates existing severity with custom one for the same public id', async () => {
+    const scanResults = generateScanResults();
     const actualResults = await applyCustomSeverities(
       scanResults,
       mockedCustomPolicies,
@@ -23,7 +24,7 @@ describe('applyCustomSeverities', () => {
     const notMatchingCustomPolicies = {
       'SNYK-CC-K8S-1039': { severity: 'high' },
     };
-
+    const scanResults = generateScanResults();
     const actualResults = await applyCustomSeverities(
       scanResults,
       notMatchingCustomPolicies,

@@ -4,10 +4,11 @@ import {
 } from '../../../../src/cli/commands/test/iac-local-execution/results-formatter';
 import { SEVERITY } from '../../../../src/lib/snyk-test/common';
 import {
-  expectedFormattedResults,
+  expectedFormattedResultsWithLineNumber,
+  expectedFormattedResultsWithoutLineNumber,
   meta,
   policyStub,
-  scanResults,
+  generateScanResults,
 } from './results-formatter.fixtures';
 import { issuesToLineNumbers } from '@snyk/cloud-config-parser';
 import { PolicyMetadata } from '../../../../dist/cli/commands/test/iac-local-execution/types';
@@ -15,28 +16,46 @@ import { PolicyMetadata } from '../../../../dist/cli/commands/test/iac-local-exe
 jest.mock('@snyk/cloud-config-parser');
 
 describe('formatScanResults', () => {
-  it('returns the formatted results as expected for output', () => {
-    (issuesToLineNumbers as jest.Mock).mockReturnValue(3);
-    const formattedResults = formatScanResults(
-      scanResults,
+  it.each([
+    [
       { severityThreshold: SEVERITY.HIGH },
-      meta,
-    );
-    expect(formattedResults.length).toEqual(1);
-    expect(formattedResults[0]).toEqual(expectedFormattedResults);
-  });
+      expectedFormattedResultsWithoutLineNumber,
+    ],
+    [
+      { severityThreshold: SEVERITY.HIGH, sarif: true },
+      expectedFormattedResultsWithLineNumber,
+    ],
+    [
+      { severityThreshold: SEVERITY.HIGH, json: true },
+      expectedFormattedResultsWithLineNumber,
+    ],
+  ])(
+    'given %p options object, returns the expected results',
+    (optionsObject, expectedResult) => {
+      (issuesToLineNumbers as jest.Mock).mockReturnValue(3);
+      const formattedResults = formatScanResults(
+        generateScanResults(),
+        optionsObject,
+        meta,
+      );
 
+      expect(formattedResults.length).toEqual(1);
+      expect(formattedResults[0]).toEqual(expectedResult);
+    },
+  );
   // TODO: add tests for the multi-doc yaml grouping
 });
 
 describe('filterPoliciesBySeverity', () => {
   it('returns the formatted results filtered by severity - no default threshold', () => {
+    const scanResults = generateScanResults();
     const results = filterPoliciesBySeverity(scanResults[0].violatedPolicies);
 
     expect(results).toEqual(scanResults[0].violatedPolicies);
   });
 
   it('returns the formatted results filtered by severity - medium threshold, equal to severity', () => {
+    const scanResults = generateScanResults();
     const results = filterPoliciesBySeverity(
       scanResults[0].violatedPolicies,
       SEVERITY.MEDIUM,
@@ -46,12 +65,13 @@ describe('filterPoliciesBySeverity', () => {
   });
 
   it('returns no results if violatedPolicy severity is under threshold', () => {
+    const scanResults = generateScanResults();
     const results: PolicyMetadata[] = filterPoliciesBySeverity(
       scanResults[0].violatedPolicies,
       SEVERITY.HIGH,
     );
 
-    expect(results).toEqual(scanResults[1].violatedPolicies);
+    expect(results).toEqual([]);
   });
 
   it('returns no results if violatedPolicy severity is now set to none', () => {

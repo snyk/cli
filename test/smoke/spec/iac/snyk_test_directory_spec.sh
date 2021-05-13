@@ -6,7 +6,7 @@ Describe "Snyk iac test command"
   Describe "terraform directory scan"
     Skip if "execute only in regression test" check_if_regression_test
     It "finds issues in terraform directory"
-      When run snyk iac test ../fixtures/iac/terraform/
+      When run snyk iac test ../fixtures/iac/terraform/ --legacy
       The status should be failure # issues found
       The output should include "Testing sg_open_ssh.tf..."
 
@@ -34,7 +34,7 @@ Describe "Snyk iac test command"
     End
 
     It "filters out issues when using severity threshold"
-      When run snyk iac test ../fixtures/iac/terraform --severity-threshold=high
+      When run snyk iac test ../fixtures/iac/terraform --severity-threshold=high --legacy
       The status should be success # no issues found
       The output should include "Testing sg_open_ssh.tf..."
 
@@ -58,14 +58,14 @@ Describe "Snyk iac test command"
     End
 
     It "outputs the expected text when running with --sarif flag"
-      When run snyk iac test ../fixtures/iac/terraform/ --sarif
+      When run snyk iac test ../fixtures/iac/terraform/ --sarif --legacy
       The status should be failure
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"ruleId": "SNYK-CC-TF-1",'
     End
 
     It "outputs the expected text when running with --json flag"
-      When run snyk iac test ../fixtures/iac/terraform/ --json
+      When run snyk iac test ../fixtures/iac/terraform/ --json --legacy
       The status should be failure
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"packageManager": "terraformconfig",'

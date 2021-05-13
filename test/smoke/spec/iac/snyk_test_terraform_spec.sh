@@ -7,7 +7,7 @@ Describe "Snyk iac test command"
   Describe "terraform single file scan"
     Skip if "execute only in regression test" check_if_regression_test
     It "finds issues in terraform file"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --legacy
       The status should be failure # issues found
       The output should include "Testing sg_open_ssh.tf..."
       # Outputs issues   
@@ -26,7 +26,7 @@ Describe "Snyk iac test command"
     End
 
     It "filters out issues when using severity threshold"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --severity-threshold=high
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --severity-threshold=high --legacy
       The status should be success # no issues found
       The output should include "Testing sg_open_ssh.tf..."
       # Outputs issues   
@@ -43,21 +43,21 @@ Describe "Snyk iac test command"
     End
 
     It "outputs an error for invalid hcl2 tf files"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf --legacy
       The status should be failure
       The output should include "Illegal Terraform target file sg_open_ssh_invalid_hcl2.tf "
       The output should include "Validation Error Reason: Invalid HCL2 Format."
     End
 
     It "outputs the expected text when running with --sarif flag"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --sarif
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --sarif --legacy
       The status should be failure
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"ruleId": "SNYK-CC-TF-1",'
     End
 
     It "outputs the expected text when running with --json flag"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --json
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --json --legacy
       The status should be failure
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"packageManager": "terraformconfig",'

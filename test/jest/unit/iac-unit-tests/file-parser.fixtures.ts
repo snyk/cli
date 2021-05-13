@@ -6,7 +6,11 @@ import {
   IacFileParsed,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
-import { expectedParsingResultDeltaScan } from './terraform-plan-parser.fixtures';
+import {
+  getExpectedResult,
+  PlanOutputCase,
+} from './terraform-plan-parser.fixtures';
+import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 const kubernetesYamlFileContent = `
 apiVersion: v1
@@ -118,6 +122,7 @@ export const invalidYamlFileDataStub: IacFileData = {
 export const expectedKubernetesYamlParsingResult: IacFileParsed = {
   ...kubernetesYamlFileDataStub,
   docId: 0,
+  projectType: IacProjectType.K8S,
   engineType: EngineType.Kubernetes,
   jsonContent: kubernetesJson,
 };
@@ -125,6 +130,7 @@ export const expectedKubernetesYamlParsingResult: IacFileParsed = {
 export const expectedKubernetesJsonParsingResult: IacFileParsed = {
   ...kubernetesJsonFileDataStub,
   docId: 0,
+  projectType: IacProjectType.K8S,
   engineType: EngineType.Kubernetes,
   jsonContent: kubernetesJson,
 };
@@ -132,6 +138,7 @@ export const expectedKubernetesJsonParsingResult: IacFileParsed = {
 export const expectedMultipleKubernetesYamlsParsingResult: IacFileParsed = {
   ...multipleKubernetesYamlsFileDataStub,
   docId: 0,
+  projectType: IacProjectType.K8S,
   engineType: EngineType.Kubernetes,
   jsonContent: kubernetesJson,
 };
@@ -163,12 +170,15 @@ resource "aws_security_group" "allow_ssh" {
 }`;
 
 const terraformPlanFileContent = fs.readFileSync(
-  path.resolve(__dirname, '../../../fixtures/iac/terraform-plan/tf-plan.json'),
+  path.resolve(
+    __dirname,
+    '../../../fixtures/iac/terraform-plan/tf-plan-create.json',
+  ),
 );
 
 const terraformPlanJson = JSON.parse(terraformPlanFileContent.toString());
 const terraformPlanMissingFieldsJson = { ...terraformPlanJson };
-delete terraformPlanMissingFieldsJson.planned_values;
+delete terraformPlanMissingFieldsJson.resource_changes;
 const terraformPlanMissingFieldsFileContent = JSON.stringify(
   terraformPlanMissingFieldsJson,
 );
@@ -194,6 +204,7 @@ export const terraformPlanMissingFieldsDataStub: IacFileData = {
 export const expectedTerraformParsingResult: IacFileParsed = {
   ...terraformFileDataStub,
   engineType: EngineType.Terraform,
+  projectType: IacProjectType.TERRAFORM,
   jsonContent: {
     resource: {
       aws_security_group: {
@@ -216,7 +227,8 @@ export const expectedTerraformParsingResult: IacFileParsed = {
 export const expectedTerraformJsonParsingResult: IacFileParsed = {
   ...terraformPlanDataStub,
   engineType: EngineType.Terraform,
-  jsonContent: expectedParsingResultDeltaScan,
+  projectType: IacProjectType.TERRAFORM,
+  jsonContent: getExpectedResult(false, PlanOutputCase.Create),
 };
 
 const invalidTerraformFileContent = `

@@ -20,7 +20,7 @@ import { GoodResult, BadResult } from './types';
 import * as spinner from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
 import { MethodArgs } from '../../args';
-import { apiTokenExists } from '../../../lib/api-token';
+import { apiOrOAuthTokenExists } from '../../../lib/api-token';
 import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { processJsonMonitorResponse } from './process-json-monitor';
@@ -75,7 +75,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error('`--remote-repo-url` is not supported for container scans');
   }
 
-  apiTokenExists();
+  apiOrOAuthTokenExists();
 
   let contributors: Contributor[] = [];
   if (!options.docker && analytics.allowAnalytics()) {

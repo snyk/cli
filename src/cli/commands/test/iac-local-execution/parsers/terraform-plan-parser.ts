@@ -5,12 +5,15 @@ import {
   TerraformPlanJson,
   TerraformPlanResource,
   ResourceActions,
-  VALID_RESOURCE_ACTIONS,
+  VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN,
+  VALID_RESOURCE_ACTIONS_FOR_FULL_SCAN,
   TerraformScanInput,
   TerraformPlanResourceChange,
   IaCErrorCodes,
 } from '../types';
 import { CustomError } from '../../../../../lib/errors';
+import { getErrorStringCode } from '../error-utils';
+import { IacProjectType } from '../../../../../lib/iac/constants';
 
 function terraformPlanReducer(
   scanInput: TerraformScanInput,
@@ -35,10 +38,11 @@ function terraformPlanReducer(
 function resourceChangeReducer(
   scanInput: TerraformScanInput,
   resource: TerraformPlanResourceChange,
+  isFullScan: boolean,
 ): TerraformScanInput {
   // TODO: investigate if we need to address also `after_unknown` field.
   const { actions, after } = resource.change || { actions: [], after: {} };
-  if (isValidResourceActions(actions)) {
+  if (isValidResourceActions(actions, isFullScan)) {
     const resourceForReduction = { ...resource, values: after || {} };
     return terraformPlanReducer(scanInput, resourceForReduction);
   }
@@ -46,8 +50,14 @@ function resourceChangeReducer(
   return scanInput;
 }
 
-function isValidResourceActions(action: ResourceActions): boolean {
-  return VALID_RESOURCE_ACTIONS.some((validAction: string[]) => {
+function isValidResourceActions(
+  action: ResourceActions,
+  isFullScan: boolean,
+): boolean {
+  const VALID_ACTIONS = isFullScan
+    ? VALID_RESOURCE_ACTIONS_FOR_FULL_SCAN
+    : VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN;
+  return VALID_ACTIONS.some((validAction: string[]) => {
     if (action.length !== validAction.length) {
       return false;
     }
@@ -57,56 +67,28 @@ function isValidResourceActions(action: ResourceActions): boolean {
   });
 }
 
-function extractRootModuleResources(
-  terraformPlanJson: TerraformPlanJson,
-): Array<TerraformPlanResource> {
-  return terraformPlanJson.planned_values?.root_module?.resources || [];
-}
-
-function extractChildModulesResources(
-  terraformPlanJson: TerraformPlanJson,
-): Array<TerraformPlanResource> {
-  const childModules =
-    terraformPlanJson?.planned_values?.root_module?.child_modules || [];
-  const extractedChildModuleResources: Array<TerraformPlanResource> = [];
-  childModules.forEach((childModule) =>
-    childModule.resources.forEach((resource) =>
-      extractedChildModuleResources.push(resource),
-    ),
-  );
-  return extractedChildModuleResources;
-}
-
 function extractResourceChanges(
   terraformPlanJson: TerraformPlanJson,
 ): Array<TerraformPlanResourceChange> {
   return terraformPlanJson.resource_changes || [];
 }
 
-function extractResourcesForFullScan(
+function extractResourcesForScan(
   terraformPlanJson: TerraformPlanJson,
-): TerraformScanInput {
-  const rootModuleResources = extractRootModuleResources(terraformPlanJson);
-  const childModuleResources = extractChildModulesResources(terraformPlanJson);
-  return [
-    ...rootModuleResources,
-    ...childModuleResources,
-  ].reduce(terraformPlanReducer, { resource: {}, data: {} });
-}
-
-function extractResourcesForDeltaScan(
-  terraformPlanJson: TerraformPlanJson,
+  isFullScan = false,
 ): TerraformScanInput {
   const resourceChanges = extractResourceChanges(terraformPlanJson);
-  return resourceChanges.reduce(resourceChangeReducer, {
-    resource: {},
-    data: {},
-  });
+  return resourceChanges.reduce(
+    (memo, curr) => resourceChangeReducer(memo, curr, isFullScan),
+    {
+      resource: {},
+      data: {},
+    },
+  );
 }
 
 export function isTerraformPlan(terraformPlanJson: TerraformPlanJson): boolean {
   const missingRequiredFields =
-    !terraformPlanJson.planned_values?.root_module ||
     terraformPlanJson.resource_changes === undefined;
   return !missingRequiredFields;
 }
@@ -117,15 +99,12 @@ export function tryParsingTerraformPlan(
   { isFullScan }: { isFullScan: boolean } = { isFullScan: false },
 ): Array<IacFileParsed> {
   try {
-    const scannableInput = isFullScan
-      ? extractResourcesForFullScan(terraformPlanJson)
-      : extractResourcesForDeltaScan(terraformPlanJson);
-
     return [
       {
         ...terraformPlanFile,
-        jsonContent: scannableInput,
+        jsonContent: extractResourcesForScan(terraformPlanJson, isFullScan),
         engineType: EngineType.Terraform,
+        projectType: IacProjectType.TERRAFORM,
       },
     ];
   } catch (err) {
@@ -140,6 +119,7 @@ export class FailedToExtractResourcesInTerraformPlanError extends CustomError {
       message || 'Failed to extract resources from Terraform plan JSON file',
     );
     this.code = IaCErrorCodes.FailedToExtractResourcesInTerraformPlanError;
+    this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'We failed to extract resource changes from the Terraform plan file, please contact support@snyk.io, if possible with a redacted version of the file';
   }

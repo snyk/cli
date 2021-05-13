@@ -67,4 +67,17 @@ describe('test using OAuth token', () => {
     expect(req.headers.authorization).toBe('Bearer oauth-jwt-token');
     expect(req.method).toBe('POST');
   });
+
+  it('successfully monitors a project with an OAuth env variable set', async () => {
+    process.env.SNYK_OAUTH_TOKEN = 'oauth-jwt-token';
+
+    server.setNextResponse(noVulnsResult);
+    chdirWorkspaces('fail-on');
+    await cli.monitor('no-vulns', {
+      json: true,
+    });
+    const req = server.popRequest();
+    expect(req.headers.authorization).toBe('Bearer oauth-jwt-token');
+    expect(req.method).toBe('PUT');
+  });
 });

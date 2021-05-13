@@ -279,22 +279,5 @@ export const PythonTests: AcceptanceTests = {
         'calls python plugin',
       );
     },
-    '`test poetry-app with pyproject.toml and poetry.lock`': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-      await params.cli.test('poetry-app', {});
-      const req = params.server.popRequest();
-      t.equal(req.method, 'POST', 'makes POST request');
-      t.equal(
-        req.headers['x-snyk-cli-version'],
-        params.versionNumber,
-        'sends version number',
-      );
-      t.match(req.url, '/test-dep-graph', 'posts to correct url');
-      t.equal(req.body.targetFile, 'pyproject.toml', 'specifies target');
-      t.equal(req.body.depGraph.pkgManager.name, 'poetry');
-    },
   },
 };

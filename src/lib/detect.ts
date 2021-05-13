@@ -1,9 +1,11 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
-const endsWith = require('lodash.endswith');
 import { NoSupportedManifestsFoundError } from './errors';
-import { SupportedPackageManagers } from './package-managers';
+import {
+  SupportedPackageManagers,
+  SUPPORTED_MANIFEST_FILES,
+} from './package-managers';
 
 const debug = debugLib('snyk-detect');
 
@@ -29,7 +31,6 @@ const DETECTABLE_FILES: string[] = [
   'composer.lock',
   'Podfile',
   'Podfile.lock',
-  'pyproject.toml',
   'poetry.lock',
   'mix.exs',
   'mix.lock',
@@ -57,51 +58,50 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'build.sbt',
   'build.gradle',
   'build.gradle.kts',
-  'pyproject.toml',
   'poetry.lock',
   'mix.exs',
   'mix.lock',
 ];
 
 // when file is specified with --file, we look it up here
+// this is also used when --all-projects flag is enabled and auto detection plugin is triggered
 const DETECTABLE_PACKAGE_MANAGERS: {
-  [name: string]: SupportedPackageManagers;
+  [key in SUPPORTED_MANIFEST_FILES]: SupportedPackageManagers;
 } = {
-  Gemfile: 'rubygems',
-  'Gemfile.lock': 'rubygems',
-  '.gemspec': 'rubygems',
-  'package-lock.json': 'npm',
-  'pom.xml': 'maven',
-  '.jar': 'maven',
-  '.war': 'maven',
-  'build.gradle': 'gradle',
-  'build.gradle.kts': 'gradle',
-  'build.sbt': 'sbt',
-  'yarn.lock': 'yarn',
-  'package.json': 'npm',
-  Pipfile: 'pip',
-  'setup.py': 'pip',
-  'requirements.txt': 'pip',
-  'Gopkg.lock': 'golangdep',
-  'go.mod': 'gomodules',
-  'vendor.json': 'govendor',
-  'project.assets.json': 'nuget',
-  'packages.config': 'nuget',
-  'project.json': 'nuget',
-  'paket.dependencies': 'paket',
-  'composer.lock': 'composer',
-  'Podfile.lock': 'cocoapods',
-  'CocoaPods.podfile.yaml': 'cocoapods',
-  'CocoaPods.podfile': 'cocoapods',
-  Podfile: 'cocoapods',
-  'pyproject.toml': 'poetry',
-  'poetry.lock': 'poetry',
-  'mix.exs': 'hex',
+  [SUPPORTED_MANIFEST_FILES.GEMFILE]: 'rubygems',
+  [SUPPORTED_MANIFEST_FILES.GEMFILE_LOCK]: 'rubygems',
+  [SUPPORTED_MANIFEST_FILES.GEMSPEC]: 'rubygems',
+  [SUPPORTED_MANIFEST_FILES.PACKAGE_LOCK_JSON]: 'npm',
+  [SUPPORTED_MANIFEST_FILES.POM_XML]: 'maven',
+  [SUPPORTED_MANIFEST_FILES.JAR]: 'maven',
+  [SUPPORTED_MANIFEST_FILES.WAR]: 'maven',
+  [SUPPORTED_MANIFEST_FILES.BUILD_GRADLE]: 'gradle',
+  [SUPPORTED_MANIFEST_FILES.BUILD_GRADLE_KTS]: 'gradle',
+  [SUPPORTED_MANIFEST_FILES.BUILD_SBT]: 'sbt',
+  [SUPPORTED_MANIFEST_FILES.YARN_LOCK]: 'yarn',
+  [SUPPORTED_MANIFEST_FILES.PACKAGE_JSON]: 'npm',
+  [SUPPORTED_MANIFEST_FILES.PIPFILE]: 'pip',
+  [SUPPORTED_MANIFEST_FILES.SETUP_PY]: 'pip',
+  [SUPPORTED_MANIFEST_FILES.REQUIREMENTS_TXT]: 'pip',
+  [SUPPORTED_MANIFEST_FILES.GOPKG_LOCK]: 'golangdep',
+  [SUPPORTED_MANIFEST_FILES.GO_MOD]: 'gomodules',
+  [SUPPORTED_MANIFEST_FILES.VENDOR_JSON]: 'govendor',
+  [SUPPORTED_MANIFEST_FILES.PROJECT_ASSETS_JSON]: 'nuget',
+  [SUPPORTED_MANIFEST_FILES.PACKAGES_CONFIG]: 'nuget',
+  [SUPPORTED_MANIFEST_FILES.PROJECT_JSON]: 'nuget',
+  [SUPPORTED_MANIFEST_FILES.PAKET_DEPENDENCIES]: 'paket',
+  [SUPPORTED_MANIFEST_FILES.COMPOSER_LOCK]: 'composer',
+  [SUPPORTED_MANIFEST_FILES.PODFILE_LOCK]: 'cocoapods',
+  [SUPPORTED_MANIFEST_FILES.COCOAPODS_PODFILE_YAML]: 'cocoapods',
+  [SUPPORTED_MANIFEST_FILES.COCOAPODS_PODFILE]: 'cocoapods',
+  [SUPPORTED_MANIFEST_FILES.PODFILE]: 'cocoapods',
+  [SUPPORTED_MANIFEST_FILES.POETRY_LOCK]: 'poetry',
+  [SUPPORTED_MANIFEST_FILES.MIX_EXS]: 'hex',
 };
 
-export function isPathToPackageFile(path) {
+export function isPathToPackageFile(path: string) {
   for (const fileName of DETECTABLE_FILES) {
-    if (endsWith(path, fileName)) {
+    if (path.endsWith(fileName)) {
       return true;
     }
   }
@@ -200,6 +200,7 @@ export function detectPackageManagerFromFile(
     // we throw and error here because the file was specified by the user
     throw new Error('Could not detect package manager for file: ' + file);
   }
+
   return DETECTABLE_PACKAGE_MANAGERS[key];
 }
 

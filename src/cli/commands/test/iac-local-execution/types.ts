@@ -3,6 +3,7 @@ import { SEVERITY } from '../../../../lib/snyk-test/common';
 import {
   AnnotatedIssue,
   IgnoreSettings,
+  TestResult,
 } from '../../../../lib/snyk-test/legacy';
 import {
   IacFileInDirectory,
@@ -17,6 +18,7 @@ export const VALID_FILE_TYPES = ['tf', 'json', 'yaml', 'yml'];
 
 export interface IacFileParsed extends IacFileData {
   jsonContent: Record<string, unknown> | TerraformScanInput;
+  projectType: IacProjectType;
   engineType: EngineType;
   docId?: number;
 }
@@ -98,6 +100,7 @@ export interface PolicyMetadata {
   type: string;
   subType: string;
   title: string;
+  documentation?: string; // e.g. "https://snyk.io/security-rules/SNYK-CC-K8S-2",
   // Legacy field, still included in WASM eval output, but not in use.
   description: string;
   severity: SEVERITY | 'none'; // the 'null' value can be provided by the backend
@@ -130,7 +133,20 @@ export type IaCTestFlags = Pick<
   help?: 'help';
   q?: boolean;
   quiet?: boolean;
-};
+  // This flag is internal and is used merely to route the smoke tests of the old flow.
+  // it should be removed together when the GA version completely deprecates the legacy remote processing flow.
+  legacy?: boolean;
+} & TerraformPlanFlags;
+
+// Flags specific for Terraform plan scanning
+interface TerraformPlanFlags {
+  scan?: TerraformPlanScanMode;
+}
+
+export enum TerraformPlanScanMode {
+  DeltaScan = 'resource-changes', // default value
+  FullScan = 'planned-values',
+}
 
 // Includes all IaCTestOptions plus additional properties
 // that are added at runtime and not part of the parsed
@@ -160,12 +176,6 @@ export interface TerraformPlanResourceChange
 
 export interface TerraformPlanJson {
   // there are more values, but these are the required ones for us to scan
-  planned_values: {
-    root_module: {
-      resources: Array<TerraformPlanResource>;
-      child_modules: Array<{ resources: Array<TerraformPlanResource> }>;
-    };
-  };
   resource_changes: Array<TerraformPlanResourceChange>;
 }
 export interface TerraformScanInput {
@@ -185,14 +195,21 @@ export type ResourceActions =
   | ['delete'];
 
 // we will be scanning the `create` & `update` actions only.
-export const VALID_RESOURCE_ACTIONS: ResourceActions[] = [
+export const VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN: ResourceActions[] = [
   ['create'],
   ['update'],
   ['create', 'delete'],
   ['delete', 'create'],
 ];
 
+// scans all actions including 'no-op' in order to iterate on all resources.
+export const VALID_RESOURCE_ACTIONS_FOR_FULL_SCAN: ResourceActions[] = [
+  ['no-op'],
+  ...VALID_RESOURCE_ACTIONS_FOR_DELTA_SCAN,
+];
+
 // Error codes used for Analytics & Debugging
+// Error names get converted to error string codes
 // Within a single module, increments are in 1.
 // Between modules, increments are in 10, according to the order of execution.
 export enum IaCErrorCodes {
@@ -233,7 +250,13 @@ export enum IaCErrorCodes {
 
   // assert-iac-options-flag
   FlagError = 1090,
+  FlagValueError = 1091,
 
   // bundle-validator
   FailedToValidateBundleIntegrity = 1100,
+}
+
+export interface TestReturnValue {
+  results: TestResult | TestResult[];
+  failures?: IacFileInDirectory[];
 }

@@ -1,5 +1,11 @@
 import { DepGraphData } from '@snyk/dep-graph';
-import { EntityToFix, ScanResult, TestResult, FixInfo, SEVERITY } from '../../src/types';
+import {
+  EntityToFix,
+  ScanResult,
+  TestResult,
+  FixInfo,
+  SEVERITY,
+} from '../../src/types';
 
 export function generateEntityToFix(
   type: string,
@@ -10,7 +16,10 @@ export function generateEntityToFix(
   const scanResult = generateScanResult(type, targetFile);
   const testResult = generateTestResult();
   const workspace = generateWorkspace(contents, path);
-  return { scanResult, testResult, workspace };
+  const cliTestOptions = {
+    command: 'python3',
+  };
+  return { scanResult, testResult, workspace, options: cliTestOptions };
 }
 
 function generateWorkspace(contents: string, path?: string) {
