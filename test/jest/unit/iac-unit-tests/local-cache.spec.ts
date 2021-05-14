@@ -13,14 +13,40 @@ describe('initLocalCache - downloads bundle successfully', () => {
     jest.spyOn(fs, 'existsSync').mockReturnValueOnce(true);
   });
 
-  it('downloads and extracts the bundle successfully', () => {
-    const mockReadable = new PassThrough();
-    const spy = jest.spyOn(fileUtilsModule, 'extractBundle');
+  it('downloads and extracts the bundle successfully', async () => {
+    const mockReadable = fs.createReadStream(
+      path.join(__dirname, '../../../fixtures/iac/custom-rules/custom.tar.gz'),
+    );
+    const spy = jest
+      .spyOn(fileUtilsModule, 'extractBundle')
+      .mockResolvedValue();
     jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => null);
     jest.spyOn(needle, 'get').mockReturnValue(mockReadable);
 
-    localCacheModule.initLocalCache();
+    await localCacheModule.initLocalCache();
 
+    expect(needle.get).toHaveBeenCalledWith(
+      expect.stringContaining('bundle.tar.gz'),
+    );
+    expect(spy).toHaveBeenCalledWith(mockReadable);
+  });
+
+  it('extracts the custom rules', async () => {
+    const mockReadable = fs.createReadStream(
+      path.join(__dirname, '../../../fixtures/iac/custom-rules/custom.tar.gz'),
+    );
+    const spy = jest
+      .spyOn(fileUtilsModule, 'extractBundle')
+      .mockResolvedValue();
+    jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => null);
+    jest.spyOn(needle, 'get').mockReturnValue(new PassThrough());
+    jest.spyOn(fs, 'createReadStream').mockReturnValue(mockReadable);
+
+    await localCacheModule.initLocalCache({
+      customRulesPath: './path/to/custom.tar.gz',
+    });
+
+    expect(fs.createReadStream).toHaveBeenCalledWith('./path/to/custom.tar.gz');
     expect(spy).toHaveBeenCalledWith(mockReadable);
   });
 
@@ -42,7 +68,7 @@ describe('initLocalCache - errors', () => {
     jest.spyOn(fs, 'existsSync').mockReturnValueOnce(false);
   });
 
-  it('throws an error on creation of cache dir', () => {
+  it('throws an error on creation of cache dir', async () => {
     const error = new Error(
       'The .iac-data directory can not be created. ' +
         'Please make sure that the current working directory has write permissions',
@@ -55,6 +81,6 @@ describe('initLocalCache - errors', () => {
     const promise = localCacheModule.initLocalCache();
 
     expect(fileUtilsModule.extractBundle).not.toHaveBeenCalled();
-    expect(promise).rejects.toThrow(FailedToInitLocalCacheError);
+    await expect(promise).rejects.toThrow(FailedToInitLocalCacheError);
   });
 });
