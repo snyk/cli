@@ -1056,6 +1056,16 @@ describe('fix *req*.txt / *.txt Python projects', () => {
           },
         },
         {
+          pkgName: 'Jinja2@2.7.2',
+          issueId: 'SNYK-2',
+          fixInfo: {
+            upgradePaths: [],
+            isPatchable: false,
+            nearestFixedInVersion: '1.2.3',
+            isPinnable: true,
+          },
+        },
+        {
           pkgName: 'transitive@1.0.1',
           issueId: 'SNYK-3',
           fixInfo: {
@@ -1211,7 +1221,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     expect(result.results.python.succeeded[1].changes).toEqual([
       {
         success: true,
-        issueIds: ['SNYK-1', 'SNYK-2', 'SNYK-3'],
+        issueIds: ['SNYK-1', 'SNYK-2', 'SNYK-2', 'SNYK-3'],
         userMessage: expect.stringContaining('requirements.txt'),
       },
     ]);
