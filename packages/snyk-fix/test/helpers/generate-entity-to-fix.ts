@@ -24,7 +24,7 @@ export function generateEntityToFix(
 
 function generateWorkspace(contents: string, path?: string) {
   return {
-    path: path || '.',
+    path: path ?? '.',
     readFile: async () => {
       return contents;
     },
