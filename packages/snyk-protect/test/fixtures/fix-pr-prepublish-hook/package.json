@@ -1,0 +1,12 @@
+{
+  "name": "fix-pr-prepublish-hook",
+  "version": "1.0.0",
+  "description": "Fixture with a prepublish hook similar to a Fix PR.",
+  "private": true,
+  "scripts": {
+    "prepublish": "npx @snyk/protect snyk-protect"
+  },
+  "dependencies": {
+    "lodash": "4.17.15"
+  }
+}
