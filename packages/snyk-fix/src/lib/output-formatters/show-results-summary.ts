@@ -6,6 +6,7 @@ import { contactSupportMessage, reTryMessage } from '../errors/common';
 import { convertErrorToUserMessage } from '../errors/error-to-user-message';
 import { hasFixableIssues } from '../issues/fixable-issues';
 import { getIssueCountBySeverity } from '../issues/issues-by-severity';
+import { getTotalIssueCount } from '../issues/total-issues-count';
 import { formatChangesSummary } from './format-successful-item';
 import { formatUnresolved } from './format-unresolved-item';
 export const PADDING_SPACE = '  '; // 2 spaces
@@ -250,7 +251,7 @@ export const defaultSeverityColor = {
 };
 
 export function getSeveritiesColour(severity: string) {
-  return severitiesColourMapping[severity] || defaultSeverityColor;
+  return severitiesColourMapping[severity] ?? defaultSeverityColor;
 }
 
 export function generateIssueSummary(
@@ -264,6 +265,7 @@ export function generateIssueSummary(
 
   const issueData = testResults.map((i) => i.issuesData);
   const bySeverity = getIssueCountBySeverity(issueData);
+
   const issuesBySeverityMessage = formatIssueCountBySeverity({
     critical: bySeverity.critical.length,
     high: bySeverity.high.length,
@@ -277,7 +279,7 @@ export function generateIssueSummary(
     issues.push(...result.issues);
   }
 
-  let totalIssues = `${chalk.bold(issues.length)} total issues`;
+  let totalIssues = `${chalk.bold(getTotalIssueCount(issueData))} total issues`;
   if (issuesBySeverityMessage) {
     totalIssues += `: ${issuesBySeverityMessage}`;
   }
