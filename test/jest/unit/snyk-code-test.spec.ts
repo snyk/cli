@@ -6,7 +6,7 @@ jest.mock('@snyk/code-client');
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
 
 import { loadJson } from '../../utils';
-import * as featureFlags from '../../../src/lib/feature-flags';
+import * as settings from '../../../src/lib/plugins/sast/settings';
 import { config as userConfig } from '../../../src/lib/user-config';
 import * as analysis from '../../../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../../../src/lib/types';
@@ -20,7 +20,7 @@ const osName = require('os-name');
 
 describe('Test snyk code', () => {
   let apiUserConfig;
-  let isFeatureFlagSupportedForOrgSpy;
+  let isSastEnabledForOrgSpy;
   const failedCodeTestMessage = "Failed to run 'code test'";
   const fakeApiKey = '123456789';
   const sampleSarifResponse = loadJson(
@@ -53,10 +53,7 @@ describe('Test snyk code', () => {
     process.chdir(fixturePath);
     apiUserConfig = userConfig.get('api');
     userConfig.set('api', fakeApiKey);
-    isFeatureFlagSupportedForOrgSpy = jest.spyOn(
-      featureFlags,
-      'isFeatureFlagSupportedForOrg',
-    );
+    isSastEnabledForOrgSpy = jest.spyOn(settings, 'getSastSettingsForOrg');
   });
 
   afterAll(() => {
@@ -74,7 +71,7 @@ describe('Test snyk code', () => {
       traverseNodeModules: false,
       showVulnPaths: 'none',
     };
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ code: 401 });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({ code: 401 });
 
     await expect(
       ecosystems.testEcosystem('code', ['some/path'], {
@@ -95,7 +92,9 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+    });
 
     try {
       await ecosystems.testEcosystem('code', ['some/path'], options);
@@ -118,7 +117,9 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+    });
 
     try {
       await cli.test('some/path', options);
@@ -134,7 +135,7 @@ describe('Test snyk code', () => {
 
   it('should throw error when response code is not 200', async () => {
     const error = { code: 401, message: 'Invalid auth token' };
-    isFeatureFlagSupportedForOrgSpy.mockRejectedValue(error);
+    isSastEnabledForOrgSpy.mockRejectedValue(error);
 
     const expected = new Error(error.message);
     try {
@@ -148,7 +149,7 @@ describe('Test snyk code', () => {
   });
   it('should throw error correctly from outside of ecosystem flow when response code is not 200', async () => {
     const error = { code: 401, message: 'Invalid auth token' };
-    isFeatureFlagSupportedForOrgSpy.mockRejectedValue(error);
+    isSastEnabledForOrgSpy.mockRejectedValue(error);
 
     const expected = new Error(error.message);
     try {
@@ -158,6 +159,16 @@ describe('Test snyk code', () => {
       });
     } catch (error) {
       expect(error).toEqual(expected);
+    }
+  });
+
+  it('should show error if sast is not enabled', async () => {
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({ sastEnabled: false });
+
+    try {
+      await cli.test('some/path', { code: true });
+    } catch (error) {
+      expect(error.userMessage).toBe('Snyk Code is not supported for org.');
     }
   });
 
@@ -171,7 +182,9 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+    });
 
     try {
       await ecosystems.testEcosystem('code', ['some/path'], options);
@@ -197,7 +210,9 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+    });
 
     try {
       await cli.test('some/path', options);
@@ -224,7 +239,9 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+    });
 
     try {
       await ecosystems.testEcosystem('code', ['some/path'], options);
@@ -253,7 +270,9 @@ describe('Test snyk code', () => {
       jest
         .spyOn(analysis, 'getCodeAnalysisAndParseResults')
         .mockRejectedValue(codeClientError);
-      isFeatureFlagSupportedForOrgSpy.mockResolvedValueOnce({ ok: true });
+      isSastEnabledForOrgSpy.mockResolvedValueOnce({
+        sastEnabled: true,
+      });
 
       try {
         await ecosystems.testEcosystem('code', ['.'], {
