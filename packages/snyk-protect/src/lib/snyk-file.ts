@@ -25,6 +25,7 @@ export function extractPatchMetadata(
         } else {
           if (key.startsWith('-')) {
             const destination = key
+              .substring(1)
               .split('>')
               .pop()
               ?.trim();

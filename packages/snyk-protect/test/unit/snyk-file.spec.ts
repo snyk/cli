@@ -1,7 +1,33 @@
 import { extractPatchMetadata } from '../../src/lib/snyk-file';
 
 describe(extractPatchMetadata.name, () => {
-  it('works with a single patch', () => {
+  it('extracts a direct dependency', () => {
+    const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - lodash:
+        patched: '2021-02-17T13:43:51.857Z'
+`;
+    const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+    const vulnIds = Object.keys(snykFilePatchMetadata);
+
+    // can't use .flat() because it's not supported in Node 10
+    const packageNames: string[] = [];
+    for (const nextArrayOfPackageNames of Object.values(
+      snykFilePatchMetadata,
+    )) {
+      packageNames.push(...nextArrayOfPackageNames);
+    }
+
+    expect(vulnIds).toEqual(['SNYK-JS-LODASH-567746']);
+    expect(packageNames).toEqual(['lodash']);
+  });
+
+  it('extracts a transitive dependency', () => {
     const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
@@ -27,7 +53,7 @@ patch:
     expect(packageNames).toEqual(['lodash']);
   });
 
-  it('works with multiple patches', async () => {
+  it('extracts multiple transitive dependencies', async () => {
     const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
@@ -60,7 +86,7 @@ patch:
     expect(packageNames).toEqual(['lodash', 'the-module']);
   });
 
-  it('works with zero patches defined in patch section', async () => {
+  it('extracts nothing from an empty patch section', async () => {
     const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
@@ -83,7 +109,7 @@ patch:
     expect(packageNames).toHaveLength(0);
   });
 
-  it('works with no patch section', async () => {
+  it('extracts nothing from a missing patch section', async () => {
     const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
