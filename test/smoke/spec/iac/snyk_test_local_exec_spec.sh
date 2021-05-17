@@ -286,26 +286,4 @@ Describe "Snyk iac local test command"
       The result of function check_valid_json should be success
     End
   End
-
-  Describe "custom rules scanning"
-    It "scans custom rules provided via the --rules flag"
-      When run snyk iac test --rules=../fixtures/iac/custom-rules/custom.tar.gz ../fixtures/iac/terraform/sg_open_ssh.tf
-      The status should equal 1 # issues found
-      The output should include "Testing sg_open_ssh.tf"
-
-      # Outputs issues
-      The output should include "Infrastructure as code issues:"
-      # Root module
-      The output should include "✗ "
-      The output should include "Missing tags"
-      The output should include "CUSTOM-123"
-      The output should include "introduced by resource > aws_security_group[allow_ssh] > tags"
-    End
-
-    It "presents an error message when the rules cannot be found"
-      When run snyk iac test --rules=./not/a/real/path.tar.gz ../fixtures/iac/terraform/sg_open_ssh.tf
-      The status should equal 2 # error
-      The output should include "We were unable to extract the rules provided at: ./not/a/real/path.tar.gz"
-    End
-  End
 End

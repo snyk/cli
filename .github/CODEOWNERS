@@ -19,6 +19,7 @@ test/smoke/.iac-data/ @snyk/cloudconfig
 test/fixtures/sast/ @snyk/sast-team
 test/snyk-code-test.spec.ts @snyk/sast-team
 test/jest/unit/iac-unit-tests/ @snyk/cloudconfig
+test/jest/acceptance/iac/ @snyk/cloudconfig
 src/lib/errors/invalid-iac-file.ts @snyk/cloudconfig
 src/lib/errors/unsupported-options-iac-error.ts @snyk/cloudconfig
 help/commands-docs/iac-examples.md @snyk/cloudconfig
