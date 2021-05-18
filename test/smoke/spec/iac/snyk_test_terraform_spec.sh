@@ -46,7 +46,7 @@ Describe "Snyk iac test command"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf --legacy
       The status should be failure
       The output should include "Illegal Terraform target file sg_open_ssh_invalid_hcl2.tf "
-      The output should include "Validation Error Reason: Invalid HCL2 Format."
+      The output should include "Validation Error Reason:"
     End
 
     It "outputs the expected text when running with --sarif flag"
