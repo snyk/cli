@@ -377,17 +377,34 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
+      - install_github_cli
       - run:
           name: Install npm@7
           command: |
             sudo npm install -g npm@7
       - show_node_version
       - install_lerna_linux
+      - update_local_npmrc_linux
       - install_deps
       - generate_help
       - run:
           name: Update package versions
-          command: ./release-scripts/update-versions.sh
+          command: |
+            ./release-scripts/update-versions.sh
+            ./release-scripts/update-dev-release.sh
+      - run:
+          name: Make git ignore changes relating to version updates and to .npmrc
+          command: |
+            git update-index --skip-worktree -- ./lerna.json
+            git update-index --skip-worktree -- ./package.json
+            git update-index --skip-worktree -- ./packages/snyk-protect/package.json
+            git update-index --skip-worktree -- ./.npmrc
+      - run:
+          name: Dev Lerna Publish
+          command: |
+            dev_version="1.0.0-dev-${CIRCLE_SHA1}"
+            echo "dev_version: ${dev_version}"
+            lerna publish ${dev_version} --yes --no-push --no-git-tag-version --dist-tag hammertest
       - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
@@ -485,6 +502,7 @@ workflows:
       - dev-release:
           name: Dev Release
           node_version: '14'
+          context: nodejs-app-release
           requires:
             - Regression Test
       - test-windows:
