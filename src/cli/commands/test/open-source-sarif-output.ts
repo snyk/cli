@@ -94,25 +94,29 @@ ${vuln.description}`.replace(/##\s/g, '# '),
 }
 
 export function getResults(testResult): sarif.Result[] {
-  return testResult.vulnerabilities.map((vuln) => ({
-    ruleId: vuln.id,
-    level: getLevel(vuln),
-    message: {
-      text: `This file introduces a vulnerable ${vuln.packageName} package with a ${vuln.severity} severity vulnerability.`,
-    },
-    locations: [
-      {
-        physicalLocation: {
-          artifactLocation: {
-            uri: testResult.displayTargetFile,
-          },
-          region: {
-            startLine: vuln.lineNumber || 1,
+  const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
+  return map(
+    groupedVulnerabilities,
+    ([vuln]): sarif.Result => ({
+      ruleId: vuln.id,
+      level: getLevel(vuln),
+      message: {
+        text: `This file introduces a vulnerable ${vuln.packageName} package with a ${vuln.severity} severity vulnerability.`,
+      },
+      locations: [
+        {
+          physicalLocation: {
+            artifactLocation: {
+              uri: testResult.displayTargetFile,
+            },
+            region: {
+              startLine: vuln.lineNumber || 1,
+            },
           },
         },
-      },
-    ],
-  }));
+      ],
+    }),
+  );
 }
 
 export function getLevel(vuln: AnnotatedIssue) {
