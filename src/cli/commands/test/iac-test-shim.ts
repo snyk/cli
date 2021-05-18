@@ -4,6 +4,7 @@ import { localTest } from './iac-local-execution/measurable-methods';
 import { test as legacyTest } from '../../../lib';
 import { getIacOrgSettings } from './iac-local-execution/org-settings/get-iac-org-settings';
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
+import config = require('../../../lib/config');
 const camelCase = require('lodash.camelcase');
 
 /**
@@ -20,7 +21,7 @@ export async function test(
   // caller doesn't accidentally mistype --experimental and send their
   // configuration files to our backend by accident.
   assertIaCOptionsFlags(process.argv);
-  const iacOrgSettings = await getIacOrgSettings();
+  const iacOrgSettings = await getIacOrgSettings(options.org || config.org);
   const shouldOptOutFromLocalExec = await isFeatureFlagSupportedForOrg(
     camelCase('opt-out-from-local-exec-iac'),
     iacOrgSettings.meta.org,

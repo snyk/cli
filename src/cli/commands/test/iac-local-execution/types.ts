@@ -118,6 +118,7 @@ export interface PolicyMetadata {
 // TODO: Needs to be fixed at the args module level.
 export type IaCTestFlags = Pick<
   Options & TestOptions,
+  | 'org'
   | 'insecure'
   | 'debug'
   | 'experimental'
