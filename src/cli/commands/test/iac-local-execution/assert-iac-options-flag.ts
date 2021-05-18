@@ -34,7 +34,7 @@ function getFlagName(key: string) {
   return `${dashes}${flag}`;
 }
 
-class FlagError extends CustomError {
+export class FlagError extends CustomError {
   constructor(key: string) {
     const flag = getFlagName(key);
     const msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags.`;
