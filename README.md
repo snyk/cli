@@ -285,3 +285,7 @@ Make users feel more confident in using your website by adding your Snyk badge!
 ```
 
 [![Analytics](https://ga-beacon.appspot.com/UA-69111857-2/Snyk/snyk?pixel)](https://snyk.io/)
+
+---
+
+Made with 💜 by Snyk
