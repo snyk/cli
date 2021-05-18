@@ -25,10 +25,14 @@ export async function startMockServer() {
     SNYK_TOKEN,
     SNYK_API,
     SNYK_HOST,
+    // Override any local config set via `snyk config set`
+    SNYK_CFG_API: SNYK_TOKEN,
+    SNYK_CFG_ENDPOINT: SNYK_API,
   };
 
   return {
-    run: async (cmd: string) => run(cmd, env),
+    run: async (cmd: string, overrides?: Record<string, string>) =>
+      run(cmd, { ...env, ...overrides }),
     teardown: async () => new Promise((resolve) => server.close(resolve)),
   };
 }
@@ -38,7 +42,7 @@ export async function startMockServer() {
  */
 export async function run(
   cmd: string,
-  env: Record<string, string>,
+  env: Record<string, string> = {},
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   return new Promise((resolve, reject) => {
     const root = join(__dirname, '../../../../');
