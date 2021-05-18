@@ -24,8 +24,9 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run test:unit && npm run test:acceptance",
-    "test:unit": "jest \"\/test\/unit\/((.+)\/)*[^/]+\\.spec\\.ts\"",
-    "test:acceptance": "jest \"\/test\/acceptance\/((.+)\/)*[^/]+\\.spec\\.ts\"",
+    "test:unit": "jest \"/test/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
+    "test:acceptance": "jest \"/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
+    "test:smoke": "jest \"/test/smoke/((.+)/)*[^/]+\\.spec\\.ts\"",
     "format": "prettier --write '{src,test,scripts}/**/*.{js,ts}'"
   },
   "keywords": [
@@ -41,10 +42,6 @@
   ],
   "author": "snyk.io",
   "license": "Apache-2.0",
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/snyk/snyk.git"

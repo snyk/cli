@@ -1,0 +1,40 @@
+name: '@snyk/protect: Smoke Tests'
+
+on:
+  push:
+    branches: [protect/smoke-tests]
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  smoke-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos, windows]
+        node_version: [10, 12, 14, 16]
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: npx npm@7 config get cache
+        id: npm7-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npx npm@7 config get cache)"
+      - uses: actions/cache@v2
+        id: npm7-cache
+        with:
+          path: ${{ steps.npm7-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - run: npx npm@7 install
+
+      - run: npx npm@7 run test:smoke -w @snyk/protect
