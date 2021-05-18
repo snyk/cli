@@ -28,7 +28,7 @@ Describe "Snyk iac local test command"
 
   Describe "k8s single file scan"
     It "finds issues in k8s file"
-      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml 
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml
       The status should equal 1 # issues found
       The output should include "Testing pod-privileged.yaml..."
 
@@ -49,13 +49,13 @@ Describe "Snyk iac local test command"
     End
 
     It "outputs an error for files with no valid k8s objects"
-      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml 
+      When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml
       The status should equal 2
       The output should include "We were unable to detect whether the YAML file"
     End
 
     It "outputs an error for Helm files"
-      When run snyk iac test ../fixtures/iac/kubernetes/helm-config.yaml 
+      When run snyk iac test ../fixtures/iac/kubernetes/helm-config.yaml
       The status should equal 2
       The output should include "We were unable to parse the YAML file"
       The output should include "do not support scanning of Helm files"
@@ -102,7 +102,7 @@ Describe "Snyk iac local test command"
     # TODO: currently skipped because the parser we're using doesn't fail on invalid terraform
     # will be fixed before beta
     It "outputs an error for invalid terraforom files"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf 
+      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf
       The status should equal 2
       The output should include "We were unable to parse the Terraform file"
     End
@@ -134,7 +134,7 @@ Describe "Snyk iac local test command"
 
   Describe "directory scanning"
     It "finds issues in a directory with Terraform files"
-      When run snyk iac test ../fixtures/iac/terraform/ 
+      When run snyk iac test ../fixtures/iac/terraform/
       The status should equal 1 # issues found
       # First File
       The output should include "Testing sg_open_ssh.tf..."
@@ -149,7 +149,7 @@ Describe "Snyk iac local test command"
     End
 
     It "finds issues in a directory with Kubernetes files"
-      When run snyk iac test ../fixtures/iac/kubernetes/ 
+      When run snyk iac test ../fixtures/iac/kubernetes/
       The status should equal 1 # issues found
       # First File
       The output should include "Testing pod-privileged.yaml..."
@@ -192,7 +192,7 @@ Describe "Snyk iac local test command"
 
       Describe "Not using the --json flag"
         It "returns 1 even if some files failed to parse"
-          When run snyk iac test ../fixtures/iac/kubernetes/ 
+          When run snyk iac test ../fixtures/iac/kubernetes/
           The status should equal 1
           The output should not equal ""
           The stderr should equal ""
@@ -225,7 +225,7 @@ Describe "Snyk iac local test command"
     # Note that this now defaults to the delta scan, not the full scan.
     # in the future a flag will be added to control this functionality.
     It "finds issues in a Terraform plan file"
-      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json 
+      When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json
       The status should equal 1 # issues found
       The output should include "tf-plan-create.json"
 
@@ -284,6 +284,28 @@ Describe "Snyk iac local test command"
       The output should include '"packageManager": "terraformconfig",'
       The output should include '"projectType": "terraformconfig",'
       The result of function check_valid_json should be success
+    End
+  End
+
+  Describe "custom rules scanning"
+    It "scans custom rules provided via the --rules flag"
+      When run snyk iac test --rules=../fixtures/iac/custom-rules/custom.tar.gz ../fixtures/iac/terraform/sg_open_ssh.tf
+      The status should equal 1 # issues found
+      The output should include "Testing sg_open_ssh.tf"
+
+      # Outputs issues
+      The output should include "Infrastructure as code issues:"
+      # Root module
+      The output should include "✗ "
+      The output should include "Missing tags"
+      The output should include "CUSTOM-123"
+      The output should include "introduced by resource > aws_security_group[allow_ssh] > tags"
+    End
+
+    It "presents an error message when the rules cannot be found"
+      When run snyk iac test --rules=./not/a/real/path.tar.gz ../fixtures/iac/terraform/sg_open_ssh.tf
+      The status should equal 2 # error
+      The output should include "We were unable to extract the rules provided at: ./not/a/real/path.tar.gz"
     End
   End
 End
