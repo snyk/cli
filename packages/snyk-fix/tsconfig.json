@@ -7,6 +7,5 @@
   "include": [
     "./src/**/*"
   ],
-  "references": [
-  ]
+  "types": ["node", "jest"],
 }

@@ -41,7 +41,7 @@ describe('getHandlerType', () => {
     expect(res.skipped).toStrictEqual([]);
   });
 
-  it('pip + Pipfile is NOT supported so returns null', () => {
+  it('pip + Pipfile is supported', () => {
     // Arrange
     const entity = generateEntityToFix('pip', 'Pipfile', '');
     // Act
@@ -49,10 +49,11 @@ describe('getHandlerType', () => {
 
     // Assert
     expect(
-      res.entitiesPerType[SUPPORTED_HANDLER_TYPES.REQUIREMENTS],
-    ).toHaveLength(0);
-    expect(res.skipped).toStrictEqual([
-      { original: entity, userMessage: 'Pipfile is not supported' },
-    ]);
+      res.entitiesPerType[SUPPORTED_HANDLER_TYPES.PIPFILE],
+    ).toHaveLength(1);
+    expect(
+      res.entitiesPerType[SUPPORTED_HANDLER_TYPES.PIPFILE],
+    ).toStrictEqual([entity]);
+    expect(res.skipped).toStrictEqual([]);
   });
 });
