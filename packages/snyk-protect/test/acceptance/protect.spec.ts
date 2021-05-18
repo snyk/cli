@@ -17,6 +17,8 @@ const getPatchedLodash = (): Promise<string> => {
   return fse.readFile(patchedLodashPath, 'utf-8');
 };
 
+jest.setTimeout(1000 * 60);
+
 describe('@snyk/protect', () => {
   let tempFolder: string;
 
