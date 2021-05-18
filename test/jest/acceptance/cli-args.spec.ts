@@ -202,7 +202,7 @@ test('test --exclude=path/to/dir displays error message', async () => {
   );
 
   expect(stdout).toEqual(
-    'The --exclude argument must be a comma separated list of directory names and cannot contain a path.',
+    'The --exclude argument must be a comma separated list of directory or file names and cannot contain a path.',
   );
   expect(code).toEqual(2);
 });
