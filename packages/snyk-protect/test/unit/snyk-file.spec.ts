@@ -13,18 +13,12 @@ patch:
         patched: '2021-02-17T13:43:51.857Z'
 `;
     const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    const vulnIds = Object.keys(snykFilePatchMetadata);
-
-    // can't use .flat() because it's not supported in Node 10
-    const packageNames: string[] = [];
-    for (const nextArrayOfPackageNames of Object.values(
-      snykFilePatchMetadata,
-    )) {
-      packageNames.push(...nextArrayOfPackageNames);
-    }
-
-    expect(vulnIds).toEqual(['SNYK-JS-LODASH-567746']);
-    expect(packageNames).toEqual(['lodash']);
+    expect(snykFilePatchMetadata).toEqual([
+      {
+        vulnId: 'SNYK-JS-LODASH-567746',
+        packageName: 'lodash',
+      },
+    ]);
   });
 
   it('handles carriage returns in line endings', () => {
@@ -41,18 +35,12 @@ patch:
       .split('\n')
       .join('\r\n');
     const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    const vulnIds = Object.keys(snykFilePatchMetadata);
-
-    // can't use .flat() because it's not supported in Node 10
-    const packageNames: string[] = [];
-    for (const nextArrayOfPackageNames of Object.values(
-      snykFilePatchMetadata,
-    )) {
-      packageNames.push(...nextArrayOfPackageNames);
-    }
-
-    expect(vulnIds).toEqual(['SNYK-JS-LODASH-567746']);
-    expect(packageNames).toEqual(['lodash']);
+    expect(snykFilePatchMetadata).toEqual([
+      {
+        vulnId: 'SNYK-JS-LODASH-567746',
+        packageName: 'lodash',
+      },
+    ]);
   });
 
   it('extracts a transitive dependency', () => {
@@ -67,21 +55,15 @@ patch:
         patched: '2021-02-17T13:43:51.857Z'
 `;
     const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    const vulnIds = Object.keys(snykFilePatchMetadata);
-
-    // can't use .flat() because it's not supported in Node 10
-    const packageNames: string[] = [];
-    for (const nextArrayOfPackageNames of Object.values(
-      snykFilePatchMetadata,
-    )) {
-      packageNames.push(...nextArrayOfPackageNames);
-    }
-
-    expect(vulnIds).toEqual(['SNYK-JS-LODASH-567746']);
-    expect(packageNames).toEqual(['lodash']);
+    expect(snykFilePatchMetadata).toEqual([
+      {
+        vulnId: 'SNYK-JS-LODASH-567746',
+        packageName: 'lodash',
+      },
+    ]);
   });
 
-  it('extracts multiple transitive dependencies', async () => {
+  it('extracts multiple transitive dependencies', () => {
     const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
@@ -97,24 +79,19 @@ patch:
         patched: '2021-02-17T13:43:51.857Z'
 `;
     const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    const vulnIds = Object.keys(snykFilePatchMetadata);
-
-    // can't use .flat() because it's not supported in Node 10
-    const packageNames: string[] = [];
-    for (const nextArrayOfPackageNames of Object.values(
-      snykFilePatchMetadata,
-    )) {
-      packageNames.push(...nextArrayOfPackageNames);
-    }
-
-    expect(vulnIds).toEqual([
-      'SNYK-JS-LODASH-567746',
-      'SNYK-FAKE-THEMODULE-000000',
+    expect(snykFilePatchMetadata).toEqual([
+      {
+        vulnId: 'SNYK-JS-LODASH-567746',
+        packageName: 'lodash',
+      },
+      {
+        vulnId: 'SNYK-FAKE-THEMODULE-000000',
+        packageName: 'the-module',
+      },
     ]);
-    expect(packageNames).toEqual(['lodash', 'the-module']);
   });
 
-  it('extracts nothing from an empty patch section', async () => {
+  it('extracts nothing from an empty patch section', () => {
     const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
@@ -123,38 +100,50 @@ ignore: {}
 patch:
 `;
     const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    const vulnIds = Object.keys(snykFilePatchMetadata);
-
-    // can't use .flat() because it's not supported in Node 10
-    const packageNames: string[] = [];
-    for (const nextArrayOfPackageNames of Object.values(
-      snykFilePatchMetadata,
-    )) {
-      packageNames.push(...nextArrayOfPackageNames);
-    }
-
-    expect(vulnIds).toHaveLength(0);
-    expect(packageNames).toHaveLength(0);
+    expect(snykFilePatchMetadata).toHaveLength(0);
   });
 
-  it('extracts nothing from a missing patch section', async () => {
+  it('extracts nothing from a missing patch section', () => {
     const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
 ignore: {}
 `;
     const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    const vulnIds = Object.keys(snykFilePatchMetadata);
+    expect(snykFilePatchMetadata).toHaveLength(0);
+  });
 
-    // can't use .flat() because it's not supported in Node 10
-    const packageNames: string[] = [];
-    for (const nextArrayOfPackageNames of Object.values(
-      snykFilePatchMetadata,
-    )) {
-      packageNames.push(...nextArrayOfPackageNames);
-    }
+  it('throws when there are no package names for a vulnId in the patch section', () => {
+    const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+`;
 
-    expect(vulnIds).toHaveLength(0);
-    expect(packageNames).toHaveLength(0);
+    expect(() => {
+      extractPatchMetadata(dotSnykFileContents);
+    }).toThrow('should never have no package names for a vulnId in a .snyk file');
+  });
+
+  it('throws when there is more than one package name for a vulnId in the patch section', () => {
+    const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - lodash:
+        patched: '2021-02-17T13:43:51.857Z'
+    - axios:
+        patched: '2021-02-17T13:43:51.857Z'
+`;
+
+    expect(() => {
+      extractPatchMetadata(dotSnykFileContents);
+    }).toThrow('should never have more than one package name for a vulnId in a .snyk file');
   });
 });

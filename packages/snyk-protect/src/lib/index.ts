@@ -2,9 +2,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { extractPatchMetadata } from './snyk-file';
 import { applyPatchToFile } from './patch';
-import { getPatches } from './get-patches';
-import { checkProject } from './explore-node-modules';
-import { PhysicalModuleToPatch } from './types';
+import { findPhysicalModules } from './explore-node-modules';
+import { VulnIdAndPackageName, VulnPatches } from './types';
+import { getAllPatches } from './fetch-patches';
 
 async function protect(projectFolderPath: string) {
   const snykFilePath = path.resolve(projectFolderPath, '.snyk');
@@ -16,43 +16,55 @@ async function protect(projectFolderPath: string) {
 
   const snykFileContents = fs.readFileSync(snykFilePath, 'utf8');
   const snykFilePatchMetadata = extractPatchMetadata(snykFileContents);
+  const vulnIdAndPackageNames: VulnIdAndPackageName[] = snykFilePatchMetadata;
+  const targetPackageNames = [
+    ...new Set(snykFilePatchMetadata.map((vpn) => vpn.packageName)), // get a list of unique package names by converting to Set and then back to array
+  ];
 
-  const patchesOfInterest: string[] = Object.keys(snykFilePatchMetadata); // a list of snyk vulnerability IDs
-
-  // a list of package names (corresponding to the vulnerability IDs)
-  // can't use .flat() because it's not supported in Node 10
-  const librariesOfInterest: string[] = [];
-  for (const nextArrayOfPackageNames of Object.values(snykFilePatchMetadata)) {
-    librariesOfInterest.push(...nextArrayOfPackageNames);
-  }
-
-  const physicalModulesToPatch: PhysicalModuleToPatch[] = []; // this will be poplulated by checkProject and checkPhysicalModule
-
-  // this fills in physicalModulesToPatch
-  checkProject(projectFolderPath, librariesOfInterest, physicalModulesToPatch);
-
-  // TODO: type this
-  // it's a map of string -> something
-  const snykPatches = await getPatches(
-    physicalModulesToPatch,
-    patchesOfInterest,
+  // find instances of the target packages by spelunking through the node_modules looking for modules with a target packageName
+  const foundPhysicalPackages = findPhysicalModules(
+    projectFolderPath,
+    targetPackageNames,
   );
-  if (Object.keys(snykPatches).length === 0) {
+
+  // Map of package name to versions (for the target package names).
+  // For each package name, we might have found multiple versions and we'll need to fetch patches for each version.
+  // We will use this to lookup the versions of packages to get patches for.
+  const packageNameToVersionsMap = new Map<string, string[]>();
+  foundPhysicalPackages.forEach((p) => {
+    if (packageNameToVersionsMap.has(p.packageName)) {
+      const versions = packageNameToVersionsMap.get(p.packageName);
+      if (!versions?.includes(p.packageVersion)) {
+        versions?.push(p.packageVersion);
+      }
+    } else {
+      packageNameToVersionsMap.set(p.packageName, [p.packageVersion]);
+    }
+  });
+
+  const packageAtVersionsToPatches: Map<
+    string,
+    VulnPatches[]
+  > = await getAllPatches(vulnIdAndPackageNames, packageNameToVersionsMap);
+
+  if (packageAtVersionsToPatches.size === 0) {
     console.log('Nothing to patch, done');
     return;
   }
 
-  for (const [libToPatch, patches] of Object.entries(snykPatches)) {
-    for (const place of physicalModulesToPatch.filter(
-      (l) => l.name === libToPatch,
-    )) {
-      for (const patch of patches as any) {
-        for (const patchDiff of (patch as any).diffs) {
-          applyPatchToFile(patchDiff, place.folderPath);
-        }
-      }
-    }
-  }
+  foundPhysicalPackages.forEach((fpp) => {
+    const packageNameAtVersion = `${fpp.packageName}@${fpp.packageVersion}`;
+    const vuldIdAndPatches = packageAtVersionsToPatches.get(
+      packageNameAtVersion,
+    );
+    vuldIdAndPatches?.forEach((vp) => {
+      vp.patches.forEach((patchDiffs) => {
+        patchDiffs.patchDiffs.forEach((diff) => {
+          applyPatchToFile(diff, fpp.path);
+        });
+      });
+    });
+  });
 }
 
 export default protect;

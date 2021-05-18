@@ -1,19 +1,25 @@
-export interface PhysicalModuleToPatch {
-  name: string;
-  version: string;
-  folderPath: string;
-}
-
-export interface PackageAndVersion {
-  name: string;
-  version: string;
-}
-
-export interface PatchDetails {
-  comments: string[];
-  diffs: string[];
-  id: string;
-  modifictionTime: string;
+export type PatchInfo = {
+  patchableVersions?: string;
   urls: string[];
-  version: string;
-}
+};
+
+export type VulnIdAndPackageName = {
+  vulnId: string;
+  packageName: string;
+};
+
+export type FoundPhysicalPackage = {
+  packageName: string;
+  packageVersion: string;
+  path: string;
+};
+
+export type Patch = {
+  patchableVersions?: string;
+  patchDiffs: string[];
+};
+
+export type VulnPatches = {
+  vulnId: string;
+  patches: Patch[];
+};
