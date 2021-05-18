@@ -453,3 +453,33 @@ test('test command line "snyk iac --experimental --detection-depth=1" should be 
   );
   t.end();
 });
+
+test('test command line "snyk iac test --rules=./path/to/bundle.tar.gz" should have path on options', (t) => {
+  const cliArgsWithFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    'test',
+    '--experimental',
+    '--rules=./path/to/bundle.tar.gz',
+  ];
+  const resultWithFlag = args(cliArgsWithFlag);
+  t.equal(
+    resultWithFlag.options['rules'],
+    './path/to/bundle.tar.gz',
+    'expected options[rules] to be ./path/to/bundle.tar.gz',
+  );
+  const cliArgsWithoutFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    'test',
+  ];
+  const resultWithoutFlag = args(cliArgsWithoutFlag);
+  t.equal(
+    resultWithoutFlag.options['rules'],
+    undefined,
+    'expected options[rules] to be undefined',
+  );
+  t.end();
+});
