@@ -40,7 +40,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/dep-graph": "^1.21.0",
-    "@snyk/fix-pipenv-pipfile": "0.3.4",
+    "@snyk/fix-pipenv-pipfile": "0.3.5",
     "bottleneck": "2.19.5",
     "chalk": "4.1.0",
     "child_process": "1.0.2",
