@@ -63,6 +63,20 @@ const getPatchedLodash = (): Promise<string> => {
 
 jest.setTimeout(1000 * 60);
 
+const useLocalPackage = async (projectPath: string) => {
+  const packageJson = JSON.parse(
+    await fse.readFile(path.resolve(projectPath, 'package.json'), 'utf-8'),
+  );
+  packageJson.scripts.prepublish = packageJson.scripts.prepublish.replace(
+    '@snyk/protect',
+    path.resolve('snyk-protect-1.0.0-monorepo.tgz'),
+  );
+  await fse.writeFile(
+    path.resolve(projectPath, 'package.json'),
+    JSON.stringify(packageJson, null, 2) + '\n',
+  );
+};
+
 describe('Fix PR "prepublish" hook', () => {
   let tempFolder: string;
 
@@ -70,6 +84,11 @@ describe('Fix PR "prepublish" hook', () => {
     const fixturePath = path.resolve(__dirname, '../fixtures', fixture);
     const projectPath = path.resolve(tempFolder, fixture);
     await fse.copy(fixturePath, projectPath);
+
+    if (process.env.REGRESSION_TEST === '1') {
+      await useLocalPackage(projectPath);
+    }
+
     return {
       path: (filePath = '') => path.resolve(projectPath, filePath),
       file: (filePath: string) => {
@@ -92,15 +111,18 @@ describe('Fix PR "prepublish" hook', () => {
   test('patches vulnerable dependencies on install', async () => {
     const project = await createProject('fix-pr-prepublish-hook');
     const patchedLodash = await getPatchedLodash();
-    const lodashPath = 'node_modules/lodash/lodash.js';
 
     const { code, stdout, stderr } = await runCommand('npm', ['install'], {
       cwd: project.path(),
     });
 
-    expect(stdout).toMatch(`patched ${project.path(lodashPath)}`);
     expect(stderr).toEqual('');
+    expect(stdout).toMatch(
+      `patched ${project.path('node_modules/lodash/lodash.js')}`,
+    );
     expect(code).toEqual(0);
-    expect(project.file(lodashPath)).resolves.toEqual(patchedLodash);
+    expect(project.file('node_modules/lodash/lodash.js')).resolves.toEqual(
+      patchedLodash,
+    );
   });
 });

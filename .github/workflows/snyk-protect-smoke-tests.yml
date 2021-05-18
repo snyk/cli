@@ -36,5 +36,6 @@ jobs:
             ${{ runner.os }}-node-
 
       - run: npx npm@7 install
-
       - run: npx npm@7 run test:smoke -w @snyk/protect
+        env:
+          SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
