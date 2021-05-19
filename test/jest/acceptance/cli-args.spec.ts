@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn } from 'cross-spawn';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';

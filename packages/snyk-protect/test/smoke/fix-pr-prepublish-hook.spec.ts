@@ -1,7 +1,8 @@
+import { SpawnOptionsWithoutStdio } from 'child_process';
+import { spawn } from 'cross-spawn';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import * as uuid from 'uuid';
-import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 
 type TestProject = {
   path: (filePath?: string) => string;
