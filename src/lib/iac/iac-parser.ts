@@ -1,5 +1,5 @@
 //TODO(orka): take out into a new lib
-import * as YAML from 'js-yaml';
+import * as YAML from 'yaml';
 import * as debugLib from 'debug';
 import {
   IllegalIacFileErrorMsg,
@@ -30,7 +30,12 @@ function parseYamlOrJson(fileContent: string, filePath: string): any {
     case 'yaml':
     case 'yml':
       try {
-        return YAML.safeLoadAll(fileContent);
+        return YAML.parseAllDocuments(fileContent).map((doc) => {
+          if (doc.errors.length !== 0) {
+            throw doc.errors[0];
+          }
+          return doc.toJSON();
+        });
       } catch (e) {
         debug('Failed to parse iac config as a YAML');
       }

@@ -137,7 +137,8 @@
     "tempfile": "^2.0.0",
     "update-notifier": "^5.1.0",
     "uuid": "^3.3.2",
-    "wrap-ansi": "^5.1.0"
+    "wrap-ansi": "^5.1.0",
+    "yaml": "^1.10.2"
   },
   "devDependencies": {
     "@types/agent-base": "^4.2.1",
