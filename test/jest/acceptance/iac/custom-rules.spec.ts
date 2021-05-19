@@ -1,5 +1,7 @@
 import { startMockServer } from './helpers';
 
+jest.setTimeout(50000);
+
 describe('iac test --rules', () => {
   let run: (
     cmd: string,
@@ -40,7 +42,7 @@ describe('iac test --rules', () => {
     );
   });
 
-  it('presents an error message when the user is not part of the experiment', async () => {
+  xit('presents an error message when the user is not part of the experiment', async () => {
     const { stdout, exitCode } = await run(
       `snyk iac test --org=no-flag --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
     );

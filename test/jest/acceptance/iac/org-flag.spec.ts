@@ -1,5 +1,7 @@
 import { startMockServer, run as Run } from './helpers';
 
+jest.setTimeout(50000);
+
 describe('iac test --org', () => {
   let run: typeof Run;
   let teardown: () => void;
