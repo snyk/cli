@@ -1,4 +1,4 @@
-name: '@snyk/protect: Smoke Tests'
+name: '@snyk/protect: Production Smoke Tests'
 
 on:
   push:
@@ -33,11 +33,12 @@ jobs:
         id: npm7-cache
         with:
           path: ${{ steps.npm7-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-npm7-${{ hashFiles('**/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-npm7-
 
       - run: npx npm@7 install
       - run: npx npm@7 run test:smoke -w @snyk/protect
         env:
           SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          PRODUCTION_TEST: '1'

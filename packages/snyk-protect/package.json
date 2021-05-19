@@ -22,11 +22,11 @@
     "node": ">=8"
   },
   "scripts": {
-    "build": "tsc && npm pack",
+    "build": "tsc",
     "test": "npm run test:unit && npm run test:acceptance",
     "test:unit": "jest \"/test/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
-    "test:acceptance": "jest \"/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\" && REGRESSION_TEST=1 npm run test:smoke",
-    "test:smoke": "jest \"/test/smoke/((.+)/)*[^/]+\\.spec\\.ts\"",
+    "test:acceptance": "jest \"/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
+    "test:smoke": "jest \"/test/acceptance/((.+)/)*[^/]+\\.smoke\\.spec\\.ts\"",
     "format": "prettier --write '{src,test,scripts}/**/*.{js,ts}'"
   },
   "keywords": [

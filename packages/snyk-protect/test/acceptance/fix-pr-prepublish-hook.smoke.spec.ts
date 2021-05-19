@@ -65,12 +65,17 @@ const getPatchedLodash = (): Promise<string> => {
 jest.setTimeout(1000 * 60);
 
 const useLocalPackage = async (projectPath: string) => {
+  const packageRoot = path.resolve(__dirname, '../..');
+  await runCommand('npm', ['pack'], {
+    cwd: packageRoot,
+  });
+
   const packageJson = JSON.parse(
     await fse.readFile(path.resolve(projectPath, 'package.json'), 'utf-8'),
   );
   packageJson.scripts.prepublish = packageJson.scripts.prepublish.replace(
     '@snyk/protect',
-    path.resolve('snyk-protect-1.0.0-monorepo.tgz'),
+    path.resolve(packageRoot, 'snyk-protect-1.0.0-monorepo.tgz'),
   );
   await fse.writeFile(
     path.resolve(projectPath, 'package.json'),
@@ -86,7 +91,7 @@ describe('Fix PR "prepublish" hook', () => {
     const projectPath = path.resolve(tempFolder, fixture);
     await fse.copy(fixturePath, projectPath);
 
-    if (process.env.REGRESSION_TEST === '1') {
+    if (process.env.PRODUCTION_TEST !== '1') {
       await useLocalPackage(projectPath);
     }
 
