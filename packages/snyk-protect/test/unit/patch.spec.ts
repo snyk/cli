@@ -32,7 +32,38 @@ describe(patchString.name, () => {
       'utf-8',
     );
     expect(patchedContents).toBe(expectedPatchedContents);
-    expect(0).toBe(0);
+  });
+
+  it('keeps the same line endings', () => {
+    const fixtureFolder = path.join(
+      __dirname,
+      '../fixtures/patchable-file-lodash',
+    );
+    const patchFilePath = path.join(fixtureFolder, 'lodash.patch');
+
+    const patchContents = fs.readFileSync(patchFilePath, 'utf-8');
+
+    const targetFilePath = path.join(
+      fixtureFolder,
+      extractTargetFilePathFromPatch(patchContents),
+    );
+    const contentsToPatch = fs
+      .readFileSync(targetFilePath, 'utf-8')
+      .split('\n')
+      .join('\r\n');
+
+    const patchedContents = patchString(patchContents, contentsToPatch);
+
+    const expectedPatchedContentsFilePath = path.join(
+      fixtureFolder,
+      'lodash-expected-patched.js',
+    );
+
+    const expectedPatchedContents = fs
+      .readFileSync(expectedPatchedContentsFilePath, 'utf-8')
+      .split('\n')
+      .join('\r\n');
+    expect(patchedContents).toBe(expectedPatchedContents);
   });
 
   // if the patch is not compatible with the target, make sure we throw an Error and do patch
