@@ -10,7 +10,7 @@ export function extractPatchMetadata(
   const patches = dotSnykFileContent
     .split('\n')
     .filter((l) => l.length && !l.trimStart().startsWith('#'))
-    .map((line) => lineRegex.exec(line))
+    .map((line) => lineRegex.exec(line.trimEnd()))
     .filter(Boolean)
     .reduce((acc, thing) => {
       const [, prefix, key, value] = thing as RegExpExecArray;
