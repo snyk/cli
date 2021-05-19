@@ -303,7 +303,7 @@ export function fakeServer(root, apikey) {
         isPrivate: false,
         isLicensesEnabled: false,
         ignoreSettings: null,
-        org: 'test-org',
+        org: req.params.org || 'test-org',
       },
       customPolicies: {},
     });

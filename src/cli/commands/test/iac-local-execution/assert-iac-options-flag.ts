@@ -4,6 +4,7 @@ import { getErrorStringCode } from './error-utils';
 import { IaCErrorCodes, IaCTestFlags, TerraformPlanScanMode } from './types';
 
 const keys: (keyof IaCTestFlags)[] = [
+  'org',
   'debug',
   'insecure',
   'detectionDepth',

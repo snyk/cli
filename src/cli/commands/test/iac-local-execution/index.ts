@@ -21,6 +21,7 @@ import {
 } from './measurable-methods';
 import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { FlagError } from './assert-iac-options-flag';
+import config = require('../../../../lib/config');
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -29,12 +30,9 @@ export async function test(
   options: IaCTestFlags,
 ): Promise<TestReturnValue> {
   try {
-    // TODO: This should support the --org flag and related env variables.
-    const iacOrgSettings = await getIacOrgSettings();
-    const customRulesPath = await customRulesPathForOrg(
-      options.rules,
-      iacOrgSettings.meta.org,
-    );
+    const org = options.org ?? config.org;
+    const iacOrgSettings = await getIacOrgSettings(org);
+    const customRulesPath = await customRulesPathForOrg(options.rules, org);
 
     await initLocalCache({ customRulesPath });
 
@@ -81,12 +79,13 @@ export async function test(
 
 async function customRulesPathForOrg(
   customRulesPath: string | undefined,
-  org: string,
+  publicOrgId: string,
 ): Promise<string | undefined> {
   if (!customRulesPath) return;
 
   const isCustomRulesSupported =
-    (await isFeatureFlagSupportedForOrg('iacCustomRules', org)).ok === true;
+    (await isFeatureFlagSupportedForOrg('iacCustomRules', publicOrgId)).ok ===
+    true;
   if (isCustomRulesSupported) {
     return customRulesPath;
   }

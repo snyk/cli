@@ -1,5 +1,7 @@
 import { startMockServer } from './helpers';
 
+jest.setTimeout(50000);
+
 describe('iac test --rules', () => {
   let run: (
     cmd: string,

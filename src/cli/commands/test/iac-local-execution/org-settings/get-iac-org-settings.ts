@@ -7,11 +7,14 @@ import request = require('../../../../../lib/request');
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
 
-export function getIacOrgSettings(): Promise<IacOrgSettings> {
+export function getIacOrgSettings(
+  publicOrgId?: string,
+): Promise<IacOrgSettings> {
   const payload: Payload = {
     method: 'get',
     url: config.API + '/iac-org-settings',
     json: true,
+    qs: { org: publicOrgId },
     headers: {
       'x-is-ci': isCI(),
       authorization: `token ${api()}`,
