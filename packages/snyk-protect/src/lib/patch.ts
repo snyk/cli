@@ -20,6 +20,14 @@ export function extractTargetFilePathFromPatch(patchContents: string): string {
   return filename;
 }
 
+const getNextLine = (currentLine: string, patchLine: string): string => {
+  const maybeCarriageReturn =
+    currentLine.endsWith('\r') && !patchLine.endsWith('\r') ? '\r' : '';
+  return patchLine.substring(1) + maybeCarriageReturn;
+};
+
+const getPatchType = (patchLine: string): string => patchLine.charAt(0);
+
 export function patchString(
   patchContents: string,
   contentsToPatch: string,
@@ -45,29 +53,35 @@ export function patchString(
 
   for (const patchLine of patchLines) {
     lineToPatch += 1;
-    switch (patchLine.charAt(0)) {
-      case '-':
+    const currentLine = contentsToPatchLines[lineToPatch];
+    const nextLine = getNextLine(currentLine, patchLine);
+    switch (getPatchType(patchLine)) {
+      case '-': {
         contentsToPatchLines.splice(lineToPatch, 1);
         break;
-
-      case '+':
-        contentsToPatchLines.splice(lineToPatch, 0, patchLine.substring(1));
+      }
+      case '+': {
+        contentsToPatchLines.splice(lineToPatch, 0, nextLine);
         break;
-
-      case ' ':
-        if (contentsToPatchLines[lineToPatch] !== patchLine.slice(1)) {
+      }
+      case ' ': {
+        if (currentLine !== nextLine) {
           console.log(
             'Expected\n  line from local file\n',
-            contentsToPatchLines[lineToPatch],
+            JSON.stringify(currentLine),
+            '\n  to match patch line\n',
+            JSON.stringify(nextLine),
+            '\n',
           );
-          console.log('\n to match patch line\n', patchLine.slice(1), '\n');
           throw new Error(
             // `File ${filename} to be patched does not match, not patching`,
             `File to be patched does not match, not patching`,
           );
         }
         break;
+      }
     }
   }
+
   return contentsToPatchLines.join('\n');
 }
