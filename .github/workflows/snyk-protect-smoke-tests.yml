@@ -17,6 +17,8 @@ jobs:
         node_version: [10, 12, 14, 16]
     runs-on: ${{ matrix.os }}-latest
     steps:
+      # Avoid modifying line endings in fixtures.
+      - run: git config --global core.autocrlf false
       - uses: actions/checkout@v2
 
       - uses: actions/setup-node@v1
