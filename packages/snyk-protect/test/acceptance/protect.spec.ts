@@ -1,47 +1,11 @@
-import * as fse from 'fs-extra';
-import * as path from 'path';
-import * as uuid from 'uuid';
 import protect from '../../src/lib';
-
-type TestProject = {
-  path: string;
-  file: (filePath: string) => Promise<string>;
-};
-
-const getPatchedLodash = (): Promise<string> => {
-  const patchedLodashPath = path.resolve(
-    __dirname,
-    '../fixtures/patchable-file-lodash/lodash-expected-patched.js',
-  );
-
-  return fse.readFile(patchedLodashPath, 'utf-8');
-};
+import { createProject } from '../util/createProject';
+import { getPatchedLodash } from '../util/getPatchedLodash';
 
 jest.setTimeout(1000 * 60);
 
 describe('@snyk/protect', () => {
-  let tempFolder: string;
-
-  const createProject = async (fixture: string): Promise<TestProject> => {
-    const fixturePath = path.resolve(__dirname, '../fixtures', fixture);
-    const projectPath = path.resolve(tempFolder, fixture);
-    await fse.copy(fixturePath, projectPath);
-    return {
-      path: projectPath,
-      file: (filePath: string) => {
-        const fullFilePath = path.resolve(projectPath, filePath);
-        return fse.readFile(fullFilePath, 'utf-8');
-      },
-    };
-  };
-
-  beforeEach(async () => {
-    tempFolder = path.resolve(__dirname, '__outputs__', uuid.v4());
-    await fse.ensureDir(tempFolder);
-  });
-
-  afterEach(async () => {
-    await fse.remove(tempFolder);
+  afterEach(() => {
     jest.restoreAllMocks();
   });
 
@@ -50,10 +14,10 @@ describe('@snyk/protect', () => {
       const project = await createProject('single-patchable-module');
       const patchedLodash = await getPatchedLodash();
 
-      await protect(project.path);
+      await protect(project.path());
 
-      expect(
-        project.file('node_modules/nyc/node_modules/lodash/lodash.js'),
+      await expect(
+        project.read('node_modules/nyc/node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
     });
 
@@ -61,14 +25,14 @@ describe('@snyk/protect', () => {
       const project = await createProject('multiple-matching-paths');
       const patchedLodash = await getPatchedLodash();
 
-      await protect(project.path);
+      await protect(project.path());
 
-      expect(
-        project.file('node_modules/nyc/node_modules/lodash/lodash.js'),
+      await expect(
+        project.read('node_modules/nyc/node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
-      expect(project.file('node_modules/lodash/lodash.js')).resolves.toEqual(
-        patchedLodash,
-      );
+      await expect(
+        project.read('node_modules/lodash/lodash.js'),
+      ).resolves.toEqual(patchedLodash);
     });
   });
 
@@ -78,7 +42,7 @@ describe('@snyk/protect', () => {
       const project = await createProject('no-matching-paths');
       const log = jest.spyOn(global.console, 'log');
 
-      await protect(project.path);
+      await protect(project.path());
 
       expect(log).toHaveBeenCalledWith('Nothing to patch, done');
     });
@@ -88,7 +52,7 @@ describe('@snyk/protect', () => {
     // it('for a project that has an instance of the target module but we have no patches for its version', async () => {
     //   const project = await createProject('target-module-exists-but-no-patches-for-version');
     //   const log = jest.spyOn(global.console, 'log');
-    //   await protect(project.path);
+    //   await protect(project.path());
     //   expect(log).toHaveBeenCalledWith('Nothing to patch, done');
     // });
 
@@ -97,7 +61,7 @@ describe('@snyk/protect', () => {
       const project = await createProject('no-snyk-file');
       const log = jest.spyOn(global.console, 'log');
 
-      await protect(project.path);
+      await protect(project.path());
 
       expect(log).toHaveBeenCalledWith('No .snyk file found');
     });
