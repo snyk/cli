@@ -19,7 +19,7 @@
     "snyk-protect": "dist/index.js"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   },
   "scripts": {
     "build": "tsc",
