@@ -119,7 +119,7 @@
     "snyk-docker-plugin": "4.20.2",
     "snyk-go-plugin": "1.17.0",
     "snyk-gradle-plugin": "3.14.5",
-    "snyk-module": "3.1.0",
+    "snyk-module": "3.2.0",
     "snyk-mvn-plugin": "2.26.0",
     "snyk-nodejs-lockfile-parser": "1.34.2",
     "snyk-nuget-plugin": "1.21.1",
