@@ -8,5 +8,5 @@ module.exports = {
   testMatch: [
     '<rootDir>/test/**/*.spec.ts',
     '<rootDir>\\test\\**\\*.spec.ts', // for Windows
-  ]
+  ],
 };

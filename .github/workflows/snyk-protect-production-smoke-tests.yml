@@ -1,0 +1,44 @@
+name: '@snyk/protect: Production Smoke Tests'
+
+on:
+  push:
+    branches: [protect/smoke-tests]
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 */6 * * *'
+
+jobs:
+  smoke-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu, macos, windows]
+        node_version: [10, 12, 14, 16]
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      # Avoid modifying line endings in fixtures.
+      - run: git config --global core.autocrlf false
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - name: npx npm@7 config get cache
+        id: npm7-cache-dir
+        run: |
+          echo "::set-output name=dir::$(npx npm@7 config get cache)"
+      - uses: actions/cache@v2
+        id: npm7-cache
+        with:
+          path: ${{ steps.npm7-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-npm7-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm7-
+
+      - run: npx npm@7 install
+      - run: npx npm@7 run test:smoke -w @snyk/protect
+        env:
+          SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          PRODUCTION_TEST: '1'
