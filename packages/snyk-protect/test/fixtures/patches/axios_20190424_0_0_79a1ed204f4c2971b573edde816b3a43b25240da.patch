@@ -1,0 +1,36 @@
+// This code derived from: https://github.com/axios/axios/pull/1485/commits/79a1ed204f4c2971b573edde816b3a43b25240da
+/* 
+Copyright (c) 2014-present Matt Zabriskie
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+diff --git a/lib/adapters/http.js b/lib/adapters/http.js
+index b986487..345c6e4 100755
+--- a/lib/adapters/http.js
++++ b/lib/adapters/http.js
+@@ -181,6 +181,9 @@ module.exports = function httpAdapter(config) {
+ 
+           // make sure the content length is not over the maxContentLength if specified
+           if (config.maxContentLength > -1 && Buffer.concat(responseBuffer).length > config.maxContentLength) {
++            if (stream && typeof stream === 'object' && typeof stream.destroy === 'function') {
++              stream.destroy();
++            }
+             reject(createError('maxContentLength size of ' + config.maxContentLength + ' exceeded',
+               config, null, lastRequest));
+           }
