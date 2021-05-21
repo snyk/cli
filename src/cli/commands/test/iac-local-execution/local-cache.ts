@@ -30,6 +30,14 @@ const TERRAFORM_POLICY_ENGINE_DATA_PATH = path.join(
   LOCAL_POLICY_ENGINE_DIR,
   'tf_data.json',
 );
+const CLOUDFORMATION_POLICY_ENGINE_WASM_PATH = path.join(
+  LOCAL_POLICY_ENGINE_DIR,
+  'cloudformation_policy.wasm',
+);
+const CLOUDFORMATION_POLICY_ENGINE_DATA_PATH = path.join(
+  LOCAL_POLICY_ENGINE_DIR,
+  'cloudformation_data.json',
+);
 
 // NOTE: The filenames used for the custom policy bundles match those output
 // by the `opa` CLI tool, which is why they are very generic.
@@ -59,6 +67,11 @@ export function getLocalCachePath(engineType: EngineType) {
       return [
         `${process.cwd()}/${TERRAFORM_POLICY_ENGINE_WASM_PATH}`,
         `${process.cwd()}/${TERRAFORM_POLICY_ENGINE_DATA_PATH}`,
+      ];
+    case EngineType.CloudFormation:
+      return [
+        `${process.cwd()}/${CLOUDFORMATION_POLICY_ENGINE_WASM_PATH}`,
+        `${process.cwd()}/${CLOUDFORMATION_POLICY_ENGINE_DATA_PATH}`,
       ];
     case EngineType.Custom:
       return [

@@ -93,6 +93,7 @@ export type SafeAnalyticsOutput = Omit<
 export enum EngineType {
   Kubernetes,
   Terraform,
+  CloudFormation,
   Custom,
 }
 
@@ -232,7 +233,8 @@ export enum IaCErrorCodes {
   UnsupportedFileTypeError = 1020,
   InvalidJsonFileError = 1021,
   InvalidYamlFileError = 1022,
-  FailedToDetectJsonFileError = 1023,
+  FailedToDetectJsonConfigError = 1023,
+  FailedToDetectYamlConfigError = 1024,
 
   // kubernetes-parser errors
   MissingRequiredFieldsInKubernetesYamlError = 1031,

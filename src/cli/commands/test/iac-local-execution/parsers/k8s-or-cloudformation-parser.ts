@@ -9,6 +9,7 @@ import {
 } from '../types';
 
 export const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];
+export const REQUIRED_CLOUDFORMATION_FIELDS = ['Resources'];
 
 export function assertHelmAndThrow(fileData: IacFileData) {
   const lines: string[] = fileData.fileContent.split(/\r\n|\r|\n/);
@@ -21,29 +22,44 @@ export function assertHelmAndThrow(fileData: IacFileData) {
   });
 }
 
-export function tryParsingKubernetesFile(
+export function detectConfigType(
   fileData: IacFileData,
-  yamlDocuments: any[],
+  parsedIacFiles: any[],
 ): IacFileParsed[] {
   assertHelmAndThrow(fileData);
 
-  return yamlDocuments.map((parsedYamlDocument, docId) => {
+  return parsedIacFiles.map((parsedIaCFile, docId) => {
     if (
-      REQUIRED_K8S_FIELDS.every((requiredField) =>
-        parsedYamlDocument.hasOwnProperty(requiredField),
-      )
+      checkRequiredFieldsMatch(parsedIaCFile, REQUIRED_CLOUDFORMATION_FIELDS)
     ) {
       return {
         ...fileData,
-        jsonContent: parsedYamlDocument,
+        jsonContent: parsedIaCFile,
+        projectType: IacProjectType.CLOUDFORMATION,
+        engineType: EngineType.CloudFormation,
+        docId,
+      };
+    } else if (checkRequiredFieldsMatch(parsedIaCFile, REQUIRED_K8S_FIELDS)) {
+      return {
+        ...fileData,
+        jsonContent: parsedIaCFile,
         projectType: IacProjectType.K8S,
         engineType: EngineType.Kubernetes,
         docId,
       };
     } else {
-      throw new MissingRequiredFieldsInKubernetesYamlError(fileData.filePath);
+      throw new FailedToDetectYamlConfigError(fileData.filePath);
     }
   });
+}
+
+export function checkRequiredFieldsMatch(
+  parsedDocument: any,
+  requiredFields: string[],
+) {
+  return requiredFields.every((requiredField) =>
+    parsedDocument.hasOwnProperty(requiredField),
+  );
 }
 
 export class HelmFileNotSupportedError extends CustomError {
@@ -63,5 +79,20 @@ export class MissingRequiredFieldsInKubernetesYamlError extends CustomError {
     this.userMessage = `We were unable to detect whether the YAML file "${filename}" is a valid Kubernetes file, it is missing the following fields: "${REQUIRED_K8S_FIELDS.join(
       '", "',
     )}"`;
+  }
+}
+
+export class FailedToDetectYamlConfigError extends CustomError {
+  constructor(filename: string) {
+    super(
+      'Failed to detect either a Kubernetes or CloudFormation file, missing required fields',
+    );
+    this.code = IaCErrorCodes.FailedToDetectYamlConfigError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `We were unable to detect whether the YAML file "${filename}" is a valid Kubernetes or CloudFormation file. For Kubernetes required fields are: "${REQUIRED_K8S_FIELDS.join(
+      '", "',
+    )}". For CloudFormation required fields are: "${REQUIRED_CLOUDFORMATION_FIELDS.join(
+      '", "',
+    )}". Please contact support@snyk.io, if possible with a redacted version of the file`;
   }
 }

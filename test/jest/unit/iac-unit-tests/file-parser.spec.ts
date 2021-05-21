@@ -1,11 +1,11 @@
 import {
-  FailedToDetectJsonFileError,
+  FailedToDetectJsonConfigError,
   InvalidJsonFileError,
   InvalidYamlFileError,
   UnsupportedFileTypeError,
   parseFiles,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
-import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
+import { FailedToDetectYamlConfigError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/k8s-or-cloudformation-parser';
 import {
   FailedToParseTerraformFileError,
   tryParsingTerraformFile,
@@ -29,8 +29,14 @@ import {
   invalidJsonFileDataStub,
 } from './file-parser.fixtures';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
-import { tryParsingKubernetesFile } from '../../../../dist/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
 import { IacFileTypes } from '../../../../dist/lib/iac/constants';
+import { detectConfigType } from '../../../../src/cli/commands/test/iac-local-execution/parsers/k8s-or-cloudformation-parser';
+import {
+  cloudFormationJSONFileDataStub,
+  cloudFormationYAMLFileDataStub,
+  expectedCloudFormationJSONParsingResult,
+  expectedCloudFormationYAMLParsingResult,
+} from './file-parser.cloudformation.fixtures';
 
 const filesToParse: IacFileData[] = [
   kubernetesYamlFileDataStub,
@@ -38,6 +44,8 @@ const filesToParse: IacFileData[] = [
   terraformFileDataStub,
   terraformPlanDataStub,
   multipleKubernetesYamlsFileDataStub,
+  cloudFormationYAMLFileDataStub,
+  cloudFormationJSONFileDataStub,
 ];
 
 describe('parseFiles', () => {
@@ -54,13 +62,15 @@ describe('parseFiles', () => {
       ...expectedMultipleKubernetesYamlsParsingResult,
       docId: 1,
     });
+    expect(parsedFiles[6]).toEqual(expectedCloudFormationYAMLParsingResult);
+    expect(parsedFiles[7]).toEqual(expectedCloudFormationJSONParsingResult);
     expect(failedFiles.length).toEqual(0);
   });
 
   it('throws an error for YAML file with missing fields for Kubernetes file', async () => {
     await expect(
       parseFiles([kubernetesYamlInvalidFileDataStub]),
-    ).rejects.toThrow(MissingRequiredFieldsInKubernetesYamlError);
+    ).rejects.toThrow(FailedToDetectYamlConfigError);
   });
 
   it('throws an error for JSON file with missing fields for Kubernetes file', async () => {
@@ -71,13 +81,13 @@ describe('parseFiles', () => {
           fileType: 'json',
         },
       ]),
-    ).rejects.toThrow(FailedToDetectJsonFileError);
+    ).rejects.toThrow(FailedToDetectJsonConfigError);
   });
 
   it('throws an error for JSON file with missing fields for Terraform Plan', async () => {
     await expect(
       parseFiles([terraformPlanMissingFieldsDataStub]),
-    ).rejects.toThrow(FailedToDetectJsonFileError);
+    ).rejects.toThrow(FailedToDetectJsonConfigError);
   });
 
   it('does not throw an error if a file parse failed in a directory scan', async () => {
@@ -122,7 +132,7 @@ describe('parseFiles', () => {
       fileType: 'yaml',
     };
 
-    expect(() => tryParsingKubernetesFile(helmFileData, [{}])).toThrowError(
+    expect(() => detectConfigType(helmFileData, [{}])).toThrowError(
       'Failed to parse Helm file',
     );
   });

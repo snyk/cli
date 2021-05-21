@@ -1,9 +1,10 @@
 import * as YAML from 'yaml';
 import {
-  MissingRequiredFieldsInKubernetesYamlError,
   REQUIRED_K8S_FIELDS,
-  tryParsingKubernetesFile,
-} from './parsers/kubernetes-parser';
+  detectConfigType,
+  FailedToDetectYamlConfigError,
+  HelmFileNotSupportedError,
+} from './parsers/k8s-or-cloudformation-parser';
 import { tryParsingTerraformFile } from './parsers/terraform-file-parser';
 import {
   isTerraformPlan,
@@ -93,7 +94,15 @@ export function tryParseIacFile(
     case 'yaml':
     case 'yml': {
       const parsedIacFile = parseYAMLOrJSONFileData(fileData);
-      return tryParsingKubernetesFile(fileData, parsedIacFile);
+      try {
+        return detectConfigType(fileData, parsedIacFile);
+      } catch (e) {
+        if (e instanceof HelmFileNotSupportedError) {
+          throw new HelmFileNotSupportedError(fileData.filePath);
+        } else {
+          throw new FailedToDetectYamlConfigError(fileData.filePath);
+        }
+      }
     }
     case 'json': {
       const parsedIacFile = parseYAMLOrJSONFileData(fileData);
@@ -106,10 +115,10 @@ export function tryParseIacFile(
         });
       } else {
         try {
-          return tryParsingKubernetesFile(fileData, parsedIacFile);
+          return detectConfigType(fileData, parsedIacFile);
         } catch (e) {
-          if (e instanceof MissingRequiredFieldsInKubernetesYamlError) {
-            throw new FailedToDetectJsonFileError(fileData.filePath);
+          if (e instanceof FailedToDetectYamlConfigError) {
+            throw new FailedToDetectJsonConfigError(fileData.filePath);
           } else {
             throw e;
           }
@@ -150,12 +159,12 @@ export class InvalidYamlFileError extends CustomError {
   }
 }
 
-export class FailedToDetectJsonFileError extends CustomError {
+export class FailedToDetectJsonConfigError extends CustomError {
   constructor(filename: string) {
     super(
-      'Failed to detect either a Kubernetes file or Terraform Plan, missing required fields',
+      'Failed to detect either a Kubernetes file, a CloudFormation file or a Terraform Plan, missing required fields',
     );
-    this.code = IaCErrorCodes.FailedToDetectJsonFileError;
+    this.code = IaCErrorCodes.FailedToDetectJsonConfigError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `We were unable to detect whether the JSON file "${filename}" is a valid Kubernetes file or Terraform Plan. For Kubernetes it is missing the following fields: "${REQUIRED_K8S_FIELDS.join(
       '", "',

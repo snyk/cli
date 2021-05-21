@@ -1,0 +1,38 @@
+{
+  "Description": "Fargate",
+  "Parameters": {
+    "NetworkStackName": {
+      "Type": "String",
+      "Description": "Name of an active Startup Kit CloudFormation stack that contains networking resources",
+      "MinLength": 1,
+      "MaxLength": 255,
+      "AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$"
+    },
+    "HostedZoneName": {
+      "Type": "String",
+      "Description": "The Amazon Route 53 Hosted Zone Name for the optional load balancer alias record - do not include a period at the end",
+      "Default": "",
+      "AllowedPattern": "(^$|^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}$)",
+      "ConstraintDescription": "Please enter a valid Route 53 Hosted Zone Name"
+    },
+    "LoadBalancerDomainName": {
+      "Type": "String",
+      "Description": "Domain name to create an Amazon Route 53 alias record for the load balancer",
+      "Default": "",
+      "AllowedPattern": "(^$|^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}$)",
+      "ConstraintDescription": "Please enter a valid domain name"
+    }
+  },
+  "Conditions": {
+    "IsTlsEnabled": null
+  },
+  "Resources": {
+    "DefaultContainerBucket": {
+      "Type": "AWS::S3::Bucket"
+    },
+    "CodePipelineArtifactBucket": {
+      "Type": "AWS::S3::Bucket",
+      "DeletionPolicy": "Delete"
+    }
+  }
+}
