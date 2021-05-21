@@ -49,5 +49,9 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
+  },
+  "devDependencies": {
+    "cross-spawn": "^6.0.5",
+    "fs-extra": "^9.1.0"
   }
 }
