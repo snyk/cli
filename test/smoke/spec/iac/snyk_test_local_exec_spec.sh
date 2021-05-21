@@ -165,7 +165,7 @@ Describe "Snyk iac local test command"
 
     It "limits the depth of the directories"
       When run snyk iac test ../fixtures/iac/depth_detection/  --detection-depth=2
-      The status should equal 0 # no issues found
+      The status should equal 1 #  issues found
       # Only File
       The output should include "Testing one.tf..."
       The output should include "Infrastructure as code issues:"
@@ -177,7 +177,7 @@ Describe "Snyk iac local test command"
       The output should include "Tested root.tf for known issues, found"
 
       # Directory scan summary
-      The output should include "Tested 2 projects, no vulnerable paths were found."
+      The output should include "Tested 2 projects"
     End
 
     Describe "Testing status code when issues found"
