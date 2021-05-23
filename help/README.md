@@ -24,11 +24,11 @@ See other documents and help files for hints on how to format arguments. Keep fo
 ### CLI options
 
 ```md
-- `--severity-threshold`=low|medium|high:
+- `--severity-threshold`=low|medium|high|critical:
   Only report vulnerabilities of provided level or higher.
 ```
 
-CLI flag should be in backticks. Options (filenames, org names…) should use Keyword extension (see below) and literal options (true|false, low|medium|high…) should be typed as above.
+CLI flag should be in backticks. Options (filenames, org names…) should use Keyword extension (see below) and literal options (true|false, low|medium|high|critical…) should be typed as above.
 
 ### Keyword extension
 
