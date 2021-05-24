@@ -190,7 +190,7 @@ jobs:
           command: rm -rf node_modules/
       - run:
           name: Install only production dependencies
-          command: npx npm@6 install # kludge because npm@7 will invoke the lifecycle scripts (thus running prepare -> tsc) even if we use --ignore-scripts
+          command: npm install
           environment:
             NODE_ENV: production
       - run:
