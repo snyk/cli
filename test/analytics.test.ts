@@ -263,15 +263,7 @@ test('bad command with string error', (t) => {
 
     './args': proxyquire('../src/cli/args', {
       './commands': proxyquire('../src/cli/commands', {
-        '../../lib/hotload': proxyquire('../src/lib/hotload', {
-          // windows-based testing uses windows path separator
-          '..\\cli\\commands\\test'() {
-            return Promise.reject(error);
-          },
-          '../cli/commands/test'() {
-            return Promise.reject(error);
-          },
-        }),
+        test: () => Promise.reject(error),
       }),
     }),
   });
@@ -298,15 +290,7 @@ test('vulns found (thrown as an error)', (t) => {
 
     './args': proxyquire('../src/cli/args', {
       './commands': proxyquire('../src/cli/commands', {
-        '../../lib/hotload': proxyquire('../src/lib/hotload', {
-          // windows-based testing uses windows path separator
-          '..\\cli\\commands\\test'() {
-            return Promise.reject(error);
-          },
-          '../cli/commands/test'() {
-            return Promise.reject(error);
-          },
-        }),
+        test: () => Promise.reject(error),
       }),
     }),
   });
