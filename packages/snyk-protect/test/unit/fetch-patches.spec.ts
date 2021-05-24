@@ -11,6 +11,8 @@ const getExpectedPatchDiff = (): Promise<string> => {
   return fse.readFile(patchedLodashPath, 'utf-8');
 };
 
+jest.setTimeout(1000 * 60);
+
 describe('fetchPatches', () => {
   it('can fetch patches for valid request params', async () => {
     const expectedLodashPatch = await getExpectedPatchDiff();
