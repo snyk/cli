@@ -257,6 +257,12 @@ jobs:
           condition: << parameters.package_tests >>
           steps:
             - run:
+                name: Run Package system tests
+                command: npm run test:packages-system
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
                 name: Run Package acceptance tests
                 command: npm run test:packages-acceptance
       - when:
@@ -328,6 +334,12 @@ jobs:
             - run:
                 name: Run Package unit tests
                 command: npm run test:packages-unit
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package system tests
+                command: npm run test:packages-system
       - when:
           condition: << parameters.package_tests >>
           steps:
