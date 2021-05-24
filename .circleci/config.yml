@@ -238,7 +238,7 @@ jobs:
           command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
       - run:
           name: Install dependencies (Windows)
-          command: npm install --ignore-scripts # ignore-scripts required because of postinstall script in snyk-resolve-deps package
+          command: npm install
       - build_ts
       - run:
           name: npm version
