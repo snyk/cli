@@ -21,6 +21,7 @@ import {
   level2FileStub,
   level3Directory,
   level3FileStub,
+  emptyFileStub,
 } from './file-loader.fixtures';
 
 describe('loadFiles', () => {
@@ -157,6 +158,28 @@ describe('loadFiles', () => {
         await expect(loadFiles(nonIacFileStub.filePath)).rejects.toThrow(
           NoFilesToScanError,
         );
+      });
+    });
+
+    describe('empty files', () => {
+      it('single empty file does not get scanned and throws an error', async () => {
+        mockFs({
+          [emptyFileStub.filePath]: emptyFileStub.fileContent,
+        });
+
+        await expect(loadFiles(emptyFileStub.filePath)).rejects.toThrow(
+          NoFilesToScanError,
+        );
+      });
+
+      it('empty file in directory is skipped', async () => {
+        mockFs({
+          [emptyFileStub.filePath]: emptyFileStub.fileContent,
+          [k8sFileStub.filePath]: k8sFileStub.fileContent,
+        });
+
+        const loadedFiles = await loadFiles('.');
+        expect(loadedFiles).toEqual([k8sFileStub]);
       });
     });
 

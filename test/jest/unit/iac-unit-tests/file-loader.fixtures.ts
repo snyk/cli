@@ -35,6 +35,12 @@ export const nonIacFileStub = {
   fileType: 'sh',
 };
 
+export const emptyFileStub = {
+  fileContent: '',
+  filePath: path.join(mixedDirectory, 'this_shouldnt_load.yaml'),
+  fileType: 'yaml',
+};
+
 export const anotherNonIacFileStub = {
   fileContent,
   filePath: path.join(mixedDirectory, 'this_also_shouldnt_load.js'),

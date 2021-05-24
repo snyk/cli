@@ -1,4 +1,4 @@
-import * as YAML from 'js-yaml';
+import * as YAML from 'yaml';
 import {
   MissingRequiredFieldsInKubernetesYamlError,
   REQUIRED_K8S_FIELDS,
@@ -11,12 +11,12 @@ import {
 } from './parsers/terraform-plan-parser';
 
 import {
-  IacFileParsed,
-  IacFileData,
-  ParsingResults,
-  IacFileParseFailure,
   IaCErrorCodes,
+  IacFileData,
+  IacFileParsed,
+  IacFileParseFailure,
   IaCTestFlags,
+  ParsingResults,
   TerraformPlanScanMode,
 } from './types';
 import * as analytics from '../../../../lib/analytics';
@@ -67,7 +67,12 @@ function parseYAMLOrJSONFileData(fileData: IacFileData): any[] {
   try {
     // the YAML library can parse both YAML and JSON content, as well as content with singe/multiple YAMLs
     // by using this library we don't have to disambiguate between these different contents ourselves
-    yamlDocuments = YAML.safeLoadAll(fileData.fileContent);
+    yamlDocuments = YAML.parseAllDocuments(fileData.fileContent).map((doc) => {
+      if (doc.errors.length !== 0) {
+        throw doc.errors[0];
+      }
+      return doc.toJSON();
+    });
   } catch (e) {
     if (fileData.fileType === 'json') {
       throw new InvalidJsonFileError(fileData.filePath);
