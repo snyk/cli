@@ -1,5 +1,3 @@
-export = wizard;
-
 // used for testing
 Object.assign(wizard, {
   processAnswers,
@@ -49,7 +47,7 @@ import {
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 
-function wizard(options?: Options) {
+export function wizard(options?: Options) {
   options = options || ({} as Options);
   options.org = options.org || config.org || null;
 

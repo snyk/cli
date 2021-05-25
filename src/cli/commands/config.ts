@@ -2,7 +2,7 @@ import * as snyk from '../../lib';
 
 const validMethods = ['set', 'get', 'unset', 'clear'];
 
-export = async function config(
+export async function config(
   method?: 'set' | 'get' | 'unset' | 'clear',
   ...args: string[]
 ): Promise<string> {
@@ -63,4 +63,4 @@ export = async function config(
     .map((configKey) => `${configKey}: ${snyk.config.all[configKey]}`)
     .join('\n')
     .trim();
-};
+}

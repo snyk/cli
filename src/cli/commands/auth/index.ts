@@ -18,8 +18,6 @@ import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in
 import { Payload } from '../../../lib/request/types';
 import { getQueryParamsAsString } from '../../../lib/query-strings';
 
-export = auth;
-
 const apiUrl = url.parse(config.API);
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;
 const debug = Debug('snyk-auth');
@@ -126,7 +124,10 @@ async function testAuthComplete(
   });
 }
 
-async function auth(apiToken: string, via: AuthCliCommands): Promise<string> {
+export async function auth(
+  apiToken: string,
+  via: AuthCliCommands,
+): Promise<string> {
   let promise;
   resetAttempts();
   if (apiToken) {

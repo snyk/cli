@@ -1,7 +1,7 @@
 import { MethodArgs } from '../args';
 import getWoof from './woof/getWoof';
 
-export = function woof(...args: MethodArgs) {
+export function woofFunc(...args: MethodArgs) {
   const woof = getWoof(args);
   console.log(`
     |         |
@@ -19,4 +19,4 @@ export = function woof(...args: MethodArgs) {
         \\U/ --( ${woof} )
                \\-----/
 `);
-};
+}

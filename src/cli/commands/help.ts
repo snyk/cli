@@ -12,7 +12,7 @@ function readHelpFile(filename: string): string {
   return file;
 }
 
-export = async function help(item: string | boolean) {
+export async function help(item: string | boolean) {
   if (!item || item === true || typeof item !== 'string' || item === 'help') {
     item = DEFAULT_HELP;
   }
@@ -36,4 +36,4 @@ export = async function help(item: string | boolean) {
     );
     return readHelpFile(filename);
   }
-};
+}

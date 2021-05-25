@@ -262,9 +262,9 @@ test('bad command with string error', (t) => {
     }),
 
     './args': proxyquire('../src/cli/args', {
-      './commands': proxyquire('../src/cli/commands', {
+      './commands': {
         test: () => Promise.reject(error),
-      }),
+      },
     }),
   });
 
@@ -289,9 +289,9 @@ test('vulns found (thrown as an error)', (t) => {
     }),
 
     './args': proxyquire('../src/cli/args', {
-      './commands': proxyquire('../src/cli/commands', {
+      './commands': {
         test: () => Promise.reject(error),
-      }),
+      },
     }),
   });
 

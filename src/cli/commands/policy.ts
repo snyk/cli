@@ -6,7 +6,7 @@ import {
   CustomError,
 } from '../../lib/errors';
 
-async function displayPolicy(path?: string): Promise<string> {
+export async function displayPolicy(path?: string): Promise<string> {
   try {
     const loadedPolicy = (await policy.load(path || process.cwd())) as Promise<
       string
@@ -23,5 +23,3 @@ async function displayPolicy(path?: string): Promise<string> {
     throw adaptedError;
   }
 }
-
-export = displayPolicy;
