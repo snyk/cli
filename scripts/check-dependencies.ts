@@ -2,17 +2,10 @@ import * as depcheck from 'depcheck';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as glob from 'glob';
+import { config } from '../check-dependencies.config';
 
 const checkDependencies = async () => {
   let exitCode = 0;
-
-  const options: depcheck.Options = {
-    ignoreMatches: [
-      'sarif', // we only use @types/sarif. https://github.com/depcheck/depcheck/issues/640
-      '@types/jest', // jest is a global so impossible to detect usage of types
-    ],
-    ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
-  };
 
   const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
 
@@ -24,7 +17,7 @@ const checkDependencies = async () => {
     const workspacePaths = glob.sync(workspaceGlob).map((p) => path.resolve(p));
     for (const workspacePath of workspacePaths) {
       console.log(`Checking ${workspacePath}`);
-      const workspaceResults = await depcheck(workspacePath, options);
+      const workspaceResults = await depcheck(workspacePath, config);
       const missingDependencies = Object.entries(workspaceResults.missing);
       const hasProblems =
         workspaceResults.dependencies.length > 0 ||
@@ -72,7 +65,12 @@ const checkDependencies = async () => {
   }
 
   if (exitCode !== 0) {
-    console.log('Problems found. See output above.');
+    console.log(
+      'Problems found. See output above.\n',
+      '  If you think a package is wrongly flagged:\n',
+      '    1. Add it to ./check-dependencies.config.ts\n',
+      '    2. Provide a reason next to it.',
+    );
     process.exit(exitCode);
   }
 
