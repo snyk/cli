@@ -8,6 +8,7 @@ import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import { IacScan } from './payload-schema';
 import * as Queue from 'promise-queue';
+import { EOL } from 'os';
 
 import {
   AffectedPackages,
@@ -571,6 +572,8 @@ async function assembleLocalPayloads(
     if (failedResults?.length) {
       await spinner.clear<void>(spinnerLbl)();
       if (!options.json && !options.quiet) {
+        const errorMessage = failedResults.map((f) => f.errMessage).join(EOL);
+        console.error(errorMessage);
         console.warn(
           chalk.bold.red(
             `✗ ${failedResults.length}/${failedResults.length +
@@ -579,6 +582,13 @@ async function assembleLocalPayloads(
           ),
         );
       }
+      debug(
+        'getDepsFromPlugin returned failed results, cannot run test/monitor',
+        failedResults,
+      );
+      throw new FailedToRunTestError(
+        'Your test request could not be completed. Please email support@snyk.io',
+      );
     }
     analytics.add('pluginName', deps.plugin.name);
     const javaVersion = get(
