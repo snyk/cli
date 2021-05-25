@@ -7,9 +7,9 @@ mkdir binary-releases
 echo '' >dist/STANDALONE
 
 npx pkg . -t node14-alpine-x64 -o binary-releases/snyk-alpine
-npx pkg . -t node12-linux-x64 -o binary-releases/snyk-linux
-npx pkg . -t node12-macos-x64 -o binary-releases/snyk-macos
-npx pkg . -t node12-win-x64 -o binary-releases/snyk-win-unsigned.exe
+npx pkg . -t node14-linux-x64 -o binary-releases/snyk-linux
+npx pkg . -t node14-macos-x64 -o binary-releases/snyk-macos
+npx pkg . -t node14-win-x64 -o binary-releases/snyk-win-unsigned.exe
 
 # build docker package
 ./release-scripts/docker-desktop-release.sh
