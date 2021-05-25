@@ -1,53 +1,13 @@
-import { spawn } from 'cross-spawn';
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { UnsupportedOptionCombinationError } from '../../../src/lib/errors/unsupported-option-combination-error';
+import { runCLI } from '../util/runCLI';
 
 const createOutputDirectory = (): string => {
   const outputPath = path.normalize(`test-output/${uuidv4()}`);
   fse.ensureDirSync(outputPath);
   return outputPath;
-};
-
-const cliPath = path.normalize('./dist/cli/index.js');
-
-type RunCLIResult = {
-  code: number;
-  stdout: string;
-  stderr: string;
-};
-
-const runCLI = (args: string): Promise<RunCLIResult> => {
-  return new Promise((resolve, reject) => {
-    const cli = spawn('node', [cliPath, ...args.split(' ')]);
-    const stdout: Buffer[] = [];
-    const stderr: Buffer[] = [];
-
-    cli.on('error', (error) => {
-      reject(error);
-    });
-
-    cli.stdout.on('data', (chunk) => {
-      stdout.push(Buffer.from(chunk));
-    });
-
-    cli.stderr.on('data', (chunk) => {
-      stderr.push(Buffer.from(chunk));
-    });
-
-    cli.on('close', (code) => {
-      resolve({
-        code: code || 0,
-        stdout: Buffer.concat(stdout)
-          .toString('utf-8')
-          .trim(),
-        stderr: Buffer.concat(stderr)
-          .toString('utf-8')
-          .trim(),
-      });
-    });
-  });
 };
 
 jest.setTimeout(1000 * 60 * 5);
