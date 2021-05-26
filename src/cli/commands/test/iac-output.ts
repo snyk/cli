@@ -108,6 +108,9 @@ export function capitalizePackageManager(type: string | undefined) {
     case 'terraformconfig': {
       return 'Terraform';
     }
+    case 'cloudformationconfig': {
+      return 'CloudFormation';
+    }
     default: {
       return 'Infrastracture as Code';
     }

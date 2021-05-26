@@ -39,6 +39,7 @@ export function clearPolicyEngineCache() {
   policyEngineCache = {
     [EngineType.Kubernetes]: null,
     [EngineType.Terraform]: null,
+    [EngineType.CloudFormation]: null,
     [EngineType.Custom]: null,
   };
 }
@@ -46,6 +47,7 @@ export function clearPolicyEngineCache() {
 let policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
   [EngineType.Kubernetes]: null,
   [EngineType.Terraform]: null,
+  [EngineType.CloudFormation]: null,
   [EngineType.Custom]: null,
 };
 

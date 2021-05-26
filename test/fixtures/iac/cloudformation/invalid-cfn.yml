@@ -1,0 +1,20 @@
+---
+Description: Invalid Aurora
+
+Parameters:
+
+            NetworkStackName:
+  Description: Name of an active CloudFormation stack that contains networking resources
+      Type: String
+  MinLength: 1
+  MaxLength: 255
+    AllowedPattern: "^[a-zA-Z][-a-zA-Z0-9]*$"
+
+  DatabaseUser:
+    Default: startupadmin
+    Type: String
+    Description: Database admin account name
+    MinLength: 5
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: Name must begin with a letter and contain only alphanumeric characters

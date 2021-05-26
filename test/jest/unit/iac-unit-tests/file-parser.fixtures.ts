@@ -5,7 +5,7 @@ import {
   IacFileData,
   IacFileParsed,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
-import { MissingRequiredFieldsInKubernetesYamlError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/kubernetes-parser';
+import { FailedToDetectYamlConfigError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/k8s-or-cloudformation-parser';
 import {
   getExpectedResult,
   PlanOutputCase,
@@ -144,10 +144,9 @@ export const expectedMultipleKubernetesYamlsParsingResult: IacFileParsed = {
 };
 
 export const expectedKubernetesYamlInvalidParsingResult = {
-  err: new MissingRequiredFieldsInKubernetesYamlError(
-    'Failed to detect Kubernetes file, missing required fields',
-  ),
-  failureReason: 'Failed to detect Kubernetes file, missing required fields',
+  err: new FailedToDetectYamlConfigError('filename'),
+  failureReason:
+    'Failed to detect either a Kubernetes or CloudFormation file, missing required fields',
   fileType: 'yml',
   filePath: 'dont-care',
   fileContent: kubernetesYamlInvalidFileDataStub.fileContent,

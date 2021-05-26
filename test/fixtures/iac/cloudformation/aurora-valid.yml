@@ -1,0 +1,408 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: SASKV5N Aurora
+
+# Create the Aurora MySQL or PostgreSQL database(s). Currently, this template only supports alarms for Aurora MySQL.
+
+Parameters:
+
+  NetworkStackName:
+    Description: Name of an active CloudFormation stack that contains networking resources
+    Type: String
+    MinLength: 1
+    MaxLength: 255
+    AllowedPattern: "^[a-zA-Z][-a-zA-Z0-9]*$"
+
+  DatabaseUser:
+    Default: startupadmin
+    Type: String
+    Description: Database admin account name
+    MinLength: 5
+    MaxLength: 16
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: Name must begin with a letter and contain only alphanumeric characters
+
+  DatabasePassword:
+    NoEcho: true
+    Type: String
+    Description: Database admin account password
+    MinLength: 6
+    MaxLength: 41
+    AllowedPattern: "[a-zA-Z0-9]*"
+    ConstraintDescription: Password must contain only alphanumeric characters
+
+  DatabaseName:
+    Default: StartupDB
+    Type: String
+    Description: Database name
+    MinLength: 1
+    MaxLength: 30
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: Name must begin with a letter and contain only alphanumeric characters
+
+  DatabaseEngine:
+    Default: aurora
+    Type: String
+    Description: Database engines - Aurora MySQL or Aurora PostgreSQL
+    ConstraintDescription: Choose an engine from the drop down
+    AllowedValues:
+      - aurora
+      - aurora-postgresql
+
+  EncryptionAtRest:
+    Default: false
+    Type: String
+    Description: The optional flag for encryption at rest (db.t2.small and above)
+    ConstraintDescription: Only true or false are allowed
+    AllowedValues:
+      - true
+      - false
+
+  DatabaseInstanceClass:
+    Default: db.t2.small
+    Type: String
+    Description: "Database instance class, e.g. db.t2.micro (free tier) - Engine support: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.DBInstanceClass.html"
+    ConstraintDescription: DB instance class not supported
+    AllowedValues:
+      - db.t2.small
+      - db.t2.medium
+      - db.t2.xlarge
+      - db.r4.large
+      - db.r4.xlarge
+      - db.r4.2xlarge
+      - db.r4.4xlarge
+      - db.r4.8xlarge
+      - db.r4.16xlarge
+
+  EnvironmentName:
+    Description: Environment name - dev or prod
+    Type: String
+    Default: dev
+    AllowedValues:
+      - dev
+      - prod
+    ConstraintDescription: Specify either dev or prod
+
+  # The database alarm configuration, currently not supported for Aurora PostgreSQL
+  DatabaseAlarmMaxCpuPercent:
+    Description: Database CPU % max for alarm (currently, Aurora MySQL only)
+    Type: Number
+    Default: 80
+    MinValue: 1
+    MaxValue: 99
+    ConstraintDescription: Must be a percentage between 1-99%
+
+  DatabaseAlarmReadLatencyMaxSeconds:
+    Description: Read latency max for alarm (currently, Aurora MySQL only)
+    Type: Number
+    Default: 1
+    MinValue: 1
+
+  DatabaseAlarmWriteLatencyMaxSeconds:
+    Description: Write latency max for alarm (currently, Aurora MySQL only)
+    Type: Number
+    Default: 1
+    MinValue: 1
+
+  DatabaseAlarmEvaluationPeriods:
+    Description: The number of periods over which data is compared to the specified threshold (currently, Aurora MySQL only)
+    Type: Number
+    Default: 2
+    MinValue: 2
+
+  DatabaseAlarmEvaluationPeriodSeconds:
+    Description: The time over which the specified statistic is applied. Specify time in seconds, in multiples of 60. Enhanced monitoring must be enabled if less than 500 seconds (currently, Aurora MySQL only)
+    Type: Number
+    Default: 300
+    MinValue: 60
+    ConstraintDescription: Must be at least 60 seconds
+
+  EnhancedMonitoring:
+    Default: false
+    Type: String
+    Description: The optional flag for enhanced monitoring (additional charges apply - https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Monitoring.OS.html) (currently, Aurora MySQL only)
+    ConstraintDescription: Only true or false are allowed
+    AllowedValues:
+      - true
+      - false
+
+  # Default is 200 MB
+  DatabaseAlarmSwapUsageInBytes:
+    Default: 209715200
+    Type: Number
+    Description: Number of swap usage bytes for alarm (if enabled - Aurora MySQL only)
+    MinValue: 1
+    ConstraintDescription: Enter a value of at least one byte
+
+  EnableAlarms:
+    Default: false
+    Type: String
+    Description: Set to true to enable (additional charges - https://aws.amazon.com/cloudwatch/pricing/ - currently, Aurora MySQL only)
+    ConstraintDescription: Only true or false are allowed
+    AllowedValues:
+      - true
+      - false
+
+
+Conditions:
+
+  IsProd: !Equals [ !Ref EnvironmentName, prod ]
+
+  IsAuroraMySQL: !Equals [ !Ref DatabaseEngine, aurora ]
+
+  AlarmsEnabled: !And
+    - !Condition IsAuroraMySQL
+    - !Equals [ !Ref EnableAlarms, true ]
+
+  EnhancedMonitoringSupprtedAndEnabled: !And
+    - !Condition AlarmsEnabled
+    - !Equals [ !Ref EnhancedMonitoring, true ]
+
+
+Resources:
+
+  EnhancedMonitoringRole:
+    Type: AWS::IAM::Role
+    Condition: EnhancedMonitoringSupprtedAndEnabled
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: monitoring.rds.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole
+
+  DatabaseAlarmTopic:
+    Type: AWS::SNS::Topic
+    Condition: AlarmsEnabled
+    Properties:
+      DisplayName: Database Alarm Topic
+
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Database subnet group
+      SubnetIds:
+      - Fn::ImportValue: !Sub ${NetworkStackName}-PrivateSubnet1ID
+      - Fn::ImportValue: !Sub ${NetworkStackName}-PrivateSubnet2ID
+      Tags:
+      - Key: Name
+        Value: !Ref AWS::StackName
+
+  AuroraCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      Engine: !Ref DatabaseEngine
+      MasterUsername: !Ref DatabaseUser
+      MasterUserPassword: !Ref DatabasePassword
+      DBSubnetGroupName: !Ref DatabaseSubnetGroup
+      StorageEncrypted: !Ref EncryptionAtRest
+      DatabaseName: !Ref DatabaseName
+      DBClusterParameterGroupName: !If [ IsAuroraMySQL,  default.aurora5.6, default.aurora-postgresql9.6 ]
+      Port: !If [ IsAuroraMySQL,  3306, 5432 ]
+      VpcSecurityGroupIds:
+        - Fn::ImportValue: !Sub ${NetworkStackName}-DatabaseGroupID
+    DependsOn: DatabaseSubnetGroup
+
+  AuroraInstance0:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: !Ref DatabaseEngine
+      DBClusterIdentifier: !Ref AuroraCluster
+      DBInstanceClass: !Ref DatabaseInstanceClass
+      DBSubnetGroupName: !Ref DatabaseSubnetGroup
+      StorageEncrypted: !Ref EncryptionAtRest
+      DBParameterGroupName: !If [ IsAuroraMySQL,  default.aurora5.6, default.aurora-postgresql9.6 ]
+      MonitoringInterval: !If [ EnhancedMonitoringSupprtedAndEnabled, 60, 0 ]
+      MonitoringRoleArn: !If [ EnhancedMonitoringSupprtedAndEnabled, !GetAtt EnhancedMonitoringRole.Arn, !Ref "AWS::NoValue" ]
+      CopyTagsToSnapshot: true
+      Tags:
+      - Key: Name
+        Value: !Ref AWS::StackName
+    DependsOn: AuroraCluster
+
+  AuroraInstance1:
+    Type: AWS::RDS::DBInstance
+    Condition: IsProd
+    Properties:
+      Engine: !Ref DatabaseEngine
+      DBClusterIdentifier: !Ref AuroraCluster
+      DBInstanceClass: !Ref DatabaseInstanceClass
+      DBSubnetGroupName: !Ref DatabaseSubnetGroup
+      StorageEncrypted: !Ref EncryptionAtRest
+      DBParameterGroupName: !If [ IsAuroraMySQL,  default.aurora5.6, default.aurora-postgresql9.6 ]
+      MonitoringInterval: !If [ EnhancedMonitoringSupprtedAndEnabled, 60, 0 ]
+      MonitoringRoleArn: !If [ EnhancedMonitoringSupprtedAndEnabled, !GetAtt EnhancedMonitoringRole.Arn, !Ref "AWS::NoValue" ]
+      CopyTagsToSnapshot: true
+      Tags:
+      - Key: Name
+        Value: !Ref AWS::StackName
+    DependsOn: AuroraCluster
+
+  DatabaseCpuAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmDescription: !Sub DB CPU utilization is over ${DatabaseAlarmMaxCpuPercent}% for ${DatabaseAlarmEvaluationPeriods} period(s) of ${DatabaseAlarmEvaluationPeriodSeconds} seconds
+      TreatMissingData: notBreaching
+      Namespace: AWS/RDS
+      MetricName: CPUUtilization
+      Unit: Percent
+      Statistic: Average
+      EvaluationPeriods: !Ref DatabaseAlarmEvaluationPeriods
+      Period: !Ref DatabaseAlarmEvaluationPeriodSeconds
+      Threshold: !Ref DatabaseAlarmMaxCpuPercent
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value: !Ref AuroraCluster
+        - Name: Role
+          Value: WRITER
+      AlarmActions:
+        - !Ref DatabaseAlarmTopic
+    DependsOn: AuroraCluster
+
+  DatabaseSelectLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmDescription: !Sub DB read latency is over ${DatabaseAlarmReadLatencyMaxSeconds} for ${DatabaseAlarmEvaluationPeriods} period(s) of ${DatabaseAlarmEvaluationPeriodSeconds} seconds
+      TreatMissingData: notBreaching
+      Namespace: AWS/RDS
+      MetricName: SelectLatency
+      Unit: Seconds
+      Statistic: Average
+      EvaluationPeriods: !Ref DatabaseAlarmEvaluationPeriods
+      Period: !Ref DatabaseAlarmEvaluationPeriodSeconds
+      Threshold: !Ref DatabaseAlarmReadLatencyMaxSeconds
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value: !Ref AuroraCluster
+        - Name: Role
+          Value: WRITER
+      AlarmActions:
+        - !Ref DatabaseAlarmTopic
+    DependsOn: AuroraCluster
+
+  DatabaseInsertLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmDescription: !Sub DB insert latency is over ${DatabaseAlarmWriteLatencyMaxSeconds} for ${DatabaseAlarmEvaluationPeriods} period(s) of ${DatabaseAlarmEvaluationPeriodSeconds} seconds
+      TreatMissingData: notBreaching
+      Namespace: AWS/RDS
+      MetricName: InsertLatency
+      Unit: Seconds
+      Statistic: Average
+      EvaluationPeriods: !Ref DatabaseAlarmEvaluationPeriods
+      Period: !Ref DatabaseAlarmEvaluationPeriodSeconds
+      Threshold: !Ref DatabaseAlarmWriteLatencyMaxSeconds
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value: !Ref AuroraCluster
+        - Name: Role
+          Value: WRITER
+      AlarmActions:
+        - !Ref DatabaseAlarmTopic
+    DependsOn: AuroraCluster
+
+  DatabaseUpdateLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmDescription: !Sub DB update latency is over ${DatabaseAlarmWriteLatencyMaxSeconds} for ${DatabaseAlarmEvaluationPeriods} period(s) of ${DatabaseAlarmEvaluationPeriodSeconds} seconds
+      TreatMissingData: notBreaching
+      Namespace: AWS/RDS
+      MetricName: UpdateLatency
+      Unit: Seconds
+      Statistic: Average
+      EvaluationPeriods: !Ref DatabaseAlarmEvaluationPeriods
+      Period: !Ref DatabaseAlarmEvaluationPeriodSeconds
+      Threshold: !Ref DatabaseAlarmWriteLatencyMaxSeconds
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value: !Ref AuroraCluster
+        - Name: Role
+          Value: WRITER
+      AlarmActions:
+        - !Ref DatabaseAlarmTopic
+    DependsOn: AuroraCluster
+
+  DatabaseDeleteLatencyAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Condition: AlarmsEnabled
+    Properties:
+      AlarmDescription: !Sub DB update latency is over ${DatabaseAlarmWriteLatencyMaxSeconds} for ${DatabaseAlarmEvaluationPeriods} period(s) of ${DatabaseAlarmEvaluationPeriodSeconds} seconds
+      TreatMissingData: notBreaching
+      Namespace: AWS/RDS
+      MetricName: DeleteLatency
+      Unit: Seconds
+      Statistic: Average
+      EvaluationPeriods: !Ref DatabaseAlarmEvaluationPeriods
+      Period: !Ref DatabaseAlarmEvaluationPeriodSeconds
+      Threshold: !Ref DatabaseAlarmWriteLatencyMaxSeconds
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value: !Ref AuroraCluster
+        - Name: Role
+          Value: WRITER
+      AlarmActions:
+        - !Ref DatabaseAlarmTopic
+    DependsOn: AuroraCluster
+
+
+Outputs:
+
+  Name:
+    Description: Aurora Stack Name
+    Value: !Ref AWS::StackName
+    Export:
+      Name: !Sub ${AWS::StackName}-Name
+
+  AuroraClusterId:
+    Description: Aurora Cluster ID
+    Value: !Ref AuroraCluster
+    Export:
+      Name: !Sub ${AWS::StackName}-AuroraClusterID
+
+  AuroraDbURL:
+    Description: Aurora Database URL
+    Value: !GetAtt AuroraCluster.Endpoint.Address
+    Export:
+      Name: !Sub ${AWS::StackName}-DatabaseURL
+
+  AuroraReadDbURL:
+    Description: Aurora Database Read URL
+    Value: !GetAtt AuroraCluster.ReadEndpoint.Address
+    Export:
+      Name: !Sub ${AWS::StackName}-DatabaseReadURL
+
+  DbUser:
+    Description: RDS Database admin account user
+    Value: !Ref DatabaseUser
+    Export:
+      Name: !Sub ${AWS::StackName}-DatabaseUser
+
+  DatabaseAlarmTopicArn:
+    Description: Database Alarm Topic ARN
+    Condition: AlarmsEnabled
+    Value: !Ref DatabaseAlarmTopic
+    Export:
+      Name: !Sub ${AWS::StackName}-DatabaseAlarmTopicArn
+
+  DatabaseAlarmTopicName:
+    Description: Database Alarm Topic Name
+    Condition: AlarmsEnabled
+    Value: !GetAtt DatabaseAlarmTopic.TopicName
+    Export:
+      Name: !Sub ${AWS::StackName}-DatabaseAlarmTopicName
+

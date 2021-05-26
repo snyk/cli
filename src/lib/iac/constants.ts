@@ -1,6 +1,7 @@
 export type IacProjectTypes =
   | 'k8sconfig'
   | 'terraformconfig'
+  | 'cloudformationconfig'
   | 'customconfig'
   | 'multiiacconfig';
 export type IacFileTypes = 'yaml' | 'yml' | 'json' | 'tf';
@@ -8,6 +9,7 @@ export type IacFileTypes = 'yaml' | 'yml' | 'json' | 'tf';
 export enum IacProjectType {
   K8S = 'k8sconfig',
   TERRAFORM = 'terraformconfig',
+  CLOUDFORMATION = 'cloudformationconfig',
   CUSTOM = 'customconfig',
   MULTI_IAC = 'multiiacconfig',
 }
@@ -15,6 +17,7 @@ export enum IacProjectType {
 export const TEST_SUPPORTED_IAC_PROJECTS: IacProjectTypes[] = [
   IacProjectType.K8S,
   IacProjectType.TERRAFORM,
+  IacProjectType.CLOUDFORMATION,
   IacProjectType.MULTI_IAC,
   IacProjectType.CUSTOM,
 ];
