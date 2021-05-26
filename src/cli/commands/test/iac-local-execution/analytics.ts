@@ -9,13 +9,14 @@ export function addIacAnalytics(formattedResults: FormattedResult[]) {
   formattedResults.forEach((res) => {
     totalIssuesCount =
       (totalIssuesCount || 0) + res.result.cloudConfigResults.length;
-    packageManagers.push(res.packageManager);
+    const packageManagerConfig = res.packageManager;
+    packageManagers.push(packageManagerConfig);
 
     res.result.cloudConfigResults.forEach((policy) => {
-      const configType = policy.type + 'config';
-      issuesByType[configType] = issuesByType[configType] ?? {};
-      issuesByType[configType][policy.severity] =
-        (issuesByType[configType][policy.severity] || 0) + 1;
+      issuesByType[packageManagerConfig] =
+        issuesByType[packageManagerConfig] ?? {};
+      issuesByType[packageManagerConfig][policy.severity] =
+        (issuesByType[packageManagerConfig][policy.severity] || 0) + 1;
     });
   });
 
