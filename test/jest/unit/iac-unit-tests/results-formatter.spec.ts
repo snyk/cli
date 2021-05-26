@@ -29,6 +29,14 @@ describe('formatScanResults', () => {
       { severityThreshold: SEVERITY.HIGH, json: true },
       expectedFormattedResultsWithLineNumber,
     ],
+    [
+      { severityThreshold: SEVERITY.HIGH, 'sarif-file-output': 'output.sarif' },
+      expectedFormattedResultsWithLineNumber,
+    ],
+    [
+      { severityThreshold: SEVERITY.HIGH, 'json-file-output': 'output.json' },
+      expectedFormattedResultsWithLineNumber,
+    ],
   ])(
     'given %p options object, returns the expected results',
     (optionsObject, expectedResult) => {

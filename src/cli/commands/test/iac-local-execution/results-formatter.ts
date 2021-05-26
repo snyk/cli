@@ -41,7 +41,7 @@ const engineTypeToProjectType = {
 function formatScanResult(
   scanResult: IacFileScanResult,
   meta: TestMeta,
-  { severityThreshold, json, sarif }: IaCTestFlags,
+  options: IaCTestFlags,
 ): FormattedResult {
   const formattedIssues = scanResult.violatedPolicies.map((policy) => {
     const cloudConfigPath =
@@ -49,7 +49,15 @@ function formatScanResult(
         ? [`[DocId:${scanResult.docId}]`].concat(policy.msg.split('.'))
         : policy.msg.split('.');
 
-    const shouldExtractLineNumber = json || sarif;
+    const flagsRequiringLineNumber = [
+      'json',
+      'sarif',
+      'json-file-output',
+      'sarif-file-output',
+    ];
+    const shouldExtractLineNumber = flagsRequiringLineNumber.some(
+      (flag) => options[flag],
+    );
     const lineNumber: number = shouldExtractLineNumber
       ? extractLineNumber(scanResult, policy)
       : -1;
@@ -77,7 +85,7 @@ function formatScanResult(
     result: {
       cloudConfigResults: filterPoliciesBySeverity(
         formattedIssues,
-        severityThreshold,
+        options.severityThreshold,
       ),
       projectType: scanResult.projectType,
     },
