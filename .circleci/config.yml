@@ -9,9 +9,6 @@ defaults: &defaults
     node_version:
       type: string
       default: ''
-    use_npm7:
-      type: boolean
-      default: true
     root_tap_tests:
       type: boolean
       default: false
@@ -225,10 +222,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/snyk
-      - when:
-          condition: << parameters.use_npm7 >>
-          steps:
-            - run: npm install -g npm@7
+      - run: npm install -g npm@7
       - show_node_version
       - run:
           name: Setup Lerna
@@ -307,10 +301,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/snyk
-      - when:
-          condition: << parameters.use_npm7 >>
-          steps:
-            - run: sudo npm install -g npm@7
+      - run: sudo npm install -g npm@7
       - show_node_version
       - install_lerna_linux
       - update_local_npmrc_linux
