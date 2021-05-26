@@ -11,7 +11,8 @@ module.exports = {
     '<rootDir>/packages/**/test/**/*.spec.ts',
     '<rootDir>/test/jest/unit/**/*.spec.ts',
     '<rootDir>/test/jest/system/**/*.spec.ts',
-    '<rootDir>/test/jest/acceptance/**/*.spec.ts'
+    '<rootDir>/test/jest/acceptance/**/*.spec.ts',
+    '<rootDir>/test/jest/replay/**/*.spec.ts'
   ],
   modulePathIgnorePatterns: [
     '<rootDir>/test/.*fixtures/*',

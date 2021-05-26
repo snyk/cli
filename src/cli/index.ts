@@ -231,7 +231,7 @@ function checkPaths(args) {
 
 type AllSupportedCliOptions = Options & MonitorOptions & TestOptions;
 
-async function main() {
+export async function main(args: Args = globalArgs) {
   updateCheck();
   checkRuntime();
 
@@ -239,28 +239,28 @@ async function main() {
   let failed = false;
   let exitCode = EXIT_CODES.ERROR;
   try {
-    modeValidation(globalArgs);
+    modeValidation(args);
     // TODO: fix this, we do transformation to options and teh type doesn't reflect it
     validateUnsupportedOptionCombinations(
-      (globalArgs.options as unknown) as AllSupportedCliOptions,
+      (args.options as unknown) as AllSupportedCliOptions,
     );
 
-    if (globalArgs.options['app-vulns'] && globalArgs.options['json']) {
+    if (args.options['app-vulns'] && args.options['json']) {
       throw new UnsupportedOptionCombinationError([
         'Application vulnerabilities is currently not supported with JSON output. ' +
           'Please try using —app-vulns only to get application vulnerabilities, or ' +
           '—json only to get your image vulnerabilties, excluding the application ones.',
       ]);
     }
-    if (globalArgs.options['group-issues'] && globalArgs.options['iac']) {
+    if (args.options['group-issues'] && args.options['iac']) {
       throw new UnsupportedOptionCombinationError([
         '--group-issues is currently not supported for Snyk IaC.',
       ]);
     }
     if (
-      globalArgs.options['group-issues'] &&
-      !globalArgs.options['json'] &&
-      !globalArgs.options['json-file-output']
+      args.options['group-issues'] &&
+      !args.options['json'] &&
+      !args.options['json-file-output']
     ) {
       throw new UnsupportedOptionCombinationError([
         'JSON output is required to use --group-issues, try adding --json.',
@@ -268,54 +268,46 @@ async function main() {
     }
 
     if (
-      globalArgs.options.file &&
-      typeof globalArgs.options.file === 'string' &&
-      (globalArgs.options.file as string).match(/\.sln$/)
+      args.options.file &&
+      typeof args.options.file === 'string' &&
+      (args.options.file as string).match(/\.sln$/)
     ) {
-      if (globalArgs.options['project-name']) {
+      if (args.options['project-name']) {
         throw new UnsupportedOptionCombinationError([
           'file=*.sln',
           'project-name',
         ]);
       }
-      sln.updateArgs(globalArgs);
-    } else if (typeof globalArgs.options.file === 'boolean') {
+      sln.updateArgs(args);
+    } else if (typeof args.options.file === 'boolean') {
       throw new FileFlagBadInputError();
     }
 
     if (
-      typeof globalArgs.options.detectionDepth !== 'undefined' &&
-      (globalArgs.options.detectionDepth <= 0 ||
-        Number.isNaN(globalArgs.options.detectionDepth))
+      typeof args.options.detectionDepth !== 'undefined' &&
+      (args.options.detectionDepth <= 0 ||
+        Number.isNaN(args.options.detectionDepth))
     ) {
       throw new InvalidDetectionDepthValue();
     }
 
-    validateUnsupportedSarifCombinations(globalArgs);
+    validateUnsupportedSarifCombinations(args);
 
-    validateOutputFile(
-      globalArgs.options,
-      'json',
-      new JsonFileOutputBadInputError(),
-    );
-    validateOutputFile(
-      globalArgs.options,
-      'sarif',
-      new SarifFileOutputEmptyError(),
-    );
+    validateOutputFile(args.options, 'json', new JsonFileOutputBadInputError());
+    validateOutputFile(args.options, 'sarif', new SarifFileOutputEmptyError());
 
-    checkPaths(globalArgs);
+    checkPaths(args);
 
-    res = await runCommand(globalArgs);
+    res = await runCommand(args);
   } catch (error) {
     failed = true;
 
-    const response = await handleError(globalArgs, error);
+    const response = await handleError(args, error);
     res = response.res;
     exitCode = response.exitCode;
   }
 
-  if (!globalArgs.options.json) {
+  if (!args.options.json) {
     console.log(alerts.displayAlerts());
   }
 
@@ -327,16 +319,11 @@ async function main() {
   return res;
 }
 
-const cli = main().catch((e) => {
+export const cli = main().catch((e) => {
   console.error('Something unexpected went wrong: ', e.stack);
   console.error('Exit code: ' + EXIT_CODES.ERROR);
   process.exit(EXIT_CODES.ERROR);
 });
-
-if (module.parent) {
-  // eslint-disable-next-line id-blacklist
-  module.exports = cli;
-}
 
 function validateUnsupportedOptionCombinations(
   options: AllSupportedCliOptions,

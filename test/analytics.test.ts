@@ -227,7 +227,7 @@ test('analytics npm version capture', (t) => {
 test('bad command', (t) => {
   const spy = sinon.spy();
   process.argv = ['node', 'script.js', 'random command', '-q'];
-  const cli = proxyquire('../src/cli', {
+  const { cli } = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
@@ -256,7 +256,7 @@ test('bad command with string error', (t) => {
   process.argv = ['node', 'script.js', 'test', '-q'];
   const error = new Error('Some error') as any;
   error.code = 'CODE';
-  const cli = proxyquire('../src/cli', {
+  const { cli } = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
@@ -291,7 +291,7 @@ test('vulns found (thrown as an error)', (t) => {
   process.argv = ['node', 'script.js', 'test', '-q'];
   const error = new Error('7 vulnerable dependency paths') as any;
   error.code = 'VULNS';
-  const cli = proxyquire('../src/cli', {
+  const { cli } = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
@@ -327,7 +327,7 @@ test('vulns found (thrown as an error)', (t) => {
 
 test('analytics was called', (t) => {
   const spy = sinon.spy();
-  const cli = proxyquire('../src/cli', {
+  const { cli } = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
       './request': spy,
     }),
