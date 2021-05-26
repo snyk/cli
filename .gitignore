@@ -37,6 +37,8 @@ test/**/.gradle
 .dccache
 !test/smoke/.iac-data
 test-output
+test-results
+tap-output
 
 # Jest
 coverage
