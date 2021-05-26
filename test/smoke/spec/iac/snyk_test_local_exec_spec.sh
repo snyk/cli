@@ -77,6 +77,7 @@ Describe "Snyk iac local test command"
       The status should equal 1
       The output should include '"id": "SNYK-CC-K8S-1",'
       The output should include '"ruleId": "SNYK-CC-K8S-1",'
+      The output should not include '"startLine": "-1",'
     End
 
     It "outputs the expected text when running with --json flag"
@@ -178,6 +179,7 @@ Describe "Snyk iac local test command"
       The status should equal 1
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"ruleId": "SNYK-CC-TF-1",'
+      The output should not include '"startLine": "-1",'
     End
 
     It "outputs the expected text when running with --json flag"
@@ -186,6 +188,7 @@ Describe "Snyk iac local test command"
       The output should include '"id": "SNYK-CC-TF-1",'
       The output should include '"packageManager": "terraformconfig",'
       The output should include '"projectType": "terraformconfig",'
+      The output should not include '"startLine": "-1",'
       The result of function check_valid_json should be success
     End
 
@@ -194,6 +197,7 @@ Describe "Snyk iac local test command"
       The status should equal 0 # no issues found
       The output should not include '"id": "SNYK-CC-TF-1",'
       The output should include '"packageManager": "terraformconfig",'
+      The output should not include '"startLine": "-1",'
       The result of function check_valid_json should be success
     End
   End
@@ -349,6 +353,7 @@ Describe "Snyk iac local test command"
       The status should equal 1
       The output should include '"packageManager": "terraformconfig",'
       The output should include '"projectType": "terraformconfig",'
+      The output should not include '"startLine": "-1",'
       The result of function check_valid_json should be success
     End
   End
