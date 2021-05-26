@@ -173,11 +173,11 @@
     "restify": "^8.5.1",
     "sinon": "^4.0.0",
     "tap": "^12.6.1",
-    "tap-junit": "^4.2.0",
     "ts-jest": "^26.5.2",
     "ts-node": "^8.0.0",
     "tslint": "^5.14.0",
-    "typescript": "^3.4.1"
+    "typescript": "^3.4.1",
+    "xunit-viewer": "7.1.1"
   },
   "repository": {
     "type": "git",

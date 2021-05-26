@@ -268,8 +268,13 @@ jobs:
             - run:
                 name: Run "Root" tap tests
                 command: |
-                  npm run test:test -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-test
+                  mkdir -p test-results/tap-test-test
+                  npm run --silent test:test -- -Rxunit > test-results/tap-test-test/tap.xml
+            - run:
+                name: Run "Root" tap tests output
+                when: always
+                command: |
+                  npx xunit-viewer -r test-results/tap-test-test/tap.xml --console --clear=false --output=false
       - when:
           condition: << parameters.jest_tests >>
           steps:
@@ -303,16 +308,26 @@ jobs:
             - run:
                 name: Run Acceptance tests
                 command: |
-                  npm run test:acceptance-windows -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-acceptance-windows
+                  mkdir -p test-results/tap-test-acceptance-windows
+                  npm run --silent test:acceptance-windows -- -Rxunit > test-results/tap-test-acceptance-windows/tap.xml
+            - run:
+                name: Run Acceptance tests output
+                when: always
+                command: |
+                  npx xunit-viewer -r test-results/tap-test-acceptance-windows/tap.xml --console --clear=false --output=false
       - when:
           condition: << parameters.system_tests >>
           steps:
             - run:
                 name: Run System tests
                 command: |
-                  npm run test:system -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-system
+                  mkdir -p test-results/tap-test-system
+                  npm run --silent test:system -- -Rxunit > test-results/tap-test-system/tap.xml
+            - run:
+                name: Run System tests output
+                when: always
+                command: |
+                  npx xunit-viewer -r test-results/tap-test-system/tap.xml --console --clear=false --output=false
       - store_test_results:
           path: test-results
       - store_artifacts:
@@ -367,8 +382,13 @@ jobs:
             - run:
                 name: Run "Root" tap tests
                 command: |
-                  npm run test:test -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-test
+                  mkdir -p test-results/tap-test-test
+                  npm run --silent test:test -- -Rxunit > test-results/tap-test-test/tap.xml
+            - run:
+                name: Run "Root" tap tests output
+                when: always
+                command: |
+                  npx xunit-viewer -r test-results/tap-test-test/tap.xml --console --clear=false --output=false
       - when:
           condition: << parameters.jest_tests >>
           steps:
@@ -402,16 +422,26 @@ jobs:
             - run:
                 name: Run Acceptance tests
                 command: |
-                  npm run test:acceptance -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-acceptance
+                  mkdir -p test-results/tap-test-acceptance
+                  npm run --silent test:acceptance -- -Rxunit > test-results/tap-test-acceptance/tap.xml
+            - run:
+                name: Run Acceptance tests output
+                when: always
+                command: |
+                  npx xunit-viewer -r test-results/tap-test-acceptance/tap.xml --console --clear=false --output=false
       - when:
           condition: << parameters.system_tests >>
           steps:
             - run:
                 name: Run System tests
                 command: |
-                  npm run test:system -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-system
+                  mkdir -p test-results/tap-test-system
+                  npm run --silent test:system -- -Rxunit > test-results/tap-test-system/tap.xml
+            - run:
+                name: Run System tests output
+                when: always
+                command: |
+                  npx xunit-viewer -r test-results/tap-test-system/tap.xml --console --clear=false --output=false
       - store_test_results:
           path: test-results
       - store_artifacts:
