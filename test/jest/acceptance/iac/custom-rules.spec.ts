@@ -1,20 +1,9 @@
-import { startMockServer } from './helpers';
+import { setupMockServer } from './helpers';
 
 jest.setTimeout(50000);
 
 describe('iac test --rules', () => {
-  let run: (
-    cmd: string,
-  ) => Promise<{ stdout: string; stderr: string; exitCode: number }>;
-  let teardown: () => void;
-
-  beforeAll(async () => {
-    const result = await startMockServer();
-    run = result.run;
-    teardown = result.teardown;
-  });
-
-  afterAll(async () => teardown());
+  const run = setupMockServer(beforeAll, afterAll);
 
   it('scans custom rules provided via the --rules flag', async () => {
     const { stdout, exitCode } = await run(

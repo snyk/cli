@@ -1,6 +1,49 @@
+import * as assert from 'assert';
 import { exec } from 'child_process';
 import { join } from 'path';
 import { fakeServer } from '../../../acceptance/fake-server';
+
+type Lifecycle = (fn: () => Promise<void>, timeout?: number) => Promise<void>;
+
+/**
+ * Returns a `run()` function used to evaluate a shell command against the
+ * current environment. Will start a fake webserver in the background as part
+ * of the test beforeAll lifecycle and will ensure that it is torn down in the
+ * afterAll event.
+ *
+ * Usage:
+ *
+ *   describe('some test', () => {
+ *     const run = setupMockServer(beforeAll, afterAll);
+ *
+ *     it('runs a command', () => {
+ *        const { exitCode } = await run('echo "hello"');
+ *        expect(exitCode).toEqual(1);
+ *     });
+ *   });
+ */
+export function setupMockServer(
+  beforeAll: Lifecycle,
+  afterAll: Lifecycle,
+): typeof run {
+  let env: Record<string, string>;
+  let teardown: () => Promise<void>;
+
+  beforeEach(async () => {
+    const result = await startMockServer();
+    env = result.env;
+    teardown = result.teardown;
+  });
+
+  afterEach(async () => {
+    await teardown();
+  });
+
+  return (cmd: string, overrides: Record<string, string> = {}) => {
+    assert(env, 'server not yet started, check configuration');
+    return run(cmd, { ...env, ...overrides });
+  };
+}
 
 /**
  * Starts a local version of the fixture webserver and returns
@@ -9,7 +52,10 @@ import { fakeServer } from '../../../acceptance/fake-server';
  *   variables set.
  * - `teardown()` which will shutdown the server.
  */
-export async function startMockServer() {
+export async function startMockServer(): Promise<{
+  env: Record<string, string>;
+  teardown: () => Promise<void>;
+}> {
   const SNYK_TOKEN = '123456789';
   const BASE_API = '/api/v1';
   const server = fakeServer(BASE_API, SNYK_TOKEN);
@@ -31,8 +77,7 @@ export async function startMockServer() {
   };
 
   return {
-    run: async (cmd: string, overrides?: Record<string, string>) =>
-      run(cmd, { ...env, ...overrides }),
+    env,
     teardown: async () => new Promise((resolve) => server.close(resolve)),
   };
 }

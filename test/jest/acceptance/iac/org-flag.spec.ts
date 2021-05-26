@@ -1,18 +1,9 @@
-import { startMockServer, run as Run } from './helpers';
+import { setupMockServer } from './helpers';
 
 jest.setTimeout(50000);
 
 describe('iac test --org', () => {
-  let run: typeof Run;
-  let teardown: () => void;
-
-  beforeAll(async () => {
-    const result = await startMockServer();
-    run = result.run;
-    teardown = result.teardown;
-  });
-
-  afterAll(async () => teardown());
+  const run = setupMockServer(beforeAll, afterAll);
 
   it('uses the default org', async () => {
     const { stdout } = await run(
