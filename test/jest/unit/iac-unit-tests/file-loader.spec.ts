@@ -162,14 +162,13 @@ describe('loadFiles', () => {
     });
 
     describe('empty files', () => {
-      it('single empty file does not get scanned and throws an error', async () => {
+      it('single empty file gets scanned and returns no output', async () => {
         mockFs({
           [emptyFileStub.filePath]: emptyFileStub.fileContent,
         });
 
-        await expect(loadFiles(emptyFileStub.filePath)).rejects.toThrow(
-          NoFilesToScanError,
-        );
+        const loadedFiles = await loadFiles(emptyFileStub.filePath);
+        expect(loadedFiles).toEqual([]);
       });
 
       it('empty file in directory is skipped', async () => {

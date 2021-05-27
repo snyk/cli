@@ -41,7 +41,7 @@ export async function loadFiles(
   if (filesToScan.length === 0) {
     throw new NoFilesToScanError();
   }
-  return filesToScan;
+  return filesToScan.filter((file) => file.fileContent !== '');
 }
 
 function getFilePathsFromDirectory(
@@ -70,10 +70,6 @@ export async function tryLoadFileData(
   const fileContent = (
     await fs.readFile(pathToScan, DEFAULT_ENCODING)
   ).toString();
-
-  if (fileContent === '') {
-    return null;
-  }
 
   return {
     filePath: pathToScan,
