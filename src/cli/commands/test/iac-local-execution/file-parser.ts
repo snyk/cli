@@ -166,8 +166,8 @@ export class FailedToDetectJsonConfigError extends CustomError {
     );
     this.code = IaCErrorCodes.FailedToDetectJsonConfigError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `We were unable to detect whether the JSON file "${filename}" is a valid Kubernetes file or Terraform Plan. For Kubernetes it is missing the following fields: "${REQUIRED_K8S_FIELDS.join(
+    this.userMessage = `We were unable to detect whether the JSON file "${filename}" is either a valid Kubernetes file, CloudFormation file or a Terraform Plan. For Kubernetes it is missing the following fields: "${REQUIRED_K8S_FIELDS.join(
       '", "',
-    )}". For Terraform Plan it was expected to contain fields "planned_values.root_module" and "resource_changes". Please contact support@snyk.io, if possible with a redacted version of the file`;
+    )}".  For CloudFormation required fields are: "Resources". For Terraform Plan it was expected to contain fields "planned_values.root_module" and "resource_changes". Please contact support@snyk.io, if possible with a redacted version of the file`;
   }
 }
