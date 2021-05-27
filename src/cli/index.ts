@@ -113,7 +113,10 @@ async function handleError(args, error) {
     args.options.json &&
     !(error instanceof UnsupportedOptionCombinationError)
   ) {
-    console.log(stripAnsi(error.json || error.stack));
+    const output = vulnsFound
+      ? error.message
+      : stripAnsi(error.json || error.stack);
+    console.log(output);
   } else {
     if (!args.options.quiet) {
       const result = errors.message(error);
