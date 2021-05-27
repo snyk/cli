@@ -36,6 +36,16 @@ Find security issues in your Infrastructure as Code files.
   Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
   This is especially useful if you want to display the human-readable test output via stdout and at the same time save the JSON format output to a file.
 
+- `--org`=<ORG_NAME>:
+  Specify the <ORG_NAME> to run Snyk commands tied to a specific organization. This will influence private tests limits.
+  If you have multiple organizations, you can set a default from the CLI using:
+  
+  `$ snyk config set org`=<ORG_NAME>
+  
+  Setting a default will ensure all newly tested projects will be tested
+  under your default organization. If you need to override the default, you can use the `--org`=<ORG_NAME> argument.
+  Default: uses <ORG_NAME> that sets as default in your [Account settings](https://app.snyk.io/account)
+
 - `--sarif`:
   Return results in SARIF format.
 

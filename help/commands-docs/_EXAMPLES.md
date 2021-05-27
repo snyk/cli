@@ -24,6 +24,7 @@ See `snyk container --help` for more details and examples:
 
 See `snyk iac --help` for more details and examples:
 
-    $ snyk iac test /path/to/Kubernetes.yaml
+    $ snyk iac test /path/to/cloudformation_file.yaml
+    $ snyk iac test /path/to/kubernetes_file.yaml
     $ snyk iac test /path/to/terraform_file.tf
     $ snyk iac test /path/to/tf-plan.json
