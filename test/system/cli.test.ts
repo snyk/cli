@@ -35,7 +35,6 @@ process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 
-// tslint:disable-next-line:no-var-requires
 const server = require('../cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
 
 sinon.stub(util, 'promisify').returns(() => {});

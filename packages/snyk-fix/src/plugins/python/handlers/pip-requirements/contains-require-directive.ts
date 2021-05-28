@@ -19,7 +19,6 @@ export async function containsRequireDirective(
 function getAllMatchedGroups(re: RegExp, str: string) {
   const groups: RegExpExecArray[] = [];
   let match: RegExpExecArray | null;
-  // tslint:disable-next-line:no-conditional-assignment
   while ((match = re.exec(str))) {
     groups.push(match);
   }
