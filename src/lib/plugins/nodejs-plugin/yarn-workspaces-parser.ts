@@ -66,12 +66,31 @@ export async function processYarnWorkspaces(
     },
     scannedProjects: [],
   };
+
+  let rootPkgJson = {} as lockFileParser.ManifestFile;
+  try {
+    rootPkgJson = JSON.parse(
+      getFileContents(
+        root,
+        pathUtil.join(Object.keys(yarnTargetFiles)[0], 'package.json'),
+      ).content,
+    );
+  } catch (e) {
+    throw new lockFileParser.InvalidUserInputError(
+      'root package.json parsing failed when parsing workspaces with error ' +
+        e.message,
+    );
+  }
   // the folders must be ordered highest first
   for (const directory of Object.keys(yarnTargetFiles)) {
     let isYarnWorkspacePackage = false;
     let isRootPackageJson = false;
     const packageJsonFileName = pathUtil.join(directory, 'package.json');
-    const packageJson = getFileContents(root, packageJsonFileName);
+    const packageJson = createPackageJson(
+      root,
+      packageJsonFileName,
+      rootPkgJson.resolutions,
+    );
     yarnWorkspacesMap = {
       ...yarnWorkspacesMap,
       ...getWorkspacesMap(packageJson),
@@ -180,4 +199,28 @@ function packageJsonBelongsToWorkspace(
     workspacesGlobs.map((p) => (p.endsWith('/**') ? p : p + '/**')),
   );
   return match;
+}
+
+function createPackageJson(
+  root: string,
+  packageJsonFileName: string,
+  resolutions?: { [key: string]: string },
+) {
+  if (!resolutions || !Object.keys(resolutions).length) {
+    return getFileContents(root, packageJsonFileName);
+  }
+
+  const packageJson = getFileContents(root, packageJsonFileName);
+  const pkgJsonObject = JSON.parse(packageJson.content);
+
+  const pkgJsonWithResolutions = {
+    ...pkgJsonObject,
+    resolutions: { ...pkgJsonObject.resolutions, ...resolutions },
+  };
+
+  const augmentedPkgJson = {
+    ...packageJson,
+    content: JSON.stringify(pkgJsonWithResolutions),
+  };
+  return augmentedPkgJson;
 }
