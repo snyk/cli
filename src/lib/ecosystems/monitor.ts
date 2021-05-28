@@ -8,7 +8,10 @@ import { MonitorResult, Options } from '../types';
 import * as spinner from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
-import { formatMonitorOutput } from '../../cli/commands/monitor/formatters/format-monitor-response';
+import {
+  formatErrorMonitorOutput,
+  formatMonitorOutput,
+} from '../../cli/commands/monitor/formatters/format-monitor-response';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
 import {
   AuthFailedError,
@@ -148,19 +151,28 @@ export async function getFormattedMonitorOutput(
   options: Options,
 ): Promise<string> {
   for (const monitorResult of monitorResults) {
-    const monOutput = formatMonitorOutput(
-      monitorResult.scanResult.identity.type,
-      monitorResult as MonitorResult,
-      options,
-      monitorResult.projectName,
-      await getExtraProjectCount(
-        monitorResult.path,
+    let monOutput = '';
+    if (monitorResult.ok) {
+      monOutput = formatMonitorOutput(
+        monitorResult.scanResult.identity.type,
+        monitorResult as MonitorResult,
         options,
-        // TODO: Fix to pass the old "inspectResult.plugin.meta.allSubProjectNames", which ecosystem uses this?
-        // "allSubProjectNames" can become a Fact returned by a plugin.
-        {} as InspectResult,
-      ),
-    );
+        monitorResult.projectName,
+        await getExtraProjectCount(
+          monitorResult.path,
+          options,
+          // TODO: Fix to pass the old "inspectResult.plugin.meta.allSubProjectNames", which ecosystem uses this?
+          // "allSubProjectNames" can become a Fact returned by a plugin.
+          {} as InspectResult,
+        ),
+      );
+    } else {
+      monOutput = formatErrorMonitorOutput(
+        monitorResult.scanResult.identity.type,
+        monitorResult as MonitorResult,
+        options,
+      );
+    }
     results.push({
       ok: true,
       data: monOutput,
