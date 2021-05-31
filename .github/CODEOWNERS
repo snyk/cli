@@ -26,3 +26,4 @@ help/commands-docs/iac-examples.md @snyk/cloudconfig
 help/commands-docs/iac.md @snyk/cloudconfig
 packages/snyk-fix/ @snyk/tech-services
 packages/snyk-protect/ @snyk/hammer
+test/jest/util/ @snyk/hammer
