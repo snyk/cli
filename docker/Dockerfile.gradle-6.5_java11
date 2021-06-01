@@ -1,0 +1,37 @@
+FROM openjdk:11-jdk-slim
+
+MAINTAINER Snyk Ltd
+
+RUN mkdir /home/node
+WORKDIR /home/node
+
+# Install gradle, node, cli
+RUN apt-get update && \
+  apt-get install -y curl unzip && \
+  curl -L https://services.gradle.org/distributions/gradle-6.5-bin.zip -o gradle-6.5-bin.zip && \
+  unzip gradle-6.5-bin.zip -d /home/node/ && \
+  curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+  apt-get install -y nodejs jq && \
+  node -v && \
+  npm -v && \
+  npm install --global snyk snyk-to-html && \
+  apt-get autoremove -y && \
+  apt-get clean && \
+  chmod -R a+wrx /home/node
+
+ENV HOME /home/node
+ENV M2 /home/node/.m2
+ENV GRADLE_HOME=/home/node/gradle-6.5
+ENV PATH=$PATH:$GRADLE_HOME/bin
+
+# The path at which the project is mounted (-v runtime arg)
+ENV PROJECT_PATH /project
+
+COPY docker-entrypoint.sh .
+COPY snyk_report.css .
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
+# Default command is `snyk test`
+# Override with `docker run ... snyk/snyk-cli <command> <args>`
+CMD ["test"]
