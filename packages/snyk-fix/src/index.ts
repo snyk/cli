@@ -84,6 +84,7 @@ export function groupEntitiesPerScanType(
     [type: string]: EntityToFix[];
   } = {};
   for (const entity of entities) {
+    // TODO: group all node
     const type = entity.scanResult?.identity?.type ?? 'missing-type';
     if (entitiesPerType[type]) {
       entitiesPerType[type].push(entity);
