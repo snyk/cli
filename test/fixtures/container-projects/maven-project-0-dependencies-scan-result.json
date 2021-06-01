@@ -1,0 +1,24 @@
+{
+  "facts": [
+    {
+      "type": "jarFingerprints",
+      "data": {
+        "fingerprints": [
+          {
+            "digest": "68fdac71ba58fe757c1976b4cb8861a3ead6e4a5",
+            "location": "/srv/error.jar"
+          }
+        ],
+        "origin":"snyk/kubernetes-monitor",
+        "path": "/srv"
+      }
+    }
+  ],
+  "identity": {
+    "targetFile": "/srv",
+    "type": "maven"
+  },
+  "target": {
+    "image": "docker-image|snyk/kubernetes-monitor"
+  }
+}

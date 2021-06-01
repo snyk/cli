@@ -5,6 +5,31 @@ import * as url from 'url';
 import { MonitorResult } from '../../../../lib/types';
 import * as config from '../../../../lib/config';
 
+export function formatErrorMonitorOutput(
+  packageManager,
+  res: MonitorResult,
+  options,
+  projectName?: string,
+): string {
+  const humanReadableName = projectName
+    ? `${res.path} (${projectName})`
+    : res.path;
+  const strOutput =
+    chalk.bold.white('\nMonitoring ' + humanReadableName + '...\n\n') +
+    '\n\n' +
+    (packageManager === 'maven'
+      ? chalk.yellow('Detected 0 dependencies (no project created)')
+      : '');
+
+  return options.json
+    ? JSON.stringify(
+        assign({}, res, {
+          packageManager,
+        }),
+      )
+    : strOutput;
+}
+
 export function formatMonitorOutput(
   packageManager,
   res: MonitorResult,

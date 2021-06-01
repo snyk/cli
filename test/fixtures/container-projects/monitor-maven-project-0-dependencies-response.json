@@ -1,0 +1,58 @@
+{
+  "ok": false,
+  "result": {
+    "issues": [
+    ],
+    "issuesData": {
+    },
+    "depGraphData": {
+      "schemaVersion": "1.1.0",
+      "pkgManager": {
+        "name": "maven"
+      },
+      "pkgs": [
+        {
+          "id": "io.github.snyk:my-maven-proj@0.0.1",
+          "info": {
+            "name": "io.github.snyk:my-maven-proj",
+            "version": "0.0.1"
+          }
+        }        ],
+      "graph": {
+        "rootNodeId": "root-node",
+        "nodes": [
+          {
+            "nodeId": "root-node",
+            "pkgId": "io.github.snyk:my-maven-proj@0.0.1",
+            "deps": []
+          }
+        ]
+      }
+    }
+  },
+  "path": "/srv",
+  "scanResult": {
+    "facts": [
+      {
+        "type": "jarFingerprints",
+        "data": {
+          "fingerprints": [
+            {
+              "digest": "68fdac71ba58fe757c1976b4cb8861a3ead6e4a5",
+              "location": "/srv/error.jar"
+            }
+          ],
+          "origin":"snyk/kubernetes-monitor",
+          "path": "/srv"
+        }
+      }
+    ],
+    "identity": {
+      "targetFile": "/srv",
+      "type": "maven"
+    },
+    "target": {
+      "image": "docker-image|snyk/kubernetes-monitor"
+    }
+  }
+}

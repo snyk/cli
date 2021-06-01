@@ -13,6 +13,7 @@ src/lib/snyk-test/iac-test-result.ts @snyk/cloudconfig
 src/lib/snyk-test/payload-schema.ts @snyk/cloudconfig
 src/lib/snyk-test/run-iac-test.ts @snyk/cloudconfig
 test/acceptance/cli-test/iac/ @snyk/cloudconfig
+test/fixtures/container-projects/ @snyk/capsule
 test/fixtures/iac/ @snyk/cloudconfig
 test/smoke/spec/iac/ @snyk/cloudconfig
 test/smoke/.iac-data/ @snyk/cloudconfig
