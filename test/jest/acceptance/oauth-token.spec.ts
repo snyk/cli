@@ -4,6 +4,7 @@ import {
 } from '../../acceptance/workspace-helper';
 import { fakeServer } from '../../acceptance/fake-server';
 import cli = require('../../../src/cli/commands');
+import { chdir } from 'process';
 
 describe('test using OAuth token', () => {
   let oldkey: string;
@@ -21,7 +22,10 @@ describe('test using OAuth token', () => {
     'vulns-result.json',
   );
 
+  let origCwd: string;
+
   beforeAll(async () => {
+    origCwd = process.cwd();
     process.env.SNYK_API = `http://localhost:${port}${BASE_API}`;
     process.env.SNYK_HOST = `http://localhost:${port}`;
 
@@ -53,6 +57,7 @@ describe('test using OAuth token', () => {
     if (oldendpoint) {
       await cli.config('endpoint', oldendpoint);
     }
+    chdir(origCwd);
   });
 
   it('successfully tests a project with an OAuth env variable set', async () => {
