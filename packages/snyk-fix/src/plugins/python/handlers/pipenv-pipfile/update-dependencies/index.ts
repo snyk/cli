@@ -13,7 +13,6 @@ import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-a
 import { standardizePackageName } from '../../pip-requirements/update-dependencies/standardize-package-name';
 import { CommandFailedError } from '../../../../../lib/errors/command-failed-to-run-error';
 import { validateRequiredData } from '../../validate-required-data';
-import { convertErrorToUserMessage } from '../../../../../lib/errors/error-to-user-message';
 
 const debug = debugLib('snyk-fix:python:Pipfile');
 
