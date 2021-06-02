@@ -102,7 +102,7 @@ export interface ReachablePaths {
 }
 
 interface AnnotatedIssue extends IssueData {
-  credit: any;
+  credit: string[];
   name: string;
   version: string;
   from: string[];
