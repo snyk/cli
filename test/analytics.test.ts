@@ -1,6 +1,5 @@
 import * as tap from 'tap';
 import * as Proxyquire from 'proxyquire';
-// tslint:disable-next-line
 const osName = require('os-name');
 import * as sinon from 'sinon';
 import * as snyk from '../src/lib';
