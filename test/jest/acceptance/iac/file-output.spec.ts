@@ -55,7 +55,11 @@ describe('iac test --json-file-output', () => {
       expectedTargetFilePath: path.resolve(
         './test/fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
       ),
-      expectedTargetFile: 'nested-folder/sg_open_ssh.tf',
+      expectedTargetFile: path.join(
+        'nested-folder',
+        path.sep,
+        'sg_open_ssh.tf',
+      ),
       expectedProjectName: 'file-output',
       isNested: true,
     },

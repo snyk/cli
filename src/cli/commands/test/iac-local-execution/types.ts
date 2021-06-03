@@ -137,6 +137,7 @@ export type IaCTestFlags = Pick<
   help?: 'help';
   q?: boolean;
   quiet?: boolean;
+  path?: string;
   // This flag is internal and is used merely to route the smoke tests of the old flow.
   // it should be removed together when the GA version completely deprecates the legacy remote processing flow.
   legacy?: boolean;

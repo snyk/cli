@@ -13,6 +13,7 @@ import { IacProjectType } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
 import { extractLineNumber } from './extract-line-number';
 import { getErrorStringCode } from './error-utils';
+import { isLocalFolder } from '../../../../lib/detect';
 
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
@@ -80,8 +81,10 @@ function formatScanResult(
     };
   });
 
-  const targetFilePath = path.resolve(scanResult.filePath, '.');
-
+  const { targetFilePath, projectName, targetFile } = computePaths(
+    scanResult.filePath,
+    options.path,
+  );
   return {
     result: {
       cloudConfigResults: filterPoliciesBySeverity(
@@ -100,13 +103,43 @@ function formatScanResult(
     dependencyCount: 0,
     licensesPolicy: null, // we do not have the concept of license policies
     ignoreSettings: null,
-    targetFile: scanResult.filePath,
-    projectName: path.basename(path.dirname(targetFilePath)),
+    targetFile,
+    projectName,
     org: meta.org,
     policy: '', // we do not have the concept of policy
     isPrivate: true,
     targetFilePath,
     packageManager: engineTypeToProjectType[scanResult.engineType],
+  };
+}
+
+function computePaths(
+  filePath: string,
+  pathArg = '.',
+): { targetFilePath: string; projectName: string; targetFile: string } {
+  const targetFilePath = path.resolve(filePath, '.');
+
+  // the absolute path is needed to compute the full project path
+  const cmdPath = path.resolve(pathArg);
+
+  let projectPath: string;
+  let targetFile: string;
+  if (!isLocalFolder(cmdPath)) {
+    // if the provided path points to a file, then the project starts at the parent folder of that file
+    // and the target file was provided as the path argument
+    projectPath = path.dirname(cmdPath);
+    targetFile = pathArg;
+  } else {
+    // otherwise, the project starts at the provided path
+    // and the target file must be the relative path from the project path to the path of the scanned file
+    projectPath = cmdPath;
+    targetFile = path.relative(projectPath, targetFilePath);
+  }
+
+  return {
+    targetFilePath,
+    projectName: path.basename(projectPath),
+    targetFile,
   };
 }
 
