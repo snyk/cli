@@ -39,9 +39,9 @@ Find security issues in your Infrastructure as Code files.
 - `--org`=<ORG_NAME>:
   Specify the <ORG_NAME> to run Snyk commands tied to a specific organization. This will influence private tests limits.
   If you have multiple organizations, you can set a default from the CLI using:
-  
+
   `$ snyk config set org`=<ORG_NAME>
-  
+
   Setting a default will ensure all newly tested projects will be tested
   under your default organization. If you need to override the default, you can use the `--org`=<ORG_NAME> argument.
   Default: uses <ORG_NAME> that sets as default in your [Account settings](https://app.snyk.io/account)
@@ -56,7 +56,7 @@ Find security issues in your Infrastructure as Code files.
 
 - `--scan=`<TERRAFORM_PLAN_SCAN_MODE>:
   Dedicated flag for Terraform plan scanning modes.  
-  It enables to control whether the scan should analyse the full final state (e.g. `planned-values`), or the proposed changes only  (e.g. `resource-changes`).  
+  It enables to control whether the scan should analyse the full final state (e.g. `planned-values`), or the proposed changes only (e.g. `resource-changes`).  
   Default: If the `--scan` flag is not provided it would scan the proposed changes only by default.  
   Example #1: `--scan=planned-values` (full state scan)
   Example #2: `--scan=resource-changes` (proposed changes scan)

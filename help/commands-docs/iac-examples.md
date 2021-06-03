@@ -4,7 +4,7 @@
 
 - `Test CloudFormation file`:
   \$ snyk iac test /path/to/cloudformation_file.yaml
-  
+
 - `Test kubernetes file`:
   \$ snyk iac test /path/to/kubernetes_file.yaml
 
@@ -13,6 +13,6 @@
 
 - `Test terraform plan file`:
   \$ snyk iac test /path/to/tf-plan.json
-  
+
 - `Test matching files in a directory`:
   \$ snyk iac test /path/to/directory

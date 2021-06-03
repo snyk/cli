@@ -59,8 +59,9 @@ async function checkPipenvSupport(options: FixOptions): Promise<void> {
     return;
   }
 
-  const { supported, versions } =
-    pipenvPipfileFix.isPipenvSupportedVersion(version);
+  const { supported, versions } = pipenvPipfileFix.isPipenvSupportedVersion(
+    version,
+  );
   if (!supported) {
     const spinnerMessage = ` ${version} pipenv version detected. Currently the following pipenv versions are supported: ${versions.join(
       ',',

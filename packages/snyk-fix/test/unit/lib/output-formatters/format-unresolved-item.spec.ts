@@ -24,12 +24,12 @@ describe('format unresolved item', () => {
   });
 
   it('formats ok with tip', async () => {
-    const entity = generateEntityToFix(
-      'pip',
-      'Pipfile',
-      JSON.stringify({}),
+    const entity = generateEntityToFix('pip', 'Pipfile', JSON.stringify({}));
+    const res = await formatUnresolved(
+      entity,
+      'Failed to fix',
+      'Make sure you have pipenv installed',
     );
-    const res = await formatUnresolved(entity, 'Failed to fix', 'Make sure you have pipenv installed');
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 });

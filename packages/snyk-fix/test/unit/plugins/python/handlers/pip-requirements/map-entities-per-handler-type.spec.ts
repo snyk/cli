@@ -48,12 +48,12 @@ describe('getHandlerType', () => {
     const res = mapEntitiesPerHandlerType([entity]);
 
     // Assert
-    expect(
-      res.entitiesPerType[SUPPORTED_HANDLER_TYPES.PIPFILE],
-    ).toHaveLength(1);
-    expect(
-      res.entitiesPerType[SUPPORTED_HANDLER_TYPES.PIPFILE],
-    ).toStrictEqual([entity]);
+    expect(res.entitiesPerType[SUPPORTED_HANDLER_TYPES.PIPFILE]).toHaveLength(
+      1,
+    );
+    expect(res.entitiesPerType[SUPPORTED_HANDLER_TYPES.PIPFILE]).toStrictEqual([
+      entity,
+    ]);
     expect(res.skipped).toStrictEqual([]);
   });
 });

@@ -1,6 +1,7 @@
 const toTasks = require('../src/cli/commands/protect/tasks');
 const test = require('tap').test;
-const answers = require(__dirname + '/fixtures/patch-same-package-answers.json');
+const answers = require(__dirname +
+  '/fixtures/patch-same-package-answers.json');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const noop = function() {};

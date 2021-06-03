@@ -150,7 +150,8 @@ You may also need to mount the local `.m2` and `.ivy2` folders.
 
 Here are examples of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for SBT:
 
-*Note*: the `dependency-tree` or `sbt-dependency-graph` or `sbt-coursier` (included by default in latest sbt versions) module is required for `snyk` to process Scala projects.
+_Note_: the `dependency-tree` or `sbt-dependency-graph` or `sbt-coursier` (included by default in latest sbt versions) module is required for `snyk` to process Scala projects.
+
 ```
 docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
@@ -240,7 +241,8 @@ The host project folder will be mounted to `/project` on the container and will 
 
 Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Maven:
 
-- *setup.py*
+- _setup.py_
+
 ```
 docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
@@ -251,7 +253,8 @@ docker run -it
   snyk/snyk-cli:python-3 test --org=my-org-name
 ```
 
-- *Pipfile*
+- _Pipfile_
+
 ```
 docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
@@ -262,7 +265,7 @@ docker run -it
   snyk/snyk-cli:python-3 test --org=my-org-name
 ```
 
-- *requirements.txt*
+- _requirements.txt_
 
 ```
 docker run -it

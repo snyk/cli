@@ -9,11 +9,10 @@ export function formatUnresolved(
   userMessage: string,
   tip?: string,
 ): string {
-  const name =
-    formatDisplayName(
-      entity.workspace.path,
-      entity.scanResult.identity,
-    );
+  const name = formatDisplayName(
+    entity.workspace.path,
+    entity.scanResult.identity,
+  );
   const tipMessage = tip ? `\n${PADDING_SPACE}Tip:     ${tip}` : '';
   const errorMessage = `${PADDING_SPACE}${name}\n${PADDING_SPACE}${chalk.red(
     '✖',

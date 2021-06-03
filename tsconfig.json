@@ -1,14 +1,12 @@
 {
-    "extends": "./tsconfig.settings.json",
-    "compilerOptions": {
-        "outDir": "./dist",
-        "rootDir": "./src"
-    },
-    "include": [
-        "./src/**/*",
-    ],
-    "references": [
-        { "path": "packages/snyk-protect" },
-        { "path": "packages/snyk-fix" }
-    ]
+  "extends": "./tsconfig.settings.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["./src/**/*"],
+  "references": [
+    { "path": "packages/snyk-protect" },
+    { "path": "packages/snyk-fix" }
+  ]
 }
