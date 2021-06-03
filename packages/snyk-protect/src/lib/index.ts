@@ -3,14 +3,23 @@ import * as path from 'path';
 import { extractPatchMetadata } from './snyk-file';
 import { applyPatchToFile } from './patch';
 import { findPhysicalModules } from './explore-node-modules';
-import { VulnIdAndPackageName, VulnPatches } from './types';
+import {
+  VulnIdAndPackageName,
+  VulnPatches,
+  PatchedModule,
+  ProtectResultType,
+} from './types';
 import { getAllPatches } from './fetch-patches';
+import { sendAnalytics } from './analytics';
 
 async function protect(projectFolderPath: string) {
   const snykFilePath = path.resolve(projectFolderPath, '.snyk');
 
   if (!fs.existsSync(snykFilePath)) {
     console.log('No .snyk file found');
+    sendAnalytics({
+      type: ProtectResultType.NO_SNYK_FILE,
+    });
     return;
   }
 
@@ -48,10 +57,14 @@ async function protect(projectFolderPath: string) {
   > = await getAllPatches(vulnIdAndPackageNames, packageNameToVersionsMap);
 
   if (packageAtVersionsToPatches.size === 0) {
-    console.log('Nothing to patch, done');
+    console.log('Nothing to patch');
+    sendAnalytics({
+      type: ProtectResultType.NOTHING_TO_PATCH,
+    });
     return;
   }
 
+  const patchedModules: PatchedModule[] = [];
   foundPhysicalPackages.forEach((fpp) => {
     const packageNameAtVersion = `${fpp.packageName}@${fpp.packageVersion}`;
     const vuldIdAndPatches = packageAtVersionsToPatches.get(
@@ -63,7 +76,17 @@ async function protect(projectFolderPath: string) {
           applyPatchToFile(diff, fpp.path);
         });
       });
+      patchedModules.push({
+        vulnId: vp.vulnId,
+        packageName: fpp.packageName,
+        packageVersion: fpp.packageVersion,
+      });
     });
+  });
+
+  sendAnalytics({
+    type: ProtectResultType.APPLIED_PATCHES,
+    patchedModules,
   });
 }
 

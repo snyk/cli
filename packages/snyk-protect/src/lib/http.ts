@@ -31,3 +31,20 @@ export async function request(
     request.end();
   });
 }
+
+export function postJson(
+  url: string,
+  jsonData: any,
+  options: RequestOptions = {},
+): Promise<SnykResponse> {
+  const jsonString = JSON.stringify(jsonData);
+  const requestOptions = {
+    ...options,
+    method: 'POST',
+    headers: {
+      ...options.headers,
+      'Content-Type': 'application/json',
+    },
+  };
+  return request(url, jsonString, requestOptions);
+}

@@ -23,3 +23,40 @@ export type VulnPatches = {
   vulnId: string;
   patches: Patch[];
 };
+
+export type PatchedModule = {
+  vulnId: string;
+  packageName: string;
+  packageVersion: string;
+};
+
+export enum ProtectResultType {
+  NO_SNYK_FILE = 'NO_SNYK_FILE',
+  NOTHING_TO_PATCH = 'NOTHING_TO_PATCH',
+  APPLIED_PATCHES = 'APPLIED_PATCHES',
+}
+
+export type AnalyticsPayload = {
+  command: string;
+  args: string[];
+  version: string;
+  nodeVersion: string;
+  metadata: {
+    protectResult: ProtectResult;
+  };
+};
+
+export type NoSnykFile = {
+  type: ProtectResultType.NO_SNYK_FILE;
+};
+
+export type NothingToPatch = {
+  type: ProtectResultType.NOTHING_TO_PATCH;
+};
+
+export type AppliedPatches = {
+  type: ProtectResultType.APPLIED_PATCHES;
+  patchedModules: PatchedModule[];
+};
+
+export type ProtectResult = NoSnykFile | NothingToPatch | AppliedPatches;

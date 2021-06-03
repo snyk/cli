@@ -125,7 +125,9 @@ patch:
 
     expect(() => {
       extractPatchMetadata(dotSnykFileContents);
-    }).toThrow('should never have no package names for a vulnId in a .snyk file');
+    }).toThrow(
+      'should never have no package names for a vulnId in a .snyk file',
+    );
   });
 
   it('throws when there is more than one package name for a vulnId in the patch section', () => {
@@ -144,6 +146,8 @@ patch:
 
     expect(() => {
       extractPatchMetadata(dotSnykFileContents);
-    }).toThrow('should never have more than one package name for a vulnId in a .snyk file');
+    }).toThrow(
+      'should never have more than one package name for a vulnId in a .snyk file',
+    );
   });
 });
