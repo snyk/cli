@@ -4,11 +4,12 @@ import { runCommand, RunCommandResult, RunCommandOptions } from './runCommand';
 const cwd = process.cwd();
 
 const runSnykCLI = async (
-  args,
+  argsString: string,
   options?: RunCommandOptions,
 ): Promise<RunCommandResult> => {
-  const cliAbsPath = path.resolve(cwd, './dist/cli/index.js');
-  return await runCommand('node', [cliAbsPath, ...args.split(' ')], options);
+  const cliPath = path.resolve(cwd, './dist/cli/index.js');
+  const args = argsString.split(' ').filter((v) => !!v);
+  return await runCommand('node', [cliPath, ...args], options);
 };
 
 export { runSnykCLI };
