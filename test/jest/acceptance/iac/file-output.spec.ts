@@ -18,7 +18,7 @@ describe('iac test --json-file-output', () => {
 
   afterAll(async () => teardown());
 
-  it('can save JSON output to file while sending human readable output to stdout', async () => {
+  it('contains a valid line number', async () => {
     const jsonOutputFilename = path.join(__dirname, `${uuidv4()}.json`);
     const { stdout } = await run(
       `snyk iac test ./iac/terraform/sg_open_ssh.tf --json-file-output=${jsonOutputFilename}`,
@@ -32,6 +32,71 @@ describe('iac test --json-file-output', () => {
     expect(lineNumber).not.toBeUndefined();
     expect(lineNumber).not.toEqual(-1);
   });
+
+  [
+    {
+      location: './iac/file-output/sg_open_ssh.tf', // single file
+      expectedTargetFilePath: path.resolve(
+        './test/fixtures/iac/file-output/sg_open_ssh.tf',
+      ),
+      expectedTargetFile: './iac/file-output/sg_open_ssh.tf',
+      expectedProjectName: 'file-output',
+    },
+    {
+      location: './iac/file-output/nested-folder', // folder with a single file
+      expectedTargetFilePath: path.resolve(
+        './test/fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
+      ),
+      expectedTargetFile: 'sg_open_ssh.tf',
+      expectedProjectName: 'nested-folder',
+    },
+    {
+      location: './iac/file-output', // folder with a nested folder
+      expectedTargetFilePath: path.resolve(
+        './test/fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
+      ),
+      expectedTargetFile: 'nested-folder/sg_open_ssh.tf',
+      expectedProjectName: 'file-output',
+      isNested: true,
+    },
+    {
+      location: '../fixtures/iac/file-output/nested-folder', // folder nested outside running directory
+      expectedTargetFilePath: path.resolve(
+        './test/fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
+      ),
+      expectedTargetFile: 'sg_open_ssh.tf',
+      expectedProjectName: 'nested-folder',
+    },
+  ].forEach(
+    ({
+      location,
+      expectedTargetFilePath,
+      expectedTargetFile,
+      expectedProjectName,
+      isNested,
+    }) => {
+      it(`returns the correct paths for provided path ${location}`, async () => {
+        const jsonOutputFilename = path.join(__dirname, `${uuidv4()}.json`);
+        const { stdout } = await run(
+          `snyk iac test ${location} --json-file-output=${jsonOutputFilename}`,
+        );
+        expect(stdout).toMatch('Organization:');
+
+        const outputFileContents = readFileSync(jsonOutputFilename, 'utf-8');
+        unlinkSync(jsonOutputFilename);
+        let jsonObj = JSON.parse(outputFileContents);
+        if (isNested) {
+          jsonObj = jsonObj[0];
+        }
+        const actualTargetFilePath = jsonObj?.targetFilePath;
+        const actualTargetFile = jsonObj?.targetFile;
+        const actualProjectName = jsonObj?.projectName;
+        expect(actualTargetFilePath).toEqual(expectedTargetFilePath);
+        expect(actualTargetFile).toEqual(expectedTargetFile);
+        expect(actualProjectName).toEqual(expectedProjectName);
+      });
+    },
+  );
 });
 
 describe('iac test --sarif-file-output', () => {
@@ -46,7 +111,7 @@ describe('iac test --sarif-file-output', () => {
 
   afterAll(async () => teardown());
 
-  it('can save Sarif output to file while sending human readable output to stdout', async () => {
+  it('contains a valid line number', async () => {
     const sarifOutputFilename = path.join(__dirname, `${uuidv4()}.sarif`);
     const { stdout } = await run(
       `snyk iac test ./iac/terraform/sg_open_ssh.tf --sarif-file-output=${sarifOutputFilename}`,
@@ -61,5 +126,57 @@ describe('iac test --sarif-file-output', () => {
         ?.startLine;
     expect(startLine).not.toBeUndefined();
     expect(startLine).not.toEqual(-1);
+  });
+
+  [
+    {
+      location: './iac/file-output/sg_open_ssh.tf', // single file
+      expectedPhysicalLocation: path.join('iac/file-output/sg_open_ssh.tf'),
+      expectedProjectRoot:
+        'file://' + path.join(path.resolve('./test/fixtures/'), '/'),
+    },
+    {
+      location: './iac/file-output/nested-folder', // folder with a single file
+      expectedPhysicalLocation: path.join(
+        'iac/file-output/nested-folder/sg_open_ssh.tf',
+      ),
+      expectedProjectRoot:
+        'file://' + path.join(path.resolve('./test/fixtures/'), '/'),
+    },
+    {
+      location: './iac/file-output', // folder with a nested folder
+      expectedPhysicalLocation: path.join(
+        'iac/file-output/nested-folder/sg_open_ssh.tf',
+      ),
+      expectedProjectRoot:
+        'file://' + path.join(path.resolve('./test/fixtures/'), '/'),
+    },
+    {
+      location: '../fixtures/iac/file-output/nested-folder', // folder nested outside running directory
+      expectedPhysicalLocation: path.join(
+        '../fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
+      ),
+      expectedProjectRoot:
+        'file://' + path.join(path.resolve('./test/fixtures/'), '/'),
+    },
+  ].forEach(({ location, expectedPhysicalLocation, expectedProjectRoot }) => {
+    it(`returns the correct paths for provided path ${location}`, async () => {
+      const sarifOutputFilename = path.join(__dirname, `${uuidv4()}.sarif`);
+      const { stdout } = await run(
+        `snyk iac test ${location} --sarif-file-output=${sarifOutputFilename}`,
+      );
+      expect(stdout).toMatch('Organization:');
+
+      const outputFileContents = readFileSync(sarifOutputFilename, 'utf-8');
+      unlinkSync(sarifOutputFilename);
+      const jsonObj = JSON.parse(outputFileContents);
+      const actualProjectRoot =
+        jsonObj?.runs?.[0].originalUriBaseIds.PROJECTROOT.uri;
+      const actualPhyisicalLocation =
+        jsonObj?.runs?.[0].results[0].locations[0].physicalLocation
+          .artifactLocation.uri;
+      expect(actualProjectRoot).toEqual(expectedProjectRoot);
+      expect(actualPhyisicalLocation).toEqual(expectedPhysicalLocation);
+    });
   });
 });
