@@ -21,8 +21,8 @@ function registerAlerts(alerts: Alert[]) {
   });
 }
 
-function hasAlert(name: string) {
-  return registeredAlerts.find((a) => a.name === name);
+function hasAlert(name: string): boolean {
+  return registeredAlerts.some((a) => a.name === name);
 }
 
 function displayAlerts() {
