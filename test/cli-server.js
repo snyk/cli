@@ -1,8 +1,8 @@
-var restify = require('restify');
-var fs = require('fs');
+const restify = require('restify');
+const fs = require('fs');
 
 module.exports = function(root, apikey, notAuthorizedApiKey) {
-  var server = restify.createServer({
+  const server = restify.createServer({
     name: 'snyk-mock-server',
     version: '1.0.0',
     handleUncaughtExceptions: true,
@@ -46,8 +46,8 @@ module.exports = function(root, apikey, notAuthorizedApiKey) {
   });
 
   server.get(root + '/vuln/npm/:module', function(req, res, next) {
-    var module = req.params.module;
-    var body = fs.readFileSync(
+    const module = req.params.module;
+    const body = fs.readFileSync(
       __dirname + '/fixtures/cli-test-results/' + module,
       'utf8',
     );
@@ -62,7 +62,7 @@ module.exports = function(root, apikey, notAuthorizedApiKey) {
   });
 
   server.get(root + '/authorization/:action', function(req, res, next) {
-    var authorizationToken = req.headers.authorization.replace('token ', '');
+    const authorizationToken = req.headers.authorization.replace('token ', '');
     if (authorizationToken === notAuthorizedApiKey) {
       res.send({
         result: {

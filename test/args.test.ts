@@ -50,7 +50,7 @@ test('test --insecure', (t) => {
     'test',
     '--insecure',
   ];
-  const result = args(cliArgs);
+  args(cliArgs);
   t.equal((global as any).ignoreUnknownCA, true, 'ignoreUnknownCA true');
   t.end();
 });

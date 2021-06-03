@@ -7,7 +7,6 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as cli from '../../src/cli/commands';
 import { fakeServer } from './fake-server';
-import { getVersion } from '../../src/lib/version';
 import { chdirWorkspaces } from './workspace-helper';
 
 const { test, only } = tap;
@@ -21,15 +20,12 @@ process.env.LOG_LEVEL = '0';
 const apiKey = '123456789';
 let oldkey;
 let oldendpoint;
-let versionNumber;
 const server = fakeServer(BASE_API, apiKey);
 const before = tap.runOnly ? only : test;
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
-  versionNumber = await getVersion();
-
   t.plan(3);
   let key = await cli.config('get', 'api');
   oldkey = key;
@@ -64,10 +60,10 @@ test('`protect` should not fail for unauthorized users', (t) => {
   // temporally remove api param in userConfig to test for unauthenticated users
   userConfig.delete('api');
 
-  let absoluteMain = path.join(process.cwd(), main);
+  const absoluteMain = path.join(process.cwd(), main);
   chdirWorkspaces('npm-package-policy');
 
-  exec(`node ${absoluteMain} protect --file=`, (err, stdout, stderr) => {
+  exec(`node ${absoluteMain} protect --file=`, (err, stdout) => {
     if (err) {
       throw err;
     }
@@ -186,7 +182,7 @@ test('teardown', async (t) => {
   delete process.env.SNYK_PORT;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-  await new Promise((resolve) => {
+  await new Promise<void>((resolve) => {
     server.close(resolve);
   });
   t.pass('server shutdown');

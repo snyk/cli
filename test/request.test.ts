@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/camelcase */
 import { afterEach, test } from 'tap';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
@@ -15,7 +16,7 @@ const request = proxyquire('../src/lib/request', {
   },
 });
 
-afterEach((done, t) => {
+afterEach((done) => {
   needleStub.resetHistory();
   delete process.env.https_proxy;
   delete process.env.http_proxy;

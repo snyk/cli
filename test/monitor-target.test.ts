@@ -1,4 +1,4 @@
-import { test, afterEach, afterAll } from 'tap';
+import { test } from 'tap';
 import * as requestLib from 'needle';
 import * as path from 'path';
 
@@ -8,7 +8,6 @@ import * as sinon from 'sinon';
 import * as cli from '../src/cli/commands';
 import subProcess = require('../src/lib/sub-process');
 import { fakeServer } from './acceptance/fake-server';
-import { getVersion } from '../src/lib/version';
 
 const apiKey = '123456789';
 
@@ -19,11 +18,9 @@ process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 let oldkey;
 let oldendpoint;
-let versionNumber;
 const server = fakeServer(BASE_API, apiKey);
 
 test('setup', async (t) => {
-  versionNumber = await getVersion();
   let key = await cli.config('get', 'api');
   oldkey = key;
   t.pass('existing user config captured');
@@ -114,7 +111,7 @@ test('teardown', async (t) => {
   delete process.env.SNYK_PORT;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-  await new Promise((resolve) => {
+  await new Promise<void>((resolve) => {
     server.close(resolve);
   });
   t.pass('server shutdown');

@@ -51,7 +51,7 @@
     "test": "npm run test:acceptance && npm run test:system && npm run test:test && npm run test:jest && test:packages-unit && test:packages-acceptance",
     "test-windows": "npm run test:acceptance-windows && npm run test:system && npm run test:test && npm run test:jest",
     "lint": "run-p --aggregate-output lint:*",
-    "lint:js": "eslint --color --cache 'src/**/*.{js,ts}'",
+    "lint:js": "eslint --color --cache '**/*.{js,ts}'",
     "lint:formatting": "prettier --check '{src,test,scripts}/**/*.{js,ts}'",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "snyk-auth": "node --require ts-node/register src/cli auth $SNYK_API_KEY",

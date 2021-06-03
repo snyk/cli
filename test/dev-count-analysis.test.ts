@@ -103,7 +103,7 @@ test('can call legit command with execShell', async (t) => {
 test('execShell can handle it when a command does not exist', async (t) => {
   t.plan(3);
   try {
-    const res = await execShell('command-no-exist some params', process.cwd());
+    await execShell('command-no-exist some params', process.cwd());
     t.fail('should have rejected');
   } catch (e) {
     t.notOk(e.stdout);
@@ -121,7 +121,7 @@ test('execShell can handle it when we call a command with wonky arguments', asyn
   t.plan(3);
 
   try {
-    const res = await execShell('git log bad args non sense', process.cwd()); // git log, should return exit code 128
+    await execShell('git log bad args non sense', process.cwd()); // git log, should return exit code 128
     throw new Error('should not return');
   } catch (e) {
     t.notOk(e.stdout); // expect empty / falsy
@@ -132,10 +132,7 @@ test('execShell can handle it when we call a command with wonky arguments', asyn
 
 test('runGitLog returns empty string and does not throw error when git log command fails', async (t) => {
   t.plan(1);
-  const mockExecShell = (
-    cmd: string,
-    workingDirectory: string,
-  ): Promise<string> => {
+  const mockExecShell = (): Promise<string> => {
     const e = new ShellOutError(
       'mock error',
       1,

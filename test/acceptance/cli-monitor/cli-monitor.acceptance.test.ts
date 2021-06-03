@@ -440,8 +440,6 @@ if (!isWindows) {
   });
 
   test('`monitor yarn v2 project`', async (t) => {
-    const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
-
     chdirWorkspaces();
 
     await cli.monitor('yarn-v2');

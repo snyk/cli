@@ -1,14 +1,9 @@
 import * as tap from 'tap';
 import * as Proxyquire from 'proxyquire';
-const osName = require('os-name');
 import * as sinon from 'sinon';
 import * as snyk from '../src/lib';
 import * as semver from 'semver';
 let old;
-const iswindows =
-  osName()
-    .toLowerCase()
-    .indexOf('windows') === 0;
 const proxyquire = Proxyquire.noPreserveCache();
 const { test } = tap;
 

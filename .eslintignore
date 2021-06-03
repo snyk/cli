@@ -1,0 +1,8 @@
+node_modules
+tmp
+dist
+fixtures
+test-output
+test-results
+test/**/workspaces
+.iac-data
