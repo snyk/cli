@@ -48,6 +48,7 @@ enum TrackedIntegration {
   CIRCLECI_ORB = 'CIRCLECI_ORB',
   GITHUB_ACTIONS = 'GITHUB_ACTIONS',
   MAVEN_PLUGIN = 'MAVEN_PLUGIN',
+  AWS_CODEPIPELINE = 'AWS_CODEPIPELINE',
 
   // Partner integrations - tracked by passing envvar on CLI invocation
   DOCKER_DESKTOP = 'DOCKER_DESKTOP',
