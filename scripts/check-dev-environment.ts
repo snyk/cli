@@ -42,7 +42,7 @@ const checkDevEnvironment = async () => {
     issues.push({
       target: 'npm',
       reason: `Expected npm@${expectedNpmVersion} but faced an error:\n${error}`,
-      enforce: true,
+      enforce: false,
     });
   }
 
