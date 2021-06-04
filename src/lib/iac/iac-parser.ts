@@ -14,6 +14,7 @@ import {
   IacValidateTerraformResponse,
   IacValidationResponse,
 } from './constants';
+import { shouldThrowErrorFor } from '../../cli/commands/test/iac-local-execution/file-utils';
 
 const debug = debugLib('snyk-detect');
 
@@ -31,7 +32,7 @@ function parseYamlOrJson(fileContent: string, filePath: string): any {
     case 'yml':
       try {
         return YAML.parseAllDocuments(fileContent).map((doc) => {
-          if (doc.errors.length !== 0) {
+          if (shouldThrowErrorFor(doc)) {
             throw doc.errors[0];
           }
           return doc.toJSON();

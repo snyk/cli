@@ -27,6 +27,10 @@ import {
   expectedMultipleKubernetesYamlsParsingResult,
   invalidYamlFileDataStub,
   invalidJsonFileDataStub,
+  duplicateKeyYamlErrorFileDataStub,
+  expectedDuplicateKeyYamlErrorFileParsingResult,
+  expectedInsufficientIndentationYamlErrorFileParsingResult,
+  insufficientIndentationYamlErrorFileDataStub,
 } from './file-parser.fixtures';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { IacFileTypes } from '../../../../dist/lib/iac/constants';
@@ -119,11 +123,34 @@ describe('parseFiles', () => {
     );
   });
 
-  it('throws an error for invalid YAML file types', async () => {
+  it('throws an error for invalid (syntax) YAML file types', async () => {
     await expect(parseFiles([invalidYamlFileDataStub])).rejects.toThrow(
       InvalidYamlFileError,
     );
   });
+
+  // the npm yaml parser by default fails on SemanticErrors like duplicate keys
+  // but we decided to skip this error in order to be consistent with the Policy Engine
+  it.each([
+    [
+      {
+        fileStub: duplicateKeyYamlErrorFileDataStub,
+        expectedParsingResult: expectedDuplicateKeyYamlErrorFileParsingResult,
+      },
+    ],
+    [
+      {
+        fileStub: insufficientIndentationYamlErrorFileDataStub,
+        expectedParsingResult: expectedInsufficientIndentationYamlErrorFileParsingResult,
+      },
+    ],
+  ])(
+    `given an $fileStub with one of the errors to skip, it returns $expectedParsingResult`,
+    async ({ fileStub, expectedParsingResult }) => {
+      const { parsedFiles } = await parseFiles([fileStub]);
+      expect(parsedFiles[0]).toEqual(expectedParsingResult);
+    },
+  );
 
   it('throws an error for a Helm file', async () => {
     const helmFileData: IacFileData = {
