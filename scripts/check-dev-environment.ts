@@ -20,10 +20,17 @@ const checkDevEnvironment = async () => {
 
   try {
     // npm/7.14.0 node/v14.16.1 linux x64 workspaces/false
-    const npmVersion = process.env.npm_config_user_agent
-      ?.split(' ')[0]
-      ?.split('/')[1];
-    const npmMajor = npmVersion?.split('.')[0];
+    const userAgent = process.env.npm_config_user_agent;
+    if (!userAgent) {
+      throw new Error("Couldn't find npm_config_user_agent.");
+    }
+
+    const matches = /npm\/((\d+)\.\d+\.\d+)/.exec(userAgent);
+    if (!matches) {
+      throw new Error(`Couldn't find npm version in user agent "${userAgent}"`);
+    }
+
+    const [, npmVersion, npmMajor] = matches;
     if (npmMajor !== expectedNpmVersion) {
       issues.push({
         target: 'npm',
@@ -35,7 +42,7 @@ const checkDevEnvironment = async () => {
     issues.push({
       target: 'npm',
       reason: `Expected npm@${expectedNpmVersion} but faced an error:\n${error}`,
-      enforce: true,
+      enforce: false,
     });
   }
 
