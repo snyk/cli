@@ -9,6 +9,7 @@ import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
 import { assembleQueryString } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
+import { hasToDetourToLegacyFlow } from './enhance-options';
 
 export async function testEcosystem(
   ecosystem: Ecosystem,
@@ -16,26 +17,33 @@ export async function testEcosystem(
   options: Options,
 ): Promise<TestCommandResult> {
   const plugin = getPlugin(ecosystem);
+
+  const enhancedOptions = {
+    ...options,
+    detour: await hasToDetourToLegacyFlow(ecosystem, options),
+  };
+
   // TODO: this is an intermediate step before consolidating ecosystem plugins
   // to accept flows that act differently in the testDependencies step
   if (plugin.test) {
-    const { readableResult: res } = await plugin.test(paths, options);
+    const { readableResult: res } = await plugin.test(paths, enhancedOptions);
     return TestCommandResult.createHumanReadableTestCommandResult(res, '');
   }
+
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
   for (const path of paths) {
     await spinner(`Scanning dependencies in ${path}`);
-    options.path = path;
-    const pluginResponse = await plugin.scan(options);
+    enhancedOptions.path = path;
+    const pluginResponse = await plugin.scan(enhancedOptions);
     scanResultsByPath[path] = pluginResponse.scanResults;
   }
   spinner.clearAll();
   const [testResults, errors] = await testDependencies(
     scanResultsByPath,
-    options,
+    enhancedOptions,
   );
   const stringifiedData = JSON.stringify(testResults, null, 2);
-  if (options.json) {
+  if (enhancedOptions.json) {
     return TestCommandResult.createJsonTestCommandResult(stringifiedData);
   }
   const emptyResults: ScanResult[] = [];
@@ -44,7 +52,7 @@ export async function testEcosystem(
     scanResults,
     testResults,
     errors,
-    options,
+    enhancedOptions,
   );
 
   return TestCommandResult.createHumanReadableTestCommandResult(

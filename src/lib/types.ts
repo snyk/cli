@@ -82,6 +82,8 @@ export interface Options {
   sarif?: boolean;
   'group-issues'?: boolean;
   quiet?: boolean;
+  // Used only with C/C++ Plugin. Allows different code flows
+  detour?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
