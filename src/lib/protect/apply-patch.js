@@ -1,11 +1,9 @@
-module.exports = applyPatch;
-
+import { v4 as uuidv4 } from 'uuid';
 const debug = require('debug')('snyk');
 const diff = require('diff');
 const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
-const uuid = require('uuid/v4');
 const semver = require('semver');
 const errorAnalytics = require('../analytics').postAnalytics;
 
@@ -184,7 +182,7 @@ function patchError(error, dir, vuln, patchUrl) {
       (npmVError, versions) => {
         // stderr is ignored
         const npmVersion = versions && versions.split('\n').shift();
-        const referenceId = uuid();
+        const referenceId = uuidv4();
 
         // this is a general "patch failed", since we already check if the
         // patch was applied via a flag, this means something else went
@@ -239,3 +237,5 @@ function patchError(error, dir, vuln, patchUrl) {
     );
   });
 }
+
+module.exports = applyPatch;
