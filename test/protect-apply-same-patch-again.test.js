@@ -72,7 +72,7 @@ test('setup', (t) => {
 });
 
 test('Same patch is applied multiple times without issue', (t) => {
-  t.teardown((t) => {
+  t.teardown(() => {
     fs.readdir(fixturesBaseFolder, (err, fileNames) => {
       const fixturesBaseFolderFiles = fileNames || [];
 

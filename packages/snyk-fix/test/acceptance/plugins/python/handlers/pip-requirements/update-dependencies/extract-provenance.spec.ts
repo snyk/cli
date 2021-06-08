@@ -1,4 +1,3 @@
-
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import { extractProvenance } from '../../../../../../../src/plugins/python/handlers/pip-requirements/extract-version-provenance';

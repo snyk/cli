@@ -1,11 +1,11 @@
-var path = require('path');
-var test = require('tap').test;
+const path = require('path');
+const test = require('tap').test;
 
-var subProcess = require('../src/lib/sub-process');
+const subProcess = require('../src/lib/sub-process');
 
-var scriptDir;
-var scriptExtension;
-var shellVar;
+let scriptDir;
+let scriptExtension;
+let shellVar;
 
 if (process.platform === 'win32') {
   scriptDir = 'windows';
@@ -35,8 +35,8 @@ function isSupported() {
    * and fall back to exec (or appending '.cmd') for Node < 6 on Windows.
    */
   try {
-    var supportedNodeVersion = 6;
-    var majorVersion = Number(process.version.match(/^v([\d]+)/)[1]);
+    const supportedNodeVersion = 6;
+    const majorVersion = Number(process.version.match(/^v([\d]+)/)[1]);
     return majorVersion >= supportedNodeVersion;
   } catch (err) {
     return false;
@@ -105,7 +105,7 @@ test('sub-process.execute executes sub processes', function(t) {
     t.test('options.cwd', function(t) {
       t.plan(2);
 
-      var explicitWorkDir = path.resolve(path.join(__dirname, 'support'));
+      const explicitWorkDir = path.resolve(path.join(__dirname, 'support'));
       subProcess
         .execute(script('pwd'), [], { cwd: explicitWorkDir })
         .then(function(result) {
@@ -113,7 +113,7 @@ test('sub-process.execute executes sub processes', function(t) {
         })
         .catch(t.fail);
 
-      var currentWorkDir = process.cwd();
+      const currentWorkDir = process.cwd();
       subProcess
         .execute(script('pwd'), [])
         .then(function(result) {

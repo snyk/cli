@@ -19,4 +19,3 @@ If you have an idea how you would like this to behave please share in as much de
 **Additional context**
 
 Add any other context or screenshots about the feature request here.
-

@@ -257,7 +257,7 @@ export const NpmTests: AcceptanceTests = {
       t,
     ) => {
       utils.chdirWorkspaces();
-      const commandResult = await params.cli.test('npm-package', {
+      await params.cli.test('npm-package', {
         file: 'package-lock.json',
         reachableVulns: true,
       });

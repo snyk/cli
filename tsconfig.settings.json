@@ -1,18 +1,15 @@
 {
   "compilerOptions": {
-      "outDir": "./dist",
-      "rootDir": ".",
-      "pretty": true,
-      "target": "es2017",
-      "lib": [
-          "es2017",
-          "dom"
-      ],
-      "module": "commonjs",
-      "allowJs": true,
-      "sourceMap": true,
-      "strict": true,
-      "noImplicitAny": false, // Needed to compile tap and ansi-escapes
-      "composite": true
-  },
+    "outDir": "./dist",
+    "rootDir": ".",
+    "pretty": true,
+    "target": "es2017",
+    "lib": ["es2017", "dom"],
+    "module": "commonjs",
+    "allowJs": true,
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": false, // Needed to compile tap and ansi-escapes
+    "composite": true
+  }
 }

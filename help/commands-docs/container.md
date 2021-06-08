@@ -55,9 +55,9 @@ Find vulnerabilities in your container images.
 
 - `--severity-threshold`=low|medium|high:
   Only report vulnerabilities of provided level or higher.
-  
+
 - `--username`=<CONTAINER_REGISTRY_USERNAME>:
   Specify a username to use when connecting to a container registry. This will be ignored in favour of local Docker binary credentials when Docker is present.
-  
+
 - `--password`=<CONTAINER_REGISTRY_PASSWORD>:
   Specify a password to use when connecting to a container registry. This will be ignored in favour of local Docker binary credentials when Docker is present.

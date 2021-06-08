@@ -2,7 +2,6 @@ import * as tap from 'tap';
 import * as fs from 'fs';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
-import { getVersion } from '../../../src/lib/version';
 
 const { test, only } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
@@ -15,20 +14,16 @@ process.env.LOG_LEVEL = '0';
 const apiKey = '123456789';
 let oldkey;
 let oldendpoint;
-let versionNumber;
 const server = fakeServer(BASE_API, apiKey);
 const before = tap.runOnly ? only : test;
 const after = tap.runOnly ? only : test;
 
 // Should be after `process.env` setup.
-import * as plugins from '../../../src/lib/plugins/index';
 import { chdirWorkspaces } from '../workspace-helper';
 
 // @later: remove this config stuff.
 // Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
-  versionNumber = await getVersion();
-
   t.plan(3);
   let key = await cli.config('get', 'api');
   oldkey = key;
@@ -126,7 +121,7 @@ after('teardown', async (t) => {
   delete process.env.SNYK_PORT;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-  await new Promise((resolve) => {
+  await new Promise<void>((resolve) => {
     server.close(resolve);
   });
   t.pass('server shutdown');

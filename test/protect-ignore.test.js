@@ -1,9 +1,9 @@
-var filter = require('snyk-policy').filter;
-var test = require('tap').test;
-var vulns = require('./fixtures/test-jsbin-vulns.json');
+const filter = require('snyk-policy').filter;
+const test = require('tap').test;
+const vulns = require('./fixtures/test-jsbin-vulns.json');
 
 function runFilterShared(res, path, date) {
-  var rule = { 'node-semver-63': [{}] };
+  const rule = { 'node-semver-63': [{}] };
   rule['node-semver-63'][0][path] = {
     expires: (date || new Date(Date.now() + 1000 * 60 * 60 * 24)).toJSON(),
     reason: 'none given',
@@ -13,7 +13,7 @@ function runFilterShared(res, path, date) {
 }
 
 function filterIgnored(rule, vulns) {
-  var res = filter(
+  const res = filter(
     {
       ok: false,
       vulnerabilities: vulns,
@@ -31,11 +31,9 @@ test(
     Promise.resolve(vulns)
       .then(function(res) {
         // exact match
-        var total = res.vulnerabilities.length;
-        var vulns;
-        var runFilter = runFilterShared.bind(null, res);
-
-        vulns = runFilter('*');
+        const total = res.vulnerabilities.length;
+        const runFilter = runFilterShared.bind(null, res);
+        const vulns = runFilter('*');
         t.equal(vulns.length, total - 1, 'removed with * _only_ rule');
       })
       .catch(function(e) {
@@ -50,9 +48,9 @@ test('protect correctly filters', function(t) {
   Promise.resolve(vulns)
     .then(function(res) {
       // exact match
-      var total = res.vulnerabilities.length;
-      var vulns;
-      var runFilter = runFilterShared.bind(null, res);
+      const total = res.vulnerabilities.length;
+      let vulns;
+      const runFilter = runFilterShared.bind(null, res);
 
       vulns = runFilter('sqlite3@2.2.7 > node-pre-gyp@0.5.22 > semver@3.0.1');
       t.equal(vulns.length, total - 1, 'removed matched vuln');
@@ -87,14 +85,14 @@ test('protect correctly filters', function(t) {
 });
 
 test('ignores real vuln data', function(t) {
-  var vulns2 = require('./fixtures/test-jsbin-vulns-updated.json').vulnerabilities.filter(
+  const vulns2 = require('./fixtures/test-jsbin-vulns-updated.json').vulnerabilities.filter(
     function(v) {
       return (
         v.id === 'npm:uglify-js:20150824' || v.id === 'npm:semver:20150403'
       );
     },
   );
-  var policy = require('snyk-policy');
+  const policy = require('snyk-policy');
 
   t.plan(1);
   policy

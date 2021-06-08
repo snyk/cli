@@ -1,9 +1,9 @@
 module.exports = interactive;
 
-var proxyquire = require('proxyquire');
-var sinon = require('sinon');
-var spy;
-var wizard = proxyquire('../src/cli/commands/protect/wizard', {
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
+let spy;
+const wizard = proxyquire('../src/cli/commands/protect/wizard', {
   '@snyk/inquirer': {
     prompt: function(q, cb) {
       if (!cb) {
@@ -11,11 +11,11 @@ var wizard = proxyquire('../src/cli/commands/protect/wizard', {
       }
 
       if (spy) {
-        var res = q.reduce(function(acc, curr, i, all) {
+        const res = q.reduce(function(acc, curr, i, all) {
           if (curr.when && !curr.when(acc)) {
             return acc;
           }
-          var res = spy(curr, spy.callCount, i, all, acc);
+          const res = spy(curr, spy.callCount, i, all, acc);
           acc[curr.name] = res;
           return acc;
         }, {});
@@ -55,31 +55,31 @@ function respondWith(q, res) {
 }
 
 function getDefaultChoice(q) {
-  var def = q.default;
-  var choices = q.choices;
+  const def = q.default;
+  const choices = q.choices;
   return choices[def || 0];
 }
 
 function interactive(vulns, originalResponses, options) {
-  var responses = [].slice.call(originalResponses); // copy
+  const responses = [].slice.call(originalResponses); // copy
   if (!options) {
     options = {};
   }
 
-  var callback = function() {};
+  let callback = function() {};
 
   if (options.callback) {
     callback = options.callback;
   }
 
   spy = sinon.spy(function(q, i, j, all, acc) {
-    var intercept = callback(q, i, j, all, acc);
+    const intercept = callback(q, i, j, all, acc);
 
     if (intercept !== undefined) {
       return intercept;
     }
 
-    var response = responses.shift();
+    let response = responses.shift();
 
     if (response === undefined) {
       if (options.earlyExit) {
@@ -90,7 +90,7 @@ function interactive(vulns, originalResponses, options) {
     }
 
     if (typeof response === 'string' && response.indexOf('default:') === 0) {
-      var def = getDefaultChoice(q);
+      const def = getDefaultChoice(q);
       response = response.slice('default:'.length);
       if (def.value.choice !== response) {
         throw new Error(
@@ -104,7 +104,7 @@ function interactive(vulns, originalResponses, options) {
       }
     }
 
-    var res = respondWith(q, response);
+    const res = respondWith(q, response);
     if (res === null) {
       throw new Error('missing prompt response to ' + q.name);
     }

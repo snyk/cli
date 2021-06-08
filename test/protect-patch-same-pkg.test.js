@@ -1,17 +1,18 @@
-var toTasks = require('../src/cli/commands/protect/tasks');
-var test = require('tap').test;
-var answers = require(__dirname + '/fixtures/patch-same-package-answers.json');
-var proxyquire = require('proxyquire');
-var sinon = require('sinon');
-var noop = function() {};
+const toTasks = require('../src/cli/commands/protect/tasks');
+const test = require('tap').test;
+const answers = require(__dirname +
+  '/fixtures/patch-same-package-answers.json');
+const proxyquire = require('proxyquire');
+const sinon = require('sinon');
+const noop = function() {};
 
 // spies
-var execSpy = sinon.spy();
-var renameSpy = sinon.spy();
-var writeSpy = sinon.spy();
+let execSpy = sinon.spy();
+const renameSpy = sinon.spy();
+const writeSpy = sinon.spy();
 
 // main proxy
-var patch = proxyquire('../src/lib/protect/patch', {
+const patch = proxyquire('../src/lib/protect/patch', {
   glob: function(pattern, options, cb) {
     cb(null, ['uglify.js.orig']);
   },
@@ -45,8 +46,8 @@ var patch = proxyquire('../src/lib/protect/patch', {
 });
 
 test('if two patches for same package selected, only newest runs', function(t) {
-  var latestId = 'uglify-js-20151024';
-  var tasks = toTasks(answers).patch;
+  const latestId = 'uglify-js-20151024';
+  const tasks = toTasks(answers).patch;
   return patch(tasks, true)
     .then(function(res) {
       t.equal(
@@ -72,7 +73,7 @@ test('if two patches for same package selected, only newest runs', function(t) {
 });
 
 test('different patches are not affected', function(t) {
-  var answers = require(__dirname + '/fixtures/forever-answers.json');
+  const answers = require(__dirname + '/fixtures/forever-answers.json');
   execSpy = sinon.spy();
   return patch(toTasks(answers).patch, true).then(function() {
     t.equal(execSpy.callCount, 2, 'two patches applied');

@@ -184,6 +184,7 @@ describe('Snyk fix', () => {
       'prod.txt',
       'django===1.6.1',
     );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore: The operand of a 'delete' operator must be optional
     delete txtProdProjectTestResult.testResult.remediation;
 
@@ -287,6 +288,7 @@ describe('groupEntitiesPerScanType', () => {
       'package.json',
       'django===1.6.1',
     );
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore: The operand of a 'delete' operator must be optional
     delete missingProjectTestResult.scanResult.identity.type;
 

@@ -4,7 +4,7 @@ const sinon = require('sinon');
 const spy = sinon.spy();
 const fixture = require(__dirname + '/fixtures/protect-via-snyk/package.json');
 
-var wizard = proxyquire('../src/cli/commands/protect/wizard', {
+const wizard = proxyquire('../src/cli/commands/protect/wizard', {
   '@snyk/inquirer': {
     prompt: function(q, cb) {
       cb(q);
@@ -45,7 +45,7 @@ test('prepublish is added and postinstall is removed', function(t) {
     )
     .then(function() {
       t.equal(spy.callCount, 1, 'write function was only called once');
-      var pkg = JSON.parse(spy.args[0][0]);
+      const pkg = JSON.parse(spy.args[0][0]);
       t.pass('package was valid JSON');
 
       fixture.scripts.postinstall = 'true';

@@ -38,13 +38,9 @@ export async function updateDependencies(
     // Currently this is not possible as there is no Pipfile parser that would do this.
     const upgrades = generateUpgrades(remediation.pin);
     if (!options.dryRun) {
-      const res = await pipenvPipfileFix.pipenvInstall(
-        dir,
-        upgrades,
-        {
-          python: entity.options.command,
-        },
-      );
+      const res = await pipenvPipfileFix.pipenvInstall(dir, upgrades, {
+        python: entity.options.command,
+      });
       if (res.exitCode !== 0) {
         pipenvCommand = res.command;
         throwPipenvError(res.stderr, res.command);

@@ -1,10 +1,10 @@
-var _ = require('lodash');
-var sinon = require('sinon');
-var tap = require('tap');
-var test = tap.test;
+const _ = require('lodash');
+const sinon = require('sinon');
+const tap = require('tap');
+const test = tap.test;
 
-var cli = require('../cli/commands');
-var snyk = require('..');
+const cli = require('../cli/commands');
+const snyk = require('..');
 
 sinon.stub(snyk, 'test', function() {
   return require('./fixtures/more-vuln-paths-than-vulns');
@@ -15,14 +15,14 @@ tap.tearDown(function() {
 });
 
 test('"snyk test --show-vulnerable-paths=false"', function(t) {
-  var options = { 'show-vulnerable-paths': 'false' };
+  const options = { 'show-vulnerable-paths': 'false' };
   return cli
     .test('more-vuln-paths-than-vulns', options)
-    .then(function(res) {
+    .then(function() {
       t.fail('Should have found vulns!');
     })
     .catch(function(res) {
-      var vulnUrls = res.message
+      const vulnUrls = res.message
         .match(/^- info: (.*)$/gm)
         .map(function(result) {
           return result.replace(/^- info:\s*/, '');
@@ -55,7 +55,7 @@ test('"snyk test"', function(t) {
       t.fail('Should have found vulns!');
     })
     .catch(function(res) {
-      var vulnUrls = res.message
+      const vulnUrls = res.message
         .match(/^- info: (.*)$/gm)
         .map(function(result) {
           return result.replace(/^- info:\s*/, '');

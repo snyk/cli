@@ -19,7 +19,7 @@ test('request respects proxy environment variables', function(t) {
   t.plan(6);
 
   t.test('direct http access', function(t) {
-    var nockClient = nock(httpRequestHost)
+    const nockClient = nock(httpRequestHost)
       .post(requestPath)
       .reply(200, {});
     return request({ method: 'post', url: httpRequestHost + requestPath })
@@ -31,7 +31,7 @@ test('request respects proxy environment variables', function(t) {
   });
 
   t.test('direct https access', function(t) {
-    var nockClient = nock(httpsRequestHost)
+    const nockClient = nock(httpsRequestHost)
       .post(requestPath)
       .reply(200, {});
     return request({ method: 'post', url: httpsRequestHost + requestPath })
@@ -55,6 +55,7 @@ test('request respects proxy environment variables', function(t) {
       delete global.GLOBAL_AGENT;
     });
 
+    // eslint-disable-next-line @typescript-eslint/camelcase
     process.env.http_proxy = `http://localhost:${proxyPort}`;
     const proxy = http.createServer(function(req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'http_proxy url ok');
@@ -83,7 +84,7 @@ test('request respects proxy environment variables', function(t) {
     });
 
     process.env.HTTP_PROXY = `http://localhost:${proxyPort}`;
-    var proxy = http.createServer(function(req, res) {
+    const proxy = http.createServer(function(req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'HTTP_PROXY url ok');
       res.end();
     });
@@ -112,7 +113,7 @@ test('request respects proxy environment variables', function(t) {
     process.env.https_proxy = `http://localhost:${proxyPort}`;
     const proxy = http.createServer();
     proxy.setTimeout(1000);
-    proxy.on('connect', (req, cltSocket, head) => {
+    proxy.on('connect', (req, cltSocket) => {
       const proxiedUrl = url.parse(`https://${req.url}`);
       t.equal(
         proxiedUrl.hostname,
@@ -158,7 +159,7 @@ test('request respects proxy environment variables', function(t) {
     process.env.HTTPS_PROXY = `http://localhost:${proxyPort}`;
     const proxy = http.createServer();
     proxy.setTimeout(1000);
-    proxy.on('connect', (req, cltSocket, head) => {
+    proxy.on('connect', (req, cltSocket) => {
       const proxiedUrl = url.parse(`https://${req.url}`);
       t.equal(
         proxiedUrl.hostname,

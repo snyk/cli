@@ -43,7 +43,7 @@ test('runTest annotates results with remediation data when using node_modules', 
   const vulns = require('./fixtures/npm-package-with-git-url/test-graph-result.json');
   server.setNextResponse(vulns);
 
-  let result = await runTest(
+  const result = await runTest(
     'npm',
     'test/acceptance/workspaces/npm-package-with-git-url',
     { packageManager: 'npm' } as Options & TestOptions,
@@ -55,10 +55,14 @@ test('runTest annotates results with remediation data when traverseNodeModules',
   const vulns = require('./fixtures/npm-package/test-graph-result.json');
   server.setNextResponse(vulns);
 
-  let result = await runTest('npm', 'test/acceptance/workspaces/npm-package', {
-    packageManager: 'npm',
-    traverseNodeModules: true,
-  } as Options & TestOptions);
+  const result = await runTest(
+    'npm',
+    'test/acceptance/workspaces/npm-package',
+    {
+      packageManager: 'npm',
+      traverseNodeModules: true,
+    } as Options & TestOptions,
+  );
   t.ok(result[0].vulnerabilities[0].parentDepType, 'has parentDepType');
 });
 

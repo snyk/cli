@@ -246,7 +246,7 @@ test('teardown', async (t) => {
   delete process.env.SNYK_DOCKER_TOKEN;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-  await new Promise((resolve) => {
+  await new Promise<void>((resolve) => {
     server.close(resolve);
   });
   t.pass('server shutdown');
@@ -269,7 +269,7 @@ test('teardown', async (t) => {
 
 function stubDockerPluginResponse(plugins, fixture: string | object, t) {
   const plugin = {
-    async scan(_) {
+    async scan() {
       return typeof fixture === 'object' ? fixture : require(fixture);
     },
     async display() {

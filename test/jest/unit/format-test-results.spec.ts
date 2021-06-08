@@ -1,9 +1,6 @@
-import * as jsonModule from '../../../src/lib/json';
-
 import { extractDataToSendFromResults } from '../../../src/cli/commands/test/formatters/format-test-results';
 import { Options } from '../../../src/lib/types';
 import * as fs from 'fs';
-import { deepEqual } from 'assert';
 
 describe('format-test-results', () => {
   describe('extractDataToSendFromResults', () => {

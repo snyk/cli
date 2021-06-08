@@ -4,8 +4,6 @@
     "outDir": "./dist",
     "rootDir": "./src"
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "types": ["node", "jest"],
+  "include": ["./src/**/*"],
+  "types": ["node", "jest"]
 }

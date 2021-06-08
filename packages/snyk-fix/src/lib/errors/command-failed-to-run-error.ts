@@ -4,10 +4,7 @@ export class CommandFailedError extends CustomError {
   public command?: string;
 
   public constructor(customMessage: string, command?: string) {
-    super(
-      customMessage,
-      ERROR_CODES.CommandFailed,
-    );
+    super(customMessage, ERROR_CODES.CommandFailed);
     this.command = command;
   }
 }
