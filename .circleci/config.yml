@@ -39,12 +39,6 @@ commands:
       - run:
           name: Install dependencies
           command: npm install
-  update_local_npmrc_linux:
-    description: Update local .npmrc file (Linux)
-    steps:
-      - run:
-          name: Update local .npmrc file (Linux)
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
   build_ts:
     description: Build js files from ts
     steps:
@@ -169,7 +163,6 @@ jobs:
           command: |
             sudo npm install -g npm@7
       - show_node_version
-      - update_local_npmrc_linux
       - install_deps
       - build_ts
       - generate_help
@@ -230,9 +223,6 @@ jobs:
       - run:
           name: Setup Lerna
           command: npm install -g lerna@3.22.1
-      - run:
-          name: Update local .npmrc file (Windows)
-          command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
       - run:
           name: Install dependencies (Windows)
           command: npm install --ignore-scripts # ignore-scripts required because of postinstall script in snyk-resolve-deps package
@@ -334,7 +324,6 @@ jobs:
       - run: sudo npm install -g npm@7
       - show_node_version
       - install_lerna_linux
-      - update_local_npmrc_linux
       - install_deps
       - build_ts
       - run:
@@ -473,7 +462,6 @@ jobs:
             sudo npm install -g npm@7
       - show_node_version
       - install_lerna_linux
-      - update_local_npmrc_linux
       - install_deps
       - generate_help
       - run:
