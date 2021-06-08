@@ -1,9 +1,8 @@
 import * as url from 'url';
 import * as open from 'open';
-import * as uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import * as Debug from 'debug';
 import { Spinner } from 'cli-spinner';
-
 import * as snyk from '../../../lib';
 import { verifyAPI } from './is-authed';
 import { isCI } from '../../../lib/is-ci';
@@ -32,7 +31,7 @@ function resetAttempts() {
 type AuthCliCommands = 'wizard' | 'ignore';
 
 async function webAuth(via: AuthCliCommands) {
-  const token = uuid.v4(); // generate a random key
+  const token = uuidv4(); // generate a random key
   const redirects = {
     wizard: '/authenticated',
   };

@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 const snyk = require('../lib');
 const config = require('./config');
 const version = require('./version');
@@ -14,7 +15,6 @@ const debug = require('debug')('snyk');
 const os = require('os');
 const osName = require('os-name');
 const crypto = require('crypto');
-const uuid = require('uuid');
 const stripAnsi = require('strip-ansi');
 import * as needle from 'needle';
 const { MetricsCollector } = require('./metrics');
@@ -88,7 +88,7 @@ export function postAnalytics(
         data.args,
       );
 
-      const seed = uuid.v4();
+      const seed = uuidv4();
       const shasum = crypto.createHash('sha1');
       data.id = shasum.update(seed).digest('hex');
 
