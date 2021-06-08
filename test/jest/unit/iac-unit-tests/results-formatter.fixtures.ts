@@ -38,6 +38,9 @@ const anotherPolicyStub: PolicyMetadata = {
   publicId: 'SNYK-CC-K8S-2',
 };
 
+const relativeFilePath = 'dont-care.yaml';
+const absoluteFilePath = path.resolve(relativeFilePath, '.');
+
 export function generateScanResults(): Array<IacFileScanResult> {
   return [
     {
@@ -47,7 +50,7 @@ export function generateScanResults(): Array<IacFileScanResult> {
       projectType: IacProjectType.K8S,
       engineType: EngineType.Kubernetes,
       fileContent: 'dont-care',
-      filePath: 'dont-care',
+      filePath: relativeFilePath,
       fileType: 'yaml',
     },
     {
@@ -57,7 +60,7 @@ export function generateScanResults(): Array<IacFileScanResult> {
       projectType: IacProjectType.K8S,
       engineType: EngineType.Kubernetes,
       fileContent: 'dont-care',
-      filePath: 'dont-care',
+      filePath: relativeFilePath,
       fileType: 'yaml',
     },
   ];
@@ -69,7 +72,7 @@ export const meta: TestMeta = {
   org: 'org-name',
 };
 
-function generateFormattedResults(withLineNumber: boolean = true) {
+function generateFormattedResults(withLineNumber = true) {
   return {
     result: {
       cloudConfigResults: [
@@ -95,8 +98,8 @@ function generateFormattedResults(withLineNumber: boolean = true) {
     },
     isPrivate: true,
     packageManager: IacProjectType.K8S,
-    targetFile: 'dont-care',
-    targetFilePath: path.resolve('dont-care', '.'),
+    targetFile: relativeFilePath,
+    targetFilePath: absoluteFilePath,
     vulnerabilities: [],
     dependencyCount: 0,
     ignoreSettings: null,
