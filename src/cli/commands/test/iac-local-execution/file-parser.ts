@@ -23,6 +23,7 @@ import {
 import * as analytics from '../../../../lib/analytics';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
+import { shouldThrowErrorFor } from './file-utils';
 
 export async function parseFiles(
   filesData: IacFileData[],
@@ -69,7 +70,7 @@ function parseYAMLOrJSONFileData(fileData: IacFileData): any[] {
     // the YAML library can parse both YAML and JSON content, as well as content with singe/multiple YAMLs
     // by using this library we don't have to disambiguate between these different contents ourselves
     yamlDocuments = YAML.parseAllDocuments(fileData.fileContent).map((doc) => {
-      if (doc.errors.length !== 0) {
+      if (shouldThrowErrorFor(doc)) {
         throw doc.errors[0];
       }
       return doc.toJSON();
