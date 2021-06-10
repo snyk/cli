@@ -40,7 +40,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@snyk/dep-graph": "^1.21.0",
-    "@snyk/fix-pipenv-pipfile": "0.4.3",
+    "@snyk/fix-pipenv-pipfile": "0.5.3",
     "chalk": "4.1.1",
     "debug": "^4.3.1",
     "lodash.groupby": "4.6.0",
