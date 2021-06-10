@@ -16,4 +16,5 @@ export enum ERROR_CODES {
   MissingFileName = 'G12',
   FailedToParseManifest = 'G13',
   CommandFailed = 'G14',
+  NoFixesCouldBeApplied = 'G15',
 }

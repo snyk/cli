@@ -8,6 +8,7 @@ import { loadHandler } from './load-handler';
 import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
 import { mapEntitiesPerHandlerType } from './map-entities-per-handler-type';
 import chalk = require('chalk');
+import { partitionByFixable } from './handlers/is-supported';
 
 const debug = debugLib('snyk-fix:python');
 
@@ -51,10 +52,14 @@ export async function pythonFix(
 
       try {
         const handler = loadHandler(projectType as SUPPORTED_HANDLER_TYPES);
-        const { failed, skipped, succeeded } = await handler(
+        // drop unsupported Python entities early so only potentially fixable items get
+        // attempted to be fixed
+        const { fixable, skipped: notFixable } = await partitionByFixable(
           projectsToFix,
-          options,
         );
+        results.skipped.push(...notFixable);
+
+        const { failed, skipped, succeeded } = await handler(fixable, options);
         results.failed.push(...failed);
         results.skipped.push(...skipped);
         results.succeeded.push(...succeeded);
