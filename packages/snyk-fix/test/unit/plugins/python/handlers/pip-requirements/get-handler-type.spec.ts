@@ -24,6 +24,15 @@ describe('getHandlerType', () => {
     const entity = generateEntityToFix('pip', 'Pipfile', '');
     expect(getHandlerType(entity)).toBe(SUPPORTED_HANDLER_TYPES.PIPFILE);
   });
+
+  it('poetry + pyproject.toml is supported project type `pyproject.toml`', () => {
+    const entity = generateEntityToFix('poetry', 'pyproject.toml', '');
+    expect(getHandlerType(entity)).toBe(SUPPORTED_HANDLER_TYPES.POETRY);
+  });
+  it('poetry + poetry.lock is supported project type `pyproject.toml`', () => {
+    const entity = generateEntityToFix('poetry', 'poetry.lock', '');
+    expect(getHandlerType(entity)).toBe(SUPPORTED_HANDLER_TYPES.POETRY);
+  });
 });
 
 describe('isRequirementsTxtManifest', () => {

@@ -19,6 +19,7 @@ export function mapEntitiesPerHandlerType(
   } = {
     [SUPPORTED_HANDLER_TYPES.REQUIREMENTS]: [],
     [SUPPORTED_HANDLER_TYPES.PIPFILE]: [],
+    [SUPPORTED_HANDLER_TYPES.POETRY]: [],
   };
 
   const skipped: Array<WithUserMessage<EntityToFix>> = [];

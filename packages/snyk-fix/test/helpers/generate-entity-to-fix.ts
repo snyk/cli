@@ -31,11 +31,14 @@ export function generateEntityToFixWithFileReadWrite(
   workspacesPath: string,
   targetFile: string,
   testResult: TestResult,
+  options: {
+    command?: string;
+    dev?: boolean;
+  } = {
+    command: 'python3',
+  },
 ): EntityToFix {
   const scanResult = generateScanResult('pip', targetFile);
-  const cliTestOptions = {
-    command: 'python3',
-  };
 
   const workspace = {
     path: workspacesPath,
@@ -52,7 +55,7 @@ export function generateEntityToFixWithFileReadWrite(
       fs.writeFileSync(fixedPath, contents, 'utf-8');
     },
   };
-  return { scanResult, testResult, workspace, options: cliTestOptions };
+  return { scanResult, testResult, workspace, options };
 }
 
 function generateWorkspace(contents: string, path?: string) {

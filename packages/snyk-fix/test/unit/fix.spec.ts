@@ -185,7 +185,7 @@ describe('Snyk fix', () => {
       'django===1.6.1',
     );
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore: The operand of a 'delete' operator must be optional
+    // @ts-ignore: for test purpose only
     delete txtProdProjectTestResult.testResult.remediation;
 
     // Act
@@ -258,17 +258,25 @@ describe('groupEntitiesPerScanType', () => {
       'django===1.6.1',
     );
 
+    const poetryProjectTestResult = generateEntityToFix(
+      'poetry',
+      'poetry.lock',
+      'django===1.6.1',
+    );
+
     // Act
     const res = snykFix.groupEntitiesPerScanType([
       txtProdProjectTestResult,
       txtDevProjectTestResult,
       npmProjectTestResult,
+      poetryProjectTestResult,
     ]);
 
     // Assert
-    expect(Object.keys(res).sort()).toEqual(['npm', 'pip']);
+    expect(Object.keys(res).sort()).toEqual(['npm', 'pip', 'poetry']);
     expect(res.npm).toHaveLength(1);
     expect(res.pip).toHaveLength(2);
+    expect(res.poetry).toHaveLength(1);
   });
 
   it('It correctly groups related entities per handler type with missing type', () => {
@@ -289,7 +297,7 @@ describe('groupEntitiesPerScanType', () => {
       'django===1.6.1',
     );
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore: The operand of a 'delete' operator must be optional
+    // @ts-ignore: for test purpose only
     delete missingProjectTestResult.scanResult.identity.type;
 
     // Act

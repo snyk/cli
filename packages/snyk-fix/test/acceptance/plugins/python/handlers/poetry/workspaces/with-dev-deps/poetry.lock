@@ -1,0 +1,17 @@
+[[package]]
+name = "json-api"
+version = "0.1.21"
+description = "Make you focus on writting business logic code, just return dict data for API, or other Response directly."
+category = "dev"
+optional = false
+python-versions = "*"
+
+[metadata]
+lock-version = "1.1"
+python-versions = "*"
+content-hash = "b032690f346f78dfe91bb1b8fcb583abcaf51fc2c3259da47f8759169bfa758d"
+
+[metadata.files]
+json-api = [
+    {file = "json_api-0.1.21-py3-none-any.whl", hash = "sha256:f5e4c369e815e70a59596ce1b4921683d966bbe7a38ec8d0df57bf74492eeefb"},
+]

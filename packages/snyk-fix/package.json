@@ -41,13 +41,15 @@
   "dependencies": {
     "@snyk/dep-graph": "^1.21.0",
     "@snyk/fix-pipenv-pipfile": "0.5.3",
+    "@snyk/fix-poetry": "0.6.0",
     "chalk": "4.1.1",
     "debug": "^4.3.1",
     "lodash.groupby": "4.6.0",
     "lodash.sortby": "^4.7.0",
     "ora": "5.4.0",
     "p-map": "^4.0.0",
-    "strip-ansi": "6.0.0"
+    "strip-ansi": "6.0.0",
+    "toml": "3.0.0"
   },
   "devDependencies": {
     "@types/jest": "26.0.20",

@@ -193,6 +193,7 @@ export interface EntityToFix {
 // add more as needed
 export interface PythonTestOptions {
   command?: string; // python interpreter to use for python tests
+  dev?: boolean;
 }
 export type CliTestOptions = PythonTestOptions;
 export interface WithError<Original> {

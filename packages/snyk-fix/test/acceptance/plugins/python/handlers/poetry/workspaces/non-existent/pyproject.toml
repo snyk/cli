@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "fails-to-lock"
+version = "0.1.0"
+description = ""
+authors = ["ghe <lili@snyk.io>"]
+
+[tool.poetry.dependencies]
+python = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
