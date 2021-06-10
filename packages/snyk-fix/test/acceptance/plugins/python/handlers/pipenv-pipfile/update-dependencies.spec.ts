@@ -1,11 +1,10 @@
-import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
 
 import * as snykFix from '../../../../../../src';
-import { TestResult } from '../../../../../../src/types';
+
 import {
-  generateScanResult,
+  generateEntityToFixWithFileReadWrite,
   generateTestResult,
 } from '../../../../../helpers/generate-entity-to-fix';
 
@@ -57,7 +56,7 @@ describe('fix Pipfile Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -130,7 +129,7 @@ describe('fix Pipfile Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -194,7 +193,7 @@ describe('fix Pipfile Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -262,7 +261,7 @@ describe('fix Pipfile Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -311,52 +310,3 @@ describe('fix Pipfile Python projects', () => {
     expect(result.fixSummary).toContain('1 fixed issues');
   });
 });
-
-function readFileHelper(workspacesPath: string, path: string): string {
-  // because we write multiple time the file
-  // may be have already been updated in fixed-* name
-  // so try read that first
-  const res = pathLib.parse(path);
-  const fixedPath = pathLib.resolve(
-    workspacesPath,
-    res.dir,
-    `fixed-${res.base}`,
-  );
-  let file;
-  try {
-    file = fs.readFileSync(fixedPath, 'utf-8');
-  } catch (e) {
-    file = fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
-  }
-  return file;
-}
-
-function generateEntityToFix(
-  workspacesPath: string,
-  targetFile: string,
-  testResult: TestResult,
-): snykFix.EntityToFix {
-  const entityToFix = {
-    options: {
-      command: 'python3',
-    },
-    workspace: {
-      path: workspacesPath,
-      readFile: async (path: string) => {
-        return readFileHelper(workspacesPath, path);
-      },
-      writeFile: async (path: string, contents: string) => {
-        const res = pathLib.parse(path);
-        const fixedPath = pathLib.resolve(
-          workspacesPath,
-          res.dir,
-          `fixed-${res.base}`,
-        );
-        fs.writeFileSync(fixedPath, contents, 'utf-8');
-      },
-    },
-    scanResult: generateScanResult('pip', targetFile),
-    testResult,
-  };
-  return entityToFix;
-}
