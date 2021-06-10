@@ -111,7 +111,7 @@ async function sendSlackAlert(failedJobs: string[]) {
 }
 
 async function waitForConclusion(runID: number) {
-  let status = 'queued';
+  let status: string | null = 'queued';
   const before = Date.now();
   console.log('Waiting for Smoke Test to finish running...');
 

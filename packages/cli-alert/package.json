@@ -1,5 +1,5 @@
 {
-  "name": "cli-alert",
+  "name": "@snyk/cli-alert",
   "version": "1.0.0",
   "description": "Script to check Smoke Test runs on Snyk CLI",
   "main": "dist/index.js",
@@ -17,8 +17,5 @@
     "@pagerduty/pdjs": "^2.2.0",
     "@slack/webhook": "^5.0.3",
     "typescript": "^4.0.2"
-  },
-  "devDependencies": {
-    "@types/node": "^14.10.0"
   }
 }
