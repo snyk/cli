@@ -9,6 +9,11 @@ interface SastSettings {
   error?: string;
 }
 
+interface TrackUsageResponse {
+  code?: number;
+  error?: string;
+}
+
 export async function getSastSettingsForOrg(org): Promise<SastSettings> {
   const response = await request({
     method: 'GET',
@@ -17,6 +22,21 @@ export async function getSastSettingsForOrg(org): Promise<SastSettings> {
     },
     qs: assembleQueryString({ org }),
     url: `${config.API}/cli-config/settings/sast`,
+    gzip: true,
+    json: true,
+  });
+
+  return (response as any).body;
+}
+
+export async function trackUsage(org): Promise<TrackUsageResponse> {
+  const response = await request({
+    method: 'POST',
+    headers: {
+      Authorization: `token ${snyk.api}`,
+    },
+    qs: assembleQueryString({ org }),
+    url: `${config.API}/track-sast-usage/cli`,
     gzip: true,
     json: true,
   });

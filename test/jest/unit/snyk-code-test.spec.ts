@@ -7,7 +7,7 @@ const analyzeFoldersMock = analyzeFolders as jest.Mock;
 
 import { loadJson } from '../../utils';
 import * as featureFlags from '../../../src/lib/feature-flags';
-import * as settings from '../../../src/lib/plugins/sast/settings';
+import * as checks from '../../../src/lib/plugins/sast/checks';
 import { config as userConfig } from '../../../src/lib/user-config';
 import * as analysis from '../../../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../../../src/lib/types';
@@ -23,6 +23,7 @@ describe('Test snyk code', () => {
   let apiUserConfig;
   let isFeatureFlagSupportedForOrgSpy;
   let isSastEnabledForOrgSpy;
+  let trackUsageSpy;
   const failedCodeTestMessage = "Failed to run 'code test'";
   const fakeApiKey = '123456789';
   const sampleSarifResponse = loadJson(
@@ -59,7 +60,8 @@ describe('Test snyk code', () => {
       featureFlags,
       'isFeatureFlagSupportedForOrg',
     );
-    isSastEnabledForOrgSpy = jest.spyOn(settings, 'getSastSettingsForOrg');
+    isSastEnabledForOrgSpy = jest.spyOn(checks, 'getSastSettingsForOrg');
+    trackUsageSpy = jest.spyOn(checks, 'trackUsage');
   });
 
   afterAll(() => {
@@ -78,6 +80,7 @@ describe('Test snyk code', () => {
       showVulnPaths: 'none',
     };
     isSastEnabledForOrgSpy.mockResolvedValueOnce({ code: 401 });
+    trackUsageSpy.mockResolvedValue({});
 
     await expect(
       ecosystems.testEcosystem('code', ['some/path'], {
@@ -104,6 +107,7 @@ describe('Test snyk code', () => {
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
+    trackUsageSpy.mockResolvedValue({});
 
     try {
       await ecosystems.testEcosystem('code', ['some/path'], options);
@@ -132,6 +136,7 @@ describe('Test snyk code', () => {
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
+    trackUsageSpy.mockResolvedValue({});
 
     try {
       await cli.test('some/path', options);
@@ -202,6 +207,23 @@ describe('Test snyk code', () => {
     }
   });
 
+  it('should show error if limit is reached', async () => {
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({ sastEnabled: true });
+    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
+      ok: true,
+    });
+    trackUsageSpy.mockResolvedValueOnce({
+      code: 429,
+      userMessage: 'Test limit reached!',
+    });
+
+    try {
+      await cli.test('some/path', { code: true });
+    } catch (error) {
+      expect(error.userMessage).toBe('Test limit reached!');
+    }
+  });
+
   it.each([
     ['sarif', { sarif: true }],
     ['json', { json: true }],
@@ -223,6 +245,7 @@ describe('Test snyk code', () => {
       isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
         ok: true,
       });
+      trackUsageSpy.mockResolvedValue({});
 
       try {
         await ecosystems.testEcosystem('code', ['some/path'], options);
@@ -255,6 +278,7 @@ describe('Test snyk code', () => {
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
+    trackUsageSpy.mockResolvedValue({});
 
     try {
       await cli.test('some/path', options);
@@ -287,6 +311,7 @@ describe('Test snyk code', () => {
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
+    trackUsageSpy.mockResolvedValue({});
 
     try {
       await ecosystems.testEcosystem('code', ['some/path'], options);
@@ -321,6 +346,7 @@ describe('Test snyk code', () => {
       isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
         ok: true,
       });
+      trackUsageSpy.mockResolvedValue({});
 
       try {
         await ecosystems.testEcosystem('code', ['.'], {

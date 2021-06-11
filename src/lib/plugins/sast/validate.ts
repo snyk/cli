@@ -1,7 +1,11 @@
 import { Options } from '../../types';
 import * as config from '../../config';
 
-import { AuthFailedError, FeatureNotSupportedForOrgError } from '../../errors';
+import {
+  AuthFailedError,
+  FailedToRunTestError,
+  FeatureNotSupportedForOrgError,
+} from '../../errors';
 
 export async function validateCodeTest(options: Options) {
   const org = options.org || config.org;
@@ -12,7 +16,7 @@ export async function validateCodeTest(options: Options) {
   }
 
   // TODO: We would need to remove this once we fix circular import issue
-  const { getSastSettingsForOrg } = require('./settings');
+  const { getSastSettingsForOrg, trackUsage } = require('./checks');
   const { isFeatureFlagSupportedForOrg } = require('../../feature-flags');
 
   const [
@@ -44,6 +48,14 @@ export async function validateCodeTest(options: Options) {
       org,
       'Snyk Code',
       'enable in Settings > Snyk Code',
+    );
+  }
+
+  const trackUsageResponse = await trackUsage(org);
+  if (trackUsageResponse.code === 429) {
+    throw new FailedToRunTestError(
+      trackUsageResponse.userMessage,
+      trackUsageResponse.code,
     );
   }
 }
