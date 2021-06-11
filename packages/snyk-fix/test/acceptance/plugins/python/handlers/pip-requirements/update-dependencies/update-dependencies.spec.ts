@@ -2,9 +2,9 @@ import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as snykFix from '../../../../../../../src';
 import { selectFileForPinning } from '../../../../../../../src/plugins/python/handlers/pip-requirements';
-import { SEVERITY, TestResult } from '../../../../../../../src/types';
+import { SEVERITY } from '../../../../../../../src/types';
 import {
-  generateScanResult,
+  generateEntityToFixWithFileReadWrite,
   generateTestResult,
 } from '../../../../../../helpers/generate-entity-to-fix';
 
@@ -37,7 +37,7 @@ describe('selectFileForPinning', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -77,7 +77,7 @@ describe('selectFileForPinning', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -117,7 +117,7 @@ describe('selectFileForPinning', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -171,7 +171,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -239,7 +239,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -321,7 +321,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -404,7 +404,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -475,7 +475,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -542,7 +542,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -608,7 +608,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -679,7 +679,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -748,7 +748,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
       },
     };
 
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -812,7 +812,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         },
       },
     };
-    const entityToFix = generateEntityToFix(
+    const entityToFix = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile,
       testResult,
@@ -910,17 +910,17 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         },
       },
     };
-    const entityToFix1 = generateEntityToFix(
+    const entityToFix1 = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile1,
       testResult,
     );
-    const entityToFix2 = generateEntityToFix(
+    const entityToFix2 = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile2,
       testResult,
     );
-    const entityToFix3 = generateEntityToFix(
+    const entityToFix3 = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile3,
       testResult,
@@ -1117,12 +1117,12 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         },
       },
     };
-    const entityToFix1 = generateEntityToFix(
+    const entityToFix1 = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile1,
       testResult,
     );
-    const entityToFix2 = generateEntityToFix(
+    const entityToFix2 = generateEntityToFixWithFileReadWrite(
       workspacesPath,
       targetFile2,
       testResult,
@@ -1227,52 +1227,3 @@ describe('fix *req*.txt / *.txt Python projects', () => {
     ]);
   });
 });
-
-function readFileHelper(workspacesPath: string, path: string): string {
-  // because we write multiple time the file
-  // may be have already been updated in fixed-* name
-  // so try read that first
-  const res = pathLib.parse(path);
-  const fixedPath = pathLib.resolve(
-    workspacesPath,
-    res.dir,
-    `fixed-${res.base}`,
-  );
-  let file;
-  try {
-    file = fs.readFileSync(fixedPath, 'utf-8');
-  } catch (e) {
-    file = fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
-  }
-  return file;
-}
-
-function generateEntityToFix(
-  workspacesPath: string,
-  targetFile: string,
-  testResult: TestResult,
-): snykFix.EntityToFix {
-  const entityToFix = {
-    options: {
-      command: 'python3',
-    },
-    workspace: {
-      path: workspacesPath,
-      readFile: async (path: string) => {
-        return readFileHelper(workspacesPath, path);
-      },
-      writeFile: async (path: string, contents: string) => {
-        const res = pathLib.parse(path);
-        const fixedPath = pathLib.resolve(
-          workspacesPath,
-          res.dir,
-          `fixed-${res.base}`,
-        );
-        fs.writeFileSync(fixedPath, contents, 'utf-8');
-      },
-    },
-    scanResult: generateScanResult('pip', targetFile),
-    testResult,
-  };
-  return entityToFix;
-}
