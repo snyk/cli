@@ -22,8 +22,7 @@ installRequirementsTxtDeps() {
 installPipfileDeps() {
     pushd "${PROJECT_PATH}/"
     echo "Found Pipfile"
-    pipenv lock
-    pipenv install --system
+    pipenv install --system --deploy
     popd
 }
 
