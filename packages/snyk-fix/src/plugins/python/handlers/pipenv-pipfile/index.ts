@@ -1,9 +1,8 @@
 import * as debugLib from 'debug';
 import * as ora from 'ora';
-import * as chalk from 'chalk';
-import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
 
 import { EntityToFix, FixOptions } from '../../../../types';
+import { checkPackageToolSupported } from '../../../package-tool-supported';
 import { PluginFixResponse } from '../../../types';
 import { updateDependencies } from './update-dependencies';
 
@@ -20,7 +19,7 @@ export async function pipenvPipfile(
     skipped: [],
   };
 
-  await checkPipenvSupport(options);
+  await checkPackageToolSupported('pipenv', options);
   for (const [index, entity] of fixable.entries()) {
     const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
     const spinnerMessage = `Fixing Pipfile ${index + 1}/${fixable.length}`;
@@ -38,39 +37,4 @@ export async function pipenvPipfile(
   }
 
   return handlerResult;
-}
-
-async function checkPipenvSupport(options: FixOptions): Promise<void> {
-  const { version } = await pipenvPipfileFix.isPipenvInstalled();
-
-  const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
-  spinner.clear();
-  spinner.text = 'Checking pipenv version';
-  spinner.indent = 2;
-  spinner.start();
-
-  if (!version) {
-    spinner.stopAndPersist({
-      text: chalk.hex('#EDD55E')(
-        'Could not detect pipenv version, proceeding anyway. Some operations may fail.',
-      ),
-      symbol: chalk.hex('#EDD55E')('⚠️'),
-    });
-    return;
-  }
-
-  const { supported, versions } = pipenvPipfileFix.isPipenvSupportedVersion(
-    version,
-  );
-  if (!supported) {
-    const spinnerMessage = ` ${version} pipenv version detected. Currently the following pipenv versions are supported: ${versions.join(
-      ',',
-    )}`;
-    spinner.stopAndPersist({
-      text: chalk.hex('#EDD55E')(spinnerMessage),
-      symbol: chalk.hex('#EDD55E')('⚠️'),
-    });
-  } else {
-    spinner.stop();
-  }
 }
