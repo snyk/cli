@@ -108,7 +108,6 @@ export interface PolicyMetadata {
   description: string;
   severity: SEVERITY | 'none'; // the 'null' value can be provided by the backend
   msg: string;
-  policyEngineType: 'opa';
   issue: string;
   impact: string;
   resolve: string;
