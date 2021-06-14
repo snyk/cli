@@ -11,6 +11,7 @@ import {
 jest.mock('@snyk/fix-pipenv-pipfile');
 
 describe('fix Pipfile Python projects', () => {
+  let pipenvPipfileFixStub: jest.SpyInstance;
   beforeAll(() => {
     jest.spyOn(pipenvPipfileFix, 'isPipenvSupportedVersion').mockReturnValue({
       supported: true,
@@ -19,6 +20,14 @@ describe('fix Pipfile Python projects', () => {
     jest.spyOn(pipenvPipfileFix, 'isPipenvInstalled').mockResolvedValue({
       version: '123.123.123',
     });
+  });
+
+  beforeEach(() => {
+    pipenvPipfileFixStub = jest.spyOn(pipenvPipfileFix, 'pipenvInstall');
+  });
+
+  afterEach(() => {
+    pipenvPipfileFixStub.mockClear();
   });
 
   const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
@@ -93,6 +102,7 @@ describe('fix Pipfile Python projects', () => {
         },
       },
     });
+    expect(pipenvPipfileFixStub).toHaveBeenCalledTimes(0);
   });
 
   // FYI: on later pipenv versions the Pipfile changes are also not present of locking failed
@@ -164,6 +174,14 @@ describe('fix Pipfile Python projects', () => {
     );
     expect(result.fixSummary).toContain('0 items were successfully fixed');
     expect(result.fixSummary).toContain('0 fixed issues');
+    expect(pipenvPipfileFixStub).toHaveBeenCalledTimes(1);
+    expect(pipenvPipfileFixStub.mock.calls[0]).toEqual([
+      pathLib.resolve(workspacesPath, 'with-dev-deps'),
+      ['django==2.0.1', 'transitive==1.1.1'],
+      {
+        python: 'python3',
+      },
+    ]);
   });
 
   it('applies expected changes to Pipfile (100% success)', async () => {
@@ -230,18 +248,17 @@ describe('fix Pipfile Python projects', () => {
     );
     expect(result.fixSummary).toContain('1 items were successfully fixed');
     expect(result.fixSummary).toContain('1 fixed issues');
+    expect(pipenvPipfileFixStub).toHaveBeenCalledTimes(1);
+    expect(pipenvPipfileFixStub.mock.calls[0]).toEqual([
+      pathLib.resolve(workspacesPath, 'with-django-upgrade'),
+      ['django==2.0.1'],
+      {
+        python: 'python3',
+      },
+    ]);
   });
 
   it('passes down custom --python if the project was tested with this (--command) from CLI', async () => {
-    const install = jest
-      .spyOn(pipenvPipfileFix, 'pipenvInstall')
-      .mockResolvedValue({
-        exitCode: 0,
-        stdout: '',
-        stderr: '',
-        command: 'pipenv install django==2.0.1 --python ',
-        duration: 123,
-      });
     // Arrange
     const targetFile = 'with-django-upgrade/Pipfile';
     const testResult = {
@@ -267,7 +284,7 @@ describe('fix Pipfile Python projects', () => {
       testResult,
     );
 
-    entityToFix.options.command = 'python3';
+    entityToFix.options.command = 'python2';
     // Act
     const result = await snykFix.fix([entityToFix], {
       quiet: true,
@@ -275,13 +292,14 @@ describe('fix Pipfile Python projects', () => {
     });
 
     // Assert
-
-    expect(install.mock.calls[0][0]).toMatch(workspacesPath);
-    expect(install.mock.calls[0][1]).toEqual([
-      'django==2.0.1',
-      'transitive==1.1.1',
+    expect(pipenvPipfileFixStub).toHaveBeenCalledTimes(1);
+    expect(pipenvPipfileFixStub.mock.calls[0]).toEqual([
+      pathLib.resolve(workspacesPath, 'with-django-upgrade'),
+      ['django==2.0.1'],
+      {
+        python: 'python2',
+      },
     ]);
-    expect(install.mock.calls[0][2]).toEqual({ python: 'python3' });
 
     expect(result).toMatchObject({
       exceptions: {},
