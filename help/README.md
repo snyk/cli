@@ -49,9 +49,16 @@ Visually, it'll get rendered as underlined text. It's used to mark a "variable".
 
 ## Running locally
 
-- have docker running
+- Either have docker running, or have `groff` and `ronn` (really
+  [ronn-ng](https://github.com/apjanke/ronn-ng)) on your `$PATH`.
 - have `npm`/`npx` available
 
 ```
 $ npm run generate-help
+```
+
+Or, if you already have `groff` and `ronn`, and don't want to use Docker:
+
+```
+$ NO_DOCKER=1 npm run generate-help
 ```
