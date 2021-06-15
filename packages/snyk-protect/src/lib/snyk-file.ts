@@ -30,7 +30,8 @@ export function extractPatchMetadata(
               .substring(1)
               .split('>')
               .pop()
-              ?.trim();
+              ?.trim()
+              ?.replace(/['"]/g, '');
             if (!acc[writingTo].includes(destination)) {
               acc[writingTo].push(destination);
             }

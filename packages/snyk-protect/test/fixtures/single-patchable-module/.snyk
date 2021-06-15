@@ -4,22 +4,22 @@ ignore: {}
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   SNYK-JS-LODASH-567746:
-    - tap > nyc > istanbul-lib-instrument > babel-types > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-types > lodash':
         patched: '2021-02-17T13:43:51.857Z'
-    - tap > nyc > istanbul-lib-instrument > babel-generator > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-generator > lodash':
         patched: '2021-02-17T13:43:51.857Z'
-    - tap > nyc > istanbul-lib-instrument > babel-traverse > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-traverse > lodash':
         patched: '2021-02-17T13:43:51.857Z'
-    - tap > nyc > istanbul-lib-instrument > babel-template > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-template > lodash':
         patched: '2021-02-17T13:43:51.857Z'
-    - tap > nyc > istanbul-lib-instrument > babel-generator > babel-types > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-generator > babel-types > lodash':
         patched: '2021-02-17T13:43:51.857Z'
-    - tap > nyc > istanbul-lib-instrument > babel-traverse > babel-types > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-traverse > babel-types > lodash':
         patched: '2021-02-17T13:43:51.857Z'
-    - tap > nyc > istanbul-lib-instrument > babel-template > babel-types > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-template > babel-types > lodash':
         patched: '2021-02-17T13:43:51.857Z'
-    - tap > nyc > istanbul-lib-instrument > babel-template > babel-traverse > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-template > babel-traverse > lodash':
         patched: '2021-02-17T13:43:51.857Z'
-    - tap > nyc > istanbul-lib-instrument > babel-template > babel-traverse > babel-types > lodash:
+    - 'tap > nyc > istanbul-lib-instrument > babel-template > babel-traverse > babel-types > lodash':
         patched: '2021-02-17T13:43:51.857Z'
 

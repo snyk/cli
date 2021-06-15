@@ -1,8 +1,9 @@
 import { extractPatchMetadata } from '../../src/lib/snyk-file';
 
 describe(extractPatchMetadata.name, () => {
-  it('extracts a direct dependency', () => {
-    const dotSnykFileContents = `
+  describe('extracts a single direct dependency', () => {
+    it('without quotes on package path', () => {
+      const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
 ignore: {}
@@ -12,17 +13,57 @@ patch:
     - lodash:
         patched: '2021-02-17T13:43:51.857Z'
 `;
-    const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    expect(snykFilePatchMetadata).toEqual([
-      {
-        vulnId: 'SNYK-JS-LODASH-567746',
-        packageName: 'lodash',
-      },
-    ]);
-  });
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
 
-  it('handles carriage returns in line endings', () => {
-    const dotSnykFileContents = `
+    it('with single quotes on package path', () => {
+      const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - 'lodash':
+        patched: '2021-02-17T13:43:51.857Z'
+`;
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
+
+    it('with double quotes on package path', () => {
+      const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - "lodash":
+        patched: '2021-02-17T13:43:51.857Z'
+`;
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
+
+    it('with carriage returns in line endings', () => {
+      const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
 ignore: {}
@@ -32,35 +73,78 @@ patch:
     - lodash:
         patched: '2021-02-17T13:43:51.857Z'
 `
-      .split('\n')
-      .join('\r\n');
-    const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    expect(snykFilePatchMetadata).toEqual([
-      {
-        vulnId: 'SNYK-JS-LODASH-567746',
-        packageName: 'lodash',
-      },
-    ]);
+        .split('\n')
+        .join('\r\n');
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
   });
 
-  it('extracts a transitive dependency', () => {
-    const dotSnykFileContents = `
+  describe('extracts a transitive dependency', () => {
+    it('without quotes on package path', () => {
+      const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
 version: v1.19.0
 ignore: {}
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   SNYK-JS-LODASH-567746:
-    - tap > nyc > istanbul-lib-instrument > babel-types > lodash:
+    - 'tap > nyc > lodash':
         patched: '2021-02-17T13:43:51.857Z'
 `;
-    const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
-    expect(snykFilePatchMetadata).toEqual([
-      {
-        vulnId: 'SNYK-JS-LODASH-567746',
-        packageName: 'lodash',
-      },
-    ]);
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
+
+    it('with single quotes on package path', () => {
+      const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - 'tap > nyc > lodash':
+        patched: '2021-02-17T13:43:51.857Z'
+`;
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
+
+    it('with double quotes on package path', () => {
+      const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  SNYK-JS-LODASH-567746:
+    - "tap > nyc > lodash":
+        patched: '2021-02-17T13:43:51.857Z'
+`;
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
   });
 
   it('extracts multiple transitive dependencies', () => {
