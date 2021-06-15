@@ -1,7 +1,7 @@
 import { DependencyPins, FixChangesSummary } from '../../../../../types';
+import { standardizePackageName } from '../../../standardize-package-name';
 import { calculateRelevantFixes } from './calculate-relevant-fixes';
 import { Requirement } from './requirements-file-parser';
-import { standardizePackageName } from './standardize-package-name';
 import { UpgradedRequirements } from './types';
 
 export function generateUpgrades(

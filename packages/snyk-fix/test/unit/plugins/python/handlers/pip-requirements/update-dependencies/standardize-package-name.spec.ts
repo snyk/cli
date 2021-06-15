@@ -1,4 +1,4 @@
-import { standardizePackageName } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/standardize-package-name';
+import { standardizePackageName } from '../../../../../../../src/plugins/python/standardize-package-name';
 
 describe('standardizePackageName', () => {
   it('lowercases as expected', () => {

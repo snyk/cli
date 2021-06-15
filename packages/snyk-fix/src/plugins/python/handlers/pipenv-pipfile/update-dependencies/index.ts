@@ -10,7 +10,7 @@ import {
   FixOptions,
 } from '../../../../../types';
 import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
-import { standardizePackageName } from '../../pip-requirements/update-dependencies/standardize-package-name';
+import { standardizePackageName } from '../../../standardize-package-name';
 import { CommandFailedError } from '../../../../../lib/errors/command-failed-to-run-error';
 import { validateRequiredData } from '../../validate-required-data';
 

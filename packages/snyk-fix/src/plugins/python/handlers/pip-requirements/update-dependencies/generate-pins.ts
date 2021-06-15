@@ -2,7 +2,7 @@ import { DependencyPins, FixChangesSummary } from '../../../../../types';
 import { calculateRelevantFixes } from './calculate-relevant-fixes';
 import { isDefined } from './is-defined';
 import { Requirement } from './requirements-file-parser';
-import { standardizePackageName } from './standardize-package-name';
+import { standardizePackageName } from '../../../standardize-package-name';
 
 export function generatePins(
   requirements: Requirement[],
