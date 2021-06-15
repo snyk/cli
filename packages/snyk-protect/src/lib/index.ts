@@ -84,6 +84,8 @@ async function protect(projectFolderPath: string) {
     });
   });
 
+  console.log('Successfully applied Snyk patches');
+
   sendAnalytics({
     type: ProtectResultType.APPLIED_PATCHES,
     patchedModules,
