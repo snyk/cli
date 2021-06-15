@@ -1,5 +1,5 @@
 import * as debugLib from 'debug';
-import { standardizePackageName } from './standardize-package-name';
+import { standardizePackageName } from '../../../standardize-package-name';
 
 const debug = debugLib('snyk-fix:python:requirements-file-parser');
 

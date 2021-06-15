@@ -1,7 +1,7 @@
 import { DependencyPins } from '../../../../../types';
 import { isDefined } from './is-defined';
 import { Requirement } from './requirements-file-parser';
-import { standardizePackageName } from './standardize-package-name';
+import { standardizePackageName } from '../../../standardize-package-name';
 
 export type FixesType = 'direct-upgrades' | 'transitive-pins';
 
