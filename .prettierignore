@@ -11,7 +11,7 @@ src/cli/commands/test/iac-local-execution/parsers/hcl-to-json/parser.js
 
 # Generated Docs
 help/commands-md
-help/commands-txt
+help/commands-docs
 help/commands-man
 
 # Has empty lines for templating convenience

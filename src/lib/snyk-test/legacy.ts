@@ -274,6 +274,17 @@ export interface TestDependenciesResponse {
   meta: TestDepGraphMeta;
 }
 
+export type ResolveAndTestFactsStatus = 'CANCELLED' | 'ERROR' | 'PENDING' | 'RUNNING' | 'OK';
+export interface ResolveAndTestFactsResponse {
+  token: string;
+  result: TestDependenciesResult;
+  meta: TestDepGraphMeta;
+  status?: ResolveAndTestFactsStatus;
+  code?: number;
+  error?: string;
+  message?: string;
+  userMessage?: string;
+}
 export interface Ignores {
   [path: string]: {
     paths: string[][];

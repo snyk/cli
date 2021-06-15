@@ -19,7 +19,7 @@ snyk_report.html
 cert.pem
 key.pem
 help/commands-md
-help/commands-txt
+help/commands-docs
 help/commands-man
 **/tsconfig.tsbuildinfo
 __outputs__

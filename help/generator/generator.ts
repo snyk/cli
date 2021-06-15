@@ -24,7 +24,7 @@ const COMMANDS: Record<string, { optionsFile?: string }> = {
 
 const GENERATED_MARKDOWN_FOLDER = './help/commands-md';
 const GENERATED_MAN_FOLDER = './help/commands-man';
-const GENERATED_TXT_FOLDER = './help/commands-txt';
+const GENERATED_TXT_FOLDER = './help/commands-docs';
 
 function execShellCommand(cmd): Promise<string> {
   return new Promise((resolve) => {

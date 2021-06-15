@@ -24,14 +24,14 @@ export = async function help(item: string | boolean) {
   try {
     const filename = path.resolve(
       __dirname,
-      '../../../help/commands-txt',
+      '../../../help/commands-docs',
       item === DEFAULT_HELP ? DEFAULT_HELP + '.txt' : `snyk-${item}.txt`,
     );
     return readHelpFile(filename);
   } catch (error) {
     const filename = path.resolve(
       __dirname,
-      '../../../help/commands-txt',
+      '../../../help/commands-docs',
       DEFAULT_HELP + '.txt',
     );
     return readHelpFile(filename);
