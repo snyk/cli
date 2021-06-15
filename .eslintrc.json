@@ -44,6 +44,12 @@
       "rules": {
         "id-blacklist": ["error", "exports"] // in TS, use "export" instead of Node's "module.exports"
       }
+    },
+    {
+      "files": "*.spec.*",
+      "rules": {
+        "@typescript-eslint/ban-ts-ignore": "off"
+      }
     }
   ]
 }
