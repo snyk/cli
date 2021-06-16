@@ -16,6 +16,7 @@ describe('@snyk/protect', () => {
 
   describe('applies patch(es)', () => {
     it('works for project with a single patchable module', async () => {
+      const log = jest.spyOn(global.console, 'log');
       const postJsonSpy = jest.spyOn(http, 'postJson');
       const project = await createProject('single-patchable-module');
       const patchedLodash = await getPatchedLodash();
@@ -26,6 +27,7 @@ describe('@snyk/protect', () => {
         project.read('node_modules/nyc/node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
 
+      expect(log).toHaveBeenCalledWith('Successfully applied Snyk patches');
       expect(postJsonSpy).toHaveBeenCalledTimes(1);
       expect(postJsonSpy.mock.calls[0][1]).toEqual({
         data: {
@@ -50,6 +52,7 @@ describe('@snyk/protect', () => {
     });
 
     it('works for project with multiple patchable modules', async () => {
+      const log = jest.spyOn(global.console, 'log');
       const postJsonSpy = jest.spyOn(http, 'postJson');
       const project = await createProject('multiple-matching-paths');
       const patchedLodash = await getPatchedLodash();
@@ -63,6 +66,7 @@ describe('@snyk/protect', () => {
         project.read('node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
 
+      expect(log).toHaveBeenCalledWith('Successfully applied Snyk patches');
       expect(postJsonSpy).toHaveBeenCalledTimes(1);
       expect(postJsonSpy.mock.calls[0][1]).toEqual({
         data: {
