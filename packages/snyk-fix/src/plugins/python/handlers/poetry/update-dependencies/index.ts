@@ -52,7 +52,9 @@ export async function updateDependencies(
 
     // update prod dependencies first
     if (!options.dryRun && upgrades.length) {
-      const res = await poetryFix.poetryAdd(dir, upgrades, {});
+      const res = await poetryFix.poetryAdd(dir, upgrades, {
+        python: entity.options.command ?? undefined,
+      });
       if (res.exitCode !== 0) {
         poetryCommand = res.command;
         throwPoetryError(res.stderr ? res.stderr : res.stdout, res.command);
@@ -63,6 +65,7 @@ export async function updateDependencies(
     if (!options.dryRun && devUpgrades.length) {
       const res = await poetryFix.poetryAdd(dir, devUpgrades, {
         dev: true,
+        python: entity.options.command ?? undefined,
       });
       if (res.exitCode !== 0) {
         poetryCommand = res.command;
