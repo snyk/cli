@@ -98,11 +98,11 @@ function getIssues(
         ).colorFunc(` ✗ [${severity}] ${ruleName}`);
         const artifactLocationUri = location.artifactLocation.uri;
         const startLine = location.region.startLine;
-        const markdown = res.message.markdown;
+        const text = res.message.text;
 
         const title = ruleIdSeverityText;
         const path = `    Path: ${artifactLocationUri}, line ${startLine}`;
-        const info = `    Info: ${markdown}`;
+        const info = `    Info: ${text}`;
         acc[severity.toLowerCase()].push(`${title} \n ${path} \n ${info}\n\n`);
       }
     }
