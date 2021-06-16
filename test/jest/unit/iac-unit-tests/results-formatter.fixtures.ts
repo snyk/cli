@@ -15,7 +15,6 @@ export const policyStub: PolicyMetadata = {
     'Compromised container could potentially modify the underlying host’s kernel by loading unauthorized modules (i.e. drivers).',
   issue: 'Container is running in privileged mode',
   msg: 'input.spec.containers[whatever].securityContext.privileged',
-  policyEngineType: 'opa',
   publicId: 'SNYK-CC-K8S-1',
   references: [
     'CIS Kubernetes Benchmark 1.6.0 - 5.2.1 Minimize the admission of privileged containers',
