@@ -1,6 +1,7 @@
 import * as chalk from 'chalk';
 
 import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
+import * as poetryFix from '@snyk/fix-poetry';
 
 import * as ora from 'ora';
 
@@ -12,10 +13,15 @@ const supportFunc = {
     isSupportedVersion: (version) =>
       pipenvPipfileFix.isPipenvSupportedVersion(version),
   },
+  poetry: {
+    isInstalled: () => poetryFix.isPoetryInstalled(),
+    isSupportedVersion: (version) =>
+      poetryFix.isPoetrySupportedVersion(version),
+  },
 };
 
 export async function checkPackageToolSupported(
-  packageManager: 'pipenv',
+  packageManager: 'pipenv' | 'poetry',
   options: FixOptions,
 ): Promise<void> {
   const { version } = await supportFunc[packageManager].isInstalled();

@@ -7,6 +7,9 @@ export function loadPlugin(type: string): FixHandler {
     case 'pip': {
       return pythonFix;
     }
+    case 'poetry': {
+      return pythonFix;
+    }
     default: {
       throw new UnsupportedTypeError(type);
     }
