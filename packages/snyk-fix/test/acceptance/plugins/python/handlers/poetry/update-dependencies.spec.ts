@@ -177,7 +177,9 @@ describe('fix Poetry Python projects', () => {
     expect(poetryFixStub.mock.calls[0]).toEqual([
       pathLib.resolve(workspacesPath, 'simple'),
       ['six==2.0.1', 'transitive==1.1.1'],
-      {},
+      {
+        python: 'python3',
+      },
     ]);
   });
 
@@ -276,7 +278,7 @@ describe('fix Poetry Python projects', () => {
       },
     ]);
   });
-  it('pins a transitive dep', async () => {
+  it('pins a transitive dep with custom python interpreter via --command', async () => {
     jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
       exitCode: 0,
       stdout: '',
@@ -308,7 +310,9 @@ describe('fix Poetry Python projects', () => {
       workspacesPath,
       targetFile,
       testResult,
-      {},
+      {
+        command: 'python2',
+      },
     );
 
     // Act
@@ -341,10 +345,11 @@ describe('fix Poetry Python projects', () => {
     expect(poetryFixStub.mock.calls[0]).toEqual([
       pathLib.resolve(workspacesPath, 'simple'),
       ['markupsafe==2.1.0'],
-      {},
+      {
+        python: 'python2',
+      },
     ]);
   });
-  it.todo('--command support');
   it('shows expected changes when updating a dev dep', async () => {
     jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
       exitCode: 0,
