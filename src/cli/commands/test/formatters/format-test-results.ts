@@ -163,9 +163,8 @@ export function getDisplayedOutput(
       projectType as SupportedPackageManagers,
     )
   ) {
-    wizardAdvice = chalk.bold.green(
-      '\n\nRun `snyk wizard` to address these issues.',
-    );
+    wizardAdvice =
+      '\n\n► Run ' + chalk.bold(`snyk wizard`) + ' to address these issues.';
   }
   const dockerSuggestion = getDockerSuggestionText(options, config);
 

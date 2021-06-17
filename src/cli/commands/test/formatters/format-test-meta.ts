@@ -87,7 +87,7 @@ export function formatTestMeta(
     if (legacyRes.licensesPolicy) {
       meta.push(
         chalk.bold(rightPadWithSpaces('Licenses: ', padToLength)) +
-          chalk.green('enabled'),
+          chalk.bold.white('enabled'),
       );
     }
   }

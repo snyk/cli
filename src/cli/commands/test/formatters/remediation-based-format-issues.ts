@@ -167,7 +167,7 @@ function constructLicenseText(
     return [];
   }
 
-  const licenseTextArray = [chalk.bold.green('\nLicense issues:')];
+  const licenseTextArray = [chalk.bold.white('\nLicense issues:')];
 
   for (const id of Object.keys(basicLicenseInfo)) {
     const licenseText = formatIssue(
@@ -182,7 +182,7 @@ function constructLicenseText(
       undefined, // We can never override license rules, so no originalSeverity here
       basicLicenseInfo[id].legalInstructions,
     );
-    licenseTextArray.push('\n' + licenseText);
+    licenseTextArray.push(licenseText);
   }
   return licenseTextArray;
 }
@@ -199,7 +199,7 @@ function constructPatchesText(
   if (!(Object.keys(patches).length > 0)) {
     return [];
   }
-  const patchedTextArray = [chalk.bold.green('\nPatchable issues:')];
+  const patchedTextArray = [chalk.bold.white('\nPatchable issues:')];
   for (const id of Object.keys(patches)) {
     if (!basicVulnInfo[id]) {
       continue;
@@ -294,7 +294,7 @@ function constructUpgradesText(
     return [];
   }
 
-  const upgradeTextArray = [chalk.bold.green('\nIssues to fix by upgrading:')];
+  const upgradeTextArray = [chalk.bold.white('\nIssues to fix by upgrading:')];
   processUpgrades(
     upgradeTextArray,
     upgrades,
@@ -317,7 +317,7 @@ function constructPinText(
 
   const upgradeTextArray: string[] = [];
   upgradeTextArray.push(
-    chalk.bold.green('\nIssues to fix by upgrading dependencies:'),
+    chalk.bold.white('\nIssues to fix by upgrading dependencies:'),
   );
 
   // First, direct upgrades
@@ -393,10 +393,8 @@ function constructUnfixableText(
 
     const extraInfo =
       issue.fixedIn && issue.fixedIn.length
-        ? `\n  This issue was fixed in versions: ${chalk.bold(
-            issue.fixedIn.join(', '),
-          )}`
-        : '\n  No upgrade or patch available';
+        ? `\n    Fixed in: ${chalk.bold(issue.fixedIn.join(', '))}`
+        : '\n    No upgrade or patch available';
     unfixableIssuesTextArray.push(
       formatIssue(
         issue.id,
@@ -465,13 +463,13 @@ export function formatIssue(
     const pathStr = printPath(paths[0]);
     introducedBy =
       paths.length === 1
-        ? `\n    introduced by ${pathStr}`
-        : `\n    introduced by ${pathStr} and ${chalk.cyanBright(
+        ? `\n    Introduced by: ${pathStr}`
+        : `\n    Introduced by: ${pathStr} and ${chalk.cyanBright(
             '' + (paths.length - 1),
           )} other path(s)`;
   } else if (testOptions.showVulnPaths === 'all' && paths) {
     introducedBy =
-      '\n    introduced by:' +
+      '\n    Introduced by:' +
       paths
         .slice(0, 1000)
         .map((p) => '\n    ' + printPath(p))
@@ -496,12 +494,12 @@ export function formatIssue(
 
   return (
     severityColor.colorFunc(
-      `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(
-        severity,
-      )} Severity${originalSeverityStr}]`,
+      `\n  ✗ [${titleCaseText(severity)}${originalSeverityStr}] ${chalk.bold(
+        title,
+      )}${newBadge}\n`,
     ) +
     reachabilityText +
-    `[${config.ROOT}/vuln/${id}]` +
+    `    Info: [${config.ROOT}/vuln/${id}]` +
     name +
     reachableVia +
     introducedBy +

@@ -7,18 +7,26 @@ Tested 6 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vuln
 Issues to fix by upgrading dependencies:
 
   Upgrade flask to 1.0 to fix
-  ✗ Improper Input Validation [High Severity][http://localhost:12345/vuln/SNYK-PYTHON-FLASK-42185] in flask@0.12.2
-    introduced by flask@0.12.2
-  ✗ Denial of Service (DOS) [High Severity][http://localhost:12345/vuln/SNYK-PYTHON-FLASK-451637] in flask@0.12.2
-    introduced by flask@0.12.2
+
+  ✗ [High] Improper Input Validation
+    Info: [http://localhost:12345/vuln/SNYK-PYTHON-FLASK-42185] in flask@0.12.2
+    Introduced by: flask@0.12.2
+
+  ✗ [High] Denial of Service (DOS)
+    Info: [http://localhost:12345/vuln/SNYK-PYTHON-FLASK-451637] in flask@0.12.2
+    Introduced by: flask@0.12.2
 
   Pin Jinja2 to 2.10.1 to fix
-  ✗ Sandbox Escape [Medium Severity][http://localhost:12345/vuln/SNYK-PYTHON-JINJA2-174126] in Jinja2@2.9.6
-    introduced by flask@0.12.2 > Jinja2@2.9.6
+
+  ✗ [Medium] Sandbox Escape
+    Info: [http://localhost:12345/vuln/SNYK-PYTHON-JINJA2-174126] in Jinja2@2.9.6
+    Introduced by: flask@0.12.2 > Jinja2@2.9.6
 
   Pin Werkzeug to 0.15.3 to fix
-  ✗ Insufficient Randomness [High Severity][http://localhost:12345/vuln/SNYK-PYTHON-WERKZEUG-458931] in Werkzeug@0.12.2
-    introduced by flask@0.12.2 > Werkzeug@0.12.2
+
+  ✗ [High] Insufficient Randomness
+    Info: [http://localhost:12345/vuln/SNYK-PYTHON-WERKZEUG-458931] in Werkzeug@0.12.2
+    Introduced by: flask@0.12.2 > Werkzeug@0.12.2
 
 
 
