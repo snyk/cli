@@ -69,7 +69,7 @@ Describe "Snyk iac local test command"
       When run snyk iac test ../fixtures/iac/kubernetes/helm-config.yaml
       The status should equal 2
       The output should include "We were unable to parse the YAML file"
-      The output should include "do not support scanning of Helm files"
+      The output should include "without any template directives"
     End
 
     It "outputs the expected text when running with --sarif flag"
