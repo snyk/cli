@@ -25,12 +25,15 @@ export function getFileType(filePath: string): string {
   return filePathSplit[filePathSplit.length - 1].toLowerCase();
 }
 
-function parseYamlOrJson(fileContent: string, filePath: string): any {
+function parseFileContent(fileContent: string, filePath: string): any {
   const fileType = getFileType(filePath);
   switch (fileType) {
     case 'yaml':
     case 'yml':
+    case 'json':
       try {
+        // the YAML library can parse both YAML and JSON content, as well as content with singe/multiple YAMLs
+        // by using this library we don't have to disambiguate between these different contents ourselves
         return YAML.parseAllDocuments(fileContent).map((doc) => {
           if (shouldThrowErrorFor(doc)) {
             throw doc.errors[0];
@@ -38,16 +41,11 @@ function parseYamlOrJson(fileContent: string, filePath: string): any {
           return doc.toJSON();
         });
       } catch (e) {
-        debug('Failed to parse iac config as a YAML');
-      }
-      break;
-    case 'json':
-      try {
-        const objectsArr: any[] = [];
-        objectsArr.push(JSON.parse(fileContent));
-        return objectsArr;
-      } catch (e) {
-        debug('Failed to parse iac config as a JSON');
+        if (fileType === 'json') {
+          debug('Failed to parse iac config as a JSON');
+        } else {
+          debug('Failed to parse iac config as a YAML');
+        }
       }
       break;
     default:
@@ -64,7 +62,7 @@ export function validateK8sFile(
   filePath: string,
   fileName: string,
 ): IacValidationResponse {
-  const k8sObjects: any[] = parseYamlOrJson(fileContent, filePath);
+  const k8sObjects: any[] = parseFileContent(fileContent, filePath);
   if (!k8sObjects) {
     return { isValidFile: false, reason: IllegalIacFileErrorMsg(fileName) };
   }

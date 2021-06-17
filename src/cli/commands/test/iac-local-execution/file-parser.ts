@@ -38,7 +38,7 @@ export async function parseFiles(
       if (filesData.length === 1) {
         throw err;
       }
-      failedFiles.push(generateFailedParsedFile(fileData, err));
+      failedFiles.push(generateFailedParsedFile(fileData, err as Error));
     }
   }
 
