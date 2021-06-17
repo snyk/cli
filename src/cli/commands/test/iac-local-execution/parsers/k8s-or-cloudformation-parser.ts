@@ -11,23 +11,10 @@ import {
 export const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];
 export const REQUIRED_CLOUDFORMATION_FIELDS = ['Resources'];
 
-export function assertHelmAndThrow(fileData: IacFileData) {
-  const lines: string[] = fileData.fileContent.split(/\r\n|\r|\n/);
-
-  lines.forEach((line) => {
-    const isHelmFile = line.includes('{{') && line.includes('}}');
-    if (isHelmFile) {
-      throw new HelmFileNotSupportedError(fileData.filePath);
-    }
-  });
-}
-
 export function detectConfigType(
   fileData: IacFileData,
   parsedIacFiles: any[],
 ): IacFileParsed[] {
-  assertHelmAndThrow(fileData);
-
   return parsedIacFiles.map((parsedIaCFile, docId) => {
     if (
       checkRequiredFieldsMatch(parsedIaCFile, REQUIRED_CLOUDFORMATION_FIELDS)
@@ -64,15 +51,6 @@ export function checkRequiredFieldsMatch(
   return requiredFields.every((requiredField) =>
     parsedDocument.hasOwnProperty(requiredField),
   );
-}
-
-export class HelmFileNotSupportedError extends CustomError {
-  constructor(filename: string) {
-    super('Failed to parse Helm file');
-    this.code = IaCErrorCodes.FailedToParseHelmError;
-    this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `We were unable to parse the YAML file "${filename}" as we currently do not support scanning of Helm files. More information can be found through our documentation:\nhttps://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool`;
-  }
 }
 
 export class MissingRequiredFieldsInKubernetesYamlError extends CustomError {

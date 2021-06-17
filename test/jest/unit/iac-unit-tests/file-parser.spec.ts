@@ -34,7 +34,6 @@ import {
 } from './file-parser.fixtures';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { IacFileTypes } from '../../../../dist/lib/iac/constants';
-import { detectConfigType } from '../../../../src/cli/commands/test/iac-local-execution/parsers/k8s-or-cloudformation-parser';
 import {
   cloudFormationJSONFileDataStub,
   cloudFormationYAMLFileDataStub,
@@ -155,18 +154,6 @@ describe('parseFiles', () => {
       expect(parsedFiles[0]).toEqual(expectedParsingResult);
     },
   );
-
-  it('throws an error for a Helm file', async () => {
-    const helmFileData: IacFileData = {
-      fileContent: ' {{ something }}',
-      filePath: 'path/to/file',
-      fileType: 'yaml',
-    };
-
-    expect(() => detectConfigType(helmFileData, [{}])).toThrowError(
-      'Failed to parse Helm file',
-    );
-  });
 
   it('throws an error for an invalid HCL file', async () => {
     expect(() => tryParsingTerraformFile(invalidTerraformFileDataStub)).toThrow(
