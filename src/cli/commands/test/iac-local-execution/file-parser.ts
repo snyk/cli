@@ -1,4 +1,3 @@
-import * as YAML from 'yaml';
 import {
   REQUIRED_K8S_FIELDS,
   detectConfigType,
@@ -23,7 +22,7 @@ import {
 import * as analytics from '../../../../lib/analytics';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
-import { shouldThrowErrorFor } from './file-utils';
+import { parseYAMLOrJSON } from '../../../../lib/iac/iac-parser';
 
 export async function parseFiles(
   filesData: IacFileData[],
@@ -67,14 +66,7 @@ function parseYAMLOrJSONFileData(fileData: IacFileData): any[] {
   let yamlDocuments;
 
   try {
-    // the YAML library can parse both YAML and JSON content, as well as content with singe/multiple YAMLs
-    // by using this library we don't have to disambiguate between these different contents ourselves
-    yamlDocuments = YAML.parseAllDocuments(fileData.fileContent).map((doc) => {
-      if (shouldThrowErrorFor(doc)) {
-        throw doc.errors[0];
-      }
-      return doc.toJSON();
-    });
+    yamlDocuments = parseYAMLOrJSON(fileData.fileContent);
   } catch (e) {
     if (fileData.fileType === 'json') {
       throw new InvalidJsonFileError(fileData.filePath);

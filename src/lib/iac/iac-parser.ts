@@ -25,6 +25,17 @@ export function getFileType(filePath: string): string {
   return filePathSplit[filePathSplit.length - 1].toLowerCase();
 }
 
+export function parseYAMLOrJSON(fileContent: string): any[] {
+  // the YAML library can parse both YAML and JSON content, as well as content with singe/multiple YAMLs
+  // by using this library we don't have to disambiguate between these different contents ourselves
+  return YAML.parseAllDocuments(fileContent).map((doc) => {
+    if (shouldThrowErrorFor(doc)) {
+      throw doc.errors[0];
+    }
+    return doc.toJSON();
+  });
+}
+
 function parseFileContent(fileContent: string, filePath: string): any {
   const fileType = getFileType(filePath);
   switch (fileType) {
@@ -32,14 +43,7 @@ function parseFileContent(fileContent: string, filePath: string): any {
     case 'yml':
     case 'json':
       try {
-        // the YAML library can parse both YAML and JSON content, as well as content with singe/multiple YAMLs
-        // by using this library we don't have to disambiguate between these different contents ourselves
-        return YAML.parseAllDocuments(fileContent).map((doc) => {
-          if (shouldThrowErrorFor(doc)) {
-            throw doc.errors[0];
-          }
-          return doc.toJSON();
-        });
+        return parseYAMLOrJSON(fileContent);
       } catch (e) {
         if (fileType === 'json') {
           debug('Failed to parse iac config as a JSON');
