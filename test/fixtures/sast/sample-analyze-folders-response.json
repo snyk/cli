@@ -3212,8 +3212,8 @@
             "ruleIndex": 0,
             "level": "warning",
             "message": {
-              "text": "{0} (used in {1}) is an insecure protocol and should not be used in new code.",
-              "markdown": "http (used in require) is an insecure protocol and should not be used in new code.",
+              "text": "http (used in require) is an insecure protocol and should not be used in new code.",
+              "markdown": "{0} (used in {1}) is an insecure protocol and should not be used in new code.",
               "arguments": [
                 "[http](0)",
                 "[require](1)"
@@ -3288,8 +3288,8 @@
             "ruleIndex": 1,
             "level": "warning",
             "message": {
-              "text": "Disable X-Powered-By header for your {0} (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.",
-              "markdown": "Disable X-Powered-By header for your Express app (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.",
+              "text": "Disable X-Powered-By header for your Express app (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.",
+              "markdown": "Disable X-Powered-By header for your {0} (consider using Helmet middleware), because it exposes information about the used framework to potential attackers.",
               "arguments": [
                 "[Express app](0)"
               ]
@@ -3402,8 +3402,8 @@
             "ruleIndex": 3,
             "level": "error",
             "message": {
-              "text": "Unsanitized input from {0} {1} into {2}, where it is used in an SQL query. This may result in an SQL Injection vulnerability.",
-              "markdown": "Unsanitized input from the HTTP request body flows into find, where it is used in an SQL query. This may result in an SQL Injection vulnerability.",
+              "text": "Unsanitized input from the HTTP request body flows into find, where it is used in an SQL query. This may result in an SQL Injection vulnerability.",
+              "markdown": "Unsanitized input from {0} {1} into {2}, where it is used in an SQL query. This may result in an SQL Injection vulnerability.",
               "arguments": [
                 "[the HTTP request body](0)",
                 "[flows](1),(2),(3),(4)",
@@ -3547,8 +3547,8 @@
             "ruleIndex": 4,
             "level": "warning",
             "message": {
-              "text": "The pattern {0} in {1} may be improved to {2}{3}.",
-              "markdown": "The pattern regex in replace may be improved to /\\r?\\n$/to handle different new lines.",
+              "text": "The pattern regex in replace may be improved to /\\r?\\n$/to handle different new lines.",
+              "markdown": "The pattern {0} in {1} may be improved to {2}{3}.",
               "arguments": [
                 "[regex](0)",
                 "[replace](1)",
@@ -3659,8 +3659,8 @@
             "ruleIndex": 5,
             "level": "warning",
             "message": {
-              "text": "This {0} performs {1} and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
-              "markdown": "This endpoint handler performs a system command execution and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
+              "text": "This endpoint handler performs a system command execution and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
+              "markdown": "This {0} performs {1} and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
               "arguments": [
                 "[endpoint handler](0)",
                 "[a system command execution](1)"
@@ -3735,8 +3735,8 @@
             "ruleIndex": 6,
             "level": "warning",
             "message": {
-              "text": "This {0} performs {1} and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
-              "markdown": "This endpoint handler performs a file system operation and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
+              "text": "This endpoint handler performs a file system operation and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
+              "markdown": "This {0} performs {1} and does not use a rate-limiting mechanism. It may enable the attackers to perform Denial-of-service attacks. Consider using a rate-limiting middleware such as express-limit.",
               "arguments": [
                 "[endpoint handler](0)",
                 "[a file system operation](1)"
@@ -3811,8 +3811,8 @@
             "ruleIndex": 7,
             "level": "error",
             "message": {
-              "text": "Unsanitized input from {0} {1} into {2}, where it is used to build a shell command. This may result in a Command Injection vulnerability.",
-              "markdown": "Unsanitized input from the HTTP request body flows into child_process.exec, where it is used to build a shell command. This may result in a Command Injection vulnerability.",
+              "text": "Unsanitized input from the HTTP request body flows into child_process.exec, where it is used to build a shell command. This may result in a Command Injection vulnerability.",
+              "markdown": "Unsanitized input from {0} {1} into {2}, where it is used to build a shell command. This may result in a Command Injection vulnerability.",
               "arguments": [
                 "[the HTTP request body](0)",
                 "[flows](1),(2),(3),(4),(5),(6),(7),(8)",
@@ -4024,8 +4024,8 @@
             "ruleIndex": 8,
             "level": "error",
             "message": {
-              "text": "Unsanitized input from {0} {1} into {2}, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).",
-              "markdown": "Unsanitized input from the HTTP request body flows into send, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).",
+              "text": "Unsanitized input from the HTTP request body flows into send, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).",
+              "markdown": "Unsanitized input from {0} {1} into {2}, where it is used to render an HTML page returned to the user. This may result in a Cross-Site Scripting attack (XSS).",
               "arguments": [
                 "[the HTTP request body](0)",
                 "[flows](1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),(16),(17),(18),(19)",
@@ -4424,8 +4424,8 @@
             "ruleIndex": 9,
             "level": "warning",
             "message": {
-              "text": "Duplicate expressions on both sides of {0} is probably a mistake.",
-              "markdown": "Duplicate expressions on both sides of an assignment is probably a mistake.",
+              "markdown": "Duplicate expressions on both sides of {0} is probably a mistake.",
+              "text": "Duplicate expressions on both sides of an assignment is probably a mistake.",
               "arguments": [
                 "[an assignment](0)"
               ]
@@ -4482,8 +4482,8 @@
             "ruleIndex": 10,
             "level": "warning",
             "message": {
-              "text": "The {0} header should be set by the browser, not in code (in {1}).",
-              "markdown": "The Content-Length header should be set by the browser, not in code (in setHeader).",
+              "markdown": "The {0} header should be set by the browser, not in code (in {1}).",
+              "text": "The Content-Length header should be set by the browser, not in code (in setHeader).",
               "arguments": [
                 "[Content-Length](0)",
                 "[setHeader](1)"
