@@ -11,7 +11,7 @@ RUN apt-get update && \
   curl -L -o apache-maven-3.5.4-bin.tar.gz https://www-eu.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz && \
   tar -xvzf apache-maven-3.5.4-bin.tar.gz && \
   rm -f apache-maven-3.5.4-bin.tar.gz && \
-  curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+  curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
   apt-get install -y nodejs jq && \
   npm install --global snyk snyk-to-html && \
   apt-get autoremove -y && \

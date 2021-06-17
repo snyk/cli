@@ -21,7 +21,7 @@ RUN apt-get update && \
     echo "addSbtPlugin(\"net.virtual-void\" % \"sbt-dependency-graph\" % \"0.9.0\")" >> /home/node/.sbt/1.0/plugins/plugins.sbt && \
     echo "addCommandAlias(\"dependency-tree\", \"dependencyTree\")" >> /root/.sbt/1.0/user.sbt && \
     echo "addCommandAlias(\"dependency-tree\", \"dependencyTree\")" >> /home/node/.sbt/1.0/user.sbt && \
-    curl -sL https://deb.nodesource.com/setup_10.x | bash - && \
+    curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs jq && \
     npm install --global snyk snyk-to-html && \
     apt-get autoremove -y && \
