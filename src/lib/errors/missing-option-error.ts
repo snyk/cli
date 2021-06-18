@@ -1,6 +1,6 @@
 import { CustomError } from './custom-error';
 
-export class OptionMissingErrorError extends CustomError {
+export class MissingOptionError extends CustomError {
   constructor(option: string, required: string[]) {
     const msg = `The ${option} option can only be use in combination with ${required
       .sort()
