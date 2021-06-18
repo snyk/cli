@@ -80,7 +80,7 @@ Summary:
   0 fixed issues
 
 
-Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
+Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
   "meta": Object {
     "failed": 1,
     "fixed": 0,
@@ -201,6 +201,7 @@ Successful fixes:
 
 Summary:
 
+  Command run in dry run mode. Fixes are not be applied.
   0 items were not fixed
   2 items were successfully fixed
   2 total issues: 2 High

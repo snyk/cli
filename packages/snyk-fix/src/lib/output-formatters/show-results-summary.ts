@@ -27,7 +27,11 @@ export async function showResultsSummary(
   const {
     summary: overallSummary,
     count: changedCount,
-  } = generateFixedAndFailedSummary(resultsByPlugin, exceptionsByScanType);
+  } = generateFixedAndFailedSummary(
+    resultsByPlugin,
+    exceptionsByScanType,
+    options,
+  );
 
   const vulnsSummary = generateIssueSummary(
     resultsByPlugin,
@@ -36,7 +40,7 @@ export async function showResultsSummary(
   const fixedIssuesSummary = `${chalk.bold(
     calculateFixedIssues(resultsByPlugin),
   )} fixed issues`;
-  const getHelpText = chalk.red(`\n${reTryMessage}. ${contactSupportMessage}`);
+  const getHelpText = `\n${reTryMessage}. ${contactSupportMessage}`;
 
   const fixSummary = `\n${successfulFixesSummary}${
     unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
@@ -128,14 +132,19 @@ export function generateUnresolvedSummary(
 export function generateFixedAndFailedSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
+  options: FixOptions,
 ): { summary: string; count: number } {
   const sectionTitle = 'Summary:';
   const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
   const fixed = calculateFixed(resultsByPlugin);
   const failed = calculateFailed(resultsByPlugin, exceptionsByScanType);
-
+  const dryRunText = options.dryRun
+    ? chalk.hex('#EDD55E')(
+        `${PADDING_SPACE}Command run in dry run mode. Fixes are not be applied.\n`,
+      )
+    : '';
   return {
-    summary: `${formattedTitleHeader}\n\n${PADDING_SPACE}${chalk.bold.red(
+    summary: `${formattedTitleHeader}\n\n${dryRunText}${PADDING_SPACE}${chalk.bold.red(
       failed,
     )} items were not fixed\n${PADDING_SPACE}${chalk.green.bold(
       fixed,

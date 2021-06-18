@@ -49,7 +49,7 @@ describe('generateFixedAndFailedSummary', () => {
         skipped: [],
       },
     };
-    const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
+    const res = await generateFixedAndFailedSummary(resultsByPlugin, {}, {});
     expect(stripAnsi(res.summary)).toMatchSnapshot();
   });
 
@@ -77,7 +77,7 @@ describe('generateFixedAndFailedSummary', () => {
         skipped: [],
       },
     };
-    const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
+    const res = await generateFixedAndFailedSummary(resultsByPlugin, {}, {});
     expect(stripAnsi(res.summary)).toMatchSnapshot();
     expect(res.count).toEqual(1);
   });
@@ -100,7 +100,11 @@ describe('generateFixedAndFailedSummary', () => {
         skipped: [],
       },
     };
-    const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
+    const res = await generateFixedAndFailedSummary(
+      resultsByPlugin,
+      {},
+      { dryRun: true },
+    );
     expect(stripAnsi(res.summary)).toMatchSnapshot();
     expect(res.count).toEqual(1);
   });
@@ -146,7 +150,11 @@ describe('generateFixedAndFailedSummary', () => {
         ],
       },
     };
-    const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
+    const res = await generateFixedAndFailedSummary(
+      resultsByPlugin,
+      {},
+      { dryRun: true },
+    );
     expect(stripAnsi(res.summary)).toMatchSnapshot();
     expect(res.count).toEqual(3);
   });
