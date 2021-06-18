@@ -77,7 +77,7 @@ Summary:
 
   1 total issues: 1 High
   1 fixable issues
-  0 fixed issues
+  
 
 
 Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
@@ -200,7 +200,7 @@ Successful fixes:
 
 Summary:
 
-  Command run in dry run mode. Fixes are not be applied.
+  Command run in dry run mode. Fixes are not applied.
   2 items were successfully fixed
   2 total issues: 2 High
   2 fixable issues

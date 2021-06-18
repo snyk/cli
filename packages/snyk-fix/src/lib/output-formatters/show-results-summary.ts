@@ -37,9 +37,9 @@ export async function showResultsSummary(
     resultsByPlugin,
     exceptionsByScanType,
   );
-  const fixedIssuesSummary = `${chalk.bold(
-    calculateFixedIssues(resultsByPlugin),
-  )} fixed issues`;
+  const fixedIssueCount = calculateFixedIssues(resultsByPlugin);
+  const fixedIssuesSummary =
+    fixedIssueCount > 0 ? `${chalk.bold(fixedIssueCount)} fixed issues` : '';
   const getHelpText = `\n${reTryMessage}. ${contactSupportMessage}`;
 
   const fixSummary = `\n${successfulFixesSummary}${
@@ -140,7 +140,9 @@ export function generateFixedAndFailedSummary(
   const failed = calculateFailed(resultsByPlugin, exceptionsByScanType);
   const dryRunText = options.dryRun
     ? chalk.hex('#EDD55E')(
-        `${PADDING_SPACE}Command run in dry run mode. Fixes are not be applied.\n`,
+        `${PADDING_SPACE}Command run in ${chalk.bold(
+          'dry run',
+        )} mode. Fixes are not applied.\n`,
       )
     : '';
   const notFixedMessage =
