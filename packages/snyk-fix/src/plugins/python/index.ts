@@ -47,6 +47,8 @@ export async function pythonFix(
         return;
       }
       const processingMessage = `Processing ${projectsToFix.length} ${projectType} items`;
+      const processedMessage = `Processed ${projectsToFix.length} ${projectType} items`;
+
       spinner.text = processingMessage;
       spinner.render();
 
@@ -72,7 +74,7 @@ export async function pythonFix(
         );
       }
       spinner.stopAndPersist({
-        text: processingMessage,
+        text: processedMessage,
         symbol: chalk.green('✔'),
       });
     },
