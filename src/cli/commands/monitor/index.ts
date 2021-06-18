@@ -34,7 +34,11 @@ import { convertMultiResultToMultiCustom } from '../../../lib/plugins/convert-mu
 import { convertSingleResultToMultiCustom } from '../../../lib/plugins/convert-single-splugin-res-to-multi-custom';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { getContributors } from '../../../lib/monitor/dev-count-analysis';
-import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
+import {
+  FailedToRunTestError,
+  MonitorError,
+  MissingArgError,
+} from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
@@ -73,6 +77,12 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   if (options.docker && options['remote-repo-url']) {
     throw new Error('`--remote-repo-url` is not supported for container scans');
+  }
+
+  // Handles no image arg provided to the container command until
+  // a validation interface is implemented in the docker plugin.
+  if (options.docker && paths.length === 0) {
+    throw new MissingArgError();
   }
 
   apiOrOAuthTokenExists();

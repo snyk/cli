@@ -10,8 +10,8 @@ export function processCommandArgs<CommandOptions>(
   }
   args = args.filter(Boolean);
 
-  // populate with default path (cwd) if no path given
-  if (args.length === 0) {
+  // For repository scanning, populate with default path (cwd) if no path given
+  if (args.length === 0 && !options.docker) {
     args.unshift(process.cwd());
   }
 

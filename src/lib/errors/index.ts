@@ -17,6 +17,7 @@ export { TooManyVulnPaths } from './too-many-vuln-paths';
 export { AuthFailedError } from './authentication-failed-error';
 export { FeatureNotSupportedForOrgError } from './unsupported-feature-for-org-error';
 export { OptionMissingErrorError } from './option-missing-error';
+export { MissingArgError } from './missing-arg-error';
 export { ExcludeFlagBadInputError } from './exclude-flag-bad-input';
 export { UnsupportedOptionCombinationError } from './unsupported-option-combination-error';
 export { FeatureNotSupportedByPackageManagerError } from './feature-not-supported-by-package-manager-error';

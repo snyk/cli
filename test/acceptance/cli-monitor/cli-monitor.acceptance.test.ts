@@ -141,6 +141,21 @@ if (!isWindows) {
     }
   });
 
+  test('`monitor missing container image`', async (t) => {
+    chdirWorkspaces();
+    try {
+      await cli.monitor({ docker: true });
+      t.fail('should have failed');
+    } catch (err) {
+      t.match(
+        err.message,
+        'Could not detect an image. Specify an image name to scan and try running the command again.',
+        'show err message',
+      );
+      t.pass('throws err');
+    }
+  });
+
   test('`monitor non-existing`', async (t) => {
     chdirWorkspaces();
     try {

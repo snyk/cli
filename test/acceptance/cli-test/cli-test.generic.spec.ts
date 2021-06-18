@@ -34,6 +34,21 @@ export const GenericTests: AcceptanceTests = {
       t.end();
     },
 
+    '`test ` test missing container image': (params, utils) => async (t) => {
+      utils.chdirWorkspaces();
+      try {
+        await params.cli.test({ docker: true });
+        t.fail('should have failed');
+      } catch (err) {
+        t.match(
+          err.message,
+          'Could not detect an image. Specify an image name to scan and try running the command again.',
+          'show err message',
+        );
+        t.pass('throws err');
+      }
+    },
+
     'userMessage and error code correctly bubbles with npm': (
       params,
       utils,
