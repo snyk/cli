@@ -1,7 +1,8 @@
 import * as chalk from 'chalk';
+import stripAnsi = require('strip-ansi');
 
 import { FixHandlerResultByPlugin } from '../../plugins/types';
-import { ErrorsByEcoSystem, Issue, TestResult } from '../../types';
+import { ErrorsByEcoSystem, FixOptions, Issue, TestResult } from '../../types';
 import { contactSupportMessage, reTryMessage } from '../errors/common';
 import { convertErrorToUserMessage } from '../errors/error-to-user-message';
 import { hasFixableIssues } from '../issues/fixable-issues';
@@ -14,6 +15,7 @@ export const PADDING_SPACE = '  '; // 2 spaces
 export async function showResultsSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
+  options: FixOptions,
 ): Promise<string> {
   const successfulFixesSummary = generateSuccessfulFixesSummary(
     resultsByPlugin,
@@ -35,13 +37,16 @@ export async function showResultsSummary(
     calculateFixedIssues(resultsByPlugin),
   )} fixed issues`;
   const getHelpText = chalk.red(`\n${reTryMessage}. ${contactSupportMessage}`);
-  return `\n${successfulFixesSummary}${
+
+  const fixSummary = `\n${successfulFixesSummary}${
     unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
   }${
     unresolvedCount || changedCount
       ? `\n\n${overallSummary}\n${vulnsSummary}\n${PADDING_SPACE}${fixedIssuesSummary}`
       : ''
   }${unresolvedSummary ? `\n\n${getHelpText}` : ''}`;
+
+  return options.stripAnsi ? stripAnsi(fixSummary) : fixSummary;
 }
 
 export function generateSuccessfulFixesSummary(

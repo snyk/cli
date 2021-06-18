@@ -332,8 +332,12 @@ describe('showResultsSummary', () => {
       },
     };
 
-    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
-    expect(stripAnsi(res)).toMatchSnapshot();
+    const res = await showResultsSummary(
+      resultsByPlugin,
+      exceptionsByScanType,
+      { stripAnsi: true },
+    );
+    expect(res).toMatchSnapshot();
   });
   it('has unresolved only', async () => {
     const entityFailed = generateEntityToFix(
@@ -355,8 +359,12 @@ describe('showResultsSummary', () => {
       },
     };
 
-    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
-    expect(stripAnsi(res)).toMatchSnapshot();
+    const res = await showResultsSummary(
+      resultsByPlugin,
+      exceptionsByScanType,
+      { stripAnsi: true },
+    );
+    expect(res).toMatchSnapshot();
   });
   it('called with nothing to fix', async () => {
     const resultsByPlugin: FixHandlerResultByPlugin = {
@@ -368,7 +376,11 @@ describe('showResultsSummary', () => {
     };
     const exceptionsByScanType: ErrorsByEcoSystem = {};
 
-    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
-    expect(stripAnsi(res)).toMatchSnapshot();
+    const res = await showResultsSummary(
+      resultsByPlugin,
+      exceptionsByScanType,
+      { stripAnsi: true },
+    );
+    expect(res).toMatchSnapshot();
   });
 });

@@ -54,6 +54,7 @@ export async function fix(
   const fixSummary = await outputFormatter.showResultsSummary(
     resultsByPlugin,
     exceptionsByScanType,
+    options,
   );
   const meta = extractMeta(resultsByPlugin, exceptionsByScanType);
 
@@ -70,7 +71,7 @@ export async function fix(
   return {
     results: resultsByPlugin,
     exceptions: exceptionsByScanType,
-    fixSummary: options.stripAnsi ? stripAnsi(fixSummary) : fixSummary,
+    fixSummary,
     meta,
   };
 }
