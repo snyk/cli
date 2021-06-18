@@ -172,8 +172,7 @@ describe('fix Pipfile Python projects', () => {
     expect(result.fixSummary).toContain(
       'Tip:     Try running `pipenv install django==2.0.1 transitive==1.1.1`',
     );
-    expect(result.fixSummary).toContain('0 items were successfully fixed');
-    expect(result.fixSummary).toContain('0 fixed issues');
+    expect(result.fixSummary).toContain('✖ No successful fixes');
     expect(pipenvPipfileFixStub).toHaveBeenCalledTimes(1);
     expect(pipenvPipfileFixStub.mock.calls[0]).toEqual([
       pathLib.resolve(workspacesPath, 'with-dev-deps'),

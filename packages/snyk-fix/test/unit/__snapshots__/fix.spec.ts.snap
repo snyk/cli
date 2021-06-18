@@ -74,7 +74,7 @@ Unresolved items:
 Summary:
 
   1 items were not fixed
-  0 items were successfully fixed
+
   1 total issues: 1 High
   1 fixable issues
   0 fixed issues
@@ -100,7 +100,6 @@ Successful fixes:
 
 Summary:
 
-  0 items were not fixed
   1 items were successfully fixed
   1 total issues: 1 High
   1 fixable issues
@@ -202,7 +201,6 @@ Successful fixes:
 Summary:
 
   Command run in dry run mode. Fixes are not be applied.
-  0 items were not fixed
   2 items were successfully fixed
   2 total issues: 2 High
   2 fixable issues

@@ -143,12 +143,19 @@ export function generateFixedAndFailedSummary(
         `${PADDING_SPACE}Command run in dry run mode. Fixes are not be applied.\n`,
       )
     : '';
+  const notFixedMessage =
+    failed > 0
+      ? `${PADDING_SPACE}${chalk.bold.red(failed)} items were not fixed\n`
+      : '';
+  const fixedMessage =
+    fixed > 0
+      ? `${PADDING_SPACE}${chalk.green.bold(
+          fixed,
+        )} items were successfully fixed`
+      : '';
+
   return {
-    summary: `${formattedTitleHeader}\n\n${dryRunText}${PADDING_SPACE}${chalk.bold.red(
-      failed,
-    )} items were not fixed\n${PADDING_SPACE}${chalk.green.bold(
-      fixed,
-    )} items were successfully fixed`,
+    summary: `${formattedTitleHeader}\n\n${dryRunText}${notFixedMessage}${fixedMessage}`,
     count: fixed + failed,
   };
 }
@@ -299,7 +306,8 @@ export function generateIssueSummary(
   }
 
   const { count: fixableCount } = hasFixableIssues(testResults);
-  const fixableIssues = `${chalk.bold(fixableCount)} fixable issues`;
+  const fixableIssues =
+    fixableCount > 0 ? `${chalk.bold(fixableCount)} fixable issues` : '';
 
   return `${PADDING_SPACE}${totalIssues}\n${PADDING_SPACE}${fixableIssues}`;
 }
