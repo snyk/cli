@@ -1,5 +1,4 @@
 import {
-  REQUIRED_K8S_FIELDS,
   detectConfigType,
   FailedToDetectYamlConfigError,
   HelmFileNotSupportedError,
@@ -22,7 +21,7 @@ import {
 import * as analytics from '../../../../lib/analytics';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
-import { parseYAMLOrJSON } from '../../../../lib/iac/iac-parser';
+import { parseYAMLOrJSONFileData } from './yaml-parser';
 
 export async function parseFiles(
   filesData: IacFileData[],
@@ -37,7 +36,7 @@ export async function parseFiles(
       if (filesData.length === 1) {
         throw err;
       }
-      failedFiles.push(generateFailedParsedFile(fileData, err as Error));
+      failedFiles.push(generateFailedParsedFile(fileData, err));
     }
   }
 
@@ -60,22 +59,6 @@ function generateFailedParsedFile(
     engineType: null,
     jsonContent: null,
   };
-}
-
-function parseYAMLOrJSONFileData(fileData: IacFileData): any[] {
-  let yamlDocuments;
-
-  try {
-    yamlDocuments = parseYAMLOrJSON(fileData.fileContent);
-  } catch (e) {
-    if (fileData.fileType === 'json') {
-      throw new InvalidJsonFileError(fileData.filePath);
-    } else {
-      throw new InvalidYamlFileError(fileData.filePath);
-    }
-  }
-
-  return yamlDocuments;
 }
 
 export function tryParseIacFile(
@@ -107,15 +90,7 @@ export function tryParseIacFile(
           isFullScan: options.scan === TerraformPlanScanMode.FullScan,
         });
       } else {
-        try {
-          return detectConfigType(fileData, parsedIacFile);
-        } catch (e) {
-          if (e instanceof FailedToDetectYamlConfigError) {
-            throw new FailedToDetectJsonConfigError(fileData.filePath);
-          } else {
-            throw e;
-          }
-        }
+        return detectConfigType(fileData, parsedIacFile);
       }
     }
     case 'tf':
@@ -131,36 +106,5 @@ export class UnsupportedFileTypeError extends CustomError {
     this.code = IaCErrorCodes.UnsupportedFileTypeError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `Unable to process the file with extension ${fileType}. Supported file extensions are tf, yml, yaml & json.\nMore information can be found by running \`snyk iac test --help\` or through our documentation:\nhttps://support.snyk.io/hc/en-us/articles/360012429477-Test-your-Kubernetes-files-with-our-CLI-tool\nhttps://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files-with-our-CLI-tool`;
-  }
-}
-
-export class InvalidJsonFileError extends CustomError {
-  constructor(filename: string) {
-    super('Failed to parse JSON file');
-    this.code = IaCErrorCodes.InvalidJsonFileError;
-    this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `We were unable to parse the JSON file "${filename}". Please ensure that it contains properly structured JSON`;
-  }
-}
-
-export class InvalidYamlFileError extends CustomError {
-  constructor(filename: string) {
-    super('Failed to parse YAML file');
-    this.code = IaCErrorCodes.InvalidYamlFileError;
-    this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `We were unable to parse the YAML file "${filename}". Please ensure that it contains properly structured YAML`;
-  }
-}
-
-export class FailedToDetectJsonConfigError extends CustomError {
-  constructor(filename: string) {
-    super(
-      'Failed to detect either a Kubernetes file, a CloudFormation file or a Terraform Plan, missing required fields',
-    );
-    this.code = IaCErrorCodes.FailedToDetectJsonConfigError;
-    this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `We were unable to detect whether the JSON file "${filename}" is either a valid Kubernetes file, CloudFormation file or a Terraform Plan. For Kubernetes it is missing the following fields: "${REQUIRED_K8S_FIELDS.join(
-      '", "',
-    )}".  For CloudFormation required fields are: "Resources". For Terraform Plan it was expected to contain fields "planned_values.root_module" and "resource_changes". Please contact support@snyk.io, if possible with a redacted version of the file`;
   }
 }

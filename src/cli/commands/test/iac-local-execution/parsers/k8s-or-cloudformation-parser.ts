@@ -48,7 +48,11 @@ export function detectConfigType(
         docId,
       };
     } else {
-      throw new FailedToDetectYamlConfigError(fileData.filePath);
+      if (fileData.fileType === 'json') {
+        throw new FailedToDetectJsonConfigError(fileData.filePath);
+      } else {
+        throw new FailedToDetectYamlConfigError(fileData.filePath);
+      }
     }
   });
 }
@@ -94,5 +98,18 @@ export class FailedToDetectYamlConfigError extends CustomError {
     )}". For CloudFormation required fields are: "${REQUIRED_CLOUDFORMATION_FIELDS.join(
       '", "',
     )}". Please contact support@snyk.io, if possible with a redacted version of the file`;
+  }
+}
+
+export class FailedToDetectJsonConfigError extends CustomError {
+  constructor(filename: string) {
+    super(
+      'Failed to detect either a Kubernetes file, a CloudFormation file or a Terraform Plan, missing required fields',
+    );
+    this.code = IaCErrorCodes.FailedToDetectJsonConfigError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `We were unable to detect whether the JSON file "${filename}" is either a valid Kubernetes file, CloudFormation file or a Terraform Plan. For Kubernetes it is missing the following fields: "${REQUIRED_K8S_FIELDS.join(
+      '", "',
+    )}".  For CloudFormation required fields are: "Resources". For Terraform Plan it was expected to contain fields "planned_values.root_module" and "resource_changes". Please contact support@snyk.io, if possible with a redacted version of the file`;
   }
 }

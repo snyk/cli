@@ -1,5 +1,4 @@
 //TODO(orka): take out into a new lib
-import * as YAML from 'yaml';
 import * as debugLib from 'debug';
 import {
   IllegalIacFileErrorMsg,
@@ -14,7 +13,7 @@ import {
   IacValidateTerraformResponse,
   IacValidationResponse,
 } from './constants';
-import { shouldThrowErrorFor } from '../../cli/commands/test/iac-local-execution/file-utils';
+import { parseYAMLOrJSON } from '../../cli/commands/test/iac-local-execution/yaml-parser';
 
 const debug = debugLib('snyk-detect');
 
@@ -23,17 +22,6 @@ const requiredK8SObjectFields = ['apiVersion', 'kind', 'metadata'];
 export function getFileType(filePath: string): string {
   const filePathSplit = filePath.split('.');
   return filePathSplit[filePathSplit.length - 1].toLowerCase();
-}
-
-export function parseYAMLOrJSON(fileContent: string): any[] {
-  // the YAML library can parse both YAML and JSON content, as well as content with singe/multiple YAMLs
-  // by using this library we don't have to disambiguate between these different contents ourselves
-  return YAML.parseAllDocuments(fileContent).map((doc) => {
-    if (shouldThrowErrorFor(doc)) {
-      throw doc.errors[0];
-    }
-    return doc.toJSON();
-  });
 }
 
 function parseFileContent(fileContent: string, filePath: string): any {
