@@ -1,11 +1,11 @@
 import {
-  FailedToDetectJsonConfigError,
-  InvalidJsonFileError,
-  InvalidYamlFileError,
   UnsupportedFileTypeError,
   parseFiles,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
-import { FailedToDetectYamlConfigError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/k8s-or-cloudformation-parser';
+import {
+  FailedToDetectJsonConfigError,
+  FailedToDetectYamlConfigError,
+} from '../../../../src/cli/commands/test/iac-local-execution/parsers/k8s-or-cloudformation-parser';
 import {
   FailedToParseTerraformFileError,
   tryParsingTerraformFile,
@@ -41,6 +41,10 @@ import {
   expectedCloudFormationJSONParsingResult,
   expectedCloudFormationYAMLParsingResult,
 } from './file-parser.cloudformation.fixtures';
+import {
+  InvalidJsonFileError,
+  InvalidYamlFileError,
+} from '../../../../src/cli/commands/test/iac-local-execution/yaml-parser';
 
 const filesToParse: IacFileData[] = [
   kubernetesYamlFileDataStub,

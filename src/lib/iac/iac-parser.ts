@@ -1,5 +1,4 @@
 //TODO(orka): take out into a new lib
-import * as YAML from 'yaml';
 import * as debugLib from 'debug';
 import {
   IllegalIacFileErrorMsg,
@@ -14,7 +13,7 @@ import {
   IacValidateTerraformResponse,
   IacValidationResponse,
 } from './constants';
-import { shouldThrowErrorFor } from '../../cli/commands/test/iac-local-execution/file-utils';
+import { parseYAMLOrJSON } from '../../cli/commands/test/iac-local-execution/yaml-parser';
 
 const debug = debugLib('snyk-detect');
 
@@ -25,29 +24,20 @@ export function getFileType(filePath: string): string {
   return filePathSplit[filePathSplit.length - 1].toLowerCase();
 }
 
-function parseYamlOrJson(fileContent: string, filePath: string): any {
+function parseFileContent(fileContent: string, filePath: string): any {
   const fileType = getFileType(filePath);
   switch (fileType) {
     case 'yaml':
     case 'yml':
-      try {
-        return YAML.parseAllDocuments(fileContent).map((doc) => {
-          if (shouldThrowErrorFor(doc)) {
-            throw doc.errors[0];
-          }
-          return doc.toJSON();
-        });
-      } catch (e) {
-        debug('Failed to parse iac config as a YAML');
-      }
-      break;
     case 'json':
       try {
-        const objectsArr: any[] = [];
-        objectsArr.push(JSON.parse(fileContent));
-        return objectsArr;
+        return parseYAMLOrJSON(fileContent);
       } catch (e) {
-        debug('Failed to parse iac config as a JSON');
+        if (fileType === 'json') {
+          debug('Failed to parse iac config as a JSON');
+        } else {
+          debug('Failed to parse iac config as a YAML');
+        }
       }
       break;
     default:
@@ -64,7 +54,7 @@ export function validateK8sFile(
   filePath: string,
   fileName: string,
 ): IacValidationResponse {
-  const k8sObjects: any[] = parseYamlOrJson(fileContent, filePath);
+  const k8sObjects: any[] = parseFileContent(fileContent, filePath);
   if (!k8sObjects) {
     return { isValidFile: false, reason: IllegalIacFileErrorMsg(fileName) };
   }
