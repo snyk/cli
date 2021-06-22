@@ -1,8 +1,4 @@
-import {
-  detectConfigType,
-  FailedToDetectYamlConfigError,
-  HelmFileNotSupportedError,
-} from './parsers/k8s-or-cloudformation-parser';
+import { detectConfigType } from './parsers/k8s-or-cloudformation-parser';
 import { tryParsingTerraformFile } from './parsers/terraform-file-parser';
 import {
   isTerraformPlan,
@@ -70,15 +66,7 @@ export function tryParseIacFile(
     case 'yaml':
     case 'yml': {
       const parsedIacFile = parseYAMLOrJSONFileData(fileData);
-      try {
-        return detectConfigType(fileData, parsedIacFile);
-      } catch (e) {
-        if (e instanceof HelmFileNotSupportedError) {
-          throw new HelmFileNotSupportedError(fileData.filePath);
-        } else {
-          throw new FailedToDetectYamlConfigError(fileData.filePath);
-        }
-      }
+      return detectConfigType(fileData, parsedIacFile);
     }
     case 'json': {
       const parsedIacFile = parseYAMLOrJSONFileData(fileData);
