@@ -104,21 +104,25 @@ test('createDirectory creates directory - recursive', (t) => {
   }
 });
 
-test('writeContentsToFileSwallowingErrors can write a file', (t) => {
+test('writeContentsToFileSwallowingErrors can write a file', async (t) => {
   t.plan(1);
 
   // initially create the directory
   fs.mkdirSync(testOutputFull);
 
-  writeContentsToFileSwallowingErrors(testOutputFileFull, 'fake-contents');
+  // this should throw an error within writeContentsToFileSwallowingErrors but that error should be caught, logged, and disregarded
+  await writeContentsToFileSwallowingErrors(
+    testOutputFileFull,
+    'fake-contents',
+  );
   const fileExists = fs.existsSync(testOutputFileFull);
-  t.ok(fileExists, 'file exists after writing it');
+  t.ok(fileExists, 'and file exists after writing it');
 });
 
 test(
   'writeContentsToFileSwallowingErrors captures any errors when attempting to write to a readonly directory',
   { skip: iswindows },
-  (t) => {
+  async (t) => {
     t.plan(2);
 
     // initially create the directory
@@ -129,7 +133,7 @@ test(
 
     const outputPath = pathLib.join(readonlyFull, 'test-output.json');
 
-    writeContentsToFileSwallowingErrors(outputPath, 'fake-contents');
+    await writeContentsToFileSwallowingErrors(outputPath, 'fake-contents');
     const fileExists = fs.existsSync(outputPath);
     t.equals(fileExists, false);
     t.pass('no exception is thrown'); // we expect to not get an error even though we can't write to this folder

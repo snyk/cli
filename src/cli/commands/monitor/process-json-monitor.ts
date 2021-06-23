@@ -21,6 +21,6 @@ export function processJsonMonitorResponse(
     return stringifiedData;
   }
   const err = new Error(stringifiedData) as any;
-  err.json = dataToSend;
+  err.json = stringifiedData;
   throw err;
 }

@@ -17,17 +17,12 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         snyk_install_method: [binary, npm, yarn]
-        node_version: [8, 10, 12, 14, 15]
+        node_version: [10, 12, 14, 15]
         exclude:
-          # Skip yarn for Node 8 for now (see https://github.com/snyk/snyk/issues/1270)
-          - snyk_install_method: yarn
-            node_version: 8
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
           - snyk_install_method: yarn
             os: windows
           # For binary, use only the Node 14
-          - snyk_install_method: binary
-            node_version: 8
           - snyk_install_method: binary
             node_version: 10
           - snyk_install_method: binary
@@ -49,6 +44,9 @@ jobs:
             snyk_cli_dl_file: snyk-alpine
           - snyk_install_method: npm-root-user
             os: ubuntu
+          - snyk_install_method: docker-bundle
+            os: macos
+            snyk_cli_dl_file: docker-mac-signed-bundle.tar.gz
 
     steps:
       - uses: actions/checkout@v2
@@ -83,9 +81,25 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'alpine-binary' }}
         env:
           SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           docker build -t snyk-cli-alpine -f ./test/smoke/alpine/Dockerfile ./test
-          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN snyk-cli-alpine
+          docker run -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN -eGITHUB_TOKEN snyk-cli-alpine
+
+      - name: Install snyk from Docker bundle
+        if: ${{ matrix.snyk_install_method == 'docker-bundle' }}
+        run: |
+          snyk_cli_dl=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "${{ matrix.snyk_cli_dl_file }}") | .browser_download_url')
+          echo "snyk_cli_dl: ${snyk_cli_dl}"
+          curl -Lo ./snyk-cli.tar.gz $snyk_cli_dl
+          sudo mkdir -p /usr/local/bin/snyk-mac
+          sudo mv ./snyk-cli.tar.gz /usr/local/bin/snyk-mac
+          sudo tar -xf /usr/local/bin/snyk-mac/snyk-cli.tar.gz -C /usr/local/bin/snyk-mac  # makes a folder called docker
+          sudo ln -s /usr/local/bin/snyk-mac/docker/snyk-mac.sh /usr/local/bin/snyk-mac/docker/snyk
+          ls -la /usr/local/bin/snyk-mac/docker
+          export PATH="/usr/local/bin/snyk-mac/docker:$PATH"
+          which snyk
+          snyk version
 
       - name: Run npm test with Root user
         if: ${{ matrix.snyk_install_method == 'npm-root-user' }}
@@ -99,17 +113,17 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
         run: |
           echo "install snyk with binary"
-          export latest_version=$(curl -Is "https://github.com/snyk/snyk/releases/latest" | grep location | sed s#.*tag/##g | tr -d "\r")
-          echo "latest_version: ${latest_version}"
-          snyk_cli_dl_linux="https://github.com/snyk/snyk/releases/download/${latest_version}/${{ matrix.snyk_cli_dl_file }}"
-          echo "snyk_cli_dl_linux: ${snyk_cli_dl_linux}"
-          curl -Lo ./snyk-cli $snyk_cli_dl_linux
+          snyk_cli_dl=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "${{ matrix.snyk_cli_dl_file }}") | .browser_download_url')
+          echo "snyk_cli_dl: ${snyk_cli_dl}"
+          curl -Lo ./snyk-cli $snyk_cli_dl
           chmod -R +x ./snyk-cli
           sudo mv ./snyk-cli /usr/local/bin/snyk
           snyk --version
 
       - name: Install Snyk with binary - Windows
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os == 'windows' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: powershell
         run: |
           echo "install snyk with binary"
@@ -167,7 +181,9 @@ jobs:
         env:
           SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
         run: |
-          export EXPECTED_SNYK_VERSION=$(snyk --version)
+          export PATH="/usr/local/bin/snyk-mac/docker:$PATH"
+          which snyk
+          snyk version
           shellspec -f d
 
       - name: Run shellspec tests - Windows

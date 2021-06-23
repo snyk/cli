@@ -4,7 +4,7 @@ var proxyquire = require('proxyquire');
 var sinon = require('sinon');
 var spy;
 var wizard = proxyquire('../src/cli/commands/protect/wizard', {
-  inquirer: {
+  '@snyk/inquirer': {
     prompt: function(q, cb) {
       if (!cb) {
         cb = (_) => Promise.resolve(_);

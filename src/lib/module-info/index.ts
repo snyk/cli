@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+const merge = require('lodash.merge');
 import * as Debug from 'debug';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
@@ -11,7 +11,7 @@ export function ModuleInfo(plugin, policy) {
       targetFile,
       options,
     ): Promise<pluginApi.SinglePackageResult | pluginApi.MultiProjectResult> {
-      const pluginOptions = _.merge(
+      const pluginOptions = merge(
         {
           args: options._doubleDashArgs,
         },

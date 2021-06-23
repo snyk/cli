@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import { test } from 'tap';
-import * as _ from 'lodash';
+const flattenDeep = require('lodash.flattendeep');
 import * as path from 'path';
 import * as sinon from 'sinon';
-import * as inquirer from 'inquirer';
+import * as inquirer from '@snyk/inquirer';
 
 import wizard = require('../src/cli/commands/protect/wizard');
 
@@ -40,7 +40,7 @@ async function run(t, filename, offset = 0) {
     if (vulns.ok) {
       offset--; // since protect will be skipped if there's no vulns
     }
-    const prompts = _.flattenDeep(spy.args);
+    const prompts = flattenDeep(spy.args);
     t.equal(
       prompts.length,
       vulns.vulnerabilities.length * 2 + offset,

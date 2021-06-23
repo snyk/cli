@@ -7,6 +7,7 @@ import { Spinner } from 'cli-spinner';
 import * as snyk from '../../../lib';
 import { verifyAPI } from './is-authed';
 import { isCI } from '../../../lib/is-ci';
+import { isDocker } from '../../../lib/is-docker';
 import { args as argsLib } from '../../args';
 import * as config from '../../../lib/config';
 import request = require('../../../lib/request');
@@ -25,7 +26,7 @@ const debug = Debug('snyk-auth');
 let attemptsLeft = 0;
 
 function resetAttempts() {
-  attemptsLeft = 30;
+  attemptsLeft = isDocker() ? 60 : 30;
 }
 
 type AuthCliCommands = 'wizard' | 'ignore';
@@ -50,16 +51,9 @@ async function webAuth(via: AuthCliCommands) {
     urlStr += '&redirectUri=' + Buffer.from(redirects[via]).toString('base64');
   }
 
-  const msg =
-    '\nNow redirecting you to our auth page, go ahead and log in,\n' +
-    "and once the auth is complete, return to this prompt and you'll\n" +
-    "be ready to start using snyk.\n\nIf you can't wait use this url:\n" +
-    urlStr +
-    '\n';
-
   // suppress this message in CI
   if (!isCI()) {
-    console.log(msg);
+    console.log(browserAuthPrompt(isDocker(), urlStr));
   } else {
     return Promise.reject(MisconfiguredAuthInCI());
   }
@@ -70,9 +64,11 @@ async function webAuth(via: AuthCliCommands) {
 
   try {
     spinner.start();
-    await setTimeout(() => {
-      open(urlStr);
-    }, 0);
+    if (!isDocker()) {
+      await setTimeout(() => {
+        open(urlStr);
+      }, 0);
+    }
 
     return await testAuthComplete(token, ipFamily);
   } finally {
@@ -188,5 +184,25 @@ async function getIpFamily(): Promise<6 | undefined> {
     return family;
   } catch (e) {
     return undefined;
+  }
+}
+
+function browserAuthPrompt(isDocker: boolean, urlStr: string): string {
+  if (isDocker) {
+    return (
+      '\nTo authenticate your account, open the below URL in your browser.\n' +
+      'After your authentication is complete, return to this prompt to ' +
+      'start using Snyk.\n\n' +
+      urlStr +
+      '\n'
+    );
+  } else {
+    return (
+      '\nNow redirecting you to our auth page, go ahead and log in,\n' +
+      "and once the auth is complete, return to this prompt and you'll\n" +
+      "be ready to start using snyk.\n\nIf you can't wait use this url:\n" +
+      urlStr +
+      '\n'
+    );
   }
 }

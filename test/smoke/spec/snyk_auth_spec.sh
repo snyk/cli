@@ -17,15 +17,19 @@ Describe "Snyk CLI Authorization"
 
     It "fails when run without token set"
       # Alpine can't open browser, misses xdg-open utility and errors out
-      is_alpine() {
+      is_alpine_or_disabled() {
+        if [ -n "$SMOKE_TESTS_SKIP_TEST_THAT_OPENS_BROWSER" ]; then
+          echo "Won't test auth command that opens browser" >&2
+          exit 0
+        fi
         grep "Alpine Linux" /etc/os-release > /dev/null 2>&1
         return $?
       }
-      Skip if "function returns success" is_alpine
+      Skip if "test is disabled" is_alpine_or_disabled
 
       # Using timeout to not wait for browser confirmation
       When run timeout 5 snyk auth
-      The output should include "Now redirecting you to our auth page, go ahead and log in,"
+      The result of function check_auth_output should be success
       The result of function verify_login_url should include "snyk.io/login?token=" # URL found
       The status should be failure
       # TODO: unusable with our current docker issues

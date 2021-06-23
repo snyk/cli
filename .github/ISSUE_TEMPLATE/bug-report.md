@@ -21,11 +21,11 @@ Please share _problematic_ behaviour you are seeing.
 ### Steps to reproduce
 Please share _minimal_ steps needed to reproduce your issue. Ideally
 a paired down manifest / project to showcase the problem that can also
-be used for testsing.
+be used for testing.
 
 
 ### Debug log
-If applicable, please append the `--debug` flag on your command and include the output here **ensuring to remove any sensitive/personal details or tokens.
+If applicable, please append the `--debug` flag on your command and include the output here **ensuring to remove any sensitive/personal details or tokens**. 
 
 
 ### Screenshots

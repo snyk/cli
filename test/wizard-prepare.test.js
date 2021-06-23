@@ -2,12 +2,12 @@ const test = require('tap').test;
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const spy = sinon.spy();
-const _ = require('lodash');
+const cloneDeep = require('lodash.clonedeep');
 const dir = __dirname + '/fixtures/protect-via-snyk/';
 const fixture = require('./fixtures/protect-via-snyk/package.json');
 
 const wizard = proxyquire('../src/cli/commands/protect/wizard', {
-  inquirer: {
+  '@snyk/inquirer': {
     prompt: function(q, cb) {
       cb(q);
     },
@@ -34,7 +34,7 @@ const wizard = proxyquire('../src/cli/commands/protect/wizard', {
 });
 
 test('npm - prepare is added and postinstall is removed', function(t) {
-  const expectedResults = _.cloneDeep(fixture);
+  const expectedResults = cloneDeep(fixture);
   process.chdir(dir);
 
   return wizard
@@ -61,7 +61,7 @@ test('npm - prepare is added and postinstall is removed', function(t) {
 });
 
 test('yarn - prepare is added and postinstall is removed', function(t) {
-  const expectedResults = _.cloneDeep(fixture);
+  const expectedResults = cloneDeep(fixture);
   process.chdir(dir);
   spy.resetHistory();
   return wizard

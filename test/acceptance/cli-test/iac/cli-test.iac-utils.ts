@@ -1,10 +1,11 @@
-import * as _ from 'lodash';
+const sortBy = require('lodash.sortby');
 import {
   mapIacTestResult,
   AnnotatedIacIssue,
   IacTestResponse,
 } from '../../../../src/lib/snyk-test/iac-test-result';
 import { Log, Run, Result } from 'sarif';
+import { basename } from 'path';
 
 export enum IacAcceptanceTestType {
   SINGLE_K8S_FILE = 1,
@@ -159,7 +160,9 @@ export async function iacTest(
   const res = testableObject.message;
   t.match(
     res,
-    `Tested ${testParams[testType].displayFilePath} for known issues, found ${numOfIssues} issues`,
+    `Tested ${basename(
+      testParams[testType].displayFilePath,
+    )} for known issues, found ${numOfIssues} issues`,
     `${numOfIssues} issue`,
   );
   iacTestMetaAssertions(t, res, testType);
@@ -208,8 +211,8 @@ export function iacTestJsonAssertions(
   t.equal(results.cloudConfigResults, undefined);
   if (foundIssues) {
     t.deepEqual(
-      _.sortBy(results.infrastructureAsCodeIssues, 'id'),
-      _.sortBy(expectedResults.infrastructureAsCodeIssues, 'id'),
+      sortBy(results.infrastructureAsCodeIssues, 'id'),
+      sortBy(expectedResults.infrastructureAsCodeIssues, 'id'),
       'issues are the same',
     );
   } else {
@@ -267,6 +270,11 @@ export function iacTestSarifAssertions(
     const messageText = `This line contains a potential ${expectedIssue.severity} severity misconfiguration affecting the Kubernetes ${expectedIssue.subType}`;
     t.deepEqual(sarifIssue.message.text, messageText, 'issue message is ok');
     t.deepEqual(
+      sarifIssue.locations![0]!.physicalLocation!.artifactLocation!.uri,
+      'iac-kubernetes/multi-file.yaml',
+      'issue uri is ok',
+    );
+    t.deepEqual(
       sarifIssue.locations![0].physicalLocation!.region!.startLine,
       expectedIssue.lineNumber,
       'issue message is ok',
@@ -276,6 +284,7 @@ export function iacTestSarifAssertions(
 
 function generateDummyIssue(severity): AnnotatedIacIssue {
   return {
+    iacDescription: { issue: '', impact: '', resolve: '' },
     id: 'SNYK-CC-K8S-1',
     title: 'Reducing the admission of containers with dropped capabilities',
     name: 'Reducing the admission of containers with dropped capabilities',
@@ -294,13 +303,15 @@ function generateDummyIssue(severity): AnnotatedIacIssue {
     subType: 'Deployment',
     path: [],
     lineNumber: 1,
+    documentation: 'https://snyk.io/security-rules/SNYK-CC-K8S-1',
   };
 }
 
 function generateDummyTestData(
-  cloudConfigResults: Array<AnnotatedIacIssue>,
+  cloudConfigResults: AnnotatedIacIssue[],
 ): IacTestResponse {
   return {
+    path: '',
     targetFile: '',
     projectName: '',
     displayTargetFile: '',
@@ -332,4 +343,14 @@ export const iacTestResponseFixturesByThreshold = {
   low: generateDummyTestData(
     ['high', 'medium', 'low'].map((severity) => generateDummyIssue(severity)),
   ),
+};
+
+export const iacOrgSettings = {
+  meta: {
+    isPrivate: false,
+    isLicensesEnabled: false,
+    ignoreSettings: null,
+    org: 'test-org',
+  },
+  customPolicies: {},
 };

@@ -1,23 +1,35 @@
 # Contributing
 
 ## Contributor Agreement
+
 A pull-request will only be considered for merging into the upstream codebase after you have signed our [contributor agreement](https://github.com/snyk/snyk/blob/master/Contributor-Agreement.md), assigning us the rights to the contributed code and granting you a license to use it in return. If you submit a pull request, you will be prompted to review and sign the agreement with one click (we use [CLA assistant](https://cla-assistant.io/)).
 
-## Commit messages
+## Making Changes
 
-Commit messages must follow the [Angular-style](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#commit-message-format) commit format (but excluding the scope).
+- Add tests for newly added code.
+  - Write new test suites in Jest. Depending on the type of test, place them in either `./test/jest/unit` or `./test/jest/acceptance`.
+  - Try to mirror directory and file structure if possible.
+  - Use the automated checks on your PR to make sure it works on different platforms and versions.
+- Ensure that your code adheres to the project's ESLint and Prettier configuration.
+  - You can check by using `npm run lint` and `npm run format` respectively.
+- Avoid making any breaking changes. Preserve existing functionality. If you really need to, discuss it with us beforehand.
+- New command line options are discouraged. If you really need one, please discuss it with us beforehand.
+
+## Commit Messages
+
+Commit messages must follow the [Angular-style](https://github.com/angular/angular.js/blob/master/CONTRIBUTING.md#commit-message-format) commit format.
 
 i.e:
 
 ```text
 fix: minified scripts being removed
 
-Also includes tests
+Also added a test to ensure these scripts exist after a build.
 ```
 
 This will allow for the automatic changelog to generate correctly.
 
-### Commit types
+### Commit Types
 
 Must be one of the following:
 
@@ -30,19 +42,13 @@ Must be one of the following:
 * **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
 * **perf**: A code change that improves performance
 
-To release a major you need to add `BREAKING CHANGE: ` to the start of the body and the detail of the breaking change.
+To release a major you need to add `BREAKING CHANGE: ` to the start of the body and the detail of the breaking change. But again, avoid making any breaking changes.
 
-## Code standards
+## Sending Pull Requests
 
-Ensure that your code adheres to the included `.eslintrc` config by running `npm run lint`.
-
-## Sending pull requests
-
-- new command line options are generally discouraged unless there's a *really* good reason
-- add tests for newly added code (and try to mirror directory and file structure if possible)
-- spell check
-- PRs will not be code reviewed unless all tests are passing
-
-*Important:* when fixing a bug, please commit a **failing test** first so that Travis CI (or I can) can show the code failing. Once that commit is in place, then commit the bug fix, so that we can test *before* and *after*.
-
-Remember that you're developing for multiple platforms and versions of node, so if the tests pass on your Mac or Linux or Windows machine, it *may* not pass elsewhere.
+- If the PR is not ready for review, create a Draft PR.
+- Proof-read your changes.
+  - Make sure there aren't any spelling or typing errors.
+  - Remove irrelevant changes like formatting an unrelated file.
+- Clearly explain your reasoning behind each change, provide context using links and documentation where needed.
+- PRs will not be reviewed unless all tests are passing.

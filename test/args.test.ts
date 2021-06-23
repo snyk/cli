@@ -303,3 +303,153 @@ test('test command line "container test --help" should display help for mode', (
   );
   t.end();
 });
+
+test('test command line "snyk monitor --project-name-prefix" should add a property on options', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--project-name-prefix=my-prefix/',
+  ];
+  const result = args(cliArgs);
+  t.equal(
+    result.options['project-name-prefix'],
+    'my-prefix/',
+    'expected options[project-name-prefix] to equal expected value',
+  );
+  t.end();
+});
+
+test('test command line "snyk monitor --packages-folder" should add a property on options', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--packages-folder=/path/to/folder',
+  ];
+  const result = args(cliArgs);
+  t.equal(
+    result.options['packagesFolder'], // this option is camel-cased in src/cli/args.ts
+    '/path/to/folder',
+    'expected options[packagesFolder] to equal expected value',
+  );
+  t.end();
+});
+
+test('test command line "snyk monitor --assets-project-name" should add a property on options', (t) => {
+  const cliArgsWithFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+    '--assets-project-name',
+  ];
+  const resultWithFlag = args(cliArgsWithFlag);
+  t.ok(
+    resultWithFlag.options['assets-project-name'],
+    'expected options[assets-project-name] to be true',
+  );
+  const cliArgsWithoutFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'monitor',
+  ];
+  const resultWithoutFlag = args(cliArgsWithoutFlag);
+  t.notOk(
+    resultWithoutFlag.options['assets-project-name'],
+    'expected options[assets-project-name] to be false',
+  );
+  t.end();
+});
+
+test('test command line "iac" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(result.options.help, 'iac', 'help option should be assigned to iac');
+  t.end();
+});
+
+test('test command line "iac --help" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    '--help',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(result.options.help, 'iac', 'help option should be assigned to iac');
+  t.end();
+});
+
+test('test command line "iac test --help" should display help for mode', (t) => {
+  const cliArgs = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    'test',
+    '--help',
+  ];
+  const result = args(cliArgs);
+  t.equal(result.command, 'help', 'command should be replaced by help');
+  t.equal(result.options.help, 'iac', 'help option should be assigned to iac');
+  t.end();
+});
+
+test('test command line "snyk iac --experimental" should be true on options', (t) => {
+  const cliArgsWithFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    '--experimental',
+  ];
+  const resultWithFlag = args(cliArgsWithFlag);
+  t.ok(
+    resultWithFlag.options['experimental'],
+    'expected options[experimental] to be true',
+  );
+  const cliArgsWithoutFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+  ];
+  const resultWithoutFlag = args(cliArgsWithoutFlag);
+  t.notOk(
+    resultWithoutFlag.options['experimental'],
+    'expected options[experimental] to be false',
+  );
+  t.end();
+});
+
+test('test command line "snyk iac --experimental --detection-depth=1" should be 1 on options', (t) => {
+  const cliArgsWithFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    '--experimental',
+    '--detection-depth=1',
+  ];
+  const resultWithFlag = args(cliArgsWithFlag);
+  t.equal(
+    resultWithFlag.options['detectionDepth'],
+    1,
+    'expected options[detectionDepth] to be 1',
+  );
+  const cliArgsWithoutFlag = [
+    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
+    '/Users/dror/work/snyk/snyk-internal/cli',
+    'iac',
+    '--experimental',
+  ];
+  const resultWithoutFlag = args(cliArgsWithoutFlag);
+  t.equal(
+    resultWithoutFlag.options['detectionDepth'],
+    undefined,
+    'expected options[detectionDepth] to be undefined',
+  );
+  t.end();
+});

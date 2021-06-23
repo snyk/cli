@@ -19,3 +19,4 @@ jobs:
         env:
           USER_GITHUB_TOKEN: ${{ secrets.USER_GITHUB_TOKEN }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          PD_ROUTING_KEY: ${{ secrets.PD_ROUTING_KEY }}

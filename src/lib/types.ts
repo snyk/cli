@@ -13,20 +13,23 @@ export type DepTree = legacyApi.DepTree;
 export type ShowVulnPaths = 'none' | 'some' | 'all';
 
 export interface TestOptions {
-  traverseNodeModules: boolean;
-  interactive: boolean;
+  traverseNodeModules?: boolean;
   pruneRepeatedSubdependencies?: boolean;
   showVulnPaths: ShowVulnPaths;
   failOn?: FailOn;
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
+  initScript?: string;
   yarnWorkspaces?: boolean;
+  command?: string; // python interpreter to use for python tests
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
+  /** @deprecated Only used by the legacy `iac test` flow remove once local exec path is GA */
   iacDirFiles?: IacFileInDirectory[];
 }
 
-export interface WizardOptions {
+export interface ProtectOptions {
+  interactive?: boolean;
   newPolicy: boolean;
 }
 
@@ -47,6 +50,7 @@ export interface Options {
   path: string;
   docker?: boolean;
   iac?: boolean;
+  code?: boolean;
   source?: boolean; // C/C++ Ecosystem Support
   file?: string;
   policy?: string;
@@ -70,12 +74,14 @@ export interface Options {
   detectionDepth?: number;
   exclude?: string;
   strictOutOfSync?: boolean;
-  // Used with the Docker plugin only. Allows requesting some experimental/unofficial features.
+  // Used only with the IaC mode & Docker plugin. Allows requesting some experimental/unofficial features.
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;
   debug?: boolean;
   sarif?: boolean;
+  'group-issues'?: boolean;
+  quiet?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -99,6 +105,7 @@ export interface MonitorOptions {
   'app-vulns'?: boolean;
   reachableVulns?: boolean;
   reachableVulnsTimeout?: number;
+  initScript?: string;
   yarnWorkspaces?: boolean;
 }
 
@@ -178,8 +185,11 @@ export type SupportedUserReachableFacingCliArgs =
   | 'reachable-vulns'
   | 'reachable-timeout'
   | 'reachable-vulns-timeout'
+  | 'init-script'
   | 'integration-name'
-  | 'integration-version';
+  | 'integration-version'
+  | 'show-vulnerable-paths'
+  | 'dry-run';
 
 export enum SupportedCliCommands {
   version = 'version',
@@ -188,6 +198,7 @@ export enum SupportedCliCommands {
   // auth = 'auth', // TODO: auth does not support argv._ at the moment
   test = 'test',
   monitor = 'monitor',
+  fix = 'fix',
   protect = 'protect',
   policy = 'policy',
   ignore = 'ignore',

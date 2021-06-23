@@ -3,13 +3,21 @@ import 'source-map-support/register';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 
+const camelCase = require('lodash.camelcase');
+
+// import args as a first internal module
+import { args as argsLib, Args, ArgsOptions } from './args';
+// parse args as a first thing; argsLib modifies global namespace
+// therefore it is better to do it as a first thing to prevent bugs
+// when modules use this global setting during their require phase
+// TODO(code): remove once https://app.stepsize.com/issue/c2f6253e-7240-436f-943c-23a897558156/2-http-libraries-in-cli is solved
+const globalArgs = argsLib(process.argv);
 // assert supported node runtime version
 import * as runtime from './runtime';
 // require analytics as soon as possible to start measuring execution time
 import * as analytics from '../lib/analytics';
 import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
-import { args as argsLib, Args, ArgsOptions } from './args';
 import { TestCommandResult } from './commands/types';
 import { copy } from './copy';
 import spinner = require('../lib/spinner');
@@ -29,10 +37,7 @@ import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';
-import {
-  createDirectory,
-  writeContentsToFileSwallowingErrors,
-} from '../lib/json-file-output';
+import { saveJsonToFileCreatingDirectoryIfRequired } from '../lib/json-file-output';
 import {
   Options,
   TestOptions,
@@ -40,6 +45,9 @@ import {
   SupportedUserReachableFacingCliArgs,
 } from '../lib/types';
 import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
+import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
+import { getIacOrgSettings } from './commands/test/iac-local-execution/org-settings/get-iac-org-settings';
+import { isFeatureFlagSupportedForOrg } from '../lib/feature-flags';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -51,7 +59,7 @@ const EXIT_CODES = {
 async function runCommand(args: Args) {
   const commandResult = await args.method(...args.options._);
 
-  const res = analytics({
+  const res = analytics.addDataAndSend({
     args: args.options._,
     command: args.command,
     org: args.options.org,
@@ -75,9 +83,9 @@ async function runCommand(args: Args) {
   // also save the json (in error.json) to file if option is set
   if (args.command === 'test') {
     const jsonResults = (commandResult as TestCommandResult).getJsonResult();
-    saveResultsToFile(args.options, 'json', jsonResults);
+    await saveResultsToFile(args.options, 'json', jsonResults);
     const sarifResults = (commandResult as TestCommandResult).getSarifResult();
-    saveResultsToFile(args.options, 'sarif', sarifResults);
+    await saveResultsToFile(args.options, 'sarif', sarifResults);
   }
 
   return res;
@@ -105,7 +113,10 @@ async function handleError(args, error) {
   if (args.options.debug && !args.options.json) {
     const output = vulnsFound ? error.message : error.stack;
     console.log(output);
-  } else if (args.options.json) {
+  } else if (
+    args.options.json &&
+    !(error instanceof UnsupportedOptionCombinationError)
+  ) {
     console.log(stripAnsi(error.json || error.stack));
   } else {
     if (!args.options.quiet) {
@@ -124,8 +135,8 @@ async function handleError(args, error) {
     }
   }
 
-  saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
-  saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
+  await saveResultsToFile(args.options, 'json', error.jsonStringifiedResults);
+  await saveResultsToFile(args.options, 'sarif', error.sarifStringifiedResults);
 
   const analyticsError = vulnsFound
     ? {
@@ -152,7 +163,7 @@ async function handleError(args, error) {
     analytics.add('command', args.command);
   }
 
-  const res = analytics({
+  const res = analytics.addDataAndSend({
     args: args.options._,
     command,
     org: args.options.org,
@@ -170,7 +181,7 @@ function getFullPath(filepathFragment: string): string {
   }
 }
 
-function saveJsonResultsToFile(
+async function saveJsonResultsToFile(
   stringifiedJson: string,
   jsonOutputFile: string,
 ) {
@@ -184,21 +195,21 @@ function saveJsonResultsToFile(
     return;
   }
 
-  // create the directory if it doesn't exist
-  const dirPath = pathLib.dirname(jsonOutputFile);
-  const createDirSuccess = createDirectory(dirPath);
-  if (createDirSuccess) {
-    writeContentsToFileSwallowingErrors(jsonOutputFile, stringifiedJson);
-  }
+  await saveJsonToFileCreatingDirectoryIfRequired(
+    jsonOutputFile,
+    stringifiedJson,
+  );
 }
 
 function checkRuntime() {
   if (!runtime.isSupported(process.versions.node)) {
     console.error(
-      `${process.versions.node} is an unsupported nodejs ` +
+      `Node.js version ${process.versions.node} is an unsupported Node.js ` +
         `runtime! Supported runtime range is '${runtime.supportedRange}'`,
     );
-    console.error('Please upgrade your nodejs runtime version and try again.');
+    console.error(
+      'Please upgrade your Node.js runtime. The last version of Snyk CLI that supports Node.js v8 is v1.454.0.',
+    );
     process.exit(EXIT_CODES.ERROR);
   }
 }
@@ -227,58 +238,103 @@ async function main() {
   updateCheck();
   checkRuntime();
 
-  const args = argsLib(process.argv);
   let res;
   let failed = false;
   let exitCode = EXIT_CODES.ERROR;
   try {
-    modeValidation(args);
+    modeValidation(globalArgs);
     // TODO: fix this, we do transformation to options and teh type doesn't reflect it
     validateUnsupportedOptionCombinations(
-      (args.options as unknown) as AllSupportedCliOptions,
+      (globalArgs.options as unknown) as AllSupportedCliOptions,
     );
 
-    if (args.options['app-vulns'] && args.options['json']) {
+    // IaC only: used for rolling out the experimental flow
+    // modify args if experimental flag not provided, based on feature flag
+    // this can be removed once experimental becomes the default
+    if (
+      globalArgs.options['iac'] &&
+      globalArgs.command === 'test' &&
+      !globalArgs.options['experimental']
+    ) {
+      const iacOrgSettings = await getIacOrgSettings();
+      const experimentalFlowEnabled = await isFeatureFlagSupportedForOrg(
+        camelCase('experimental-local-exec-iac'),
+        iacOrgSettings.meta.org,
+      );
+      globalArgs.options['experimental'] = !!experimentalFlowEnabled.ok;
+    }
+
+    if (globalArgs.options['app-vulns'] && globalArgs.options['json']) {
       throw new UnsupportedOptionCombinationError([
         'Application vulnerabilities is currently not supported with JSON output. ' +
           'Please try using —app-vulns only to get application vulnerabilities, or ' +
           '—json only to get your image vulnerabilties, excluding the application ones.',
       ]);
     }
+    if (globalArgs.options['group-issues'] && globalArgs.options['iac']) {
+      throw new UnsupportedOptionCombinationError([
+        '--group-issues is currently not supported for Snyk IaC.',
+      ]);
+    }
+    if (
+      globalArgs.options['group-issues'] &&
+      !globalArgs.options['json'] &&
+      !globalArgs.options['json-file-output']
+    ) {
+      throw new UnsupportedOptionCombinationError([
+        'JSON output is required to use --group-issues, try adding --json.',
+      ]);
+    }
 
     if (
-      args.options.file &&
-      typeof args.options.file === 'string' &&
-      (args.options.file as string).match(/\.sln$/)
+      globalArgs.options.file &&
+      typeof globalArgs.options.file === 'string' &&
+      (globalArgs.options.file as string).match(/\.sln$/)
     ) {
-      if (args.options['project-name']) {
+      if (globalArgs.options['project-name']) {
         throw new UnsupportedOptionCombinationError([
           'file=*.sln',
           'project-name',
         ]);
       }
-      sln.updateArgs(args);
-    } else if (typeof args.options.file === 'boolean') {
+      sln.updateArgs(globalArgs);
+    } else if (typeof globalArgs.options.file === 'boolean') {
       throw new FileFlagBadInputError();
     }
 
-    validateUnsupportedSarifCombinations(args);
+    if (
+      typeof globalArgs.options.detectionDepth !== 'undefined' &&
+      (globalArgs.options.detectionDepth <= 0 ||
+        Number.isNaN(globalArgs.options.detectionDepth))
+    ) {
+      throw new InvalidDetectionDepthValue();
+    }
 
-    validateOutputFile(args.options, 'json', new JsonFileOutputBadInputError());
-    validateOutputFile(args.options, 'sarif', new SarifFileOutputEmptyError());
+    validateUnsupportedSarifCombinations(globalArgs);
 
-    checkPaths(args);
+    validateOutputFile(
+      globalArgs.options,
+      'json',
+      new JsonFileOutputBadInputError(),
+    );
+    validateOutputFile(
+      globalArgs.options,
+      'sarif',
+      new SarifFileOutputEmptyError(),
+    );
 
-    res = await runCommand(args);
+    checkPaths(globalArgs);
+
+    res = await runCommand(globalArgs);
   } catch (error) {
     failed = true;
 
-    const response = await handleError(args, error);
+    const response = await handleError(globalArgs, error);
     res = response.res;
     exitCode = response.exitCode;
   }
 
-  if (!args.options.json) {
+  if (!globalArgs.options.json) {
     console.log(alerts.displayAlerts());
   }
 
@@ -411,7 +467,7 @@ function validateUnsupportedSarifCombinations(args) {
   }
 }
 
-function saveResultsToFile(
+async function saveResultsToFile(
   options: ArgsOptions,
   outputType: string,
   jsonResults: string,
@@ -421,7 +477,7 @@ function saveResultsToFile(
   if (outputFile && jsonResults) {
     const outputFileStr = outputFile as string;
     const fullOutputFilePath = getFullPath(outputFileStr);
-    saveJsonResultsToFile(stripAnsi(jsonResults), fullOutputFilePath);
+    await saveJsonResultsToFile(stripAnsi(jsonResults), fullOutputFilePath);
   }
 }
 

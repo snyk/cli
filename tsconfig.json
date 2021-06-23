@@ -1,19 +1,14 @@
 {
+    "extends": "./tsconfig.settings.json",
     "compilerOptions": {
         "outDir": "./dist",
-        "pretty": true,
-        "target": "es2017",
-        "lib": [
-            "es2017",
-            "dom"
-        ],
-        "module": "commonjs",
-        "allowJs": true,
-        "sourceMap": true,
-        "strict": true,
-        "noImplicitAny": false // Needed to compile tap and ansi-escapes
+        "rootDir": "./src"
     },
     "include": [
         "./src/**/*",
+    ],
+    "references": [
+        { "path": "packages/snyk-protect" },
+        { "path": "packages/snyk-fix" }
     ]
 }

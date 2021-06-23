@@ -7,3 +7,9 @@
 
 - `Test terraform file`:
   \$ snyk iac test /path/to/terraform_file.tf
+
+- `Test terraform plan file`:
+  \$ snyk iac test /path/to/tf-plan.json --experimental
+  
+- `Test matching files in a directory`:
+  \$ snyk iac test /path/to/directory

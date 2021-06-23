@@ -9,16 +9,18 @@ export {
   startOver,
 };
 
-import * as _ from 'lodash';
+const cloneDeep = require('lodash.clonedeep');
+const get = require('lodash.get');
 import * as semver from 'semver';
 import { format as fmt } from 'util';
 import * as debugModule from 'debug';
-import * as protect from '../../../lib/protect';
+const protect = require('../../../lib/protect');
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as config from '../../../lib/config';
 import * as snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
 import { AnnotatedIssue, SEVERITY } from '../../../lib/snyk-test/legacy';
+import { getLegacySeveritiesColour } from '../../../lib/snyk-test/common';
 import { titleCaseText } from '../test/formatters/legacy-format-issue';
 
 const debug = debugModule('snyk');
@@ -45,24 +47,8 @@ function sort(prop) {
 
 function createSeverityBasedIssueHeading(msg: string, severity: SEVERITY) {
   // Example: ✗ Medium severity vulnerability found in xmldom
-  const severitiesColourMapping = {
-    low: {
-      colorFunc(text) {
-        return chalk.bold.blue(text);
-      },
-    },
-    medium: {
-      colorFunc(text) {
-        return chalk.bold.yellow(text);
-      },
-    },
-    high: {
-      colorFunc(text) {
-        return chalk.bold.red(text);
-      },
-    },
-  };
-  return severitiesColourMapping[severity].colorFunc(msg);
+  const severityColor = getLegacySeveritiesColour(severity);
+  return severityColor.colorFunc(msg);
 }
 
 function sortUpgradePrompts(a, b) {
@@ -191,7 +177,7 @@ function getPatchPrompts(
     return [];
   }
 
-  let res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
+  let res = stripInvalidPatches(cloneDeep(vulns)).filter((vuln) => {
     // if there's any upgrade available, then remove it
     return canBeUpgraded(vuln) || vuln.type === 'license' ? false : true;
   }) as AnnotatedIssue[];
@@ -256,7 +242,7 @@ function getPatchPrompts(
 
       if (!acc[last]) {
         // only copy the biggest change
-        copy[last] = _.cloneDeep(curr);
+        copy[last] = cloneDeep(curr);
         acc[last] = curr;
         return acc;
       }
@@ -350,7 +336,7 @@ function getIgnorePrompts(vulns, policy, options?) {
     return [];
   }
 
-  const res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
+  const res = stripInvalidPatches(cloneDeep(vulns)).filter((vuln) => {
     // remove all patches and updates
 
     // if there's any upgrade available
@@ -390,7 +376,7 @@ function getUpdatePrompts(vulns: AnnotatedIssue[], policy, options?): Prompt[] {
     return [];
   }
 
-  let res = stripInvalidPatches(_.cloneDeep(vulns)).filter((vuln) => {
+  let res = stripInvalidPatches(cloneDeep(vulns)).filter((vuln) => {
     // only keep upgradeable
     return canBeUpgraded(vuln);
   }) as AnnotatedIssueWithGrouping[];
@@ -410,7 +396,7 @@ function getUpdatePrompts(vulns: AnnotatedIssue[], policy, options?): Prompt[] {
 
     if (!acc[from]) {
       // only copy the biggest change
-      copy = _.cloneDeep(curr);
+      copy = cloneDeep(curr);
       acc[from] = curr;
       return acc;
     }
@@ -588,10 +574,10 @@ function generatePrompt(
     id += '-' + prefix + i;
 
     // make complete copies of the actions, otherwise we'll mutate the object
-    const ignore = _.cloneDeep(ignoreAction);
-    const skip = _.cloneDeep(skipAction);
-    const patch = _.cloneDeep(patchAction);
-    const update = _.cloneDeep(updateAction);
+    const ignore = cloneDeep(ignoreAction);
+    const skip = cloneDeep(skipAction);
+    const patch = cloneDeep(patchAction);
+    const update = cloneDeep(updateAction);
     const review: Action = {
       value: 'review',
       short: 'Review',
@@ -974,7 +960,7 @@ function nextSteps(pkg, prevAnswers) {
   const prompts: Prompt[] = [];
   let i;
 
-  i = _.get(pkg, 'scripts.test', '').indexOf('snyk test');
+  i = get(pkg, 'scripts.test', '').indexOf('snyk test');
   if (i === -1) {
     prompts.push({
       name: 'misc-add-test',
@@ -992,7 +978,7 @@ function nextSteps(pkg, prevAnswers) {
     return prompts;
   }
 
-  i = _.get(pkg, 'scripts.prepublish', '').indexOf('snyk-pro');
+  i = get(pkg, 'scripts.prepublish', '').indexOf('snyk-pro');
 
   // if `snyk protect` doesn't already appear, then check if we need to add it
   if (i === -1) {

@@ -142,7 +142,7 @@ test('test info is displayed when reachability with json flag', async (t) => {
 
     t.deepEqual(reachabilities, [
       'potentially-reachable',
-      'no-info',
+      'no-path-found',
       'reachable',
     ]);
     const resType = error.constructor.name;

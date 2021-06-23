@@ -38,6 +38,11 @@ export function getProjectName(
   if (isContainer(scannedProject)) {
     return getContainerProjectName(scannedProject, meta);
   }
+
+  if (meta['project-name'] && scannedProject.meta?.projectName) {
+    return scannedProject.meta.projectName;
+  }
+
   return meta['project-name'];
 }
 

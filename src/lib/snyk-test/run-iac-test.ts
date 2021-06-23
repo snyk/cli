@@ -17,6 +17,7 @@ import { projectTypeByFileType, IacFileTypes } from '../iac/constants';
 export async function parseIacTestResult(
   res: IacTestResponse,
   targetFile: string | undefined,
+  targetFileRelativePath: string | undefined,
   projectName: any,
   severityThreshold?: SEVERITY,
   //TODO(orka): future - return a proper type
@@ -38,6 +39,7 @@ export async function parseIacTestResult(
     policy: meta.policy,
     isPrivate: !meta.isPublic,
     severityThreshold,
+    targetFilePath: targetFileRelativePath,
   };
 }
 

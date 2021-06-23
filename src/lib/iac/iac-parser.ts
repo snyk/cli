@@ -1,7 +1,12 @@
 //TODO(orka): take out into a new lib
 import * as YAML from 'js-yaml';
 import * as debugLib from 'debug';
-import { IllegalIacFileErrorMsg, NotSupportedIacFileErrorMsg } from '../errors';
+import {
+  IllegalIacFileErrorMsg,
+  InternalServerError,
+  MissingApiTokenError,
+  NotSupportedIacFileErrorMsg,
+} from '../errors';
 import request = require('../request');
 import { api as getApiToken } from '../api-token';
 import * as config from './../config';
@@ -92,7 +97,7 @@ export function validateK8sFile(
 export async function makeValidateTerraformRequest(
   terraformFileContent: string,
 ): Promise<IacValidationResponse> {
-  const response = (await request({
+  const response = await request({
     body: {
       contentBase64: Buffer.from(terraformFileContent).toString('base64'),
     },
@@ -102,9 +107,24 @@ export async function makeValidateTerraformRequest(
     headers: {
       Authorization: `token ${getApiToken()}`,
     },
-  })) as IacValidateTerraformResponse;
+  });
+
+  // Token may have expired, so we need to ask the client to re-auth.
+  if (response.res.statusCode === 401) {
+    throw new MissingApiTokenError();
+  }
+
+  if (
+    !response.res.statusCode ||
+    (response.res.statusCode < 200 && response.res.statusCode >= 300)
+  ) {
+    debug(`internal server error - ${response.body}`);
+    throw new InternalServerError('Error occurred validating terraform file');
+  }
+
+  const { body } = response as IacValidateTerraformResponse;
   return {
-    isValidFile: !!response.body?.isValidTerraformFile,
-    reason: response.body?.reason || '',
+    isValidFile: body?.isValidTerraformFile ?? false,
+    reason: body?.reason ?? '',
   };
 }

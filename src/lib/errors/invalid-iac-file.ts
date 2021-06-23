@@ -5,7 +5,7 @@ export function NotSupportedIacFileErrorMsg(fileName: string): string {
   return (
     'Not supported infrastructure as code target files in ' +
     fileName +
-    '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
+    '.\nPlease see our documentation for supported target files: ' +
     chalk.underline(
       'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
     ) +
@@ -17,7 +17,7 @@ export function IllegalIacFileErrorMsg(fileName: string): string {
   return (
     'Illegal infrastructure as code target file ' +
     fileName +
-    '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
+    '.\nPlease see our documentation for supported target files: ' +
     chalk.underline(
       'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
     ) +
@@ -55,9 +55,9 @@ export function IllegalTerraformFileError(
   const locationsStr = atLocations.join(', ');
   const errorMsg =
     `Illegal Terraform target file ${locationsStr} \nValidation Error Reason: ${reason}` +
-    '.\nPlease see our documentation for supported target files (currently we support Kubernetes files only): ' +
+    '.\nPlease see our documentation for supported target files: ' +
     chalk.underline(
-      'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
+      'https://support.snyk.io/hc/en-us/articles/360013723877-Test-your-Terraform-files-with-our-CLI-tool',
     ) +
     ' and make sure you are in the right directory.';
 

@@ -67,7 +67,6 @@ export const DockerTests: AcceptanceTests = {
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
-            pinningSupported: null,
             path: 'foo:latest',
             showVulnPaths: 'some',
           },
@@ -144,7 +143,6 @@ export const DockerTests: AcceptanceTests = {
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
-            pinningSupported: null,
             path: 'foo:latest',
             showVulnPaths: 'some',
           },
@@ -297,7 +295,6 @@ export const DockerTests: AcceptanceTests = {
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
-            pinningSupported: null,
             path: 'foo:latest',
             showVulnPaths: 'some',
           },
@@ -410,7 +407,6 @@ export const DockerTests: AcceptanceTests = {
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
-            pinningSupported: null,
             path: 'foo:latest',
             showVulnPaths: 'some',
           },
@@ -486,7 +482,6 @@ export const DockerTests: AcceptanceTests = {
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
-            pinningSupported: null,
             path: 'foo:latest',
             showVulnPaths: 'some',
             'policy-path': 'npm-package-policy/custom-location',
@@ -568,7 +563,6 @@ export const DockerTests: AcceptanceTests = {
             org: 'explicit-org',
             projectName: null,
             packageManager: null,
-            pinningSupported: null,
             path: 'foo:latest',
             showVulnPaths: 'some',
           },
@@ -642,6 +636,102 @@ export const DockerTests: AcceptanceTests = {
       }
     },
 
+    '`test foo:latest --docker with dockerfile instructions`': (
+      params,
+    ) => async (t) => {
+      stubDockerPluginResponse(
+        params.ecoSystemPlugins,
+        {
+          scanResults: [
+            {
+              facts: [
+                { type: 'depGraph', data: {} },
+                {
+                  type: 'dockerfileAnalysis',
+                  data: {
+                    dockerfilePackages: {
+                      bzip2: {
+                        instruction: 'RUN test instruction',
+                      },
+                    },
+                  },
+                },
+              ],
+              identity: {
+                type: 'deb',
+              },
+              target: {
+                image: 'docker-image|ubuntu',
+              },
+            },
+          ],
+        },
+        t,
+      );
+
+      const vulns = require('../fixtures/docker/find-result-remediation.json');
+      params.server.setNextResponse(vulns);
+
+      try {
+        await params.cli.test('foo:latest', {
+          docker: true,
+          org: 'explicit-org',
+        });
+        t.fail('should have found vuln');
+      } catch (err) {
+        const msg = err.message;
+        t.match(msg, "Image layer: 'RUN test instruction'");
+      }
+    },
+
+    '`test foo:latest --docker with auto detected instructions`': (
+      params,
+    ) => async (t) => {
+      stubDockerPluginResponse(
+        params.ecoSystemPlugins,
+        {
+          scanResults: [
+            {
+              facts: [
+                { type: 'depGraph', data: {} },
+                {
+                  type: 'autoDetectedUserInstructions',
+                  data: {
+                    dockerfilePackages: {
+                      bzip2: {
+                        instruction: 'RUN test instruction',
+                      },
+                    },
+                  },
+                },
+              ],
+              identity: {
+                type: 'deb',
+              },
+              target: {
+                image: 'docker-image|ubuntu',
+              },
+            },
+          ],
+        },
+        t,
+      );
+
+      const vulns = require('../fixtures/docker/find-result-remediation.json');
+      params.server.setNextResponse(vulns);
+
+      try {
+        await params.cli.test('foo:latest', {
+          docker: true,
+          org: 'explicit-org',
+        });
+        t.fail('should have found vuln');
+      } catch (err) {
+        const msg = err.message;
+        t.match(msg, "Image layer: 'RUN test instruction'");
+      }
+    },
+
     '`test --docker --file=Dockerfile --sarif `': (params, utils) => async (
       t,
     ) => {
@@ -683,7 +773,7 @@ export const DockerTests: AcceptanceTests = {
         const msg = err.message;
         t.match(
           msg,
-          'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist.',
+          'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist, and that you are using the correct credentials.',
         );
       }
     },

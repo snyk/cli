@@ -1,4 +1,4 @@
-import { BasicResultData, TestDepGraphMeta, SEVERITY } from './legacy';
+import { BasicResultData, SEVERITY, TestDepGraphMeta } from './legacy';
 
 export interface AnnotatedIacIssue {
   id: string;
@@ -10,15 +10,22 @@ export interface AnnotatedIacIssue {
   type: string;
   subType: string;
   path: string[];
+  documentation: string;
   // Legacy fields from Registry, unused.
   name?: string;
   from?: string[];
   lineNumber?: number;
+  iacDescription: {
+    issue: string;
+    impact: string;
+    resolve: string;
+  };
 }
 
 type FILTERED_OUT_FIELDS = 'cloudConfigPath' | 'name' | 'from';
 
 export interface IacTestResponse extends BasicResultData {
+  path: string;
   targetFile: string;
   projectName: string;
   displayTargetFile: string; // used for display only
@@ -43,6 +50,8 @@ export function mapIacTestResult(
     };
   }
 
+  const infrastructureAsCodeIssues =
+    iacTest?.result?.cloudConfigResults.map(mapIacIssue) || [];
   const {
     result: { projectType },
     ...filteredIacTest
@@ -50,8 +59,8 @@ export function mapIacTestResult(
   return {
     ...filteredIacTest,
     projectType,
-    [IAC_ISSUES_KEY]:
-      iacTest?.result?.cloudConfigResults.map(mapIacIssue) || [],
+    ok: infrastructureAsCodeIssues.length === 0,
+    [IAC_ISSUES_KEY]: infrastructureAsCodeIssues,
   };
 }
 

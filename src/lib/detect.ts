@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
-import * as _ from 'lodash';
 import { NoSupportedManifestsFoundError } from './errors';
 import { SupportedPackageManagers } from './package-managers';
 
@@ -31,6 +30,8 @@ const DETECTABLE_FILES: string[] = [
   'Podfile.lock',
   'pyproject.toml',
   'poetry.lock',
+  'mix.exs',
+  'mix.lock',
 ];
 
 export const AUTO_DETECTABLE_FILES: string[] = [
@@ -57,6 +58,8 @@ export const AUTO_DETECTABLE_FILES: string[] = [
   'build.gradle.kts',
   'pyproject.toml',
   'poetry.lock',
+  'mix.exs',
+  'mix.lock',
 ];
 
 // when file is specified with --file, we look it up here
@@ -92,11 +95,12 @@ const DETECTABLE_PACKAGE_MANAGERS: {
   Podfile: 'cocoapods',
   'pyproject.toml': 'poetry',
   'poetry.lock': 'poetry',
+  'mix.exs': 'hex',
 };
 
-export function isPathToPackageFile(path) {
+export function isPathToPackageFile(path: string) {
   for (const fileName of DETECTABLE_FILES) {
-    if (_.endsWith(path, fileName)) {
+    if (path.endsWith(fileName)) {
       return true;
     }
   }
@@ -153,7 +157,7 @@ export function localFileSuppliedButNotFound(root, file) {
   );
 }
 
-export function isLocalFolder(root) {
+export function isLocalFolder(root: string) {
   try {
     return fs.lstatSync(root).isDirectory();
   } catch (e) {

@@ -2,12 +2,31 @@ version: 2.1
 
 orbs:
   win: circleci/windows@2.2.0
+  aws-cli: circleci/aws-cli@1.4.0
 
 defaults: &defaults
   parameters:
     node_version:
       type: string
       default: ''
+    use_npm7:
+      type: boolean
+      default: true
+    root_tap_tests:
+      type: boolean
+      default: false
+    jest_tests:
+      type: boolean
+      default: false
+    acceptance_tests:
+      type: boolean
+      default: false
+    system_tests:
+      type: boolean
+      default: false
+    package_tests:
+      type: boolean
+      default: false
   working_directory: ~/snyk
 
 windows_defaults: &windows_defaults
@@ -21,11 +40,14 @@ commands:
     description: Install dependencies
     steps:
       - run:
-          name: Use snyk-main npmjs user
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-      - run:
           name: Install dependencies
           command: npm install
+  update_local_npmrc_linux:
+    description: Update local .npmrc file (Linux)
+    steps:
+      - run:
+          name: Update local .npmrc file (Linux)
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
   build_ts:
     description: Build js files from ts
     steps:
@@ -36,19 +58,11 @@ commands:
           root: .
           paths:
             - dist/
-  install_gradle_windows:
-    description: Install gradle
+  install_windows_choco_dependencies:
+    description: Install test dependencies on Windows with Choco
     steps:
-      - run: choco install gradle
-  install_maven_windows:
-    description: Install maven
-    steps:
-      - run: choco install maven
-  install_sbt_windows:
-    description: Install SBT
-    steps:
-      - run: choco install sbt
-  install_sdkman_unix:
+      - run: choco install gradle maven sbt
+  install_sdkman_linux:
     description: Install SDKMAN
     steps:
       - run:
@@ -57,43 +71,43 @@ commands:
             curl -s "https://get.sdkman.io?rcupdate=false" | bash
             echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
             source $BASH_ENV
-  install_jdk_unix:
+  install_jdk_linux:
     description: Install JDK
     steps:
       - run:
           name: Installing JDK
           command: sdk install java $(sdk list java | grep -o -m1 "11\.[0-9\.]\+hs-adpt")
-  install_gradle_unix:
+  install_gradle_linux:
     description: Install gradle
     steps:
       - run:
           name: Installing Gradle
           command: sdk install gradle 6.4.1
-  install_maven_unix:
+  install_maven_linux:
     description: Install maven
     steps:
       - run:
           name: Installing maven
           command: sdk install maven 3.6.3
-  install_sbt_unix:
+  install_sbt_linux:
     description: Install SBT
     steps:
       - run:
           name: Installing sbt
           command: sdk install sbt 1.3.12
-  install_node_npm:
-    description: Install correct Node version
+  install_node_windows:
+    description: Install the given Node version on Windows using Chocolatey
     parameters:
       node_version:
         type: string
         default: ''
     steps:
       - run:
-          name: Install correct version of Node
-          command: nvm install << parameters.node_version >>
-      - run:
-          name: Use correct version of Node
-          command: nvm use << parameters.node_version >>
+          name: Install Node with Chocolatey
+          command: |
+            $current_node_version = node --version
+            nvm uninstall $current_node_version
+            choco install nodejs --version=<< parameters.node_version >>
   install_shellspec:
     description: Install Shellspec
     steps:
@@ -115,6 +129,24 @@ commands:
       - run:
           name: Run CLI help text builder
           command: npm run generate-help
+  install_github_cli:
+    description: Install GitHub CLI (gh)
+    steps:
+      - run:
+          name: Install GitHub CLI (gh)
+          command: |
+            mkdir gh-download
+            curl -Lo ./gh-download/gh_1.3.1_linux_amd64.tar.gz https://github.com/cli/cli/releases/download/v1.3.1/gh_1.3.1_linux_amd64.tar.gz
+            tar -xf ./gh-download/gh_1.3.1_linux_amd64.tar.gz --directory gh-download
+            chmod a+x gh-download/gh_1.3.1_linux_amd64/bin/gh
+            mkdir -p /home/circleci/bin
+            mv gh-download/gh_1.3.1_linux_amd64/bin/gh /home/circleci/bin
+            which gh
+            gh --version
+  install_lerna_linux:
+    description: Setup Lerna
+    steps:
+      - run: sudo npm install -g lerna@3.22.1
 
 jobs:
   regression-test:
@@ -125,8 +157,14 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
-          # docker_layer_caching: true
+          docker_layer_caching: true
       - install_shellspec
+      - run:
+          name: Install npm@7
+          command: |
+            sudo npm install -g npm@7
+      - show_node_version
+      - update_local_npmrc_linux
       - install_deps
       - build_ts
       - generate_help
@@ -144,7 +182,7 @@ jobs:
           command: rm -rf node_modules/
       - run:
           name: Install only production dependencies
-          command: npm install
+          command: npx npm@6 install # kludge because npm@7 will invoke the lifecycle scripts (thus running prepare -> tsc) even if we use --ignore-scripts
           environment:
             NODE_ENV: production
       - run:
@@ -169,41 +207,97 @@ jobs:
     <<: *windows_defaults
     steps:
       - run: git config --global core.autocrlf false
-      - install_gradle_windows
-      - install_maven_windows
-      - install_sbt_windows
-      - install_node_npm:
+      - install_windows_choco_dependencies
+      - install_node_windows:
           node_version: << parameters.node_version >>
-      - show_node_version
       - checkout
       - attach_workspace:
           at: ~/snyk
-      - install_deps
+      - when:
+          condition: << parameters.use_npm7 >>
+          steps:
+            - run: npm install -g npm@7
+      - run:
+          name: Setup Lerna
+          command: npm install -g lerna@3.22.1
+      - run:
+          name: Update local .npmrc file (Windows)
+          command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
+      - run:
+          name: Install dependencies (Windows)
+          command: npm install --ignore-scripts # ignore-scripts required because of postinstall script in snyk-resolve-deps package
       - build_ts
       - run:
-          name: npm version
-          command: npm --version
-      - run:
           name: Run auth
+          shell: bash.exe
           command: npm run snyk-auth-windows
-      - run:
-          name: Run tests
-          command: npm run test-windows
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package unit tests
+                command: npm run test:packages-unit
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package acceptance tests
+                command: npm run test:packages-acceptance
+      - when:
+          condition: << parameters.root_tap_tests >>
+          steps:
+            - run:
+                name: Run "Root" tap tests
+                command: npm run test:test
+      - when:
+          condition: << parameters.jest_tests >>
+          steps:
+            - run:
+                name: Run Jest tests in root (to remove)
+                command: npm run test:jest
+            - run:
+                name: Run Jest Unit Tests
+                command: npm run test:jest-unit
+            - run:
+                name: Run Jest System Tests
+                command: npm run test:jest-system
+            - run:
+                name: Run Jest Acceptance Tests
+                command: npm run test:jest-acceptance
+      - when:
+          condition: << parameters.acceptance_tests >>
+          steps:
+            - run:
+                name: Run Acceptance tests
+                command: npm run test:acceptance-windows
+      - when:
+          condition: << parameters.system_tests >>
+          steps:
+            - run:
+                name: Run System tests
+                command: npm run test:system
 
-  test-unix:
+  test-linux:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
     steps:
-      - install_sdkman_unix
-      - install_jdk_unix
-      - install_gradle_unix
-      - install_maven_unix
-      - install_sbt_unix
+      - install_sdkman_linux
+      - install_jdk_linux
+      - install_gradle_linux
+      - install_maven_linux
+      - install_sbt_linux
       - show_node_version
       - checkout
       - attach_workspace:
           at: ~/snyk
+      - when:
+          condition: << parameters.use_npm7 >>
+          steps:
+            - run: sudo npm install -g npm@7
+      - show_node_version
+      - install_lerna_linux
+      - update_local_npmrc_linux
       - install_deps
       - build_ts
       - run:
@@ -212,9 +306,87 @@ jobs:
       - run:
           name: Run auth
           command: npm run snyk-auth
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package unit tests
+                command: npm run test:packages-unit
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Run Package acceptance tests
+                command: npm run test:packages-acceptance
+      - when:
+          condition: << parameters.root_tap_tests >>
+          steps:
+            - run:
+                name: Run "Root" tap tests
+                command: npm run test:test
+      - when:
+          condition: << parameters.jest_tests >>
+          steps:
+            - run:
+                name: Run Jest tests in root (to remove)
+                command: npm run test:jest
+            - run:
+                name: Run Jest Unit Tests
+                command: npm run test:jest-unit
+            - run:
+                name: Run Jest System Tests
+                command: npm run test:jest-system
+            - run:
+                name: Run Jest Acceptance Tests
+                command: npm run test:jest-acceptance
+      - when:
+          condition: << parameters.acceptance_tests >>
+          steps:
+            - run:
+                name: Run Acceptance tests
+                command: npm run test:acceptance
+      - when:
+          condition: << parameters.system_tests >>
+          steps:
+            - run:
+                name: Run System tests
+                command: npm run test:system
+
+  dev-release:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    resource_class: small
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: 19.03.13
       - run:
-          name: Run tests
-          command: npm test
+          name: Install npm@7
+          command: |
+            sudo npm install -g npm@7
+      - show_node_version
+      - install_lerna_linux
+      - install_deps
+      - generate_help
+      - run:
+          name: Update package versions
+          command: ./release-scripts/update-versions.sh
+      - run:
+          name: Install osslsigncode
+          command: sudo apt-get install -y osslsigncode
+      - run:
+          name: Create Binaries
+          command: |
+            ./release-scripts/make-binaries.sh
+            ls -la ./binary-releases
+      - store_artifacts:
+          path: ./binary-releases
+      - run:
+          name: Validate binary release checksums
+          working_directory: ~/snyk/binary-releases
+          command: |
+            ../release-scripts/validate-checksums.sh
 
   release:
     <<: *defaults
@@ -225,14 +397,62 @@ jobs:
       - checkout
       - setup_remote_docker:
           version: 19.03.13
-          # docker_layer_caching: true
+          docker_layer_caching: true
+      - run:
+          name: Should I release?
+          command: ./release-scripts/should-i-release.sh
+      - install_github_cli
+      - aws-cli/install
+      - run:
+          name: Install npm@7
+          command: |
+            sudo npm install -g npm@7
+      - show_node_version
+      - install_lerna_linux
+      - update_local_npmrc_linux
       - install_deps
       - generate_help
-      - run: sudo npm i -g semantic-release @semantic-release/exec pkg
-      - run: sudo apt-get install -y osslsigncode
       - run:
-          name: Publish to GitHub
-          command: semantic-release
+          name: Update package versions
+          command: ./release-scripts/update-versions.sh
+      - run:
+          name: Make git ignore changes relating to version updates and to .npmrc
+          command: |
+            git update-index --skip-worktree -- ./lerna.json
+            git update-index --skip-worktree -- ./package.json
+            git update-index --skip-worktree -- ./packages/snyk-protect/package.json
+            git update-index --skip-worktree -- ./.npmrc
+      - run:
+          name: Lerna Publish
+          command: |
+            lerna publish minor --yes --no-push --no-git-tag-version --exact
+      - run:
+          name: Install osslsigncode
+          command: sudo apt-get install -y osslsigncode
+      - run:
+          name: Create Binaries
+          command: |
+            ./release-scripts/make-binaries.sh
+            ls -la ./binary-releases
+      - store_artifacts:
+          path: ./binary-releases
+      - run:
+          name: Validate binary release checksums
+          working_directory: ~/snyk/binary-releases
+          command: |
+            ../release-scripts/validate-checksums.sh
+      - run:
+          name: Generate Release Notes
+          command: |
+            npx conventional-changelog-cli -p angular -l -r 1 > RELEASE_NOTES.txt
+      - run:
+          name: Upload Artifacts
+          command: ./release-scripts/upload-artifacts.sh
+      - run:
+          name: Handle failed CLI release
+          command: |
+            ./release-scripts/handle-failed-release.sh
+          when: on_fail
 
 workflows:
   version: 2
@@ -241,96 +461,123 @@ workflows:
       - regression-test:
           name: Regression Test
           context: nodejs-install
-          node_version: '8'
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-windows:
-          name: Windows Tests for Node v12 support
-          context: nodejs-install
-          node_version: '12.0.0'
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-windows:
-          name: Windows Tests for Node v14 support
-          context: nodejs-install
-          node_version: '14'
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-windows:
-          name: Windows Tests for Node v10 support
-          context: nodejs-install
-          node_version: '10.21.0'
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-windows:
-          name: Windows Tests for Node v8 support
-          context: nodejs-install
-          node_version: '8.17.0'
-          requires:
-            - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-unix:
-          name: Unix Tests for Node v12 support
-          context: nodejs-install
           node_version: '12.16.2'
-          requires:
-            - Regression Test
           filters:
             branches:
               ignore:
                 - master
-      - test-unix:
-          name: Unix Tests for Node v14 support
-          context: nodejs-install
+      - dev-release:
+          name: Dev Release
           node_version: '14'
           requires:
             - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-unix:
-          name: Unix Tests for Node v10 support
+      - test-windows:
+          name: Windows, Node 14 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
-          node_version: '10'
+          node_version: '14.15.4'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          package_tests: true
           requires:
             - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
-      - test-unix:
-          name: Unix Tests for Node v8 support
+      - test-windows:
+          name: Windows, Node 14 - "Root" tap tests
           context: nodejs-install
-          node_version: '8'
+          node_version: '14.15.4'
+          root_tap_tests: true
           requires:
             - Regression Test
-          filters:
-            branches:
-              ignore:
-                - master
+      - test-windows:
+          name: Windows, Node 12 - Packages, Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '12.21.0'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          package_tests: true
+          requires:
+            - Regression Test
+      - test-windows:
+          name: Windows, Node 12 - "Root" tap tests
+          context: nodejs-install
+          node_version: '12.21.0'
+          root_tap_tests: true
+          requires:
+            - Regression Test
 
+      - test-windows:
+          name: Windows, Node 10 - Packages, Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '10.23.1'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          package_tests: true
+          requires:
+            - Regression Test
+      - test-windows:
+          name: Windows, Node 10 - "Root" tap tests
+          context: nodejs-install
+          node_version: '10.23.1'
+          root_tap_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 14 - Packages, Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '14.15.4'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          package_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 14 - "Root" tap tests
+          context: nodejs-install
+          node_version: '14.15.4'
+          root_tap_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 12 - Packages, Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '12.21.0'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          package_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 12 - "Root" tap tests
+          context: nodejs-install
+          node_version: '12.21.0'
+          root_tap_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 10 - Packages, Jest, Acceptance, System tests
+          context: nodejs-install
+          node_version: '10.23.1'
+          jest_tests: true
+          acceptance_tests: true
+          system_tests: true
+          package_tests: true
+          requires:
+            - Regression Test
+      - test-linux:
+          name: Linux, Node 10 - "Root" tap tests
+          context: nodejs-install
+          node_version: '10.23.1'
+          root_tap_tests: true
+          requires:
+            - Regression Test
       - release:
           name: Release
           context: nodejs-app-release
-          node_version: '14'
+          node_version: '14.15.4'
           filters:
             branches:
               only:

@@ -12,7 +12,6 @@ import {
   MonitorMeta,
   MonitorResult,
   Options,
-  PolicyOptions,
   Contributor,
 } from '../../../lib/types';
 import * as config from '../../../lib/config';
@@ -20,7 +19,7 @@ import * as detect from '../../../lib/detect';
 import { GoodResult, BadResult } from './types';
 import * as spinner from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
-import { MethodArgs, ArgsOptions } from '../../args';
+import { MethodArgs } from '../../args';
 import { apiTokenExists } from '../../../lib/api-token';
 import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
 import { monitor as snykMonitor } from '../../../lib/monitor';
@@ -39,6 +38,7 @@ import { FailedToRunTestError, MonitorError } from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
 import { getFormattedMonitorOutput } from '../../../lib/ecosystems/monitor';
+import { processCommandArgs } from '../process-command-args';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 const debug = Debug('snyk');
@@ -58,19 +58,8 @@ async function promiseOrCleanup<T>(
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
 // or an error message.
 async function monitor(...args0: MethodArgs): Promise<any> {
-  let args = [...args0];
-  let monitorOptions = {};
+  const { options, paths } = processCommandArgs(...args0);
   const results: Array<GoodResult | BadResult> = [];
-  if (typeof args[args.length - 1] === 'object') {
-    monitorOptions = args.pop() as ArgsOptions;
-  }
-  args = args.filter(Boolean);
-
-  // populate with default path (cwd) if no path given
-  if (args.length === 0) {
-    args.unshift(process.cwd());
-  }
-  const options = monitorOptions as Options & PolicyOptions & MonitorOptions;
 
   if (options.id) {
     snyk.id = options.id;
@@ -99,11 +88,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
 
   const ecosystem = getEcosystem(options);
   if (ecosystem) {
-    const commandResult = await monitorEcosystem(
-      ecosystem,
-      args as string[],
-      options,
-    );
+    const commandResult = await monitorEcosystem(ecosystem, paths, options);
 
     const [monitorResults, monitorErrors] = commandResult;
 
@@ -116,7 +101,7 @@ async function monitor(...args0: MethodArgs): Promise<any> {
   }
 
   // Part 1: every argument is a scan target; process them sequentially
-  for (const path of args as string[]) {
+  for (const path of paths) {
     debug(`Processing ${path}...`);
     try {
       validateMonitorPath(path, options.docker);
@@ -154,8 +139,6 @@ async function monitor(...args0: MethodArgs): Promise<any> {
       await spinner(analyzingDepsSpinnerLabel);
 
       // Scan the project dependencies via a plugin
-
-      analytics.add('pluginOptions', options);
       debug('getDepsFromPlugin ...');
 
       // each plugin will be asked to scan once per path

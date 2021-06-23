@@ -15,7 +15,10 @@ cp ./release-scripts/snyk-mac.sh ./dist/docker/
 
 cd ./dist/docker
 
-npm install --production
+# All we want to do here is add the prod dependencies - not build the typescript, etc.
+# Using npm 6 for this so that it won't fail due to the lack of the packages being present since all we really want
+# is to install the dependencies.
+npx npm@6 --yes --ignore-scripts install --production
 rm -rf package-lock.json
 
 # Download macOS NodeJS binary, using same as pkg
@@ -27,8 +30,10 @@ cd ..
 tar czfh docker-mac-signed-bundle.tar.gz ./docker
 # final package must be at root, otherwise it gets included in /dist folder
 cd ..
-mv ./dist/docker-mac-signed-bundle.tar.gz .
+mv ./dist/docker-mac-signed-bundle.tar.gz ./binary-releases
 
-sha256sum docker-mac-signed-bundle.tar.gz > docker-mac-signed-bundle.tar.gz.sha256
+pushd binary-releases
+shasum -a 256 docker-mac-signed-bundle.tar.gz >docker-mac-signed-bundle.tar.gz.sha256
+popd
 
 rm -rf ./dist/docker

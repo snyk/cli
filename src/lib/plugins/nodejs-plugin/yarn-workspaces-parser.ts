@@ -1,6 +1,8 @@
 import * as baseDebug from 'debug';
 import * as pathUtil from 'path';
-import * as _ from 'lodash';
+// import * as _ from 'lodash';
+const sortBy = require('lodash.sortby');
+const groupBy = require('lodash.groupby');
 import * as micromatch from 'micromatch';
 
 const debug = baseDebug('snyk-yarn-workspaces');
@@ -23,18 +25,33 @@ export async function processYarnWorkspaces(
 ): Promise<MultiProjectResultCustom> {
   // the order of folders is important
   // must have the root level most folders at the top
+  // const yarnTargetFiles: {
+  //   [dir: string]: Array<{
+  //     path: string;
+  //     base: string;
+  //     dir: string;
+  //   }>;
+  // } = targetFiles
+  //   .map((p) => ({ path: p, ...pathUtil.parse(p) }))
+  //   .filter((res) => ['package.json'].includes(res.base))
+  //   .sortBy('dir')
+  //   .groupBy('dir')
+  //   .value();
+
+  const mappedAndFiltered = targetFiles
+    .map((p) => ({ path: p, ...pathUtil.parse(p) }))
+    .filter((res) => ['package.json'].includes(res.base));
+
+  const sorted = sortBy(mappedAndFiltered, 'dir');
+  const grouped = groupBy(sorted, 'dir');
+
   const yarnTargetFiles: {
     [dir: string]: Array<{
       path: string;
       base: string;
       dir: string;
     }>;
-  } = _(targetFiles)
-    .map((p) => ({ path: p, ...pathUtil.parse(p) }))
-    .filter((res) => ['package.json'].includes(res.base))
-    .sortBy('dir')
-    .groupBy('dir')
-    .value();
+  } = grouped;
 
   debug(`Processing potential Yarn workspaces (${targetFiles.length})`);
   if (Object.keys(yarnTargetFiles).length === 0) {

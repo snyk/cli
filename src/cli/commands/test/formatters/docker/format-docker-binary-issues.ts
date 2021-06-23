@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+const values = require('lodash.values');
 import { createDockerBinaryHeading } from './format-docker-binary-heading';
 import { Options, TestOptions } from '../../../../../lib/types';
 import { formatIssues } from '../legacy-format-issue';
@@ -9,7 +9,7 @@ export function formatDockerBinariesIssues(
   options: Options & TestOptions,
 ): string[] {
   const binariesIssuesOutput = [] as string[];
-  for (const pkgInfo of _.values(binariesVulns.affectedPkgs)) {
+  for (const pkgInfo of values(binariesVulns.affectedPkgs)) {
     binariesIssuesOutput.push(createDockerBinaryHeading(pkgInfo));
     const binaryIssues = dockerBinariesSortedGroupedVulns.filter(
       (vuln) => vuln.metadata.name === pkgInfo.pkg.name,

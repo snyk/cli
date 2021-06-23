@@ -2,7 +2,7 @@ import { test, afterEach, afterAll } from 'tap';
 import * as requestLib from 'needle';
 import * as path from 'path';
 
-import * as _ from 'lodash';
+const isEmpty = require('lodash.isempty');
 import * as sinon from 'sinon';
 
 import * as cli from '../src/cli/commands';
@@ -52,9 +52,9 @@ test('Make sure that target is sent correctly', async (t) => {
 
   const { data } = await getFakeServerRequestBody();
   t.true(requestSpy.calledTwice, 'needle.request was called once');
-  t.true(!_.isEmpty(data.target), 'target passed to request');
+  t.true(!isEmpty(data.target), 'target passed to request');
   t.true(
-    !_.isEmpty(data.targetFileRelativePath),
+    !isEmpty(data.targetFileRelativePath),
     'targetFileRelativePath passed to request',
   );
   t.equals(data.target.branch, 'master', 'correct branch passed to request');
@@ -79,7 +79,7 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   const { data } = await getFakeServerRequestBody();
 
   t.true(requestSpy.calledTwice, 'needle.request was called once');
-  t.true(_.isEmpty(data.target), 'empty target passed to request');
+  t.true(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
     'snyk' + path.sep + 'package.json',
@@ -96,7 +96,7 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
   const { data } = await getFakeServerRequestBody();
 
   t.true(requestSpy.calledTwice, 'needle.request was called once');
-  t.true(_.isEmpty(data.target), 'empty target passed to request');
+  t.true(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
     'snyk' + path.sep + 'package.json',

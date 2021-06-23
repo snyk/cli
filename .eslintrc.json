@@ -32,6 +32,10 @@
     "@typescript-eslint/no-unused-vars": "error",
     "no-prototype-builtins": "off",
     "require-atomic-updates": "off",
+    "no-restricted-imports": [
+      "error",
+      { "paths": ["lodash"], "patterns": ["lodash/*"] }
+    ],
     "no-buffer-constructor": "error"
   },
   "overrides": [

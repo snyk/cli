@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+const cloneDeep = require('lodash.clonedeep');
 import * as path from 'path';
 import * as cliInterface from '@snyk/cli-interface';
 import chalk from 'chalk';
@@ -42,7 +42,7 @@ export async function getMultiPluginResult(
   const failedResults: FailedProjectScanError[] = [];
 
   for (const targetFile of targetFiles) {
-    const optionsClone = _.cloneDeep(options);
+    const optionsClone = cloneDeep(options);
     optionsClone.file = path.relative(root, targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
       path.basename(targetFile),

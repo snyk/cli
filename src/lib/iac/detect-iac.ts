@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as pathLib from 'path';
 import * as debugLib from 'debug';
-import * as glob from 'glob';
 import { isLocalFolder, localFileSuppliedButNotFound } from '../detect';
 import { CustomError } from '../errors';
 import { validateK8sFile, makeValidateTerraformRequest } from './iac-parser';
@@ -10,6 +9,7 @@ import {
   IacProjectType,
   IacFileTypes,
 } from './constants';
+import { makeDirectoryIterator } from './makeDirectoryIterator';
 import {
   SupportLocalFileOnlyIacError,
   UnsupportedOptionFileIacError,
@@ -21,6 +21,7 @@ import {
   IllegalTerraformFileError,
 } from '../errors/invalid-iac-file';
 import { Options, TestOptions, IacFileInDirectory } from '../types';
+import * as Queue from 'promise-queue';
 
 const debug = debugLib('snyk-detect-iac');
 
@@ -38,7 +39,9 @@ export async function getProjectType(
     // scanning the projects - we need save the files we need to scan on the options
     // so we could create assembly payloads for the relevant files.
     // We are sending it as a `Multi IaC` project - and later assign the relevant type for each project
-    const directoryFiles = await getDirectoryFiles(root);
+    const directoryFiles = await getDirectoryFiles(root, {
+      maxDepth: options.detectionDepth,
+    });
     options.iacDirFiles = directoryFiles;
     return IacProjectType.MULTI_IAC;
   }
@@ -84,39 +87,52 @@ async function getProjectTypeForIacFile(filePath: string) {
   return projectType;
 }
 
-async function getDirectoryFiles(root: string) {
-  const iacFiles: IacFileInDirectory[] = [];
+async function getDirectoryFiles(
+  root: string,
+  options: { maxDepth?: number } = {},
+) {
   const dirPath = pathLib.resolve(root, '.');
-  const files = glob.sync(
-    pathLib.join(dirPath, '/**/**/*.+(json|yaml|yml|tf)'),
-  );
+  const supportedExtensions = new Set(Object.keys(projectTypeByFileType));
 
-  for (const fileName of files) {
-    const ext = pathLib.extname(fileName).substr(1);
-    if (Object.keys(projectTypeByFileType).includes(ext)) {
-      const filePath = pathLib.resolve(root, fileName);
+  const directoryPaths = makeDirectoryIterator(dirPath, {
+    maxDepth: options.maxDepth,
+  });
 
-      await getProjectTypeForIacFile(filePath)
-        .then((projectType) => {
-          iacFiles.push({
+  const iacFiles: IacFileInDirectory[] = [];
+  const maxConcurrent = 25;
+  const queue = new Queue(maxConcurrent);
+
+  for (const filePath of directoryPaths) {
+    const fileType = pathLib
+      .extname(filePath)
+      .substr(1)
+      .toLowerCase() as IacFileTypes;
+    if (!fileType || !supportedExtensions.has(fileType)) {
+      continue;
+    }
+    iacFiles.push(
+      queue.add(async () => {
+        try {
+          const projectType = await getProjectTypeForIacFile(filePath);
+          return {
             filePath,
             projectType,
-            fileType: ext as IacFileTypes,
-          });
-        })
-        .catch((err: CustomError) => {
-          iacFiles.push({
+            fileType,
+          };
+        } catch (err) {
+          return {
             filePath,
-            fileType: ext as IacFileTypes,
-            failureReason: err.userMessage,
-          });
-        });
-    }
+            fileType,
+            failureReason:
+              err instanceof CustomError ? err.userMessage : 'Unhandled Error',
+          };
+        }
+      }),
+    );
   }
 
   if (iacFiles.length === 0) {
     throw IacDirectoryWithoutAnyIacFileError();
   }
-
-  return iacFiles;
+  return Promise.all(iacFiles);
 }

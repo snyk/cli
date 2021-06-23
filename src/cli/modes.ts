@@ -14,6 +14,13 @@ const modes: Record<string, ModeData> = {
       return args;
     },
   },
+  gitscm: {
+    allowedCommands: ['test', 'monitor'],
+    config: (args): [] => {
+      args['gitscm'] = true;
+      return args;
+    },
+  },
   container: {
     allowedCommands: ['test', 'monitor'],
     config: (args): [] => {
@@ -27,6 +34,14 @@ const modes: Record<string, ModeData> = {
     allowedCommands: ['test'],
     config: (args): [] => {
       args['iac'] = true;
+
+      return args;
+    },
+  },
+  code: {
+    allowedCommands: ['test'],
+    config: (args): [] => {
+      args['code'] = true;
 
       return args;
     },

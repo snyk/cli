@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as resolveNodeDeps from 'snyk-resolve-deps';
 import * as baseDebug from 'debug';
-import * as _ from 'lodash';
+const isEmpty = require('lodash.isempty');
 
 import * as spinner from '../../spinner';
 import * as analytics from '../../analytics';
@@ -34,14 +34,15 @@ export async function parse(
     const packageJson = JSON.parse(
       getFileContents(root, packageJsonFileName).content,
     );
+
     let dependencies = packageJson.dependencies;
     if (options.dev) {
       dependencies = { ...dependencies, ...packageJson.devDependencies };
     }
-    if (_.isEmpty(dependencies)) {
+    if (isEmpty(dependencies)) {
       return new Promise((resolve) =>
         resolve({
-          name: packageJson.name,
+          name: packageJson.name || 'package.json',
           dependencies: {},
           version: packageJson.version,
         }),

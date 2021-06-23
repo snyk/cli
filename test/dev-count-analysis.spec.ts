@@ -3,9 +3,14 @@ import {
   getTimestampStartOfContributingDevTimeframe,
   execShell,
   SERIOUS_DELIMITER,
+  MAX_COMMITS_IN_GIT_LOG,
   separateLines,
   hashData,
 } from '../src/lib/monitor/dev-count-analysis';
+
+const testTimeout = 60000;
+
+const TIMESTAMP_TO_TEST = 1590174610000;
 
 describe('cli dev count via git log analysis', () => {
   let expectedContributorUserIds: string[] = [];
@@ -13,12 +18,15 @@ describe('cli dev count via git log analysis', () => {
 
   // this computes the expectedContributorUserIds and expectedMergeOnlyUserIds
   beforeAll(async () => {
+    const timestampEpochSecondsEndOfPeriod = Math.floor(
+      TIMESTAMP_TO_TEST / 1000,
+    );
     const timestampEpochSecondsStartOfPeriod = getTimestampStartOfContributingDevTimeframe(
-      new Date(1590174610000),
+      new Date(TIMESTAMP_TO_TEST),
       10,
     );
 
-    const withMergesGitLogCommand = `git --no-pager log --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI_SNYK_SEPARATOR_%s" --after="${timestampEpochSecondsStartOfPeriod}"`;
+    const withMergesGitLogCommand = `git --no-pager log --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI${SERIOUS_DELIMITER}%s" --after="${timestampEpochSecondsStartOfPeriod}" --until="${timestampEpochSecondsEndOfPeriod}" --max-count=${MAX_COMMITS_IN_GIT_LOG}`;
     const withMergesGitLogStdout: string = await execShell(
       withMergesGitLogCommand,
       process.cwd(),
@@ -51,32 +59,40 @@ describe('cli dev count via git log analysis', () => {
     expectedMergeOnlyUserIds = uniqueEmailsContainingOnlyMergeCommits.map(
       hashData,
     );
-  });
+  }, testTimeout);
 
-  it('returns contributors', async () => {
-    const contributors = await getContributors({
-      endDate: new Date(1590174610000),
-      periodDays: 10,
-      repoPath: process.cwd(),
-    });
-    const contributorUserIds = contributors.map((c) => c.userId);
-    expect(contributorUserIds.sort()).toEqual(
-      expectedContributorUserIds.sort(),
-    );
-  });
+  it(
+    'returns contributors',
+    async () => {
+      const contributors = await getContributors({
+        endDate: new Date(TIMESTAMP_TO_TEST),
+        periodDays: 10,
+        repoPath: process.cwd(),
+      });
+      const contributorUserIds = contributors.map((c) => c.userId);
+      expect(contributorUserIds.sort()).toEqual(
+        expectedContributorUserIds.sort(),
+      );
+    },
+    testTimeout,
+  );
 
-  it('does not include contributors who have only merged pull requests', async () => {
-    const contributors = await getContributors({
-      endDate: new Date(1590174610000),
-      periodDays: 10,
-      repoPath: process.cwd(),
-    });
-    const contributorUserIds = contributors.map((c) => c.userId);
+  it(
+    'does not include contributors who have only merged pull requests',
+    async () => {
+      const contributors = await getContributors({
+        endDate: new Date(TIMESTAMP_TO_TEST),
+        periodDays: 10,
+        repoPath: process.cwd(),
+      });
+      const contributorUserIds = contributors.map((c) => c.userId);
 
-    // make sure none of uniqueEmailsContainingOnlyMergeCommits are in contributorUserIds
-    const legitUserIdsWhichAreAlsoInMergeOnlyUserIds = expectedMergeOnlyUserIds.filter(
-      (user) => contributorUserIds.includes(user),
-    );
-    expect(legitUserIdsWhichAreAlsoInMergeOnlyUserIds).toHaveLength(0);
-  });
+      // make sure none of uniqueEmailsContainingOnlyMergeCommits are in contributorUserIds
+      const legitUserIdsWhichAreAlsoInMergeOnlyUserIds = expectedMergeOnlyUserIds.filter(
+        (user) => contributorUserIds.includes(user),
+      );
+      expect(legitUserIdsWhichAreAlsoInMergeOnlyUserIds).toHaveLength(0);
+    },
+    testTimeout,
+  );
 });

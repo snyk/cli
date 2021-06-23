@@ -78,6 +78,14 @@ For advanced usage, we offer language and context specific flags, listed further
   Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
   This is especially useful if you want to display the human-readable test output via stdout and at the same time save the JSON format output to a file.
 
+- `--sarif`:
+  Return results in SARIF format.
+
+- `--sarif-file-output`=<OUTPUT_FILE_PATH>:
+  (only in `test` command)
+  Save test output in SARIF format directly to the <OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
+  This is especially useful if you want to display the human-readable test output via stdout and at the same time save the SARIF format output to a file.
+
 - `--severity-threshold`=low|medium|high:
   Only report vulnerabilities of provided level or higher.
 
@@ -103,7 +111,7 @@ Below are flags that are influencing CLI behavior for specific projects, languag
 ### Maven options
 
 - `--scan-all-unmanaged`:
-  Auto detects maven jars and wars in given directory. Individual testing can be done with `--file`=<JAR_FILE_NAME>
+  Auto detects maven jars, aars, and wars in given directory. Individual testing can be done with `--file`=<JAR_FILE_NAME>
 
 - `--reachable`:
   (only in `test` and `monitor` commands)
@@ -130,7 +138,20 @@ Below are flags that are influencing CLI behavior for specific projects, languag
 
 - `--configuration-attributes`=<ATTRIBUTE>[,<ATTRIBUTE>]...:
   Select certain values of configuration attributes to resolve the dependencies. E.g. `buildtype:release,usage:java-runtime`
+ 
+- `--reachable`:
+  (only in `test` and `monitor` commands)
+  Analyze your source code to find which vulnerable
+  functions and packages are called.
 
+- `--reachable-timeout`=<TIMEOUT>:
+  The amount of time (in seconds) to wait for Snyk to gather reachability data. If it takes longer than <TIMEOUT>, Reachable Vulnerabilities are not reported. This does not affect regular test or monitor output.
+
+  Default: 300 (5 minutes).
+
+- `--init-script`=<FILE>
+  For projects that contain a gradle initialization script.
+  
 ### .Net & NuGet options
 
 - `--assets-project-name`:
@@ -138,6 +159,9 @@ Below are flags that are influencing CLI behavior for specific projects, languag
 
 - `--packages-folder`:
   Custom path to packages folder
+
+- `--project-name-prefix`=<PREFIX_STRING>:
+  When monitoring a .NET project, use this flag to add a custom prefix to the name of files inside a project along with any desired separators, e.g. `snyk monitor --file=my-project.sln --project-name-prefix=my-group/`. This is useful when you have multiple projects with the same name in other sln files.
 
 ### npm options
 

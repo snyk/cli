@@ -15,7 +15,8 @@ import {
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
 } from '../../../../lib/package-managers';
 import * as config from '../../../../lib/config';
-import * as _ from 'lodash';
+const cloneDeep = require('lodash.clonedeep');
+const orderBy = require('lodash.orderby');
 import * as analytics from '../../../../lib/analytics';
 import {
   formatIssuesWithRemediation,
@@ -27,9 +28,24 @@ import { createSarifOutputForContainers } from '../sarif-output';
 import { createSarifOutputForIac } from '../iac-output';
 import { isNewVuln, isVulnFixable } from '../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../../../lib/json';
+import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 
-export function formatJsonOutput(jsonData) {
-  const jsonDataClone = _.cloneDeep(jsonData);
+export function formatJsonOutput(jsonData, options: Options) {
+  const jsonDataClone = cloneDeep(jsonData);
+
+  if (options['group-issues']) {
+    jsonDataClone.vulnerabilities = Object.values(
+      (jsonDataClone.vulnerabilities || []).reduce((acc, vuln): Record<
+        string,
+        any
+      > => {
+        vuln.from = [vuln.from].concat(acc[vuln.id]?.from || []);
+        vuln.name = [vuln.name].concat(acc[vuln.id]?.name || []);
+        acc[vuln.id] = vuln;
+        return acc;
+      }, {}),
+    );
+  }
 
   if (jsonDataClone.vulnerabilities) {
     jsonDataClone.vulnerabilities.forEach((vuln) => {
@@ -49,15 +65,21 @@ export function extractDataToSendFromResults(
   let sarifData = {};
   let stringifiedSarifData = '';
   if (options.sarif || options['sarif-file-output']) {
-    sarifData = !options.iac
-      ? createSarifOutputForContainers(results)
-      : createSarifOutputForIac(results);
+    if (options.iac) {
+      sarifData = createSarifOutputForIac(results);
+    } else if (options.docker) {
+      sarifData = createSarifOutputForContainers(results);
+    } else {
+      sarifData = createSarifOutputForOpenSource(results);
+    }
     stringifiedSarifData = jsonStringifyLargeObject(sarifData);
   }
 
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
-    stringifiedJsonData = jsonStringifyLargeObject(formatJsonOutput(jsonData));
+    stringifiedJsonData = jsonStringifyLargeObject(
+      formatJsonOutput(jsonData, options),
+    );
   }
 
   const dataToSend = options.sarif ? sarifData : jsonData;
@@ -149,7 +171,7 @@ export function getDisplayedOutput(
 
   const vulns = res.vulnerabilities || [];
   const groupedVulns: GroupedVuln[] = groupVulnerabilities(vulns);
-  const sortedGroupedVulns = _.orderBy(
+  const sortedGroupedVulns = orderBy(
     groupedVulns,
     ['metadata.severityValue', 'metadata.name'],
     ['asc', 'desc'],

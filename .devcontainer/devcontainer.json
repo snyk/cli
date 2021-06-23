@@ -1,0 +1,22 @@
+// https://code.visualstudio.com/docs/remote/devcontainerjson-reference
+{
+	"name": "Node.js",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"settings": { 
+		"terminal.integrated.shell.linux": "/bin/bash"
+	},
+	"extensions": [
+		"dbaeumer.vscode-eslint",
+		"esbenp.prettier-vscode",
+		"ms-vsliveshare.vsliveshare",
+		"eamodio.gitlens",
+		"jasonnutter.vscode-codeowners"
+	],
+	"postCreateCommand": "npm install && sudo ./test/smoke/setup-alias-for-snyk.sh",
+	"remoteUser": "node",
+	"remoteEnv": {
+		"SNYK_API_TOKEN": "${localEnv:SNYK_TEST_TOKEN}"
+	}
+}

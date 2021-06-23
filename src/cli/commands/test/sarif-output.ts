@@ -1,5 +1,5 @@
 import * as sarif from 'sarif';
-import { upperFirst } from 'lodash';
+const upperFirst = require('lodash.upperfirst');
 
 export function createSarifOutputForContainers(testResult): sarif.Log {
   const sarifRes: sarif.Log = {

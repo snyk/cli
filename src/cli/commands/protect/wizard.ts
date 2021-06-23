@@ -10,12 +10,13 @@ import * as debugModule from 'debug';
 const debug = debugModule('snyk');
 
 import * as path from 'path';
-import * as inquirer from 'inquirer';
+import * as inquirer from '@snyk/inquirer';
 import * as fs from 'fs';
 import * as tryRequire from 'snyk-try-require';
 import chalk from 'chalk';
 import * as url from 'url';
-import * as _ from 'lodash';
+const cloneDeep = require('lodash.clonedeep');
+const get = require('lodash.get');
 import { exec } from 'child_process';
 import { apiTokenExists } from '../../../lib/api-token';
 import * as auth from '../auth/is-authed';
@@ -25,7 +26,7 @@ import answersToTasks = require('./tasks');
 import * as snyk from '../../../lib/';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { isCI } from '../../../lib/is-ci';
-import * as protect from '../../../lib/protect';
+const protect = require('../../../lib/protect');
 import * as authorization from '../../../lib/authorization';
 import * as config from '../../../lib/config';
 import * as spinner from '../../../lib/spinner';
@@ -42,8 +43,8 @@ import {
   Options,
   MonitorMeta,
   MonitorResult,
-  WizardOptions,
   PackageJson,
+  ProtectOptions,
 } from '../../../lib/types';
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
@@ -81,7 +82,7 @@ async function processPackageManager(options: Options) {
   return Promise.resolve(options);
 }
 
-async function loadOrCreatePolicyFile(options: Options & WizardOptions) {
+async function loadOrCreatePolicyFile(options: Options & ProtectOptions) {
   let policyFile;
   try {
     policyFile = await snyk.policy.load(options['policy-path'], options);
@@ -141,7 +142,7 @@ async function processWizardFlow(options) {
       }
     })
     .then(() => {
-      return new Promise((resolve) => {
+      return new Promise<void>((resolve) => {
         if (options.newPolicy) {
           return resolve(); // don't prompt to start over
         }
@@ -201,8 +202,8 @@ async function processWizardFlow(options) {
 
         return snyk.policy.loadFromText(res.policy).then((combinedPolicy) => {
           return tryRequire(packageFile).then((pkg) => {
-            options.packageLeading = pkg.prefix;
-            options.packageTrailing = pkg.suffix;
+            options.packageLeading = pkg.leading;
+            options.packageTrailing = pkg.trailing;
             return interactive(
               res,
               pkg,
@@ -261,7 +262,7 @@ function inquire(prompts, answers): Promise<{}> {
   });
   return new Promise((resolve) => {
     inquirer.prompt(prompts).then((theseAnswers) => {
-      _.extend(answers, theseAnswers);
+      answers = { ...answers, ...theseAnswers };
       Object.keys(answers).forEach((answerName) => {
         if (answerName.indexOf('--DOT--') > -1) {
           const newName = answerName.replace(/--DOT--/g, '.');
@@ -286,7 +287,7 @@ function getNewScriptContent(scriptContent, cmd) {
 }
 
 function addProtectScripts(existingScripts, npmVersion, options) {
-  const scripts = existingScripts ? _.cloneDeep(existingScripts) : {};
+  const scripts = existingScripts ? cloneDeep(existingScripts) : {};
   scripts['snyk-protect'] = 'snyk protect';
 
   let cmd = 'npm run snyk-protect';
@@ -378,7 +379,7 @@ function processAnswers(answers, policy, options) {
         return Promise.resolve();
       }
 
-      return new Promise((resolve) => {
+      return new Promise<void>((resolve) => {
         exec(
           'git add .snyk',
           {
@@ -479,9 +480,9 @@ function processAnswers(answers, policy, options) {
         debug('updating %s', packageFile);
 
         if (
-          _.get(pkg, 'dependencies.snyk') ||
-          _.get(pkg, 'peerDependencies.snyk') ||
-          _.get(pkg, 'optionalDependencies.snyk')
+          get(pkg, 'dependencies.snyk') ||
+          get(pkg, 'peerDependencies.snyk') ||
+          get(pkg, 'optionalDependencies.snyk')
         ) {
           // nothing to do as the user already has Snyk
           // TODO decide whether we should update the version being used
@@ -489,7 +490,7 @@ function processAnswers(answers, policy, options) {
           // than the local version?
         } else {
           const addSnykToProdDeps = answers['misc-add-protect'];
-          const snykIsInDevDeps = _.get(pkg, 'devDependencies.snyk');
+          const snykIsInDevDeps = get(pkg, 'devDependencies.snyk');
 
           if (addSnykToProdDeps) {
             if (!pkg.dependencies) {

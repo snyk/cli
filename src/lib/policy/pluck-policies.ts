@@ -1,4 +1,4 @@
-import * as _ from 'lodash';
+const flatten = require('lodash.flatten');
 import { PackageExpanded } from 'snyk-resolve-deps';
 
 export function pluckPolicies(pkg: PackageExpanded): string[] | string {
@@ -14,7 +14,7 @@ export function pluckPolicies(pkg: PackageExpanded): string[] | string {
     return [];
   }
 
-  return _.flatten(
+  return flatten(
     Object.keys(pkg.dependencies)
       .map((name: string) => pluckPolicies(pkg.dependencies[name]))
       .filter(Boolean),

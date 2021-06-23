@@ -1,0 +1,225 @@
+{
+  "resource": {
+    "aws_codebuild_project": {
+      "terra_ci": {
+        "arn": "arn:aws:codebuild:eu-west-1:719261439472:project/terra-ci-runner",
+        "artifacts": [
+          {
+            "artifact_identifier": "",
+            "encryption_disabled": false,
+            "location": "terra-ci-artifacts-eu-west-1-000002",
+            "name": "terra-ci-runner",
+            "namespace_type": "NONE",
+            "override_artifact_name": false,
+            "packaging": "NONE",
+            "path": "",
+            "type": "S3"
+          }
+        ],
+        "badge_enabled": false,
+        "badge_url": "",
+        "build_timeout": 10,
+        "cache": [
+          {
+            "location": "",
+            "modes": [],
+            "type": "NO_CACHE"
+          }
+        ],
+        "description": "Deploy environment configuration",
+        "encryption_key": "arn:aws:kms:eu-west-1:719261439472:alias/aws/s3",
+        "environment": [
+          {
+            "certificate": "",
+            "compute_type": "BUILD_GENERAL1_SMALL",
+            "environment_variable": [],
+            "image": "aws/codebuild/amazonlinux2-x86_64-standard:2.0",
+            "image_pull_credentials_type": "CODEBUILD",
+            "privileged_mode": false,
+            "registry_credential": [],
+            "type": "LINUX_CONTAINER"
+          }
+        ],
+        "id": "arn:aws:codebuild:eu-west-1:719261439472:project/terra-ci-runner",
+        "logs_config": [
+          {
+            "cloudwatch_logs": [
+              {
+                "group_name": "",
+                "status": "ENABLED",
+                "stream_name": ""
+              }
+            ],
+            "s3_logs": [
+              {
+                "encryption_disabled": false,
+                "location": "",
+                "status": "DISABLED"
+              }
+            ]
+          }
+        ],
+        "name": "terra-ci-runner",
+        "queued_timeout": 480,
+        "secondary_artifacts": [],
+        "secondary_sources": [],
+        "service_role": "arn:aws:iam::719261439472:role/terra_ci_job",
+        "source": [
+          {
+            "auth": [],
+            "buildspec": "version: 0.2\nphases:\n  install:\n    commands:\n      - make install_tools\n  build:\n    commands:\n      - make plan_local resource=$TERRA_CI_RESOURCE\nartifacts:\n  files:\n    - ./tfplan\n  name: $TERRA_CI_BUILD_NAME\n\n",
+            "git_clone_depth": 1,
+            "git_submodules_config": [],
+            "insecure_ssl": false,
+            "location": "https://github.com/p0tr3c-terraform/terra-ci-single-account.git",
+            "report_build_status": false,
+            "type": "GITHUB"
+          }
+        ],
+        "source_version": "",
+        "tags": {},
+        "vpc_config": []
+      }
+    },
+    "aws_iam_role": {
+      "terra_ci_job": {
+        "arn": "arn:aws:iam::719261439472:role/terra_ci_job",
+        "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"codebuild.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+        "create_date": "2021-05-01T15:08:15Z",
+        "description": "",
+        "force_detach_policies": false,
+        "id": "terra_ci_job",
+        "inline_policy": [
+          {
+            "name": "terraform-20210501150816628700000001",
+            "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"sts:AssumeRole\",\n      \"Resource\": \"arn:aws:iam::719261439472:role/ci\"\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Resource\": [\n        \"*\"\n      ],\n      \"Action\": [\n        \"logs:CreateLogGroup\",\n        \"logs:CreateLogStream\",\n        \"logs:PutLogEvents\"\n      ]\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Resource\": [\n        \"arn:aws:s3:::terra-ci-artifacts-eu-west-1-000002\",\n        \"arn:aws:s3:::terra-ci-artifacts-eu-west-1-000002/*\"\n      ],\n      \"Action\": [\n        \"s3:ListBucket\",\n        \"s3:*Object\"\n      ]\n    }\n  ]\n}\n"
+          }
+        ],
+        "managed_policy_arns": [
+          "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser"
+        ],
+        "max_session_duration": 3600,
+        "name": "terra_ci_job",
+        "name_prefix": null,
+        "path": "/",
+        "permissions_boundary": null,
+        "tags": {},
+        "unique_id": "AROA2O52SSXYL7LBSM733"
+      },
+      "terra_ci_runner": {
+        "arn": "arn:aws:iam::719261439472:role/terra_ci_runner",
+        "assume_role_policy": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"states.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}",
+        "create_date": "2021-05-01T15:08:15Z",
+        "description": "",
+        "force_detach_policies": false,
+        "id": "terra_ci_runner",
+        "inline_policy": [
+          {
+            "name": "terraform-20210501150825425000000003",
+            "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n        \"Effect\": \"Allow\",\n        \"Action\": [\n            \"codebuild:StartBuild\",\n            \"codebuild:StopBuild\",\n            \"codebuild:BatchGetBuilds\"\n        ],\n        \"Resource\": [\n            \"arn:aws:codebuild:eu-west-1:719261439472:project/terra-ci-runner\"\n        ]\n    },\n    {\n        \"Effect\": \"Allow\",\n        \"Action\": [\n            \"events:PutTargets\",\n            \"events:PutRule\",\n            \"events:DescribeRule\"\n        ],\n        \"Resource\": [\n            \"arn:aws:events:eu-west-1:719261439472:rule/StepFunctionsGetEventForCodeBuildStartBuildRule\"\n        ]\n    }\n  ]\n}\n"
+          }
+        ],
+        "managed_policy_arns": [],
+        "max_session_duration": 3600,
+        "name": "terra_ci_runner",
+        "name_prefix": null,
+        "path": "/",
+        "permissions_boundary": null,
+        "tags": {},
+        "unique_id": "AROA2O52SSXYDBYYTG4OB"
+      }
+    },
+    "aws_iam_role_policy": {
+      "terra_ci_job": {
+        "id": "terra_ci_job:terraform-20210501150816628700000001",
+        "name": "terraform-20210501150816628700000001",
+        "name_prefix": null,
+        "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Effect\": \"Allow\",\n      \"Action\": \"sts:AssumeRole\",\n      \"Resource\": \"arn:aws:iam::719261439472:role/ci\"\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Resource\": [\n        \"*\"\n      ],\n      \"Action\": [\n        \"logs:CreateLogGroup\",\n        \"logs:CreateLogStream\",\n        \"logs:PutLogEvents\"\n      ]\n    },\n    {\n      \"Effect\": \"Allow\",\n      \"Resource\": [\n        \"arn:aws:s3:::terra-ci-artifacts-eu-west-1-000002\",\n        \"arn:aws:s3:::terra-ci-artifacts-eu-west-1-000002/*\"\n      ],\n      \"Action\": [\n        \"s3:ListBucket\",\n        \"s3:*Object\"\n      ]\n    }\n  ]\n}\n",
+        "role": "terra_ci_job"
+      },
+      "terra_ci_runner": {
+        "id": "terra_ci_runner:terraform-20210501150825425000000003",
+        "name": "terraform-20210501150825425000000003",
+        "name_prefix": null,
+        "policy": "{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n        \"Effect\": \"Allow\",\n        \"Action\": [\n            \"codebuild:StartBuild\",\n            \"codebuild:StopBuild\",\n            \"codebuild:BatchGetBuilds\"\n        ],\n        \"Resource\": [\n            \"arn:aws:codebuild:eu-west-1:719261439472:project/terra-ci-runner\"\n        ]\n    },\n    {\n        \"Effect\": \"Allow\",\n        \"Action\": [\n            \"events:PutTargets\",\n            \"events:PutRule\",\n            \"events:DescribeRule\"\n        ],\n        \"Resource\": [\n            \"arn:aws:events:eu-west-1:719261439472:rule/StepFunctionsGetEventForCodeBuildStartBuildRule\"\n        ]\n    }\n  ]\n}\n",
+        "role": "terra_ci_runner"
+      }
+    },
+    "aws_iam_role_policy_attachment": {
+      "terra_ci_job_ecr_access": {
+        "id": "terra_ci_job-20210501150817089800000002",
+        "policy_arn": "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryPowerUser",
+        "role": "terra_ci_job"
+      }
+    },
+    "aws_s3_bucket": {
+      "terra_ci": {
+        "acceleration_status": "",
+        "acl": "private",
+        "arn": "arn:aws:s3:::terra-ci-artifacts-eu-west-1-000002",
+        "bucket": "terra-ci-artifacts-eu-west-1-000002",
+        "bucket_domain_name": "terra-ci-artifacts-eu-west-1-000002.s3.amazonaws.com",
+        "bucket_prefix": null,
+        "bucket_regional_domain_name": "terra-ci-artifacts-eu-west-1-000002.s3.eu-west-1.amazonaws.com",
+        "cors_rule": [],
+        "force_destroy": false,
+        "grant": [],
+        "hosted_zone_id": "Z1BKCTXD74EZPE",
+        "id": "terra-ci-artifacts-eu-west-1-000002",
+        "lifecycle_rule": [],
+        "logging": [],
+        "object_lock_configuration": [],
+        "policy": null,
+        "region": "eu-west-1",
+        "replication_configuration": [],
+        "request_payer": "BucketOwner",
+        "server_side_encryption_configuration": [
+          {
+            "rule": [
+              {
+                "apply_server_side_encryption_by_default": [
+                  {
+                    "kms_master_key_id": "",
+                    "sse_algorithm": "aws:kms"
+                  }
+                ],
+                "bucket_key_enabled": false
+              }
+            ]
+          }
+        ],
+        "tags": {},
+        "versioning": [
+          {
+            "enabled": false,
+            "mfa_delete": false
+          }
+        ],
+        "website": [],
+        "website_domain": null,
+        "website_endpoint": null
+      }
+    },
+    "aws_sfn_state_machine": {
+      "terra_ci_runner": {
+        "arn": "arn:aws:states:eu-west-1:719261439472:stateMachine:terra-ci-runner",
+        "creation_date": "2021-05-01T15:09:28Z",
+        "definition": "{\n  \"Comment\": \"Run Terragrunt Jobs\",\n  \"StartAt\": \"OnBranch?\",\n  \"States\": {\n    \"OnBranch?\": {\n      \"Type\": \"Choice\",\n      \"Choices\": [\n        {\n          \"Variable\": \"$.build.sourceversion\",\n          \"IsPresent\": true,\n          \"Next\": \"PlanBranch\"\n        }\n      ],\n      \"Default\": \"Plan\"\n    },\n    \"Plan\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:states:::codebuild:startBuild.sync\",\n      \"Parameters\": {\n        \"ProjectName\": \"terra-ci-runner\",\n        \"EnvironmentVariablesOverride\": [\n          {\n            \"Name\": \"TERRA_CI_BUILD_NAME\",\n            \"Value.$\": \"$$.Execution.Name\"\n          },\n          {\n            \"Name\": \"TERRA_CI_RESOURCE\",\n            \"Value.$\": \"$.build.environment.terra_ci_resource\"\n          }\n        ]\n      },\n      \"End\": true\n    },\n    \"PlanBranch\": {\n      \"Type\": \"Task\",\n      \"Resource\": \"arn:aws:states:::codebuild:startBuild.sync\",\n      \"Parameters\": {\n        \"ProjectName\": \"terra-ci-runner\",\n        \"SourceVersion.$\": \"$.build.sourceversion\",\n        \"EnvironmentVariablesOverride\": [\n          {\n            \"Name\": \"TERRA_CI_RESOURCE\",\n            \"Value.$\": \"$.build.environment.terra_ci_resource\"\n          }\n        ]\n      },\n      \"End\": true\n    }\n  }\n}\n",
+        "id": "arn:aws:states:eu-west-1:719261439472:stateMachine:terra-ci-runner",
+        "logging_configuration": [
+          {
+            "include_execution_data": false,
+            "level": "OFF",
+            "log_destination": ""
+          }
+        ],
+        "name": "terra-ci-runner",
+        "role_arn": "arn:aws:iam::719261439472:role/terra_ci_runner",
+        "status": "ACTIVE",
+        "tags": {},
+        "type": "STANDARD"
+      }
+    }
+  },
+  "data": {}
+}

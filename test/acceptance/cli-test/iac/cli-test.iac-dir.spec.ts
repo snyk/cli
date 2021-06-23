@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import {
   iacTest,
   iacTestJson,
@@ -87,17 +86,11 @@ export const IacDirTests: AcceptanceTests = {
 
     '`iac test directory --json - no issues`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
-      let testableObject;
-      try {
-        await params.cli.test('iac-kubernetes/', {
-          iac: true,
-          json: true,
-        });
-        t.fail('should have thrown');
-      } catch (error) {
-        testableObject = error;
-      }
-      const res: any = JSON.parse(testableObject.message);
+      const testableObject = await params.cli.test('iac-kubernetes/', {
+        iac: true,
+        json: true,
+      });
+      const res: any = JSON.parse(testableObject);
       iacTestJsonAssertions(
         t,
         res,
@@ -146,17 +139,11 @@ export const IacDirTests: AcceptanceTests = {
       t,
     ) => {
       utils.chdirWorkspaces();
-      let testableObject;
-      try {
-        await params.cli.test('iac-kubernetes/', {
-          iac: true,
-          sarif: true,
-        });
-        t.fail('should have thrown');
-      } catch (error) {
-        testableObject = error;
-      }
-      const res: any = JSON.parse(testableObject.message);
+      const testableObject = await params.cli.test('iac-kubernetes/', {
+        iac: true,
+        sarif: true,
+      });
+      const res: any = JSON.parse(testableObject);
       iacTestSarifAssertions(t, res, null, false);
     },
     '`iac test directory --severity-threshold=low --sarif`': (

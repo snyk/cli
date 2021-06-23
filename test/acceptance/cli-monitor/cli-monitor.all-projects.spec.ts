@@ -1,5 +1,6 @@
 import * as sinon from 'sinon';
-import * as _ from 'lodash';
+const get = require('lodash.get');
+const isObject = require('lodash.isobject');
 import * as path from 'path';
 import * as depGraphLib from '@snyk/dep-graph';
 
@@ -421,7 +422,7 @@ export const AllProjectsTests: AcceptanceTests = {
         );
 
         jsonResponse.forEach((res) => {
-          if (_.isObject(res)) {
+          if (isObject(res)) {
             t.pass('monitor outputted JSON');
           } else {
             t.fail('Failed parsing monitor JSON output');
@@ -436,7 +437,7 @@ export const AllProjectsTests: AcceptanceTests = {
           ];
 
           keyList.forEach((k) => {
-            !_.get(res, k) ? t.fail(k + ' not found') : t.pass(k + ' found');
+            !get(res, k) ? t.fail(k + ' not found') : t.pass(k + ' found');
           });
         });
       } catch (error) {

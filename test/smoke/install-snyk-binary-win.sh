@@ -1,8 +1,5 @@
 echo "install-snyk-binary-win.sh"
-
-export latest_version=$(curl -Is "https://github.com/snyk/snyk/releases/latest" | grep location | sed s#.*tag/##g | tr -d "\r")
-echo "latest_version: ${latest_version}"
-snyk_cli_dl="https://github.com/snyk/snyk/releases/download/${latest_version}/snyk-win.exe"
+snyk_cli_dl=$(curl -H "Authorization: token $GITHUB_TOKEN" https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "snyk-win.exe") | .browser_download_url')
 echo "snyk_cli_dl: ${snyk_cli_dl}"
 curl -Lo ./snyk-cli.exe $snyk_cli_dl
 ./snyk-cli.exe --version

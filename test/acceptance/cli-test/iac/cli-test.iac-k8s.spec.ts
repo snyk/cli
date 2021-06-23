@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import {
   iacTest,
   iacTestJson,
@@ -80,7 +79,7 @@ export const IacK8sTests: AcceptanceTests = {
 
         t.match(
           res,
-          'Tested iac-kubernetes/multi-file.yaml for known issues, found 3 issues',
+          'Tested multi-file.yaml for known issues, found 3 issues',
           '3 issue',
         );
 
@@ -95,15 +94,13 @@ export const IacK8sTests: AcceptanceTests = {
           issues[2].trim().startsWith('introduced by'),
           'Introduced by line',
         );
-        t.ok(issues[3], 'description');
-        t.ok(issues[4] === '', 'Empty line after description');
-        t.ok(issues[5].includes('[SNYK-CC-K8S-'), 'Snyk id');
+        t.ok(issues[3] === '', 'description');
+        t.ok(issues[4].includes('[SNYK-CC-K8S-'), 'Snyk id');
         t.ok(
-          issues[6].trim().startsWith('introduced by'),
+          issues[5].trim().startsWith('introduced by'),
           'Introduced by line',
         );
-        t.ok(issues[7], 'description');
-        t.ok(issues[8] === '', 'Empty line after description');
+        t.ok(issues[6] === '', 'Empty line after description');
         iacTestMetaAssertions(t, res, IacAcceptanceTestType.SINGLE_K8S_FILE);
       }
     },
@@ -150,17 +147,14 @@ export const IacK8sTests: AcceptanceTests = {
       t,
     ) => {
       utils.chdirWorkspaces();
-      let testableObject;
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
+      const testableObject = await params.cli.test(
+        'iac-kubernetes/multi-file.yaml',
+        {
           iac: true,
           json: true,
-        });
-        t.fail('should have thrown');
-      } catch (error) {
-        testableObject = error;
-      }
-      const res: any = JSON.parse(testableObject.message);
+        },
+      );
+      const res: any = JSON.parse(testableObject);
       iacTestJsonAssertions(
         t,
         res,
@@ -209,17 +203,14 @@ export const IacK8sTests: AcceptanceTests = {
       t,
     ) => {
       utils.chdirWorkspaces();
-      let testableObject;
-      try {
-        await params.cli.test('iac-kubernetes/multi-file.yaml', {
+      const testableObject = await params.cli.test(
+        'iac-kubernetes/multi-file.yaml',
+        {
           iac: true,
           sarif: true,
-        });
-        t.fail('should have thrown');
-      } catch (error) {
-        testableObject = error;
-      }
-      const res: any = JSON.parse(testableObject.message);
+        },
+      );
+      const res: any = JSON.parse(testableObject);
       iacTestSarifAssertions(t, res, null, false);
     },
     '`iac test multi-file.yaml --severity-threshold=low --sarif`': (

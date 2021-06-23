@@ -2,7 +2,7 @@ export = answersToTasks;
 
 import * as debugModule from 'debug';
 const debug = debugModule('snyk');
-import * as _ from 'lodash';
+const cloneDeep = require('lodash.clonedeep');
 
 function answersToTasks(answers) {
   const tasks = {
@@ -43,7 +43,7 @@ function answersToTasks(answers) {
       const additional = vuln.grouped.upgrades.slice(1);
 
       additional.forEach((upgrade) => {
-        const copy = _.cloneDeep(vuln);
+        const copy = cloneDeep(vuln);
         copy.from = upgrade.from;
         copy.__filename = upgrade.filename;
         copy.patches = upgrade.patches;

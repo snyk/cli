@@ -7,7 +7,11 @@ module.exports = {
   coverageReporters: ['text-summary', 'html'],
   testMatch: [
     '<rootDir>/test/*.spec.ts',
-    '<rootDir>\\test\\*.spec.ts', // for Windows
+    '<rootDir>/test/iac-unit-tests/*.spec.ts',
+    '<rootDir>/packages/**/test/**/*.spec.ts',
+    '<rootDir>/test/jest/unit/**/*.spec.ts',
+    '<rootDir>/test/jest/system/**/*.spec.ts',
+    '<rootDir>/test/jest/acceptance/**/*.spec.ts'
   ],
   modulePathIgnorePatterns: [
     '<rootDir>/test/.*fixtures',

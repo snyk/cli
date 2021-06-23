@@ -9,7 +9,9 @@ const protect = (module.exports = {
 });
 
 const debug = require('debug')('snyk');
-const _ = require('lodash');
+
+const flattenDeep = require('lodash.flattendeep');
+const merge = require('lodash.merge');
 
 function generatePolicy(policy, tasks, live, packageManager) {
   const promises = ['ignore', 'update', 'patch']
@@ -23,12 +25,12 @@ function generatePolicy(policy, tasks, live, packageManager) {
   return Promise.all(promises).then((res) => {
     // we're squashing the arrays of arrays into a flat structure
     // with only non-false values
-    const results = _.flattenDeep(res).filter(Boolean);
+    const results = flattenDeep(res).filter(Boolean);
 
     // then we merge the configs together using the original config
     // as the baseline (this lets us retain the user's existing config)
     results.unshift(policy);
-    const newPolicy = _.merge(...results);
+    const newPolicy = merge(...results);
 
     debug(JSON.stringify(newPolicy, '', 2));
 

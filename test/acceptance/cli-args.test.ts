@@ -41,7 +41,7 @@ test('snyk test command should fail when --file is not specified correctly', (t)
 });
 
 test(
-  'snyk version command should show cli version or sha',
+  'snyk version command should show cli version',
   { skip: isWindows },
   (t) => {
     t.plan(1);
@@ -50,11 +50,7 @@ test(
         console.log('CLI stdout: ', stdout);
         throw err;
       }
-      t.match(
-        stdout.trim(),
-        ':', // can't guess branch or sha or dirty files, but we do always add `:`
-        'version is shown',
-      );
+      t.match(stdout.trim(), /[0-9]+\.[0-9]+\.[0-9]+/, 'version is shown');
     });
   },
 );
@@ -85,9 +81,8 @@ test('snyk test command should fail when iac --file is specified', (t) => {
       }
       t.match(
         stdout.trim(),
-        'Not a recognised option, did you mean "snyk iac test ./test/acceptance/workspaces/iac-kubernetes/multi-file.yaml"? ' +
-          'Check other options by running snyk iac --help',
-        'correct error output',
+        'Unsupported flag',
+        'failed with Unsupported flag error',
       );
     },
   );
@@ -350,112 +345,9 @@ test('`test --json-file-output no value produces error message`', (t) => {
   optionsToTest.forEach(validate);
 });
 
-test('`test --json-file-output can save JSON output to file while sending human readable output to stdout`', (t) => {
-  t.plan(2);
-  const tmpFolder = randomTmpFolderPath();
-  const jsonPath = path.normalize(
-    `${tmpFolder}/snyk-direct-json-test-output.json`,
-  );
-
-  exec(`node ${main} test --json-file-output=${jsonPath}`, (err, stdout) => {
-    if (err) {
-      console.log('CLI stdout: ', stdout);
-      throw err;
-    }
-    if (!existsSync(jsonPath)) {
-      console.log('CLI stdout: ', stdout);
-    }
-    const outputFileContents = readFileSync(jsonPath, 'utf-8');
-    const jsonObj = JSON.parse(outputFileContents);
-    const okValue = jsonObj.ok as boolean;
-
-    t.match(stdout, 'Organization:', 'contains human readable output');
-    t.ok(okValue, 'JSON output ok');
-  });
-});
-
-test('`test --json-file-output produces same JSON output as normal JSON output to stdout`', (t) => {
-  t.plan(1);
-  const tmpFolder = randomTmpFolderPath();
-  const jsonPath = path.normalize(
-    `${tmpFolder}/snyk-direct-json-test-output.json`,
-  );
-
-  exec(
-    `node ${main} test --json --json-file-output=${jsonPath}`,
-    (err, stdout) => {
-      if (err) {
-        console.log('CLI stdout: ', stdout);
-        throw err;
-      }
-      const stdoutJson = stdout;
-      if (!existsSync(jsonPath)) {
-        console.log('CLI stdout: ', stdout);
-      }
-      const outputFileContents = readFileSync(jsonPath, 'utf-8');
-
-      t.equals(stdoutJson, outputFileContents);
-    },
-  );
-});
-
-test('`test --json-file-output can handle a relative path`', (t) => {
-  t.plan(1);
-  const tmpFolder = randomTmpFolderPath();
-  const outputPath = path.normalize(
-    `${tmpFolder}/snyk-direct-json-test-output.json`,
-  );
-
-  exec(
-    `node ${main} test --json --json-file-output=${outputPath}`,
-    (err, stdout) => {
-      if (err) {
-        console.log('CLI stdout: ', stdout);
-        throw err;
-      }
-      const stdoutJson = stdout;
-      if (!existsSync(outputPath)) {
-        console.log('CLI stdout: ', stdout);
-      }
-      const outputFileContents = readFileSync(outputPath, 'utf-8');
-
-      t.equals(stdoutJson, outputFileContents);
-    },
-  );
-});
-
-test(
-  '`test --json-file-output can handle an absolute path`',
-  { skip: isWindows },
-  (t) => {
-    t.plan(1);
-    const tmpFolder = randomTmpFolderPath();
-    const outputPath = path.normalize(
-      `${tmpFolder}/snyk-direct-json-test-output.json`,
-    );
-
-    exec(
-      `node ${main} test --json --json-file-output=${outputPath}`,
-      (err, stdout) => {
-        if (err) {
-          console.log('CLI stdout: ', stdout);
-          throw err;
-        }
-        const stdoutJson = stdout;
-        if (!existsSync(outputPath)) {
-          console.log('CLI stdout: ', stdout);
-        }
-        const outputFileContents = readFileSync(outputPath, 'utf-8');
-
-        t.equals(stdoutJson, outputFileContents);
-      },
-    );
-  },
-);
-
 test('flags not allowed with --sarif', (t) => {
-  t.plan(1);
-  exec(`node ${main} test --sarif --json`, (err, stdout) => {
+  t.plan(4);
+  exec(`node ${main} test iac --sarif --json`, (err, stdout) => {
     if (err) {
       console.log('CLI stdout: ', stdout);
       throw err;
@@ -464,6 +356,30 @@ test('flags not allowed with --sarif', (t) => {
       stdout.trim(),
       new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
         .userMessage,
+      'Display unsupported combination error message (iac)',
+    );
+    t.equal(
+      stdout.trim().split('\n').length,
+      1,
+      'Error message should not include stacktrace (iac)',
+    );
+  });
+
+  exec(`node ${main} test container --sarif --json`, (err, stdout) => {
+    if (err) {
+      console.log('CLI stdout: ', stdout);
+      throw err;
+    }
+    t.match(
+      stdout.trim(),
+      new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
+        .userMessage,
+      'Display unsupported combination error message (container)',
+    );
+    t.equal(
+      stdout.trim().split('\n').length,
+      1,
+      'Error message should not include stacktrace (container)',
     );
   });
 });

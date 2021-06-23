@@ -17,7 +17,7 @@ Before you start adding specs, those files are bash scripts, it's recommended to
 
 It's recommended to have a branch named `smoke/_SOMETHING_`, as [this branch will run the GitHub Action](https://github.com/snyk/snyk/blob/f35f39e96ef7aa69b22a846315dda015b12a4564/.github/workflows/smoke-tests.yml#L3-L5).
 
-To run these tests locally:
+To run these tests locally you may use `npm run test:smoke`:
 
 1. Install:
 
@@ -25,20 +25,26 @@ To run these tests locally:
    - [jq](https://stedolan.github.io/jq/)
    - timeout (if not available on your platform)
 
-2. Run:
+2. Install dependencies for the local fixture `test/fixtures/basic-npm` with `npm install --prefix test/fixtures/basic-npm`
 
+3. Run shellspec locally:
+
+Note that you will need shellspec version `0.28.1` or higher.
+
+From the root of the `snyk` repo, run:
 ```sh
-cd test/smoke
-CI=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec -f d
+npm run test:smoke
 ```
 
-To run the Alpine test in Docker locally:
+### Notes on the local run
 
-```
- docker build -f ./test/smoke/alpine/Dockerfile -t snyk-cli-alpine ./test/ && docker run --rm -eCI=1 -eSMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN snyk-cli-alpine
-```
+`REGRESSION_TEST=1` enables the extended mode we use for regression testing. For the hourly tests in GitHub Actions we use a limited scope of tested commands.
 
-_Note: Alpine image is not copying/mounting everything, so you might need to add anything new to the `test/smoke/alpine/Dockerfile`_
+You may specify an envvar `SNYK_COMMAND` to any executable that will be used by Smoke tests. E.g. a local exuctable `SNYK_COMMAND="./snyk-macos"` or an `SNYK_COMMAND="npx snyk@1.500.0"` or `SNYK_COMMAND="node ./dist/cli"` for local execution.
+
+This will meddle with your `snyk config` file as Smoke Tests are checking functionality of `snyk config` command.
+
+This will open a browser in one instance unless it's disabled with `SMOKE_TESTS_SKIP_TEST_THAT_OPENS_BROWSER=1` envvar. Opening of a browser is disabled by default when running Smoke tests with npm command `npm run test:smoke`.
 
 ## TODO
 
@@ -71,3 +77,11 @@ _Note: Alpine image is not copying/mounting everything, so you might need to add
 
 - Needs to run in a Docker container because GitHub Actions don't support Alpine as a host OS. Using shellspec container, as it's based on alpine and ready to run the tests.
 - Need to skip a test that normally tries to open browser for login, but that fails horribly on Alpine.
+
+To run the Alpine test in Docker locally (you probably don't want to…):
+
+```
+ docker build -f ./test/smoke/alpine/Dockerfile -t snyk-cli-alpine ./test/ && docker run --rm -eSMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN snyk-cli-alpine
+```
+
+_Note: Alpine image is not copying/mounting everything, so you might need to add anything new to the `test/smoke/alpine/Dockerfile`_

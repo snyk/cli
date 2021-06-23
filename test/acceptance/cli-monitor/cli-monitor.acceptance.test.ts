@@ -9,7 +9,9 @@ import * as subProcess from '../../../src/lib/sub-process';
 import { getVersion } from '../../../src/lib/version';
 import { config as userConfig } from '../../../src/lib/user-config';
 import { chdirWorkspaces, getWorkspaceJSON } from '../workspace-helper';
-import * as _ from 'lodash';
+const isEmpty = require('lodash.isempty');
+const isObject = require('lodash.isobject');
+const get = require('lodash.get');
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -36,6 +38,7 @@ import * as plugins from '../../../src/lib/plugins/index';
 import * as ecosystemPlugins from '../../../src/lib/ecosystems/plugins';
 import { createCallGraph } from '../../utils';
 import { DepGraphBuilder } from '@snyk/dep-graph';
+import * as depGraphLib from '@snyk/dep-graph';
 
 /*
   TODO: enable these tests, once we switch from node-tap
@@ -225,7 +228,7 @@ if (!isWindows) {
     });
     const req = server.popRequest();
     t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
     t.deepEqual(
       req.body.meta.missingDeps,
       ['body-parser@^1.18.2'],
@@ -323,7 +326,7 @@ if (!isWindows) {
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
   });
 
   test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
@@ -335,7 +338,7 @@ if (!isWindows) {
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
   });
 
   test('`monitor npm-package-pruneable experimental for no-flag org`', async (t) => {
@@ -377,7 +380,7 @@ if (!isWindows) {
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/sbt/graph', 'puts at correct url');
-    t.true(!_.isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
     if (process.platform === 'win32') {
       t.true(
         req.body.targetFileRelativePath.endsWith(
@@ -436,49 +439,45 @@ if (!isWindows) {
     }
   });
 
-  // test('`monitor yarn v2 project`', async (t) => {
-  //   const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
-  //
-  //   if (nodeVersion < 10) {
-  //     return t.skip();
-  //   }
-  //
-  //   chdirWorkspaces();
-  //
-  //   await cli.monitor('yarn-v2');
-  //   const req = server.popRequest();
-  //   t.equal(req.method, 'PUT', 'makes PUT request');
-  //   t.equal(
-  //     req.headers['x-snyk-cli-version'],
-  //     versionNumber,
-  //     'sends version number',
-  //   );
-  //   t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
-  //
-  //   const depGraphJSON = req.body.depGraphJSON;
-  //   t.ok(depGraphJSON);
-  //   const lodash = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'lodash');
-  //
-  //   t.ok(lodash, 'dependency');
-  //   t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-  //   t.notOk(depGraphJSON.from, 'no "from" array on root');
-  //   t.notOk(lodash.from, 'no "from" array on dep');
-  //   if (process.platform === 'win32') {
-  //     t.true(
-  //       req.body.targetFileRelativePath.endsWith(
-  //         '\\test\\acceptance\\workspaces\\yarn-v2\\yarn.lock',
-  //       ),
-  //       'matching file path win32',
-  //     );
-  //   } else {
-  //     t.true(
-  //       req.body.targetFileRelativePath.endsWith(
-  //         '/test/acceptance/workspaces/yarn-v2/yarn.lock',
-  //       ),
-  //       'matching file path',
-  //     );
-  //   }
-  // });
+  test('`monitor yarn v2 project`', async (t) => {
+    const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
+
+    chdirWorkspaces();
+
+    await cli.monitor('yarn-v2');
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
+
+    const depGraphJSON = req.body.depGraphJSON;
+    t.ok(depGraphJSON);
+    const lodash = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'lodash');
+
+    t.ok(lodash, 'dependency');
+    t.notOk(req.body.targetFile, 'doesnt send the targetFile');
+    t.notOk(depGraphJSON.from, 'no "from" array on root');
+    t.notOk(lodash.from, 'no "from" array on dep');
+    if (process.platform === 'win32') {
+      t.true(
+        req.body.targetFileRelativePath.endsWith(
+          '\\test\\acceptance\\workspaces\\yarn-v2\\yarn.lock',
+        ),
+        'matching file path win32',
+      );
+    } else {
+      t.true(
+        req.body.targetFileRelativePath.endsWith(
+          '/test/acceptance/workspaces/yarn-v2/yarn.lock',
+        ),
+        'matching file path',
+      );
+    }
+  });
 
   test('`monitor yarn-package from within folder`', async (t) => {
     chdirWorkspaces('yarn-package');
@@ -1587,6 +1586,69 @@ if (!isWindows) {
     t.end();
   });
 
+  test('`monitor elixir-hex --file=mix.exs`', async (t) => {
+    chdirWorkspaces();
+    const plugin = {
+      async inspect() {
+        return {
+          scannedProjects: [
+            {
+              packageManager: 'hex',
+              targetFile: 'mix.exs',
+              depGraph: await depGraphLib.createFromJSON({
+                schemaVersion: '1.2.0',
+                pkgManager: {
+                  name: 'hex',
+                },
+                pkgs: [
+                  {
+                    id: 'snowflex@0.3.1',
+                    info: {
+                      name: 'snowflex',
+                      version: '0.3.1',
+                    },
+                  },
+                ],
+                graph: {
+                  rootNodeId: 'root-node',
+                  nodes: [
+                    {
+                      nodeId: 'root-node',
+                      pkgId: 'snowflex@0.3.1',
+                      deps: [],
+                    },
+                  ],
+                },
+              }),
+            },
+          ],
+          plugin: {
+            name: 'testplugin',
+            runtime: 'testruntime',
+            targetFile: 'mix.exs',
+          },
+        };
+      },
+    };
+
+    const loadPlugin = sinon.stub(plugins, 'loadPlugin');
+    t.teardown(loadPlugin.restore);
+    loadPlugin.withArgs('hex').returns(plugin);
+
+    await cli.monitor('elixir-hex', { file: 'mix.exs' });
+    const req = server.popRequest();
+    t.equal(req.method, 'PUT', 'makes PUT request');
+    t.equal(
+      req.headers['x-snyk-cli-version'],
+      versionNumber,
+      'sends version number',
+    );
+    t.match(req.url, '/monitor/hex/graph', 'puts at correct url');
+    t.equal(req.body.targetFile, 'mix.exs', 'sends targetFile');
+    const depGraphJSON = req.body.depGraphJSON;
+    t.ok(depGraphJSON);
+  });
+
   test('`monitor foo:latest --docker`', async (t) => {
     const spyPlugin = stubDockerPluginResponse(
       {
@@ -1883,7 +1945,7 @@ if (!isWindows) {
     } catch (err) {
       t.match(
         err.message,
-        'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist.',
+        'Failed to scan image "doesnotexist". Please make sure the image and/or repository exist, and that you are using the correct credentials.',
         'show err message',
       );
       t.pass('throws err');
@@ -1904,7 +1966,7 @@ if (!isWindows) {
         json: true,
       });
       const res = JSON.parse(response);
-      if (_.isObject(res)) {
+      if (isObject(res)) {
         t.pass('monitor outputted JSON');
       } else {
         t.fail('Failed parsing monitor JSON output');
@@ -1914,7 +1976,7 @@ if (!isWindows) {
       t.equal(res.length, 2, 'Two monitor responses in the array');
       res.forEach((project) => {
         keyList.forEach((k) => {
-          !_.get(project, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
+          !get(project, k) ? t.fail(k + 'not found') : t.pass(k + ' found');
         });
       });
     } catch (error) {

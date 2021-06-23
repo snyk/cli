@@ -26,3 +26,4 @@ See `snyk iac --help` for more details and examples:
 
     $ snyk iac test /path/to/Kubernetes.yaml
     $ snyk iac test /path/to/terraform_file.tf
+    $ snyk iac test /path/to/tf-plan.json --experimental

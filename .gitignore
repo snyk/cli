@@ -1,6 +1,7 @@
 config.local.json
 /.nyc_output/
 /node_modules/
+/packages/*/node_modules/
 local.log
 /patches/
 **/dist
@@ -20,6 +21,7 @@ key.pem
 help/commands-md
 help/commands-txt
 help/commands-man
+**/tsconfig.tsbuildinfo
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -28,3 +30,8 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /test/acceptance/workspaces/**/target/
 test/acceptance/workspaces/**/.gradle
 test/**/.gradle
+.iac-data
+.dccache
+!test/smoke/.iac-data
+# Jest
+coverage

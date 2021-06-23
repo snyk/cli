@@ -1,4 +1,4 @@
-import * as protect from '../src/lib/protect';
+const protect = require('../src/lib/protect');
 import { test } from 'tap';
 import { loadJson } from './utils';
 const plan = loadJson(__dirname + '/fixtures/protect-interactive.json');

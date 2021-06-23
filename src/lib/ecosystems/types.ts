@@ -1,7 +1,9 @@
 import { DepGraphData } from '@snyk/dep-graph';
+import { SEVERITY } from '../snyk-test/common';
+import { RemediationChanges } from '../snyk-test/legacy';
 import { Options } from '../types';
 
-export type Ecosystem = 'cpp' | 'docker';
+export type Ecosystem = 'cpp' | 'docker' | 'code';
 
 export interface PluginResponse {
   scanResults: ScanResult[];
@@ -62,7 +64,7 @@ export interface Issue {
 export interface IssuesData {
   [issueId: string]: {
     id: string;
-    severity: string;
+    severity: SEVERITY;
     title: string;
   };
 }
@@ -71,6 +73,7 @@ export interface TestResult {
   issues: Issue[];
   issuesData: IssuesData;
   depGraphData: DepGraphData;
+  remediation?: RemediationChanges;
 }
 
 export interface EcosystemPlugin {
@@ -81,6 +84,10 @@ export interface EcosystemPlugin {
     errors: string[],
     options: Options,
   ) => Promise<string>;
+  test?: (
+    paths: string[],
+    options: Options,
+  ) => Promise<{ readableResult: string }>;
 }
 
 export interface EcosystemMonitorError {

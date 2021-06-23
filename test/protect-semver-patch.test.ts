@@ -1,6 +1,6 @@
 import * as debugModule from 'debug';
 const debug = debugModule('snyk');
-import * as protect from '../src/lib/protect';
+const protect = require('../src/lib/protect');
 import * as path from 'path';
 import { test } from 'tap';
 // tslint:disable-next-line: no-var-requires

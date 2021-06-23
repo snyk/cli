@@ -7,7 +7,8 @@ import { apiTokenExists } from '../api-token';
 import request = require('../request');
 import * as config from '../config';
 import * as os from 'os';
-import * as _ from 'lodash';
+const get = require('lodash.get');
+const camelCase = require('lodash.camelcase');
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
 import {
@@ -52,6 +53,8 @@ import {
 import { countPathsToGraphRoot } from '../utils';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
+import { plugin } from '@snyk/cli-interface/legacy';
+import { isSha1Hash } from './dev-count-analysis';
 
 const debug = Debug('snyk');
 
@@ -103,6 +106,19 @@ export async function monitor(
   analytics.add('packageManager', packageManager);
   analytics.add('isDocker', !!meta.isDocker);
 
+  if (options['gitscm']) {
+    console.log('gitscm is working tada!!!');
+    return await monitorGitCli(
+      root,
+      meta,
+      scannedProject,
+      pluginMeta,
+      options,
+      targetFileRelativePath,
+      contributors,
+    );
+  }
+
   if (scannedProject.depGraph) {
     return await monitorDepGraph(
       root,
@@ -118,7 +134,7 @@ export async function monitor(
   // TODO @boost: delete this once 'experimental-dep-graph' ff is deleted
   if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
     const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
-      _.camelCase('experimental-dep-graph'),
+      camelCase('experimental-dep-graph'),
       options.org || config.org,
     );
 
@@ -153,6 +169,115 @@ export async function monitor(
     targetFileRelativePath,
     contributors,
   );
+}
+
+async function monitorGitCli(
+  root: string,
+  meta: MonitorMeta,
+  scannedProject: ScannedProject,
+  pluginMeta: PluginMetadata,
+  options: MonitorOptions & PolicyOptions,
+  targetFileRelativePath?: string,
+  contributors?: Contributor[],
+): Promise<MonitorResult> {
+  let depGraph = scannedProject.depGraph;
+  const { packageManager } = meta;
+
+  if (!depGraph) {
+    if (scannedProject.depTree) {
+      depGraph = await depGraphLib.legacy.depTreeToGraph(
+        scannedProject.depTree,
+        packageManager,
+      );
+    } else {
+      throw new FailedToRunTestError(
+        'Your monitor request could not be completed. Missing DepTree or DepGraph',
+      );
+    }
+  }
+
+  let targetFileDir;
+
+  if (targetFileRelativePath) {
+    const { dir } = path.parse(targetFileRelativePath);
+    targetFileDir = dir;
+  }
+
+  const target = await projectMetadata.getInfo(scannedProject, meta);
+  let remoteRepoUrl = 'unspecified';
+
+  if (isGitTarget(target)) {
+    remoteRepoUrl = target.remoteUrl ? target.remoteUrl : remoteRepoUrl;
+  }
+
+  const pruneIsRequired = options.pruneRepeatedSubdependencies;
+  depGraph = await pruneGraph(depGraph, packageManager, pruneIsRequired);
+
+  return new Promise((resolve, reject) => {
+    if (!depGraph) {
+      debug(
+        'scannedProject is missing depGraph or depTree, cannot run test/monitor',
+      );
+      return reject(
+        new FailedToRunTestError(
+          'Your monitor request could not be completed. Please email support@snyk.io',
+        ),
+      );
+    }
+
+    const targetFile = targetFileRelativePath?.slice(
+      targetFileDir.length + 1,
+      targetFileRelativePath.length,
+    );
+
+    let gitSha = 'unspecified';
+    if (isSha1Hash(options['gitsha'])) {
+      gitSha = options['gitsha'];
+    }
+
+    const body = {
+      remoteRepoUrl,
+      sha: gitSha,
+      depGraph: depGraph.toJSON(),
+      targetFile,
+    };
+
+    console.log(JSON.stringify(body, null, 2));
+
+    const payload = {
+      body,
+      gzip: true,
+      method: 'POST',
+      headers: {
+        authorization: 'token ' + snyk.api,
+        'content-encoding': 'gzip',
+      },
+      url: `${config.API}/post-deps`,
+      json: true,
+    };
+
+    request(payload, (error, res, body) =>
+      handleResponse(resolve, reject, error, res, body),
+    );
+  });
+}
+
+async function handleResponse(resolve, reject, error, res, body) {
+  if (error) {
+    return reject(error);
+  }
+  if (res.statusCode >= 200 && res.statusCode <= 299) {
+    resolve(body as MonitorResult);
+  } else {
+    let err;
+    const userMessage = body && body.userMessage;
+    if (!userMessage && res.statusCode === 504) {
+      err = new ConnectionTimeoutError();
+    } else {
+      err = new MonitorError(res.statusCode, userMessage);
+    }
+    reject(err);
+  }
 }
 
 async function monitorDepTree(
@@ -248,7 +373,7 @@ async function monitorDepTree(
       `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
     );
 
-    const callGraphMetrics = _.get(pluginMeta, 'meta.callGraphMetrics', {});
+    const callGraphMetrics = get(pluginMeta, 'meta.callGraphMetrics', {});
     analytics.add('callGraphMetrics', {
       callGraphEdgeCount: edgeCount,
       callGraphNodeCount: nodeCount,
@@ -418,7 +543,7 @@ export async function monitorDepGraph(
       `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
     );
 
-    const callGraphMetrics = _.get(pluginMeta, 'meta.callGraphMetrics', {});
+    const callGraphMetrics = get(pluginMeta, 'meta.callGraphMetrics', {});
     analytics.add('callGraphMetrics', {
       callGraphEdgeCount: edgeCount,
       callGraphNodeCount: nodeCount,
