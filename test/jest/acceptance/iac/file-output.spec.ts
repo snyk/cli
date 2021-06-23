@@ -134,6 +134,14 @@ describe('iac test --sarif-file-output', () => {
 
   [
     {
+      location: path.resolve(
+        './test/fixtures',
+        './iac/file-output/sg_open_ssh.tf',
+      ), // absolute location to file
+      expectedPhysicalLocation: 'iac/file-output/sg_open_ssh.tf',
+      expectedProjectRoot: './test/fixtures/',
+    },
+    {
       location: './iac/file-output/sg_open_ssh.tf', // single file
       expectedPhysicalLocation: './iac/file-output/sg_open_ssh.tf',
       expectedProjectRoot: './test/fixtures/',

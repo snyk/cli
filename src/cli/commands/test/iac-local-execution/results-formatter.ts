@@ -128,7 +128,9 @@ function computePaths(
     // if the provided path points to a file, then the project starts at the parent folder of that file
     // and the target file was provided as the path argument
     projectPath = path.dirname(cmdPath);
-    targetFile = pathArg;
+    targetFile = path.isAbsolute(pathArg)
+      ? path.relative(process.cwd(), pathArg)
+      : pathArg;
   } else {
     // otherwise, the project starts at the provided path
     // and the target file must be the relative path from the project path to the path of the scanned file
