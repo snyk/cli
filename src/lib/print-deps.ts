@@ -21,13 +21,13 @@ export async function maybePrintDepGraph(
   } else {
     if (options['print-deps']) {
       if (options.json) {
-        console.log(
+        console.warn(
           '--print-deps --json option not yet supported for large projects. Displaying graph json output instead',
         );
         // TODO @boost: add as output graphviz 'dot' file to visualize?
         console.log(JSON.stringify(depGraph.toJSON(), null, 2));
       } else {
-        console.log(
+        console.warn(
           '--print-deps option not yet supported for large projects. Try with --json.',
         );
       }
