@@ -133,7 +133,7 @@ export function createSarifOutputForIac(
     : pathLib.resolve('.');
   const issues = iacTestResponses.reduce((collect: ResponseIssues, res) => {
     if (res.result) {
-      const targetPath = pathLib.join(res.targetFile);
+      const targetPath = res.targetFile.replace(/\\/g, '/');
       const mapped = res.result.cloudConfigResults.map((issue) => ({
         issue,
         targetPath,
@@ -156,7 +156,7 @@ export function createSarifOutputForIac(
         // https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317498
         originalUriBaseIds: {
           [PROJECT_ROOT_KEY]: {
-            uri: 'file://' + pathLib.join(basePath, '/'),
+            uri: 'file://' + pathLib.join(basePath, '/').replace(/\\/g, '/'),
             description: {
               text: 'The root directory for all project files.',
             },

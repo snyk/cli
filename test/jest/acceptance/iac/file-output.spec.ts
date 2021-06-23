@@ -135,7 +135,7 @@ describe('iac test --sarif-file-output', () => {
   [
     {
       location: './iac/file-output/sg_open_ssh.tf', // single file
-      expectedPhysicalLocation: 'iac/file-output/sg_open_ssh.tf',
+      expectedPhysicalLocation: './iac/file-output/sg_open_ssh.tf',
       expectedProjectRoot: './test/fixtures/',
     },
     {
@@ -169,11 +169,10 @@ describe('iac test --sarif-file-output', () => {
           .artifactLocation.uri;
       const actualProjectRoot =
         jsonObj?.runs?.[0].originalUriBaseIds.PROJECTROOT.uri;
-      expect(actualPhysicalLocation).toEqual(
-        path.join(expectedPhysicalLocation),
-      );
+      expect(actualPhysicalLocation).toEqual(expectedPhysicalLocation);
       expect(actualProjectRoot).toEqual(
-        'file://' + path.join(path.resolve(expectedProjectRoot), '/'),
+        'file://' +
+          path.join(path.resolve(expectedProjectRoot), '/').replace(/\\/g, '/'),
       );
     });
   });
