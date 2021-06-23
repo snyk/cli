@@ -13,6 +13,7 @@ import { SEVERITY } from '../../../lib/snyk-test/legacy';
 import { getSeveritiesColour } from '../../../lib/snyk-test/common';
 import { IacFileInDirectory } from '../../../lib/types';
 import upperFirst = require('lodash.upperfirst');
+import { isLocalFolder } from '../../../lib/detect';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -125,14 +126,14 @@ const PROJECT_ROOT_KEY = 'PROJECTROOT';
 export function createSarifOutputForIac(
   iacTestResponses: IacTestResponse[],
 ): sarif.Log {
+  // If the CLI scans a singular file, then the base path is the current working directory
+  // Otherwise it's the computed path
+  const basePath = isLocalFolder(iacTestResponses[0].path)
+    ? pathLib.resolve('.', iacTestResponses[0].path)
+    : pathLib.resolve('.');
   const issues = iacTestResponses.reduce((collect: ResponseIssues, res) => {
     if (res.result) {
-      // FIXME: For single file tests the targetFile includes the full file
-      // path, for directory tests only the filename is returned and we need
-      // too build the path manually.
-      const targetPath = res.targetFile.startsWith(res.path)
-        ? pathLib.join(res.targetFile)
-        : pathLib.join(res.path, res.targetFile);
+      const targetPath = pathLib.join(res.targetFile);
       const mapped = res.result.cloudConfigResults.map((issue) => ({
         issue,
         targetPath,
@@ -155,9 +156,7 @@ export function createSarifOutputForIac(
         // https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317498
         originalUriBaseIds: {
           [PROJECT_ROOT_KEY]: {
-            // The base path is the current working directory.
-            // See: https://github.com/snyk/snyk/blob/6408c730c88902f0f6a00e732ee83c812903f240/src/lib/iac/detect-iac.ts#L94
-            uri: 'file://' + pathLib.join(pathLib.resolve('.'), '/'),
+            uri: 'file://' + pathLib.join(basePath, '/'),
             description: {
               text: 'The root directory for all project files.',
             },

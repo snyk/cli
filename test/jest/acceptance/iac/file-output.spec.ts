@@ -140,19 +140,18 @@ describe('iac test --sarif-file-output', () => {
     },
     {
       location: './iac/file-output/nested-folder', // folder with a single file
-      expectedPhysicalLocation: 'iac/file-output/nested-folder/sg_open_ssh.tf',
-      expectedProjectRoot: './test/fixtures/',
+      expectedPhysicalLocation: 'sg_open_ssh.tf',
+      expectedProjectRoot: './test/fixtures/iac/file-output/nested-folder/',
     },
     {
       location: './iac/file-output', // folder with a nested folder
-      expectedPhysicalLocation: 'iac/file-output/nested-folder/sg_open_ssh.tf',
-      expectedProjectRoot: './test/fixtures/',
+      expectedPhysicalLocation: 'nested-folder/sg_open_ssh.tf',
+      expectedProjectRoot: './test/fixtures/iac/file-output/',
     },
     {
       location: '../fixtures/iac/file-output/nested-folder', // folder nested outside running directory
-      expectedPhysicalLocation:
-        '../fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
-      expectedProjectRoot: './test/fixtures/',
+      expectedPhysicalLocation: 'sg_open_ssh.tf',
+      expectedProjectRoot: './test/fixtures/iac/file-output/nested-folder/',
     },
   ].forEach(({ location, expectedPhysicalLocation, expectedProjectRoot }) => {
     it(`returns the correct paths for provided path ${location}`, async () => {
