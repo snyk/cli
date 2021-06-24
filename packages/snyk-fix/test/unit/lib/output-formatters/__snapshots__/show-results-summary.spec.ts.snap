@@ -13,6 +13,7 @@ exports[`generateFixedAndFailedSummary has failed only 1`] = `
 
   Command run in dry run mode. Fixes are not applied.
   1 items were not fixed
+
 "
 `;
 
@@ -20,13 +21,17 @@ exports[`generateFixedAndFailedSummary has fixed & failed 1`] = `
 "Summary:
 
   1 items were not fixed
-  1 items were successfully fixed"
+  1 items were successfully fixed
+
+"
 `;
 
 exports[`generateFixedAndFailedSummary has fixed only 1`] = `
 "Summary:
 
-  1 items were successfully fixed"
+  1 items were successfully fixed
+
+"
 `;
 
 exports[`generateFixedAndFailedSummary has skipped & failed & plugin errors 1`] = `
@@ -34,7 +39,9 @@ exports[`generateFixedAndFailedSummary has skipped & failed & plugin errors 1`] 
 
   Command run in dry run mode. Fixes are not applied.
   2 items were not fixed
-  1 items were successfully fixed"
+  1 items were successfully fixed
+
+"
 `;
 
 exports[`generateSuccessfulFixesSummary has fixed & failed 1`] = `
@@ -81,6 +88,7 @@ Summary:
 
   2 items were not fixed
   1 items were successfully fixed
+
   3 total issues: 3 High
   3 fixable issues
   1 fixed issues

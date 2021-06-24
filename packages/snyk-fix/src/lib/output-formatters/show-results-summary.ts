@@ -46,7 +46,7 @@ export async function showResultsSummary(
     unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
   }${
     unresolvedCount || changedCount
-      ? `\n\n${overallSummary}\n${vulnsSummary}\n${PADDING_SPACE}${fixedIssuesSummary}`
+      ? `\n\n${overallSummary}${vulnsSummary}${PADDING_SPACE}${fixedIssuesSummary}`
       : ''
   }${unresolvedSummary ? `\n\n${getHelpText}` : ''}`;
 
@@ -153,11 +153,11 @@ export function generateFixedAndFailedSummary(
     fixed > 0
       ? `${PADDING_SPACE}${chalk.green.bold(
           fixed,
-        )} items were successfully fixed`
+        )} items were successfully fixed\n`
       : '';
 
   return {
-    summary: `${formattedTitleHeader}\n\n${dryRunText}${notFixedMessage}${fixedMessage}`,
+    summary: `${formattedTitleHeader}\n\n${dryRunText}${notFixedMessage}${fixedMessage}\n`,
     count: fixed + failed,
   };
 }
@@ -309,7 +309,7 @@ export function generateIssueSummary(
 
   const { count: fixableCount } = hasFixableIssues(testResults);
   const fixableIssues =
-    fixableCount > 0 ? `${chalk.bold(fixableCount)} fixable issues` : '';
+    fixableCount > 0 ? `${chalk.bold(fixableCount)} fixable issues\n` : '';
 
   return `${PADDING_SPACE}${totalIssues}\n${PADDING_SPACE}${fixableIssues}`;
 }
