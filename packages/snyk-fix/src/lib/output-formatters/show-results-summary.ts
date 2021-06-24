@@ -1,7 +1,8 @@
 import * as chalk from 'chalk';
+import stripAnsi = require('strip-ansi');
 
 import { FixHandlerResultByPlugin } from '../../plugins/types';
-import { ErrorsByEcoSystem, Issue, TestResult } from '../../types';
+import { ErrorsByEcoSystem, FixOptions, Issue, TestResult } from '../../types';
 import { contactSupportMessage, reTryMessage } from '../errors/common';
 import { convertErrorToUserMessage } from '../errors/error-to-user-message';
 import { hasFixableIssues } from '../issues/fixable-issues';
@@ -14,6 +15,7 @@ export const PADDING_SPACE = '  '; // 2 spaces
 export async function showResultsSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
+  options: FixOptions,
 ): Promise<string> {
   const successfulFixesSummary = generateSuccessfulFixesSummary(
     resultsByPlugin,
@@ -25,23 +27,32 @@ export async function showResultsSummary(
   const {
     summary: overallSummary,
     count: changedCount,
-  } = generateFixedAndFailedSummary(resultsByPlugin, exceptionsByScanType);
+  } = generateFixedAndFailedSummary(
+    resultsByPlugin,
+    exceptionsByScanType,
+    options,
+  );
 
   const vulnsSummary = generateIssueSummary(
     resultsByPlugin,
     exceptionsByScanType,
   );
-  const fixedIssuesSummary = `${chalk.bold(
-    calculateFixedIssues(resultsByPlugin),
-  )} fixed issues`;
-  const getHelpText = chalk.red(`\n${reTryMessage}. ${contactSupportMessage}`);
-  return `\n${successfulFixesSummary}${
+  const fixedIssueCount = calculateFixedIssues(resultsByPlugin);
+  const fixedIssuesSummary =
+    fixedIssueCount > 0
+      ? `${chalk.bold(fixedIssueCount)} issues were successfully fixed`
+      : '';
+  const getHelpText = `\n${reTryMessage}. ${contactSupportMessage}`;
+
+  const fixSummary = `\n${successfulFixesSummary}${
     unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
   }${
     unresolvedCount || changedCount
-      ? `\n\n${overallSummary}\n${vulnsSummary}\n${PADDING_SPACE}${fixedIssuesSummary}`
+      ? `\n\n${overallSummary}${vulnsSummary}${PADDING_SPACE}${fixedIssuesSummary}`
       : ''
   }${unresolvedSummary ? `\n\n${getHelpText}` : ''}`;
+
+  return options.stripAnsi ? stripAnsi(fixSummary) : fixSummary;
 }
 
 export function generateSuccessfulFixesSummary(
@@ -123,18 +134,32 @@ export function generateUnresolvedSummary(
 export function generateFixedAndFailedSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
+  options: FixOptions,
 ): { summary: string; count: number } {
   const sectionTitle = 'Summary:';
   const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
   const fixed = calculateFixed(resultsByPlugin);
   const failed = calculateFailed(resultsByPlugin, exceptionsByScanType);
+  const dryRunText = options.dryRun
+    ? chalk.hex('#EDD55E')(
+        `${PADDING_SPACE}Command run in ${chalk.bold(
+          'dry run',
+        )} mode. Fixes are not applied.\n`,
+      )
+    : '';
+  const notFixedMessage =
+    failed > 0
+      ? `${PADDING_SPACE}${chalk.bold.red(failed)} items were not fixed\n`
+      : '';
+  const fixedMessage =
+    fixed > 0
+      ? `${PADDING_SPACE}${chalk.green.bold(
+          fixed,
+        )} items were successfully fixed\n`
+      : '';
 
   return {
-    summary: `${formattedTitleHeader}\n\n${PADDING_SPACE}${chalk.bold.red(
-      failed,
-    )} items were not fixed\n${PADDING_SPACE}${chalk.green.bold(
-      fixed,
-    )} items were successfully fixed`,
+    summary: `${formattedTitleHeader}\n\n${dryRunText}${notFixedMessage}${fixedMessage}\n`,
     count: fixed + failed,
   };
 }
@@ -279,13 +304,14 @@ export function generateIssueSummary(
     issues.push(...result.issues);
   }
 
-  let totalIssues = `${chalk.bold(getTotalIssueCount(issueData))} total issues`;
+  let totalIssues = `${chalk.bold(getTotalIssueCount(issueData))} issues`;
   if (issuesBySeverityMessage) {
     totalIssues += `: ${issuesBySeverityMessage}`;
   }
 
   const { count: fixableCount } = hasFixableIssues(testResults);
-  const fixableIssues = `${chalk.bold(fixableCount)} fixable issues`;
+  const fixableIssues =
+    fixableCount > 0 ? `${chalk.bold(fixableCount)} issues are fixable\n` : '';
 
   return `${PADDING_SPACE}${totalIssues}\n${PADDING_SPACE}${fixableIssues}`;
 }

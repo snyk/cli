@@ -2,7 +2,6 @@ import * as debugLib from 'debug';
 import * as pMap from 'p-map';
 import * as ora from 'ora';
 import * as chalk from 'chalk';
-import stripAnsi = require('strip-ansi');
 
 import * as outputFormatter from './lib/output-formatters/show-results-summary';
 import { loadPlugin } from './plugins/load-plugin';
@@ -54,6 +53,7 @@ export async function fix(
   const fixSummary = await outputFormatter.showResultsSummary(
     resultsByPlugin,
     exceptionsByScanType,
+    options,
   );
   const meta = extractMeta(resultsByPlugin, exceptionsByScanType);
 
@@ -70,7 +70,7 @@ export async function fix(
   return {
     results: resultsByPlugin,
     exceptions: exceptionsByScanType,
-    fixSummary: options.stripAnsi ? stripAnsi(fixSummary) : fixSummary,
+    fixSummary,
     meta,
   };
 }

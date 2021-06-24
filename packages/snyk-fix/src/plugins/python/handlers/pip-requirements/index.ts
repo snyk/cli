@@ -106,7 +106,7 @@ async function fixAll(
         throw new NoFixesCouldBeAppliedError();
       }
 
-      // keep fixed issues unique across files that are part of the same project
+      // keep issues were successfully fixed unique across files that are part of the same project
       // the test result is for 1 entry entity.
       const uniqueIssueIds = new Set<string>();
       for (const c of changes) {

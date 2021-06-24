@@ -49,7 +49,7 @@ describe('generateFixedAndFailedSummary', () => {
         skipped: [],
       },
     };
-    const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
+    const res = await generateFixedAndFailedSummary(resultsByPlugin, {}, {});
     expect(stripAnsi(res.summary)).toMatchSnapshot();
   });
 
@@ -77,7 +77,7 @@ describe('generateFixedAndFailedSummary', () => {
         skipped: [],
       },
     };
-    const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
+    const res = await generateFixedAndFailedSummary(resultsByPlugin, {}, {});
     expect(stripAnsi(res.summary)).toMatchSnapshot();
     expect(res.count).toEqual(1);
   });
@@ -100,7 +100,11 @@ describe('generateFixedAndFailedSummary', () => {
         skipped: [],
       },
     };
-    const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
+    const res = await generateFixedAndFailedSummary(
+      resultsByPlugin,
+      {},
+      { dryRun: true },
+    );
     expect(stripAnsi(res.summary)).toMatchSnapshot();
     expect(res.count).toEqual(1);
   });
@@ -146,7 +150,11 @@ describe('generateFixedAndFailedSummary', () => {
         ],
       },
     };
-    const res = await generateFixedAndFailedSummary(resultsByPlugin, {});
+    const res = await generateFixedAndFailedSummary(
+      resultsByPlugin,
+      {},
+      { dryRun: true },
+    );
     expect(stripAnsi(res.summary)).toMatchSnapshot();
     expect(res.count).toEqual(3);
   });
@@ -332,8 +340,12 @@ describe('showResultsSummary', () => {
       },
     };
 
-    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
-    expect(stripAnsi(res)).toMatchSnapshot();
+    const res = await showResultsSummary(
+      resultsByPlugin,
+      exceptionsByScanType,
+      { stripAnsi: true },
+    );
+    expect(res).toMatchSnapshot();
   });
   it('has unresolved only', async () => {
     const entityFailed = generateEntityToFix(
@@ -355,8 +367,12 @@ describe('showResultsSummary', () => {
       },
     };
 
-    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
-    expect(stripAnsi(res)).toMatchSnapshot();
+    const res = await showResultsSummary(
+      resultsByPlugin,
+      exceptionsByScanType,
+      { stripAnsi: true },
+    );
+    expect(res).toMatchSnapshot();
   });
   it('called with nothing to fix', async () => {
     const resultsByPlugin: FixHandlerResultByPlugin = {
@@ -368,7 +384,11 @@ describe('showResultsSummary', () => {
     };
     const exceptionsByScanType: ErrorsByEcoSystem = {};
 
-    const res = await showResultsSummary(resultsByPlugin, exceptionsByScanType);
-    expect(stripAnsi(res)).toMatchSnapshot();
+    const res = await showResultsSummary(
+      resultsByPlugin,
+      exceptionsByScanType,
+      { stripAnsi: true },
+    );
+    expect(res).toMatchSnapshot();
   });
 });

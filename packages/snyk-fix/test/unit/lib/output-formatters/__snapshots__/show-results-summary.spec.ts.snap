@@ -11,29 +11,37 @@ exports[`formatIssueCountBySeverity all vuln severities present 1`] = `"1 Critic
 exports[`generateFixedAndFailedSummary has failed only 1`] = `
 "Summary:
 
+  Command run in dry run mode. Fixes are not applied.
   1 items were not fixed
-  0 items were successfully fixed"
+
+"
 `;
 
 exports[`generateFixedAndFailedSummary has fixed & failed 1`] = `
 "Summary:
 
   1 items were not fixed
-  1 items were successfully fixed"
+  1 items were successfully fixed
+
+"
 `;
 
 exports[`generateFixedAndFailedSummary has fixed only 1`] = `
 "Summary:
 
-  0 items were not fixed
-  1 items were successfully fixed"
+  1 items were successfully fixed
+
+"
 `;
 
 exports[`generateFixedAndFailedSummary has skipped & failed & plugin errors 1`] = `
 "Summary:
 
+  Command run in dry run mode. Fixes are not applied.
   2 items were not fixed
-  1 items were successfully fixed"
+  1 items were successfully fixed
+
+"
 `;
 
 exports[`generateSuccessfulFixesSummary has fixed & failed 1`] = `
@@ -80,12 +88,13 @@ Summary:
 
   2 items were not fixed
   1 items were successfully fixed
-  3 total issues: 3 High
-  3 fixable issues
-  1 fixed issues
+
+  3 issues: 3 High
+  3 issues are fixable
+  1 issues were successfully fixed
 
 
-Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io"
+Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io"
 `;
 
 exports[`showResultsSummary has unresolved only 1`] = `
@@ -100,11 +109,11 @@ Unresolved items:
 Summary:
 
   1 items were not fixed
-  0 items were successfully fixed
-  1 total issues: 1 High
-  1 fixable issues
-  0 fixed issues
+
+  1 issues: 1 High
+  1 issues are fixable
+  
 
 
-Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io"
+Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io"
 `;
