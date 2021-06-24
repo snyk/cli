@@ -8,6 +8,7 @@ import {
   SupportedUserReachableFacingCliArgs,
 } from '../lib/types';
 import { getContainerImageSavePath } from '../lib/container';
+import { obfuscateArgs } from '../lib/utils';
 
 export declare interface Global extends NodeJS.Global {
   ignoreUnknownCA: boolean;
@@ -277,7 +278,7 @@ export function args(rawArgv: string[]): Args {
     global.ignoreUnknownCA = true;
   }
 
-  debug(command, argv);
+  debug(command, obfuscateArgs(argv));
 
   return {
     command,
