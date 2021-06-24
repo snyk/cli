@@ -39,7 +39,9 @@ export async function showResultsSummary(
   );
   const fixedIssueCount = calculateFixedIssues(resultsByPlugin);
   const fixedIssuesSummary =
-    fixedIssueCount > 0 ? `${chalk.bold(fixedIssueCount)} fixed issues` : '';
+    fixedIssueCount > 0
+      ? `${chalk.bold(fixedIssueCount)} issues were successfully fixed`
+      : '';
   const getHelpText = `\n${reTryMessage}. ${contactSupportMessage}`;
 
   const fixSummary = `\n${successfulFixesSummary}${
@@ -302,14 +304,14 @@ export function generateIssueSummary(
     issues.push(...result.issues);
   }
 
-  let totalIssues = `${chalk.bold(getTotalIssueCount(issueData))} total issues`;
+  let totalIssues = `${chalk.bold(getTotalIssueCount(issueData))} issues`;
   if (issuesBySeverityMessage) {
     totalIssues += `: ${issuesBySeverityMessage}`;
   }
 
   const { count: fixableCount } = hasFixableIssues(testResults);
   const fixableIssues =
-    fixableCount > 0 ? `${chalk.bold(fixableCount)} fixable issues\n` : '';
+    fixableCount > 0 ? `${chalk.bold(fixableCount)} issues are fixable\n` : '';
 
   return `${PADDING_SPACE}${totalIssues}\n${PADDING_SPACE}${fixableIssues}`;
 }

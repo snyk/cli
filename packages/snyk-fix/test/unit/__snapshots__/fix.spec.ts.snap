@@ -75,8 +75,8 @@ Summary:
 
   1 items were not fixed
 
-  1 total issues: 1 High
-  1 fixable issues
+  1 issues: 1 High
+  1 issues are fixable
   
 
 
@@ -102,9 +102,9 @@ Summary:
 
   1 items were successfully fixed
 
-  1 total issues: 1 High
-  1 fixable issues
-  1 fixed issues",
+  1 issues: 1 High
+  1 issues are fixable
+  1 issues were successfully fixed",
   "meta": Object {
     "failed": 0,
     "fixed": 1,
@@ -204,9 +204,9 @@ Summary:
   Command run in dry run mode. Fixes are not applied.
   2 items were successfully fixed
 
-  2 total issues: 2 High
-  2 fixable issues
-  2 fixed issues",
+  2 issues: 2 High
+  2 issues are fixable
+  2 issues were successfully fixed",
   "meta": Object {
     "failed": 0,
     "fixed": 2,

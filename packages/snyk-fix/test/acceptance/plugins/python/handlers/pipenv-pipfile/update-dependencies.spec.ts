@@ -246,7 +246,7 @@ describe('fix Pipfile Python projects', () => {
       '✔ Upgraded django from 1.6.1 to 2.0.1',
     );
     expect(result.fixSummary).toContain('1 items were successfully fixed');
-    expect(result.fixSummary).toContain('1 fixed issues');
+    expect(result.fixSummary).toContain('1 issues were successfully fixed');
     expect(pipenvPipfileFixStub).toHaveBeenCalledTimes(1);
     expect(pipenvPipfileFixStub.mock.calls[0]).toEqual([
       pathLib.resolve(workspacesPath, 'with-django-upgrade'),
@@ -324,6 +324,6 @@ describe('fix Pipfile Python projects', () => {
       '✔ Upgraded django from 1.6.1 to 2.0.1',
     );
     expect(result.fixSummary).toContain('1 items were successfully fixed');
-    expect(result.fixSummary).toContain('1 fixed issues');
+    expect(result.fixSummary).toContain('1 issues were successfully fixed');
   });
 });
