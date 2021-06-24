@@ -86,7 +86,7 @@ For advanced usage, we offer language and context specific flags, listed further
   Save test output in SARIF format directly to the <OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
   This is especially useful if you want to display the human-readable test output via stdout and at the same time save the SARIF format output to a file.
 
-- `--severity-threshold`=low|medium|high:
+- `--severity-threshold`=low|medium|high|critical:
   Only report vulnerabilities of provided level or higher.
 
 - `--fail-on`=all|upgradable|patchable:
