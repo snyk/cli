@@ -164,10 +164,7 @@ jobs:
           version: 19.03.13
           docker_layer_caching: true
       - install_shellspec
-      - run:
-          name: Install npm@7.17.0
-          command: |
-            sudo npm install -g npm@7.17.0
+      - run: sudo npm install -g npm@7
       - show_node_version
       - update_local_npmrc_linux
       - install_deps
@@ -331,7 +328,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/snyk
-      - run: sudo npm install -g npm@7.17.0
+      - run: sudo npm install -g npm@7
       - show_node_version
       - install_lerna_linux
       - update_local_npmrc_linux
