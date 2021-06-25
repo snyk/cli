@@ -53,7 +53,7 @@ Find vulnerabilities in your container images.
 - `--policy-path`=<PATH_TO_POLICY_FILE>:
   Manually pass a path to a snyk policy file.
 
-- `--severity-threshold`=low|medium|high:
+- `--severity-threshold`=low|medium|high|critical:
   Only report vulnerabilities of provided level or higher.
 
 - `--username`=<CONTAINER_REGISTRY_USERNAME>:
