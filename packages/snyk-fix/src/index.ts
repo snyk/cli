@@ -6,6 +6,7 @@ import * as chalk from 'chalk';
 import * as outputFormatter from './lib/output-formatters/show-results-summary';
 import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
+import { partitionByVulnerable } from './partition-by-vulnerable';
 
 import { EntityToFix, ErrorsByEcoSystem, FixedMeta, FixOptions } from './types';
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
@@ -29,8 +30,12 @@ export async function fix(
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
 
   let resultsByPlugin: FixHandlerResultByPlugin = {};
-  const entitiesPerType = groupEntitiesPerScanType(entities);
-  const exceptionsByScanType: ErrorsByEcoSystem = {};
+  const {
+    vulnerable,
+    notVulnerable: nothingToFix,
+  } = await partitionByVulnerable(entities);
+  const entitiesPerType = groupEntitiesPerScanType(vulnerable);
+  const exceptions: ErrorsByEcoSystem = {};
   await pMap(
     Object.keys(entitiesPerType),
     async (scanType) => {
@@ -40,7 +45,7 @@ export async function fix(
         resultsByPlugin = { ...resultsByPlugin, ...results };
       } catch (e) {
         debug(`Failed to processes ${scanType}`, e);
-        exceptionsByScanType[scanType] = {
+        exceptions[scanType] = {
           originals: entitiesPerType[scanType],
           userMessage: convertErrorToUserMessage(e),
         };
@@ -51,11 +56,13 @@ export async function fix(
     },
   );
   const fixSummary = await outputFormatter.showResultsSummary(
+    nothingToFix,
     resultsByPlugin,
-    exceptionsByScanType,
+    exceptions,
     options,
+    entities.length,
   );
-  const meta = extractMeta(resultsByPlugin, exceptionsByScanType);
+  const meta = extractMeta(resultsByPlugin, exceptions);
 
   spinner.start();
   if (meta.fixed > 0) {
@@ -69,7 +76,7 @@ export async function fix(
 
   return {
     results: resultsByPlugin,
-    exceptions: exceptionsByScanType,
+    exceptions,
     fixSummary,
     meta,
   };

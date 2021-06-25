@@ -66,6 +66,7 @@ Object {
   "fixSummary": "
  ✖ No successful fixes
 
+
 Unresolved items:
 
   package.json
@@ -78,7 +79,6 @@ Summary:
   1 issues: 1 High
   1 issues are fixable
   
-
 
 Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
   "meta": Object {
@@ -104,7 +104,8 @@ Summary:
 
   1 issues: 1 High
   1 issues are fixable
-  1 issues were successfully fixed",
+  1 issues were successfully fixed
+",
   "meta": Object {
     "failed": 0,
     "fixed": 1,
@@ -206,7 +207,8 @@ Summary:
 
   2 issues: 2 High
   2 issues are fixable
-  2 issues were successfully fixed",
+  2 issues were successfully fixed
+",
   "meta": Object {
     "failed": 0,
     "fixed": 2,

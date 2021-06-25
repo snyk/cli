@@ -3,29 +3,29 @@ import { formatUnresolved } from '../../../../src/lib/output-formatters/format-u
 import { generateEntityToFix } from '../../../helpers/generate-entity-to-fix';
 
 describe('format unresolved item', () => {
-  it('formats unresolved as expected by default', async () => {
+  it('formats unresolved as expected by default', () => {
     const entity = generateEntityToFix(
       'pip',
       'requirements.txt',
       JSON.stringify({}),
     );
-    const res = await formatUnresolved(entity, 'Failed to process item');
+    const res = formatUnresolved(entity, 'Failed to process item');
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 
-  it('formats ok when missing targetFile', async () => {
+  it('formats ok when missing targetFile', () => {
     const entity = generateEntityToFix(
       'npm',
       undefined as any,
       JSON.stringify({}),
     );
-    const res = await formatUnresolved(entity, 'Failed to process item');
+    const res = formatUnresolved(entity, 'Failed to process item');
     expect(stripAnsi(res)).toMatchSnapshot();
   });
 
-  it('formats ok with tip', async () => {
+  it('formats ok with tip', () => {
     const entity = generateEntityToFix('pip', 'Pipfile', JSON.stringify({}));
-    const res = await formatUnresolved(
+    const res = formatUnresolved(
       entity,
       'Failed to fix',
       'Make sure you have pipenv installed',

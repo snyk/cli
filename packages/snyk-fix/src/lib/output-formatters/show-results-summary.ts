@@ -2,7 +2,13 @@ import * as chalk from 'chalk';
 import stripAnsi = require('strip-ansi');
 
 import { FixHandlerResultByPlugin } from '../../plugins/types';
-import { ErrorsByEcoSystem, FixOptions, Issue, TestResult } from '../../types';
+import {
+  EntityToFix,
+  ErrorsByEcoSystem,
+  FixOptions,
+  Issue,
+  TestResult,
+} from '../../types';
 import { contactSupportMessage, reTryMessage } from '../errors/common';
 import { convertErrorToUserMessage } from '../errors/error-to-user-message';
 import { hasFixableIssues } from '../issues/fixable-issues';
@@ -13,9 +19,11 @@ import { formatUnresolved } from './format-unresolved-item';
 export const PADDING_SPACE = '  '; // 2 spaces
 
 export async function showResultsSummary(
+  nothingToFix: EntityToFix[],
   resultsByPlugin: FixHandlerResultByPlugin,
-  exceptionsByScanType: ErrorsByEcoSystem,
+  exceptions: ErrorsByEcoSystem,
   options: FixOptions,
+  total: number,
 ): Promise<string> {
   const successfulFixesSummary = generateSuccessfulFixesSummary(
     resultsByPlugin,
@@ -23,36 +31,37 @@ export async function showResultsSummary(
   const {
     summary: unresolvedSummary,
     count: unresolvedCount,
-  } = generateUnresolvedSummary(resultsByPlugin, exceptionsByScanType);
+  } = generateUnresolvedSummary(resultsByPlugin, exceptions);
   const {
     summary: overallSummary,
     count: changedCount,
-  } = generateFixedAndFailedSummary(
+  } = generateOverallSummary(
     resultsByPlugin,
-    exceptionsByScanType,
+    exceptions,
+    nothingToFix,
     options,
   );
 
-  const vulnsSummary = generateIssueSummary(
-    resultsByPlugin,
-    exceptionsByScanType,
-  );
-  const fixedIssueCount = calculateFixedIssues(resultsByPlugin);
-  const fixedIssuesSummary =
-    fixedIssueCount > 0
-      ? `${chalk.bold(fixedIssueCount)} issues were successfully fixed`
-      : '';
-  const getHelpText = `\n${reTryMessage}. ${contactSupportMessage}`;
+  const getHelpText = `${reTryMessage}. ${contactSupportMessage}`;
 
-  const fixSummary = `\n${successfulFixesSummary}${
-    unresolvedSummary ? `\n\n${unresolvedSummary}` : ''
-  }${
-    unresolvedCount || changedCount
-      ? `\n\n${overallSummary}${vulnsSummary}${PADDING_SPACE}${fixedIssuesSummary}`
-      : ''
+  // called without any `snyk test` results
+  if (total === 0) {
+    const summary = `\n${chalk.red(' ✖ No successful fixes')}`;
+    return options.stripAnsi ? stripAnsi(summary) : summary;
+  }
+
+  // 100% not vulnerable and had no errors/unsupported
+  if (nothingToFix.length === total && unresolvedCount === 0) {
+    const summary = `\n${chalk.green(
+      '✔ No vulnerable items to fix',
+    )}\n\n${overallSummary}`;
+    return options.stripAnsi ? stripAnsi(summary) : summary;
+  }
+
+  const summary = `\n${successfulFixesSummary}${unresolvedSummary}${
+    unresolvedCount || changedCount ? `\n\n${overallSummary}` : ''
   }${unresolvedSummary ? `\n\n${getHelpText}` : ''}`;
-
-  return options.stripAnsi ? stripAnsi(fixSummary) : fixSummary;
+  return options.stripAnsi ? stripAnsi(summary) : summary;
 }
 
 export function generateSuccessfulFixesSummary(
@@ -75,7 +84,7 @@ export function generateSuccessfulFixesSummary(
   if (summary) {
     return formattedTitleHeader + summary;
   }
-  return chalk.red(' ✖ No successful fixes');
+  return chalk.red(' ✖ No successful fixes\n');
 }
 
 export function generateUnresolvedSummary(
@@ -126,20 +135,21 @@ export function generateUnresolvedSummary(
     }
   }
   if (summary) {
-    return { summary: formattedTitle + summary, count };
+    return { summary: `\n\n${formattedTitle}${summary}`, count };
   }
   return { summary: '', count: 0 };
 }
 
-export function generateFixedAndFailedSummary(
+export function generateOverallSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
-  exceptionsByScanType: ErrorsByEcoSystem,
+  exceptions: ErrorsByEcoSystem,
+  nothingToFix: EntityToFix[],
   options: FixOptions,
 ): { summary: string; count: number } {
   const sectionTitle = 'Summary:';
   const formattedTitleHeader = `${chalk.bold(sectionTitle)}`;
   const fixed = calculateFixed(resultsByPlugin);
-  const failed = calculateFailed(resultsByPlugin, exceptionsByScanType);
+  const failed = calculateFailed(resultsByPlugin, exceptions);
   const dryRunText = options.dryRun
     ? chalk.hex('#EDD55E')(
         `${PADDING_SPACE}Command run in ${chalk.bold(
@@ -158,8 +168,15 @@ export function generateFixedAndFailedSummary(
         )} items were successfully fixed\n`
       : '';
 
+  const vulnsSummary = generateIssueSummary(resultsByPlugin, exceptions);
+
+  const notVulnerableSummary =
+    nothingToFix.length > 0
+      ? `${PADDING_SPACE}${nothingToFix.length} items were not vulnerable\n`
+      : '';
+
   return {
-    summary: `${formattedTitleHeader}\n\n${dryRunText}${notFixedMessage}${fixedMessage}\n`,
+    summary: `${formattedTitleHeader}\n\n${dryRunText}${notFixedMessage}${fixedMessage}${notVulnerableSummary}${vulnsSummary}`,
     count: fixed + failed,
   };
 }
@@ -198,7 +215,7 @@ export function calculateFixedIssues(
 
 export function calculateFailed(
   resultsByPlugin: FixHandlerResultByPlugin,
-  exceptionsByScanType: ErrorsByEcoSystem,
+  exceptions: ErrorsByEcoSystem,
 ): number {
   let failed = 0;
   for (const plugin of Object.keys(resultsByPlugin)) {
@@ -206,9 +223,9 @@ export function calculateFailed(
     failed += results.failed.length + results.skipped.length;
   }
 
-  if (Object.keys(exceptionsByScanType).length) {
-    for (const ecosystem of Object.keys(exceptionsByScanType)) {
-      const unresolved = exceptionsByScanType[ecosystem];
+  if (Object.keys(exceptions).length) {
+    for (const ecosystem of Object.keys(exceptions)) {
+      const unresolved = exceptions[ecosystem];
       failed += unresolved.originals.length;
     }
   }
@@ -281,12 +298,9 @@ export function getSeveritiesColour(severity: string) {
 
 export function generateIssueSummary(
   resultsByPlugin: FixHandlerResultByPlugin,
-  exceptionsByScanType: ErrorsByEcoSystem,
+  exceptions: ErrorsByEcoSystem,
 ): string {
-  const testResults: TestResult[] = getTestResults(
-    resultsByPlugin,
-    exceptionsByScanType,
-  );
+  const testResults: TestResult[] = getTestResults(resultsByPlugin, exceptions);
 
   const issueData = testResults.map((i) => i.issuesData);
   const bySeverity = getIssueCountBySeverity(issueData);
@@ -304,16 +318,28 @@ export function generateIssueSummary(
     issues.push(...result.issues);
   }
 
-  let totalIssues = `${chalk.bold(getTotalIssueCount(issueData))} issues`;
-  if (issuesBySeverityMessage) {
-    totalIssues += `: ${issuesBySeverityMessage}`;
+  const totalIssueCount = getTotalIssueCount(issueData);
+  let totalIssues = '';
+  if (totalIssueCount > 0) {
+    totalIssues = `${chalk.bold(totalIssueCount)} issues\n`;
+    if (issuesBySeverityMessage) {
+      totalIssues = `${chalk.bold(
+        totalIssueCount,
+      )} issues: ${issuesBySeverityMessage}\n`;
+    }
   }
 
   const { count: fixableCount } = hasFixableIssues(testResults);
   const fixableIssues =
     fixableCount > 0 ? `${chalk.bold(fixableCount)} issues are fixable\n` : '';
 
-  return `${PADDING_SPACE}${totalIssues}\n${PADDING_SPACE}${fixableIssues}`;
+  const fixedIssueCount = calculateFixedIssues(resultsByPlugin);
+  const fixedIssuesSummary =
+    fixedIssueCount > 0
+      ? `${chalk.bold(fixedIssueCount)} issues were successfully fixed\n`
+      : '';
+
+  return `\n${PADDING_SPACE}${totalIssues}${PADDING_SPACE}${fixableIssues}${PADDING_SPACE}${fixedIssuesSummary}`;
 }
 
 function getTestResults(
