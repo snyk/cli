@@ -44,6 +44,7 @@ import {
 } from '../lib/types';
 import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
+import { obfuscateArgs } from '../lib/utils';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -56,7 +57,7 @@ async function runCommand(args: Args) {
   const commandResult = await args.method(...args.options._);
 
   const res = analytics.addDataAndSend({
-    args: args.options._,
+    args: obfuscateArgs(args.options._),
     command: args.command,
     org: args.options.org,
   });
@@ -164,7 +165,7 @@ async function handleError(args, error) {
   }
 
   const res = analytics.addDataAndSend({
-    args: args.options._,
+    args: obfuscateArgs(args.options._),
     command,
     org: args.options.org,
   });
