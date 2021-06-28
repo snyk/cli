@@ -2,6 +2,8 @@ import { readFileSync, unlinkSync } from 'fs';
 import * as path from 'path';
 import * as sarif from 'sarif';
 import { v4 as uuidv4 } from 'uuid';
+import { pathToFileURL } from 'url';
+
 import { startMockServer } from './helpers';
 import { MappedIacTestResponse } from '../../../../src/lib/snyk-test/iac-test-result';
 jest.setTimeout(50000);
@@ -179,8 +181,7 @@ describe('iac test --sarif-file-output', () => {
         jsonObj?.runs?.[0].originalUriBaseIds.PROJECTROOT.uri;
       expect(actualPhysicalLocation).toEqual(expectedPhysicalLocation);
       expect(actualProjectRoot).toEqual(
-        'file://' +
-          path.join(path.resolve(expectedProjectRoot), '/').replace(/\\/g, '/'),
+        pathToFileURL(path.join(path.resolve(expectedProjectRoot), '/')).href,
       );
     });
   });

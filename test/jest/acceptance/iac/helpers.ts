@@ -31,8 +31,11 @@ export async function startMockServer() {
   };
 
   return {
-    run: async (cmd: string, overrides?: Record<string, string>) =>
-      run(cmd, { ...env, ...overrides }),
+    run: async (
+      cmd: string,
+      overrides?: Record<string, string>,
+      cwd?: string,
+    ) => run(cmd, { ...env, ...overrides }, cwd),
     teardown: async () => new Promise((resolve) => server.close(resolve)),
   };
 }
@@ -43,6 +46,7 @@ export async function startMockServer() {
 export async function run(
   cmd: string,
   env: Record<string, string> = {},
+  cwd?: string,
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   return new Promise((resolve, reject) => {
     const root = join(__dirname, '../../../../');
@@ -51,7 +55,7 @@ export async function run(
       cmd.trim().replace(/^snyk/, `node ${main}`),
       {
         env,
-        cwd: join(root, 'test/fixtures'),
+        cwd: cwd ?? join(root, 'test/fixtures'),
       },
       function(err, stdout, stderr) {
         // err.code indicates the shell exited with non-zero code
