@@ -16,10 +16,17 @@ export function generateEntityToFix(
   type: string,
   targetFile: string,
   contents: string,
+  withVulns = true,
   path?: string,
 ): EntityToFix {
   const scanResult = generateScanResult(type, targetFile);
-  const testResult = generateTestResult();
+  const testResult = withVulns
+    ? generateTestResult()
+    : {
+        issues: [],
+        issuesData: {},
+        depGraphData: ('' as unknown) as DepGraphData,
+      };
   const workspace = generateWorkspace(contents, path);
   const cliTestOptions = {
     command: 'python3',

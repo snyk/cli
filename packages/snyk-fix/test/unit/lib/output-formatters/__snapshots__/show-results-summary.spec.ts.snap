@@ -8,39 +8,73 @@ exports[`formatIssueCountBySeverity all vuln severities absent 1`] = `""`;
 
 exports[`formatIssueCountBySeverity all vuln severities present 1`] = `"1 Critical | 3 High | 15 Medium | 300 Low"`;
 
-exports[`generateFixedAndFailedSummary has failed only 1`] = `
+exports[`generateOverallSummary 100% not vulnerable 1`] = `
+"Summary:
+
+  Command run in dry run mode. Fixes are not applied.
+  1 items were not vulnerable
+
+      "
+`;
+
+exports[`generateOverallSummary has failed only 1`] = `
 "Summary:
 
   Command run in dry run mode. Fixes are not applied.
   1 items were not fixed
 
+  1 issues: 1 High
+  1 issues are fixable
+  "
+`;
+
+exports[`generateOverallSummary has fixed & failed & not vulnerable 1`] = `
+"Summary:
+
+  Command run in dry run mode. Fixes are not applied.
+  1 items were not fixed
+  1 items were successfully fixed
+  1 items were not vulnerable
+
+  2 issues: 2 High
+  2 issues are fixable
+  1 issues were successfully fixed
 "
 `;
 
-exports[`generateFixedAndFailedSummary has fixed & failed 1`] = `
+exports[`generateOverallSummary has fixed & failed 1`] = `
 "Summary:
 
   1 items were not fixed
   1 items were successfully fixed
 
+  2 issues: 2 High
+  2 issues are fixable
+  1 issues were successfully fixed
 "
 `;
 
-exports[`generateFixedAndFailedSummary has fixed only 1`] = `
+exports[`generateOverallSummary has fixed only 1`] = `
 "Summary:
 
   1 items were successfully fixed
 
+  1 issues: 1 High
+  1 issues are fixable
+  1 issues were successfully fixed
 "
 `;
 
-exports[`generateFixedAndFailedSummary has skipped & failed & plugin errors 1`] = `
+exports[`generateOverallSummary has skipped & failed & plugin errors 1`] = `
 "Summary:
 
   Command run in dry run mode. Fixes are not applied.
   2 items were not fixed
   1 items were successfully fixed
 
+  3 issues: 3 High
+  3 issues are fixable
+  1 issues were successfully fixed
 "
 `;
 
@@ -55,10 +89,23 @@ exports[`generateSuccessfulFixesSummary has fixed & failed 1`] = `
 `;
 
 exports[`generateUnresolvedSummary has failed upgrades & unsupported 1`] = `
-"Unresolved items:
+"
+
+Unresolved items:
 
   package.json
   ✖ npm is not supported"
+`;
+
+exports[`showResultsSummary called with no vulnerable projects to fix 1`] = `
+"
+✔ No vulnerable items to fix
+
+Summary:
+
+  1 items were not vulnerable
+
+      "
 `;
 
 exports[`showResultsSummary called with nothing to fix 1`] = `
@@ -101,6 +148,7 @@ exports[`showResultsSummary has unresolved only 1`] = `
 "
  ✖ No successful fixes
 
+
 Unresolved items:
 
   package.json
@@ -113,7 +161,6 @@ Summary:
   1 issues: 1 High
   1 issues are fixable
   
-
 
 Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io"
 `;

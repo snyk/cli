@@ -218,7 +218,7 @@ describe('snyk fix (functional tests)', () => {
   );
 
   it(
-    'snyk fails to fix when all path fails to test with `snyk fix path1 path2` (non 0 error code)',
+    'snyk fails to fix when all paths fails to test with `snyk fix path1 path2` (non 0 error code)',
     async () => {
       // read data from console.log
       let stdoutMessages = '';
@@ -282,7 +282,7 @@ describe('snyk fix (functional tests)', () => {
         dryRun: true,
         quiet: true,
       });
-      expect(stripAnsi(res)).toMatch('No successful fixes');
+      expect(stripAnsi(res)).toMatch('✔ No vulnerable items to fix');
       expect(stdoutMessages).toEqual('');
       expect(stderrMessages).toEqual('');
     },
