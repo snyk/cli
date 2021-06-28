@@ -133,6 +133,8 @@ export function createSarifOutputForIac(
     : pathLib.resolve('.');
   const issues = iacTestResponses.reduce((collect: ResponseIssues, res) => {
     if (res.result) {
+      // targetFile is the computed relative path of the scanned file
+      // so needs to be cleaned up before assigning to the URI
       const targetPath = res.targetFile.replace(/\\/g, '/');
       const mapped = res.result.cloudConfigResults.map((issue) => ({
         issue,
