@@ -83,7 +83,10 @@ Summary:
 Tip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io",
   "meta": Object {
     "failed": 1,
+    "fixableIssues": 1,
     "fixed": 0,
+    "fixedIssues": 0,
+    "totalIssues": 1,
   },
   "results": Object {},
 }
@@ -108,7 +111,10 @@ Summary:
 ",
   "meta": Object {
     "failed": 0,
+    "fixableIssues": 1,
     "fixed": 1,
+    "fixedIssues": 1,
+    "totalIssues": 1,
   },
   "results": Object {
     "python": Object {
@@ -211,7 +217,10 @@ Summary:
 ",
   "meta": Object {
     "failed": 0,
+    "fixableIssues": 2,
     "fixed": 2,
+    "fixedIssues": 2,
+    "totalIssues": 2,
   },
   "results": Object {
     "python": Object {

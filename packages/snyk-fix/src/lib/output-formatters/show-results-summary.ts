@@ -342,7 +342,7 @@ export function generateIssueSummary(
   return `\n${PADDING_SPACE}${totalIssues}${PADDING_SPACE}${fixableIssues}${PADDING_SPACE}${fixedIssuesSummary}`;
 }
 
-function getTestResults(
+export function getTestResults(
   resultsByPlugin: FixHandlerResultByPlugin,
   exceptionsByScanType: ErrorsByEcoSystem,
 ): TestResult[] {

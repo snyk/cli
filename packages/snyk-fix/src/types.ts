@@ -244,4 +244,7 @@ export interface FixOptions {
 export interface FixedMeta {
   fixed: number;
   failed: number;
+  fixableIssues: number;
+  fixedIssues: number;
+  totalIssues: number;
 }
