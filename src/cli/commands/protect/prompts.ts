@@ -48,7 +48,7 @@ function sort(prop) {
 function createSeverityBasedIssueHeading(msg: string, severity: SEVERITY) {
   // Example: ✗ Medium severity vulnerability found in xmldom
   const severityColor = getLegacySeveritiesColour(severity);
-  return severityColor.colorFunc(msg);
+  return severityColor(msg);
 }
 
 function sortUpgradePrompts(a, b) {

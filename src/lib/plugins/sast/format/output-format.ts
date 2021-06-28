@@ -43,19 +43,15 @@ export function getCodeDisplayedOutput(
 
 function getCodeIssuesSummary(issues: { [index: string]: string[] }): string {
   const lowSeverityText = issues.low.length
-    ? getLegacySeveritiesColour(SEVERITY.LOW).colorFunc(
-        ` ${issues.low.length} [Low] `,
-      )
+    ? getLegacySeveritiesColour(SEVERITY.LOW)(` ${issues.low.length} [Low] `)
     : '';
   const mediumSeverityText = issues.medium.length
-    ? getLegacySeveritiesColour(SEVERITY.MEDIUM).colorFunc(
+    ? getLegacySeveritiesColour(SEVERITY.MEDIUM)(
         ` ${issues.medium.length} [Medium] `,
       )
     : '';
   const highSeverityText = issues.high.length
-    ? getLegacySeveritiesColour(SEVERITY.HIGH).colorFunc(
-        `${issues.high.length} [High] `,
-      )
+    ? getLegacySeveritiesColour(SEVERITY.HIGH)(`${issues.high.length} [High] `)
     : '';
 
   const codeIssueCount =
@@ -95,7 +91,7 @@ function getIssues(
           rulesMap[ruleId].shortDescription?.text || rulesMap[ruleId].name;
         const ruleIdSeverityText = getLegacySeveritiesColour(
           severity.toLowerCase(),
-        ).colorFunc(` ✗ [${severity}] ${ruleName}`);
+        )(` ✗ [${severity}] ${ruleName}`);
         const artifactLocationUri = location.artifactLocation.uri;
         const startLine = location.region.startLine;
         const text = res.message.text;

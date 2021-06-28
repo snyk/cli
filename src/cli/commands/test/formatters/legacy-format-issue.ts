@@ -104,7 +104,7 @@ function createSeverityBasedIssueHeading({
   }
 
   return (
-    severityColor.colorFunc(
+    severityColor(
       '✗ ' +
         titleCaseText(severity) +
         ` severity${originalSeverityStr} ` +

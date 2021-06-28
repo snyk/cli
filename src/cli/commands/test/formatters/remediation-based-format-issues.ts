@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { Icon } from '../../../../lib/theme';
 import * as config from '../../../../lib/config';
 import { TestOptions } from '../../../../lib/types';
 import {
@@ -167,7 +168,7 @@ function constructLicenseText(
     return [];
   }
 
-  const licenseTextArray = [chalk.bold.white('\nLicense issues:')];
+  const licenseTextArray = [chalk.bold('\nLicense issues:')];
 
   for (const id of Object.keys(basicLicenseInfo)) {
     const licenseText = formatIssue(
@@ -199,7 +200,7 @@ function constructPatchesText(
   if (!(Object.keys(patches).length > 0)) {
     return [];
   }
-  const patchedTextArray = [chalk.bold.white('\nPatchable issues:')];
+  const patchedTextArray = [chalk.bold('\nPatchable issues:')];
   for (const id of Object.keys(patches)) {
     if (!basicVulnInfo[id]) {
       continue;
@@ -210,7 +211,7 @@ function constructPatchesText(
 
     // todo: add vulnToPatch package name
     const packageAtVersion = `${basicVulnInfo[id].name}@${basicVulnInfo[id].version}`;
-    const patchedText = `\n  Patch available for ${chalk.bold.whiteBright(
+    const patchedText = `\n  Patch available for ${chalk.bold(
       packageAtVersion,
     )}\n`;
     const thisPatchFixes = formatIssue(
@@ -274,9 +275,9 @@ function processUpgrades(
     const upgradeDepTo = data.upgradeTo;
     const vulnIds =
       (data as UpgradeRemediation).vulns || (data as PinRemediation).vulns;
-    const upgradeText = `\n  Upgrade ${chalk.bold.whiteBright(
-      dep,
-    )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix\n`;
+    const upgradeText = `\n  Upgrade ${chalk.bold(dep)} to ${chalk.bold(
+      upgradeDepTo,
+    )} to fix\n`;
     sink.push(
       upgradeText + thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions),
     );
@@ -294,7 +295,7 @@ function constructUpgradesText(
     return [];
   }
 
-  const upgradeTextArray = [chalk.bold.white('\nIssues to fix by upgrading:')];
+  const upgradeTextArray = [chalk.bold('\nIssues to fix by upgrading:')];
   processUpgrades(
     upgradeTextArray,
     upgrades,
@@ -317,7 +318,7 @@ function constructPinText(
 
   const upgradeTextArray: string[] = [];
   upgradeTextArray.push(
-    chalk.bold.white('\nIssues to fix by upgrading dependencies:'),
+    chalk.bold('\nIssues to fix by upgrading dependencies:'),
   );
 
   // First, direct upgrades
@@ -343,9 +344,9 @@ function constructPinText(
       const data = pins[pkgName];
       const vulnIds = data.vulns;
       const upgradeDepTo = data.upgradeTo;
-      const upgradeText = `\n  Pin ${chalk.bold.whiteBright(
-        pkgName,
-      )} to ${chalk.bold.whiteBright(upgradeDepTo)} to fix`;
+      const upgradeText = `\n  Pin ${chalk.bold(pkgName)} to ${chalk.bold(
+        upgradeDepTo,
+      )} to fix`;
       upgradeTextArray.push(upgradeText);
       upgradeTextArray.push(
         thisUpgradeFixes(vulnIds, basicVulnInfo, testOptions),
@@ -382,7 +383,7 @@ function constructUnfixableText(
     return [];
   }
   const unfixableIssuesTextArray = [
-    chalk.bold.white('\nIssues with no direct upgrade or patch:'),
+    chalk.bold('\nIssues with no direct upgrade or patch:'),
   ];
   for (const issue of unresolved) {
     const issueInfo = basicVulnInfo[issue.id];
@@ -464,7 +465,7 @@ export function formatIssue(
     introducedBy =
       paths.length === 1
         ? `\n    Introduced by: ${pathStr}`
-        : `\n    Introduced by: ${pathStr} and ${chalk.cyanBright(
+        : `\n    Introduced by: ${pathStr} and ${chalk.bold(
             '' + (paths.length - 1),
           )} other path(s)`;
   } else if (testOptions.showVulnPaths === 'all' && paths) {
@@ -493,10 +494,10 @@ export function formatIssue(
   }
 
   return (
-    severityColor.colorFunc(
-      `\n  ✗ [${titleCaseText(severity)}${originalSeverityStr}] ${chalk.bold(
-        title,
-      )}${newBadge}\n`,
+    severityColor(
+      `\n  ${Icon.ISSUE} [${titleCaseText(
+        severity,
+      )}${originalSeverityStr}] ${chalk.bold(title)}${newBadge}\n`,
     ) +
     reachabilityText +
     `    Info: [${config.ROOT}/vuln/${id}]` +

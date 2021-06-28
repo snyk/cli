@@ -1,5 +1,5 @@
 import * as config from '../config';
-import chalk from 'chalk';
+import { colour } from '../theme';
 
 export function assembleQueryString(options) {
   const org = options.org || config.org || null;
@@ -49,64 +49,12 @@ export const SEVERITIES: Array<{
   },
 ];
 
-export const severitiesColourMapping = {
-  low: {
-    colorFunc(text) {
-      return chalk.blueBright(text);
-    },
-  },
-  medium: {
-    colorFunc(text) {
-      return chalk.yellowBright(text);
-    },
-  },
-  high: {
-    colorFunc(text) {
-      return chalk.redBright(text);
-    },
-  },
-  critical: {
-    colorFunc(text) {
-      return chalk.magentaBright(text);
-    },
-  },
-};
-
-export const legacySeveritiesColourMapping = {
-  low: {
-    colorFunc(text) {
-      return chalk.bold.blue(text);
-    },
-  },
-  medium: {
-    colorFunc(text) {
-      return chalk.bold.yellow(text);
-    },
-  },
-  high: {
-    colorFunc(text) {
-      return chalk.bold.red(text);
-    },
-  },
-  critical: {
-    colorFunc(text) {
-      return chalk.bold.magenta(text);
-    },
-  },
-};
-
-export const defaultSeverityColor = {
-  colorFunc(text) {
-    return chalk.grey(text);
-  },
-};
-
 export function getSeveritiesColour(severity: string) {
-  return severitiesColourMapping[severity] || defaultSeverityColor;
+  return colour.severity[severity] || colour.severity.low;
 }
 
 export function getLegacySeveritiesColour(severity: string) {
-  return legacySeveritiesColourMapping[severity] || defaultSeverityColor;
+  return colour.severity[severity] || colour.severity.low;
 }
 
 export enum FAIL_ON {

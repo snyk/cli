@@ -329,7 +329,7 @@ function displayResult(
   if (options.iac && res.targetFile) {
     testingPath = pathLib.basename(res.targetFile);
   }
-  const prefix = chalk.bold.white('\nTesting ' + testingPath + '...\n\n');
+  const prefix = chalk.bold('\nTesting ' + testingPath + '...\n\n');
 
   // handle errors by extracting their message
   if (res instanceof Error) {

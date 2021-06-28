@@ -35,7 +35,7 @@ function formatIacIssue(
   const severityColor = getSeveritiesColour(issue.severity);
 
   return (
-    severityColor.colorFunc(
+    severityColor(
       `  ✗ ${chalk.bold(issue.title)}${newBadge} [${titleCaseText(
         issue.severity,
       )} Severity]`,
