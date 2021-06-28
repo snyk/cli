@@ -8,8 +8,16 @@ import { loadPlugin } from './plugins/load-plugin';
 import { FixHandlerResultByPlugin } from './plugins/types';
 import { partitionByVulnerable } from './partition-by-vulnerable';
 
-import { EntityToFix, ErrorsByEcoSystem, FixedMeta, FixOptions } from './types';
+import {
+  EntityToFix,
+  ErrorsByEcoSystem,
+  FixedMeta,
+  FixOptions,
+  TestResult,
+} from './types';
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
+import { getTotalIssueCount } from './lib/issues/total-issues-count';
+import { hasFixableIssues } from './lib/issues/fixable-issues';
 export { EntityToFix } from './types';
 
 const debug = debugLib('snyk-fix:main');
@@ -104,13 +112,25 @@ export function groupEntitiesPerScanType(
 
 export function extractMeta(
   resultsByPlugin: FixHandlerResultByPlugin,
-  exceptionsByScanType: ErrorsByEcoSystem,
+  exceptions: ErrorsByEcoSystem,
 ): FixedMeta {
-  const failed = outputFormatter.calculateFailed(
+  const testResults: TestResult[] = outputFormatter.getTestResults(
     resultsByPlugin,
-    exceptionsByScanType,
+    exceptions,
   );
-  const fixed = outputFormatter.calculateFixed(resultsByPlugin);
+  const issueData = testResults.map((i) => i.issuesData);
 
-  return { fixed, failed };
+  const failed = outputFormatter.calculateFailed(resultsByPlugin, exceptions);
+  const fixed = outputFormatter.calculateFixed(resultsByPlugin);
+  const totalIssueCount = getTotalIssueCount(issueData);
+  const { count: fixableCount } = hasFixableIssues(testResults);
+  const fixedIssueCount = outputFormatter.calculateFixedIssues(resultsByPlugin);
+
+  return {
+    fixed,
+    failed,
+    totalIssues: totalIssueCount,
+    fixableIssues: fixableCount,
+    fixedIssues: fixedIssueCount,
+  };
 }
