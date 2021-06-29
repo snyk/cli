@@ -5,6 +5,7 @@ import * as snykFix from '@snyk/fix';
 import cli = require('../../../../../../src/cli/commands');
 import * as snyk from '../../../../../../src/lib';
 import * as featureFlags from '../../../../../../src/lib/feature-flags';
+import * as analytics from '../../../../../../src/lib/analytics';
 
 import stripAnsi from 'strip-ansi';
 
@@ -66,6 +67,7 @@ const pipNoIssues = JSON.parse(
 describe('snyk fix (functional tests)', () => {
   let origStdWrite;
   let snykFixSpy: jest.SpyInstance;
+  let addAnalyticsSpy: jest.SpyInstance;
 
   beforeAll(async () => {
     origStdWrite = process.stdout.write;
@@ -76,10 +78,12 @@ describe('snyk fix (functional tests)', () => {
 
   beforeEach(() => {
     snykFixSpy = jest.spyOn(snykFix, 'fix');
+    addAnalyticsSpy = jest.spyOn(analytics, 'add');
   });
 
   afterEach(() => {
     snykFixSpy.mockClear();
+    addAnalyticsSpy.mockClear();
   });
 
   afterAll(async () => {
@@ -110,6 +114,22 @@ describe('snyk fix (functional tests)', () => {
         dryRun: true,
         quiet: true,
       });
+      expect(addAnalyticsSpy).toHaveBeenCalledTimes(8);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFailedProjects', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixVulnerableProjects',
+        1,
+      );
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixableIssues', 3);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedIssues', 3);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalIssues', 4);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixSummary',
+        expect.any(String),
+      );
+
       expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
       expect(stdoutMessages).toEqual('');
     },
@@ -136,6 +156,22 @@ describe('snyk fix (functional tests)', () => {
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
         dryRun: true,
       });
+      expect(addAnalyticsSpy).toHaveBeenCalledTimes(8);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFailedProjects', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixVulnerableProjects',
+        1,
+      );
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixableIssues', 3);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedIssues', 3);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalIssues', 4);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixSummary',
+        expect.any(String),
+      );
+
       expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
       expect(stripAnsi(stdoutMessages)).toMatch(
         '✔ Looking for supported Python items',
@@ -172,6 +208,23 @@ describe('snyk fix (functional tests)', () => {
         dryRun: true,
         quiet: true,
       });
+
+      expect(addAnalyticsSpy).toHaveBeenCalledTimes(8);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFailedProjects', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixVulnerableProjects',
+        1,
+      );
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixableIssues', 3);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedIssues', 3);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalIssues', 4);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixSummary',
+        expect.any(String),
+      );
+
       expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
       expect(stdoutMessages).toEqual('');
       expect(stderrMessages).toEqual('');
@@ -208,6 +261,22 @@ describe('snyk fix (functional tests)', () => {
         dryRun: true,
         quiet: true,
       });
+      expect(addAnalyticsSpy).toHaveBeenCalledTimes(8);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFailedProjects', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixVulnerableProjects',
+        1,
+      );
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixableIssues', 3);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedIssues', 3);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalIssues', 4);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixSummary',
+        expect.any(String),
+      );
+
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(stripAnsi(res)).toMatch('✔ Upgraded Jinja2 from 2.7.2 to 2.11.3');
       // only use ora to output
@@ -243,6 +312,22 @@ describe('snyk fix (functional tests)', () => {
       } catch (error) {
         res = error;
       }
+      expect(addAnalyticsSpy).toHaveBeenCalledTimes(8);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFailedProjects', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedProjects', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalProjects', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixVulnerableProjects',
+        0,
+      );
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixableIssues', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedIssues', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalIssues', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixSummary',
+        expect.any(String),
+      );
+
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
         dryRun: true,
@@ -282,6 +367,21 @@ describe('snyk fix (functional tests)', () => {
         dryRun: true,
         quiet: true,
       });
+      expect(addAnalyticsSpy).toHaveBeenCalledTimes(8);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFailedProjects', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalProjects', 1);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixVulnerableProjects',
+        0,
+      );
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixableIssues', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixFixedIssues', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixTotalIssues', 0);
+      expect(addAnalyticsSpy).toHaveBeenCalledWith(
+        'snykFixSummary',
+        expect.any(String),
+      );
+
       expect(stripAnsi(res)).toMatch('✔ No vulnerable items to fix');
       expect(stdoutMessages).toEqual('');
       expect(stderrMessages).toEqual('');
