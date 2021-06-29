@@ -11,7 +11,7 @@ interface SastSettings {
 
 interface TrackUsageResponse {
   code?: number;
-  error?: string;
+  userMessage?: string;
 }
 
 export async function getSastSettingsForOrg(org): Promise<SastSettings> {
@@ -26,7 +26,7 @@ export async function getSastSettingsForOrg(org): Promise<SastSettings> {
     json: true,
   });
 
-  return (response as any).body;
+  return response.body as SastSettings;
 }
 
 export async function trackUsage(org): Promise<TrackUsageResponse> {
@@ -41,5 +41,5 @@ export async function trackUsage(org): Promise<TrackUsageResponse> {
     json: true,
   });
 
-  return (response as any).body;
+  return response.body as TrackUsageResponse;
 }
