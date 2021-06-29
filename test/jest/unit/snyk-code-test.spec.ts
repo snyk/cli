@@ -109,6 +109,7 @@ describe('Test snyk code', () => {
     });
     trackUsageSpy.mockResolvedValue({});
 
+    expect.hasAssertions();
     try {
       await ecosystems.testEcosystem('code', ['some/path'], options);
     } catch (error) {
@@ -138,6 +139,7 @@ describe('Test snyk code', () => {
     });
     trackUsageSpy.mockResolvedValue({});
 
+    expect.hasAssertions();
     try {
       await cli.test('some/path', options);
     } catch (error) {
@@ -155,6 +157,7 @@ describe('Test snyk code', () => {
     isSastEnabledForOrgSpy.mockRejectedValue(error);
 
     const expected = new Error(error.message);
+    expect.hasAssertions();
     try {
       await ecosystems.testEcosystem('code', ['.'], {
         path: '',
@@ -169,6 +172,7 @@ describe('Test snyk code', () => {
     isSastEnabledForOrgSpy.mockRejectedValue(error);
 
     const expected = new Error(error.message);
+    expect.hasAssertions();
     try {
       await cli.test('.', {
         path: '',
@@ -185,13 +189,10 @@ describe('Test snyk code', () => {
       ok: true,
     });
 
-    try {
-      await cli.test('some/path', { code: true });
-    } catch (error) {
-      expect(error.userMessage).toBe(
-        'Snyk Code is not supported for org: enable in Settings > Snyk Code',
-      );
-    }
+    await expect(cli.test('some/path', { code: true })).rejects.toHaveProperty(
+      'userMessage',
+      'Snyk Code is not supported for org: enable in Settings > Snyk Code',
+    );
   });
 
   it('should show error if ff is not enabled', async () => {
@@ -200,11 +201,10 @@ describe('Test snyk code', () => {
       userError: 'Not enabled',
     });
 
-    try {
-      await cli.test('some/path', { code: true });
-    } catch (error) {
-      expect(error.userMessage).toBe('Snyk Code is not supported for org.');
-    }
+    await expect(cli.test('some/path', { code: true })).rejects.toHaveProperty(
+      'userMessage',
+      'Snyk Code is not supported for org.',
+    );
   });
 
   it('should show error if limit is reached', async () => {
@@ -217,11 +217,10 @@ describe('Test snyk code', () => {
       userMessage: 'Test limit reached!',
     });
 
-    try {
-      await cli.test('some/path', { code: true });
-    } catch (error) {
-      expect(error.userMessage).toBe('Test limit reached!');
-    }
+    await expect(cli.test('some/path', { code: true })).rejects.toHaveProperty(
+      'userMessage',
+      'Test limit reached!',
+    );
   });
 
   it.each([
@@ -247,6 +246,7 @@ describe('Test snyk code', () => {
       });
       trackUsageSpy.mockResolvedValue({});
 
+      expect.hasAssertions();
       try {
         await ecosystems.testEcosystem('code', ['some/path'], options);
       } catch (error) {
@@ -348,14 +348,12 @@ describe('Test snyk code', () => {
       });
       trackUsageSpy.mockResolvedValue({});
 
-      try {
-        await ecosystems.testEcosystem('code', ['.'], {
+      await expect(
+        ecosystems.testEcosystem('code', ['.'], {
           path: '',
           code: true,
-        });
-      } catch (error) {
-        expect(error.message).toEqual(expectedResult);
-      }
+        }),
+      ).rejects.toHaveProperty('message', expectedResult);
     },
   );
 
