@@ -7,6 +7,7 @@ import * as ora from 'ora';
 import { MethodArgs } from '../../args';
 import * as snyk from '../../../lib';
 import { TestResult } from '../../../lib/snyk-test/legacy';
+import * as analytics from '../../../lib/analytics';
 
 import { convertLegacyTestResultToFixEntities } from './convert-legacy-tests-results-to-fix-entities';
 import { formatTestError } from '../test/format-test-error';
@@ -46,6 +47,19 @@ async function fix(...args: MethodArgs): Promise<string> {
   );
   const { dryRun, quiet } = options;
   const { fixSummary, meta } = await snykFix.fix(results, { dryRun, quiet });
+
+  // Analytics # of projects
+  analytics.add('snykFixFailedProjects', meta.failed);
+  analytics.add('snykFixFixedProjects', meta.fixed);
+  analytics.add('snykFixTotalProjects', results.length);
+  analytics.add('snykFixVulnerableProjects', vulnerableResults.length);
+
+  // Analytics # of issues
+  analytics.add('snykFixFixableIssues', meta.fixableIssues);
+  analytics.add('snykFixFixedIssues', meta.fixedIssues);
+  analytics.add('snykFixTotalIssues', meta.totalIssues);
+
+  analytics.add('snykFixSummary', fixSummary);
 
   // `snyk test` did not return any test results
   if (results.length === 0) {
