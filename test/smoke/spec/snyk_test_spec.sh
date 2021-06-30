@@ -49,6 +49,19 @@ Describe "Snyk test command"
       The output should include "https://snyk.io/vuln/npm:minimatch:20160620"
       The stderr should equal ""
     End
+
+    It "tests a library when passed a library name"
+      When run snyk test express
+      The output should include "Testing express"
+      The stderr should equal ""
+    End
+
+    It "tests a library on a specific version when passed a library@version"
+      When run snyk test lodash@4.17.15
+      The status should be failure # issues found
+      The output should include "Testing lodash@4.17.15"
+      The stderr should equal ""
+    End
   End
 
   Describe "npm test with JSON output"
