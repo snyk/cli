@@ -1,5 +1,5 @@
 import request = require('./request');
-import snyk = require('.'); // TODO(kyegupov): fix import
+import { api as getApiToken } from './api-token';
 import * as config from './config';
 import { assembleQueryString } from './snyk-test/common';
 
@@ -17,7 +17,7 @@ export async function isFeatureFlagSupportedForOrg(
   const response = await request({
     method: 'GET',
     headers: {
-      Authorization: `token ${snyk.api}`,
+      Authorization: `token ${getApiToken()}`,
     },
     qs: assembleQueryString({ org }),
     url: `${config.API}/cli-config/feature-flags/${featureFlag}`,
