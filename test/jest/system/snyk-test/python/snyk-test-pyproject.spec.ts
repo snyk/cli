@@ -18,7 +18,7 @@ describe('snyk test for python project', () => {
   });
 
   describe('no flag is used', () => {
-    describe('project contains poetry.lock file', () => {
+    describe('project contains pyproject.toml file', () => {
       it('should scan poetry vulnerabilities', async (done) => {
         const fixturePath = join(
           __dirname,
@@ -30,7 +30,7 @@ describe('snyk test for python project', () => {
           async inspect() {
             return {
               plugin: {
-                targetFile: 'poetry.lock',
+                targetFile: 'pyproject.toml',
                 name: 'snyk-python-plugin',
                 runtime: 'Python',
               },
@@ -63,7 +63,7 @@ describe('snyk test for python project', () => {
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
-              displayTargetFile: 'poetry.lock',
+              displayTargetFile: 'pyproject.toml',
             }),
           }),
         );
@@ -85,10 +85,10 @@ describe('snyk test for python project', () => {
           remediation: undefined,
           filesystemPolicy: false,
           uniqueCount: 0,
-          targetFile: 'poetry.lock',
+          targetFile: 'pyproject.toml',
           projectName: undefined,
           foundProjectCount: undefined,
-          displayTargetFile: 'poetry.lock',
+          displayTargetFile: 'pyproject.toml',
           platform: undefined,
           path: fixturePath,
         };
@@ -208,7 +208,7 @@ describe('snyk test for python project', () => {
           async inspect() {
             return {
               plugin: {
-                targetFile: 'poetry.lock',
+                targetFile: 'pyproject.toml',
                 name: 'snyk-python-plugin',
                 runtime: 'Python',
               },
@@ -251,7 +251,7 @@ describe('snyk test for python project', () => {
         expect(mockedMakeRequest).toHaveBeenCalledWith(
           expect.objectContaining({
             body: expect.objectContaining({
-              displayTargetFile: 'poetry.lock',
+              displayTargetFile: 'pyproject.toml',
               foundProjectCount: 1,
             }),
           }),
@@ -298,10 +298,10 @@ describe('snyk test for python project', () => {
           remediation: undefined,
           filesystemPolicy: false,
           uniqueCount: 0,
-          targetFile: 'poetry.lock',
+          targetFile: 'pyproject.toml',
           foundProjectCount: 1,
           projectName: undefined,
-          displayTargetFile: 'poetry.lock',
+          displayTargetFile: 'pyproject.toml',
           platform: undefined,
           path: fixturePath,
         };
