@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
+import { pathToFileURL } from 'url';
 import {
   IacTestResponse,
   AnnotatedIacIssue,
@@ -158,7 +159,7 @@ export function createSarifOutputForIac(
         // https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317498
         originalUriBaseIds: {
           [PROJECT_ROOT_KEY]: {
-            uri: 'file://' + pathLib.join(basePath, '/').replace(/\\/g, '/'),
+            uri: pathToFileURL(pathLib.join(basePath, '/')).href,
             description: {
               text: 'The root directory for all project files.',
             },
