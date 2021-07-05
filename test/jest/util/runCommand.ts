@@ -15,23 +15,23 @@ const runCommand = (
   options?: RunCommandOptions,
 ): Promise<RunCommandResult> => {
   return new Promise((resolve, reject) => {
-    const cli = spawn(command, args, options);
+    const child = spawn(command, args, options);
     const stdout: Buffer[] = [];
     const stderr: Buffer[] = [];
 
-    cli.on('error', (error) => {
+    child.on('error', (error) => {
       reject(error);
     });
 
-    cli.stdout.on('data', (chunk) => {
+    child.stdout.on('data', (chunk) => {
       stdout.push(Buffer.from(chunk));
     });
 
-    cli.stderr.on('data', (chunk) => {
+    child.stderr.on('data', (chunk) => {
       stderr.push(Buffer.from(chunk));
     });
 
-    cli.on('close', (code) => {
+    child.on('close', (code) => {
       resolve({
         code: code || 0,
         stdout: Buffer.concat(stdout)
