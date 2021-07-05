@@ -31,8 +31,6 @@
     "build": "tsc --build",
     "build-watch": "tsc -w",
     "find-circular": "npm run build && madge --circular ./dist",
-    "format": "prettier --write '{src,test,scripts}/**/*.{js,ts}'",
-    "format:changes": "./scripts/format/prettier-changes.sh",
     "check-dev-environment": "ts-node ./scripts/check-dev-environment.ts",
     "prepare": "npm run check-dev-environment && npm run build",
     "generate-help": "./help/generator/generate-docs.sh",
@@ -53,6 +51,8 @@
     "lint": "run-p --aggregate-output lint:*",
     "lint:js": "eslint --color --cache '**/*.{js,ts}'",
     "lint:formatting": "prettier --check '**/*.{js,ts,json,yaml,yml,md}'",
+    "format": "prettier --write '**/*.{js,ts,json,yaml,yml,md}'",
+    "format:changes": "./scripts/format/prettier-changes.sh",
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "snyk-auth": "node --require ts-node/register src/cli auth $SNYK_API_KEY",
     "snyk-auth-windows": "bash ./scripts/auth-snyk-win.sh"

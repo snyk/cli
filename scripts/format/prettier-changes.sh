@@ -1,15 +1,26 @@
 #!/usr/bin/env bash
-FILES=$({ git diff --name-only --diff-filter=ACMR "*.js" "*.ts"; git diff --name-only --staged --diff-filter=ACMR "*.js" "*.ts"; } | sort | uniq)
+set -euo pipefail
+
+FILES=$(
+    { 
+        git diff --name-only --diff-filter=ACMR          '*.js' '*.ts' '*.json' '*.yaml' '*.yml' '*.md'
+        git diff --name-only --diff-filter=ACMR --staged '*.js' '*.ts' '*.json' '*.yaml' '*.yml' '*.md'
+    } \
+    | sort \
+    | uniq
+)
 [ -z "$FILES" ] && exit 0
 
-echo Changed files:
+echo Changed Files:
 echo "$FILES"
 
-echo Prettify files:
-# Prettify all selected files
+echo
+echo Prettify Files:
 echo "$FILES" | xargs ./node_modules/.bin/prettier --write
 
 # Add back the modified/prettified files to staging
+# echo
 # echo "$FILES" | xargs git add
 
-exit 0
+echo
+echo "Done."
