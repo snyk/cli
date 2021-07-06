@@ -35,74 +35,25 @@ describe('iac test --json-file-output', () => {
     expect(lineNumber).not.toEqual(-1);
   });
 
-  [
-    {
-      location: './iac/file-output/sg_open_ssh.tf', // single file
-      expectedTargetFilePath: path.resolve(
-        './test/fixtures/iac/file-output/sg_open_ssh.tf',
-      ),
-      expectedTargetFile: './iac/file-output/sg_open_ssh.tf',
-      expectedProjectName: 'file-output',
-    },
-    {
-      location: './iac/file-output/nested-folder', // folder with a single file
-      expectedTargetFilePath: path.resolve(
-        './test/fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
-      ),
-      expectedTargetFile: 'sg_open_ssh.tf',
-      expectedProjectName: 'nested-folder',
-    },
-    {
-      location: './iac/file-output', // folder with a nested folder
-      expectedTargetFilePath: path.resolve(
-        './test/fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
-      ),
-      expectedTargetFile: path.join(
-        'nested-folder',
-        path.sep,
-        'sg_open_ssh.tf',
-      ),
-      expectedProjectName: 'file-output',
-      isNested: true,
-    },
-    {
-      location: '../fixtures/iac/file-output/nested-folder', // folder nested outside running directory
-      expectedTargetFilePath: path.resolve(
-        './test/fixtures/iac/file-output/nested-folder/sg_open_ssh.tf',
-      ),
-      expectedTargetFile: 'sg_open_ssh.tf',
-      expectedProjectName: 'nested-folder',
-    },
-  ].forEach(
-    ({
-      location,
-      expectedTargetFilePath,
-      expectedTargetFile,
-      expectedProjectName,
-      isNested,
-    }) => {
-      it(`returns the correct paths for provided path ${location}`, async () => {
-        const jsonOutputFilename = path.join(__dirname, `${uuidv4()}.json`);
-        const { stdout } = await run(
-          `snyk iac test ${location} --json-file-output=${jsonOutputFilename}`,
-        );
-        expect(stdout).toMatch('Organization:');
+  it('returns the correct paths for provided path', async () => {
+    const jsonOutputFilename = path.join(__dirname, `${uuidv4()}.json`);
+    const { stdout } = await run(
+      `snyk iac test ./iac/file-output/sg_open_ssh.tf --json-file-output=${jsonOutputFilename}`,
+    );
+    expect(stdout).toMatch('Organization:');
 
-        const outputFileContents = readFileSync(jsonOutputFilename, 'utf-8');
-        unlinkSync(jsonOutputFilename);
-        let jsonObj = JSON.parse(outputFileContents);
-        if (isNested) {
-          jsonObj = jsonObj[0];
-        }
-        const actualTargetFilePath = jsonObj?.targetFilePath;
-        const actualTargetFile = jsonObj?.targetFile;
-        const actualProjectName = jsonObj?.projectName;
-        expect(actualTargetFilePath).toEqual(expectedTargetFilePath);
-        expect(actualTargetFile).toEqual(expectedTargetFile);
-        expect(actualProjectName).toEqual(expectedProjectName);
-      });
-    },
-  );
+    const outputFileContents = readFileSync(jsonOutputFilename, 'utf-8');
+    unlinkSync(jsonOutputFilename);
+    const jsonObj = JSON.parse(outputFileContents);
+    const actualTargetFilePath = jsonObj?.targetFilePath;
+    const actualTargetFile = jsonObj?.targetFile;
+    const actualProjectName = jsonObj?.projectName;
+    expect(actualTargetFilePath).toEqual(
+      path.resolve('./test/fixtures/iac/file-output/sg_open_ssh.tf'),
+    );
+    expect(actualTargetFile).toEqual('./iac/file-output/sg_open_ssh.tf');
+    expect(actualProjectName).toEqual('file-output');
+  });
 });
 
 describe('iac test --sarif-file-output', () => {
@@ -134,55 +85,24 @@ describe('iac test --sarif-file-output', () => {
     expect(startLine).not.toEqual(-1);
   });
 
-  [
-    {
-      location: path.resolve(
-        './test/fixtures',
-        './iac/file-output/sg_open_ssh.tf',
-      ), // absolute location to file
-      expectedPhysicalLocation: 'iac/file-output/sg_open_ssh.tf',
-      expectedProjectRoot: './test/fixtures/',
-    },
-    {
-      location: './iac/file-output/sg_open_ssh.tf', // single file
-      expectedPhysicalLocation: './iac/file-output/sg_open_ssh.tf',
-      expectedProjectRoot: './test/fixtures/',
-    },
-    {
-      location: './iac/file-output/nested-folder', // folder with a single file
-      expectedPhysicalLocation: 'sg_open_ssh.tf',
-      expectedProjectRoot: './test/fixtures/iac/file-output/nested-folder/',
-    },
-    {
-      location: './iac/file-output', // folder with a nested folder
-      expectedPhysicalLocation: 'nested-folder/sg_open_ssh.tf',
-      expectedProjectRoot: './test/fixtures/iac/file-output/',
-    },
-    {
-      location: '../fixtures/iac/file-output/nested-folder', // folder nested outside running directory
-      expectedPhysicalLocation: 'sg_open_ssh.tf',
-      expectedProjectRoot: './test/fixtures/iac/file-output/nested-folder/',
-    },
-  ].forEach(({ location, expectedPhysicalLocation, expectedProjectRoot }) => {
-    it(`returns the correct paths for provided path ${location}`, async () => {
-      const sarifOutputFilename = path.join(__dirname, `${uuidv4()}.sarif`);
-      const { stdout } = await run(
-        `snyk iac test ${location} --sarif-file-output=${sarifOutputFilename}`,
-      );
-      expect(stdout).toMatch('Organization:');
+  it('returns the correct paths for provided path', async () => {
+    const sarifOutputFilename = path.join(__dirname, `${uuidv4()}.sarif`);
+    const { stdout } = await run(
+      `snyk iac test ./iac/file-output/sg_open_ssh.tf --sarif-file-output=${sarifOutputFilename}`,
+    );
+    expect(stdout).toMatch('Organization:');
 
-      const outputFileContents = readFileSync(sarifOutputFilename, 'utf-8');
-      unlinkSync(sarifOutputFilename);
-      const jsonObj = JSON.parse(outputFileContents);
-      const actualPhysicalLocation =
-        jsonObj?.runs?.[0].results[0].locations[0].physicalLocation
-          .artifactLocation.uri;
-      const actualProjectRoot =
-        jsonObj?.runs?.[0].originalUriBaseIds.PROJECTROOT.uri;
-      expect(actualPhysicalLocation).toEqual(expectedPhysicalLocation);
-      expect(actualProjectRoot).toEqual(
-        pathToFileURL(path.join(path.resolve(expectedProjectRoot), '/')).href,
-      );
-    });
+    const outputFileContents = readFileSync(sarifOutputFilename, 'utf-8');
+    unlinkSync(sarifOutputFilename);
+    const jsonObj = JSON.parse(outputFileContents);
+    const actualPhysicalLocation =
+      jsonObj?.runs?.[0].results[0].locations[0].physicalLocation
+        .artifactLocation.uri;
+    const actualProjectRoot =
+      jsonObj?.runs?.[0].originalUriBaseIds.PROJECTROOT.uri;
+    expect(actualPhysicalLocation).toEqual('./iac/file-output/sg_open_ssh.tf');
+    expect(actualProjectRoot).toEqual(
+      pathToFileURL(path.join(path.resolve('./test/fixtures/'), '/')).href,
+    );
   });
 });
