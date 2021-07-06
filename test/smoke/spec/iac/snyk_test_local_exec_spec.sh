@@ -59,10 +59,10 @@ Describe "Snyk iac local test command"
       The output should include "introduced by"
     End
 
-    It "outputs an error for files with no valid k8s objects"
+    It "ignores files with no recognised config types"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml
       The status should equal 2
-      The output should include "We were unable to detect whether the YAML file"
+      The output should include "Could not find any valid infrastructure as code files."
     End
 
     It "outputs an error for Helm files"
@@ -218,7 +218,7 @@ Describe "Snyk iac local test command"
       The output should include "Failed to parse Terraform file"
     End
 
-    It "finds issues in a directory with Kubernetes files"
+    It "finds issues in a directory with Kubernetes files, ignoring unrecognised config types"
       When run snyk iac test ../fixtures/iac/kubernetes/
       The status should equal 1 # issues found
       # First File
@@ -228,9 +228,8 @@ Describe "Snyk iac local test command"
       The output should include "introduced by"
       The output should include "Tested pod-privileged.yaml for known issues, found"
 
-      # Second File
-      The output should include "Testing pod-invalid.yaml..."
-      The output should include "Failed to detect either a Kubernetes or CloudFormation file, missing required fields"
+      # pod-invalid.yaml, in the fixture directory, is not detected as
+      # Kubernetes and produces no output.
     End
 
     It "limits the depth of the directories"

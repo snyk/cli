@@ -1,5 +1,6 @@
 import { detectConfigType } from './parsers/k8s-or-cloudformation-parser';
 import { tryParsingTerraformFile } from './parsers/terraform-file-parser';
+import { NoFilesToScanError } from './file-loader';
 import {
   isTerraformPlan,
   tryParsingTerraformPlan,
@@ -34,6 +35,10 @@ export async function parseFiles(
       }
       failedFiles.push(generateFailedParsedFile(fileData, err));
     }
+  }
+
+  if (parsedFiles.length === 0) {
+    throw new NoFilesToScanError();
   }
 
   return {

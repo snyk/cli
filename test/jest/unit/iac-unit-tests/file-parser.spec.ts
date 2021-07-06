@@ -2,16 +2,12 @@ import {
   UnsupportedFileTypeError,
   parseFiles,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
-import {
-  FailedToDetectJsonConfigError,
-  FailedToDetectYamlConfigError,
-} from '../../../../src/cli/commands/test/iac-local-execution/parsers/k8s-or-cloudformation-parser';
+import { NoFilesToScanError } from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
 import {
   FailedToParseTerraformFileError,
   tryParsingTerraformFile,
 } from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-file-parser';
 import {
-  expectedKubernetesYamlInvalidParsingResult,
   expectedKubernetesYamlParsingResult,
   expectedTerraformParsingResult,
   expectedTerraformJsonParsingResult,
@@ -20,12 +16,12 @@ import {
   terraformFileDataStub,
   invalidTerraformFileDataStub,
   terraformPlanDataStub,
-  terraformPlanMissingFieldsDataStub,
   kubernetesJsonFileDataStub,
   expectedKubernetesJsonParsingResult,
   multipleKubernetesYamlsFileDataStub,
   expectedMultipleKubernetesYamlsParsingResult,
   invalidYamlFileDataStub,
+  unrecognisedYamlDataStub,
   invalidJsonFileDataStub,
   duplicateKeyYamlErrorFileDataStub,
   expectedDuplicateKeyYamlErrorFileParsingResult,
@@ -50,14 +46,16 @@ const filesToParse: IacFileData[] = [
   kubernetesJsonFileDataStub,
   terraformFileDataStub,
   terraformPlanDataStub,
+  unrecognisedYamlDataStub,
   multipleKubernetesYamlsFileDataStub,
   cloudFormationYAMLFileDataStub,
   cloudFormationJSONFileDataStub,
 ];
 
 describe('parseFiles', () => {
-  it('parses multiple iac files as expected', async () => {
+  it('parses multiple iac files as expected, skipping unrecognised schemas', async () => {
     const { parsedFiles, failedFiles } = await parseFiles(filesToParse);
+    expect(parsedFiles.length).toEqual(8);
     expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
     expect(parsedFiles[1]).toEqual(expectedKubernetesJsonParsingResult);
     expect(parsedFiles[2]).toEqual(expectedTerraformParsingResult);
@@ -67,34 +65,11 @@ describe('parseFiles', () => {
     );
     expect(parsedFiles[5]).toEqual({
       ...expectedMultipleKubernetesYamlsParsingResult,
-      docId: 1,
+      docId: 2, // doc, the 2nd doc, is an empty doc, which is ignored. There is also an ignored docId:3.
     });
     expect(parsedFiles[6]).toEqual(expectedCloudFormationYAMLParsingResult);
     expect(parsedFiles[7]).toEqual(expectedCloudFormationJSONParsingResult);
     expect(failedFiles.length).toEqual(0);
-  });
-
-  it('throws an error for YAML file with missing fields for Kubernetes file', async () => {
-    await expect(
-      parseFiles([kubernetesYamlInvalidFileDataStub]),
-    ).rejects.toThrow(FailedToDetectYamlConfigError);
-  });
-
-  it('throws an error for JSON file with missing fields for Kubernetes file', async () => {
-    await expect(
-      parseFiles([
-        {
-          ...kubernetesYamlInvalidFileDataStub,
-          fileType: 'json',
-        },
-      ]),
-    ).rejects.toThrow(FailedToDetectJsonConfigError);
-  });
-
-  it('throws an error for JSON file with missing fields for Terraform Plan', async () => {
-    await expect(
-      parseFiles([terraformPlanMissingFieldsDataStub]),
-    ).rejects.toThrow(FailedToDetectJsonConfigError);
   });
 
   it('does not throw an error if a file parse failed in a directory scan', async () => {
@@ -104,8 +79,7 @@ describe('parseFiles', () => {
     ]);
     expect(parsedFiles.length).toEqual(1);
     expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
-    expect(failedFiles.length).toEqual(1);
-    expect(failedFiles[0]).toEqual(expectedKubernetesYamlInvalidParsingResult);
+    expect(failedFiles.length).toEqual(0);
   });
 
   it('throws an error for unsupported file types', async () => {
@@ -129,6 +103,21 @@ describe('parseFiles', () => {
   it('throws an error for invalid (syntax) YAML file types', async () => {
     await expect(parseFiles([invalidYamlFileDataStub])).rejects.toThrow(
       InvalidYamlFileError,
+    );
+  });
+
+  it('does not throw an error for unrecognised config types', async () => {
+    const { parsedFiles, failedFiles } = await parseFiles([
+      cloudFormationYAMLFileDataStub,
+      unrecognisedYamlDataStub,
+    ]);
+    expect(parsedFiles.length).toEqual(1);
+    expect(failedFiles.length).toEqual(0);
+  });
+
+  it('throws an error when no recognised config types are found', async () => {
+    await expect(parseFiles([unrecognisedYamlDataStub])).rejects.toThrow(
+      NoFilesToScanError,
     );
   });
 

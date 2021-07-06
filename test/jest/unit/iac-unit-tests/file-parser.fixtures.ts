@@ -6,7 +6,6 @@ import {
   IacFileData,
   IacFileParsed,
 } from '../../../../src/cli/commands/test/iac-local-execution/types';
-import { FailedToDetectYamlConfigError } from '../../../../src/cli/commands/test/iac-local-execution/parsers/k8s-or-cloudformation-parser';
 import {
   getExpectedResult,
   PlanOutputCase,
@@ -55,6 +54,8 @@ spec:
       securityContext:
         privileged: true
 ---
+# Empty doc
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -64,6 +65,9 @@ spec:
     - name: whatever
       securityContext:
         privileged: true
+---
+# An ignored, unrecognised config type
+foo: bar
 `;
 
 const kubernetesYamlInvalidFileContent = `
@@ -82,6 +86,10 @@ const invalidJsonFile = '{ "foo": "bar"';
 
 const invalidYamlFile = `
 foo: "bar
+`;
+
+const unrecognisedYamlFile = `
+foo: bar
 `;
 
 const semanticYamlWithDuplicateKeyFile = `
@@ -187,6 +195,12 @@ export const invalidYamlFileDataStub: IacFileData = {
   fileType: 'yml',
 };
 
+export const unrecognisedYamlDataStub: IacFileData = {
+  fileContent: unrecognisedYamlFile,
+  filePath: 'file.yml',
+  fileType: 'yml',
+};
+
 export const duplicateKeyYamlErrorFileDataStub: IacFileData = {
   fileContent: semanticYamlWithDuplicateKeyFile,
   filePath: 'dont-care',
@@ -238,17 +252,6 @@ export const expectedMultipleKubernetesYamlsParsingResult: IacFileParsed = {
   jsonContent: kubernetesJson,
 };
 
-export const expectedKubernetesYamlInvalidParsingResult = {
-  err: new FailedToDetectYamlConfigError('filename'),
-  failureReason:
-    'Failed to detect either a Kubernetes or CloudFormation file, missing required fields',
-  fileType: 'yml',
-  filePath: 'dont-care',
-  fileContent: kubernetesYamlInvalidFileDataStub.fileContent,
-  engineType: null,
-  jsonContent: null,
-};
-
 const terraformFileContent = `
 resource "aws_security_group" "allow_ssh" {
     name        = "allow_ssh"
@@ -273,9 +276,6 @@ const terraformPlanFileContent = fs.readFileSync(
 const terraformPlanJson = JSON.parse(terraformPlanFileContent.toString());
 const terraformPlanMissingFieldsJson = { ...terraformPlanJson };
 delete terraformPlanMissingFieldsJson.resource_changes;
-const terraformPlanMissingFieldsFileContent = JSON.stringify(
-  terraformPlanMissingFieldsJson,
-);
 
 export const terraformFileDataStub: IacFileData = {
   fileContent: terraformFileContent,
@@ -285,12 +285,6 @@ export const terraformFileDataStub: IacFileData = {
 
 export const terraformPlanDataStub: IacFileData = {
   fileContent: terraformPlanFileContent.toString(),
-  filePath: 'dont-care',
-  fileType: 'json',
-};
-
-export const terraformPlanMissingFieldsDataStub: IacFileData = {
-  fileContent: terraformPlanMissingFieldsFileContent.toString(),
   filePath: 'dont-care',
   fileType: 'json',
 };
