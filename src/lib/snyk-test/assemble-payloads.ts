@@ -9,6 +9,7 @@ import { assembleQueryString } from './common';
 import spinner = require('../spinner');
 import { findAndLoadPolicyForScanResult } from '../ecosystems/policy';
 import { getAuthHeader } from '../../lib/api-token';
+import { DockerImageNotFoundError } from '../errors';
 
 export async function assembleEcosystemPayloads(
   ecosystem: Ecosystem,
@@ -70,6 +71,15 @@ export async function assembleEcosystemPayloads(
     }
 
     return payloads;
+  } catch (error) {
+    if (ecosystem === 'docker' && error.message === 'authentication required') {
+      throw new DockerImageNotFoundError(options.path);
+    }
+    if (ecosystem === 'docker' && error.message === 'invalid image format') {
+      throw new DockerImageNotFoundError(options.path);
+    }
+
+    throw error;
   } finally {
     spinner.clear<void>(spinnerLbl)();
   }

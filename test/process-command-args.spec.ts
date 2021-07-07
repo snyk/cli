@@ -1,6 +1,6 @@
 import { processCommandArgs } from '../src/cli/commands/process-command-args';
 describe('display help message', () => {
-  it('should return expected options & paths when path is undefined', () => {
+  it('should return undefined options & `cwd` path when path is undefined', () => {
     const cliArgs = [undefined, {}];
     const defaultCurrentPath = process.cwd();
     const { options, paths } = processCommandArgs(...cliArgs);
@@ -9,7 +9,16 @@ describe('display help message', () => {
     expect(paths).toEqual([defaultCurrentPath]);
   });
 
-  it('should return expected options & paths when path is undefied + --json', () => {
+  it('should return no paths when running a container scan with no image', () => {
+    const cliArgs = [undefined, { docker: true }];
+    const defaultCurrentPath = [];
+    const { options, paths } = processCommandArgs(...cliArgs);
+
+    expect(options).toEqual({ docker: true });
+    expect(paths).toEqual(defaultCurrentPath);
+  });
+
+  it('should return undefined options & `cwd` path when path is undefined + --json', () => {
     const cliArgs = [undefined, { json: true }];
     const defaultCurrentPath = process.cwd();
     const { options, paths } = processCommandArgs(...cliArgs);
@@ -55,7 +64,7 @@ describe('display help message', () => {
     expect(options.allProjects).toBeTruthy();
   });
 
-  it('should return expected options & paths when packageName is provided', () => {
+  it('should return no options & packageName path when packageName is provided', () => {
     const cliArgs = ['semver@2'];
 
     const { options, paths } = processCommandArgs(...cliArgs);

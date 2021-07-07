@@ -52,6 +52,9 @@ export async function monitorEcosystem(
       ) {
         throw new DockerImageNotFoundError(path);
       }
+      if (ecosystem === 'docker' && error.message === 'invalid image format') {
+        throw new DockerImageNotFoundError(path);
+      }
 
       throw error;
     } finally {

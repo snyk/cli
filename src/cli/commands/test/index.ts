@@ -5,6 +5,7 @@ import * as pathLib from 'path';
 const cloneDeep = require('lodash.clonedeep');
 const assign = require('lodash.assign');
 import chalk from 'chalk';
+import { MissingArgError } from '../../../lib/errors';
 
 import * as snyk from '../../../lib';
 import { isCI } from '../../../lib/is-ci';
@@ -67,6 +68,12 @@ async function test(...args: MethodArgs): Promise<TestCommandResult> {
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
+
+  // Handles no image arg provided to the container command until
+  // a validation interface is implemented in the docker plugin.
+  if (options.docker && paths.length === 0) {
+    throw new MissingArgError();
+  }
 
   const ecosystem = getEcosystemForTest(options);
   if (ecosystem) {
