@@ -14,7 +14,7 @@ export async function getExtraProjectCount(
   if (
     inspectResult.plugin.meta &&
     inspectResult.plugin.meta.allSubProjectNames &&
-    inspectResult.plugin.meta.allSubProjectNames.length > 1
+    inspectResult.plugin.meta.allSubProjectNames.length > 0
   ) {
     return inspectResult.plugin.meta.allSubProjectNames.length;
   }

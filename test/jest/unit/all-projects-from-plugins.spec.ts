@@ -3,7 +3,7 @@ import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { getExtraProjectCount } from '../../../src/lib/plugins/get-extra-project-count';
 
 describe('Detect extra projects available that could be tested using --all-projects', () => {
-  it('should return `undefined` when exists a single project', async () => {
+  it('should return `1` when a single sub-projects is found', async () => {
     const root = '';
     const inspectResult = {
       plugin: { meta: { allSubProjectNames: ['gradle-woof'] } },
@@ -15,7 +15,7 @@ describe('Detect extra projects available that could be tested using --all-proje
       options,
       inspectResult,
     );
-    const expectedResult = undefined;
+    const expectedResult = 1;
     expect(actualResult).toBe(expectedResult);
   });
 
