@@ -4,13 +4,13 @@ export interface AnnotatedIacIssue {
   id: string;
   title: string;
   description: string;
-  severity: SEVERITY;
+  severity: SEVERITY | 'none';
   isIgnored: boolean;
   cloudConfigPath: string[];
   type: string;
   subType: string;
-  path: string[];
-  documentation: string;
+  path?: string[];
+  documentation?: string;
   // Legacy fields from Registry, unused.
   name?: string;
   from?: string[];

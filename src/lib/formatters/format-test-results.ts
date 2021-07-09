@@ -18,9 +18,7 @@ import * as config from '../../lib/config';
 const cloneDeep = require('lodash.clonedeep');
 const orderBy = require('lodash.orderby');
 import * as analytics from '../../lib/analytics';
-import {
-  formatIssuesWithRemediation,
-} from './remediation-based-format-issues';
+import { formatIssuesWithRemediation } from './remediation-based-format-issues';
 import { formatIssues } from './legacy-format-issue';
 import { formatDockerBinariesIssues } from './docker';
 import { createSarifOutputForContainers } from './sarif-output';
@@ -28,7 +26,7 @@ import { createSarifOutputForIac } from './iac-output';
 import { isNewVuln, isVulnFixable } from '../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../lib/json';
 import { createSarifOutputForOpenSource } from './open-source-sarif-output';
-import { getSeverityValue } from './get-seveiry-value';
+import { getSeverityValue } from './get-severity-value';
 
 export function formatJsonOutput(jsonData, options: Options) {
   const jsonDataClone = cloneDeep(jsonData);

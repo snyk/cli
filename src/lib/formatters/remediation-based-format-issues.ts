@@ -14,9 +14,7 @@ import {
   SEVERITY,
   UpgradeRemediation,
 } from '../../lib/snyk-test/legacy';
-import {
-  getSeveritiesColour,
-} from '../../lib/snyk-test/common';
+import { getSeveritiesColour } from '../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
 import {
   formatReachability,
@@ -28,7 +26,7 @@ import {
   UpgradesByAffectedPackage,
 } from './types';
 import { PATH_SEPARATOR } from '../constants';
-import { getSeverityValue } from './get-seveiry-value';
+import { getSeverityValue } from './get-severity-value';
 
 // How many reachable paths to show in the output
 const MAX_REACHABLE_PATHS = 2;

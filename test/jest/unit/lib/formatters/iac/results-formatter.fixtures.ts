@@ -7,6 +7,7 @@ import {
 } from '../../../../../../src/cli/commands/test/iac-local-execution/types';
 import { IacProjectType } from '../../../../../../src/lib/iac/constants';
 import { SEVERITY } from '../../../../../../src/lib/snyk-test/common';
+import { AnnotatedIacIssue } from '../../../../../../src/lib/snyk-test/iac-test-result';
 
 export const policyStub: PolicyMetadata = {
   id: '1',
@@ -71,28 +72,32 @@ export const meta: TestMeta = {
   org: 'org-name',
 };
 
+export function generateCloudConfigResults(
+  withLineNumber = true,
+): AnnotatedIacIssue[] {
+  return [
+    {
+      ...anotherPolicyStub,
+      id: anotherPolicyStub.publicId,
+      name: anotherPolicyStub.title,
+      cloudConfigPath: ['[DocId:0]'].concat(anotherPolicyStub.msg.split('.')),
+      isIgnored: false,
+      iacDescription: {
+        issue: anotherPolicyStub.issue,
+        impact: anotherPolicyStub.impact,
+        resolve: anotherPolicyStub.resolve,
+      },
+      severity: anotherPolicyStub.severity,
+      lineNumber: withLineNumber ? 3 : -1,
+      documentation: anotherPolicyStub.documentation,
+    },
+  ];
+}
+
 function generateFormattedResults(withLineNumber = true) {
   return {
     result: {
-      cloudConfigResults: [
-        {
-          ...anotherPolicyStub,
-          id: anotherPolicyStub.publicId,
-          name: anotherPolicyStub.title,
-          cloudConfigPath: ['[DocId:0]'].concat(
-            anotherPolicyStub.msg.split('.'),
-          ),
-          isIgnored: false,
-          iacDescription: {
-            issue: anotherPolicyStub.issue,
-            impact: anotherPolicyStub.impact,
-            resolve: anotherPolicyStub.resolve,
-          },
-          severity: anotherPolicyStub.severity,
-          lineNumber: withLineNumber ? 3 : -1,
-          documentation: anotherPolicyStub.documentation,
-        },
-      ],
+      cloudConfigResults: generateCloudConfigResults(withLineNumber),
       projectType: 'k8sconfig',
     },
     isPrivate: true,

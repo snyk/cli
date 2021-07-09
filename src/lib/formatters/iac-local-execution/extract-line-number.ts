@@ -1,4 +1,8 @@
-import { IaCErrorCodes, IacFileScanResult, PolicyMetadata } from '../../../cli/commands/test/iac-local-execution/types';
+import {
+  IaCErrorCodes,
+  IacFileScanResult,
+  PolicyMetadata,
+} from '../../../cli/commands/test/iac-local-execution/types';
 import { CustomError } from '../../errors';
 import {
   CloudConfigFileTypes,

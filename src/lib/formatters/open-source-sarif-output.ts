@@ -3,11 +3,7 @@ const upperFirst = require('lodash.upperfirst');
 const groupBy = require('lodash.groupby');
 const map = require('lodash.map');
 
-import {
-  TestResult,
-  SEVERITY,
-  AnnotatedIssue,
-} from '../snyk-test/legacy';
+import { TestResult, SEVERITY, AnnotatedIssue } from '../snyk-test/legacy';
 
 const LOCK_FILES_TO_MANIFEST_MAP = {
   'Gemfile.lock': 'Gemfile',

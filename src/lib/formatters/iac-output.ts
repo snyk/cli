@@ -15,7 +15,7 @@ import { SEVERITY } from '../../lib/snyk-test/legacy';
 import { getSeveritiesColour } from '../../lib/snyk-test/common';
 import { IacFileInDirectory } from '../../lib/types';
 import { isLocalFolder } from '../../lib/detect';
-import { getSeverityValue } from './get-seveiry-value';
+import { getSeverityValue } from './get-severity-value';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -115,7 +115,7 @@ export function capitalizePackageManager(type: string | undefined) {
       return 'CloudFormation';
     }
     default: {
-      return 'Infrastracture as Code';
+      return 'Infrastructure as Code';
     }
   }
 }
@@ -174,7 +174,9 @@ export function createSarifOutputForIac(
   };
 }
 
-function getIssueLevel(severity: SEVERITY): sarif.ReportingConfiguration.level {
+function getIssueLevel(
+  severity: SEVERITY | 'none',
+): sarif.ReportingConfiguration.level {
   return severity === SEVERITY.HIGH ? 'error' : 'warning';
 }
 

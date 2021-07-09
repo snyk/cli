@@ -15,7 +15,9 @@ import {
 
 describe('Format Reachable Vulns', () => {
   it('output formatting', () => {
-    expect(stripAnsi(formatReachability(REACHABILITY.FUNCTION))).toEqual('[Reachable]');
+    expect(stripAnsi(formatReachability(REACHABILITY.FUNCTION))).toEqual(
+      '[Reachable]',
+    );
     expect(stripAnsi(formatReachability(REACHABILITY.PACKAGE))).toEqual(
       '[Potentially reachable]',
     );
