@@ -4,6 +4,8 @@ import * as url from 'url';
 
 import { MonitorResult } from '../types';
 import * as config from '../config';
+import { showAllProjectsTip } from './show-all-projects-tip';
+import { showGradleSubProjectsTip } from './show-all-sub-projects-tip';
 
 export function formatErrorMonitorOutput(
   packageManager,
@@ -37,12 +39,17 @@ export function formatMonitorOutput(
   foundProjectCount?: number,
 ): string {
   const manageUrl = buildManageUrl(res.id, res.org);
-  const advertiseGradleSubProjectsCount =
-    packageManager === 'gradle' &&
-    !options['gradle-sub-project'] &&
-    !options.allProjects;
-  const advertiseAllProjectsCount =
-    packageManager !== 'gradle' && !options.allProjects && foundProjectCount;
+  const gradleSubProjectsTip = showGradleSubProjectsTip(
+    packageManager,
+    options,
+    foundProjectCount,
+  );
+
+  const allProjectsTip = showAllProjectsTip(
+    packageManager,
+    options,
+    foundProjectCount,
+  );
   const issues = res.licensesPolicy ? 'issues' : 'vulnerabilities';
   const humanReadableName = projectName
     ? `${res.path} (${projectName})`
@@ -52,18 +59,10 @@ export function formatMonitorOutput(
     'Explore this snapshot at ' +
     res.uri +
     '\n\n' +
-    (advertiseGradleSubProjectsCount && foundProjectCount
-      ? chalk.bold.white(
-          `Tip: This project has multiple sub-projects (${foundProjectCount}), ` +
-            'use --all-sub-projects flag to scan all sub-projects.\n\n',
-        )
+    (gradleSubProjectsTip
+      ? chalk.bold.white(`${gradleSubProjectsTip}\n\n`)
       : '') +
-    (advertiseAllProjectsCount && foundProjectCount
-      ? chalk.bold.white(
-          `Tip: Detected multiple supported manifests (${foundProjectCount}), ` +
-            'use --all-projects to scan all of them at once.\n\n',
-        )
-      : '') +
+    (allProjectsTip ? chalk.bold.white(`${allProjectsTip}\n\n`) : '') +
     (res.isMonitored
       ? 'Notifications about newly disclosed ' +
         issues +

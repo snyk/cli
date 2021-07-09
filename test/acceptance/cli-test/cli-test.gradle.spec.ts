@@ -359,11 +359,10 @@ export const GradleTests: AcceptanceTests = {
         /Tested 2 projects/,
         'number projects tested displayed properly',
       );
-      t.match(res, '(2)', '2 sub projects found');
-      t.match(
+      t.notMatch(
         res,
         /use --all-sub-projects flag to scan all sub-projects/,
-        'all-sub-projects flag is suggested',
+        'all-sub-projects flag is NOT suggested as we already scanned with it',
       );
       for (let i = 0; i < tests.length; i++) {
         const meta = tests[i]
