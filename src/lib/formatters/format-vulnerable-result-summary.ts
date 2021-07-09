@@ -1,4 +1,4 @@
-import { Options, TestOptions } from '../../../../lib/types';
+import { Options, TestOptions } from '../../lib/types';
 
 export function summariseVulnerableResults(
   vulnerableResults,

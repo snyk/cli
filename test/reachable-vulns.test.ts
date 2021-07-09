@@ -7,7 +7,7 @@ import {
   getReachabilityText,
   formatReachablePaths,
   formatReachablePath,
-} from '../src/cli/commands/test/formatters/format-reachability';
+} from '../src/lib/formatters/format-reachability';
 import { AnnotatedIssue, REACHABILITY } from '../src/lib/snyk-test/legacy';
 import {
   serializeCallGraphWithMetrics,

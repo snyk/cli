@@ -7,7 +7,7 @@ import {
   TestResult,
   SEVERITY,
   AnnotatedIssue,
-} from '../../../lib/snyk-test/legacy';
+} from '../snyk-test/legacy';
 
 const LOCK_FILES_TO_MANIFEST_MAP = {
   'Gemfile.lock': 'Gemfile',

@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import * as config from '../../../../lib/config';
-import { TestOptions } from '../../../../lib/types';
+import * as config from '../../lib/config';
+import { TestOptions } from '../../lib/types';
 import {
   DependencyPins,
   DependencyUpdates,
@@ -13,11 +13,10 @@ import {
   RemediationChanges,
   SEVERITY,
   UpgradeRemediation,
-} from '../../../../lib/snyk-test/legacy';
+} from '../../lib/snyk-test/legacy';
 import {
-  SEVERITIES,
   getSeveritiesColour,
-} from '../../../../lib/snyk-test/common';
+} from '../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
 import {
   formatReachability,
@@ -28,7 +27,8 @@ import {
   SampleReachablePaths,
   UpgradesByAffectedPackage,
 } from './types';
-import { PATH_SEPARATOR } from '../../constants';
+import { PATH_SEPARATOR } from '../constants';
+import { getSeverityValue } from './get-seveiry-value';
 
 // How many reachable paths to show in the output
 const MAX_REACHABLE_PATHS = 2;
@@ -151,10 +151,6 @@ export function formatIssuesWithRemediation(
   }
 
   return results;
-}
-
-export function getSeverityValue(severity: SEVERITY): number {
-  return SEVERITIES.find((s) => s.verboseName === severity)!.value;
 }
 
 function constructLicenseText(

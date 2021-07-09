@@ -5,14 +5,14 @@ import {
   AnnotatedIssue,
   CallPath,
   REACHABILITY,
-} from '../../../../lib/snyk-test/legacy';
+} from '../../lib/snyk-test/legacy';
 import { SampleReachablePaths } from './types';
 import {
   CALL_PATH_LEADING_ELEMENTS,
   PATH_SEPARATOR,
   CALL_PATH_TRAILING_ELEMENTS,
   PATH_HIDDEN_ELEMENTS,
-} from '../../constants';
+} from '../constants';
 
 const reachabilityLevels: {
   [key in REACHABILITY]: { color: Function; text: string; json: string };

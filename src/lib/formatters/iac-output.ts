@@ -2,19 +2,20 @@ import chalk from 'chalk';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import { pathToFileURL } from 'url';
+import upperFirst = require('lodash.upperfirst');
+
 import {
   IacTestResponse,
   AnnotatedIacIssue,
-} from '../../../lib/snyk-test/iac-test-result';
-import { getSeverityValue } from './formatters';
-import { printPath } from './formatters/remediation-based-format-issues';
-import { titleCaseText } from './formatters/legacy-format-issue';
+} from '../../lib/snyk-test/iac-test-result';
+import { printPath } from './remediation-based-format-issues';
+import { titleCaseText } from './legacy-format-issue';
 import * as sarif from 'sarif';
-import { SEVERITY } from '../../../lib/snyk-test/legacy';
-import { getSeveritiesColour } from '../../../lib/snyk-test/common';
-import { IacFileInDirectory } from '../../../lib/types';
-import upperFirst = require('lodash.upperfirst');
-import { isLocalFolder } from '../../../lib/detect';
+import { SEVERITY } from '../../lib/snyk-test/legacy';
+import { getSeveritiesColour } from '../../lib/snyk-test/common';
+import { IacFileInDirectory } from '../../lib/types';
+import { isLocalFolder } from '../../lib/detect';
+import { getSeverityValue } from './get-seveiry-value';
 const debug = Debug('iac-output');
 
 function formatIacIssue(

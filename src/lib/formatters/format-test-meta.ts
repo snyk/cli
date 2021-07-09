@@ -1,9 +1,9 @@
 import chalk from 'chalk';
-import { rightPadWithSpaces } from '../../../../lib/right-pad';
-import { TestOptions, Options } from '../../../../lib/types';
-import { TestResult } from '../../../../lib/snyk-test/legacy';
-import { IacTestResponse } from '../../../../lib/snyk-test/iac-test-result';
-import { capitalizePackageManager } from '../iac-output';
+import { rightPadWithSpaces } from '../../lib/right-pad';
+import { TestOptions, Options } from '../../lib/types';
+import { TestResult } from '../../lib/snyk-test/legacy';
+import { IacTestResponse } from '../../lib/snyk-test/iac-test-result';
+import { capitalizePackageManager } from './iac-output';
 
 export function formatTestMeta(
   res: TestResult | IacTestResponse,

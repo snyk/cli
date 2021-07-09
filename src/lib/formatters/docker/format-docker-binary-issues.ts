@@ -1,6 +1,6 @@
 const values = require('lodash.values');
 import { createDockerBinaryHeading } from './format-docker-binary-heading';
-import { Options, TestOptions } from '../../../../../lib/types';
+import { Options, TestOptions } from '../../../lib/types';
 import { formatIssues } from '../legacy-format-issue';
 
 export function formatDockerBinariesIssues(

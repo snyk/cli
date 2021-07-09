@@ -1,24 +1,25 @@
 const uniq = require('lodash.uniq');
 import chalk from 'chalk';
-import * as config from '../../../../lib/config';
-import { Options, TestOptions, ShowVulnPaths } from '../../../../lib/types';
-import { isLocalFolder } from '../../../../lib/detect';
+
+import * as config from '../../lib/config';
+import { Options, TestOptions, ShowVulnPaths } from '../../lib/types';
+import { isLocalFolder } from '../../lib/detect';
 import { parsePackageString as snykModule } from 'snyk-module';
 import {
   WIZARD_SUPPORTED_PACKAGE_MANAGERS,
   PINNING_SUPPORTED_PACKAGE_MANAGERS,
   SupportedPackageManagers,
-} from '../../../../lib/package-managers';
+} from '../../lib/package-managers';
 import {
   GroupedVuln,
   AnnotatedIssue,
   DockerIssue,
   SEVERITY,
-} from '../../../../lib/snyk-test/legacy';
+} from '../../lib/snyk-test/legacy';
 import { formatLegalInstructions } from './legal-license-instructions';
 import { getReachabilityText } from './format-reachability';
-import { PATH_SEPARATOR } from '../../constants';
-import { getLegacySeveritiesColour } from '../../../../lib/snyk-test/common';
+import { getLegacySeveritiesColour } from '../../lib/snyk-test/common';
+import { PATH_SEPARATOR } from '../constants';
 
 export function formatIssues(
   vuln: GroupedVuln,

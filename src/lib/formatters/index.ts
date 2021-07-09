@@ -5,7 +5,6 @@ export { formatIssues } from './legacy-format-issue';
 export { formatLegalInstructions } from './legal-license-instructions';
 export {
   formatIssuesWithRemediation,
-  getSeverityValue,
 } from './remediation-based-format-issues';
 export { summariseReachableVulns } from './format-reachability';
 

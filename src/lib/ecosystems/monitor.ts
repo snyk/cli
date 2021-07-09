@@ -11,7 +11,7 @@ import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
 import {
   formatErrorMonitorOutput,
   formatMonitorOutput,
-} from '../../cli/commands/monitor/formatters/format-monitor-response';
+} from '../formatters/format-monitor-response';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
 import {
   AuthFailedError,

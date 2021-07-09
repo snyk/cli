@@ -1,7 +1,7 @@
 import { loadFiles } from './file-loader';
 import { parseFiles } from './file-parser';
 import { scanFiles } from './file-scanner';
-import { formatScanResults } from './results-formatter';
+import { formatScanResults } from '../../../../lib/formatters/iac/results-formatter';
 import { cleanLocalCache, initLocalCache } from './local-cache';
 import { applyCustomSeverities } from './org-settings/apply-custom-severities';
 import { getIacOrgSettings } from './org-settings/get-iac-org-settings';

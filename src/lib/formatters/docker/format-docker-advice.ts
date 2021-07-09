@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import {
   TestResult,
   BaseImageRemediationAdvice,
-} from '../../../../../lib/snyk-test/legacy';
+} from '../../../lib/snyk-test/legacy';
 
 export function dockerRemediationForDisplay(res: TestResult) {
   if (!res.docker || !res.docker.baseImageRemediation) {

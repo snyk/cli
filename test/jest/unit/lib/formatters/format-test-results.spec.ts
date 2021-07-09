@@ -1,5 +1,5 @@
-import { extractDataToSendFromResults } from '../../../src/cli/commands/test/formatters/format-test-results';
-import { Options } from '../../../src/lib/types';
+import { extractDataToSendFromResults } from '../../../../../src/lib/formatters/format-test-results';
+import { Options } from '../../../../../src/lib/types';
 import * as fs from 'fs';
 
 describe('format-test-results', () => {

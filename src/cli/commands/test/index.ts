@@ -29,12 +29,12 @@ import {
   formatTestMeta,
   summariseErrorResults,
   summariseVulnerableResults,
-} from './formatters';
+} from '../../../lib/formatters';
 import * as utils from './utils';
 import {
   getIacDisplayedOutput,
   getIacDisplayErrorFileOutput,
-} from './iac-output';
+} from '../../../lib/formatters/iac-output';
 import { getEcosystemForTest, testEcosystem } from '../../../lib/ecosystems';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import {
@@ -42,14 +42,14 @@ import {
   IacProjectTypes,
   TEST_SUPPORTED_IAC_PROJECTS,
 } from '../../../lib/iac/constants';
-import { hasFixes, hasPatches, hasUpgrades } from './vuln-helpers';
+import { hasFixes, hasPatches, hasUpgrades } from '../../../lib/vuln-helpers';
 import { FailOn } from '../../../lib/snyk-test/common';
 import {
   createErrorMappedResultsForJsonOutput,
   dockerUserCTA,
   extractDataToSendFromResults,
   getDisplayedOutput,
-} from './formatters/format-test-results';
+} from '../../../lib/formatters/format-test-results';
 
 import { test as iacTest } from './iac-test-shim';
 import { validateCredentials } from './validate-credentials';

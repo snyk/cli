@@ -25,7 +25,7 @@ import { maybePrintDepTree, maybePrintDepGraph } from '../../../lib/print-deps';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { processJsonMonitorResponse } from './process-json-monitor';
 import snyk = require('../../../lib'); // TODO(kyegupov): fix import
-import { formatMonitorOutput } from './formatters/format-monitor-response';
+import { formatMonitorOutput } from '../../../lib/formatters/format-monitor-response';
 import { getDepsFromPlugin } from '../../../lib/plugins/get-deps-from-plugin';
 import { getExtraProjectCount } from '../../../lib/plugins/get-extra-project-count';
 import { extractPackageManager } from '../../../lib/plugins/extract-package-manager';
