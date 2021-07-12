@@ -3,7 +3,7 @@ const orderBy = require('lodash.orderby');
 import * as path from 'path';
 import stripAnsi from 'strip-ansi';
 
-import { groupVulnerabilities } from '../../../../../src/lib/formatters/format-test-results';
+import { groupVulnerabilities } from '../../../../../src/lib/formatters/test/format-test-results';
 import { formatIssuesWithRemediation } from '../../../../../src/lib/formatters/remediation-based-format-issues';
 
 it('with pins & unfixable & showVulnsPaths = all', () => {

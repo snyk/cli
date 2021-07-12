@@ -482,8 +482,6 @@ export function formatIssue(
     reachablePathsTemplate,
   );
 
-  console.log({ reachableVia, sampleReachablePaths });
-
   let originalSeverityStr = '';
   if (originalSeverity && originalSeverity !== severity) {
     originalSeverityStr = ` (originally ${titleCaseText(originalSeverity)})`;
