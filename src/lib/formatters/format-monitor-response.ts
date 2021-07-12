@@ -20,7 +20,6 @@ export function formatErrorMonitorOutput(
     (packageManager === 'maven'
       ? chalk.yellow('Detected 0 dependencies (no project created)')
       : '');
-
   return options.json
     ? JSON.stringify(
         assign({}, res, {

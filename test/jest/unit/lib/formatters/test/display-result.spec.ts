@@ -3,7 +3,6 @@ import * as path from 'path';
 import stripAnsi from 'strip-ansi';
 
 import { displayResult } from '../../../../../../src/lib/formatters/test/display-result';
-
 describe('displayResult', () => {
   it('Docker test result', () => {
     const withRemediation = JSON.parse(
@@ -22,7 +21,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src', docker: true },
       3,
     );
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
   });
 
   it('Pip result with pins', () => {
@@ -42,7 +41,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src' },
       3,
     );
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/\[http.*\]/g, '[URL]')).toMatchSnapshot();
   });
 
   it('with license issues', () => {
@@ -62,7 +61,7 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src' },
       3,
     );
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/\[http.*\]/g, '[URL]')).toMatchSnapshot();
   });
 
   it('with Upgrades & Patches', () => {
@@ -82,6 +81,6 @@ describe('displayResult', () => {
       { showVulnPaths: 'all', path: 'src' },
       3,
     );
-    expect(stripAnsi(res)).toMatchSnapshot();
+    expect(stripAnsi(res).replace(/\[http.*\]/g, '[URL]')).toMatchSnapshot();
   });
 });

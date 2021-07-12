@@ -1,0 +1,79 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`formatErrorMonitorOutput maven monitor error 1`] = `
+"
+Monitoring src/lib/jens...
+
+
+
+Detected 0 dependencies (no project created)"
+`;
+
+exports[`formatErrorMonitorOutput maven monitor error with --json 1`] = `"{\\"org\\":\\"test-org\\",\\"id\\":\\"123\\",\\"path\\":\\"src/lib/jens\\",\\"licensesPolicy\\":{},\\"uri\\":\\"https://example.com/project\\",\\"isMonitored\\":true,\\"trialStarted\\":false,\\"packageManager\\":\\"maven\\"}"`;
+
+exports[`formatErrorMonitorOutput npm with project name 1`] = `
+"
+Monitoring src/lib/jens (custom-name)...
+
+
+
+"
+`;
+
+exports[`formatMonitorOutput docker 1`] = `
+"
+Monitoring src/lib/jens...
+
+Explore this snapshot at https://example.com/project
+
+Tip: Detected multiple supported manifests (7), use --all-projects to scan all of them at once.
+
+Notifications about newly disclosed issues related to these dependencies will be emailed to you.
+"
+`;
+
+exports[`formatMonitorOutput gradle scan with --all-sub-projects 1`] = `
+"
+Monitoring src/lib/jens...
+
+Explore this snapshot at https://example.com/project
+
+Tip: This project has multiple sub-projects (7), use --all-sub-projects flag to scan all sub-projects.
+
+Notifications about newly disclosed issues related to these dependencies will be emailed to you.
+"
+`;
+
+exports[`formatMonitorOutput gradle scan without --all-sub-projects 1`] = `
+"
+Monitoring src/lib/jens...
+
+Explore this snapshot at https://example.com/project
+
+Tip: This project has multiple sub-projects (7), use --all-sub-projects flag to scan all sub-projects.
+
+Notifications about newly disclosed issues related to these dependencies will be emailed to you.
+"
+`;
+
+exports[`formatMonitorOutput npm with --all-projects (more projects were detected) 1`] = `
+"
+Monitoring src/lib/jens...
+
+Explore this snapshot at https://example.com/project
+
+Notifications about newly disclosed issues related to these dependencies will be emailed to you.
+"
+`;
+
+exports[`formatMonitorOutput npm without --all-projects (more projects were detected) 1`] = `
+"
+Monitoring src/lib/jens...
+
+Explore this snapshot at https://example.com/project
+
+Tip: Detected multiple supported manifests (7), use --all-projects to scan all of them at once.
+
+Notifications about newly disclosed issues related to these dependencies will be emailed to you.
+"
+`;

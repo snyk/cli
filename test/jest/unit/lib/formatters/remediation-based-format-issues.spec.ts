@@ -30,7 +30,9 @@ it('with pins & unfixable & showVulnsPaths = all', () => {
     withRemediation.remediation,
     { showVulnPaths: 'all' },
   );
-  expect(stripAnsi(res.join('\n'))).toMatchSnapshot();
+  expect(
+    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+  ).toMatchSnapshot();
 });
 
 it('with showVulnPaths = some', () => {
@@ -57,7 +59,9 @@ it('with showVulnPaths = some', () => {
     withRemediation.remediation,
     { showVulnPaths: 'some' },
   );
-  expect(stripAnsi(res.join('\n'))).toMatchSnapshot();
+  expect(
+    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+  ).toMatchSnapshot();
 });
 it('with upgrades & patches', () => {
   const withRemediation = JSON.parse(
@@ -83,7 +87,9 @@ it('with upgrades & patches', () => {
     withRemediation.remediation,
     { showVulnPaths: 'all' },
   );
-  expect(stripAnsi(res.join('\n'))).toMatchSnapshot();
+  expect(
+    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+  ).toMatchSnapshot();
 });
 it('with reachable info', () => {
   const withRemediation = JSON.parse(
@@ -109,7 +115,9 @@ it('with reachable info', () => {
     withRemediation.remediation,
     { showVulnPaths: 'all' },
   );
-  expect(stripAnsi(res.join('\n'))).toMatchSnapshot();
+  expect(
+    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+  ).toMatchSnapshot();
 });
 
 it('with license issues', () => {
@@ -136,5 +144,7 @@ it('with license issues', () => {
     withRemediation.remediation,
     { showVulnPaths: 'all' },
   );
-  expect(stripAnsi(res.join('\n'))).toMatchSnapshot();
+  expect(
+    stripAnsi(res.join('\n').replace(/\[http.*\]/g, '[URL]')),
+  ).toMatchSnapshot();
 });

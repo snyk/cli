@@ -6,14 +6,14 @@ Testing src...
 
 ✗ High severity vulnerability found in musl
   Description: Out-of-bounds Write
-  Info: http://banana:8000/vuln/SNYK-LINUX-MUSL-458116
+  Info: [URL]
   Introduced through: meta-common-packages@meta
   From: meta-common-packages@meta > musl@1.1.19-r10
   Fixed in: 1.1.19-r11
 
 ✗ High severity vulnerability found in expat
   Description: XML External Entity (XXE) Injection
-  Info: http://banana:8000/vuln/SNYK-LINUX-EXPAT-450908
+  Info: [URL]
   Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
   From: expat@2.2.5-r0
   From: .python-rundeps@0 > expat@2.2.5-r0
@@ -25,7 +25,7 @@ Testing src...
 
 ✗ High severity vulnerability found in expat
   Description: XML External Entity (XXE) Injection
-  Info: http://banana:8000/vuln/SNYK-LINUX-EXPAT-460765
+  Info: [URL]
   Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
   From: expat@2.2.5-r0
   From: .python-rundeps@0 > expat@2.2.5-r0
@@ -62,13 +62,13 @@ Tested 2 dependencies for known issues, found 32 issues, 2 vulnerable paths.
 Issues to fix by upgrading dependencies:
 
   Upgrade django@1.6.1 to django@2.2.18 to fix
-  ✗ Content Spoofing [Medium Severity][http://banana:8000/vuln/SNYK-PYTHON-DJANGO-72888] in django@1.6.1
+  ✗ Content Spoofing [Medium Severity][URL] in django@1.6.1
     introduced by:
     django@1.6.1
 
 
 Issues with no direct upgrade or patch:
-  ✗ Directory Traversal [Low Severity][http://banana:8000/vuln/SNYK-PYTHON-DJANGO-1066259] in django@1.6.1
+  ✗ Directory Traversal [Low Severity][URL] in django@1.6.1
     introduced by:
     django@1.6.1
   This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6
@@ -96,13 +96,13 @@ Tested 2 dependencies for known vulnerabilities, found 4 vulnerabilities, 4 vuln
 Issues to fix by upgrading:
 
   Upgrade qs@0.0.6 to qs@6.0.4 to fix
-  ✗ Prototype Override Protection Bypass [Low Severity (originally High)][http://banana:8000/vuln/npm:qs:20170213] in qs@0.0.6
+  ✗ Prototype Override Protection Bypass [Low Severity (originally High)][URL] in qs@0.0.6
     introduced by:
     qs@0.0.6
-  ✗ Denial of Service (DoS) [Low Severity (originally High)][http://banana:8000/vuln/npm:qs:20140806] in qs@0.0.6
+  ✗ Denial of Service (DoS) [Low Severity (originally High)][URL] in qs@0.0.6
     introduced by:
     qs@0.0.6
-  ✗ Denial of Service (DoS) [Low Severity (originally Medium)][http://banana:8000/vuln/npm:qs:20140806-1] in qs@0.0.6
+  ✗ Denial of Service (DoS) [Low Severity (originally Medium)][URL] in qs@0.0.6
     introduced by:
     qs@0.0.6
 
@@ -110,7 +110,7 @@ Issues to fix by upgrading:
 Patchable issues:
 
   Patch available for node-uuid@1.4.0
-  ✗ Insecure Randomness [Low Severity (originally Medium)][http://banana:8000/vuln/npm:node-uuid:20160328] in node-uuid@1.4.0
+  ✗ Insecure Randomness [Low Severity (originally Medium)][URL] in node-uuid@1.4.0
     introduced by:
     node-uuid@1.4.0
 
@@ -138,33 +138,33 @@ Tested 3 dependencies for known issues, found 6 issues, 8 vulnerable paths.
 Issues to fix by upgrading:
 
   Upgrade rack@1.6.5 to rack@1.6.11 to fix
-  ✗ Cross-site Scripting (XSS) [Medium Severity][http://banana:8000/vuln/SNYK-RUBY-RACK-72567] in rack@1.6.5
+  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
     introduced by:
     rack@1.6.5
     rack-cache@1.1 > rack@1.6.5
     rack-protection@1.5.3 > rack@1.6.5
 
   Upgrade rack-cache@1.1 to rack-cache@1.3.0 to fix
-  ✗ Cross-site Scripting (XSS) [Medium Severity][http://banana:8000/vuln/SNYK-RUBY-RACK-72567] in rack@1.6.5
+  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
     introduced by:
     rack@1.6.5
     rack-cache@1.1 > rack@1.6.5
     rack-protection@1.5.3 > rack@1.6.5
-  ✗ HTTP Header Caching Weakness [High Severity][http://banana:8000/vuln/SNYK-RUBY-RACKCACHE-20031] in rack-cache@1.1
+  ✗ HTTP Header Caching Weakness [High Severity][URL] in rack-cache@1.1
     introduced by:
     rack-cache@1.1
 
   Upgrade rack-protection@1.5.3 to rack-protection@2.0.0 to fix
-  ✗ Side-channel attack [Low Severity][http://banana:8000/vuln/SNYK-RUBY-RACKPROTECTION-20394] in rack-protection@1.5.3
+  ✗ Side-channel attack [Low Severity][URL] in rack-protection@1.5.3
     introduced by:
     rack-protection@1.5.3
-  ✗ Timing Attack [Medium Severity][http://banana:8000/vuln/SNYK-RUBY-RACKPROTECTION-20395] in rack-protection@1.5.3
+  ✗ Timing Attack [Medium Severity][URL] in rack-protection@1.5.3
     introduced by:
     rack-protection@1.5.3
-  ✗ Directory Traversal [Medium Severity][http://banana:8000/vuln/SNYK-RUBY-RACKPROTECTION-22019] in rack-protection@1.5.3
+  ✗ Directory Traversal [Medium Severity][URL] in rack-protection@1.5.3
     introduced by:
     rack-protection@1.5.3
-  ✗ Cross-site Scripting (XSS) [Medium Severity][http://banana:8000/vuln/SNYK-RUBY-RACK-72567] in rack@1.6.5
+  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
     introduced by:
     rack@1.6.5
     rack-cache@1.1 > rack@1.6.5
@@ -173,7 +173,7 @@ Issues to fix by upgrading:
 
 License issues:
 
-  ✗ Unknown license [High Severity][http://banana:8000/vuln/snyk:lic:rubygems:rack-cache:Unknown] in rack-cache@1.1
+  ✗ Unknown license [High Severity][URL] in rack-cache@1.1
     introduced by:
     rack-cache@1.1
     Legal instructions:

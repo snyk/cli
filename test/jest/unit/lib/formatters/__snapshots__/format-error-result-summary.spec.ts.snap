@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`summariseErrorResults Multiple test results 1`] = `
+" Failed to test 4 projects.
+Run with \`-d\` for debug output and contact support@snyk.io"
+`;
+
+exports[`summariseErrorResults Single test result 1`] = `
+" Failed to test 1 project.
+Run with \`-d\` for debug output and contact support@snyk.io"
+`;

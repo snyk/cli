@@ -6,4 +6,9 @@ export { formatLegalInstructions } from './legal-license-instructions';
 export { formatIssuesWithRemediation } from './remediation-based-format-issues';
 export { summariseReachableVulns } from './format-reachability';
 
+export {
+  formatErrorMonitorOutput,
+  formatMonitorOutput,
+} from './format-monitor-response';
+
 export * from './docker';

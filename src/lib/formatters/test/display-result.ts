@@ -9,17 +9,13 @@ import {
 } from '../../../lib/types';
 import { isLocalFolder } from '../../../lib/detect';
 import { TestResult } from '../../../lib/snyk-test/legacy';
-import {
-  IacTestResponse,
-} from '../../../lib/snyk-test/iac-test-result';
+import { IacTestResponse } from '../../../lib/snyk-test/iac-test-result';
 
 import {
   dockerRemediationForDisplay,
   formatTestMeta,
 } from '../../../lib/formatters';
-import {
-  getIacDisplayedOutput,
-} from '../../../lib/formatters/iac-output';
+import { getIacDisplayedOutput } from '../../../lib/formatters/iac-output';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import {
   IacProjectType,
@@ -30,7 +26,6 @@ import {
   dockerUserCTA,
   getDisplayedOutput,
 } from '../../../lib/formatters/test/format-test-results';
-
 
 export function displayResult(
   res: TestResult,
