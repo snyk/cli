@@ -1,13 +1,16 @@
 import * as sarif from 'sarif';
+import { TestResult } from '../snyk-test/legacy';
 const upperFirst = require('lodash.upperfirst');
 
-export function createSarifOutputForContainers(testResult): sarif.Log {
+export function createSarifOutputForContainers(
+  testResults: TestResult[],
+): sarif.Log {
   const sarifRes: sarif.Log = {
     version: '2.1.0',
     runs: [],
   };
 
-  testResult.forEach((testResult) => {
+  testResults.forEach((testResult) => {
     sarifRes.runs.push({
       tool: getTool(testResult),
       results: getResults(testResult),

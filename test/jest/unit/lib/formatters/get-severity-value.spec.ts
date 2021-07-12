@@ -1,4 +1,4 @@
-import { getSeverityValue } from '../../../../../src/lib/formatters/get-seveiry-value';
+import { getSeverityValue } from '../../../../../src/lib/formatters/get-severity-value';
 import { SEVERITY } from '../../../../../src/lib/snyk-test/common';
 
 describe('getSeverityValue', () => {

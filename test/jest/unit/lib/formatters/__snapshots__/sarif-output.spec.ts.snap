@@ -1,0 +1,78 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`createSarifOutputForContainers general 1`] = `
+Object {
+  "runs": Array [
+    Object {
+      "results": Array [
+        Object {
+          "locations": Array [
+            Object {
+              "physicalLocation": Object {
+                "artifactLocation": Object {
+                  "uri": undefined,
+                },
+                "region": Object {
+                  "startLine": 1,
+                },
+              },
+            },
+          ],
+          "message": Object {
+            "text": "This file introduces a vulnerable expat package with a high severity vulnerability.",
+          },
+          "ruleId": "SNYK-LINUX-EXPAT-450908",
+        },
+      ],
+      "tool": Object {
+        "driver": Object {
+          "name": "Snyk Container",
+          "rules": Array [
+            Object {
+              "defaultConfiguration": Object {
+                "level": "error",
+              },
+              "fullDescription": Object {
+                "text": "(CVE-2018-20843) expat@2.2.5-r0",
+              },
+              "help": Object {
+                "markdown": "## Overview
+In libexpat in Expat before 2.2.7, XML input including XML names that contain a large number of colons could make the XML parser consume a high amount of RAM and CPU resources while processing (enough to be usable for denial-of-service attacks).
+
+## References
+- [Bugtraq Mailing List](https://seclists.org/bugtraq/2019/Jun/39)
+- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-20843)
+- [Debian Security Advisory](https://www.debian.org/security/2019/dsa-4472)
+- [Debian Security Announcement](https://lists.debian.org/debian-lts-announce/2019/06/msg00028.html)
+- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-20843)
+- [GitHub Commit](https://github.com/libexpat/libexpat/pull/262/commits/11f8838bf99ea0a6f0b76f9760c43704d00c4ff6)
+- [GitHub Issue](https://github.com/libexpat/libexpat/issues/186)
+- [GitHub PR](https://github.com/libexpat/libexpat/pull/262)
+- [MISC](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5226)
+- [MISC](https://github.com/libexpat/libexpat/blob/R_2_2_7/expat/Changes)
+- [Netapp Security Advisory](https://security.netapp.com/advisory/ntap-20190703-0001/)
+- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20843)
+- [Ubuntu Security Advisory](https://usn.ubuntu.com/4040-1/)
+- [Ubuntu Security Advisory](https://usn.ubuntu.com/4040-2/)
+",
+                "text": "",
+              },
+              "id": "SNYK-LINUX-EXPAT-450908",
+              "properties": Object {
+                "tags": Array [
+                  "security",
+                  "CWE-611",
+                ],
+              },
+              "shortDescription": Object {
+                "text": "High severity - XML External Entity (XXE) Injection vulnerability in expat",
+              },
+            },
+          ],
+        },
+      },
+    },
+  ],
+  "version": "2.1.0",
+}
+`;
