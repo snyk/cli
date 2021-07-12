@@ -168,8 +168,8 @@ export function getDisplayedOutput(
   const dockerSuggestion = getDockerSuggestionText(options, config);
 
   const vulns = res.vulnerabilities || [];
-  const groupedVulns: GroupedVuln[] = groupVulnerabilities(vulns);
-  const sortedGroupedVulns = orderBy(
+  const groupedVulns = groupVulnerabilities(vulns);
+  const sortedGroupedVulns: GroupedVuln[] = orderBy(
     groupedVulns,
     ['metadata.severityValue', 'metadata.name'],
     ['asc', 'desc'],
@@ -263,7 +263,11 @@ function getDockerSuggestionText(options, config): string {
   return dockerSuggestion;
 }
 
-function groupVulnerabilities(vulns): GroupedVuln[] {
+export function groupVulnerabilities(
+  vulns,
+): {
+  [vulnId: string]: GroupedVuln;
+} {
   return vulns.reduce((map, curr) => {
     if (!map[curr.id]) {
       map[curr.id] = {};

@@ -43,7 +43,6 @@ export function formatIssuesWithRemediation(
   const basicLicenseInfo: {
     [name: string]: BasicVulnInfo;
   } = {};
-
   for (const vuln of vulns) {
     const allReachablePaths: SampleReachablePaths = { pathCount: 0, paths: [] };
     for (const issue of vuln.list) {
@@ -482,6 +481,8 @@ export function formatIssue(
     MAX_REACHABLE_PATHS,
     reachablePathsTemplate,
   );
+
+  console.log({ reachableVia, sampleReachablePaths });
 
   let originalSeverityStr = '';
   if (originalSeverity && originalSeverity !== severity) {
