@@ -591,11 +591,19 @@ async function assembleLocalPayloads(
       'meta.versionBuildInfo.metaBuildVersion.mvnVersion',
       null,
     );
+    const sbtVersion = get(
+      deps.plugin,
+      'meta.versionBuildInfo.metaBuildVersion.sbtVersion',
+      null,
+    );
     if (javaVersion) {
       analytics.add('javaVersion', javaVersion);
     }
     if (mvnVersion) {
       analytics.add('mvnVersion', mvnVersion);
+    }
+    if (sbtVersion) {
+      analytics.add('sbtVersion', sbtVersion);
     }
 
     for (const scannedProject of deps.scannedProjects) {
