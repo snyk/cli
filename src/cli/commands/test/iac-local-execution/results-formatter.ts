@@ -6,14 +6,14 @@ import {
   IaCTestFlags,
   PolicyMetadata,
   TestMeta,
-} from '../../../cli/commands/test/iac-local-execution/types';
+} from './types';
 import * as path from 'path';
-import { SEVERITY } from '../../snyk-test/common';
-import { IacProjectType } from '../../iac/constants';
-import { CustomError } from '../../errors';
+import { SEVERITY } from '../../../../lib/snyk-test/common';
+import { IacProjectType } from '../../../../lib/iac/constants';
+import { CustomError } from '../../../../lib/errors';
 import { extractLineNumber } from './extract-line-number';
-import { getErrorStringCode } from '../../../cli/commands/test/iac-local-execution/error-utils';
-import { isLocalFolder } from '../../detect';
+import { getErrorStringCode } from './error-utils';
+import { isLocalFolder } from '../../../../lib/detect';
 
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 

@@ -1,17 +1,13 @@
-import {
-  IaCErrorCodes,
-  IacFileScanResult,
-  PolicyMetadata,
-} from '../../../cli/commands/test/iac-local-execution/types';
-import { CustomError } from '../../errors';
+import { IaCErrorCodes, IacFileScanResult, PolicyMetadata } from './types';
+import { CustomError } from '../../../../lib/errors';
 import {
   CloudConfigFileTypes,
   issuesToLineNumbers,
 } from '@snyk/cloud-config-parser';
-import { UnsupportedFileTypeError } from '../../../cli/commands/test/iac-local-execution/file-parser';
-import * as analytics from '../../analytics';
+import { UnsupportedFileTypeError } from './file-parser';
+import * as analytics from '../../../../lib/analytics';
 import * as Debug from 'debug';
-import { getErrorStringCode } from '../../../cli/commands/test/iac-local-execution/error-utils';
+import { getErrorStringCode } from './error-utils';
 const debug = Debug('iac-extract-line-number');
 
 function getFileTypeForLineNumber(fileType: string): CloudConfigFileTypes {

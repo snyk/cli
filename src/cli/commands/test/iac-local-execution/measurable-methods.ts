@@ -1,6 +1,7 @@
 import { loadFiles } from './file-loader';
 import { parseFiles } from './file-parser';
 import { scanFiles } from './file-scanner';
+import { formatScanResults } from './results-formatter';
 import { cleanLocalCache, initLocalCache } from './local-cache';
 import { applyCustomSeverities } from './org-settings/apply-custom-severities';
 import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
@@ -9,7 +10,6 @@ import {
   PerformanceAnalyticsKey,
   performanceAnalyticsObject,
 } from './analytics';
-import { formatScanResults } from '../../../../lib/formatters/iac-local-execution/results-formatter';
 
 // Unwrap a promise: https://stackoverflow.com/questions/48011353/how-to-unwrap-type-of-a-promise
 type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
