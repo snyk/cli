@@ -1,6 +1,6 @@
 import { showMultiScanTip } from '../../../../../src/lib/formatters/show-multi-scan-tip';
 
-describe('showAllProjectsTip', () => {
+describe('showMultiScanTip', () => {
   it('gradle project tested with --gradle-sub-project should show gradle tip', () => {
     expect(
       showMultiScanTip(
