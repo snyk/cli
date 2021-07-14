@@ -1,5 +1,5 @@
-import { createSarifOutputForOpenSource } from '../../../src/cli/commands/test/open-source-sarif-output';
-import { SEVERITY, TestResult } from '../../../src/lib/snyk-test/legacy';
+import { createSarifOutputForOpenSource } from '../../../../../src/lib/formatters/open-source-sarif-output';
+import { SEVERITY, TestResult } from '../../../../../src/lib/snyk-test/legacy';
 
 describe('createSarifOutputForOpenSource', () => {
   it('general', () => {
@@ -12,6 +12,7 @@ describe('createSarifOutputForOpenSource', () => {
     expect(run.tool.driver.rules).toHaveLength(1);
     expect(run.results).toHaveLength(1);
     expect(run.results?.[0].level === 'error');
+    expect(sarif).toMatchSnapshot();
   });
 
   describe('replace lock-file to manifest-file', () => {

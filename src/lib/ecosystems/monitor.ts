@@ -8,10 +8,7 @@ import { MonitorResult, Options } from '../types';
 import * as spinner from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
-import {
-  formatErrorMonitorOutput,
-  formatMonitorOutput,
-} from '../../cli/commands/monitor/formatters/format-monitor-response';
+import { formatErrorMonitorOutput, formatMonitorOutput } from '../formatters';
 import { getExtraProjectCount } from '../plugins/get-extra-project-count';
 import {
   AuthFailedError,

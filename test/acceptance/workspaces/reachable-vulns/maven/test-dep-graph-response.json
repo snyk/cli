@@ -71,8 +71,7 @@
     "upgrade": {
       "package-name@1.6.1": {
         "upgradeTo": "package-name@1.6.3",
-        "vulns": ["SNYK-JAVA-PACAKGE-12345"],
-        "isTransitive": false
+        "vulns": ["SNYK-JAVA-PACAKGE-12345"]
       }
     },
     "patch": {},

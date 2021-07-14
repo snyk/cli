@@ -3,7 +3,7 @@ import {
   LegalInstruction,
   REACHABILITY,
   SEVERITY,
-} from '../../../../lib/snyk-test/legacy';
+} from '../../lib/snyk-test/legacy';
 
 export interface SampleReachablePaths {
   pathCount: number;

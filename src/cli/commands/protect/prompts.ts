@@ -1,4 +1,4 @@
-import { PATH_SEPARATOR } from '../constants';
+import { PATH_SEPARATOR } from '../../../lib/constants';
 
 export {
   getUpdatePrompts,
@@ -21,7 +21,7 @@ import * as snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
 import { AnnotatedIssue, SEVERITY } from '../../../lib/snyk-test/legacy';
 import { getLegacySeveritiesColour } from '../../../lib/snyk-test/common';
-import { titleCaseText } from '../test/formatters/legacy-format-issue';
+import { titleCaseText } from '../../../lib/formatters/legacy-format-issue';
 
 const debug = debugModule('snyk');
 

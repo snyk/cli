@@ -1,6 +1,7 @@
-import { LegalInstruction } from '../../../../lib/snyk-test/legacy';
 import * as wrap from 'wrap-ansi';
 import chalk from 'chalk';
+
+import { LegalInstruction } from '../../lib/snyk-test/legacy';
 
 export function formatLegalInstructions(
   legalInstructions: LegalInstruction[],

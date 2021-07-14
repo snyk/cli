@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`formatTestMeta Docker 1`] = `
+"Organization:      my-org
+Package manager:   deb
+Docker image:      my-image:latest
+Platform:          linux/amd64
+Base image:        debian:latest"
+`;
+
+exports[`formatTestMeta iacTestResult meta is formatted as expected 1`] = `
+"Organization:      test-org
+Type:              Infrastructure as Code
+Target file:       example.yaml
+Project name:      snyk
+Open source:       yes
+Project path:      /path/to/test"
+`;
+
+exports[`formatTestMeta with TargetFile 1`] = `
+"Organization:      my-org
+Package manager:   npm
+Target file:       package.json
+Open source:       yes
+Project path:      /path/to/test"
+`;
+
+exports[`formatTestMeta with filesystem policy 1`] = `
+"Organization:      my-org
+Package manager:   pip
+Open source:       yes
+Project path:      /path/to/test
+Local Snyk policy: found
+Licenses:          enabled"
+`;
+
+exports[`formatTestMeta without TargetFile & with license Policy 1`] = `
+"Organization:      my-org
+Package manager:   pip
+Open source:       yes
+Project path:      /path/to/test
+Licenses:          enabled"
+`;

@@ -1,6 +1,6 @@
 import chalk from 'chalk';
-import * as config from '../../../../lib/config';
-import { TestOptions } from '../../../../lib/types';
+import * as config from '../../lib/config';
+import { TestOptions } from '../../lib/types';
 import {
   DependencyPins,
   DependencyUpdates,
@@ -13,11 +13,8 @@ import {
   RemediationChanges,
   SEVERITY,
   UpgradeRemediation,
-} from '../../../../lib/snyk-test/legacy';
-import {
-  SEVERITIES,
-  getSeveritiesColour,
-} from '../../../../lib/snyk-test/common';
+} from '../../lib/snyk-test/legacy';
+import { getSeveritiesColour } from '../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
 import {
   formatReachability,
@@ -28,7 +25,8 @@ import {
   SampleReachablePaths,
   UpgradesByAffectedPackage,
 } from './types';
-import { PATH_SEPARATOR } from '../../constants';
+import { PATH_SEPARATOR } from '../constants';
+import { getSeverityValue } from './get-severity-value';
 
 // How many reachable paths to show in the output
 const MAX_REACHABLE_PATHS = 2;
@@ -45,7 +43,6 @@ export function formatIssuesWithRemediation(
   const basicLicenseInfo: {
     [name: string]: BasicVulnInfo;
   } = {};
-
   for (const vuln of vulns) {
     const allReachablePaths: SampleReachablePaths = { pathCount: 0, paths: [] };
     for (const issue of vuln.list) {
@@ -151,10 +148,6 @@ export function formatIssuesWithRemediation(
   }
 
   return results;
-}
-
-export function getSeverityValue(severity: SEVERITY): number {
-  return SEVERITIES.find((s) => s.verboseName === severity)!.value;
 }
 
 function constructLicenseText(

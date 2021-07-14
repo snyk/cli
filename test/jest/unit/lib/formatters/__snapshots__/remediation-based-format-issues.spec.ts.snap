@@ -1,0 +1,115 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`with license issues 1`] = `
+"
+
+Issues to fix by upgrading:
+
+  Upgrade rack@1.6.5 to rack@1.6.11 to fix
+  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
+    introduced by:
+    rack@1.6.5
+    rack-cache@1.1 > rack@1.6.5
+    rack-protection@1.5.3 > rack@1.6.5
+
+  Upgrade rack-cache@1.1 to rack-cache@1.3.0 to fix
+  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
+    introduced by:
+    rack@1.6.5
+    rack-cache@1.1 > rack@1.6.5
+    rack-protection@1.5.3 > rack@1.6.5
+  ✗ HTTP Header Caching Weakness [High Severity][URL] in rack-cache@1.1
+    introduced by:
+    rack-cache@1.1
+
+  Upgrade rack-protection@1.5.3 to rack-protection@2.0.0 to fix
+  ✗ Side-channel attack [Low Severity][URL] in rack-protection@1.5.3
+    introduced by:
+    rack-protection@1.5.3
+  ✗ Timing Attack [Medium Severity][URL] in rack-protection@1.5.3
+    introduced by:
+    rack-protection@1.5.3
+  ✗ Directory Traversal [Medium Severity][URL] in rack-protection@1.5.3
+    introduced by:
+    rack-protection@1.5.3
+  ✗ Cross-site Scripting (XSS) [Medium Severity][URL] in rack@1.6.5
+    introduced by:
+    rack@1.6.5
+    rack-cache@1.1 > rack@1.6.5
+    rack-protection@1.5.3 > rack@1.6.5
+
+License issues:
+
+  ✗ Unknown license [High Severity][URL] in rack-cache@1.1
+    introduced by:
+    rack-cache@1.1
+    Legal instructions:
+    ○ for LGPL-3.0 license: I am legal license instruction"
+`;
+
+exports[`with pins & unfixable & showVulnsPaths = all 1`] = `
+"
+
+Issues to fix by upgrading dependencies:
+
+  Upgrade django@1.6.1 to django@2.2.18 to fix
+  ✗ Content Spoofing [Medium Severity][URL] in django@1.6.1
+    introduced by:
+    django@1.6.1
+
+Issues with no direct upgrade or patch:
+  ✗ Directory Traversal [Low Severity][URL] in django@1.6.1
+    introduced by:
+    django@1.6.1
+  This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6"
+`;
+
+exports[`with reachable info 1`] = `
+"
+
+Issues to fix by upgrading:
+
+  Upgrade package-name@1.6.1 to package-name@1.6.3 to fix
+  ✗ Arbitrary Code Execution [Medium Severity][Reachable][URL] in package-name@1.6.1
+    introduced by:
+    package-name@1.6.1"
+`;
+
+exports[`with showVulnPaths = some 1`] = `
+"
+
+Issues to fix by upgrading dependencies:
+
+  Upgrade django@1.6.1 to django@2.2.18 to fix
+  ✗ Content Spoofing [Medium Severity][URL] in django@1.6.1
+    introduced by django@1.6.1
+
+Issues with no direct upgrade or patch:
+  ✗ Directory Traversal [Low Severity][URL] in django@1.6.1
+    introduced by django@1.6.1
+  This issue was fixed in versions: 2.2.18, 3.0.12, 3.1.6"
+`;
+
+exports[`with upgrades & patches 1`] = `
+"
+
+Issues to fix by upgrading:
+
+  Upgrade qs@0.0.6 to qs@6.0.4 to fix
+  ✗ Prototype Override Protection Bypass [Low Severity (originally High)][URL] in qs@0.0.6
+    introduced by:
+    qs@0.0.6
+  ✗ Denial of Service (DoS) [Low Severity (originally High)][URL] in qs@0.0.6
+    introduced by:
+    qs@0.0.6
+  ✗ Denial of Service (DoS) [Low Severity (originally Medium)][URL] in qs@0.0.6
+    introduced by:
+    qs@0.0.6
+
+Patchable issues:
+
+  Patch available for node-uuid@1.4.0
+  ✗ Insecure Randomness [Low Severity (originally Medium)][URL] in node-uuid@1.4.0
+    introduced by:
+    node-uuid@1.4.0"
+`;

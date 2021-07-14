@@ -2,8 +2,8 @@ const assign = require('lodash.assign');
 import chalk from 'chalk';
 import * as url from 'url';
 
-import { MonitorResult } from '../../../../lib/types';
-import * as config from '../../../../lib/config';
+import { MonitorResult } from '../types';
+import * as config from '../config';
 
 export function formatErrorMonitorOutput(
   packageManager,
@@ -20,7 +20,6 @@ export function formatErrorMonitorOutput(
     (packageManager === 'maven'
       ? chalk.yellow('Detected 0 dependencies (no project created)')
       : '');
-
   return options.json
     ? JSON.stringify(
         assign({}, res, {
