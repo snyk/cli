@@ -38,8 +38,6 @@ Monitoring src/lib/jens...
 
 Explore this snapshot at https://example.com/project
 
-Tip: This project has multiple sub-projects (7), use --all-sub-projects flag to scan all sub-projects.
-
 Notifications about newly disclosed issues related to these dependencies will be emailed to you.
 "
 `;

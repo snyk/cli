@@ -16,7 +16,6 @@ import {
   formatTestMeta,
 } from '../../../lib/formatters';
 import { getIacDisplayedOutput } from '../../../lib/formatters/iac-output';
-import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import {
   IacProjectType,
   IacProjectTypes,
@@ -26,6 +25,8 @@ import {
   dockerUserCTA,
   getDisplayedOutput,
 } from '../../../lib/formatters/test/format-test-results';
+import { showAllProjectsTip } from '../show-all-projects-tip';
+import { showGradleSubProjectsTip } from '../show-all-sub-projects-tip';
 
 export function displayResult(
   res: TestResult,
@@ -65,26 +66,21 @@ export function displayResult(
 
   let multiProjAdvice = '';
 
-  const advertiseGradleSubProjectsCount =
-    projectType === 'gradle' &&
-    !options['gradle-sub-project'] &&
-    !options.allProjects &&
-    foundProjectCount;
-  if (advertiseGradleSubProjectsCount) {
-    multiProjAdvice = chalk.bold.white(
-      `\n\nTip: This project has multiple sub-projects (${foundProjectCount}), ` +
-        'use --all-sub-projects flag to scan all sub-projects.',
-    );
+  const gradleSubProjectsTip = showGradleSubProjectsTip(
+    projectType,
+    options,
+    foundProjectCount,
+  );
+  if (gradleSubProjectsTip) {
+    multiProjAdvice = chalk.bold.white(`\n\n${gradleSubProjectsTip}`);
   }
-  const advertiseAllProjectsCount =
-    projectType !== 'gradle' &&
-    !isMultiProjectScan(options) &&
-    foundProjectCount;
-  if (advertiseAllProjectsCount) {
-    multiProjAdvice = chalk.bold.white(
-      `\n\nTip: Detected multiple supported manifests (${foundProjectCount}), ` +
-        'use --all-projects to scan all of them at once.',
-    );
+  const allProjectsTip = showAllProjectsTip(
+    projectType,
+    options,
+    foundProjectCount,
+  );
+  if (allProjectsTip) {
+    multiProjAdvice = chalk.bold.white(`\n\n${allProjectsTip}`);
   }
 
   // OK  => no vulns found, return
