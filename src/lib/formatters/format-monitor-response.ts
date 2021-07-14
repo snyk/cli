@@ -4,8 +4,7 @@ import * as url from 'url';
 
 import { MonitorResult } from '../types';
 import * as config from '../config';
-import { showAllProjectsTip } from './show-all-projects-tip';
-import { showGradleSubProjectsTip } from './show-all-sub-projects-tip';
+import { showMultiScanTip } from './show-multi-scan-tip';
 
 export function formatErrorMonitorOutput(
   packageManager,
@@ -39,13 +38,7 @@ export function formatMonitorOutput(
   foundProjectCount?: number,
 ): string {
   const manageUrl = buildManageUrl(res.id, res.org);
-  const gradleSubProjectsTip = showGradleSubProjectsTip(
-    packageManager,
-    options,
-    foundProjectCount,
-  );
-
-  const allProjectsTip = showAllProjectsTip(
+  const multiScanTip = showMultiScanTip(
     packageManager,
     options,
     foundProjectCount,
@@ -59,10 +52,7 @@ export function formatMonitorOutput(
     'Explore this snapshot at ' +
     res.uri +
     '\n\n' +
-    (gradleSubProjectsTip
-      ? chalk.bold.white(`${gradleSubProjectsTip}\n\n`)
-      : '') +
-    (allProjectsTip ? chalk.bold.white(`${allProjectsTip}\n\n`) : '') +
+    (multiScanTip ? chalk.bold.white(`${multiScanTip}\n\n`) : '') +
     (res.isMonitored
       ? 'Notifications about newly disclosed ' +
         issues +
