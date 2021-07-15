@@ -1,6 +1,8 @@
 import protect from '../../src/lib';
+import { getVersion, getHelp } from '../../src/lib';
 import { createProject } from '../util/createProject';
 import { getPatchedLodash } from '../util/getPatchedLodash';
+import { runCommand } from '../util/runCommand';
 import * as http from '../../src/lib/http';
 import * as analytics from '../../src/lib/analytics';
 import * as path from 'path';
@@ -236,6 +238,40 @@ describe('@snyk/protect', () => {
           console.log(delete process.env.SNYK_DISABLE_ANALYTICS);
         }
       });
+    });
+  });
+
+  describe('outputs correct help documentation', () => {
+    it('when called with --help', async () => {
+      const project = await createProject('help-flag');
+
+      const { code, stdout } = await runCommand(
+        'node',
+        [path.resolve(__dirname, '../../dist/index.js'), '--help'],
+        {
+          cwd: project.path(),
+        },
+      );
+
+      expect(stdout).toMatch(getHelp());
+      expect(code).toEqual(0);
+    });
+  });
+
+  describe('outputs correct version', () => {
+    it('when called with --version', async () => {
+      const project = await createProject('version-flag');
+
+      const { code, stdout } = await runCommand(
+        'node',
+        [path.resolve(__dirname, '../../dist/index.js'), '--version'],
+        {
+          cwd: project.path(),
+        },
+      );
+
+      expect(stdout).toMatch(getVersion());
+      expect(code).toEqual(0);
     });
   });
 });

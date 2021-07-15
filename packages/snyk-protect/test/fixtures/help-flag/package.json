@@ -1,0 +1,12 @@
+{
+  "name": "help-flag",
+  "version": "1.0.1",
+  "description": "A test fixture",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Snyk/snyk-todo-list-demo-app/"
+  },
+  "dependencies": {
+  },
+  "license": "Apache-2.0"
+}
