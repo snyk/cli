@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { showFixTip } from '../../../../../src/lib/formatters/show-fix-tip';
 import { SupportedProjectTypes } from '../../../../../src/lib/types';
+import stripAnsi from 'strip-ansi';
 
 describe('showFixTip', () => {
   test.each(['yarn', 'npm'])('%p shows `snyk wizard` tip', (p) => {
@@ -16,11 +17,13 @@ describe('showFixTip', () => {
       ),
     );
     expect(
-      showFixTip(p as SupportedProjectTypes, withRemediation, {
-        path: 'src',
-        showVulnPaths: 'none',
-      }),
-    ).toBe('Run `snyk wizard` to address these issues.');
+      stripAnsi(
+        showFixTip(p as SupportedProjectTypes, withRemediation, {
+          path: 'src',
+          showVulnPaths: 'none',
+        }),
+      ),
+    ).toBe('Tip: Run `snyk wizard` to address these issues.');
   });
 
   test.each(['pip', 'poetry'])('%p shows `snyk fix` tip', (p) => {
@@ -35,12 +38,14 @@ describe('showFixTip', () => {
       ),
     );
     expect(
-      showFixTip(p as SupportedProjectTypes, withRemediation, {
-        path: 'src',
-        showVulnPaths: 'none',
-      }),
+      stripAnsi(
+        showFixTip(p as SupportedProjectTypes, withRemediation, {
+          path: 'src',
+          showVulnPaths: 'none',
+        }),
+      ),
     ).toBe(
-      'Tip: Try `snyk fix` to address these issues. `snyk fix` is a new CLI command in that aims to automatically apply the recommended updates for supported ecosystems.\n' +
+      'Tip: Try `snyk fix` to address these issues.`snyk fix` is a new CLI command in that aims to automatically apply the recommended updates for supported ecosystems.\n' +
         'See documentation on how to enable this beta feature: https://support.snyk.io/hc/en-us/articles/4403417279505-Automatic-remediation-with-snyk-fix',
     );
   });
@@ -63,10 +68,12 @@ describe('showFixTip', () => {
       withRemediation.vulnerabilities = [];
       withRemediation.ok = true;
       expect(
-        showFixTip(p as SupportedProjectTypes, withRemediation, {
-          path: 'src',
-          showVulnPaths: 'none',
-        }),
+        stripAnsi(
+          showFixTip(p as SupportedProjectTypes, withRemediation, {
+            path: 'src',
+            showVulnPaths: 'none',
+          }),
+        ),
       ).toBe('');
     },
   );
@@ -103,10 +110,12 @@ describe('showFixTip', () => {
       ),
     );
     expect(
-      showFixTip(p as SupportedProjectTypes, withRemediation, {
-        path: 'src',
-        showVulnPaths: 'none',
-      }),
+      stripAnsi(
+        showFixTip(p as SupportedProjectTypes, withRemediation, {
+          path: 'src',
+          showVulnPaths: 'none',
+        }),
+      ),
     ).toBe('');
   });
 });

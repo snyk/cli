@@ -52,7 +52,7 @@ export function formatMonitorOutput(
     'Explore this snapshot at ' +
     res.uri +
     '\n\n' +
-    (multiScanTip ? chalk.bold.white(`${multiScanTip}\n\n`) : '') +
+    (multiScanTip ? `${multiScanTip}\n\n` : '') +
     (res.isMonitored
       ? 'Notifications about newly disclosed ' +
         issues +

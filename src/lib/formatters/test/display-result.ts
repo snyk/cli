@@ -68,9 +68,7 @@ export function displayResult(
     options,
     foundProjectCount,
   );
-  const multiProjAdvice = multiProjectTip
-    ? chalk.bold.white(`\n\n${multiProjectTip}`)
-    : '';
+  const multiProjAdvice = multiProjectTip ? `\n\n${multiProjectTip}` : '';
 
   // OK  => no vulns found, return
   if (res.ok && res.vulnerabilities.length === 0) {
