@@ -25,8 +25,7 @@ import {
   dockerUserCTA,
   getDisplayedOutput,
 } from '../../../lib/formatters/test/format-test-results';
-import { showAllProjectsTip } from '../show-all-projects-tip';
-import { showGradleSubProjectsTip } from '../show-all-sub-projects-tip';
+import { showMultiScanTip } from '../show-multi-scan-tip';
 
 export function displayResult(
   res: TestResult,
@@ -64,24 +63,12 @@ export function displayResult(
   }
   const testedInfoText = `Tested ${pathOrDepsText} for known ${issuesText}`;
 
-  let multiProjAdvice = '';
-
-  const gradleSubProjectsTip = showGradleSubProjectsTip(
+  const multiProjectTip = showMultiScanTip(
     projectType,
     options,
     foundProjectCount,
   );
-  if (gradleSubProjectsTip) {
-    multiProjAdvice = chalk.bold.white(`\n\n${gradleSubProjectsTip}`);
-  }
-  const allProjectsTip = showAllProjectsTip(
-    projectType,
-    options,
-    foundProjectCount,
-  );
-  if (allProjectsTip) {
-    multiProjAdvice = chalk.bold.white(`\n\n${allProjectsTip}`);
-  }
+  const multiProjAdvice = multiProjectTip ? `\n\n${multiProjectTip}` : '';
 
   // OK  => no vulns found, return
   if (res.ok && res.vulnerabilities.length === 0) {

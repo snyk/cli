@@ -1,4 +1,9 @@
-import { Options, OutputDataTypes, TestOptions } from '../../types';
+import {
+  Options,
+  OutputDataTypes,
+  SupportedProjectTypes,
+  TestOptions,
+} from '../../types';
 import {
   getReachabilityJson,
   summariseReachableVulns,
@@ -10,10 +15,6 @@ import {
   VulnMetaData,
 } from '../../snyk-test/legacy';
 import chalk from 'chalk';
-import {
-  SupportedPackageManagers,
-  WIZARD_SUPPORTED_PACKAGE_MANAGERS,
-} from '../../package-managers';
 import * as config from '../../config';
 const cloneDeep = require('lodash.clonedeep');
 const orderBy = require('lodash.orderby');
@@ -27,6 +28,7 @@ import { isNewVuln, isVulnFixable } from '../../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../json';
 import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 import { getSeverityValue } from '../get-severity-value';
+import { showFixTip } from '../show-fix-tip';
 
 export function formatJsonOutput(jsonData, options: Options) {
   const jsonDataClone = cloneDeep(jsonData);
@@ -114,7 +116,7 @@ export function getDisplayedOutput(
   options: Options & TestOptions,
   testedInfoText: string,
   localPackageTest: any,
-  projectType: string,
+  projectType: SupportedProjectTypes,
   meta: string,
   prefix: string,
   multiProjAdvice: string,
@@ -153,18 +155,10 @@ export function getDisplayedOutput(
     ', ' +
     chalk.red.bold(vulnCountText) +
     chalk.blue.bold(reachableVulnsText);
-  let wizardAdvice = '';
 
-  if (
-    localPackageTest &&
-    WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(
-      projectType as SupportedPackageManagers,
-    )
-  ) {
-    wizardAdvice = chalk.bold.green(
-      '\n\nRun `snyk wizard` to address these issues.',
-    );
-  }
+  const fixTip = showFixTip(projectType, res, options);
+  const fixAdvice = fixTip ? `\n\n${fixTip}` : '';
+
   const dockerSuggestion = getDockerSuggestionText(options, config);
 
   const vulns = res.vulnerabilities || [];
@@ -213,9 +207,9 @@ export function getDisplayedOutput(
     meta;
 
   if (res.remediation) {
-    body = summary + body + wizardAdvice;
+    body = summary + body + fixAdvice;
   } else {
-    body = body + '\n\n' + summary + wizardAdvice;
+    body = body + '\n\n' + summary + fixAdvice;
   }
 
   const ignoredIssues = '';

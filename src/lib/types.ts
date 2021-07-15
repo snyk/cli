@@ -21,6 +21,7 @@ export interface TestOptions {
   reachableVulnsTimeout?: number;
   initScript?: string;
   yarnWorkspaces?: boolean;
+  gradleSubProject?: boolean;
   command?: string; // python interpreter to use for python tests
   testDepGraphDockerEndpoint?: string | null;
   isDockerUser?: boolean;
