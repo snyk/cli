@@ -1,0 +1,14 @@
+{
+  "name": "fix-pr",
+  "version": "1.0.0",
+  "description": "Fixture with a setup similar to a Fix PR.",
+  "private": true,
+  "scripts": {
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
+  },
+  "dependencies": {
+    "@snyk/protect": "latest",
+    "lodash": "4.17.15"
+  }
+}
