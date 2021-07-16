@@ -35,6 +35,7 @@ export enum PerformanceAnalyticsKey {
   OrgSettings = 'org-settings-ms',
   CustomSeverities = 'custom-severities-ms',
   ResultFormatting = 'results-formatting-ms',
+  UsageTracking = 'usage-tracking-ms',
   CacheCleanup = 'cache-cleanup-ms',
   Total = 'total-iac-ms',
 }
@@ -50,6 +51,7 @@ export const performanceAnalyticsObject: Record<
   [PerformanceAnalyticsKey.OrgSettings]: null,
   [PerformanceAnalyticsKey.CustomSeverities]: null,
   [PerformanceAnalyticsKey.ResultFormatting]: null,
+  [PerformanceAnalyticsKey.UsageTracking]: null,
   [PerformanceAnalyticsKey.CacheCleanup]: null,
   [PerformanceAnalyticsKey.Total]: null,
 };

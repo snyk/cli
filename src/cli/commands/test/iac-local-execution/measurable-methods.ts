@@ -2,6 +2,7 @@ import { loadFiles } from './file-loader';
 import { parseFiles } from './file-parser';
 import { scanFiles } from './file-scanner';
 import { formatScanResults } from './results-formatter';
+import { trackUsage } from './usage-tracking';
 import { cleanLocalCache, initLocalCache } from './local-cache';
 import { applyCustomSeverities } from './org-settings/apply-custom-severities';
 import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
@@ -87,6 +88,11 @@ const measurableFormatScanResults = performanceAnalyticsDecorator(
   PerformanceAnalyticsKey.ResultFormatting,
 );
 
+const measurableTrackUsage = asyncPerformanceAnalyticsDecorator(
+  trackUsage,
+  PerformanceAnalyticsKey.UsageTracking,
+);
+
 const measurableLocalTest = asyncPerformanceAnalyticsDecorator(
   test,
   PerformanceAnalyticsKey.Total,
@@ -100,6 +106,7 @@ export {
   measurableGetIacOrgSettings as getIacOrgSettings,
   measurableApplyCustomSeverities as applyCustomSeverities,
   measurableFormatScanResults as formatScanResults,
+  measurableTrackUsage as trackUsage,
   measurableCleanLocalCache as cleanLocalCache,
   measurableLocalTest as localTest,
 };
