@@ -236,7 +236,7 @@ interface Issue {
   fixInfo: FixInfo;
 }
 
-interface TestDependenciesResult {
+export interface TestDependenciesResult {
   issuesData: {
     [issueId: string]: IssueData;
   };
