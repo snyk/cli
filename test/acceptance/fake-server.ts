@@ -91,7 +91,8 @@ export function fakeServer(root, apikey) {
       res.status(404);
       res.send({
         code: 404,
-        userMessage: 'cli error message',
+        userMessage:
+          'Org missing-org was not found or you may not have the correct permissions',
       });
       return next();
     }
@@ -115,7 +116,8 @@ export function fakeServer(root, apikey) {
       res.status(404);
       res.send({
         code: 404,
-        userMessage: 'cli error message',
+        userMessage:
+          'Org missing-org was not found or you may not have the correct permissions',
       });
       return next();
     }
@@ -185,7 +187,8 @@ export function fakeServer(root, apikey) {
       res.status(404);
       res.send({
         code: 404,
-        userMessage: 'cli error message',
+        userMessage:
+          'Org missing-org was not found or you may not have the correct permissions',
       });
       return next();
     }
@@ -234,7 +237,8 @@ export function fakeServer(root, apikey) {
       res.status(404);
       res.send({
         code: 404,
-        userMessage: 'cli error message',
+        userMessage:
+          'Org missing-org was not found or you may not have the correct permissions',
       });
       return next();
     }
@@ -258,7 +262,8 @@ export function fakeServer(root, apikey) {
       res.status(404);
       res.send({
         code: 404,
-        userMessage: 'cli error message',
+        userMessage:
+          'Org missing-org was not found or you may not have the correct permissions',
       });
       return next();
     }

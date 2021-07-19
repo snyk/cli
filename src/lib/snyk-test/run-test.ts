@@ -29,6 +29,7 @@ import {
   InternalServerError,
   NoSupportedManifestsFoundError,
   UnsupportedFeatureFlagError,
+  NotFoundError,
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
@@ -70,7 +71,6 @@ import { getAuthHeader } from '../api-token';
 import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
-import { NonExistingPackageError } from '../errors/non-existing-package-error';
 import request = require('../request');
 import spinner = require('../spinner');
 
@@ -495,7 +495,7 @@ function handleTestHttpErrorResponse(res, body) {
       err.innerError = body.stack;
       break;
     case 404:
-      err = new NonExistingPackageError();
+      err = new NotFoundError(userMessage);
       err.innerError = body.stack;
       break;
     case 405:
