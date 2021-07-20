@@ -60,7 +60,7 @@ export const GenericTests: AcceptanceTests = {
       } catch (err) {
         t.equal(
           err.userMessage,
-          "Couldn't find the requested package",
+          'Org missing-org was not found or you may not have the correct permissions',
           'got correct err message',
         );
         t.equal(err.code, 404);
@@ -82,7 +82,7 @@ export const GenericTests: AcceptanceTests = {
       } catch (err) {
         t.has(
           err.jsonStringifiedResults,
-          "Couldn't find the requested package",
+          'Org missing-org was not found or you may not have the correct permissions',
           'got correct err message',
         );
         t.equal(err.code, 404);
@@ -101,7 +101,7 @@ export const GenericTests: AcceptanceTests = {
       } catch (err) {
         t.equal(
           err.userMessage,
-          "Couldn't find the requested package",
+          'Org missing-org was not found or you may not have the correct permissions',
           'got correct err message',
         );
       }

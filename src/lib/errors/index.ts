@@ -28,3 +28,4 @@ export {
   IllegalIacFileErrorMsg,
   NotSupportedIacAllProjects,
 } from './invalid-iac-file';
+export { NotFoundError } from './not-found-error';
