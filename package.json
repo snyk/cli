@@ -72,7 +72,7 @@
   "license": "Apache-2.0",
   "dependencies": {
     "@open-policy-agent/opa-wasm": "^1.2.0",
-    "@snyk/cli-interface": "2.11.0",
+    "@snyk/cli-interface": "2.11.1",
     "@snyk/cloud-config-parser": "^1.9.2",
     "@snyk/code-client": "3.9.0",
     "@snyk/dep-graph": "^1.27.1",
