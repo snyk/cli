@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as glob from 'glob';
 import { config } from '../check-dependencies.config';
+import { icon } from '../src/lib/theme';
 
 const checkDependencies = async () => {
   let exitCode = 0;
@@ -55,7 +56,7 @@ const checkDependencies = async () => {
           }
         }
       } else {
-        console.log('\n ✓ No problems found.');
+        console.log(`\n ${icon.VALID} No problems found.`);
       }
 
       console.log();

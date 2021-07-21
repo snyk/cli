@@ -4,7 +4,7 @@ import * as depGraphLib from '@snyk/dep-graph';
 import { CommandResult } from '../../../src/cli/commands/types';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
-
+import { icon } from '../../../src/lib/theme';
 const simpleGradleGraph = depGraphLib.createFromJSON({
   schemaVersion: '1.2.0',
   pkgManager: {
@@ -91,7 +91,7 @@ export const AllProjectsTests: AcceptanceTests = {
       );
       t.same(
         stdoutMessages,
-        '✗ 1/3 detected Gradle manifests did not return dependencies. ' +
+        `${icon.ISSUE} 1/3 detected Gradle manifests did not return dependencies. ` +
           'They may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with `-d` for more info.',
       );
       stubbedConsole.restore();

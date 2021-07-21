@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as pathUtil from 'path';
 import * as debugModule from 'debug';
 import chalk from 'chalk';
+import { icon } from '../theme';
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import { IacScan } from './payload-schema';
@@ -573,7 +574,7 @@ async function assembleLocalPayloads(
       if (!options.json && !options.quiet) {
         console.warn(
           chalk.bold.red(
-            `✗ ${failedResults.length}/${failedResults.length +
+            `${icon.ISSUE} ${failedResults.length}/${failedResults.length +
               deps.scannedProjects
                 .length} potential projects failed to get dependencies. Run with \`-d\` for debug output.`,
           ),

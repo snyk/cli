@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { icon } from '../theme';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import { pathToFileURL } from 'url';
@@ -36,7 +37,7 @@ function formatIacIssue(
   return (
     colorTextBySeverity(
       issue.severity,
-      `  ✗ ${chalk.bold(issue.title)}${newBadge} [${titleCaseText(
+      `  ${icon.ISSUE} ${chalk.bold(issue.title)}${newBadge} [${titleCaseText(
         issue.severity,
       )} Severity]`,
     ) +

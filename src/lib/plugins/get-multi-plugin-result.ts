@@ -2,6 +2,7 @@ const cloneDeep = require('lodash.clonedeep');
 import * as path from 'path';
 import * as cliInterface from '@snyk/cli-interface';
 import chalk from 'chalk';
+import { icon } from '../theme';
 import * as debugModule from 'debug';
 
 import { TestOptions, Options, MonitorOptions } from '../types';
@@ -86,7 +87,7 @@ export async function getMultiPluginResult(
       });
       debug(
         chalk.bold.red(
-          `\n✗ Failed to get dependencies for ${targetFile}\nERROR: ${err.message}\n`,
+          `\n${icon.ISSUE} Failed to get dependencies for ${targetFile}\nERROR: ${err.message}\n`,
         ),
       );
     }

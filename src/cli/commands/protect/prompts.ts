@@ -19,6 +19,7 @@ import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as config from '../../../lib/config';
 import * as snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
+import { icon, color } from '../../../lib/theme';
 import { AnnotatedIssue, SEVERITY } from '../../../lib/snyk-test/legacy';
 import { colorTextBySeverity } from '../../../lib/snyk-test/common';
 import { titleCaseText } from '../../../lib/formatters/legacy-format-issue';
@@ -617,7 +618,7 @@ function generatePrompt(
       const joiningText = group.patch ? 'in' : 'via';
       const issues = vuln.type === 'license' ? 'issues' : 'vulnerabilities';
       messageIntro = fmt(
-        '✗ %s %s %s introduced %s %s',
+        `${icon.ISSUE} %s %s %s introduced %s %s`,
         group.count,
         `${severity}${originalSeverityStr}`,
         issues,
@@ -631,7 +632,7 @@ function generatePrompt(
     } else {
       infoLink += chalk.underline('/vuln/' + vuln.id);
       messageIntro = fmt(
-        '✗ %s severity %s found in %s, introduced via',
+        `${icon.ISSUE} %s severity %s found in %s, introduced via`,
         `${severity}${originalSeverityStr}`,
         vuln.type === 'license' ? 'issue' : 'vuln',
         vulnIn,
@@ -760,7 +761,7 @@ function generatePrompt(
         toPackageVersion,
       );
       let lead = '';
-      const breaking = chalk.red('potentially breaking change');
+      const breaking = color.status.error('potentially breaking change');
       if (diff === 'major') {
         lead = ' (' + breaking + ', ';
       } else {

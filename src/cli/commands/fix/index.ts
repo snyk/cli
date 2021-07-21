@@ -19,6 +19,7 @@ import { validateFixCommandIsSupported } from './validate-fix-command-is-support
 import { Options, TestOptions } from '../../../lib/types';
 import { getDisplayPath } from './get-display-path';
 import chalk from 'chalk';
+import { icon, color } from '../../../lib/theme';
 
 const debug = Debug('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
@@ -135,16 +136,16 @@ async function runSnykTestLegacy(
       results.push(...newRes);
       stdOutSpinner.stopAndPersist({
         text: spinnerMessage,
-        symbol: '\n►',
+        symbol: `\n${icon.RUN}`,
       });
     } catch (error) {
       const testError = formatTestError(error);
       const userMessage =
-        chalk.red(`Failed! ${testError.message}.`) +
+        color.status.error(`Failed! ${testError.message}.`) +
         `\n  Tip: run \`snyk test ${displayPath} -d\` for more information.`;
       stdOutSpinner.stopAndPersist({
         text: spinnerMessage,
-        symbol: '\n►',
+        symbol: `\n${icon.RUN}`,
       });
       stdErrSpinner.stopAndPersist({
         text: userMessage,

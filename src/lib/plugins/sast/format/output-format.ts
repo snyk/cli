@@ -1,6 +1,7 @@
 import * as Sarif from 'sarif';
 import * as Debug from 'debug';
 import chalk from 'chalk';
+import { icon, color } from '../../../theme';
 import { colorTextBySeverity, SEVERITY } from '../../../snyk-test/common';
 import { rightPadWithSpaces } from '../../../right-pad';
 import { Options } from '../../../types';
@@ -26,7 +27,7 @@ export function getCodeDisplayedOutput(
 
   const issuesText =
     issues.low.join('') + issues.medium.join('') + issues.high.join('');
-  const summaryOKText = chalk.green('✔ Test completed');
+  const summaryOKText = color.status.success(`${icon.VALID} Test completed`);
   const codeIssueSummary = getCodeIssuesSummary(issues);
 
   return (
@@ -59,7 +60,9 @@ function getCodeIssuesSummary(issues: { [index: string]: string[] }): string {
   } found`;
   const issuesBySeverityText =
     highSeverityText + mediumSeverityText + lowSeverityText;
-  const vulnPathsText = chalk.green('✔ Awesome! No issues were found.');
+  const vulnPathsText = color.status.success(
+    `${icon.VALID} Awesome! No issues were found.`,
+  );
 
   return codeIssueCount > 0
     ? codeIssueFound + '\n' + issuesBySeverityText
@@ -89,7 +92,7 @@ function getIssues(
           rulesMap[ruleId].shortDescription?.text || rulesMap[ruleId].name;
         const ruleIdSeverityText = colorTextBySeverity(
           severity,
-          ` ✗ [${severity}] ${ruleName}`,
+          ` ${icon.ISSUE} [${severity}] ${ruleName}`,
         );
         const artifactLocationUri = location.artifactLocation.uri;
         const startLine = location.region.startLine;

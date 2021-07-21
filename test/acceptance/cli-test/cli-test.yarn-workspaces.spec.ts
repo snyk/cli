@@ -77,7 +77,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       });
       t.match(
         result.getDisplayResults(),
-        '✓ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
+        '✔ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
         'correctly showing dep number',
       );
       t.match(result.getDisplayResults(), 'Package manager:   yarn\n');
@@ -178,7 +178,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       });
       t.match(
         result.getDisplayResults(),
-        '✓ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
+        '✔ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
         'correctly showing dep number',
       );
       t.match(result.getDisplayResults(), 'Package manager:   yarn\n');
@@ -221,7 +221,7 @@ export const YarnWorkspacesTests: AcceptanceTests = {
       });
       t.match(
         result.getDisplayResults(),
-        '✓ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
+        '✔ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
         'correctly showing dep number',
       );
       t.match(result.getDisplayResults(), 'Package manager:   yarn\n');

@@ -1,6 +1,7 @@
 import * as debugModule from 'debug';
 import * as pathLib from 'path';
 import chalk from 'chalk';
+import { icon } from '../theme';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { find } from '../find-files';
 import { Options, TestOptions, MonitorOptions } from '../types';
@@ -148,7 +149,7 @@ export function warnSomeGradleManifestsNotScanned(
         ',\n',
       )}`,
     );
-    return `✗ ${diff.length}/${detectedGradleFiles.length} detected Gradle manifests did not return dependencies. They may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with \`-d\` for more info.`;
+    return `${icon.ISSUE} ${diff.length}/${detectedGradleFiles.length} detected Gradle manifests did not return dependencies. They may have errored or were not included as part of a multi-project build. You may need to scan them individually with --file=path/to/file. Run with \`-d\` for more info.`;
   }
   return null;
 }

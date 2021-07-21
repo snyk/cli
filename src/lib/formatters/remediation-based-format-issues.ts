@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { icon } from '../theme';
 import * as config from '../../lib/config';
 import { TestOptions } from '../../lib/types';
 import {
@@ -488,7 +489,7 @@ export function formatIssue(
   return (
     colorTextBySeverity(
       severity,
-      `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(
+      `  ${icon.ISSUE} ${chalk.bold(title)}${newBadge} [${titleCaseText(
         severity,
       )} Severity${originalSeverityStr}]`,
     ) +
