@@ -4,11 +4,12 @@ import { makeRequest } from '../request/promise';
 import { Options } from '../types';
 import { TestCommandResult } from '../../cli/commands/types';
 import * as spinner from '../../lib/spinner';
-import { Ecosystem, ScanResult, TestResult } from './types';
+import { Ecosystem, EcosystemPlugin, ScanResult, TestResult } from './types';
 import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
 import { assembleQueryString } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
+import { resolveAndTestFacts } from './resolve-test-facts';
 
 export async function testEcosystem(
   ecosystem: Ecosystem,
@@ -30,10 +31,43 @@ export async function testEcosystem(
     scanResultsByPath[path] = pluginResponse.scanResults;
   }
   spinner.clearAll();
+
+  if (ecosystem === 'cpp') {
+    const [testResults, errors] = await resolveAndTestFacts(
+      ecosystem,
+      scanResultsByPath,
+      options,
+    );
+    return await getTestResultsOutput(
+      errors,
+      options,
+      testResults,
+      plugin,
+      scanResultsByPath,
+    );
+  }
+
   const [testResults, errors] = await testDependencies(
     scanResultsByPath,
     options,
   );
+
+  return await getTestResultsOutput(
+    errors,
+    options,
+    testResults,
+    plugin,
+    scanResultsByPath,
+  );
+}
+
+async function getTestResultsOutput(
+  errors: string[],
+  options: Options,
+  testResults: TestResult[],
+  plugin: EcosystemPlugin,
+  scanResultsByPath: { [dir: string]: ScanResult[] },
+) {
   const stringifiedData = JSON.stringify(testResults, null, 2);
   if (options.json) {
     return TestCommandResult.createJsonTestCommandResult(stringifiedData);

@@ -24,6 +24,7 @@ export interface ScanResult {
   name?: string;
   policy?: string;
   target?: GitTarget | ContainerTarget;
+  analytics?: Analytics[];
 }
 
 export interface Identity {
@@ -35,6 +36,12 @@ export interface Identity {
 export interface Facts {
   type: string;
   data: any;
+}
+
+//TODO (@snyk/tundra): maybe PluginAnalytics?
+export interface Analytics {
+  name: string;
+  data: unknown;
 }
 
 interface UpgradePathItem {

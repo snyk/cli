@@ -2,6 +2,7 @@ import { Options } from '../types';
 import * as spinner from '../../lib/spinner';
 import { Ecosystem, ScanResult, TestResult } from './types';
 import { pollingWithTokenUntilDone, requestPollingToken } from './polling';
+import { extractAndApplyPluginAnalytics } from './plugin-analytics';
 
 export async function resolveAndTestFacts(
   ecosystem: Ecosystem,
@@ -17,6 +18,9 @@ export async function resolveAndTestFacts(
     await spinner(`Resolving and Testing fileSignatures in ${path}`);
     for (const scanResult of scanResults) {
       try {
+        if (scanResult.analytics) {
+          extractAndApplyPluginAnalytics(scanResult.analytics);
+        }
         const res = await requestPollingToken(options, true, scanResult);
         const { maxAttempts, pollInterval } = res.pollingTask;
         const attemptsCount = 0;
