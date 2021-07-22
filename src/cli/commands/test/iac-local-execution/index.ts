@@ -8,6 +8,7 @@ import {
   EngineType,
 } from './types';
 import { addIacAnalytics } from './analytics';
+import { TestLimitReachedError } from './usage-tracking';
 import { TestResult } from '../../../../lib/snyk-test/legacy';
 import {
   initLocalCache,
@@ -17,6 +18,7 @@ import {
   getIacOrgSettings,
   applyCustomSeverities,
   formatScanResults,
+  trackUsage,
   cleanLocalCache,
 } from './measurable-methods';
 import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
@@ -62,6 +64,17 @@ export async function test(
       options,
       iacOrgSettings.meta,
     );
+
+    try {
+      await trackUsage(formattedResults);
+    } catch (e) {
+      if (e instanceof TestLimitReachedError) {
+        throw e;
+      }
+      // If something has gone wrong, err on the side of allowing the user to
+      // run their tests by squashing the error.
+    }
+
     addIacAnalytics(formattedResults);
 
     // TODO: add support for proper typing of old TestResult interface.

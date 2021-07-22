@@ -338,6 +338,12 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
+  server.post(root + '/track-iac-usage/cli', (req, res, next) => {
+    res.status(200);
+    res.send({});
+    return next();
+  });
+
   server.setNextResponse = (response) => {
     server._nextResponse = response;
   };
