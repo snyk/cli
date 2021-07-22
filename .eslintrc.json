@@ -9,24 +9,24 @@
     "es6": true,
     "jest": true
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "eslint-plugin-import"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "prettier/@typescript-eslint"
+    "prettier/@typescript-eslint",
+    "plugin:import/recommended",
+    "plugin:import/typescript"
   ],
   "rules": {
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-empty-function": "warn",
-
     // non-null assertions compromise the type safety somewhat, but many
     // our types are still imprecisely defined and we don't use noImplicitAny
     // anyway, so for the time being assertions are allowed
     "@typescript-eslint/no-non-null-assertion": "warn",
-
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/no-unused-vars": "error",
@@ -34,9 +34,34 @@
     "require-atomic-updates": "off",
     "no-restricted-imports": [
       "error",
-      { "paths": ["lodash"], "patterns": ["lodash/*"] }
+      {
+        "paths": ["lodash"],
+        "patterns": ["lodash/*"]
+      }
     ],
-    "no-buffer-constructor": "error"
+    "no-buffer-constructor": "error",
+    "import/no-unresolved": "error",
+    "import/namespace": "off",
+    "import/no-unused-modules": [
+      "error",
+      {
+        "unusedExports": true
+      }
+    ]
+  },
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      },
+      "typescript": {
+        "alwaysTryTypes": true, // always try to resolve types under `<root>@types` directory
+        "project": "tsconfig.json"
+      }
+    }
   },
   "overrides": [
     {
