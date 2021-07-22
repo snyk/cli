@@ -34,17 +34,7 @@ async function getPolicyEngine(engineType: EngineType): Promise<PolicyEngine> {
   return policyEngineCache[engineType]!;
 }
 
-// used in tests only
-export function clearPolicyEngineCache() {
-  policyEngineCache = {
-    [EngineType.Kubernetes]: null,
-    [EngineType.Terraform]: null,
-    [EngineType.CloudFormation]: null,
-    [EngineType.Custom]: null,
-  };
-}
-
-let policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
+const policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
   [EngineType.Kubernetes]: null,
   [EngineType.Terraform]: null,
   [EngineType.CloudFormation]: null,
@@ -100,7 +90,7 @@ class PolicyEngine {
   }
 }
 
-export class FailedToBuildPolicyEngine extends CustomError {
+class FailedToBuildPolicyEngine extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to build policy engine');
     this.code = IaCErrorCodes.FailedToBuildPolicyEngine;
@@ -109,7 +99,7 @@ export class FailedToBuildPolicyEngine extends CustomError {
       'We were unable run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
   }
 }
-export class FailedToExecutePolicyEngine extends CustomError {
+class FailedToExecutePolicyEngine extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to execute policy engine');
     this.code = IaCErrorCodes.FailedToExecutePolicyEngine;

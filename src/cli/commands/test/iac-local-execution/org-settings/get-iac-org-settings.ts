@@ -34,7 +34,7 @@ export function getIacOrgSettings(
   });
 }
 
-export class FailedToGetIacOrgSettingsError extends CustomError {
+class FailedToGetIacOrgSettingsError extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to fetch IaC organization settings');
     this.code = IaCErrorCodes.FailedToGetIacOrgSettingsError;

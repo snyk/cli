@@ -25,6 +25,7 @@ import * as Queue from 'promise-queue';
 
 const debug = debugLib('snyk-detect-iac');
 
+// eslint-disable-next-line import/no-unused-modules
 export async function getProjectType(
   root: string,
   options: Options & TestOptions,

@@ -17,7 +17,7 @@ type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
 // Note: The return type of the returned async function needs to be Promise<Val> for
 // the compiler to be happy, so we need to unwrap it with the messy
 // Awaiter<ReturnType<T>> rather than just using ReturnType<T> directly.
-export function asyncPerformanceAnalyticsDecorator<
+function asyncPerformanceAnalyticsDecorator<
   T extends (...args: any[]) => Promise<any>
 >(
   measurableMethod: T,
@@ -32,7 +32,7 @@ export function asyncPerformanceAnalyticsDecorator<
   };
 }
 
-export function performanceAnalyticsDecorator<
+function performanceAnalyticsDecorator<
   T extends (...args: any[]) => any
 >(
   measurableMethod: T,

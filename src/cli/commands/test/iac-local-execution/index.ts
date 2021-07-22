@@ -92,8 +92,7 @@ async function customRulesPathForOrg(
 
   throw new FlagError('rules');
 }
-
-export function removeFileContent({
+function removeFileContent({
   filePath,
   fileType,
   failureReason,

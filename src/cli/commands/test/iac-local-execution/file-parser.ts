@@ -62,7 +62,7 @@ function generateFailedParsedFile(
   };
 }
 
-export function tryParseIacFile(
+function tryParseIacFile(
   fileData: IacFileData,
   options: IaCTestFlags = {},
 ): IacFileParsed[] {

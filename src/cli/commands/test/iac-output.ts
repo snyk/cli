@@ -182,7 +182,7 @@ const iacTypeToText = {
   terraform: 'Terraform',
 };
 
-export function extractReportingDescriptor(
+function extractReportingDescriptor(
   results: ResponseIssues,
 ): sarif.ReportingDescriptor[] {
   const tool: Record<string, sarif.ReportingDescriptor> = {};
@@ -222,7 +222,7 @@ export function extractReportingDescriptor(
   return Object.values(tool);
 }
 
-export function mapIacTestResponseToSarifResults(
+function mapIacTestResponseToSarifResults(
   issues: ResponseIssues,
 ): sarif.Result[] {
   return issues.map(({ targetPath, issue }) => ({

@@ -113,7 +113,7 @@ export function tryParsingTerraformPlan(
 }
 
 // This error is due to the complex reduction logic, so it catches scenarios we might have not covered.
-export class FailedToExtractResourcesInTerraformPlanError extends CustomError {
+class FailedToExtractResourcesInTerraformPlanError extends CustomError {
   constructor(message?: string) {
     super(
       message || 'Failed to extract resources from Terraform plan JSON file',

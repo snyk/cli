@@ -163,6 +163,7 @@ function groupMultiDocResults(
   return Object.values(groupedData);
 }
 
+// eslint-disable-next-line import/no-unused-modules
 export function filterPoliciesBySeverity(
   violatedPolicies: PolicyMetadata[],
   severityThreshold?: SEVERITY,
@@ -184,7 +185,7 @@ export function filterPoliciesBySeverity(
   });
 }
 
-export class FailedToFormatResults extends CustomError {
+class FailedToFormatResults extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to format results');
     this.code = IaCErrorCodes.FailedToFormatResults;

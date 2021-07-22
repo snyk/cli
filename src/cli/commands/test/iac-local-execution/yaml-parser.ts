@@ -22,7 +22,7 @@ const errorsToSkip = [
 // the YAML Parser is more strict than the Golang one in Policy Engine,
 // so we decided to skip specific errors in order to be consistent.
 // this function checks if the current error is one them
-export function shouldThrowErrorFor(doc: YAML.Document.Parsed) {
+function shouldThrowErrorFor(doc: YAML.Document.Parsed) {
   return (
     doc.errors.length !== 0 &&
     !errorsToSkip.some((e) => doc.errors[0].message.includes(e))

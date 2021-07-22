@@ -7,7 +7,7 @@ interface Scan {
   data: any;
 }
 
-export interface IacFile {
+interface IacFile {
   fileContent: string;
   fileType: 'yaml' | 'yml' | 'json' | 'tf';
 }
