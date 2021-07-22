@@ -152,7 +152,7 @@ test('test for existing remote package with dev-deps only with --dev', async (t)
       .pop();
     t.deepEqual(
       lastLine,
-      '✓ Tested lodash@4.17.11 for known vulnerabilities, no vulnerable paths found.',
+      '✔ Tested lodash@4.17.11 for known vulnerabilities, no vulnerable paths found.',
       'successfully tested lodash@4.17.11',
     );
   } catch (error) {

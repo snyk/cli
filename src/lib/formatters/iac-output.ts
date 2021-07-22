@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { icon } from '../theme';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 import { pathToFileURL } from 'url';
@@ -12,7 +13,7 @@ import { printPath } from './remediation-based-format-issues';
 import { titleCaseText } from './legacy-format-issue';
 import * as sarif from 'sarif';
 import { SEVERITY } from '../../lib/snyk-test/legacy';
-import { getSeveritiesColour } from '../../lib/snyk-test/common';
+import { colorTextBySeverity } from '../../lib/snyk-test/common';
 import { IacFileInDirectory } from '../../lib/types';
 import { isLocalFolder } from '../../lib/detect';
 import { getSeverityValue } from './get-severity-value';
@@ -33,11 +34,10 @@ function formatIacIssue(
     introducedBy = `\n    introduced by ${pathStr}`;
   }
 
-  const severityColor = getSeveritiesColour(issue.severity);
-
   return (
-    severityColor.colorFunc(
-      `  ✗ ${chalk.bold(issue.title)}${newBadge} [${titleCaseText(
+    colorTextBySeverity(
+      issue.severity,
+      `  ${icon.ISSUE} ${chalk.bold(issue.title)}${newBadge} [${titleCaseText(
         issue.severity,
       )} Severity]`,
     ) +

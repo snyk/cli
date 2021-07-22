@@ -39,6 +39,7 @@ import { ModuleInfo as moduleInfo } from '../../../lib/module-info';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { MissingTargetFileError } from '../../../lib/errors/missing-targetfile-error';
 import * as pm from '../../../lib/package-managers';
+import { icon, color } from '../../../lib/theme';
 import {
   Options,
   MonitorMeta,
@@ -192,9 +193,8 @@ async function processWizardFlow(options) {
           );
         } else {
           console.log(
-            chalk.green(
-              '✓ Tested %s dependencies for known ' +
-                'vulnerabilities, no vulnerable paths found.',
+            color.status.success(
+              `${icon.VALID} Tested %s dependencies for known vulnerabilities, no vulnerable paths found.`,
             ),
             res.dependencyCount,
           );

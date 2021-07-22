@@ -1,6 +1,6 @@
 import * as pathLib from 'path';
 import chalk from 'chalk';
-
+import { icon, color } from '../../theme';
 import { isCI } from '../../../lib/is-ci';
 import {
   Options,
@@ -75,7 +75,9 @@ export function displayResult(
     const vulnPathsText = options.showVulnPaths
       ? 'no vulnerable paths found.'
       : 'none were found.';
-    const summaryOKText = chalk.green(`✓ ${testedInfoText}, ${vulnPathsText}`);
+    const summaryOKText = color.status.success(
+      `${icon.VALID} ${testedInfoText}, ${vulnPathsText}`,
+    );
     const nextStepsText = localPackageTest
       ? '\n\nNext steps:' +
         '\n- Run `snyk monitor` to be notified ' +

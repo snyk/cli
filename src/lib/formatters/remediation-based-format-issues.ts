@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import { icon } from '../theme';
 import * as config from '../../lib/config';
 import { TestOptions } from '../../lib/types';
 import {
@@ -14,7 +15,7 @@ import {
   SEVERITY,
   UpgradeRemediation,
 } from '../../lib/snyk-test/legacy';
-import { getSeveritiesColour } from '../../lib/snyk-test/common';
+import { colorTextBySeverity } from '../../lib/snyk-test/common';
 import { formatLegalInstructions } from './legal-license-instructions';
 import {
   formatReachability,
@@ -434,8 +435,6 @@ export function formatIssue(
   reachability?: REACHABILITY,
   sampleReachablePaths?: SampleReachablePaths,
 ): string {
-  const severityColor = getSeveritiesColour(severity);
-
   const newBadge = isNew ? ' (new)' : '';
   const name = vulnerableModule ? ` in ${chalk.bold(vulnerableModule)}` : '';
   let legalLicenseInstructionsText;
@@ -488,8 +487,9 @@ export function formatIssue(
   }
 
   return (
-    severityColor.colorFunc(
-      `  ✗ ${chalk.bold(title)}${newBadge} [${titleCaseText(
+    colorTextBySeverity(
+      severity,
+      `  ${icon.ISSUE} ${chalk.bold(title)}${newBadge} [${titleCaseText(
         severity,
       )} Severity${originalSeverityStr}]`,
     ) +

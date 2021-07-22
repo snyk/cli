@@ -1,5 +1,4 @@
-import chalk from 'chalk';
-
+import { color } from '../../../lib/theme';
 import { TestOptions, Options } from '../../../lib/types';
 import { FAIL_ON, FailOn, SEVERITIES } from '../../../lib/snyk-test/common';
 import { FailOnError } from '../../../lib/errors/fail-on-error.ts';
@@ -14,7 +13,7 @@ export function validateTestOptions(options: TestOptions & Options) {
 
   if (options.failOn && !validateFailOn(options.failOn)) {
     const error = new FailOnError();
-    throw chalk.red.bold(error.message);
+    throw color.status.error(error.message);
   }
 }
 

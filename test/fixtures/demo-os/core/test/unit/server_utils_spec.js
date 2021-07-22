@@ -15,7 +15,7 @@ describe('Safe String', function () {
     });
 
     it('should remove non ascii characters', function () {
-        var result = safeString('howtowin✓');
+        var result = safeString('howtowin✔');
         result.should.equal('howtowin');
     });
 

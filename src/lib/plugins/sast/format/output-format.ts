@@ -1,7 +1,8 @@
 import * as Sarif from 'sarif';
 import * as Debug from 'debug';
 import chalk from 'chalk';
-import { getLegacySeveritiesColour, SEVERITY } from '../../../snyk-test/common';
+import { icon, color } from '../../../theme';
+import { colorTextBySeverity, SEVERITY } from '../../../snyk-test/common';
 import { rightPadWithSpaces } from '../../../right-pad';
 import { Options } from '../../../types';
 
@@ -26,7 +27,7 @@ export function getCodeDisplayedOutput(
 
   const issuesText =
     issues.low.join('') + issues.medium.join('') + issues.high.join('');
-  const summaryOKText = chalk.green('✔ Test completed');
+  const summaryOKText = color.status.success(`${icon.VALID} Test completed`);
   const codeIssueSummary = getCodeIssuesSummary(issues);
 
   return (
@@ -43,19 +44,13 @@ export function getCodeDisplayedOutput(
 
 function getCodeIssuesSummary(issues: { [index: string]: string[] }): string {
   const lowSeverityText = issues.low.length
-    ? getLegacySeveritiesColour(SEVERITY.LOW).colorFunc(
-        ` ${issues.low.length} [Low] `,
-      )
+    ? colorTextBySeverity(SEVERITY.LOW, ` ${issues.low.length} [Low] `)
     : '';
   const mediumSeverityText = issues.medium.length
-    ? getLegacySeveritiesColour(SEVERITY.MEDIUM).colorFunc(
-        ` ${issues.medium.length} [Medium] `,
-      )
+    ? colorTextBySeverity(SEVERITY.MEDIUM, ` ${issues.medium.length} [Medium] `)
     : '';
   const highSeverityText = issues.high.length
-    ? getLegacySeveritiesColour(SEVERITY.HIGH).colorFunc(
-        `${issues.high.length} [High] `,
-      )
+    ? colorTextBySeverity(SEVERITY.HIGH, `${issues.high.length} [High] `)
     : '';
 
   const codeIssueCount =
@@ -65,7 +60,9 @@ function getCodeIssuesSummary(issues: { [index: string]: string[] }): string {
   } found`;
   const issuesBySeverityText =
     highSeverityText + mediumSeverityText + lowSeverityText;
-  const vulnPathsText = chalk.green('✔ Awesome! No issues were found.');
+  const vulnPathsText = color.status.success(
+    `${icon.VALID} Awesome! No issues were found.`,
+  );
 
   return codeIssueCount > 0
     ? codeIssueFound + '\n' + issuesBySeverityText
@@ -93,9 +90,10 @@ function getIssues(
         }
         const ruleName =
           rulesMap[ruleId].shortDescription?.text || rulesMap[ruleId].name;
-        const ruleIdSeverityText = getLegacySeveritiesColour(
-          severity.toLowerCase(),
-        ).colorFunc(` ✗ [${severity}] ${ruleName}`);
+        const ruleIdSeverityText = colorTextBySeverity(
+          severity,
+          ` ${icon.ISSUE} [${severity}] ${ruleName}`,
+        );
         const artifactLocationUri = location.artifactLocation.uri;
         const startLine = location.region.startLine;
         const text = res.message.text;
