@@ -5,7 +5,7 @@ const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
 const semver = require('semver');
-const errorAnalytics = require('../analytics').postAnalytics;
+import { addDataAndSend } from '../analytics';
 
 function applyPatch(patchFileName, vuln, live, patchUrl) {
   let cwd = vuln.source;
@@ -190,7 +190,7 @@ function patchError(error, dir, vuln, patchUrl) {
         const filename = path.relative(process.cwd(), dir);
 
         // post metadata to help diagnose
-        errorAnalytics({
+        addDataAndSend({
           command: 'patch-fail',
           metadata: {
             from: vuln.from.slice(1),
