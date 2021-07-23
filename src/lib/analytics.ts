@@ -61,7 +61,7 @@ export function allowAnalytics(): boolean {
  * given by the data parameter, or called from {@link addDataAndSend}.
  * @param data the analytics data to send to the backend.
  */
-export function postAnalytics(
+export async function postAnalytics(
   data,
 ): Promise<void | { res: needle.NeedleResponse; body: any }> {
   // if the user opt'ed out of analytics, then let's bail out early
@@ -73,74 +73,70 @@ export function postAnalytics(
 
   const isStandalone = version.isStandaloneBuild();
 
-  // get snyk version
-  return version
-    .getVersion()
-    .then(async (version) => {
-      data.version = version;
-      data.os = osName(os.platform(), os.release());
-      data.nodeVersion = process.version;
-      data.standalone = isStandalone;
-      data.integrationName = getIntegrationName(data.args);
-      data.integrationVersion = getIntegrationVersion(data.args);
-      data.integrationEnvironment = getIntegrationEnvironment(data.args);
-      data.integrationEnvironmentVersion = getIntegrationEnvironmentVersion(
-        data.args,
-      );
+  const snykVersion = await version.getVersion();
 
-      const seed = uuidv4();
-      const shasum = crypto.createHash('sha1');
-      data.id = shasum.update(seed).digest('hex');
+  try {
+    data.version = snykVersion;
+    data.os = osName(os.platform(), os.release());
+    data.nodeVersion = process.version;
+    data.standalone = isStandalone;
+    data.integrationName = getIntegrationName(data.args);
+    data.integrationVersion = getIntegrationVersion(data.args);
+    data.integrationEnvironment = getIntegrationEnvironment(data.args);
+    data.integrationEnvironmentVersion = getIntegrationEnvironmentVersion(
+      data.args,
+    );
 
-      const headers = {};
-      if (snyk.api) {
-        headers['authorization'] = 'token ' + snyk.api;
-      }
+    const seed = uuidv4();
+    const shasum = crypto.createHash('sha1');
+    data.id = shasum.update(seed).digest('hex');
 
-      data.ci = isCI();
+    const headers = {};
+    if (snyk.api) {
+      headers['authorization'] = 'token ' + snyk.api;
+    }
 
-      data.environment = {};
-      if (!isStandalone) {
-        data.environment.npmVersion = await getCommandVersion('npm');
-      }
+    data.ci = isCI();
 
-      data.durationMs = Date.now() - startTime;
+    data.environment = {};
+    if (!isStandalone) {
+      data.environment.npmVersion = await getCommandVersion('npm');
+    }
 
-      try {
-        const networkTime = MetricsCollector.NETWORK_TIME.getTotal();
-        const cpuTime = data.durationMs - networkTime;
-        MetricsCollector.CPU_TIME.createInstance().setValue(cpuTime);
-        data.metrics = MetricsCollector.getAllMetrics();
-      } catch (err) {
-        debug('Error with metrics', err);
-      }
+    data.durationMs = Date.now() - startTime;
 
-      const queryStringParams = {};
-      if (data.org) {
-        queryStringParams['org'] = data.org;
-      }
+    try {
+      const networkTime = MetricsCollector.NETWORK_TIME.getTotal();
+      const cpuTime = data.durationMs - networkTime;
+      MetricsCollector.CPU_TIME.createInstance().setValue(cpuTime);
+      data.metrics = MetricsCollector.getAllMetrics();
+    } catch (err) {
+      debug('Error with metrics', err);
+    }
 
-      debug('analytics', JSON.stringify(data, null, '  '));
+    const queryStringParams = {};
+    if (data.org) {
+      queryStringParams['org'] = data.org;
+    }
 
-      const queryString =
-        Object.keys(queryStringParams).length > 0
-          ? queryStringParams
-          : undefined;
+    debug('analytics', JSON.stringify(data, null, '  '));
 
-      return request({
-        body: {
-          data: data,
-        },
-        qs: queryString,
-        url: config.API + '/analytics/cli',
-        json: true,
-        method: 'post',
-        headers: headers,
-      });
-    })
-    .catch((error) => {
-      debug('analytics', error); // this swallows the analytics error
+    const queryString =
+      Object.keys(queryStringParams).length > 0 ? queryStringParams : undefined;
+
+    return request({
+      body: {
+        data: data,
+      },
+      qs: queryString,
+      url: config.API + '/analytics/cli',
+      json: true,
+      method: 'post',
+      headers: headers,
     });
+  } catch (err) {
+    debug('analytics', err); // this swallows the analytics error
+  }
 }
 
 /**
