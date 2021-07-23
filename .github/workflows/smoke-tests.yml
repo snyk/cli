@@ -89,9 +89,7 @@ jobs:
       - name: Install snyk from Docker bundle
         if: ${{ matrix.snyk_install_method == 'docker-bundle' }}
         run: |
-          snyk_cli_dl=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "${{ matrix.snyk_cli_dl_file }}") | .browser_download_url')
-          echo "snyk_cli_dl: ${snyk_cli_dl}"
-          curl -Lo ./snyk-cli.tar.gz $snyk_cli_dl
+          curl -Lo ./snyk-cli.tar.gz 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}'
           sudo mkdir -p /usr/local/bin/snyk-mac
           sudo mv ./snyk-cli.tar.gz /usr/local/bin/snyk-mac
           sudo tar -xf /usr/local/bin/snyk-mac/snyk-cli.tar.gz -C /usr/local/bin/snyk-mac  # makes a folder called docker
@@ -112,10 +110,7 @@ jobs:
       - name: Install Snyk with binary - Non-Windows
         if: ${{ matrix.snyk_install_method == 'binary' && matrix.os != 'windows' }}
         run: |
-          echo "install snyk with binary"
-          snyk_cli_dl=$(curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/snyk/snyk/releases/latest | jq --raw-output '(.assets[])? | select(.name == "${{ matrix.snyk_cli_dl_file }}") | .browser_download_url')
-          echo "snyk_cli_dl: ${snyk_cli_dl}"
-          curl -Lo ./snyk-cli $snyk_cli_dl
+          curl -Lo ./snyk-cli 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}'
           chmod -R +x ./snyk-cli
           sudo mv ./snyk-cli /usr/local/bin/snyk
           snyk --version
