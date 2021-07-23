@@ -71,11 +71,10 @@ export async function postAnalytics(
     return Promise.resolve();
   }
 
-  const isStandalone = version.isStandaloneBuild();
-
-  const snykVersion = await version.getVersion();
-
   try {
+    const isStandalone = version.isStandaloneBuild();
+    const snykVersion = await version.getVersion();
+
     data.version = snykVersion;
     data.os = osName(os.platform(), os.release());
     data.nodeVersion = process.version;
