@@ -1,23 +1,23 @@
 import { v4 as uuidv4 } from 'uuid';
-const snyk = require('../lib');
-const config = require('./config');
-const version = require('./version');
-const request = require('./request');
+const snyk = require('../../lib');
+const config = require('../config');
+const version = require('../version');
+const request = require('../request');
 const {
   getIntegrationName,
   getIntegrationVersion,
   getIntegrationEnvironment,
   getIntegrationEnvironmentVersion,
   getCommandVersion,
-} = require('./analytics-sources');
-const isCI = require('./is-ci').isCI;
+} = require('./sources');
+const isCI = require('../is-ci').isCI;
 const debug = require('debug')('snyk');
 const os = require('os');
 const osName = require('os-name');
 const crypto = require('crypto');
 const stripAnsi = require('strip-ansi');
 import * as needle from 'needle';
-const { MetricsCollector } = require('./metrics');
+const { MetricsCollector } = require('../metrics');
 
 const metadata = {};
 // analytics module is required at the beginning of the CLI run cycle

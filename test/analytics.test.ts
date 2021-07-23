@@ -41,7 +41,7 @@ test('analytics disabled', (t) => {
   const spy = sinon.spy();
   snyk.config.set('disable-analytics', '1');
   const analytics = proxyquire('../src/lib/analytics', {
-    './request': spy,
+    '../request': spy,
   });
 
   return analytics.addDataAndSend().then(() => {
@@ -52,7 +52,7 @@ test('analytics disabled', (t) => {
 test('analytics', (t) => {
   const spy = sinon.spy();
   const analytics = proxyquire('../src/lib/analytics', {
-    './request': spy,
+    '../request': spy,
   });
 
   analytics.add('foo', 'bar');
@@ -100,7 +100,7 @@ test('analytics', (t) => {
 test('analytics with args', (t) => {
   const spy = sinon.spy();
   const analytics = proxyquire('../src/lib/analytics', {
-    './request': spy,
+    '../request': spy,
   });
 
   analytics.add('foo', 'bar');
@@ -143,7 +143,7 @@ test('analytics with args', (t) => {
 test('analytics with args and org', (t) => {
   const spy = sinon.spy();
   const analytics = proxyquire('../src/lib/analytics', {
-    './request': spy,
+    '../request': spy,
   });
 
   analytics.add('foo', 'bar');
@@ -192,7 +192,7 @@ test('analytics with args and org', (t) => {
 test('analytics npm version capture', (t) => {
   const spy = sinon.spy();
   const analytics = proxyquire('../src/lib/analytics', {
-    './request': spy,
+    '../request': spy,
   });
 
   analytics.add('foo', 'bar');
@@ -223,7 +223,7 @@ test('bad command', (t) => {
   process.argv = ['node', 'script.js', 'random command', '-q'];
   const cli = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
-      './request': spy,
+      '../request': spy,
     }),
   });
 
@@ -252,7 +252,7 @@ test('bad command with string error', (t) => {
   error.code = 'CODE';
   const cli = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
-      './request': spy,
+      '../request': spy,
     }),
 
     './args': proxyquire('../src/cli/args', {
@@ -287,7 +287,7 @@ test('vulns found (thrown as an error)', (t) => {
   error.code = 'VULNS';
   const cli = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
-      './request': spy,
+      '../request': spy,
     }),
 
     './args': proxyquire('../src/cli/args', {
@@ -323,7 +323,7 @@ test('analytics was called', (t) => {
   const spy = sinon.spy();
   const cli = proxyquire('../src/cli', {
     '../lib/analytics': proxyquire('../src/lib/analytics', {
-      './request': spy,
+      '../request': spy,
     }),
   });
 
