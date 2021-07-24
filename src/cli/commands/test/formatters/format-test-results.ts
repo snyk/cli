@@ -30,7 +30,7 @@ import { isNewVuln, isVulnFixable } from '../vuln-helpers';
 import { jsonStringifyLargeObject } from '../../../../lib/json';
 import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 
-export function formatJsonOutput(jsonData, options: Options) {
+function formatJsonOutput(jsonData, options: Options) {
   const jsonDataClone = cloneDeep(jsonData);
 
   if (options['group-issues']) {

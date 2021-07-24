@@ -51,7 +51,7 @@ function replaceLockfileWithManifest(testResult: TestResult): TestResult {
   };
 }
 
-export function getRules(testResult: TestResult): sarif.ReportingDescriptor[] {
+function getRules(testResult: TestResult): sarif.ReportingDescriptor[] {
   const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
   return map(
     groupedVulnerabilities,
@@ -93,7 +93,7 @@ ${vuln.description}`.replace(/##\s/g, '# '),
   );
 }
 
-export function getResults(testResult): sarif.Result[] {
+function getResults(testResult): sarif.Result[] {
   const groupedVulnerabilities = groupBy(testResult.vulnerabilities, 'id');
   return map(
     groupedVulnerabilities,
@@ -119,7 +119,7 @@ export function getResults(testResult): sarif.Result[] {
   );
 }
 
-export function getLevel(vuln: AnnotatedIssue) {
+function getLevel(vuln: AnnotatedIssue) {
   switch (vuln.severity) {
     case SEVERITY.CRITICAL:
     case SEVERITY.HIGH:

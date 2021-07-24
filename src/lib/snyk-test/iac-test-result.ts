@@ -86,9 +86,7 @@ interface MappedAnnotatedIacIssue
   path: string[];
 }
 
-function mapIacIssue(
-  iacIssue: AnnotatedIacIssue,
-): MappedAnnotatedIacIssue {
+function mapIacIssue(iacIssue: AnnotatedIacIssue): MappedAnnotatedIacIssue {
   // filters out & renames properties we're getting from registry and don't need for the JSON output.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { cloudConfigPath: path, name, from, ...mappedIacIssue } = iacIssue;

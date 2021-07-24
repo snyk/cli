@@ -40,7 +40,6 @@
       }
     ],
     "no-buffer-constructor": "error",
-    "import/no-unresolved": "error",
     "import/namespace": "off",
     "import/no-unused-modules": [
       "error",

@@ -76,10 +76,7 @@ function generateWorkspace(contents: string, path?: string) {
     },
   };
 }
-export function generateScanResult(
-  type: string,
-  targetFile: string,
-): ScanResult {
+function generateScanResult(type: string, targetFile: string): ScanResult {
   return {
     identity: {
       type,

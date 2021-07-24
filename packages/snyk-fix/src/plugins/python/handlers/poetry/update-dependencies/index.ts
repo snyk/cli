@@ -87,9 +87,7 @@ export async function updateDependencies(
   return handlerResult;
 }
 
-export function generateSuccessfulChanges(
-  pins: DependencyPins,
-): FixChangesSummary[] {
+function generateSuccessfulChanges(pins: DependencyPins): FixChangesSummary[] {
   const changes: FixChangesSummary[] = [];
   for (const pkgAtVersion of Object.keys(pins)) {
     const pin = pins[pkgAtVersion];

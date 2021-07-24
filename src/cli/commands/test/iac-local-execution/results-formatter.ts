@@ -163,7 +163,6 @@ function groupMultiDocResults(
   return Object.values(groupedData);
 }
 
-// eslint-disable-next-line import/no-unused-modules
 export function filterPoliciesBySeverity(
   violatedPolicies: PolicyMetadata[],
   severityThreshold?: SEVERITY,

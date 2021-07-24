@@ -31,7 +31,8 @@ const simpleGradleGraph = depGraphLib.createFromJSON({
   },
 });
 
-export const AllProjectsTests: AcceptanceTests = {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const AllProjectsTests: AcceptanceTests = {
   language: 'Mixed',
   tests: {
     '`test gradle-with-orphaned-build-file --all-projects` warns user': (

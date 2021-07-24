@@ -3,7 +3,7 @@ import { isDefined } from './is-defined';
 import { Requirement } from './requirements-file-parser';
 import { standardizePackageName } from '../../../standardize-package-name';
 
-export type FixesType = 'direct-upgrades' | 'transitive-pins';
+type FixesType = 'direct-upgrades' | 'transitive-pins';
 
 export function calculateRelevantFixes(
   requirements: Requirement[],

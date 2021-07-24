@@ -345,7 +345,7 @@ async function monitorDepTree(
   });
 }
 
-export async function monitorDepGraph(
+async function monitorDepGraph(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,

@@ -4,6 +4,7 @@ import { CustomError } from './errors';
 
 const debug = Debug('snyk');
 
+// eslint-disable-next-line import/no-unused-modules
 export function yarn(
   method: string,
   packages: string[],

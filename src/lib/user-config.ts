@@ -1,6 +1,7 @@
 const Configstore = require('configstore');
 const pkg = require(__dirname + '/../../package.json');
 
+// eslint-disable-next-line import/no-unused-modules
 export class ConfigStoreWithEnvironmentVariables extends Configstore {
   constructor(id, defaults = undefined, options = {}) {
     super(id, defaults, options);
@@ -13,4 +14,5 @@ export class ConfigStoreWithEnvironmentVariables extends Configstore {
   }
 }
 
+// eslint-disable-next-line import/no-unused-modules
 export const config = new ConfigStoreWithEnvironmentVariables(pkg.name);

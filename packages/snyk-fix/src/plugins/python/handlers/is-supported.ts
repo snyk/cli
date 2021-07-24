@@ -9,9 +9,7 @@ interface NotSupported {
   reason: string;
 }
 
-export function projectTypeSupported(
-  res: Supported | NotSupported,
-): res is Supported {
+function projectTypeSupported(res: Supported | NotSupported): res is Supported {
   return !('reason' in res);
 }
 

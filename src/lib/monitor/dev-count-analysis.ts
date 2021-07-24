@@ -11,7 +11,7 @@ import { exec } from 'child_process';
 import { Contributor } from '../types';
 
 export const SERIOUS_DELIMITER = '_SNYK_SEPARATOR_';
-export const CONTRIBUTING_DEVELOPER_PERIOD_DAYS = 90;
+const CONTRIBUTING_DEVELOPER_PERIOD_DAYS = 90;
 // Limit the number of commits returned from `git log` command to stay within maxBuffer limit
 export const MAX_COMMITS_IN_GIT_LOG = 500;
 

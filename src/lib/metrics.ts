@@ -1,11 +1,8 @@
 const debug = require('debug')('snyk-metrics');
 
 type MetricType = 'timer' | 'synthetic';
-export type MetricValue = number | undefined;
-export const METRIC_TYPE_TIMER = 'timer';
-export const METRIC_TYPE_SYNTHETIC = 'synthetic';
-
-export abstract class MetricInstance {
+type MetricValue = number | undefined;
+abstract class MetricInstance {
   abstract getValue(): MetricValue;
 }
 
@@ -66,7 +63,7 @@ export class SyntheticMetricInstance extends MetricInstance {
   }
 }
 
-export abstract class Metric {
+abstract class Metric {
   public name: string;
   public context: string;
   public metricType: MetricType;
@@ -97,7 +94,7 @@ export abstract class Metric {
   }
 }
 
-export class TimerMetric extends Metric {
+class TimerMetric extends Metric {
   public createInstance(): TimerMetricInstance {
     const t = new TimerMetricInstance(`${this.metricType}/${this.name}`);
     this.instances.push(t);
@@ -105,7 +102,7 @@ export class TimerMetric extends Metric {
   }
 }
 
-export class SyntheticMetric extends Metric {
+class SyntheticMetric extends Metric {
   public createInstance(): SyntheticMetricInstance {
     const sm = new SyntheticMetricInstance();
     this.instances.push(sm);

@@ -8,7 +8,7 @@ import {
 import { Workspace } from '../../../../types';
 import { containsRequireDirective } from './contains-require-directive';
 
-export interface PythonProvenance {
+interface PythonProvenance {
   [fileName: string]: ParsedRequirements;
 }
 

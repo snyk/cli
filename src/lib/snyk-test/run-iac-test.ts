@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as pathUtil from 'path';
-import { TestResult , SEVERITY } from './legacy';
+import { TestResult, SEVERITY } from './legacy';
 import { IacTestResponse } from './iac-test-result';
 import * as snyk from '..';
 import { isCI } from '../is-ci';

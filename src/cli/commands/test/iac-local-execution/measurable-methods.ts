@@ -32,9 +32,7 @@ function asyncPerformanceAnalyticsDecorator<
   };
 }
 
-function performanceAnalyticsDecorator<
-  T extends (...args: any[]) => any
->(
+function performanceAnalyticsDecorator<T extends (...args: any[]) => any>(
   measurableMethod: T,
   analyticsKey: PerformanceAnalyticsKey,
 ): (...args: Parameters<T>) => ReturnType<T> {
