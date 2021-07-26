@@ -3,7 +3,7 @@ import * as url from 'url';
 import * as os from 'os';
 import { ArgsOptions } from './../cli/args';
 import { isDocker } from './is-docker';
-import { getIntegrationName, getIntegrationVersion } from './analytics-sources';
+import { getIntegrationName, getIntegrationVersion } from './analytics/sources';
 
 export function getQueryParamsAsString(args: ArgsOptions[]): string {
   const utm_source = process.env.SNYK_UTM_SOURCE || 'cli';

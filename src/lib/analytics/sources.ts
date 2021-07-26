@@ -11,7 +11,7 @@
 const debug = require('debug')('snyk');
 import * as fs from 'fs';
 import * as semver from 'semver';
-import { ArgsOptions } from '../cli/args';
+import { ArgsOptions } from '../../cli/args';
 import { join } from 'path';
 const { exec } = require('child_process');
 

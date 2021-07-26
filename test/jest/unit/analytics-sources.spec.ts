@@ -11,7 +11,7 @@ import {
   isHomebrew,
   validateHomebrew,
   validateScoopManifestFile,
-} from '../../../src/lib/analytics-sources';
+} from '../../../src/lib/analytics/sources';
 
 import * as fs from 'fs';
 
@@ -28,7 +28,7 @@ beforeEach(() => {
   delete process.env[INTEGRATION_ENVIRONMENT_VERSION_ENVVAR];
 });
 
-describe('analytics-sources - scoop detection', () => {
+describe('sources - scoop detection', () => {
   it('detects if snyk is installed via scoop', () => {
     const originalExecPath = process.execPath;
     process.execPath =
@@ -54,7 +54,7 @@ describe('analytics-sources - scoop detection', () => {
   });
 });
 
-describe('analytics-sources - Homebrew detection', () => {
+describe('sources - Homebrew detection', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -99,7 +99,7 @@ describe('analytics-sources - Homebrew detection', () => {
   });
 });
 
-describe('analytics-sources - getIntegrationName', () => {
+describe('sources - getIntegrationName', () => {
   it('returns empty integration name by default', () => {
     expect(getIntegrationName(emptyArgs)).toBe('');
   });
@@ -150,7 +150,7 @@ describe('analytics-sources - getIntegrationName', () => {
   });
 });
 
-describe('analytics-sources - getIntegrationVersion', () => {
+describe('sources - getIntegrationVersion', () => {
   it('returns empty integration version by default', () => {
     expect(getIntegrationVersion(emptyArgs)).toBe('');
   });
@@ -169,7 +169,7 @@ describe('analytics-sources - getIntegrationVersion', () => {
   });
 });
 
-describe('analytics-sources - getIntegrationEnvironment', () => {
+describe('sources - getIntegrationEnvironment', () => {
   it('returns empty integration environment by default', () => {
     expect(getIntegrationEnvironment(emptyArgs)).toBe('');
   });
@@ -188,7 +188,7 @@ describe('analytics-sources - getIntegrationEnvironment', () => {
   });
 });
 
-describe('analytics-sources - getIntegrationEnvironment', () => {
+describe('sources - getIntegrationEnvironment', () => {
   it('returns empty integration environment version by default', () => {
     expect(getIntegrationEnvironmentVersion(emptyArgs)).toBe('');
   });
