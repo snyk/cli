@@ -1,0 +1,9 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-CC-TF-123:
+    - 'aws_ec2_metadata_secrets.tf > resource > aws_instance[denied_2] > user_data_base64[aws_access_key_id]':
+        reason: None Given
+        created: 2021-07-26T13:09:08.459Z
+patch: {}

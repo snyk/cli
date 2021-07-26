@@ -9,6 +9,7 @@ import {
 } from './types';
 import { addIacAnalytics } from './analytics';
 import { TestLimitReachedError } from './usage-tracking';
+import { filterIgnoredIssues } from './policy';
 import { TestResult } from '../../../../lib/snyk-test/legacy';
 import {
   initLocalCache,
@@ -24,6 +25,7 @@ import {
 import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { FlagError } from './assert-iac-options-flag';
 import config = require('../../../../lib/config');
+import { findAndLoadPolicy } from '../../../../lib/policy/find-and-load-policy';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -37,6 +39,8 @@ export async function test(
     const customRulesPath = await customRulesPathForOrg(options.rules, org);
 
     await initLocalCache({ customRulesPath });
+
+    const policy = await findAndLoadPolicy(pathToScan, 'iac', options);
 
     const filesToParse = await loadFiles(pathToScan, options);
     const { parsedFiles, failedFiles } = await parseFiles(
@@ -65,8 +69,10 @@ export async function test(
       iacOrgSettings.meta,
     );
 
+    const filteredResults = filterIgnoredIssues(policy, formattedResults);
+
     try {
-      await trackUsage(formattedResults);
+      await trackUsage(filteredResults);
     } catch (e) {
       if (e instanceof TestLimitReachedError) {
         throw e;
@@ -75,11 +81,11 @@ export async function test(
       // run their tests by squashing the error.
     }
 
-    addIacAnalytics(formattedResults);
+    addIacAnalytics(filteredResults);
 
     // TODO: add support for proper typing of old TestResult interface.
     return {
-      results: (formattedResults as unknown) as TestResult[],
+      results: (filteredResults as unknown) as TestResult[],
       // NOTE: No file or parsed file data should leave this function.
       failures: isLocalFolder(pathToScan)
         ? failedFiles.map(removeFileContent)

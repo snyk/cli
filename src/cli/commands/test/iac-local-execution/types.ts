@@ -9,6 +9,7 @@ import {
   IacFileInDirectory,
   Options,
   TestOptions,
+  PolicyOptions,
 } from '../../../../lib/types';
 
 export interface IacFileData extends IacFileInDirectory {
@@ -117,7 +118,7 @@ export interface PolicyMetadata {
 // Collection of all options supported by `iac test` command.
 // TODO: Needs to be fixed at the args module level.
 export type IaCTestFlags = Pick<
-  Options & TestOptions,
+  Options & TestOptions & PolicyOptions,
   | 'org'
   | 'insecure'
   | 'debug'
@@ -126,6 +127,10 @@ export type IaCTestFlags = Pick<
   | 'severityThreshold'
   | 'json'
   | 'sarif'
+
+  // PolicyOptions
+  | 'ignore-policy'
+  | 'policy-path'
 > & {
   // Supported flags not yet covered by Options or TestOptions
   'json-file-output'?: string;

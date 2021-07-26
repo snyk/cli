@@ -9,7 +9,7 @@ Describe "Snyk iac test command"
     It "finds issues in terraform file"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --legacy
       The status should be failure # issues found
-      The output should include "Testing sg_open_ssh.tf..."
+      The output should include "Testing ../fixtures/iac/terraform/sg_open_ssh.tf..."
       # Outputs issues   
       The output should include "Infrastructure as code issues:"
       The output should include "✗ "
@@ -22,13 +22,13 @@ Describe "Snyk iac test command"
       The output should include "Project name:      terraform"
       The output should include "Open source:       no"
       The output should include "Project path:      ../fixtures/iac/terraform/sg_open_ssh.tf"
-      The output should include "Tested sg_open_ssh.tf for known issues, found"
+      The output should include "Tested ../fixtures/iac/terraform/sg_open_ssh.tf for known issues, found"
     End
 
     It "filters out issues when using severity threshold"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf --severity-threshold=high --legacy
       The status should be success # no issues found
-      The output should include "Testing sg_open_ssh.tf..."
+      The output should include "Testing ../fixtures/iac/terraform/sg_open_ssh.tf..."
       # Outputs issues   
       The output should include "Infrastructure as code issues:"
 
@@ -39,7 +39,7 @@ Describe "Snyk iac test command"
       The output should include "Project name:      terraform"
       The output should include "Open source:       no"
       The output should include "Project path:      ../fixtures/iac/terraform/sg_open_ssh.tf"
-      The output should include "Tested sg_open_ssh.tf for known issues, found"
+      The output should include "Tested ../fixtures/iac/terraform/sg_open_ssh.tf for known issues, found"
     End
 
     It "outputs an error for invalid hcl2 tf files"
