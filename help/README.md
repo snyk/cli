@@ -17,13 +17,13 @@ This system improves authoring, as markdown is easier to format. It's keeping th
 
 Contact **Team Hammer** or open an issue in this repository when in doubt.
 
-Keep all changes in `help/commands-docs` folder, as other folders are ignored by `.gitignore` file and are auto-generated in CI pipeline.
+Keep all changes in `help/commands-docs` folder, as that is used as source for generating Markdown, ronn and txt files. When you are done editing, or you want to preview your changes, run the `npm run generate-help` (see "Running locally" below for troubleshooting). Then commit all changes, including the generated files.
 
 See other documents and help files for hints on how to format arguments. Keep formatting simple, as the transformation to `roff` might have issues with complex structures.
 
 ### CLI options
 
-```md
+```markdown
 - `--severity-threshold`=low|medium|high|critical:
   Only report vulnerabilities of provided level or higher.
 ```
@@ -34,13 +34,13 @@ CLI flag should be in backticks. Options (filenames, org names…) should use Ke
 
 There is one non-standard markdown extension:
 
-```md
+```markdown
 <KEYWORD>
 ```
 
 Visually, it'll get rendered as underlined text. It's used to mark a "variable". For example this command flag:
 
-```md
+```markdown
 - `--sarif-file-output`=<OUTPUT_FILE_PATH>:
   (only in `test` command)
   Save test output in SARIF format directly to the <OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.

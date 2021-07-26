@@ -128,12 +128,6 @@ commands:
       - run:
           name: NPM version
           command: npm --version
-  generate_help:
-    description: Generate CLI help files
-    steps:
-      - run:
-          name: Run CLI help text builder
-          command: npm run generate-help
   install_github_cli:
     description: Install GitHub CLI (gh)
     steps:
@@ -160,16 +154,12 @@ jobs:
       - image: circleci/node:<< parameters.node_version >>
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-          docker_layer_caching: true
       - install_shellspec
       - run: sudo npm install -g npm@7
       - show_node_version
       - update_local_npmrc_linux
       - install_deps
       - build_ts
-      - generate_help
       - run:
           name: Run auth
           command: npm run snyk-auth
@@ -420,8 +410,6 @@ jobs:
     resource_class: small
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
       - run:
           name: Install npm@7
           command: |
@@ -429,7 +417,6 @@ jobs:
       - show_node_version
       - install_lerna_linux
       - install_deps
-      - generate_help
       - run:
           name: Update package versions
           command: ./release-scripts/update-versions.sh
@@ -456,9 +443,6 @@ jobs:
     resource_class: small
     steps:
       - checkout
-      - setup_remote_docker:
-          version: 19.03.13
-          docker_layer_caching: true
       - run:
           name: Should I release?
           command: ./release-scripts/should-i-release.sh
@@ -472,7 +456,6 @@ jobs:
       - install_lerna_linux
       - update_local_npmrc_linux
       - install_deps
-      - generate_help
       - run:
           name: Update package versions
           command: ./release-scripts/update-versions.sh
