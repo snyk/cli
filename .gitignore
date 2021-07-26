@@ -18,9 +18,6 @@ snyk_report.html
 !/docker/snyk_report.css
 cert.pem
 key.pem
-help/commands-md
-help/commands-txt
-help/commands-man
 **/tsconfig.tsbuildinfo
 __outputs__
 *.tgz

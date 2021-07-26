@@ -1,0 +1,93 @@
+[1mN[0m[1mA[0m[1mM[0m[1mE[0m
+       [1ms[0m[1mn[0m[1my[0m[1mk[0m[1m-[0m[1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1my[0m - Display the .snyk policy for a package
+
+[1mS[0m[1mY[0m[1mN[0m[1mO[0m[1mP[0m[1mS[0m[1mI[0m[1mS[0m
+       [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1my[0m [[4mP[0m[4mA[0m[4mT[0m[4mH[0m[1m_[0m[4mT[0m[4mO[0m[1m_[0m[4mP[0m[4mO[0m[4mL[0m[4mI[0m[4mC[0m[4mY[0m[1m_[0m[4mF[0m[4mI[0m[4mL[0m[4mE[0m] [[4mO[0m[4mP[0m[4mT[0m[4mI[0m[4mO[0m[4mN[0m[4mS[0m]
+
+[1mD[0m[1mE[0m[1mS[0m[1mC[0m[1mR[0m[1mI[0m[1mP[0m[1mT[0m[1mI[0m[1mO[0m[1mN[0m
+       Displays a [1m.[0m[1ms[0m[1mn[0m[1my[0m[1mk[0m policy file.
+
+[1mO[0m[1mP[0m[1mT[0m[1mI[0m[1mO[0m[1mN[0m[1mS[0m
+       [4mP[0m[4mA[0m[4mT[0m[4mH[0m[1m_[0m[4mT[0m[4mO[0m[1m_[0m[4mP[0m[4mO[0m[4mL[0m[4mI[0m[4mC[0m[4mY[0m[1m_[0m[4mF[0m[4mI[0m[4mL[0m[4mE[0m
+              Manually pass a path to a snyk policy file.
+
+   [1mF[0m[1ml[0m[1ma[0m[1mg[0m[1ms[0m [1ma[0m[1mv[0m[1ma[0m[1mi[0m[1ml[0m[1ma[0m[1mb[0m[1ml[0m[1me[0m [1ma[0m[1mc[0m[1mc[0m[1mr[0m[1mo[0m[1ms[0m[1ms[0m [1ma[0m[1ml[0m[1ml[0m [1mc[0m[1mo[0m[1mm[0m[1mm[0m[1ma[0m[1mn[0m[1md[0m[1ms[0m
+       [1m-[0m[1m-[0m[1mi[0m[1mn[0m[1ms[0m[1me[0m[1mc[0m[1mu[0m[1mr[0m[1me[0m
+              Ignore unknown certificate authorities.
+
+       [1m-[0m[1md[0m     Output debug logs.
+
+       [1m-[0m[1m-[0m[1mq[0m[1mu[0m[1mi[0m[1me[0m[1mt[0m, [1m-[0m[1mq[0m
+              Silence all output.
+
+       [1m-[0m[1m-[0m[1mv[0m[1me[0m[1mr[0m[1ms[0m[1mi[0m[1mo[0m[1mn[0m, [1m-[0m[1mv[0m
+              Prints versions.
+
+       [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m] [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m, [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m], [1m-[0m[1mh[0m
+              Prints  a  help  text. You may specify a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more de-
+              tails.
+
+[1mE[0m[1mX[0m[1mI[0m[1mT[0m [1mC[0m[1mO[0m[1mD[0m[1mE[0m[1mS[0m
+       Possible exit codes and their meaning:
+
+       [1m0[0m: success, no vulns found
+       [1m1[0m: action_needed, vulns found
+       [1m2[0m: failure, try to re-run command
+       [1m3[0m: failure, no supported projects detected
+
+[1mE[0m[1mN[0m[1mV[0m[1mI[0m[1mR[0m[1mO[0m[1mN[0m[1mM[0m[1mE[0m[1mN[0m[1mT[0m
+       You can set these environment variables to change CLI run settings.
+
+       [1mS[0m[1mN[0m[1mY[0m[1mK[0m[1m_[0m[1mT[0m[1mO[0m[1mK[0m[1mE[0m[1mN[0m
+              Snyk authorization token. Setting this envvar will override  the
+              token that may be available in your [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m settings.
+
+              How to get your account token [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mc[0m[4mo[0m[4m/[0m[4mu[0m[4mc[0m[4mT[0m[4m6[0m[4mJ[0m
+              How to use Service Accounts [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mc[0m[4mo[0m[4m/[0m[4mu[0m[4mc[0m[4mT[0m[4m6[0m[4mL[0m
+
+
+       [1mS[0m[1mN[0m[1mY[0m[1mK[0m[1m_[0m[1mC[0m[1mF[0m[1mG[0m[1m_[0m[1mK[0m[1mE[0m[1mY[0m
+              Allows  you  to  override  any key that's also available as [1ms[0m[1mn[0m[1my[0m[1mk[0m
+              [1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m option.
+
+              E.g. [1mS[0m[1mN[0m[1mY[0m[1mK[0m[1m_[0m[1mC[0m[1mF[0m[1mG[0m[1m_[0m[1mO[0m[1mR[0m[1mG[0m=myorg will override default org option in [1mc[0m[1mo[0m[1mn[0m[1m-[0m
+              [1mf[0m[1mi[0m[1mg[0m with "myorg".
+
+       [1mS[0m[1mN[0m[1mY[0m[1mK[0m[1m_[0m[1mR[0m[1mE[0m[1mG[0m[1mI[0m[1mS[0m[1mT[0m[1mR[0m[1mY[0m[1m_[0m[1mU[0m[1mS[0m[1mE[0m[1mR[0m[1mN[0m[1mA[0m[1mM[0m[1mE[0m
+              Specify  a  username  to use when connecting to a container reg-
+              istry. Note that using the [1m-[0m[1m-[0m[1mu[0m[1ms[0m[1me[0m[1mr[0m[1mn[0m[1ma[0m[1mm[0m[1me[0m flag  will  override  this
+              value.  This  will  be  ignored in favour of local Docker binary
+              credentials when Docker is present.
+
+       [1mS[0m[1mN[0m[1mY[0m[1mK[0m[1m_[0m[1mR[0m[1mE[0m[1mG[0m[1mI[0m[1mS[0m[1mT[0m[1mR[0m[1mY[0m[1m_[0m[1mP[0m[1mA[0m[1mS[0m[1mS[0m[1mW[0m[1mO[0m[1mR[0m[1mD[0m
+              Specify a password to use when connecting to  a  container  reg-
+              istry.  Note  that  using the [1m-[0m[1m-[0m[1mp[0m[1ma[0m[1ms[0m[1ms[0m[1mw[0m[1mo[0m[1mr[0m[1md[0m flag will override this
+              value. This will be ignored in favour  of  local  Docker  binary
+              credentials when Docker is present.
+
+[1mC[0m[1mo[0m[1mn[0m[1mn[0m[1me[0m[1mc[0m[1mt[0m[1mi[0m[1mn[0m[1mg[0m [1mt[0m[1mo[0m [1mS[0m[1mn[0m[1my[0m[1mk[0m [1mA[0m[1mP[0m[1mI[0m
+       By default Snyk CLI will connect to [1mh[0m[1mt[0m[1mt[0m[1mp[0m[1ms[0m[1m:[0m[1m/[0m[1m/[0m[1ms[0m[1mn[0m[1my[0m[1mk[0m[1m.[0m[1mi[0m[1mo[0m[1m/[0m[1ma[0m[1mp[0m[1mi[0m[1m/[0m[1mv[0m[1m1[0m.
+
+       [1mS[0m[1mN[0m[1mY[0m[1mK[0m[1m_[0m[1mA[0m[1mP[0m[1mI[0m
+              Sets  API  host  to use for Snyk requests. Useful for on-premise
+              instances and configuring proxies. If set with [1mh[0m[1mt[0m[1mt[0m[1mp[0m protocol CLI
+              will  upgrade  the  requests  to  [1mh[0m[1mt[0m[1mt[0m[1mp[0m[1ms[0m. Unless [1mS[0m[1mN[0m[1mY[0m[1mK[0m[1m_[0m[1mH[0m[1mT[0m[1mT[0m[1mP[0m[1m_[0m[1mP[0m[1mR[0m[1mO[0m[1mT[0m[1mO[0m[1m-[0m
+              [1mC[0m[1mO[0m[1mL[0m[1m_[0m[1mU[0m[1mP[0m[1mG[0m[1mR[0m[1mA[0m[1mD[0m[1mE[0m is set to [1m0[0m.
+
+       [1mS[0m[1mN[0m[1mY[0m[1mK[0m[1m_[0m[1mH[0m[1mT[0m[1mT[0m[1mP[0m[1m_[0m[1mP[0m[1mR[0m[1mO[0m[1mT[0m[1mO[0m[1mC[0m[1mO[0m[1mL[0m[1m_[0m[1mU[0m[1mP[0m[1mG[0m[1mR[0m[1mA[0m[1mD[0m[1mE[0m=0
+              If set to the value of [1m0[0m, API requests aimed at [1mh[0m[1mt[0m[1mt[0m[1mp[0m  URLs  will
+              not  be upgraded to [1mh[0m[1mt[0m[1mt[0m[1mp[0m[1ms[0m. If not set, the default behavior will
+              be to upgrade these requests from [1mh[0m[1mt[0m[1mt[0m[1mp[0m to  [1mh[0m[1mt[0m[1mt[0m[1mp[0m[1ms[0m.  Useful  e.g.,
+              for reverse proxies.
+
+       [1mH[0m[1mT[0m[1mT[0m[1mP[0m[1mS[0m[1m_[0m[1mP[0m[1mR[0m[1mO[0m[1mX[0m[1mY[0m and [1mH[0m[1mT[0m[1mT[0m[1mP[0m[1m_[0m[1mP[0m[1mR[0m[1mO[0m[1mX[0m[1mY[0m
+              Allows  you  to specify a proxy to use for [1mh[0m[1mt[0m[1mt[0m[1mp[0m[1ms[0m and [1mh[0m[1mt[0m[1mt[0m[1mp[0m calls.
+              The [1mh[0m[1mt[0m[1mt[0m[1mp[0m[1ms[0m in the [1mH[0m[1mT[0m[1mT[0m[1mP[0m[1mS[0m[1m_[0m[1mP[0m[1mR[0m[1mO[0m[1mX[0m[1mY[0m means  that  [4mr[0m[4me[0m[4mq[0m[4mu[0m[4me[0m[4ms[0m[4mt[0m[4ms[0m  [4mu[0m[4ms[0m[4mi[0m[4mn[0m[4mg[0m  [1mh[0m[1mt[0m[1mt[0m[1mp[0m[1ms[0m
+              protocol  will  use this proxy. The proxy itself doesn't need to
+              use [1mh[0m[1mt[0m[1mt[0m[1mp[0m[1ms[0m.
+
+[1mN[0m[1mO[0m[1mT[0m[1mI[0m[1mC[0m[1mE[0m[1mS[0m
+   [1mS[0m[1mn[0m[1my[0m[1mk[0m [1mA[0m[1mP[0m[1mI[0m [1mu[0m[1ms[0m[1ma[0m[1mg[0m[1me[0m [1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1my[0m
+       The use of Snyk's API, whether through the use of the 'snyk' npm  pack-
+       age   or   otherwise,   is   subject   to   the   terms   &  conditions
+       [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mc[0m[4mo[0m[4m/[0m[4mu[0m[4mc[0m[4mT[0m[4m6[0m[4mN[0m

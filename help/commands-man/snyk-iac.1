@@ -1,0 +1,138 @@
+.\" generated with Ronn-NG/v0.9.1
+.\" http://github.com/apjanke/ronn-ng/tree/0.9.1
+.TH "SNYK\-IAC" "1" "July 2021" "Snyk.io"
+.SH "NAME"
+\fBsnyk\-iac\fR \- Find security issues in your Infrastructure as Code files
+.SH "SYNOPSIS"
+\fBsnyk\fR \fBiac\fR [\fICOMMAND\fR] [\fIOPTIONS\fR] \fIPATH\fR
+.SH "DESCRIPTION"
+Find security issues in your Infrastructure as Code files\.
+.P
+For more information see IaC help page \fIhttps://snyk\.co/ucT6Q\fR
+.SH "COMMANDS"
+.TP
+\fBtest\fR
+Test for any known issue\.
+.SH "OPTIONS"
+.TP
+\fB\-\-detection\-depth\fR=\fIDEPTH\fR
+(only in \fBtest\fR command)
+.br
+Indicate the maximum depth of sub\-directories to search\. \fIDEPTH\fR must be a number\.
+.IP
+Default: No Limit
+.br
+Example: \fB\-\-detection\-depth=3\fR
+.br
+Will limit search to provided directory (or current directory if no \fIPATH\fR provided) plus two levels of subdirectories\.
+.TP
+\fB\-\-severity\-threshold\fR=low|medium|high
+Only report vulnerabilities of provided level or higher\.
+.TP
+\fB\-\-json\fR
+Prints results in JSON format\.
+.TP
+\fB\-\-json\-file\-output\fR=\fIOUTPUT_FILE_PATH\fR
+(only in \fBtest\fR command) Save test output in JSON format directly to the specified file, regardless of whether or not you use the \fB\-\-json\fR option\. This is especially useful if you want to display the human\-readable test output via stdout and at the same time save the JSON format output to a file\.
+.TP
+\fB\-\-org\fR=\fIORG_NAME\fR
+Specify the \fIORG_NAME\fR to run Snyk commands tied to a specific organization\. This will influence private tests limits\. If you have multiple organizations, you can set a default from the CLI using:
+.IP
+\fB$ snyk config set org\fR=\fIORG_NAME\fR
+.IP
+Setting a default will ensure all newly tested projects will be tested under your default organization\. If you need to override the default, you can use the \fB\-\-org\fR=\fIORG_NAME\fR argument\. Default: uses \fIORG_NAME\fR that sets as default in your Account settings \fIhttps://app\.snyk\.io/account\fR
+.TP
+\fB\-\-sarif\fR
+Return results in SARIF format\.
+.TP
+\fB\-\-sarif\-file\-output\fR=\fIOUTPUT_FILE_PATH\fR
+(only in \fBtest\fR command) Save test output in SARIF format directly to the \fIOUTPUT_FILE_PATH\fR file, regardless of whether or not you use the \fB\-\-sarif\fR option\. This is especially useful if you want to display the human\-readable test output via stdout and at the same time save the SARIF format output to a file\.
+.TP
+\fB\-\-scan=\fR\fITERRAFORM_PLAN_SCAN_MODE\fR
+Dedicated flag for Terraform plan scanning modes\.
+.br
+It enables to control whether the scan should analyse the full final state (e\.g\. \fBplanned\-values\fR), or the proposed changes only (e\.g\. \fBresource\-changes\fR)\.
+.br
+Default: If the \fB\-\-scan\fR flag is not provided it would scan the proposed changes only by default\.
+.br
+Example #1: \fB\-\-scan=planned\-values\fR (full state scan) Example #2: \fB\-\-scan=resource\-changes\fR (proposed changes scan)
+.SS "Flags available accross all commands"
+.TP
+\fB\-\-insecure\fR
+Ignore unknown certificate authorities\.
+.TP
+\fB\-d\fR
+Output debug logs\.
+.TP
+\fB\-\-quiet\fR, \fB\-q\fR
+Silence all output\.
+.TP
+\fB\-\-version\fR, \fB\-v\fR
+Prints versions\.
+.TP
+[\fICOMMAND\fR] \fB\-\-help\fR, \fB\-\-help\fR [\fICOMMAND\fR], \fB\-h\fR
+Prints a help text\. You may specify a \fICOMMAND\fR to get more details\.
+.SH "EXAMPLES"
+For more information see IaC help page \fIhttps://snyk\.co/ucT6Q\fR
+.TP
+\fBTest CloudFormation file\fR
+$ snyk iac test /path/to/cloudformation_file\.yaml
+.TP
+\fBTest kubernetes file\fR
+$ snyk iac test /path/to/kubernetes_file\.yaml
+.TP
+\fBTest terraform file\fR
+$ snyk iac test /path/to/terraform_file\.tf
+.TP
+\fBTest terraform plan file\fR
+$ snyk iac test /path/to/tf\-plan\.json
+.TP
+\fBTest matching files in a directory\fR
+$ snyk iac test /path/to/directory
+.SH "EXIT CODES"
+Possible exit codes and their meaning:
+.P
+\fB0\fR: success, no vulns found
+.br
+\fB1\fR: action_needed, vulns found
+.br
+\fB2\fR: failure, try to re\-run command
+.br
+\fB3\fR: failure, no supported projects detected
+.br
+.SH "ENVIRONMENT"
+You can set these environment variables to change CLI run settings\.
+.TP
+\fBSNYK_TOKEN\fR
+Snyk authorization token\. Setting this envvar will override the token that may be available in your \fBsnyk config\fR settings\.
+.IP
+How to get your account token \fIhttps://snyk\.co/ucT6J\fR
+.br
+How to use Service Accounts \fIhttps://snyk\.co/ucT6L\fR
+.br
+
+.TP
+\fBSNYK_CFG_KEY\fR
+Allows you to override any key that\'s also available as \fBsnyk config\fR option\.
+.IP
+E\.g\. \fBSNYK_CFG_ORG\fR=myorg will override default org option in \fBconfig\fR with "myorg"\.
+.TP
+\fBSNYK_REGISTRY_USERNAME\fR
+Specify a username to use when connecting to a container registry\. Note that using the \fB\-\-username\fR flag will override this value\. This will be ignored in favour of local Docker binary credentials when Docker is present\.
+.TP
+\fBSNYK_REGISTRY_PASSWORD\fR
+Specify a password to use when connecting to a container registry\. Note that using the \fB\-\-password\fR flag will override this value\. This will be ignored in favour of local Docker binary credentials when Docker is present\.
+.SH "Connecting to Snyk API"
+By default Snyk CLI will connect to \fBhttps://snyk\.io/api/v1\fR\.
+.TP
+\fBSNYK_API\fR
+Sets API host to use for Snyk requests\. Useful for on\-premise instances and configuring proxies\. If set with \fBhttp\fR protocol CLI will upgrade the requests to \fBhttps\fR\. Unless \fBSNYK_HTTP_PROTOCOL_UPGRADE\fR is set to \fB0\fR\.
+.TP
+\fBSNYK_HTTP_PROTOCOL_UPGRADE\fR=0
+If set to the value of \fB0\fR, API requests aimed at \fBhttp\fR URLs will not be upgraded to \fBhttps\fR\. If not set, the default behavior will be to upgrade these requests from \fBhttp\fR to \fBhttps\fR\. Useful e\.g\., for reverse proxies\.
+.TP
+\fBHTTPS_PROXY\fR and \fBHTTP_PROXY\fR
+Allows you to specify a proxy to use for \fBhttps\fR and \fBhttp\fR calls\. The \fBhttps\fR in the \fBHTTPS_PROXY\fR means that \fIrequests using \fBhttps\fR protocol\fR will use this proxy\. The proxy itself doesn\'t need to use \fBhttps\fR\.
+.SH "NOTICES"
+.SS "Snyk API usage policy"
+The use of Snyk\'s API, whether through the use of the \'snyk\' npm package or otherwise, is subject to the terms & conditions \fIhttps://snyk\.co/ucT6N\fR
