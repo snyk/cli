@@ -6,6 +6,7 @@ import * as analytics from '../../src/lib/analytics';
 import * as path from 'path';
 import * as os from 'os';
 import * as fse from 'fs-extra';
+import { runCommand } from '../util/runCommand';
 
 jest.setTimeout(1000 * 60);
 
@@ -16,48 +17,39 @@ describe('@snyk/protect', () => {
 
   describe('applies patch(es)', () => {
     it('works for project with a single patchable module', async () => {
-      const log = jest.spyOn(global.console, 'log');
-      const postJsonSpy = jest.spyOn(http, 'postJson');
       const project = await createProject('single-patchable-module');
       const patchedLodash = await getPatchedLodash();
 
-      await protect(project.path());
+      const { code, stdout } = await runCommand(
+        'node',
+        [path.resolve(__dirname, '../../dist/index.js')],
+        {
+          cwd: project.path(),
+        },
+      );
+
+      expect(stdout).toMatch('Successfully applied Snyk patches');
+      expect(code).toEqual(0);
 
       await expect(
         project.read('node_modules/nyc/node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
-
-      expect(log).toHaveBeenCalledWith('Successfully applied Snyk patches');
-      expect(postJsonSpy).toHaveBeenCalledTimes(1);
-      expect(postJsonSpy.mock.calls[0][1]).toEqual({
-        data: {
-          command: '@snyk/protect',
-          args: [],
-          version: '1.0.0-monorepo',
-          nodeVersion: process.version,
-          metadata: {
-            protectResult: {
-              type: 'APPLIED_PATCHES',
-              patchedModules: [
-                {
-                  vulnId: 'SNYK-JS-LODASH-567746',
-                  packageName: 'lodash',
-                  packageVersion: '4.17.15',
-                },
-              ],
-            },
-          },
-        },
-      });
     });
 
     it('works for project with multiple patchable modules', async () => {
-      const log = jest.spyOn(global.console, 'log');
-      const postJsonSpy = jest.spyOn(http, 'postJson');
       const project = await createProject('multiple-matching-paths');
       const patchedLodash = await getPatchedLodash();
 
-      await protect(project.path());
+      const { code, stdout } = await runCommand(
+        'node',
+        [path.resolve(__dirname, '../../dist/index.js')],
+        {
+          cwd: project.path(),
+        },
+      );
+
+      expect(stdout).toMatch('Successfully applied Snyk patches');
+      expect(code).toEqual(0);
 
       await expect(
         project.read('node_modules/nyc/node_modules/lodash/lodash.js'),
@@ -65,62 +57,24 @@ describe('@snyk/protect', () => {
       await expect(
         project.read('node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
-
-      expect(log).toHaveBeenCalledWith('Successfully applied Snyk patches');
-      expect(postJsonSpy).toHaveBeenCalledTimes(1);
-      expect(postJsonSpy.mock.calls[0][1]).toEqual({
-        data: {
-          command: '@snyk/protect',
-          args: [],
-          version: '1.0.0-monorepo',
-          nodeVersion: process.version,
-          metadata: {
-            protectResult: {
-              type: 'APPLIED_PATCHES',
-              patchedModules: [
-                {
-                  vulnId: 'SNYK-JS-LODASH-567746',
-                  packageName: 'lodash',
-                  packageVersion: '4.17.15',
-                },
-                {
-                  vulnId: 'SNYK-JS-LODASH-567746',
-                  packageName: 'lodash',
-                  packageVersion: '4.17.15',
-                },
-              ],
-            },
-          },
-        },
-      });
     });
   });
 
   describe('does not apply any patches and does not fail', () => {
     // in this scenario .snyk file has a vulnId which corresponds to the `lodash` package, but there are not instances of lodash in the node_modules
     it('for project with no modules with the target package name', async () => {
-      const postJsonSpy = jest.spyOn(http, 'postJson');
       const project = await createProject('no-matching-paths');
-      const log = jest.spyOn(global.console, 'log');
 
-      await protect(project.path());
-
-      expect(log).toHaveBeenCalledWith('Nothing to patch');
-
-      expect(postJsonSpy).toHaveBeenCalledTimes(1);
-      expect(postJsonSpy.mock.calls[0][1]).toEqual({
-        data: {
-          command: '@snyk/protect',
-          args: [],
-          version: '1.0.0-monorepo',
-          nodeVersion: process.version,
-          metadata: {
-            protectResult: {
-              type: 'NOTHING_TO_PATCH',
-            },
-          },
+      const { code, stdout } = await runCommand(
+        'node',
+        [path.resolve(__dirname, '../../dist/index.js')],
+        {
+          cwd: project.path(),
         },
-      });
+      );
+
+      expect(stdout).toMatch('Nothing to patch');
+      expect(code).toEqual(0);
     });
 
     // skipped because we need to check the versions of the found modules before we attempt to patch them which we don't currently do
@@ -134,28 +88,18 @@ describe('@snyk/protect', () => {
 
     // fixture has a lodash@4.14.1 which we don't have patches for
     it('for project with no .snyk file', async () => {
-      const postJsonSpy = jest.spyOn(http, 'postJson');
       const project = await createProject('no-snyk-file');
-      const log = jest.spyOn(global.console, 'log');
 
-      await protect(project.path());
-
-      expect(log).toHaveBeenCalledWith('No .snyk file found');
-
-      expect(postJsonSpy).toHaveBeenCalledTimes(1);
-      expect(postJsonSpy.mock.calls[0][1]).toEqual({
-        data: {
-          command: '@snyk/protect',
-          args: [],
-          version: '1.0.0-monorepo',
-          nodeVersion: process.version,
-          metadata: {
-            protectResult: {
-              type: 'NO_SNYK_FILE',
-            },
-          },
+      const { code, stdout } = await runCommand(
+        'node',
+        [path.resolve(__dirname, '../../dist/index.js')],
+        {
+          cwd: project.path(),
         },
-      });
+      );
+
+      expect(stdout).toMatch('No .snyk file found');
+      expect(code).toEqual(0);
     });
   });
 
@@ -186,7 +130,9 @@ describe('@snyk/protect', () => {
         const postJsonSpy = jest.spyOn(http, 'postJson');
         const sendAnalyticsSpy = jest.spyOn(analytics, 'sendAnalytics');
         const project = await createProject('no-matching-paths');
+
         await protect(project.path());
+
         expect(sendAnalyticsSpy).toHaveBeenCalledTimes(1); // we call sendAnalytics
         expect(postJsonSpy).toHaveBeenCalledTimes(0); // but a call to the API was never made
       });
@@ -200,7 +146,9 @@ describe('@snyk/protect', () => {
         const postJsonSpy = jest.spyOn(http, 'postJson');
         const sendAnalyticsSpy = jest.spyOn(analytics, 'sendAnalytics');
         const project = await createProject('no-matching-paths');
+
         await protect(project.path());
+
         expect(sendAnalyticsSpy).toHaveBeenCalledTimes(1); // we call sendAnalytics
         expect(postJsonSpy).toHaveBeenCalledTimes(0); // but a call to the API was never made
       });
@@ -213,7 +161,9 @@ describe('@snyk/protect', () => {
           const postJsonSpy = jest.spyOn(http, 'postJson');
           const sendAnalyticsSpy = jest.spyOn(analytics, 'sendAnalytics');
           const project = await createProject('no-matching-paths');
+
           await protect(project.path());
+
           expect(sendAnalyticsSpy).toHaveBeenCalledTimes(1); // we call sendAnalytics
           expect(postJsonSpy).toHaveBeenCalledTimes(0); // but a call to the API was never made
         } finally {
@@ -228,7 +178,9 @@ describe('@snyk/protect', () => {
           const postJsonSpy = jest.spyOn(http, 'postJson');
           const sendAnalyticsSpy = jest.spyOn(analytics, 'sendAnalytics');
           const project = await createProject('no-matching-paths');
+
           await protect(project.path());
+
           expect(sendAnalyticsSpy).toHaveBeenCalledTimes(1); // we call sendAnalytics
           expect(postJsonSpy).toHaveBeenCalledTimes(0); // but a call to the API was never made
         } finally {
