@@ -23,11 +23,18 @@ export function formatScanResults(
   meta: TestMeta,
 ): FormattedResult[] {
   try {
-    // Relevant only for multi-doc yaml files
-    const scannedResultsGroupedByDocId = groupMultiDocResults(scanResults);
-    return scannedResultsGroupedByDocId.map((iacScanResult) =>
-      formatScanResult(iacScanResult, meta, options),
-    );
+    const groupedByFile = scanResults.reduce((memo, scanResult) => {
+      const res = formatScanResult(scanResult, meta, options);
+      if (memo[scanResult.filePath]) {
+        memo[scanResult.filePath].result.cloudConfigResults.push(
+          ...res.result.cloudConfigResults,
+        );
+      } else {
+        memo[scanResult.filePath] = res;
+      }
+      return memo;
+    }, {} as { [key: string]: FormattedResult });
+    return Object.values(groupedByFile);
   } catch (e) {
     throw new FailedToFormatResults();
   }
@@ -48,7 +55,7 @@ function formatScanResult(
   const formattedIssues = scanResult.violatedPolicies.map((policy) => {
     const cloudConfigPath =
       scanResult.docId !== undefined
-        ? [`[DocId:${scanResult.docId}]`].concat(policy.msg.split('.'))
+        ? [`[DocId: ${scanResult.docId}]`].concat(policy.msg.split('.'))
         : policy.msg.split('.');
 
     const flagsRequiringLineNumber = [
@@ -61,7 +68,11 @@ function formatScanResult(
       (flag) => options[flag],
     );
     const lineNumber: number = shouldExtractLineNumber
-      ? extractLineNumber(scanResult, policy)
+      ? extractLineNumber(
+          scanResult.fileContent,
+          scanResult.fileType,
+          cloudConfigPath,
+        )
       : -1;
 
     return {
@@ -143,24 +154,6 @@ function computePaths(
     projectName: path.basename(projectPath),
     targetFile,
   };
-}
-
-function groupMultiDocResults(
-  scanResults: IacFileScanResult[],
-): IacFileScanResult[] {
-  const groupedData = scanResults.reduce((memo, result) => {
-    if (memo[result.filePath]) {
-      memo[result.filePath].violatedPolicies = memo[
-        result.filePath
-      ].violatedPolicies.concat(result.violatedPolicies);
-    } else {
-      memo[result.filePath] = result;
-    }
-
-    return memo;
-  }, {} as IacFileScanResult);
-
-  return Object.values(groupedData);
 }
 
 export function filterPoliciesBySeverity(
