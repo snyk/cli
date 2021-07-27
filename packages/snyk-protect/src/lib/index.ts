@@ -13,6 +13,16 @@ import { getAllPatches } from './fetch-patches';
 import { sendAnalytics } from './analytics';
 
 async function protect(projectFolderPath: string) {
+  // Handle runs with flags
+  if (process.argv.includes('--help')) {
+    console.log(getHelp());
+    return;
+  }
+  if (process.argv.includes('--version')) {
+    console.log(getVersion());
+    return;
+  }
+
   const snykFilePath = path.resolve(projectFolderPath, '.snyk');
 
   if (!fs.existsSync(snykFilePath)) {
@@ -90,6 +100,19 @@ async function protect(projectFolderPath: string) {
     type: ProtectResultType.APPLIED_PATCHES,
     patchedModules,
   });
+}
+
+export function getHelp(): string {
+  const filePath = path.resolve(__dirname, '../../help.txt');
+  const helpText = fs.readFileSync(filePath, 'utf8');
+  return helpText;
+}
+
+export function getVersion() {
+  const filePath = path.resolve(__dirname, '../../package.json');
+  const rawData = fs.readFileSync(filePath, 'utf8');
+  const packageJSON = JSON.parse(rawData);
+  return packageJSON.version;
 }
 
 export default protect;

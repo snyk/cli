@@ -1,0 +1,18 @@
+$ snyk-protect --help
+
+NAME
+  @snyk/protect - Patch vulnerable code in your project's dependencies.
+
+DESCRIPTION
+  You don't typically need to add the @snyk/protect dependency manually.
+  For more information on how to setup and use @snyk/protect, visit:
+    https://github.com/snyk/snyk/tree/master/packages/snyk-protect
+
+SYNOPSIS
+  snyk-protect [<options>]
+
+OPTIONS
+  --help
+    Display this help text.
+  --version
+    Display the current version.
