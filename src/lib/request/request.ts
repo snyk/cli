@@ -6,7 +6,6 @@ import * as zlib from 'zlib';
 import * as config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
-import * as analytics from '../analytics';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
 import { getVersion } from '../version';
@@ -62,15 +61,6 @@ export = function makeRequest(
           if (body.callGraph) {
             callGraphLength = JSON.stringify(body.callGraph).length;
             snykDebug('call graph size:', callGraphLength);
-          }
-
-          if (!payload.url.endsWith('/analytics/cli')) {
-            analytics.add('payloadSize', json.length);
-            analytics.add('gzippedPayloadSize', data.length);
-
-            if (callGraphLength) {
-              analytics.add('callGraphPayloadSize', callGraphLength);
-            }
           }
 
           payload.headers['content-encoding'] = 'gzip';
