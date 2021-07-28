@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as depGraphLib from '@snyk/dep-graph';
 import * as snyk from '..';
 import { apiOrOAuthTokenExists, getAuthHeader } from '../api-token';
-import request = require('../request');
+import { makeRequest } from '../request';
 import * as config from '../config';
 import * as os from 'os';
 const get = require('lodash.get');
@@ -270,7 +270,7 @@ async function monitorDepTree(
         ),
       );
     }
-    request(
+    makeRequest(
       {
         body: {
           meta: {
@@ -439,7 +439,7 @@ export async function monitorDepGraph(
         ),
       );
     }
-    request(
+    makeRequest(
       {
         body: {
           meta: {
@@ -584,7 +584,7 @@ async function experimentalMonitorDepGraphFromDepTree(
         ),
       );
     }
-    request(
+    makeRequest(
       {
         body: {
           meta: {

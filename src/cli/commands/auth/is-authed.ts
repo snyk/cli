@@ -1,6 +1,6 @@
 import * as snyk from '../../../lib';
 import * as config from '../../../lib/config';
-import request = require('../../../lib/request');
+import { makeRequest } from '../../../lib/request';
 
 export function isAuthed() {
   const token = snyk.config.get('api');
@@ -20,7 +20,7 @@ export function verifyAPI(api) {
   };
 
   return new Promise((resolve, reject) => {
-    request(payload, (error, res, body) => {
+    makeRequest(payload, (error, res, body) => {
       if (error) {
         return reject(error);
       }

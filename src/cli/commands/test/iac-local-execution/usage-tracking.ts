@@ -1,4 +1,4 @@
-import request = require('../../../../lib/request');
+import { makeRequest } from '../../../../lib/request';
 import config = require('../../../../lib/config');
 import { api as getApiToken } from '../../../../lib/api-token';
 import { CustomError } from '../../../../lib/errors';
@@ -12,7 +12,7 @@ export async function trackUsage(
       issuesPrevented: res.result.cloudConfigResults.length,
     };
   });
-  const trackingResponse = await request({
+  const trackingResponse = await makeRequest({
     method: 'POST',
     headers: {
       Authorization: `token ${getApiToken()}`,

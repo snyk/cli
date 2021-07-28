@@ -1,8 +1,8 @@
-import request = require('./index');
+import * as request from './index';
 
 export async function makeRequest<T>(payload: any): Promise<T> {
   return new Promise((resolve, reject) => {
-    request(payload, (error, res, body) => {
+    request.makeRequest(payload, (error, res, body) => {
       if (error) {
         return reject(error);
       }

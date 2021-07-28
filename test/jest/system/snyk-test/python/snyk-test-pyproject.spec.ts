@@ -4,7 +4,7 @@ import { NeedleResponse } from 'needle';
 import { test } from '../../../../../src/cli/commands';
 import { loadPlugin } from '../../../../../src/lib/plugins/index';
 import { CommandResult } from '../../../../../src/cli/commands/types';
-import makeRequest = require('../../../../../src/lib/request/request');
+import { makeRequest } from '../../../../../src/lib/request/request';
 
 jest.mock('../../../../../src/lib/plugins/index');
 jest.mock('../../../../../src/lib/request/request');

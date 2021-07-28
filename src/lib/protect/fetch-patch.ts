@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as analytics from '../analytics';
 import * as debugModule from 'debug';
-import request = require('../request');
+import { makeRequest } from '../request';
 
 const debug = debugModule('snyk:fetch-patch');
 
@@ -10,7 +10,7 @@ async function getPatchFile(
   patchFilename: string,
 ): Promise<string> {
   try {
-    const response = await request({ url: patchUrl });
+    const response = await makeRequest({ url: patchUrl });
     if (
       !response ||
       !response.res ||

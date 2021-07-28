@@ -3,7 +3,7 @@ const test = tap.test;
 const url = require('url');
 const http = require('http');
 const nock = require('nock');
-const request = require('../src/lib/request');
+import { makeRequest } from '../src/lib/request';
 
 const proxyPort = 4242;
 const httpRequestHost = 'http://localhost:8000';
@@ -22,7 +22,7 @@ test('request respects proxy environment variables', function(t) {
     const nockClient = nock(httpRequestHost)
       .post(requestPath)
       .reply(200, {});
-    return request({ method: 'post', url: httpRequestHost + requestPath })
+    return makeRequest({ method: 'post', url: httpRequestHost + requestPath })
       .then(function() {
         t.ok(nockClient.isDone(), 'direct call without a proxy');
         nock.cleanAll();
@@ -34,7 +34,7 @@ test('request respects proxy environment variables', function(t) {
     const nockClient = nock(httpsRequestHost)
       .post(requestPath)
       .reply(200, {});
-    return request({ method: 'post', url: httpsRequestHost + requestPath })
+    return makeRequest({ method: 'post', url: httpsRequestHost + requestPath })
       .then(function() {
         t.ok(nockClient.isDone(), 'direct call without a proxy');
         nock.cleanAll();
@@ -63,7 +63,7 @@ test('request respects proxy environment variables', function(t) {
     });
     proxy.listen(proxyPort);
     // http is only supported for localhost
-    return request({ method: 'post', url: httpRequestHost + requestPath })
+    return makeRequest({ method: 'post', url: httpRequestHost + requestPath })
       .catch((err) => t.fail(err.message))
       .then(() => {
         t.equal(process.env.http_proxy, process.env.HTTP_PROXY);
@@ -90,7 +90,7 @@ test('request respects proxy environment variables', function(t) {
     });
     proxy.listen(proxyPort);
     // http is only supported for localhost
-    return request({ method: 'post', url: httpRequestHost + requestPath })
+    return makeRequest({ method: 'post', url: httpRequestHost + requestPath })
       .catch((err) => t.fail(err.message))
       .then(() => {
         proxy.close();
@@ -137,7 +137,7 @@ test('request respects proxy environment variables', function(t) {
     });
 
     proxy.listen(proxyPort);
-    return request({ method: 'post', url: httpsRequestHost + requestPath })
+    return makeRequest({ method: 'post', url: httpsRequestHost + requestPath })
       .catch(() => {}) // client socket being closed generates an error here
       .then(() => {
         t.equal(process.env.https_proxy, process.env.HTTPS_PROXY);
@@ -183,7 +183,7 @@ test('request respects proxy environment variables', function(t) {
     });
 
     proxy.listen(proxyPort);
-    return request({ method: 'post', url: httpsRequestHost + requestPath })
+    return makeRequest({ method: 'post', url: httpsRequestHost + requestPath })
       .catch(() => {}) // client socket being closed generates an error here
       .then(() => {
         proxy.close();

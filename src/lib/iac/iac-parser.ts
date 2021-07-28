@@ -6,7 +6,7 @@ import {
   MissingApiTokenError,
   NotSupportedIacFileErrorMsg,
 } from '../errors';
-import request = require('../request');
+import { makeRequest } from '../request';
 import { api as getApiToken } from '../api-token';
 import * as config from './../config';
 import {
@@ -93,7 +93,7 @@ export function validateK8sFile(
 export async function makeValidateTerraformRequest(
   terraformFileContent: string,
 ): Promise<IacValidationResponse> {
-  const response = await request({
+  const response = await makeRequest({
     body: {
       contentBase64: Buffer.from(terraformFileContent).toString('base64'),
     },

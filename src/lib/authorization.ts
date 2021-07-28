@@ -1,5 +1,5 @@
 import * as snyk from './';
-import request = require('./request');
+import { makeRequest } from './request';
 import * as config from './config';
 
 export async function actionAllowed(
@@ -9,7 +9,7 @@ export async function actionAllowed(
   const org = options.org || config.org || null;
 
   try {
-    const res = await request({
+    const res = await makeRequest({
       method: 'GET',
       url: config.API + '/authorization/' + action,
       json: true,

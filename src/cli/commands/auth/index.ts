@@ -9,7 +9,7 @@ import { isCI } from '../../../lib/is-ci';
 import { isDocker } from '../../../lib/is-docker';
 import { args as argsLib } from '../../args';
 import * as config from '../../../lib/config';
-import request = require('../../../lib/request');
+import { makeRequest } from '../../../lib/request';
 import { CustomError } from '../../../lib/errors';
 import { AuthFailedError } from '../../../lib/errors';
 import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
@@ -94,7 +94,7 @@ async function testAuthComplete(
 
   return new Promise((resolve, reject) => {
     debug(payload);
-    request(payload, (error, res, body) => {
+    makeRequest(payload, (error, res, body) => {
       debug(error, (res || {}).statusCode, body);
       if (error) {
         return reject(error);
@@ -175,7 +175,7 @@ async function getIpFamily(): Promise<6 | undefined> {
   const family = 6;
   try {
     // Dispatch a FORCED IPv6 request to test client's ISP and network capability
-    await request({
+    await makeRequest({
       url: config.API + '/verify/callback',
       family, // family param forces the handler to dispatch a request using IP at "family" version
       method: 'post',
