@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 const snyk = require('../../lib');
 const config = require('../config');
 const version = require('../version');
-const request = require('../request');
+import { makeRequest } from '../request';
 const {
   getIntegrationName,
   getIntegrationVersion,
@@ -123,7 +123,7 @@ export async function postAnalytics(
     const queryString =
       Object.keys(queryStringParams).length > 0 ? queryStringParams : undefined;
 
-    return request({
+    return makeRequest({
       body: {
         data: data,
       },

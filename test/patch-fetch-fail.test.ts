@@ -4,13 +4,15 @@ import * as proxyquire from 'proxyquire';
 let analytics;
 
 const proxyFetchPatch = proxyquire('../src/lib/protect/fetch-patch', {
-  '../request': () => {
-    return Promise.resolve({
-      res: {
-        statusCode: 200,
-      },
-      body: 'patch content',
-    });
+  '../request': {
+    makeRequest: () => {
+      return Promise.resolve({
+        res: {
+          statusCode: 200,
+        },
+        body: 'patch content',
+      });
+    },
   },
   fs: {
     writeFileSync() {
@@ -25,13 +27,15 @@ const proxyFetchPatch = proxyquire('../src/lib/protect/fetch-patch', {
 });
 
 const proxyFetchPatchNotFound = proxyquire('../src/lib/protect/fetch-patch', {
-  '../request': () => {
-    return Promise.resolve({
-      res: {
-        statusCode: 404,
-      },
-      body: 'not found',
-    });
+  '../request': {
+    makeRequest: () => {
+      return Promise.resolve({
+        res: {
+          statusCode: 404,
+        },
+        body: 'not found',
+      });
+    },
   },
   '../analytics': {
     add(type, data) {
@@ -43,13 +47,15 @@ const proxyFetchPatchNotFound = proxyquire('../src/lib/protect/fetch-patch', {
 const proxyFetchPatchErrorWriting = proxyquire(
   '../src/lib/protect/fetch-patch',
   {
-    '../request': () => {
-      return Promise.resolve({
-        res: {
-          statusCode: 200,
-        },
-        body: 'patch content',
-      });
+    '../request': {
+      makeRequest: () => {
+        return Promise.resolve({
+          res: {
+            statusCode: 200,
+          },
+          body: 'patch content',
+        });
+      },
     },
     fs: {
       writeFileSync() {

@@ -4,7 +4,7 @@ import {
 } from '../../../../src/cli/commands/test/iac-local-execution/usage-tracking';
 import { mocked } from 'ts-jest/utils';
 import { NeedleResponse } from 'needle';
-import makeRequest = require('../../../../src/lib/request/request');
+import { makeRequest } from '../../../../src/lib/request/request';
 import { CustomError } from '../../../../src/lib/errors';
 
 jest.mock('../../../../src/lib/request/request');
