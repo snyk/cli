@@ -1,4 +1,4 @@
-import { IaCErrorCodes, IacFileScanResult, PolicyMetadata } from './types';
+import { IaCErrorCodes } from './types';
 import { CustomError } from '../../../../lib/errors';
 import {
   CloudConfigFileTypes,
@@ -25,14 +25,15 @@ function getFileTypeForLineNumber(fileType: string): CloudConfigFileTypes {
 }
 
 export function extractLineNumber(
-  scanResult: IacFileScanResult,
-  policy: PolicyMetadata,
+  fileContent: string,
+  fileType: string,
+  cloudConfigPath: string[],
 ): number {
   try {
     return issuesToLineNumbers(
-      scanResult.fileContent,
-      getFileTypeForLineNumber(scanResult.fileType),
-      policy.msg.split('.'), // parser defaults to docId:0 and checks for the rest of the path
+      fileContent,
+      getFileTypeForLineNumber(fileType),
+      cloudConfigPath,
     );
   } catch {
     const err = new FailedToExtractLineNumberError();

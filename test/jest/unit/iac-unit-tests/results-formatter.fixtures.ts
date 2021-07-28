@@ -28,7 +28,6 @@ export const policyStub: PolicyMetadata = {
   subType: 'Deployment',
   title: 'Container is running in privileged mode',
   type: 'k8s',
-  documentation: 'https://snyk.io/security-rules/SNYK-CC-K8S-2',
 };
 
 const anotherPolicyStub: PolicyMetadata = {
@@ -36,6 +35,12 @@ const anotherPolicyStub: PolicyMetadata = {
   severity: 'high' as SEVERITY,
   id: '2',
   publicId: 'SNYK-CC-K8S-2',
+};
+
+const yetAnotherPolicyStub: PolicyMetadata = {
+  ...anotherPolicyStub,
+  id: '3',
+  publicId: 'SNYK-CC-K8S-3',
 };
 
 const relativeFilePath = 'dont-care.yaml';
@@ -63,6 +68,16 @@ export function generateScanResults(): Array<IacFileScanResult> {
       filePath: relativeFilePath,
       fileType: 'yaml',
     },
+    {
+      violatedPolicies: [{ ...yetAnotherPolicyStub }],
+      jsonContent: { dontCare: null },
+      docId: 1,
+      projectType: IacProjectType.K8S,
+      engineType: EngineType.Kubernetes,
+      fileContent: 'dont-care',
+      filePath: relativeFilePath,
+      fileType: 'yaml',
+    },
   ];
 }
 
@@ -80,7 +95,7 @@ export function generateCloudConfigResults(
       ...anotherPolicyStub,
       id: anotherPolicyStub.publicId,
       name: anotherPolicyStub.title,
-      cloudConfigPath: ['[DocId:0]'].concat(anotherPolicyStub.msg.split('.')),
+      cloudConfigPath: ['[DocId: 0]'].concat(anotherPolicyStub.msg.split('.')),
       isIgnored: false,
       iacDescription: {
         issue: anotherPolicyStub.issue,
@@ -89,7 +104,24 @@ export function generateCloudConfigResults(
       },
       severity: anotherPolicyStub.severity,
       lineNumber: withLineNumber ? 3 : -1,
-      documentation: anotherPolicyStub.documentation,
+      documentation: 'https://snyk.io/security-rules/SNYK-CC-K8S-2',
+    },
+    {
+      ...yetAnotherPolicyStub,
+      id: yetAnotherPolicyStub.publicId,
+      name: yetAnotherPolicyStub.title,
+      cloudConfigPath: ['[DocId: 1]'].concat(
+        yetAnotherPolicyStub.msg.split('.'),
+      ),
+      isIgnored: false,
+      iacDescription: {
+        issue: yetAnotherPolicyStub.issue,
+        impact: yetAnotherPolicyStub.impact,
+        resolve: yetAnotherPolicyStub.resolve,
+      },
+      severity: yetAnotherPolicyStub.severity,
+      lineNumber: withLineNumber ? 3 : -1,
+      documentation: 'https://snyk.io/security-rules/SNYK-CC-K8S-3',
     },
   ];
 }
