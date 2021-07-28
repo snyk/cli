@@ -20,7 +20,7 @@ export function createSarifOutputForContainers(
   return sarifRes;
 }
 
-export function getTool(testResult): sarif.Tool {
+function getTool(testResult): sarif.Tool {
   const tool: sarif.Tool = {
     driver: {
       name: 'Snyk Container',
@@ -69,7 +69,7 @@ export function getTool(testResult): sarif.Tool {
   return tool;
 }
 
-export function getResults(testResult): sarif.Result[] {
+function getResults(testResult): sarif.Result[] {
   const results: sarif.Result[] = [];
 
   if (!testResult.vulnerabilities) {

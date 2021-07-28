@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as pathUtil from 'path';
-import { TestResult } from './legacy';
+import { TestResult, SEVERITY } from './legacy';
 import { IacTestResponse } from './iac-test-result';
 import * as snyk from '..';
 import { isCI } from '../is-ci';
@@ -10,7 +10,7 @@ import * as config from '../config';
 import { Options, TestOptions } from '../types';
 import { Payload } from './types';
 import { IacScan } from './payload-schema';
-import { SEVERITY } from './legacy';
+
 import * as pathLib from 'path';
 import { projectTypeByFileType, IacFileTypes } from '../iac/constants';
 
@@ -43,7 +43,7 @@ export async function parseIacTestResult(
   };
 }
 
-export interface IacPayloadFileDetails {
+interface IacPayloadFileDetails {
   fileType: string;
   fileName: string;
   filePath: string;

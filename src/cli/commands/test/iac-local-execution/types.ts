@@ -30,7 +30,7 @@ export interface IacFileParseFailure extends IacFileData {
   err: Error;
 }
 
-export type ScanningResults = {
+type ScanningResults = {
   scannedFiles: Array<IacFileScanResult>;
   unscannedFiles: Array<IacFileParseFailure>;
 };

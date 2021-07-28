@@ -40,7 +40,6 @@
       }
     ],
     "no-buffer-constructor": "error",
-    "import/no-unresolved": "error",
     "import/namespace": "off",
     "import/no-unused-modules": [
       "error",
@@ -55,11 +54,10 @@
     },
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+        "extensions": [".js"]
       },
       "typescript": {
-        "alwaysTryTypes": true, // always try to resolve types under `<root>@types` directory
-        "project": "tsconfig.json"
+        "alwaysTryTypes": true
       }
     }
   },

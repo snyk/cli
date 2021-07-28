@@ -177,7 +177,7 @@ export function filterPoliciesBySeverity(
   });
 }
 
-export class FailedToFormatResults extends CustomError {
+class FailedToFormatResults extends CustomError {
   constructor(message?: string) {
     super(message || 'Failed to format results');
     this.code = IaCErrorCodes.FailedToFormatResults;

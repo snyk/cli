@@ -5,7 +5,7 @@ export function isNewVuln(vuln) {
   return publicationTime > Date.now() - MONTH;
 }
 
-export function isFixable(testResult: any): boolean {
+function isFixable(testResult: any): boolean {
   return isUpgradable(testResult) || isPatchable(testResult);
 }
 
@@ -13,7 +13,7 @@ export function hasFixes(testResults: any[]): boolean {
   return testResults.some(isFixable);
 }
 
-export function isUpgradable(testResult: any): boolean {
+function isUpgradable(testResult: any): boolean {
   if (testResult.remediation) {
     const {
       remediation: { upgrade = {}, pin = {} },
@@ -29,7 +29,7 @@ export function hasUpgrades(testResults: any[]): boolean {
   return testResults.some(isUpgradable);
 }
 
-export function isPatchable(testResult: any): boolean {
+function isPatchable(testResult: any): boolean {
   if (testResult.remediation) {
     const {
       remediation: { patch = {} },
@@ -45,11 +45,11 @@ export function hasPatches(testResults: any[]): boolean {
   return testResults.some(isPatchable);
 }
 
-export function isVulnUpgradable(vuln) {
+function isVulnUpgradable(vuln) {
   return vuln.isUpgradable || vuln.isPinnable;
 }
 
-export function isVulnPatchable(vuln) {
+function isVulnPatchable(vuln) {
   return vuln.isPatchable;
 }
 

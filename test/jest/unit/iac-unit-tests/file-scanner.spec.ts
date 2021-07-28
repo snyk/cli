@@ -1,8 +1,8 @@
 const mockFs = require('mock-fs');
 import * as path from 'path';
 import {
-  scanFiles,
   clearPolicyEngineCache,
+  scanFiles,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-scanner';
 import { IacFileParsed } from '../../../../src/cli/commands/test/iac-local-execution/types';
 

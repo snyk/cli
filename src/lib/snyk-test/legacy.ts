@@ -91,12 +91,12 @@ export interface IssueData {
 
 export type CallPath = string[];
 
-export interface ReachableFunctionPaths {
+interface ReachableFunctionPaths {
   functionName: string;
   callPaths: CallPath[];
 }
 
-export interface ReachablePaths {
+interface ReachablePaths {
   pathCount: number;
   paths: ReachableFunctionPaths[];
 }
@@ -171,7 +171,7 @@ export interface LegacyVulnApiResult extends BasicResultData {
   remediation?: RemediationChanges;
 }
 
-export interface BaseImageRemediation {
+interface BaseImageRemediation {
   code: string;
   advice: BaseImageRemediationAdvice[];
   message?: string; // TODO: check if this is still being sent
@@ -274,7 +274,7 @@ export interface TestDependenciesResponse {
   meta: TestDepGraphMeta;
 }
 
-export interface Ignores {
+interface Ignores {
   [path: string]: {
     paths: string[][];
     meta: {
@@ -284,17 +284,17 @@ export interface Ignores {
   };
 }
 
-export interface PatchObject {
+interface PatchObject {
   [name: string]: {
     patched: string;
   };
 }
 
-export interface Upgrade {
+interface Upgrade {
   upgradeTo: string; // name@version
 }
 
-export interface UpgradeVulns extends Upgrade {
+interface UpgradeVulns extends Upgrade {
   vulns: string[];
 }
 

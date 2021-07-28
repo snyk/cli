@@ -30,7 +30,7 @@ import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 import { getSeverityValue } from '../get-severity-value';
 import { showFixTip } from '../show-fix-tip';
 
-export function formatJsonOutput(jsonData, options: Options) {
+function formatJsonOutput(jsonData, options: Options) {
   const jsonDataClone = cloneDeep(jsonData);
 
   if (options['group-issues']) {

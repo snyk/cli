@@ -3,13 +3,13 @@ const snyk = require('../../lib');
 const config = require('../config');
 const version = require('../version');
 import { makeRequest } from '../request';
-const {
+import {
   getIntegrationName,
   getIntegrationVersion,
   getIntegrationEnvironment,
   getIntegrationEnvironmentVersion,
   getCommandVersion,
-} = require('./sources');
+} from './sources';
 const isCI = require('../is-ci').isCI;
 const debug = require('debug')('snyk');
 const os = require('os');

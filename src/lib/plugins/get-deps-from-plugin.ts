@@ -123,7 +123,7 @@ export async function getDepsFromPlugin(
   return convertMultiResultToMultiCustom(inspectRes, options.packageManager);
 }
 
-export function warnSomeGradleManifestsNotScanned(
+function warnSomeGradleManifestsNotScanned(
   scannedProjects: ScannedProject[],
   allFilesFound: string[],
   root: string,

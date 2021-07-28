@@ -46,15 +46,15 @@ export type AnalyticsPayload = {
   };
 };
 
-export type NoSnykFile = {
+type NoSnykFile = {
   type: ProtectResultType.NO_SNYK_FILE;
 };
 
-export type NothingToPatch = {
+type NothingToPatch = {
   type: ProtectResultType.NOTHING_TO_PATCH;
 };
 
-export type AppliedPatches = {
+type AppliedPatches = {
   type: ProtectResultType.APPLIED_PATCHES;
   patchedModules: PatchedModule[];
 };

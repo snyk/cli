@@ -128,7 +128,7 @@ async function fixAll(
 }
 
 // TODO: optionally verify the deps install
-export async function fixIndividualRequirementsTxt(
+async function fixIndividualRequirementsTxt(
   workspace: Workspace,
   dir: string,
   entryFileName: string,
@@ -166,7 +166,7 @@ export async function fixIndividualRequirementsTxt(
   return { changes };
 }
 
-export async function applyAllFixes(
+async function applyAllFixes(
   entity: EntityToFix,
   options: FixOptions,
 ): Promise<{

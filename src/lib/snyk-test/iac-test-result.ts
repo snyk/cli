@@ -70,7 +70,7 @@ export function mapIacTestResult(
  * The types above, IacTestResult & AnnotatedIacIssue, represent how the response from Registry actually is.
  * These were introduced in order to prevent cascading complex changes caused by changing Registry's `test-iac` response.
  */
-export interface IacTestError {
+interface IacTestError {
   ok: boolean;
   error: string;
   path: string;
@@ -81,14 +81,12 @@ export interface MappedIacTestResponse extends Omit<IacTestResponse, 'result'> {
   projectType: string;
 }
 
-export interface MappedAnnotatedIacIssue
+interface MappedAnnotatedIacIssue
   extends Omit<AnnotatedIacIssue, FILTERED_OUT_FIELDS> {
   path: string[];
 }
 
-export function mapIacIssue(
-  iacIssue: AnnotatedIacIssue,
-): MappedAnnotatedIacIssue {
+function mapIacIssue(iacIssue: AnnotatedIacIssue): MappedAnnotatedIacIssue {
   // filters out & renames properties we're getting from registry and don't need for the JSON output.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { cloudConfigPath: path, name, from, ...mappedIacIssue } = iacIssue;

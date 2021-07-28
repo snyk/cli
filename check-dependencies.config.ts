@@ -6,6 +6,7 @@ export const config: Options = {
     '@types/jest', // jest is a global so impossible to detect usage of types
     'jest-junit', // used in circleci
     'tap-junit', // used in circleci
+    'eslint-import-resolver-node', // used to find unused imports by Eslint
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };

@@ -1,8 +1,8 @@
 import { IacProjectType } from '../../../../../lib/iac/constants';
 import { EngineType, IacFileData, IacFileParsed } from '../types';
 
-export const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];
-export const REQUIRED_CLOUDFORMATION_FIELDS = ['Resources'];
+const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];
+const REQUIRED_CLOUDFORMATION_FIELDS = ['Resources'];
 
 export function detectConfigType(
   fileData: IacFileData,
@@ -35,7 +35,7 @@ export function detectConfigType(
     .filter((f): f is IacFileParsed => !!f);
 }
 
-export function checkRequiredFieldsMatch(
+function checkRequiredFieldsMatch(
   parsedDocument: any,
   requiredFields: string[],
 ): boolean {

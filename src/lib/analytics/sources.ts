@@ -166,7 +166,7 @@ function runCommand(cmd: string): Promise<string> {
   });
 }
 
-export async function isInstalled(commandToCheck: string): Promise<boolean> {
+async function isInstalled(commandToCheck: string): Promise<boolean> {
   let whichCommand = 'which';
   const os = process.platform;
   if (os === 'win32') {

@@ -19,4 +19,4 @@ const createCLITestHarness = (fixture: string): CLITestHarness => {
   };
 };
 
-export { CLITestHarness, createCLITestHarness };
+export { createCLITestHarness };

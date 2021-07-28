@@ -5,11 +5,11 @@ import { CustomError } from './lib/errors/custom-error';
  * this data is returned by the CLI plugins to identify
  * what should be scanned for issues
  */
-export interface GitTarget {
+interface GitTarget {
   remoteUrl: string;
   branch: string;
 }
-export interface ContainerTarget {
+interface ContainerTarget {
   image: string;
 }
 
@@ -28,7 +28,7 @@ export interface Identity {
   args?: { [key: string]: string };
 }
 
-export interface Facts {
+interface Facts {
   type: string;
   data: any;
 }
@@ -78,18 +78,18 @@ export interface IssuesData {
 /* Remediation Data
  * this data is returned on a `snyk test` for supported project types
  */
-export interface Upgrade {
+interface Upgrade {
   upgradeTo: string; // name@version
 }
 
-export interface UpgradeVulns extends Upgrade {
+interface UpgradeVulns extends Upgrade {
   vulns: string[];
 }
-export interface UpgradeRemediation extends UpgradeVulns {
+interface UpgradeRemediation extends UpgradeVulns {
   upgrades: string[];
 }
 
-export interface PatchRemediation {
+interface PatchRemediation {
   paths: PatchObject[];
 }
 
@@ -97,7 +97,7 @@ export interface DependencyUpdates {
   [from: string]: UpgradeRemediation;
 }
 
-export interface PinRemediation extends UpgradeVulns {
+interface PinRemediation extends UpgradeVulns {
   isTransitive: boolean;
 }
 
@@ -117,7 +117,7 @@ export interface RemediationChanges {
   pin: DependencyPins;
 }
 
-export interface IssueData {
+interface IssueData {
   id: string;
   packageName: string;
   version: string;
@@ -147,14 +147,14 @@ interface Patch {
   modificationTime: string;
 }
 
-export enum REACHABILITY {
+enum REACHABILITY {
   FUNCTION = 'function',
   PACKAGE = 'package',
   NOT_REACHABLE = 'not-reachable',
   NO_INFO = 'no-info',
 }
 
-export interface PatchObject {
+interface PatchObject {
   [name: string]: {
     patched: string;
   };
@@ -174,7 +174,7 @@ export enum SEVERITY {
  * Types for concepts introduced as part of this lib
  */
 
-export type SupportedScanTypes = 'pip';
+type SupportedScanTypes = 'pip';
 
 export interface Workspace {
   path: string;
@@ -191,11 +191,11 @@ export interface EntityToFix {
 // Partial CLI test options interface
 // defining only what is used by @snyk/fix
 // add more as needed
-export interface PythonTestOptions {
+interface PythonTestOptions {
   command?: string; // python interpreter to use for python tests
   dev?: boolean;
 }
-export type CliTestOptions = PythonTestOptions;
+type CliTestOptions = PythonTestOptions;
 export interface WithError<Original> {
   original: Original;
   error: CustomError;

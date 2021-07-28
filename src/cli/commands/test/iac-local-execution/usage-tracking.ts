@@ -45,6 +45,7 @@ export class TestLimitReachedError extends CustomError {
 
 // Sub-interface of FormattedResult that we really only use to make test
 // fixtures easier to create.
+// eslint-disable-next-line import/no-unused-modules
 export interface TrackableResult {
   meta: {
     isPrivate: boolean;

@@ -51,7 +51,7 @@ const cloudFormationJSON = {
   },
 };
 
-export const cloudFormationJSONFileContent = JSON.stringify(cloudFormationJSON);
+const cloudFormationJSONFileContent = JSON.stringify(cloudFormationJSON);
 
 export const cloudFormationYAMLFileDataStub: IacFileData = {
   fileContent: cloudFormationYAMLFileContent,
