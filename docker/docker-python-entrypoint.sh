@@ -30,7 +30,7 @@ PROJECT_SUBDIR=""
 echo "Project path = ${PROJECT_PATH}"
 if [ -n "${TARGET_FILE}" ]; then
     if [ ! -f "${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}" ]; then
-        exitWithMsg "\"${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}\" does not exist" 1
+        exitWithMsg "\"${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}\" does not exist" 2
     fi
 
     PROJECT_SUBDIR=$(dirname "${TARGET_FILE}")
@@ -53,7 +53,7 @@ if [ -n "${TARGET_FILE}" ]; then
         installPipfileDeps
         ;;
     *)
-        exitWithMsg "\"${PROJECT_PATH}/${TARGET_FILE}\" is not supported" 1
+        exitWithMsg "\"${PROJECT_PATH}/${TARGET_FILE}\" is not supported" 3
         ;;
     esac
 fi

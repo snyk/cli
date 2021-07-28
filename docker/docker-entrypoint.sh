@@ -51,7 +51,7 @@ PROJECT_SUBDIR=""
 
 if [ -n "${TARGET_FILE}" ]; then
   if [ ! -f "${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}" ]; then
-    exitWithMsg "\"${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}\" does not exist" 1
+    exitWithMsg "\"${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}\" does not exist" 2
   fi
 
   PROJECT_SUBDIR=$(dirname "${TARGET_FILE}")
@@ -70,7 +70,7 @@ SNYK_PARAMS="${SNYK_PARAMS} ${TEST_SETTINGS}"
 ##
 
 if [ -z "${SNYK_TOKEN}" ]; then
-  exitWithMsg "Missing \${SNYK_TOKEN}" 1
+  exitWithMsg "Missing \${SNYK_TOKEN}" 2
 fi
 
 if [ -n "${ENV_FLAGS}" ]; then
@@ -78,7 +78,7 @@ if [ -n "${ENV_FLAGS}" ]; then
 fi
 
 cd "${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" ||
-  exitWithMsg "Can't cd to ${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" 1
+  exitWithMsg "Can't cd to ${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" 2
 
 runCmdAsDockerUser "PATH=${PATH} snyk ${SNYK_COMMAND} --json ${SNYK_PARAMS} \
 ${ADDITIONAL_ENV} > \"${OUTPUT_FILE}\" 2>\"${ERROR_FILE}\""
