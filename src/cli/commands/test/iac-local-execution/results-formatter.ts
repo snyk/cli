@@ -7,6 +7,7 @@ import {
   PolicyMetadata,
   TestMeta,
 } from './types';
+import { parsePath } from './parsers/path';
 import * as path from 'path';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
@@ -55,7 +56,7 @@ function formatScanResult(
   const formattedIssues = scanResult.violatedPolicies.map((policy) => {
     const cloudConfigPath =
       scanResult.docId !== undefined
-        ? [`[DocId: ${scanResult.docId}]`].concat(policy.msg.split('.'))
+        ? [`[DocId: ${scanResult.docId}]`].concat(parsePath(policy.msg))
         : policy.msg.split('.');
 
     const flagsRequiringLineNumber = [
