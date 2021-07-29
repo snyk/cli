@@ -50,7 +50,7 @@ export async function run(
 ): Promise<{ stdout: string; stderr: string; exitCode: number }> {
   return new Promise((resolve, reject) => {
     const root = join(__dirname, '../../../../');
-    const main = join(root, 'dist/cli/index.js');
+    const main = join(root, 'bin/snyk');
     const child = exec(
       cmd.trim().replace(/^snyk/, `node ${main}`),
       {

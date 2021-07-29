@@ -1,12 +1,6 @@
-#!/usr/bin/env node
+import protectLib from './lib';
 
-import protect from './lib';
-
-async function main() {
+export async function protect() {
   const projectPath = process.cwd();
-  await protect(projectPath);
-}
-
-if (require.main === module) {
-  main();
+  await protectLib(projectPath);
 }
