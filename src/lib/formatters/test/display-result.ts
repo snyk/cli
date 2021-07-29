@@ -1,4 +1,3 @@
-import * as pathLib from 'path';
 import chalk from 'chalk';
 import { icon, color } from '../../theme';
 import { isCI } from '../../../lib/is-ci';
@@ -39,7 +38,7 @@ export function displayResult(
   const localPackageTest = isLocalFolder(options.path);
   let testingPath = options.path;
   if (options.iac && res.targetFile) {
-    testingPath = pathLib.basename(res.targetFile);
+    testingPath = res.targetFile;
   }
   const prefix = chalk.bold.white('\nTesting ' + testingPath + '...\n\n');
 
@@ -57,7 +56,7 @@ export function displayResult(
   if (res.dependencyCount) {
     pathOrDepsText += res.dependencyCount + ' dependencies';
   } else if (options.iac && res.targetFile) {
-    pathOrDepsText += pathLib.basename(res.targetFile);
+    pathOrDepsText += res.targetFile;
   } else {
     pathOrDepsText += options.path;
   }
