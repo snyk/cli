@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { fakeServer } from '../../acceptance/fake-server';
 import cli = require('../../../src/cli/commands');
 
-const main = './dist/cli/index.js'.replace(/\//g, sep);
+const main = './bin/snyk'.replace(/\//g, sep);
 const testTimeout = 50000;
 
 describe('test --json-file-output ', () => {
