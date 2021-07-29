@@ -1,10 +1,13 @@
 import * as fse from 'fs-extra';
 import * as path from 'path';
 import { runCommand } from './runCommand';
+import { debuglog } from 'util';
 
 type PackageJSON = {
-  scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
 };
+
+const debug = debuglog('@snyk' + __filename);
 
 const useLocalPackage = async (projectPath: string) => {
   const workspaceRoot = path.resolve(__dirname, '../..');
@@ -12,25 +15,21 @@ const useLocalPackage = async (projectPath: string) => {
     cwd: workspaceRoot,
   });
 
-  const currentPackageJson = await fse.readFile(
-    path.resolve(projectPath, 'package.json'),
-    'utf-8',
-  );
+  const packageJsonPath = path.resolve(projectPath, 'package.json');
+  const currentPackageJson = await fse.readFile(packageJsonPath, 'utf-8');
   const packageJson: PackageJSON = JSON.parse(currentPackageJson);
 
-  if (packageJson.scripts?.prepublish) {
-    packageJson.scripts.prepublish = packageJson.scripts.prepublish.replace(
-      '@snyk/protect',
-      path.resolve(workspaceRoot, tarballName),
+  if (packageJson.dependencies) {
+    packageJson.dependencies['@snyk/protect'] = path.resolve(
+      workspaceRoot,
+      tarballName,
     );
   }
 
   const nextPackageJson = JSON.stringify(packageJson, null, 2) + '\n';
   if (currentPackageJson !== nextPackageJson) {
-    await fse.writeFile(
-      path.resolve(projectPath, 'package.json'),
-      nextPackageJson,
-    );
+    debug('useLocalPackage: %s', packageJsonPath);
+    await fse.writeFile(packageJsonPath, nextPackageJson);
   }
 };
 

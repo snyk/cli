@@ -1,7 +1,7 @@
 import { SpawnOptionsWithoutStdio } from 'child_process';
 import { spawn } from 'cross-spawn';
 
-type RunCLIResult = {
+export type RunCLIResult = {
   code: number;
   stdout: string;
   stderr: string;

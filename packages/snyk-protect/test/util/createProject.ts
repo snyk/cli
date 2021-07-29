@@ -2,12 +2,15 @@ import * as fse from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
 import { useLocalPackage } from './useLocalPackage';
+import { debuglog } from 'util';
 
 type TestProject = {
   path: (filePath?: string) => string;
   read: (filePath: string) => Promise<string>;
   remove: () => Promise<void>;
 };
+
+const debug = debuglog('@snyk' + __filename);
 
 const createProject = async (fixtureName: string): Promise<TestProject> => {
   const tempFolder = await fse.promises.mkdtemp(
@@ -21,6 +24,8 @@ const createProject = async (fixtureName: string): Promise<TestProject> => {
   if (process.env.PRODUCTION_TEST !== '1') {
     await useLocalPackage(projectPath);
   }
+
+  debug('createProject: %s', projectPath);
 
   return {
     path: (filePath = '') => path.resolve(projectPath, filePath),
