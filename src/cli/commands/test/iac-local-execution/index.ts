@@ -69,10 +69,13 @@ export async function test(
       iacOrgSettings.meta,
     );
 
-    const filteredResults = filterIgnoredIssues(policy, formattedResults);
+    const { filteredIssues, ignoreCount } = filterIgnoredIssues(
+      policy,
+      formattedResults,
+    );
 
     try {
-      await trackUsage(filteredResults);
+      await trackUsage(filteredIssues);
     } catch (e) {
       if (e instanceof TestLimitReachedError) {
         throw e;
@@ -81,11 +84,11 @@ export async function test(
       // run their tests by squashing the error.
     }
 
-    addIacAnalytics(filteredResults);
+    addIacAnalytics(filteredIssues, ignoreCount);
 
     // TODO: add support for proper typing of old TestResult interface.
     return {
-      results: (filteredResults as unknown) as TestResult[],
+      results: (filteredIssues as unknown) as TestResult[],
       // NOTE: No file or parsed file data should leave this function.
       failures: isLocalFolder(pathToScan)
         ? failedFiles.map(removeFileContent)

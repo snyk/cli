@@ -1,7 +1,11 @@
 import { FormattedResult } from './types';
 import * as analytics from '../../../../lib/analytics';
 
-export function addIacAnalytics(formattedResults: FormattedResult[]) {
+export function addIacAnalytics(
+  formattedResults: FormattedResult[],
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  ignoredIssuesCount: number,
+) {
   let totalIssuesCount = 0;
   const issuesByType: Record<string, object> = {};
   const packageManagers = Array<string>();
@@ -22,6 +26,8 @@ export function addIacAnalytics(formattedResults: FormattedResult[]) {
 
   analytics.add('packageManager', Array.from(new Set(packageManagers)));
   analytics.add('iac-issues-count', totalIssuesCount);
+  // TODO enable once we have support for it in registry
+  // analytics.add('iac-ignored-issues-count', ignoredIssuesCount);
   analytics.add('iac-type', issuesByType);
   analytics.add('iac-metrics', performanceAnalyticsObject);
   analytics.add('iac-test-count', formattedResults.length);

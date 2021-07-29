@@ -4,13 +4,17 @@ import { Policy } from '../../../../lib/policy/find-and-load-policy';
 export function filterIgnoredIssues(
   policy: Policy | undefined,
   results: FormattedResult[],
-): FormattedResult[] {
+) {
   if (!policy) {
-    return results;
+    return { filteredIssues: results, ignoreCount: 0 };
   }
-  return results
-    .map((res) => policy.filter(toIaCVulnAdapter(res)))
-    .map((vuln) => toFormattedResult(vuln));
+  const vulns = results.map((res) => policy.filter(toIaCVulnAdapter(res)));
+  const ignoreCount: number = vulns.reduce(
+    (totalIgnored, vuln) => totalIgnored + vuln.filtered.ignore.length,
+    0,
+  );
+  const filteredIssues = vulns.map((vuln) => toFormattedResult(vuln));
+  return { filteredIssues, ignoreCount };
 }
 
 type IacVulnAdapter = {
@@ -19,6 +23,7 @@ type IacVulnAdapter = {
     from: string[];
   }[];
   originalResult: FormattedResult;
+  filtered?: { ignore: any[] };
 };
 
 // This is a total cop-out. The type I really want is AnnotatedIacIssue from
