@@ -51,7 +51,7 @@ before('prime config', async (t) => {
   t.pass('endpoint removed');
   t.end();
 });
-const main = './dist/cli/index.js'.replace(/\//g, sep);
+const main = './bin/snyk'.replace(/\//g, sep);
 
 test('`protect` should not fail for unauthorized users', (t) => {
   t.plan(1);

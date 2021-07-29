@@ -247,7 +247,7 @@ describe('@snyk/protect', () => {
 
       const { code, stdout } = await runCommand(
         'node',
-        [path.resolve(__dirname, '../../dist/index.js'), '--help'],
+        [path.resolve(__dirname, '../../bin/snyk-protect'), '--help'],
         {
           cwd: project.path(),
         },
@@ -264,7 +264,7 @@ describe('@snyk/protect', () => {
 
       const { code, stdout } = await runCommand(
         'node',
-        [path.resolve(__dirname, '../../dist/index.js'), '--version'],
+        [path.resolve(__dirname, '../../bin/snyk-protect'), '--version'],
         {
           cwd: project.path(),
         },

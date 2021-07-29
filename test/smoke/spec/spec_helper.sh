@@ -62,7 +62,7 @@ spec_helper_configure() {
   echo "Using this 'snyk' executable:"
   echo "${SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}"
   echo " "
-  echo "You may override it with envvar SNYK_COMMAND - e.g. SNYK_COMMAND=\"node ./dist/cli\" to test a local build"
+  echo "You may override it with envvar SNYK_COMMAND - e.g. SNYK_COMMAND=\"node ./bin/snyk\" to test a local build"
   echo " "
 
   snyk() {

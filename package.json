@@ -6,6 +6,7 @@
   "files": [
     "help",
     "dist",
+    "bin",
     "config.default.json",
     "SECURITY.md",
     "LICENSE",
@@ -18,7 +19,7 @@
     "doc": "help/commands-help"
   },
   "bin": {
-    "snyk": "dist/cli/index.js"
+    "snyk": "bin/snyk"
   },
   "engines": {
     "node": ">=10"
@@ -186,7 +187,8 @@
   },
   "pkg": {
     "scripts": [
-      "dist/**/*.js"
+      "dist/**/*.js",
+      "bin/snyk"
     ],
     "assets": [
       "config.default.json",

@@ -38,4 +38,4 @@ fi
 echo "Installing fixture project with npm install"
 npm install --silent --prefix test/fixtures/basic-npm
 
-SNYK_COMMAND="node ${PWD}/dist/cli" REGRESSION_TEST=1 SMOKE_TESTS_SKIP_TEST_THAT_OPENS_BROWSER=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec --chdir test/smoke test/smoke/spec/snyk_auth_spec.sh -f d
+SNYK_COMMAND="node ${PWD}/bin/snyk" REGRESSION_TEST=1 SMOKE_TESTS_SKIP_TEST_THAT_OPENS_BROWSER=1 SMOKE_TESTS_SNYK_TOKEN=$SNYK_API_TOKEN shellspec --chdir test/smoke test/smoke/spec/snyk_auth_spec.sh -f d

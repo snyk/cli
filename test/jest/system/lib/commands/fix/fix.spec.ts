@@ -5,7 +5,7 @@ import stripAnsi from 'strip-ansi';
 import { fakeServer } from '../../../../../acceptance/fake-server';
 import cli = require('../../../../../../src/cli/commands');
 
-const main = './dist/cli/index.js'.replace(/\//g, pathLib.sep);
+const main = './bin/snyk'.replace(/\//g, pathLib.sep);
 const testTimeout = 50000;
 describe('snyk fix (system tests)', () => {
   let oldkey;

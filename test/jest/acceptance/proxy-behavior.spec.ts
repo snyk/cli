@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 import { sep } from 'path';
-const main = './dist/cli/index.js'.replace(/\//g, sep);
+const main = './bin/snyk'.replace(/\//g, sep);
 
 const SNYK_API_HTTPS = 'https://snyk.io/api/v1';
 const SNYK_API_HTTP = 'http://snyk.io/api/v1';
