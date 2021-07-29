@@ -1,0 +1,104 @@
+{
+    "vulnerabilities": [
+      {
+        "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "creationTime": "2019-08-06T22:04:52.027240Z",
+        "credit": [""],
+        "cvssScore": 9.8,
+        "description": "## Overview\nmusl libc through 1.1.23 has an x87 floating-point stack adjustment imbalance, related to the math/i386/ directory. In some cases, use of this library could introduce out-of-bounds writes that are not present in an application's source code.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-14697)\n- [MISC](https://www.openwall.com/lists/musl/2019/08/06/1)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2019/08/06/4)\n",
+        "disclosureTime": "2019-08-06T16:15:00Z",
+        "id": "SNYK-LINUX-MUSL-458116",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-DEBIANUNSTABLE-MUSL-458117",
+            "SNYK-DEBIAN9-MUSL-458118",
+            "SNYK-DEBIAN10-MUSL-458127",
+            "SNYK-DEBIAN8-MUSL-458128",
+            "SNYK-ALPINE38-MUSL-458276",
+            "SNYK-ALPINE37-MUSL-458286",
+            "SNYK-ALPINE310-MUSL-458452",
+            "SNYK-ALPINE39-MUSL-458529",
+            "SNYK-DEBIAN11-MUSL-522584"
+          ],
+          "CVE": ["CVE-2019-14697"],
+          "CWE": ["CWE-787"]
+        },
+        "language": "linux",
+        "modificationTime": "2019-11-04T18:03:52.721307Z",
+        "packageManager": "linux",
+        "packageName": "musl",
+        "patches": [],
+        "publicationTime": "2019-08-06T22:04:52.037600Z",
+        "references": [
+          {
+            "title": "Debian Security Tracker",
+            "url": "https://security-tracker.debian.org/tracker/CVE-2019-14697"
+          },
+          {
+            "title": "MISC",
+            "url": "https://www.openwall.com/lists/musl/2019/08/06/1"
+          },
+          {
+            "title": "OSS security Advisory",
+            "url": "http://www.openwall.com/lists/oss-security/2019/08/06/4"
+          }
+        ],
+        "semver": {
+          "vulnerableByDistro": {
+            "alpine:3.10": ["<1.1.22-r3"],
+            "alpine:3.7": ["<1.1.18-r4"],
+            "alpine:3.8": ["<1.1.19-r11"],
+            "alpine:3.9": ["<1.1.20-r5"],
+            "debian:10": ["*"],
+            "debian:11": ["<1.1.23-2"],
+            "debian:8": ["*"],
+            "debian:9": ["*"],
+            "debian:unstable": ["<1.1.23-2"]
+          },
+          "vulnerable": ["<1.1.19-r11"]
+        },
+        "severity": "high",
+        "title": "Out-of-bounds Write",
+        "from": [
+          "docker-image|garethr/snyky@alpine",
+          "meta-common-packages@meta",
+          "musl@1.1.19-r10"
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "name": "musl",
+        "version": "1.1.19-r10",
+        "nearestFixedInVersion": "1.1.19-r11"
+      }
+    ],
+    "ok": false,
+    "dependencyCount": 40,
+    "org": "test-organization",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.14.0\nignore: {}\npatch: {}\n",
+    "isPrivate": true,
+    "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
+    "ignoreSettings": null,
+    "docker": { "binariesVulns": { "issuesData": {}, "affectedPkgs": {} } },
+    "summary": "7 vulnerable dependency paths",
+    "filesystemPolicy": false,
+    "filtered": { "ignore": [], "patch": [] },
+    "uniqueCount": 1,
+    "packageManager": "apk",
+    "targetFile": "Dockerfile",
+    "projectName": "alpine",
+    "platform": "linux/amd64",
+    "scanResult": {
+      "facts": [
+        {
+          "type": "dockerfileAnalysis",
+          "data": {
+            "error": {
+              "code": "BASE_IMAGE_NON_RESOLVABLE"
+            }
+          }
+        }
+      ]
+    }
+  }
+  

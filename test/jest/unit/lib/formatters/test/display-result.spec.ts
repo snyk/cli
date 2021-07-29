@@ -24,6 +24,56 @@ describe('displayResult', () => {
     expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
   });
 
+  it('Docker test result with base image non resolvable warning', () => {
+    const withWarning = JSON.parse(
+      fs.readFileSync(
+        path.resolve(
+          __dirname,
+          '../../../../../',
+          'acceptance/workspaces/fail-on/docker/warning/dockerfile-base-image-non-resolvable.json',
+        ),
+        'utf8',
+      ),
+    );
+
+    const res = displayResult(
+      withWarning,
+      {
+        showVulnPaths: 'all',
+        file: 'Dockerfile',
+        path: 'alpine:latest',
+        docker: true,
+      },
+      1,
+    );
+    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+  });
+
+  it('Docker test result with base image name not found warning', () => {
+    const withWarning = JSON.parse(
+      fs.readFileSync(
+        path.resolve(
+          __dirname,
+          '../../../../../',
+          'acceptance/workspaces/fail-on/docker/warning/dockerfile-base-image-name-not-found.json',
+        ),
+        'utf8',
+      ),
+    );
+
+    const res = displayResult(
+      withWarning,
+      {
+        showVulnPaths: 'all',
+        file: 'Dockerfile',
+        path: 'alpine:latest',
+        docker: true,
+      },
+      1,
+    );
+    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+  });
+
   it('Pip result with pins', () => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
