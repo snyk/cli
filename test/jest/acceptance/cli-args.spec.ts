@@ -332,3 +332,18 @@ test('container test --sarif-file-output can be used at the same time as --json'
   expect(sarifOutput.version).toMatch('2.1.0');
   expect(code).toEqual(0);
 });
+
+test('bug: container test --file=Dockerfile --exclude-base-image-vulns returns exit code 2', async () => {
+  const dockerfilePath = path.normalize(
+    'test/acceptance/fixtures/docker/Dockerfile.alpine-3.12.0',
+  );
+
+  const { code, stdout } = await runSnykCLI(
+    `container test alpine:3.12.0 --json --file=${dockerfilePath} --exclude-base-image-vulns`,
+  );
+  const jsonOutput = JSON.parse(stdout);
+
+  // BUG: it should return ok: true and exit code 0 when all vulns are excluded
+  expect(jsonOutput.ok).toEqual(false);
+  expect(code).toEqual(2);
+});
