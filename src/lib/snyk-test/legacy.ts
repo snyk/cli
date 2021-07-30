@@ -1,7 +1,7 @@
 const values = require('lodash.values');
 import * as depGraphLib from '@snyk/dep-graph';
 import { SupportedPackageManagers } from '../package-managers';
-import { SupportedProjectTypes } from '../types';
+import { Options, SupportedProjectTypes, TestOptions } from '../types';
 import { SEVERITIES } from './common';
 
 interface Pkg {
@@ -334,7 +334,7 @@ function convertTestDepGraphResultToLegacy(
   res: TestDepGraphResponse,
   depGraph: depGraphLib.DepGraph,
   packageManager: SupportedProjectTypes | undefined,
-  severityThreshold?: SEVERITY,
+  options: Options & TestOptions,
 ): LegacyVulnApiResult {
   const result = res.result;
 
@@ -359,7 +359,7 @@ function convertTestDepGraphResultToLegacy(
 
   // generate the legacy vulns array (vuln-data + metada per vulnerable path).
   //   use the upgradePathsMap to find available upgrade-paths
-  const vulns: AnnotatedIssue[] = [];
+  let vulns: AnnotatedIssue[] = [];
 
   for (const pkgInfo of values(result.affectedPkgs)) {
     for (const vulnPkgPath of depGraph.pkgPathsToRoot(pkgInfo.pkg)) {
@@ -422,8 +422,14 @@ function convertTestDepGraphResultToLegacy(
 
   const meta = res.meta || {};
 
-  severityThreshold =
-    severityThreshold === SEVERITY.LOW ? undefined : severityThreshold;
+  const severityThreshold =
+    options.severityThreshold === SEVERITY.LOW
+      ? undefined
+      : options.severityThreshold;
+
+  if (options.docker && options.file && options['exclude-base-image-vulns']) {
+    vulns = vulns.filter((vuln) => (vuln as DockerIssue).dockerfileInstruction);
+  }
 
   const legacyRes: LegacyVulnApiResult = {
     vulnerabilities: vulns,

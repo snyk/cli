@@ -390,7 +390,7 @@ async function parseRes(
       (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
       depGraph,
       pkgManager,
-      options.severityThreshold,
+      options,
     );
     // For Node.js: inject additional information (for remediation etc.) into the response.
     if (payload.modules) {
@@ -446,11 +446,6 @@ async function parseRes(
       (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
       return vuln;
     });
-  }
-  if (options.docker && options.file && options['exclude-base-image-vulns']) {
-    res.vulnerabilities = res.vulnerabilities.filter(
-      (vuln) => (vuln as DockerIssue).dockerfileInstruction,
-    );
   }
 
   res.uniqueCount = countUniqueVulns(res.vulnerabilities);
