@@ -6,10 +6,10 @@ mkdir binary-releases
 # adds a file to identify a build as a standalone binary
 echo '' >dist/STANDALONE
 
-npx pkg . -t node14-alpine-x64 -o binary-releases/snyk-alpine
-npx pkg . -t node14-linux-x64 -o binary-releases/snyk-linux
-npx pkg . -t node14-macos-x64 -o binary-releases/snyk-macos
-npx pkg . -t node14-win-x64 -o binary-releases/snyk-win-unsigned.exe
+npx pkg . --compress Brotli -t node14-alpine-x64 -o binary-releases/snyk-alpine
+npx pkg . --compress Brotli -t node14-linux-x64  -o binary-releases/snyk-linux
+npx pkg . --compress Brotli -t node14-macos-x64  -o binary-releases/snyk-macos
+npx pkg . --compress Brotli -t node14-win-x64    -o binary-releases/snyk-win-unsigned.exe
 
 # build docker package
 ./release-scripts/docker-desktop-release.sh

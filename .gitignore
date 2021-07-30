@@ -5,6 +5,7 @@ config.local.json
 local.log
 /patches/
 **/dist
+binary-releases
 tmp
 .DS_Store
 /package-lock.json
