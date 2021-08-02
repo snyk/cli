@@ -33,9 +33,9 @@ jobs:
         id: npm7-cache
         with:
           path: ${{ steps.npm7-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-${{ matrix.node_version }}-npm7-${{ hashFiles('**/package.json') }}
+          key: ${{ runner.os }}-node${{ matrix.node_version }}-npm7-${{ hashFiles('**/package.json') }}
           restore-keys: |
-            ${{ runner.os }}-${{ matrix.node_version }}-npm7-
+            ${{ runner.os }}-node${{ matrix.node_version }}-npm7-
 
       - run: npx npm@7 install
       - run: npx npm@7 run test:smoke -w @snyk/protect
