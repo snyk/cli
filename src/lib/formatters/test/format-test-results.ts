@@ -29,6 +29,11 @@ import { jsonStringifyLargeObject } from '../../json';
 import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 import { getSeverityValue } from '../get-severity-value';
 import { showFixTip } from '../show-fix-tip';
+import {
+  DockerFileAnalysisErrorCode,
+  facts as dockerFacts,
+} from 'snyk-docker-plugin/dist';
+import { ScanResult } from '../../ecosystems/types';
 
 export function formatJsonOutput(jsonData, options: Options) {
   const jsonDataClone = cloneDeep(jsonData);
@@ -159,6 +164,7 @@ export function getDisplayedOutput(
   const fixTip = showFixTip(projectType, res, options);
   const fixAdvice = fixTip ? `\n\n${fixTip}` : '';
 
+  const dockerfileWarning = getDockerfileWarning(res.scanResult);
   const dockerSuggestion = getDockerSuggestionText(options, config);
 
   const vulns = res.vulnerabilities || [];
@@ -220,6 +226,7 @@ export function getDisplayedOutput(
     multiProjAdvice +
     ignoredIssues +
     dockerAdvice +
+    dockerfileWarning +
     dockerSuggestion +
     dockerCTA
   );
@@ -255,6 +262,43 @@ function getDockerSuggestionText(options, config): string {
     }
   }
   return dockerSuggestion;
+}
+
+function getDockerfileWarning(scanResult: ScanResult | undefined): string {
+  if (!scanResult) {
+    return '';
+  }
+
+  const fact = scanResult.facts.find(
+    (fact) => fact.type === 'dockerfileAnalysis',
+  );
+  if (!fact) {
+    return '';
+  }
+
+  const dockerfileAnalysisFact = fact as dockerFacts.DockerfileAnalysisFact;
+  if (!dockerfileAnalysisFact.data.error) {
+    return '';
+  }
+
+  let userMessage = chalk.yellow(
+    '\n\nWarning: Unable to analyse Dockerfile provided through `--file`.',
+  );
+
+  switch (dockerfileAnalysisFact.data.error.code) {
+    case DockerFileAnalysisErrorCode.BASE_IMAGE_NAME_NOT_FOUND:
+      userMessage += chalk.yellow(
+        '\n         Dockerfile must begin with a FROM instruction. This may be after parser directives, comments, and globally scoped ARGs.',
+      );
+      break;
+    case DockerFileAnalysisErrorCode.BASE_IMAGE_NON_RESOLVABLE:
+      userMessage += chalk.yellow(
+        '\n         Dockerfile must have default values for all ARG instructions.',
+      );
+      break;
+  }
+
+  return userMessage;
 }
 
 export function groupVulnerabilities(

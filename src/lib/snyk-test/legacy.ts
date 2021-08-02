@@ -1,5 +1,6 @@
 const values = require('lodash.values');
 import * as depGraphLib from '@snyk/dep-graph';
+import { ScanResult } from '../ecosystems/types';
 import { SupportedPackageManagers } from '../package-managers';
 import { Options, SupportedProjectTypes, TestOptions } from '../types';
 import { SEVERITIES } from './common';
@@ -189,6 +190,7 @@ export interface TestResult extends LegacyVulnApiResult {
   targetFilePath?: string;
   displayTargetFile?: string; // used for display only
   foundProjectCount?: number;
+  scanResult?: ScanResult;
 }
 
 interface UpgradePathItem {

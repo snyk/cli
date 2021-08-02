@@ -130,6 +130,7 @@ function prepareEcosystemResponseForParsing(
     foundProjectCount: undefined,
     payloadPolicy: payloadBody?.policy,
     platform,
+    scanResult: payloadBody,
   };
 }
 
@@ -285,6 +286,7 @@ async function sendAndParseResults(
       displayTargetFile,
       dockerfilePackages,
       platform,
+      scanResult,
     } = prepareResponseForParsing(
       payloadCopy,
       res as TestDependenciesResponse,
@@ -317,6 +319,7 @@ async function sendAndParseResults(
       foundProjectCount,
       displayTargetFile,
       platform,
+      scanResult,
     });
   }
   return results;
