@@ -5,16 +5,16 @@ import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
 jest.mock('@snyk/code-client');
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
 
-import { loadJson } from '../../utils';
-import * as featureFlags from '../../../src/lib/feature-flags';
-import * as checks from '../../../src/lib/plugins/sast/checks';
-import { config as userConfig } from '../../../src/lib/user-config';
-import * as analysis from '../../../src/lib/plugins/sast/analysis';
-import { Options, TestOptions } from '../../../src/lib/types';
-import * as ecosystems from '../../../src/lib/ecosystems';
-import * as analytics from '../../../src/lib/analytics';
-import * as cli from '../../../src/cli/commands';
-import { jsonStringifyLargeObject } from '../../../src/lib/json';
+import { loadJson } from '../../../utils';
+import * as featureFlags from '../../../../src/lib/feature-flags';
+import * as checks from '../../../../src/lib/plugins/sast/checks';
+import { config as userConfig } from '../../../../src/lib/user-config';
+import * as analysis from '../../../../src/lib/plugins/sast/analysis';
+import { Options, TestOptions } from '../../../../src/lib/types';
+import * as ecosystems from '../../../../src/lib/ecosystems';
+import * as analytics from '../../../../src/lib/analytics';
+import * as cli from '../../../../src/cli/commands';
+import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 
 const { getCodeAnalysisAndParseResults } = analysis;
 const osName = require('os-name');
@@ -27,12 +27,12 @@ describe('Test snyk code', () => {
   const failedCodeTestMessage = "Failed to run 'code test'";
   const fakeApiKey = '123456789';
   const sampleSarifResponse = loadJson(
-    path.join(__dirname, '/../../fixtures/sast/sample-sarif.json'),
+    path.join(__dirname, '/../../../fixtures/sast/sample-sarif.json'),
   );
   const sampleAnalyzeFoldersResponse = loadJson(
     path.join(
       __dirname,
-      '/../../fixtures/sast/sample-analyze-folders-response.json',
+      '/../../../fixtures/sast/sample-analyze-folders-response.json',
     ),
   );
 
@@ -40,7 +40,7 @@ describe('Test snyk code', () => {
     osName()
       .toLowerCase()
       .indexOf('windows') === 0;
-  const fixturePath = path.join(__dirname, '../../fixtures', 'sast');
+  const fixturePath = path.join(__dirname, '../../../fixtures', 'sast');
   const cwd = process.cwd();
 
   function readFixture(filename: string) {
