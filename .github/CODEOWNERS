@@ -8,6 +8,8 @@ src/cli/commands/test/iac-output.ts @snyk/cloudconfig
 src/cli/commands/test/iac-test-shim.ts @snyk/cloudconfig
 src/lib/cloud-config-projects.ts @snyk/cloudconfig
 src/lib/plugins/sast/ @snyk/sast-team
+test/fixtures/sast/ @snyk/sast-team
+test/jest/unit/snyk-code/ @snyk/sast-team
 src/lib/iac/ @snyk/cloudconfig
 src/lib/snyk-test/iac-test-result.ts @snyk/cloudconfig
 src/lib/snyk-test/payload-schema.ts @snyk/cloudconfig
@@ -17,8 +19,6 @@ test/fixtures/container-projects/ @snyk/capsule
 test/fixtures/iac/ @snyk/cloudconfig
 test/smoke/spec/iac/ @snyk/cloudconfig
 test/smoke/.iac-data/ @snyk/cloudconfig
-test/fixtures/sast/ @snyk/sast-team
-test/snyk-code-test.spec.ts @snyk/sast-team
 test/jest/unit/iac-unit-tests/ @snyk/cloudconfig
 test/jest/acceptance/iac/ @snyk/cloudconfig
 src/lib/errors/invalid-iac-file.ts @snyk/cloudconfig

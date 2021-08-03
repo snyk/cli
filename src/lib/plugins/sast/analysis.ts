@@ -49,17 +49,14 @@ async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
   const severity = options.severityThreshold
     ? severityToAnalysisSeverity(options.severityThreshold)
     : AnalysisSeverity.info;
-  const paths: string[] = [root];
-  const sarif = true;
+
   const result = await analyzeFolders({
-    baseURL,
-    sessionToken,
-    severity,
-    paths,
-    sarif,
+    connection: { baseURL, sessionToken, source: 'snyk-cli' },
+    analysisOptions: { severity },
+    fileOptions: { paths: [root] },
   });
 
-  return result.sarifResults!;
+  return result?.analysisResults.sarif!;
 }
 
 function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {
