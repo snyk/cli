@@ -8,7 +8,9 @@ export function filterIgnoredIssues(
   if (!policy) {
     return { filteredIssues: results, ignoreCount: 0 };
   }
-  const vulns = results.map((res) => policy.filter(toIaCVulnAdapter(res)));
+  const vulns = results.map((res) =>
+    policy.filter(toIaCVulnAdapter(res), undefined, 'exact'),
+  );
   const ignoreCount: number = vulns.reduce(
     (totalIgnored, vuln) => totalIgnored + vuln.filtered.ignore.length,
     0,
@@ -44,10 +46,8 @@ function toIaCVulnAdapter(result: FormattedResult): IacVulnAdapter {
         // splice.
         // Insert the targetFile into the path so that it is taken into account
         // when determining whether an ignore rule should be applied.
-        // Insert garbage into the first element because the policy library
-        // ignores it.
         const path = [...annotatedResult.cloudConfigPath];
-        path.splice(0, 0, 'GARBAGE', result.targetFile);
+        path.splice(0, 0, result.targetFile);
 
         return {
           id: cloudConfigResult.id,
@@ -73,7 +73,7 @@ function toFormattedResult(adapter: IacVulnAdapter): FormattedResult {
         // including target file context. As that logic changes, so must this.
         const annotatedResult = res as AnnotatedResult;
         const significantPath = [...annotatedResult.cloudConfigPath];
-        significantPath.splice(0, 0, 'GARBAGE', original.targetFile);
+        significantPath.splice(0, 0, original.targetFile);
 
         if (vuln.from.length !== significantPath.length) {
           return false;

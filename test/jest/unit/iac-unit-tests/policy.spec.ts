@@ -115,6 +115,14 @@ describe('filtering ignored issues', () => {
     expect(ignoreCount).toEqual(1);
   });
 
+  it('filters no issues when path is file path in the wrong directory', async () => {
+    const { fixture, filtered, ignoreCount } = await filterFixture(
+      'policy-ignore-file-path-wrong-dir.yml',
+    );
+    expect(filtered).toEqual(fixture);
+    expect(ignoreCount).toEqual(0);
+  });
+
   it('filters no issues when path is non-matching file path', async () => {
     const { fixture, filtered, ignoreCount } = await filterFixture(
       'policy-ignore-file-path-non-matching.yml',
