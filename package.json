@@ -165,7 +165,7 @@
     "eslint": "6.8.0",
     "eslint-config-prettier": "^6.1.0",
     "fs-extra": "^9.1.0",
-    "jest": "^26.6.3",
+    "jest": "^27.0.6",
     "jest-junit": "^12.0.0",
     "lodash": "^4.17.20",
     "madge": "^3.4.4",
@@ -178,7 +178,7 @@
     "sinon": "^4.0.0",
     "tap": "^12.6.1",
     "tap-junit": "^4.2.0",
-    "ts-jest": "^26.5.2",
+    "ts-jest": "^27.0.4",
     "ts-node": "^8.0.0",
     "typescript": "^3.4.1"
   },

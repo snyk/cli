@@ -1,6 +1,6 @@
 import { extractPatchMetadata } from '../../src/lib/snyk-file';
 
-describe(extractPatchMetadata.name, () => {
+describe('extractPatchMetadata', () => {
   describe('extracts a single direct dependency', () => {
     it('without quotes on package path', () => {
       const dotSnykFileContents = `
