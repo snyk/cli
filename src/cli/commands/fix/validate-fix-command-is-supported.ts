@@ -3,10 +3,10 @@ import * as Debug from 'debug';
 import { getEcosystemForTest } from '../../../lib/ecosystems';
 
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
-import { CommandNotSupportedError } from '../../../lib/errors/command-not-supported';
 import { FeatureNotSupportedByEcosystemError } from '../../../lib/errors/not-supported-by-ecosystem';
 import { Options, TestOptions } from '../../../lib/types';
 import { AuthFailedError } from '../../../lib/errors';
+import chalk from 'chalk';
 
 const debug = Debug('snyk-fix');
 const snykFixFeatureFlag = 'cliSnykFix';
@@ -35,7 +35,15 @@ export async function validateFixCommandIsSupported(
   }
 
   if (!snykFixSupported.ok) {
-    throw new CommandNotSupportedError('snyk fix', options.org || undefined);
+    const snykFixErrorMessage =
+      chalk.red(
+        `\`snyk fix\` is not supported ${
+          options.org ? `for org '${options.org}'` : ''
+        }.`,
+      ) +
+      '\nSee documentation on how to enable this beta feature: https://support.snyk.io/hc/en-us/articles/4403417279505-Automatic-remediation-with-snyk-fix';
+    const unsupportedError = new Error(snykFixErrorMessage);
+    throw unsupportedError;
   }
 
   return true;

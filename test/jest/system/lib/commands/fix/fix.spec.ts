@@ -75,7 +75,7 @@ describe('snyk fix (system tests)', () => {
           expect(err.message).toMatch('Command failed');
           expect(err.code).toEqual(2);
           expect(stdout).toMatch(
-            "`snyk fix` is not supported for org 'no-flag'",
+            "`snyk fix` is not supported for org 'no-flag'.\nSee documentation on how to enable this beta feature: https://support.snyk.io/hc/en-us/articles/4403417279505-Automatic-remediation-with-snyk-fix",
           );
           done();
         },
