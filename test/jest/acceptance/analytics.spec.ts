@@ -1,6 +1,7 @@
 import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
+import * as fs from 'fs';
 
 describe('analytics module', () => {
   let server;
@@ -93,10 +94,11 @@ describe('analytics module', () => {
     });
   });
 
+  // test for `snyk test` with a project that has no vulns
   // improves upon the `snyk version` test because the `snyk test` path will include hitting `analytics.add`
   it('sends correct analytics data for `snyk test` command', async () => {
     const project = await createProject('../acceptance/workspaces/npm-package');
-    const { code, stdout } = await runSnykCLI(
+    const { code } = await runSnykCLI(
       'test --integrationName=JENKINS --integrationVersion=1.2.3',
       {
         cwd: project.path(),
@@ -104,7 +106,6 @@ describe('analytics module', () => {
       },
     );
 
-    console.log(stdout);
     expect(code).toBe(0);
 
     const lastRequest = server.popRequest();
@@ -145,6 +146,221 @@ describe('analytics module', () => {
           integrationEnvironmentVersion: '',
           integrationName: 'JENKINS',
           integrationVersion: '1.2.3',
+          // prettier-ignore
+          metrics: {
+            'network_time': {
+              type: 'timer',
+              values: expect.any(Array),
+              total: expect.any(Number),
+            },
+            'cpu_time': {
+              type: 'synthetic',
+              values: [expect.any(Number)],
+              total: expect.any(Number),
+            },
+          },
+          nodeVersion: process.version,
+          os: expect.any(String),
+          standalone: false,
+          version: '1.0.0-monorepo',
+        },
+      },
+    });
+  });
+
+  // test for `snyk test` when vulns are found
+  it('sends correct analytics data for `snyk test` command', async () => {
+    const testDepGraphResult = JSON.parse(
+      fs.readFileSync(
+        'test/fixtures/npm/with-vulnerable-lodash-dep/test-dep-graph-result.json',
+        'utf-8',
+      ),
+    );
+    server.setNextResponse(testDepGraphResult);
+    const project = await createProject('npm/with-vulnerable-lodash-dep');
+
+    const { code } = await runSnykCLI(
+      'test --integrationName=JENKINS --integrationVersion=1.2.3',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toBe(1);
+
+    const lastRequest = server.popRequest();
+    expect(lastRequest).toMatchObject({
+      headers: {
+        host: 'localhost:12345',
+        accept: 'application/json',
+        authorization: 'token 123456789',
+        'content-type': 'application/json; charset=utf-8',
+        'x-snyk-cli-version': '1.0.0-monorepo',
+      },
+      query: {},
+      body: {
+        data: {
+          args: [
+            {
+              integrationName: 'JENKINS',
+              integrationVersion: '1.2.3',
+            },
+          ],
+          ci: expect.any(Boolean),
+          command: 'test',
+          metadata: {
+            'generating-node-dependency-tree': {
+              lockFile: true,
+              targetFile: 'package-lock.json',
+            },
+            lockfileVersion: 2,
+            pluginName: 'snyk-nodejs-lockfile-parser',
+            packageManager: 'npm',
+            packageName: 'with-vulnerable-lodash-dep',
+            packageVersion: '1.2.3',
+            prePrunedPathsCount: 2,
+            depGraph: true,
+            isDocker: false,
+            'vulns-pre-policy': 5,
+            vulns: 5,
+            actionableRemediation: true,
+            'error-code': 'VULNS',
+            'error-message': 'Vulnerabilities found',
+          },
+          durationMs: expect.any(Number),
+          environment: {
+            npmVersion: expect.any(String),
+          },
+          id: expect.any(String),
+          integrationEnvironment: '',
+          integrationEnvironmentVersion: '',
+          integrationName: 'JENKINS',
+          integrationVersion: '1.2.3',
+          // prettier-ignore
+          metrics: {
+            'network_time': {
+              type: 'timer',
+              values: expect.any(Array),
+              total: expect.any(Number),
+            },
+            'cpu_time': {
+              type: 'synthetic',
+              values: [expect.any(Number)],
+              total: expect.any(Number),
+            },
+          },
+          nodeVersion: process.version,
+          os: expect.any(String),
+          standalone: false,
+          version: '1.0.0-monorepo',
+        },
+      },
+    });
+  });
+
+  // test for a bad command
+  it('sends correct analytics data a bad command', async () => {
+    const project = await createProject('../acceptance/workspaces/npm-package');
+    const { code } = await runSnykCLI(
+      'random-nonsense-command --some-option --integrationName=JENKINS --integrationVersion=1.2.3',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
+
+    expect(code).toBe(2);
+
+    const lastRequest = server.popRequest();
+    expect(lastRequest).toMatchObject({
+      headers: {
+        host: 'localhost:12345',
+        accept: 'application/json',
+        authorization: 'token 123456789',
+        'content-type': 'application/json; charset=utf-8',
+        'x-snyk-cli-version': '1.0.0-monorepo',
+      },
+      query: {},
+      body: {
+        data: {
+          args: ['random-nonsense-command'],
+          ci: expect.any(Boolean),
+          command: 'bad-command',
+          metadata: {
+            command: 'random-nonsense-command',
+            error: expect.stringContaining(
+              'Error: Unknown command "random-nonsense-command"',
+            ),
+            'error-code': 'UNKNOWN_COMMAND',
+            'error-message': 'Unknown command "random-nonsense-command"',
+          },
+          durationMs: expect.any(Number),
+          environment: {
+            npmVersion: expect.any(String),
+          },
+          id: expect.any(String),
+          integrationEnvironment: '',
+          integrationEnvironmentVersion: '',
+          integrationName: '',
+          integrationVersion: '',
+          // prettier-ignore
+          metrics: {
+            'network_time': {
+              type: 'timer',
+              values: expect.any(Array),
+              total: expect.any(Number),
+            },
+            'cpu_time': {
+              type: 'synthetic',
+              values: [expect.any(Number)],
+              total: expect.any(Number),
+            },
+          },
+          nodeVersion: process.version,
+          os: expect.any(String),
+          standalone: false,
+          version: '1.0.0-monorepo',
+        },
+      },
+    });
+  });
+
+  // no command, i.e. user enters just `snyk`
+  it('sends correct analytics data a bad command', async () => {
+    const project = await createProject('../acceptance/workspaces/npm-package');
+    const { code } = await runSnykCLI('', {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(code).toBe(0);
+
+    const lastRequest = server.popRequest();
+    console.log(lastRequest.body.data);
+    expect(lastRequest).toMatchObject({
+      headers: {
+        host: 'localhost:12345',
+        accept: 'application/json',
+        authorization: 'token 123456789',
+        'content-type': 'application/json; charset=utf-8',
+        'x-snyk-cli-version': '1.0.0-monorepo',
+      },
+      query: {},
+      body: {
+        data: {
+          args: ['help', {}],
+          ci: expect.any(Boolean),
+          command: 'help',
+          durationMs: expect.any(Number),
+          environment: {
+            npmVersion: expect.any(String),
+          },
+          id: expect.any(String),
+          integrationEnvironment: '',
+          integrationEnvironmentVersion: '',
+          integrationName: '',
+          integrationVersion: '',
           // prettier-ignore
           metrics: {
             'network_time': {
