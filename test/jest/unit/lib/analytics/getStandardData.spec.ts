@@ -1,15 +1,6 @@
 import { getStandardData } from '../../../../../src/lib/analytics/getStandardData';
 import { getCommandVersion } from '../../../../../src/lib/analytics/sources';
-import { ArgsOptions } from '../../../../../src/cli/args';
-
-function argsFrom(args: { [key: string]: string }): ArgsOptions[] {
-  const fullArgs = ([
-    {
-      ...args,
-    },
-  ] as any) as ArgsOptions[];
-  return fullArgs;
-}
+import { argsFrom } from './utils';
 
 describe('getStandardData returns object', () => {
   it('contains all the required fields', async () => {
