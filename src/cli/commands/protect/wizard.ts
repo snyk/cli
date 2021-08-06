@@ -216,6 +216,8 @@ async function processWizardFlow(options) {
     });
 }
 
+type Answers = Record<string, unknown>;
+
 function interactive(test, pkg, policy, options) {
   const vulns = test.vulnerabilities;
   if (!policy) {
@@ -227,7 +229,7 @@ function interactive(test, pkg, policy, options) {
     pkg = {};
   }
 
-  return new Promise((resolve) => {
+  return new Promise<Answers>((resolve) => {
     debug('starting questions');
     const prompts = allPrompts.getUpdatePrompts(vulns, policy, options);
     resolve(inquire(prompts, {}));
@@ -252,7 +254,7 @@ function interactive(test, pkg, policy, options) {
     });
 }
 
-function inquire(prompts, answers): Promise<{}> {
+function inquire(prompts, answers): Promise<Answers> {
   if (prompts.length === 0) {
     return Promise.resolve(answers);
   }

@@ -15,7 +15,11 @@ import {
 } from '../constants';
 
 const reachabilityLevels: {
-  [key in REACHABILITY]: { color: Function; text: string; json: string };
+  [key in REACHABILITY]: {
+    color: (s: string) => string;
+    text: string;
+    json: string;
+  };
 } = {
   [REACHABILITY.FUNCTION]: {
     color: chalk.redBright,

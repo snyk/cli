@@ -11,6 +11,7 @@ export {
 
 const cloneDeep = require('lodash.clonedeep');
 const get = require('lodash.get');
+const omit = require('lodash.omit');
 import * as semver from 'semver';
 import { format as fmt } from 'util';
 import * as debugModule from 'debug';
@@ -128,37 +129,37 @@ function sortPatchPrompts(a, b) {
   return res;
 }
 
-function stripInvalidPatches<T extends AnnotatedIssue>(vulns: T[]): T[] {
+function stripInvalidPatches<T extends AnnotatedIssue>(
+  originalVuln: T,
+): Omit<T, 'description' | 'credit'> {
   // strip the irrelevant patches from the vulns at the same time, collect
   // the unique package vulns
-  return vulns.map((vuln) => {
-    // strip verbose meta
-    delete vuln.description;
-    delete vuln.credit;
 
-    if (vuln.patches) {
-      vuln.patches = vuln.patches.filter((patch) => {
-        return semver.satisfies(vuln.version, patch.version);
-      });
+  // strip verbose meta
+  const vuln = omit(cloneDeep(originalVuln), ['description', 'credit']);
 
-      // sort by patchModification, then pick the latest one
-      vuln.patches = vuln.patches
-        .sort((a, b) => {
-          return b.modificationTime < a.modificationTime ? -1 : 1;
-        })
-        .slice(0, 1);
+  if (vuln.patches) {
+    vuln.patches = vuln.patches.filter((patch) => {
+      return semver.satisfies(vuln.version, patch.version);
+    });
 
-      // FIXME hack to give all the patches IDs if they don't already
-      if (vuln.patches[0] && !vuln.patches[0].id) {
-        vuln.patches[0].id = vuln.patches[0].urls[0]
-          .split('/')
-          .slice(-1)
-          .pop() as string;
-      }
+    // sort by patchModification, then pick the latest one
+    vuln.patches = vuln.patches
+      .sort((a, b) => {
+        return b.modificationTime < a.modificationTime ? -1 : 1;
+      })
+      .slice(0, 1);
+
+    // FIXME hack to give all the patches IDs if they don't already
+    if (vuln.patches[0] && !vuln.patches[0].id) {
+      vuln.patches[0].id = vuln.patches[0].urls[0]
+        .split('/')
+        .slice(-1)
+        .pop() as string;
     }
+  }
 
-    return vuln;
-  });
+  return vuln;
 }
 
 function getPrompts(vulns, policy) {
@@ -177,10 +178,12 @@ function getPatchPrompts(
     return [];
   }
 
-  let res = stripInvalidPatches(cloneDeep(vulns)).filter((vuln) => {
-    // if there's any upgrade available, then remove it
-    return canBeUpgraded(vuln) || vuln.type === 'license' ? false : true;
-  }) as AnnotatedIssue[];
+  let res = vulns
+    .map((vuln) => stripInvalidPatches(vuln))
+    .filter((vuln) => {
+      // if there's any upgrade available, then remove it
+      return canBeUpgraded(vuln) || vuln.type === 'license' ? false : true;
+    }) as AnnotatedIssue[];
   // sort by vulnerable package and the largest version
   res.sort(sortPatchPrompts);
 
@@ -336,20 +339,22 @@ function getIgnorePrompts(vulns, policy, options?) {
     return [];
   }
 
-  const res = stripInvalidPatches(cloneDeep(vulns)).filter((vuln) => {
-    // remove all patches and updates
+  const res = vulns
+    .map((vuln) => stripInvalidPatches(vuln))
+    .filter((vuln) => {
+      // remove all patches and updates
 
-    // if there's any upgrade available
-    if (canBeUpgraded(vuln)) {
-      return false;
-    }
+      // if there's any upgrade available
+      if (canBeUpgraded(vuln)) {
+        return false;
+      }
 
-    if (vuln.patches && vuln.patches.length) {
-      return false;
-    }
+      if (vuln.patches && vuln.patches.length) {
+        return false;
+      }
 
-    return true;
-  });
+      return true;
+    });
 
   const prompts = generatePrompt(res, policy, 'i', options);
 
@@ -376,13 +381,16 @@ function getUpdatePrompts(vulns: AnnotatedIssue[], policy, options?): Prompt[] {
     return [];
   }
 
-  let res = stripInvalidPatches(cloneDeep(vulns)).filter((vuln) => {
-    // only keep upgradeable
-    return canBeUpgraded(vuln);
-  }) as AnnotatedIssueWithGrouping[];
+  let res = vulns
+    .map((vuln) => stripInvalidPatches(vuln))
+    .filter((vuln) => {
+      // only keep upgradeable
+      return canBeUpgraded(vuln);
+    }) as AnnotatedIssueWithGrouping[];
 
   // sort by vulnerable package and the largest version
   res.sort(sortUpgradePrompts);
+
   let copy: AnnotatedIssueWithGrouping | null = null;
   let offset = 0;
   // mutate our objects so we can try to group them
@@ -487,12 +495,16 @@ function canBeUpgraded(vuln) {
   });
 }
 
-interface IgnoreMeta {
-  review: unknown;
-}
+type Choice = 'skip' | 'patch' | 'update' | 'review' | 'ignore';
+
+type ChoiceDetails = {
+  meta: Action['meta'];
+  vuln: AnnotatedIssue;
+  choice: Choice;
+};
 
 interface Action {
-  value: {};
+  value: Choice | ChoiceDetails;
   key?: string;
   name: string;
   short?: string;
@@ -532,7 +544,7 @@ function generatePrompt(
     vulns = []; // being defensive, but maybe we should throw an error?
   }
 
-  const skipAction = {
+  const skipAction: Action = {
     value: 'skip', // the value that we get in our callback
     key: 's',
     name: 'Skip', // the text the user sees
@@ -903,7 +915,7 @@ function generatePrompt(
       choice.value = {
         meta: choice.meta,
         vuln,
-        choice: value, // this is the string "update", "ignore", etc
+        choice: value as Choice, // this is the string "update", "ignore", etc
       };
       return choice;
     });

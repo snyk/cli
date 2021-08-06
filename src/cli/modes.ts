@@ -1,5 +1,6 @@
 import * as abbrev from 'abbrev';
 import { UnsupportedOptionCombinationError, CustomError } from '../lib/errors';
+import { Args } from './args';
 
 interface ModeData {
   allowedCommands: Array<string>;
@@ -54,9 +55,9 @@ export function parseMode(mode: string, args): string {
   return mode;
 }
 
-export function modeValidation(args: object) {
+export function modeValidation(args: Args) {
   const mode = args['command'];
-  const commands: Array<string> = args['options']._;
+  const commands = args['options']._ as Array<string>;
 
   if (isValidMode(mode) && commands.length <= 1) {
     const allowed = modes[mode].allowedCommands

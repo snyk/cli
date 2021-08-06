@@ -7,6 +7,7 @@ import {
   modeValidation,
   displayModeHelp,
 } from '../../../src/cli/modes';
+import { Args } from '../../../src/cli/args';
 
 describe('display help message', () => {
   it('should do nothing when it is missing command', () => {
@@ -221,10 +222,12 @@ describe('when have a valid mode and not allowed command', () => {
 
 describe('mode validation', () => {
   it('when there is no command, throw error', () => {
-    const args = {
+    const args: Args = {
       command: 'container',
+      method: () => Promise.resolve(),
       options: {
         _: ['container'],
+        _doubleDashArgs: [],
       },
     };
 
@@ -238,10 +241,12 @@ describe('mode validation', () => {
     }
   });
   it('when command is not valid, throw error', () => {
-    const args = {
+    const args: Args = {
       command: 'container',
+      method: () => Promise.resolve(),
       options: {
         _: ['protect', 'container'],
+        _doubleDashArgs: [],
       },
     };
 
@@ -258,10 +263,12 @@ describe('mode validation', () => {
   });
 
   it('when command is valid, do nothing', () => {
-    const args = {
+    const args: Args = {
       command: 'container',
+      method: () => Promise.resolve(),
       options: {
         _: ['test', 'container'],
+        _doubleDashArgs: [],
       },
     };
 
@@ -270,10 +277,12 @@ describe('mode validation', () => {
   });
 
   it('when there is no valid mode, do nothing', () => {
-    const args = {
+    const args: Args = {
       command: 'test',
+      method: () => Promise.resolve(),
       options: {
         _: ['test'],
+        _doubleDashArgs: [],
       },
     };
 
@@ -282,10 +291,12 @@ describe('mode validation', () => {
   });
 
   it('when there is no mode, do nothing', () => {
-    const args = {
+    const args: Args = {
       command: '',
+      method: () => Promise.resolve(),
       options: {
         _: [],
+        _doubleDashArgs: [],
       },
     };
 

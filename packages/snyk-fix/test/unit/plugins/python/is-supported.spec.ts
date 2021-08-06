@@ -8,7 +8,6 @@ describe('isSupported', () => {
       'requirements.txt',
       JSON.stringify({}),
     );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore: for test purpose only
     delete entity.testResult.remediation;
     const res = await isSupported(entity);
@@ -21,7 +20,6 @@ describe('isSupported', () => {
       'pyproject.toml',
       JSON.stringify({}),
     );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore: for test purpose only
     delete entity.testResult.remediation;
     // @ts-ignore: for test purpose only

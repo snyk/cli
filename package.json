@@ -156,8 +156,8 @@
     "@types/sarif": "^2.1.2",
     "@types/sinon": "^7.5.0",
     "@types/update-notifier": "^4.1.0",
-    "@typescript-eslint/eslint-plugin": "2.18.0",
-    "@typescript-eslint/parser": "^2.0.0",
+    "@typescript-eslint/eslint-plugin": "^4.29.0",
+    "@typescript-eslint/parser": "^4.29.0",
     "ajv": "^6.12.6",
     "cross-spawn": "^6.0.5",
     "danger": "^10.6.4",
@@ -179,8 +179,8 @@
     "tap": "^12.6.1",
     "tap-junit": "^4.2.0",
     "ts-jest": "^26.5.2",
-    "ts-node": "^8.0.0",
-    "typescript": "^3.4.1"
+    "ts-node": "^10.1.0",
+    "typescript": "4.2.x"
   },
   "repository": {
     "type": "git",

@@ -18,7 +18,7 @@ export interface Options {
   packageManager?: string;
   composerIsFine?: boolean;
   composerPharIsFine?: boolean;
-  systemVersions?: object;
+  systemVersions?: any;
   scanAllUnmanaged?: boolean;
 }
 

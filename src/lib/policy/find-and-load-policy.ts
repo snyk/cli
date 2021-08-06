@@ -9,6 +9,11 @@ import * as analytics from '../analytics';
 
 const debug = debugModule('snyk');
 
+export type Policy = {
+  filter(vulns: any, root?: string, matchStrategy?: string): any;
+  toString: () => string;
+};
+
 export async function findAndLoadPolicy(
   root: string,
   scanType: SupportedPackageManagers | 'docker' | 'iac',
@@ -48,8 +53,4 @@ export async function findAndLoadPolicy(
     }
   }
   return policy;
-}
-
-export interface Policy {
-  filter(vulns: any, root?: string, matchStrategy?: string): any;
 }

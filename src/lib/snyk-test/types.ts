@@ -3,6 +3,7 @@ import { ScanResult } from '../ecosystems/types';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import { DepTree } from '../types';
 import { IacScan } from './payload-schema';
+import { ParsedUrlQueryInput } from 'querystring';
 
 export interface PayloadBody {
   depGraph?: depGraphLib.DepGraph; // missing for legacy endpoint (options.vulnEndpoint)
@@ -37,6 +38,6 @@ export interface Payload {
     authorization: string;
   };
   body?: PayloadBody | IacScan | TestDependenciesRequest;
-  qs?: object | null;
+  qs?: ParsedUrlQueryInput | null;
   modules?: DepTreeFromResolveDeps;
 }

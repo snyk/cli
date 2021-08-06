@@ -77,7 +77,7 @@ export const codePlugin: EcosystemPlugin = {
   },
 };
 
-function isCodeClientError(error: object): boolean {
+function isCodeClientError(error: Error): boolean {
   return (
     error.hasOwnProperty('statusCode') &&
     error.hasOwnProperty('statusText') &&

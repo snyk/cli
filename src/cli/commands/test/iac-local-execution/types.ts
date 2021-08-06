@@ -55,7 +55,7 @@ export type FormattedResult = {
   filesystemPolicy: boolean;
   vulnerabilities: AnnotatedIssue[];
   dependencyCount: number;
-  licensesPolicy: object | null;
+  licensesPolicy: unknown | null;
   ignoreSettings: IgnoreSettings | null;
   targetFile: string;
   projectName: string;

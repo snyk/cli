@@ -56,7 +56,7 @@ async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
     fileOptions: { paths: [root] },
   });
 
-  return result?.analysisResults.sarif!;
+  return result?.analysisResults.sarif as Log;
 }
 
 function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {

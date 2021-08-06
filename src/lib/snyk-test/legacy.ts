@@ -159,7 +159,7 @@ export interface LegacyVulnApiResult extends BasicResultData {
   vulnerabilities: AnnotatedIssue[];
   dependencyCount: number;
   policy: string;
-  licensesPolicy: object | null;
+  licensesPolicy: Record<string, unknown> | null;
   ignoreSettings: IgnoreSettings | null;
   docker?: {
     baseImage?: any;
@@ -479,7 +479,10 @@ function toLegacyPkgId(pkg: Pkg) {
   return `${pkg.name}@${pkg.version || '*'}`;
 }
 
-function getSummary(vulns: object[], severityThreshold?: SEVERITY): string {
+function getSummary(
+  vulns: AnnotatedIssue[],
+  severityThreshold?: SEVERITY,
+): string {
   const count = vulns.length;
   let countText = '' + count;
   const severityFilters: string[] = [];

@@ -267,10 +267,10 @@ test('teardown', async (t) => {
   t.end();
 });
 
-function stubDockerPluginResponse(plugins, fixture: string | object, t) {
+function stubDockerPluginResponse(plugins, fixture: string | unknown, t) {
   const plugin = {
     async scan() {
-      return typeof fixture === 'object' ? fixture : require(fixture);
+      return typeof fixture === 'string' ? require(fixture) : fixture;
     },
     async display() {
       return '';

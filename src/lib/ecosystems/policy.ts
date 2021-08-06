@@ -4,11 +4,12 @@ import { SupportedPackageManagers } from '../package-managers';
 import { findAndLoadPolicy } from '../policy';
 import { Options, PolicyOptions } from '../types';
 import { ScanResult } from './types';
+import { Policy } from '../policy/find-and-load-policy';
 
 export async function findAndLoadPolicyForScanResult(
   scanResult: ScanResult,
   options: Options & PolicyOptions,
-): Promise<object | undefined> {
+): Promise<Policy | undefined> {
   const targetFileRelativePath = scanResult.identity.targetFile
     ? path.join(path.resolve(`${options.path}`), scanResult.identity.targetFile)
     : undefined;
@@ -22,12 +23,11 @@ export async function findAndLoadPolicyForScanResult(
   // it should be a ExpandedPkgTree type instead
   const packageExpanded = undefined;
 
-  const policy = (await findAndLoadPolicy(
+  return findAndLoadPolicy(
     options.path,
     scanType,
     options,
     packageExpanded,
     targetFileDir,
-  )) as object | undefined; // TODO: findAndLoadPolicy() does not return a string!
-  return policy;
+  );
 }

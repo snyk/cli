@@ -25,8 +25,8 @@ interface PyProjectToml {
       version: string;
       description: string;
       authors: string[];
-      dependencies?: object;
-      'dev-dependencies'?: object;
+      dependencies?: Record<string, string>;
+      'dev-dependencies'?: Record<string, string>;
     };
   };
 }
