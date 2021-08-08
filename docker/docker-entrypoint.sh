@@ -80,6 +80,22 @@ fi
 cd "${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" ||
   exitWithMsg "Can't cd to ${PROJECT_PATH}/${PROJECT_FOLDER}/${PROJECT_SUBDIR}" 2
 
+# If --json-file-output argument exists,
+# override default output filename, unless it's empty
+# if argument has empty value - exit the process
+for i in "$@"; do
+    if [[ "$i" == --json-file-output=* ]]; then
+      JSON_FILE_KEY_VALUE=(${i//=/ })
+      JSON_FILE_VALUE=${JSON_FILE_KEY_VALUE[1]}
+
+      if [[ -z "${JSON_FILE_VALUE}" ]]; then
+        exitWithMsg "Empty --json-file-output argument. Did you mean --file=path/to/output-file.json ?" 2
+      fi
+
+      OUTPUT_FILE=${JSON_FILE_VALUE}
+    fi
+done
+
 runCmdAsDockerUser "PATH=${PATH} snyk ${SNYK_COMMAND} --json ${SNYK_PARAMS} \
 ${ADDITIONAL_ENV} > \"${OUTPUT_FILE}\" 2>\"${ERROR_FILE}\""
 
@@ -116,7 +132,8 @@ sed 's/<\/head>/  <link rel=\"stylesheet\" href=\"snyk_report.css\"><\/head>/' \
 runCmdAsDockerUser "cat /home/node/snyk_report.css > \
 \"${PROJECT_PATH}/${PROJECT_FOLDER}/snyk_report.css\""
 
-if [ $RC -ne "0" ]; then
+# Replicating logic in lines 104-106
+if [ $RC -ne "0" ] && [ $RC -ne "1" ]; then
   exitWithMsg "${OUTPUT_FILE}" "$RC"
 fi
 
