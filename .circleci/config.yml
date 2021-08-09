@@ -152,6 +152,7 @@ jobs:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
+    resource_class: large
     steps:
       - checkout
       - install_shellspec
@@ -408,7 +409,7 @@ jobs:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
-    resource_class: small
+    resource_class: large
     steps:
       - checkout
       - run:
