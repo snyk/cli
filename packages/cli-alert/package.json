@@ -18,6 +18,6 @@
     "@slack/webhook": "^5.0.3"
   },
   "devDependencies": {
-    "typescript": "4.2.x"
+    "typescript": "4.0.x"
   }
 }
