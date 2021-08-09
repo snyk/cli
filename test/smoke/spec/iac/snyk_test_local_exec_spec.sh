@@ -30,7 +30,7 @@ Describe "Snyk iac local test command"
     It "finds issues in k8s YAML file"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml
       The status should equal 1 # issues found
-      The output should include "Testing pod-privileged.yaml..."
+      The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
@@ -41,7 +41,7 @@ Describe "Snyk iac local test command"
     It "finds issues in k8s JSON file"
           When run snyk iac test ../fixtures/iac/kubernetes/pod-valid.json
           The status should equal 1 # issues found
-          The output should include "Testing pod-valid.json..."
+          The output should include "Testing ../fixtures/iac/kubernetes/pod-valid.json..."
 
           # Outputs issues
           The output should include "Infrastructure as code issues:"
@@ -52,7 +52,7 @@ Describe "Snyk iac local test command"
     It "filters out issues when using severity threshold"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-privileged.yaml  --severity-threshold=high
       The status should equal 1 # one issue found
-      The output should include "Testing pod-privileged.yaml..."
+      The output should include "Testing ../fixtures/iac/kubernetes/pod-privileged.yaml..."
 
       The output should include "Infrastructure as code issues:"
       The output should include "✗ "
@@ -94,7 +94,7 @@ Describe "Snyk iac local test command"
       It "finds issues in CloudFormation YAML file"
         When run snyk iac test ../fixtures/iac/cloudformation/aurora-valid.yml
         The status should equal 1 # issues found
-        The output should include "Testing aurora-valid.yml..."
+        The output should include "Testing ../fixtures/iac/cloudformation/aurora-valid.yml..."
 
         # Outputs issues
         The output should include "Infrastructure as code issues:"
@@ -105,7 +105,7 @@ Describe "Snyk iac local test command"
       It "finds issues in CloudFormation JSON file"
               When run snyk iac test ../fixtures/iac/cloudformation/fargate-valid.json
               The status should equal 1 # issues found
-              The output should include "Testing fargate-valid.json..."
+              The output should include "Testing ../fixtures/iac/cloudformation/fargate-valid.json..."
 
               # Outputs issues
               The output should include "Infrastructure as code issues:"
@@ -116,10 +116,10 @@ Describe "Snyk iac local test command"
       It "filters out issues when using severity threshold"
         When run snyk iac test ../fixtures/iac/cloudformation/aurora-valid.yml  --severity-threshold=high
         The status should equal 0 # no issues found
-        The output should include "Testing aurora-valid.yml..."
+        The output should include "Testing ../fixtures/iac/cloudformation/aurora-valid.yml..."
 
         The output should include "Infrastructure as code issues:"
-        The output should include "Tested aurora-valid.yml for known issues, found"
+        The output should include "Tested ../fixtures/iac/cloudformation/aurora-valid.yml for known issues, found"
       End
 
       It "outputs an error for files with no valid YAML"
@@ -149,7 +149,7 @@ Describe "Snyk iac local test command"
     It "finds issues in terraform file"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf
       The status should equal 1 # issues found
-      The output should include "Testing sg_open_ssh.tf..."
+      The output should include "Testing ../fixtures/iac/terraform/sg_open_ssh.tf..."
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
@@ -160,10 +160,10 @@ Describe "Snyk iac local test command"
     It "filters out issues when using severity threshold"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --severity-threshold=high
       The status should equal 0 # no issues found
-      The output should include "Testing sg_open_ssh.tf..."
+      The output should include "Testing ../fixtures/iac/terraform/sg_open_ssh.tf..."
 
       The output should include "Infrastructure as code issues:"
-      The output should include "Tested sg_open_ssh.tf for known issues, found"
+      The output should include "Tested ../fixtures/iac/terraform/sg_open_ssh.tf for known issues, found"
     End
 
     # TODO: currently skipped because the parser we're using doesn't fail on invalid terraform
@@ -236,9 +236,9 @@ Describe "Snyk iac local test command"
       When run snyk iac test ../fixtures/iac/depth_detection/  --detection-depth=2
       The status should equal 1 #  issues found
       # Only File
-      The output should include "Testing one.tf..."
+      The output should include "Testing one/one.tf..."
       The output should include "Infrastructure as code issues:"
-      The output should include "Tested one.tf for known issues, found"
+      The output should include "Tested one/one.tf for known issues, found"
 
       # Second File
       The output should include "Testing root.tf..."
@@ -310,7 +310,7 @@ Describe "Snyk iac local test command"
     It "finds issues in a Terraform plan file - full scan flag"
       When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json  --scan=planned-values
       The status should equal 1 # issues found
-      The output should include "Testing tf-plan-create.json"
+      The output should include "Testing ../fixtures/iac/terraform-plan/tf-plan-create.json"
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
@@ -324,7 +324,7 @@ Describe "Snyk iac local test command"
     It "finds issues in a Terraform plan file - explicit delta scan with flag"
       When run snyk iac test ../fixtures/iac/terraform-plan/tf-plan-create.json  --scan=resource-changes
       The status should equal 1 # issues found
-      The output should include "Testing tf-plan-create.json"
+      The output should include "Testing ../fixtures/iac/terraform-plan/tf-plan-create.json"
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"

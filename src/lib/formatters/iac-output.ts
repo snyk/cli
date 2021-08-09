@@ -30,7 +30,7 @@ function formatIacIssue(
   let introducedBy = '';
   if (path) {
     // In this mode, we show only one path by default, for compactness
-    const pathStr = printPath(path);
+    const pathStr = printPath(path, 0);
     introducedBy = `\n    introduced by ${pathStr}`;
   }
 

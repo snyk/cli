@@ -22,6 +22,10 @@ const keys: (keyof IaCTestFlags)[] = [
   'quiet',
   'scan',
   'legacy',
+
+  // PolicyOptions
+  'ignore-policy',
+  'policy-path',
 ];
 const allowed = new Set<string>(keys);
 

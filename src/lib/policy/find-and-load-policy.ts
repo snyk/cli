@@ -11,11 +11,11 @@ const debug = debugModule('snyk');
 
 export async function findAndLoadPolicy(
   root: string,
-  scanType: SupportedPackageManagers | 'docker',
+  scanType: SupportedPackageManagers | 'docker' | 'iac',
   options: PolicyOptions,
   pkg?: PackageExpanded,
   scannedProjectFolder?: string,
-): Promise<string | undefined> {
+): Promise<Policy | undefined> {
   const isDocker = scanType === 'docker';
   const isNodeProject = ['npm', 'yarn'].includes(scanType);
   // monitor
@@ -43,9 +43,13 @@ export async function findAndLoadPolicy(
   } catch (err) {
     // note: inline catch, to handle error from .load
     // if the .snyk file wasn't found, it is fine
-    if (err.code !== 'ENOENT') {
+    if (err.code !== 'ENOENT' && err.code !== 'ENOTDIR') {
       throw err;
     }
   }
   return policy;
+}
+
+export interface Policy {
+  filter(vulns: any, root?: string, matchStrategy?: string): any;
 }

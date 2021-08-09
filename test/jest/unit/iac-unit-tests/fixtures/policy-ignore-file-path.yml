@@ -1,9 +1,9 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.22.0
+version: v1.19.0
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
 ignore:
-  'npm:marked:20170907':
-    - '*':
-        reason: Default policy location test
-        expires: 2027-11-19T14:12:53.987Z
+  SNYK-CC-K8S-1:
+    - 'k8s.yaml > *':
+        reason: None Given
+        created: 2021-07-26T13:09:08.459Z
 patch: {}

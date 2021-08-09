@@ -22,12 +22,12 @@ describe('iac test --rules', () => {
     );
     expect(exitCode).toBe(1);
 
-    expect(stdout).toContain('Testing sg_open_ssh.tf');
+    expect(stdout).toContain('Testing ./iac/terraform/sg_open_ssh.tf');
     expect(stdout).toContain('Infrastructure as code issues:');
     expect(stdout).toContain('Missing tags');
     expect(stdout).toContain('CUSTOM-123');
     expect(stdout).toContain(
-      'introduced by resource > aws_security_group[allow_ssh] > tags',
+      'introduced by input > resource > aws_security_group[allow_ssh] > tags',
     );
   });
 
