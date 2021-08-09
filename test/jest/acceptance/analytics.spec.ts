@@ -36,8 +36,7 @@ describe('analytics module', () => {
     });
   });
 
-  // test for `snyk test` with a project that has no vulns
-  it('sends correct analytics data for `snyk test` command', async () => {
+  it('sends analytics for `snyk test` with no vulns found', async () => {
     const project = await createProject('../acceptance/workspaces/npm-package');
     const { code } = await runSnykCLI('test', {
       cwd: project.path(),
@@ -101,8 +100,7 @@ describe('analytics module', () => {
     });
   });
 
-  // test for `snyk test` when vulns are found
-  it('sends correct analytics data for `snyk test` command', async () => {
+  it('sends analytics for `snyk test` with vulns found', async () => {
     const testDepGraphResult = JSON.parse(
       fs.readFileSync(
         'test/fixtures/npm/with-vulnerable-lodash-dep/test-dep-graph-result.json',
@@ -184,7 +182,6 @@ describe('analytics module', () => {
     });
   });
 
-  // test for a bad command
   it('sends correct analytics data a bad command', async () => {
     const project = await createProject('../acceptance/workspaces/npm-package');
     const { code } = await runSnykCLI('random-nonsense-command --some-option', {
@@ -248,8 +245,7 @@ describe('analytics module', () => {
     });
   });
 
-  // no command, i.e. user enters just `snyk`
-  it('sends correct analytics data a bad command', async () => {
+  it('sends analytics data a bad command', async () => {
     const project = await createProject('../acceptance/workspaces/npm-package');
     const { code } = await runSnykCLI('', {
       cwd: project.path(),
