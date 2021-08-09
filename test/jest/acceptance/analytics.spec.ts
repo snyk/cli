@@ -16,6 +16,8 @@ describe('analytics module', () => {
       SNYK_API: 'http://localhost:' + port + baseApi,
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: '123456789',
+      SNYK_INTEGRATION_NAME: 'JENKINS',
+      SNYK_INTEGRATION_VERSION: '1.2.3',
     };
 
     server = fakeServer(baseApi, env.SNYK_TOKEN);
@@ -35,12 +37,9 @@ describe('analytics module', () => {
   });
 
   it('sends correct analytics data for simple command (`snyk version`)', async () => {
-    const { code } = await runSnykCLI(
-      `version --org=fooOrg --all-projects --integrationName=JENKINS --integrationVersion=1.2.3`,
-      {
-        env,
-      },
-    );
+    const { code } = await runSnykCLI(`version --org=fooOrg --all-projects`, {
+      env,
+    });
     expect(code).toBe(0);
 
     const lastRequest = server.popRequest();
@@ -61,8 +60,6 @@ describe('analytics module', () => {
             {
               org: 'fooOrg',
               allProjects: true,
-              integrationName: 'JENKINS',
-              integrationVersion: '1.2.3',
             },
           ],
           ci: expect.any(Boolean),
@@ -103,13 +100,10 @@ describe('analytics module', () => {
   // improves upon the `snyk version` test because the `snyk test` path will include hitting `analytics.add`
   it('sends correct analytics data for `snyk test` command', async () => {
     const project = await createProject('../acceptance/workspaces/npm-package');
-    const { code } = await runSnykCLI(
-      'test --integrationName=JENKINS --integrationVersion=1.2.3',
-      {
-        cwd: project.path(),
-        env,
-      },
-    );
+    const { code } = await runSnykCLI('test', {
+      cwd: project.path(),
+      env,
+    });
 
     expect(code).toBe(0);
 
@@ -125,12 +119,7 @@ describe('analytics module', () => {
       query: {},
       body: {
         data: {
-          args: [
-            {
-              integrationName: 'JENKINS',
-              integrationVersion: '1.2.3',
-            },
-          ],
+          args: [{}],
           ci: expect.any(Boolean),
           command: 'test',
           metadata: {
@@ -184,13 +173,10 @@ describe('analytics module', () => {
     server.setNextResponse(testDepGraphResult);
     const project = await createProject('npm/with-vulnerable-lodash-dep');
 
-    const { code } = await runSnykCLI(
-      'test --integrationName=JENKINS --integrationVersion=1.2.3',
-      {
-        cwd: project.path(),
-        env,
-      },
-    );
+    const { code } = await runSnykCLI('test', {
+      cwd: project.path(),
+      env,
+    });
 
     expect(code).toBe(1);
 
@@ -206,12 +192,7 @@ describe('analytics module', () => {
       query: {},
       body: {
         data: {
-          args: [
-            {
-              integrationName: 'JENKINS',
-              integrationVersion: '1.2.3',
-            },
-          ],
+          args: [{}],
           ci: expect.any(Boolean),
           command: 'test',
           metadata: {
@@ -267,13 +248,10 @@ describe('analytics module', () => {
   // test for a bad command
   it('sends correct analytics data a bad command', async () => {
     const project = await createProject('../acceptance/workspaces/npm-package');
-    const { code } = await runSnykCLI(
-      'random-nonsense-command --some-option --integrationName=JENKINS --integrationVersion=1.2.3',
-      {
-        cwd: project.path(),
-        env,
-      },
-    );
+    const { code } = await runSnykCLI('random-nonsense-command --some-option', {
+      cwd: project.path(),
+      env,
+    });
 
     expect(code).toBe(2);
 
@@ -307,8 +285,8 @@ describe('analytics module', () => {
           id: expect.any(String),
           integrationEnvironment: '',
           integrationEnvironmentVersion: '',
-          integrationName: '',
-          integrationVersion: '',
+          integrationName: 'JENKINS',
+          integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
             'network_time': {
@@ -363,8 +341,8 @@ describe('analytics module', () => {
           id: expect.any(String),
           integrationEnvironment: '',
           integrationEnvironmentVersion: '',
-          integrationName: '',
-          integrationVersion: '',
+          integrationName: 'JENKINS',
+          integrationVersion: '1.2.3',
           // prettier-ignore
           metrics: {
             'network_time': {
