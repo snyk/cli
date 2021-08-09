@@ -351,7 +351,8 @@ export function fakeServer(root, apikey) {
   });
 
   server.setNextResponse = (response) => {
-    server._nextResponse = response;
+    server._nextResponse =
+      typeof response === 'string' ? JSON.parse(response) : response;
   };
 
   server.setNextStatusCodeAndResponse = (code, body) => {

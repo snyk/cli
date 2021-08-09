@@ -8,7 +8,14 @@ type TestProject = {
   remove: () => Promise<void>;
 };
 
-const createProject = async (fixtureName: string): Promise<TestProject> => {
+/**
+ * Copies a fixture to a temporary directory so that tests can be isolated
+ * with minimal overlap and cleanup.
+ */
+const createProject = async (
+  fixtureName: string,
+  fixturePath: string,
+): Promise<TestProject> => {
   const tempFolder = await fse.promises.mkdtemp(
     path.resolve(
       os.tmpdir(),
@@ -16,7 +23,6 @@ const createProject = async (fixtureName: string): Promise<TestProject> => {
     ),
   );
 
-  const fixturePath = path.resolve(__dirname, '../../fixtures', fixtureName);
   const projectPath = path.resolve(tempFolder, fixtureName);
   await fse.copy(fixturePath, projectPath);
 
@@ -32,4 +38,32 @@ const createProject = async (fixtureName: string): Promise<TestProject> => {
   };
 };
 
-export { createProject };
+/**
+ * Workaround until we move all fixtures to ./test/fixtures
+ */
+const createProjectFromWorkspace = async (
+  fixtureName: string,
+): Promise<TestProject> => {
+  return createProject(
+    fixtureName,
+    path.join(__dirname, '../../acceptance/workspaces/' + fixtureName),
+  );
+};
+
+/**
+ * Once createProjectFromWorkspace is removed, this can be "createProject".
+ */
+const createProjectFromFixture = async (
+  fixtureName: string,
+): Promise<TestProject> => {
+  return createProject(
+    fixtureName,
+    path.join(__dirname, '../../fixtures', fixtureName),
+  );
+};
+
+export {
+  createProjectFromFixture as createProject,
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+};
