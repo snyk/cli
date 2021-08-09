@@ -6,6 +6,7 @@ export const config: Options = {
     '@types/jest', // jest is a global so impossible to detect usage of types
     'jest-junit', // used in circleci
     'tap-junit', // used in circleci
+    'lerna', // used in circleci
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };

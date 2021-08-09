@@ -142,10 +142,6 @@ commands:
             mv gh-download/gh_1.3.1_linux_amd64/bin/gh /home/circleci/bin
             which gh
             gh --version
-  install_lerna_linux:
-    description: Setup Lerna
-    steps:
-      - run: sudo npm install -g lerna@3.22.1
 
 jobs:
   regression-test:
@@ -322,7 +318,6 @@ jobs:
           at: ~/snyk
       - run: sudo npm install -g npm@7
       - show_node_version
-      - install_lerna_linux
       - update_local_npmrc_linux
       - install_deps
       - build_ts
@@ -417,7 +412,6 @@ jobs:
           command: |
             sudo npm install -g npm@7
       - show_node_version
-      - install_lerna_linux
       - install_deps
       - run:
           name: Update package versions
@@ -455,7 +449,6 @@ jobs:
           command: |
             sudo npm install -g npm@7
       - show_node_version
-      - install_lerna_linux
       - update_local_npmrc_linux
       - install_deps
       - run:
