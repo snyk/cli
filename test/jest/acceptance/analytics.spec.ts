@@ -36,68 +36,7 @@ describe('analytics module', () => {
     });
   });
 
-  it('sends correct analytics data for simple command (`snyk version`)', async () => {
-    const { code } = await runSnykCLI(`version --org=fooOrg --all-projects`, {
-      env,
-    });
-    expect(code).toBe(0);
-
-    const lastRequest = server.popRequest();
-    expect(lastRequest).toMatchObject({
-      headers: {
-        host: 'localhost:12345',
-        accept: 'application/json',
-        authorization: 'token 123456789',
-        'content-type': 'application/json; charset=utf-8',
-        'x-snyk-cli-version': '1.0.0-monorepo',
-      },
-      query: {
-        org: 'fooOrg',
-      },
-      body: {
-        data: {
-          args: [
-            {
-              org: 'fooOrg',
-              allProjects: true,
-            },
-          ],
-          ci: expect.any(Boolean),
-          command: 'version',
-          durationMs: expect.any(Number),
-          environment: {
-            npmVersion: expect.any(String),
-          },
-          id: expect.any(String),
-          integrationEnvironment: '',
-          integrationEnvironmentVersion: '',
-          integrationName: 'JENKINS',
-          integrationVersion: '1.2.3',
-          // prettier-ignore
-          metrics: {
-            'network_time': {
-              type: 'timer',
-              values: [],
-              total: expect.any(Number),
-            },
-            'cpu_time': {
-              type: 'synthetic',
-              values: [expect.any(Number)],
-              total: expect.any(Number),
-            },
-          },
-          nodeVersion: process.version,
-          org: 'fooOrg',
-          os: expect.any(String),
-          standalone: false,
-          version: '1.0.0-monorepo',
-        },
-      },
-    });
-  });
-
   // test for `snyk test` with a project that has no vulns
-  // improves upon the `snyk version` test because the `snyk test` path will include hitting `analytics.add`
   it('sends correct analytics data for `snyk test` command', async () => {
     const project = await createProject('../acceptance/workspaces/npm-package');
     const { code } = await runSnykCLI('test', {
