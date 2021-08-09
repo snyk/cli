@@ -1,27 +1,13 @@
-import { v4 as uuidv4 } from 'uuid';
 const snyk = require('../../lib');
 const config = require('../config');
-const version = require('../version');
 import { makeRequest } from '../request';
-const {
-  getIntegrationName,
-  getIntegrationVersion,
-  getIntegrationEnvironment,
-  getIntegrationEnvironmentVersion,
-  getCommandVersion,
-} = require('./sources');
-const isCI = require('../is-ci').isCI;
 const debug = require('debug')('snyk');
-const os = require('os');
-const osName = require('os-name');
-const crypto = require('crypto');
 const stripAnsi = require('strip-ansi');
 import * as needle from 'needle';
-const { MetricsCollector } = require('../metrics');
+import { getStandardData } from './getStandardData';
 
 const metadata = {};
 // analytics module is required at the beginning of the CLI run cycle
-const startTime = Date.now();
 
 /**
  *
@@ -59,10 +45,10 @@ export function allowAnalytics(): boolean {
 /**
  * Actually send the analytics to the backend. This can be used standalone to send only the data
  * given by the data parameter, or called from {@link addDataAndSend}.
- * @param data the analytics data to send to the backend.
+ * @param customData the analytics data to send to the backend.
  */
 export async function postAnalytics(
-  data,
+  customData,
 ): Promise<void | { res: needle.NeedleResponse; body: any }> {
   // if the user opt'ed out of analytics, then let's bail out early
   // ths applies to all sending to protect user's privacy
@@ -72,60 +58,29 @@ export async function postAnalytics(
   }
 
   try {
-    const isStandalone = version.isStandaloneBuild();
-    const snykVersion = await version.getVersion();
-
-    data.version = snykVersion;
-    data.os = osName(os.platform(), os.release());
-    data.nodeVersion = process.version;
-    data.standalone = isStandalone;
-    data.integrationName = getIntegrationName(data.args);
-    data.integrationVersion = getIntegrationVersion(data.args);
-    data.integrationEnvironment = getIntegrationEnvironment(data.args);
-    data.integrationEnvironmentVersion = getIntegrationEnvironmentVersion(
-      data.args,
-    );
-
-    const seed = uuidv4();
-    const shasum = crypto.createHash('sha1');
-    data.id = shasum.update(seed).digest('hex');
+    const standardData = await getStandardData(customData.args);
+    const analyticsData = {
+      ...customData,
+      ...standardData,
+    };
+    debug('analytics', JSON.stringify(analyticsData, null, '  '));
 
     const headers = {};
     if (snyk.api) {
       headers['authorization'] = 'token ' + snyk.api;
     }
 
-    data.ci = isCI();
-
-    data.environment = {};
-    if (!isStandalone) {
-      data.environment.npmVersion = await getCommandVersion('npm');
-    }
-
-    data.durationMs = Date.now() - startTime;
-
-    try {
-      const networkTime = MetricsCollector.NETWORK_TIME.getTotal();
-      const cpuTime = data.durationMs - networkTime;
-      MetricsCollector.CPU_TIME.createInstance().setValue(cpuTime);
-      data.metrics = MetricsCollector.getAllMetrics();
-    } catch (err) {
-      debug('Error with metrics', err);
-    }
-
     const queryStringParams = {};
-    if (data.org) {
-      queryStringParams['org'] = data.org;
+    if (analyticsData.org) {
+      queryStringParams['org'] = analyticsData.org;
     }
-
-    debug('analytics', JSON.stringify(data, null, '  '));
 
     const queryString =
       Object.keys(queryStringParams).length > 0 ? queryStringParams : undefined;
 
     return makeRequest({
       body: {
-        data: data,
+        data: analyticsData,
       },
       qs: queryString,
       url: config.API + '/analytics/cli',
