@@ -308,6 +308,7 @@ jobs:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
+    resource_class: large
     steps:
       - install_sdkman_linux
       - install_jdk_linux
