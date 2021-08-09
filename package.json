@@ -30,6 +30,7 @@
   ],
   "scripts": {
     "clean": "rimraf dist tsconfig.tsbuildinfo",
+    "prebuild": "npm run clean",
     "build": "tsc --build",
     "build-watch": "tsc -w",
     "find-circular": "npm run build && madge --circular ./dist",
