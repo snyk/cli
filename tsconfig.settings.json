@@ -3,11 +3,13 @@
     "outDir": "./dist",
     "rootDir": ".",
     "pretty": true,
-    "target": "es2017",
-    "lib": ["es2017", "dom"],
+    "moduleResolution": "node",
+    "target": "es2018",
+    "lib": ["ES2018", "dom"],
     "module": "commonjs",
     "allowJs": true,
     "sourceMap": true,
+    "resolveJsonModule": true,
     "strict": true,
     "noImplicitAny": false, // Needed to compile tap and ansi-escapes
     "composite": true
