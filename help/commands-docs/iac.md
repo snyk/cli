@@ -28,6 +28,9 @@ Find security issues in your Infrastructure as Code files.
 - `--severity-threshold`=low|medium|high:
   Only report vulnerabilities of provided level or higher.
 
+- `--ignore-policy`:
+  Ignores all set policies. The current policy in `.snyk` file, Org level ignores and the project policy on snyk.io.
+
 - `--json`:
   Prints results in JSON format.
 
@@ -45,6 +48,9 @@ Find security issues in your Infrastructure as Code files.
   Setting a default will ensure all newly tested projects will be tested
   under your default organization. If you need to override the default, you can use the `--org`=<ORG_NAME> argument.
   Default: uses <ORG_NAME> that sets as default in your [Account settings](https://app.snyk.io/account)
+
+- `--policy-path`=<PATH_TO_POLICY_FILE>`:
+  Manually pass a path to a snyk policy file.
 
 - `--sarif`:
   Return results in SARIF format.
