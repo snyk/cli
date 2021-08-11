@@ -19,7 +19,7 @@ describe('snyk test for python project', () => {
 
   describe('no flag is used', () => {
     describe('project contains pyproject.toml file', () => {
-      it('should scan poetry vulnerabilities', async (done) => {
+      it('should scan poetry vulnerabilities', async () => {
         const fixturePath = join(
           __dirname,
           '../../../../acceptance/workspaces',
@@ -95,15 +95,13 @@ describe('snyk test for python project', () => {
         expect(result).toMatchObject({
           result: JSON.stringify(expectedResultObject, null, 2),
         });
-
-        done();
       });
     });
   });
 
   describe('--all-projects flag is used to scan the project', () => {
     describe('project does not contain poetry.lock file', () => {
-      it('should not attempt to scan poetry vulnerabilities', async (done) => {
+      it('should not attempt to scan poetry vulnerabilities', async () => {
         const fixturePath = join(
           __dirname,
           'fixtures',
@@ -179,13 +177,11 @@ describe('snyk test for python project', () => {
         expect(result).toMatchObject({
           result: JSON.stringify(expectedResultObject, null, 2),
         });
-
-        done();
       });
     });
 
     describe('project does contain poetry.lock file', () => {
-      it('should scan poetry vulnerabilities', async (done) => {
+      it('should scan poetry vulnerabilities', async () => {
         const fixturePath = join(
           __dirname,
           'fixtures',
@@ -312,8 +308,6 @@ describe('snyk test for python project', () => {
             2,
           ),
         });
-
-        done();
       });
     });
   });

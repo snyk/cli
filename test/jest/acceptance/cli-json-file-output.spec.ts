@@ -91,7 +91,7 @@ describe('test --json-file-output ', () => {
     '`test --json-file-output produces same JSON output as normal JSON output to stdout`',
     (done) => {
       const jsonOutputFilename = `${uuidv4()}.json`;
-      return exec(
+      exec(
         `node ${main} test ${noVulnsProjectPath} --json --json-file-output=${jsonOutputFilename}`,
         {
           env: {

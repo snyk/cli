@@ -5,7 +5,7 @@ import {
   patchString,
 } from '../../src/lib/patch';
 
-describe(patchString.name, () => {
+describe('patchString', () => {
   it('can apply a patch using string', () => {
     const fixtureFolder = path.join(
       __dirname,
