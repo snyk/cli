@@ -9,6 +9,13 @@ type PackageJSON = {
 
 const debug = debuglog('@snyk' + __filename);
 
+/**
+ * Modifies the given fixture's package.json to use a locally built
+ * @snyk/protect tarball instead of the one in NPM Registry.
+ *
+ * Typically used via `createProject` to automatically switch between
+ * dev and prod testing.
+ */
 const useLocalPackage = async (projectPath: string) => {
   const workspaceRoot = path.resolve(__dirname, '../..');
   const { stdout: tarballName } = await runCommand('npm', ['pack'], {
