@@ -14,7 +14,6 @@ export function fakeServer(root, apikey) {
   const server = restify.createServer({
     name: 'snyk-mock-server',
     version: '1.0.0',
-    handleUncaughtExceptions: true,
   }) as FakeServer;
   server._reqLog = [];
   server.popRequest = () => {
