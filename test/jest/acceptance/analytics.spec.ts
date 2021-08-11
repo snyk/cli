@@ -3,6 +3,8 @@ import { createProject } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 import * as fs from 'fs';
 
+jest.setTimeout(1000 * 30);
+
 describe('analytics module', () => {
   let server;
   let env: Record<string, string>;
