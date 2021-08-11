@@ -26,8 +26,7 @@ export function addIacAnalytics(
 
   analytics.add('packageManager', Array.from(new Set(packageManagers)));
   analytics.add('iac-issues-count', totalIssuesCount);
-  // TODO enable once we have support for it in registry
-  // analytics.add('iac-ignored-issues-count', ignoredIssuesCount);
+  analytics.add('iac-ignored-issues-count', ignoredIssuesCount);
   analytics.add('iac-type', issuesByType);
   analytics.add('iac-metrics', performanceAnalyticsObject);
   analytics.add('iac-test-count', formattedResults.length);
