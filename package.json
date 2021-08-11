@@ -196,7 +196,8 @@
       "test-unpublished.json",
       "help/**/*.txt",
       "dist/STANDALONE",
-      "node_modules/@deepcode/dcignore"
+      "node_modules/@deepcode/dcignore",
+      "node_modules/@snyk/java-call-graph-builder/bin/init.gradle"
     ]
   },
   "publishConfig": {
