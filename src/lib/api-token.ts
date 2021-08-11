@@ -44,3 +44,7 @@ export function getAuthHeader(): string {
   }
   return `token ${api()}`;
 }
+
+export function someTokenExists(): boolean {
+  return Boolean(getOAuthToken() || getDockerToken() || api());
+}

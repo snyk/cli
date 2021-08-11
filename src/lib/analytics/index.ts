@@ -1,4 +1,5 @@
 const snyk = require('../../lib');
+import { someTokenExists, getAuthHeader } from '../api-token';
 const config = require('../config');
 import { makeRequest } from '../request';
 const debug = require('debug')('snyk');
@@ -66,8 +67,8 @@ export async function postAnalytics(
     debug('analytics', JSON.stringify(analyticsData, null, '  '));
 
     const headers = {};
-    if (snyk.api) {
-      headers['authorization'] = 'token ' + snyk.api;
+    if (someTokenExists()) {
+      headers['authorization'] = getAuthHeader();
     }
 
     const queryStringParams = {};
