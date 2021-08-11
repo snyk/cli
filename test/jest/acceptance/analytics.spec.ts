@@ -1,7 +1,6 @@
 import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
-import * as request from '../../../src/lib/request';
 import * as fs from 'fs';
 
 describe('analytics module', () => {
@@ -27,7 +26,7 @@ describe('analytics module', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    server.clearRequests();
   });
 
   afterAll((done) => {
@@ -301,7 +300,6 @@ describe('analytics module', () => {
   });
 
   it("won't send analytics if disable analytics is set", async () => {
-    const requestSpy = jest.spyOn(request, 'makeRequest');
     const { code } = await runSnykCLI(`version`, {
       env: {
         ...env,
@@ -309,6 +307,8 @@ describe('analytics module', () => {
       },
     });
     expect(code).toBe(0);
-    expect(requestSpy).not.toBeCalled();
+
+    const lastRequest = server.popRequest();
+    expect(lastRequest).toBeUndefined();
   });
 });

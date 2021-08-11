@@ -8,6 +8,7 @@ interface FakeServer extends restify.Server {
   popRequests: (num: number) => restify.Request[];
   setNextResponse: (r: any) => void;
   setNextStatusCodeAndResponse: (c: number, r: any) => void;
+  clearRequests: () => void;
 }
 
 export function fakeServer(root, apikey) {
@@ -22,6 +23,9 @@ export function fakeServer(root, apikey) {
   };
   server.popRequests = (num: number) => {
     return server._reqLog.splice(server._reqLog.length - num, num);
+  };
+  server.clearRequests = () => {
+    server._reqLog = [];
   };
   server.use(restify.plugins.acceptParser(server.acceptable));
   server.use(restify.plugins.queryParser({ mapParams: true }));
