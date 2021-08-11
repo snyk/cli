@@ -1,6 +1,6 @@
 .\" generated with Ronn-NG/v0.9.1
 .\" http://github.com/apjanke/ronn-ng/tree/0.9.1
-.TH "SNYK\-IAC" "1" "July 2021" "Snyk.io"
+.TH "SNYK\-IAC" "1" "August 2021" "Snyk.io"
 .SH "NAME"
 \fBsnyk\-iac\fR \- Find security issues in your Infrastructure as Code files
 .SH "SYNOPSIS"
@@ -29,6 +29,9 @@ Will limit search to provided directory (or current directory if no \fIPATH\fR p
 \fB\-\-severity\-threshold\fR=low|medium|high
 Only report vulnerabilities of provided level or higher\.
 .TP
+\fB\-\-ignore\-policy\fR
+Ignores all set policies\. The current policy in \fB\.snyk\fR file, Org level ignores and the project policy on snyk\.io\.
+.TP
 \fB\-\-json\fR
 Prints results in JSON format\.
 .TP
@@ -41,6 +44,9 @@ Specify the \fIORG_NAME\fR to run Snyk commands tied to a specific organization\
 \fB$ snyk config set org\fR=\fIORG_NAME\fR
 .IP
 Setting a default will ensure all newly tested projects will be tested under your default organization\. If you need to override the default, you can use the \fB\-\-org\fR=\fIORG_NAME\fR argument\. Default: uses \fIORG_NAME\fR that sets as default in your Account settings \fIhttps://app\.snyk\.io/account\fR
+.TP
+\fB\-\-policy\-path\fR=\fIPATH_TO_POLICY_FILE\fR`
+Manually pass a path to a snyk policy file\.
 .TP
 \fB\-\-sarif\fR
 Return results in SARIF format\.
