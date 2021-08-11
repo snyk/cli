@@ -2,7 +2,7 @@ import * as pathLib from 'path';
 import * as fs from 'fs';
 import * as snykFix from '@snyk/fix';
 
-import cli = require('../../../../../../src/cli/commands');
+const fix = require('../../../../../../src/cli/commands/fix');
 import * as snyk from '../../../../../../src/lib';
 import * as featureFlags from '../../../../../../src/lib/feature-flags';
 import * as analytics from '../../../../../../src/lib/analytics';
@@ -104,7 +104,7 @@ describe('snyk fix (functional tests)', () => {
         // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
         displayTargetFile: pipRequirementsTxt,
       });
-      const res = await cli.fix('.', {
+      const res = await fix('.', {
         file: pipRequirementsTxt,
         dryRun: true, // prevents write to disc
         quiet: true,
@@ -148,7 +148,7 @@ describe('snyk fix (functional tests)', () => {
         // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
         displayTargetFile: pipRequirementsTxt,
       });
-      const res = await cli.fix('.', {
+      const res = await fix('.', {
         file: pipRequirementsTxt,
         dryRun: true, // prevents write to disc
       });
@@ -197,7 +197,7 @@ describe('snyk fix (functional tests)', () => {
         // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
         displayTargetFile: pipRequirementsCustomTxt,
       });
-      const res = await cli.fix('.', {
+      const res = await fix('.', {
         file: pipRequirementsCustomTxt,
         packageManager: 'pip',
         dryRun: true, // prevents write to disc
@@ -253,7 +253,7 @@ describe('snyk fix (functional tests)', () => {
         // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
         displayTargetFile: pipRequirementsTxt,
       });
-      const res = await cli.fix(npmWorkspace, pipAppWorkspace, {
+      const res = await fix(npmWorkspace, pipAppWorkspace, {
         dryRun: true, // prevents write to disc
         quiet: true,
       });
@@ -305,7 +305,7 @@ describe('snyk fix (functional tests)', () => {
 
       let res;
       try {
-        await cli.fix(npmWorkspace, pipAppWorkspace, {
+        await fix(npmWorkspace, pipAppWorkspace, {
           dryRun: true, // prevents write to disc
           quiet: true,
         });
@@ -358,7 +358,7 @@ describe('snyk fix (functional tests)', () => {
         // pip plugin does not return targetFile, instead fix will fallback to displayTargetFile
         displayTargetFile: pipRequirementsTxt,
       });
-      const res = await cli.fix(pipAppWorkspace, {
+      const res = await fix(pipAppWorkspace, {
         dryRun: true, // prevents write to disc
         quiet: true,
       });

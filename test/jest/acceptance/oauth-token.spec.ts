@@ -1,88 +1,58 @@
-import {
-  chdirWorkspaces,
-  getWorkspaceJSON,
-} from '../../acceptance/workspace-helper';
 import { fakeServer } from '../../acceptance/fake-server';
-import cli = require('../../../src/cli/commands');
-import { chdir } from 'process';
+import { createProjectFromWorkspace } from '../util/createProject';
+import { runSnykCLI } from '../util/runSnykCLI';
 
 describe('test using OAuth token', () => {
-  let oldkey: string;
-  let oldendpoint: string;
-  const apiKey = '123456789';
-  const port: string = process.env.PORT || process.env.SNYK_PORT || '12345';
+  let server: ReturnType<typeof fakeServer>;
+  let env: Record<string, string>;
 
-  const BASE_API = '/api/v1';
+  beforeAll((done) => {
+    const apiPath = '/api/v1';
+    const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
+    env = {
+      ...process.env,
+      SNYK_API: 'http://localhost:' + apiPort + apiPath,
+      SNYK_TOKEN: '123456789',
+      SNYK_OAUTH_TOKEN: 'oauth-jwt-token',
+    };
 
-  const server = fakeServer(BASE_API, apiKey);
-
-  const noVulnsResult = getWorkspaceJSON(
-    'fail-on',
-    'no-vulns',
-    'vulns-result.json',
-  );
-
-  let origCwd: string;
-
-  beforeAll(async () => {
-    origCwd = process.cwd();
-    process.env.SNYK_API = `http://localhost:${port}${BASE_API}`;
-    process.env.SNYK_HOST = `http://localhost:${port}`;
-
-    let key = await cli.config('get', 'api');
-    oldkey = key;
-
-    key = await cli.config('get', 'endpoint');
-    oldendpoint = key;
-
-    await new Promise((resolve) => {
-      server.listen(port, resolve);
-    });
+    server = fakeServer(apiPath, env.SNYK_TOKEN);
+    server.listen(apiPort, () => done());
   });
 
   afterAll(async () => {
-    delete process.env.SNYK_API;
-    delete process.env.SNYK_HOST;
-    delete process.env.SNYK_PORT;
-    delete process.env.SNYK_OAUTH_TOKEN;
-
     await server.close();
-    let key = 'set';
-    let value = `api=${oldkey}`;
-    if (!oldkey) {
-      key = 'unset';
-      value = 'api';
-    }
-    await cli.config(key, value);
-    if (oldendpoint) {
-      await cli.config('endpoint', oldendpoint);
-    }
-    chdir(origCwd);
   });
 
   it('successfully tests a project with an OAuth env variable set', async () => {
-    process.env.SNYK_OAUTH_TOKEN = 'oauth-jwt-token';
+    const project = await createProjectFromWorkspace('fail-on/no-vulns');
+    const jsonObj = JSON.parse(await project.read('vulns-result.json'));
+    server.setNextResponse(jsonObj);
 
-    server.setNextResponse(noVulnsResult);
-    chdirWorkspaces('fail-on');
-    await cli.test('no-vulns', {
-      json: true,
+    const { code } = await runSnykCLI(`test --json`, {
+      cwd: project.path(),
+      env,
     });
-    const req = server.popRequest();
-    expect(req.headers.authorization).toBe('Bearer oauth-jwt-token');
-    expect(req.method).toBe('POST');
+
+    expect(code).toEqual(0);
+    const requests = server.popRequests(2);
+    expect(requests[0].headers.authorization).toBe('Bearer oauth-jwt-token');
+    expect(requests[0].method).toBe('POST');
   });
 
   it('successfully monitors a project with an OAuth env variable set', async () => {
-    process.env.SNYK_OAUTH_TOKEN = 'oauth-jwt-token';
+    const project = await createProjectFromWorkspace('fail-on/no-vulns');
+    const jsonObj = JSON.parse(await project.read('vulns-result.json'));
+    server.setNextResponse(jsonObj);
 
-    server.setNextResponse(noVulnsResult);
-    chdirWorkspaces('fail-on');
-    await cli.monitor('no-vulns', {
-      json: true,
+    const { code } = await runSnykCLI(`monitor --json`, {
+      cwd: project.path(),
+      env,
     });
-    const req = server.popRequest();
-    expect(req.headers.authorization).toBe('Bearer oauth-jwt-token');
-    expect(req.method).toBe('PUT');
+
+    expect(code).toEqual(0);
+    const requests = server.popRequests(2);
+    expect(requests[0].headers.authorization).toBe('Bearer oauth-jwt-token');
+    expect(requests[0].method).toBe('PUT');
   });
 });
