@@ -1,8 +1,11 @@
 import { fakeServer } from '../../acceptance/fake-server';
-import { createProject } from '../util/createProject';
+import {
+  createProjectFromFixture,
+  createProjectFromWorkspace,
+} from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
-import * as request from '../../../src/lib/request';
-import * as fs from 'fs';
+
+jest.setTimeout(1000 * 30);
 
 describe('analytics module', () => {
   let server;
@@ -27,7 +30,7 @@ describe('analytics module', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    server.clearRequests();
   });
 
   afterAll((done) => {
@@ -37,7 +40,7 @@ describe('analytics module', () => {
   });
 
   it('sends analytics for `snyk test` with no vulns found', async () => {
-    const project = await createProject('../acceptance/workspaces/npm-package');
+    const project = await createProjectFromWorkspace('npm-package');
     const { code } = await runSnykCLI('test', {
       cwd: project.path(),
       env,
@@ -101,14 +104,11 @@ describe('analytics module', () => {
   });
 
   it('sends analytics for `snyk test` with vulns found', async () => {
-    const testDepGraphResult = JSON.parse(
-      fs.readFileSync(
-        'test/fixtures/npm/with-vulnerable-lodash-dep/test-dep-graph-result.json',
-        'utf-8',
-      ),
+    const project = await createProjectFromFixture(
+      'npm/with-vulnerable-lodash-dep',
     );
-    server.setNextResponse(testDepGraphResult);
-    const project = await createProject('npm/with-vulnerable-lodash-dep');
+
+    server.setNextResponse(await project.read('test-dep-graph-result.json'));
 
     const { code } = await runSnykCLI('test', {
       cwd: project.path(),
@@ -183,7 +183,7 @@ describe('analytics module', () => {
   });
 
   it('sends correct analytics data a bad command', async () => {
-    const project = await createProject('../acceptance/workspaces/npm-package');
+    const project = await createProjectFromWorkspace('npm-package');
     const { code } = await runSnykCLI('random-nonsense-command --some-option', {
       cwd: project.path(),
       env,
@@ -246,7 +246,7 @@ describe('analytics module', () => {
   });
 
   it('sends analytics data a bad command', async () => {
-    const project = await createProject('../acceptance/workspaces/npm-package');
+    const project = await createProjectFromWorkspace('npm-package');
     const { code } = await runSnykCLI('', {
       cwd: project.path(),
       env,
@@ -301,7 +301,6 @@ describe('analytics module', () => {
   });
 
   it("won't send analytics if disable analytics is set", async () => {
-    const requestSpy = jest.spyOn(request, 'makeRequest');
     const { code } = await runSnykCLI(`version`, {
       env: {
         ...env,
@@ -309,6 +308,8 @@ describe('analytics module', () => {
       },
     });
     expect(code).toBe(0);
-    expect(requestSpy).not.toBeCalled();
+
+    const lastRequest = server.popRequest();
+    expect(lastRequest).toBeUndefined();
   });
 });
