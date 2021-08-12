@@ -22,7 +22,6 @@ import spinner = require('../lib/spinner');
 import errors = require('../lib/errors/legacy-errors');
 import ansiEscapes = require('ansi-escapes');
 import { isPathToPackageFile } from '../lib/detect';
-import { updateCheck } from '../lib/updater';
 import {
   MissingTargetFileError,
   FileFlagBadInputError,
@@ -236,7 +235,6 @@ function checkPaths(args) {
 type AllSupportedCliOptions = Options & MonitorOptions & TestOptions;
 
 async function main() {
-  updateCheck();
   checkRuntime();
 
   let res;

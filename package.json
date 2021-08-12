@@ -140,7 +140,6 @@
     "strip-ansi": "^5.2.0",
     "tar": "^6.1.2",
     "tempy": "^1.0.1",
-    "update-notifier": "^5.1.0",
     "uuid": "^8.3.2",
     "wrap-ansi": "^5.1.0",
     "yaml": "^1.10.2"
@@ -155,7 +154,6 @@
     "@types/restify": "^8.4.2",
     "@types/sarif": "^2.1.2",
     "@types/sinon": "^7.5.0",
-    "@types/update-notifier": "^4.1.0",
     "@typescript-eslint/eslint-plugin": "2.18.0",
     "@typescript-eslint/parser": "^2.0.0",
     "ajv": "^6.12.6",
