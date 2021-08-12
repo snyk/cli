@@ -22,7 +22,6 @@ describe('analytics module', () => {
       SNYK_INTEGRATION_NAME: 'JENKINS',
       SNYK_INTEGRATION_VERSION: '1.2.3',
     };
-
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     server.listen(port, () => {
       done();
@@ -296,6 +295,25 @@ describe('analytics module', () => {
           standalone: false,
           version: '1.0.0-monorepo',
         },
+      },
+    });
+  });
+
+  it('uses OAUTH token if set', async () => {
+    const project = await createProjectFromWorkspace('npm-package');
+    const { code } = await runSnykCLI('version', {
+      cwd: project.path(),
+      env: {
+        ...env,
+        SNYK_OAUTH_TOKEN: 'oauth-jwt-token',
+      },
+    });
+    expect(code).toBe(0);
+
+    const lastRequest = server.popRequest();
+    expect(lastRequest).toMatchObject({
+      headers: {
+        authorization: 'Bearer oauth-jwt-token',
       },
     });
   });
