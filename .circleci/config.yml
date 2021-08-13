@@ -38,7 +38,7 @@ commands:
     steps:
       - run:
           name: Install dependencies
-          command: npm install
+          command: npm ci
   update_local_npmrc_linux:
     description: Update local .npmrc file (Linux)
     steps:
@@ -50,11 +50,13 @@ commands:
     steps:
       - run:
           name: Build
-          command: npm run build
+          command: npm run build:prod
       - persist_to_workspace:
           root: .
           paths:
             - dist/
+            - packages/*/dist
+            - pysrc
   install_gradle_windows:
     description: Install gradle
     steps:
@@ -144,44 +146,51 @@ commands:
             gh --version
 
 jobs:
-  regression-test:
+  build:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
     resource_class: large
     steps:
       - checkout
-      - install_shellspec
       - run: sudo npm install -g npm@7
       - show_node_version
-      - update_local_npmrc_linux
       - install_deps
       - build_ts
-      - run:
-          name: Run auth
-          command: npm run snyk-auth
+  regression-test:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    steps:
+      - checkout
+      - install_shellspec
+      - run: sudo npm install -g npm@7
+      - install_sdkman_linux
+      - install_jdk_linux
+      - install_gradle_linux
+      - install_maven_linux
+      - install_deps
+      - run: sudo apt-get install python-pip
+      - attach_workspace:
+          at: ~/snyk
       - run:
           name: Run tests
           command: npm run test:common
-      - run:
-          name: Clear Snyk config
-          command: rm ~/.config/configstore/snyk.json
-      - run:
-          name: Clear node_modules
-          command: rm -rf node_modules/
-      - run:
-          name: Install only production dependencies
-          command: npx npm@6 install # kludge because npm@7 will invoke the lifecycle scripts (thus running prepare -> tsc) even if we use --ignore-scripts
-          environment:
-            NODE_ENV: production
       - run:
           name: npm install for fixture project
           working_directory: ~/snyk/test/fixtures/basic-npm
           command: npm install
       - run:
-          name: Setup alias for snyk
-          working_directory: ~/snyk/
-          command: sudo ./test/smoke/setup-alias-for-snyk.sh
+          name: prune dependencies
+          command: node ./release-scripts/prune-dependencies-in-packagejson.js
+      - run: mkdir ./dist-pack
+      - run:
+          name: pack
+          command: npm pack ..
+          path: ./dist-pack
+      - run:
+          name: Install packed Snyk globally
+          command: find . -name '*.tgz' | xargs sudo npm install -g
       - run:
           name: Run shellspec
           working_directory: ~/snyk/test/smoke
@@ -203,20 +212,14 @@ jobs:
           node_version: << parameters.node_version >>
       - show_node_version
       - checkout
+      - run: npm install -g npm@7
+      - install_deps
       - attach_workspace:
           at: ~/snyk
-      - run: npm install -g npm@7
       - show_node_version
       - run:
           name: Update local .npmrc file (Windows)
           command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
-      - run:
-          name: Install dependencies (Windows)
-          command: npm install --ignore-scripts # ignore-scripts required because of postinstall script in snyk-resolve-deps package
-      - build_ts
-      - run:
-          name: npm version
-          command: npm --version
       - run:
           name: Run auth
           shell: bash.exe
@@ -279,16 +282,12 @@ jobs:
       - install_sbt_linux
       - show_node_version
       - checkout
+      - run: sudo npm install -g npm@7
       - attach_workspace:
           at: ~/snyk
-      - run: sudo npm install -g npm@7
       - show_node_version
       - update_local_npmrc_linux
       - install_deps
-      - build_ts
-      - run:
-          name: npm version
-          command: npm --version
       - run:
           name: Run auth
           command: npm run snyk-auth
@@ -348,17 +347,23 @@ jobs:
           name: Install npm@7
           command: |
             sudo npm install -g npm@7
-      - show_node_version
       - install_deps
+      - attach_workspace:
+          at: ~/snyk
+      - show_node_version
       - run:
           name: Update package versions
-          command: ./release-scripts/update-versions.sh
+          command: ./release-scripts/update-dev-versions.sh
       - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
       - run:
+          name: prune dependencies
+          command: node ./release-scripts/prune-dependencies-in-packagejson.js
+      - run:
           name: Create Binaries
           command: |
+            cat package.json
             ./release-scripts/make-binaries.sh
             ls -la ./binary-releases
       - store_artifacts:
@@ -368,7 +373,13 @@ jobs:
           working_directory: ~/snyk/binary-releases
           command: |
             ../release-scripts/validate-checksums.sh
-
+      - run: mkdir ./dist-pack
+      - run:
+          name: pack
+          command: npm pack ..
+          path: ./dist-pack
+      - store_artifacts:
+          path: ./dist-pack
   release:
     <<: *defaults
     docker:
@@ -385,9 +396,17 @@ jobs:
           name: Install npm@7
           command: |
             sudo npm install -g npm@7
+      - run:
+          name: Install osslsigncode
+          command: sudo apt-get install -y osslsigncode
       - show_node_version
       - update_local_npmrc_linux
       - install_deps
+      - attach_workspace:
+          at: ~/snyk
+      - run:
+          name: prune dependencies
+          command: node ./release-scripts/prune-dependencies-in-packagejson.js
       - run:
           name: Update package versions
           command: ./release-scripts/update-versions.sh
@@ -402,9 +421,6 @@ jobs:
           name: Lerna Publish
           command: |
             npx lerna publish minor --yes --no-push --no-git-tag-version --exact
-      - run:
-          name: Install osslsigncode
-          command: sudo apt-get install -y osslsigncode
       - run:
           name: Create Binaries
           command: |
@@ -434,10 +450,16 @@ workflows:
   version: 2
   test_and_release:
     jobs:
+      - build:
+          name: Build
+          context: nodejs-install
+          node_version: '12.16.2'
       - regression-test:
           name: Regression Test
           context: nodejs-install
           node_version: '12.16.2'
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -445,6 +467,8 @@ workflows:
       - dev-release:
           name: Dev Release
           node_version: '14'
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -457,6 +481,8 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -466,6 +492,8 @@ workflows:
           context: nodejs-install
           node_version: '14.15.4'
           acceptance_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -475,6 +503,8 @@ workflows:
           context: nodejs-install
           node_version: '14.15.4'
           root_tap_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -487,6 +517,8 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -496,6 +528,8 @@ workflows:
           context: nodejs-install
           node_version: '12.21.0'
           acceptance_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -505,6 +539,8 @@ workflows:
           context: nodejs-install
           node_version: '12.21.0'
           root_tap_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -517,6 +553,8 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -526,6 +564,8 @@ workflows:
           context: nodejs-install
           node_version: '10.23.1'
           acceptance_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -535,6 +575,8 @@ workflows:
           context: nodejs-install
           node_version: '10.23.1'
           root_tap_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -547,6 +589,8 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -556,6 +600,8 @@ workflows:
           context: nodejs-install
           node_version: '14.15.4'
           acceptance_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -565,6 +611,8 @@ workflows:
           context: nodejs-install
           node_version: '14.15.4'
           root_tap_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -577,6 +625,8 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -586,6 +636,8 @@ workflows:
           context: nodejs-install
           node_version: '12.21.0'
           acceptance_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -595,6 +647,8 @@ workflows:
           context: nodejs-install
           node_version: '12.21.0'
           root_tap_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -607,6 +661,8 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -616,6 +672,8 @@ workflows:
           context: nodejs-install
           node_version: '10.23.1'
           acceptance_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -625,6 +683,8 @@ workflows:
           context: nodejs-install
           node_version: '10.23.1'
           root_tap_tests: true
+          requires:
+            - Build
           filters:
             branches:
               ignore:
@@ -638,3 +698,5 @@ workflows:
             branches:
               only:
                 - master
+          requires:
+            - Build

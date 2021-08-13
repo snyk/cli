@@ -1,11 +1,11 @@
-import { v4 as uuidv4 } from 'uuid';
+const { v4: uuidv4 } = require('uuid');
 const debug = require('debug')('snyk');
 const diff = require('diff');
 const exec = require('child_process').exec;
 const path = require('path');
 const fs = require('fs');
 const semver = require('semver');
-import { addDataAndSend } from '../analytics';
+const { addDataAndSend } = require('../analytics');
 
 function applyPatch(patchFileName, vuln, live, patchUrl) {
   let cwd = vuln.source;

@@ -1,6 +1,9 @@
 node_modules
 tmp
+
 dist
+/pysrc
+
 fixtures
 test-output
 test-results

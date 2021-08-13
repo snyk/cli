@@ -24,15 +24,15 @@ export = async function help(item: string | boolean) {
   try {
     const filename = path.resolve(
       __dirname,
-      '../../../help/commands-txt',
-      item === DEFAULT_HELP ? DEFAULT_HELP + '.txt' : `snyk-${item}.txt`,
+      '../../help/commands-txt', // this is a relative path from the webpack dist directory
+      item === DEFAULT_HELP ? `${DEFAULT_HELP}.txt` : `snyk-${item}.txt`,
     );
     return readHelpFile(filename);
   } catch (error) {
     const filename = path.resolve(
       __dirname,
-      '../../../help/commands-txt',
-      DEFAULT_HELP + '.txt',
+      '../../help/commands-txt',
+      `${DEFAULT_HELP}.txt`,
     );
     return readHelpFile(filename);
   }

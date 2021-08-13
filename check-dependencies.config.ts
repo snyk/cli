@@ -7,6 +7,8 @@ export const config: Options = {
     'jest-junit', // used in circleci
     'tap-junit', // used in circleci
     'lerna', // used in circleci
+    'ts-loader', // Implicitly called build tools
+    'webpack-cli', // Implicitly called build tools
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };
