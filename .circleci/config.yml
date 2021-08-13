@@ -505,8 +505,6 @@ workflows:
       - dev-release:
           name: Dev Release
           node_version: '14'
-          requires:
-            - Regression Test
       - test-windows:
           name: Windows, Node 14 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
@@ -515,15 +513,11 @@ workflows:
           acceptance_tests: true
           system_tests: true
           package_tests: true
-          requires:
-            - Regression Test
       - test-windows:
           name: Windows, Node 14 - "Root" tap tests
           context: nodejs-install
           node_version: '14.15.4'
           root_tap_tests: true
-          requires:
-            - Regression Test
       - test-windows:
           name: Windows, Node 12 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
@@ -532,16 +526,11 @@ workflows:
           acceptance_tests: true
           system_tests: true
           package_tests: true
-          requires:
-            - Regression Test
       - test-windows:
           name: Windows, Node 12 - "Root" tap tests
           context: nodejs-install
           node_version: '12.21.0'
           root_tap_tests: true
-          requires:
-            - Regression Test
-
       - test-windows:
           name: Windows, Node 10 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
@@ -550,15 +539,11 @@ workflows:
           acceptance_tests: true
           system_tests: true
           package_tests: true
-          requires:
-            - Regression Test
       - test-windows:
           name: Windows, Node 10 - "Root" tap tests
           context: nodejs-install
           node_version: '10.23.1'
           root_tap_tests: true
-          requires:
-            - Regression Test
       - test-linux:
           name: Linux, Node 14 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
@@ -567,15 +552,11 @@ workflows:
           acceptance_tests: true
           system_tests: true
           package_tests: true
-          requires:
-            - Regression Test
       - test-linux:
           name: Linux, Node 14 - "Root" tap tests
           context: nodejs-install
           node_version: '14.15.4'
           root_tap_tests: true
-          requires:
-            - Regression Test
       - test-linux:
           name: Linux, Node 12 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
@@ -584,15 +565,11 @@ workflows:
           acceptance_tests: true
           system_tests: true
           package_tests: true
-          requires:
-            - Regression Test
       - test-linux:
           name: Linux, Node 12 - "Root" tap tests
           context: nodejs-install
           node_version: '12.21.0'
           root_tap_tests: true
-          requires:
-            - Regression Test
       - test-linux:
           name: Linux, Node 10 - Packages, Jest, Acceptance, System tests
           context: nodejs-install
@@ -601,15 +578,11 @@ workflows:
           acceptance_tests: true
           system_tests: true
           package_tests: true
-          requires:
-            - Regression Test
       - test-linux:
           name: Linux, Node 10 - "Root" tap tests
           context: nodejs-install
           node_version: '10.23.1'
           root_tap_tests: true
-          requires:
-            - Regression Test
       - release:
           name: Release
           context: nodejs-app-release
