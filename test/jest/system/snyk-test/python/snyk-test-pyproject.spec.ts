@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { mocked } from 'ts-jest/utils';
 import { NeedleResponse } from 'needle';
-import { test } from '../../../../../src/cli/commands';
+const test = require('../../../../../src/cli/commands/test');
 import { loadPlugin } from '../../../../../src/lib/plugins/index';
 import { CommandResult } from '../../../../../src/cli/commands/types';
 import { makeRequest } from '../../../../../src/lib/request/request';

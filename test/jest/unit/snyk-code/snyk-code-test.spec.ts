@@ -13,7 +13,7 @@ import * as analysis from '../../../../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../../../../src/lib/types';
 import * as ecosystems from '../../../../src/lib/ecosystems';
 import * as analytics from '../../../../src/lib/analytics';
-import * as cli from '../../../../src/cli/commands';
+const test = require('../../../../src/cli/commands/test/index.ts');
 import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 
 const { getCodeAnalysisAndParseResults } = analysis;
@@ -141,7 +141,7 @@ describe('Test snyk code', () => {
 
     expect.hasAssertions();
     try {
-      await cli.test('some/path', options);
+      await test('some/path', options);
     } catch (error) {
       const errMessage = stripAscii(stripAnsi(error.message.trim()));
       const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
@@ -174,7 +174,7 @@ describe('Test snyk code', () => {
     const expected = new Error(error.message);
     expect.hasAssertions();
     try {
-      await cli.test('.', {
+      await test('.', {
         path: '',
         code: true,
       });
@@ -189,7 +189,7 @@ describe('Test snyk code', () => {
       ok: true,
     });
 
-    await expect(cli.test('some/path', { code: true })).rejects.toHaveProperty(
+    await expect(test('some/path', { code: true })).rejects.toHaveProperty(
       'userMessage',
       'Snyk Code is not supported for org: enable in Settings > Snyk Code',
     );
@@ -201,7 +201,7 @@ describe('Test snyk code', () => {
       userError: 'Not enabled',
     });
 
-    await expect(cli.test('some/path', { code: true })).rejects.toHaveProperty(
+    await expect(test('some/path', { code: true })).rejects.toHaveProperty(
       'userMessage',
       'Snyk Code is not supported for org.',
     );
@@ -217,7 +217,7 @@ describe('Test snyk code', () => {
       userMessage: 'Test limit reached!',
     });
 
-    await expect(cli.test('some/path', { code: true })).rejects.toHaveProperty(
+    await expect(test('some/path', { code: true })).rejects.toHaveProperty(
       'userMessage',
       'Test limit reached!',
     );
@@ -281,7 +281,7 @@ describe('Test snyk code', () => {
     trackUsageSpy.mockResolvedValue({});
 
     try {
-      await cli.test('some/path', options);
+      await test('some/path', options);
     } catch (error) {
       const errMessage = error.message.trim();
       const expectedOutput = jsonStringifyLargeObject(

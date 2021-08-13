@@ -18,9 +18,10 @@ import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
 import { TestCommandResult } from './commands/types';
 import { copy } from './copy';
-import spinner = require('../lib/spinner');
-import errors = require('../lib/errors/legacy-errors');
-import ansiEscapes = require('ansi-escapes');
+import * as spinner from '../lib/spinner';
+import * as errors from '../lib/errors/legacy-errors';
+import * as ansiEscapes from 'ansi-escapes';
+
 import { isPathToPackageFile } from '../lib/detect';
 import {
   MissingTargetFileError,
