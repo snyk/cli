@@ -1,0 +1,27 @@
+FROM node:alpine
+
+MAINTAINER Snyk Ltd
+
+# Install Docker
+RUN apk --no-cache add libstdc++
+
+RUN npm install --global snyk snyk-to-html && \
+    chmod -R a+wrx /home/node
+
+WORKDIR /home/node
+ENV HOME /home/node
+
+# The path at which the project is mounted (-v runtime arg)
+ENV PROJECT_PATH /project
+
+COPY docker-entrypoint.sh .
+COPY snyk_report.css .
+
+ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
+ENV SNYK_INTEGRATION_VERSION docker
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
+
+# Default command is `snyk test`
+# Override with `docker run ... snyk/snyk-cli <command> <args>`
+CMD ["test"]
