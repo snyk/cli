@@ -75,7 +75,7 @@
   "dependencies": {
     "@open-policy-agent/opa-wasm": "^1.2.0",
     "@snyk/cli-interface": "2.11.0",
-    "@snyk/cloud-config-parser": "^1.9.2",
+    "@snyk/cloud-config-parser": "^1.10.2",
     "@snyk/code-client": "4.0.0",
     "@snyk/dep-graph": "^1.27.1",
     "@snyk/fix": "1.650.0",
@@ -147,7 +147,7 @@
   "devDependencies": {
     "@types/cross-spawn": "^6.0.2",
     "@types/fs-extra": "^9.0.11",
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^27.0.1",
     "@types/lodash": "^4.14.161",
     "@types/needle": "^2.0.4",
     "@types/node": "^14.14.31",

@@ -12,9 +12,10 @@ import * as path from 'path';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
-import { extractLineNumber } from './extract-line-number';
+import { extractLineNumber, getFileTypeForParser } from './extract-line-number';
 import { getErrorStringCode } from './error-utils';
 import { isLocalFolder } from '../../../../lib/detect';
+import { MapsDocIdToTree, getTrees } from '@snyk/cloud-config-parser';
 
 const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
 
@@ -53,27 +54,24 @@ function formatScanResult(
   meta: TestMeta,
   options: IaCTestFlags,
 ): FormattedResult {
+  const fileType = getFileTypeForParser(scanResult.fileType);
+  let treeByDocId: MapsDocIdToTree;
+  try {
+    treeByDocId = getTrees(fileType, scanResult.fileContent);
+  } catch (err) {
+    // we do nothing intentionally.
+    // Even if the building of the tree fails in the external parser,
+    // we still pass an undefined tree and not calculated line number for those
+  }
+
   const formattedIssues = scanResult.violatedPolicies.map((policy) => {
     const cloudConfigPath =
       scanResult.docId !== undefined
         ? [`[DocId: ${scanResult.docId}]`].concat(parsePath(policy.msg))
         : policy.msg.split('.');
 
-    const flagsRequiringLineNumber = [
-      'json',
-      'sarif',
-      'json-file-output',
-      'sarif-file-output',
-    ];
-    const shouldExtractLineNumber = flagsRequiringLineNumber.some(
-      (flag) => options[flag],
-    );
-    const lineNumber: number = shouldExtractLineNumber
-      ? extractLineNumber(
-          scanResult.fileContent,
-          scanResult.fileType,
-          cloudConfigPath,
-        )
+    const lineNumber: number = treeByDocId
+      ? extractLineNumber(cloudConfigPath, fileType, treeByDocId)
       : -1;
 
     return {
