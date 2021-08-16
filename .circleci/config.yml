@@ -189,11 +189,7 @@ jobs:
             echo "Checkout the README in test/smoke folder for more details about this step"
             unset SNYK_API
             unset SNYK_API_KEY
-            shellspec --profile --output junit --reportdir ../../test-results/shellspec-regression-tests -f d -e REGRESSION_TEST=1
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: test-results
+            shellspec -f d -e REGRESSION_TEST=1
   test-windows:
     <<: *defaults
     <<: *windows_defaults
@@ -230,74 +226,46 @@ jobs:
           steps:
             - run:
                 name: Run Package unit tests
-                command: npm run test:packages-unit -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:packages-unit'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-packages-unit'
+                command: npm run test:packages-unit -- --ci
       - when:
           condition: << parameters.package_tests >>
           steps:
             - run:
                 name: Run Package acceptance tests
-                command: npm run test:packages-acceptance -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:packages-acceptance'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-packages-acceptance'
+                command: npm run test:packages-acceptance -- --ci
       - when:
           condition: << parameters.root_tap_tests >>
           steps:
             - run:
                 name: Run "Root" tap tests
-                command: |
-                  npm run test:test -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-test
+                command: npm run test:test
       - when:
           condition: << parameters.jest_tests >>
           steps:
             - run:
                 name: Run Jest tests in root (to remove)
-                command: npm run test:jest -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:jest'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest'
+                command: npm run test:jest -- --ci
             - run:
                 name: Run Jest Unit Tests
-                command: npm run test:jest-unit -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:jest-unit'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-unit'
+                command: npm run test:jest-unit -- --ci
             - run:
                 name: Run Jest System Tests
-                command: npm run test:jest-system -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:jest-system'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-system'
+                command: npm run test:jest-system -- --ci
             - run:
                 name: Run Jest Acceptance Tests
-                command: npm run test:jest-acceptance -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:jest-acceptance'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-acceptance'
+                command: npm run test:jest-acceptance -- --ci
       - when:
           condition: << parameters.acceptance_tests >>
           steps:
             - run:
                 name: Run Acceptance tests
-                command: |
-                  npm run test:acceptance-windows -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-acceptance-windows
+                command: npm run test:acceptance-windows
       - when:
           condition: << parameters.system_tests >>
           steps:
             - run:
                 name: Run System tests
-                command: |
-                  npm run test:system -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-system
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: test-results
+                command: npm run test:system
   test-linux:
     <<: *defaults
     docker:
@@ -329,74 +297,46 @@ jobs:
           steps:
             - run:
                 name: Run Package unit tests
-                command: npm run test:packages-unit -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:packages-unit'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-packages-unit'
+                command: npm run test:packages-unit -- --ci
       - when:
           condition: << parameters.package_tests >>
           steps:
             - run:
                 name: Run Package acceptance tests
-                command: npm run test:packages-acceptance -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:packages-acceptance'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-packages-acceptance'
+                command: npm run test:packages-acceptance -- --ci
       - when:
           condition: << parameters.root_tap_tests >>
           steps:
             - run:
                 name: Run "Root" tap tests
-                command: |
-                  npm run test:test -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-test
+                command: npm run test:test
       - when:
           condition: << parameters.jest_tests >>
           steps:
             - run:
                 name: Run Jest tests in root (to remove)
-                command: npm run test:jest -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:jest'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest'
+                command: npm run test:jest -- --ci
             - run:
                 name: Run Jest Unit Tests
-                command: npm run test:jest-unit -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:jest-unit'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-unit'
+                command: npm run test:jest-unit -- --ci
             - run:
                 name: Run Jest System Tests
-                command: npm run test:jest-system -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:jest-system'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-system'
+                command: npm run test:jest-system -- --ci
             - run:
                 name: Run Jest Acceptance Tests
-                command: npm run test:jest-acceptance -- --ci --reporters="default" --reporters="jest-junit"
-                environment:
-                  JEST_SUITE_NAME: 'test:jest-acceptance'
-                  JEST_JUNIT_OUTPUT_DIR: 'test-results/jest-acceptance'
+                command: npm run test:jest-acceptance -- --ci
       - when:
           condition: << parameters.acceptance_tests >>
           steps:
             - run:
                 name: Run Acceptance tests
-                command: |
-                  npm run test:acceptance -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-acceptance
+                command: npm run test:acceptance
       - when:
           condition: << parameters.system_tests >>
           steps:
             - run:
                 name: Run System tests
-                command: |
-                  npm run test:system -- --output-file tap-output
-                  npx tap-junit --input tap-output --output test-results/tap-test-system
-      - store_test_results:
-          path: test-results
-      - store_artifacts:
-          path: test-results
+                command: npm run test:system
   dev-release:
     <<: *defaults
     docker:
