@@ -10,16 +10,18 @@ import {
   policyStub,
   generateScanResults,
 } from './results-formatter.fixtures';
-import { issuesToLineNumbers } from '@snyk/cloud-config-parser';
+import * as cloudConfigParserModule from '@snyk/cloud-config-parser';
 import { PolicyMetadata } from '../../../../src/cli/commands/test/iac-local-execution/types';
 
-jest.mock('@snyk/cloud-config-parser');
-
+jest.mock('@snyk/cloud-config-parser', () => ({
+  ...jest.requireActual('@snyk/cloud-config-parser'),
+}));
+const validTree = { '0': { nodes: [] } };
 describe('formatScanResults', () => {
   it.each([
     [
       { severityThreshold: SEVERITY.HIGH },
-      expectedFormattedResultsWithoutLineNumber,
+      expectedFormattedResultsWithLineNumber,
     ],
     [
       { severityThreshold: SEVERITY.HIGH, sarif: true },
@@ -40,7 +42,10 @@ describe('formatScanResults', () => {
   ])(
     'given %p options object, returns the expected results',
     (optionsObject, expectedResult) => {
-      (issuesToLineNumbers as jest.Mock).mockReturnValue(3);
+      jest
+        .spyOn(cloudConfigParserModule, 'getTrees')
+        .mockReturnValue(validTree);
+      jest.spyOn(cloudConfigParserModule, 'getLineNumber').mockReturnValue(3);
       const formattedResults = formatScanResults(
         generateScanResults(),
         optionsObject,
@@ -51,9 +56,50 @@ describe('formatScanResults', () => {
       expect(formattedResults[0]).toEqual(expectedResult);
     },
   );
-  // TODO: add tests for the multi-doc yaml grouping
 });
 
+describe('parser failures should return -1 for lineNumber', () => {
+  beforeEach(async () => {
+    jest.restoreAllMocks();
+  });
+
+  it('creates a valid tree, but the getLineNumber() fails', () => {
+    jest.spyOn(cloudConfigParserModule, 'getTrees').mockReturnValue(validTree);
+    jest
+      .spyOn(cloudConfigParserModule, 'getLineNumber')
+      .mockImplementation(() => {
+        throw new Error();
+      });
+    const formattedResults = formatScanResults(
+      generateScanResults(),
+      { severityThreshold: SEVERITY.HIGH },
+      meta,
+    );
+
+    expect(formattedResults.length).toEqual(1);
+    expect(formattedResults[0]).toEqual(
+      expectedFormattedResultsWithoutLineNumber,
+    );
+  });
+
+  it('sends an invalid tree and getLineNumber() fails', () => {
+    jest
+      .spyOn(cloudConfigParserModule, 'getTrees')
+      .mockReturnValue(null as any);
+    const formattedResults = formatScanResults(
+      generateScanResults(),
+      { severityThreshold: SEVERITY.HIGH },
+      meta,
+    );
+
+    expect(formattedResults.length).toEqual(1);
+    expect(formattedResults[0]).toEqual(
+      expectedFormattedResultsWithoutLineNumber,
+    );
+  });
+});
+
+// TODO: add tests for the multi-doc yaml grouping
 describe('filterPoliciesBySeverity', () => {
   it('returns the formatted results filtered by severity - no default threshold', () => {
     const scanResults = generateScanResults();

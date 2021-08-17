@@ -2,7 +2,8 @@ import { IaCErrorCodes } from './types';
 import { CustomError } from '../../../../lib/errors';
 import {
   CloudConfigFileTypes,
-  issuesToLineNumbers,
+  MapsDocIdToTree,
+  getLineNumber,
 } from '@snyk/cloud-config-parser';
 import { UnsupportedFileTypeError } from './file-parser';
 import * as analytics from '../../../../lib/analytics';
@@ -10,7 +11,7 @@ import * as Debug from 'debug';
 import { getErrorStringCode } from './error-utils';
 const debug = Debug('iac-extract-line-number');
 
-function getFileTypeForLineNumber(fileType: string): CloudConfigFileTypes {
+export function getFileTypeForParser(fileType: string): CloudConfigFileTypes {
   switch (fileType) {
     case 'yaml':
     case 'yml':
@@ -25,16 +26,12 @@ function getFileTypeForLineNumber(fileType: string): CloudConfigFileTypes {
 }
 
 export function extractLineNumber(
-  fileContent: string,
-  fileType: string,
   cloudConfigPath: string[],
+  fileType: CloudConfigFileTypes,
+  treeByDocId: MapsDocIdToTree,
 ): number {
   try {
-    return issuesToLineNumbers(
-      fileContent,
-      getFileTypeForLineNumber(fileType),
-      cloudConfigPath,
-    );
+    return getLineNumber(cloudConfigPath, fileType, treeByDocId);
   } catch {
     const err = new FailedToExtractLineNumberError();
     analytics.add('error-code', err.code);
