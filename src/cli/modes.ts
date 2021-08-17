@@ -7,10 +7,10 @@ interface ModeData {
 }
 
 const modes: Record<string, ModeData> = {
-  source: {
+  unmanaged: {
     allowedCommands: ['test', 'monitor'],
     config: (args): [] => {
-      args['source'] = true;
+      args['unmanaged'] = true;
       return args;
     },
   },

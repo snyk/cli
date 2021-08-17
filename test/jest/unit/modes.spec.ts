@@ -138,13 +138,13 @@ describe('when have a valid mode and command', () => {
     expect(cliArgs['experimental']).toBeTruthy();
   });
 
-  it('"source test" should set source option and test command', () => {
+  it('"unmanaged test" should set unmanaged option and test command', () => {
     const expectedCommand = 'test';
     const expectedArgs = {
       _: [],
       source: true,
     };
-    const cliCommand = 'source';
+    const cliCommand = 'unmanaged';
     const cliArgs = {
       _: ['test'],
     };
@@ -152,16 +152,16 @@ describe('when have a valid mode and command', () => {
     const command = parseMode(cliCommand, cliArgs);
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
-    expect(cliArgs['source']).toBeTruthy();
+    expect(cliArgs['unmanaged']).toBeTruthy();
   });
 
-  it('"source monitor" should set source option and monitor command', () => {
+  it('"unmanaged monitor" should set source option and monitor command', () => {
     const expectedCommand = 'monitor';
     const expectedArgs = {
       _: [],
       source: true,
     };
-    const cliCommand = 'source';
+    const cliCommand = 'unmanaged';
     const cliArgs = {
       _: ['monitor'],
     };
@@ -169,7 +169,7 @@ describe('when have a valid mode and command', () => {
     const command = parseMode(cliCommand, cliArgs);
     expect(command).toBe(expectedCommand);
     expect(cliArgs).toEqual(expectedArgs);
-    expect(cliArgs['source']).toBeTruthy();
+    expect(cliArgs['unmanaged']).toBeTruthy();
   });
 });
 
