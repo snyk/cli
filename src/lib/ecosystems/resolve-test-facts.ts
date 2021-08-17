@@ -1,8 +1,12 @@
 import { Options } from '../types';
 import * as spinner from '../../lib/spinner';
 import { Ecosystem, ScanResult, TestResult } from './types';
-import { pollingWithTokenUntilDone, requestPollingToken } from './polling';
+
 import { extractAndApplyPluginAnalytics } from './plugin-analytics';
+import {
+  requestTestPollingToken,
+  pollingTestWithTokenUntilDone,
+} from './polling/polling-test';
 
 export async function resolveAndTestFacts(
   ecosystem: Ecosystem,
@@ -18,13 +22,15 @@ export async function resolveAndTestFacts(
     await spinner(`Resolving and Testing fileSignatures in ${path}`);
     for (const scanResult of scanResults) {
       try {
+        const res = await requestTestPollingToken(options, true, scanResult);
+
         if (scanResult.analytics) {
-          extractAndApplyPluginAnalytics(scanResult.analytics);
+          extractAndApplyPluginAnalytics(scanResult.analytics, res.token);
         }
-        const res = await requestPollingToken(options, true, scanResult);
+
         const { maxAttempts, pollInterval } = res.pollingTask;
         const attemptsCount = 0;
-        const response = await pollingWithTokenUntilDone(
+        const response = await pollingTestWithTokenUntilDone(
           res.token,
           ecosystem,
           options,
@@ -32,10 +38,12 @@ export async function resolveAndTestFacts(
           attemptsCount,
           maxAttempts,
         );
+
         results.push({
           issues: response?.result?.issues,
           issuesData: response?.result?.issuesData,
           depGraphData: response?.result?.depGraphData,
+          depsFilePaths: response?.result?.depsFilePaths,
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;

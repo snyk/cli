@@ -25,6 +25,7 @@ import {
 } from './types';
 import { findAndLoadPolicyForScanResult } from './policy';
 import { getAuthHeader } from '../api-token';
+import { resolveAndMonitorFacts } from './resolve-monitor-facts';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -58,14 +59,30 @@ export async function monitorEcosystem(
       spinner.clearAll();
     }
   }
-  const [monitorResults, errors] = await monitorDependencies(
+
+  const [
+    monitorResults,
+    errors,
+  ] = await selectAndTriggerMonitorDependenciesStrategy(
+    ecosystem,
     scanResultsByPath,
     options,
   );
+
   return [monitorResults, errors];
 }
 
-async function generateMonitorDependenciesRequest(
+async function selectAndTriggerMonitorDependenciesStrategy(
+  ecosystem: Ecosystem,
+  scanResultsByPath: { [dir: string]: ScanResult[] },
+  options: Options,
+) {
+  return ecosystem === 'cpp'
+    ? await resolveAndMonitorFacts(ecosystem, scanResultsByPath, options)
+    : await monitorDependencies(scanResultsByPath, options);
+}
+
+export async function generateMonitorDependenciesRequest(
   scanResult: ScanResult,
   options: Options,
 ): Promise<MonitorDependenciesRequest> {

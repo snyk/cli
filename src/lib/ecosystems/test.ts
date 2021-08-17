@@ -19,6 +19,7 @@ export async function testEcosystem(
   const plugin = getPlugin(ecosystem);
   // TODO: this is an intermediate step before consolidating ecosystem plugins
   // to accept flows that act differently in the testDependencies step
+
   if (plugin.test) {
     const { readableResult: res } = await plugin.test(paths, options);
     return TestCommandResult.createHumanReadableTestCommandResult(res, '');
@@ -32,22 +33,8 @@ export async function testEcosystem(
   }
   spinner.clearAll();
 
-  if (ecosystem === 'cpp') {
-    const [testResults, errors] = await resolveAndTestFacts(
-      ecosystem,
-      scanResultsByPath,
-      options,
-    );
-    return await getTestResultsOutput(
-      errors,
-      options,
-      testResults,
-      plugin,
-      scanResultsByPath,
-    );
-  }
-
-  const [testResults, errors] = await testDependencies(
+  const [testResults, errors] = await selectAndTriggerTestDependenciesStrategy(
+    ecosystem,
     scanResultsByPath,
     options,
   );
@@ -59,6 +46,16 @@ export async function testEcosystem(
     plugin,
     scanResultsByPath,
   );
+}
+
+async function selectAndTriggerTestDependenciesStrategy(
+  ecosystem: Ecosystem,
+  scanResultsByPath: { [dir: string]: ScanResult[] },
+  options: Options,
+) {
+  return ecosystem === 'cpp'
+    ? await resolveAndTestFacts(ecosystem, scanResultsByPath, options)
+    : await testDependencies(scanResultsByPath, options);
 }
 
 async function getTestResultsOutput(

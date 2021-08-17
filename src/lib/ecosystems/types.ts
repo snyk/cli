@@ -1,6 +1,6 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { SEVERITY } from '../snyk-test/common';
-import { RemediationChanges } from '../snyk-test/legacy';
+import { DepsFilePaths, RemediationChanges } from '../snyk-test/legacy';
 import { Options } from '../types';
 
 export type Ecosystem = 'cpp' | 'docker' | 'code';
@@ -80,6 +80,7 @@ export interface TestResult {
   issues: Issue[];
   issuesData: IssuesData;
   depGraphData: DepGraphData;
+  depsFilePaths?: DepsFilePaths;
   remediation?: RemediationChanges;
 }
 

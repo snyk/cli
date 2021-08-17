@@ -1,43 +1,23 @@
-import * as config from '../config';
-import { isCI } from '../is-ci';
-import { makeRequest } from '../request/promise';
-import { Options } from '../types';
+import * as config from '../../config';
+import { isCI } from '../../is-ci';
+import { makeRequest } from '../../request/promise';
+import { Options } from '../../types';
 
-import { assembleQueryString } from '../snyk-test/common';
-import { getAuthHeader } from '../api-token';
-import { ScanResult } from './types';
-import { TestDependenciesResult, TestDepGraphMeta } from '../snyk-test/legacy';
-import { sleep } from '../common';
+import { assembleQueryString } from '../../snyk-test/common';
+import { getAuthHeader } from '../../api-token';
+import { ScanResult } from '../types';
 
-type ResolveAndTestFactsStatus =
-  | 'CANCELLED'
-  | 'ERROR'
-  | 'PENDING'
-  | 'RUNNING'
-  | 'OK';
+import { sleep } from '../../common';
+import {
+  ResolveAndTestFactsResponse,
+  ResolveAndMonitorFactsResponse,
+} from './types';
 
-interface PollingTask {
-  pollInterval: number;
-  maxAttempts: number;
-}
-
-interface ResolveAndTestFactsResponse {
-  token: string;
-  pollingTask: PollingTask;
-  result?: TestDependenciesResult;
-  meta?: TestDepGraphMeta;
-  status?: ResolveAndTestFactsStatus;
-  code?: number;
-  error?: string;
-  message?: string;
-  userMessage?: string;
-}
-
-export async function requestPollingToken(
+export async function requestTestPollingToken(
   options: Options,
   isAsync: boolean,
   scanResult: ScanResult,
-): Promise<ResolveAndTestFactsResponse> {
+): Promise<ResolveAndTestFactsResponse | ResolveAndMonitorFactsResponse> {
   const payload = {
     method: 'POST',
     url: `${config.API}/test-dependencies`,
@@ -66,7 +46,7 @@ function throwIfRequestPollingTokenFailed(res: ResolveAndTestFactsResponse) {
   }
 }
 
-export async function pollingWithTokenUntilDone(
+export async function pollingTestWithTokenUntilDone(
   token: string,
   type: string,
   options: Options,
@@ -87,7 +67,7 @@ export async function pollingWithTokenUntilDone(
 
   const response = await makeRequest<ResolveAndTestFactsResponse>(payload);
 
-  if (pollingRequestHasFailed(response)) {
+  if (pollingTestRequestHasFailed(response)) {
     throw response;
   }
 
@@ -98,10 +78,8 @@ export async function pollingWithTokenUntilDone(
 
   attemptsCount++;
   checkPollingAttempts(maxAttempts)(attemptsCount);
-
   await sleep(pollInterval);
-
-  return await pollingWithTokenUntilDone(
+  return await pollingTestWithTokenUntilDone(
     token,
     type,
     options,
@@ -119,7 +97,7 @@ function checkPollingAttempts(maxAttempts: number) {
   };
 }
 
-function pollingRequestHasFailed(
+function pollingTestRequestHasFailed(
   response: ResolveAndTestFactsResponse,
 ): boolean {
   const { token, result, meta, status, error, code, message } = response;

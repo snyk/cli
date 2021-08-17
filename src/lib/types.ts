@@ -69,6 +69,7 @@ export interface Options {
   severityThreshold?: SEVERITY;
   dev?: boolean;
   'print-deps'?: boolean;
+  'print-dep-paths'?: boolean;
   'remote-repo-url'?: string;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
@@ -79,6 +80,7 @@ export interface Options {
   experimental?: boolean;
   // Used with the Docker plugin only. Allows application scanning.
   'app-vulns'?: boolean;
+
   debug?: boolean;
   sarif?: boolean;
   'group-issues'?: boolean;
