@@ -219,7 +219,8 @@ export async function getFormattedMonitorOutput(
           : 'Unknown error occurred.';
 
       return (
-        chalk.bold.white('\nMonitoring ' + res.path + '...\n\n') + errorMessage
+        chalk.bold.white('\nCould not monitor your project...\n\n') +
+        errorMessage
       );
     })
     .join('\n' + SEPARATOR);

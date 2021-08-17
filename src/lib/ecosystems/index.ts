@@ -14,7 +14,7 @@ export { getPlugin } from './plugins';
  * hence this is in a separate function from getEcosystem().
  */
 export function getEcosystemForTest(options: Options): Ecosystem | null {
-  if (options.source) {
+  if (options.unmanaged) {
     return 'cpp';
   }
   if (options.code) {
@@ -24,7 +24,7 @@ export function getEcosystemForTest(options: Options): Ecosystem | null {
 }
 
 export function getEcosystem(options: Options): Ecosystem | null {
-  if (options.source) {
+  if (options.unmanaged) {
     return 'cpp';
   }
 
