@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 'Submit a Support ticket'
+    url: https://support.snyk.io/hc/requests/new
+    about: For questions and support, please use our help centre.
