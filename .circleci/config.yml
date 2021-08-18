@@ -445,6 +445,10 @@ workflows:
       - dev-release:
           name: Dev Release
           node_version: '14'
+          filters:
+            branches:
+              ignore:
+                - master
 
       - test-windows:
           name: Windows, Node 14 - Packages, Jest, System tests
@@ -453,16 +457,28 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-windows:
           name: Windows, Node 14 - Acceptance tests
           context: nodejs-install
           node_version: '14.15.4'
           acceptance_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-windows:
           name: Windows, Node 14 - "Root" tap tests
           context: nodejs-install
           node_version: '14.15.4'
           root_tap_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
 
       - test-windows:
           name: Windows, Node 12 - Packages, Jest, System tests
@@ -471,16 +487,28 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-windows:
           name: Windows, Node 12 - Acceptance tests
           context: nodejs-install
           node_version: '12.21.0'
           acceptance_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-windows:
           name: Windows, Node 12 - "Root" tap tests
           context: nodejs-install
           node_version: '12.21.0'
           root_tap_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
 
       - test-windows:
           name: Windows, Node 10 - Packages, Jest, System tests
@@ -489,16 +517,28 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-windows:
           name: Windows, Node 10 - Acceptance tests
           context: nodejs-install
           node_version: '10.23.1'
           acceptance_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-windows:
           name: Windows, Node 10 - "Root" tap tests
           context: nodejs-install
           node_version: '10.23.1'
           root_tap_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
 
       - test-linux:
           name: Linux, Node 14 - Packages, Jest, System tests
@@ -507,16 +547,28 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-linux:
           name: Linux, Node 14 - Acceptance tests
           context: nodejs-install
           node_version: '14.15.4'
           acceptance_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-linux:
           name: Linux, Node 14 - "Root" tap tests
           context: nodejs-install
           node_version: '14.15.4'
           root_tap_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
 
       - test-linux:
           name: Linux, Node 12 - Packages, Jest, System tests
@@ -525,16 +577,28 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-linux:
           name: Linux, Node 12 - Acceptance
           context: nodejs-install
           node_version: '12.21.0'
           acceptance_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-linux:
           name: Linux, Node 12 - "Root" tap tests
           context: nodejs-install
           node_version: '12.21.0'
           root_tap_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
 
       - test-linux:
           name: Linux, Node 10 - Packages, Jest, System tests
@@ -543,16 +607,28 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-linux:
           name: Linux, Node 10 - Acceptance tests
           context: nodejs-install
           node_version: '10.23.1'
           acceptance_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
       - test-linux:
           name: Linux, Node 10 - "Root" tap tests
           context: nodejs-install
           node_version: '10.23.1'
           root_tap_tests: true
+          filters:
+            branches:
+              ignore:
+                - master
 
       - release:
           name: Release
