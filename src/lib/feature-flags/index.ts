@@ -1,5 +1,6 @@
 import { OrgFeatureFlagResponse } from './types';
 import { fetchFeatureFlag } from './fetchFeatureFlag';
+import { Options } from '../types';
 
 export async function isFeatureFlagSupportedForOrg(
   featureFlag: string,
@@ -11,15 +12,19 @@ export async function isFeatureFlagSupportedForOrg(
 const cliFailFastValues: Map<string, OrgFeatureFlagResponse> = new Map();
 
 export async function cliFailFast(
-  org: string | undefined | null,
+  options: Pick<Options, 'fail-fast' | 'org'>,
 ): Promise<boolean> {
-  const orgCacheKey = org || 'NO_ORG';
-  const cachedValue = cliFailFastValues.get(orgCacheKey);
-  if (cachedValue) {
-    return Boolean(cachedValue.ok);
+  if (options['fail-fast']) {
+    const orgCacheKey = options.org || 'NO_ORG';
+    const cachedValue = cliFailFastValues.get(orgCacheKey);
+    if (cachedValue) {
+      return Boolean(cachedValue.ok);
+    } else {
+      const fetchedValue = await fetchFeatureFlag('cliFailFast', options.org);
+      cliFailFastValues.set(orgCacheKey, fetchedValue);
+      return Boolean(fetchedValue.ok);
+    }
   } else {
-    const fetchedValue = await fetchFeatureFlag('cliFailFast', org);
-    cliFailFastValues.set(orgCacheKey, fetchedValue);
-    return Boolean(fetchedValue.ok);
+    return false;
   }
 }
