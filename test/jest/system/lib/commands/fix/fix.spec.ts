@@ -36,8 +36,8 @@ describe('snyk fix (system tests)', () => {
     });
   });
 
-  afterAll(async () => {
-    await server.close();
+  afterAll((done) => {
+    server.close(() => done());
   });
 
   it(

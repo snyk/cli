@@ -209,7 +209,9 @@ after('teardown', async (t) => {
   delete process.env.SNYK_PORT;
   t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
 
-  await server.close();
+  await new Promise<void>((resolve) => {
+    server.close(resolve);
+  });
   t.pass('server shutdown');
   let key = 'set';
   let value = 'api=' + oldkey;
