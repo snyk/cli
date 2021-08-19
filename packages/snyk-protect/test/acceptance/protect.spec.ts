@@ -29,7 +29,7 @@ describe('@snyk/protect', () => {
         project.read('node_modules/nyc/node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
 
-      expect(log).toHaveBeenCalledWith('Successfully applied Snyk patches');
+      expect(log).toHaveBeenCalledWith('Applied Snyk patches.');
       expect(postJsonSpy).toHaveBeenCalledTimes(1);
       expect(postJsonSpy.mock.calls[0][1]).toEqual({
         data: {
@@ -68,7 +68,7 @@ describe('@snyk/protect', () => {
         project.read('node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
 
-      expect(log).toHaveBeenCalledWith('Successfully applied Snyk patches');
+      expect(log).toHaveBeenCalledWith('Applied Snyk patches.');
       expect(postJsonSpy).toHaveBeenCalledTimes(1);
       expect(postJsonSpy.mock.calls[0][1]).toEqual({
         data: {
@@ -107,7 +107,7 @@ describe('@snyk/protect', () => {
 
       await protect(project.path());
 
-      expect(log).toHaveBeenCalledWith('Nothing to patch');
+      expect(log).toHaveBeenCalledWith('Nothing to patch.');
 
       expect(postJsonSpy).toHaveBeenCalledTimes(1);
       expect(postJsonSpy.mock.calls[0][1]).toEqual({
@@ -142,7 +142,7 @@ describe('@snyk/protect', () => {
 
       await protect(project.path());
 
-      expect(log).toHaveBeenCalledWith('No .snyk file found');
+      expect(log).toHaveBeenCalledWith('No .snyk file found.');
 
       expect(postJsonSpy).toHaveBeenCalledTimes(1);
       expect(postJsonSpy.mock.calls[0][1]).toEqual({

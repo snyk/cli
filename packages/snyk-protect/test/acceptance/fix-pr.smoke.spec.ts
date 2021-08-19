@@ -16,7 +16,7 @@ describe('Fix PR', () => {
     ).toEqual(
       expect.objectContaining<RunCLIResult>({
         code: 0,
-        stdout: expect.stringContaining('Successfully applied Snyk patches'),
+        stdout: expect.stringContaining('Applied Snyk patches.'),
         stderr: expect.any(String),
       }),
     );
