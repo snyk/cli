@@ -16,8 +16,24 @@ describe('Fix PR', () => {
     ).toEqual(
       expect.objectContaining<RunCLIResult>({
         code: 0,
+        stdout: expect.stringContaining('Applied Snyk patches'),
+        stderr: expect.not.stringMatching(/snyk/gi),
+      }),
+    );
+
+    await expect(
+      project.read('node_modules/lodash/lodash.js'),
+    ).resolves.toEqual(patchedLodash);
+
+    expect(
+      await runCommand('npm', ['install'], {
+        cwd: project.path(),
+      }),
+    ).toEqual(
+      expect.objectContaining<RunCLIResult>({
+        code: 0,
         stdout: expect.stringContaining('Applied Snyk patches.'),
-        stderr: expect.any(String),
+        stderr: expect.not.stringMatching(/snyk/gi),
       }),
     );
 

@@ -6,9 +6,16 @@ export function applyPatchToFile(patchContents: string, baseFolder: string) {
     baseFolder,
     extractTargetFilePathFromPatch(patchContents),
   );
+
+  const flagPath = `${targetFilePath}.snyk-protect.flag`;
+  if (fs.existsSync(flagPath)) {
+    return targetFilePath;
+  }
+
   const contentsToPatch = fs.readFileSync(targetFilePath, 'utf-8');
   const patchedContents = patchString(patchContents, contentsToPatch);
   fs.writeFileSync(targetFilePath, patchedContents);
+  fs.writeFileSync(flagPath, '');
   return targetFilePath;
 }
 
