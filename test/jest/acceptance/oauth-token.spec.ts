@@ -2,6 +2,8 @@ import { fakeServer } from '../../acceptance/fake-server';
 import { createProjectFromWorkspace } from '../util/createProject';
 import { runSnykCLI } from '../util/runSnykCLI';
 
+jest.setTimeout(1000 * 60);
+
 describe('test using OAuth token', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
