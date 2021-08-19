@@ -7,7 +7,7 @@ export function getApiBaseUrl(): string {
       // snyk CI environment - we use `.../api/v1` though the norm is just `.../api`
       apiBaseUrl = process.env.SNYK_API.replace('/v1', '');
     } else {
-      console.log(
+      console.warn(
         'Malformed SNYK_API value. Using default: https://snyk.io/api',
       );
     }
