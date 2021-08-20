@@ -22,8 +22,8 @@ describe('test using OAuth token', () => {
     server.listen(apiPort, () => done());
   });
 
-  afterAll(async () => {
-    await server.close();
+  afterAll((done) => {
+    server.close(() => done());
   });
 
   it('successfully tests a project with an OAuth env variable set', async () => {
