@@ -1,2 +1,7 @@
 #!/usr/bin/env node
-require('../dist/index.js').protect();
+require('../dist/index.js')
+  .protect()
+  .catch((error) => {
+    // don't block pipelines on unexpected errors
+    console.error(error);
+  });

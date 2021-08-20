@@ -26,7 +26,7 @@ async function protect(projectFolderPath: string) {
   const snykFilePath = path.resolve(projectFolderPath, '.snyk');
 
   if (!fs.existsSync(snykFilePath)) {
-    console.log('No .snyk file found');
+    console.log('No .snyk file found.');
     sendAnalytics({
       type: ProtectResultType.NO_SNYK_FILE,
     });
@@ -67,7 +67,7 @@ async function protect(projectFolderPath: string) {
   > = await getAllPatches(vulnIdAndPackageNames, packageNameToVersionsMap);
 
   if (packageAtVersionsToPatches.size === 0) {
-    console.log('Nothing to patch');
+    console.log('Nothing to patch.');
     sendAnalytics({
       type: ProtectResultType.NOTHING_TO_PATCH,
     });
@@ -83,7 +83,8 @@ async function protect(projectFolderPath: string) {
     vuldIdAndPatches?.forEach((vp) => {
       vp.patches.forEach((patchDiffs) => {
         patchDiffs.patchDiffs.forEach((diff) => {
-          applyPatchToFile(diff, fpp.path);
+          const patchedPath = applyPatchToFile(diff, fpp.path);
+          console.log(`Patched: ${patchedPath}`);
         });
       });
       patchedModules.push({
@@ -94,7 +95,7 @@ async function protect(projectFolderPath: string) {
     });
   });
 
-  console.log('Successfully applied Snyk patches');
+  console.log('Applied Snyk patches.');
 
   sendAnalytics({
     type: ProtectResultType.APPLIED_PATCHES,

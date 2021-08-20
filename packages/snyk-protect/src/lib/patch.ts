@@ -6,10 +6,17 @@ export function applyPatchToFile(patchContents: string, baseFolder: string) {
     baseFolder,
     extractTargetFilePathFromPatch(patchContents),
   );
+
+  const flagPath = `${targetFilePath}.snyk-protect.flag`;
+  if (fs.existsSync(flagPath)) {
+    return targetFilePath;
+  }
+
   const contentsToPatch = fs.readFileSync(targetFilePath, 'utf-8');
   const patchedContents = patchString(patchContents, contentsToPatch);
   fs.writeFileSync(targetFilePath, patchedContents);
-  console.log(`patched ${targetFilePath}`);
+  fs.writeFileSync(flagPath, '');
+  return targetFilePath;
 }
 
 export function extractTargetFilePathFromPatch(patchContents: string): string {
@@ -39,13 +46,11 @@ export function patchString(
   const contentsToPatchLines = contentsToPatch.split('\n');
 
   if (!patchContentLines[2]) {
-    // return;
-    throw new Error('Invalid patch');
+    throw new Error('Invalid patch.');
   }
   const unparsedLineToPatch = /^@@ -(\d*),.*@@/.exec(patchContentLines[2]);
   if (!unparsedLineToPatch || !unparsedLineToPatch[1]) {
-    // return;
-    throw new Error('Invalid patch');
+    throw new Error('Invalid patch.');
   }
   let lineToPatch = parseInt(unparsedLineToPatch[1], 10) - 2;
 
@@ -66,16 +71,13 @@ export function patchString(
       }
       case ' ': {
         if (currentLine !== nextLine) {
-          console.log(
-            'Expected\n  line from local file\n',
-            JSON.stringify(currentLine),
-            '\n  to match patch line\n',
-            JSON.stringify(nextLine),
-            '\n',
-          );
           throw new Error(
-            // `File ${filename} to be patched does not match, not patching`,
-            `File to be patched does not match, not patching`,
+            'File does not match patch contents.' +
+              '  Expected\n' +
+              '    line from local file\n' +
+              `      ${JSON.stringify(currentLine)}\n` +
+              '    to match patch line\n' +
+              `      ${JSON.stringify(nextLine)}\n`,
           );
         }
         break;
