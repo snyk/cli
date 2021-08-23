@@ -6,6 +6,7 @@ export interface AnnotatedIacIssue {
   description: string;
   severity: SEVERITY | 'none';
   isIgnored: boolean;
+  isCustomRule: boolean;
   cloudConfigPath: string[];
   type: string;
   subType: string;

@@ -42,6 +42,7 @@ function formatIacIssue(
       )} Severity]`,
     ) +
     ` [${issue.id}]` +
+    (issue.isCustomRule ? ' [Custom]' : '') +
     name +
     introducedBy +
     '\n'

@@ -80,6 +80,7 @@ function formatScanResult(
       name: policy.title,
       cloudConfigPath,
       isIgnored: false,
+      isCustomRule: scanResult.engineType === EngineType.Custom,
       iacDescription: {
         issue: policy.issue,
         impact: policy.impact,
