@@ -1,5 +1,4 @@
 const Configstore = require('configstore');
-const pkg = require(__dirname + '/../../package.json');
 
 export class ConfigStoreWithEnvironmentVariables extends Configstore {
   constructor(id, defaults = undefined, options = {}) {
@@ -13,4 +12,4 @@ export class ConfigStoreWithEnvironmentVariables extends Configstore {
   }
 }
 
-export const config = new ConfigStoreWithEnvironmentVariables(pkg.name);
+export const config = new ConfigStoreWithEnvironmentVariables('snyk');

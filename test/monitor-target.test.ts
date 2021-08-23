@@ -62,7 +62,7 @@ test('Make sure that target is sent correctly', async (t) => {
   );
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package.json',
+    'snyk' + path.sep + 'package-lock.json',
     'correct relative target file path passed to request',
   );
 
@@ -79,7 +79,7 @@ test("Make sure it's not failing monitor for non git projects", async (t) => {
   t.true(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package.json',
+    'snyk' + path.sep + 'package-lock.json',
     'targetFileRelativePath passed to request',
   );
 
@@ -96,7 +96,7 @@ test("Make sure it's not failing if there is no remote configured", async (t) =>
   t.true(isEmpty(data.target), 'empty target passed to request');
   t.match(
     data.targetFileRelativePath,
-    'snyk' + path.sep + 'package.json',
+    'snyk' + path.sep + 'package-lock.json',
     'targetFileRelativePath passed to request',
   );
   subProcessStub.restore();

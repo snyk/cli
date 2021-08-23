@@ -29,3 +29,6 @@ packages/snyk-fix/ @snyk/tech-services
 packages/snyk-protect/ @snyk/hammer
 test/jest/util/ @snyk/hammer
 dangerfile.js @snyk/hammer
+webpack.common.js @snyk/hammer
+webpack.dev.js @snyk/hammer
+webpack.prod.js @snyk/hammer

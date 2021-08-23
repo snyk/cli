@@ -4,6 +4,32 @@ Describe "Snyk test command"
   Before snyk_login
   After snyk_logout
 
+  Describe "Java Gradle test"
+    It "finds vulns in a project when pointing to a folder"
+      Skip if "execute only in regression test" check_if_regression_test
+      When run snyk test ../fixtures/gradle-prune-repeated-deps/
+      The status should be failure # issues found
+      The output should include "Upgrade com.google.guava:guava@18.0"
+      The stderr should equal ""
+    End
+  End
+
+  Describe "Python pip test"
+    install_pip_and_run_snyk_test() {
+      cd ../acceptance/workspaces/pip-app/ || return
+      pip install -r requirements.txt
+      snyk test
+    }
+    It "finds vulns in a project when pointing to a folder"
+      Skip if "execute only in regression test" check_if_regression_test
+      When run install_pip_and_run_snyk_test
+      The status should be failure # issues found
+      The output should include "Upgrade jinja2@2.7.2"
+      The stderr should equal ""
+    End
+  End
+
+
   Describe "npm test"
     run_test_in_subfolder() {
       cd ../fixtures/basic-npm || return

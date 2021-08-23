@@ -1,1 +1,1 @@
-node --require ts-node/register src/cli auth $SNYK_API_KEY
+node dist/cli auth $SNYK_API_KEY

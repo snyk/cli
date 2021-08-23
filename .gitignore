@@ -5,10 +5,11 @@ config.local.json
 local.log
 /patches/
 **/dist
+/dist-docker
+/pysrc
 binary-releases
 tmp
 .DS_Store
-/package-lock.json
 !/test/fixtures/**/package-lock.json
 .idea
 .eslintcache

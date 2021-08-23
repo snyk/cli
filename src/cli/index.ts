@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-import 'source-map-support/register';
 import * as Debug from 'debug';
 import * as pathLib from 'path';
 

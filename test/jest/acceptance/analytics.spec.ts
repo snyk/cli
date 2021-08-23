@@ -54,7 +54,7 @@ describe('analytics module', () => {
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
-        'x-snyk-cli-version': '1.0.0-monorepo',
+        'x-snyk-cli-version': expect.stringMatching(/^(\d+\.){2}.*/),
       },
       query: {},
       body: {
@@ -96,7 +96,7 @@ describe('analytics module', () => {
           nodeVersion: process.version,
           os: expect.any(String),
           standalone: false,
-          version: '1.0.0-monorepo',
+          version: expect.stringMatching(/^(\d+\.){2}.*/),
         },
       },
     });
@@ -123,7 +123,7 @@ describe('analytics module', () => {
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
-        'x-snyk-cli-version': '1.0.0-monorepo',
+        'x-snyk-cli-version': expect.stringMatching(/^(\d+\.){2}.*/),
       },
       query: {},
       body: {
@@ -175,7 +175,7 @@ describe('analytics module', () => {
           nodeVersion: process.version,
           os: expect.any(String),
           standalone: false,
-          version: '1.0.0-monorepo',
+          version: expect.stringMatching(/^(\d+\.){2}.*/),
         },
       },
     });
@@ -197,7 +197,7 @@ describe('analytics module', () => {
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
-        'x-snyk-cli-version': '1.0.0-monorepo',
+        'x-snyk-cli-version': expect.stringMatching(/^(\d+\.){2}.*/),
       },
       query: {},
       body: {
@@ -238,7 +238,7 @@ describe('analytics module', () => {
           nodeVersion: process.version,
           os: expect.any(String),
           standalone: false,
-          version: '1.0.0-monorepo',
+          version: expect.stringMatching(/^(\d+\.){2}.*/),
         },
       },
     });
@@ -260,7 +260,7 @@ describe('analytics module', () => {
         accept: 'application/json',
         authorization: 'token 123456789',
         'content-type': 'application/json; charset=utf-8',
-        'x-snyk-cli-version': '1.0.0-monorepo',
+        'x-snyk-cli-version': expect.stringMatching(/^(\d+\.){2}.*/),
       },
       query: {},
       body: {
@@ -293,7 +293,7 @@ describe('analytics module', () => {
           nodeVersion: process.version,
           os: expect.any(String),
           standalone: false,
-          version: '1.0.0-monorepo',
+          version: expect.stringMatching(/^(\d+\.){2}.*/),
         },
       },
     });
