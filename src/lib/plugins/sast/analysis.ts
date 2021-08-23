@@ -13,7 +13,7 @@ import { bootstrap } from 'global-agent';
 export async function getCodeAnalysisAndParseResults(
   root: string,
   options: Options,
-): Promise<Log> {
+): Promise<Log | null> {
   const currentLabel = '';
   await spinner.clearAll();
   analysisProgressUpdate(currentLabel);
@@ -71,8 +71,12 @@ function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {
   return severityLevel[severity];
 }
 
-function parseSecurityResults(codeAnalysis: Log): Log {
+function parseSecurityResults(codeAnalysis: Log | null): Log | null {
   let securityRulesMap;
+
+  if (!codeAnalysis) {
+    return codeAnalysis;
+  }
 
   const rules = codeAnalysis.runs[0].tool.driver.rules;
   const results = codeAnalysis.runs[0].results;
