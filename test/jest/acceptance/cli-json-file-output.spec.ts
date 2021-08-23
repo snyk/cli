@@ -57,6 +57,6 @@ describe('test --json-file-output ', () => {
     );
 
     expect(code).toEqual(0);
-    expect(await project.read(outputPath)).toEqual(stdout + '\n');
+    expect(await project.read(outputPath)).toEqual(stdout);
   });
 });
