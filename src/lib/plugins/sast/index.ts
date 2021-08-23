@@ -8,7 +8,7 @@ import {
   getMeta,
 } from './format/output-format';
 import { EcosystemPlugin } from '../../ecosystems/types';
-import { FailedToRunTestError } from '../../errors/failed-to-run-test-error';
+import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
 
@@ -34,7 +34,10 @@ export const codePlugin: EcosystemPlugin = {
         options,
       );
 
-      const numOfIssues = sarifTypedResult.runs?.[0].results?.length || 0;
+      if (!sarifTypedResult) {
+        throw new NoSupportedSastFiles();
+      }
+      const numOfIssues = sarifTypedResult!.runs?.[0].results?.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
 
       if (options.sarif || options.json) {
@@ -46,7 +49,7 @@ export const codePlugin: EcosystemPlugin = {
       const meta = getMeta(options, path);
       const prefix = getPrefix(path);
       const readableResult = getCodeDisplayedOutput(
-        sarifTypedResult,
+        sarifTypedResult!,
         meta,
         prefix,
       );

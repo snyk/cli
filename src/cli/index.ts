@@ -30,6 +30,7 @@ import {
   UnsupportedOptionCombinationError,
   ExcludeFlagBadInputError,
   CustomError,
+  NoSupportedSastFiles,
 } from '../lib/errors';
 import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
@@ -50,7 +51,7 @@ const debug = Debug('snyk');
 const EXIT_CODES = {
   VULNS_FOUND: 1,
   ERROR: 2,
-  NO_SUPPORTED_MANIFESTS_FOUND: 3,
+  NO_SUPPORTED_PROJECTS_DETECTED: 3,
 };
 
 async function runCommand(args: Args) {
@@ -92,12 +93,16 @@ async function handleError(args, error) {
   spinner.clearAll();
   let command = 'bad-command';
   let exitCode = EXIT_CODES.ERROR;
+
   const noSupportedManifestsFound = error.message?.includes(
     'Could not detect supported target files in',
   );
+  const noSupportedSastFiles = error instanceof NoSupportedSastFiles;
+  const noSupportedProjectsDetected =
+    noSupportedManifestsFound || noSupportedSastFiles;
 
-  if (noSupportedManifestsFound) {
-    exitCode = EXIT_CODES.NO_SUPPORTED_MANIFESTS_FOUND;
+  if (noSupportedProjectsDetected) {
+    exitCode = EXIT_CODES.NO_SUPPORTED_PROJECTS_DETECTED;
   }
 
   const vulnsFound = error.code === 'VULNS';

@@ -23,6 +23,7 @@ test/jest/unit/iac-unit-tests/ @snyk/cloudconfig
 test/jest/acceptance/iac/ @snyk/cloudconfig
 src/lib/errors/invalid-iac-file.ts @snyk/cloudconfig
 src/lib/errors/unsupported-options-iac-error.ts @snyk/cloudconfig
+src/lib/errors/no-supported-sast-files-found.ts @snyk/sast-team
 help/commands-docs/iac-examples.md @snyk/cloudconfig
 help/commands-docs/iac.md @snyk/cloudconfig
 packages/snyk-fix/ @snyk/tech-services

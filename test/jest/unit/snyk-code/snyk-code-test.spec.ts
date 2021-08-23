@@ -92,6 +92,34 @@ describe('Test snyk code', () => {
     );
   });
 
+  it('should fail - when we do not support files ', async () => {
+    const options: Options & TestOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+    };
+
+    analyzeFoldersMock.mockResolvedValue(null);
+    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
+      ok: true,
+    });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    expect.hasAssertions();
+    try {
+      await ecosystems.testEcosystem('code', ['some/path'], options);
+    } catch (error) {
+      const errMessage = stripAscii(stripAnsi(error.message.trim()));
+
+      expect(error.code).toBe(422);
+      expect(errMessage).toContain('We found 0 supported files');
+    }
+  });
+
   it('succeed testing - with correct exit code', async () => {
     const options: Options & TestOptions = {
       path: '',
@@ -167,6 +195,7 @@ describe('Test snyk code', () => {
       expect(error).toEqual(expected);
     }
   });
+
   it('should throw error correctly from outside of ecosystem flow when response code is not 200', async () => {
     const error = { code: 401, message: 'Invalid auth token' };
     isSastEnabledForOrgSpy.mockRejectedValue(error);
