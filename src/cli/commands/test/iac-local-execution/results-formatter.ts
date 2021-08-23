@@ -9,7 +9,7 @@ import {
 } from './types';
 import { parsePath } from './parsers/path';
 import * as path from 'path';
-import { SEVERITY } from '../../../../lib/snyk-test/common';
+import { SEVERITY, SEVERITIES } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';
 import { extractLineNumber, getFileTypeForParser } from './extract-line-number';
@@ -17,7 +17,7 @@ import { getErrorStringCode } from './error-utils';
 import { isLocalFolder } from '../../../../lib/detect';
 import { MapsDocIdToTree, getTrees } from '@snyk/cloud-config-parser';
 
-const SEVERITIES = [SEVERITY.LOW, SEVERITY.MEDIUM, SEVERITY.HIGH];
+const severitiesArray = SEVERITIES.map((s) => s.verboseName);
 
 export function formatScanResults(
   scanResults: IacFileScanResult[],
@@ -165,8 +165,8 @@ export function filterPoliciesBySeverity(
     });
   }
 
-  const severitiesToInclude = SEVERITIES.slice(
-    SEVERITIES.indexOf(severityThreshold),
+  const severitiesToInclude = severitiesArray.slice(
+    severitiesArray.indexOf(severityThreshold),
   );
   return violatedPolicies.filter((policy) => {
     return (

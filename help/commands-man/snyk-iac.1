@@ -26,8 +26,8 @@ Example: \fB\-\-detection\-depth=3\fR
 .br
 Will limit search to provided directory (or current directory if no \fIPATH\fR provided) plus two levels of subdirectories\.
 .TP
-\fB\-\-severity\-threshold\fR=low|medium|high
-Only report vulnerabilities of provided level or higher\.
+\fB\-\-severity\-threshold\fR=low|medium|high|critical
+Only report configuration issues with the provided severity level or higher\. Please note that the Snyk Infrastructure as Code configuration issues do not currently use the \fBcritical\fR severity level\.
 .TP
 \fB\-\-ignore\-policy\fR
 Ignores all set policies\. The current policy in \fB\.snyk\fR file, Org level ignores and the project policy on snyk\.io\.
