@@ -319,7 +319,7 @@ async function main() {
   if (!globalArgs.options.json) {
     const alertsMessage = alerts.displayAlerts();
     if (alertsMessage) {
-      console.log(alertsMessage);
+      console.warn(alertsMessage);
     }
   }
 
