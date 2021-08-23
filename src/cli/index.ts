@@ -317,7 +317,10 @@ async function main() {
   }
 
   if (!globalArgs.options.json) {
-    console.log(alerts.displayAlerts());
+    const alertsMessage = alerts.displayAlerts();
+    if (alertsMessage) {
+      console.log(alertsMessage);
+    }
   }
 
   if (!process.env.TAP && failed) {
