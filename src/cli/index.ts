@@ -322,7 +322,10 @@ async function main() {
   }
 
   if (!globalArgs.options.json) {
-    console.log(alerts.displayAlerts());
+    const alertsMessage = alerts.displayAlerts();
+    if (alertsMessage) {
+      console.warn(alertsMessage);
+    }
   }
 
   if (!process.env.TAP && failed) {

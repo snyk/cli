@@ -24,7 +24,7 @@ test('patch is applied to vulnerable dependency', async () => {
   expect(await runSnykCLI('protect', { cwd: project.path() })).toEqual(
     expect.objectContaining<RunCommandResult>({
       code: 0,
-      stdout: 'Successfully applied Snyk patches',
+      stdout: 'Successfully applied Snyk patches\n',
       stderr: expect.any(String),
     }),
   );

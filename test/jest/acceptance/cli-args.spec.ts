@@ -108,7 +108,7 @@ test('test --file=blah --scan-all-unmanaged', async () => {
     const { code, stdout } = await runSnykCLI(
       `test --${arg} --yarn-workspaces`,
     );
-    expect(stdout).toEqual(
+    expect(stdout).toMatch(
       `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
     );
     expect(code).toEqual(2);
@@ -118,7 +118,7 @@ test('test --file=blah --scan-all-unmanaged', async () => {
     const { code, stdout } = await runSnykCLI(
       `monitor --${arg} --yarn-workspaces`,
     );
-    expect(stdout).toEqual(
+    expect(stdout).toMatch(
       `The following option combination is not currently supported: ${arg} + yarn-workspaces`,
     );
     expect(code).toEqual(2);
@@ -135,7 +135,7 @@ test('test --file=blah --scan-all-unmanaged', async () => {
 ].forEach((arg) => {
   test(`test using --${arg} and --all-projects displays error message`, async () => {
     const { code, stdout } = await runSnykCLI(`test --${arg} --all-projects`);
-    expect(stdout).toEqual(
+    expect(stdout).toMatch(
       `The following option combination is not currently supported: ${arg} + all-projects`,
     );
     expect(code).toEqual(2);
@@ -145,7 +145,7 @@ test('test --file=blah --scan-all-unmanaged', async () => {
     const { code, stdout } = await runSnykCLI(
       `monitor --${arg} --all-projects`,
     );
-    expect(stdout).toEqual(
+    expect(stdout).toMatch(
       `The following option combination is not currently supported: ${arg} + all-projects`,
     );
     expect(code).toEqual(2);
@@ -154,7 +154,7 @@ test('test --file=blah --scan-all-unmanaged', async () => {
 
 test('test --exclude without --all-project displays error message', async () => {
   const { code, stdout } = await runSnykCLI(`test --exclude=test`);
-  expect(stdout).toEqual(
+  expect(stdout).toMatch(
     'The --exclude option can only be use in combination with --all-projects or --yarn-workspaces.',
   );
   expect(code).toEqual(2);
@@ -162,7 +162,7 @@ test('test --exclude without --all-project displays error message', async () => 
 
 test('test --exclude without any value displays error message', async () => {
   const { code, stdout } = await runSnykCLI(`test --all-projects --exclude`);
-  expect(stdout).toEqual(
+  expect(stdout).toMatch(
     'Empty --exclude argument. Did you mean --exclude=subdirectory ?',
   );
   expect(code).toEqual(2);
@@ -174,7 +174,7 @@ test('test --exclude=path/to/dir displays error message', async () => {
     `test --all-projects --exclude=${exclude}`,
   );
 
-  expect(stdout).toEqual(
+  expect(stdout).toMatch(
     'The --exclude argument must be a comma separated list of directory or file names and cannot contain a path.',
   );
   expect(code).toEqual(2);
@@ -212,7 +212,7 @@ const optionsToTest = [
 optionsToTest.forEach((option) => {
   test('test --json-file-output no value produces error message', async () => {
     const { code, stdout } = await runSnykCLI(`test ${option}`);
-    expect(stdout).toEqual(
+    expect(stdout).toMatch(
       'Empty --json-file-output argument. Did you mean --file=path/to/output-file.json ?',
     );
     expect(code).toEqual(2);
@@ -231,7 +231,7 @@ test('iac test with flags not allowed with --sarif', async () => {
 
 test('iac container with flags not allowed with --sarif', async () => {
   const { code, stdout } = await runSnykCLI(`test container --sarif --json`);
-  expect(stdout).toEqual(
+  expect(stdout).toMatch(
     new UnsupportedOptionCombinationError(['test', 'sarif', 'json'])
       .userMessage,
   );
@@ -247,7 +247,7 @@ test('iac container with flags not allowed with --sarif', async () => {
 ].forEach((option) => {
   test('test --sarif-file-output no value produces error message', async () => {
     const { code, stdout } = await runSnykCLI(`test ${option}`);
-    expect(stdout).toEqual(
+    expect(stdout).toMatch(
       'Empty --sarif-file-output argument. Did you mean --file=path/to/output-file.json ?',
     );
     expect(code).toEqual(2);
