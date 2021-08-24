@@ -2,7 +2,6 @@
   "name": "snyk",
   "version": "1.0.0-monorepo",
   "description": "snyk library and cli utility",
-  "main": "dist/lib/index.js",
   "files": [
     "help",
     "dist",
