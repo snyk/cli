@@ -16,15 +16,20 @@ const debug = debugLib('snyk-fix:python:extract-version-provenance');
 
 export async function extractProvenance(
   workspace: Workspace,
+  rootDir: string,
   dir: string,
   fileName: string,
   provenance: PythonProvenance = {},
 ): Promise<PythonProvenance> {
   const requirementsFileName = path.join(dir, fileName);
   const requirementsTxt = await workspace.readFile(requirementsFileName);
+  // keep all provenance paths with `/` as a separator
+  const relativeTargetFileName = path
+    .normalize(path.relative(rootDir, requirementsFileName))
+    .replace(path.sep, '/');
   provenance = {
     ...provenance,
-    [fileName]: parseRequirementsFile(requirementsTxt),
+    [relativeTargetFileName]: parseRequirementsFile(requirementsTxt),
   };
   const { containsRequire, matches } = await containsRequireDirective(
     requirementsTxt,
@@ -37,12 +42,17 @@ export async function extractProvenance(
         continue;
       }
 
+      const { dir: requireDir, base } = path.parse(
+        path.join(dir, requiredFilePath),
+      );
+
       provenance = {
         ...provenance,
         ...(await extractProvenance(
           workspace,
-          dir,
-          requiredFilePath,
+          rootDir,
+          requireDir,
+          base,
           provenance,
         )),
       };
