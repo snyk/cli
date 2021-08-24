@@ -205,7 +205,7 @@ export const AllProjectsTests: AcceptanceTests = {
         'all left requests are feature flag requests',
       );
       t.equal(
-        params.server._reqLog.length,
+        params.server.requests.length,
         0,
         'no other requests sent (yarn error ignored)',
       );
@@ -409,9 +409,9 @@ export const AllProjectsTests: AcceptanceTests = {
         );
         t.equal(requests.length, 9, 'sends expected # requests'); // extra feature-flags request
         t.equal(
-          params.server._reqLog.length,
+          params.server.requests.length,
           0,
-          `${params.server._reqLog.length} pending requests`,
+          `${params.server.requests.length} pending requests`,
         );
 
         const jsonResponse = JSON.parse(response);
