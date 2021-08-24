@@ -173,9 +173,7 @@ jobs:
       - run: sudo apt-get install python-pip
       - attach_workspace:
           at: ~/snyk
-      - run:
-          name: Run tests
-          command: npm run test:common
+      - run: npm run lint
       - run:
           name: npm install for fixture project
           working_directory: ~/snyk/test/fixtures/basic-npm
