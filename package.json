@@ -57,9 +57,7 @@
     "test:packages-unit": "jest \"/packages/(.+)/test/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:packages-acceptance": "jest \"/packages/(.+)/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:test": "tap test/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
-    "test:smoke": "./scripts/run-smoke-tests-locally.sh",
-    "snyk-auth": "node dist/cli auth $SNYK_API_KEY",
-    "snyk-auth-windows": "bash ./scripts/auth-snyk-win.sh"
+    "test:smoke": "./scripts/run-smoke-tests-locally.sh"
   },
   "keywords": [
     "security",
