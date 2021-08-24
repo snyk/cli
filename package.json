@@ -30,7 +30,7 @@
     "packages/*"
   ],
   "scripts": {
-    "clean": "rimraf dist tsconfig.tsbuildinfo pysrc",
+    "clean": "npx rimraf node_modules dist binary-releases test-results *.tgz tsconfig.tsbuildinfo .eslintcache pysrc packages/*/node_modules packages/*/dist packages/*/tsconfig.tsbuildinfo packages/*/*.tgz",
     "build": "npm run build:dev",
     "build-watch": "tsc -w",
     "find-circular": "npm run build && madge --circular ./dist",
