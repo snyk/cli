@@ -59,8 +59,10 @@
     "check-tests": "! grep 'test\\.only' test/*.test.js -n",
     "snyk-auth": "node dist/cli auth $SNYK_API_KEY",
     "snyk-auth-windows": "bash ./scripts/auth-snyk-win.sh",
-    "build:dev": "lerna run build --ignore snyk && node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.dev.js",
-    "build:prod": "lerna run build --ignore snyk && node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.prod.js",
+    "build-cli:dev": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.dev.js",
+    "build-cli:prod": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.prod.js",
+    "build:dev": "lerna run build --ignore snyk && npm run build-cli:dev",
+    "build:prod": "lerna run build --ignore snyk && npm run build-cli:prod",
     "watch": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --watch --config webpack.dev.js"
   },
   "keywords": [
