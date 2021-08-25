@@ -4,7 +4,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
 
-describe('test using OAuth token', () => {
+describe('OAuth Token', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
@@ -29,7 +29,7 @@ describe('test using OAuth token', () => {
     server.close(() => done());
   });
 
-  it('successfully tests a project with an OAuth env variable set', async () => {
+  it('uses oauth token when testing projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const jsonObj = JSON.parse(await project.read('vulns-result.json'));
     server.setNextResponse(jsonObj);
@@ -45,7 +45,7 @@ describe('test using OAuth token', () => {
     expect(requests[0].method).toBe('POST');
   });
 
-  it('successfully monitors a project with an OAuth env variable set', async () => {
+  it('uses oauth token when monitoring projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const jsonObj = JSON.parse(await project.read('vulns-result.json'));
     server.setNextResponse(jsonObj);
