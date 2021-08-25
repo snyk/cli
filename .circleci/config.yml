@@ -78,7 +78,7 @@ commands:
     steps:
       - run:
           name: Installing JDK
-          command: sdk install java $(sdk list java | grep -o -m1 "11\.[0-9\.]\+hs-adpt")
+          command: sdk install java 11.0.11.hs-adpt
   install_gradle_linux:
     description: Install gradle
     steps:
