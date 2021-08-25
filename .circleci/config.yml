@@ -1,8 +1,8 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.2.0
-  aws-cli: circleci/aws-cli@1.4.0
+  win: circleci/windows@2.4.1
+  aws-cli: circleci/aws-cli@2.0.3
 
 defaults: &defaults
   parameters:
