@@ -58,7 +58,8 @@ if (danger.github && danger.github.pr) {
     const inTestFolder = f.startsWith('test/');
     const isATestFile = f.includes('.test.ts') || f.includes('.spec.ts');
     const inJestFolder = f.startsWith('test/jest/');
-    return inTestFolder && isATestFile && !inJestFolder;
+    const inFixturesFolder = f.startsWith('test/fixtures/');
+    return inTestFolder && isATestFile && !inJestFolder && !inFixturesFolder;
   });
 
   if (newTestFiles.length) {
