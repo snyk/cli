@@ -26,12 +26,6 @@ defaults: &defaults
       default: false
   working_directory: ~/snyk
 
-windows_defaults: &windows_defaults
-  environment:
-    npm_config_loglevel: silent
-  executor:
-    name: win/default
-
 commands:
   install_deps:
     description: Install dependencies
@@ -189,7 +183,7 @@ jobs:
             shellspec -f d -e REGRESSION_TEST=1
   test-windows:
     <<: *defaults
-    <<: *windows_defaults
+    executor: win/default
     steps:
       - run: git config --global core.autocrlf false
       - install_gradle_windows
