@@ -3,6 +3,7 @@ version: 2.1
 orbs:
   win: circleci/windows@2.4.1
   aws-cli: circleci/aws-cli@2.0.3
+  gh: circleci/github-cli@1.0.4
 
 defaults: &defaults
   parameters:
@@ -115,20 +116,6 @@ commands:
       - run: curl -fsSL https://git.io/shellspec | sh -s -- -y
       - run: sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
       - run: sudo apt-get install jq
-  install_github_cli:
-    description: Install GitHub CLI (gh)
-    steps:
-      - run:
-          name: Install GitHub CLI (gh)
-          command: |
-            mkdir gh-download
-            curl -Lo ./gh-download/gh_1.3.1_linux_amd64.tar.gz https://github.com/cli/cli/releases/download/v1.3.1/gh_1.3.1_linux_amd64.tar.gz
-            tar -xf ./gh-download/gh_1.3.1_linux_amd64.tar.gz --directory gh-download
-            chmod a+x gh-download/gh_1.3.1_linux_amd64/bin/gh
-            mkdir -p /home/circleci/bin
-            mv gh-download/gh_1.3.1_linux_amd64/bin/gh /home/circleci/bin
-            which gh
-            gh --version
 
 jobs:
   build:
@@ -362,7 +349,8 @@ jobs:
       - run:
           name: Should I release?
           command: ./release-scripts/should-i-release.sh
-      - install_github_cli
+      - gh/setup:
+          version: 1.9.2
       - aws-cli/install
       - run: sudo npm install -g npm@7.21.0
       - run:
