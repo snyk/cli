@@ -98,4 +98,10 @@ if (danger.github && danger.github.pr) {
       "You've modified help files in /help/commands-docs. You need to regenerate manpages locally by running `npm run generate-help` and commiting the changed files. See [README in /help for more details](https://github.com/snyk/snyk/blob/master/help/README.md)",
     );
   }
+  const modifiedPackageJson = danger.git.modified_files.some(
+    (f) => f === 'package.json',
+  );
+  if (modifiedPackageJson) {
+    fail('Package json has been changed');
+  }
 }
