@@ -173,9 +173,7 @@ jobs:
       - run: sudo apt-get install python-pip
       - attach_workspace:
           at: ~/snyk
-      - run:
-          name: Run tests
-          command: npm run test:common
+      - run: npm run lint
       - run:
           name: npm install for fixture project
           working_directory: ~/snyk/test/fixtures/basic-npm
@@ -221,9 +219,8 @@ jobs:
           name: Update local .npmrc file (Windows)
           command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
       - run:
-          name: Run auth
-          shell: bash.exe
-          command: npm run snyk-auth-windows
+          name: Add Snyk Token to Snyk Config
+          command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
       - when:
           condition: << parameters.package_tests >>
           steps:
@@ -289,8 +286,8 @@ jobs:
       - update_local_npmrc_linux
       - install_deps
       - run:
-          name: Run auth
-          command: npm run snyk-auth
+          name: Add Snyk Token to Snyk Config
+          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
       - when:
           condition: << parameters.package_tests >>
           steps:
