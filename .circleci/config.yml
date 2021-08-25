@@ -55,15 +55,15 @@ commands:
   install_gradle_windows:
     description: Install gradle
     steps:
-      - run: choco install gradle --version 6.4.1
+      - run: choco install gradle --version 6.8.3
   install_maven_windows:
     description: Install maven
     steps:
-      - run: choco install maven --version 3.6.3
+      - run: choco install maven --version 3.8.2
   install_sbt_windows:
     description: Install SBT
     steps:
-      - run: choco install sbt --version 1.3.12
+      - run: choco install sbt --version 1.5.5
   install_sdkman_linux:
     description: Install SDKMAN
     steps:
@@ -84,19 +84,19 @@ commands:
     steps:
       - run:
           name: Installing Gradle
-          command: sdk install gradle 6.4.1
+          command: sdk install gradle 6.8.3
   install_maven_linux:
     description: Install maven
     steps:
       - run:
           name: Installing maven
-          command: sdk install maven 3.6.3
+          command: sdk install maven 3.8.2
   install_sbt_linux:
     description: Install SBT
     steps:
       - run:
           name: Installing sbt
-          command: sdk install sbt 1.3.12
+          command: sdk install sbt 1.5.5
   install_node_windows:
     description: Install the given Node version on Windows using Chocolatey
     parameters:
