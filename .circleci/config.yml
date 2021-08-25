@@ -351,7 +351,8 @@ jobs:
           command: ./release-scripts/should-i-release.sh
       - gh/setup:
           version: 1.9.2
-      - aws-cli/install
+      - aws-cli/install:
+          version: 2.2.32
       - run: sudo npm install -g npm@7.21.0
       - run:
           name: Install osslsigncode
