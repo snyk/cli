@@ -18,15 +18,15 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       await params.cli.monitor('mono-repo-with-ignores', {
         allProjects: true,
         detectionDepth: 2,
       });
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(4)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       let policyCount = 0;
       requests.forEach((req) => {
         const vulnerableFolderPath =
@@ -49,6 +49,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
 
       // mock python plugin becuase CI tooling doesn't have pipenv installed
@@ -92,10 +93,9 @@ export const AllProjectsTests: AcceptanceTests = {
       t.match(result, 'pip/some/project-id', 'python project in output ');
       t.match(result, 'sbt/graph/some/project-id', 'sbt project in output ');
 
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(9)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       t.equal(requests.length, 7, 'correct amount of monitor requests');
 
       const pluginsWithoutTargetFileInBody = [
@@ -134,6 +134,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
@@ -154,8 +155,10 @@ export const AllProjectsTests: AcceptanceTests = {
       );
       t.match(result, 'maven/some/project-id', 'maven project was monitored ');
 
-      const requests = params.server.popRequests(2);
-
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
+      t.equal(requests.length, 2, 'expected two monitor requests');
       requests.forEach((request) => {
         t.match(request.url, '/api/v1/monitor/maven', 'puts at correct url');
         t.notOk(request.body.targetFile, "doesn't send the targetFile");
@@ -170,6 +173,7 @@ export const AllProjectsTests: AcceptanceTests = {
     '`monitor monorepo-bad-project --all-projects`': (params, utils) => async (
       t,
     ) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
@@ -197,13 +201,7 @@ export const AllProjectsTests: AcceptanceTests = {
       );
 
       const request = params.server.popRequest();
-      const ffRequests = params.server.popRequests(2);
 
-      t.equal(
-        ffRequests.every((req) => req.url.includes('experimentalDepGraph')),
-        true,
-        'all left requests are feature flag requests',
-      );
       t.equal(
         params.server.requests.length,
         0,
@@ -226,6 +224,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
 
       // mock python plugin becuase CI tooling doesn't have pipenv installed
@@ -250,10 +249,9 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 1,
       });
 
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(9)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       // find each type of request
       const rubyAll = requests.find((req) => req.url.indexOf('rubygems') > -1);
       const pipAll = requests.find((req) => req.url.indexOf('pip') > -1);
@@ -347,6 +345,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
@@ -372,6 +371,7 @@ export const AllProjectsTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       try {
+        params.server.clearRequests();
         utils.chdirWorkspaces();
 
         // mock python plugin becuase CI tooling doesn't have pipenv installed
@@ -400,13 +400,7 @@ export const AllProjectsTests: AcceptanceTests = {
         });
 
         const requests = params.server.popRequests(9);
-        const ffRequests = params.server.popRequests(4);
 
-        t.equal(
-          ffRequests.every((req) => req.url.includes('experimentalDepGraph')),
-          true,
-          'all left requests are feature flag requests',
-        );
         t.equal(requests.length, 9, 'sends expected # requests'); // extra feature-flags request
         t.equal(
           params.server.requests.length,
@@ -448,6 +442,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
@@ -481,6 +476,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
 
       // mock go plugin becuase CI tooling doesn't have go installed
@@ -585,6 +581,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       // mock plugin becuase CI tooling doesn't have go installed
       const mockPlugin = {
@@ -620,6 +617,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       // mock plugin becuase CI tooling doesn't have go installed
       const mockPlugin = {
@@ -655,6 +653,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       // mock plugin becuase CI tooling doesn't have go installed
       const mockPlugin = {
@@ -691,6 +690,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       // mock plugin becuase CI tooling doesn't have go installed
       const mockPlugin = {
@@ -745,6 +745,7 @@ export const AllProjectsTests: AcceptanceTests = {
     '`monitor gradle-monorepo with --all-projects`': (params, utils) => async (
       t,
     ) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       const simpleGradleGraph = depGraphLib.createFromJSON({
         schemaVersion: '1.2.0',
@@ -846,6 +847,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       const simpleGradleGraph = depGraphLib.createFromJSON({
         schemaVersion: '1.2.0',
@@ -949,6 +951,7 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
+      params.server.clearRequests();
       utils.chdirWorkspaces();
       const result = await params.cli.monitor('mono-repo-poetry', {
         allProjects: true,

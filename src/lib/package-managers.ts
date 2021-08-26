@@ -79,13 +79,6 @@ export const PROTECT_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
   'yarn',
   'npm',
 ];
-export const GRAPH_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
-  'npm',
-  'sbt',
-  'yarn',
-  'rubygems',
-  'poetry',
-];
 // For ecosystems with a flat set of libraries (e.g. Python, JVM), one can
 // "pin" a transitive dependency
 export const PINNING_SUPPORTED_PACKAGE_MANAGERS: SupportedPackageManagers[] = [
