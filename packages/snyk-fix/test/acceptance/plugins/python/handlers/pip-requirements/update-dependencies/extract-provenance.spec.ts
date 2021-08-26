@@ -21,7 +21,7 @@ describe('extractProvenance', () => {
     const { dir, base } = pathLib.parse(targetFile);
 
     // Act
-    const result = await extractProvenance(workspace, dir, base);
+    const result = await extractProvenance(workspace, dir, dir, base);
     // Assert
     const baseTxt = fs.readFileSync(
       pathLib.resolve(workspacesPath, 'with-require/base.txt'),
@@ -52,7 +52,7 @@ describe('extractProvenance', () => {
     const { dir, base } = pathLib.parse(targetFile);
 
     // Act
-    const result = await extractProvenance(workspace, dir, base);
+    const result = await extractProvenance(workspace, dir, dir, base);
     // Assert
     const baseTxt = fs.readFileSync(
       pathLib.resolve(workspacesPath, 'with-require-folder-up/base.txt'),
@@ -82,7 +82,7 @@ describe('extractProvenance', () => {
     const { dir, base } = pathLib.parse(targetFile);
 
     // Act
-    const result = await extractProvenance(workspace, dir, base);
+    const result = await extractProvenance(workspace, dir, dir, base);
     // Assert
     const baseTxt = fs.readFileSync(
       pathLib.resolve(workspacesPath, pathLib.join(folder, 'base.txt')),
@@ -108,6 +108,65 @@ describe('extractProvenance', () => {
       parseRequirementsFile(constraintsTxt),
     );
   });
+  it('can extract and parse all required files with nested -r and -c', async () => {
+    // Arrange
+    const folder = 'with-nested-requires';
+    const targetFile = pathLib.resolve(
+      workspacesPath,
+      `${folder}/requirements.txt`,
+    );
+
+    const workspace = {
+      path: workspacesPath,
+      readFile: async (path: string) => {
+        return fs.readFileSync(pathLib.resolve(workspacesPath, path), 'utf-8');
+      },
+      writeFile: async () => {
+        return;
+      },
+    };
+    const { dir, base } = pathLib.parse(targetFile);
+
+    // Act
+    const result = await extractProvenance(workspace, dir, dir, base);
+
+    // Assert
+    const prodTxt = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        pathLib.join(folder, 'requirements', 'prod.txt'),
+      ),
+      'utf-8',
+    );
+    const reqsBaseTxt = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        pathLib.join(folder, 'requirements', 'base.txt'),
+      ),
+      'utf-8',
+    );
+    const requirementsTxt = fs.readFileSync(targetFile, 'utf-8');
+    const constraintsTxt = fs.readFileSync(
+      pathLib.resolve(
+        workspacesPath,
+        pathLib.join(folder, 'requirements', 'constraints.txt'),
+      ),
+      'utf-8',
+    );
+
+    expect(result['requirements/prod.txt']).toEqual(
+      parseRequirementsFile(prodTxt),
+    );
+    expect(result['requirements.txt']).toEqual(
+      parseRequirementsFile(requirementsTxt),
+    );
+    expect(result['requirements/base.txt']).toEqual(
+      parseRequirementsFile(reqsBaseTxt),
+    );
+    expect(result['requirements/constraints.txt']).toEqual(
+      parseRequirementsFile(constraintsTxt),
+    );
+  });
 
   it('can extract and parse all required files when -r is recursive', async () => {
     // Arrange
@@ -126,7 +185,7 @@ describe('extractProvenance', () => {
     const { dir, base } = pathLib.parse(targetFile);
 
     // Act
-    const result = await extractProvenance(workspace, dir, base);
+    const result = await extractProvenance(workspace, dir, dir, base);
     // Assert
     const baseTxt = fs.readFileSync(
       pathLib.resolve(workspacesPath, `${folder}/base.txt`),
