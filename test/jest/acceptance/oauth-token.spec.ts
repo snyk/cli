@@ -15,6 +15,7 @@ describe('OAuth Token', () => {
       PATH: process.env.PATH || '',
       SNYK_API: 'http://localhost:' + apiPort + apiPath,
       SNYK_OAUTH_TOKEN: 'oauth-jwt-token',
+      SNYK_DISABLE_ANALYTICS: '1',
     };
 
     server = fakeServer(apiPath, env.SNYK_TOKEN);
@@ -40,9 +41,13 @@ describe('OAuth Token', () => {
     });
 
     expect(code).toEqual(0);
-    const requests = server.popRequests(2);
-    expect(requests[0].headers.authorization).toBe('Bearer oauth-jwt-token');
-    expect(requests[0].method).toBe('POST');
+    server.requests.forEach((r) => {
+      expect(r).toMatchObject({
+        headers: {
+          authorization: 'Bearer oauth-jwt-token',
+        },
+      });
+    });
   });
 
   it('uses oauth token when monitoring projects', async () => {
@@ -56,9 +61,13 @@ describe('OAuth Token', () => {
     });
 
     expect(code).toEqual(0);
-    const requests = server.popRequests(2);
-    expect(requests[0].headers.authorization).toBe('Bearer oauth-jwt-token');
-    expect(requests[0].method).toBe('PUT');
+    server.requests.forEach((r) => {
+      expect(r).toMatchObject({
+        headers: {
+          authorization: 'Bearer oauth-jwt-token',
+        },
+      });
+    });
   });
 
   it('uses oauth token when fetching feature flags', async () => {
