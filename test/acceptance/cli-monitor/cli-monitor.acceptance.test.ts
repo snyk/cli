@@ -16,7 +16,7 @@ const get = require('lodash.get');
 // configure our fake configuration too
 import { AllProjectsTests } from './cli-monitor.all-projects.spec';
 
-const { test, only } = tap;
+const { test, only, beforeEach } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
 
 const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
@@ -84,8 +84,16 @@ if (!isWindows) {
     t.end();
   });
 
+  beforeEach(async () => {
+    server.clearRequests();
+  });
+
   test(AllProjectsTests.language, async (t) => {
     for (const testName of Object.keys(AllProjectsTests.tests)) {
+      t.beforeEach(async () => {
+        server.clearRequests();
+      });
+
       t.test(
         testName,
         AllProjectsTests.tests[testName](
@@ -104,7 +112,6 @@ if (!isWindows) {
     chdirWorkspaces('npm-package-policy');
 
     tt.test('default policy', async (t) => {
-      server.clearRequests();
       await cli.monitor('.');
       const req = server.popRequest();
       const policyString = req.body.policy;
@@ -113,7 +120,6 @@ if (!isWindows) {
     });
 
     tt.test('custom policy path', async (t) => {
-      server.clearRequests();
       await cli.monitor('.', {
         'policy-path': 'custom-location',
         json: true,
@@ -129,7 +135,6 @@ if (!isWindows) {
   });
 
   test('`monitor non-existing --json`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     try {
       await cli.monitor('non-existing', { json: true });
@@ -144,7 +149,6 @@ if (!isWindows) {
   });
 
   test('`monitor missing container image`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     try {
       await cli.monitor({ docker: true });
@@ -160,7 +164,6 @@ if (!isWindows) {
   });
 
   test('`monitor non-existing`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     try {
       await cli.monitor('non-existing', { json: false });
@@ -173,7 +176,6 @@ if (!isWindows) {
 
   test('monitor for package with no name', async (t) => {
     t.plan(1);
-    server.clearRequests();
     await cli.monitor({
       file: __dirname + '/../../fixtures/package-sans-name/package.json',
     });
@@ -182,7 +184,6 @@ if (!isWindows) {
 
   test('monitor for package with no name in lockfile', async (t) => {
     t.plan(1);
-    server.clearRequests();
     await cli.monitor({
       file:
         __dirname +
@@ -192,7 +193,6 @@ if (!isWindows) {
   });
 
   test('`monitor npm-package`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     await cli.monitor('npm-package');
     const req = server.popRequest();
@@ -221,7 +221,6 @@ if (!isWindows) {
   });
 
   test('`monitor npm-out-of-sync graph monitor`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     await cli.monitor('npm-out-of-sync-graph', {
       strictOutOfSync: false,
@@ -241,7 +240,6 @@ if (!isWindows) {
   });
 
   test('`monitor gradle --prune-repeated-subdependencies`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
 
     const fixturePath = path.join(
@@ -287,7 +285,6 @@ if (!isWindows) {
   });
 
   test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
 
     await cli.monitor('npm-package-pruneable', {
@@ -319,7 +316,6 @@ if (!isWindows) {
   });
 
   test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
 
     await cli.monitor('npm-package-pruneable', {
@@ -332,7 +328,6 @@ if (!isWindows) {
   });
 
   test('`monitor npm-package-pruneable`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
 
     await cli.monitor('npm-package-pruneable');
@@ -343,7 +338,6 @@ if (!isWindows) {
   });
 
   test('`monitor npm-package-pruneable experimental for no-flag org`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     await cli.monitor('npm-package-pruneable', {
       org: 'no-flag',
@@ -357,7 +351,6 @@ if (!isWindows) {
   });
 
   test('`monitor sbt package --sbt-graph`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
 
     const plugin = {
@@ -401,7 +394,6 @@ if (!isWindows) {
   });
 
   test('`monitor yarn-package`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     await cli.monitor('yarn-package');
     const req = server.popRequest();
@@ -443,7 +435,6 @@ if (!isWindows) {
   });
 
   test('`monitor yarn v2 project`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
 
     await cli.monitor('yarn-v2');
@@ -482,7 +473,6 @@ if (!isWindows) {
   });
 
   test('`monitor yarn-package from within folder`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces('yarn-package');
     await cli.monitor();
     const req = server.popRequest();
@@ -524,7 +514,6 @@ if (!isWindows) {
   });
 
   test('`monitor npm-package with custom --project-name`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     await cli.monitor('npm-package', {
       'project-name': 'custom-project-name',
@@ -534,7 +523,6 @@ if (!isWindows) {
   });
 
   test('`monitor npm-package with custom --remote-repo-url`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     await cli.monitor('npm-package', {
       'remote-repo-url': 'a-fake-remote',
@@ -545,7 +533,6 @@ if (!isWindows) {
 
   test('it fails when the custom --remote-repo-url is invalid', async (t) => {
     t.plan(1);
-    server.clearRequests();
     chdirWorkspaces();
     try {
       await cli.monitor('npm-package', {
@@ -563,7 +550,6 @@ if (!isWindows) {
 
   test('`monitor npm-package with dev dep flag`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     await cli.monitor('npm-package', { dev: true });
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -585,7 +571,6 @@ if (!isWindows) {
 
   test('`monitor yarn-package with dev dep flag`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     await cli.monitor('yarn-package', { dev: true });
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -609,7 +594,6 @@ if (!isWindows) {
 
   test('`monitor yarn-workspaces with --yarn-workspaces flag`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const res = await cli.monitor('yarn-workspaces', {
       yarnWorkspaces: true,
       detectionDepth: 4,
@@ -642,7 +626,6 @@ if (!isWindows) {
 
   test('`monitor yarn-workspaces without --yarn-workspaces flag`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const res = await cli.monitor('yarn-workspaces');
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -664,7 +647,6 @@ if (!isWindows) {
 
   test('`monitor ruby-app`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     await cli.monitor('ruby-app');
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -681,7 +663,6 @@ if (!isWindows) {
 
   test('`monitor maven-app`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     stubExec(t, 'maven-app/mvn-dep-tree-stdout.txt');
     await cli.monitor('maven-app', { file: 'pom.xml', dev: true });
     const req = server.popRequest();
@@ -706,7 +687,6 @@ if (!isWindows) {
 
   test('`monitor maven-multi-app`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     stubExec(t, 'maven-multi-app/mvn-dep-tree-stdout.txt');
     await cli.monitor('maven-multi-app', { file: 'pom.xml' });
     const req = server.popRequest();
@@ -732,7 +712,6 @@ if (!isWindows) {
 
   test('`monitor maven-app-with-jars --file=example.jar` sends package info', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const plugin = {
       async inspect() {
         return {
@@ -761,7 +740,6 @@ if (!isWindows) {
 
   test('`monitor maven-app-with-jars --file=example.war` sends package info', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const plugin = {
       async inspect() {
         return {
@@ -790,7 +768,6 @@ if (!isWindows) {
 
   test('`monitor maven-app-with-jars --scan-all-unmanaged` sends package info', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const plugin = {
       async inspect() {
         return {
@@ -817,7 +794,6 @@ if (!isWindows) {
 
   test('`monitor maven --reachable-vulns` sends call graph', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const callGraphPayload = require('../fixtures/call-graphs/maven.json');
     const callGraph = createCallGraph(callGraphPayload);
     const plugin = {
@@ -849,7 +825,6 @@ if (!isWindows) {
 
   test('`monitor yarn-app`', async (t) => {
     chdirWorkspaces('yarn-app');
-    server.clearRequests();
     await cli.monitor();
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -869,7 +844,6 @@ if (!isWindows) {
 
   test('`monitor pip-app with dep-graph`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
 
     const depGraphBuilder = new DepGraphBuilder(
       { name: 'pip' },
@@ -941,7 +915,6 @@ if (!isWindows) {
 
   test('`monitor poetry-app`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     await cli.monitor('poetry-app');
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
@@ -958,7 +931,6 @@ if (!isWindows) {
 
   test('`monitor pip-app --file=requirements.txt`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const plugin = {
       async inspect() {
         return {
@@ -1006,7 +978,6 @@ if (!isWindows) {
 
   test('`monitor gradle-app`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const plugin = {
       async inspect() {
         return {
@@ -1128,7 +1099,6 @@ if (!isWindows) {
 
   test('`monitor gradle-app --all-sub-projects`', async (t) => {
     chdirWorkspaces();
-    server.clearRequests();
     const plugin = {
       async inspect() {
         return {
@@ -1188,7 +1158,6 @@ if (!isWindows) {
 
   test('`monitor gradle-app pip-app --all-sub-projects`', async (t) => {
     t.plan(9);
-    server.clearRequests();
     chdirWorkspaces();
     const plugin = {
       async inspect() {
@@ -1258,7 +1227,6 @@ if (!isWindows) {
 
   test('`monitor gradle-app --all-sub-projects --project-name`', async (t) => {
     t.plan(2);
-    server.clearRequests();
     chdirWorkspaces();
     const plugin = {
       async inspect() {
@@ -1286,7 +1254,6 @@ if (!isWindows) {
   });
 
   test('`monitor golang-gomodules --file=go.mod', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     const plugin = {
       async inspect() {
@@ -1336,7 +1303,6 @@ if (!isWindows) {
   });
 
   test('`monitor golang-app --file=Gopkg.lock', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     const plugin = {
       async inspect() {
@@ -1385,7 +1351,6 @@ if (!isWindows) {
   });
 
   test('`monitor golang-app --file=vendor/vendor.json`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     const plugin = {
       async inspect() {
@@ -1434,7 +1399,6 @@ if (!isWindows) {
   });
 
   test('`monitor cocoapods-app (autodetect)`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces('cocoapods-app');
     const plugin = {
       async inspect() {
@@ -1481,7 +1445,6 @@ if (!isWindows) {
   });
 
   test('`monitor cocoapods-app --file=Podfile`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces('cocoapods-app');
     const plugin = {
       async inspect() {
@@ -1530,14 +1493,12 @@ if (!isWindows) {
   });
 
   test('`monitor large-mono-repo --file=bundler-app/Gemfile` suggest to use --all-projects', async (t) => {
-    server.clearRequests();
     chdirWorkspaces('large-mono-repo');
     const res = await cli.monitor({ file: 'bundler-app/Gemfile' });
     t.match(res, '--all-projects', 'Suggest using --all-projects');
   });
 
   test('`monitor cocoapods-app --file=Podfile.lock`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces('cocoapods-app');
     const plugin = {
       async inspect() {
@@ -1586,7 +1547,6 @@ if (!isWindows) {
   });
 
   test('`monitor composer-app ruby-app` works on multiple params', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     let results = await cli.monitor('composer-app', 'ruby-app', { json: true });
     results = JSON.parse(results);
@@ -1616,7 +1576,6 @@ if (!isWindows) {
   });
 
   test('`monitor elixir-hex --file=mix.exs`', async (t) => {
-    server.clearRequests();
     chdirWorkspaces();
     const plugin = {
       async inspect() {
@@ -1680,7 +1639,6 @@ if (!isWindows) {
   });
 
   test('`monitor foo:latest --docker`', async (t) => {
-    server.clearRequests();
     const spyPlugin = stubDockerPluginResponse(
       {
         scanResults: [
@@ -1740,7 +1698,6 @@ if (!isWindows) {
   });
 
   test('`monitor foo:latest --docker --file=Dockerfile`', async (t) => {
-    server.clearRequests();
     const spyPlugin = stubDockerPluginResponse(
       {
         scanResults: [
@@ -1809,7 +1766,6 @@ if (!isWindows) {
   });
 
   test('`monitor foo:latest --docker` doesnt send policy from cwd', async (t) => {
-    server.clearRequests();
     chdirWorkspaces('npm-package-policy');
     stubDockerPluginResponse(
       {
@@ -1837,7 +1793,6 @@ if (!isWindows) {
   });
 
   test('`monitor foo:latest --docker` with custom policy path', async (t) => {
-    server.clearRequests();
     chdirWorkspaces('npm-package-policy');
     const spyPlugin = stubDockerPluginResponse(
       {
@@ -1883,7 +1838,6 @@ if (!isWindows) {
   });
 
   test('`monitor foo:latest --docker --platform=linux/arm64`', async (t) => {
-    server.clearRequests();
     const platform = 'linux/arm64';
     const spyPlugin = stubDockerPluginResponse(
       {
@@ -1939,7 +1893,6 @@ if (!isWindows) {
   });
 
   test('`monitor foo:latest --docker --org=fake-org`', async (t) => {
-    server.clearRequests();
     stubDockerPluginResponse(
       {
         scanResults: [
@@ -1972,7 +1925,6 @@ if (!isWindows) {
   });
 
   test('`monitor doesnotexist --docker`', async (t) => {
-    server.clearRequests();
     try {
       await cli.monitor('doesnotexist', {
         docker: true,
@@ -1990,7 +1942,6 @@ if (!isWindows) {
   });
 
   test('monitor --json multiple folders', async (t) => {
-    server.clearRequests();
     chdirWorkspaces('fail-on');
 
     const noFixableResult = getWorkspaceJSON(

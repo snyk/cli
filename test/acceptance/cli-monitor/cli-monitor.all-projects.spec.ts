@@ -18,7 +18,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       await params.cli.monitor('mono-repo-with-ignores', {
         allProjects: true,
@@ -49,7 +48,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
 
       // mock python plugin becuase CI tooling doesn't have pipenv installed
@@ -134,7 +132,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
@@ -173,7 +170,6 @@ export const AllProjectsTests: AcceptanceTests = {
     '`monitor monorepo-bad-project --all-projects`': (params, utils) => async (
       t,
     ) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
@@ -224,7 +220,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
 
       // mock python plugin becuase CI tooling doesn't have pipenv installed
@@ -345,7 +340,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
@@ -371,7 +365,6 @@ export const AllProjectsTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       try {
-        params.server.clearRequests();
         utils.chdirWorkspaces();
 
         // mock python plugin becuase CI tooling doesn't have pipenv installed
@@ -442,7 +435,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       const spyPlugin = sinon.spy(params.plugins, 'loadPlugin');
       t.teardown(spyPlugin.restore);
@@ -476,7 +468,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
 
       // mock go plugin becuase CI tooling doesn't have go installed
@@ -581,7 +572,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       // mock plugin becuase CI tooling doesn't have go installed
       const mockPlugin = {
@@ -617,7 +607,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       // mock plugin becuase CI tooling doesn't have go installed
       const mockPlugin = {
@@ -653,7 +642,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       // mock plugin becuase CI tooling doesn't have go installed
       const mockPlugin = {
@@ -690,7 +678,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       // mock plugin becuase CI tooling doesn't have go installed
       const mockPlugin = {
@@ -745,7 +732,6 @@ export const AllProjectsTests: AcceptanceTests = {
     '`monitor gradle-monorepo with --all-projects`': (params, utils) => async (
       t,
     ) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       const simpleGradleGraph = depGraphLib.createFromJSON({
         schemaVersion: '1.2.0',
@@ -847,7 +833,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       const simpleGradleGraph = depGraphLib.createFromJSON({
         schemaVersion: '1.2.0',
@@ -951,7 +936,6 @@ export const AllProjectsTests: AcceptanceTests = {
       params,
       utils,
     ) => async (t) => {
-      params.server.clearRequests();
       utils.chdirWorkspaces();
       const result = await params.cli.monitor('mono-repo-poetry', {
         allProjects: true,
