@@ -1,7 +1,7 @@
 import * as restify from 'restify';
 
 interface FakeServer extends restify.Server {
-  _reqLog: restify.Request[];
+  requests: restify.Request[];
   _nextResponse?: restify.Response;
   _nextStatusCode?: number;
   popRequest: () => restify.Request;
@@ -16,21 +16,21 @@ export function fakeServer(root, apikey) {
     name: 'snyk-mock-server',
     version: '1.0.0',
   }) as FakeServer;
-  server._reqLog = [];
+  server.requests = [];
   server.popRequest = () => {
-    return server._reqLog.pop()!;
+    return server.requests.pop()!;
   };
   server.popRequests = (num: number) => {
-    return server._reqLog.splice(server._reqLog.length - num, num);
+    return server.requests.splice(server.requests.length - num, num);
   };
   server.clearRequests = () => {
-    server._reqLog = [];
+    server.requests = [];
   };
   server.use(restify.plugins.acceptParser(server.acceptable));
   server.use(restify.plugins.queryParser({ mapParams: true }));
   server.use(restify.plugins.bodyParser({ mapParams: true }));
   server.use(function logRequest(req, res, next) {
-    server._reqLog.push(req);
+    server.requests.push(req);
     next();
   });
 

@@ -4,7 +4,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
 
-describe('test using OAuth token', () => {
+describe('OAuth Token', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
@@ -12,9 +12,8 @@ describe('test using OAuth token', () => {
     const apiPath = '/api/v1';
     const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
     env = {
-      ...process.env,
+      PATH: process.env.PATH || '',
       SNYK_API: 'http://localhost:' + apiPort + apiPath,
-      SNYK_TOKEN: '123456789',
       SNYK_OAUTH_TOKEN: 'oauth-jwt-token',
     };
 
@@ -22,11 +21,15 @@ describe('test using OAuth token', () => {
     server.listen(apiPort, () => done());
   });
 
+  afterEach(() => {
+    server.clearRequests();
+  });
+
   afterAll((done) => {
     server.close(() => done());
   });
 
-  it('successfully tests a project with an OAuth env variable set', async () => {
+  it('uses oauth token when testing projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const jsonObj = JSON.parse(await project.read('vulns-result.json'));
     server.setNextResponse(jsonObj);
@@ -42,7 +45,7 @@ describe('test using OAuth token', () => {
     expect(requests[0].method).toBe('POST');
   });
 
-  it('successfully monitors a project with an OAuth env variable set', async () => {
+  it('uses oauth token when monitoring projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const jsonObj = JSON.parse(await project.read('vulns-result.json'));
     server.setNextResponse(jsonObj);
@@ -56,5 +59,29 @@ describe('test using OAuth token', () => {
     const requests = server.popRequests(2);
     expect(requests[0].headers.authorization).toBe('Bearer oauth-jwt-token');
     expect(requests[0].method).toBe('PUT');
+  });
+
+  it('uses oauth token when fetching feature flags', async () => {
+    const project = await createProjectFromWorkspace('fail-on/no-vulns');
+    const jsonObj = JSON.parse(await project.read('vulns-result.json'));
+    server.setNextResponse(jsonObj);
+
+    const expectedUrl =
+      '/api/v1/cli-config/feature-flags/experimentalDepGraph?org=test-org';
+
+    /**
+     * The --experimental-dep-graph isn't actually needed for triggering the
+     * experimentalDepGraph feature flag check. Which might be a bug. I've put
+     * it here to show intent despite us not really needing it.
+     */
+    await runSnykCLI(`monitor --experimental-dep-graph --org=test-org`, {
+      cwd: project.path(),
+      env,
+    });
+
+    expect(server.requests.map((r) => r.url)).toContain(expectedUrl);
+
+    const request = server.requests.filter((r) => r.url === expectedUrl)[0];
+    expect(request.headers.authorization).toBe('Bearer oauth-jwt-token');
   });
 });
