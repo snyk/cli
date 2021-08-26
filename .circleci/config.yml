@@ -451,83 +451,83 @@ workflows:
           name: Build
           context: nodejs-install
           node_version: '12.16.2'
-      - regression-test:
-          name: Regression Test
-          context: nodejs-install
-          node_version: '12.16.2'
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - dev-release:
-          name: Dev Release
-          node_version: '14'
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
+      # - regression-test:
+      #     name: Regression Test
+      #     context: nodejs-install
+      #     node_version: '12.16.2'
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      # - dev-release:
+      #     name: Dev Release
+      #     node_version: '14'
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
 
-      - test-windows:
-          name: Windows, Node v<< matrix.node_version >> - Packages, Jest, System tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
-          jest_tests: true
-          system_tests: true
-          package_tests: true
-      - test-windows:
-          name: Windows, Node v<< matrix.node_version >> - Acceptance tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
-          acceptance_tests: true
-      - test-windows:
-          name: Windows, Node v<< matrix.node_version >> - "Root" tap tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
-          root_tap_tests: true
+      # - test-windows:
+      #     name: Windows, Node v<< matrix.node_version >> - Packages, Jest, System tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     matrix:
+      #       parameters:
+      #         node_version: ['10.23.1', '12.21.0', '14.15.4']
+      #     jest_tests: true
+      #     system_tests: true
+      #     package_tests: true
+      # - test-windows:
+      #     name: Windows, Node v<< matrix.node_version >> - Acceptance tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     matrix:
+      #       parameters:
+      #         node_version: ['10.23.1', '12.21.0', '14.15.4']
+      #     acceptance_tests: true
+      # - test-windows:
+      #     name: Windows, Node v<< matrix.node_version >> - "Root" tap tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     matrix:
+      #       parameters:
+      #         node_version: ['10.23.1', '12.21.0', '14.15.4']
+      #     root_tap_tests: true
 
-      - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Packages, Jest, System tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
-          jest_tests: true
-          system_tests: true
-          package_tests: true
+      # - test-linux:
+      #     name: Linux, Node v<< matrix.node_version >> - Packages, Jest, System tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     matrix:
+      #       parameters:
+      #         node_version: ['10.23.1', '12.21.0', '14.15.4']
+      #     jest_tests: true
+      #     system_tests: true
+      #     package_tests: true
       - test-linux:
           name: Linux, Node v<< matrix.node_version >> - Acceptance tests
           context: nodejs-install
@@ -539,29 +539,28 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
+              node_version: ['10.23.1']
           acceptance_tests: true
-      - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - "Root" tap tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
-          root_tap_tests: true
-
-      - release:
-          name: Release
-          context: nodejs-app-release
-          node_version: '14.15.4'
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - Build
+      # - test-linux:
+      #     name: Linux, Node v<< matrix.node_version >> - "Root" tap tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     matrix:
+      #       parameters:
+      #         node_version: ['10.23.1', '12.21.0', '14.15.4']
+      #     root_tap_tests: true
+      # - release:
+      #     name: Release
+      #     context: nodejs-app-release
+      #     node_version: '14.15.4'
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      #     requires:
+      #       - Build
