@@ -16,10 +16,12 @@ const createProject = async (
   fixtureName: string,
   fixturePath: string,
 ): Promise<TestProject> => {
-  const tempFolder = await fse.promises.mkdtemp(
-    path.resolve(
-      os.tmpdir(),
-      `snyk-test-${fixtureName.replace(/[/\\]/g, '-')}-`,
+  const tempFolder = await fse.promises.realpath(
+    await fse.promises.mkdtemp(
+      path.resolve(
+        os.tmpdir(),
+        `snyk-test-${fixtureName.replace(/[/\\]/g, '-')}-`,
+      ),
     ),
   );
 

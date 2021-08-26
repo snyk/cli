@@ -13,8 +13,13 @@ type TestProject = {
 const debug = debuglog('@snyk' + __filename);
 
 const createProject = async (fixtureName: string): Promise<TestProject> => {
-  const tempFolder = await fse.promises.mkdtemp(
-    path.resolve(os.tmpdir(), `snyk-test-${fixtureName}-`),
+  const tempFolder = await fse.promises.realpath(
+    await fse.promises.mkdtemp(
+      path.resolve(
+        os.tmpdir(),
+        `snyk-test-${fixtureName.replace(/[/\\]/g, '-')}-`,
+      ),
+    ),
   );
 
   const fixturePath = path.resolve(__dirname, '../fixtures', fixtureName);
