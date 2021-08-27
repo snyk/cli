@@ -252,38 +252,43 @@ export const AllProjectsTests: AcceptanceTests = {
       const mavenAll = requests.find((req) => req.url.indexOf('maven') > -1);
       const sbtAll = requests.find((req) => req.url.indexOf('sbt') > -1);
 
+      params.server.clearRequests();
       await params.cli.monitor('mono-repo-project', {
         file: 'Gemfile.lock',
       });
       const rubyFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('mono-repo-project', {
         file: 'Pipfile',
       });
       const pipFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('mono-repo-project', {
         file: 'package-lock.json',
       });
-      const [npmFile] = params.server.requests.filter((req) =>
-        req.url.includes('/monitor/'),
-      );
+      const npmFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('mono-repo-project', {
         file: 'packages.config',
       });
       const nugetFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('mono-repo-project', {
         file: 'paket.dependencies',
       });
       const paketFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('mono-repo-project', {
         file: 'pom.xml',
       });
       const mavenFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('mono-repo-project', {
         file: 'build.sbt',
       });
@@ -392,11 +397,6 @@ export const AllProjectsTests: AcceptanceTests = {
         );
 
         t.equal(requests.length, 8, 'sends expected # requests');
-        t.equal(
-          params.server.requests.length,
-          0,
-          `${params.server.requests.length} pending requests`,
-        );
 
         const jsonResponse = JSON.parse(response);
         t.equal(
