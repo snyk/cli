@@ -300,7 +300,6 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     'project-name': options['project-name'] || config.PROJECT_NAME,
     isDocker: !!options.docker,
     prune: !!options.pruneRepeatedSubdependencies,
-    'experimental-dep-graph': !!options['experimental-dep-graph'],
     'remote-repo-url': options['remote-repo-url'],
   };
 }

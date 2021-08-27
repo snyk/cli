@@ -30,7 +30,7 @@ describe('OAuth Token', () => {
     server.close(() => done());
   });
 
-  it('uses oauth token when testing projects', async () => {
+  it('uses oauth token for authorised requests when testing projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const jsonObj = JSON.parse(await project.read('vulns-result.json'));
     server.setNextResponse(jsonObj);
@@ -41,8 +41,8 @@ describe('OAuth Token', () => {
     });
 
     expect(code).toEqual(0);
-    server.requests.forEach((r) => {
-      expect(r).toMatchObject({
+    server.requests.forEach((request) => {
+      expect(request).toMatchObject({
         headers: {
           authorization: 'Bearer oauth-jwt-token',
         },
@@ -50,7 +50,7 @@ describe('OAuth Token', () => {
     });
   });
 
-  it('uses oauth token when monitoring projects', async () => {
+  it('uses oauth token for authorised requests when monitoring projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const jsonObj = JSON.parse(await project.read('vulns-result.json'));
     server.setNextResponse(jsonObj);
@@ -61,36 +61,12 @@ describe('OAuth Token', () => {
     });
 
     expect(code).toEqual(0);
-    server.requests.forEach((r) => {
-      expect(r).toMatchObject({
+    server.requests.forEach((request) => {
+      expect(request).toMatchObject({
         headers: {
           authorization: 'Bearer oauth-jwt-token',
         },
       });
     });
-  });
-
-  it('uses oauth token when fetching feature flags', async () => {
-    const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    const jsonObj = JSON.parse(await project.read('vulns-result.json'));
-    server.setNextResponse(jsonObj);
-
-    const expectedUrl =
-      '/api/v1/cli-config/feature-flags/experimentalDepGraph?org=test-org';
-
-    /**
-     * The --experimental-dep-graph isn't actually needed for triggering the
-     * experimentalDepGraph feature flag check. Which might be a bug. I've put
-     * it here to show intent despite us not really needing it.
-     */
-    await runSnykCLI(`monitor --experimental-dep-graph --org=test-org`, {
-      cwd: project.path(),
-      env,
-    });
-
-    expect(server.requests.map((r) => r.url)).toContain(expectedUrl);
-
-    const request = server.requests.filter((r) => r.url === expectedUrl)[0];
-    expect(request.headers.authorization).toBe('Bearer oauth-jwt-token');
   });
 });

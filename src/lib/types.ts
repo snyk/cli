@@ -96,7 +96,6 @@ export interface MonitorOptions {
   allSubProjects?: boolean;
   'project-name'?: string;
   'print-deps'?: boolean;
-  'experimental-dep-graph'?: boolean;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).
@@ -118,7 +117,6 @@ export interface MonitorMeta {
   'project-name': string;
   isDocker: boolean;
   prune: boolean;
-  'experimental-dep-graph'?: boolean;
   'remote-repo-url'?: string;
 }
 

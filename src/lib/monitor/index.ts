@@ -8,7 +8,6 @@ import { makeRequest } from '../request';
 import * as config from '../config';
 import * as os from 'os';
 const get = require('lodash.get');
-const camelCase = require('lodash.camelcase');
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';
 import {
@@ -25,12 +24,10 @@ import * as projectMetadata from '../project-metadata';
 import {
   MonitorError,
   ConnectionTimeoutError,
-  AuthFailedError,
   FailedToRunTestError,
 } from '../errors';
 import { pruneGraph } from '../prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
-import { isFeatureFlagSupportedForOrg } from '../feature-flags';
 import { countTotalDependenciesInTree } from './count-total-deps-in-tree';
 import { filterOutMissingDeps } from './filter-out-missing-deps';
 import { dropEmptyDeps } from './drop-empty-deps';
@@ -116,33 +113,16 @@ export async function monitor(
     );
   }
 
-  // TODO @boost: delete this once 'experimental-dep-graph' ff is deleted
   if (GRAPH_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
-    const monitorGraphSupportedRes = await isFeatureFlagSupportedForOrg(
-      camelCase('experimental-dep-graph'),
-      options.org || config.org,
+    return await monitorDepGraphFromDepTree(
+      root,
+      meta,
+      scannedProject,
+      pluginMeta,
+      options,
+      targetFileRelativePath,
+      contributors,
     );
-
-    if (monitorGraphSupportedRes.code === 401) {
-      throw AuthFailedError(
-        monitorGraphSupportedRes.error,
-        monitorGraphSupportedRes.code,
-      );
-    }
-    if (monitorGraphSupportedRes.ok) {
-      return await experimentalMonitorDepGraphFromDepTree(
-        root,
-        meta,
-        scannedProject,
-        pluginMeta,
-        options,
-        targetFileRelativePath,
-        contributors,
-      );
-    }
-    if (monitorGraphSupportedRes.userMessage) {
-      debug(monitorGraphSupportedRes.userMessage);
-    }
   }
 
   return await monitorDepTree(
@@ -502,12 +482,7 @@ export async function monitorDepGraph(
   });
 }
 
-/**
- * @deprecated it will be deleted once experimentalDepGraph FF will be deleted
- * and npm, yarn, sbt and rubygems usage of `experimentalMonitorDepGraphFromDepTree`
- * will be replaced with `monitorDepGraph` method
- */
-async function experimentalMonitorDepGraphFromDepTree(
+async function monitorDepGraphFromDepTree(
   root: string,
   meta: MonitorMeta,
   scannedProject: ScannedProject,
@@ -517,7 +492,6 @@ async function experimentalMonitorDepGraphFromDepTree(
   contributors?: Contributor[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
-  analytics.add('experimentalMonitorDepGraphFromDepTree', true);
 
   let treeMissingDeps: string[];
   let depTree = scannedProject.depTree;
