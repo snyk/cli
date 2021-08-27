@@ -202,18 +202,12 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-    const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
-    const objectAssign = depGraphJSON.pkgs.find(
-      (pkg) => pkg.info.name === 'object-assign',
-    );
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.ok(debug, 'dependency');
+    t.ok(req.body.package);
+    const depTree = req.body.package;
+    t.match(req.url, '/monitor/npm', 'puts at correct url');
+    t.ok(depTree.dependencies['debug'], 'dependency');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-    t.notOk(objectAssign, 'no dev dependency');
-    t.notOk(depGraphJSON.from, 'no "from" array on root');
-    t.notOk(debug.from, 'no "from" array on dep');
+    t.notOk(depTree.dependencies['object-assign'], 'no dev dependency');
     t.notOk(
       req.body.meta.prePruneDepCount,
       "doesn't send meta.prePruneDepCount",
@@ -234,8 +228,8 @@ if (!isWindows) {
       'missingDeps passed',
     );
     t.notOk(
-      req.body.depGraphJSON.pkgs.find((pkg) => pkg.name === 'body-parser'),
-      'filetered out missingLockFileEntry',
+      req.body.package.dependencies['body-parser'],
+      'filtered out missingLockFileEntry',
     );
   });
 
