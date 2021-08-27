@@ -396,7 +396,10 @@ export const AllProjectsTests: AcceptanceTests = {
           req.url.includes('/monitor/'),
         );
 
-        t.equal(requests.length, 8, 'sends expected # requests');
+        console.log('------ START URLS --------');
+        console.log(requests.map((r) => r.url));
+        console.log('------ END URLS   --------');
+        t.equal(requests.length, 7, 'sends expected # requests');
 
         const jsonResponse = JSON.parse(response);
         t.equal(
