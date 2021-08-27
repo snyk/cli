@@ -717,7 +717,7 @@ export const AllProjectsTests: AcceptanceTests = {
       requests.forEach((req) => {
         t.match(
           req.url,
-          /\/api\/v1\/monitor\/(npm\/graph|golangdep|gomodules|govendor)/,
+          /\/api\/v1\/monitor\/(npm|golangdep|gomodules|govendor)/,
           'puts at correct url',
         );
         t.notOk(req.body.targetFile, "doesn't send the targetFile");
@@ -798,17 +798,21 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 3,
         d: true,
       });
-      t.match(result, 'gradle/some/project-id', 'gradle project was monitored');
+      t.match(
+        result,
+        'gradle/graph/some/project-id',
+        'gradle project was monitored',
+      );
       t.match(result, 'npm/some/project-id', 'gradle project was monitored');
 
-      const requests = params.server.filter((req) =>
+      const requests = params.server.requests.filter((req) =>
         req.url.includes('/monitor/'),
       );
       t.equal(requests.length, 3, 'correct amount of monitor requests');
       requests.forEach((req) => {
         t.match(
           req.url,
-          /\/api\/v1\/monitor\/(npm\/graph|gradle\/graph)/,
+          /\/api\/v1\/monitor\/(npm|gradle\/graph)/,
           'puts at correct url',
         );
         t.notOk(req.body.targetFile, "doesn't send the targetFile");
@@ -893,7 +897,11 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(loadPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.ok(loadPlugin.withArgs('gradle').calledOnce, 'calls gradle plugin');
 
-      t.match(result, 'gradle/some/project-id', 'gradle project was monitored');
+      t.match(
+        result,
+        'gradle/graph/some/project-id',
+        'gradle project was monitored',
+      );
       t.match(
         result,
         'rubygems/some/project-id',
@@ -906,7 +914,7 @@ export const AllProjectsTests: AcceptanceTests = {
       requests.forEach((req) => {
         t.match(
           req.url,
-          /\/api\/v1\/monitor\/(rubygems\/graph|gradle\/graph)/,
+          /\/api\/v1\/monitor\/(rubygems|gradle\/graph)/,
           'puts at correct url',
         );
         t.notOk(req.body.targetFile, "doesn't send the targetFile");
@@ -930,7 +938,7 @@ export const AllProjectsTests: AcceptanceTests = {
       t.match(result, 'npm/some/project-id', 'npm project was monitored ');
       t.match(
         result,
-        'poetry/some/project-id',
+        'poetry/graph/some/project-id',
         'poetry project was monitored ',
       );
       const requests = params.server.popRequests(2);
