@@ -6,9 +6,7 @@ import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
 import { getVersion } from '../../../src/lib/version';
-import { config as userConfig } from '../../../src/lib/user-config';
 import { chdirWorkspaces, getWorkspaceJSON } from '../workspace-helper';
-const isEmpty = require('lodash.isempty');
 const isObject = require('lodash.isobject');
 const get = require('lodash.get');
 
@@ -196,15 +194,15 @@ if (!isWindows) {
     chdirWorkspaces();
     await cli.monitor('npm-package');
     const req = server.popRequest();
+    t.match(req.url, '/monitor/npm', 'puts at correct url');
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.equal(
       req.headers['x-snyk-cli-version'],
       versionNumber,
       'sends version number',
     );
-    t.ok(req.body.package);
+    t.ok(req.body.package, 'sends depTree');
     const depTree = req.body.package;
-    t.match(req.url, '/monitor/npm', 'puts at correct url');
     t.ok(depTree.dependencies['debug'], 'dependency');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
     t.notOk(depTree.dependencies['object-assign'], 'no dev dependency');
@@ -220,8 +218,8 @@ if (!isWindows) {
       strictOutOfSync: false,
     });
     const req = server.popRequest();
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.match(req.url, '/monitor/npm', 'puts at correct url');
+    t.ok(req.body.package, 'sends depTree');
     t.deepEqual(
       req.body.meta.missingDeps,
       ['body-parser@^1.18.2'],
@@ -291,60 +289,38 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.deepEqual(req.body.meta.monitorGraph, true, 'correct meta set');
-    t.ok(req.body.meta.prePruneDepCount, 'sends meta.prePruneDepCount');
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-
-    const packageC1 = depGraphJSON.graph.nodes.find(
-      (pkg) => pkg.nodeId === 'c@1.0.0|1',
-    );
-    const packageC2 = depGraphJSON.graph.nodes.find(
-      (pkg) => pkg.nodeId === 'c@1.0.0|2',
-    );
-    t.notOk(packageC1.info.labels.pruned, 'a.d.c first instance is not pruned');
-    t.ok(packageC2.info.labels.pruned, 'a.d.c second instance is pruned');
-    t.ok(packageC1.deps.length, 'a.d.c has dependencies');
-    t.notOk(packageC2.deps.length, 'a.d.c has no dependencies');
-  });
-
-  test('`monitor npm-package-pruneable --prune-repeated-subdependencies`', async (t) => {
-    chdirWorkspaces();
-
-    await cli.monitor('npm-package-pruneable', {
-      pruneRepeatedSubdependencies: true,
-    });
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
-  });
-
-  test('`monitor npm-package-pruneable`', async (t) => {
-    chdirWorkspaces();
-
-    await cli.monitor('npm-package-pruneable');
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
-  });
-
-  test('`monitor npm-package-pruneable experimental for no-flag org`', async (t) => {
-    chdirWorkspaces();
-    await cli.monitor('npm-package-pruneable', {
-      org: 'no-flag',
-    });
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/npm', 'puts at correct url');
-    t.deepEqual(req.body.meta.monitorGraph, false, 'correct meta set');
-    t.ok(req.body.package, 'sends package');
-    userConfig.delete('org');
+    t.deepEqual(req.body.meta.monitorGraph, false, 'disables monitorGraph');
+    t.ok(req.body.meta.prePruneDepCount, 'sends meta.prePruneDepCount');
+    const depTree = req.body.package;
+    t.ok(depTree, 'sends depTree');
+
+    const depA = depTree.dependencies['a'];
+    t.ok(depA, 'dependency "a" exists');
+
+    const depAB = depA.dependencies['b'];
+    t.ok(depAB, 'dependency "a -> b" exists');
+
+    const depAD = depA.dependencies['d'];
+    t.ok(depAD, 'dependency "a -> d" exists');
+
+    const depAC = depA.dependencies['c'];
+    t.ok(depAC, 'dependency "a -> c" exists');
+    t.ok(depAC.labels.pruned, 'dependency "a -> c" is not pruned');
+    t.notOk(depAC.dependencies, 'dependency "a -> c" has no dependencies');
+
+    const depABC = depAB.dependencies['c'];
+    t.ok(depABC, 'dependency "a -> b -> c" exists');
+    t.notOk(depABC.labels.pruned, 'dependency "a -> b -> c" is pruned');
+    t.ok(depABC.dependencies, 'dependency "a -> b -> c" has dependencies');
+
+    const depADC = depAD.dependencies['c'];
+    t.ok(depADC, 'dependency "a -> d -> c" exists');
+    t.ok(depADC.labels.pruned, 'dependency "a -> d -> c" is not pruned');
+    t.notOk(depADC.dependencies, 'dependency "a -> d -> c" has dependencies');
   });
 
-  test('`monitor sbt package --sbt-graph`', async (t) => {
+  test('`monitor sbt package`', async (t) => {
     chdirWorkspaces();
 
     const plugin = {
@@ -363,13 +339,11 @@ if (!isWindows) {
       loadPlugin.restore();
     });
 
-    await cli.monitor('sbt-simple-struts', {
-      'sbt-graph': true,
-    });
+    await cli.monitor('sbt-simple-struts');
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
-    t.match(req.url, '/monitor/sbt/graph', 'puts at correct url');
-    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
+    t.match(req.url, '/monitor/sbt', 'puts at correct url');
+    t.ok(req.body.package, 'sends depTree');
     if (process.platform === 'win32') {
       t.true(
         req.body.targetFileRelativePath.endsWith(
@@ -397,20 +371,18 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
-
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-    const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
-    const objectAssign = depGraphJSON.pkgs.find(
-      (pkg) => pkg.info.name === 'object-assign',
-    );
-
-    t.ok(debug, 'dependency');
+    t.match(req.url, '/monitor/yarn', 'puts at correct url');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
+
+    const depTree = req.body.package;
+    t.ok(depTree, 'sends depTree');
+
+    const debug = depTree.dependencies['debug'];
+    t.ok(debug, 'dependency');
+
+    const objectAssign = depTree.dependencies['object-assign'];
     t.notOk(objectAssign, 'no dev dependency');
-    t.notOk(depGraphJSON.from, 'no "from" array on root');
-    t.notOk(debug.from, 'no "from" array on dep');
+
     if (process.platform === 'win32') {
       t.true(
         req.body.targetFileRelativePath.endsWith(
@@ -439,16 +411,15 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
-
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-    const lodash = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'lodash');
-
-    t.ok(lodash, 'dependency');
+    t.match(req.url, '/monitor/yarn', 'puts at correct url');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-    t.notOk(depGraphJSON.from, 'no "from" array on root');
-    t.notOk(lodash.from, 'no "from" array on dep');
+
+    const depTree = req.body.depTree;
+    t.ok(depTree);
+
+    const lodash = depTree.dependencies['lodash'];
+    t.ok(lodash, 'dependency');
+
     if (process.platform === 'win32') {
       t.true(
         req.body.targetFileRelativePath.endsWith(
@@ -470,26 +441,24 @@ if (!isWindows) {
     chdirWorkspaces('yarn-package');
     await cli.monitor();
     const req = server.popRequest();
+    t.match(req.url, '/monitor/yarn', 'puts at correct url');
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.equal(
       req.headers['x-snyk-cli-version'],
       versionNumber,
       'sends version number',
     );
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-    const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
-    const objectAssign = depGraphJSON.pkgs.find(
-      (pkg) => pkg.info.name === 'object-assign',
-    );
-
-    t.ok(debug, 'dependency');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-    t.notOk(objectAssign, 'no dev dependency');
-    t.notOk(depGraphJSON.from, 'no "from" array on root');
-    t.notOk(debug.from, 'no "from" array on dep');
 
-    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
+    const depTree = req.body.package;
+    t.ok(depTree, 'sends depTree');
+
+    const debug = depTree.dependencies['debug'];
+    t.ok(debug, 'dependency');
+
+    const objectAssign = depTree.dependencies['object-assign'];
+    t.notOk(objectAssign, 'no dev dependency');
+
     if (process.platform === 'win32') {
       t.true(
         req.body.targetFileRelativePath.endsWith(
@@ -546,20 +515,20 @@ if (!isWindows) {
     chdirWorkspaces();
     await cli.monitor('npm-package', { dev: true });
     const req = server.popRequest();
+    t.match(req.url, '/monitor/npm', 'puts at correct url');
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.equal(
       req.headers['x-snyk-cli-version'],
       versionNumber,
       'sends version number',
     );
-    const depGraphJSON = req.body.depGraphJSON;
-    const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
-    const objectAssign = depGraphJSON.pkgs.find(
-      (pkg) => pkg.info.name === 'object-assign',
-    );
-    t.ok(depGraphJSON, 'monitor is a depgraph format');
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
+    const depTree = req.body.package;
+    t.ok(depTree, 'monitor is a depgraph format');
+
+    const debug = depTree.dependencies['debug'];
     t.ok(debug, 'debug dependency found');
+
+    const objectAssign = depTree.dependencies['object-assign'];
     t.ok(objectAssign, 'includes dev dependency');
   });
 
@@ -567,23 +536,23 @@ if (!isWindows) {
     chdirWorkspaces();
     await cli.monitor('yarn-package', { dev: true });
     const req = server.popRequest();
+    t.match(req.url, '/monitor/yarn', 'puts at correct url');
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.equal(
       req.headers['x-snyk-cli-version'],
       versionNumber,
       'sends version number',
     );
-    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-    const debug = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'debug');
-    const objectAssign = depGraphJSON.pkgs.find(
-      (pkg) => pkg.info.name === 'object-assign',
-    );
 
-    t.ok(debug, 'dependency');
-    t.ok(objectAssign, 'dev dependency');
+    const depTree = req.body.package;
+    t.ok(depTree, 'sends depTree');
+
+    const debug = depTree.dependencies['debug'];
+    t.ok(debug, 'debug dependency found');
+
+    const objectAssign = depTree.dependencies['object-assign'];
+    t.ok(objectAssign, 'includes dev dependency');
   });
 
   test('`monitor yarn-workspaces with --yarn-workspaces flag`', async (t) => {
@@ -599,7 +568,7 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
+    t.match(req.url, '/monitor/yarn', 'puts at correct url');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
     t.match(
       res,
@@ -628,7 +597,7 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
+    t.match(req.url, '/monitor/yarn', 'puts at correct url');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
     t.notOk(res.includes('tomatoes'), 'tomatoes workspace not found');
     t.notOk(res.includes('apples'), 'apples workspace not found');
@@ -649,10 +618,10 @@ if (!isWindows) {
       versionNumber,
       'sends version number',
     );
-    t.match(req.url, '/monitor/rubygems/graph', 'puts at correct url');
+    t.match(req.url, '/monitor/rubygems', 'puts at correct url');
     t.notOk(req.body.targetFile, 'doesnt send the targetFile');
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
+    const depTree = req.body.package;
+    t.ok(depTree);
   });
 
   test('`monitor maven-app`', async (t) => {
@@ -815,25 +784,6 @@ if (!isWindows) {
       callGraphPayload,
       'sends correct call graph',
     );
-  });
-
-  test('`monitor yarn-app`', async (t) => {
-    chdirWorkspaces('yarn-app');
-    await cli.monitor();
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.equal(
-      req.headers['x-snyk-cli-version'],
-      versionNumber,
-      'sends version number',
-    );
-    const depGraphJSON = req.body.depGraphJSON;
-    t.ok(depGraphJSON);
-    const marked = depGraphJSON.pkgs.find((pkg) => pkg.info.name === 'marked');
-    t.match(req.url, '/monitor/yarn/graph', 'puts at correct url');
-    t.notOk(depGraphJSON.from, 'no "from" array on root');
-    t.ok(marked, 'specifies dependency');
-    t.notOk(req.body.targetFile, 'doesnt send the targetFile');
   });
 
   test('`monitor pip-app with dep-graph`', async (t) => {
