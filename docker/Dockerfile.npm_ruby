@@ -7,8 +7,8 @@ ENV HOME /home/node
 
 # Install snyk cli and clean up
 RUN apt-get update && \
-    apt-get install -y jq git && \
-    npm install --global snyk snyk-to-html && \
+    apt-get install -y git && \
+    npm install --global snyk && \
     apt-get autoremove -y && \
     apt-get clean && \
     chmod -R a+wrx /home/node
@@ -17,7 +17,6 @@ RUN apt-get update && \
 ENV PROJECT_PATH /project
 
 COPY docker-entrypoint.sh .
-COPY snyk_report.css .
 
 ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
 # This image is currently being used for nuget, composer and ruby
