@@ -83,17 +83,13 @@ export const AllProjectsTests: AcceptanceTests = {
       console.log(result);
       console.log('--------END MONITOR RESULT-------------');
 
-      t.match(
-        result,
-        'rubygems/graph/some/project-id',
-        'ruby project in output',
-      );
-      t.match(result, 'npm/graph/some/project-id', 'npm project in output');
+      t.match(result, 'rubygems/some/project-id', 'ruby project in output');
+      t.match(result, 'npm/some/project-id', 'npm project in output');
       t.match(result, 'maven/some/project-id', 'maven project in output ');
       t.match(result, 'nuget/some/project-id', 'nuget project in output');
       t.match(result, 'paket/some/project-id', 'paket project in output');
       t.match(result, 'pip/some/project-id', 'python project in output ');
-      t.match(result, 'sbt/graph/some/project-id', 'sbt project in output ');
+      t.match(result, 'sbt/some/project-id', 'sbt project in output ');
 
       const requests = params.server.requests.filter((req) =>
         req.url.includes('/monitor/'),
@@ -191,7 +187,7 @@ export const AllProjectsTests: AcceptanceTests = {
 
       t.match(
         result,
-        'rubygems/graph/some/project-id',
+        'rubygems/some/project-id',
         'rubygems project was monitored',
       );
       t.match(
@@ -706,7 +702,7 @@ export const AllProjectsTests: AcceptanceTests = {
       });
       t.match(result, 'golangdep/some/project-id', 'dep project was monitored');
       t.match(result, 'gomodules/some/project-id', 'mod project was monitored');
-      t.match(result, 'npm/graph/some/project-id', 'npm project was monitored');
+      t.match(result, 'npm/some/project-id', 'npm project was monitored');
       t.match(
         result,
         'govendor/some/project-id',
@@ -802,21 +798,12 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 3,
         d: true,
       });
-      t.match(
-        result,
-        'gradle/graph/some/project-id',
-        'gradle project was monitored',
-      );
-      t.match(
-        result,
-        'npm/graph/some/project-id',
-        'gradle project was monitored',
-      );
+      t.match(result, 'gradle/some/project-id', 'gradle project was monitored');
+      t.match(result, 'npm/some/project-id', 'gradle project was monitored');
 
-      // Pop one extra call to server and filter out call to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(4)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       t.equal(requests.length, 3, 'correct amount of monitor requests');
       requests.forEach((req) => {
         t.match(
@@ -906,14 +893,10 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(loadPlugin.withArgs('rubygems').calledOnce, 'calls rubygems plugin');
       t.ok(loadPlugin.withArgs('gradle').calledOnce, 'calls gradle plugin');
 
+      t.match(result, 'gradle/some/project-id', 'gradle project was monitored');
       t.match(
         result,
-        'gradle/graph/some/project-id',
-        'gradle project was monitored',
-      );
-      t.match(
-        result,
-        'rubygems/graph/some/project-id',
+        'rubygems/some/project-id',
         'rubygems project was monitored',
       );
       // Pop one extra call to server and filter out call to `featureFlag` endpoint
@@ -945,14 +928,10 @@ export const AllProjectsTests: AcceptanceTests = {
         allProjects: true,
         detectionDepth: 2,
       });
+      t.match(result, 'npm/some/project-id', 'npm project was monitored ');
       t.match(
         result,
-        'npm/graph/some/project-id',
-        'npm project was monitored ',
-      );
-      t.match(
-        result,
-        'poetry/graph/some/project-id',
+        'poetry/some/project-id',
         'poetry project was monitored ',
       );
       const requests = params.server.popRequests(2);
