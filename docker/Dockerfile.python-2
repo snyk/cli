@@ -10,8 +10,8 @@ RUN pip install pip pipenv virtualenv -U && \
     apt-get update && \
     apt-get install -y build-essential curl git && \
     curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs jq && \
-    npm install --global snyk snyk-to-html && \
+    apt-get install -y nodejs && \
+    npm install --global snyk && \
     apt-get autoremove -y && \
     apt-get clean && \
     chmod -R a+wrx /home/node
@@ -23,7 +23,6 @@ ENV PROJECT_PATH /project
 
 COPY docker-python-entrypoint.sh .
 COPY docker-entrypoint.sh .
-COPY snyk_report.css .
 
 ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
 ENV SNYK_INTEGRATION_VERSION python-2
