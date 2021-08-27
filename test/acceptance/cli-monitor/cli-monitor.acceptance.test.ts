@@ -89,11 +89,11 @@ if (!isWindows) {
   });
 
   test(AllProjectsTests.language, async (t) => {
-    for (const testName of Object.keys(AllProjectsTests.tests)) {
-      t.beforeEach(async () => {
-        server.clearRequests();
-      });
+    t.beforeEach(async () => {
+      server.clearRequests();
+    });
 
+    for (const testName of Object.keys(AllProjectsTests.tests)) {
       t.test(
         testName,
         AllProjectsTests.tests[testName](
