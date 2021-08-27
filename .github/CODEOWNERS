@@ -1,8 +1,13 @@
-# Snyk Boost will be required for a review on every PR
-README.md  @snyk/content @snyk/loki @snyk/tardis @snyk/tundra
+*  @snyk/hammer @snyk/loki @snyk/tardis @snyk/tundra
+
+# monorepo packages
+packages/snyk-fix/ @snyk/tech-services
+packages/snyk-protect/ @snyk/hammer
+packages/cli-alert/ @snyk/hammer
+
+README.md  @snyk/hammer
 src/cli/commands/test/formatters/format-reachability.ts  @snyk/flow
 help/  @snyk/hammer
-*  @snyk/hammer @snyk/loki @snyk/tardis @snyk/tundra
 src/cli/commands/test/iac-local-execution/ @snyk/cloudconfig
 src/cli/commands/test/iac-output.ts @snyk/cloudconfig
 src/cli/commands/test/iac-test-shim.ts @snyk/cloudconfig
@@ -26,10 +31,14 @@ src/lib/errors/unsupported-options-iac-error.ts @snyk/cloudconfig
 src/lib/errors/no-supported-sast-files-found.ts @snyk/sast-team
 help/commands-docs/iac-examples.md @snyk/cloudconfig
 help/commands-docs/iac.md @snyk/cloudconfig
-packages/snyk-fix/ @snyk/tech-services
-packages/snyk-protect/ @snyk/hammer
 test/jest/util/ @snyk/hammer
 dangerfile.js @snyk/hammer
+package.json @snyk/hammer
+config.default.js @snyk/hammer
 webpack.common.js @snyk/hammer
 webpack.dev.js @snyk/hammer
 webpack.prod.js @snyk/hammer
+lerna.json @snyk/hammer
+/tsconfig.json @snyk/hammer
+/tsconfig.settings.json @snyk/hammer
+CODEOWNERS @snyk/hammer
