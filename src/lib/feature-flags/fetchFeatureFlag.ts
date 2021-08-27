@@ -1,16 +1,10 @@
-import { makeRequest } from './request';
-import { getAuthHeader } from './api-token';
-import * as config from './config';
-import { assembleQueryString } from './snyk-test/common';
+import { makeRequest } from '../request';
+import { getAuthHeader } from '../api-token';
+import * as config from '../config';
+import { assembleQueryString } from '../snyk-test/common';
+import { OrgFeatureFlagResponse } from './types';
 
-interface OrgFeatureFlagResponse {
-  ok?: boolean;
-  userMessage?: string;
-  code?: number;
-  error?: string;
-}
-
-export async function isFeatureFlagSupportedForOrg(
+export async function fetchFeatureFlag(
   featureFlag: string,
   org,
 ): Promise<OrgFeatureFlagResponse> {

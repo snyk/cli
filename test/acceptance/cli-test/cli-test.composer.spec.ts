@@ -176,9 +176,9 @@ export const ComposerTests: AcceptanceTests = {
       await params.cli.test('composer-app', 'golang-app', 'nuget-app', {
         org: 'test-org',
       });
-      // assert three API calls made, each with a different url
-      const reqs = Array.from({ length: 3 }).map(() =>
-        params.server.popRequest(),
+      // assert three API calls made
+      const reqs = params.server.requests.filter(
+        (r) => r.url === '/api/v1/test-dep-graph?org=test-org',
       );
 
       t.same(
@@ -193,15 +193,7 @@ export const ComposerTests: AcceptanceTests = {
         'all send version number',
       );
 
-      t.same(
-        reqs.map((r) => r.url),
-        [
-          '/api/v1/test-dep-graph?org=test-org',
-          '/api/v1/test-dep-graph?org=test-org',
-          '/api/v1/test-dep-graph?org=test-org',
-        ],
-        'all urls are present',
-      );
+      t.equal(reqs.length, 3, 'all urls are present');
 
       t.same(
         reqs.map((r) => r.body.depGraph.pkgManager.name).sort(),

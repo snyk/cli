@@ -22,7 +22,7 @@ describe('OAuth Token', () => {
   });
 
   afterEach(() => {
-    server.clearRequests();
+    server.restore();
   });
 
   afterAll((done) => {

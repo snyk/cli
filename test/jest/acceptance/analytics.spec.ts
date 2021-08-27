@@ -29,7 +29,7 @@ describe('analytics module', () => {
   });
 
   afterEach(() => {
-    server.clearRequests();
+    server.restore();
   });
 
   afterAll((done) => {
