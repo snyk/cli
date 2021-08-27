@@ -106,7 +106,7 @@ export const AllProjectsTests: AcceptanceTests = {
       requests.forEach((req) => {
         t.match(
           req.url,
-          /\/api\/v1\/monitor\/(npm\/graph|rubygems|maven|nuget|paket|pip|sbt)/,
+          /\/api\/v1\/monitor\/(npm|rubygems|maven|nuget|paket|pip|sbt)/,
           'puts at correct url',
         );
         if (pluginsWithoutTargetFileInBody.includes(req.body.meta.pluginName)) {
@@ -203,11 +203,7 @@ export const AllProjectsTests: AcceptanceTests = {
         0,
         'no other requests sent (yarn error ignored)',
       );
-      t.match(
-        request.url,
-        '/api/v1/monitor/rubygems/graph',
-        'puts at correct url',
-      );
+      t.match(request.url, '/api/v1/monitor/rubygems', 'puts at correct url');
       t.notOk(request.body.targetFile, "doesn't send the targetFile");
       t.equal(request.method, 'PUT', 'makes PUT request');
       t.equal(
@@ -269,10 +265,9 @@ export const AllProjectsTests: AcceptanceTests = {
       await params.cli.monitor('mono-repo-project', {
         file: 'package-lock.json',
       });
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const [npmFile] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const [npmFile] = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
 
       await params.cli.monitor('mono-repo-project', {
         file: 'packages.config',
@@ -392,9 +387,11 @@ export const AllProjectsTests: AcceptanceTests = {
           detectionDepth: 1,
         });
 
-        const requests = params.server.popRequests(9);
+        const requests = params.server.requests.filter((req) =>
+          req.url.includes('/monitor/'),
+        );
 
-        t.equal(requests.length, 9, 'sends expected # requests'); // extra feature-flags request
+        t.equal(requests.length, 8, 'sends expected # requests');
         t.equal(
           params.server.requests.length,
           0,
@@ -493,7 +490,6 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 4,
       });
 
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
       const [
         projectAssetsAll,
         cocoapodsAll,
@@ -501,9 +497,7 @@ export const AllProjectsTests: AcceptanceTests = {
         npmAll,
         packageConfigAll,
         paketAll,
-      ] = params.server
-        .popRequests(7)
-        .filter((req) => req.url.includes('/monitor/'));
+      ] = params.server.requests.filter((req) => req.url.includes('/monitor/'));
 
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}cartservice-nuget${path.sep}obj${path.sep}project.assets.json`,
@@ -708,10 +702,9 @@ export const AllProjectsTests: AcceptanceTests = {
         'govendor/some/project-id',
         'vendor project was monitored',
       );
-      // Pop one extra call to server and filter out call to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(5)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       t.equal(requests.length, 4, 'correct amount of monitor requests');
 
       requests.forEach((req) => {
@@ -899,10 +892,9 @@ export const AllProjectsTests: AcceptanceTests = {
         'rubygems/some/project-id',
         'rubygems project was monitored',
       );
-      // Pop one extra call to server and filter out call to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(4)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       t.equal(requests.length, 3, 'correct amount of monitor requests');
       requests.forEach((req) => {
         t.match(
