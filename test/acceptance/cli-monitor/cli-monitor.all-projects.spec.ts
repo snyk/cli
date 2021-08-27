@@ -502,33 +502,37 @@ export const AllProjectsTests: AcceptanceTests = {
         paketAll,
       ] = params.server.requests.filter((req) => req.url.includes('/monitor/'));
 
+      params.server.clearRequests();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}cartservice-nuget${path.sep}obj${path.sep}project.assets.json`,
       });
       const projectAssetsFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}cocoapods-app${path.sep}Podfile.lock`,
       });
       const cocoapodsFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}frontend${path.sep}Gopkg.lock`,
       });
       const golangdepFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}paymentservice${path.sep}package-lock.json`,
       });
-      const [npmFile] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const npmFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `test${path.sep}nuget-app-4${path.sep}packages.config`,
       });
       const packageConfigFile = params.server.popRequest();
 
+      params.server.clearRequests();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `test${path.sep}paket-app${path.sep}paket.dependencies`,
       });
