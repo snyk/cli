@@ -79,6 +79,10 @@ export const AllProjectsTests: AcceptanceTests = {
       t.ok(loadPlugin.withArgs('pip').calledOnce, 'calls pip plugin');
       t.ok(loadPlugin.withArgs('sbt').calledOnce, 'calls sbt plugin');
 
+      console.log('--------START MONITOR RESULT-----------');
+      console.log(result);
+      console.log('--------END MONITOR RESULT-------------');
+
       t.match(
         result,
         'rubygems/graph/some/project-id',
