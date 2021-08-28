@@ -15,6 +15,7 @@ describe('snyk test --fail-on', () => {
       ...process.env,
       SNYK_API: 'http://localhost:' + apiPort + apiPath,
       SNYK_TOKEN: '123456789',
+      SNYK_DISABLE_ANALYTICS: '1',
     };
 
     server = fakeServer(apiPath, env.SNYK_TOKEN);

@@ -24,6 +24,7 @@ describe('snyk test with missing node_modules', () => {
       SNYK_API: 'http://localhost:' + port + BASE_API,
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: requireSnykToken(),
+      SNYK_DISABLE_ANALYTICS: '1',
     };
 
     const apiKey = '123456789';

@@ -16,6 +16,7 @@ describe('snyk test --all-projects with one project that has errors', () => {
       SNYK_API: 'http://localhost:' + port + baseApi,
       SNYK_HOST: 'http://localhost:' + port,
       SNYK_TOKEN: '123456789',
+      SNYK_DISABLE_ANALYTICS: '1',
     };
     server = fakeServer(baseApi, env.SNYK_TOKEN);
     server.listen(port, () => {
