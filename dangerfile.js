@@ -102,10 +102,13 @@ if (danger.github && danger.github.pr) {
   // Warn if package json and lockfile out of sync
 
   // Catch the diff
-  const generatePackageJsonDiff = async function() {
-    return await danger.git.diffForFile('package.json');
+  const generateDiff = async function(file) {
+    const diff = await danger.git.diffForFile(file);
+    return diff;
   };
-  const packageJsonDiff = generatePackageJsonDiff();
+
+  const packageJsonDiff = generateDiff('package.json');
+  // const packageJsonLockDiff = generateDiff('package-lock.json');
   // const modifiedPackageJson = danger.git.modified_files.some(
   //   (f) => f === 'package.json',
   // );
