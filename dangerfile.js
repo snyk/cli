@@ -98,10 +98,20 @@ if (danger.github && danger.github.pr) {
       "You've modified help files in /help/commands-docs. You need to regenerate manpages locally by running `npm run generate-help` and commiting the changed files. See [README in /help for more details](https://github.com/snyk/snyk/blob/master/help/README.md)",
     );
   }
-  const modifiedPackageJson = danger.git.modified_files.some(
-    (f) => f === 'package.json',
+
+  // Warn if package json and lockfile out of sync
+
+  // Catch the diff
+  const packageJsonDiff = await danger.git.diffForFile('package.json');
+  // const modifiedPackageJson = danger.git.modified_files.some(
+  //   (f) => f === 'package.json',
+  // );
+  const modifiedPackageLockJson = danger.git.modified_files.some(
+    (f) => f === 'package-lock.json',
   );
-  if (modifiedPackageJson) {
-    fail('Package json has been changed');
+  if (packageJsonDiff && !modifiedPackageLockJson) {
+    warn(
+      `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff}`,
+    );
   }
 }
