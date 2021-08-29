@@ -115,6 +115,9 @@ if (danger.github && danger.github.pr) {
   const modifiedPackageLockJson = danger.git.modified_files.some(
     (f) => f === 'package-lock.json',
   );
+  message(
+    `Package JSON:${packageJsonDiff}\nLockFile:${modifiedPackageLockJson}`,
+  );
   if (packageJsonDiff && !modifiedPackageLockJson) {
     warn(
       `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff}`,
