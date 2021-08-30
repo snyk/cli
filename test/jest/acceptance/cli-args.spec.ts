@@ -435,23 +435,56 @@ describe('cli args', () => {
   });
 
   if (!isWindows) {
-    // Previously we used to have a bug where --exclude-base-image-vulns returned exit code 2.
-    // This test asserts that the bug no longer exists.
-    test('container test --file=Dockerfile --exclude-base-image-vulns returns exit code 0', async () => {
-      const dockerfilePath = path.normalize(
-        'test/acceptance/fixtures/docker/Dockerfile.alpine-3.12.0',
-      );
+    // to test --exclude-base-image-vulns use an alpine image.
+    // test/acceptance/fake-server.ts returns a base image vuln for alpine images
+    describe('container test --exclude-base-image-vulns', () => {
+      // Previously we used to have a bug where --exclude-base-image-vulns returned exit code 2.
+      // This test asserts that the bug no longer exists.
+      test('container test --file=Dockerfile --exclude-base-image-vulns returns exit code 0', async () => {
+        const dockerfilePath = path.normalize(
+          'test/acceptance/fixtures/docker/Dockerfile.alpine-3.12.0',
+        );
 
-      const { code, stdout } = await runSnykCLI(
-        `container test alpine:3.12.0 --json --file=${dockerfilePath} --exclude-base-image-vulns`,
-        {
+        const { code, stdout } = await runSnykCLI(
+          `container test alpine:3.12.0 --json --file=${dockerfilePath} --exclude-base-image-vulns`,
+          {
+            env,
+          },
+        );
+        const jsonOutput = JSON.parse(stdout);
+
+        expect(jsonOutput.ok).toEqual(true);
+        expect(code).toEqual(0);
+      });
+
+      it('should exclude base image vulns -- has no vulns with flag without a dockerfile', async () => {
+        const {
+          code,
+        } = await runSnykCLI(
+          `container test alpine:3.12.0 --exclude-base-image-vulns`,
+          { env },
+        );
+        expect(code).toEqual(0);
+      });
+
+      it('should not exclude base image vulns -- has vulns without flag without a dockerfile', async () => {
+        const { code } = await runSnykCLI(`container test alpine:3.12.0`, {
           env,
-        },
-      );
-      const jsonOutput = JSON.parse(stdout);
+        });
+        expect(code).toEqual(1);
+      });
 
-      expect(jsonOutput.ok).toEqual(true);
-      expect(code).toEqual(0);
+      it('should exclude base image vulns -- has no vulns with flag with a dockerfile', async () => {
+        const dockerfilePath = path.normalize(
+          'test/acceptance/fixtures/docker/Dockerfile.alpine-3.12.0',
+        );
+
+        const withDockerfile = await runSnykCLI(
+          `container test alpine:3.12.0 --json --file=${dockerfilePath} --exclude-base-image-vulns`,
+          { env },
+        );
+        expect(withDockerfile.code).toEqual(0);
+      });
     });
   }
 });

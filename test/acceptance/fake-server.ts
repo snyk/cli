@@ -240,6 +240,44 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       return;
     }
 
+    let dockerResults = {};
+    // To check --exclude-base-image-vulns
+    if (req.body.scanResult.target.image === 'docker-image|alpine') {
+      dockerResults = {
+        baseImage: 'something:0.0.1',
+        baseImageRemediation: {
+          advice: [],
+          code: 'REMEDIATION_AVAILABLE',
+        },
+        binariesVulns: {
+          affectedPkgs: {
+            'node/5.10.1': {
+              pkg: {
+                version: '5.10.1',
+                name: 'node',
+              },
+              issues: {
+                'SNYK-UPSTREAM-BZIP2-106947': {
+                  issueId: 'SNYK-UPSTREAM-BZIP2-106947',
+                  fixInfo: {
+                    upgradePaths: [],
+                    isPatchable: false,
+                    nearestFixedInVersion: '5.13.1',
+                  },
+                },
+              },
+            },
+          },
+          issuesData: {
+            'SNYK-UPSTREAM-BZIP2-106947': {
+              id: 'SNYK-UPSTREAM-NODE-72359',
+              severity: 'high',
+            },
+          },
+        },
+      };
+    }
+
     res.send({
       result: {
         issues: [],
@@ -270,6 +308,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
             ],
           },
         },
+        docker: dockerResults,
       },
       meta: {
         org: 'test-org',

@@ -430,7 +430,11 @@ function convertTestDepGraphResultToLegacy(
       ? undefined
       : options.severityThreshold;
 
-  if (options.docker && options.file && options['exclude-base-image-vulns']) {
+  if (
+    options.docker &&
+    dockerRes?.baseImage &&
+    options['exclude-base-image-vulns']
+  ) {
     vulns = vulns.filter((vuln) => (vuln as DockerIssue).dockerfileInstruction);
   }
 
