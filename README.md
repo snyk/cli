@@ -2,289 +2,275 @@
   <img src="https://snyk.io/style/asset/logo/snyk-print.svg" />
 </p>
 
-<p align="center">
-  <a href="https://snyk.io/docs/?utm_campaign=docs&utm_medium=github&utm_source=full_docs">Documentation</a> |
-  <a href="https://snyk.io/test/">Test your project</a>
-</p>
+# Snyk CLI
 
-<p align="center">
-  Snyk helps you find, fix and monitor known vulnerabilities in open source
-</p>
+[Snyk](https://snyk.io) scans and monitors your projects for security vulnerabilities.
 
-<p align="center">
-  <a href="https://snyk.io/test/github/snyk/snyk"><img src="https://snyk.io/test/github/snyk/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
-  <a href="https://snyk.io/features/"><img src="https://badgen.net/npm/dm/snyk" alt="Monthly Downloads"/></a>
-  <a href="https://snyk.io/advisor/npm-package/snyk"><img src="https://snyk.io/advisor/npm-package/snyk/badge.svg" alt="Snyk CLI on the Snyk Advisor></a>
-</p>
+![Snyk CLI screenshot](help/snyk-cli-screenshot.png)
+
+# What is [Snyk](https://snyk.io)?
+
+[Snyk](https://snyk.io) is a developer-first cloud-native security tool.
+It covers multiple areas of application security:
+
+1. [**Snyk Open Source**](https://snyk.io/product/open-source-security-management/): Find and automatically fix open source vulnerabilities
+2. [**Snyk Code**](https://snyk.io/product/snyk-code/): Find and fix vulnerabilities in your application code in real time
+3. [**Snyk Container**](https://snyk.io/product/container-vulnerability-management/): Find and fix vulnerabilities in container images and Kubernetes applications
+4. [**Snyk Infrastructure as Code**](https://snyk.io/product/infrastructure-as-code-security/): Find and fix insecure configurations in Terraform and Kubernetes code
+
+[Learn more about what Snyk can do and sign up for a free account »](https://snyk.io)
+
+# What is Snyk CLI?
+
+Snyk CLI brings the functionality of [Snyk](https://snyk.io) into your development workflow. It can be run locally or in your CI/CD pipeline to scan your projects for security issues.
+
+## Supported languages and tools
+
+Snyk supports many languages and tools, including Java, .NET, JavaScript, Python, Golang, PHP, C/C++, Ruby, Scala and more. See our [Language Support documentation](https://support.snyk.io/hc/en-us/articles/360020352437-Language-support-summary).
+
+CLI also supports [Docker scanning](https://support.snyk.io/hc/en-us/articles/360003946897-Snyk-Container-security-overview) and [Terraform, k8s and other Infrastructure as Code files scanning](https://support.snyk.io/hc/en-us/categories/360001342678-Infrastructure-as-code).
 
 ---
 
-## What is Snyk?
+# Install Snyk CLI
 
-<p align="center">
-  <a href="https://youtu.be/4ng5usM6fd8">
-    <img alt="What is Snyk?" src="https://i3.ytimg.com/vi/4ng5usM6fd8/maxresdefault.jpg" width="75%" height="75%" />
-  </a>
-</p>
+Snyk CLI can be installed through multiple channels.
 
-## Table Of Contents:
+## Install with npm or Yarn
 
-- [Installation](#installation)
-- [CLI](#cli)
-- [Features](#features)
-- [Docker](#docker)
-- [Badge](#badge)
+[Snyk CLI is available as an npm package](https://www.npmjs.com/package/snyk). If you have Node.js installed locally, you can install it by running:
 
-## Installation
-
-1. Install the Snyk utility using `npm install -g snyk`.
-2. Once installed you will need to authenticate with your Snyk account: `snyk auth`
-
-For more detail on how to authenticate take a look at the [CLI authentication](https://snyk.io/docs/using-snyk#authentication?utm_campaign=docs&utm_medium=github&utm_source=CLI_authentication) section of the Snyk documentation.
-
-## CLI
-
-```console
-snyk [options] [command] [package]
+```bash
+npm install snyk@latest -g
 ```
 
-Run `snyk --help` to get a quick overview of all commands or for full details on the CLI read the snyk.io [CLI docs](https://snyk.io/docs/using-snyk?utm_campaign=docs&utm_medium=github&utm_source=cli).
+or if you are using Yarn:
 
-The package argument is optional. If no package is given, Snyk will run the command against the current working directory allowing you to test your non-public applications.
+```bash
+yarn global add snyk
+```
 
-## Features
+## More installation methods
 
-- **Find** known vulnerabilities by running `snyk test` on a project either as a one off or as part of your CI process.
-- **Fix** vulnerabilities using `snyk wizard` and `snyk protect`.
-  - `snyk wizard` walks you through finding and fixing known vulnerabilities in your project. Remediation options include configuring your policy file to update, auto patch and ignore vulnerabilities. (npm only)
-  - `snyk protect` your code from vulnerabilities by applying patches and optionally suppressing specific vulnerabilities.
-- **Alert** `snyk monitor` records the state of dependencies and any vulnerabilities on snyk.io so you can be alerted when new vulnerabilities or updates/patches are disclosed that affect your repositories.
-- **Prevent** new vulnerable dependencies from being added to your project by running `snyk test` as part of your CI to fail tests when vulnerable Node.js or Ruby dependencies are added.
+<details>
+  <summary>Standalone executables (macOS, Linux, Windows)</summary>
 
-## Snyk CLI Docker images
+### Standalone executables
 
-[See all snyk/snyk-cli images](https://hub.docker.com/r/snyk/snyk-cli)
+Use [GitHub Releases](https://github.com/snyk/snyk/releases) to download a standalone executable of Snyk CLI for your platform.
 
-Snyk is also provided as a set of Docker images that carry the runtime environment of each package manager. For example, the npm image will carry all of the needed setup to run `npm install` on the currently running container. Currently there are images for npm, Ruby, Maven, Gradle and SBT.
+We also provide these standalone executables on our official CDN. See [the `release.json` file](https://static.snyk.io/cli/latest/release.json) for the download links:
 
-The images can perform `snyk test` by default on the specified project which is mounted to the container as a read/write volume, and `snyk monitor` if the `MONITOR` environment variable is set when running the docker container. If you want an HTML report for `test` command (`--json` is appended automatically). An HTML file called `snyk_report.html` and a CSS file called `snyk_report.css` will be generated. The image also writes a file called `snyk-res.json` for internal use and `snyk-error.log` for errors that we can look at if something goes wrong.
+```http
+https://static.snyk.io/cli/latest/release.json
 
-The following environment variables can be used when running the container on docker:
+# Or for specific version or platform
+https://static.snyk.io/cli/v1.666.0/release.json
+https://static.snyk.io/cli/latest/snyk-macos
+```
 
-- `SNYK_TOKEN` - Snyk API token, obtained from [https://app.snyk.io/account](https://app.snyk.io/account).
-- `USER_ID` - [OPTIONAL] Current user ID on the host machine. If not provided will take the user ID of the currently running user inside the container. This is used for CI builds such as Jenkins where we are running with a non-privileged user and want to allow the user to access the mounted project folder.
-- `MONITOR` - [OPTIONAL] If set, will generate an html report via `snyk-to-html` and runs `snyk monitor` after running `snyk test`.
-- `PROJECT_FOLDER` - [OPTIONAL] If set, this will cd to the directory inside the mounted project dir to run snyk inside it.
-- `ENV_FLAGS` - [OPTIONAL] additional environment parameters to pass to `snyk test` when running the container.
-- `TARGET_FILE` - [OPTIONAL] additional environment parameters to pass to `snyk test` & `snyk monitor` equal to `--file` option in the cli.
+For example, to download and run the latest Snyk CLI on macOS, you could run:
 
-Docker images are tagged according to the package manager runtime they include, the package manager version and snyk version.
-The general format of tags is [snyk-version]-[package-manager]-[package-manager-version] or just [package-manager]-[package-manager-version] if we want to use the latest version of snyk. Please see available tags to see the available options.
+```bash
+curl https://static.snyk.io/cli/latest/snyk-macos -o snyk
+chmod +x ./snyk
+mv ./snyk /usr/local/bin/
+```
 
-[snyk-version] - The version of snyk that is installed in the image, if version is omitted it will use the latest version.
-[package-manager] - One of the available package managers (e.g: npm, mvn, gradle, etc...).
-[package-manager-version] - The version of the package manager that is installed inside the image.
+You can also use these direct links to download the executables:
 
-Please see the following examples on how to run Snyk inside docker:
+- macOS: https://static.snyk.io/cli/latest/snyk-macos
+- Windows: https://static.snyk.io/cli/latest/snyk-win.exe
+- Linux: https://static.snyk.io/cli/latest/snyk-linux
+- Alpine: https://static.snyk.io/cli/latest/snyk-alpine
 
-### Node.js (npm)
+Drawback of this method is, that you will have to manually keep the Snyk CLI up to date.
 
-[See all snyk/snyk-cli npm images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=npm)
+</details>
 
-The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
+<details>
+  <summary>Install with Homebrew (macOS, Linux)</summary>
 
-Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for npm:
+### Homebrew
+
+Install Snyk CLI from [Snyk tap](https://github.com/snyk/homebrew-tap) with [Homebrew](https://brew.sh) by running:
+
+```bash
+brew tap snyk/tap
+brew install snyk
+```
+
+</details>
+
+<details>
+  <summary>Scoop (Windows)</summary>
+
+### Scoop
+
+Install Snyk CLI from our [Snyk bucket](https://github.com/snyk/scoop-snyk) with [Scoop](https://scoop.sh) on Windows:
 
 ```
+scoop bucket add snyk https://github.com/snyk/scoop-snyk
+scoop install snyk
+```
+
+</details>
+
+<details>
+  <summary>Snyk CLI in a Docker image</summary>
+
+### Snyk CLI in a Docker image
+
+Snyk CLI can also be run from a Docker image. Snyk offers multiple Docker images under [snyk/snyk-cli](https://hub.docker.com/r/snyk/snyk-cli) and [snyk/snyk](https://hub.docker.com/r/snyk/snyk) ([snyk/images on GitHub](https://github.com/snyk/snyk-images) for more details).
+
+These images wrap the Snyk CLI and depending on the Tag come with a relevant tooling for different projects. For example scanning a Gradle project with snyk/snyk-cli:
+
+```bash
 docker run -it
     -e "SNYK_TOKEN=<TOKEN>"
     -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -v "<PROJECT_DIRECTORY>:/project"
-  snyk/snyk-cli:npm test --org=my-org-name
-```
-
-### RubyGems
-
-[See all snyk/snyk-cli rubygems images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=rubygems)
-
-The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
-
-Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for RubyGems:
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -v "<PROJECT_DIRECTORY>:/project"
-  snyk/snyk-cli:rubygems test --org=my-org-name
-```
-
-### Maven 3.5.4
-
-[See all snyk/snyk-cli maven images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=maven)
-
-The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
-You may also need to mount the local `.m2` and `.ivy2` folders.
-
-Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Maven:
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -v "<PROJECT_DIRECTORY>:/project"
-    -v "/home/user/.m2:/home/node/.m2"
-    -v "/home/user/.ivy2:/home/node/.ivy2"
-  snyk/snyk-cli:maven-3.5.4 test --org=my-org-name
-```
-
-### SBT 0.13.16 / SBT 1.0.4
-
-[See all snyk/snyk-cli sbt images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=sbt)
-
-The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
-You may also need to mount the local `.m2` and `.ivy2` folders.
-
-Here are examples of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for SBT:
-
-_Note_: the `dependency-tree` or `sbt-dependency-graph` or `sbt-coursier` (included by default in latest sbt versions) module is required for `snyk` to process Scala projects.
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -v "<PROJECT_DIRECTORY>:/project"
-    -v "/home/user/.m2:/home/node/.m2"
-    -v "/home/user/.ivy2:/home/node/.ivy2"
-  snyk/snyk-cli:sbt-0.13.16 test --org=my-org-name
-```
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -v "<PROJECT_DIRECTORY>:/project"
-    -v "/home/user/.m2:/home/node/.m2"
-    -v "/home/user/.ivy2:/home/node/.ivy2"
-  snyk/snyk-cli:sbt-1.0.4 test --org=my-org-name
-```
-
-### Gradle 2.8 / Gradle 4.4 / Gradle 5.4
-
-[See all snyk/snyk-cli gradle images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=gradle)
-
-The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
-You may also need to mount the local `.gradle`.
-
-Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Gradle:
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -v "<PROJECT_DIRECTORY>:/project"
-    -v "/home/user/.gradle:/home/node/.gradle"
-  snyk/snyk-cli:gradle-2.8 test --org=my-org-name
-```
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -v "<PROJECT_DIRECTORY>:/project"
-    -v "/home/user/.gradle:/home/node/.gradle"
-  snyk/snyk-cli:gradle-4.4 test --org=my-org-name
-```
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
     -v "<PROJECT_DIRECTORY>:/project"
     -v "/home/user/.gradle:/home/node/.gradle"
   snyk/snyk-cli:gradle-5.4 test --org=my-org-name
 ```
 
-### Docker
+</details>
 
-[See all snyk/snyk-cli docker images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=docker)
+## Install as a part of a Snyk CLI integration
 
-The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
+Snyk also offers many integrations into developer tooling. These integrations will install and manage the Snyk CLI for you. For example:
 
-The image being tested is expected to be available locally.
+- [Snyk Jenkins plugin](https://github.com/jenkinsci/snyk-security-scanner-plugin)
+- [CircleCI Orb](https://github.com/snyk/snyk-orb)
+- [Azure Pipelines Task](https://github.com/snyk/snyk-azure-pipelines-task)
+- [GitHub Actions](https://github.com/snyk/actions)
+- [IntelliJ IDE Plugin](https://github.com/snyk/snyk-intellij-plugin)
+- [VS Code Extension](https://marketplace.visualstudio.com/items?itemName=snyk-security.snyk-vulnerability-scanner)
+- [Eclipse IDE Extension](https://github.com/snyk/snyk-eclipse-plugin)
+- [Maven plugin](https://github.com/snyk/snyk-maven-plugin)
+- And many more. See [the Integrations documentation](https://support.snyk.io/hc/en-us/categories/360000598398-Integrations)
 
-Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Docker:
+<p align="center">
+  <a href="https://support.snyk.io/hc/en-us/categories/360000598398-Integrations">
+    <img src="help/ide.svg" alt="Snyk CLI IDE integration" width="50%" />
+  </a>
+</p>
 
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -v "<PROJECT_DIRECTORY>:/project"
-    -v "/var/run/docker.sock:/var/run/docker.sock"
-  snyk/snyk-cli:docker test --docker myapp:mytag --file=<DOCKERFILE>
-```
+---
 
-### Python 2 / Python 3
+# Getting started with Snyk CLI
 
-[See all snyk/snyk-cli python images](https://hub.docker.com/r/snyk/snyk-cli/tags?page=1&name=python)
+Once you installed the Snyk CLI, you can verify it's working by running
 
-The host project folder will be mounted to `/project` on the container and will be used to read the dependencies file and write results for CI builds.
-
-Here's an example of running `snyk test` and `snyk monitor` in the image (with the latest version of Snyk) for Maven:
-
-- _setup.py_
-
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -e "TARGET_FILE=setup.py"
-    -v "<PROJECT_DIRECTORY>:/project"
-  snyk/snyk-cli:python-3 test --org=my-org-name
+```bash
+snyk --version
 ```
 
-- _Pipfile_
+## Authorization
 
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -e "TARGET_FILE=Pipfile"
-    -v "<PROJECT_DIRECTORY>:/project"
-  snyk/snyk-cli:python-3 test --org=my-org-name
+Snyk CLI depends on [Snyk.io](https://snyk.io) APIs. Connect your Snyk CLI with [Snyk.io](https://snyk.io) by running:
+
+```bash
+snyk auth
 ```
 
-- _requirements.txt_
+## Scanning your project
 
-```
-docker run -it
-    -e "SNYK_TOKEN=<TOKEN>"
-    -e "USER_ID=1234"
-    -e "MONITOR=true"
-    -e "TARGET_FILE=requirement-dev.txt"
-    -v "<PROJECT_DIRECTORY>:/project"
-  snyk/snyk-cli:python-3 test --org=my-org-name
+If you are already in a folder with a supported project, start by running:
+
+```bash
+snyk test
 ```
 
-## Badge
+Or scan a Docker image by its tag with [Snyk Container](https://snyk.io/product/container-vulnerability-management/):
 
-Make users feel more confident in using your website by adding your Snyk badge!
-
-<a href="https://snyk.io/test/github/snyk/snyk"><img src="https://snyk.io/test/github/snyk/snyk/badge.svg" alt="Known Vulnerabilities"/></a>
-
-```
-[![Known Vulnerabilities](https://snyk.io/package/npm/snyk/badge.svg)](https://snyk.io/package/npm/snyk)
+```bash
+snyk container test ubuntu:18.04
 ```
 
-[![Analytics](https://ga-beacon.appspot.com/UA-69111857-2/Snyk/snyk?pixel)](https://snyk.io/)
+Or a k8s file:
+
+```bash
+snyk iac test /path/to/kubernetes_file.yaml
+```
+
+## Monitoring your project
+
+Snyk can also monitor your project periodically and alert you for new vulnerabilities. The `snyk monitor` is similar to `snyk test` and can be used to create a project on the Snyk website that will be continuously monitored for new vulnerabilities.
+
+<p align="center">
+  <a href="https://snyk.io">
+    <img src="help/monitor.svg" alt="Snyk CLI monitor projects" width="70%" />
+  </a>
+</p>
+
+```
+> snyk monitor
+Monitoring /project (project-name)...
+
+Explore this snapshot at https://app.snyk.io/org/my-org/project/29361c2c-9005-4692-8df4-88f1c040fa7c/history/e1c994b3-de5d-482b-9281-eab4236c851e
+
+Notifications about newly disclosed issues related to these dependencies will be emailed to you.
+```
+
+### Add Snyk to your CI/CD
+
+Snyk is really powerful when you are continuously scanning and monitoring your projects for vulnerabilities.
+
+Use one of [our integrations](#install-as-a-part-of-a-snyk-cli-integration) to stay secure.
+
+You can authorize Snyk CLI in your CI/CD programatically:
+
+```bash
+# Using a SNYK_TOKEN envvar (preferred)
+SNYK_TOKEN=<SNYK_API_TOKEN> snyk test
+
+# Or using a Snyk auth command
+snyk auth <SNYK_API_TOKEN>
+snyk test
+```
+
+## More flags and options to try
+
+Here are some flags that you might find useful:
+
+- `--severity-threshold=low|medium|high|critical`
+
+  Only report vulnerabilities of provided level or higher.
+
+- `--json`
+
+  Prints results in JSON format.
+
+- `--all-projects`
+
+  Auto-detect all projects in working directory
+
+See all the available commands and options by running `--help`:
+
+```bash
+snyk --help
+# or get help for a specific command like
+snyk iac --help
+snyk code --help
+```
+
+# Getting support
+
+We recommend reaching out via the [support@snyk.io](mailto:support@snyk.io) email whenever you need help with Snyk CLI or Snyk in general.
+
+GitHub Issues on any [Snyk project](https://github.com/snyk) are not actively monitored by Snyk support.
+
+## Contributing
+
+This project is open source but we don't encourage outside contributors.
+
+This repository is a monorepo, also covering other projects and tools:
+
+- [`@snyk/protect`](packages/snyk-protect): [npm package for `snyk-protect` command](https://www.npmjs.com/package/@snyk/protect)
+
+## Security
+
+For any security issues or concerns, please see [SECURITY.md](SECURITY.md) file in this repository.
+
+Made with 💜 by Snyk
