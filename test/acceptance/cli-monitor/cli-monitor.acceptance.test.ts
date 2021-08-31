@@ -2,12 +2,10 @@ import * as tap from 'tap';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as sinon from 'sinon';
-import * as needle from 'needle';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
 import { getVersion } from '../../../src/lib/version';
-import { config as userConfig } from '../../../src/lib/user-config';
 import { chdirWorkspaces, getWorkspaceJSON } from '../workspace-helper';
 const isEmpty = require('lodash.isempty');
 const isObject = require('lodash.isobject');
@@ -17,7 +15,7 @@ const get = require('lodash.get');
 // configure our fake configuration too
 import { AllProjectsTests } from './cli-monitor.all-projects.spec';
 
-const { test, only } = tap;
+const { test, only, beforeEach } = tap;
 (tap as any).runOnly = false; // <- for debug. set to true, and replace a test to only(..)
 
 const port = (process.env.PORT = process.env.SNYK_PORT = '12345');
@@ -85,8 +83,16 @@ if (!isWindows) {
     t.end();
   });
 
+  beforeEach(async () => {
+    server.restore();
+  });
+
   test(AllProjectsTests.language, async (t) => {
     for (const testName of Object.keys(AllProjectsTests.tests)) {
+      t.beforeEach(async () => {
+        server.restore();
+      });
+
       t.test(
         testName,
         AllProjectsTests.tests[testName](
@@ -185,28 +191,6 @@ if (!isWindows) {
     t.pass('succeed');
   });
 
-  test('`monitor npm-package with experimental-dep-graph enabled, but bad auth token`', async (t) => {
-    chdirWorkspaces();
-
-    const validTokenStub = sinon
-      .stub(needle, 'request')
-      .yields(null, null, { code: 401, error: 'Invalid auth token provided' });
-
-    try {
-      await cli.monitor('npm-package', { 'experimental-dep-graph': true });
-      t.fail('should have thrown an error');
-    } catch (e) {
-      t.equal(e.name, 'Error', 'correct error was thrown');
-      t.match(
-        e.message,
-        'Invalid auth token provided',
-        'correct default error message',
-      );
-
-      validTokenStub.restore();
-    }
-  });
-
   test('`monitor npm-package`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-package');
@@ -238,7 +222,6 @@ if (!isWindows) {
   test('`monitor npm-out-of-sync graph monitor`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-out-of-sync-graph', {
-      'experimental-dep-graph': true,
       strictOutOfSync: false,
     });
     const req = server.popRequest();
@@ -331,45 +314,7 @@ if (!isWindows) {
     t.notOk(packageC2.deps.length, 'a.d.c has no dependencies');
   });
 
-  test('`monitor npm-package-pruneable --prune-repeated-subdependencies --experimental-dep-graph`', async (t) => {
-    chdirWorkspaces();
-
-    await cli.monitor('npm-package-pruneable', {
-      pruneRepeatedSubdependencies: true,
-      'experimental-dep-graph': true,
-    });
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
-  });
-
-  test('`monitor npm-package-pruneable --experimental-dep-graph`', async (t) => {
-    chdirWorkspaces();
-
-    await cli.monitor('npm-package-pruneable', {
-      'experimental-dep-graph': true,
-    });
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.match(req.url, '/monitor/npm/graph', 'puts at correct url');
-    t.true(!isEmpty(req.body.depGraphJSON), 'sends depGraphJSON');
-  });
-
-  test('`monitor npm-package-pruneable experimental for no-flag org`', async (t) => {
-    chdirWorkspaces();
-    await cli.monitor('npm-package-pruneable', {
-      org: 'no-flag',
-    });
-    const req = server.popRequest();
-    t.equal(req.method, 'PUT', 'makes PUT request');
-    t.match(req.url, '/monitor/npm', 'puts at correct url');
-    t.deepEqual(req.body.meta.monitorGraph, false, 'correct meta set');
-    t.ok(req.body.package, 'sends package');
-    userConfig.delete('org');
-  });
-
-  test('`monitor sbt package --experimental-dep-graph --sbt-graph`', async (t) => {
+  test('`monitor sbt package`', async (t) => {
     chdirWorkspaces();
 
     const plugin = {
@@ -388,10 +333,7 @@ if (!isWindows) {
       loadPlugin.restore();
     });
 
-    await cli.monitor('sbt-simple-struts', {
-      'experimental-dep-graph': true,
-      'sbt-graph': true,
-    });
+    await cli.monitor('sbt-simple-struts');
     const req = server.popRequest();
     t.equal(req.method, 'PUT', 'makes PUT request');
     t.match(req.url, '/monitor/sbt/graph', 'puts at correct url');
@@ -907,8 +849,6 @@ if (!isWindows) {
     t.teardown(loadPlugin.restore);
     loadPlugin.withArgs('pip').returns(plugin);
 
-    // experimental-dep-graph is not defined because
-    // we do not want test `experimentalMonitorDepGraphFromDepTree` but `monitorDepGraph`
     await cli.monitor('pip-app');
 
     const req = server.popRequest();
@@ -1093,8 +1033,6 @@ if (!isWindows) {
     t.teardown(loadPlugin.restore);
     loadPlugin.withArgs('gradle').returns(plugin);
 
-    // experimental-dep-graph is not defined because
-    // we do not want test `experimentalMonitorDepGraphFromDepTree` but `monitorDepGraph`
     await cli.monitor('gradle-app');
 
     const req = server.popRequest();

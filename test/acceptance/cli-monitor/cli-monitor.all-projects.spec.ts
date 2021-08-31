@@ -23,10 +23,9 @@ export const AllProjectsTests: AcceptanceTests = {
         allProjects: true,
         detectionDepth: 2,
       });
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(4)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       let policyCount = 0;
       requests.forEach((req) => {
         const vulnerableFolderPath =
@@ -92,10 +91,9 @@ export const AllProjectsTests: AcceptanceTests = {
       t.match(result, 'pip/some/project-id', 'python project in output ');
       t.match(result, 'sbt/graph/some/project-id', 'sbt project in output ');
 
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(9)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       t.equal(requests.length, 7, 'correct amount of monitor requests');
 
       const pluginsWithoutTargetFileInBody = [
@@ -197,18 +195,7 @@ export const AllProjectsTests: AcceptanceTests = {
       );
 
       const request = params.server.popRequest();
-      const ffRequests = params.server.popRequests(2);
 
-      t.equal(
-        ffRequests.every((req) => req.url.includes('experimentalDepGraph')),
-        true,
-        'all left requests are feature flag requests',
-      );
-      t.equal(
-        params.server.requests.length,
-        0,
-        'no other requests sent (yarn error ignored)',
-      );
       t.match(
         request.url,
         '/api/v1/monitor/rubygems/graph',
@@ -250,10 +237,9 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 1,
       });
 
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(9)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       // find each type of request
       const rubyAll = requests.find((req) => req.url.indexOf('rubygems') > -1);
       const pipAll = requests.find((req) => req.url.indexOf('pip') > -1);
@@ -263,39 +249,43 @@ export const AllProjectsTests: AcceptanceTests = {
       const mavenAll = requests.find((req) => req.url.indexOf('maven') > -1);
       const sbtAll = requests.find((req) => req.url.indexOf('sbt') > -1);
 
+      params.server.restore();
       await params.cli.monitor('mono-repo-project', {
         file: 'Gemfile.lock',
       });
       const rubyFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('mono-repo-project', {
         file: 'Pipfile',
       });
       const pipFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('mono-repo-project', {
         file: 'package-lock.json',
       });
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
-      const [npmFile] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const npmFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('mono-repo-project', {
         file: 'packages.config',
       });
       const nugetFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('mono-repo-project', {
         file: 'paket.dependencies',
       });
       const paketFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('mono-repo-project', {
         file: 'pom.xml',
       });
       const mavenFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('mono-repo-project', {
         file: 'build.sbt',
       });
@@ -399,21 +389,6 @@ export const AllProjectsTests: AcceptanceTests = {
           detectionDepth: 1,
         });
 
-        const requests = params.server.popRequests(9);
-        const ffRequests = params.server.popRequests(4);
-
-        t.equal(
-          ffRequests.every((req) => req.url.includes('experimentalDepGraph')),
-          true,
-          'all left requests are feature flag requests',
-        );
-        t.equal(requests.length, 9, 'sends expected # requests'); // extra feature-flags request
-        t.equal(
-          params.server.requests.length,
-          0,
-          `${params.server.requests.length} pending requests`,
-        );
-
         const jsonResponse = JSON.parse(response);
         t.equal(
           jsonResponse.length,
@@ -506,7 +481,6 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 4,
       });
 
-      // Pop all calls to server and filter out calls to `featureFlag` endpoint
       const [
         projectAssetsAll,
         cocoapodsAll,
@@ -514,37 +488,39 @@ export const AllProjectsTests: AcceptanceTests = {
         npmAll,
         packageConfigAll,
         paketAll,
-      ] = params.server
-        .popRequests(7)
-        .filter((req) => req.url.includes('/monitor/'));
+      ] = params.server.requests.filter((req) => req.url.includes('/monitor/'));
 
+      params.server.restore();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}cartservice-nuget${path.sep}obj${path.sep}project.assets.json`,
       });
       const projectAssetsFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}cocoapods-app${path.sep}Podfile.lock`,
       });
       const cocoapodsFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}frontend${path.sep}Gopkg.lock`,
       });
       const golangdepFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `src${path.sep}paymentservice${path.sep}package-lock.json`,
       });
-      const [npmFile] = params.server
-        .popRequests(2)
-        .filter((req) => req.url.includes('/monitor/'));
+      const npmFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `test${path.sep}nuget-app-4${path.sep}packages.config`,
       });
       const packageConfigFile = params.server.popRequest();
 
+      params.server.restore();
       await params.cli.monitor('monorepo-with-nuget', {
         file: `test${path.sep}paket-app${path.sep}paket.dependencies`,
       });
@@ -721,10 +697,10 @@ export const AllProjectsTests: AcceptanceTests = {
         'govendor/some/project-id',
         'vendor project was monitored',
       );
-      // Pop one extra call to server and filter out call to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(5)
-        .filter((req) => req.url.includes('/monitor/'));
+
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       t.equal(requests.length, 4, 'correct amount of monitor requests');
 
       requests.forEach((req) => {
@@ -822,10 +798,9 @@ export const AllProjectsTests: AcceptanceTests = {
         'gradle project was monitored',
       );
 
-      // Pop one extra call to server and filter out call to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(4)
-        .filter((req) => req.url.includes('/monitor/'));
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       t.equal(requests.length, 3, 'correct amount of monitor requests');
       requests.forEach((req) => {
         t.match(
@@ -925,10 +900,10 @@ export const AllProjectsTests: AcceptanceTests = {
         'rubygems/graph/some/project-id',
         'rubygems project was monitored',
       );
-      // Pop one extra call to server and filter out call to `featureFlag` endpoint
-      const requests = params.server
-        .popRequests(4)
-        .filter((req) => req.url.includes('/monitor/'));
+
+      const requests = params.server.requests.filter((req) =>
+        req.url.includes('/monitor/'),
+      );
       t.equal(requests.length, 3, 'correct amount of monitor requests');
       requests.forEach((req) => {
         t.match(
