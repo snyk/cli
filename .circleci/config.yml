@@ -34,12 +34,6 @@ commands:
       - run:
           name: Install dependencies
           command: npm ci
-  update_local_npmrc_linux:
-    description: Update local .npmrc file (Linux)
-    steps:
-      - run:
-          name: Update local .npmrc file (Linux)
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
   build_ts:
     description: Build js files from ts
     steps:
@@ -184,9 +178,6 @@ jobs:
       - attach_workspace:
           at: ~/snyk
       - run:
-          name: Update local .npmrc file (Windows)
-          command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
-      - run:
           name: Add Snyk Token to Snyk Config
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
       - when:
@@ -249,7 +240,6 @@ jobs:
       - run: sudo npm install -g npm@7.21.0
       - attach_workspace:
           at: ~/snyk
-      - update_local_npmrc_linux
       - install_deps
       - run:
           name: Add Snyk Token to Snyk Config
@@ -357,7 +347,6 @@ jobs:
       - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
-      - update_local_npmrc_linux
       - install_deps
       - attach_workspace:
           at: ~/snyk
@@ -368,12 +357,11 @@ jobs:
           name: Update package versions
           command: ./release-scripts/update-versions.sh
       - run:
-          name: Make git ignore changes relating to version updates and to .npmrc
+          name: Make git ignore changes relating to version updates
           command: |
             git update-index --skip-worktree -- ./lerna.json
             git update-index --skip-worktree -- ./package.json
             git update-index --skip-worktree -- ./packages/snyk-protect/package.json
-            git update-index --skip-worktree -- ./.npmrc
       - run:
           name: Lerna Publish
           command: |
