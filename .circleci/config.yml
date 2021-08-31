@@ -268,7 +268,7 @@ jobs:
           steps:
             - run:
                 name: Running acceptance tests (Tap)
-                command: npm run test:acceptance-windows
+                command: npm run test:acceptance
       - when:
           condition: << parameters.system_tests >>
           steps:
