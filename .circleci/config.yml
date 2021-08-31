@@ -1,8 +1,9 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.2.0
-  aws-cli: circleci/aws-cli@1.4.0
+  win: circleci/windows@2.4.1
+  aws-cli: circleci/aws-cli@2.0.3
+  gh: circleci/github-cli@1.0.4
 
 defaults: &defaults
   parameters:
@@ -25,12 +26,6 @@ defaults: &defaults
       type: boolean
       default: false
   working_directory: ~/snyk
-
-windows_defaults: &windows_defaults
-  environment:
-    npm_config_loglevel: silent
-  executor:
-    name: win/default
 
 commands:
   install_deps:
@@ -60,15 +55,15 @@ commands:
   install_gradle_windows:
     description: Install gradle
     steps:
-      - run: choco install gradle
+      - run: choco install gradle --version 6.8.3
   install_maven_windows:
     description: Install maven
     steps:
-      - run: choco install maven
+      - run: choco install maven --version 3.8.2
   install_sbt_windows:
     description: Install SBT
     steps:
-      - run: choco install sbt
+      - run: choco install sbt --version 1.5.5
   install_sdkman_linux:
     description: Install SDKMAN
     steps:
@@ -83,25 +78,25 @@ commands:
     steps:
       - run:
           name: Installing JDK
-          command: sdk install java $(sdk list java | grep -o -m1 "11\.[0-9\.]\+hs-adpt")
+          command: sdk install java 11.0.11.hs-adpt
   install_gradle_linux:
     description: Install gradle
     steps:
       - run:
           name: Installing Gradle
-          command: sdk install gradle 6.4.1
+          command: sdk install gradle 6.8.3
   install_maven_linux:
     description: Install maven
     steps:
       - run:
           name: Installing maven
-          command: sdk install maven 3.6.3
+          command: sdk install maven 3.8.2
   install_sbt_linux:
     description: Install SBT
     steps:
       - run:
           name: Installing sbt
-          command: sdk install sbt 1.3.12
+          command: sdk install sbt 1.5.5
   install_node_windows:
     description: Install the given Node version on Windows using Chocolatey
     parameters:
@@ -121,29 +116,6 @@ commands:
       - run: curl -fsSL https://git.io/shellspec | sh -s -- -y
       - run: sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
       - run: sudo apt-get install jq
-  show_node_version:
-    description: Log Node and npm version
-    steps:
-      - run:
-          name: Node version
-          command: node --version
-      - run:
-          name: NPM version
-          command: npm --version
-  install_github_cli:
-    description: Install GitHub CLI (gh)
-    steps:
-      - run:
-          name: Install GitHub CLI (gh)
-          command: |
-            mkdir gh-download
-            curl -Lo ./gh-download/gh_1.3.1_linux_amd64.tar.gz https://github.com/cli/cli/releases/download/v1.3.1/gh_1.3.1_linux_amd64.tar.gz
-            tar -xf ./gh-download/gh_1.3.1_linux_amd64.tar.gz --directory gh-download
-            chmod a+x gh-download/gh_1.3.1_linux_amd64/bin/gh
-            mkdir -p /home/circleci/bin
-            mv gh-download/gh_1.3.1_linux_amd64/bin/gh /home/circleci/bin
-            which gh
-            gh --version
 
 jobs:
   build:
@@ -153,8 +125,7 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - run: sudo npm install -g npm@7
-      - show_node_version
+      - run: sudo npm install -g npm@7.21.0
       - install_deps
       - build_ts
   regression-test:
@@ -164,7 +135,7 @@ jobs:
     steps:
       - checkout
       - install_shellspec
-      - run: sudo npm install -g npm@7
+      - run: sudo npm install -g npm@7.21.0
       - install_sdkman_linux
       - install_jdk_linux
       - install_gradle_linux
@@ -199,22 +170,19 @@ jobs:
             shellspec -f d -e REGRESSION_TEST=1
   test-windows:
     <<: *defaults
-    <<: *windows_defaults
+    executor: win/default
     steps:
       - run: git config --global core.autocrlf false
       - install_gradle_windows
       - install_maven_windows
       - install_sbt_windows
-      - show_node_version
       - install_node_windows:
           node_version: << parameters.node_version >>
-      - show_node_version
       - checkout
-      - run: npm install -g npm@7
+      - run: npm install -g npm@7.21.0
       - install_deps
       - attach_workspace:
           at: ~/snyk
-      - show_node_version
       - run:
           name: Update local .npmrc file (Windows)
           command: echo "//registry.npmjs.org/:_authToken=$env:NPM_TOKEN" >> .npmrc
@@ -277,12 +245,10 @@ jobs:
       - install_gradle_linux
       - install_maven_linux
       - install_sbt_linux
-      - show_node_version
       - checkout
-      - run: sudo npm install -g npm@7
+      - run: sudo npm install -g npm@7.21.0
       - attach_workspace:
           at: ~/snyk
-      - show_node_version
       - update_local_npmrc_linux
       - install_deps
       - run:
@@ -340,14 +306,10 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - run:
-          name: Install npm@7
-          command: |
-            sudo npm install -g npm@7
+      - run: sudo npm install -g npm@7.21.0
       - install_deps
       - attach_workspace:
           at: ~/snyk
-      - show_node_version
       - run:
           name: Update package versions
           command: ./release-scripts/update-dev-versions.sh
@@ -387,16 +349,14 @@ jobs:
       - run:
           name: Should I release?
           command: ./release-scripts/should-i-release.sh
-      - install_github_cli
-      - aws-cli/install
-      - run:
-          name: Install npm@7
-          command: |
-            sudo npm install -g npm@7
+      - gh/setup:
+          version: 1.9.2
+      - aws-cli/install:
+          version: 2.2.32
+      - run: sudo npm install -g npm@7.21.0
       - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
-      - show_node_version
       - update_local_npmrc_linux
       - install_deps
       - attach_workspace:
@@ -450,11 +410,11 @@ workflows:
       - build:
           name: Build
           context: nodejs-install
-          node_version: '12.16.2'
+          node_version: '14.17.5'
       - regression-test:
           name: Regression Test
           context: nodejs-install
-          node_version: '12.16.2'
+          node_version: '14.17.5'
           requires:
             - Build
           filters:
@@ -463,7 +423,7 @@ workflows:
                 - master
       - dev-release:
           name: Dev Release
-          node_version: '14'
+          node_version: '14.17.5'
           requires:
             - Build
           filters:
@@ -482,7 +442,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
+              node_version: ['10.24.1', '12.22.5', '14.17.5']
           jest_tests: true
           system_tests: true
           package_tests: true
@@ -497,7 +457,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
+              node_version: ['10.24.1', '12.22.5', '14.17.5']
           acceptance_tests: true
       - test-windows:
           name: Windows, Node v<< matrix.node_version >> - "Root" tap tests
@@ -510,7 +470,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
+              node_version: ['10.24.1', '12.22.5', '14.17.5']
           root_tap_tests: true
 
       - test-linux:
@@ -524,7 +484,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
+              node_version: ['10.24.1', '12.22.5', '14.17.5']
           jest_tests: true
           system_tests: true
           package_tests: true
@@ -539,7 +499,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
+              node_version: ['10.24.1', '12.22.5', '14.17.5']
           acceptance_tests: true
       - test-linux:
           name: Linux, Node v<< matrix.node_version >> - "Root" tap tests
@@ -552,13 +512,13 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.23.1', '12.21.0', '14.15.4']
+              node_version: ['10.24.1', '12.22.5', '14.17.5']
           root_tap_tests: true
 
       - release:
           name: Release
           context: nodejs-app-release
-          node_version: '14.15.4'
+          node_version: '14.17.5'
           filters:
             branches:
               only:
