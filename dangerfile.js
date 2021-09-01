@@ -119,10 +119,10 @@ if (danger.github && danger.github.pr) {
     // message(
     //   `Package JSON:${packageJsonDiff.dependencies.added}\nLockFile:${modifiedPackageLockJson}`,
     // );
-    if (packageJsonDiff && !modifiedPackageLockJson) {
-      warn(
-        `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff.dependencies.added}`,
-      );
-    }
+    // if (packageJsonDiff && !modifiedPackageLockJson) {
+    //   warn(
+    //     `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff.dependencies.added}`,
+    //   );
+    // }
   });
 }
