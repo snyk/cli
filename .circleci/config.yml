@@ -9,7 +9,7 @@ defaults: &defaults
   parameters:
     node_version:
       type: string
-      default: ''
+      default: '14.17.5'
     root_tap_tests:
       type: boolean
       default: false
@@ -28,17 +28,65 @@ defaults: &defaults
   working_directory: ~/snyk
 
 commands:
-  install_deps:
-    description: Install dependencies
+  install_project_dependencies:
+    parameters:
+      os:
+        type: string
+        default: 'linux'
+      node_version:
+        type: string
+      npm_version:
+        type: string
+        default: '7.21.1'
     steps:
+      - restore_cache:
+          name: Restoring NPM cache
+          keys:
+            - npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
+      - when:
+          condition:
+            equal: ['win/default', << parameters.os >>]
+          steps:
+            run:
+              name: Installing NPM
+              command: npm install -g npm@<< parameters.npm_version >>
+      - when:
+          condition:
+            not:
+              equal: ['win/default', << parameters.os >>]
+          steps:
+            run:
+              name: Installing NPM
+              command: sudo npm install -g npm@<< parameters.npm_version >>
       - run:
-          name: Install dependencies
+          name: Configuring NPM
+          command: npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
+      - run:
+          name: Installing project dependencies
           command: npm ci
-  build_ts:
-    description: Build js files from ts
+      - when:
+          condition:
+            equal: ['win/default', << parameters.os >>]
+          steps:
+            - save_cache:
+                name: Saving NPM cache
+                key: npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
+                paths:
+                  - ~\AppData\Local\npm-cache
+      - when:
+          condition:
+            not:
+              equal: ['win/default', << parameters.os >>]
+          steps:
+            - save_cache:
+                name: Saving NPM cache
+                key: npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
+                paths:
+                  - ~/.npm
+  build_project:
     steps:
       - run:
-          name: Build
+          name: Building project
           command: npm run build:prod
       - persist_to_workspace:
           root: .
@@ -46,20 +94,21 @@ commands:
             - dist/
             - packages/*/dist
             - pysrc
-  install_gradle_windows:
-    description: Install gradle
+  install_sdks_windows:
     steps:
-      - run: choco install gradle --version 6.8.3
-  install_maven_windows:
-    description: Install maven
-    steps:
-      - run: choco install maven --version 3.8.2
-  install_sbt_windows:
-    description: Install SBT
-    steps:
-      - run: choco install sbt --version 1.5.5
-  install_sdkman_linux:
-    description: Install SDKMAN
+      - restore_cache:
+          name: Restoring Chocolatey cache
+          keys:
+            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+      - run:
+          name: Installing SDKs
+          command: choco install .circleci/chocolatey.config --no-progress
+      - save_cache:
+          name: Saving Chocolatey cache
+          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+          paths:
+            - ~\AppData\Local\Temp\chocolatey
+  install_sdks_linux:
     steps:
       - run:
           name: Installing SDKMAN
@@ -67,43 +116,31 @@ commands:
             curl -s "https://get.sdkman.io?rcupdate=false" | bash
             echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
             source $BASH_ENV
-  install_jdk_linux:
-    description: Install JDK
-    steps:
+      - restore_cache:
+          name: Restoring SDKMAN cache
+          keys:
+            - sdkman-cache-v2-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
       - run:
-          name: Installing JDK
-          command: sdk install java 11.0.11.hs-adpt
-  install_gradle_linux:
-    description: Install gradle
-    steps:
-      - run:
-          name: Installing Gradle
-          command: sdk install gradle 6.8.3
-  install_maven_linux:
-    description: Install maven
-    steps:
-      - run:
-          name: Installing maven
-          command: sdk install maven 3.8.2
-  install_sbt_linux:
-    description: Install SBT
-    steps:
-      - run:
-          name: Installing sbt
-          command: sdk install sbt 1.5.5
+          name: Installing SDKs
+          command: ./.circleci/install-sdks-linux.sh
+      - save_cache:
+          name: Saving SDKMAN cache
+          key: sdkman-cache-v2-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+          paths:
+            - ~/.sdkman/archives
   install_node_windows:
-    description: Install the given Node version on Windows using Chocolatey
     parameters:
       node_version:
         type: string
-        default: ''
     steps:
       - run:
-          name: Install Node with Chocolatey
+          name: Removing pre-installed NodeJS
           command: |
             $current_node_version = node --version
             nvm uninstall $current_node_version
-            choco install nodejs --version=<< parameters.node_version >>
+      - run:
+          name: Installing NodeJS
+          command: choco install nodejs --version=<< parameters.node_version >> --no-progress
   install_shellspec:
     description: Install Shellspec
     steps:
@@ -119,23 +156,20 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - run: sudo npm install -g npm@7.21.0
-      - install_deps
-      - build_ts
+      - install_project_dependencies:
+          node_version: << parameters.node_version >>
+      - build_project
   regression-test:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
     steps:
       - checkout
+      - install_sdks_linux
       - install_shellspec
-      - run: sudo npm install -g npm@7.21.0
-      - install_sdkman_linux
-      - install_jdk_linux
-      - install_gradle_linux
-      - install_maven_linux
-      - install_deps
       - run: sudo apt-get install python-pip
+      - install_project_dependencies:
+          node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
       - run: npm run lint
@@ -167,14 +201,13 @@ jobs:
     executor: win/default
     steps:
       - run: git config --global core.autocrlf false
-      - install_gradle_windows
-      - install_maven_windows
-      - install_sbt_windows
+      - checkout
       - install_node_windows:
           node_version: << parameters.node_version >>
-      - checkout
-      - run: npm install -g npm@7.21.0
-      - install_deps
+      - install_sdks_windows
+      - install_project_dependencies:
+          os: win/default
+          node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
       - run:
@@ -231,16 +264,12 @@ jobs:
       - image: circleci/node:<< parameters.node_version >>
     resource_class: large
     steps:
-      - install_sdkman_linux
-      - install_jdk_linux
-      - install_gradle_linux
-      - install_maven_linux
-      - install_sbt_linux
       - checkout
-      - run: sudo npm install -g npm@7.21.0
+      - install_sdks_linux
+      - install_project_dependencies:
+          node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
-      - install_deps
       - run:
           name: Add Snyk Token to Snyk Config
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -296,8 +325,8 @@ jobs:
     resource_class: large
     steps:
       - checkout
-      - run: sudo npm install -g npm@7.21.0
-      - install_deps
+      - install_project_dependencies:
+          node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
       - run:
@@ -344,12 +373,11 @@ jobs:
           version: 1.9.2
       - aws-cli/install:
           version: 2.2.32
-      - run: sudo npm install -g npm@7.21.0
-      - run: npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
       - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
-      - install_deps
+      - install_project_dependencies:
+          node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
       - run:
@@ -400,11 +428,9 @@ workflows:
       - build:
           name: Build
           context: nodejs-install
-          node_version: '14.17.5'
       - regression-test:
           name: Regression Test
           context: nodejs-install
-          node_version: '14.17.5'
           requires:
             - Build
           filters:
@@ -413,7 +439,6 @@ workflows:
                 - master
       - dev-release:
           name: Dev Release
-          node_version: '14.17.5'
           requires:
             - Build
           filters:
@@ -504,11 +529,9 @@ workflows:
             parameters:
               node_version: ['10.24.1', '12.22.5', '14.17.5']
           root_tap_tests: true
-
       - release:
           name: Release
           context: nodejs-app-release
-          node_version: '14.17.5'
           filters:
             branches:
               only:
