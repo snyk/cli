@@ -101,24 +101,25 @@ if (danger.github && danger.github.pr) {
 
   // Warn if package json and lockfile out of sync
 
-  // Catch the diff
-  const generateDiff = async function(file) {
-    const diff = await danger.git.JSONDiffForFile(file);
-    message(`${diff}`);
-    return diff;
-  };
+  // const generateDiff = async function(file) {
+  //   const diff = await danger.git.JSONDiffForFile(file);
+  //   message(`${diff}`);
+  //   return diff;
+  // };
 
-  const packageJsonDiff = schedule(generateDiff('package.json'));
+  schedule(async () => {
+    const packageJsonDiff = await danger.git.JSONDiffForFile('package.json');
 
-  const modifiedPackageLockJson = danger.git.modified_files.some(
-    (f) => f === 'package-lock.json',
-  );
-  message(
-    `Package JSON:${packageJsonDiff}\nLockFile:${modifiedPackageLockJson}`,
-  );
-  if (packageJsonDiff && !modifiedPackageLockJson) {
-    warn(
-      `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff}`,
+    const modifiedPackageLockJson = danger.git.modified_files.some(
+      (f) => f === 'package-lock.json',
     );
-  }
+    message(
+      `Package JSON:${packageJsonDiff}\nLockFile:${modifiedPackageLockJson}`,
+    );
+    if (packageJsonDiff && !modifiedPackageLockJson) {
+      warn(
+        `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff}`,
+      );
+    }
+  });
 }
