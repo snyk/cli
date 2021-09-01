@@ -1,4 +1,4 @@
-const { danger, warn, fail, message } = require('danger');
+const { danger, warn, fail, message, schedule } = require('danger');
 
 const MAX_COMMIT_MESSAGE_LENGTH = 72;
 const SMOKE_TEST_BRANCH = 'smoke/';
@@ -103,20 +103,19 @@ if (danger.github && danger.github.pr) {
 
   // Catch the diff
   const generateDiff = async function(file) {
-    const diff = await danger.git.diffForFile(file);
+    const diff = await danger.git.JSONDiffForFile(file);
     return diff;
   };
 
-  const packageJsonDiff = generateDiff('package.json');
-  // const packageJsonLockDiff = generateDiff('package-lock.json');
-  // const modifiedPackageJson = danger.git.modified_files.some(
-  //   (f) => f === 'package.json',
-  // );
+  const packageJsonDiff = schedule(generateDiff('package.json'));
+
   const modifiedPackageLockJson = danger.git.modified_files.some(
     (f) => f === 'package-lock.json',
   );
   message(
-    `Package JSON:${packageJsonDiff}\nLockFile:${modifiedPackageLockJson}`,
+    `Package JSON:${packageJsonDiff ? packageJsonDiff : ''}\nLockFile:${
+      modifiedPackageLockJson ? modifiedPackageLockJson : ''
+    }`,
   );
   if (packageJsonDiff && !modifiedPackageLockJson) {
     warn(
