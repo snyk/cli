@@ -109,13 +109,23 @@ if (danger.github && danger.github.pr) {
 
   schedule(async () => {
     const packageJsonDiff = await danger.git.JSONDiffForFile('package.json');
+    const packageLockJsonDiff = await danger.git.JSONDiffForFile(
+      'package-lock.json',
+    );
 
-    const modifiedPackageLockJson = danger.git.modified_files.some(
-      (f) => f === 'package-lock.json',
-    );
-    packageJsonDiff.dependencies.added.forEach((change) =>
-      message(`New change: ${change}`),
-    );
+    if (packageJsonDiff.dependencies && !packageLockJsonDiff.dependencies) {
+      message(
+        'Dependencies were changed in package json but not in package lock file. Files out of sync',
+      );
+    }
+    if (
+      packageJsonDiff.devDependencies &&
+      !packageLockJsonDiff.devDependencies
+    ) {
+      message(
+        'Dev dependencies were changed in package json but not in package lock file. Files out of sync',
+      );
+    }
     // message(
     //   `Package JSON:${packageJsonDiff.dependencies.added}\nLockFile:${modifiedPackageLockJson}`,
     // );
