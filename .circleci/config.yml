@@ -340,6 +340,7 @@ jobs:
           name: Should I release?
           command: ./release-scripts/should-i-release.sh
       - gh/setup:
+          token: GH_TOKEN
           version: 1.9.2
       - aws-cli/install:
           version: 2.2.32
