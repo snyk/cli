@@ -345,6 +345,7 @@ jobs:
       - aws-cli/install:
           version: 2.2.32
       - run: sudo npm install -g npm@7.21.0
+      - run: npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
       - run:
           name: Install osslsigncode
           command: sudo apt-get install -y osslsigncode
