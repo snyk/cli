@@ -118,7 +118,7 @@ if (danger.github && danger.github.pr) {
     );
     if (packageJsonDiff && !modifiedPackageLockJson) {
       warn(
-        `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff}`,
+        `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff.dependencies.added}`,
       );
     }
   });
