@@ -104,7 +104,7 @@ if (danger.github && danger.github.pr) {
   // Catch the diff
   const generateDiff = async function(file) {
     const diff = await danger.git.JSONDiffForFile(file);
-    message(diff);
+    message(`${diff}`);
     return diff;
   };
 
