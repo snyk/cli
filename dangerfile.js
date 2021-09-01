@@ -113,9 +113,7 @@ if (danger.github && danger.github.pr) {
     (f) => f === 'package-lock.json',
   );
   message(
-    `Package JSON:${packageJsonDiff ? packageJsonDiff : ''}\nLockFile:${
-      modifiedPackageLockJson ? modifiedPackageLockJson : ''
-    }`,
+    `Package JSON:${packageJsonDiff}\nLockFile:${modifiedPackageLockJson}`,
   );
   if (packageJsonDiff && !modifiedPackageLockJson) {
     warn(
