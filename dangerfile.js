@@ -1,4 +1,5 @@
 const { danger, warn, fail, message, schedule } = require('danger');
+const fs = require('fs');
 
 const MAX_COMMIT_MESSAGE_LENGTH = 72;
 const SMOKE_TEST_BRANCH = 'smoke/';

@@ -110,7 +110,7 @@
     "lodash.upperfirst": "^4.3.1",
     "lodash.values": "^4.3.0",
     "micromatch": "4.0.2",
-    "needle": "2.4.0",
+    "needle": "2.5.0",
     "open": "^7.0.3",
     "ora": "5.4.0",
     "os-name": "^3.0.0",
