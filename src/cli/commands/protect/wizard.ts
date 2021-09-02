@@ -20,7 +20,7 @@ const get = require('lodash.get');
 import { exec } from 'child_process';
 import { apiTokenExists } from '../../../lib/api-token';
 import * as auth from '../auth/is-authed';
-import getVersion = require('../version');
+import getVersion from '../version';
 import * as allPrompts from './prompts';
 import answersToTasks = require('./tasks');
 import * as snyk from '../../../lib/';
