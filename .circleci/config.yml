@@ -447,7 +447,7 @@ workflows:
                 - master
 
       - test-windows:
-          name: Windows, Node v<< matrix.node_version >> - Packages, Jest, System tests
+          name: Windows, Node v14.17.5 - Packages, Jest, System tests
           context: nodejs-install
           requires:
             - Build
@@ -455,14 +455,11 @@ workflows:
             branches:
               ignore:
                 - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
           jest_tests: true
           system_tests: true
           package_tests: true
       - test-windows:
-          name: Windows, Node v<< matrix.node_version >> - Acceptance tests
+          name: Windows, Node v14.17.5 - Acceptance tests
           context: nodejs-install
           requires:
             - Build
@@ -470,12 +467,9 @@ workflows:
             branches:
               ignore:
                 - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
           acceptance_tests: true
       - test-windows:
-          name: Windows, Node v<< matrix.node_version >> - "Root" tap tests
+          name: Windows, Node v14.17.5 - "Root" tap tests
           context: nodejs-install
           requires:
             - Build
@@ -483,9 +477,6 @@ workflows:
             branches:
               ignore:
                 - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
           root_tap_tests: true
 
       - test-linux:
