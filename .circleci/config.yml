@@ -40,7 +40,7 @@ commands:
         default: '7.21.1'
     steps:
       - restore_cache:
-          name: Restoring NPM cache
+          name: Restoring npm cache
           keys:
             - npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
       - when:
@@ -48,7 +48,7 @@ commands:
             equal: ['win/default', << parameters.os >>]
           steps:
             run:
-              name: Installing NPM
+              name: Installing npm
               command: npm install -g npm@<< parameters.npm_version >>
       - when:
           condition:
@@ -56,10 +56,10 @@ commands:
               equal: ['win/default', << parameters.os >>]
           steps:
             run:
-              name: Installing NPM
+              name: Installing npm
               command: sudo npm install -g npm@<< parameters.npm_version >>
       - run:
-          name: Configuring NPM
+          name: Configuring npm
           command: npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
       - run:
           name: Installing project dependencies
@@ -69,7 +69,7 @@ commands:
             equal: ['win/default', << parameters.os >>]
           steps:
             - save_cache:
-                name: Saving NPM cache
+                name: Saving npm cache
                 key: npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
                 paths:
                   - ~\AppData\Local\npm-cache
@@ -79,7 +79,7 @@ commands:
               equal: ['win/default', << parameters.os >>]
           steps:
             - save_cache:
-                name: Saving NPM cache
+                name: Saving npm cache
                 key: npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
                 paths:
                   - ~/.npm
@@ -141,12 +141,29 @@ commands:
       - run:
           name: Installing NodeJS
           command: choco install nodejs --version=<< parameters.node_version >> --no-progress
-  install_shellspec:
-    description: Install Shellspec
+  install_shellspec_dependencies:
     steps:
-      - run: curl -fsSL https://git.io/shellspec | sh -s -- -y
-      - run: sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
-      - run: sudo apt-get install jq
+      - run:
+          name: Installing test dependencies
+          command: sudo apt-get install jq python-pip
+      - run:
+          name: Installing ShellSpec
+          command: |
+            curl -fsSL https://git.io/shellspec | sh -s -- -y
+            sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
+  pack_snyk_cli:
+    steps:
+      - run:
+          name: Packing Snyk CLI
+          command: |
+            mkdir ./dist-pack
+            cd ./dist-pack
+            npm pack ..
+  install_release_dependencies:
+    steps:
+      - run:
+          name: Installing release dependencies
+          command: sudo apt-get install -y osslsigncode
 
 jobs:
   build:
@@ -166,30 +183,28 @@ jobs:
     steps:
       - checkout
       - install_sdks_linux
-      - install_shellspec
-      - run: sudo apt-get install python-pip
+      - install_shellspec_dependencies
       - install_project_dependencies:
           node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
-      - run: npm run lint
       - run:
-          name: npm install for fixture project
+          name: Linting project
+          command: npm run lint
+      - run:
+          name: Installing test fixture dependencies
           working_directory: ~/snyk/test/fixtures/basic-npm
           command: npm install
       - run:
-          name: prune dependencies
+          name: Pruning dependencies
           command: node ./release-scripts/prune-dependencies-in-packagejson.js
-      - run: mkdir ./dist-pack
+      - pack_snyk_cli
       - run:
-          name: pack
-          command: npm pack ..
+          name: Installing packed Snyk CLI
+          command: sudo npm install -g snyk-*.tgz
           path: ./dist-pack
       - run:
-          name: Install packed Snyk globally
-          command: find . -name '*.tgz' | xargs sudo npm install -g
-      - run:
-          name: Run shellspec
+          name: Running ShellSpec tests
           working_directory: ~/snyk/test/smoke
           command: |
             echo "Checkout the README in test/smoke folder for more details about this step"
@@ -200,7 +215,9 @@ jobs:
     <<: *defaults
     executor: win/default
     steps:
-      - run: git config --global core.autocrlf false
+      - run:
+          name: Configuring Git
+          command: git config --global core.autocrlf false
       - checkout
       - install_node_windows:
           node_version: << parameters.node_version >>
@@ -211,52 +228,52 @@ jobs:
       - attach_workspace:
           at: ~/snyk
       - run:
-          name: Add Snyk Token to Snyk Config
+          name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
       - when:
           condition: << parameters.package_tests >>
           steps:
             - run:
-                name: Run Package unit tests
+                name: Running unit tests (Packages)
                 command: npm run test:packages-unit -- --ci
       - when:
           condition: << parameters.package_tests >>
           steps:
             - run:
-                name: Run Package acceptance tests
+                name: Running acceptance tests (Packages)
                 command: npm run test:packages-acceptance -- --ci
       - when:
           condition: << parameters.root_tap_tests >>
           steps:
             - run:
-                name: Run "Root" tap tests
+                name: Running root tests (Tap)
                 command: npm run test:test
       - when:
           condition: << parameters.jest_tests >>
           steps:
             - run:
-                name: Run Jest tests in root (to remove)
+                name: Running root tests (Jest)
                 command: npm run test:jest -- --ci
             - run:
-                name: Run Jest Unit Tests
+                name: Running unit tests (Jest)
                 command: npm run test:jest-unit -- --ci
             - run:
-                name: Run Jest System Tests
+                name: Running system tests (Jest)
                 command: npm run test:jest-system -- --ci
             - run:
-                name: Run Jest Acceptance Tests
+                name: Running acceptance tests (Jest)
                 command: npm run test:jest-acceptance -- --ci
       - when:
           condition: << parameters.acceptance_tests >>
           steps:
             - run:
-                name: Run Acceptance tests
+                name: Running acceptance tests (Tap)
                 command: npm run test:acceptance-windows
       - when:
           condition: << parameters.system_tests >>
           steps:
             - run:
-                name: Run System tests
+                name: Running system tests (Tap)
                 command: npm run test:system
   test-linux:
     <<: *defaults
@@ -271,52 +288,52 @@ jobs:
       - attach_workspace:
           at: ~/snyk
       - run:
-          name: Add Snyk Token to Snyk Config
+          name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
       - when:
           condition: << parameters.package_tests >>
           steps:
             - run:
-                name: Run Package unit tests
+                name: Running unit tests (Packages)
                 command: npm run test:packages-unit -- --ci
       - when:
           condition: << parameters.package_tests >>
           steps:
             - run:
-                name: Run Package acceptance tests
+                name: Running acceptance tests (Packages)
                 command: npm run test:packages-acceptance -- --ci
       - when:
           condition: << parameters.root_tap_tests >>
           steps:
             - run:
-                name: Run "Root" tap tests
+                name: Running root tests (Tap)
                 command: npm run test:test
       - when:
           condition: << parameters.jest_tests >>
           steps:
             - run:
-                name: Run Jest tests in root (to remove)
+                name: Running root tests (Jest)
                 command: npm run test:jest -- --ci
             - run:
-                name: Run Jest Unit Tests
+                name: Running unit tests (Jest)
                 command: npm run test:jest-unit -- --ci
             - run:
-                name: Run Jest System Tests
+                name: Running system tests (Jest)
                 command: npm run test:jest-system -- --ci
             - run:
-                name: Run Jest Acceptance Tests
+                name: Running acceptance tests (Jest)
                 command: npm run test:jest-acceptance -- --ci
       - when:
           condition: << parameters.acceptance_tests >>
           steps:
             - run:
-                name: Run Acceptance tests
+                name: Running acceptance tests (Tap)
                 command: npm run test:acceptance
       - when:
           condition: << parameters.system_tests >>
           steps:
             - run:
-                name: Run System tests
+                name: Running system tests (Tap)
                 command: npm run test:system
   dev-release:
     <<: *defaults
@@ -325,21 +342,19 @@ jobs:
     resource_class: large
     steps:
       - checkout
+      - install_release_dependencies
       - install_project_dependencies:
           node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
       - run:
-          name: Update package versions
+          name: Updating package versions
           command: ./release-scripts/update-dev-versions.sh
       - run:
-          name: Install osslsigncode
-          command: sudo apt-get install -y osslsigncode
-      - run:
-          name: prune dependencies
+          name: Pruning Snyk CLI dependencies
           command: node ./release-scripts/prune-dependencies-in-packagejson.js
       - run:
-          name: Create Binaries
+          name: Building binaries
           command: |
             cat package.json
             ./release-scripts/make-binaries.sh
@@ -347,15 +362,10 @@ jobs:
       - store_artifacts:
           path: ./binary-releases
       - run:
-          name: Validate binary release checksums
+          name: Validating binaries
           working_directory: ~/snyk/binary-releases
-          command: |
-            ../release-scripts/validate-checksums.sh
-      - run: mkdir ./dist-pack
-      - run:
-          name: pack
-          command: npm pack ..
-          path: ./dist-pack
+          command: ../release-scripts/validate-checksums.sh
+      - pack_snyk_cli
       - store_artifacts:
           path: ./dist-pack
   prod-release:
@@ -373,52 +383,44 @@ jobs:
           version: 1.9.2
       - aws-cli/install:
           version: 2.2.32
-      - run:
-          name: Install osslsigncode
-          command: sudo apt-get install -y osslsigncode
+      - install_release_dependencies
       - install_project_dependencies:
           node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
       - run:
-          name: prune dependencies
-          command: node ./release-scripts/prune-dependencies-in-packagejson.js
-      - run:
-          name: Update package versions
-          command: ./release-scripts/update-versions.sh
-      - run:
-          name: Make git ignore changes relating to version updates
+          name: Updating package versions
           command: |
+            ./release-scripts/update-versions.sh
             git update-index --skip-worktree -- ./lerna.json
             git update-index --skip-worktree -- ./package.json
             git update-index --skip-worktree -- ./packages/snyk-protect/package.json
       - run:
-          name: Lerna Publish
-          command: |
-            npx lerna publish minor --yes --no-push --no-git-tag-version --exact
+          name: Pruning Snyk CLI dependencies
+          command: node ./release-scripts/prune-dependencies-in-packagejson.js
       - run:
-          name: Create Binaries
+          name: Bumping versions and publishing packages
+          command: npx lerna publish minor --yes --no-push --no-git-tag-version --exact
+      - run:
+          name: Building binaries
           command: |
             ./release-scripts/make-binaries.sh
             ls -la ./binary-releases
       - store_artifacts:
           path: ./binary-releases
       - run:
-          name: Validate binary release checksums
+          name: Validating binaries
           working_directory: ~/snyk/binary-releases
-          command: |
-            ../release-scripts/validate-checksums.sh
+          command: ../release-scripts/validate-checksums.sh
       - run:
-          name: Generate Release Notes
-          command: |
-            npx conventional-changelog-cli -p angular -l -r 1 > RELEASE_NOTES.txt
+          name: Generating release notes
+          command: npx conventional-changelog-cli -p angular -l -r 1 > RELEASE_NOTES.txt
       - run:
-          name: Upload Artifacts
+          name: Publishing binaries
           command: ./release-scripts/upload-artifacts.sh
       - run:
-          name: Handle failed CLI release
-          command: |
-            ./release-scripts/handle-failed-release.sh
+          name: Handling failed release
+          command: ./release-scripts/handle-failed-release.sh
           when: on_fail
 
 workflows:
@@ -473,7 +475,7 @@ workflows:
           root_tap_tests: true
 
       - test-linux:
-          name: Linux, Node v14.17.5 - Packages, Jest, System Tests
+          name: Linux, Node v<< matrix.node_version >> - Packages, Jest, System Tests
           context: nodejs-install
           requires:
             - Build
