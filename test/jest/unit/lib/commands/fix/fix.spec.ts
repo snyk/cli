@@ -2,7 +2,7 @@ import * as pathLib from 'path';
 import * as fs from 'fs';
 import * as snykFix from '@snyk/fix';
 
-const fix = require('../../../../../../src/cli/commands/fix');
+import fix from '../../../../../../src/cli/commands/fix';
 import * as snyk from '../../../../../../src/lib';
 import * as featureFlags from '../../../../../../src/lib/feature-flags';
 import * as analytics from '../../../../../../src/lib/analytics';
@@ -108,6 +108,8 @@ describe('snyk fix (functional tests)', () => {
         file: pipRequirementsTxt,
         dryRun: true, // prevents write to disc
         quiet: true,
+        _doubleDashArgs: [],
+        _: [],
       });
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
@@ -151,6 +153,8 @@ describe('snyk fix (functional tests)', () => {
       const res = await fix('.', {
         file: pipRequirementsTxt,
         dryRun: true, // prevents write to disc
+        _doubleDashArgs: [],
+        _: [],
       });
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
@@ -202,6 +206,8 @@ describe('snyk fix (functional tests)', () => {
         packageManager: 'pip',
         dryRun: true, // prevents write to disc
         quiet: true,
+        _doubleDashArgs: [],
+        _: [],
       });
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
@@ -256,6 +262,8 @@ describe('snyk fix (functional tests)', () => {
       const res = await fix(npmWorkspace, pipAppWorkspace, {
         dryRun: true, // prevents write to disc
         quiet: true,
+        _doubleDashArgs: [],
+        _: [],
       });
       expect(snykFixSpy.mock.calls[0][1]).toEqual({
         dryRun: true,
@@ -308,6 +316,8 @@ describe('snyk fix (functional tests)', () => {
         await fix(npmWorkspace, pipAppWorkspace, {
           dryRun: true, // prevents write to disc
           quiet: true,
+          _doubleDashArgs: [],
+          _: [],
         });
       } catch (error) {
         res = error;
@@ -361,6 +371,8 @@ describe('snyk fix (functional tests)', () => {
       const res = await fix(pipAppWorkspace, {
         dryRun: true, // prevents write to disc
         quiet: true,
+        _doubleDashArgs: [],
+        _: [],
       });
       expect(snykFixSpy).toHaveBeenCalledTimes(1);
       expect(snykFixSpy.mock.calls[0][1]).toEqual({

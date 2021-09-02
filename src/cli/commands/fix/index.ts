@@ -1,5 +1,3 @@
-export = fix;
-
 import * as Debug from 'debug';
 import * as snykFix from '@snyk/fix';
 import * as ora from 'ora';
@@ -28,7 +26,7 @@ interface FixOptions {
   dryRun?: boolean;
   quiet?: boolean;
 }
-async function fix(...args: MethodArgs): Promise<string> {
+export default async function fix(...args: MethodArgs): Promise<string> {
   const { options: rawOptions, paths } = await processCommandArgs<FixOptions>(
     ...args,
   );
