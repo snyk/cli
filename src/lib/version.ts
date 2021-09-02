@@ -32,7 +32,11 @@ export async function getVersion(): Promise<string> {
   }
 }
 
+/**
+ * We use pkg to create standalone builds (binaries).
+ * pkg uses `process.pkg` to identify itself at runtime so we can do the same.
+ * https://github.com/vercel/pkg
+ */
 export function isStandaloneBuild() {
-  const standalonePath = path.join(__dirname, '../', 'STANDALONE');
-  return fs.existsSync(standalonePath);
+  return 'pkg' in process;
 }

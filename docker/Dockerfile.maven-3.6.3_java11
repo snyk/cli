@@ -12,8 +12,8 @@ RUN apt-get update && \
   tar -xvzf apache-maven-3.6.3-bin.tar.gz && \
   rm -f apache-maven-3.6.3-bin.tar.gz && \
   curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-  apt-get install -y nodejs jq && \
-  npm install --global snyk snyk-to-html && \
+  apt-get install -y nodejs && \
+  npm install --global snyk && \
   apt-get autoremove -y && \
   apt-get clean && \
   chmod -R a+wrx /home/node
@@ -26,7 +26,6 @@ ENV PATH /home/node/apache-maven-3.6.3/bin:$PATH
 ENV PROJECT_PATH /project
 
 ADD docker-entrypoint.sh .
-ADD snyk_report.css .
 
 ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
 ENV SNYK_INTEGRATION_VERSION maven-3.6.3_java11

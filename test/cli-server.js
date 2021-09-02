@@ -55,7 +55,7 @@ module.exports = function(root, apikey, notAuthorizedApiKey) {
     return next();
   });
 
-  server.put(root + '/monitor/npm', function(req, res) {
+  server.put(root + '/monitor/npm/graph', function(req, res) {
     return res.send({
       id: 'test',
     });

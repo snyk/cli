@@ -5,6 +5,7 @@ const test = require('../../../../../src/cli/commands/test');
 import { loadPlugin } from '../../../../../src/lib/plugins/index';
 import { CommandResult } from '../../../../../src/cli/commands/types';
 import { makeRequest } from '../../../../../src/lib/request/request';
+import * as featureFlagsModule from '../../../../../src/lib/feature-flags';
 
 jest.mock('../../../../../src/lib/plugins/index');
 jest.mock('../../../../../src/lib/request/request');
@@ -15,6 +16,19 @@ const mockedMakeRequest = mocked(makeRequest);
 describe('snyk test for python project', () => {
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  beforeAll(() => {
+    // this spy is for the `cliFailFast` feature flag
+    jest
+      .spyOn(featureFlagsModule, 'isFeatureFlagSupportedForOrg')
+      .mockResolvedValue({
+        ok: false,
+      });
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 
   describe('no flag is used', () => {

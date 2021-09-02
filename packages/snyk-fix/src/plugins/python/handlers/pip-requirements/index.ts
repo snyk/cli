@@ -182,7 +182,7 @@ export async function applyAllFixes(
     [filePath: string]: FixChangesSummary[];
   } = {};
   const { dir, base } = pathLib.parse(entryFileName);
-  const provenance = await extractProvenance(workspace, dir, base);
+  const provenance = await extractProvenance(workspace, dir, dir, base);
   const upgradeChanges: FixChangesSummary[] = [];
   /* Apply all upgrades first across all files that are included */
   for (const fileName of Object.keys(provenance)) {

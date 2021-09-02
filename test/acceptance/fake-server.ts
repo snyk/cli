@@ -1,14 +1,17 @@
 import * as restify from 'restify';
 
 interface FakeServer extends restify.Server {
-  _reqLog: restify.Request[];
+  requests: restify.Request[];
   _nextResponse?: restify.Response;
   _nextStatusCode?: number;
   popRequest: () => restify.Request;
   popRequests: (num: number) => restify.Request[];
   setNextResponse: (r: any) => void;
   setNextStatusCodeAndResponse: (c: number, r: any) => void;
-  clearRequests: () => void;
+  depGraphResponse: any | undefined;
+  restore: () => void;
+  _featureFlags: Map<string, boolean>;
+  setFeatureFlag: (featureFlag, enabled) => void;
 }
 
 export function fakeServer(root, apikey) {
@@ -16,21 +19,30 @@ export function fakeServer(root, apikey) {
     name: 'snyk-mock-server',
     version: '1.0.0',
   }) as FakeServer;
-  server._reqLog = [];
+
+  const featureFlagDefaults = (): Map<string, boolean> => {
+    return new Map([['cliFailFast', false]]);
+  };
+  server._featureFlags = featureFlagDefaults();
+
+  server.requests = [];
   server.popRequest = () => {
-    return server._reqLog.pop()!;
+    return server.requests.pop()!;
   };
   server.popRequests = (num: number) => {
-    return server._reqLog.splice(server._reqLog.length - num, num);
+    return server.requests.splice(server.requests.length - num, num);
   };
-  server.clearRequests = () => {
-    server._reqLog = [];
+  server.restore = () => {
+    server.requests = [];
+    server.depGraphResponse = undefined;
+    server._featureFlags = featureFlagDefaults();
   };
+
   server.use(restify.plugins.acceptParser(server.acceptable));
   server.use(restify.plugins.queryParser({ mapParams: true }));
   server.use(restify.plugins.bodyParser({ mapParams: true }));
   server.use(function logRequest(req, res, next) {
-    server._reqLog.push(req);
+    server.requests.push(req);
     next();
   });
 
@@ -66,6 +78,7 @@ export function fakeServer(root, apikey) {
         req.url.includes('/feature-flags/experimentalLocalExecIac'));
     if (
       isExperimentalIac ||
+      req.url?.includes('/cli-config/feature-flags/') ||
       (!server._nextResponse && !server._nextStatusCode)
     ) {
       return next();
@@ -122,6 +135,11 @@ export function fakeServer(root, apikey) {
         userMessage:
           'Org missing-org was not found or you may not have the correct permissions',
       });
+      return next();
+    }
+
+    if (server.depGraphResponse) {
+      res.send(server.depGraphResponse);
       return next();
     }
 
@@ -297,6 +315,23 @@ export function fakeServer(root, apikey) {
         });
         return next();
       }
+
+      if (server._featureFlags.has(flag)) {
+        const ffEnabled = server._featureFlags.get(flag);
+        if (ffEnabled) {
+          res.send({
+            ok: true,
+          });
+        } else {
+          res.send({
+            ok: false,
+            userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
+          });
+        }
+        return next();
+      }
+
+      // default: return true for all feature flags
       res.send({
         ok: true,
       });
@@ -361,6 +396,10 @@ export function fakeServer(root, apikey) {
   server.setNextStatusCodeAndResponse = (code, body) => {
     server._nextStatusCode = code;
     server._nextResponse = body;
+  };
+
+  server.setFeatureFlag = (featureFlag, enabled) => {
+    server._featureFlags.set(featureFlag, enabled);
   };
 
   return server;

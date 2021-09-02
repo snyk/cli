@@ -7,8 +7,8 @@ RUN apt-get update && \
     apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common git && \
     curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
-    apt-get update && apt-get install -y docker-ce jq && \
-    npm install --global snyk snyk-to-html && \
+    apt-get update && apt-get install -y docker-ce && \
+    npm install --global snyk && \
     apt-get autoremove -y && \
     apt-get clean && \
     chmod -R a+wrx /home/node
@@ -20,7 +20,6 @@ ENV HOME /home/node
 ENV PROJECT_PATH /project
 
 COPY docker-entrypoint.sh .
-COPY snyk_report.css .
 
 ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
 ENV SNYK_INTEGRATION_VERSION docker

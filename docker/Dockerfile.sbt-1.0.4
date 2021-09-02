@@ -22,8 +22,8 @@ RUN apt-get update && \
     echo "addCommandAlias(\"dependency-tree\", \"dependencyTree\")" >> /root/.sbt/1.0/user.sbt && \
     echo "addCommandAlias(\"dependency-tree\", \"dependencyTree\")" >> /home/node/.sbt/1.0/user.sbt && \
     curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs jq && \
-    npm install --global snyk snyk-to-html && \
+    apt-get install -y nodejs && \
+    npm install --global snyk && \
     apt-get autoremove -y && \
     apt-get clean && \
     chmod -R a+wrx /home/node
@@ -35,7 +35,6 @@ ENV M2 /home/node/.m2
 ENV PROJECT_PATH /project
 
 COPY docker-entrypoint.sh .
-COPY snyk_report.css .
 
 ENV SNYK_INTEGRATION_NAME DOCKER_SNYK_CLI
 ENV SNYK_INTEGRATION_VERSION sbt-1.0.4

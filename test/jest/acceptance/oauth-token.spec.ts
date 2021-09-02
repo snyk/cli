@@ -4,7 +4,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
 
-describe('test using OAuth token', () => {
+describe('OAuth Token', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 
@@ -12,21 +12,25 @@ describe('test using OAuth token', () => {
     const apiPath = '/api/v1';
     const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
     env = {
-      ...process.env,
+      PATH: process.env.PATH || '',
       SNYK_API: 'http://localhost:' + apiPort + apiPath,
-      SNYK_TOKEN: '123456789',
       SNYK_OAUTH_TOKEN: 'oauth-jwt-token',
+      SNYK_DISABLE_ANALYTICS: '1',
     };
 
     server = fakeServer(apiPath, env.SNYK_TOKEN);
     server.listen(apiPort, () => done());
   });
 
+  afterEach(() => {
+    server.restore();
+  });
+
   afterAll((done) => {
     server.close(() => done());
   });
 
-  it('successfully tests a project with an OAuth env variable set', async () => {
+  it('uses oauth token for authorised requests when testing projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const jsonObj = JSON.parse(await project.read('vulns-result.json'));
     server.setNextResponse(jsonObj);
@@ -37,12 +41,16 @@ describe('test using OAuth token', () => {
     });
 
     expect(code).toEqual(0);
-    const requests = server.popRequests(2);
-    expect(requests[0].headers.authorization).toBe('Bearer oauth-jwt-token');
-    expect(requests[0].method).toBe('POST');
+    server.requests.forEach((request) => {
+      expect(request).toMatchObject({
+        headers: {
+          authorization: 'Bearer oauth-jwt-token',
+        },
+      });
+    });
   });
 
-  it('successfully monitors a project with an OAuth env variable set', async () => {
+  it('uses oauth token for authorised requests when monitoring projects', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
     const jsonObj = JSON.parse(await project.read('vulns-result.json'));
     server.setNextResponse(jsonObj);
@@ -53,8 +61,12 @@ describe('test using OAuth token', () => {
     });
 
     expect(code).toEqual(0);
-    const requests = server.popRequests(2);
-    expect(requests[0].headers.authorization).toBe('Bearer oauth-jwt-token');
-    expect(requests[0].method).toBe('PUT');
+    server.requests.forEach((request) => {
+      expect(request).toMatchObject({
+        headers: {
+          authorization: 'Bearer oauth-jwt-token',
+        },
+      });
+    });
   });
 });

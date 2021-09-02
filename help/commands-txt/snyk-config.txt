@@ -5,7 +5,9 @@
        [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m [1mg[0m[1me[0m[1mt[0m[1m|[0m[1ms[0m[1me[0m[1mt[0m[1m|[0m[1mc[0m[1ml[0m[1me[0m[1ma[0m[1mr[0m [[4mK[0m[4mE[0m[4mY[0m[=[4mV[0m[4mA[0m[4mL[0m[4mU[0m[4mE[0m]] [[4mO[0m[4mP[0m[4mT[0m[4mI[0m[4mO[0m[4mN[0m[4mS[0m]
 
 [1mD[0m[1mE[0m[1mS[0m[1mC[0m[1mR[0m[1mI[0m[1mP[0m[1mT[0m[1mI[0m[1mO[0m[1mN[0m
-       Manage your local Snyk CLI config file.
+       Manage  your local Snyk CLI config file. This config file is a JSON lo-
+       cated  at   [1m$[0m[1mX[0m[1mD[0m[1mG[0m[1m_[0m[1mC[0m[1mO[0m[1mN[0m[1mF[0m[1mI[0m[1mG[0m[1m_[0m[1mH[0m[1mO[0m[1mM[0m[1mE[0m   or   [1m~[0m[1m/[0m[1m.[0m[1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m   followed   by   [1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m[1m-[0m
+       [1ms[0m[1mt[0m[1mo[0m[1mr[0m[1me[0m[1m/[0m[1ms[0m[1mn[0m[1my[0m[1mk[0m[1m.[0m[1mj[0m[1ms[0m[1mo[0m[1mn[0m. For example [1m~[0m[1m/[0m[1m.[0m[1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m[1m/[0m[1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m[1ms[0m[1mt[0m[1mo[0m[1mr[0m[1me[0m[1m/[0m[1ms[0m[1mn[0m[1my[0m[1mk[0m[1m.[0m[1mj[0m[1ms[0m[1mo[0m[1mn[0m.
 
        This  command  does  not  manage  the  [1m.[0m[1ms[0m[1mn[0m[1my[0m[1mk[0m  file  that's part of your
        project. See [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1my[0m, [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mi[0m[1mg[0m[1mn[0m[1mo[0m[1mr[0m[1me[0m or [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mw[0m[1mi[0m[1mz[0m[1ma[0m[1mr[0m[1md[0m.

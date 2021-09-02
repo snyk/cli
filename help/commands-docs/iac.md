@@ -25,8 +25,8 @@ Find security issues in your Infrastructure as Code files.
   Example: `--detection-depth=3`  
   Will limit search to provided directory (or current directory if no <PATH> provided) plus two levels of subdirectories.
 
-- `--severity-threshold`=low|medium|high:
-  Only report vulnerabilities of provided level or higher.
+- `--severity-threshold`=low|medium|high|critical:
+  Only report configuration issues with the provided severity level or higher. Please note that the Snyk Infrastructure as Code configuration issues do not currently use the `critical` severity level.
 
 - `--ignore-policy`:
   Ignores all set policies. The current policy in `.snyk` file, Org level ignores and the project policy on snyk.io.

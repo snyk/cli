@@ -147,6 +147,7 @@ if (!isWindows) {
               { chdirWorkspaces },
             ),
           );
+          server.restore();
         }
       });
     }
