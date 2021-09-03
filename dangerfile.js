@@ -114,7 +114,11 @@ if (danger.github && danger.github.pr) {
       warn(
         `Dependencies` +
           ` ${message}` +
-          `\nChanges:${packageJsonDiff.dependencies}`,
+          `\nChanges:${
+            packageJsonDiff.dependencies.added
+              ? packageJsonDiff.dependencies.added
+              : packageJsonDiff.dependencies.removed
+          }`,
       );
     }
     if (
@@ -124,7 +128,11 @@ if (danger.github && danger.github.pr) {
       warn(
         `Dev dependencies` +
           ` ${message}` +
-          `\nChanges:${packageJsonDiff.devDependencies}`,
+          `\nChanges:${
+            packageJsonDiff.devDependencies.added
+              ? packageJsonDiff.devDependencies.added
+              : packageJsonDiff.devDependencies.removed
+          }`,
       );
     }
   });
