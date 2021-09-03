@@ -1,4 +1,4 @@
-import * as config from '../config';
+import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
 import { Options } from '../types';

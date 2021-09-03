@@ -6,7 +6,7 @@ import { IacTestResponse } from './iac-test-result';
 import * as snyk from '..';
 import { isCI } from '../is-ci';
 import * as common from './common';
-import * as config from '../config';
+import config from '../config';
 import { Options, TestOptions } from '../types';
 import { Payload } from './types';
 import { IacScan } from './payload-schema';

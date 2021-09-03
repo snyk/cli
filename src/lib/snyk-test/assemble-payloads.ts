@@ -1,5 +1,5 @@
 import * as path from 'path';
-import * as config from '../config';
+import config from '../config';
 import { isCI } from '../is-ci';
 import { getPlugin } from '../ecosystems';
 import { Ecosystem } from '../ecosystems/types';

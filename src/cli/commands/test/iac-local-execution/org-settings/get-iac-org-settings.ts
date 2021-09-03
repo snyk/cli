@@ -1,6 +1,6 @@
 import { IaCErrorCodes, IacOrgSettings } from '../types';
 import { Payload } from '../../../../../lib/snyk-test/types';
-import * as config from '../../../../../lib/config';
+import config from '../../../../../lib/config';
 import { isCI } from '../../../../../lib/is-ci';
 import { api } from '../../../../../lib/api-token';
 import { makeRequest } from '../../../../../lib/request';

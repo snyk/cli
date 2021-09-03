@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { icon } from '../theme';
-import * as config from '../../lib/config';
+import config from '../../lib/config';
 import { TestOptions } from '../../lib/types';
 import {
   DependencyPins,

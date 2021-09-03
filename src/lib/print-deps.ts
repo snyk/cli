@@ -1,4 +1,4 @@
-import * as config from './config';
+import config from './config';
 import * as depGraphLib from '@snyk/dep-graph';
 import { DepDict, Options, MonitorOptions } from './types';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';

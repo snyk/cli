@@ -1,5 +1,5 @@
 import { makeRequest } from '../../../../lib/request';
-import config = require('../../../../lib/config');
+import config from '../../../../lib/config';
 import { api as getApiToken } from '../../../../lib/api-token';
 import { CustomError } from '../../../../lib/errors';
 

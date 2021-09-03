@@ -2,7 +2,7 @@ import * as tap from 'tap';
 import * as sinon from 'sinon';
 import * as fs from 'fs';
 
-import * as config from '../../src/lib/config';
+import config from '../../src/lib/config';
 import * as url from 'url';
 import * as cli from '../../src/cli/commands';
 import * as snyk from '../../src/lib';

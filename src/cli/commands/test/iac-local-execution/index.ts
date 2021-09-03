@@ -24,7 +24,7 @@ import {
 } from './measurable-methods';
 import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { FlagError } from './assert-iac-options-flag';
-import config = require('../../../../lib/config');
+import config from '../../../../lib/config';
 import { findAndLoadPolicy } from '../../../../lib/policy/find-and-load-policy';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.

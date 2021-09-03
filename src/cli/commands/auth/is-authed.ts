@@ -1,5 +1,5 @@
 import * as snyk from '../../../lib';
-import * as config from '../../../lib/config';
+import config from '../../../lib/config';
 import { makeRequest } from '../../../lib/request';
 
 export function isAuthed() {

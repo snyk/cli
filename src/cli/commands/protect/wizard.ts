@@ -28,7 +28,7 @@ import { monitor as snykMonitor } from '../../../lib/monitor';
 import { isCI } from '../../../lib/is-ci';
 const protect = require('../../../lib/protect');
 import * as authorization from '../../../lib/authorization';
-import * as config from '../../../lib/config';
+import config from '../../../lib/config';
 import * as spinner from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
 import * as alerts from '../../../lib/alerts';

@@ -8,7 +8,7 @@ import {
 } from '../errors';
 import { makeRequest } from '../request';
 import { api as getApiToken } from '../api-token';
-import * as config from './../config';
+import config from './../config';
 import {
   IacValidateTerraformResponse,
   IacValidationResponse,

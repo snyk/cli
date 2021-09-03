@@ -14,7 +14,7 @@ import {
   Options,
   Contributor,
 } from '../../../lib/types';
-import * as config from '../../../lib/config';
+import config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
 import { GoodResult, BadResult } from './types';
 import * as spinner from '../../../lib/spinner';

@@ -12,7 +12,7 @@ tearDown(() => {
 });
 
 test('uses default endpoint when none is provided by user', (t) => {
-  const config = proxyquire('../src/lib/config', {
+  const { default: config } = proxyquire('../src/lib/config', {
     './user-config': {
       config: {
         get: () => {
@@ -27,7 +27,7 @@ test('uses default endpoint when none is provided by user', (t) => {
 });
 
 test('uses default endpoint when user endpoint is the same', (t) => {
-  const config = proxyquire('../src/lib/config', {
+  const { default: config } = proxyquire('../src/lib/config', {
     './user-config': {
       config: {
         get: (key) => {
@@ -45,7 +45,7 @@ test('uses default endpoint when user endpoint is the same', (t) => {
 
 test('uses a valid custom endpoint when provided', (t) => {
   const providedEndpoint = 'https://myendpoint.local/api';
-  const config = proxyquire('../src/lib/config', {
+  const { default: config } = proxyquire('../src/lib/config', {
     './user-config': {
       config: {
         get: (key) => {
@@ -64,7 +64,7 @@ test('uses a valid custom endpoint when provided', (t) => {
 test('uses a valid custom endpoint when provided by SNYK_API environment', (t) => {
   const providedEndpoint = 'https://myendpoint.local/api';
   process.env.SNYK_API = providedEndpoint;
-  const config = proxyquire('../src/lib/config', {
+  const { default: config } = proxyquire('../src/lib/config', {
     './user-config': {
       config: {
         get: () => {
@@ -81,7 +81,7 @@ test('uses a valid custom endpoint when provided by SNYK_API environment', (t) =
 
 test('uses a valid custom localhost endpoint when provided', (t) => {
   const providedEndpoint = 'http://localhost:8000';
-  const config = proxyquire('../src/lib/config', {
+  const { default: config } = proxyquire('../src/lib/config', {
     './user-config': {
       config: {
         get: (key) => {

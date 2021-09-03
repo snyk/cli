@@ -1,5 +1,5 @@
 import { Options } from '../../types';
-import * as config from '../../config';
+import config from '../../config';
 
 import {
   AuthFailedError,

@@ -8,7 +8,7 @@ import { verifyAPI } from './is-authed';
 import { isCI } from '../../../lib/is-ci';
 import { isDocker } from '../../../lib/is-docker';
 import { args as argsLib } from '../../args';
-import * as config from '../../../lib/config';
+import config from '../../../lib/config';
 import { makeRequest } from '../../../lib/request';
 import { CustomError } from '../../../lib/errors';
 import { AuthFailedError } from '../../../lib/errors';

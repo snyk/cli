@@ -16,7 +16,7 @@ import { format as fmt } from 'util';
 import * as debugModule from 'debug';
 const protect = require('../../../lib/protect');
 import { parsePackageString as moduleToObject } from 'snyk-module';
-import * as config from '../../../lib/config';
+import config from '../../../lib/config';
 import * as snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
 import { icon, color } from '../../../lib/theme';

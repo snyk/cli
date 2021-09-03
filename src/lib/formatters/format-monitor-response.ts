@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import * as url from 'url';
 
 import { MonitorResult } from '../types';
-import * as config from '../config';
+import config from '../config';
 import { showMultiScanTip } from './show-multi-scan-tip';
 
 export function formatErrorMonitorOutput(
