@@ -14,7 +14,7 @@ import { apiTokenExists } from '../../../lib/api-token';
 import * as auth from '../auth/is-authed';
 import getVersion from '../version';
 import * as allPrompts from './prompts';
-import answersToTasks = require('./tasks');
+import answersToTasks from './tasks';
 import * as snyk from '../../../lib/';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { isCI } from '../../../lib/is-ci';

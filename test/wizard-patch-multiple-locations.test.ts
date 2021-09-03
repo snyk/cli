@@ -1,6 +1,6 @@
 import { test } from 'tap';
 import interactive = require('./wizard-instrumented');
-import answersToTasks = require('../src/cli/commands/protect/tasks');
+import answersToTasks from '../src/cli/commands/protect/tasks';
 import * as snykPolicy from 'snyk-policy';
 import * as proxyquire from 'proxyquire';
 const patch = proxyquire('../src/lib/protect/patch', {

@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const rimraf = require('rimraf');
 
-const toTasks = require('../src/cli/commands/protect/tasks');
+const { default: toTasks } = require('../src/cli/commands/protect/tasks');
 const writePatchFlag = require('../src/lib/protect/write-patch-flag');
 const applyPatch = require('../src/lib/protect/apply-patch');
 const debugNodeFileFixture = 'node-fixture.js';
