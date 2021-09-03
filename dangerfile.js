@@ -114,7 +114,9 @@ if (danger.github && danger.github.pr) {
       warn(
         `Dependencies` +
           ` ${message}` +
-          `\nChanges:\nBefore:${packageJsonDiff.dependencies.before}\nAfter:${packageJsonDiff.dependencies.after}`,
+          `\nChanges:\nBefore:${JSON.stringify(
+            packageJsonDiff.dependencies.before,
+          )}\nAfter:${JSON.stringify(packageJsonDiff.dependencies.after)}`,
       );
     }
     if (
@@ -124,7 +126,9 @@ if (danger.github && danger.github.pr) {
       warn(
         `Dev dependencies` +
           ` ${message}` +
-          `\nChanges:\nBefore:${packageJsonDiff.devDependencies.before}\nAfter:${packageJsonDiff.devDependencies.after}`,
+          `\nChanges:\nBefore:${JSON.stringify(
+            packageJsonDiff.devDependencies.before,
+          )}\nAfter:${JSON.stringify(packageJsonDiff.devDependencies.after)}`,
       );
     }
   });
