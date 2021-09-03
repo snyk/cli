@@ -1,10 +1,8 @@
-export = npm;
-
 import debugModule = require('debug');
 const debug = debugModule('snyk');
 import { exec } from 'child_process';
 
-function npm(
+export default function npm(
   method: string,
   packages: string[] | null,
   live: boolean,
@@ -65,7 +63,7 @@ function npm(
   });
 }
 
-npm.getVersion = () => {
+export function getVersion() {
   return new Promise((resolve, reject) => {
     exec(
       'npm --version',
@@ -80,4 +78,4 @@ npm.getVersion = () => {
       },
     );
   });
-};
+}

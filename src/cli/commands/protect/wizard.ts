@@ -24,7 +24,7 @@ import * as config from '../../../lib/config';
 import * as spinner from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
 import * as alerts from '../../../lib/alerts';
-import npm = require('../../../lib/npm');
+import npm, { getVersion as npmGetVersion } from '../../../lib/npm';
 import * as detect from '../../../lib/detect';
 import * as plugins from '../../../lib/plugins';
 import { ModuleInfo as moduleInfo } from '../../../lib/module-info';
@@ -441,7 +441,7 @@ export function processAnswers(answers, policy, options) {
       }
     })
     .then(async () => {
-      const npmVersion = await npm.getVersion();
+      const npmVersion = await npmGetVersion();
       analytics.add('add-snyk-protect', answers['misc-add-protect']);
       if (!answers['misc-add-protect']) {
         return;
