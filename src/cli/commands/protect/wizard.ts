@@ -1,11 +1,3 @@
-export = wizard;
-
-// used for testing
-Object.assign(wizard, {
-  processAnswers,
-  inquire,
-  interactive,
-});
 import * as debugModule from 'debug';
 const debug = debugModule('snyk');
 
@@ -50,7 +42,7 @@ import {
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 
-function wizard(options?: Options) {
+export default function wizard(options?: Options) {
   options = options || ({} as Options);
   options.org = options.org || config.org || null;
 
@@ -216,7 +208,7 @@ async function processWizardFlow(options) {
     });
 }
 
-function interactive(test, pkg, policy, options) {
+export function interactive(test, pkg, policy, options) {
   const vulns = test.vulnerabilities;
   if (!policy) {
     policy = {};
@@ -252,7 +244,7 @@ function interactive(test, pkg, policy, options) {
     });
 }
 
-function inquire(prompts, answers): Promise<{}> {
+export function inquire(prompts, answers): Promise<{}> {
   if (prompts.length === 0) {
     return Promise.resolve(answers);
   }
@@ -326,7 +318,7 @@ function calculatePkgFileIndentation(packageFile: string): number {
   return pkgIndentation;
 }
 
-function processAnswers(answers, policy, options) {
+export function processAnswers(answers, policy, options) {
   if (!options) {
     options = {};
   }
