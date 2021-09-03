@@ -272,7 +272,12 @@ jobs:
     docker:
       - image: circleci/node:<< parameters.node_version >>
     resource_class: large
+    environment:
+      TEMP: /mnt/ramdisk/tmp
     steps:
+      - run:
+          name: Creating temporary directory
+          command: mkdir /mnt/ramdisk/tmp
       - checkout
       - install_sdks_linux
       - install_project_dependencies:
