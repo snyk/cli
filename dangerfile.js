@@ -102,41 +102,33 @@ if (danger.github && danger.github.pr) {
   }
 
   // Warn if package json and lockfile out of sync
-
-  // const generateDiff = async function(file) {
-  //   const diff = await danger.git.JSONDiffForFile(file);
-  //   message(`${diff}`);
-  //   return diff;
-  // };
-
   schedule(async () => {
     const packageJsonDiff = await danger.git.JSONDiffForFile('package.json');
     const packageLockJsonDiff = await danger.git.JSONDiffForFile(
       'package-lock.json',
     );
+    const message =
+      'were changed in package json but not in package lock file. Files out of sync';
 
     if (packageJsonDiff.dependencies && !packageLockJsonDiff.dependencies) {
-      message(
-        'Dependencies were changed in package json but not in package lock file. Files out of sync',
+      warn(
+        `Dependencies` +
+          ` ${message}` +
+          `\nChanges:${packageJsonDiff.dependencies}`,
       );
     }
     if (
       packageJsonDiff.devDependencies &&
       !packageLockJsonDiff.devDependencies
     ) {
-      message(
-        'Dev dependencies were changed in package json but not in package lock file. Files out of sync',
+      warn(
+        `Dev dependencies` +
+          ` ${message}` +
+          `\nChanges:${packageJsonDiff.devDependencies}`,
       );
     }
-    // message(
-    //   `Package JSON:${packageJsonDiff.dependencies.added}\nLockFile:${modifiedPackageLockJson}`,
-    // );
-    // if (packageJsonDiff && !modifiedPackageLockJson) {
-    //   warn(
-    //     `Package json has been changed while package lock did not. Files might be out of sync.\nDiff:${packageJsonDiff.dependencies.added}`,
-    //   );
-    // }
   });
+
   // Enforce usage of ES6 modules
   let fileNames = '';
   const filesUsingOldModules = danger.git.modified_files.some((f) => {
