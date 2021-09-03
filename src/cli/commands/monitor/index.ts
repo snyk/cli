@@ -1,5 +1,3 @@
-export = monitor;
-
 import chalk from 'chalk';
 import * as fs from 'fs';
 import * as Debug from 'debug';
@@ -61,7 +59,7 @@ async function promiseOrCleanup<T>(
 
 // Returns an array of Registry responses (one per every sub-project scanned), a single response,
 // or an error message.
-async function monitor(...args0: MethodArgs): Promise<any> {
+export default async function monitor(...args0: MethodArgs): Promise<any> {
   const { options, paths } = processCommandArgs(...args0);
   const results: Array<GoodResult | BadResult> = [];
 
