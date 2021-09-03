@@ -1,5 +1,3 @@
-export = ignore;
-
 import * as policy from 'snyk-policy';
 import chalk from 'chalk';
 import * as authorization from '../../lib/authorization';
@@ -13,7 +11,7 @@ const debug = Debug('snyk');
 
 import { MisconfiguredAuthInCI } from '../../lib/errors/misconfigured-auth-in-ci-error';
 
-function ignore(options): Promise<MethodResult> {
+export default function ignore(options): Promise<MethodResult> {
   debug('snyk ignore called with options: %O', options);
 
   return auth

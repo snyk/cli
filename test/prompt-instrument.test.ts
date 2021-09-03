@@ -5,7 +5,7 @@ import * as tryRequire from 'snyk-try-require';
 
 import interactive = require('./wizard-instrumented');
 import dedupePatches = require('../src/lib/protect/dedupe-patches');
-import answersToTasks = require('../src/cli/commands/protect/tasks');
+import answersToTasks from '../src/cli/commands/protect/tasks';
 
 test('wizard prompts as expected', async (tapTest) => {
   tapTest.test('groups correctly (with oui package)', async (t) => {

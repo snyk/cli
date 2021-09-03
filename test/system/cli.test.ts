@@ -119,7 +119,8 @@ test('auth with no args', async (t) => {
   // disable console.log
   const enableLog = silenceLog();
   try {
-    const res = await auth();
+    // .default is caused by Proxyquire is requiring without esmodules
+    const res = await auth.default();
     t.match(
       res,
       'Your account has been authenticated. Snyk is now ready to be used',
@@ -160,7 +161,7 @@ test('auth with UTMs in environment variables', async (t) => {
   process.env.SNYK_UTM_CAMPAIGN = 'plugin';
 
   try {
-    await auth();
+    await auth.default();
     t.match(
       stdoutMessages,
       'utm_medium=ide&utm_source=eclipse&utm_campaign=plugin',
@@ -203,7 +204,7 @@ test('auth with default UTMs', async (t) => {
   console.log = stubConsoleLog;
 
   try {
-    await auth();
+    await auth.default();
     t.match(
       stdoutMessages,
       'utm_medium=cli&utm_source=cli&utm_campaign=cli',

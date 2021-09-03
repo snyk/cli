@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { mocked } from 'ts-jest/utils';
 import { NeedleResponse } from 'needle';
-const test = require('../../../../../src/cli/commands/test');
+import test from '../../../../../src/cli/commands/test';
 import { loadPlugin } from '../../../../../src/lib/plugins/index';
 import { CommandResult } from '../../../../../src/cli/commands/types';
 import { makeRequest } from '../../../../../src/lib/request/request';
@@ -68,6 +68,8 @@ describe('snyk test for python project', () => {
 
         const result: CommandResult = await test(fixturePath, {
           json: true,
+          _: [],
+          _doubleDashArgs: [],
         });
 
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
@@ -150,6 +152,8 @@ describe('snyk test for python project', () => {
         const result: CommandResult = await test(fixturePath, {
           allProjects: true,
           json: true,
+          _: [],
+          _doubleDashArgs: [],
         });
 
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(1);
@@ -243,6 +247,8 @@ describe('snyk test for python project', () => {
         const result: CommandResult = await test(fixturePath, {
           allProjects: true,
           json: true,
+          _: [],
+          _doubleDashArgs: [],
         });
 
         expect(mockedLoadPlugin).toHaveBeenCalledTimes(2);

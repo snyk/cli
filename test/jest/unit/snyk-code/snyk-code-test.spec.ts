@@ -13,8 +13,9 @@ import * as analysis from '../../../../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../../../../src/lib/types';
 import * as ecosystems from '../../../../src/lib/ecosystems';
 import * as analytics from '../../../../src/lib/analytics';
-const test = require('../../../../src/cli/commands/test/index.ts');
+import test from '../../../../src/cli/commands/test/';
 import { jsonStringifyLargeObject } from '../../../../src/lib/json';
+import { ArgsOptions } from '../../../../src/cli/args';
 
 const { getCodeAnalysisAndParseResults } = analysis;
 const osName = require('os-name');
@@ -151,11 +152,13 @@ describe('Test snyk code', () => {
   });
 
   it('should succeed testing from the cli test command - with correct exit code', async () => {
-    const options: Options & TestOptions = {
+    const options: ArgsOptions = {
       path: '',
       traverseNodeModules: false,
       showVulnPaths: 'none',
       code: true,
+      _: [],
+      _doubleDashArgs: [],
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
@@ -206,6 +209,8 @@ describe('Test snyk code', () => {
       await test('.', {
         path: '',
         code: true,
+        _: [],
+        _doubleDashArgs: [],
       });
     } catch (error) {
       expect(error).toEqual(expected);
@@ -218,7 +223,9 @@ describe('Test snyk code', () => {
       ok: true,
     });
 
-    await expect(test('some/path', { code: true })).rejects.toHaveProperty(
+    await expect(
+      test('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+    ).rejects.toHaveProperty(
       'userMessage',
       'Snyk Code is not supported for org: enable in Settings > Snyk Code',
     );
@@ -230,7 +237,9 @@ describe('Test snyk code', () => {
       userError: 'Not enabled',
     });
 
-    await expect(test('some/path', { code: true })).rejects.toHaveProperty(
+    await expect(
+      test('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+    ).rejects.toHaveProperty(
       'userMessage',
       'Snyk Code is not supported for org.',
     );
@@ -246,10 +255,9 @@ describe('Test snyk code', () => {
       userMessage: 'Test limit reached!',
     });
 
-    await expect(test('some/path', { code: true })).rejects.toHaveProperty(
-      'userMessage',
-      'Test limit reached!',
-    );
+    await expect(
+      test('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+    ).rejects.toHaveProperty('userMessage', 'Test limit reached!');
   });
 
   it.each([
@@ -292,12 +300,14 @@ describe('Test snyk code', () => {
   );
 
   it('succeed testing with correct exit code - with sarif output', async () => {
-    const options: Options & TestOptions = {
+    const options: ArgsOptions = {
       path: '',
       traverseNodeModules: false,
       showVulnPaths: 'none',
       code: true,
       sarif: true,
+      _: [],
+      _doubleDashArgs: [],
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);

@@ -66,9 +66,14 @@ const mockfs = {
 };
 
 const wizard = proxyquire('../src/cli/commands/protect/wizard', {
-  '../../../lib/npm': function(cmd) {
-    execSpy(cmd);
-    return Promise.resolve(true);
+  '../../../lib/npm': {
+    default: function(cmd) {
+      execSpy(cmd);
+      return Promise.resolve(true);
+    },
+    getVersion: function() {
+      return Promise.resolve('6.0.0');
+    },
   },
   fs: mockfs,
   '../../../src/lib/protect': proxyquire('../src/lib/protect', {
@@ -89,9 +94,11 @@ const wizard = proxyquire('../src/cli/commands/protect/wizard', {
       },
     }),
     './update': proxyquire('../src/lib/protect/update', {
-      '../npm': function(cmd, packages, live, cwd, flags) {
-        execSpy(cmd, packages, live, cwd, flags);
-        return Promise.resolve(true);
+      '../npm': {
+        default: function(cmd, packages, live, cwd, flags) {
+          execSpy(cmd, packages, live, cwd, flags);
+          return Promise.resolve(true);
+        },
       },
     }),
   }),
