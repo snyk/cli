@@ -30,9 +30,6 @@ defaults: &defaults
 commands:
   install_project_dependencies:
     parameters:
-      os:
-        type: string
-        default: 'linux'
       node_version:
         type: string
       npm_version:
@@ -41,6 +38,9 @@ commands:
       npm_cache_directory:
         type: string
         default: /mnt/ramdisk/.npm
+      npm_global_sudo:
+        type: boolean
+        default: true
     steps:
       - restore_cache:
           name: Restoring npm cache
@@ -48,15 +48,13 @@ commands:
             - npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
       - when:
           condition:
-            equal: ['win/default', << parameters.os >>]
+            not: << parameters.npm_global_sudo >>
           steps:
             run:
               name: Installing npm
               command: npm install -g npm@<< parameters.npm_version >>
       - when:
-          condition:
-            not:
-              equal: ['win/default', << parameters.os >>]
+          condition: << parameters.npm_global_sudo >>
           steps:
             run:
               name: Installing npm
@@ -216,9 +214,9 @@ jobs:
           node_version: << parameters.node_version >>
       - install_sdks_windows
       - install_project_dependencies:
-          os: win/default
           npm_cache_directory: ~\AppData\Local\npm-cache
           node_version: << parameters.node_version >>
+          npm_global_sudo: false
       - attach_workspace:
           at: .
       - run:
