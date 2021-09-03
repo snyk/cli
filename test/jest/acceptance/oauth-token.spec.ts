@@ -12,7 +12,7 @@ describe('OAuth Token', () => {
     const apiPath = '/api/v1';
     const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
     env = {
-      PATH: process.env.PATH || '',
+      ...process.env,
       SNYK_API: 'http://localhost:' + apiPort + apiPath,
       SNYK_OAUTH_TOKEN: 'oauth-jwt-token',
       SNYK_DISABLE_ANALYTICS: '1',
