@@ -25,7 +25,7 @@ defaults: &defaults
     package_tests:
       type: boolean
       default: false
-  working_directory: ~/snyk
+  working_directory: /mnt/ramdisk/snyk
 
 commands:
   install_project_dependencies:
@@ -38,11 +38,14 @@ commands:
       npm_version:
         type: string
         default: '7.21.1'
+      npm_cache_directory:
+        type: string
+        default: /mnt/ramdisk/.npm
     steps:
       - restore_cache:
           name: Restoring npm cache
           keys:
-            - npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
+            - npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
       - when:
           condition:
             equal: ['win/default', << parameters.os >>]
@@ -60,29 +63,18 @@ commands:
               command: sudo npm install -g npm@<< parameters.npm_version >>
       - run:
           name: Configuring npm
-          command: npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
+          command: |
+            npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
+            npm config set cache << parameters.npm_cache_directory >>
+            npm config set prefer-offline true
       - run:
           name: Installing project dependencies
           command: npm ci
-      - when:
-          condition:
-            equal: ['win/default', << parameters.os >>]
-          steps:
-            - save_cache:
-                name: Saving npm cache
-                key: npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
-                paths:
-                  - ~\AppData\Local\npm-cache
-      - when:
-          condition:
-            not:
-              equal: ['win/default', << parameters.os >>]
-          steps:
-            - save_cache:
-                name: Saving npm cache
-                key: npm-cache-v1-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
-                paths:
-                  - ~/.npm
+      - save_cache:
+          name: Saving npm cache
+          key: npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
+          paths:
+            - << parameters.npm_cache_directory >>
   build_project:
     steps:
       - run:
@@ -187,13 +179,13 @@ jobs:
       - install_project_dependencies:
           node_version: << parameters.node_version >>
       - attach_workspace:
-          at: ~/snyk
+          at: .
       - run:
           name: Linting project
           command: npm run lint
       - run:
           name: Installing test fixture dependencies
-          working_directory: ~/snyk/test/fixtures/basic-npm
+          working_directory: ./test/fixtures/basic-npm
           command: npm install
       - run:
           name: Pruning dependencies
@@ -205,7 +197,7 @@ jobs:
           path: ./dist-pack
       - run:
           name: Running ShellSpec tests
-          working_directory: ~/snyk/test/smoke
+          working_directory: ./test/smoke
           command: |
             echo "Checkout the README in test/smoke folder for more details about this step"
             unset SNYK_API
@@ -214,6 +206,7 @@ jobs:
   test-windows:
     <<: *defaults
     executor: win/default
+    working_directory: ~\snyk
     steps:
       - run:
           name: Configuring Git
@@ -224,9 +217,10 @@ jobs:
       - install_sdks_windows
       - install_project_dependencies:
           os: win/default
+          npm_cache_directory: ~\AppData\Local\npm-cache
           node_version: << parameters.node_version >>
       - attach_workspace:
-          at: ~/snyk
+          at: .
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
@@ -286,7 +280,7 @@ jobs:
       - install_project_dependencies:
           node_version: << parameters.node_version >>
       - attach_workspace:
-          at: ~/snyk
+          at: .
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -346,7 +340,7 @@ jobs:
       - install_project_dependencies:
           node_version: << parameters.node_version >>
       - attach_workspace:
-          at: ~/snyk
+          at: .
       - run:
           name: Updating package versions
           command: ./release-scripts/update-dev-versions.sh
@@ -363,7 +357,7 @@ jobs:
           path: ./binary-releases
       - run:
           name: Validating binaries
-          working_directory: ~/snyk/binary-releases
+          working_directory: ./binary-releases
           command: ../release-scripts/validate-checksums.sh
       - pack_snyk_cli
       - store_artifacts:
@@ -372,7 +366,7 @@ jobs:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
-    resource_class: small
+    resource_class: large
     steps:
       - checkout
       - run:
@@ -387,7 +381,7 @@ jobs:
       - install_project_dependencies:
           node_version: << parameters.node_version >>
       - attach_workspace:
-          at: ~/snyk
+          at: .
       - run:
           name: Updating package versions
           command: |
@@ -410,7 +404,7 @@ jobs:
           path: ./binary-releases
       - run:
           name: Validating binaries
-          working_directory: ~/snyk/binary-releases
+          working_directory: ./binary-releases
           command: ../release-scripts/validate-checksums.sh
       - run:
           name: Generating release notes
