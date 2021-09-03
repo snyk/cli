@@ -175,6 +175,9 @@ jobs:
       - checkout
       - install_project_dependencies:
           node_version: << parameters.node_version >>
+      - run:
+          name: Linting project
+          command: npm run lint
       - build_project
   regression-test:
     <<: *defaults
@@ -188,9 +191,6 @@ jobs:
           node_version: << parameters.node_version >>
       - attach_workspace:
           at: ~/snyk
-      - run:
-          name: Linting project
-          command: npm run lint
       - run:
           name: Installing test fixture dependencies
           working_directory: ~/snyk/test/fixtures/basic-npm
