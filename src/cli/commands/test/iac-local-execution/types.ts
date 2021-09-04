@@ -173,7 +173,7 @@ export interface TerraformPlanResource {
   type: string; // "aws_cloudwatch_log_group",
   name: string; // "terra_ci",
   values: Record<string, unknown>; // the values in the resource
-  index: number;
+  index: number | string; // can be either a number or a string (1, "rtb-asdasd", "10.10.10.10")
 }
 
 export interface TerraformPlanResourceChange

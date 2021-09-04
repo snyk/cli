@@ -25,14 +25,17 @@ function terraformPlanReducer(
     mode === 'data' ? 'data' : 'resource';
   if (scanInput[inputKey][type]) {
     // add new resources of the same type with different names
-    scanInput[inputKey][type][index !== undefined ? `${name}_${index}` : name] =
-      values || {};
+    scanInput[inputKey][type][getResourceName(index, name)] = values || {};
   } else {
     // add a new resource type
-    scanInput[inputKey][type] = { [name]: values };
+    scanInput[inputKey][type] = { [getResourceName(index, name)]: values };
   }
 
   return scanInput;
+}
+
+function getResourceName(index: string | number, name: string): string {
+  return index !== undefined ? `${name}["${index}"]` : name;
 }
 
 function resourceChangeReducer(
