@@ -111,25 +111,13 @@ if (danger.github && danger.github.pr) {
       'were changed in package json but not in package lock file. Files out of sync';
 
     if (packageJsonDiff.dependencies && !packageLockJsonDiff.dependencies) {
-      warn(
-        `Dependencies` +
-          ` ${message}` +
-          `\nChanges:\nBefore:${JSON.stringify(
-            packageJsonDiff.dependencies.before,
-          )}\nAfter:${JSON.stringify(packageJsonDiff.dependencies.after)}`,
-      );
+      warn(`Dependencies` + ` ${message}`);
     }
     if (
       packageJsonDiff.devDependencies &&
       !packageLockJsonDiff.devDependencies
     ) {
-      warn(
-        `Dev dependencies` +
-          ` ${message}` +
-          `\nChanges:\nBefore:${JSON.stringify(
-            packageJsonDiff.devDependencies.before,
-          )}\nAfter:${JSON.stringify(packageJsonDiff.devDependencies.after)}`,
-      );
+      warn(`Dev dependencies` + ` ${message}`);
     }
   });
 
