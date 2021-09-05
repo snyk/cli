@@ -35,6 +35,9 @@ Available top-level CLI commands:
 - `iac`:
   Find security issues in your Infrastructure as Code files. See `snyk iac --help` for full instructions.
 
+- `code`:
+  Find security issues using static code analysis scanning. See `snyk code --help` for full instructions.
+
 - `config`:
   Manage Snyk CLI configuration.
 
@@ -300,6 +303,12 @@ See `snyk iac --help` for more details and examples:
     $ snyk iac test /path/to/kubernetes_file.yaml
     $ snyk iac test /path/to/terraform_file.tf
     $ snyk iac test /path/to/tf-plan.json
+
+### Static code analysis (SAST) scanning
+
+See `snyk code --help` for more details and examples:
+
+    $ snyk code test /path/to/project
 
 
 ## EXIT CODES

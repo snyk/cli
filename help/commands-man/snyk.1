@@ -1,6 +1,6 @@
 .\" generated with Ronn-NG/v0.9.1
 .\" http://github.com/apjanke/ronn-ng/tree/0.9.1
-.TH "SNYK" "1" "August 2021" "Snyk.io"
+.TH "SNYK" "1" "September 2021" "Snyk.io"
 .SH "NAME"
 \fBsnyk\fR \- CLI and build\-time tool to find & fix known vulnerabilities in open\-source dependencies
 .SH "SYNOPSIS"
@@ -34,6 +34,9 @@ Test container images for vulnerabilities\. See \fBsnyk container \-\-help\fR fo
 .TP
 \fBiac\fR
 Find security issues in your Infrastructure as Code files\. See \fBsnyk iac \-\-help\fR for full instructions\.
+.TP
+\fBcode\fR
+Find security issues using static code analysis scanning\. See \fBsnyk code \-\-help\fR for full instructions\.
 .TP
 \fBconfig\fR
 Manage Snyk CLI configuration\.
@@ -261,6 +264,13 @@ $ snyk iac test /path/to/cloudformation_file\.yaml
 $ snyk iac test /path/to/kubernetes_file\.yaml
 $ snyk iac test /path/to/terraform_file\.tf
 $ snyk iac test /path/to/tf\-plan\.json
+.fi
+.IP "" 0
+.SS "Static code analysis (SAST) scanning"
+See \fBsnyk code \-\-help\fR for more details and examples:
+.IP "" 4
+.nf
+$ snyk code test /path/to/project
 .fi
 .IP "" 0
 .SH "EXIT CODES"
