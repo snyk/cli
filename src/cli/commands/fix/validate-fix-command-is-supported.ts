@@ -37,8 +37,8 @@ export async function validateFixCommandIsSupported(
   if (!snykFixSupported.ok) {
     const snykFixErrorMessage =
       chalk.red(
-        `\`snyk fix\` is not supported ${
-          options.org ? `for org '${options.org}'` : ''
+        `\`snyk fix\` is not supported${
+          options.org ? ` for org '${options.org}'` : ''
         }.`,
       ) +
       '\nSee documentation on how to enable this beta feature: https://support.snyk.io/hc/en-us/articles/4403417279505-Automatic-remediation-with-snyk-fix';
