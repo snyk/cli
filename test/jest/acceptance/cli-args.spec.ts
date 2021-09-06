@@ -86,7 +86,7 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('snyk test command should fail when iac file is not supported', async () => {
+  test('iac test command should fail when file is not supported', async () => {
     const { code, stdout } = await runSnykCLI(
       `iac test ./test/acceptance/workspaces/empty/readme.md --legacy`,
       {
@@ -98,7 +98,7 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('snyk test command should fail when iac file is not supported', async () => {
+  test('iac test command should fail when helm file is not supported', async () => {
     const { code, stdout } = await runSnykCLI(
       `iac test ./test/acceptance/workspaces/helmconfig/Chart.yaml --legacy`,
       {
@@ -112,7 +112,7 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('test multiple paths with --project-name=NAME', async () => {
+  test('snyk test multiple paths with --project-name=NAME', async () => {
     const { code, stdout } = await runSnykCLI(
       `test pathA pathB --project-name=NAME`,
       {
@@ -125,7 +125,7 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('test --file=file.sln --project-name=NAME', async () => {
+  test('snyk test --file=file.sln --project-name=NAME', async () => {
     const { code, stdout } = await runSnykCLI(
       `test --file=file.sln --project-name=NAME`,
       {
@@ -139,7 +139,7 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('test --file=blah --scan-all-unmanaged', async () => {
+  test('snyk test --file=blah --scan-all-unmanaged', async () => {
     const { code, stdout } = await runSnykCLI(
       `test --file=blah --scan-all-unmanaged`,
       {
@@ -216,7 +216,7 @@ describe('cli args', () => {
     });
   });
 
-  test('test --exclude without --all-project displays error message', async () => {
+  test('snyk test --exclude without --all-project displays error message', async () => {
     const { code, stdout } = await runSnykCLI(`test --exclude=test`, {
       env,
     });
@@ -226,7 +226,7 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('test --exclude without any value displays error message', async () => {
+  test('snyk test --exclude without any value displays error message', async () => {
     const { code, stdout } = await runSnykCLI(`test --all-projects --exclude`, {
       env,
     });
@@ -236,7 +236,7 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('test --exclude=path/to/dir displays error message', async () => {
+  test('snyk test --exclude=path/to/dir displays error message', async () => {
     const exclude = path.normalize('path/to/dir');
     const { code, stdout } = await runSnykCLI(
       `test --all-projects --exclude=${exclude}`,
@@ -286,7 +286,7 @@ describe('cli args', () => {
   ];
 
   optionsToTest.forEach((option) => {
-    test('test --json-file-output no value produces error message', async () => {
+    test('snyk test --json-file-output no value produces error message', async () => {
       const { code, stdout } = await runSnykCLI(`test ${option}`, {
         env,
       });
@@ -327,7 +327,7 @@ describe('cli args', () => {
     '--sarif-file-output=""',
     "--sarif-file-output=''",
   ].forEach((option) => {
-    test('test --sarif-file-output no value produces error message', async () => {
+    test('snyk test --sarif-file-output no value produces error message', async () => {
       const { code, stdout } = await runSnykCLI(`test ${option}`, {
         env,
       });

@@ -46,7 +46,7 @@ describe('SyntheticMetricInstance', () => {
 describe('TimerMetricInstance', () => {
   it('has a correct initial value', () => {
     const tmi = new TimerMetricInstance('timer/network_time');
-    expect(tmi.getValue()).toBeUndefined;
+    expect(tmi.getValue()).toBeUndefined();
   });
 
   it('can time things with sufficient accuracy', async () => {

@@ -210,7 +210,7 @@ describe('Snyk fix', () => {
 });
 
 describe('groupEntitiesPerScanType', () => {
-  it('It correctly groups related entities per handler type (pip)', () => {
+  it('correctly groups related entities per handler type (pip)', () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
@@ -239,7 +239,7 @@ describe('groupEntitiesPerScanType', () => {
     expect(Object.keys(res)[0]).toEqual('pip');
     expect(Object.keys(res)[0]).toHaveLength(3);
   });
-  it('It correctly groups related entities per handler type (mixed)', () => {
+  it('correctly groups related entities per handler type (mixed)', () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',
@@ -278,7 +278,7 @@ describe('groupEntitiesPerScanType', () => {
     expect(res.poetry).toHaveLength(1);
   });
 
-  it('It correctly groups related entities per handler type with missing type', () => {
+  it('correctly groups related entities per handler type with missing type', () => {
     // Arrange
     const txtProdProjectTestResult = generateEntityToFix(
       'pip',

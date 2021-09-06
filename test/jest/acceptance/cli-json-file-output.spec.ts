@@ -4,7 +4,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 
 jest.setTimeout(1000 * 60);
 
-describe('test --json-file-output ', () => {
+describe('test --json-file-output', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 

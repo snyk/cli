@@ -231,9 +231,7 @@ describe('mode validation', () => {
     try {
       modeValidation(args);
     } catch (err) {
-      // should throw CustomError
-      expect(err instanceof CustomError).toBeTruthy();
-      // should have error message
+      expect(err).toBeInstanceOf(CustomError);
       expect(err.message).toMatch('use snyk container with test or monitor');
     }
   });
@@ -248,9 +246,7 @@ describe('mode validation', () => {
     try {
       modeValidation(args);
     } catch (err) {
-      // should throw UnsupportedOptionCombinationError
-      expect(err instanceof UnsupportedOptionCombinationError).toBeTruthy();
-      // should have error message
+      expect(err).toBeInstanceOf(UnsupportedOptionCombinationError);
       expect(err.message).toBe(
         'The following option combination is not currently supported: container + protect',
       );
@@ -265,8 +261,7 @@ describe('mode validation', () => {
       },
     };
 
-    modeValidation(args);
-    expect('should not throw error').toBeTruthy();
+    expect(() => modeValidation(args)).not.toThrow();
   });
 
   it('when there is no valid mode, do nothing', () => {
@@ -277,8 +272,7 @@ describe('mode validation', () => {
       },
     };
 
-    modeValidation(args);
-    expect('should not throw error');
+    expect(() => modeValidation(args)).not.toThrow();
   });
 
   it('when there is no mode, do nothing', () => {
@@ -289,7 +283,6 @@ describe('mode validation', () => {
       },
     };
 
-    modeValidation(args);
-    expect('should not throw error');
+    expect(() => modeValidation(args)).not.toThrow();
   });
 });

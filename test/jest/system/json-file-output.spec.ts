@@ -41,7 +41,7 @@ describe('saveJsonToFileCreatingDirectoryIfRequired', () => {
 
       await saveJsonToFileCreatingDirectoryIfRequired(output.path, input);
 
-      expect(output.read()).resolves.toEqual(input);
+      await expect(output.read()).resolves.toEqual(input);
     });
 
     it('with directory that already exists', async () => {
@@ -54,7 +54,7 @@ describe('saveJsonToFileCreatingDirectoryIfRequired', () => {
 
       await saveJsonToFileCreatingDirectoryIfRequired(output.path, input);
 
-      expect(output.read()).resolves.toEqual(input);
+      await expect(output.read()).resolves.toEqual(input);
     });
   });
 
@@ -67,7 +67,7 @@ describe('saveJsonToFileCreatingDirectoryIfRequired', () => {
 
       await saveJsonToFileCreatingDirectoryIfRequired(output.path, input);
 
-      expect(output.read()).resolves.toEqual(input);
+      await expect(output.read()).resolves.toEqual(input);
     });
 
     it('with directory that already exists', async () => {
@@ -80,7 +80,7 @@ describe('saveJsonToFileCreatingDirectoryIfRequired', () => {
 
       await saveJsonToFileCreatingDirectoryIfRequired(output.path, input);
 
-      expect(output.read()).resolves.toEqual(input);
+      await expect(output.read()).resolves.toEqual(input);
     });
   });
 });

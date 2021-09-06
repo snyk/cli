@@ -11,7 +11,7 @@ it('test sensibly bails if gets an old .snyk format', async () => {
       path.resolve(__dirname, '../../fixtures/old-snyk-config'),
     );
     const res = await config.filter(vulns2);
-    fail('was expecting an error, got ' + JSON.stringify(res));
+    throw new Error('was expecting an error, got ' + JSON.stringify(res));
   } catch (e) {
     expect(e.code).toEqual('OLD_DOTFILE_FORMAT');
   }
