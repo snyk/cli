@@ -32,7 +32,6 @@ async function discoverConsecutiveFailures(
     await octokit.actions.listJobsForWorkflowRun({
       owner: 'snyk',
       repo: 'snyk',
-      // eslint-disable-next-line @typescript-eslint/camelcase
       run_id: firstWorkflowRun,
     })
   ).data.jobs;
@@ -41,7 +40,6 @@ async function discoverConsecutiveFailures(
     await octokit.actions.listJobsForWorkflowRun({
       owner: 'snyk',
       repo: 'snyk',
-      // eslint-disable-next-line @typescript-eslint/camelcase
       run_id: secondWorkflowRun,
     })
   ).data.jobs;
@@ -76,16 +74,13 @@ async function sendPagerDuty() {
   try {
     const res = await event({
       data: {
-        // eslint-disable-next-line @typescript-eslint/camelcase
         routing_key: PD_ROUTING_KEY,
-        // eslint-disable-next-line @typescript-eslint/camelcase
         event_action: 'trigger',
         payload: {
           summary: 'CLI Alert. Smoke tests failing',
           source: 'Snyk CLI Smoke tests',
           severity: 'warning',
         },
-        // eslint-disable-next-line @typescript-eslint/camelcase
         dedup_key: 'b0209ed890d34eb787b3ed58f31553cc',
       },
     });
@@ -103,7 +98,6 @@ async function sendSlackAlert(failedJobs: string[]) {
     text: `A Smoke Tests Job failed more than 2 times in a row. \n <https://github.com/snyk/snyk/actions?query=workflow%3A%22Smoke+Tests%22|Smoke Tests Results>. \n Failed Job/s: ${failedJobs.join(
       ', ',
     )}`,
-    // eslint-disable-next-line @typescript-eslint/camelcase
     icon_emoji: 'hammer',
   };
   await slackWebhook.send(args);
@@ -121,7 +115,6 @@ async function waitForConclusion(runID: number) {
       await octokit.actions.getWorkflowRun({
         owner: 'snyk',
         repo: 'snyk',
-        // eslint-disable-next-line @typescript-eslint/camelcase
         run_id: runID,
       })
     ).data;
@@ -149,7 +142,6 @@ async function checkJobConclusion(
     await octokit.actions.listJobsForWorkflowRun({
       owner: 'snyk',
       repo: 'snyk',
-      // eslint-disable-next-line @typescript-eslint/camelcase
       run_id: runID,
     })
   ).data.jobs;
@@ -194,7 +186,6 @@ async function run() {
         owner: 'snyk',
         repo: 'snyk',
         branch: 'master',
-        // eslint-disable-next-line @typescript-eslint/camelcase
         workflow_id: smokeTestsID,
       })
     ).data;
@@ -209,7 +200,6 @@ async function run() {
       await octokit.actions.getWorkflowRun({
         owner: 'snyk',
         repo: 'snyk',
-        // eslint-disable-next-line @typescript-eslint/camelcase
         run_id: id,
       })
     ).data;
@@ -239,7 +229,6 @@ async function run() {
     await octokit.actions.reRunWorkflow({
       owner: 'snyk',
       repo: 'snyk',
-      // eslint-disable-next-line @typescript-eslint/camelcase
       run_id: id,
     });
 

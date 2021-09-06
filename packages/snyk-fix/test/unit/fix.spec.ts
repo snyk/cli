@@ -184,7 +184,6 @@ describe('Snyk fix', () => {
       'prod.txt',
       'django===1.6.1',
     );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore: for test purpose only
     delete txtProdProjectTestResult.testResult.remediation;
 
@@ -296,7 +295,6 @@ describe('groupEntitiesPerScanType', () => {
       'package.json',
       'django===1.6.1',
     );
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore: for test purpose only
     delete missingProjectTestResult.scanResult.identity.type;
 

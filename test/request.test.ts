@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { afterEach, test } from 'tap';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';

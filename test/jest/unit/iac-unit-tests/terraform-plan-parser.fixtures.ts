@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import * as fs from 'fs';
 import * as path from 'path';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';

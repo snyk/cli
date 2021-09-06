@@ -42,13 +42,14 @@
     {
       "files": ["*.ts"],
       "rules": {
+        "@typescript-eslint/ban-types": "warn",
         "id-blacklist": ["error", "exports"] // in TS, use "export" instead of Node's "module.exports"
       }
     },
     {
       "files": "*.spec.*",
       "rules": {
-        "@typescript-eslint/ban-ts-ignore": "off"
+        "@typescript-eslint/ban-ts-comment": "off"
       }
     }
   ]

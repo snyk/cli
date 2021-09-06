@@ -55,7 +55,6 @@ test('request respects proxy environment variables', function(t) {
       delete global.GLOBAL_AGENT;
     });
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     process.env.http_proxy = `http://localhost:${proxyPort}`;
     const proxy = http.createServer(function(req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'http_proxy url ok');
@@ -109,7 +108,6 @@ test('request respects proxy environment variables', function(t) {
       delete global.GLOBAL_AGENT;
     });
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     process.env.https_proxy = `http://localhost:${proxyPort}`;
     const proxy = http.createServer();
     proxy.setTimeout(1000);

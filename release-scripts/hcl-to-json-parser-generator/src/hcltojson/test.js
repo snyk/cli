@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 const fs = require('fs');
 const assert = require('assert');
 const path = require('path');

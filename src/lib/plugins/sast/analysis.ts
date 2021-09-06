@@ -22,7 +22,10 @@ export async function getCodeAnalysisAndParseResults(
   return parseSecurityResults(codeAnalysis);
 }
 
-async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
+async function getCodeAnalysis(
+  root: string,
+  options: Options,
+): Promise<Log | null> {
   const baseURL = config.CODE_CLIENT_PROXY_URL;
 
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
@@ -56,7 +59,7 @@ async function getCodeAnalysis(root: string, options: Options): Promise<Log> {
     fileOptions: { paths: [root] },
   });
 
-  return result?.analysisResults.sarif!;
+  return result?.analysisResults.sarif || null;
 }
 
 function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {

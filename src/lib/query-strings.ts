@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import * as url from 'url';
 import * as os from 'os';
 import { ArgsOptions } from './../cli/args';

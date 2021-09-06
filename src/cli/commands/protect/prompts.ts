@@ -487,10 +487,6 @@ function canBeUpgraded(vuln) {
   });
 }
 
-interface IgnoreMeta {
-  review: unknown;
-}
-
 interface Action {
   value: {};
   key?: string;
