@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { demunge } from 'snyk-policy';
-import * as config from './config';
+import config from './config';
 
 export async function display(policy) {
   const p = demunge(policy, config.ROOT);

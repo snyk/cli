@@ -16,6 +16,7 @@ interface Config {
   PROJECT_NAME: string;
   TOKEN: string;
   CODE_CLIENT_PROXY_URL: string;
+  DISABLE_ANALYTICS: unknown;
 }
 
 // TODO: fix the types!
@@ -63,4 +64,4 @@ if (!config.ROOT) {
   config.ROOT = apiUrl.protocol + '//' + apiUrl.host;
 }
 
-export = config;
+export default config;

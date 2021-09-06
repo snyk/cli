@@ -1,7 +1,8 @@
 import { test } from 'tap';
 import * as sinon from 'sinon';
-import * as isAuthed from '../../src/cli/commands/auth/is-authed';
 import stripAnsi from 'strip-ansi';
+import * as isAuthed from '../../src/cli/commands/auth/is-authed';
+import * as errors from '../../src/lib/errors/legacy-errors';
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
 const apiKey = '123456789';
@@ -26,7 +27,6 @@ test('setup', (t) => {
 });
 
 test('auth shows an appropriate error message when a request times out', async (t) => {
-  const errors = require('../../src/lib/errors/legacy-errors');
   const failedReq = new Promise((resolve) => {
     return resolve({ res: { statusCode: 502 } });
   });
@@ -46,7 +46,6 @@ test('auth shows an appropriate error message when a request times out', async (
 });
 
 test('auth shows an appropriate error message when a request fails with a user message', async (t) => {
-  const errors = require('../../src/lib/errors/legacy-errors');
   const userMessage = 'Oh no! The request failed';
   const failedReq = new Promise((resolve) => {
     return resolve({ res: { statusCode: 502, body: { userMessage } } });

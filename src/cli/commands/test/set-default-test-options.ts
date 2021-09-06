@@ -1,4 +1,4 @@
-import * as config from '../../../lib/config';
+import config from '../../../lib/config';
 import { Options, ShowVulnPaths, TestOptions } from '../../../lib/types';
 
 export function setDefaultTestOptions<CommandOptions>(

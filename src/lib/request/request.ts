@@ -3,7 +3,7 @@ import * as needle from 'needle';
 import { parse, format } from 'url';
 import * as querystring from 'querystring';
 import * as zlib from 'zlib';
-import * as config from '../config';
+import config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
 import { Global } from '../../cli/args';

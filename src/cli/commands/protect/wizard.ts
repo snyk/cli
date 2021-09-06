@@ -1,11 +1,3 @@
-export = wizard;
-
-// used for testing
-Object.assign(wizard, {
-  processAnswers,
-  inquire,
-  interactive,
-});
 import * as debugModule from 'debug';
 const debug = debugModule('snyk');
 
@@ -20,19 +12,19 @@ const get = require('lodash.get');
 import { exec } from 'child_process';
 import { apiTokenExists } from '../../../lib/api-token';
 import * as auth from '../auth/is-authed';
-import getVersion = require('../version');
+import getVersion from '../version';
 import * as allPrompts from './prompts';
-import answersToTasks = require('./tasks');
+import answersToTasks from './tasks';
 import * as snyk from '../../../lib/';
 import { monitor as snykMonitor } from '../../../lib/monitor';
 import { isCI } from '../../../lib/is-ci';
 const protect = require('../../../lib/protect');
 import * as authorization from '../../../lib/authorization';
-import * as config from '../../../lib/config';
+import config from '../../../lib/config';
 import * as spinner from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
 import * as alerts from '../../../lib/alerts';
-import npm = require('../../../lib/npm');
+import npm, { getVersion as npmGetVersion } from '../../../lib/npm';
 import * as detect from '../../../lib/detect';
 import * as plugins from '../../../lib/plugins';
 import { ModuleInfo as moduleInfo } from '../../../lib/module-info';
@@ -50,7 +42,7 @@ import {
 import { LegacyVulnApiResult } from '../../../lib/snyk-test/legacy';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
 
-function wizard(options?: Options) {
+export default function wizard(options?: Options) {
   options = options || ({} as Options);
   options.org = options.org || config.org || null;
 
@@ -216,7 +208,7 @@ async function processWizardFlow(options) {
     });
 }
 
-function interactive(test, pkg, policy, options) {
+export function interactive(test, pkg, policy, options) {
   const vulns = test.vulnerabilities;
   if (!policy) {
     policy = {};
@@ -252,7 +244,7 @@ function interactive(test, pkg, policy, options) {
     });
 }
 
-function inquire(prompts, answers): Promise<{}> {
+export function inquire(prompts, answers): Promise<{}> {
   if (prompts.length === 0) {
     return Promise.resolve(answers);
   }
@@ -326,7 +318,7 @@ function calculatePkgFileIndentation(packageFile: string): number {
   return pkgIndentation;
 }
 
-function processAnswers(answers, policy, options) {
+export function processAnswers(answers, policy, options) {
   if (!options) {
     options = {};
   }
@@ -449,7 +441,7 @@ function processAnswers(answers, policy, options) {
       }
     })
     .then(async () => {
-      const npmVersion = await npm.getVersion();
+      const npmVersion = await npmGetVersion();
       analytics.add('add-snyk-protect', answers['misc-add-protect']);
       if (!answers['misc-add-protect']) {
         return;

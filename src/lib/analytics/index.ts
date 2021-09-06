@@ -1,6 +1,6 @@
 const snyk = require('../../lib');
 import { someTokenExists, getAuthHeader } from '../api-token';
-const config = require('../config');
+import config from '../config';
 import { makeRequest } from '../request';
 const debug = require('debug')('snyk');
 const stripAnsi = require('strip-ansi');

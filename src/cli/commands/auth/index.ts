@@ -8,7 +8,7 @@ import { verifyAPI } from './is-authed';
 import { isCI } from '../../../lib/is-ci';
 import { isDocker } from '../../../lib/is-docker';
 import { args as argsLib } from '../../args';
-import * as config from '../../../lib/config';
+import config from '../../../lib/config';
 import { makeRequest } from '../../../lib/request';
 import { CustomError } from '../../../lib/errors';
 import { AuthFailedError } from '../../../lib/errors';
@@ -16,8 +16,6 @@ import { TokenExpiredError } from '../../../lib/errors/token-expired-error';
 import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { Payload } from '../../../lib/request/types';
 import { getQueryParamsAsString } from '../../../lib/query-strings';
-
-export = auth;
 
 const apiUrl = url.parse(config.API);
 const authUrl = apiUrl.protocol + '//' + apiUrl.host;
@@ -125,7 +123,10 @@ async function testAuthComplete(
   });
 }
 
-async function auth(apiToken: string, via: AuthCliCommands): Promise<string> {
+export default async function auth(
+  apiToken: string,
+  via: AuthCliCommands,
+): Promise<string> {
   let promise;
   resetAttempts();
   if (apiToken) {

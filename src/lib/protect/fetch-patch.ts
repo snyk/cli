@@ -5,7 +5,7 @@ import { makeRequest } from '../request';
 
 const debug = debugModule('snyk:fetch-patch');
 
-async function getPatchFile(
+export default async function getPatchFile(
   patchUrl: string,
   patchFilename: string,
 ): Promise<string> {
@@ -36,5 +36,3 @@ async function getPatchFile(
   }
   return patchFilename;
 }
-
-export = getPatchFile;

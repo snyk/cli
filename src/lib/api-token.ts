@@ -1,6 +1,6 @@
 import { MissingApiTokenError } from '../lib/errors';
 
-import * as config from './config';
+import config from './config';
 import { config as userConfig } from './user-config';
 
 export function api() {

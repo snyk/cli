@@ -11,7 +11,7 @@ import * as errors from '../../../lib/errors';
 
 const debug = debugModule('snyk');
 
-async function protectFunc(
+export default async function protectFunc(
   options: types.PolicyOptions &
     types.Options &
     types.TestOptions &
@@ -111,5 +111,3 @@ async function patch(options: types.PolicyOptions & types.Options) {
     throw e;
   }
 }
-
-export = protectFunc;

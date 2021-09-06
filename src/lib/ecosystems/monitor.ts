@@ -1,7 +1,7 @@
 import { InspectResult } from '@snyk/cli-interface/legacy/plugin';
 import chalk from 'chalk';
 
-import * as config from '../config';
+import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
 import { MonitorResult, Options } from '../types';

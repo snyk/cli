@@ -4,7 +4,7 @@ import * as depGraphLib from '@snyk/dep-graph';
 import * as snyk from '..';
 import { apiOrOAuthTokenExists, getAuthHeader } from '../api-token';
 import { makeRequest } from '../request';
-import * as config from '../config';
+import config from '../config';
 import * as os from 'os';
 const get = require('lodash.get');
 import { isCI } from '../is-ci';

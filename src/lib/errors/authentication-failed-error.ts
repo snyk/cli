@@ -1,5 +1,5 @@
 import { CustomError } from './custom-error';
-import * as config from '../config';
+import config from '../config';
 
 export function AuthFailedError(
   errorMessage: string = 'Authentication failed. Please check the API token on ' +

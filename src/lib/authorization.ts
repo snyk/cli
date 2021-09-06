@@ -1,6 +1,6 @@
 import * as snyk from './';
 import { makeRequest } from './request';
-import * as config from './config';
+import config from './config';
 
 export async function actionAllowed(
   action: string,

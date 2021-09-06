@@ -1,4 +1,4 @@
-const toTasks = require('../src/cli/commands/protect/tasks');
+const { default: toTasks } = require('../src/cli/commands/protect/tasks');
 const test = require('tap').test;
 const answers = require(__dirname +
   '/fixtures/patch-same-package-answers.json');

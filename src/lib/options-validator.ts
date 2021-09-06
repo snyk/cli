@@ -1,5 +1,5 @@
 import { MonitorOptions, Options, TestOptions } from './types';
-import * as config from './config';
+import config from './config';
 import { SupportedPackageManagers } from './package-managers';
 import * as reachableVulns from './reachable-vulns';
 import { isMultiProjectScan } from './is-multi-project-scan';

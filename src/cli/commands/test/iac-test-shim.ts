@@ -4,7 +4,7 @@ import { localTest } from './iac-local-execution/measurable-methods';
 import { test as legacyTest } from '../../../lib';
 import { getIacOrgSettings } from './iac-local-execution/org-settings/get-iac-org-settings';
 import { isFeatureFlagSupportedForOrg } from '../../../lib/feature-flags';
-import config = require('../../../lib/config');
+import config from '../../../lib/config';
 const camelCase = require('lodash.camelcase');
 
 /**

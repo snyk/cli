@@ -1,5 +1,3 @@
-export = test;
-
 import * as Debug from 'debug';
 const cloneDeep = require('lodash.clonedeep');
 const assign = require('lodash.assign');
@@ -40,7 +38,9 @@ const SEPARATOR = '\n-------------------------------------------------------\n';
 
 // TODO: avoid using `as any` whenever it's possible
 
-async function test(...args: MethodArgs): Promise<TestCommandResult> {
+export default async function test(
+  ...args: MethodArgs
+): Promise<TestCommandResult> {
   const { options: originalOptions, paths } = processCommandArgs(...args);
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);

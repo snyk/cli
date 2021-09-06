@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import config = require('../src/cli/commands/config');
+import config from '../src/cli/commands/config';
 
 test('can unset config values', async (t) => {
   let before: string | null = null;

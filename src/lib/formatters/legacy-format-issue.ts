@@ -1,7 +1,7 @@
 const uniq = require('lodash.uniq');
 import chalk from 'chalk';
 
-import * as config from '../../lib/config';
+import config from '../../lib/config';
 import { Options, TestOptions, ShowVulnPaths } from '../../lib/types';
 import { isLocalFolder } from '../../lib/detect';
 import { parsePackageString as snykModule } from 'snyk-module';

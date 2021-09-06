@@ -2,7 +2,7 @@ import * as _debug from 'debug';
 import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import { DepTree } from './types';
-import * as config from './config';
+import config from './config';
 import { TooManyVulnPaths } from './errors';
 import * as analytics from '../lib/analytics';
 import { SupportedPackageManagers } from './package-managers';

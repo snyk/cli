@@ -1,10 +1,8 @@
-export = answersToTasks;
-
 import * as debugModule from 'debug';
 const debug = debugModule('snyk');
 const cloneDeep = require('lodash.clonedeep');
 
-function answersToTasks(answers) {
+export default function answersToTasks(answers) {
   const tasks = {
     ignore: [],
     update: [],

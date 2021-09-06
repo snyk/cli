@@ -3,48 +3,54 @@ import * as proxyquire from 'proxyquire';
 
 let analytics;
 
-const proxyFetchPatch = proxyquire('../src/lib/protect/fetch-patch', {
-  '../request': {
-    makeRequest: () => {
-      return Promise.resolve({
-        res: {
-          statusCode: 200,
-        },
-        body: 'patch content',
-      });
+const { default: proxyFetchPatch } = proxyquire(
+  '../src/lib/protect/fetch-patch',
+  {
+    '../request': {
+      makeRequest: () => {
+        return Promise.resolve({
+          res: {
+            statusCode: 200,
+          },
+          body: 'patch content',
+        });
+      },
+    },
+    fs: {
+      writeFileSync() {
+        return;
+      },
+    },
+    '../analytics': {
+      add(type, data) {
+        analytics = { type, data };
+      },
     },
   },
-  fs: {
-    writeFileSync() {
-      return;
-    },
-  },
-  '../analytics': {
-    add(type, data) {
-      analytics = { type, data };
-    },
-  },
-});
+);
 
-const proxyFetchPatchNotFound = proxyquire('../src/lib/protect/fetch-patch', {
-  '../request': {
-    makeRequest: () => {
-      return Promise.resolve({
-        res: {
-          statusCode: 404,
-        },
-        body: 'not found',
-      });
+const { default: proxyFetchPatchNotFound } = proxyquire(
+  '../src/lib/protect/fetch-patch',
+  {
+    '../request': {
+      makeRequest: () => {
+        return Promise.resolve({
+          res: {
+            statusCode: 404,
+          },
+          body: 'not found',
+        });
+      },
+    },
+    '../analytics': {
+      add(type, data) {
+        analytics = { type, data };
+      },
     },
   },
-  '../analytics': {
-    add(type, data) {
-      analytics = { type, data };
-    },
-  },
-});
+);
 
-const proxyFetchPatchErrorWriting = proxyquire(
+const { default: proxyFetchPatchErrorWriting } = proxyquire(
   '../src/lib/protect/fetch-patch',
   {
     '../request': {

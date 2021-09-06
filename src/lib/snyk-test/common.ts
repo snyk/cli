@@ -1,4 +1,4 @@
-import * as config from '../config';
+import config from '../config';
 import { color } from '../theme';
 
 export function assembleQueryString(options) {

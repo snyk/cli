@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as config from '../../../src/lib/config';
+import config from '../../../src/lib/config';
 import * as request from '../../../src/lib/request/promise';
 
 import { Options } from '../../../src/lib/types';

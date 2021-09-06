@@ -1,4 +1,4 @@
-const config = require('../config');
+const { default: config } = require('../config');
 const chalk = require('chalk');
 const { SEVERITIES } = require('../snyk-test/common');
 const analytics = require('../analytics');

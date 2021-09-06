@@ -37,7 +37,7 @@ import {
 import * as snyk from '../';
 import { isCI } from '../is-ci';
 import * as common from './common';
-import * as config from '../config';
+import config from '../config';
 import * as analytics from '../analytics';
 import { maybePrintDepGraph, maybePrintDepTree } from '../print-deps';
 import { ContainerTarget, GitTarget } from '../project-metadata/types';

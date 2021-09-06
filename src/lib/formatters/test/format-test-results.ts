@@ -15,7 +15,7 @@ import {
   VulnMetaData,
 } from '../../snyk-test/legacy';
 import chalk from 'chalk';
-import * as config from '../../config';
+import config from '../../config';
 const cloneDeep = require('lodash.clonedeep');
 const orderBy = require('lodash.orderby');
 import * as analytics from '../../analytics';
