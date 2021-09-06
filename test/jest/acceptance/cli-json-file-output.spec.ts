@@ -40,9 +40,7 @@ describe('test --json-file-output ', () => {
 
     expect(code).toEqual(0);
     expect(stdout).toMatch('Organization:');
-
-    const jsonObj = JSON.parse(await project.read(outputPath));
-    expect(jsonObj).toMatchObject({ ok: true });
+    expect(await project.readJSON(outputPath)).toMatchObject({ ok: true });
   });
 
   it('test --json-file-output produces same JSON output as normal JSON output to stdout', async () => {

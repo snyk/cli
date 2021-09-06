@@ -5,6 +5,7 @@ import * as path from 'path';
 type TestProject = {
   path: (filePath?: string) => string;
   read: (filePath: string) => Promise<string>;
+  readJSON: (filePath: string) => Promise<any>;
   remove: () => Promise<void>;
 };
 
@@ -33,6 +34,11 @@ const createProject = async (
     read: (filePath: string) => {
       const fullFilePath = path.resolve(projectPath, filePath);
       return fse.readFile(fullFilePath, 'utf-8');
+    },
+    readJSON: async (filePath: string) => {
+      const fullFilePath = path.resolve(projectPath, filePath);
+      const strJson = await fse.readFile(fullFilePath, 'utf-8');
+      return JSON.parse(strJson);
     },
     remove: () => {
       return fse.remove(tempFolder);
