@@ -1,7 +1,7 @@
 import {
   CommandResult,
   TestCommandResult,
-} from '../../../src/cli/commands/types';
+} from '../../../../../src/cli/commands/types';
 
 test('createHumanReadableTestCommandResult', () => {
   const hrRes = TestCommandResult.createHumanReadableTestCommandResult(

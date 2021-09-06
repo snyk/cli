@@ -24,7 +24,7 @@ describe('snyk fix (system tests)', () => {
   );
 
   const env = {
-    PATH: process.env.PATH,
+    ...process.env,
     SNYK_TOKEN: apiKey,
     SNYK_API,
     SNYK_HOST,

@@ -106,8 +106,9 @@ describe('analytics module', () => {
     const project = await createProjectFromFixture(
       'npm/with-vulnerable-lodash-dep',
     );
-
-    server.setNextResponse(await project.read('test-dep-graph-result.json'));
+    server.depGraphResponse = await project.readJSON(
+      'test-dep-graph-result.json',
+    );
 
     const { code } = await runSnykCLI('test', {
       cwd: project.path(),

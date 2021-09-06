@@ -1,18 +1,45 @@
 import { createProject } from '../../util/createProject';
-import { requireSnykToken } from '../../util/requireSnykToken';
 import { runSnykCLI } from '../../util/runSnykCLI';
+import { fakeServer } from '../../../acceptance/fake-server';
 
 jest.setTimeout(1000 * 60);
 
 describe('trust policies', () => {
-  const env = {
-    ...process.env,
-    SNYK_TOKEN: requireSnykToken(),
-    SNYK_DISABLE_ANALYTICS: '1',
-  };
+  let server;
+  let env: Record<string, string>;
+
+  beforeAll((done) => {
+    const port = process.env.PORT || process.env.SNYK_PORT || '12345';
+    const baseApi = '/api/v1';
+    env = {
+      ...process.env,
+      SNYK_API: 'http://localhost:' + port + baseApi,
+      SNYK_HOST: 'http://localhost:' + port,
+      SNYK_TOKEN: '123456789',
+      SNYK_DISABLE_ANALYTICS: '1',
+    };
+    server = fakeServer(baseApi, env.SNYK_TOKEN);
+    server.listen(port, () => {
+      done();
+    });
+  });
+
+  afterEach(() => {
+    server.restore();
+  });
+
+  afterAll((done) => {
+    server.close(() => {
+      done();
+    });
+  });
 
   test('`snyk test` detects suggested ignore policies', async () => {
     const project = await createProject('qs-package');
+    server.depGraphResponse = await project.readJSON(
+      'test-dep-graph-result.json',
+    );
+
     const { code, stdout } = await runSnykCLI('test', {
       cwd: project.path(),
       env,
@@ -28,6 +55,10 @@ describe('trust policies', () => {
 
   test('`snyk test --trust-policies` applies suggested ignore policies', async () => {
     const project = await createProject('qs-package');
+    server.depGraphResponse = await project.readJSON(
+      'test-dep-graph-result-trust-policies.json',
+    );
+
     const { code, stdout } = await runSnykCLI('test --trust-policies', {
       cwd: project.path(),
       env,

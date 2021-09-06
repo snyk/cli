@@ -39,8 +39,9 @@ describe('snyk test --all-projects with one project that has errors', () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-issues-and-project-with-error',
       );
-      const depGraphResStr = await project.read('test-dep-graph-result.json');
-      server.depGraphResponse = JSON.parse(depGraphResStr);
+      server.depGraphResponse = await project.readJSON(
+        'test-dep-graph-result.json',
+      );
       const { code, stderr } = await runSnykCLI(`test --all-projects`, {
         cwd: project.path(),
         env,
@@ -62,8 +63,9 @@ describe('snyk test --all-projects with one project that has errors', () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-issues-and-project-with-error',
       );
-      const depGraphResStr = await project.read('test-dep-graph-result.json');
-      server.depGraphResponse = JSON.parse(depGraphResStr);
+      server.depGraphResponse = await project.readJSON(
+        'test-dep-graph-result.json',
+      );
       server.setFeatureFlag('cliFailFast', true);
       const { code, stderr } = await runSnykCLI(`test --all-projects`, {
         cwd: project.path(),
@@ -79,8 +81,9 @@ describe('snyk test --all-projects with one project that has errors', () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-issues-and-project-with-error',
       );
-      const depGraphResStr = await project.read('test-dep-graph-result.json');
-      server.depGraphResponse = JSON.parse(depGraphResStr);
+      server.depGraphResponse = await project.readJSON(
+        'test-dep-graph-result.json',
+      );
       server.setFeatureFlag('cliFailFast', true);
       const { code, stderr } = await runSnykCLI(
         `test --all-projects --fail-fast`,
