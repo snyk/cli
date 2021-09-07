@@ -20,44 +20,7 @@ export async function updateDependencies(
   entity: EntityToFix,
   options: FixOptions,
 ): Promise<PluginFixResponse> {
-  const handlerResult: PluginFixResponse = {
-    succeeded: [],
-    failed: [],
-    skipped: [],
-  };
-  let pipenvCommand;
-  try {
-    const { remediation, targetFile } = validateRequiredData(entity);
-    const { dir } = pathLib.parse(
-      pathLib.resolve(entity.workspace.path, targetFile),
-    );
-    // TODO: for better support we need to:
-    // 1. parse the manifest and extract original requirements, version spec etc
-    // 2. swap out only the version and retain original spec
-    // 3. re-lock the lockfile
-    // Currently this is not possible as there is no Pipfile parser that would do this.
-    const upgrades = generateUpgrades(remediation.pin);
-    if (!options.dryRun) {
-      const res = await pipenvPipfileFix.pipenvInstall(dir, upgrades, {
-        python: entity.options.command,
-      });
-      if (res.exitCode !== 0) {
-        pipenvCommand = res.command;
-        throwPipenvError(res.stderr, res.command);
-      }
-    }
-    const changes = generateSuccessfulChanges(remediation.pin);
-    handlerResult.succeeded.push({ original: entity, changes });
-  } catch (error) {
-    debug(
-      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
-    );
-    handlerResult.failed.push({
-      original: entity,
-      error,
-      tip: pipenvCommand ? `Try running \`${pipenvCommand}\`` : undefined,
-    });
-  }
+  const handlerResult = await fixAll(entity, options);
   return handlerResult;
 }
 
@@ -109,4 +72,46 @@ function throwPipenvError(stderr: string, command?: string) {
     throw new CommandFailedError(versionNotFound, command);
   }
   throw new NoFixesCouldBeAppliedError();
+}
+
+async function fixAll(entity: EntityToFix, options: FixOptions) {
+  const handlerResult: PluginFixResponse = {
+    succeeded: [],
+    failed: [],
+    skipped: [],
+  };
+  let pipenvCommand;
+  try {
+    const { remediation, targetFile } = validateRequiredData(entity);
+    const { dir } = pathLib.parse(
+      pathLib.resolve(entity.workspace.path, targetFile),
+    );
+    // TODO: for better support we need to:
+    // 1. parse the manifest and extract original requirements, version spec etc
+    // 2. swap out only the version and retain original spec
+    // 3. re-lock the lockfile
+    // Currently this is not possible as there is no Pipfile parser that would do this.
+    const upgrades = generateUpgrades(remediation.pin);
+    if (!options.dryRun) {
+      const res = await pipenvPipfileFix.pipenvInstall(dir, upgrades, {
+        python: entity.options.command,
+      });
+      if (res.exitCode !== 0) {
+        pipenvCommand = res.command;
+        throwPipenvError(res.stderr, res.command);
+      }
+    }
+    const changes = generateSuccessfulChanges(remediation.pin);
+    handlerResult.succeeded.push({ original: entity, changes });
+  } catch (error) {
+    debug(
+      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
+    );
+    handlerResult.failed.push({
+      original: entity,
+      error,
+      tip: pipenvCommand ? `Try running \`${pipenvCommand}\`` : undefined,
+    });
+  }
+  return handlerResult;
 }

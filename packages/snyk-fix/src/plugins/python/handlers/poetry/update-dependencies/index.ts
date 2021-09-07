@@ -34,56 +34,7 @@ export async function updateDependencies(
   entity: EntityToFix,
   options: FixOptions,
 ): Promise<PluginFixResponse> {
-  const handlerResult: PluginFixResponse = {
-    succeeded: [],
-    failed: [],
-    skipped: [],
-  };
-  let poetryCommand;
-  try {
-    const { upgrades, devUpgrades } = await generateUpgrades(entity);
-    const { remediation, targetFile } = validateRequiredData(entity);
-    const targetFilePath = pathLib.resolve(entity.workspace.path, targetFile);
-    const { dir } = pathLib.parse(targetFilePath);
-    // TODO: for better support we need to:
-    // 1. parse the manifest and extract original requirements, version spec etc
-    // 2. swap out only the version and retain original spec
-    // 3. re-lock the lockfile
-
-    // update prod dependencies first
-    if (!options.dryRun && upgrades.length) {
-      const res = await poetryFix.poetryAdd(dir, upgrades, {
-        python: entity.options.command ?? undefined,
-      });
-      if (res.exitCode !== 0) {
-        poetryCommand = res.command;
-        throwPoetryError(res.stderr ? res.stderr : res.stdout, res.command);
-      }
-    }
-
-    // update dev dependencies second
-    if (!options.dryRun && devUpgrades.length) {
-      const res = await poetryFix.poetryAdd(dir, devUpgrades, {
-        dev: true,
-        python: entity.options.command ?? undefined,
-      });
-      if (res.exitCode !== 0) {
-        poetryCommand = res.command;
-        throwPoetryError(res.stderr ? res.stderr : res.stdout, res.command);
-      }
-    }
-    const changes = generateSuccessfulChanges(remediation.pin);
-    handlerResult.succeeded.push({ original: entity, changes });
-  } catch (error) {
-    debug(
-      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
-    );
-    handlerResult.failed.push({
-      original: entity,
-      error,
-      tip: poetryCommand ? `Try running \`${poetryCommand}\`` : undefined,
-    });
-  }
+  const handlerResult = await fixAll(entity, options);
   return handlerResult;
 }
 
@@ -137,7 +88,7 @@ export async function generateUpgrades(
 
     const upgrade = `${standardizePackageName(pkgName)}==${newVersion}`;
 
-    if (pin.isTransitive) {
+    if (pin.isTransitive || prodTopLevelDeps.includes(pkgName)) {
       // transitive and it could have come from a dev or prod dep
       // since we can't tell right now let be pinned into production deps
       upgrades.push(upgrade);
@@ -175,4 +126,58 @@ function throwPoetryError(stderr: string, command?: string) {
     );
   }
   throw new NoFixesCouldBeAppliedError();
+}
+
+async function fixAll(entity: EntityToFix, options: FixOptions) {
+  const handlerResult: PluginFixResponse = {
+    succeeded: [],
+    failed: [],
+    skipped: [],
+  };
+  let poetryCommand;
+  try {
+    const { upgrades, devUpgrades } = await generateUpgrades(entity);
+    const { remediation, targetFile } = validateRequiredData(entity);
+    const targetFilePath = pathLib.resolve(entity.workspace.path, targetFile);
+    const { dir } = pathLib.parse(targetFilePath);
+    // TODO: for better support we need to:
+    // 1. parse the manifest and extract original requirements, version spec etc
+    // 2. swap out only the version and retain original spec
+    // 3. re-lock the lockfile
+
+    // update prod dependencies first
+    if (!options.dryRun && upgrades.length) {
+      const res = await poetryFix.poetryAdd(dir, upgrades, {
+        python: entity.options.command ?? undefined,
+      });
+      if (res.exitCode !== 0) {
+        poetryCommand = res.command;
+        throwPoetryError(res.stderr ? res.stderr : res.stdout, res.command);
+      }
+    }
+
+    // update dev dependencies second
+    if (!options.dryRun && devUpgrades.length) {
+      const res = await poetryFix.poetryAdd(dir, devUpgrades, {
+        dev: true,
+        python: entity.options.command ?? undefined,
+      });
+      if (res.exitCode !== 0) {
+        poetryCommand = res.command;
+        throwPoetryError(res.stderr ? res.stderr : res.stdout, res.command);
+      }
+    }
+    const changes = generateSuccessfulChanges(remediation.pin);
+    handlerResult.succeeded.push({ original: entity, changes });
+  } catch (error) {
+    debug(
+      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
+    );
+    handlerResult.failed.push({
+      original: entity,
+      error,
+      tip: poetryCommand ? `Try running \`${poetryCommand}\`` : undefined,
+    });
+  }
+  return handlerResult;
 }
