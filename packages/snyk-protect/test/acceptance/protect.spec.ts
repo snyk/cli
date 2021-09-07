@@ -11,6 +11,10 @@ import * as fse from 'fs-extra';
 
 jest.setTimeout(1000 * 60);
 
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 describe('@snyk/protect', () => {
   afterEach(() => {
     jest.restoreAllMocks();
@@ -272,6 +276,64 @@ describe('@snyk/protect', () => {
 
       expect(stdout).toMatch(getVersion());
       expect(code).toEqual(0);
+    });
+  });
+
+  describe('does not attempt to apply patch if a flag file exists indicating the file has already been patched', () => {
+    it('with `.orig` file from the old protect', async () => {
+      const pathToProtectBin = path.resolve(
+        __dirname,
+        '../../bin/snyk-protect',
+      );
+      const project = await createProject(
+        'single-patchable-module-patched-with-old-protect',
+      );
+      // sleep 2 ms to guarentee that before/after modified times cannot be the
+      // same because the file was written and then modified within a single millisecond.
+      await sleep(2);
+
+      const lodashPath = project.path(
+        'node_modules/nyc/node_modules/lodash/lodash.js',
+      );
+      const lodashStatInital = await fse.promises.stat(lodashPath);
+
+      const { code, stdout } = await runCommand('node', [pathToProtectBin], {
+        cwd: project.path(),
+      });
+
+      expect(code).toBe(0);
+      expect(stdout).toContain('Applied Snyk patches.');
+
+      const lodashStatAfter = await fse.promises.stat(lodashPath);
+      expect(lodashStatAfter.mtimeMs).toBe(lodashStatInital.mtimeMs); // file not touched
+    });
+
+    it('with `.snyk-protect.flag` file from the new protect', async () => {
+      const pathToProtectBin = path.resolve(
+        __dirname,
+        '../../bin/snyk-protect',
+      );
+      const project = await createProject(
+        'single-patchable-module-patched-with-new-protect',
+      );
+      // sleep 2 ms to guarentee that before/after modified times cannot be the
+      // same because the file was written and then modified within a single millisecond.
+      await sleep(2);
+
+      const lodashPath = project.path(
+        'node_modules/nyc/node_modules/lodash/lodash.js',
+      );
+      const lodashStatInital = await fse.promises.stat(lodashPath);
+
+      const { code, stdout } = await runCommand('node', [pathToProtectBin], {
+        cwd: project.path(),
+      });
+
+      expect(code).toBe(0);
+      expect(stdout).toContain('Applied Snyk patches.');
+
+      const lodashStatAfter = await fse.promises.stat(lodashPath);
+      expect(lodashStatAfter.mtimeMs).toBe(lodashStatInital.mtimeMs); // file not touched
     });
   });
 });

@@ -8,7 +8,8 @@ export function applyPatchToFile(patchContents: string, baseFolder: string) {
   );
 
   const flagPath = `${targetFilePath}.snyk-protect.flag`;
-  if (fs.existsSync(flagPath)) {
+  const origPatchFlagPath = `${targetFilePath}.orig`;
+  if (fs.existsSync(flagPath) || fs.existsSync(origPatchFlagPath)) {
     return targetFilePath;
   }
 
