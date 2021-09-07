@@ -109,7 +109,6 @@ export async function makeRequest(
     json: payload.json,
     headers: payload.headers,
     timeout: payload.timeout,
-    // eslint-disable-next-line @typescript-eslint/camelcase
     follow_max: 5,
     family: payload.family,
     agent,

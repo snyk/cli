@@ -6,13 +6,6 @@ describe('createSarifOutputForContainers', () => {
   it('general', () => {
     const testFile = getTestResult();
     const sarif = createSarifOutputForContainers([testFile]);
-    expect(sarif.runs).toHaveLength(1);
-
-    const [run] = sarif.runs;
-    expect(run.tool.driver.name).toEqual('Snyk Container');
-    expect(run.tool.driver.rules).toHaveLength(1);
-    expect(run.results).toHaveLength(1);
-    expect(run.results?.[0].level === 'error');
     expect(sarif).toMatchSnapshot();
   });
 });

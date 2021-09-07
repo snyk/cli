@@ -13,7 +13,7 @@ import * as analysis from '../../../../src/lib/plugins/sast/analysis';
 import { Options, TestOptions } from '../../../../src/lib/types';
 import * as ecosystems from '../../../../src/lib/ecosystems';
 import * as analytics from '../../../../src/lib/analytics';
-import test from '../../../../src/cli/commands/test/';
+import snykTest from '../../../../src/cli/commands/test/';
 import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 import { ArgsOptions } from '../../../../src/cli/args';
 
@@ -93,7 +93,7 @@ describe('Test snyk code', () => {
     );
   });
 
-  it('should fail - when we do not support files ', async () => {
+  it('should fail - when we do not support files', async () => {
     const options: Options & TestOptions = {
       path: '',
       traverseNodeModules: false,
@@ -172,7 +172,7 @@ describe('Test snyk code', () => {
 
     expect.hasAssertions();
     try {
-      await test('some/path', options);
+      await snykTest('some/path', options);
     } catch (error) {
       const errMessage = stripAscii(stripAnsi(error.message.trim()));
       const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
@@ -206,7 +206,7 @@ describe('Test snyk code', () => {
     const expected = new Error(error.message);
     expect.hasAssertions();
     try {
-      await test('.', {
+      await snykTest('.', {
         path: '',
         code: true,
         _: [],
@@ -224,7 +224,7 @@ describe('Test snyk code', () => {
     });
 
     await expect(
-      test('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+      snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
     ).rejects.toHaveProperty(
       'userMessage',
       'Snyk Code is not supported for org: enable in Settings > Snyk Code',
@@ -238,7 +238,7 @@ describe('Test snyk code', () => {
     });
 
     await expect(
-      test('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+      snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
     ).rejects.toHaveProperty(
       'userMessage',
       'Snyk Code is not supported for org.',
@@ -256,7 +256,7 @@ describe('Test snyk code', () => {
     });
 
     await expect(
-      test('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+      snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
     ).rejects.toHaveProperty('userMessage', 'Test limit reached!');
   });
 
@@ -320,7 +320,7 @@ describe('Test snyk code', () => {
     trackUsageSpy.mockResolvedValue({});
 
     try {
-      await test('some/path', options);
+      await snykTest('some/path', options);
     } catch (error) {
       const errMessage = error.message.trim();
       const expectedOutput = jsonStringifyLargeObject(

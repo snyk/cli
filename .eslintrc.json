@@ -6,8 +6,7 @@
   // },
   "env": {
     "node": true,
-    "es6": true,
-    "jest": true
+    "es6": true
   },
   "plugins": ["@typescript-eslint"],
   "extends": [
@@ -42,13 +41,20 @@
     {
       "files": ["*.ts"],
       "rules": {
+        "@typescript-eslint/ban-types": "warn",
         "id-blacklist": ["error", "exports"] // in TS, use "export" instead of Node's "module.exports"
       }
     },
     {
       "files": "*.spec.*",
+      "extends": ["plugin:jest/recommended"],
       "rules": {
-        "@typescript-eslint/ban-ts-ignore": "off"
+        "jest/no-done-callback": "warn",
+        "jest/valid-title": "warn",
+        "jest/no-conditional-expect": "warn",
+        "jest/no-try-expect": "warn",
+        "jest/no-identical-title": "warn",
+        "@typescript-eslint/ban-ts-comment": "warn"
       }
     }
   ]

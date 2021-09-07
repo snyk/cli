@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import * as fs from 'fs';
 import * as path from 'path';
 import {

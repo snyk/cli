@@ -46,7 +46,7 @@ describe('SyntheticMetricInstance', () => {
 describe('TimerMetricInstance', () => {
   it('has a correct initial value', () => {
     const tmi = new TimerMetricInstance('timer/network_time');
-    expect(tmi.getValue()).toBeUndefined;
+    expect(tmi.getValue()).toBeUndefined();
   });
 
   it('can time things with sufficient accuracy', async () => {
@@ -132,13 +132,11 @@ describe('MetricsCollector', () => {
     const allMetrics = MetricsCollector.getAllMetrics();
 
     const expected = {
-      // eslint-disable-next-line @typescript-eslint/camelcase
       cpu_time: {
         total: 50,
         type: 'synthetic',
         values: [50],
       },
-      // eslint-disable-next-line @typescript-eslint/camelcase
       network_time: {
         total: 300,
         type: 'timer',
