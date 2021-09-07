@@ -110,7 +110,7 @@ describe('fix Pipfile Python projects', () => {
     jest.spyOn(pipenvPipfileFix, 'pipenvInstall').mockResolvedValue({
       exitCode: 1,
       stdout: '',
-      stderr: 'Locking Failed',
+      stderr: 'Locking failed',
       command: 'pipenv install django==2.0.1 transitive==1.1.1',
       duration: 123,
     });
@@ -169,6 +169,87 @@ describe('fix Pipfile Python projects', () => {
       },
     });
     expect(result.fixSummary).toContain('✖ Locking failed');
+    expect(result.fixSummary).toContain(
+      'Tip:     Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+    );
+    expect(result.fixSummary).toContain('✖ No successful fixes');
+    expect(pipenvPipfileFixStub).toHaveBeenCalledTimes(1);
+    expect(pipenvPipfileFixStub.mock.calls[0]).toEqual([
+      pathLib.resolve(workspacesPath, 'with-dev-deps'),
+      ['django==2.0.1', 'transitive==1.1.1'],
+      {
+        python: 'python3',
+      },
+    ]);
+  });
+
+  it('applies expected changes to Pipfile when install fails', async () => {
+    jest.spyOn(pipenvPipfileFix, 'pipenvInstall').mockResolvedValue({
+      exitCode: 1,
+      stdout: '',
+      stderr: `Updating dependenciesResolving dependencies... (1.1s)
+
+      SolverProblemError
+
+      Because django (2.6) depends on numpy (>=1.19)and tensorflow (2.2.1) depends on numpy (>=1.16.0,<1.19.0), django (2.6) is incompatible with tensorflow (2.2.1).So, because pillow depends on both tensorflow (2.2.1) and django (2.6), version solving failed.`,
+      command: 'pipenv install django==2.0.1 transitive==1.1.1',
+      duration: 123,
+    });
+
+    // Arrange
+    const targetFile = 'with-dev-deps/Pipfile';
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: ['vuln-id'],
+            isTransitive: false,
+          },
+          'transitive@1.0.0': {
+            upgradeTo: 'transitive@1.1.1',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFixWithFileReadWrite(
+      workspacesPath,
+      targetFile,
+      testResult,
+    );
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
+    // Assert
+    expect(result).toMatchObject({
+      exceptions: {},
+      results: {
+        python: {
+          failed: [
+            {
+              original: entityToFix,
+              error: expect.objectContaining({ name: 'CommandFailedError' }),
+              tip:
+                'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+            },
+          ],
+          skipped: [],
+          succeeded: [],
+        },
+      },
+    });
+    expect(result.fixSummary).toContain('version solving failed');
     expect(result.fixSummary).toContain(
       'Tip:     Try running `pipenv install django==2.0.1 transitive==1.1.1`',
     );
