@@ -18,7 +18,9 @@ import {
 import { convertErrorToUserMessage } from './lib/errors/error-to-user-message';
 import { getTotalIssueCount } from './lib/issues/total-issues-count';
 import { hasFixableIssues } from './lib/issues/fixable-issues';
-export { EntityToFix } from './types';
+
+export { FixHandlerResultByPlugin } from './plugins/types';
+export { EntityToFix, FixedMeta } from './types';
 
 const debug = debugLib('snyk-fix:main');
 
