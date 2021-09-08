@@ -45,21 +45,21 @@ export default async function fix(...args: MethodArgs): Promise<string> {
     (res) => Object.keys(res.testResult.issues).length,
   );
   const { dryRun, quiet } = options;
-  const { fixSummary, meta } = await snykFix.fix(results, { dryRun, quiet });
+  const { fixSummary, meta, results: resultsByPlugin } = await snykFix.fix(
+    results,
+    {
+      dryRun,
+      quiet,
+    },
+  );
 
-  // Analytics # of projects
-  analytics.add('snykFixFailedProjects', meta.failed);
-  analytics.add('snykFixFixedProjects', meta.fixed);
-  analytics.add('snykFixTotalProjects', results.length);
-  analytics.add('snykFixVulnerableProjects', vulnerableResults.length);
-
-  // Analytics # of issues
-  analytics.add('snykFixFixableIssues', meta.fixableIssues);
-  analytics.add('snykFixFixedIssues', meta.fixedIssues);
-  analytics.add('snykFixTotalIssues', meta.totalIssues);
-
-  analytics.add('snykFixSummary', fixSummary);
-
+  setSnykFixAnalytics(
+    fixSummary,
+    meta,
+    results,
+    resultsByPlugin,
+    vulnerableResults,
+  );
   // `snyk test` did not return any test results
   if (results.length === 0) {
     throw new Error(fixSummary);
@@ -155,4 +155,35 @@ async function runSnykTestLegacy(
   stdOutSpinner.stop();
   stdErrSpinner.stop();
   return results;
+}
+
+function setSnykFixAnalytics(
+  fixSummary: string,
+  meta: snykFix.FixedMeta,
+  snykTestResponses: snykFix.EntityToFix[],
+  resultsByPlugin: snykFix.FixHandlerResultByPlugin,
+  vulnerableResults: snykFix.EntityToFix[],
+) {
+  // Analytics # of projects
+  analytics.add('snykFixFailedProjects', meta.failed);
+  analytics.add('snykFixFixedProjects', meta.fixed);
+  analytics.add('snykFixTotalProjects', snykTestResponses.length);
+  analytics.add('snykFixVulnerableProjects', vulnerableResults.length);
+
+  // Analytics # of issues
+  analytics.add('snykFixFixableIssues', meta.fixableIssues);
+  analytics.add('snykFixFixedIssues', meta.fixedIssues);
+  analytics.add('snykFixTotalIssues', meta.totalIssues);
+
+  analytics.add('snykFixSummary', fixSummary);
+
+  // Analytics for errors
+  for (const plugin of Object.keys(resultsByPlugin)) {
+    const errors: string[] = [];
+    const failedToFix = resultsByPlugin[plugin].failed;
+    if (failedToFix.length > 0) {
+      errors.push(...failedToFix.map((f) => f.error?.message));
+    }
+    analytics.add('snykFixErrors', { [plugin]: errors });
+  }
 }
