@@ -75,8 +75,8 @@ function throwPipenvError(stderr: string, command?: string) {
     }
   }
 
-  const solverProblemErrorRegex = /.*version solving failed/g;
-  const solverProblemError = solverProblemErrorRegex.exec(stderr);
+  const SOLVER_PROBLEM = /SolverProblemError(.* version solving failed)/gms;
+  const solverProblemError = SOLVER_PROBLEM.exec(stderr);
   if (solverProblemError) {
     throw new CommandFailedError(solverProblemError[0].trim(), command);
   }
