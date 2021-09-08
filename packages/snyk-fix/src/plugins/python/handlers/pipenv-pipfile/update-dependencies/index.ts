@@ -62,15 +62,25 @@ function throwPipenvError(stderr: string, command?: string) {
     'There are incompatible versions in the resolved dependencies';
   const lockingFailed = 'Locking failed';
   const versionNotFound = 'Could not find a version that matches';
-  if (stderr.includes(incompatibleDeps.toLocaleLowerCase())) {
-    throw new CommandFailedError(incompatibleDeps, command);
+
+  const errorsToBubbleUp = [
+    lockingFailed,
+    versionNotFound,
+    incompatibleDeps,
+  ].map((e) => e.toLocaleLowerCase());
+
+  for (const error of errorsToBubbleUp) {
+    if (errorStr.includes(error)) {
+      throw new CommandFailedError(stderr, command);
+    }
   }
-  if (errorStr.includes(lockingFailed.toLocaleLowerCase())) {
-    throw new CommandFailedError(lockingFailed, command);
+
+  const solverProblemErrorRegex = /.*version solving failed/g;
+  const solverProblemError = solverProblemErrorRegex.exec(stderr);
+  if (solverProblemError) {
+    throw new CommandFailedError(solverProblemError[0].trim(), command);
   }
-  if (stderr.includes(versionNotFound.toLocaleLowerCase())) {
-    throw new CommandFailedError(versionNotFound, command);
-  }
+
   throw new NoFixesCouldBeAppliedError();
 }
 
