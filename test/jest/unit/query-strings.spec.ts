@@ -22,7 +22,7 @@ describe('Query strings', () => {
   });
 
   it('uses integration name and version', () => {
-    process.env.SNYK_INTEGRATION_NAME = 'NPM';
+    process.env.SNYK_INTEGRATION_NAME = 'JENKINS';
     process.env.SNYK_INTEGRATION_VERSION = '1.2.3';
 
     // Object.fromEntries is not available for Node 8 and 10. Testing this in latest Node is enough
@@ -32,7 +32,7 @@ describe('Query strings', () => {
       ).toStrictEqual({
         utm_source: 'cli',
         utm_medium: 'cli',
-        utm_campaign: 'NPM',
+        utm_campaign: 'JENKINS',
         utm_campaign_content: '1.2.3',
         os: expect.any(String),
         docker: expect.any(String),

@@ -22,10 +22,6 @@ export const INTEGRATION_ENVIRONMENT_VERSION_ENVVAR =
   'SNYK_INTEGRATION_ENVIRONMENT_VERSION';
 
 enum TrackedIntegration {
-  // Distribution builds/packages
-  NPM = 'NPM', // registry - how can we detect this one? Not standalone?
-  STANDALONE = 'STANDALONE', // Tracked by detecting "isStandalone" flag
-
   // tracked by passing envvar on CLI invocation
   HOMEBREW = 'HOMEBREW',
   SCOOP = 'SCOOP',

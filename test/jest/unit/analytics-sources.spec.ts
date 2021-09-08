@@ -105,11 +105,11 @@ describe('sources - getIntegrationName', () => {
   });
 
   it('loads integration name from envvar', () => {
-    process.env[INTEGRATION_NAME_ENVVAR] = 'NPM';
-    expect(getIntegrationName(emptyArgs)).toBe('NPM');
+    process.env[INTEGRATION_NAME_ENVVAR] = 'JENKINS';
+    expect(getIntegrationName(emptyArgs)).toBe('JENKINS');
 
-    process.env[INTEGRATION_NAME_ENVVAR] = 'STANDALONE';
-    expect(getIntegrationName(emptyArgs)).toBe('STANDALONE');
+    process.env[INTEGRATION_NAME_ENVVAR] = 'AZURE_PIPELINES';
+    expect(getIntegrationName(emptyArgs)).toBe('AZURE_PIPELINES');
   });
 
   it('returns empty integration namewhen envvar is not recognized', () => {
