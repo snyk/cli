@@ -1,19 +1,18 @@
+import * as fs from 'fs';
 import {
-  getIntegrationName,
-  getIntegrationVersion,
   getIntegrationEnvironment,
   getIntegrationEnvironmentVersion,
-  INTEGRATION_NAME_ENVVAR,
-  INTEGRATION_VERSION_ENVVAR,
+  getIntegrationName,
+  getIntegrationVersion,
   INTEGRATION_ENVIRONMENT_ENVVAR,
   INTEGRATION_ENVIRONMENT_VERSION_ENVVAR,
-  isScoop,
+  INTEGRATION_NAME_ENVVAR,
+  INTEGRATION_VERSION_ENVVAR,
   isHomebrew,
+  isScoop,
   validateHomebrew,
   validateScoopManifestFile,
 } from '../../../src/lib/analytics/sources';
-
-import * as fs from 'fs';
 
 const emptyArgs = [];
 const defaultArgsParams = {
@@ -28,7 +27,7 @@ beforeEach(() => {
   delete process.env[INTEGRATION_ENVIRONMENT_VERSION_ENVVAR];
 });
 
-describe('sources - scoop detection', () => {
+describe('Scoop Detection', () => {
   it('detects if snyk is installed via scoop', () => {
     const originalExecPath = process.execPath;
     process.execPath =
@@ -54,7 +53,7 @@ describe('sources - scoop detection', () => {
   });
 });
 
-describe('sources - Homebrew detection', () => {
+describe('Homebrew Detection', () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
@@ -99,7 +98,7 @@ describe('sources - Homebrew detection', () => {
   });
 });
 
-describe('sources - getIntegrationName', () => {
+describe('getIntegrationName', () => {
   it('returns empty integration name by default', () => {
     expect(getIntegrationName(emptyArgs)).toBe('');
   });
@@ -150,7 +149,7 @@ describe('sources - getIntegrationName', () => {
   });
 });
 
-describe('sources - getIntegrationVersion', () => {
+describe('getIntegrationVersion', () => {
   it('returns empty integration version by default', () => {
     expect(getIntegrationVersion(emptyArgs)).toBe('');
   });
@@ -169,7 +168,7 @@ describe('sources - getIntegrationVersion', () => {
   });
 });
 
-describe('sources - getIntegrationEnvironment', () => {
+describe('getIntegrationEnvironment', () => {
   it('returns empty integration environment by default', () => {
     expect(getIntegrationEnvironment(emptyArgs)).toBe('');
   });
@@ -188,7 +187,7 @@ describe('sources - getIntegrationEnvironment', () => {
   });
 });
 
-describe('sources - getIntegrationEnvironment', () => {
+describe('getIntegrationEnvironmentVersion', () => {
   it('returns empty integration environment version by default', () => {
     expect(getIntegrationEnvironmentVersion(emptyArgs)).toBe('');
   });

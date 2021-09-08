@@ -8,12 +8,14 @@
   Integration name is validated with a list
 */
 
-const debug = require('debug')('snyk');
+import { exec } from 'child_process';
+import * as createDebug from 'debug';
 import * as fs from 'fs';
+import { join } from 'path';
 import * as semver from 'semver';
 import { ArgsOptions } from '../../cli/args';
-import { join } from 'path';
-const { exec } = require('child_process');
+
+const debug = createDebug('snyk');
 
 export const INTEGRATION_NAME_ENVVAR = 'SNYK_INTEGRATION_NAME';
 export const INTEGRATION_VERSION_ENVVAR = 'SNYK_INTEGRATION_VERSION';
