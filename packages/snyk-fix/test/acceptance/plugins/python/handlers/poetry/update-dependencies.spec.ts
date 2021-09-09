@@ -164,7 +164,9 @@ describe('fix Poetry Python projects', () => {
           failed: [
             {
               original: entityToFix,
-              error: expect.objectContaining({ name: 'CommandFailedError' }),
+              error: expect.objectContaining({
+                name: 'NoFixesCouldBeAppliedError',
+              }),
               tip: 'Try running `poetry install six==2.0.1 transitive==1.1.1`',
             },
           ],
@@ -319,6 +321,7 @@ describe('fix Poetry Python projects', () => {
       quiet: true,
       stripAnsi: true,
     });
+
     // Assert
     expect(result).toMatchObject({
       exceptions: {},
@@ -331,14 +334,23 @@ describe('fix Poetry Python projects', () => {
               original: entityToFix,
               changes: [
                 {
+                  from: 'six@1.1.6',
+                  to: 'six@2.0.1',
+                  issueIds: ['VULN-six'],
                   success: true,
                   userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
                 },
                 {
+                  from: 'transitive@1.0.0',
+                  to: 'transitive@1.1.1',
+                  issueIds: ['vuln-transitive'],
                   success: true,
                   userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
                 },
                 {
+                  from: 'json-api@0.1.21',
+                  to: 'json-api@0.1.22',
+                  issueIds: ['SNYK-1'],
                   success: true,
                   userMessage: 'Upgraded json-api from 0.1.21 to 0.1.22',
                 },
