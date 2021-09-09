@@ -641,6 +641,84 @@
             "logging_configuration": []
           }
         }
+      },
+      {
+        "address": "aws_route.private[\"1\"]",
+        "mode": "managed",
+        "type": "aws_route",
+        "name": "private",
+        "index": 1,
+        "provider_name": "registry.terraform.io/hashicorp/aws",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "before": null,
+          "after": {
+            "carrier_gateway_id": null,
+            "destination_cidr_block": "172.25.16.0/20",
+            "destination_ipv6_cidr_block": null,
+            "destination_prefix_list_id": null,
+            "egress_only_gateway_id": null,
+            "gateway_id": null,
+            "local_gateway_id": null,
+            "nat_gateway_id": null,
+            "route_table_id": "rtb-00cf8381520103cfb",
+            "timeouts": null,
+            "transit_gateway_id": "tgw-0f68a4f2c58772c51",
+            "vpc_endpoint_id": null,
+            "vpc_peering_connection_id": null
+          },
+          "after_unknown": {
+            "id": true,
+            "instance_id": true,
+            "instance_owner_id": true,
+            "network_interface_id": true,
+            "origin": true,
+            "state": true
+          },
+          "before_sensitive": false,
+          "after_sensitive": {}
+        }
+      },
+      {
+        "address": "aws_route.private[\"rtb-00cf8381520103cfb\"]",
+        "mode": "managed",
+        "type": "aws_route",
+        "name": "private",
+        "index": "rtb-00cf8381520103cfb",
+        "provider_name": "registry.terraform.io/hashicorp/aws",
+        "change": {
+          "actions": [
+            "create"
+          ],
+          "before": null,
+          "after": {
+            "carrier_gateway_id": null,
+            "destination_cidr_block": "172.25.16.0/20",
+            "destination_ipv6_cidr_block": null,
+            "destination_prefix_list_id": null,
+            "egress_only_gateway_id": null,
+            "gateway_id": null,
+            "local_gateway_id": null,
+            "nat_gateway_id": null,
+            "route_table_id": "rtb-00cf8381520103cfb",
+            "timeouts": null,
+            "transit_gateway_id": "tgw-0f68a4f2c58772c51",
+            "vpc_endpoint_id": null,
+            "vpc_peering_connection_id": null
+          },
+          "after_unknown": {
+            "id": true,
+            "instance_id": true,
+            "instance_owner_id": true,
+            "network_interface_id": true,
+            "origin": true,
+            "state": true
+          },
+          "before_sensitive": false,
+          "after_sensitive": {}
+        }
       }
     ],
     "prior_state": {
