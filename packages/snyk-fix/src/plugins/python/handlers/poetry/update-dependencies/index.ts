@@ -19,7 +19,7 @@ import {
   generateFailedChanges,
   generateSuccessfulChanges,
   isSuccessfulChange,
-} from './attempted-changes-summary';
+} from '../../attempted-changes-summary';
 
 const debug = debugLib('snyk-fix:python:Poetry');
 
