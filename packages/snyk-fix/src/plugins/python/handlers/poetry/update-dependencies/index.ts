@@ -111,14 +111,20 @@ function throwPoetryError(stderr: string, command?: string) {
     /Python requirement (.*) is not compatible/g,
     'gm',
   );
-  const match = INCOMPATIBLE_PYTHON.exec(stderr);
-  if (match) {
+  const SOLVER_PROBLEM = /SolverProblemError(.* version solving failed)/gms;
+
+  const incompatiblePythonError = INCOMPATIBLE_PYTHON.exec(stderr);
+  if (incompatiblePythonError) {
     throw new CommandFailedError(
-      `The current project's Python requirement ${match[1]} is not compatible with some of the required packages`,
+      `The current project's Python requirement ${incompatiblePythonError[1]} is not compatible with some of the required packages`,
       command,
     );
   }
-  // TODO: test this
+  const solverProblemError = SOLVER_PROBLEM.exec(stderr);
+  if (solverProblemError) {
+    throw new CommandFailedError(solverProblemError[0].trim(), command);
+  }
+
   if (stderr.includes(ALREADY_UP_TO_DATE)) {
     throw new CommandFailedError(
       'No dependencies could be updated as they seem to be at the correct versions. Make sure installed dependencies in the environment match those in the lockfile by running `poetry update`',
