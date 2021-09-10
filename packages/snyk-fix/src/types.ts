@@ -214,7 +214,7 @@ export interface WithUserMessage<Original> {
 
 export type FixChangesSummary = FixChangesSuccess | FixChangesError;
 
-interface FixChangesSuccess {
+export interface FixChangesSuccess {
   success: true;
   userMessage: string;
   issueIds: string[];
@@ -222,7 +222,7 @@ interface FixChangesSuccess {
   to?: string;
 }
 
-interface FixChangesError {
+export interface FixChangesError {
   success: false;
   userMessage: string;
   reason: string;

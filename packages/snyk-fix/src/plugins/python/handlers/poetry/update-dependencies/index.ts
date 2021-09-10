@@ -6,8 +6,8 @@ import * as poetryFix from '@snyk/fix-poetry';
 
 import { PluginFixResponse } from '../../../../types';
 import {
-  DependencyPins,
   EntityToFix,
+  FixChangesError,
   FixChangesSummary,
   FixOptions,
 } from '../../../../../types';
@@ -15,6 +15,11 @@ import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-a
 import { CommandFailedError } from '../../../../../lib/errors/command-failed-to-run-error';
 import { validateRequiredData } from '../../validate-required-data';
 import { standardizePackageName } from '../../../standardize-package-name';
+import {
+  generateFailedChanges,
+  generateSuccessfulChanges,
+  isSuccessfulChange,
+} from './attempted-changes-summary';
 
 const debug = debugLib('snyk-fix:python:Poetry');
 
@@ -30,33 +35,13 @@ interface PyProjectToml {
     };
   };
 }
+
 export async function updateDependencies(
   entity: EntityToFix,
   options: FixOptions,
 ): Promise<PluginFixResponse> {
   const handlerResult = await fixAll(entity, options);
   return handlerResult;
-}
-
-export function generateSuccessfulChanges(
-  pins: DependencyPins,
-): FixChangesSummary[] {
-  const changes: FixChangesSummary[] = [];
-  for (const pkgAtVersion of Object.keys(pins)) {
-    const pin = pins[pkgAtVersion];
-    const updatedMessage = pin.isTransitive ? 'Pinned' : 'Upgraded';
-    const newVersion = pin.upgradeTo.split('@')[1];
-    const [pkgName, version] = pkgAtVersion.split('@');
-
-    changes.push({
-      success: true,
-      userMessage: `${updatedMessage} ${pkgName} from ${version} to ${newVersion}`,
-      issueIds: pin.vulns,
-      from: pkgAtVersion,
-      to: `${pkgName}@${newVersion}`,
-    });
-  }
-  return changes;
 }
 
 export async function generateUpgrades(
@@ -134,56 +119,86 @@ function throwPoetryError(stderr: string, command?: string) {
   throw new NoFixesCouldBeAppliedError();
 }
 
-async function fixAll(entity: EntityToFix, options: FixOptions) {
+async function fixAll(
+  entity: EntityToFix,
+  options: FixOptions,
+): Promise<PluginFixResponse> {
   const handlerResult: PluginFixResponse = {
     succeeded: [],
     failed: [],
     skipped: [],
   };
-  let poetryCommand;
+  const { upgrades, devUpgrades } = await generateUpgrades(entity);
+  // TODO: for better support we need to:
+  // 1. parse the manifest and extract original requirements, version spec etc
+  // 2. swap out only the version and retain original spec
+  // 3. re-lock the lockfile
+  const changes: FixChangesSummary[] = [];
   try {
-    const { upgrades, devUpgrades } = await generateUpgrades(entity);
-    const { remediation, targetFile } = validateRequiredData(entity);
-    const targetFilePath = pathLib.resolve(entity.workspace.path, targetFile);
-    const { dir } = pathLib.parse(targetFilePath);
-    // TODO: for better support we need to:
-    // 1. parse the manifest and extract original requirements, version spec etc
-    // 2. swap out only the version and retain original spec
-    // 3. re-lock the lockfile
-
     // update prod dependencies first
-    if (!options.dryRun && upgrades.length) {
-      const res = await poetryFix.poetryAdd(dir, upgrades, {
-        python: entity.options.command ?? undefined,
-      });
-      if (res.exitCode !== 0) {
-        poetryCommand = res.command;
-        throwPoetryError(res.stderr ? res.stderr : res.stdout, res.command);
-      }
+    if (upgrades.length) {
+      changes.push(...(await poetryAdd(entity, options, upgrades)));
     }
 
     // update dev dependencies second
-    if (!options.dryRun && devUpgrades.length) {
-      const res = await poetryFix.poetryAdd(dir, devUpgrades, {
-        dev: true,
-        python: entity.options.command ?? undefined,
-      });
-      if (res.exitCode !== 0) {
-        poetryCommand = res.command;
-        throwPoetryError(res.stderr ? res.stderr : res.stdout, res.command);
-      }
+    if (devUpgrades.length) {
+      const installDev = true;
+      changes.push(
+        ...(await poetryAdd(entity, options, devUpgrades, installDev)),
+      );
     }
-    const changes = generateSuccessfulChanges(remediation.pin);
-    handlerResult.succeeded.push({ original: entity, changes });
+
+    if (!changes.length || !changes.some((c) => isSuccessfulChange(c))) {
+      debug('Manifest has not changed as no changes got applied!');
+      // throw the first error tip since 100% failed, they all failed with the same
+      // error
+      const { tip, reason } = changes[0] as FixChangesError;
+      throw new NoFixesCouldBeAppliedError(reason, tip);
+    }
+    handlerResult.succeeded.push({
+      original: entity,
+      changes,
+    });
   } catch (error) {
     debug(
       `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
     );
     handlerResult.failed.push({
       original: entity,
+      tip: error.tip,
       error,
-      tip: poetryCommand ? `Try running \`${poetryCommand}\`` : undefined,
     });
   }
   return handlerResult;
+}
+
+async function poetryAdd(
+  entity: EntityToFix,
+  options: FixOptions,
+  upgrades: string[],
+  dev?: boolean,
+): Promise<FixChangesSummary[]> {
+  const changes: FixChangesSummary[] = [];
+  let poetryCommand;
+  const { remediation, targetFile } = validateRequiredData(entity);
+  try {
+    const targetFilePath = pathLib.resolve(entity.workspace.path, targetFile);
+    const { dir } = pathLib.parse(targetFilePath);
+    if (!options.dryRun && upgrades.length) {
+      const res = await poetryFix.poetryAdd(dir, upgrades, {
+        dev,
+        python: entity.options.command ?? undefined,
+      });
+      if (res.exitCode !== 0) {
+        poetryCommand = res.command;
+        throwPoetryError(res.stderr ? res.stderr : res.stdout, res.command);
+      }
+    }
+    changes.push(...generateSuccessfulChanges(upgrades, remediation.pin));
+  } catch (error) {
+    changes.push(
+      ...generateFailedChanges(upgrades, remediation.pin, error, poetryCommand),
+    );
+  }
+  return changes;
 }
