@@ -61,7 +61,7 @@ Describe "Snyk iac local test command"
 
     It "ignores files with no recognised config types"
       When run snyk iac test ../fixtures/iac/kubernetes/pod-invalid.yaml
-      The status should equal 2
+      The status should equal 3
       The output should include "Could not find any valid infrastructure as code files."
     End
 

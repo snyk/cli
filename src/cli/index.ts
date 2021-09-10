@@ -30,6 +30,7 @@ import {
   CustomError,
   NoSupportedSastFiles,
 } from '../lib/errors';
+import { IaCErrorCodes } from './commands/test/iac-local-execution/types';
 import stripAnsi from 'strip-ansi';
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
@@ -96,8 +97,9 @@ async function handleError(args, error) {
     'Could not detect supported target files in',
   );
   const noSupportedSastFiles = error instanceof NoSupportedSastFiles;
+  const noSupportedIaCFiles = error.code === IaCErrorCodes.NoFilesToScanError;
   const noSupportedProjectsDetected =
-    noSupportedManifestsFound || noSupportedSastFiles;
+    noSupportedManifestsFound || noSupportedSastFiles || noSupportedIaCFiles;
 
   if (noSupportedProjectsDetected) {
     exitCode = EXIT_CODES.NO_SUPPORTED_PROJECTS_DETECTED;
