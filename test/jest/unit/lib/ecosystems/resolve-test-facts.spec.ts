@@ -2,6 +2,7 @@ import { Options } from '../../../../../src/lib/types';
 import * as polling from '../../../../../src/lib/ecosystems/polling';
 import { depGraphData, scanResults } from './fixtures/';
 import { resolveAndTestFacts } from '../../../../../src/lib/ecosystems/resolve-test-facts';
+import * as pluginAnalytics from '../../../../../src/lib/ecosystems/plugin-analytics';
 
 describe('resolve and test facts', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -68,12 +69,18 @@ describe('resolve and test facts', () => {
       },
     });
 
+    const extractAndApplyPluginAnalyticsSpy = jest.spyOn(
+      pluginAnalytics,
+      'extractAndApplyPluginAnalytics',
+    );
+
     const [testResults, errors] = await resolveAndTestFacts(
       'cpp',
       scanResults,
       {} as Options,
     );
 
+    expect(extractAndApplyPluginAnalyticsSpy).toHaveBeenCalledTimes(1);
     expect(testResults).toEqual([
       {
         issuesData: {},
