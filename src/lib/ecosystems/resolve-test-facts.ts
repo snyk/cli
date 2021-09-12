@@ -18,10 +18,10 @@ export async function resolveAndTestFacts(
     await spinner(`Resolving and Testing fileSignatures in ${path}`);
     for (const scanResult of scanResults) {
       try {
-        if (scanResult.analytics) {
-          extractAndApplyPluginAnalytics(scanResult.analytics);
-        }
         const res = await requestPollingToken(options, true, scanResult);
+        if (scanResult.analytics) {
+          extractAndApplyPluginAnalytics(scanResult.analytics, res.token);
+        }
         const { maxAttempts, pollInterval } = res.pollingTask;
         const attemptsCount = 0;
         const response = await pollingWithTokenUntilDone(
