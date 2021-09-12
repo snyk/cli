@@ -3,6 +3,7 @@ import * as polling from '../../../../../src/lib/ecosystems/polling';
 import { depGraphData, scanResults } from './fixtures/';
 import { resolveAndTestFacts } from '../../../../../src/lib/ecosystems/resolve-test-facts';
 import * as pluginAnalytics from '../../../../../src/lib/ecosystems/plugin-analytics';
+import * as analytics from '../../../../../src/lib/analytics';
 
 describe('resolve and test facts', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -74,6 +75,7 @@ describe('resolve and test facts', () => {
       'extractAndApplyPluginAnalytics',
     );
 
+    const addAnalyticsSpy = jest.spyOn(analytics, 'add');
     const [testResults, errors] = await resolveAndTestFacts(
       'cpp',
       scanResults,
@@ -81,6 +83,15 @@ describe('resolve and test facts', () => {
     );
 
     expect(extractAndApplyPluginAnalyticsSpy).toHaveBeenCalledTimes(1);
+    expect(addAnalyticsSpy).toHaveBeenCalledWith('asyncRequestToken', token);
+    expect(addAnalyticsSpy).toHaveBeenLastCalledWith(
+      'fileSignaturesAnalyticsContext',
+      {
+        totalFileSignatures: 3,
+        totalSecondsElapsedToGenerateFileSignatures: 0,
+      },
+    );
+    expect(addAnalyticsSpy).toHaveBeenCalledTimes(2);
     expect(testResults).toEqual([
       {
         issuesData: {},
