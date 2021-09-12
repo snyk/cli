@@ -35,33 +35,13 @@ describe('Detect extra projects available that could be tested using --all-proje
     expect(actualResult).toBe(expectedResult);
   });
 
-  it('should return `undefined` when `source` command for cpp is being used', async () => {
+  it('should return `undefined` when `unmanaged` command for cpp is being used', async () => {
     const root = '';
     const inspectResult = {
       plugin: { meta: { allSubProjectNames: ['gradle-woof', 'npm-webapp'] } },
     } as pluginApi.InspectResult;
 
-    const options = { source: true } as Options;
-    const actualResult = await getExtraProjectCount(
-      root,
-      options,
-      inspectResult,
-    );
-    const expectedResult = undefined;
-    expect(actualResult).toBe(expectedResult);
-  });
-
-  it('should return `undefined` when `docker` command is being used', async () => {
-    const root = '';
-    const inspectResult = {
-      plugin: {
-        meta: {
-          allSubProjectNames: ['gradle-goof', 'npm-node', ['yarn-yarn']],
-        },
-      },
-    } as pluginApi.InspectResult;
-
-    const options = { source: true } as Options;
+    const options = { unmanaged: true } as Options;
     const actualResult = await getExtraProjectCount(
       root,
       options,
