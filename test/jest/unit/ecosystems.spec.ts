@@ -18,18 +18,18 @@ describe('ecosystems', () => {
   });
 
   describe('getEcosystem', () => {
-    it('should return cpp ecosystem when options source is true', () => {
+    it('should return cpp ecosystem when options unmanaged is true', () => {
       const options: Options = {
-        source: true,
+        unmanaged: true,
         path: '',
       };
       const actual = ecosystems.getEcosystem(options);
       const expected = 'cpp';
       expect(actual).toBe(expected);
     });
-    it('should return null when options source is false', () => {
+    it('should return null when options unmanaged is false', () => {
       const options: Options = {
-        source: false,
+        unmanaged: false,
         path: '',
       };
       const actual = ecosystems.getEcosystem(options);

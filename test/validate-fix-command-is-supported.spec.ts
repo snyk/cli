@@ -36,14 +36,14 @@ describe('setDefaultTestOptions', () => {
     );
   });
 
-  it('fix is NOT supported for --source + enabled FF', async () => {
+  it('fix is NOT supported for --unmanaged + enabled FF', async () => {
     jest
       .spyOn(featureFlags, 'isFeatureFlagSupportedForOrg')
       .mockResolvedValue({ ok: true });
     const options = {
       path: '/',
       showVulnPaths: 'all' as ShowVulnPaths,
-      source: true,
+      unmanaged: true,
     };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
       new FeatureNotSupportedByEcosystemError('snyk fix', 'cpp'),

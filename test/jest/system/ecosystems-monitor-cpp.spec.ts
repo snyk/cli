@@ -59,7 +59,7 @@ describe('monitorEcosystem cpp', () => {
       monitorResults,
       monitorErrors,
       {
-        source: true,
+        unmanaged: true,
       } as Options,
     );
 

@@ -66,10 +66,10 @@ describe('snyk fix (system tests)', () => {
   );
 
   it(
-    '`shows error when called with --source`',
+    '`shows error when called with --unmanaged`',
     (done) => {
       exec(
-        `node ${main} fix --source`,
+        `node ${main} fix --unmanaged`,
         {
           env,
         },

@@ -52,7 +52,7 @@ export interface Options {
   docker?: boolean;
   iac?: boolean;
   code?: boolean;
-  source?: boolean; // C/C++ Ecosystem Support
+  unmanaged?: boolean; // C/C++ Ecosystem Support
   file?: string;
   policy?: string;
   json?: boolean;

@@ -8,7 +8,7 @@ export async function getExtraProjectCount(
   options: Options,
   inspectResult: pluginApi.InspectResult,
 ): Promise<number | undefined> {
-  if (options.docker || options.source) {
+  if (options.docker || options.unmanaged) {
     return undefined;
   }
   if (
