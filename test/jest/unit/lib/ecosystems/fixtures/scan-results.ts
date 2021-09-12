@@ -29,6 +29,15 @@ export const scanResults = {
           remoteUrl: 'https://github.com/some-org/some-unmanaged-project.git',
           branch: 'master',
         },
+        analytics: [
+          {
+            data: {
+              totalFileSignatures: 3,
+              totalSecondsElapsedToGenerateFileSignatures: 0,
+            },
+            name: 'fileSignaturesAnalyticsContext',
+          },
+        ],
       },
     ],
   };

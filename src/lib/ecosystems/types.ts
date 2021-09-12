@@ -24,6 +24,12 @@ export interface ScanResult {
   name?: string;
   policy?: string;
   target?: GitTarget | ContainerTarget;
+  analytics?: Analytics[];
+}
+
+export interface Analytics {
+  name: string;
+  data: unknown;
 }
 
 export interface Identity {
