@@ -7,7 +7,6 @@ import * as poetryFix from '@snyk/fix-poetry';
 import { PluginFixResponse } from '../../../../types';
 import {
   EntityToFix,
-  FixChangesError,
   FixChangesSummary,
   FixOptions,
 } from '../../../../../types';
@@ -18,8 +17,8 @@ import { standardizePackageName } from '../../../standardize-package-name';
 import {
   generateFailedChanges,
   generateSuccessfulChanges,
-  isSuccessfulChange,
 } from '../../attempted-changes-summary';
+import { ensureHasUpdates } from '../../ensure-has-updates';
 
 const debug = debugLib('snyk-fix:python:Poetry');
 
@@ -129,6 +128,12 @@ async function fixAll(
     skipped: [],
   };
   const { upgrades, devUpgrades } = await generateUpgrades(entity);
+
+  if (![...upgrades, ...devUpgrades].length) {
+    throw new NoFixesCouldBeAppliedError(
+      'Failed to calculate package updates to apply',
+    );
+  }
   // TODO: for better support we need to:
   // 1. parse the manifest and extract original requirements, version spec etc
   // 2. swap out only the version and retain original spec
@@ -148,13 +153,7 @@ async function fixAll(
       );
     }
 
-    if (!changes.length || !changes.some((c) => isSuccessfulChange(c))) {
-      debug('Manifest has not changed as no changes got applied!');
-      // throw the first error tip since 100% failed, they all failed with the same
-      // error
-      const { tip, reason } = changes[0] as FixChangesError;
-      throw new NoFixesCouldBeAppliedError(reason, tip);
-    }
+    ensureHasUpdates(changes);
     handlerResult.succeeded.push({
       original: entity,
       changes,

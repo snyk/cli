@@ -5,7 +5,6 @@ import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
 import { PluginFixResponse } from '../../../../types';
 import {
   EntityToFix,
-  FixChangesError,
   FixChangesSummary,
   FixOptions,
 } from '../../../../../types';
@@ -17,8 +16,8 @@ import { validateRequiredData } from '../../validate-required-data';
 import {
   generateFailedChanges,
   generateSuccessfulChanges,
-  isSuccessfulChange,
 } from '../../attempted-changes-summary';
+import { ensureHasUpdates } from '../../ensure-has-updates';
 
 const debug = debugLib('snyk-fix:python:Pipfile');
 
@@ -51,15 +50,11 @@ function throwPipenvError(stderr: string, command?: string) {
   const lockingFailed = 'Locking failed';
   const versionNotFound = 'Could not find a version that matches';
 
-  const errorsToBubbleUp = [
-    lockingFailed,
-    versionNotFound,
-    incompatibleDeps,
-  ].map((e) => e.toLocaleLowerCase());
+  const errorsToBubbleUp = [incompatibleDeps, lockingFailed, versionNotFound];
 
   for (const error of errorsToBubbleUp) {
-    if (errorStr.includes(error)) {
-      throw new CommandFailedError(stderr, command);
+    if (errorStr.includes(error.toLowerCase())) {
+      throw new CommandFailedError(error, command);
     }
   }
 
@@ -82,6 +77,11 @@ async function fixAll(
     skipped: [],
   };
   const { upgrades } = await generateUpgrades(entity);
+  if (!upgrades.length) {
+    throw new NoFixesCouldBeAppliedError(
+      'Failed to calculate package updates to apply',
+    );
+  }
   const changes: FixChangesSummary[] = [];
   try {
     // TODO: for better support we need to:
@@ -94,13 +94,7 @@ async function fixAll(
       changes.push(...(await pipenvAdd(entity, options, upgrades)));
     }
 
-    if (!changes.length || !changes.some((c) => isSuccessfulChange(c))) {
-      debug('Manifest has not changed as no changes got applied!');
-      // throw the first error tip since 100% failed, they all failed with the same
-      // error
-      const { tip, reason } = changes[0] as FixChangesError;
-      throw new NoFixesCouldBeAppliedError(reason, tip);
-    }
+    ensureHasUpdates(changes);
     handlerResult.succeeded.push({
       original: entity,
       changes,
