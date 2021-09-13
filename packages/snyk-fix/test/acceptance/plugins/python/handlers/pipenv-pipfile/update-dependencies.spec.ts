@@ -158,7 +158,9 @@ describe('fix Pipfile Python projects', () => {
           failed: [
             {
               original: entityToFix,
-              error: expect.objectContaining({ name: 'CommandFailedError' }),
+              error: expect.objectContaining({
+                name: 'NoFixesCouldBeAppliedError',
+              }),
               tip:
                 'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
             },
@@ -239,7 +241,9 @@ describe('fix Pipfile Python projects', () => {
           failed: [
             {
               original: entityToFix,
-              error: expect.objectContaining({ name: 'CommandFailedError' }),
+              error: expect.objectContaining({
+                name: 'NoFixesCouldBeAppliedError',
+              }),
               tip:
                 'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
             },

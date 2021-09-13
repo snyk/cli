@@ -3,7 +3,7 @@ import {
   FixChangesError,
   FixChangesSuccess,
   FixChangesSummary,
-} from '../../../../../types';
+} from '../../../types';
 
 export function generateFailedChanges(
   attemptedUpdates: string[],
