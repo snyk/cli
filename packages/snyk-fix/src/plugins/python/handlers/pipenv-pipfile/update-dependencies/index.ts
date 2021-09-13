@@ -7,11 +7,10 @@ import {
   FixOptions,
 } from '../../../../../types';
 import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
-import { standardizePackageName } from '../../../standardize-package-name';
-import { validateRequiredData } from '../../validate-required-data';
 
 import { ensureHasUpdates } from '../../ensure-has-updates';
 import { pipenvAdd } from './pipenv-add';
+import { generateUpgrades } from './generate-upgrades';
 
 const debug = debugLib('snyk-fix:python:Pipfile');
 
@@ -21,20 +20,6 @@ export async function updateDependencies(
 ): Promise<PluginFixResponse> {
   const handlerResult = await fixAll(entity, options);
   return handlerResult;
-}
-
-export function generateUpgrades(entity: EntityToFix): { upgrades: string[] } {
-  const { remediation } = validateRequiredData(entity);
-  const { pin: pins } = remediation;
-
-  const upgrades: string[] = [];
-  for (const pkgAtVersion of Object.keys(pins)) {
-    const pin = pins[pkgAtVersion];
-    const newVersion = pin.upgradeTo.split('@')[1];
-    const [pkgName] = pkgAtVersion.split('@');
-    upgrades.push(`${standardizePackageName(pkgName)}==${newVersion}`);
-  }
-  return { upgrades };
 }
 
 async function fixAll(

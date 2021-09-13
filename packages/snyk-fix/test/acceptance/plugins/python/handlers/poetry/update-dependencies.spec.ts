@@ -683,7 +683,9 @@ describe('fix Poetry Python projects fix sequentially', () => {
           failed: [
             {
               original: entityToFix,
-              error: expect.objectContaining({ name: 'NoFixesCouldBeAppliedError' }),
+              error: expect.objectContaining({
+                name: 'NoFixesCouldBeAppliedError',
+              }),
               tip: 'Try running `poetry install six==2.0.1 transitive==1.1.1`',
             },
           ],

@@ -38,17 +38,17 @@ async function fixAll(
   };
   const { upgrades, devUpgrades } = await generateUpgrades(entity);
 
-  if (![...upgrades, ...devUpgrades].length) {
-    throw new NoFixesCouldBeAppliedError(
-      'Failed to calculate package updates to apply',
-    );
-  }
   // TODO: for better support we need to:
   // 1. parse the manifest and extract original requirements, version spec etc
   // 2. swap out only the version and retain original spec
   // 3. re-lock the lockfile
   const changes: FixChangesSummary[] = [];
   try {
+    if (![...upgrades, ...devUpgrades].length) {
+      throw new NoFixesCouldBeAppliedError(
+        'Failed to calculate package updates to apply',
+      );
+    }
     // update prod dependencies first
     if (upgrades.length) {
       changes.push(...(await poetryAdd(entity, options, upgrades)));
@@ -114,13 +114,7 @@ async function fixSequentially(
       }
     }
 
-    if (!changes.length || !changes.some((c) => isSuccessfulChange(c))) {
-      debug('Manifest has not changed as no changes got applied!');
-      // throw the first error tip since 100% failed, they all failed with the same
-      // error
-      const { reason, tip } = changes[0] as FixChangesError;
-      throw new NoFixesCouldBeAppliedError(reason, tip);
-    }
+    ensureHasUpdates(changes);
     handlerResult.succeeded.push({
       original: entity,
       changes,
