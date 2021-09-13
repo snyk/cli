@@ -1,5 +1,5 @@
 import { Options } from '../../../../../src/lib/types';
-import * as polling from '../../../../../src/lib/ecosystems/polling';
+import * as pollingTest from '../../../../../src/lib/polling/polling-test';
 import { depGraphData, scanResults } from './fixtures/';
 import { resolveAndTestFacts } from '../../../../../src/lib/ecosystems/resolve-test-facts';
 import * as pluginAnalytics from '../../../../../src/lib/ecosystems/plugin-analytics';
@@ -17,19 +17,22 @@ describe('resolve and test facts', () => {
   };
 
   it('failing to resolve and test file-signatures fact for c/c++ projects', async () => {
-    const requestPollingTokenSpy = jest.spyOn(polling, 'requestPollingToken');
-    const pollingWithTokenUntilDoneSpy = jest.spyOn(
-      polling,
-      'pollingWithTokenUntilDone',
+    const requestTestPollingTokenSpy = jest.spyOn(
+      pollingTest,
+      'requestTestPollingToken',
+    );
+    const pollingTestWithTokenUntilDoneSpy = jest.spyOn(
+      pollingTest,
+      'pollingTestWithTokenUntilDone',
     );
 
-    requestPollingTokenSpy.mockResolvedValueOnce({
+    requestTestPollingTokenSpy.mockResolvedValueOnce({
       token,
       status: 'ERROR',
       pollingTask,
     });
 
-    pollingWithTokenUntilDoneSpy.mockRejectedValueOnce({
+    pollingTestWithTokenUntilDoneSpy.mockRejectedValueOnce({
       code: 500,
       message:
         'Internal error (reference: eb9ab16c-1d33-4586-bf99-ef30c144d1f1)',
@@ -48,10 +51,13 @@ describe('resolve and test facts', () => {
   });
 
   it('successfully resolving and testing file-signatures fact for c/c++ projects', async () => {
-    const resolveAndTestFactsSpy = jest.spyOn(polling, 'requestPollingToken');
-    const pollingWithTokenUntilDoneSpy = jest.spyOn(
-      polling,
-      'pollingWithTokenUntilDone',
+    const resolveAndTestFactsSpy = jest.spyOn(
+      pollingTest,
+      'requestTestPollingToken',
+    );
+    const pollingTestWithTokenUntilDoneSpy = jest.spyOn(
+      pollingTest,
+      'pollingTestWithTokenUntilDone',
     );
 
     resolveAndTestFactsSpy.mockResolvedValueOnce({
@@ -60,14 +66,10 @@ describe('resolve and test facts', () => {
       pollingTask,
     });
 
-    pollingWithTokenUntilDoneSpy.mockResolvedValueOnce({
-      token,
-      pollingTask,
-      result: {
-        issuesData: {},
-        issues: [],
-        depGraphData,
-      },
+    pollingTestWithTokenUntilDoneSpy.mockResolvedValueOnce({
+      issuesData: {},
+      issues: [],
+      depGraphData,
     });
 
     const extractAndApplyPluginAnalyticsSpy = jest.spyOn(

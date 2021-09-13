@@ -9,6 +9,7 @@ import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
 import { assembleQueryString } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
+import { resolveAndTestFacts } from './resolve-test-facts';
 
 export async function testEcosystem(
   ecosystem: Ecosystem,
@@ -30,10 +31,13 @@ export async function testEcosystem(
     scanResultsByPath[path] = pluginResponse.scanResults;
   }
   spinner.clearAll();
-  const [testResults, errors] = await testDependencies(
+
+  const [testResults, errors] = await selectAndExecuteTestStrategy(
+    ecosystem,
     scanResultsByPath,
     options,
   );
+
   const stringifiedData = JSON.stringify(testResults, null, 2);
   if (options.json) {
     return TestCommandResult.createJsonTestCommandResult(stringifiedData);
@@ -51,6 +55,17 @@ export async function testEcosystem(
     readableResult,
     stringifiedData,
   );
+}
+
+export async function selectAndExecuteTestStrategy(
+  ecosystem: Ecosystem,
+  scanResultsByPath: { [dir: string]: ScanResult[] },
+  options: Options,
+): Promise<[TestResult[], string[]]> {
+  const isUnmanagedEcosystem = ecosystem === 'cpp';
+  return isUnmanagedEcosystem
+    ? await resolveAndTestFacts(ecosystem, scanResultsByPath, options)
+    : await testDependencies(scanResultsByPath, options);
 }
 
 async function testDependencies(
