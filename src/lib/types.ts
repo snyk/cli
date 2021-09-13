@@ -70,6 +70,7 @@ export interface Options {
   dev?: boolean;
   'print-deps'?: boolean;
   'remote-repo-url'?: string;
+  'target-ref'?: string;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
   detectionDepth?: number;
@@ -118,6 +119,7 @@ export interface MonitorMeta {
   isDocker: boolean;
   prune: boolean;
   'remote-repo-url'?: string;
+  targetRef?: string;
 }
 
 export interface PackageJson {

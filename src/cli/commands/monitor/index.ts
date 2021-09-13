@@ -77,6 +77,10 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
     throw new Error('`--remote-repo-url` is not supported for container scans');
   }
 
+  if (options.docker && options['target-ref']) {
+    throw new Error('`--target-ref` is not supported for container scans');
+  }
+
   // Handles no image arg provided to the container command until
   // a validation interface is implemented in the docker plugin.
   if (options.docker && paths.length === 0) {
@@ -299,6 +303,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     isDocker: !!options.docker,
     prune: !!options.pruneRepeatedSubdependencies,
     'remote-repo-url': options['remote-repo-url'],
+    targetRef: options['target-ref'],
   };
 }
 

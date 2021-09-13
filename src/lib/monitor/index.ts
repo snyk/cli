@@ -275,6 +275,7 @@ async function monitorDepTree(
       // we take the targetFile from the plugin,
       // because we want to send it only for specific package-managers
       target,
+      targetRef: meta.targetRef,
       // WARNING: be careful changing this as it affects project uniqueness
       targetFile: getTargetFile(scannedProject, pluginMeta),
       targetFileRelativePath,
@@ -419,6 +420,7 @@ export async function monitorDepGraph(
       // we take the targetFile from the plugin,
       // because we want to send it only for specific package-managers
       target,
+      targetRef: meta.targetRef,
       targetFile: getTargetFile(scannedProject, pluginMeta),
       targetFileRelativePath,
       contributors,
@@ -549,6 +551,7 @@ async function monitorDepGraphFromDepTree(
       // we take the targetFile from the plugin,
       // because we want to send it only for specific package-managers
       target,
+      targetRef: meta.targetRef,
       targetFile: getTargetFile(scannedProject, pluginMeta),
       targetFileRelativePath,
       contributors,
