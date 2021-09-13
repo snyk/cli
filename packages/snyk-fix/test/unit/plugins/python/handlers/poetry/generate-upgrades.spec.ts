@@ -25,8 +25,7 @@ describe('generateUpgrades', () => {
       manifestContents,
     );
 
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {},
@@ -70,12 +69,10 @@ describe('generateUpgrades', () => {
       'pyproject.toml',
       manifestContents,
     );
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.options = {
+    (entityToFix as any).options = {
       dev: true,
     };
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {
@@ -120,8 +117,7 @@ describe('generateUpgrades', () => {
       'pyproject.toml',
       manifestContents,
     );
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {
@@ -165,8 +161,7 @@ describe('generateUpgrades', () => {
       'pyproject.toml',
       manifestContents,
     );
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {
@@ -212,12 +207,10 @@ describe('generateUpgrades', () => {
       'pyproject.toml',
       manifestContents,
     );
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.options = {
+    (entityToFix as any).options = {
       dev: true,
     };
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {

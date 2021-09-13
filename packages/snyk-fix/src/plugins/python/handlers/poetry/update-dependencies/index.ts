@@ -6,10 +6,10 @@ import {
   FixChangesSummary,
   FixOptions,
 } from '../../../../../types';
-import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
 import { generateUpgrades } from './generate-upgrades';
 import { poetryAdd } from './poetry-add';
 import { ensureHasUpdates } from '../../ensure-has-updates';
+import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
 
 const debug = debugLib('snyk-fix:python:Poetry');
 
