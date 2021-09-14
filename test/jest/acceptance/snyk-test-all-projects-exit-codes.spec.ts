@@ -35,7 +35,7 @@ describe('snyk test --all-projects with one project that has errors', () => {
   });
 
   describe('and another that has issues (vulnerabilities)', () => {
-    it('should exit with exit code 1 when the `cliFailFast` FF is disabled', async () => {
+    it('should exit with exit code 1 when the `--fail-fast` option is not set', async () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-issues-and-project-with-error',
       );
@@ -50,41 +50,15 @@ describe('snyk test --all-projects with one project that has errors', () => {
       expect(stderr).toContain(
         '1/2 potential projects failed to get dependencies.',
       );
-      const targetFileWithError = project.path(
-        'project-with-error/package.json',
-      );
-      expect(stderr).toContain(`${targetFileWithError}:`);
-      expect(stderr).toContain(
-        `Failed to read ${targetFileWithError}. Error: Unexpected token f in JSON at position 3`,
-      );
     });
 
-    it('should exit with exit code 1 when the `cliFailFast` FF is enabled but the `--fail-fast` option is not set', async () => {
+    it('should exit with exit code 2 when the `--fail-fast` option is set', async () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-issues-and-project-with-error',
       );
       server.depGraphResponse = await project.readJSON(
         'test-dep-graph-result.json',
       );
-      server.setFeatureFlag('cliFailFast', true);
-      const { code, stderr } = await runSnykCLI(`test --all-projects`, {
-        cwd: project.path(),
-        env,
-      });
-      expect(code).toEqual(1);
-      expect(stderr).toContain(
-        '1/2 potential projects failed to get dependencies.',
-      );
-    });
-
-    it('should exit with exit code 2 when the `cliFailFast` FF is enabled and the `--fail-fast` option is set', async () => {
-      const project = await createProject(
-        'snyk-test-all-projects-exit-codes/project-with-issues-and-project-with-error',
-      );
-      server.depGraphResponse = await project.readJSON(
-        'test-dep-graph-result.json',
-      );
-      server.setFeatureFlag('cliFailFast', true);
       const { code, stderr } = await runSnykCLI(
         `test --all-projects --fail-fast`,
         {
@@ -100,13 +74,10 @@ describe('snyk test --all-projects with one project that has errors', () => {
   });
 
   describe('and another has no issues (vulnerabilities)', () => {
-    it('should exit with exit code 0 when the `cliFailFast` FF is disabled', async () => {
-      // Note: no need to use fake-server for these test scenarios since the default fake-server response for testing a dep-graph
-      // is no issues found which works for our project with no issues.
+    it('should exit with exit code 0 when the `--fail-fast` option is not set', async () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-no-issues-and-project-with-error',
       );
-
       const { code, stderr } = await runSnykCLI(`test --all-projects`, {
         cwd: project.path(),
         env,
@@ -117,26 +88,10 @@ describe('snyk test --all-projects with one project that has errors', () => {
       );
     });
 
-    it('should exit with exit code 0 when the `cliFailFast` FF is enabled but the `--fail-fast` option is not set', async () => {
+    it('should exit with exit code 2 when the `--fail-fast` option is set', async () => {
       const project = await createProject(
         'snyk-test-all-projects-exit-codes/project-with-no-issues-and-project-with-error',
       );
-      server.setFeatureFlag('cliFailFast', true);
-      const { code, stderr } = await runSnykCLI(`test --all-projects`, {
-        cwd: project.path(),
-        env,
-      });
-      expect(code).toEqual(0);
-      expect(stderr).toContain(
-        '1/2 potential projects failed to get dependencies.',
-      );
-    });
-
-    it('should exit with exit code 2 when the `cliFailFast` FF is enabled and the `--fail-fast` option is set', async () => {
-      const project = await createProject(
-        'snyk-test-all-projects-exit-codes/project-with-no-issues-and-project-with-error',
-      );
-      server.setFeatureFlag('cliFailFast', true);
       const { code, stderr } = await runSnykCLI(
         `test --all-projects --fail-fast`,
         {

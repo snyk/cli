@@ -1,30 +1,23 @@
+import { makeRequest } from '../request';
+import { getAuthHeader } from '../api-token';
+import config from '../config';
+import { assembleQueryString } from '../snyk-test/common';
 import { OrgFeatureFlagResponse } from './types';
-import { fetchFeatureFlag } from './fetchFeatureFlag';
-import { Options } from '../types';
 
 export async function isFeatureFlagSupportedForOrg(
   featureFlag: string,
   org,
 ): Promise<OrgFeatureFlagResponse> {
-  return fetchFeatureFlag(featureFlag, org);
-}
+  const response = await makeRequest({
+    method: 'GET',
+    headers: {
+      Authorization: getAuthHeader(),
+    },
+    qs: assembleQueryString({ org }),
+    url: `${config.API}/cli-config/feature-flags/${featureFlag}`,
+    gzip: true,
+    json: true,
+  });
 
-const cliFailFastValues: Map<string, OrgFeatureFlagResponse> = new Map();
-
-export async function cliFailFast(
-  options: Pick<Options, 'fail-fast' | 'org'>,
-): Promise<boolean> {
-  if (options['fail-fast']) {
-    const orgCacheKey = options.org || 'NO_ORG';
-    const cachedValue = cliFailFastValues.get(orgCacheKey);
-    if (cachedValue) {
-      return Boolean(cachedValue.ok);
-    } else {
-      const fetchedValue = await fetchFeatureFlag('cliFailFast', options.org);
-      cliFailFastValues.set(orgCacheKey, fetchedValue);
-      return Boolean(fetchedValue.ok);
-    }
-  } else {
-    return false;
-  }
+  return (response as any).body;
 }

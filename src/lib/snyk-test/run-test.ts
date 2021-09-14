@@ -9,7 +9,6 @@ import { parsePackageString as moduleToObject } from 'snyk-module';
 import * as depGraphLib from '@snyk/dep-graph';
 import { IacScan } from './payload-schema';
 import * as Queue from 'promise-queue';
-import { cliFailFast } from '../../lib/feature-flags';
 import * as theme from '../../lib/theme';
 
 import {
@@ -591,7 +590,7 @@ async function assembleLocalPayloads(
         'getDepsFromPlugin returned failed results, cannot run test/monitor',
         failedResults,
       );
-      if (await cliFailFast(options)) {
+      if (options['fail-fast']) {
         throw new FailedToRunTestError(
           'Your test request could not be completed. Please email support@snyk.io',
         );
