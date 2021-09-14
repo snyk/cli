@@ -31,14 +31,14 @@ async function fixAll(
     failed: [],
     skipped: [],
   };
-  const { upgrades } = await generateUpgrades(entity);
-  if (!upgrades.length) {
-    throw new NoFixesCouldBeAppliedError(
-      'Failed to calculate package updates to apply',
-    );
-  }
   const changes: FixChangesSummary[] = [];
   try {
+    const { upgrades } = await generateUpgrades(entity);
+    if (!upgrades.length) {
+      throw new NoFixesCouldBeAppliedError(
+        'Failed to calculate package updates to apply',
+      );
+    }
     // TODO: for better support we need to:
     // 1. parse the manifest and extract original requirements, version spec etc
     // 2. swap out only the version and retain original spec

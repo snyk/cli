@@ -623,7 +623,7 @@ describe('fix Poetry Python projects fix sequentially', () => {
   });
 
   it('error is bubbled up', async () => {
-    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValueOnce({
       exitCode: 1,
       stdout: '',
       stderr: `Resolving dependencies... (1.7s)
@@ -633,7 +633,14 @@ describe('fix Poetry Python projects fix sequentially', () => {
       Because package-A (2.6) depends on package-B (>=1.19)
       and package-C (2.2.1) depends on package-B (>=1.16.0,<1.19.0), package-D (2.6) is incompatible with package-C (2.2.1).
       So, because package-Z depends on both  package-C (2.2.1) and package-D (2.6), version solving failed.`,
-      command: 'poetry install six==2.0.1 transitive==1.1.1',
+      command: 'poetry install six==2.0.1',
+      duration: 123,
+    });
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValueOnce({
+      exitCode: 0,
+      stdout: '',
+      stderr: '',
+      command: 'poetry install transitive==1.1.1',
       duration: 123,
     });
 
@@ -680,25 +687,45 @@ describe('fix Poetry Python projects fix sequentially', () => {
       exceptions: {},
       results: {
         python: {
-          failed: [
+          failed: [],
+          skipped: [],
+          succeeded: [
             {
               original: entityToFix,
-              error: expect.objectContaining({
-                name: 'NoFixesCouldBeAppliedError',
-              }),
-              tip: 'Try running `poetry install six==2.0.1 transitive==1.1.1`',
+              changes: [
+                {
+                  from: 'six@1.1.6',
+                  issueIds: ['VULN-six'],
+                  reason: `SolverProblemError
+
+      Because package-A (2.6) depends on package-B (>=1.19)
+      and package-C (2.2.1) depends on package-B (>=1.16.0,<1.19.0), package-D (2.6) is incompatible with package-C (2.2.1).
+      So, because package-Z depends on both  package-C (2.2.1) and package-D (2.6), version solving failed`,
+                  success: false,
+                  tip: 'Try running `poetry install six==2.0.1`',
+                  to: 'six@2.0.1',
+                  userMessage: 'Failed to upgrade six from 1.1.6 to 2.0.1',
+                },
+                {
+                  from: 'transitive@1.0.0',
+                  issueIds: [],
+                  success: true,
+                  to: 'transitive@1.1.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+              ],
             },
           ],
-          skipped: [],
-          succeeded: [],
         },
       },
     });
-    expect(result.fixSummary).toContain('✖ SolverProblemError');
+    expect(result.fixSummary).toContain('SolverProblemError');
     expect(result.fixSummary).toContain(
-      'Tip:     Try running `poetry install six==2.0.1 transitive==1.1.1`',
+      'Tip:     Try running `poetry install six==2.0.1`',
     );
-    expect(result.fixSummary).toContain('✖ No successful fixes');
+    expect(result.fixSummary).toContain(
+      'Pinned transitive from 1.0.0 to 1.1.1',
+    );
     expect(poetryFixStub).toHaveBeenCalledTimes(2);
     expect(poetryFixStub).toHaveBeenCalledWith(
       pathLib.resolve(workspacesPath, 'simple'),

@@ -3,12 +3,10 @@ import * as debugLib from 'debug';
 import { PluginFixResponse } from '../../../../types';
 import {
   EntityToFix,
-  FixChangesError,
   FixChangesSummary,
   FixOptions,
 } from '../../../../../types';
 import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
-import { isSuccessfulChange } from '../../attempted-changes-summary';
 import { generateUpgrades } from './generate-upgrades';
 import { poetryAdd } from './poetry-add';
 import { ensureHasUpdates } from '../../ensure-has-updates';
@@ -95,8 +93,12 @@ async function fixSequentially(
   // 2. swap out only the version and retain original spec
   // 3. re-lock the lockfile
   const changes: FixChangesSummary[] = [];
-
   try {
+    if (![...upgrades, ...devUpgrades].length) {
+      throw new NoFixesCouldBeAppliedError(
+        'Failed to calculate package updates to apply',
+      );
+    }
     // update prod dependencies first
     if (upgrades.length) {
       for (const upgrade of upgrades) {
@@ -113,7 +115,6 @@ async function fixSequentially(
         );
       }
     }
-
     ensureHasUpdates(changes);
     handlerResult.succeeded.push({
       original: entity,

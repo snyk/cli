@@ -1,4 +1,4 @@
-import { generateUpgrades } from '../../../../../../src/plugins/python/handlers/poetry/update-dependencies';
+import { generateUpgrades } from '../../../../../../src/plugins/python/handlers/poetry/update-dependencies/generate-upgrades';
 import { generateEntityToFix } from '../../../../../helpers/generate-entity-to-fix';
 describe('generateUpgrades', () => {
   it('returns empty if no upgrades could be generated', async () => {

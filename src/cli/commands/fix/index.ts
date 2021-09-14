@@ -25,6 +25,7 @@ const snykFixFeatureFlag = 'cliSnykFix';
 interface FixOptions {
   dryRun?: boolean;
   quiet?: boolean;
+  updateSequentially?: boolean;
 }
 export default async function fix(...args: MethodArgs): Promise<string> {
   const { options: rawOptions, paths } = await processCommandArgs<FixOptions>(
@@ -44,12 +45,13 @@ export default async function fix(...args: MethodArgs): Promise<string> {
   const vulnerableResults = results.filter(
     (res) => Object.keys(res.testResult.issues).length,
   );
-  const { dryRun, quiet } = options;
+  const { dryRun, quiet, updateSequentially: sequentialFix } = options;
   const { fixSummary, meta, results: resultsByPlugin } = await snykFix.fix(
     results,
     {
       dryRun,
       quiet,
+      sequentialFix,
     },
   );
 
