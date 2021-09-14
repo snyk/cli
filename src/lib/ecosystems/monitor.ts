@@ -25,6 +25,7 @@ import {
 } from './types';
 import { findAndLoadPolicyForScanResult } from './policy';
 import { getAuthHeader } from '../api-token';
+import { resolveAndMonitorFacts } from './resolve-monitor-facts';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -58,14 +59,26 @@ export async function monitorEcosystem(
       spinner.clearAll();
     }
   }
-  const [monitorResults, errors] = await monitorDependencies(
+  const [monitorResults, errors] = await selectAndExecuteMonitorStrategy(
+    ecosystem,
     scanResultsByPath,
     options,
   );
   return [monitorResults, errors];
 }
 
-async function generateMonitorDependenciesRequest(
+async function selectAndExecuteMonitorStrategy(
+  ecosystem: Ecosystem,
+  scanResultsByPath: { [dir: string]: ScanResult[] },
+  options: Options,
+): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
+  const isUnmanagedEcosystem = ecosystem === 'cpp';
+  return isUnmanagedEcosystem
+    ? await resolveAndMonitorFacts(scanResultsByPath, options)
+    : await monitorDependencies(scanResultsByPath, options);
+}
+
+export async function generateMonitorDependenciesRequest(
   scanResult: ScanResult,
   options: Options,
 ): Promise<MonitorDependenciesRequest> {
@@ -183,7 +196,7 @@ export async function getFormattedMonitorOutput(
   for (const monitorError of errors) {
     results.push({
       ok: false,
-      data: new MonitorError(500, monitorError),
+      data: new MonitorError(500, monitorError.error),
       path: monitorError.path,
     });
   }
