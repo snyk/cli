@@ -5,7 +5,7 @@
     "pretty": true,
     "moduleResolution": "node",
     "target": "es2018",
-    "lib": ["ES2018", "ES2019", "dom"],
+    "lib": ["ES2018", "ES2019", "DOM", "DOM.Iterable"],
     "module": "commonjs",
     "allowJs": true,
     "sourceMap": true,

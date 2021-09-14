@@ -1,45 +1,47 @@
-import * as url from 'url';
+import { ArgsOptions } from '../../../src/cli/args';
 import { getQueryParamsAsString } from '../../../src/lib/query-strings';
 
-describe('Query strings', () => {
+describe('getQueryParamsAsString', () => {
   it('returns a string', () => {
     expect(typeof getQueryParamsAsString([])).toBe('string');
   });
 
   it("returns a string that's a valid URL query string", () => {
-    // Object.fromEntries is not available for Node 8 and 10. Testing this in latest Node is enough
-    if (Object.fromEntries) {
-      expect(
-        Object.fromEntries(new url.URLSearchParams(getQueryParamsAsString([]))),
-      ).toStrictEqual({
-        utm_medium: 'cli',
-        utm_source: 'cli',
-        utm_campaign: 'cli',
-        os: expect.any(String),
-        docker: expect.any(String),
-      });
-    }
+    expect(
+      Array.from(new URLSearchParams(getQueryParamsAsString([])).entries()),
+    ).toEqual([
+      ['utm_medium', 'cli'],
+      ['utm_source', 'cli'],
+      ['utm_campaign', 'cli'],
+      ['os', expect.any(String)],
+      ['docker', expect.any(String)],
+    ]);
   });
 
   it('uses integration name and version', () => {
-    process.env.SNYK_INTEGRATION_NAME = 'NPM';
-    process.env.SNYK_INTEGRATION_VERSION = '1.2.3';
-
-    // Object.fromEntries is not available for Node 8 and 10. Testing this in latest Node is enough
-    if (Object.fromEntries) {
-      expect(
-        Object.fromEntries(new url.URLSearchParams(getQueryParamsAsString([]))),
-      ).toStrictEqual({
-        utm_source: 'cli',
-        utm_medium: 'cli',
-        utm_campaign: 'NPM',
-        utm_campaign_content: '1.2.3',
-        os: expect.any(String),
-        docker: expect.any(String),
-      });
-    }
-
-    delete process.env.SNYK_INTEGRATION_NAME;
-    delete process.env.SNYK_INTEGRATION_VERSION;
+    const args = createArgs({
+      integrationName: 'JENKINS',
+      integrationVersion: '1.2.3',
+    });
+    expect(
+      Array.from(new URLSearchParams(getQueryParamsAsString(args)).entries()),
+    ).toEqual([
+      ['utm_medium', 'cli'],
+      ['utm_source', 'cli'],
+      ['utm_campaign', 'JENKINS'],
+      ['utm_campaign_content', '1.2.3'],
+      ['os', expect.any(String)],
+      ['docker', expect.any(String)],
+    ]);
   });
+
+  const createArgs = (args: Partial<ArgsOptions>): ArgsOptions[] => {
+    return [
+      {
+        ...args,
+        _: [],
+        _doubleDashArgs: [],
+      },
+    ];
+  };
 });

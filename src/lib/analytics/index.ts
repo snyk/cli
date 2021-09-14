@@ -1,12 +1,13 @@
-const snyk = require('../../lib');
-import { someTokenExists, getAuthHeader } from '../api-token';
+import * as createDebug from 'debug';
+import * as needle from 'needle';
+import stripAnsi from 'strip-ansi';
+import { getAuthHeader, someTokenExists } from '../api-token';
 import config from '../config';
 import { makeRequest } from '../request';
-const debug = require('debug')('snyk');
-const stripAnsi = require('strip-ansi');
-import * as needle from 'needle';
+import { config as userConfig } from '../user-config';
 import { getStandardData } from './getStandardData';
 
+const debug = createDebug('snyk');
 const metadata = {};
 // analytics module is required at the beginning of the CLI run cycle
 
@@ -36,7 +37,7 @@ export function addDataAndSend(
 }
 
 export function allowAnalytics(): boolean {
-  if (snyk.config.get('disable-analytics') || config.DISABLE_ANALYTICS) {
+  if (userConfig.get('disable-analytics') || config.DISABLE_ANALYTICS) {
     return false;
   } else {
     return true;
@@ -100,7 +101,7 @@ export async function postAnalytics(
  * @param key
  * @param value
  */
-export function add(key, value) {
+export function add(key: string, value: unknown): void {
   if (typeof value === 'string') {
     value = stripAnsi(value);
   }
