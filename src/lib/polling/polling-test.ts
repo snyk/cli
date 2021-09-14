@@ -55,8 +55,8 @@ export async function pollingTestWithTokenUntilDone(
   const response = await makeRequest<ResolveAndTestFactsResponse>(payload);
 
   if (response.result) {
-    const { issues, issuesData, depGraphData } = response.result;
-    return { issues, issuesData, depGraphData };
+    const { issues, issuesData, depGraphData, depsFilePaths } = response.result;
+    return { issues, issuesData, depGraphData, depsFilePaths };
   }
 
   await delayNextStep(attemptsCount, maxAttempts, pollInterval);

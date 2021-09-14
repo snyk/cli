@@ -1,6 +1,6 @@
 const values = require('lodash.values');
 import * as depGraphLib from '@snyk/dep-graph';
-import { ScanResult } from '../ecosystems/types';
+import { DepsFilePaths, ScanResult } from '../ecosystems/types';
 import { SupportedPackageManagers } from '../package-managers';
 import { Options, SupportedProjectTypes, TestOptions } from '../types';
 import { SEVERITIES } from './common';
@@ -249,6 +249,7 @@ export interface TestDependenciesResult {
     binariesVulns: TestDepGraphResult;
   };
   remediation?: RemediationChanges;
+  depsFilePaths?: DepsFilePaths;
   depGraphData: depGraphLib.DepGraphData;
 }
 

@@ -39,6 +39,7 @@ export async function resolveAndTestFacts(
           issues: response?.issues,
           issuesData: response?.issuesData,
           depGraphData: response?.depGraphData,
+          depsFilePaths: response?.depsFilePaths,
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;
