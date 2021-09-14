@@ -51,15 +51,11 @@ function throwPipenvError(stderr: string, command?: string) {
   const lockingFailed = 'Locking failed';
   const versionNotFound = 'Could not find a version that matches';
 
-  const errorsToBubbleUp = [
-    lockingFailed,
-    versionNotFound,
-    incompatibleDeps,
-  ].map((e) => e.toLowerCase());
+  const errorsToBubbleUp = [incompatibleDeps, lockingFailed, versionNotFound];
 
   for (const error of errorsToBubbleUp) {
-    if (errorStr.includes(error)) {
-      throw new CommandFailedError(stderr, command);
+    if (errorStr.includes(error.toLowerCase())) {
+      throw new CommandFailedError(error, command);
     }
   }
 
