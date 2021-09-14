@@ -69,6 +69,7 @@ export interface Options {
   severityThreshold?: SEVERITY;
   dev?: boolean;
   'print-deps'?: boolean;
+  'print-dep-paths'?: boolean;
   'remote-repo-url'?: string;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
@@ -96,6 +97,7 @@ export interface MonitorOptions {
   allSubProjects?: boolean;
   'project-name'?: string;
   'print-deps'?: boolean;
+  'print-dep-paths'?: boolean;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
   // An experimental flag to allow monitoring of bigtrees (with degraded deps info and remediation advice).

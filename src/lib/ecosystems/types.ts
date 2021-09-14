@@ -75,10 +75,15 @@ export interface IssuesData {
   };
 }
 
+export interface DepsFilePaths {
+  [pkgKey: string]: string[];
+}
+
 export interface TestResult {
   issues: Issue[];
   issuesData: IssuesData;
   depGraphData: DepGraphData;
+  depsFilePaths?: DepsFilePaths;
   remediation?: RemediationChanges;
 }
 
