@@ -105,7 +105,7 @@ describe('generateUpgrades', () => {
 
     [tool.poetry.dependencies]
     python = "*"
-    django = "1.1.1"
+    Django = "1.1.1"
 
     [tool.poetry.dev-dependencies]
     json-api = "0.1.21"
