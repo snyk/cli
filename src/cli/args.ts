@@ -1,7 +1,7 @@
 import * as abbrev from 'abbrev';
 import { MethodResult } from './commands/types';
 
-import debugModule = require('debug');
+import * as debugModule from 'debug';
 import { parseMode, displayModeHelp } from './modes';
 import {
   SupportedCliCommands,
@@ -218,7 +218,7 @@ export function args(rawArgv: string[]): Args {
     'integration-version',
     'prune-repeated-subdependencies',
     'dry-run',
-    'update-sequentially',
+    'sequential',
   ];
   for (const dashedArg of argumentsToTransform) {
     if (argv[dashedArg]) {
