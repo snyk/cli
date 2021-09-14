@@ -58,10 +58,10 @@ export async function generateUpgrades(
 
   const prodTopLevelDeps = Object.keys(
     pyProjectToml.tool.poetry.dependencies ?? {},
-  );
+  ).map((dep) => standardizePackageName(dep));
   const devTopLevelDeps = Object.keys(
     pyProjectToml.tool.poetry['dev-dependencies'] ?? {},
-  );
+  ).map((dep) => standardizePackageName(dep));
 
   const upgrades: string[] = [];
   const devUpgrades: string[] = [];
