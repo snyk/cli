@@ -239,6 +239,7 @@ export interface FixOptions {
   dryRun?: boolean;
   quiet?: boolean;
   stripAnsi?: boolean;
+  sequentialFix?: boolean;
 }
 
 export interface FixedMeta {

@@ -6,35 +6,24 @@ import {
   FixChangesSummary,
   FixOptions,
 } from '../../../../../types';
-import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
-import { standardizePackageName } from '../../../standardize-package-name';
-import { validateRequiredData } from '../../validate-required-data';
 
-import { ensureHasUpdates } from '../../ensure-has-updates';
+import { failIfNoUpdatesApplied } from '../../fail-if-no-updates-applied';
+import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
+import { generateUpgrades } from './generate-upgrades';
 import { pipenvAdd } from './pipenv-add';
 
 const debug = debugLib('snyk-fix:python:Pipfile');
+
+function chooseFixStrategy(options: FixOptions) {
+  return options.sequentialFix ? fixSequentially : fixAll;
+}
 
 export async function updateDependencies(
   entity: EntityToFix,
   options: FixOptions,
 ): Promise<PluginFixResponse> {
-  const handlerResult = await fixAll(entity, options);
+  const handlerResult = await chooseFixStrategy(options)(entity, options);
   return handlerResult;
-}
-
-export function generateUpgrades(entity: EntityToFix): { upgrades: string[] } {
-  const { remediation } = validateRequiredData(entity);
-  const { pin: pins } = remediation;
-
-  const upgrades: string[] = [];
-  for (const pkgAtVersion of Object.keys(pins)) {
-    const pin = pins[pkgAtVersion];
-    const newVersion = pin.upgradeTo.split('@')[1];
-    const [pkgName] = pkgAtVersion.split('@');
-    upgrades.push(`${standardizePackageName(pkgName)}==${newVersion}`);
-  }
-  return { upgrades };
 }
 
 async function fixAll(
@@ -46,14 +35,14 @@ async function fixAll(
     failed: [],
     skipped: [],
   };
-  const { upgrades } = await generateUpgrades(entity);
-  if (!upgrades.length) {
-    throw new NoFixesCouldBeAppliedError(
-      'Failed to calculate package updates to apply',
-    );
-  }
   const changes: FixChangesSummary[] = [];
   try {
+    const { upgrades } = await generateUpgrades(entity);
+    if (!upgrades.length) {
+      throw new NoFixesCouldBeAppliedError(
+        'Failed to calculate package updates to apply',
+      );
+    }
     // TODO: for better support we need to:
     // 1. parse the manifest and extract original requirements, version spec etc
     // 2. swap out only the version and retain original spec
@@ -64,7 +53,7 @@ async function fixAll(
       changes.push(...(await pipenvAdd(entity, options, upgrades)));
     }
 
-    ensureHasUpdates(changes);
+    failIfNoUpdatesApplied(changes);
     handlerResult.succeeded.push({
       original: entity,
       changes,
@@ -77,6 +66,56 @@ async function fixAll(
       original: entity,
       error,
       tip: error.tip,
+    });
+  }
+  return handlerResult;
+}
+
+async function fixSequentially(
+  entity: EntityToFix,
+  options: FixOptions,
+): Promise<PluginFixResponse> {
+  const handlerResult: PluginFixResponse = {
+    succeeded: [],
+    failed: [],
+    skipped: [],
+  };
+  const { upgrades } = await generateUpgrades(entity);
+  // TODO: for better support we need to:
+  // 1. parse the manifest and extract original requirements, version spec etc
+  // 2. swap out only the version and retain original spec
+  // 3. re-lock the lockfile
+  // at the moment we do not parse Pipfile and therefore can't tell the difference
+  // between prod & dev updates
+  const changes: FixChangesSummary[] = [];
+
+  try {
+    if (!upgrades.length) {
+      throw new NoFixesCouldBeAppliedError(
+        'Failed to calculate package updates to apply',
+      );
+    }
+    // update prod dependencies first
+    if (upgrades.length) {
+      for (const upgrade of upgrades) {
+        changes.push(...(await pipenvAdd(entity, options, [upgrade])));
+      }
+    }
+
+    failIfNoUpdatesApplied(changes);
+
+    handlerResult.succeeded.push({
+      original: entity,
+      changes,
+    });
+  } catch (error) {
+    debug(
+      `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
+    );
+    handlerResult.failed.push({
+      original: entity,
+      tip: error.tip,
+      error,
     });
   }
   return handlerResult;

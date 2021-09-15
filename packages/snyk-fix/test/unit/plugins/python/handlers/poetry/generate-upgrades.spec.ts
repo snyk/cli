@@ -1,4 +1,4 @@
-import { generateUpgrades } from '../../../../../../src/plugins/python/handlers/poetry/update-dependencies';
+import { generateUpgrades } from '../../../../../../src/plugins/python/handlers/poetry/update-dependencies/generate-upgrades';
 import { generateEntityToFix } from '../../../../../helpers/generate-entity-to-fix';
 describe('generateUpgrades', () => {
   it('returns empty if no upgrades could be generated', async () => {
@@ -25,8 +25,7 @@ describe('generateUpgrades', () => {
       manifestContents,
     );
 
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {},
@@ -70,12 +69,10 @@ describe('generateUpgrades', () => {
       'pyproject.toml',
       manifestContents,
     );
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.options = {
+    (entityToFix as any).options = {
       dev: true,
     };
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {
@@ -120,8 +117,7 @@ describe('generateUpgrades', () => {
       'pyproject.toml',
       manifestContents,
     );
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {
@@ -165,8 +161,7 @@ describe('generateUpgrades', () => {
       'pyproject.toml',
       manifestContents,
     );
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {
@@ -212,12 +207,10 @@ describe('generateUpgrades', () => {
       'pyproject.toml',
       manifestContents,
     );
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.options = {
+    (entityToFix as any).options = {
       dev: true,
     };
-    // @ts-ignore: for test purpose need specific remediation
-    entityToFix.testResult.remediation = {
+    (entityToFix.testResult as any).remediation = {
       ignore: {},
       patch: {},
       pin: {

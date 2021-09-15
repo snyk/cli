@@ -1,10 +1,10 @@
-import {
-  generateSuccessfulChanges,
-  generateUpgrades,
-} from '../../../../../../../src/plugins/python/handlers/pipenv-pipfile/update-dependencies';
+import { generateSuccessfulChanges } from '../../../../../../../src/plugins/python/handlers/attempted-changes-summary';
+import { generateUpgrades } from '../../../../../../../src/plugins/python/handlers/pipenv-pipfile/update-dependencies/generate-upgrades';
+import { generateEntityToFix } from '../../../../../../helpers/generate-entity-to-fix';
 
 describe('generateUpgrades', () => {
   it('generates upgrades as expected', async () => {
+    const entityToFix = generateEntityToFix('pip', 'Pipfile', '');
     // Arrange
     const pinRemediation = {
       'django@1.6.1': {
@@ -18,18 +18,50 @@ describe('generateUpgrades', () => {
         isTransitive: true,
       },
     };
+    (entityToFix.testResult as any).remediation = {
+      ignore: {},
+      patch: {},
+      pin: pinRemediation,
+      unresolved: [],
+      // only pins are supported for Python
+      upgrade: {
+        'json-api@0.1.21': {
+          upgradeTo: 'json-api@0.1.22',
+          upgrades: ['json-api@0.1.22'],
+          vulns: ['pip:json-api:20170213'],
+          isTransitive: false,
+        },
+      },
+    };
 
     // Act
-    const res = await generateUpgrades(pinRemediation);
+    const { upgrades } = await generateUpgrades(entityToFix);
     // Assert
-    expect(res).toEqual(['django>=2.0.1', 'transitive>=1.1.1']);
+    expect(upgrades).toEqual(['django>=2.0.1', 'transitive>=1.1.1']);
   });
   it('returns [] when no pins available', async () => {
     // Arrange
+    const entityToFix = generateEntityToFix('pip', 'Pipfile', '');
+    // Arrange
+    (entityToFix.testResult as any).remediation = {
+      ignore: {},
+      patch: {},
+      pin: {},
+      unresolved: [],
+      // only pins are supported for Python
+      upgrade: {
+        'json-api@0.1.21': {
+          upgradeTo: 'json-api@0.1.22',
+          upgrades: ['json-api@0.1.22'],
+          vulns: ['pip:json-api:20170213'],
+          isTransitive: false,
+        },
+      },
+    };
     // Act
-    const res = await generateUpgrades({});
+    const { upgrades } = await generateUpgrades(entityToFix);
     // Assert
-    expect(res).toEqual([]);
+    expect(upgrades).toEqual([]);
   });
 });
 
@@ -50,7 +82,10 @@ describe('generateSuccessfulChanges', () => {
     };
 
     // Act
-    const res = await generateSuccessfulChanges(pinRemediation);
+    const res = await generateSuccessfulChanges(
+      ['django===2.0.1', 'transitive==1.1.1'],
+      pinRemediation,
+    );
     // Assert
     expect(res).toEqual([
       {
@@ -72,7 +107,7 @@ describe('generateSuccessfulChanges', () => {
   it('returns [] when no pins available', async () => {
     // Arrange
     // Act
-    const res = await generateSuccessfulChanges({});
+    const res = await generateSuccessfulChanges([], {});
     // Assert
     expect(res).toEqual([]);
   });

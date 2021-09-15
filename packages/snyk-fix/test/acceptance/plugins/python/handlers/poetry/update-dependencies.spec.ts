@@ -181,13 +181,13 @@ describe('fix Poetry Python projects', () => {
     );
     expect(result.fixSummary).toContain('✖ No successful fixes');
     expect(poetryFixStub).toHaveBeenCalledTimes(1);
-    expect(poetryFixStub.mock.calls[0]).toEqual([
+    expect(poetryFixStub).toHaveBeenCalledWith(
       pathLib.resolve(workspacesPath, 'simple'),
       ['six==2.0.1', 'transitive==1.1.1'],
       {
         python: 'python3',
       },
-    ]);
+    );
   });
 
   it('Calls the plugin with expected parameters (upgrade & pin)', async () => {
@@ -260,13 +260,13 @@ describe('fix Poetry Python projects', () => {
       },
     });
     expect(poetryFixStub.mock.calls).toHaveLength(1);
-    expect(poetryFixStub.mock.calls[0]).toEqual([
+    expect(poetryFixStub).toHaveBeenCalledWith(
       pathLib.resolve(workspacesPath, 'simple'),
       ['six==2.0.1', 'transitive==1.1.1'],
       {
         python: 'python3',
       },
-    ]);
+    );
   });
 
   it('Calls the plugin with expected parameters with --dev (upgrade & pin)', async () => {
@@ -361,18 +361,18 @@ describe('fix Poetry Python projects', () => {
       },
     });
     expect(poetryFixStub.mock.calls).toHaveLength(2);
-    expect(poetryFixStub.mock.calls[0]).toEqual([
+    expect(poetryFixStub).toHaveBeenCalledWith(
       pathLib.resolve(workspacesPath, 'simple'),
       ['six==2.0.1', 'transitive==1.1.1'],
       {},
-    ]);
-    expect(poetryFixStub.mock.calls[1]).toEqual([
+    );
+    expect(poetryFixStub).toHaveBeenCalledWith(
       pathLib.resolve(workspacesPath, 'simple'),
       ['json-api==0.1.22'],
       {
         dev: true,
       },
-    ]);
+    );
   });
   it('pins a transitive dep with custom python interpreter via --command', async () => {
     jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
@@ -438,13 +438,13 @@ describe('fix Poetry Python projects', () => {
       },
     });
     expect(poetryFixStub.mock.calls).toHaveLength(1);
-    expect(poetryFixStub.mock.calls[0]).toEqual([
+    expect(poetryFixStub).toHaveBeenCalledWith(
       pathLib.resolve(workspacesPath, 'simple'),
       ['markupsafe==2.1.0'],
       {
         python: 'python2',
       },
-    ]);
+    );
   });
   it('shows expected changes when updating a dev dep', async () => {
     jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
@@ -510,13 +510,582 @@ describe('fix Poetry Python projects', () => {
       },
     });
     expect(poetryFixStub.mock.calls).toHaveLength(1);
-    expect(poetryFixStub.mock.calls[0]).toEqual([
+    expect(poetryFixStub).toHaveBeenCalledWith(
       pathLib.resolve(workspacesPath, 'with-dev-deps'),
       ['json-api==0.1.22'],
       {
         dev: true,
       },
-    ]);
+    );
+  });
+
+  it.todo(
+    'upgrade fails since the env already has the right versions (full failure)',
+  );
+
+  it.todo('upgrade of dev deps fails (partial failure)');
+});
+
+describe('fix Poetry Python projects fix sequentially', () => {
+  let poetryFixStub: jest.SpyInstance;
+  beforeAll(() => {
+    jest.spyOn(poetryFix, 'isPoetrySupportedVersion').mockReturnValue({
+      supported: true,
+      versions: ['1.1.1'],
+    });
+    jest.spyOn(poetryFix, 'isPoetryInstalled').mockResolvedValue({
+      version: '1.1.1',
+    });
+  });
+
+  beforeEach(() => {
+    poetryFixStub = jest.spyOn(poetryFix, 'poetryAdd');
+  });
+
+  afterEach(() => {
+    poetryFixStub.mockClear();
+  });
+
+  const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
+
+  it('shows expected changes with lockfile in --dry-run mode', async () => {
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+      exitCode: 0,
+      stdout: '',
+      stderr: '',
+      command: 'poetry install',
+      duration: 123,
+    });
+    // Arrange
+    const targetFile = 'simple/pyproject.toml';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'six@1.1.6': {
+            upgradeTo: 'six@2.0.1',
+            vulns: ['VULN-six'],
+            isTransitive: false,
+          },
+          'transitive@1.0.0': {
+            upgradeTo: 'transitive@1.1.1',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFixWithFileReadWrite(
+      workspacesPath,
+      targetFile,
+      testResult,
+    );
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+      dryRun: true,
+      sequentialFix: true,
+    });
+    // Assert
+    expect(result).toMatchObject({
+      exceptions: {},
+      results: {
+        python: {
+          failed: [],
+          skipped: [],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+    expect(poetryFixStub.mock.calls).toHaveLength(0);
+  });
+
+  it('error is bubbled up', async () => {
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValueOnce({
+      exitCode: 1,
+      stdout: '',
+      stderr: `Resolving dependencies... (1.7s)
+
+      SolverProblemError
+
+      Because package-A (2.6) depends on package-B (>=1.19)
+      and package-C (2.2.1) depends on package-B (>=1.16.0,<1.19.0), package-D (2.6) is incompatible with package-C (2.2.1).
+      So, because package-Z depends on both  package-C (2.2.1) and package-D (2.6), version solving failed.`,
+      command: 'poetry install six==2.0.1',
+      duration: 123,
+    });
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValueOnce({
+      exitCode: 0,
+      stdout: '',
+      stderr: '',
+      command: 'poetry install transitive==1.1.1',
+      duration: 123,
+    });
+
+    // Arrange
+    const targetFile = 'simple/pyproject.toml';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'six@1.1.6': {
+            upgradeTo: 'six@2.0.1',
+            vulns: ['VULN-six'],
+            isTransitive: false,
+          },
+          'transitive@1.0.0': {
+            upgradeTo: 'transitive@1.1.1',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFixWithFileReadWrite(
+      workspacesPath,
+      targetFile,
+      testResult,
+    );
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+      dryRun: false,
+      sequentialFix: true,
+    });
+    // Assert
+    expect(result).toMatchObject({
+      exceptions: {},
+      results: {
+        python: {
+          failed: [],
+          skipped: [],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  from: 'six@1.1.6',
+                  issueIds: ['VULN-six'],
+                  reason: `SolverProblemError
+
+      Because package-A (2.6) depends on package-B (>=1.19)
+      and package-C (2.2.1) depends on package-B (>=1.16.0,<1.19.0), package-D (2.6) is incompatible with package-C (2.2.1).
+      So, because package-Z depends on both  package-C (2.2.1) and package-D (2.6), version solving failed`,
+                  success: false,
+                  tip: 'Try running `poetry install six==2.0.1`',
+                  to: 'six@2.0.1',
+                  userMessage: 'Failed to upgrade six from 1.1.6 to 2.0.1',
+                },
+                {
+                  from: 'transitive@1.0.0',
+                  issueIds: [],
+                  success: true,
+                  to: 'transitive@1.1.1',
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+    expect(result.fixSummary).toContain('SolverProblemError');
+    expect(result.fixSummary).toContain(
+      'Tip:     Try running `poetry install six==2.0.1`',
+    );
+    expect(result.fixSummary).toContain(
+      'Pinned transitive from 1.0.0 to 1.1.1',
+    );
+    expect(poetryFixStub).toHaveBeenCalledTimes(2);
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'simple'),
+      ['six==2.0.1'],
+      {
+        python: 'python3',
+      },
+    );
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'simple'),
+      ['transitive==1.1.1'],
+      {
+        python: 'python3',
+      },
+    );
+  });
+
+  it('Calls the plugin with expected parameters (upgrade & pin)', async () => {
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+      exitCode: 0,
+      stdout: '',
+      stderr: '',
+      command: 'poetry install',
+      duration: 123,
+    });
+    // Arrange
+    const targetFile = 'simple/pyproject.toml';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'six@1.1.6': {
+            upgradeTo: 'six@2.0.1',
+            vulns: ['VULN-six'],
+            isTransitive: false,
+          },
+          'transitive@1.0.0': {
+            upgradeTo: 'transitive@1.1.1',
+            vulns: [],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFixWithFileReadWrite(
+      workspacesPath,
+      targetFile,
+      testResult,
+    );
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+      sequentialFix: true,
+    });
+    // Assert
+    expect(result).toMatchObject({
+      exceptions: {},
+      results: {
+        python: {
+          failed: [],
+          skipped: [],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
+                },
+                {
+                  success: true,
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+    expect(poetryFixStub.mock.calls).toHaveLength(2);
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'simple'),
+      ['six==2.0.1'],
+      {
+        python: 'python3',
+      },
+    );
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'simple'),
+      ['transitive==1.1.1'],
+      {
+        python: 'python3',
+      },
+    );
+  });
+
+  it('Calls the plugin with expected parameters with --dev (upgrade & pin)', async () => {
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+      exitCode: 0,
+      stdout: '',
+      stderr: '',
+      command: 'poetry install',
+      duration: 123,
+    });
+    // Arrange
+    const targetFile = 'simple/pyproject.toml';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'six@1.1.6': {
+            upgradeTo: 'six@2.0.1',
+            vulns: ['VULN-six'],
+            isTransitive: false,
+          },
+          'transitive@1.0.0': {
+            upgradeTo: 'transitive@1.1.1',
+            vulns: ['vuln-transitive'],
+            isTransitive: true,
+          },
+          'json-api@0.1.21': {
+            upgradeTo: 'json-api@0.1.22',
+            vulns: ['SNYK-1'],
+            isTransitive: false,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFixWithFileReadWrite(
+      workspacesPath,
+      targetFile,
+      testResult,
+      {
+        dev: true,
+      },
+    );
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+      sequentialFix: true,
+    });
+
+    // Assert
+    expect(result).toMatchObject({
+      exceptions: {},
+      results: {
+        python: {
+          failed: [],
+          skipped: [],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  from: 'six@1.1.6',
+                  to: 'six@2.0.1',
+                  issueIds: ['VULN-six'],
+                  success: true,
+                  userMessage: 'Upgraded six from 1.1.6 to 2.0.1',
+                },
+                {
+                  from: 'transitive@1.0.0',
+                  to: 'transitive@1.1.1',
+                  issueIds: ['vuln-transitive'],
+                  success: true,
+                  userMessage: 'Pinned transitive from 1.0.0 to 1.1.1',
+                },
+                {
+                  from: 'json-api@0.1.21',
+                  to: 'json-api@0.1.22',
+                  issueIds: ['SNYK-1'],
+                  success: true,
+                  userMessage: 'Upgraded json-api from 0.1.21 to 0.1.22',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+    expect(poetryFixStub.mock.calls).toHaveLength(3);
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'simple'),
+      ['transitive==1.1.1'],
+      {},
+    );
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'simple'),
+      ['six==2.0.1'],
+      {},
+    );
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'simple'),
+      ['json-api==0.1.22'],
+      {
+        dev: true,
+      },
+    );
+  });
+  it('pins a transitive dep with custom python interpreter via --command', async () => {
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+      exitCode: 0,
+      stdout: '',
+      stderr: '',
+      command: 'poetry install',
+      duration: 123,
+    });
+    // Arrange
+    const targetFile = 'simple/poetry.lock';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'markupsafe@2.0.1': {
+            upgradeTo: 'markupsafe@2.1.0',
+            vulns: ['SNYK-1'],
+            isTransitive: true,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFixWithFileReadWrite(
+      workspacesPath,
+      targetFile,
+      testResult,
+      {
+        command: 'python2',
+      },
+    );
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+      sequentialFix: true,
+    });
+    // Assert
+    expect(result).toMatchObject({
+      exceptions: {},
+      results: {
+        python: {
+          failed: [],
+          skipped: [],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Pinned markupsafe from 2.0.1 to 2.1.0',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+    expect(poetryFixStub.mock.calls).toHaveLength(1);
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'simple'),
+      ['markupsafe==2.1.0'],
+      {
+        python: 'python2',
+      },
+    );
+  });
+  it('shows expected changes when updating a dev dep', async () => {
+    jest.spyOn(poetryFix, 'poetryAdd').mockResolvedValue({
+      exitCode: 0,
+      stdout: '',
+      stderr: '',
+      command: 'poetry install',
+      duration: 123,
+    });
+    // Arrange
+    const targetFile = 'with-dev-deps/pyproject.toml';
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'json-api@0.1.21': {
+            upgradeTo: 'json-api@0.1.22',
+            vulns: ['SNYK-1'],
+            isTransitive: false,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFixWithFileReadWrite(
+      workspacesPath,
+      targetFile,
+      testResult,
+      {
+        dev: true,
+      },
+    );
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+      sequentialFix: true,
+    });
+    // Assert
+    expect(result).toMatchObject({
+      exceptions: {},
+      results: {
+        python: {
+          failed: [],
+          skipped: [],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  success: true,
+                  userMessage: 'Upgraded json-api from 0.1.21 to 0.1.22',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
+    expect(poetryFixStub.mock.calls).toHaveLength(1);
+    expect(poetryFixStub).toHaveBeenCalledWith(
+      pathLib.resolve(workspacesPath, 'with-dev-deps'),
+      ['json-api==0.1.22'],
+      {
+        dev: true,
+      },
+    );
   });
 
   it.todo(

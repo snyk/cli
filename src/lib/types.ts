@@ -165,6 +165,7 @@ export type SupportedUserReachableFacingCliArgs =
   | 'detection-depth'
   | 'docker'
   | 'dry-run'
+  | 'sequential'
   | 'fail-on'
   | 'file'
   | 'gradle-sub-project'
