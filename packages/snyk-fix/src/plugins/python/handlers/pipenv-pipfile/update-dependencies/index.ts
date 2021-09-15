@@ -7,7 +7,7 @@ import {
   FixOptions,
 } from '../../../../../types';
 
-import { ensureHasUpdates } from '../../ensure-has-updates';
+import { failIfNoUpdatesApplied } from '../../fail-if-no-updates-applied';
 import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
 import { generateUpgrades } from './generate-upgrades';
 import { pipenvAdd } from './pipenv-add';
@@ -53,7 +53,7 @@ async function fixAll(
       changes.push(...(await pipenvAdd(entity, options, upgrades)));
     }
 
-    ensureHasUpdates(changes);
+    failIfNoUpdatesApplied(changes);
     handlerResult.succeeded.push({
       original: entity,
       changes,
@@ -85,6 +85,8 @@ async function fixSequentially(
   // 1. parse the manifest and extract original requirements, version spec etc
   // 2. swap out only the version and retain original spec
   // 3. re-lock the lockfile
+  // at the moment we do not parse Pipfile and therefore can't tell the difference
+  // between prod & dev updates
   const changes: FixChangesSummary[] = [];
 
   try {
@@ -100,7 +102,7 @@ async function fixSequentially(
       }
     }
 
-    ensureHasUpdates(changes);
+    failIfNoUpdatesApplied(changes);
 
     handlerResult.succeeded.push({
       original: entity,

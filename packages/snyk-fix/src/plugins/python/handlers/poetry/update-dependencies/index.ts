@@ -8,8 +8,8 @@ import {
 } from '../../../../../types';
 import { generateUpgrades } from './generate-upgrades';
 import { poetryAdd } from './poetry-add';
-import { ensureHasUpdates } from '../../ensure-has-updates';
 import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
+import { failIfNoUpdatesApplied } from '../../fail-if-no-updates-applied';
 
 const debug = debugLib('snyk-fix:python:Poetry');
 
@@ -60,7 +60,7 @@ async function fixAll(
       );
     }
 
-    ensureHasUpdates(changes);
+    failIfNoUpdatesApplied(changes);
     handlerResult.succeeded.push({
       original: entity,
       changes,
@@ -115,7 +115,7 @@ async function fixSequentially(
         );
       }
     }
-    ensureHasUpdates(changes);
+    failIfNoUpdatesApplied(changes);
     handlerResult.succeeded.push({
       original: entity,
       changes,

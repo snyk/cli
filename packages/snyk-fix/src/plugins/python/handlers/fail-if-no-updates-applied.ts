@@ -6,7 +6,7 @@ import { isSuccessfulChange } from './attempted-changes-summary';
 
 const debug = debugLib('snyk-fix:python:ensure-changes-applied');
 
-export function ensureHasUpdates(changes: FixChangesSummary[]) {
+export function failIfNoUpdatesApplied(changes: FixChangesSummary[]) {
   if (!changes.length) {
     throw new NoFixesCouldBeAppliedError();
   }
