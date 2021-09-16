@@ -1,5 +1,12 @@
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
-version: v1.13.5
+version: v1.22.1
 # ignores vulnerabilities until expiry date; change duration by modifying expiry date
-ignore: {}
+ignore:
+  SNYK-JS-ANSIREGEX-1583908:
+    - '*':
+        reason: >-
+          Issue is part of the inquirer and can't be dealth with before we
+          remove the wizard command. This regex issue is not affecting this CLI
+        expires: 2021-10-16T12:13:35.076Z
+        created: 2021-09-16T12:13:35.082Z
 patch: {}

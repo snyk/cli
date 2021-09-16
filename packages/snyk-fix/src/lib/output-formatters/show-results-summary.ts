@@ -1,5 +1,5 @@
 import * as chalk from 'chalk';
-import stripAnsi = require('strip-ansi');
+import stripAnsi from 'strip-ansi';
 
 import { FixHandlerResultByPlugin } from '../../plugins/types';
 import {

@@ -110,7 +110,7 @@
     "micromatch": "4.0.2",
     "needle": "2.6.0",
     "open": "^7.0.3",
-    "ora": "5.4.0",
+    "ora": "^6.0.1",
     "os-name": "^3.0.0",
     "pegjs": "^0.10.0",
     "promise-queue": "^2.2.5",
@@ -133,11 +133,11 @@
     "snyk-resolve-deps": "4.7.3",
     "snyk-sbt-plugin": "2.11.4",
     "snyk-try-require": "^2.0.2",
-    "strip-ansi": "^5.2.0",
+    "strip-ansi": "^7.0.1",
     "tar": "^6.1.2",
     "tempy": "^1.0.1",
     "uuid": "^8.3.2",
-    "wrap-ansi": "^5.1.0",
+    "wrap-ansi": "^8.0.1",
     "yaml": "^1.10.2"
   },
   "devDependencies": {

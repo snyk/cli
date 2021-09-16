@@ -1,6 +1,6 @@
 import * as debugLib from 'debug';
 import * as pMap from 'p-map';
-import * as ora from 'ora';
+import ora from 'ora';
 
 import { EntityToFix, FixOptions } from '../../types';
 import { FixHandlerResultByPlugin } from '../types';

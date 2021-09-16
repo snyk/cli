@@ -1,6 +1,6 @@
 import * as debugLib from 'debug';
 import * as pMap from 'p-map';
-import * as ora from 'ora';
+import ora from 'ora';
 import * as chalk from 'chalk';
 
 import * as outputFormatter from './lib/output-formatters/show-results-summary';
