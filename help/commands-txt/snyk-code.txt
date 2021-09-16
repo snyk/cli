@@ -1,14 +1,14 @@
 [1mN[0m[1mA[0m[1mM[0m[1mE[0m
-       [1ms[0m[1mn[0m[1my[0m[1mk[0m[1m-[0m[1mc[0m[1mo[0m[1md[0m[1me[0m - Find security issues using Static code analysis scanning
+       [1ms[0m[1mn[0m[1my[0m[1mk[0m[1m-[0m[1mc[0m[1mo[0m[1md[0m[1me[0m - Find security issues using Static code analysis
 
 [1mS[0m[1mY[0m[1mN[0m[1mO[0m[1mP[0m[1mS[0m[1mI[0m[1mS[0m
        [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mc[0m[1mo[0m[1md[0m[1me[0m [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m] [[4mO[0m[4mP[0m[4mT[0m[4mI[0m[4mO[0m[4mN[0m[4mS[0m] [4mP[0m[4mA[0m[4mT[0m[4mH[0m
 
 [1mD[0m[1mE[0m[1mS[0m[1mC[0m[1mR[0m[1mI[0m[1mP[0m[1mT[0m[1mI[0m[1mO[0m[1mN[0m
-       Find security issues using Static code analysis scanning
+       Find security issues using Static code analysis
 
-       For     more     information     see     snyk     code     help    page
-       [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mc[0m[4mo[0m[4m/[0m[4m<[0m[4mv[0m[4ma[0m[4mr[0m[4m>[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m-[0m[4mc[0m[4mo[0m[4md[0m[4me[0m[4m-[0m[4md[0m[4mo[0m[4mc[0m[4ms[0m[4m-[0m[4ms[0m[4mh[0m[4mo[0m[4mu[0m[4ml[0m[4md[0m[4m-[0m[4mb[0m[4me[0m[4m-[0m[4mh[0m[4me[0m[4mr[0m[4me[0m[4m<[0m[4m/[0m[4mv[0m[4ma[0m[4mr[0m[4m>[0m
+       For   more   information   see   the   CLI  for  Snyk  Code  help  page
+       [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4md[0m[4mo[0m[4mc[0m[4ms[0m[4m.[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mi[0m[4mo[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m-[0m[4mc[0m[4mo[0m[4md[0m[4me[0m[4m/[0m[4mc[0m[4ml[0m[4mi[0m[4m-[0m[4mf[0m[4mo[0m[4mr[0m[4m-[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m-[0m[4mc[0m[4mo[0m[4md[0m[4me[0m
 
 [1mC[0m[1mO[0m[1mM[0m[1mM[0m[1mA[0m[1mN[0m[1mD[0m[1mS[0m
        [1mt[0m[1me[0m[1ms[0m[1mt[0m   Test for any known issue.

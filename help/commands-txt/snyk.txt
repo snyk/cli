@@ -38,8 +38,8 @@
        [1mi[0m[1ma[0m[1mc[0m    Find  security  issues in your Infrastructure as Code files. See
               [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mi[0m[1ma[0m[1mc[0m [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m for full instructions.
 
-       [1mc[0m[1mo[0m[1md[0m[1me[0m   Find security issues using static code  analysis  scanning.  See
-              [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mc[0m[1mo[0m[1md[0m[1me[0m [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m for full instructions.
+       [1mc[0m[1mo[0m[1md[0m[1me[0m   Find security issues using static code analysis. See  [1ms[0m[1mn[0m[1my[0m[1mk[0m  [1mc[0m[1mo[0m[1md[0m[1me[0m
+              [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m for full instructions.
 
        [1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m Manage Snyk CLI configuration.
 

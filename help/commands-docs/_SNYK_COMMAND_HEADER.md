@@ -36,7 +36,7 @@ Available top-level CLI commands:
   Find security issues in your Infrastructure as Code files. See `snyk iac --help` for full instructions.
 
 - `code`:
-  Find security issues using static code analysis scanning. See `snyk code --help` for full instructions.
+  Find security issues using static code analysis. See `snyk code --help` for full instructions.
 
 - `config`:
   Manage Snyk CLI configuration.

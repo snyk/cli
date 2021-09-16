@@ -1,4 +1,4 @@
-# snyk-code(1) -- Find security issues using Static code analysis scanning
+# snyk-code(1) -- Find security issues using Static code analysis
 
 ## SYNOPSIS
 
@@ -6,9 +6,9 @@
 
 ## DESCRIPTION
 
-Find security issues using Static code analysis scanning
+Find security issues using Static code analysis
 
-[For more information see snyk code help page](https://snyk.co/<snyk-code-docs-should-be-here>)
+[For more information see the CLI for Snyk Code help page](https://docs.snyk.io/snyk-code/cli-for-snyk-code)
 
 ## COMMANDS
 
