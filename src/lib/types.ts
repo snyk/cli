@@ -71,6 +71,7 @@ export interface Options {
   'print-deps'?: boolean;
   'print-dep-paths'?: boolean;
   'remote-repo-url'?: string;
+  criticality?: string;
   scanAllUnmanaged?: boolean;
   allProjects?: boolean;
   detectionDepth?: number;
@@ -121,6 +122,37 @@ export interface MonitorMeta {
   prune: boolean;
   'remote-repo-url'?: string;
   targetReference?: string;
+}
+
+export interface ProjectAttributes {
+  criticality?: PROJECT_CRITICALITY[];
+  environment?: PROJECT_ENVIRONMENT[];
+  lifecycle?: PROJECT_LIFECYCLE[];
+}
+
+export enum PROJECT_CRITICALITY {
+  CRITICAL = 'critical',
+  HIGH = 'high',
+  MEDIUM = 'medium',
+  LOW = 'low',
+}
+
+export enum PROJECT_ENVIRONMENT {
+  FRONTEND = 'frontend',
+  BACKEND = 'backend',
+  INTERNAL = 'internal',
+  EXTERNAL = 'external',
+  MOBILE = 'mobile',
+  SAAS = 'saas',
+  ONPREM = 'onprem',
+  HOSTED = 'hosted',
+  DISTRIBUTED = 'distributed',
+}
+
+export enum PROJECT_LIFECYCLE {
+  PRODUCTION = 'production',
+  DEVELOPMENT = 'development',
+  SANDBOX = 'sandbox',
 }
 
 export interface PackageJson {

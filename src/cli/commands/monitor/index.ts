@@ -11,6 +11,10 @@ import {
   MonitorResult,
   Options,
   Contributor,
+  ProjectAttributes,
+  PROJECT_CRITICALITY,
+  PROJECT_ENVIRONMENT,
+  PROJECT_LIFECYCLE,
 } from '../../../lib/types';
 import config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
@@ -232,6 +236,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
               projectDeps.plugin as PluginMetadata,
               targetFileRelativePath,
               contributors,
+              generateProjectAttributes(options),
             ),
             spinner.clear(postingMonitorSpinnerLabel),
           );
@@ -300,6 +305,68 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     prune: !!options.pruneRepeatedSubdependencies,
     'remote-repo-url': options['remote-repo-url'],
     targetReference: options['target-reference'],
+  };
+}
+
+/**
+ * Parse an attribute from the CLI into the relevant enum type.
+ *
+ * @param attribute The project attribute (e.g. environment)
+ * @param permitted Permitted options
+ * @param options CLI options provided
+ * @returns An array of attributes to set on the project or undefined to mean "do not touch".
+ */
+function getProjectAttribute<T>(
+  attribute: string,
+  permitted: Record<string, T>,
+  options: Options,
+): T[] | undefined {
+  const permittedValues: T[] = Object.values(permitted);
+
+  if (options[attribute] === undefined) {
+    return undefined;
+  }
+
+  // Explicit flag to clear the existing values for this attribute already set on the project
+  // e.g. if you specify --environment=
+  // then this means you want to remove existing environment values on the project.
+  if (options[attribute] === '') {
+    return [];
+  }
+
+  // When it's specified without the =, we raise an explicit error to avoid
+  // accidentally clearing the existing values.
+  if (options[attribute] === true) {
+    throw new Error(
+      `--${attribute} must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --${attribute}=`,
+    );
+  }
+
+  const values = options[attribute].split(',');
+  const extra = values.filter((value) => !permittedValues.includes(value));
+  if (extra.length > 0) {
+    throw new Error(
+      `${extra.length} invalid ${attribute}: ${extra.join(', ')}. ` +
+        `Possible values are: ${permittedValues.join(', ')}`,
+    );
+  }
+
+  return values;
+}
+
+function generateProjectAttributes(options: Options): ProjectAttributes {
+  return {
+    criticality: getProjectAttribute(
+      'business-criticality',
+      PROJECT_CRITICALITY,
+      options,
+    ),
+    environment: getProjectAttribute(
+      'environment',
+      PROJECT_ENVIRONMENT,
+      options,
+    ),
+    lifecycle: getProjectAttribute('lifecycle', PROJECT_LIFECYCLE, options),
   };
 }
 
