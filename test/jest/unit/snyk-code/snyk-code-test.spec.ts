@@ -6,7 +6,6 @@ jest.mock('@snyk/code-client');
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
 
 import { loadJson } from '../../../utils';
-import * as featureFlags from '../../../../src/lib/feature-flags';
 import * as checks from '../../../../src/lib/plugins/sast/checks';
 import { config as userConfig } from '../../../../src/lib/user-config';
 import * as analysis from '../../../../src/lib/plugins/sast/analysis';
@@ -22,7 +21,6 @@ const osName = require('os-name');
 
 describe('Test snyk code', () => {
   let apiUserConfig;
-  let isFeatureFlagSupportedForOrgSpy;
   let isSastEnabledForOrgSpy;
   let trackUsageSpy;
   const failedCodeTestMessage = "Failed to run 'code test'";
@@ -57,10 +55,6 @@ describe('Test snyk code', () => {
     process.chdir(fixturePath);
     apiUserConfig = userConfig.get('api');
     userConfig.set('api', fakeApiKey);
-    isFeatureFlagSupportedForOrgSpy = jest.spyOn(
-      featureFlags,
-      'isFeatureFlagSupportedForOrg',
-    );
     isSastEnabledForOrgSpy = jest.spyOn(checks, 'getSastSettingsForOrg');
     trackUsageSpy = jest.spyOn(checks, 'trackUsage');
   });
@@ -102,9 +96,6 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(null);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-      ok: true,
-    });
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
@@ -130,9 +121,6 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-      ok: true,
-    });
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
@@ -162,9 +150,6 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-      ok: true,
-    });
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
@@ -219,9 +204,6 @@ describe('Test snyk code', () => {
 
   it('should show error if sast is not enabled', async () => {
     isSastEnabledForOrgSpy.mockResolvedValueOnce({ sastEnabled: false });
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-      ok: true,
-    });
 
     await expect(
       snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
@@ -231,25 +213,8 @@ describe('Test snyk code', () => {
     );
   });
 
-  it('should show error if ff is not enabled', async () => {
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({ sastEnabled: true });
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-      userError: 'Not enabled',
-    });
-
-    await expect(
-      snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
-    ).rejects.toHaveProperty(
-      'userMessage',
-      'Snyk Code is not supported for org.',
-    );
-  });
-
   it('should show error if limit is reached', async () => {
     isSastEnabledForOrgSpy.mockResolvedValueOnce({ sastEnabled: true });
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-      ok: true,
-    });
     trackUsageSpy.mockResolvedValueOnce({
       code: 429,
       userMessage: 'Test limit reached!',
@@ -277,9 +242,6 @@ describe('Test snyk code', () => {
       analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
       isSastEnabledForOrgSpy.mockResolvedValueOnce({
         sastEnabled: true,
-      });
-      isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-        ok: true,
       });
       trackUsageSpy.mockResolvedValue({});
 
@@ -311,9 +273,6 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-      ok: true,
-    });
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
@@ -344,9 +303,6 @@ describe('Test snyk code', () => {
     };
 
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-      ok: true,
-    });
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
     });
@@ -381,9 +337,6 @@ describe('Test snyk code', () => {
         .mockRejectedValue(codeClientError);
       isSastEnabledForOrgSpy.mockResolvedValueOnce({
         sastEnabled: true,
-      });
-      isFeatureFlagSupportedForOrgSpy.mockResolvedValue({
-        ok: true,
       });
       trackUsageSpy.mockResolvedValue({});
 

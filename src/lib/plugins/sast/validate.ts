@@ -17,30 +17,17 @@ export async function validateCodeTest(options: Options) {
 
   // TODO: We would need to remove this once we fix circular import issue
   const { getSastSettingsForOrg, trackUsage } = require('./checks');
-  const { isFeatureFlagSupportedForOrg } = require('../../feature-flags');
 
-  const [
-    sastSettingsResponse,
-    snykCodeEnabledResponse,
-    snykCodeCliEnabledResponse,
-  ] = await Promise.all([
-    getSastSettingsForOrg(org),
-    isFeatureFlagSupportedForOrg('snykCode', org),
-    isFeatureFlagSupportedForOrg('snykCodeCli', org),
-  ]);
+  const sastSettingsResponse = await getSastSettingsForOrg(org);
 
-  const authError = [
-    sastSettingsResponse,
-    snykCodeEnabledResponse,
-    snykCodeCliEnabledResponse,
-  ].find((response) => response.code === 401 || response.code === 403);
-
-  if (authError) {
-    throw AuthFailedError(authError.error, authError.code);
-  }
-
-  if (!snykCodeEnabledResponse.ok || !snykCodeCliEnabledResponse.ok) {
-    throw new FeatureNotSupportedForOrgError(org, 'Snyk Code');
+  if (
+    sastSettingsResponse?.code === 401 ||
+    sastSettingsResponse?.code === 403
+  ) {
+    throw AuthFailedError(
+      sastSettingsResponse.error,
+      sastSettingsResponse.code,
+    );
   }
 
   if (!sastSettingsResponse.sastEnabled) {

@@ -13,6 +13,7 @@ const COMMANDS: Record<string, { optionsFile?: string }> = {
   },
   container: {},
   iac: {},
+  code: {},
   config: {},
   protect: {},
   policy: {},
