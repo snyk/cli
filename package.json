@@ -72,7 +72,7 @@
   "dependencies": {
     "@open-policy-agent/opa-wasm": "^1.2.0",
     "@snyk/cli-interface": "2.11.0",
-    "@snyk/cloud-config-parser": "^1.10.2",
+    "@snyk/cloud-config-parser": "^1.11.0",
     "@snyk/code-client": "^4.2.3",
     "@snyk/dep-graph": "^1.27.1",
     "@snyk/fix": "file:packages/snyk-fix",
@@ -137,8 +137,7 @@
     "tar": "^6.1.2",
     "tempy": "^1.0.1",
     "uuid": "^8.3.2",
-    "wrap-ansi": "^5.1.0",
-    "yaml": "^1.10.2"
+    "wrap-ansi": "^5.1.0"
   },
   "devDependencies": {
     "@types/cross-spawn": "^6.0.2",
