@@ -1,4 +1,4 @@
-import { MethodArgs, ArgsOptions } from '../../args';
+import { WoofArgv } from '../woof';
 
 const woofs = {
   en: 'Woof!',
@@ -9,8 +9,7 @@ const woofs = {
   uk: ' Гав!',
 };
 
-export default function getWoof(args: MethodArgs): string {
-  const options = args.pop() as ArgsOptions;
+export default function getWoof(options: WoofArgv): string {
   let lang = 'en';
 
   if (

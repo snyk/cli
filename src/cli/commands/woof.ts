@@ -1,8 +1,21 @@
-import { MethodArgs } from '../args';
 import getWoof from './woof/getWoof';
 
-export default function woof(...args: MethodArgs) {
-  const woof = getWoof(args);
+export const command = 'woof';
+
+export const describe = 'woof!';
+
+export const builder = {
+  language: {
+    default: 'en',
+  },
+};
+
+export type WoofArgv = {
+  language?: string;
+};
+
+export const handler = (argv: WoofArgv): void => {
+  const woof = getWoof(argv);
   console.log(`
     |         |
    /|         |\\
@@ -19,4 +32,4 @@ export default function woof(...args: MethodArgs) {
         \\U/ --( ${woof} )
                \\-----/
 `);
-}
+};

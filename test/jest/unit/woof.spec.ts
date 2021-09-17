@@ -3,26 +3,22 @@ import getWoof from '../../../src/cli/commands/woof/getWoof';
 describe('Woof command - Language option', () => {
   it('Default language is "en"', () => {
     // $ snyk woof
-    expect(getWoof([{} as any])).toEqual('Woof!');
+    expect(getWoof({})).toEqual('Woof!');
   });
 
   it('Returns selected language', () => {
     expect(
-      getWoof([
-        {
-          language: 'he',
-        } as any,
-      ]),
+      getWoof({
+        language: 'he',
+      }),
     ).toEqual(' !הב ');
   });
 
   it('Returns default when selected language is invalid', () => {
     expect(
-      getWoof([
-        {
-          language: 'toString',
-        } as any,
-      ]),
+      getWoof({
+        language: 'toString',
+      }),
     ).toEqual('Woof!');
   });
 });

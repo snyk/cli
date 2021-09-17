@@ -1,10 +1,21 @@
+const yargs = require('yargs');
 const abbrev = require('abbrev');
 require('../../lib/spinner').isRequired = false;
 
 // Wrapper for Commonjs compatibility
 async function callModule(mod, args) {
   const resolvedModule = await mod;
-  return (resolvedModule.default || resolvedModule)(...args);
+  const exportedValue = resolvedModule.default || resolvedModule;
+  if (typeof exportedValue === 'function') {
+    return (resolvedModule.default || resolvedModule)(...args);
+  }
+  if (exportedValue.handler) {
+    yargs(process.argv.slice(2))
+      .command(exportedValue)
+      .help().argv;
+    return;
+  }
+  throw new Error('command module does not have a valid handler');
 }
 
 const commands = {
