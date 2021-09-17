@@ -1,21 +1,25 @@
-const yargs = require('yargs');
 const abbrev = require('abbrev');
+const woof = require('./woof');
+const yargs = require('yargs');
+
 require('../../lib/spinner').isRequired = false;
+
+const parser = yargs(process.argv.slice(2))
+  .help()
+  .version()
+  .command(woof.command);
 
 // Wrapper for Commonjs compatibility
 async function callModule(mod, args) {
-  const resolvedModule = await mod;
-  const exportedValue = resolvedModule.default || resolvedModule;
-  if (typeof exportedValue === 'function') {
-    return (resolvedModule.default || resolvedModule)(...args);
+  if (mod instanceof Promise) {
+    const resolvedModule = await mod;
+    return (resolvedModule.default || resolvedModule)(
+      ...args,
+      yargs(process.argv.slice(2)).argv,
+    );
+  } else {
+    parser.argv; // execute
   }
-  if (exportedValue.handler) {
-    yargs(process.argv.slice(2))
-      .command(exportedValue)
-      .help().argv;
-    return;
-  }
-  throw new Error('command module does not have a valid handler');
 }
 
 const commands = {
@@ -30,7 +34,7 @@ const commands = {
   test: async (...args) => callModule(import('./test'), args),
   version: async (...args) => callModule(import('./version'), args),
   wizard: async (...args) => callModule(import('./protect/wizard'), args),
-  woof: async (...args) => callModule(import('./woof'), args),
+  woof: async (...args) => callModule(woof, args),
 };
 
 commands.aliases = abbrev(Object.keys(commands));

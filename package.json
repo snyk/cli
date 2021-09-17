@@ -151,6 +151,7 @@
     "@types/restify": "^8.4.2",
     "@types/sarif": "^2.1.2",
     "@types/sinon": "^7.5.0",
+    "@types/yargs": "^17.0.2",
     "@typescript-eslint/eslint-plugin": "^4.30.0",
     "@typescript-eslint/parser": "^4.30.0",
     "ajv": "^6.12.6",
