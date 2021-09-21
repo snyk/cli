@@ -120,6 +120,7 @@ export interface MonitorMeta {
   isDocker: boolean;
   prune: boolean;
   'remote-repo-url'?: string;
+  targetReference?: string;
 }
 
 export interface PackageJson {

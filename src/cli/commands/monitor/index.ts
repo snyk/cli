@@ -299,6 +299,7 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     isDocker: !!options.docker,
     prune: !!options.pruneRepeatedSubdependencies,
     'remote-repo-url': options['remote-repo-url'],
+    targetReference: options['target-reference'],
   };
 }
 

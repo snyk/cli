@@ -278,6 +278,7 @@ async function monitorDepTree(
       // WARNING: be careful changing this as it affects project uniqueness
       targetFile: getTargetFile(scannedProject, pluginMeta),
       targetFileRelativePath,
+      targetReference: meta.targetReference,
       contributors,
     } as MonitorBody,
     gzip: true,
@@ -421,6 +422,7 @@ export async function monitorDepGraph(
       target,
       targetFile: getTargetFile(scannedProject, pluginMeta),
       targetFileRelativePath,
+      targetReference: meta.targetReference,
       contributors,
       callGraph: callGraphPayload,
     } as MonitorBody,
@@ -551,6 +553,7 @@ async function monitorDepGraphFromDepTree(
       target,
       targetFile: getTargetFile(scannedProject, pluginMeta),
       targetFileRelativePath,
+      targetReference: meta.targetReference,
       contributors,
     } as MonitorBody,
     gzip: true,
