@@ -3,12 +3,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as needle from 'needle';
 import * as Ajv from 'ajv';
-import sarifSchema = require('../../support/sarif-schema-2.1.0');
+import * as sarifSchema from '../../support/sarif-schema-2.1.0';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
 import * as snykPolicy from 'snyk-policy';
+
+const readJSON = (jsonPath: string) => {
+  return JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, jsonPath), 'utf-8'),
+  );
+};
 
 export const GenericTests: AcceptanceTests = {
   language: 'Generic Test tests',
@@ -198,7 +204,9 @@ export const GenericTests: AcceptanceTests = {
       t.test('default policy', async (tt) => {
         utils.chdirWorkspaces('npm-package-policy');
         const expected = fs.readFileSync(path.join('.snyk'), 'utf8');
-        const vulns = require('../fixtures/npm-package-policy/test-graph-result.json');
+        const vulns = readJSON(
+          '../fixtures/npm-package-policy/test-graph-result.json',
+        );
         vulns.policy = expected;
         params.server.setNextResponse(vulns);
 
@@ -233,7 +241,9 @@ export const GenericTests: AcceptanceTests = {
           path.join('custom-location', '.snyk'),
           'utf8',
         );
-        const vulns = require('../fixtures/npm-package-policy/test-graph-result.json');
+        const vulns = readJSON(
+          '../fixtures/npm-package-policy/test-graph-result.json',
+        );
         vulns.policy = expected;
         params.server.setNextResponse(vulns);
 
@@ -262,7 +272,9 @@ export const GenericTests: AcceptanceTests = {
           { '*': { reasonType: 'wont-fix', source: 'api' } },
         ];
 
-        const vulns = require('../fixtures/npm-package-policy/test-graph-result.json');
+        const vulns = readJSON(
+          '../fixtures/npm-package-policy/test-graph-result.json',
+        );
         vulns.meta.policy = policy.toString();
         params.server.setNextResponse(vulns);
 
@@ -286,7 +298,9 @@ export const GenericTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces('npm-package-with-git-url');
-      const vulns = require('../fixtures/npm-package-with-git-url/test-graph-result.json');
+      const vulns = readJSON(
+        '../fixtures/npm-package-with-git-url/test-graph-result.json',
+      );
       params.server.setNextResponse(vulns);
       try {
         await params.cli.test();
@@ -358,7 +372,7 @@ export const GenericTests: AcceptanceTests = {
     'error 401 handling': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
-      params.server.setNextStatusCodeAndResponse(401, {});
+      params.server.setNextStatusCode(401);
 
       try {
         await params.cli.test('ruby-app-thresholds');
@@ -374,7 +388,7 @@ export const GenericTests: AcceptanceTests = {
     'error 403 handling': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
-      params.server.setNextStatusCodeAndResponse(403, {});
+      params.server.setNextStatusCode(403);
 
       try {
         await params.cli.test('ruby-app-thresholds');
@@ -390,7 +404,7 @@ export const GenericTests: AcceptanceTests = {
     'error 500 handling': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
 
-      params.server.setNextStatusCodeAndResponse(500, {});
+      params.server.setNextStatusCode(500);
 
       try {
         await params.cli.test('ruby-app-thresholds');
@@ -403,7 +417,9 @@ export const GenericTests: AcceptanceTests = {
     'test --sarif': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
       try {
-        const vulns = require('../fixtures/npm-package/test-graph-result.json');
+        const vulns = readJSON(
+          '../fixtures/npm-package/test-graph-result.json',
+        );
         params.server.setNextResponse(vulns);
 
         await params.cli.test('npm-package', { sarif: true });

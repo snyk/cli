@@ -1,64 +1,91 @@
-import * as restify from 'restify';
+import * as express from 'express';
+import * as http from 'http';
+import * as bodyParser from 'body-parser';
 
-interface FakeServer extends restify.Server {
-  requests: restify.Request[];
-  _nextResponse?: restify.Response;
-  _nextStatusCode?: number;
-  popRequest: () => restify.Request;
-  popRequests: (num: number) => restify.Request[];
+const featureFlagDefaults = (): Map<string, boolean> => {
+  return new Map([['cliFailFast', false]]);
+};
+
+type FakeServer = {
+  getRequests: () => express.Request[];
+  popRequest: () => express.Request;
+  popRequests: (num: number) => express.Request[];
+  setDepGraphResponse: (next: Record<string, unknown>) => void;
   setNextResponse: (r: any) => void;
-  setNextStatusCodeAndResponse: (c: number, r: any) => void;
-  depGraphResponse: any | undefined;
+  setNextStatusCode: (c: number) => void;
+  setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
+  listen: (port: string | number, callback: () => void) => void;
   restore: () => void;
-  _featureFlags: Map<string, boolean>;
-  setFeatureFlag: (featureFlag, enabled) => void;
-}
+  close: (callback: () => void) => void;
+  getPort: () => number;
+};
 
-export function fakeServer(root, apikey) {
-  const server = restify.createServer({
-    name: 'snyk-mock-server',
-    version: '1.0.0',
-  }) as FakeServer;
+export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
+  let requests: express.Request[] = [];
+  let featureFlags: Map<string, boolean> = featureFlagDefaults();
+  let nextStatusCode: number | undefined = undefined;
+  let nextResponse: any = undefined;
+  let depGraphResponse: Record<string, unknown> | undefined = undefined;
+  let server: http.Server | undefined = undefined;
 
-  const featureFlagDefaults = (): Map<string, boolean> => {
-    return new Map([['cliFailFast', false]]);
-  };
-  server._featureFlags = featureFlagDefaults();
-
-  server.requests = [];
-  server.popRequest = () => {
-    return server.requests.pop()!;
-  };
-  server.popRequests = (num: number) => {
-    return server.requests.splice(server.requests.length - num, num);
-  };
-  server.restore = () => {
-    server.requests = [];
-    server.depGraphResponse = undefined;
-    server._featureFlags = featureFlagDefaults();
+  const restore = () => {
+    requests = [];
+    depGraphResponse = undefined;
+    featureFlags = featureFlagDefaults();
   };
 
-  server.use(restify.plugins.acceptParser(server.acceptable));
-  server.use(restify.plugins.queryParser({ mapParams: true }));
-  server.use(restify.plugins.bodyParser({ mapParams: true }));
-  server.use(function logRequest(req, res, next) {
-    server.requests.push(req);
+  const getRequests = () => {
+    return requests;
+  };
+
+  const popRequest = () => {
+    return requests.pop()!;
+  };
+
+  const popRequests = (num: number) => {
+    return requests.splice(requests.length - num, num);
+  };
+
+  const setDepGraphResponse = (next: typeof depGraphResponse) => {
+    depGraphResponse = next;
+  };
+
+  const setNextResponse = (response: string | Record<string, unknown>) => {
+    if (typeof response === 'string') {
+      nextResponse = JSON.parse(response);
+      return;
+    }
+    nextResponse = response;
+  };
+
+  const setNextStatusCode = (code: number) => {
+    nextStatusCode = code;
+  };
+
+  const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
+    featureFlags.set(featureFlag, enabled);
+  };
+
+  const app = express();
+  app.use(bodyParser.json({ limit: '50mb' }));
+  app.use((req, res, next) => {
+    requests.push(req);
     next();
   });
 
-  [root + '/verify/callback', root + '/verify/token'].map((url) => {
-    server.post(url, (req, res) => {
-      if (req.params.api && req.params.api === apikey) {
+  [basePath + '/verify/callback', basePath + '/verify/token'].map((url) => {
+    app.post(url, (req, res) => {
+      if (req.body.api === snykToken) {
         return res.send({
           ok: true,
-          api: apikey,
+          api: snykToken,
         });
       }
 
-      if (req.params.token) {
+      if (req.body.token) {
         return res.send({
           ok: true,
-          api: apikey,
+          api: snykToken,
         });
       }
 
@@ -69,7 +96,7 @@ export function fakeServer(root, apikey) {
     });
   });
 
-  server.use((req, res, next) => {
+  app.use((req, res, next) => {
     // these test don't run on the new experimental flow
     // so once we deprecate legacy this check can be removed
     const isExperimentalIac =
@@ -79,29 +106,28 @@ export function fakeServer(root, apikey) {
     if (
       isExperimentalIac ||
       req.url?.includes('/cli-config/feature-flags/') ||
-      (!server._nextResponse && !server._nextStatusCode)
+      (!nextResponse && !nextStatusCode)
     ) {
       return next();
     }
-    const response = server._nextResponse;
-    delete server._nextResponse;
-    if (server._nextStatusCode) {
-      const code = server._nextStatusCode;
-      delete server._nextStatusCode;
-      res.send(code, response);
-    } else {
-      res.send(response);
+    const response = nextResponse;
+    nextResponse = undefined;
+    if (nextStatusCode) {
+      const code = nextStatusCode;
+      nextStatusCode = undefined;
+      res.status(code);
     }
+    res.send(response);
   });
 
-  server.get(root + '/vuln/:registry/:module', (req, res, next) => {
+  app.get(basePath + '/vuln/:registry/:module', (req, res, next) => {
     res.send({
       vulnerabilities: [],
     });
     return next();
   });
 
-  server.post(root + '/vuln/:registry', (req, res, next) => {
+  app.post(basePath + '/vuln/:registry', (req, res, next) => {
     const vulnerabilities = [];
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);
@@ -120,14 +146,14 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.post(root + '/vuln/:registry/patches', (req, res, next) => {
+  app.post(basePath + '/vuln/:registry/patches', (req, res, next) => {
     res.send({
       vulnerabilities: [],
     });
     return next();
   });
 
-  server.post(root + '/test-dep-graph', (req, res, next) => {
+  app.post(basePath + '/test-dep-graph', (req, res, next) => {
     if (req.query.org && req.query.org === 'missing-org') {
       res.status(404);
       res.send({
@@ -138,8 +164,8 @@ export function fakeServer(root, apikey) {
       return next();
     }
 
-    if (server.depGraphResponse) {
-      res.send(server.depGraphResponse);
+    if (depGraphResponse) {
+      res.send(depGraphResponse);
       return next();
     }
 
@@ -156,12 +182,13 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.post(root + '/docker-jwt/test-dependencies', (req, res, next) => {
+  app.post(basePath + '/docker-jwt/test-dependencies', (req, res, next) => {
     if (
       req.headers.authorization &&
       !req.headers.authorization.includes('Bearer')
     ) {
-      res.send(401);
+      res.status(401).send();
+      return;
     }
 
     res.send({
@@ -203,15 +230,14 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.post(root + '/test-dependencies', (req, res, next) => {
+  app.post(basePath + '/test-dependencies', (req, res) => {
     if (req.query.org && req.query.org === 'missing-org') {
-      res.status(404);
-      res.send({
+      res.status(404).send({
         code: 404,
         userMessage:
           'Org missing-org was not found or you may not have the correct permissions',
       });
-      return next();
+      return;
     }
 
     res.send({
@@ -250,18 +276,16 @@ export function fakeServer(root, apikey) {
         isPublic: false,
       },
     });
-    return next();
   });
 
-  server.put(root + '/monitor-dependencies', (req, res, next) => {
+  app.put(basePath + '/monitor-dependencies', (req, res) => {
     if (req.query.org && req.query.org === 'missing-org') {
-      res.status(404);
-      res.send({
+      res.status(404).send({
         code: 404,
         userMessage:
           'Org missing-org was not found or you may not have the correct permissions',
       });
-      return next();
+      return;
     }
 
     res.send({
@@ -275,18 +299,16 @@ export function fakeServer(root, apikey) {
         'http://example-url/project/project-public-id/history/snapshot-public-id',
       projectName: 'test-project',
     });
-    return next();
   });
 
-  server.post(root + '/test-iac', (req, res, next) => {
+  app.post(basePath + '/test-iac', (req, res) => {
     if (req.query.org && req.query.org === 'missing-org') {
-      res.status(404);
-      res.send({
+      res.status(404).send({
         code: 404,
         userMessage:
           'Org missing-org was not found or you may not have the correct permissions',
       });
-      return next();
+      return;
     }
 
     res.send({
@@ -299,66 +321,59 @@ export function fakeServer(root, apikey) {
         isPublic: false,
       },
     });
-    return next();
   });
 
-  server.get(
-    root + '/cli-config/feature-flags/:featureFlag',
-    (req, res, next) => {
-      const org = req.params.org;
-      const flag = req.params.featureFlag;
-      const disabled = new Set(['optOutFromLocalExecIac']);
-      if (org === 'no-flag' || disabled.has(flag)) {
+  app.get(basePath + '/cli-config/feature-flags/:featureFlag', (req, res) => {
+    const org = req.query.org;
+    const flag = req.params.featureFlag;
+    const disabled = new Set(['optOutFromLocalExecIac']);
+    if (org === 'no-flag' || disabled.has(flag)) {
+      res.send({
+        ok: false,
+        userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
+      });
+      return;
+    }
+
+    if (featureFlags.has(flag)) {
+      const ffEnabled = featureFlags.get(flag);
+      if (ffEnabled) {
+        res.send({
+          ok: true,
+        });
+      } else {
         res.send({
           ok: false,
           userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
         });
-        return next();
       }
+      return;
+    }
 
-      if (server._featureFlags.has(flag)) {
-        const ffEnabled = server._featureFlags.get(flag);
-        if (ffEnabled) {
-          res.send({
-            ok: true,
-          });
-        } else {
-          res.send({
-            ok: false,
-            userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
-          });
-        }
-        return next();
-      }
-
-      // default: return true for all feature flags
-      res.send({
-        ok: true,
-      });
-      return next();
-    },
-  );
-
-  server.get(root + '/iac-org-settings', (req, res, next) => {
-    res.status(200);
+    // default: return true for all feature flags
     res.send({
+      ok: true,
+    });
+  });
+
+  app.get(basePath + '/iac-org-settings', (req, res) => {
+    res.status(200).send({
       meta: {
         isPrivate: false,
         isLicensesEnabled: false,
         ignoreSettings: null,
-        org: req.params.org || 'test-org',
+        org: req.query.org || 'test-org',
       },
       customPolicies: {},
     });
-    return next();
   });
 
-  server.get(root + '/authorization/:action', (req, res, next) => {
+  app.get(basePath + '/authorization/:action', (req, res, next) => {
     res.send({ result: { allowed: true } });
     return next();
   });
 
-  server.put(root + '/monitor/:registry/graph', (req, res, next) => {
+  app.put(basePath + '/monitor/:registry/graph', (req, res, next) => {
     res.send({
       id: 'monitor',
       uri: `${req.params.registry}/graph/some/project-id`,
@@ -367,40 +382,54 @@ export function fakeServer(root, apikey) {
     return next();
   });
 
-  server.put(root + '/monitor/:registry', (req, res, next) => {
+  app.put(basePath + '/monitor/:registry', (req, res) => {
     res.send({
       id: 'monitor',
       uri: `${req.params.registry}/some/project-id`,
       isMonitored: true,
     });
-    return next();
   });
 
-  server.post(root + '/track-iac-usage/cli', (req, res, next) => {
-    res.status(200);
-    res.send({});
-    return next();
+  app.post(basePath + '/track-iac-usage/cli', (req, res) => {
+    res.status(200).send({});
   });
 
-  server.post(root + '/analytics/cli', (req, res, next) => {
-    res.status(200);
-    res.send({});
-    return next();
+  app.post(basePath + '/analytics/cli', (req, res) => {
+    res.status(200).send({});
   });
 
-  server.setNextResponse = (response) => {
-    server._nextResponse =
-      typeof response === 'string' ? JSON.parse(response) : response;
+  const listen = (port: string | number, callback: () => void) => {
+    server = app.listen(Number(port), callback);
   };
 
-  server.setNextStatusCodeAndResponse = (code, body) => {
-    server._nextStatusCode = code;
-    server._nextResponse = body;
+  const close = (callback: () => void) => {
+    if (!server) {
+      callback();
+      return;
+    }
+    server.close(callback);
+    server = undefined;
   };
 
-  server.setFeatureFlag = (featureFlag, enabled) => {
-    server._featureFlags.set(featureFlag, enabled);
+  const getPort = () => {
+    const address = server?.address();
+    if (address && typeof address === 'object') {
+      return address.port;
+    }
+    throw new Error('port not found');
   };
 
-  return server;
-}
+  return {
+    getRequests,
+    popRequest,
+    popRequests,
+    setDepGraphResponse,
+    setNextResponse,
+    setNextStatusCode,
+    setFeatureFlag,
+    listen,
+    restore,
+    close,
+    getPort,
+  };
+};
