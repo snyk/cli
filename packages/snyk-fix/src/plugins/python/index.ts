@@ -1,14 +1,15 @@
 import * as debugLib from 'debug';
 import * as pMap from 'p-map';
 import * as ora from 'ora';
+import * as chalk from 'chalk';
 
 import { EntityToFix, FixOptions } from '../../types';
-import { FixHandlerResultByPlugin } from '../types';
+import { FailedToFix, FixHandlerResultByPlugin } from '../types';
 import { loadHandler } from './load-handler';
 import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';
 import { mapEntitiesPerHandlerType } from './map-entities-per-handler-type';
-import chalk = require('chalk');
 import { partitionByFixable } from './handlers/is-supported';
+import { CustomError } from '../../lib/errors/custom-error';
 
 const debug = debugLib('snyk-fix:python');
 
@@ -69,9 +70,7 @@ export async function pythonFix(
         debug(
           `Failed to fix ${projectsToFix.length} ${projectType} projects.\nError: ${e.message}`,
         );
-        results.failed.push(
-          ...projectsToFix.map((p) => ({ original: p, error: e })),
-        );
+        results.failed.push(...generateFailed(projectsToFix, e as CustomError));
       }
       spinner.stopAndPersist({
         text: processedMessage,
@@ -83,4 +82,15 @@ export async function pythonFix(
     },
   );
   return handlerResult;
+}
+
+function generateFailed(
+  projectsToFix: EntityToFix[],
+  error: CustomError,
+): FailedToFix[] {
+  const failed: FailedToFix[] = [];
+  for (const project of projectsToFix) {
+    failed.push({ original: project, error: error });
+  }
+  return failed;
 }

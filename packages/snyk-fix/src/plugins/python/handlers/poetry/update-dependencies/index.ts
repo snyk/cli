@@ -9,7 +9,7 @@ import {
 import { generateUpgrades } from './generate-upgrades';
 import { poetryAdd } from './poetry-add';
 import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
-import { failIfNoUpdatesApplied } from '../../fail-if-no-updates-applied';
+import { isSuccessfulChange } from '../../attempted-changes-summary';
 
 const debug = debugLib('snyk-fix:python:Poetry');
 
@@ -60,11 +60,20 @@ async function fixAll(
       );
     }
 
-    failIfNoUpdatesApplied(changes);
-    handlerResult.succeeded.push({
-      original: entity,
-      changes,
-    });
+    if (!changes.length) {
+      throw new NoFixesCouldBeAppliedError();
+    }
+    if (!changes.some((c) => isSuccessfulChange(c))) {
+      handlerResult.failed.push({
+        original: entity,
+        changes,
+      });
+    } else {
+      handlerResult.succeeded.push({
+        original: entity,
+        changes,
+      });
+    }
   } catch (error) {
     debug(
       `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
@@ -115,11 +124,20 @@ async function fixSequentially(
         );
       }
     }
-    failIfNoUpdatesApplied(changes);
-    handlerResult.succeeded.push({
-      original: entity,
-      changes,
-    });
+    if (!changes.length) {
+      throw new NoFixesCouldBeAppliedError();
+    }
+    if (!changes.some((c) => isSuccessfulChange(c))) {
+      handlerResult.failed.push({
+        original: entity,
+        changes,
+      });
+    } else {
+      handlerResult.succeeded.push({
+        original: entity,
+        changes,
+      });
+    }
   } catch (error) {
     debug(
       `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,

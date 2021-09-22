@@ -183,8 +183,13 @@ function setSnykFixAnalytics(
   for (const plugin of Object.keys(resultsByPlugin)) {
     const errors: string[] = [];
     const failedToFix = resultsByPlugin[plugin].failed;
-    if (failedToFix.length > 0) {
-      errors.push(...failedToFix.map((f) => f.error?.message));
+    for (const failed of failedToFix) {
+      if ('error' in failed) {
+        errors.push(failed.error.message);
+      }
+      if ('changes' in failed) {
+        errors.push(...failed.changes.map((f) => JSON.stringify(f)));
+      }
     }
     analytics.add('snykFixErrors', { [plugin]: errors });
   }
