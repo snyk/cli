@@ -1,5 +1,6 @@
 //TODO(orka): take out into a new lib
 import * as debugLib from 'debug';
+import { parseFileContent as parseYAMLOrJSON } from '@snyk/cloud-config-parser';
 import {
   IllegalIacFileErrorMsg,
   InternalServerError,
@@ -13,7 +14,6 @@ import {
   IacValidateTerraformResponse,
   IacValidationResponse,
 } from './constants';
-import { parseYAMLOrJSON } from '../../cli/commands/test/iac-local-execution/yaml-parser';
 
 const debug = debugLib('snyk-detect');
 
