@@ -26,7 +26,8 @@ export async function processYarnWorkspaces(
   // must have the root level most folders at the top
   const mappedAndFiltered = targetFiles
     .map((p) => ({ path: p, ...pathUtil.parse(p) }))
-    .filter((res) => ['package.json'].includes(res.base));
+    .filter((res) => ['package.json', 'yarn.lock'].includes(res.base));
+
   const sorted = sortBy(mappedAndFiltered, 'dir');
   const grouped = groupBy(sorted, 'dir');
 
@@ -50,6 +51,7 @@ export async function processYarnWorkspaces(
       runtime: process.version,
     },
     scannedProjects: [],
+    processedFiles: [],
   };
   let rootWorkspaceManifestContent = {};
   // the folders must be ordered highest first
@@ -116,6 +118,9 @@ export async function processYarnWorkspaces(
           runtime: process.version,
         },
       };
+      result.processedFiles!.push(rootYarnLockfileName);
+      result.processedFiles!.push(packageJsonFileName);
+
       result.scannedProjects.push(project);
     } else {
       debug(
@@ -177,7 +182,7 @@ export function packageJsonBelongsToWorkspace(
   const match = micromatch.isMatch(
     packageJsonFileName.replace(/\\/g, '/'),
     workspacesGlobs.map((p) =>
-      pathUtil.normalize(pathUtil.join(p, '**')).replace(/\\/g, '/'),
+      (p.endsWith('/**') ? p : p + '/**').replace(/\\/g, '/'),
     ),
   );
   return match;

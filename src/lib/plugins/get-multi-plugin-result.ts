@@ -14,6 +14,7 @@ import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-m
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 import { FailedToRunTestError } from '../errors';
+import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -32,6 +33,7 @@ export interface MultiProjectResultCustom
   extends cliInterface.legacyPlugin.MultiProjectResult {
   scannedProjects: ScannedProjectCustom[];
   failedResults?: FailedProjectScanError[];
+  processedFiles?: string[];
 }
 
 export async function getMultiPluginResult(
@@ -42,7 +44,27 @@ export async function getMultiPluginResult(
   const allResults: ScannedProjectCustom[] = [];
   const failedResults: FailedProjectScanError[] = [];
 
-  for (const targetFile of targetFiles) {
+  console.log({ targetFiles });
+
+  // process all workspaces first, send the rest to other plugins
+  const { scannedProjects, processedFiles = [] } = await processYarnWorkspaces(
+    root,
+    {
+      strictOutOfSync: options.strictOutOfSync,
+      dev: options.dev,
+    },
+    targetFiles,
+  );
+
+  console.log(scannedProjects.map((s) => s.targetFile));
+
+  const filesLeftToScan = targetFiles.filter(
+    (f) => !processedFiles.includes(f),
+  );
+  allResults.push(...scannedProjects);
+
+  console.log({ filesLeftToScan });
+  for (const targetFile of filesLeftToScan) {
     const optionsClone = cloneDeep(options);
     optionsClone.file = path.relative(root, targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
