@@ -17,7 +17,7 @@ export async function startMockServer() {
   // Use port of 0 to find a free port.
   await new Promise((resolve) => server.listen(0, resolve));
 
-  const SNYK_HOST = 'http://localhost:' + server.address().port;
+  const SNYK_HOST = 'http://localhost:' + server.getPort();
   const SNYK_API = SNYK_HOST + BASE_API;
 
   const env: Record<string, string> = {

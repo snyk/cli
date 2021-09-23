@@ -3,6 +3,14 @@ import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { CommandResult } from '../../../src/cli/commands/types';
 import { createCallGraph } from '../../utils';
+import * as fs from 'fs';
+import * as path from 'path';
+
+const readJSON = (jsonPath: string) => {
+  return JSON.parse(
+    fs.readFileSync(path.resolve(__dirname, jsonPath), 'utf-8'),
+  );
+};
 
 export const GradleTests: AcceptanceTests = {
   language: 'Gradle',
@@ -98,7 +106,7 @@ export const GradleTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const callGraphPayload = require('../fixtures/call-graphs/maven.json');
+      const callGraphPayload = readJSON('../fixtures/call-graphs/maven.json');
       const callGraph = createCallGraph(callGraphPayload);
       const plugin = {
         async inspect() {
@@ -156,7 +164,7 @@ export const GradleTests: AcceptanceTests = {
       utils,
     ) => async (t) => {
       utils.chdirWorkspaces();
-      const callGraphPayload = require('../fixtures/call-graphs/maven.json');
+      const callGraphPayload = readJSON('../fixtures/call-graphs/maven.json');
       const callGraph = createCallGraph(callGraphPayload);
       const plugin = {
         async inspect() {
@@ -252,7 +260,8 @@ export const GradleTests: AcceptanceTests = {
       t.true(((spyPlugin.args[0] as any)[2] as any).allSubProjects);
 
       let policyCount = 0;
-      params.server.requests
+      params.server
+        .getRequests()
         .filter((r) => r.url === '/api/v1/test-dep-graph?org=')
         .forEach((req) => {
           if (
