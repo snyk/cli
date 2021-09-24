@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 
 import { displayResult } from '../../../../../../src/lib/formatters/test/display-result';
 describe('displayResult', () => {

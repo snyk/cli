@@ -8,7 +8,7 @@ import { makeTmpDirectory, silenceLog } from '../utils';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
 import * as policy from 'snyk-policy';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import * as os from 'os';
 import * as isDocker from '../../src/lib/is-docker';
 

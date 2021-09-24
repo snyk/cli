@@ -2,7 +2,7 @@ import * as policy from 'snyk-policy';
 import { test } from 'tap';
 import * as fs from 'fs';
 import { display } from '../src/lib/display-policy';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { URL } from 'url';
 
 const SNYK_API = process.env.SNYK_API || 'https://snyk.io/api/v1';

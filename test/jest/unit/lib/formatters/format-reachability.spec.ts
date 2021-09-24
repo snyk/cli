@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 
 import {
   formatReachability,

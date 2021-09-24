@@ -1,6 +1,6 @@
 import { test } from 'tap';
 import * as sinon from 'sinon';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import * as isAuthed from '../../src/cli/commands/auth/is-authed';
 import * as errors from '../../src/lib/errors/legacy-errors';
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
