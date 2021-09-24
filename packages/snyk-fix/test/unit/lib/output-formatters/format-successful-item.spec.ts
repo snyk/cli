@@ -1,4 +1,4 @@
-import stripAnsi = require('strip-ansi');
+import stripAnsi from 'strip-ansi';
 import { formatChangesSummary } from '../../../../src/lib/output-formatters/format-successful-item';
 import { FixChangesSummary } from '../../../../src/types';
 import { generateEntityToFix } from '../../../helpers/generate-entity-to-fix';

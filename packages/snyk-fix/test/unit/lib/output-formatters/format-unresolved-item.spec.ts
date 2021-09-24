@@ -1,4 +1,4 @@
-import stripAnsi = require('strip-ansi');
+import stripAnsi from 'strip-ansi';
 import { formatUnresolved } from '../../../../src/lib/output-formatters/format-unresolved-item';
 import { generateEntityToFix } from '../../../helpers/generate-entity-to-fix';
 
