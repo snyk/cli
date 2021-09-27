@@ -25,8 +25,8 @@ export const codePlugin: EcosystemPlugin = {
   },
   async test(paths, options) {
     try {
-      await validateCodeTest(options);
       analytics.add('sast-scan', true);
+      await validateCodeTest(options);
       // Currently code supports only one path
       const path = paths[0];
       const sarifTypedResult = await getCodeAnalysisAndParseResults(
