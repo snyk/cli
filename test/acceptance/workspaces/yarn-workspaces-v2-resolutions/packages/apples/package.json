@@ -1,0 +1,12 @@
+{
+  "name": "apples",
+  "version": "1.0.0",
+  "license": "UNLICENSED",
+  "main": "./src/index.js",
+  "scripts": {
+    "precommit": "lint-staged"
+  },
+  "dependencies": {
+    "node-uuid": "1.0.0"
+  }
+}
