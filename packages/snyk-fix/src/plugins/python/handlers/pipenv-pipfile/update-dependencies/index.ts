@@ -7,10 +7,10 @@ import {
   FixOptions,
 } from '../../../../../types';
 
-import { failIfNoUpdatesApplied } from '../../fail-if-no-updates-applied';
 import { NoFixesCouldBeAppliedError } from '../../../../../lib/errors/no-fixes-applied';
 import { generateUpgrades } from './generate-upgrades';
 import { pipenvAdd } from './pipenv-add';
+import { isSuccessfulChange } from '../../attempted-changes-summary';
 
 const debug = debugLib('snyk-fix:python:Pipfile');
 
@@ -53,11 +53,21 @@ async function fixAll(
       changes.push(...(await pipenvAdd(entity, options, upgrades)));
     }
 
-    failIfNoUpdatesApplied(changes);
-    handlerResult.succeeded.push({
-      original: entity,
-      changes,
-    });
+    if (!changes.length) {
+      throw new NoFixesCouldBeAppliedError();
+    }
+
+    if (!changes.some((c) => isSuccessfulChange(c))) {
+      handlerResult.failed.push({
+        original: entity,
+        changes,
+      });
+    } else {
+      handlerResult.succeeded.push({
+        original: entity,
+        changes,
+      });
+    }
   } catch (error) {
     debug(
       `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,
@@ -102,12 +112,21 @@ async function fixSequentially(
       }
     }
 
-    failIfNoUpdatesApplied(changes);
+    if (!changes.length) {
+      throw new NoFixesCouldBeAppliedError();
+    }
 
-    handlerResult.succeeded.push({
-      original: entity,
-      changes,
-    });
+    if (!changes.some((c) => isSuccessfulChange(c))) {
+      handlerResult.failed.push({
+        original: entity,
+        changes,
+      });
+    } else {
+      handlerResult.succeeded.push({
+        original: entity,
+        changes,
+      });
+    }
   } catch (error) {
     debug(
       `Failed to fix ${entity.scanResult.identity.targetFile}.\nERROR: ${error}`,

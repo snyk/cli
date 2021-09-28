@@ -158,11 +158,28 @@ describe('fix Pipfile Python projects', () => {
           failed: [
             {
               original: entityToFix,
-              error: expect.objectContaining({
-                name: 'NoFixesCouldBeAppliedError',
-              }),
-              tip:
-                'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+              changes: [
+                {
+                  from: 'django@1.6.1',
+                  issueIds: ['vuln-id'],
+                  reason: 'Locking failed',
+                  success: false,
+                  tip:
+                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  to: 'django@2.0.1',
+                  userMessage: 'Failed to upgrade django from 1.6.1 to 2.0.1',
+                },
+                {
+                  from: 'transitive@1.0.0',
+                  issueIds: [],
+                  reason: 'Locking failed',
+                  success: false,
+                  tip:
+                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  to: 'transitive@1.1.1',
+                  userMessage: 'Failed to pin transitive from 1.0.0 to 1.1.1',
+                },
+              ],
             },
           ],
           skipped: [],
@@ -170,7 +187,7 @@ describe('fix Pipfile Python projects', () => {
         },
       },
     });
-    expect(result.fixSummary).toContain('✖ Locking failed');
+    expect(result.fixSummary).toContain('Locking failed');
     expect(result.fixSummary).toContain(
       'Tip:     Try running `pipenv install django==2.0.1 transitive==1.1.1`',
     );
@@ -186,14 +203,13 @@ describe('fix Pipfile Python projects', () => {
   });
 
   it('applies expected changes to Pipfile when install fails', async () => {
+    const err = `SolverProblemError
+
+    Because django (2.6) depends on numpy (>=1.19)and tensorflow (2.2.1) depends on numpy (>=1.16.0,<1.19.0), django (2.6) is incompatible with tensorflow (2.2.1).So, because pillow depends on both tensorflow (2.2.1) and django (2.6), version solving failed`;
     jest.spyOn(pipenvPipfileFix, 'pipenvInstall').mockResolvedValue({
       exitCode: 1,
       stdout: '',
-      stderr: `Updating dependenciesResolving dependencies... (1.1s)
-
-      SolverProblemError
-
-      Because django (2.6) depends on numpy (>=1.19)and tensorflow (2.2.1) depends on numpy (>=1.16.0,<1.19.0), django (2.6) is incompatible with tensorflow (2.2.1).So, because pillow depends on both tensorflow (2.2.1) and django (2.6), version solving failed.`,
+      stderr: err,
       command: 'pipenv install django==2.0.1 transitive==1.1.1',
       duration: 123,
     });
@@ -233,6 +249,7 @@ describe('fix Pipfile Python projects', () => {
       quiet: true,
       stripAnsi: true,
     });
+
     // Assert
     expect(result).toMatchObject({
       exceptions: {},
@@ -241,11 +258,28 @@ describe('fix Pipfile Python projects', () => {
           failed: [
             {
               original: entityToFix,
-              error: expect.objectContaining({
-                name: 'NoFixesCouldBeAppliedError',
-              }),
-              tip:
-                'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+              changes: [
+                {
+                  success: false,
+                  reason: err,
+                  userMessage: 'Failed to upgrade django from 1.6.1 to 2.0.1',
+                  tip:
+                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  issueIds: ['vuln-id'],
+                  from: 'django@1.6.1',
+                  to: 'django@2.0.1',
+                },
+                {
+                  success: false,
+                  reason: err,
+                  userMessage: 'Failed to pin transitive from 1.0.0 to 1.1.1',
+                  tip:
+                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  issueIds: [],
+                  from: 'transitive@1.0.0',
+                  to: 'transitive@1.1.1',
+                },
+              ],
             },
           ],
           skipped: [],
@@ -620,14 +654,14 @@ describe('fix Pipfile Python projects (fix sequentially)', () => {
   });
 
   it('applies expected changes to Pipfile when install fails', async () => {
+    const err = `SolverProblemError
+
+    Because django (2.6) depends on numpy (>=1.19)and tensorflow (2.2.1) depends on numpy (>=1.16.0,<1.19.0), django (2.6) is incompatible with tensorflow (2.2.1).So, because pillow depends on both tensorflow (2.2.1) and django (2.6), version solving failed`;
+
     jest.spyOn(pipenvPipfileFix, 'pipenvInstall').mockResolvedValue({
       exitCode: 1,
       stdout: '',
-      stderr: `Updating dependenciesResolving dependencies... (1.1s)
-
-      SolverProblemError
-
-      Because django (2.6) depends on numpy (>=1.19)and tensorflow (2.2.1) depends on numpy (>=1.16.0,<1.19.0), django (2.6) is incompatible with tensorflow (2.2.1).So, because pillow depends on both tensorflow (2.2.1) and django (2.6), version solving failed.`,
+      stderr: err,
       command: 'pipenv install django==2.0.1 transitive==1.1.1',
       duration: 123,
     });
@@ -676,11 +710,28 @@ describe('fix Pipfile Python projects (fix sequentially)', () => {
           failed: [
             {
               original: entityToFix,
-              error: expect.objectContaining({
-                name: 'NoFixesCouldBeAppliedError',
-              }),
-              tip:
-                'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+              changes: [
+                {
+                  from: 'django@1.6.1',
+                  issueIds: ['vuln-id'],
+                  reason: err,
+                  success: false,
+                  tip:
+                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  to: 'django@2.0.1',
+                  userMessage: 'Failed to upgrade django from 1.6.1 to 2.0.1',
+                },
+                {
+                  from: 'transitive@1.0.0',
+                  issueIds: [],
+                  reason: err,
+                  success: false,
+                  tip:
+                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  to: 'transitive@1.1.1',
+                  userMessage: 'Failed to pin transitive from 1.0.0 to 1.1.1',
+                },
+              ],
             },
           ],
           skipped: [],

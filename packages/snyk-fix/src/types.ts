@@ -202,7 +202,7 @@ export interface WithError<Original> {
   tip?: string;
 }
 
-export interface WithFixChangesApplied<Original> {
+export interface WithAttemptedFixChanges<Original> {
   original: Original;
   changes: FixChangesSummary[];
 }
