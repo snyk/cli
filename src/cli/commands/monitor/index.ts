@@ -15,6 +15,7 @@ import {
   PROJECT_CRITICALITY,
   PROJECT_ENVIRONMENT,
   PROJECT_LIFECYCLE,
+  Tag,
 } from '../../../lib/types';
 import config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
@@ -237,6 +238,7 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
               targetFileRelativePath,
               contributors,
               generateProjectAttributes(options),
+              generateTags(options),
             ),
             spinner.clear(postingMonitorSpinnerLabel),
           );
@@ -368,6 +370,52 @@ function generateProjectAttributes(options: Options): ProjectAttributes {
     ),
     lifecycle: getProjectAttribute('lifecycle', PROJECT_LIFECYCLE, options),
   };
+}
+
+/**
+ * Parse CLI --tags options into an internal data structure.
+ *
+ * If this returns undefined, it means "do not touch the existing tags on the project".
+ *
+ * Anything else means "replace existing tags on the project with this list" even if empty.
+ *
+ * @param options CLI options
+ * @returns List of parsed tags or undefined if they are to be left untouched.
+ */
+function generateTags(options): Tag[] | undefined {
+  if (options.tags === undefined) {
+    return undefined;
+  }
+
+  if (options.tags === '') {
+    return [];
+  }
+
+  // When it's specified without the =, we raise an explicit error to avoid
+  // accidentally clearing the existing tags;
+  if (options.tags === true) {
+    throw new Error(
+      `--tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --tags=`,
+    );
+  }
+
+  const tags: Tag[] = [];
+  const keyEqualsValuePairs = options.tags.split(',');
+
+  for (const keyEqualsValue of keyEqualsValuePairs) {
+    const parts = keyEqualsValue.split('=');
+    if (parts.length !== 2) {
+      throw new Error(
+        `The tag "${keyEqualsValue}" does not have an "=" separating the key and value.`,
+      );
+    }
+    tags.push({
+      key: parts[0],
+      value: parts[1],
+    });
+  }
+
+  return tags;
 }
 
 function validateMonitorPath(path: string, isDocker?: boolean): void {

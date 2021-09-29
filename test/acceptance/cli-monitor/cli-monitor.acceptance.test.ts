@@ -517,6 +517,18 @@ if (!isWindows) {
     ]);
   });
 
+  test('`monitor npm-package with --tags`', async (t) => {
+    chdirWorkspaces();
+    await cli.monitor('npm-package', {
+      tags: 'department=finance,team=outbound-payments',
+    });
+    const req = server.popRequest();
+    t.deepEqual(req.body.tags, [
+      { key: 'department', value: 'finance' },
+      { key: 'team', value: 'outbound-payments' },
+    ]);
+  });
+
   test('`monitor npm-package with custom --remote-repo-url`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-package', {
@@ -714,6 +726,20 @@ if (!isWindows) {
     });
     const req = server.popRequest();
     t.deepEqual(req.body.projectAttributes.criticality, ['high', 'medium']);
+  });
+
+  test('`monitor maven-multi-app with --tags`', async (t) => {
+    chdirWorkspaces();
+    stubExec(t, 'maven-multi-app/mvn-dep-tree-stdout.txt');
+    await cli.monitor('maven-multi-app', {
+      file: 'pom.xml',
+      tags: 'department=finance,team=outbound-payments',
+    });
+    const req = server.popRequest();
+    t.deepEqual(req.body.tags, [
+      { key: 'department', value: 'finance' },
+      { key: 'team', value: 'outbound-payments' },
+    ]);
   });
 
   test('`monitor maven-multi-app with --environment`', async (t) => {

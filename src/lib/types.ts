@@ -86,6 +86,7 @@ export interface Options {
   'group-issues'?: boolean;
   quiet?: boolean;
   'fail-fast'?: boolean;
+  tags?: string;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -122,6 +123,11 @@ export interface MonitorMeta {
   prune: boolean;
   'remote-repo-url'?: string;
   targetReference?: string;
+}
+
+export interface Tag {
+  key: string;
+  value: string;
 }
 
 export interface ProjectAttributes {

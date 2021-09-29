@@ -389,6 +389,29 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
+  test('snyk monitor --tags without an = returns the correct error', async () => {
+    const { code, stdout } = await runSnykCLI(`monitor --tags`, {
+      env,
+    });
+    expect(stdout).toMatch(
+      "--tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --tags=",
+    );
+    expect(code).toEqual(2);
+  });
+
+  test('snyk monitor --tags with an invalid value returns the correct error', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `monitor --tags=invalidAsOnlyAKeyWasSpecified`,
+      {
+        env,
+      },
+    );
+    expect(stdout).toMatch(
+      'The tag "invalidAsOnlyAKeyWasSpecified" does not have an "=" separating the key and value.',
+    );
+    expect(code).toEqual(2);
+  });
+
   const optionsToTest = [
     '--json-file-output',
     '--json-file-output=',

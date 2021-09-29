@@ -18,6 +18,7 @@ import {
   Options,
   Contributor,
   ProjectAttributes,
+  Tag,
 } from '../types';
 import * as projectMetadata from '../project-metadata';
 import {
@@ -92,6 +93,7 @@ export async function monitor(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
   projectAttributes?: ProjectAttributes,
+  tags?: Tag[],
 ): Promise<MonitorResult> {
   apiOrOAuthTokenExists();
 
@@ -109,6 +111,7 @@ export async function monitor(
       targetFileRelativePath,
       contributors,
       projectAttributes,
+      tags,
     );
   }
 
@@ -122,6 +125,7 @@ export async function monitor(
       targetFileRelativePath,
       contributors,
       projectAttributes,
+      tags,
     );
   }
 
@@ -134,6 +138,7 @@ export async function monitor(
     targetFileRelativePath,
     contributors,
     projectAttributes,
+    tags,
   );
 }
 
@@ -146,6 +151,7 @@ async function monitorDepTree(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
   projectAttributes?: ProjectAttributes,
+  tags?: Tag[],
 ): Promise<MonitorResult> {
   let treeMissingDeps: string[] = [];
 
@@ -287,6 +293,7 @@ async function monitorDepTree(
       targetReference: meta.targetReference,
       contributors,
       projectAttributes,
+      tags,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',
@@ -319,6 +326,7 @@ export async function monitorDepGraph(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
   projectAttributes?: ProjectAttributes,
+  tags?: Tag[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
   analytics.add('monitorDepGraph', true);
@@ -434,6 +442,7 @@ export async function monitorDepGraph(
       contributors,
       callGraph: callGraphPayload,
       projectAttributes,
+      tags,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',
@@ -466,6 +475,7 @@ async function monitorDepGraphFromDepTree(
   targetFileRelativePath?: string,
   contributors?: Contributor[],
   projectAttributes?: ProjectAttributes,
+  tags?: Tag[],
 ): Promise<MonitorResult> {
   const packageManager = meta.packageManager;
 
@@ -566,6 +576,7 @@ async function monitorDepGraphFromDepTree(
       targetReference: meta.targetReference,
       contributors,
       projectAttributes,
+      tags,
     } as MonitorBody,
     gzip: true,
     method: 'PUT',
