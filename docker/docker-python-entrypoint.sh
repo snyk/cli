@@ -26,13 +26,16 @@ installPipfileDeps() {
     popd
 }
 
+PROJECT_SUBDIR=""
 echo "Project path = ${PROJECT_PATH}"
 if [ -n "${TARGET_FILE}" ]; then
     if [ ! -f "${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}" ]; then
         exitWithMsg "\"${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}\" does not exist" 2
     fi
 
+    PROJECT_SUBDIR=$(dirname "${TARGET_FILE}")
     MANIFEST_NAME=$(basename "${TARGET_FILE}")
+    TEST_SETTINGS="--file=${MANIFEST_NAME} "
 
     echo "Target file = ${TARGET_FILE}"
 

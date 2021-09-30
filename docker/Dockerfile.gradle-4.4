@@ -12,7 +12,7 @@ RUN apt-get update && \
   unzip gradle-4.4-bin.zip -d /home/node/ && \
   curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
   apt-get install -y nodejs && \
-  npm install --global snyk && \
+  npm install --global snyk snyk-to-html && \
   apt-get autoremove -y && \
   apt-get clean && \
   chmod -R a+wrx /home/node

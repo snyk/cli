@@ -14,7 +14,7 @@ RUN apt-get update && \
   apt-get install -y nodejs && \
   node -v && \
   npm -v && \
-  npm install --global snyk && \
+  npm install --global snyk snyk-to-html && \
   apt-get autoremove -y && \
   apt-get clean && \
   chmod -R a+wrx /home/node

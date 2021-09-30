@@ -24,7 +24,7 @@ RUN apt-get update && \
     echo "-sbt-version  0.13.16" >> /etc/sbt/sbtopts && \
     curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs && \
-    npm install --global snyk && \
+    npm install --global snyk snyk-to-html && \
     apt-get autoremove -y && \
     apt-get clean && \
     chmod -R a+wrx /home/node
