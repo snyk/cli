@@ -9,9 +9,13 @@ import {
   meta,
   policyStub,
   generateScanResults,
+  expectedFormattedResultsGeneratedByCustomRules,
 } from './results-formatter.fixtures';
 import * as cloudConfigParserModule from '@snyk/cloud-config-parser';
-import { PolicyMetadata } from '../../../../src/cli/commands/test/iac-local-execution/types';
+import {
+  EngineType,
+  PolicyMetadata,
+} from '../../../../src/cli/commands/test/iac-local-execution/types';
 
 jest.mock('@snyk/cloud-config-parser', () => ({
   ...jest.requireActual('@snyk/cloud-config-parser'),
@@ -20,24 +24,52 @@ const validTree = { '0': { nodes: [] } };
 describe('formatScanResults', () => {
   it.each([
     [
-      { severityThreshold: SEVERITY.HIGH },
+      {
+        formatOptions: { severityThreshold: SEVERITY.HIGH },
+        generateOptions: {},
+      },
       expectedFormattedResultsWithLineNumber,
     ],
     [
-      { severityThreshold: SEVERITY.HIGH, sarif: true },
+      {
+        formatOptions: { severityThreshold: SEVERITY.HIGH, sarif: true },
+        generateOptions: {},
+      },
       expectedFormattedResultsWithLineNumber,
     ],
     [
-      { severityThreshold: SEVERITY.HIGH, json: true },
+      {
+        formatOptions: { severityThreshold: SEVERITY.HIGH, json: true },
+        generateOptions: {},
+      },
       expectedFormattedResultsWithLineNumber,
     ],
     [
-      { severityThreshold: SEVERITY.HIGH, 'sarif-file-output': 'output.sarif' },
+      {
+        formatOptions: {
+          severityThreshold: SEVERITY.HIGH,
+          'sarif-file-output': 'output.sarif',
+        },
+        generateOptions: {},
+      },
       expectedFormattedResultsWithLineNumber,
     ],
     [
-      { severityThreshold: SEVERITY.HIGH, 'json-file-output': 'output.json' },
+      {
+        formatOptions: {
+          severityThreshold: SEVERITY.HIGH,
+          'json-file-output': 'output.json',
+        },
+        generateOptions: {},
+      },
       expectedFormattedResultsWithLineNumber,
+    ],
+    [
+      {
+        formatOptions: { severityThreshold: SEVERITY.HIGH },
+        generateOptions: { engineType: EngineType.Custom },
+      },
+      expectedFormattedResultsGeneratedByCustomRules,
     ],
   ])(
     'given %p options object, returns the expected results',
@@ -47,8 +79,8 @@ describe('formatScanResults', () => {
         .mockReturnValue(validTree);
       jest.spyOn(cloudConfigParserModule, 'getLineNumber').mockReturnValue(3);
       const formattedResults = formatScanResults(
-        generateScanResults(),
-        optionsObject,
+        generateScanResults(optionsObject.generateOptions),
+        optionsObject.formatOptions,
         meta,
       );
 

@@ -1,5 +1,6 @@
 import { FormattedResult } from './types';
 import * as analytics from '../../../../lib/analytics';
+import { calculatePercentage } from './math-utils';
 
 export function addIacAnalytics(
   formattedResults: FormattedResult[],
@@ -7,12 +8,15 @@ export function addIacAnalytics(
   ignoredIssuesCount: number,
 ) {
   let totalIssuesCount = 0;
+  const customRulesIdsFoundInIssues: { [customRuleId: string]: true } = {};
+  let issuesFromCustomRulesCount = 0;
   const issuesByType: Record<string, object> = {};
   const packageManagers = Array<string>();
 
   formattedResults.forEach((res) => {
     totalIssuesCount =
       (totalIssuesCount || 0) + res.result.cloudConfigResults.length;
+
     const packageManagerConfig = res.packageManager;
     packageManagers.push(packageManagerConfig);
 
@@ -21,8 +25,17 @@ export function addIacAnalytics(
         issuesByType[packageManagerConfig] ?? {};
       issuesByType[packageManagerConfig][policy.severity] =
         (issuesByType[packageManagerConfig][policy.severity] || 0) + 1;
+
+      if (policy.isGeneratedByCustomRule) {
+        issuesFromCustomRulesCount++;
+        customRulesIdsFoundInIssues[policy.publicId] = true;
+      }
     });
   });
+
+  const uniqueCustomRulesCount: number = Object.keys(
+    customRulesIdsFoundInIssues,
+  ).length;
 
   analytics.add('packageManager', Array.from(new Set(packageManagers)));
   analytics.add('iac-issues-count', totalIssuesCount);
@@ -30,6 +43,12 @@ export function addIacAnalytics(
   analytics.add('iac-type', issuesByType);
   analytics.add('iac-metrics', performanceAnalyticsObject);
   analytics.add('iac-test-count', formattedResults.length);
+  analytics.add('iac-custom-rules-issues-count', issuesFromCustomRulesCount);
+  analytics.add(
+    'iac-custom-rules-issues-percentage',
+    calculatePercentage(issuesFromCustomRulesCount, totalIssuesCount),
+  );
+  analytics.add('iac-custom-rules-coverage-count', uniqueCustomRulesCount);
 }
 
 export enum PerformanceAnalyticsKey {

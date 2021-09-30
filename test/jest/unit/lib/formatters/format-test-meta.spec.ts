@@ -21,7 +21,9 @@ describe('formatTestMeta', () => {
         policy: '',
       },
       result: {
-        cloudConfigResults: generateCloudConfigResults(false),
+        cloudConfigResults: generateCloudConfigResults({
+          withLineNumber: false,
+        }),
         projectType: 'k8sconfig',
       },
       ok: true,
