@@ -17,7 +17,7 @@ import { jsonStringifyLargeObject } from '../../../../src/lib/json';
 import { ArgsOptions } from '../../../../src/cli/args';
 
 const { getCodeAnalysisAndParseResults } = analysis;
-const osName = require('os-name');
+import osName = require('os-name');
 
 describe('Test snyk code', () => {
   let apiUserConfig;
@@ -211,6 +211,17 @@ describe('Test snyk code', () => {
       'userMessage',
       'Snyk Code is not supported for org: enable in Settings > Snyk Code',
     );
+  });
+
+  it('should show org not found error according to response from api', async () => {
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      code: 404,
+      userMessage: 'error from api: org not found',
+    });
+
+    await expect(
+      snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
+    ).rejects.toHaveProperty('userMessage', 'error from api: org not found');
   });
 
   it('should show error if limit is reached', async () => {
