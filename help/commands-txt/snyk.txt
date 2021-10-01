@@ -141,10 +141,10 @@
               Specify a custom Snyk project name.
 
        [1m-[0m[1m-[0m[1mt[0m[1ma[0m[1mr[0m[1mg[0m[1me[0m[1mt[0m[1m-[0m[1mr[0m[1me[0m[1mf[0m[1me[0m[1mr[0m[1me[0m[1mn[0m[1mc[0m[1me[0m=[4mT[0m[4mA[0m[4mR[0m[4mG[0m[4mE[0m[4mT[0m[1m_[0m[4mR[0m[4mE[0m[4mF[0m[4mE[0m[4mR[0m[4mE[0m[4mN[0m[4mC[0m[4mE[0m
-              (only in [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m command) A reference to separate  this  project
-              from other scans of the same project. For example, a branch name
-              or version. Projects using the same reference can  be  used  for
-              grouping. More information [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mi[0m[4mn[0m[4mf[0m[4mo[0m[4m/[0m[4m3[0m[4mB[0m[4m0[0m[4mv[0m[4mT[0m[4mP[0m[4ms[0m.
+              A reference to separate this project from  other  scans  of  the
+              same  project.  For  example, a branch name or version. Projects
+              using the same reference can be used for grouping. More informa-
+              tion [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mi[0m[4mn[0m[4mf[0m[4mo[0m[4m/[0m[4m3[0m[4mB[0m[4m0[0m[4mv[0m[4mT[0m[4mP[0m[4ms[0m.
 
        [1m-[0m[1m-[0m[1mp[0m[1mr[0m[1mo[0m[1mj[0m[1me[0m[1mc[0m[1mt[0m[1m-[0m[1me[0m[1mn[0m[1mv[0m[1mi[0m[1mr[0m[1mo[0m[1mn[0m[1mm[0m[1me[0m[1mn[0m[1mt[0m=[4mE[0m[4mN[0m[4mV[0m[4mI[0m[4mR[0m[4mO[0m[4mN[0m[4mM[0m[4mE[0m[4mN[0m[4mT[0m[,[4mE[0m[4mN[0m[4mV[0m[4mI[0m[4mR[0m[4mO[0m[4mN[0m[4mM[0m[4mE[0m[4mN[0m[4mT[0m]...>
               (only  in [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m command) Set the project environment to one or

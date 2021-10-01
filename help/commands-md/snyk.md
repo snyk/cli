@@ -124,7 +124,6 @@ For advanced usage, we offer language and context specific flags, listed further
   Specify a custom Snyk project name.
 
 - `--target-reference`=<TARGET_REFERENCE>:
-  (only in `monitor` command)
   A reference to separate this project from other scans of the same project. For example, a branch name or version. Projects using the same reference can be used for grouping. [More information](https://snyk.info/3B0vTPs).
 
 - `--project-environment`=<ENVIRONMENT>[,<ENVIRONMENT>]...>:
