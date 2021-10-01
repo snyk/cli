@@ -1,0 +1,20 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": "^10.11.0",
+    "yarn": "1.10.1"
+  },
+  "devDependencies": {
+    "wsrun": "^3.6.2"
+  },
+  "dependencies": {
+    "node-fetch": "^2.3.0"
+  },
+  "resolutions": {
+    "node-uuid": "1.3.0"
+  },
+  "packageManager": "yarn@2.4.3"
+}

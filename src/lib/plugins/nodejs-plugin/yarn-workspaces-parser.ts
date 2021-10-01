@@ -66,6 +66,7 @@ export async function processYarnWorkspaces(
     },
     scannedProjects: [],
   };
+  let rootWorkspaceManifestContent = {};
   // the folders must be ordered highest first
   for (const directory of Object.keys(yarnTargetFiles)) {
     let isYarnWorkspacePackage = false;
@@ -92,6 +93,7 @@ export async function processYarnWorkspaces(
       }
       if (packageJsonFileName === workspaceRoot) {
         isRootPackageJson = true;
+        rootWorkspaceManifestContent = JSON.parse(packageJson.content);
       }
     }
 
@@ -100,8 +102,20 @@ export async function processYarnWorkspaces(
         ? path.dirname(yarnWorkspacesFilesMap[packageJsonFileName].root)
         : path.dirname(packageJsonFileName);
       const rootYarnLockfileName = path.join(rootDir, 'yarn.lock');
-
       const yarnLock = await getFileContents(root, rootYarnLockfileName);
+
+      if (
+        rootWorkspaceManifestContent.hasOwnProperty('resolutions') &&
+        lockFileParser.getYarnLockfileType(yarnLock.content) ===
+          lockFileParser.LockfileType.yarn2
+      ) {
+        const parsedManifestContent = JSON.parse(packageJson.content);
+        packageJson.content = JSON.stringify({
+          ...parsedManifestContent,
+          resolutions: rootWorkspaceManifestContent['resolutions'],
+        });
+      }
+
       const res = await lockFileParser.buildDepTree(
         packageJson.content,
         yarnLock.content,
