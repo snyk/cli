@@ -10,6 +10,7 @@ export interface PayloadBody {
   policy?: string;
   targetFile?: string;
   targetFileRelativePath?: string;
+  targetReference?: string;
   projectNameOverride?: string;
   hasDevDependencies?: boolean;
   originalProjectName?: string; // used only for display
