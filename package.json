@@ -133,7 +133,7 @@
     "snyk-resolve-deps": "4.7.3",
     "snyk-sbt-plugin": "2.11.4",
     "snyk-try-require": "^2.0.2",
-    "strip-ansi": "^5.2.0",
+    "strip-ansi": "^6.0.1",
     "tar": "^6.1.2",
     "tempy": "^1.0.1",
     "uuid": "^8.3.2",
