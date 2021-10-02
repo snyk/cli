@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 import * as pathLib from 'path';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 
 import { fakeServer } from '../../../../../acceptance/fake-server';
 

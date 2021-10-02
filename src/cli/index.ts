@@ -31,7 +31,7 @@ import {
   NoSupportedSastFiles,
 } from '../lib/errors';
 import { IaCErrorCodes } from './commands/test/iac-local-execution/types';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 import { ExcludeFlagInvalidInputError } from '../lib/errors/exclude-flag-invalid-input';
 import { modeValidation } from './modes';
 import { JsonFileOutputBadInputError } from '../lib/errors/json-file-output-bad-input-error';

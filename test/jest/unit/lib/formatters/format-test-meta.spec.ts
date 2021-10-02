@@ -1,4 +1,4 @@
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 
 import { formatTestMeta } from '../../../../../src/lib/formatters/format-test-meta';
 import { IacTestResponse } from '../../../../../src/lib/snyk-test/iac-test-result';

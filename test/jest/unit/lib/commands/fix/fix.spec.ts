@@ -7,7 +7,7 @@ import * as snyk from '../../../../../../src/lib';
 import * as featureFlags from '../../../../../../src/lib/feature-flags';
 import * as analytics from '../../../../../../src/lib/analytics';
 
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 
 const testTimeout = 100000;
 

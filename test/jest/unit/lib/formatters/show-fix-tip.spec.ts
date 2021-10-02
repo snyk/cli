@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { showFixTip } from '../../../../../src/lib/formatters/show-fix-tip';
 import { SupportedProjectTypes } from '../../../../../src/lib/types';
-import stripAnsi from 'strip-ansi';
+import stripAnsi = require('strip-ansi');
 
 describe('showFixTip', () => {
   test.each(['yarn', 'npm'])('%p shows `snyk wizard` tip', (p) => {
