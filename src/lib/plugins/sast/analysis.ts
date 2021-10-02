@@ -59,7 +59,10 @@ async function getCodeAnalysis(
     fileOptions: { paths: [root] },
   });
 
-  return result?.analysisResults.sarif || null;
+  if (result?.analysisResults.type === 'sarif') {
+    return result.analysisResults.sarif;
+  }
+  return null;
 }
 
 function severityToAnalysisSeverity(severity: SEVERITY): AnalysisSeverity {

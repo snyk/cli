@@ -37,6 +37,8 @@ export async function fix(
   meta: FixedMeta;
   fixSummary: string;
 }> {
+  debug('Running snyk fix with options:', options);
+
   const spinner = ora({ isSilent: options.quiet, stream: process.stdout });
 
   let resultsByPlugin: FixHandlerResultByPlugin = {};

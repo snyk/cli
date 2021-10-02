@@ -319,6 +319,45 @@ describe('generateUnresolvedSummary', () => {
     expect(stripAnsi(res.summary)).toMatchSnapshot();
     expect(res.count).toEqual(1);
   });
+
+  it('has f100% ailed upgrades', async () => {
+    const entity = generateEntityToFix(
+      'pip',
+      'requirements.txt',
+      JSON.stringify({}),
+    );
+    const resultsByPlugin: FixHandlerResultByPlugin = {
+      python: {
+        succeeded: [],
+        failed: [
+          {
+            original: entity,
+            changes: [
+              {
+                success: false,
+                userMessage: 'Failed to upgrade Django from 1.6.1 to 2.0.1',
+                reason: 'Version not compatible',
+                tip: 'Apply the changes manually',
+                issueIds: ['vuln-2'],
+              },
+              {
+                success: false,
+                reason: 'Version not compatible',
+                userMessage: 'Failed to upgrade transitive from 6.1.0 to 6.2.1',
+                tip: 'Apply the changes manually',
+                issueIds: ['vuln-1'],
+              },
+            ],
+          },
+        ],
+        skipped: [],
+      },
+    };
+
+    const res = await generateUnresolvedSummary(resultsByPlugin, {});
+    expect(stripAnsi(res.summary)).toMatchSnapshot();
+    expect(res.count).toEqual(1);
+  });
 });
 
 describe('formatIssueCountBySeverity', () => {

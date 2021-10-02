@@ -334,6 +334,16 @@ describe('snyk fix (functional tests)', () => {
                 ),
                 tip: 'Try running `pipenv install x==2.6 transitive==1.1.1',
               },
+              {
+                original: [],
+                changes: [
+                  {
+                    success: false,
+                    userMessage: 'Failed ot upgrade x to y',
+                    reason: 'Incompatible dependencies',
+                  },
+                ],
+              },
             ],
             skipped: [],
             succeeded: [],
@@ -383,7 +393,15 @@ describe('snyk fix (functional tests)', () => {
       );
 
       expect(addAnalyticsSpy).toHaveBeenCalledWith('snykFixErrors', {
-        python: ['SolverProblemError Because x (2.6) depends on y (>=1.19)'],
+        python: [
+          'SolverProblemError Because x (2.6) depends on y (>=1.19)',
+
+          JSON.stringify({
+            success: false,
+            userMessage: 'Failed ot upgrade x to y',
+            reason: 'Incompatible dependencies',
+          }),
+        ],
       });
 
       expect(snykFixSpy).toHaveBeenCalledTimes(1);

@@ -177,9 +177,9 @@ export const ComposerTests: AcceptanceTests = {
         org: 'test-org',
       });
       // assert three API calls made
-      const reqs = params.server.requests.filter(
-        (r) => r.url === '/api/v1/test-dep-graph?org=test-org',
-      );
+      const reqs = params.server
+        .getRequests()
+        .filter((r) => r.url === '/api/v1/test-dep-graph?org=test-org');
 
       t.same(
         reqs.map((r) => r.method),

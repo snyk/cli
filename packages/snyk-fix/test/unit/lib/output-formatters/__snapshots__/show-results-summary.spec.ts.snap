@@ -88,6 +88,20 @@ exports[`generateSuccessfulFixesSummary has fixed & failed 1`] = `
   Tip:     Apply the changes manually"
 `;
 
+exports[`generateUnresolvedSummary has f100% ailed upgrades 1`] = `
+"
+
+Unresolved items:
+
+  requirements.txt
+  x Failed to upgrade Django from 1.6.1 to 2.0.1
+  Reason:  Version not compatible.
+  Tip:     Apply the changes manually
+  x Failed to upgrade transitive from 6.1.0 to 6.2.1
+  Reason:  Version not compatible.
+  Tip:     Apply the changes manually"
+`;
+
 exports[`generateUnresolvedSummary has failed upgrades & unsupported 1`] = `
 "
 

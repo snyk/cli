@@ -203,6 +203,52 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         'no vulnerable paths found as both policies detected and applied.',
       );
     },
+    'test --yarn-workspaces --detection-depth=5 --strict-out-of-sync=false (yarn v2 with resolutions)': (
+      params,
+      utils,
+    ) => async (t) => {
+      // Yarn workspaces for Yarn 2 is only supported on Node 10+
+      utils.chdirWorkspaces();
+      const result = await params.cli.test('yarn-workspaces-v2-resolutions', {
+        yarnWorkspaces: true,
+        detectionDepth: 5,
+        strictOutOfSync: false,
+        printDeps: true,
+      });
+      const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      // the parser is used directly
+      t.ok(loadPlugin.withArgs('yarn').notCalled, 'skips load plugin');
+      t.teardown(() => {
+        loadPlugin.restore();
+      });
+      console.log(result.getDisplayResults());
+      t.match(
+        result.getDisplayResults(),
+        '✔ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
+        'correctly showing dep number',
+      );
+      t.match(result.getDisplayResults(), 'Package manager:   yarn\n');
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      package.json',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      tomatoes',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      apples',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Tested 3 projects, no vulnerable paths were found.',
+        'no vulnerable paths found as both policies detected and applied.',
+      );
+    },
     'test --yarn-workspaces --detection-depth=5 multiple workspaces found': (
       params,
       utils,
@@ -240,11 +286,10 @@ export const YarnWorkspacesTests: AcceptanceTests = {
         'Project name:      apples',
         'yarn project in output',
       );
-      console.log(result.getDisplayResults());
       t.match(
         result.getDisplayResults(),
-        'Tested 10 projects, no vulnerable paths were found.',
-        'Tested 10 projects',
+        'Tested 13 projects, no vulnerable paths were found.',
+        'Tested 13 projects',
       );
       let policyCount = 0;
       const applesWorkspace =

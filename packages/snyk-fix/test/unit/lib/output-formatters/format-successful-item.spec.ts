@@ -1,5 +1,5 @@
 import stripAnsi = require('strip-ansi');
-import { formatChangesSummary } from '../../../../src/lib/output-formatters/format-successful-item';
+import { formatChangesSummary } from '../../../../src/lib/output-formatters/format-with-changes-item';
 import { FixChangesSummary } from '../../../../src/types';
 import { generateEntityToFix } from '../../../helpers/generate-entity-to-fix';
 

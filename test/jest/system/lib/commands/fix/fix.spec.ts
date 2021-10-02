@@ -1,165 +1,102 @@
-import { exec } from 'child_process';
-import * as pathLib from 'path';
-import stripAnsi = require('strip-ansi');
-
 import { fakeServer } from '../../../../../acceptance/fake-server';
+import { runSnykCLI } from '../../../../util/runSnykCLI';
+import { createProjectFromWorkspace } from '../../../../util/createProject';
 
+jest.setTimeout(1000 * 60);
 describe('snyk fix (system tests)', () => {
-  const main = './bin/snyk'.replace(/\//g, pathLib.sep);
-  const testTimeout = 50000;
+  let server: ReturnType<typeof fakeServer>;
+  let env: Record<string, string>;
 
-  const apiKey = '123456789';
-  const port = process.env.PORT || process.env.SNYK_PORT || '12345';
-  const BASE_API = '/api/v1';
-  const SNYK_API = 'http://localhost:' + port + BASE_API;
-  const SNYK_HOST = 'http://localhost:' + port;
+  beforeAll((done) => {
+    const apiPath = '/api/v1';
+    const apiPort = process.env.PORT || process.env.SNYK_PORT || '12345';
+    env = {
+      ...process.env,
+      SNYK_API: 'http://localhost:' + apiPort + apiPath,
+      SNYK_OAUTH_TOKEN: 'oauth-jwt-token',
+      SNYK_DISABLE_ANALYTICS: '1',
+    };
 
-  const server = fakeServer(BASE_API, apiKey);
+    server = fakeServer(apiPath, env.SNYK_TOKEN);
+    server.listen(apiPort, () => done());
+  });
 
-  const noVulnsProjectPath = pathLib.join(
-    __dirname,
-    '/acceptance',
-    'workspaces',
-    'no-vulns',
-  );
-
-  const env = {
-    ...process.env,
-    SNYK_TOKEN: apiKey,
-    SNYK_API,
-    SNYK_HOST,
-  };
-
-  beforeAll(async () => {
-    await new Promise((resolve) => {
-      server.listen(port, resolve);
-    });
+  afterEach(() => {
+    server.restore();
   });
 
   afterAll((done) => {
     server.close(() => done());
   });
 
-  it(
-    '`errors when FF is not enabled`',
-    (done) => {
-      exec(
-        `node ${main} fix --org=no-flag`,
-        {
-          env,
-        },
-        (err, stdout, stderr) => {
-          if (!err) {
-            throw new Error('Test expected to return an error');
-          }
-          expect(stderr).toBe('');
-          expect(err.message).toMatch('Command failed');
-          expect(err.code).toEqual(2);
-          expect(stdout).toMatch(
-            "`snyk fix` is not supported for org 'no-flag'.\nSee documentation on how to enable this beta feature: https://support.snyk.io/hc/en-us/articles/4403417279505-Automatic-remediation-with-snyk-fix",
-          );
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
+  it('succeeds when there are no vulns to fix', async () => {
+    const project = await createProjectFromWorkspace('no-vulns');
+    const { code, stdout, stderr } = await runSnykCLI('fix', {
+      cwd: project.path(),
+      env,
+    });
+    expect(code).toBe(0);
+    expect(stdout).toMatch('No vulnerable items to fix');
+    expect(stderr).toBe('');
+  });
 
-  it(
-    '`shows error when called with --unmanaged`',
-    (done) => {
-      exec(
-        `node ${main} fix --unmanaged`,
-        {
-          env,
-        },
-        (err, stdout, stderr) => {
-          if (!err) {
-            throw new Error('Test expected to return an error');
-          }
-          expect(stderr).toBe('');
-          expect(err.message).toMatch('Command failed');
-          expect(err.code).toEqual(2);
-          expect(stdout).toMatch(
-            "`snyk fix` is not supported for ecosystem 'cpp'",
-          );
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
+  it('fails when FF is not enabled', async () => {
+    const project = await createProjectFromWorkspace('no-vulns');
+    const { code, stdout, stderr } = await runSnykCLI('fix --org=no-flag', {
+      cwd: project.path(),
+      env,
+    });
+    expect(code).toEqual(2);
+    expect(stdout).toMatch(
+      "`snyk fix` is not supported for org 'no-flag'.\nSee documentation on how to enable this beta feature: https://support.snyk.io/hc/en-us/articles/4403417279505-Automatic-remediation-with-snyk-fix",
+    );
+    expect(stderr).toBe('');
+  });
 
-  it(
-    '`shows error when called with --docker (deprecated)`',
-    (done) => {
-      exec(
-        `node ${main} fix --docker`,
-        {
-          env,
-        },
-        (err, stdout, stderr) => {
-          if (!err) {
-            throw new Error('Test expected to return an error');
-          }
-          expect(stderr).toBe('');
-          expect(err.message).toMatch('Command failed');
-          expect(err.code).toEqual(2);
-          expect(stdout).toMatch(
-            "`snyk fix` is not supported for ecosystem 'docker'",
-          );
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
+  it('fails when called with --unmanaged', async () => {
+    const project = await createProjectFromWorkspace('no-vulns');
+    const { code, stdout, stderr } = await runSnykCLI('fix --unmanaged', {
+      cwd: project.path(),
+      env,
+    });
+    expect(code).toEqual(2);
+    expect(stdout).toMatch("`snyk fix` is not supported for ecosystem 'cpp'");
+    expect(stderr).toBe('');
+  });
 
-  it(
-    '`shows error when called with --code`',
-    (done) => {
-      exec(
-        `node ${main} fix --code`,
-        {
-          env,
-        },
-        (err, stdout, stderr) => {
-          if (!err) {
-            throw new Error('Test expected to return an error');
-          }
-          expect(stderr).toBe('');
-          expect(err.message).toMatch('Command failed');
-          expect(err.code).toEqual(2);
-          expect(stdout).toMatch(
-            "`snyk fix` is not supported for ecosystem 'code'",
-          );
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
+  it('fails when called with --docker (deprecated)', async () => {
+    const project = await createProjectFromWorkspace('no-vulns');
+    const { code, stdout, stderr } = await runSnykCLI('fix --docker', {
+      cwd: project.path(),
+      env,
+    });
+    expect(code).toEqual(2);
+    expect(stdout).toMatch(
+      "`snyk fix` is not supported for ecosystem 'docker'",
+    );
+    expect(stderr).toBe('');
+  });
 
-  it(
-    '`shows expected response when nothing could be fixed + returns exit code 2`',
-    (done) => {
-      exec(
-        `node ${main} fix ${noVulnsProjectPath}`,
-        {
-          env,
-        },
-        (err, stdout, stderr) => {
-          if (!err) {
-            throw new Error('Test expected to return an error');
-          }
-          expect(stderr).toBe('');
-          expect(stripAnsi(stdout)).toMatch('No successful fixes');
-          expect(err.message).toMatch('Command failed');
-          expect(err.code).toBe(2);
-          done();
-        },
-      );
-    },
-    testTimeout,
-  );
+  it('fails when called with --code', async () => {
+    const project = await createProjectFromWorkspace('no-vulns');
+    const { code, stdout, stderr } = await runSnykCLI('fix --code', {
+      cwd: project.path(),
+      env,
+    });
+    expect(code).toEqual(2);
+    expect(stdout).toMatch("`snyk fix` is not supported for ecosystem 'code'");
+    expect(stderr).toBe('');
+  });
+
+  it('fails when api requests fail', async () => {
+    const project = await createProjectFromWorkspace('no-vulns');
+    server.setNextStatusCode(500);
+    const { code, stdout, stderr } = await runSnykCLI('fix', {
+      cwd: project.path(),
+      env,
+    });
+    expect(code).toBe(2);
+    expect(stdout).toMatch('No successful fixes');
+    expect(stderr).toBe('');
+  });
 });

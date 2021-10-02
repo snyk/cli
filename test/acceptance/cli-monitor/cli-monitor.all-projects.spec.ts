@@ -1,6 +1,6 @@
 import * as sinon from 'sinon';
-const get = require('lodash.get');
-const isObject = require('lodash.isobject');
+import * as get from 'lodash.get';
+import * as isObject from 'lodash.isobject';
 import * as path from 'path';
 import * as depGraphLib from '@snyk/dep-graph';
 
@@ -23,9 +23,9 @@ export const AllProjectsTests: AcceptanceTests = {
         allProjects: true,
         detectionDepth: 2,
       });
-      const requests = params.server.requests.filter((req) =>
-        req.url.includes('/monitor/'),
-      );
+      const requests = params.server
+        .getRequests()
+        .filter((req) => req.url.includes('/monitor/'));
       let policyCount = 0;
       requests.forEach((req) => {
         const vulnerableFolderPath =
@@ -91,9 +91,9 @@ export const AllProjectsTests: AcceptanceTests = {
       t.match(result, 'pip/some/project-id', 'python project in output ');
       t.match(result, 'sbt/graph/some/project-id', 'sbt project in output ');
 
-      const requests = params.server.requests.filter((req) =>
-        req.url.includes('/monitor/'),
-      );
+      const requests = params.server
+        .getRequests()
+        .filter((req) => req.url.includes('/monitor/'));
       t.equal(requests.length, 7, 'correct amount of monitor requests');
 
       const pluginsWithoutTargetFileInBody = [
@@ -237,9 +237,9 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 1,
       });
 
-      const requests = params.server.requests.filter((req) =>
-        req.url.includes('/monitor/'),
-      );
+      const requests = params.server
+        .getRequests()
+        .filter((req) => req.url.includes('/monitor/'));
       // find each type of request
       const rubyAll = requests.find((req) => req.url.indexOf('rubygems') > -1);
       const pipAll = requests.find((req) => req.url.indexOf('pip') > -1);
@@ -488,7 +488,9 @@ export const AllProjectsTests: AcceptanceTests = {
         npmAll,
         packageConfigAll,
         paketAll,
-      ] = params.server.requests.filter((req) => req.url.includes('/monitor/'));
+      ] = params.server
+        .getRequests()
+        .filter((req) => req.url.includes('/monitor/'));
 
       params.server.restore();
       await params.cli.monitor('monorepo-with-nuget', {
@@ -698,9 +700,9 @@ export const AllProjectsTests: AcceptanceTests = {
         'vendor project was monitored',
       );
 
-      const requests = params.server.requests.filter((req) =>
-        req.url.includes('/monitor/'),
-      );
+      const requests = params.server
+        .getRequests()
+        .filter((req) => req.url.includes('/monitor/'));
       t.equal(requests.length, 4, 'correct amount of monitor requests');
 
       requests.forEach((req) => {
@@ -798,9 +800,9 @@ export const AllProjectsTests: AcceptanceTests = {
         'gradle project was monitored',
       );
 
-      const requests = params.server.requests.filter((req) =>
-        req.url.includes('/monitor/'),
-      );
+      const requests = params.server
+        .getRequests()
+        .filter((req) => req.url.includes('/monitor/'));
       t.equal(requests.length, 3, 'correct amount of monitor requests');
       requests.forEach((req) => {
         t.match(
@@ -901,9 +903,9 @@ export const AllProjectsTests: AcceptanceTests = {
         'rubygems project was monitored',
       );
 
-      const requests = params.server.requests.filter((req) =>
-        req.url.includes('/monitor/'),
-      );
+      const requests = params.server
+        .getRequests()
+        .filter((req) => req.url.includes('/monitor/'));
       t.equal(requests.length, 3, 'correct amount of monitor requests');
       requests.forEach((req) => {
         t.match(

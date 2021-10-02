@@ -1,7 +1,9 @@
 #!/bin/bash
 
 OUTPUT_FILE=snyk-result.json
+MONITOR_OUTPUT_FILE=snyk-monitor-result.json
 ERROR_FILE=snyk-error.log
+HTML_FILE=snyk_report.html
 SNYK_COMMAND="$1"
 SNYK_PARAMS="${@:2}"
 ADDITIONAL_ENV=""
@@ -36,6 +38,25 @@ exitWithMsg() {
   exit "$2"
 }
 
+TEST_SETTINGS=""
+PROJECT_SUBDIR=""
+
+if [ -n "${TARGET_FILE}" ]; then
+  if [ ! -f "${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}" ]; then
+    exitWithMsg "\"${PROJECT_PATH}/${PROJECT_FOLDER}/${TARGET_FILE}\" does not exist" 2
+  fi
+
+  PROJECT_SUBDIR=$(dirname "${TARGET_FILE}")
+  MANIFEST_NAME=$(basename "${TARGET_FILE}")
+  TEST_SETTINGS="--file=${MANIFEST_NAME} "
+fi
+
+if [ -n "${ORGANIZATION}" ]; then
+  TEST_SETTINGS="${TEST_SETTINGS} --org=${ORGANIZATION}"
+fi
+
+SNYK_PARAMS="${SNYK_PARAMS} ${TEST_SETTINGS}"
+
 if [ -z "${SNYK_TOKEN}" ]; then
   exitWithMsg "Missing \${SNYK_TOKEN}" 2
 fi
@@ -55,3 +76,20 @@ RC=$?
 if [ "$RC" -ne "0" ] && [ "$RC" -ne "1" ]; then
   exitWithMsg "${OUTPUT_FILE}" "$RC"
 fi
+
+runCmdAsDockerUser "touch \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\""
+
+if [ -n "$MONITOR" ]; then
+  echo "Monitoring & generating report ..."
+  runCmdAsDockerUser "PATH=$PATH snyk monitor --json ${SNYK_PARAMS} ${ADDITIONAL_ENV} > ${MONITOR_OUTPUT_FILE} 2>$ERROR_FILE"
+fi
+
+runCmdAsDockerUser "cat \"${OUTPUT_FILE}\" | snyk-to-html >> \"${PROJECT_PATH}/${PROJECT_FOLDER}/${HTML_FILE}\""
+
+if [ $RC -ne "0" ]; then
+  exitWithMsg "${OUTPUT_FILE}" "$RC"
+fi
+
+cat "${OUTPUT_FILE}"
+
+exit "$RC"

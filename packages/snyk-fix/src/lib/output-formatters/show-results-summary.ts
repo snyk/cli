@@ -10,11 +10,11 @@ import {
   TestResult,
 } from '../../types';
 import { contactSupportMessage, reTryMessage } from '../errors/common';
-import { convertErrorToUserMessage } from '../errors/error-to-user-message';
 import { hasFixableIssues } from '../issues/fixable-issues';
 import { getIssueCountBySeverity } from '../issues/issues-by-severity';
 import { getTotalIssueCount } from '../issues/total-issues-count';
-import { formatChangesSummary } from './format-successful-item';
+import { formatFailed } from './format-failed-item';
+import { formatChangesSummary } from './format-with-changes-item';
 import { formatUnresolved } from './format-unresolved-item';
 export const PADDING_SPACE = '  '; // 2 spaces
 
@@ -109,17 +109,7 @@ export function generateUnresolvedSummary(
     const failed = resultsByPlugin[plugin].failed;
     if (failed.length > 0) {
       count += failed.length;
-      summary +=
-        '\n\n' +
-        failed
-          .map((s) =>
-            formatUnresolved(
-              s.original,
-              convertErrorToUserMessage(s.error),
-              s.tip,
-            ),
-          )
-          .join('\n\n');
+      summary += '\n\n' + failed.map((s) => formatFailed(s)).join('\n\n');
     }
   }
 
