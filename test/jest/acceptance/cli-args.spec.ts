@@ -278,7 +278,7 @@ describe('cli args', () => {
     });
   });
 
-  test('snyk monitor --business-criticality without an = returns the correct error', async () => {
+  test('project attributes are implemented (--business-criticality, --lifecycle, --environment)', async () => {
     const { code, stdout } = await runSnykCLI(
       `monitor --business-criticality`,
       {
@@ -291,123 +291,12 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
-  test('snyk monitor --business-criticality with a single invalid value returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `monitor --business-criticality=high,invalid`,
-      {
-        env,
-      },
-    );
-    expect(stdout).toMatch(
-      '1 invalid business-criticality: invalid. Possible values are: critical, high, medium, low',
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --business-criticality with a multiple invalid values returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `monitor --business-criticality=invalid1,invalid2`,
-      {
-        env,
-      },
-    );
-    expect(stdout).toMatch(
-      '2 invalid business-criticality: invalid1, invalid2. Possible values are: critical, high, medium, low',
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --environment without an = returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(`monitor --environment`, {
-      env,
-    });
-    expect(stdout).toMatch(
-      "--environment must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --environment=",
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --environment with an invalid value returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `monitor --environment=frontend,invalid`,
-      {
-        env,
-      },
-    );
-    expect(stdout).toMatch(
-      '1 invalid environment: invalid. Possible values are: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed',
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --environment with a multiple invalid values returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `monitor --environment=invalid1,invalid2`,
-      {
-        env,
-      },
-    );
-    expect(stdout).toMatch(
-      '2 invalid environment: invalid1, invalid2. Possible values are: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed',
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --lifecycle without an = returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(`monitor --lifecycle`, {
-      env,
-    });
-    expect(stdout).toMatch(
-      "--lifecycle must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --lifecycle=",
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --lifecycle with an invalid value returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `monitor --lifecycle=production,invalid`,
-      {
-        env,
-      },
-    );
-    expect(stdout).toMatch(
-      '1 invalid lifecycle: invalid. Possible values are: production, development, sandbox',
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --lifecycle with a multiple invalid values returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `monitor --lifecycle=invalid1,invalid2`,
-      {
-        env,
-      },
-    );
-    expect(stdout).toMatch(
-      '2 invalid lifecycle: invalid1, invalid2. Possible values are: production, development, sandbox',
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --tags without an = returns the correct error', async () => {
+  test('snyk monitor --tags is implemented', async () => {
     const { code, stdout } = await runSnykCLI(`monitor --tags`, {
       env,
     });
     expect(stdout).toMatch(
       "--tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --tags=",
-    );
-    expect(code).toEqual(2);
-  });
-
-  test('snyk monitor --tags with an invalid value returns the correct error', async () => {
-    const { code, stdout } = await runSnykCLI(
-      `monitor --tags=invalidAsOnlyAKeyWasSpecified`,
-      {
-        env,
-      },
-    );
-    expect(stdout).toMatch(
-      'The tag "invalidAsOnlyAKeyWasSpecified" does not have an "=" separating the key and value.',
     );
     expect(code).toEqual(2);
   });

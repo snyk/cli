@@ -356,7 +356,7 @@ function getProjectAttribute<T>(
   return values;
 }
 
-function generateProjectAttributes(options: Options): ProjectAttributes {
+export function generateProjectAttributes(options): ProjectAttributes {
   return {
     criticality: getProjectAttribute(
       'business-criticality',
@@ -382,7 +382,7 @@ function generateProjectAttributes(options: Options): ProjectAttributes {
  * @param options CLI options
  * @returns List of parsed tags or undefined if they are to be left untouched.
  */
-function generateTags(options): Tag[] | undefined {
+export function generateTags(options): Tag[] | undefined {
   if (options.tags === undefined) {
     return undefined;
   }
