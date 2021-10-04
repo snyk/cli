@@ -1,10 +1,12 @@
 import { Options } from '../../types';
 import config from '../../config';
+import { getSastSettingsForOrg, trackUsage } from './checks';
 
 import {
   AuthFailedError,
   FailedToRunTestError,
   FeatureNotSupportedForOrgError,
+  NotFoundError,
 } from '../../errors';
 
 export async function validateCodeTest(options: Options) {
@@ -16,7 +18,6 @@ export async function validateCodeTest(options: Options) {
   }
 
   // TODO: We would need to remove this once we fix circular import issue
-  const { getSastSettingsForOrg, trackUsage } = require('./checks');
 
   const sastSettingsResponse = await getSastSettingsForOrg(org);
 
@@ -28,6 +29,10 @@ export async function validateCodeTest(options: Options) {
       sastSettingsResponse.error,
       sastSettingsResponse.code,
     );
+  }
+
+  if (sastSettingsResponse?.code === 404) {
+    throw new NotFoundError(sastSettingsResponse?.userMessage);
   }
 
   if (!sastSettingsResponse.sastEnabled) {

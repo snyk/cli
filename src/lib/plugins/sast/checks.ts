@@ -8,6 +8,7 @@ interface SastSettings {
   sastEnabled: boolean;
   code?: number;
   error?: string;
+  userMessage?: string;
 }
 
 interface TrackUsageResponse {
