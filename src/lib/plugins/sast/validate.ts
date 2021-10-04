@@ -17,8 +17,6 @@ export async function validateCodeTest(options: Options) {
     throw new FeatureNotSupportedForOrgError(org);
   }
 
-  // TODO: We would need to remove this once we fix circular import issue
-
   const sastSettingsResponse = await getSastSettingsForOrg(org);
 
   if (
