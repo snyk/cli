@@ -56,7 +56,7 @@ export function assertNever(value: never): never {
   );
 }
 
-export function getLocalCachePath(engineType: EngineType) {
+export function getLocalCachePath(engineType: EngineType): string[] {
   switch (engineType) {
     case EngineType.Kubernetes:
       return [
