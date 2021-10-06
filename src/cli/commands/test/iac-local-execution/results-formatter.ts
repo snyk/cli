@@ -55,6 +55,7 @@ function formatScanResult(
   options: IaCTestFlags,
 ): FormattedResult {
   const fileType = getFileTypeForParser(scanResult.fileType);
+  const isGeneratedByCustomRule = scanResult.engineType === EngineType.Custom;
   let treeByDocId: MapsDocIdToTree;
   try {
     treeByDocId = getTrees(fileType, scanResult.fileContent);
@@ -88,6 +89,7 @@ function formatScanResult(
       severity: policy.severity,
       lineNumber,
       documentation: `https://snyk.io/security-rules/${policy.publicId}`,
+      isGeneratedByCustomRule,
     };
   });
 

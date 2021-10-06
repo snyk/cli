@@ -46,14 +46,16 @@ const yetAnotherPolicyStub: PolicyMetadata = {
 const relativeFilePath = 'dont-care.yaml';
 const absoluteFilePath = path.resolve(relativeFilePath, '.');
 
-export function generateScanResults(): Array<IacFileScanResult> {
+export function generateScanResults({
+  engineType = EngineType.Kubernetes,
+} = {}): Array<IacFileScanResult> {
   return [
     {
       violatedPolicies: [{ ...policyStub }],
       jsonContent: { dontCare: null },
       docId: 0,
       projectType: IacProjectType.K8S,
-      engineType: EngineType.Kubernetes,
+      engineType,
       fileContent: 'dont-care',
       filePath: relativeFilePath,
       fileType: 'yaml',
@@ -63,7 +65,7 @@ export function generateScanResults(): Array<IacFileScanResult> {
       jsonContent: { dontCare: null },
       docId: 0,
       projectType: IacProjectType.K8S,
-      engineType: EngineType.Kubernetes,
+      engineType,
       fileContent: 'dont-care',
       filePath: relativeFilePath,
       fileType: 'yaml',
@@ -73,7 +75,7 @@ export function generateScanResults(): Array<IacFileScanResult> {
       jsonContent: { dontCare: null },
       docId: 1,
       projectType: IacProjectType.K8S,
-      engineType: EngineType.Kubernetes,
+      engineType,
       fileContent: 'dont-care',
       filePath: relativeFilePath,
       fileType: 'yaml',
@@ -87,9 +89,10 @@ export const meta: TestMeta = {
   org: 'org-name',
 };
 
-export function generateCloudConfigResults(
+export function generateCloudConfigResults({
   withLineNumber = true,
-): AnnotatedIacIssue[] {
+  isGeneratedByCustomRule = false,
+} = {}): AnnotatedIacIssue[] {
   return [
     {
       ...anotherPolicyStub,
@@ -105,6 +108,7 @@ export function generateCloudConfigResults(
       severity: anotherPolicyStub.severity,
       lineNumber: withLineNumber ? 3 : -1,
       documentation: 'https://snyk.io/security-rules/SNYK-CC-K8S-2',
+      isGeneratedByCustomRule,
     },
     {
       ...yetAnotherPolicyStub,
@@ -122,18 +126,21 @@ export function generateCloudConfigResults(
       severity: yetAnotherPolicyStub.severity,
       lineNumber: withLineNumber ? 3 : -1,
       documentation: 'https://snyk.io/security-rules/SNYK-CC-K8S-3',
+      isGeneratedByCustomRule,
     },
   ];
 }
 
-function generateFormattedResults(withLineNumber = true) {
+function generateFormattedResults(options) {
   return {
     result: {
-      cloudConfigResults: generateCloudConfigResults(withLineNumber),
+      cloudConfigResults: generateCloudConfigResults(
+        options.cloudConfigResultsOptions ?? {},
+      ),
       projectType: 'k8sconfig',
     },
     isPrivate: true,
-    packageManager: IacProjectType.K8S,
+    packageManager: options.packageManager ?? IacProjectType.K8S,
     targetFile: relativeFilePath,
     targetFilePath: absoluteFilePath,
     vulnerabilities: [],
@@ -152,9 +159,23 @@ function generateFormattedResults(withLineNumber = true) {
   };
 }
 
-export const expectedFormattedResultsWithLineNumber = generateFormattedResults(
-  true,
-);
+export const expectedFormattedResultsWithLineNumber = generateFormattedResults({
+  cloudConfigResultsOptions: {
+    withLineNumber: true,
+  },
+});
 export const expectedFormattedResultsWithoutLineNumber = generateFormattedResults(
-  false,
+  {
+    cloudConfigResultsOptions: {
+      withLineNumber: false,
+    },
+  },
+);
+export const expectedFormattedResultsGeneratedByCustomRules = generateFormattedResults(
+  {
+    cloudConfigResultsOptions: {
+      isGeneratedByCustomRule: true,
+    },
+    packageManager: IacProjectType.CUSTOM,
+  },
 );

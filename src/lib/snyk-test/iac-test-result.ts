@@ -11,6 +11,7 @@ export interface AnnotatedIacIssue {
   subType: string;
   path?: string[];
   documentation?: string;
+  isGeneratedByCustomRule?: boolean;
   // Legacy fields from Registry, unused.
   name?: string;
   from?: string[];
