@@ -278,6 +278,29 @@ describe('cli args', () => {
     });
   });
 
+  test('project attributes are implemented (--business-criticality, --lifecycle, --environment)', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `monitor --business-criticality`,
+      {
+        env,
+      },
+    );
+    expect(stdout).toMatch(
+      "--business-criticality must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --business-criticality=",
+    );
+    expect(code).toEqual(2);
+  });
+
+  test('snyk monitor --tags is implemented', async () => {
+    const { code, stdout } = await runSnykCLI(`monitor --tags`, {
+      env,
+    });
+    expect(stdout).toMatch(
+      "--tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --tags=",
+    );
+    expect(code).toEqual(2);
+  });
+
   const optionsToTest = [
     '--json-file-output',
     '--json-file-output=',

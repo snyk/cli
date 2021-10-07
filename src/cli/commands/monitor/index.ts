@@ -11,6 +11,11 @@ import {
   MonitorResult,
   Options,
   Contributor,
+  ProjectAttributes,
+  PROJECT_CRITICALITY,
+  PROJECT_ENVIRONMENT,
+  PROJECT_LIFECYCLE,
+  Tag,
 } from '../../../lib/types';
 import config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
@@ -232,6 +237,8 @@ export default async function monitor(...args0: MethodArgs): Promise<any> {
               projectDeps.plugin as PluginMetadata,
               targetFileRelativePath,
               contributors,
+              generateProjectAttributes(options),
+              generateTags(options),
             ),
             spinner.clear(postingMonitorSpinnerLabel),
           );
@@ -301,6 +308,114 @@ function generateMonitorMeta(options, packageManager?): MonitorMeta {
     'remote-repo-url': options['remote-repo-url'],
     targetReference: options['target-reference'],
   };
+}
+
+/**
+ * Parse an attribute from the CLI into the relevant enum type.
+ *
+ * @param attribute The project attribute (e.g. environment)
+ * @param permitted Permitted options
+ * @param options CLI options provided
+ * @returns An array of attributes to set on the project or undefined to mean "do not touch".
+ */
+function getProjectAttribute<T>(
+  attribute: string,
+  permitted: Record<string, T>,
+  options: Options,
+): T[] | undefined {
+  const permittedValues: T[] = Object.values(permitted);
+
+  if (options[attribute] === undefined) {
+    return undefined;
+  }
+
+  // Explicit flag to clear the existing values for this attribute already set on the project
+  // e.g. if you specify --environment=
+  // then this means you want to remove existing environment values on the project.
+  if (options[attribute] === '') {
+    return [];
+  }
+
+  // When it's specified without the =, we raise an explicit error to avoid
+  // accidentally clearing the existing values.
+  if (options[attribute] === true) {
+    throw new Error(
+      `--${attribute} must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --${attribute}=`,
+    );
+  }
+
+  const values = options[attribute].split(',');
+  const extra = values.filter((value) => !permittedValues.includes(value));
+  if (extra.length > 0) {
+    throw new Error(
+      `${extra.length} invalid ${attribute}: ${extra.join(', ')}. ` +
+        `Possible values are: ${permittedValues.join(', ')}`,
+    );
+  }
+
+  return values;
+}
+
+export function generateProjectAttributes(options): ProjectAttributes {
+  return {
+    criticality: getProjectAttribute(
+      'business-criticality',
+      PROJECT_CRITICALITY,
+      options,
+    ),
+    environment: getProjectAttribute(
+      'environment',
+      PROJECT_ENVIRONMENT,
+      options,
+    ),
+    lifecycle: getProjectAttribute('lifecycle', PROJECT_LIFECYCLE, options),
+  };
+}
+
+/**
+ * Parse CLI --tags options into an internal data structure.
+ *
+ * If this returns undefined, it means "do not touch the existing tags on the project".
+ *
+ * Anything else means "replace existing tags on the project with this list" even if empty.
+ *
+ * @param options CLI options
+ * @returns List of parsed tags or undefined if they are to be left untouched.
+ */
+export function generateTags(options): Tag[] | undefined {
+  if (options.tags === undefined) {
+    return undefined;
+  }
+
+  if (options.tags === '') {
+    return [];
+  }
+
+  // When it's specified without the =, we raise an explicit error to avoid
+  // accidentally clearing the existing tags;
+  if (options.tags === true) {
+    throw new Error(
+      `--tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --tags=`,
+    );
+  }
+
+  const tags: Tag[] = [];
+  const keyEqualsValuePairs = options.tags.split(',');
+
+  for (const keyEqualsValue of keyEqualsValuePairs) {
+    const parts = keyEqualsValue.split('=');
+    if (parts.length !== 2) {
+      throw new Error(
+        `The tag "${keyEqualsValue}" does not have an "=" separating the key and value.`,
+      );
+    }
+    tags.push({
+      key: parts[0],
+      value: parts[1],
+    });
+  }
+
+  return tags;
 }
 
 function validateMonitorPath(path: string, isDocker?: boolean): void {

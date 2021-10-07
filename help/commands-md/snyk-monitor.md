@@ -82,6 +82,15 @@ For advanced usage, we offer language and context specific flags, listed further
   (only in `monitor` command)
   A reference to separate this project from other scans of the same project. For example, a branch name or version. Projects using the same reference can be used for grouping. [More information](https://snyk.info/3B0vTPs).
 
+- `--environment`=<ENVIRONMENT>[,<ENVIRONMENT>]...>:
+  Set the project environment to one or more values (comma-separated). Allowed values: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed
+
+- `--lifecycle`=<LIFECYCLE>[,<LIFECYCLE>]...>:
+  Set the project lifecycle to one or more values (comma-separated). Allowed values: production, development, sandbox
+
+- `--business-criticality`=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>:
+  Set the project business criticality to one or more values (comma-separated). Allowed values: critical, high, medium, low
+
 - `--policy-path`=<PATH_TO_POLICY_FILE>`:
   Manually pass a path to a snyk policy file.
 
