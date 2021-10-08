@@ -1,6 +1,6 @@
 [1mN[0m[1mA[0m[1mM[0m[1mE[0m
-       [1ms[0m[1mn[0m[1my[0m[1mk[0m[1m-[0m[1mw[0m[1mi[0m[1mz[0m[1ma[0m[1mr[0m[1md[0m  - Configure your policy file to update, auto patch and ig-
-       nore vulnerabilities
+       [1ms[0m[1mn[0m[1my[0m[1mk[0m[1m-[0m[1mw[0m[1mi[0m[1mz[0m[1ma[0m[1mr[0m[1md[0m  -  Configure  your  policy  file to update, auto patch and
+       ignore vulnerabilities
 
 [1mS[0m[1mY[0m[1mN[0m[1mO[0m[1mP[0m[1mS[0m[1mI[0m[1mS[0m
        [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mw[0m[1mi[0m[1mz[0m[1ma[0m[1mr[0m[1md[0m [[4mO[0m[4mP[0m[4mT[0m[4mI[0m[4mO[0m[4mN[0m[4mS[0m]
@@ -35,8 +35,8 @@
               Prints versions.
 
        [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m] [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m, [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m], [1m-[0m[1mh[0m
-              Prints  a  help  text. You may specify a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more de-
-              tails.
+              Prints  a  help  text.  You  may  specify  a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more
+              details.
 
 [1mE[0m[1mX[0m[1mI[0m[1mT[0m [1mC[0m[1mO[0m[1mD[0m[1mE[0m[1mS[0m
        Possible exit codes and their meaning:

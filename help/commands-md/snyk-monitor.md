@@ -91,6 +91,9 @@ For advanced usage, we offer language and context specific flags, listed further
 - `--business-criticality`=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>:
   Set the project business criticality to one or more values (comma-separated). Allowed values: critical, high, medium, low
 
+- `--tags`=<TAG>[,<TAG>]...>:
+  Set the project tags to one or more values (comma-separated key value pairs with an "=" separator). e.g. --tags=department=finance,team=alpha
+
 - `--policy-path`=<PATH_TO_POLICY_FILE>`:
   Manually pass a path to a snyk policy file.
 

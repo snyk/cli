@@ -21,8 +21,8 @@
               Prints versions.
 
        [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m] [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m, [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m], [1m-[0m[1mh[0m
-              Prints  a  help  text. You may specify a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more de-
-              tails.
+              Prints  a  help  text.  You  may  specify  a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more
+              details.
 
 [1mE[0m[1mX[0m[1mI[0m[1mT[0m [1mC[0m[1mO[0m[1mD[0m[1mE[0m[1mS[0m
        Possible exit codes and their meaning:

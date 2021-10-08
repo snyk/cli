@@ -71,42 +71,42 @@
               Default: 4 (the current working directory and 3 sub-directories)
 
        [1m-[0m[1m-[0m[1me[0m[1mx[0m[1mc[0m[1ml[0m[1mu[0m[1md[0m[1me[0m=[4mD[0m[4mI[0m[4mR[0m[4mE[0m[4mC[0m[4mT[0m[4mO[0m[4mR[0m[4mY[0m[,[4mD[0m[4mI[0m[4mR[0m[4mE[0m[4mC[0m[4mT[0m[4mO[0m[4mR[0m[4mY[0m]...>
-              (only  in  [1mt[0m[1me[0m[1ms[0m[1mt[0m  and  [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m  commands)  Can   be   used   with
+              (only   in   [1mt[0m[1me[0m[1ms[0m[1mt[0m   and  [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m  commands)  Can  be  used  with
               --all-projects and --yarn-workspaces to indicate sub-directories
               and files to exclude. Must be comma separated.
 
-              If using with [1m-[0m[1m-[0m[1md[0m[1me[0m[1mt[0m[1me[0m[1mc[0m[1mt[0m[1mi[0m[1mo[0m[1mn[0m[1m-[0m[1md[0m[1me[0m[1mp[0m[1mt[0m[1mh[0m exclude ignores  directories  at
+              If  using  with [1m-[0m[1m-[0m[1md[0m[1me[0m[1mt[0m[1me[0m[1mc[0m[1mt[0m[1mi[0m[1mo[0m[1mn[0m[1m-[0m[1md[0m[1me[0m[1mp[0m[1mt[0m[1mh[0m exclude ignores directories at
               any level deep.
 
        [1m-[0m[1m-[0m[1mp[0m[1mr[0m[1mu[0m[1mn[0m[1me[0m[1m-[0m[1mr[0m[1me[0m[1mp[0m[1me[0m[1ma[0m[1mt[0m[1me[0m[1md[0m[1m-[0m[1ms[0m[1mu[0m[1mb[0m[1md[0m[1me[0m[1mp[0m[1me[0m[1mn[0m[1md[0m[1me[0m[1mn[0m[1mc[0m[1mi[0m[1me[0m[1ms[0m, [1m-[0m[1mp[0m
-              (only  in [1mt[0m[1me[0m[1ms[0m[1mt[0m and [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m commands) Prune dependency trees, re-
-              moving duplicate sub-dependencies. Will still find all  vulnera-
-              bilities, but potentially not all of the vulnerable paths.
+              (only in [1mt[0m[1me[0m[1ms[0m[1mt[0m and  [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m  commands)  Prune  dependency  trees,
+              removing duplicate sub-dependencies. Will still find all vulner-
+              abilities, but potentially not all of the vulnerable paths.
 
        [1m-[0m[1m-[0m[1mp[0m[1mr[0m[1mi[0m[1mn[0m[1mt[0m[1m-[0m[1md[0m[1me[0m[1mp[0m[1ms[0m
-              (only  in  [1mt[0m[1me[0m[1ms[0m[1mt[0m  and [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m commands) Print the dependency tree
+              (only in [1mt[0m[1me[0m[1ms[0m[1mt[0m and [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m commands) Print  the  dependency  tree
               before sending it for analysis.
 
        [1m-[0m[1m-[0m[1mr[0m[1me[0m[1mm[0m[1mo[0m[1mt[0m[1me[0m[1m-[0m[1mr[0m[1me[0m[1mp[0m[1mo[0m[1m-[0m[1mu[0m[1mr[0m[1ml[0m=[4mU[0m[4mR[0m[4mL[0m
               Set or override the remote URL for the repository that you would
               like to monitor.
 
-       [1m-[0m[1m-[0m[1md[0m[1me[0m[1mv[0m  Include  development-only dependencies. Applicable only for some
-              package managers. E.g. [4md[0m[4me[0m[4mv[0m[4mD[0m[4me[0m[4mp[0m[4me[0m[4mn[0m[4md[0m[4me[0m[4mn[0m[4mc[0m[4mi[0m[4me[0m[4ms[0m in  npm  or  [4m:[0m[4md[0m[4me[0m[4mv[0m[4me[0m[4ml[0m[4mo[0m[4mp[0m[4mm[0m[4me[0m[4mn[0m[4mt[0m
+       [1m-[0m[1m-[0m[1md[0m[1me[0m[1mv[0m  Include development-only dependencies. Applicable only for  some
+              package  managers.  E.g.  [4md[0m[4me[0m[4mv[0m[4mD[0m[4me[0m[4mp[0m[4me[0m[4mn[0m[4md[0m[4me[0m[4mn[0m[4mc[0m[4mi[0m[4me[0m[4ms[0m in npm or [4m:[0m[4md[0m[4me[0m[4mv[0m[4me[0m[4ml[0m[4mo[0m[4mp[0m[4mm[0m[4me[0m[4mn[0m[4mt[0m
               dependencies in Gemfile.
 
               Default: scan only production dependencies
 
        [1m-[0m[1m-[0m[1mo[0m[1mr[0m[1mg[0m=[4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m
-              Specify the [4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m to run Snyk commands tied to a specific or-
-              ganization. This will influence where will new projects be  cre-
-              ated  after  running [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m command, some features availability
-              and private tests limits. If you  have  multiple  organizations,
-              you can set a default from the CLI using:
+              Specify the [4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m to run Snyk commands  tied  to  a  specific
+              organization.  This  will  influence  where will new projects be
+              created after running [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m command, some features  availabil-
+              ity  and  private  tests  limits. If you have multiple organiza-
+              tions, you can set a default from the CLI using:
 
               [1m$[0m [1ms[0m[1mn[0m[1my[0m[1mk[0m [1mc[0m[1mo[0m[1mn[0m[1mf[0m[1mi[0m[1mg[0m [1ms[0m[1me[0m[1mt[0m [1mo[0m[1mr[0m[1mg[0m=[4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m
 
-              Setting  a default will ensure all newly monitored projects will
+              Setting a default will ensure all newly monitored projects  will
               be created under your default organization. If you need to over-
               ride the default, you can use the [1m-[0m[1m-[0m[1mo[0m[1mr[0m[1mg[0m=[4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m argument.
 
@@ -116,23 +116,23 @@
        [1m-[0m[1m-[0m[1mf[0m[1mi[0m[1ml[0m[1me[0m=[4mF[0m[4mI[0m[4mL[0m[4mE[0m
               Sets a package file.
 
-              When testing locally or monitoring a project,  you  can  specify
-              the  file that Snyk should inspect for package information. When
-              ommitted Snyk will try to detect the appropriate file  for  your
+              When  testing  locally  or monitoring a project, you can specify
+              the file that Snyk should inspect for package information.  When
+              ommitted  Snyk  will try to detect the appropriate file for your
               project.
 
        [1m-[0m[1m-[0m[1mi[0m[1mg[0m[1mn[0m[1mo[0m[1mr[0m[1me[0m[1m-[0m[1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1my[0m
-              Ignores  all set policies. The current policy in [1m.[0m[1ms[0m[1mn[0m[1my[0m[1mk[0m file, Org
+              Ignores all set policies. The current policy in [1m.[0m[1ms[0m[1mn[0m[1my[0m[1mk[0m file,  Org
               level ignores and the project policy on snyk.io.
 
        [1m-[0m[1m-[0m[1mt[0m[1mr[0m[1mu[0m[1ms[0m[1mt[0m[1m-[0m[1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1mi[0m[1me[0m[1ms[0m
               Applies and uses ignore rules from your dependencies' Snyk poli-
-              cies, otherwise ignore policies are only shown as a suggestion.
+              cies, otherwise ignore policies are only shown as a  suggestion.
 
        [1m-[0m[1m-[0m[1ms[0m[1mh[0m[1mo[0m[1mw[0m[1m-[0m[1mv[0m[1mu[0m[1ml[0m[1mn[0m[1me[0m[1mr[0m[1ma[0m[1mb[0m[1ml[0m[1me[0m[1m-[0m[1mp[0m[1ma[0m[1mt[0m[1mh[0m[1ms[0m=none|some|all
               Display  the  dependency  paths from the top level dependencies,
-              down to the vulnerable packages. Doesn't affect output when  us-
-              ing JSON [1m-[0m[1m-[0m[1mj[0m[1ms[0m[1mo[0m[1mn[0m output.
+              down to the vulnerable  packages.  Doesn't  affect  output  when
+              using JSON [1m-[0m[1m-[0m[1mj[0m[1ms[0m[1mo[0m[1mn[0m output.
 
               Default:  [4ms[0m[4mo[0m[4mm[0m[4me[0m (a few example paths shown) [4mf[0m[4ma[0m[4ml[0m[4ms[0m[4me[0m is an alias for
               [4mn[0m[4mo[0m[4mn[0m[4me[0m.
@@ -145,6 +145,24 @@
               from other scans of the same project. For example, a branch name
               or version. Projects using the same reference can  be  used  for
               grouping. More information [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mi[0m[4mn[0m[4mf[0m[4mo[0m[4m/[0m[4m3[0m[4mB[0m[4m0[0m[4mv[0m[4mT[0m[4mP[0m[4ms[0m.
+
+       [1m-[0m[1m-[0m[1me[0m[1mn[0m[1mv[0m[1mi[0m[1mr[0m[1mo[0m[1mn[0m[1mm[0m[1me[0m[1mn[0m[1mt[0m=[4mE[0m[4mN[0m[4mV[0m[4mI[0m[4mR[0m[4mO[0m[4mN[0m[4mM[0m[4mE[0m[4mN[0m[4mT[0m[,[4mE[0m[4mN[0m[4mV[0m[4mI[0m[4mR[0m[4mO[0m[4mN[0m[4mM[0m[4mE[0m[4mN[0m[4mT[0m]...>
+              Set  the  project environment to one or more values (comma-sepa-
+              rated). Allowed values: frontend, backend,  internal,  external,
+              mobile, saas, onprem, hosted, distributed
+
+       [1m-[0m[1m-[0m[1ml[0m[1mi[0m[1mf[0m[1me[0m[1mc[0m[1my[0m[1mc[0m[1ml[0m[1me[0m=[4mL[0m[4mI[0m[4mF[0m[4mE[0m[4mC[0m[4mY[0m[4mC[0m[4mL[0m[4mE[0m[,[4mL[0m[4mI[0m[4mF[0m[4mE[0m[4mC[0m[4mY[0m[4mC[0m[4mL[0m[4mE[0m]...>
+              Set  the  project  lifecycle  to one or more values (comma-sepa-
+              rated). Allowed values: production, development, sandbox
+
+       [1m-[0m[1m-[0m[1mb[0m[1mu[0m[1ms[0m[1mi[0m[1mn[0m[1me[0m[1ms[0m[1ms[0m[1m-[0m[1mc[0m[1mr[0m[1mi[0m[1mt[0m[1mi[0m[1mc[0m[1ma[0m[1ml[0m[1mi[0m[1mt[0m[1my[0m=[4mB[0m[4mU[0m[4mS[0m[4mI[0m[4mN[0m[4mE[0m[4mS[0m[4mS[0m[1m_[0m[4mC[0m[4mR[0m[4mI[0m[4mT[0m[4mI[0m[4mC[0m[4mA[0m[4mL[0m[4mI[0m[4mT[0m[4mY[0m[,[4mB[0m[4mU[0m[4mS[0m[4mI[0m[4mN[0m[4mE[0m[4mS[0m[4mS[0m[1m_[0m[4mC[0m[4mR[0m[4mI[0m[4mT[0m[4mI[0m[4mC[0m[4mA[0m[4mL[0m[4mI[0m[4mT[0m[4mY[0m]...>
+              Set the project business  criticality  to  one  or  more  values
+              (comma-separated). Allowed values: critical, high, medium, low
+
+       [1m-[0m[1m-[0m[1mt[0m[1ma[0m[1mg[0m[1ms[0m=[4mT[0m[4mA[0m[4mG[0m[,[4mT[0m[4mA[0m[4mG[0m]...>
+              Set  the project tags to one or more values (comma-separated key
+              value  pairs  with  an  "="  separator).   e.g.   --tags=depart-
+              ment=finance,team=alpha
 
        [1m-[0m[1m-[0m[1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1my[0m[1m-[0m[1mp[0m[1ma[0m[1mt[0m[1mh[0m=[4mP[0m[4mA[0m[4mT[0m[4mH[0m[1m_[0m[4mT[0m[4mO[0m[1m_[0m[4mP[0m[4mO[0m[4mL[0m[4mI[0m[4mC[0m[4mY[0m[1m_[0m[4mF[0m[4mI[0m[4mL[0m[4mE[0m`
               Manually pass a path to a snyk policy file.
@@ -195,8 +213,8 @@
 
    [1mM[0m[1ma[0m[1mv[0m[1me[0m[1mn[0m [1mo[0m[1mp[0m[1mt[0m[1mi[0m[1mo[0m[1mn[0m[1ms[0m
        [1m-[0m[1m-[0m[1ms[0m[1mc[0m[1ma[0m[1mn[0m[1m-[0m[1ma[0m[1ml[0m[1ml[0m[1m-[0m[1mu[0m[1mn[0m[1mm[0m[1ma[0m[1mn[0m[1ma[0m[1mg[0m[1me[0m[1md[0m
-              Auto detects maven jars, aars, and wars in given directory.  In-
-              dividual testing can be done with [1m-[0m[1m-[0m[1mf[0m[1mi[0m[1ml[0m[1me[0m=[4mJ[0m[4mA[0m[4mR[0m[1m_[0m[4mF[0m[4mI[0m[4mL[0m[4mE[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m
+              Auto detects maven jars, aars,  and  wars  in  given  directory.
+              Individual testing can be done with [1m-[0m[1m-[0m[1mf[0m[1mi[0m[1ml[0m[1me[0m=[4mJ[0m[4mA[0m[4mR[0m[1m_[0m[4mF[0m[4mI[0m[4mL[0m[4mE[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m
 
        [1m-[0m[1m-[0m[1mr[0m[1me[0m[1ma[0m[1mc[0m[1mh[0m[1ma[0m[1mb[0m[1ml[0m[1me[0m
               (only  in [1mt[0m[1me[0m[1ms[0m[1mt[0m and [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m commands) Analyze your source code to
@@ -253,8 +271,8 @@
 
        [1m-[0m[1m-[0m[1mp[0m[1mr[0m[1mo[0m[1mj[0m[1me[0m[1mc[0m[1mt[0m[1m-[0m[1mn[0m[1ma[0m[1mm[0m[1me[0m[1m-[0m[1mp[0m[1mr[0m[1me[0m[1mf[0m[1mi[0m[1mx[0m=[4mP[0m[4mR[0m[4mE[0m[4mF[0m[4mI[0m[4mX[0m[1m_[0m[4mS[0m[4mT[0m[4mR[0m[4mI[0m[4mN[0m[4mG[0m
               When monitoring a .NET project, use this flag to  add  a  custom
-              prefix  to the name of files inside a project along with any de-
-              sired  separators,  e.g.  [1ms[0m[1mn[0m[1my[0m[1mk[0m   [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m   [1m-[0m[1m-[0m[1mf[0m[1mi[0m[1ml[0m[1me[0m[1m=[0m[1mm[0m[1my[0m[1m-[0m[1mp[0m[1mr[0m[1mo[0m[1mj[0m[1me[0m[1mc[0m[1mt[0m[1m.[0m[1ms[0m[1ml[0m[1mn[0m
+              prefix  to  the  name  of  files inside a project along with any
+              desired  separators,  e.g.  [1ms[0m[1mn[0m[1my[0m[1mk[0m  [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m  [1m-[0m[1m-[0m[1mf[0m[1mi[0m[1ml[0m[1me[0m[1m=[0m[1mm[0m[1my[0m[1m-[0m[1mp[0m[1mr[0m[1mo[0m[1mj[0m[1me[0m[1mc[0m[1mt[0m[1m.[0m[1ms[0m[1ml[0m[1mn[0m
               [1m-[0m[1m-[0m[1mp[0m[1mr[0m[1mo[0m[1mj[0m[1me[0m[1mc[0m[1mt[0m[1m-[0m[1mn[0m[1ma[0m[1mm[0m[1me[0m[1m-[0m[1mp[0m[1mr[0m[1me[0m[1mf[0m[1mi[0m[1mx[0m[1m=[0m[1mm[0m[1my[0m[1m-[0m[1mg[0m[1mr[0m[1mo[0m[1mu[0m[1mp[0m[1m/[0m.  This  is  useful when you have
               multiple projects with the same name in other sln files.
 
@@ -285,10 +303,10 @@
    [1mP[0m[1my[0m[1mt[0m[1mh[0m[1mo[0m[1mn[0m [1mo[0m[1mp[0m[1mt[0m[1mi[0m[1mo[0m[1mn[0m[1ms[0m
        [1m-[0m[1m-[0m[1mc[0m[1mo[0m[1mm[0m[1mm[0m[1ma[0m[1mn[0m[1md[0m=[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m
               Indicate  which  specific Python commands to use based on Python
-              version. The default is [1mp[0m[1my[0m[1mt[0m[1mh[0m[1mo[0m[1mn[0m which executes your  systems  de-
-              fault  python  version. Run 'python -V' to find out what version
-              is it. If you are using multiple Python versions, use  this  pa-
-              rameter to specify the correct Python command for execution.
+              version. The default  is  [1mp[0m[1my[0m[1mt[0m[1mh[0m[1mo[0m[1mn[0m  which  executes  your  systems
+              default python version. Run 'python -V' to find out what version
+              is it. If you are  using  multiple  Python  versions,  use  this
+              parameter to specify the correct Python command for execution.
 
               Default: [1mp[0m[1my[0m[1mt[0m[1mh[0m[1mo[0m[1mn[0m Example: [1m-[0m[1m-[0m[1mc[0m[1mo[0m[1mm[0m[1mm[0m[1ma[0m[1mn[0m[1md[0m[1m=[0m[1mp[0m[1my[0m[1mt[0m[1mh[0m[1mo[0m[1mn[0m[1m3[0m
 
@@ -308,8 +326,8 @@
               Prints versions.
 
        [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m] [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m, [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m], [1m-[0m[1mh[0m
-              Prints  a  help  text. You may specify a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more de-
-              tails.
+              Prints  a  help  text.  You  may  specify  a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more
+              details.
 
 [1mE[0m[1mX[0m[1mA[0m[1mM[0m[1mP[0m[1mL[0m[1mE[0m[1mS[0m
        [1mA[0m[1mu[0m[1mt[0m[1mh[0m[1me[0m[1mn[0m[1mt[0m[1mi[0m[1mc[0m[1ma[0m[1mt[0m[1me[0m [1mi[0m[1mn[0m [1my[0m[1mo[0m[1mu[0m[1mr[0m [1mC[0m[1mI[0m [1mw[0m[1mi[0m[1mt[0m[1mh[0m[1mo[0m[1mu[0m[1mt[0m [1mu[0m[1ms[0m[1me[0m[1mr[0m [1mi[0m[1mn[0m[1mt[0m[1me[0m[1mr[0m[1ma[0m[1mc[0m[1mt[0m[1mi[0m[1mo[0m[1mn[0m
