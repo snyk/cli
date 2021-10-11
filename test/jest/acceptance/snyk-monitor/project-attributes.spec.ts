@@ -17,9 +17,9 @@ describe('project attributes (--lifecycle, --environment, --business-criticality
   it('parses the options correctly when they are valid', () => {
     expect(
       generateProjectAttributes({
-        'business-criticality': 'critical,high',
-        lifecycle: 'development,sandbox',
-        environment: 'backend,frontend',
+        'project-business-criticality': 'critical,high',
+        'project-lifecycle': 'development,sandbox',
+        'project-environment': 'backend,frontend',
       }),
     ).toStrictEqual({
       criticality: [PROJECT_CRITICALITY.CRITICAL, PROJECT_CRITICALITY.HIGH],
@@ -30,27 +30,31 @@ describe('project attributes (--lifecycle, --environment, --business-criticality
 
   it('raises the correct error with an invalid business criticality', () => {
     expect(() =>
-      generateProjectAttributes({ 'business-criticality': 'invalid' }),
+      generateProjectAttributes({ 'project-business-criticality': 'invalid' }),
     ).toThrow(
-      '1 invalid business-criticality: invalid. Possible values are: critical, high, medium, low',
+      '1 invalid project-business-criticality: invalid. Possible values are: critical, high, medium, low',
     );
   });
 
   it('raises the correct error with an invalid lifecycle', () => {
-    expect(() => generateProjectAttributes({ lifecycle: 'invalid' })).toThrow(
-      '1 invalid lifecycle: invalid. Possible values are: production, development, sandbox',
+    expect(() =>
+      generateProjectAttributes({ 'project-lifecycle': 'invalid' }),
+    ).toThrow(
+      '1 invalid project-lifecycle: invalid. Possible values are: production, development, sandbox',
     );
   });
 
   it('raises the correct error with an invalid environment', () => {
-    expect(() => generateProjectAttributes({ environment: 'invalid' })).toThrow(
-      '1 invalid environment: invalid. Possible values are: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed',
+    expect(() =>
+      generateProjectAttributes({ 'project-environment': 'invalid' }),
+    ).toThrow(
+      '1 invalid project-environment: invalid. Possible values are: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed',
     );
   });
 
   it('raises the correct error with multiple invalid attributes', () => {
     expect(() =>
-      generateProjectAttributes({ lifecycle: 'invalid1,invalid2' }),
-    ).toThrow(/2 invalid lifecycle: invalid1, invalid2/);
+      generateProjectAttributes({ 'project-lifecycle': 'invalid1,invalid2' }),
+    ).toThrow(/2 invalid project-lifecycle: invalid1, invalid2/);
   });
 });

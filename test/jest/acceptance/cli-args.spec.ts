@@ -278,25 +278,25 @@ describe('cli args', () => {
     });
   });
 
-  test('project attributes are implemented (--business-criticality, --lifecycle, --environment)', async () => {
+  test('project attributes are implemented --project{-business-criticality, -lifecycle, -environment}', async () => {
     const { code, stdout } = await runSnykCLI(
-      `monitor --business-criticality`,
+      `monitor --project-business-criticality`,
       {
         env,
       },
     );
     expect(stdout).toMatch(
-      "--business-criticality must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --business-criticality=",
+      "--project-business-criticality must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --project-business-criticality=",
     );
     expect(code).toEqual(2);
   });
 
-  test('snyk monitor --tags is implemented', async () => {
-    const { code, stdout } = await runSnykCLI(`monitor --tags`, {
+  test('snyk monitor --project-tags is implemented', async () => {
+    const { code, stdout } = await runSnykCLI(`monitor --project-tags`, {
       env,
     });
     expect(stdout).toMatch(
-      "--tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --tags=",
+      "--project-tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --project-tags=",
     );
     expect(code).toEqual(2);
   });
