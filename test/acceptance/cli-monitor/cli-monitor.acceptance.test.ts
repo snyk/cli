@@ -484,19 +484,19 @@ if (!isWindows) {
     t.equal(req.body.meta.projectName, 'custom-project-name');
   });
 
-  test('`monitor npm-package with --business-criticality`', async (t) => {
+  test('`monitor npm-package with --project-business-criticality`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-package', {
-      'business-criticality': 'high,medium',
+      'project-business-criticality': 'high,medium',
     });
     const req = server.popRequest();
     t.deepEqual(req.body.projectAttributes.criticality, ['high', 'medium']);
   });
 
-  test('`monitor npm-package with --environment`', async (t) => {
+  test('`monitor npm-package with --project-environment`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-package', {
-      environment: 'frontend,backend',
+      'project-environment': 'frontend,backend',
     });
     const req = server.popRequest();
     t.deepEqual(req.body.projectAttributes.environment, [
@@ -505,10 +505,10 @@ if (!isWindows) {
     ]);
   });
 
-  test('`monitor npm-package with --lifecycle`', async (t) => {
+  test('`monitor npm-package with --project-lifecycle`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-package', {
-      lifecycle: 'production,sandbox',
+      'project-lifecycle': 'production,sandbox',
     });
     const req = server.popRequest();
     t.deepEqual(req.body.projectAttributes.lifecycle, [
@@ -517,10 +517,10 @@ if (!isWindows) {
     ]);
   });
 
-  test('`monitor npm-package with --tags`', async (t) => {
+  test('`monitor npm-package with --project-tags`', async (t) => {
     chdirWorkspaces();
     await cli.monitor('npm-package', {
-      tags: 'department=finance,team=outbound-payments',
+      'project-tags': 'department=finance,team=outbound-payments',
     });
     const req = server.popRequest();
     t.deepEqual(req.body.tags, [
@@ -717,23 +717,23 @@ if (!isWindows) {
     );
   });
 
-  test('`monitor maven-multi-app with --business-criticality`', async (t) => {
+  test('`monitor maven-multi-app with --project-business-criticality`', async (t) => {
     chdirWorkspaces();
     stubExec(t, 'maven-multi-app/mvn-dep-tree-stdout.txt');
     await cli.monitor('maven-multi-app', {
       file: 'pom.xml',
-      'business-criticality': 'high,medium',
+      'project-business-criticality': 'high,medium',
     });
     const req = server.popRequest();
     t.deepEqual(req.body.projectAttributes.criticality, ['high', 'medium']);
   });
 
-  test('`monitor maven-multi-app with --tags`', async (t) => {
+  test('`monitor maven-multi-app with ---project-tags`', async (t) => {
     chdirWorkspaces();
     stubExec(t, 'maven-multi-app/mvn-dep-tree-stdout.txt');
     await cli.monitor('maven-multi-app', {
       file: 'pom.xml',
-      tags: 'department=finance,team=outbound-payments',
+      'project-tags': 'department=finance,team=outbound-payments',
     });
     const req = server.popRequest();
     t.deepEqual(req.body.tags, [
@@ -742,12 +742,12 @@ if (!isWindows) {
     ]);
   });
 
-  test('`monitor maven-multi-app with --environment`', async (t) => {
+  test('`monitor maven-multi-app with --project-environment`', async (t) => {
     chdirWorkspaces();
     stubExec(t, 'maven-multi-app/mvn-dep-tree-stdout.txt');
     await cli.monitor('maven-multi-app', {
       file: 'pom.xml',
-      environment: 'frontend,backend',
+      'project-environment': 'frontend,backend',
     });
     const req = server.popRequest();
     t.deepEqual(req.body.projectAttributes.environment, [
@@ -756,12 +756,12 @@ if (!isWindows) {
     ]);
   });
 
-  test('`monitor maven-multi-app with --lifecycle`', async (t) => {
+  test('`monitor maven-multi-app with --project-lifecycle`', async (t) => {
     chdirWorkspaces();
     stubExec(t, 'maven-multi-app/mvn-dep-tree-stdout.txt');
     await cli.monitor('maven-multi-app', {
       file: 'pom.xml',
-      lifecycle: 'production,sandbox',
+      'project-lifecycle': 'production,sandbox',
     });
     const req = server.popRequest();
     t.deepEqual(req.body.projectAttributes.lifecycle, [
