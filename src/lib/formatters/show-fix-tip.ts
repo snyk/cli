@@ -26,7 +26,7 @@ export function showFixTip(
       )} to address these issues.${chalk.bold(
         '`snyk fix`',
       )} is a new CLI command in that aims to automatically apply the recommended updates for supported ecosystems.` +
-      '\nSee documentation on how to enable this beta feature: https://support.snyk.io/hc/en-us/articles/4403417279505-Automatic-remediation-with-snyk-fix'
+      '\nSee documentation on how to enable this beta feature: https://docs.snyk.io/features/snyk-cli/fix-vulnerabilities-from-the-cli/automatic-remediation-with-snyk-fix'
     );
   }
 
