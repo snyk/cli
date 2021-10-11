@@ -1,5 +1,5 @@
 import * as localCacheModule from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
-import { FailedToInitLocalCacheError } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
+import { FailedToInitLocalCacheError, LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
 import { PassThrough } from 'stream';
 import * as needle from 'needle';
@@ -51,7 +51,7 @@ describe('initLocalCache - downloads bundle successfully', () => {
   });
 
   it('cleans up the custom folder after finishes', () => {
-    const iacPath: fs.PathLike = path.join(`${process.cwd()}`, '.iac-data');
+    const iacPath: fs.PathLike = path.join(`${process.cwd()}`, LOCAL_POLICY_ENGINE_DIR);
     const spy = jest.spyOn(rimraf, 'sync');
 
     localCacheModule.cleanLocalCache();
@@ -70,7 +70,7 @@ describe('initLocalCache - errors', () => {
 
   it('throws an error on creation of cache dir', async () => {
     const error = new Error(
-      'The .iac-data directory can not be created. ' +
+      `The ${LOCAL_POLICY_ENGINE_DIR} directory can not be created. ` +
         'Please make sure that the current working directory has write permissions',
     );
     jest.spyOn(fileUtilsModule, 'extractBundle');

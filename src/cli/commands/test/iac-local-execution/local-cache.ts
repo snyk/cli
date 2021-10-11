@@ -100,6 +100,10 @@ export async function initLocalCache({
     } catch (e) {
       throw new FailedToExtractCustomRulesError(customRulesPath);
     }
+
+    if (!isValidCustomRulesBundle()) {
+      throw new InvalidCustomRules(customRulesPath);
+    }
   }
 
   // We extract the Snyk rules after the custom rules to ensure our files
@@ -113,9 +117,21 @@ export async function initLocalCache({
   }
 }
 
+function isValidCustomRulesBundle(): boolean {
+  try {
+    // verify that the correct files were generated, since this is user input
+    if (!fs.existsSync(CUSTOM_POLICY_ENGINE_WASM_PATH) || !fs.existsSync(CUSTOM_POLICY_ENGINE_DATA_PATH)) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function cleanLocalCache() {
   // path to delete is hardcoded for now
-  const iacPath: fs.PathLike = path.join(`${process.cwd()}`, '.iac-data');
+  const iacPath: fs.PathLike = path.join(`${process.cwd()}`, LOCAL_POLICY_ENGINE_DIR);
   try {
     // when we support Node version >= 12.10.0 , we can replace rimraf
     // with the native fs.rmdirSync(path, {recursive: true})
@@ -152,7 +168,17 @@ export class FailedToExtractCustomRulesError extends CustomError {
     super(message || 'Failed to download policies');
     this.code = IaCErrorCodes.FailedToExtractCustomRulesError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `We were unable to extract the rules provided at: ${path}`;
+    this.userMessage = `We were unable to extract the rules provided at: ${path}. The provided bundle may be corrupted or invalid. Please ensure it was generated using the 'snyk-iac-rules' SDK`;
+  }
+}
+
+export class InvalidCustomRules extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Invalid custom rules bundle');
+    this.code = IaCErrorCodes.FailedToDownloadRulesError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage =
+      `We were unable to download the security rules. The provided bundle does not match the required structure. Please ensure it was generated using the 'snyk-iac-rules' SDK`;
   }
 }
 

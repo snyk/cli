@@ -1,6 +1,7 @@
 import { extractBundle } from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
 import * as tar from 'tar';
 import { PassThrough } from 'stream';
+import { LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 
 describe('extractBundle', () => {
   jest.mock('fs');
@@ -29,7 +30,7 @@ describe('extractBundle', () => {
     mockBundleStream.end();
 
     await expect(extractBundlePromise).resolves.toEqual(undefined);
-    expect(tarSpy).toBeCalledWith({ C: expect.stringMatching('.iac-data') });
+    expect(tarSpy).toBeCalledWith({ C: expect.stringMatching(LOCAL_POLICY_ENGINE_DIR) });
     expect(receivedBundleData).toEqual('zipped data');
   });
 });
