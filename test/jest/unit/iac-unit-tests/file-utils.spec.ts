@@ -30,7 +30,9 @@ describe('extractBundle', () => {
     mockBundleStream.end();
 
     await expect(extractBundlePromise).resolves.toEqual(undefined);
-    expect(tarSpy).toBeCalledWith({ C: expect.stringMatching(LOCAL_POLICY_ENGINE_DIR) });
+    expect(tarSpy).toBeCalledWith({
+      C: expect.stringMatching(LOCAL_POLICY_ENGINE_DIR),
+    });
     expect(receivedBundleData).toEqual('zipped data');
   });
 });

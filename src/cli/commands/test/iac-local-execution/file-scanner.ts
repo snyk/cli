@@ -106,7 +106,7 @@ export class FailedToBuildPolicyEngine extends CustomError {
     this.code = IaCErrorCodes.FailedToBuildPolicyEngine;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
-      'We were unable run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
+      'We were unable to run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output';
   }
 }
 export class FailedToExecutePolicyEngine extends CustomError {
@@ -115,6 +115,6 @@ export class FailedToExecutePolicyEngine extends CustomError {
     this.code = IaCErrorCodes.FailedToExecutePolicyEngine;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
-      'We were unable run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output.';
+      'We were unable to run the test. Please run the command again with the `-d` flag and contact support@snyk.io with the contents of the output';
   }
 }

@@ -28,8 +28,14 @@ describe('scanFiles', () => {
   describe('with parsed files', () => {
     it('returns the expected violated policies', async () => {
       mockFs({
-        [path.resolve(__dirname, path.join('../../../..', LOCAL_POLICY_ENGINE_DIR))]: mockFs.load(
-          path.resolve(__dirname, path.join('../../../smoke', LOCAL_POLICY_ENGINE_DIR)),
+        [path.resolve(
+          __dirname,
+          path.join('../../../..', LOCAL_POLICY_ENGINE_DIR),
+        )]: mockFs.load(
+          path.resolve(
+            __dirname,
+            path.join('../../../smoke', LOCAL_POLICY_ENGINE_DIR),
+          ),
         ),
       });
 
@@ -48,7 +54,10 @@ describe('scanFiles', () => {
   describe('missing policy engine wasm files', () => {
     it('throws an error', async () => {
       mockFs({
-        [path.resolve(__dirname, path.join('../../../..', LOCAL_POLICY_ENGINE_DIR))]: {},
+        [path.resolve(
+          __dirname,
+          path.join('../../../..', LOCAL_POLICY_ENGINE_DIR),
+        )]: {},
       });
 
       await expect(scanFiles(parsedFiles)).rejects.toThrow();

@@ -1,7 +1,10 @@
 import * as fs from 'fs';
 import * as tar from 'tar';
 import * as path from 'path';
-import { FailedToInitLocalCacheError, LOCAL_POLICY_ENGINE_DIR } from './local-cache';
+import {
+  FailedToInitLocalCacheError,
+  LOCAL_POLICY_ENGINE_DIR,
+} from './local-cache';
 
 export function createIacDir(): void {
   // this path will be able to be customised by the user in the future
@@ -28,4 +31,16 @@ export function extractBundle(response: NodeJS.ReadableStream): Promise<void> {
       .on('finish', resolve)
       .on('error', reject);
   });
+}
+
+export function isValidBundle(wasmPath: string, dataPath: string): boolean {
+  try {
+    // verify that the correct files were generated, since this is user input
+    if (!fs.existsSync(wasmPath) || !fs.existsSync(dataPath)) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }

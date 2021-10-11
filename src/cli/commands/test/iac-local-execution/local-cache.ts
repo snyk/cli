@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { EngineType, IaCErrorCodes } from './types';
 import * as needle from 'needle';
 import * as rimraf from 'rimraf';
-import { createIacDir, extractBundle } from './file-utils';
+import { createIacDir, extractBundle, isValidBundle } from './file-utils';
 import * as Debug from 'debug';
 import { CustomError } from '../../../../lib/errors';
 import * as analytics from '../../../../lib/analytics';
@@ -94,6 +94,10 @@ export async function initLocalCache({
 
   // Attempt to extract the custom rules from the path provided.
   if (customRulesPath) {
+    if (!fs.existsSync(customRulesPath)) {
+      throw new InvalidCustomRulesPath(customRulesPath);
+    }
+
     try {
       const response = fs.createReadStream(customRulesPath);
       await extractBundle(response);
@@ -101,7 +105,12 @@ export async function initLocalCache({
       throw new FailedToExtractCustomRulesError(customRulesPath);
     }
 
-    if (!isValidCustomRulesBundle()) {
+    if (
+      !isValidBundle(
+        CUSTOM_POLICY_ENGINE_WASM_PATH,
+        CUSTOM_POLICY_ENGINE_DATA_PATH,
+      )
+    ) {
       throw new InvalidCustomRules(customRulesPath);
     }
   }
@@ -117,21 +126,12 @@ export async function initLocalCache({
   }
 }
 
-function isValidCustomRulesBundle(): boolean {
-  try {
-    // verify that the correct files were generated, since this is user input
-    if (!fs.existsSync(CUSTOM_POLICY_ENGINE_WASM_PATH) || !fs.existsSync(CUSTOM_POLICY_ENGINE_DATA_PATH)) {
-      return false;
-    }
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function cleanLocalCache() {
   // path to delete is hardcoded for now
-  const iacPath: fs.PathLike = path.join(`${process.cwd()}`, LOCAL_POLICY_ENGINE_DIR);
+  const iacPath: fs.PathLike = path.join(
+    `${process.cwd()}`,
+    LOCAL_POLICY_ENGINE_DIR,
+  );
   try {
     // when we support Node version >= 12.10.0 , we can replace rimraf
     // with the native fs.rmdirSync(path, {recursive: true})
@@ -173,12 +173,20 @@ export class FailedToExtractCustomRulesError extends CustomError {
 }
 
 export class InvalidCustomRules extends CustomError {
-  constructor(message?: string) {
+  constructor(path: string, message?: string) {
     super(message || 'Invalid custom rules bundle');
-    this.code = IaCErrorCodes.FailedToDownloadRulesError;
+    this.code = IaCErrorCodes.InvalidCustomRules;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage =
-      `We were unable to download the security rules. The provided bundle does not match the required structure. Please ensure it was generated using the 'snyk-iac-rules' SDK`;
+    this.userMessage = `We were unable to extract the rules provided at: ${path}. The provided bundle does not match the required structure. Please ensure it was generated using the 'snyk-iac-rules' SDK`;
+  }
+}
+
+export class InvalidCustomRulesPath extends CustomError {
+  constructor(path: string, message?: string) {
+    super(message || 'Invalid path to custom rules bundle');
+    this.code = IaCErrorCodes.InvalidCustomRulesPath;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `We were unable to extract the rules provided at: ${path}. The bundle at the provided path does not exist`;
   }
 }
 

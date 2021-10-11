@@ -44,9 +44,9 @@ export class FlagError extends CustomError {
     const flag = getFlagName(key);
     let msg;
     if (featureFlag) {
-      msg = `Flag "${flag}" is only supported if feature flag '${featureFlag}' is enabled. The feature flag can be enabled via Snyk Preview if you are on the Enterprise Plan.`;
+      msg = `Flag "${flag}" is only supported if feature flag '${featureFlag}' is enabled. The feature flag can be enabled via Snyk Preview if you are on the Enterprise Plan`;
     } else {
-      msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags.`;
+      msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags`;
     }
     super(msg);
     this.code = IaCErrorCodes.FlagError;
