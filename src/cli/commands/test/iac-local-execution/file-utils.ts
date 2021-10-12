@@ -1,11 +1,14 @@
 import * as fs from 'fs';
 import * as tar from 'tar';
 import * as path from 'path';
-import { FailedToInitLocalCacheError } from './local-cache';
+import {
+  FailedToInitLocalCacheError,
+  LOCAL_POLICY_ENGINE_DIR,
+} from './local-cache';
 
 export function createIacDir(): void {
   // this path will be able to be customised by the user in the future
-  const iacPath: fs.PathLike = path.join('.iac-data/');
+  const iacPath: fs.PathLike = path.join(LOCAL_POLICY_ENGINE_DIR);
   try {
     if (!fs.existsSync(iacPath)) {
       fs.mkdirSync(iacPath, '700');
@@ -22,10 +25,22 @@ export function extractBundle(response: NodeJS.ReadableStream): Promise<void> {
       .on('error', reject)
       .pipe(
         tar.x({
-          C: path.join('.iac-data'),
+          C: path.join(LOCAL_POLICY_ENGINE_DIR),
         }),
       )
       .on('finish', resolve)
       .on('error', reject);
   });
+}
+
+export function isValidBundle(wasmPath: string, dataPath: string): boolean {
+  try {
+    // verify that the correct files were generated, since this is user input
+    if (!fs.existsSync(wasmPath) || !fs.existsSync(dataPath)) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
 }
