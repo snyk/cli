@@ -22,8 +22,8 @@
        [1m-[0m[1m-[0m[1mj[0m[1ms[0m[1mo[0m[1mn[0m Prints results in JSON format.
 
        [1m-[0m[1m-[0m[1mo[0m[1mr[0m[1mg[0m=[4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m
-              Specify the [4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m to run Snyk commands tied to a specific or-
-              ganization.  This  will  influence  private tests limits. If you
+              Specify the [4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m to run Snyk commands  tied  to  a  specific
+              organization.  This  will influence private tests limits. If you
               have multiple organizations, you can set a default from the  CLI
               using:
 
@@ -51,8 +51,8 @@
               Prints versions.
 
        [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m] [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m, [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m], [1m-[0m[1mh[0m
-              Prints  a  help  text. You may specify a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more de-
-              tails.
+              Prints  a  help  text.  You  may  specify  a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more
+              details.
 
 [1mE[0m[1mX[0m[1mI[0m[1mT[0m [1mC[0m[1mO[0m[1mD[0m[1mE[0m[1mS[0m
        Possible exit codes and their meaning:

@@ -43,8 +43,8 @@
               save the JSON format output to a file.
 
        [1m-[0m[1m-[0m[1mo[0m[1mr[0m[1mg[0m=[4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m
-              Specify the [4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m to run Snyk commands tied to a specific or-
-              ganization. This will influence private  tests  limits.  If  you
+              Specify  the  [4mO[0m[4mR[0m[4mG[0m[1m_[0m[4mN[0m[4mA[0m[4mM[0m[4mE[0m  to  run Snyk commands tied to a specific
+              organization. This will influence private tests limits.  If  you
               have  multiple organizations, you can set a default from the CLI
               using:
 
@@ -92,8 +92,8 @@
               Prints versions.
 
        [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m] [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m, [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m], [1m-[0m[1mh[0m
-              Prints a help text. You may specify a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to  get  more  de-
-              tails.
+              Prints a help text. You  may  specify  a  [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m  to  get  more
+              details.
 
 [1mE[0m[1mX[0m[1mA[0m[1mM[0m[1mP[0m[1mL[0m[1mE[0m[1mS[0m
        For more information see IaC help page [4mh[0m[4mt[0m[4mt[0m[4mp[0m[4ms[0m[4m:[0m[4m/[0m[4m/[0m[4ms[0m[4mn[0m[4my[0m[4mk[0m[4m.[0m[4mc[0m[4mo[0m[4m/[0m[4mu[0m[4mc[0m[4mT[0m[4m6[0m[4mQ[0m

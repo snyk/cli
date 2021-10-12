@@ -41,6 +41,7 @@ import {
   FailedToRunTestError,
   MonitorError,
   MissingArgError,
+  ValidationError,
 } from '../../../lib/errors';
 import { isMultiProjectScan } from '../../../lib/is-multi-project-scan';
 import { getEcosystem, monitorEcosystem } from '../../../lib/ecosystems';
@@ -339,7 +340,7 @@ function getProjectAttribute<T>(
   // When it's specified without the =, we raise an explicit error to avoid
   // accidentally clearing the existing values.
   if (options[attribute] === true) {
-    throw new Error(
+    throw new ValidationError(
       `--${attribute} must contain an '=' with a comma-separated list of values. To clear all existing values, pass no values i.e. --${attribute}=`,
     );
   }
@@ -347,7 +348,7 @@ function getProjectAttribute<T>(
   const values = options[attribute].split(',');
   const extra = values.filter((value) => !permittedValues.includes(value));
   if (extra.length > 0) {
-    throw new Error(
+    throw new ValidationError(
       `${extra.length} invalid ${attribute}: ${extra.join(', ')}. ` +
         `Possible values are: ${permittedValues.join(', ')}`,
     );
@@ -359,16 +360,20 @@ function getProjectAttribute<T>(
 export function generateProjectAttributes(options): ProjectAttributes {
   return {
     criticality: getProjectAttribute(
-      'business-criticality',
+      'project-business-criticality',
       PROJECT_CRITICALITY,
       options,
     ),
     environment: getProjectAttribute(
-      'environment',
+      'project-environment',
       PROJECT_ENVIRONMENT,
       options,
     ),
-    lifecycle: getProjectAttribute('lifecycle', PROJECT_LIFECYCLE, options),
+    lifecycle: getProjectAttribute(
+      'project-lifecycle',
+      PROJECT_LIFECYCLE,
+      options,
+    ),
   };
 }
 
@@ -383,29 +388,29 @@ export function generateProjectAttributes(options): ProjectAttributes {
  * @returns List of parsed tags or undefined if they are to be left untouched.
  */
 export function generateTags(options): Tag[] | undefined {
-  if (options.tags === undefined) {
+  if (options['project-tags'] === undefined) {
     return undefined;
   }
 
-  if (options.tags === '') {
+  if (options['project-tags'] === '') {
     return [];
   }
 
   // When it's specified without the =, we raise an explicit error to avoid
   // accidentally clearing the existing tags;
-  if (options.tags === true) {
-    throw new Error(
-      `--tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --tags=`,
+  if (options['project-tags'] === true) {
+    throw new ValidationError(
+      `--project-tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --project-tags=`,
     );
   }
 
-  const tags: Tag[] = [];
-  const keyEqualsValuePairs = options.tags.split(',');
+  const keyEqualsValuePairs = options['project-tags'].split(',');
 
+  const tags: Tag[] = [];
   for (const keyEqualsValue of keyEqualsValuePairs) {
     const parts = keyEqualsValue.split('=');
     if (parts.length !== 2) {
-      throw new Error(
+      throw new ValidationError(
         `The tag "${keyEqualsValue}" does not have an "=" separating the key and value.`,
       );
     }
