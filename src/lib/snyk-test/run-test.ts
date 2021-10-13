@@ -722,6 +722,7 @@ async function assembleLocalPayloads(
 
         // TODO: Remove relativePath prop once we gather enough ruby related logs
         targetFileRelativePath: `${targetFileRelativePath}`, // Forcing string
+        targetReference: options['target-reference'],
         projectNameOverride: options.projectName,
         originalProjectName,
         policy: policy ? policy.toString() : undefined,

@@ -87,6 +87,7 @@ export interface Options {
   quiet?: boolean;
   'fail-fast'?: boolean;
   tags?: string;
+  'target-reference'?: string;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
