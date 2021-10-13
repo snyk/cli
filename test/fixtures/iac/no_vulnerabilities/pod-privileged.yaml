@@ -7,5 +7,5 @@ spec:
     - name: example
       image: example:latest
       securityContext:
-        privileged: false
+        privileged: false 
         runAsNonRoot: true
