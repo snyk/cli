@@ -40,9 +40,14 @@ function getFlagName(key: string) {
 }
 
 export class FlagError extends CustomError {
-  constructor(key: string) {
+  constructor(key: string, featureFlag: string) {
     const flag = getFlagName(key);
-    const msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags.`;
+    let msg;
+    if (featureFlag) {
+      msg = `Flag "${flag}" is only supported if feature flag '${featureFlag}' is enabled. The feature flag can be enabled via Snyk Preview if you are on the Enterprise Plan`;
+    } else {
+      msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags`;
+    }
     super(msg);
     this.code = IaCErrorCodes.FlagError;
     this.strCode = getErrorStringCode(this.code);
@@ -82,7 +87,7 @@ export function assertIaCOptionsFlags(argv: string[]) {
     // flag strings passed to the command line (usually files)
     // and `iac` is the command provided.
     if (key !== '_' && key !== 'iac' && !allowed.has(key)) {
-      throw new FlagError(key);
+      throw new FlagError(key, '');
     }
   }
 

@@ -231,6 +231,8 @@ export enum IaCErrorCodes {
   FailedToCleanLocalCacheError = 1001,
   FailedToDownloadRulesError = 1002,
   FailedToExtractCustomRulesError = 1003,
+  InvalidCustomRules = 1004,
+  InvalidCustomRulesPath = 1005,
 
   // file-loader errors
   NoFilesToScanError = 1010,

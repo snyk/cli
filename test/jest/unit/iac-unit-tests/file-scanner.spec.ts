@@ -4,6 +4,7 @@ import {
   scanFiles,
   clearPolicyEngineCache,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-scanner';
+import { LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 import { IacFileParsed } from '../../../../src/cli/commands/test/iac-local-execution/types';
 
 import {
@@ -27,8 +28,14 @@ describe('scanFiles', () => {
   describe('with parsed files', () => {
     it('returns the expected violated policies', async () => {
       mockFs({
-        [path.resolve(__dirname, '../../../../.iac-data')]: mockFs.load(
-          path.resolve(__dirname, '../../../smoke/.iac-data'),
+        [path.resolve(
+          __dirname,
+          path.join('../../../..', LOCAL_POLICY_ENGINE_DIR),
+        )]: mockFs.load(
+          path.resolve(
+            __dirname,
+            path.join('../../../smoke', LOCAL_POLICY_ENGINE_DIR),
+          ),
         ),
       });
 
@@ -47,7 +54,10 @@ describe('scanFiles', () => {
   describe('missing policy engine wasm files', () => {
     it('throws an error', async () => {
       mockFs({
-        [path.resolve(__dirname, '../../../../.iac-data')]: {},
+        [path.resolve(
+          __dirname,
+          path.join('../../../..', LOCAL_POLICY_ENGINE_DIR),
+        )]: {},
       });
 
       await expect(scanFiles(parsedFiles)).rejects.toThrow();

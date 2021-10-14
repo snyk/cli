@@ -112,7 +112,7 @@ async function customRulesPathForOrg(
     return customRulesPath;
   }
 
-  throw new FlagError('rules');
+  throw new FlagError('rules', 'iacCustomRules');
 }
 
 export function removeFileContent({

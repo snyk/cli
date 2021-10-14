@@ -8,3 +8,4 @@ spec:
       image: example:latest
       securityContext:
         privileged: false 
+        runAsNonRoot: true

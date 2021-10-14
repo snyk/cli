@@ -58,18 +58,28 @@ describe('--target-reference', () => {
     });
   });
 
-  it('is not supported on commands other than monitor', async () => {
+  it('forwards value to test endpoint', async () => {
     const project = await createProjectFromWorkspace('fail-on/no-vulns');
-    const { code, stdout } = await runSnykCLI(
+    const { code } = await runSnykCLI(
       'test --target-reference=test-target-ref',
       {
         env,
         cwd: project.path(),
       },
     );
-    expect(code).toEqual(2);
-    expect(stdout).toMatch(
-      'The following option combination is not currently supported: test + target-reference',
-    );
+    expect(code).toEqual(0);
+
+    const testRequests = server
+      .getRequests()
+      .filter((request) => request.url?.includes('/test-dep-graph'));
+
+    expect(testRequests.length).toBeGreaterThanOrEqual(1);
+    testRequests.forEach((request) => {
+      expect(request).toMatchObject({
+        body: {
+          targetReference: 'test-target-ref',
+        },
+      });
+    });
   });
 });

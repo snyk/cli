@@ -79,17 +79,23 @@ For advanced usage, we offer language and context specific flags, listed further
   Specify a custom Snyk project name.
 
 - `--target-reference`=<TARGET_REFERENCE>:
-  (only in `monitor` command)
   A reference to separate this project from other scans of the same project. For example, a branch name or version. Projects using the same reference can be used for grouping. [More information](https://snyk.info/3B0vTPs).
 
-- `--environment`=<ENVIRONMENT>[,<ENVIRONMENT>]...>:
+- `--project-environment`=<ENVIRONMENT>[,<ENVIRONMENT>]...>:
+  (only in `monitor` command)
   Set the project environment to one or more values (comma-separated). Allowed values: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed
 
-- `--lifecycle`=<LIFECYCLE>[,<LIFECYCLE>]...>:
+- `--project-lifecycle`=<LIFECYCLE>[,<LIFECYCLE>]...>:
+  (only in `monitor` command)
   Set the project lifecycle to one or more values (comma-separated). Allowed values: production, development, sandbox
 
-- `--business-criticality`=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>:
+- `--project-business-criticality`=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>:
+  (only in `monitor` command)
   Set the project business criticality to one or more values (comma-separated). Allowed values: critical, high, medium, low
+
+- `--project-tags`=<TAG>[,<TAG>]...>:
+  (only in `monitor` command)
+  Set the project tags to one or more values (comma-separated key value pairs with an "=" separator). e.g. --tags=department=finance,team=alpha
 
 - `--policy-path`=<PATH_TO_POLICY_FILE>`:
   Manually pass a path to a snyk policy file.
