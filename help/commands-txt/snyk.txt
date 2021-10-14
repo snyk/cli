@@ -166,7 +166,7 @@
        [1m-[0m[1m-[0m[1mp[0m[1mr[0m[1mo[0m[1mj[0m[1me[0m[1mc[0m[1mt[0m[1m-[0m[1mt[0m[1ma[0m[1mg[0m[1ms[0m=[4mT[0m[4mA[0m[4mG[0m[,[4mT[0m[4mA[0m[4mG[0m]...>
               (only in [1mm[0m[1mo[0m[1mn[0m[1mi[0m[1mt[0m[1mo[0m[1mr[0m command) Set the project tags to  one  or  more
               values  (comma-separated key value pairs with an "=" separator).
-              e.g. --tags=department=finance,team=alpha
+              e.g. --project-tags=department=finance,team=alpha
 
        [1m-[0m[1m-[0m[1mp[0m[1mo[0m[1ml[0m[1mi[0m[1mc[0m[1my[0m[1m-[0m[1mp[0m[1ma[0m[1mt[0m[1mh[0m=[4mP[0m[4mA[0m[4mT[0m[4mH[0m[1m_[0m[4mT[0m[4mO[0m[1m_[0m[4mP[0m[4mO[0m[4mL[0m[4mI[0m[4mC[0m[4mY[0m[1m_[0m[4mF[0m[4mI[0m[4mL[0m[4mE[0m`
               Manually pass a path to a snyk policy file.
