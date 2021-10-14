@@ -1,31 +1,32 @@
 import { emitter as codeEmitter } from '@snyk/code-client';
-import spinner = require('../../../spinner');
+import * as spinner from '../../../spinner';
 
-export function analysisProgressUpdate(currentLabel: string) {
-  codeEmitter.on('scanFilesProgress', async (processed: number) => {
-    const spinnerLbl = `Prepare ${processed} files to upload`;
-    spinner.clear<void>(currentLabel)();
-    currentLabel = spinnerLbl;
-    await spinner(spinnerLbl);
-  });
-  codeEmitter.on(
-    'uploadBundleProgress',
-    async (processed: number, total: number) => {
-      const spinnerLbl = `Upload progress: ${processed}/${total}`;
-      spinner.clear<void>(currentLabel)();
-      currentLabel = spinnerLbl;
-      await spinner(spinnerLbl);
-    },
+export function analysisProgressUpdate(): void {
+  let currentMessage = '';
+  const showSpinner = (message: string): Promise<void> | undefined => {
+    if (currentMessage === message) return;
+
+    spinner.clear<void>(currentMessage)();
+    currentMessage = message;
+    return spinner(message);
+  };
+
+  codeEmitter.on('supportedFilesLoaded', () =>
+    showSpinner(`Supported extensions loaded`),
   );
-  codeEmitter.on('analyseProgress', async (data: any) => {
-    const spinnerLbl = `Analysis: ${Math.round(data.progress * 100)}%`;
-    spinner.clear<void>(currentLabel)();
-    currentLabel = spinnerLbl;
-    await spinner(spinnerLbl);
-  });
-
+  codeEmitter.on('scanFilesProgress', (processed: number) =>
+    showSpinner(`Scanning files: ${Math.round(processed / 100)}00`),
+  );
+  codeEmitter.on('createBundleProgress', (processed: number, total: number) =>
+    showSpinner(`Batching file upload: ${processed} / ${total}`),
+  );
+  codeEmitter.on('uploadBundleProgress', (processed: number, total: number) =>
+    showSpinner(`Upload progress: ${processed} / ${total}`),
+  );
+  codeEmitter.on('analyseProgress', (data: any) =>
+    showSpinner(`Analysis: ${Math.round(data.progress * 100)}%`),
+  );
   codeEmitter.on('sendError', (error) => {
     throw error;
   });
-  return currentLabel;
 }
