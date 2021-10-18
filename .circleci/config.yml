@@ -106,18 +106,18 @@ commands:
             curl -s "https://get.sdkman.io?rcupdate=false" | bash
             echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
             source $BASH_ENV
-      - restore_cache:
-          name: Restoring SDKMAN cache
-          keys:
-            - sdkman-cache-v2-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+      # - restore_cache:
+      #     name: Restoring SDKMAN cache
+      #     keys:
+      #       - sdkman-cache-v2-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
       - run:
           name: Installing SDKs
           command: ./.circleci/install-sdks-linux.sh
-      - save_cache:
-          name: Saving SDKMAN cache
-          key: sdkman-cache-v2-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
-          paths:
-            - ~/.sdkman/archives
+      # - save_cache:
+      #     name: Saving SDKMAN cache
+      #     key: sdkman-cache-v2-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+      #     paths:
+      #       - ~/.sdkman/archives
   install_node_windows:
     parameters:
       node_version:
