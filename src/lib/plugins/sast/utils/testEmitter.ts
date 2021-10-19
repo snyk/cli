@@ -24,7 +24,7 @@ export function analysisProgressUpdate(): void {
     showSpinner(`Upload progress: ${processed} / ${total}`),
   );
   codeEmitter.on('analyseProgress', (data: any) =>
-    showSpinner(`Analysis: ${Math.round(data.progress * 100)}%`),
+    showSpinner(`${data.status}: ${Math.round(data.progress * 100)}%`),
   );
   codeEmitter.on('sendError', (error) => {
     throw error;
