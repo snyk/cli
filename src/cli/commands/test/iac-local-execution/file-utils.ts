@@ -36,10 +36,7 @@ export function extractBundle(response: NodeJS.ReadableStream): Promise<void> {
 export function isValidBundle(wasmPath: string, dataPath: string): boolean {
   try {
     // verify that the correct files were generated, since this is user input
-    if (!fs.existsSync(wasmPath) || !fs.existsSync(dataPath)) {
-      return false;
-    }
-    return true;
+    return !(!fs.existsSync(wasmPath) || !fs.existsSync(dataPath));
   } catch {
     return false;
   }

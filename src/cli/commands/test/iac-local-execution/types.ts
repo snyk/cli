@@ -269,9 +269,53 @@ export enum IaCErrorCodes {
   // assert-iac-options-flag
   FlagError = 1090,
   FlagValueError = 1091,
+
+  // oci-pull errors
+  FailedToExecuteCustomRulesError = 1100,
+  FailedToPullCustomBundleError = 1101,
+  FailedToBuildOCIArtifactError = 1102,
+  InvalidRemoteRegistryURLError = 1103,
+  InvalidManifestSchemaVersionError = 1104,
 }
 
 export interface TestReturnValue {
   results: TestResult | TestResult[];
   failures?: IacFileInDirectory[];
 }
+
+// https://github.com/opencontainers/image-spec/blob/main/manifest.md#image-manifest
+export interface ImageManifest {
+  schemaVersion: number;
+  mediaType: string;
+  config: ManifestConfig;
+  layers: ManifestConfig[];
+}
+
+export interface ManifestConfig {
+  mediaType: string;
+  size: number;
+  digest: string; // unique content identifier
+}
+
+export interface Layer {
+  config: ManifestConfig;
+  blob: Buffer;
+}
+
+export interface OCIPullOptions {
+  username?: string;
+  password?: string;
+  // weak typing on the client
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  reqOptions?: { accept?: string; indexContentType?: string };
+  imageSavePath?: string;
+}
+
+export interface OciUrl {
+  registryBase: string;
+  repo: string;
+  tag: string;
+}
+
+export const manifestContentType = 'application/vnd.oci.image.manifest.v1+json';
+export const layerContentType = 'application/vnd.oci.image.layer.v1.tar+gzip';

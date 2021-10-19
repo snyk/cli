@@ -7,6 +7,7 @@ import { cleanLocalCache, initLocalCache } from './local-cache';
 import { applyCustomSeverities } from './org-settings/apply-custom-severities';
 import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
 import { test } from './index';
+import { pull } from './oci-pull';
 import {
   PerformanceAnalyticsKey,
   performanceAnalyticsObject,
@@ -98,6 +99,11 @@ const measurableLocalTest = asyncPerformanceAnalyticsDecorator(
   PerformanceAnalyticsKey.Total,
 );
 
+const measurableOciPull = asyncPerformanceAnalyticsDecorator(
+  pull,
+  PerformanceAnalyticsKey.Total,
+);
+
 export {
   measurableInitLocalCache as initLocalCache,
   measurableLoadFiles as loadFiles,
@@ -109,4 +115,5 @@ export {
   measurableTrackUsage as trackUsage,
   measurableCleanLocalCache as cleanLocalCache,
   measurableLocalTest as localTest,
+  measurableOciPull as pull,
 };

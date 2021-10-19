@@ -75,6 +75,7 @@
     "@snyk/cloud-config-parser": "^1.11.1",
     "@snyk/code-client": "^4.4.0",
     "@snyk/dep-graph": "^1.27.1",
+    "@snyk/docker-registry-v2-client": "^2.4.0",
     "@snyk/fix": "file:packages/snyk-fix",
     "@snyk/gemfile": "1.2.0",
     "@snyk/graphlib": "^2.1.9-patch.3",

@@ -1,31 +1,37 @@
 import { isLocalFolder } from '../../../../lib/detect';
 import {
-  IaCTestFlags,
+  EngineType,
+  IaCErrorCodes,
   IacFileParsed,
   IacFileParseFailure,
+  IaCTestFlags,
+  layerContentType,
+  manifestContentType,
   SafeAnalyticsOutput,
   TestReturnValue,
-  EngineType,
 } from './types';
 import { addIacAnalytics } from './analytics';
 import { TestLimitReachedError } from './usage-tracking';
 import { filterIgnoredIssues } from './policy';
 import { TestResult } from '../../../../lib/snyk-test/legacy';
 import {
+  applyCustomSeverities,
+  cleanLocalCache,
+  formatScanResults,
+  getIacOrgSettings,
   initLocalCache,
   loadFiles,
   parseFiles,
   scanFiles,
-  getIacOrgSettings,
-  applyCustomSeverities,
-  formatScanResults,
   trackUsage,
-  cleanLocalCache,
 } from './measurable-methods';
 import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { FlagError } from './assert-iac-options-flag';
 import config from '../../../../lib/config';
-import { findAndLoadPolicy } from '../../../../lib/policy/find-and-load-policy';
+import { findAndLoadPolicy } from '../../../../lib/policy';
+import { pull } from './oci-pull';
+import { CustomError } from '../../../../lib/errors';
+import { getErrorStringCode } from './error-utils';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -38,7 +44,41 @@ export async function test(
     const iacOrgSettings = await getIacOrgSettings(org);
     const customRulesPath = await customRulesPathForOrg(options.rules, org);
 
-    await initLocalCache({ customRulesPath });
+    const OCIRegistryURL = process.env.OCI_REGISTRY_URL;
+    if (OCIRegistryURL && customRulesPath) {
+      throw new FailedToExecuteCustomRulesError();
+    }
+    if (OCIRegistryURL) {
+      const username = process.env.OCI_REGISTRY_USERNAME;
+      const password = process.env.OCI_REGISTRY_PASSWORD;
+
+      const opt = {
+        username,
+        password,
+        reqOptions: {
+          acceptManifest: manifestContentType,
+          acceptLayer: layerContentType,
+          indexContentType: '',
+        },
+      };
+
+      try {
+        await pull(OCIRegistryURL, opt);
+      } catch (err) {
+        if (err.statusCode === 401) {
+          throw new FailedToPullCustomBundleError(
+            'There was an authentication error. Incorrect credentials provided.',
+          );
+        } else if (err.statusCode === 404) {
+          throw new FailedToPullCustomBundleError(
+            'The remote repository could not be found. Please check the provided URL.',
+          );
+        }
+        throw new FailedToPullCustomBundleError();
+      }
+    } else {
+      await initLocalCache({ customRulesPath });
+    }
 
     const policy = await findAndLoadPolicy(pathToScan, 'iac', options);
 
@@ -49,7 +89,7 @@ export async function test(
     );
 
     // Duplicate all the files and run them through the custom engine.
-    if (customRulesPath) {
+    if (customRulesPath || OCIRegistryURL) {
       parsedFiles.push(
         ...parsedFiles.map((file) => ({
           ...file,
@@ -105,9 +145,9 @@ async function customRulesPathForOrg(
 ): Promise<string | undefined> {
   if (!customRulesPath) return;
 
-  const isCustomRulesSupported =
-    (await isFeatureFlagSupportedForOrg('iacCustomRules', publicOrgId)).ok ===
-    true;
+  const isCustomRulesSupported = (
+    await isFeatureFlagSupportedForOrg('iacCustomRules', publicOrgId)
+  ).ok;
   if (isCustomRulesSupported) {
     return customRulesPath;
   }
@@ -127,4 +167,26 @@ export function removeFileContent({
     failureReason,
     projectType,
   };
+}
+
+export class FailedToPullCustomBundleError extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Could not pull custom bundle');
+    this.code = IaCErrorCodes.FailedToPullCustomBundleError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `${message ? message + ' ' : ''}
+    We were unable to download the custom bundle to the disk.
+    Please ensure access to the remote Registry and validate you have provided all the right parameters.`;
+  }
+}
+
+export class FailedToExecuteCustomRulesError extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Could not execute custom rules mode');
+    this.code = IaCErrorCodes.FailedToExecuteCustomRulesError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `
+    Remote and local custom rules bundle can not be used at the same time.
+    Please provide a registry URL for the remote bundle, or specify local path location by using the --rules flag for the local bundle.`;
+  }
 }
