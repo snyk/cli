@@ -34,6 +34,7 @@ help/commands-docs/iac.md @snyk/cloudconfig
 test/jest/util/ @snyk/hammer
 dangerfile.js @snyk/hammer
 package.json @snyk/hammer
+package-lock.json @snyk/hammer
 config.default.js @snyk/hammer
 webpack.common.js @snyk/hammer
 webpack.dev.js @snyk/hammer
