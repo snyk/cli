@@ -3,6 +3,7 @@ import {
   CUSTOM_RULES_TARBALL,
   extractURLComponents,
   FailedToBuildOCIArtifactError,
+  InvalidRemoteRegistryURLError,
 } from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
 import * as registryClient from '@snyk/docker-registry-v2-client';
 import { layers, manifest, opt } from './oci-pull.fixtures';
@@ -30,6 +31,20 @@ describe('extractURLComponents', () => {
       repo: 'user/repo-test',
       tag: '0.5.2',
     });
+  });
+  it('extracts components and a latest tag, when tag is undefined', async () => {
+    const expected = extractURLComponents('https://gcr.io/user/repo-test');
+    expect(expected).toEqual({
+      registryBase: 'gcr.io',
+      repo: 'user/repo-test',
+      tag: 'latest',
+    });
+  });
+
+  it('throws an error if URL is invalid', () => {
+    expect(() => {
+      extractURLComponents('url/not/valid');
+    }).toThrow(InvalidRemoteRegistryURLError);
   });
 });
 
@@ -92,19 +107,6 @@ describe('pull', () => {
       throw new Error();
     });
 
-    const pullResult = OCIPull.pull(
-      {
-        registryBase: 'registry-1.docker.io',
-        repo: 'accountName/custom-bundle-repo',
-        tag: 'latest',
-      },
-      opt,
-    );
-
-    await expect(pullResult).rejects.toThrow(FailedToBuildOCIArtifactError);
-  });
-
-  it('throws an error if URL is invalid', async () => {
     const pullResult = OCIPull.pull(
       {
         registryBase: 'registry-1.docker.io',

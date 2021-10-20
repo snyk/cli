@@ -22,7 +22,7 @@ export function extractURLComponents(OCIRegistryURL: string): OciUrl {
   try {
     const url = OCIRegistryURL.split('://')[1];
     const [registryBase, accountName, repoWithTag] = url.split('/');
-    const [repoName, tag] = repoWithTag.split(':');
+    const [repoName, tag = 'latest'] = repoWithTag.split(':');
     const repo = accountName + '/' + repoName;
     return { registryBase, repo, tag };
   } catch {
@@ -50,7 +50,6 @@ export async function pull(
     opt?.password,
     opt?.reqOptions,
   );
-
   if (manifest.schemaVersion !== 2) {
     throw new InvalidManifestSchemaVersionError(
       manifest.schemaVersion.toString(),
@@ -61,7 +60,6 @@ export async function pull(
   if (manifestLayers.length > 1) {
     debug('There were more than one layers found in the OCI Artifact.');
   }
-
   const blob = await registryClient.getLayer(
     registryBase,
     repo,

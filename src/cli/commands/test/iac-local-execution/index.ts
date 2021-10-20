@@ -34,6 +34,8 @@ import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import {
   extractURLComponents,
+  FailedToBuildOCIArtifactError,
+  InvalidManifestSchemaVersionError,
   InvalidRemoteRegistryURLError,
 } from './oci-pull';
 
@@ -62,11 +64,6 @@ export async function test(
       }
 
       const URLComponents = extractURLComponents(OCIRegistryURL);
-      if (iacOrgSettings.customRules?.ociRegistryURL) {
-        URLComponents.tag =
-          iacOrgSettings.customRules?.ociRegistryTag || 'latest';
-      }
-
       const username = process.env.OCI_REGISTRY_USERNAME;
       const password = process.env.OCI_REGISTRY_PASSWORD;
 
@@ -91,8 +88,15 @@ export async function test(
           throw new FailedToPullCustomBundleError(
             'The remote repository could not be found. Please check the provided URL.',
           );
+        } else if (err instanceof InvalidManifestSchemaVersionError) {
+          throw new FailedToPullCustomBundleError(err.message);
+        } else if (err instanceof FailedToBuildOCIArtifactError) {
+          throw new FailedToBuildOCIArtifactError();
+        } else if (err instanceof InvalidRemoteRegistryURLError) {
+          throw new InvalidRemoteRegistryURLError();
+        } else {
+          throw new FailedToPullCustomBundleError();
         }
-        throw new FailedToPullCustomBundleError();
       }
     } else {
       await initLocalCache({ customRulesPath });
@@ -203,8 +207,7 @@ export class FailedToPullCustomBundleError extends CustomError {
     this.code = IaCErrorCodes.FailedToPullCustomBundleError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = `${message ? message + ' ' : ''}
-    We were unable to download the custom bundle to the disk.
-    Please ensure access to the remote Registry and validate you have provided all the right parameters.`;
+    We were unable to download the custom bundle to the disk. Please ensure access to the remote Registry and validate you have provided all the right parameters.`;
   }
 }
 
