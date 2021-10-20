@@ -124,7 +124,7 @@ export async function test(
       // run their tests by squashing the error.
     }
 
-    addIacAnalytics(filteredIssues, ignoreCount);
+    addIacAnalytics(filteredIssues, ignoreCount, !!customRulesPath);
 
     // TODO: add support for proper typing of old TestResult interface.
     return {
