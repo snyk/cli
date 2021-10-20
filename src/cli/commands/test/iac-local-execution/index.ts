@@ -22,6 +22,7 @@ import {
   initLocalCache,
   loadFiles,
   parseFiles,
+  pull,
   scanFiles,
   trackUsage,
 } from './measurable-methods';
@@ -29,7 +30,6 @@ import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { FlagError } from './assert-iac-options-flag';
 import config from '../../../../lib/config';
 import { findAndLoadPolicy } from '../../../../lib/policy';
-import { pull } from './oci-pull';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 
@@ -44,7 +44,11 @@ export async function test(
     const iacOrgSettings = await getIacOrgSettings(org);
     const customRulesPath = await customRulesPathForOrg(options.rules, org);
 
-    const OCIRegistryURL = process.env.OCI_REGISTRY_URL;
+    const OCIRegistryURL = iacOrgSettings.customRules?.ociRegistryURL
+      ? `${iacOrgSettings.customRules?.ociRegistryURL}:${iacOrgSettings
+          .customRules?.ociRegistryTag || 'latest'}`
+      : process.env.OCI_REGISTRY_URL;
+
     if (OCIRegistryURL && customRulesPath) {
       throw new FailedToExecuteCustomRulesError();
     }

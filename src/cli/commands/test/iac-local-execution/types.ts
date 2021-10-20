@@ -68,9 +68,16 @@ export type FormattedResult = {
 
 export type IacCustomPolicies = Record<string, { severity?: string }>;
 
+export interface IaCCustomRulesConfigs {
+  isEnabled?: boolean;
+  ociRegistryURL?: string;
+  ociRegistryTag?: string;
+}
+
 export interface IacOrgSettings {
   meta: TestMeta;
   customPolicies: IacCustomPolicies;
+  customRules?: IaCCustomRulesConfigs;
 }
 
 export interface TestMeta {
