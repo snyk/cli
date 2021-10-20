@@ -23,7 +23,7 @@ const debug = Debug('snyk-auth');
 let attemptsLeft = 0;
 
 function resetAttempts() {
-  attemptsLeft = isDocker() ? 60 : 30;
+  attemptsLeft = isDocker() ? 60 : 3 * 60;
 }
 
 type AuthCliCommands = 'wizard' | 'ignore';
