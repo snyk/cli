@@ -1,5 +1,6 @@
 import * as OCIPull from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
 import {
+  CUSTOM_RULES_TARBALL,
   extractURLComponents,
   FailedToBuildOCIArtifactError,
 } from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
@@ -81,7 +82,7 @@ describe('pull', () => {
       opt.reqOptions,
     );
     expect(writeSpy).toHaveBeenCalledWith(
-      expect.stringContaining('custom-bundle.tar.gz'),
+      expect.stringContaining(CUSTOM_RULES_TARBALL),
       layers[0].blob,
     );
   });
