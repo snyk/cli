@@ -2,7 +2,6 @@ import * as OCIPull from '../../../../src/cli/commands/test/iac-local-execution/
 import {
   extractURLComponents,
   FailedToBuildOCIArtifactError,
-  InvalidRemoteRegistryURLError,
 } from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
 import * as registryClient from '@snyk/docker-registry-v2-client';
 import { layers, manifest, opt } from './oci-pull.fixtures';
@@ -56,7 +55,11 @@ describe('pull', () => {
     jest.spyOn(fileUtilsModule, 'createIacDir').mockImplementation(() => null);
 
     await OCIPull.pull(
-      'https://registry-1.docker.io/accountName/custom-bundle-repo:latest',
+      {
+        registryBase: 'registry-1.docker.io',
+        repo: 'accountName/custom-bundle-repo',
+        tag: 'latest',
+      },
       opt,
     );
 
@@ -89,7 +92,11 @@ describe('pull', () => {
     });
 
     const pullResult = OCIPull.pull(
-      'https://registry-1.docker.io/accountName/custom-bundle-repo:latest',
+      {
+        registryBase: 'registry-1.docker.io',
+        repo: 'accountName/custom-bundle-repo',
+        tag: 'latest',
+      },
       opt,
     );
 
@@ -98,10 +105,14 @@ describe('pull', () => {
 
   it('throws an error if URL is invalid', async () => {
     const pullResult = OCIPull.pull(
-      'registry-1.docker.io/accountName/custom-bundle-repo:latest',
+      {
+        registryBase: 'registry-1.docker.io',
+        repo: 'accountName/custom-bundle-repo',
+        tag: 'latest',
+      },
       opt,
     );
 
-    await expect(pullResult).rejects.toThrow(InvalidRemoteRegistryURLError);
+    await expect(pullResult).rejects.toThrow(FailedToBuildOCIArtifactError);
   });
 });

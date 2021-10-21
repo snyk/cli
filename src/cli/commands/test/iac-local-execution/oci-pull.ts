@@ -37,13 +37,9 @@ export function extractURLComponents(OCIRegistryURL: string): OciUrl {
  * @param opt????? (optional) - object that holds the credentials and other metadata required for the registry-v2-client
  **/
 export async function pull(
-  OCIRegistryURL: string,
+  { registryBase, repo, tag }: OciUrl,
   opt?: OCIPullOptions,
 ): Promise<void> {
-  if (!isValidURL(OCIRegistryURL)) {
-    throw new InvalidRemoteRegistryURLError();
-  }
-  const { registryBase, repo, tag } = extractURLComponents(OCIRegistryURL);
   const manifest: ImageManifest = await registryClient.getManifest(
     registryBase,
     repo,
@@ -86,16 +82,6 @@ export async function pull(
   }
 }
 
-function isValidURL(string) {
-  let url;
-  try {
-    url = new URL(string);
-  } catch (e) {
-    return false;
-  }
-  return url.protocol === 'http:' || url.protocol === 'https:';
-}
-
 export class FailedToBuildOCIArtifactError extends CustomError {
   constructor(message?: string) {
     super(message || 'Could not build OCI Artifact');
@@ -106,6 +92,15 @@ export class FailedToBuildOCIArtifactError extends CustomError {
   }
 }
 
+export class InvalidManifestSchemaVersionError extends CustomError {
+  constructor(message?: string) {
+    super(message || 'Invalid manifest schema version');
+    this.code = IaCErrorCodes.InvalidRemoteRegistryURLError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `Invalid manifest schema version: ${message}. We currently support Image Manifest Version 2, Schema 2`;
+  }
+}
+
 export class InvalidRemoteRegistryURLError extends CustomError {
   constructor(message?: string) {
     super(message || 'Invalid URL for Remote Registry');
@@ -113,14 +108,5 @@ export class InvalidRemoteRegistryURLError extends CustomError {
     this.strCode = getErrorStringCode(this.code);
     this.userMessage =
       'The Remote Registry URL is invalid, or does not include a http/https protocol. Please check it again.';
-  }
-}
-
-export class InvalidManifestSchemaVersionError extends CustomError {
-  constructor(message?: string) {
-    super(message || 'Invalid manifest schema version');
-    this.code = IaCErrorCodes.InvalidRemoteRegistryURLError;
-    this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `Invalid manifest schema version: ${message}. We currently support Image Manifest Version 2, Schema 2`;
   }
 }

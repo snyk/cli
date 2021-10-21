@@ -32,6 +32,10 @@ import config from '../../../../lib/config';
 import { findAndLoadPolicy } from '../../../../lib/policy';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
+import {
+  extractURLComponents,
+  InvalidRemoteRegistryURLError,
+} from './oci-pull';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -44,15 +48,25 @@ export async function test(
     const iacOrgSettings = await getIacOrgSettings(org);
     const customRulesPath = await customRulesPathForOrg(options.rules, org);
 
-    const OCIRegistryURL = iacOrgSettings.customRules?.ociRegistryURL
-      ? `${iacOrgSettings.customRules?.ociRegistryURL}:${iacOrgSettings
-          .customRules?.ociRegistryTag || 'latest'}`
-      : process.env.OCI_REGISTRY_URL;
+    const OCIRegistryURL =
+      iacOrgSettings.customRules?.ociRegistryURL ||
+      process.env.OCI_REGISTRY_URL;
 
     if (OCIRegistryURL && customRulesPath) {
       throw new FailedToExecuteCustomRulesError();
     }
+
     if (OCIRegistryURL) {
+      if (!isValidURL(OCIRegistryURL)) {
+        throw new InvalidRemoteRegistryURLError();
+      }
+
+      const URLComponents = extractURLComponents(OCIRegistryURL);
+      if (iacOrgSettings.customRules?.ociRegistryURL) {
+        URLComponents.tag =
+          iacOrgSettings.customRules?.ociRegistryTag || 'latest';
+      }
+
       const username = process.env.OCI_REGISTRY_USERNAME;
       const password = process.env.OCI_REGISTRY_PASSWORD;
 
@@ -67,7 +81,7 @@ export async function test(
       };
 
       try {
-        await pull(OCIRegistryURL, opt);
+        await pull(URLComponents, opt);
       } catch (err) {
         if (err.statusCode === 401) {
           throw new FailedToPullCustomBundleError(
@@ -171,6 +185,16 @@ export function removeFileContent({
     failureReason,
     projectType,
   };
+}
+
+export function isValidURL(string) {
+  let url;
+  try {
+    url = new URL(string);
+  } catch (e) {
+    return false;
+  }
+  return url.protocol === 'http:' || url.protocol === 'https:';
 }
 
 export class FailedToPullCustomBundleError extends CustomError {
