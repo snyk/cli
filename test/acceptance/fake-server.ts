@@ -365,6 +365,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         org: req.query.org || 'test-org',
       },
       customPolicies: {},
+      customRules: {},
     });
   });
 

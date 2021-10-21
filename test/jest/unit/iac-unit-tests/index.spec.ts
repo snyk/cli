@@ -56,6 +56,7 @@ jest.mock(
         org: 'org-name',
       },
       customPolicies: {},
+      customRules: {},
     }),
   }),
 );
