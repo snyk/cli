@@ -1,0 +1,10 @@
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.22.1
+# ignores vulnerabilities until expiry date; change duration by modifying expiry date
+ignore:
+  SNYK-JS-LODASH-590103:
+    - '*':
+        reason: None Given
+        expires: 2021-11-21T21:55:08.466Z
+        created: 2021-10-22T21:55:08.469Z
+patch: {}

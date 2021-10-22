@@ -671,7 +671,10 @@ async function assembleLocalPayloads(
 
       // Forcing options.path to be a string as pathUtil requires is to be stringified
       const targetFileRelativePath = targetFile
-        ? pathUtil.join(pathUtil.resolve(`${options.path || root}`), targetFile)
+        ? pathUtil.resolve(
+            pathUtil.resolve(`${options.path || root}`),
+            targetFile,
+          )
         : '';
 
       let targetFileDir;
