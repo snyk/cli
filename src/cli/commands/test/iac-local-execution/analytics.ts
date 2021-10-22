@@ -1,13 +1,12 @@
-import { FormattedResult, PerformanceAnalyticsKey } from './types';
+import { FormattedResult } from './types';
 import * as analytics from '../../../../lib/analytics';
 import { calculatePercentage } from './math-utils';
-import { computeCustomRulesBundleChecksum } from './file-utils';
 
 export function addIacAnalytics(
   formattedResults: FormattedResult[],
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   ignoredIssuesCount: number,
-  isLocalCustomRules: boolean,
-): void {
+) {
   let totalIssuesCount = 0;
   const customRulesIdsFoundInIssues: { [customRuleId: string]: true } = {};
   let issuesFromCustomRulesCount = 0;
@@ -49,13 +48,20 @@ export function addIacAnalytics(
     'iac-custom-rules-issues-percentage',
     calculatePercentage(issuesFromCustomRulesCount, totalIssuesCount),
   );
-  if (!isLocalCustomRules) {
-    analytics.add(
-      'iac-custom-rules-checksum',
-      computeCustomRulesBundleChecksum(),
-    );
-  }
   analytics.add('iac-custom-rules-coverage-count', uniqueCustomRulesCount);
+}
+
+export enum PerformanceAnalyticsKey {
+  InitLocalCache = 'cache-init-ms',
+  FileLoading = 'file-loading-ms',
+  FileParsing = 'file-parsing-ms',
+  FileScanning = 'file-scanning-ms',
+  OrgSettings = 'org-settings-ms',
+  CustomSeverities = 'custom-severities-ms',
+  ResultFormatting = 'results-formatting-ms',
+  UsageTracking = 'usage-tracking-ms',
+  CacheCleanup = 'cache-cleanup-ms',
+  Total = 'total-iac-ms',
 }
 
 export const performanceAnalyticsObject: Record<

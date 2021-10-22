@@ -326,16 +326,3 @@ export interface OciUrl {
 
 export const manifestContentType = 'application/vnd.oci.image.manifest.v1+json';
 export const layerContentType = 'application/vnd.oci.image.layer.v1.tar+gzip';
-
-export enum PerformanceAnalyticsKey {
-  InitLocalCache = 'cache-init-ms',
-  FileLoading = 'file-loading-ms',
-  FileParsing = 'file-parsing-ms',
-  FileScanning = 'file-scanning-ms',
-  OrgSettings = 'org-settings-ms',
-  CustomSeverities = 'custom-severities-ms',
-  ResultFormatting = 'results-formatting-ms',
-  UsageTracking = 'usage-tracking-ms',
-  CacheCleanup = 'cache-cleanup-ms',
-  Total = 'total-iac-ms',
-}

@@ -41,7 +41,7 @@ const CLOUDFORMATION_POLICY_ENGINE_DATA_PATH = path.join(
 
 // NOTE: The filenames used for the custom policy bundles match those output
 // by the `opa` CLI tool, which is why they are very generic.
-export const CUSTOM_POLICY_ENGINE_WASM_PATH = path.join(
+const CUSTOM_POLICY_ENGINE_WASM_PATH = path.join(
   LOCAL_POLICY_ENGINE_DIR,
   'policy.wasm',
 );

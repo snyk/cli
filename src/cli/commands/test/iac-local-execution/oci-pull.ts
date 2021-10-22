@@ -16,8 +16,6 @@ import { initLocalCache } from './measurable-methods';
 import { createIacDir } from './file-utils';
 const debug = Debug('iac-oci-pull');
 
-export const CUSTOM_RULES_TARBALL = 'custom-bundle.tar.gz';
-
 export function extractURLComponents(OCIRegistryURL: string): OciUrl {
   try {
     const url = OCIRegistryURL.split('://')[1];
@@ -74,7 +72,7 @@ export async function pull(
   try {
     const downloadPath: string = path.join(
       LOCAL_POLICY_ENGINE_DIR,
-      CUSTOM_RULES_TARBALL,
+      'custom-bundle.tar.gz',
     );
     createIacDir();
     await fs.writeFile(downloadPath, blob);

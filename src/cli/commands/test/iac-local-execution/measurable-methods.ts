@@ -8,8 +8,10 @@ import { applyCustomSeverities } from './org-settings/apply-custom-severities';
 import { getIacOrgSettings } from './org-settings/get-iac-org-settings';
 import { test } from './index';
 import { pull } from './oci-pull';
-import { performanceAnalyticsObject } from './analytics';
-import { PerformanceAnalyticsKey } from './types';
+import {
+  PerformanceAnalyticsKey,
+  performanceAnalyticsObject,
+} from './analytics';
 
 // Unwrap a promise: https://stackoverflow.com/questions/48011353/how-to-unwrap-type-of-a-promise
 type Awaited<T> = T extends PromiseLike<infer U> ? U : T;

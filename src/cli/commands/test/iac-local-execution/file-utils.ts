@@ -5,8 +5,6 @@ import {
   FailedToInitLocalCacheError,
   LOCAL_POLICY_ENGINE_DIR,
 } from './local-cache';
-import { CUSTOM_RULES_TARBALL } from './oci-pull';
-import { hashData } from '../../../../lib/monitor/dev-count-analysis';
 
 export function createIacDir(): void {
   // this path will be able to be customised by the user in the future
@@ -41,22 +39,5 @@ export function isValidBundle(wasmPath: string, dataPath: string): boolean {
     return !(!fs.existsSync(wasmPath) || !fs.existsSync(dataPath));
   } catch {
     return false;
-  }
-}
-
-export function computeCustomRulesBundleChecksum(): string | undefined {
-  try {
-    const customRulesPolicyWasmPath = path.join(
-      LOCAL_POLICY_ENGINE_DIR,
-      CUSTOM_RULES_TARBALL,
-    );
-    // if bundle is not configured we don't want to include the checksum
-    if (!fs.existsSync(customRulesPolicyWasmPath)) {
-      return;
-    }
-    const policyWasm = fs.readFileSync(customRulesPolicyWasmPath, 'utf8');
-    return hashData(policyWasm);
-  } catch (err) {
-    return;
   }
 }
