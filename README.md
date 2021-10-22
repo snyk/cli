@@ -264,6 +264,7 @@ GitHub Issues on any [Snyk project](https://github.com/snyk) are not actively mo
 ## Contributing
 
 This project is open source but we don't encourage outside contributors.
+You may look into [design decisions in the Snyk CLI](help/_about-this-project/README.md).
 
 This repository is a monorepo, also covering other projects and tools:
 
