@@ -122,4 +122,29 @@ if (danger.github && danger.github.pr) {
       filesUsingNodeJSImportExport;
     warn(message);
   }
+
+  // Warn if package json and lockfile out of sync
+  schedule(async () => {
+    const packageJsonDiff = await danger.git.JSONDiffForFile('package.json');
+    const packageLockJsonDiff = await danger.git.JSONDiffForFile(
+      'package-lock.json',
+    );
+    let message = `were modified in package.json but not in package-lock.json. Consider keeping them in sync`;
+    let messagePrefix = '';
+
+    if (!packageJsonDiff.dependencies) return;
+
+    if (packageJsonDiff.dependencies && !packageLockJsonDiff.dependencies) {
+      messagePrefix = `Dependencies `;
+    }
+    if (
+      packageJsonDiff.devDependencies &&
+      !packageLockJsonDiff.devDependencies
+    ) {
+      message.split(' ')[0] === 'Dependencies'
+        ? (messagePrefix += 'and devDependencies ')
+        : (messagePrefix = 'devDependencies ');
+    }
+    warn(messagePrefix + message);
+  });
 }
