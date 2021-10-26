@@ -1,4 +1,4 @@
-const { danger, warn, fail, message, schedule } = require('danger');
+const { danger, warn, fail, message } = require('danger');
 const fs = require('fs');
 
 const MAX_COMMIT_MESSAGE_LENGTH = 72;
