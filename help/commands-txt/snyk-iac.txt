@@ -110,6 +110,9 @@
        [1mT[0m[1me[0m[1ms[0m[1mt[0m [1mt[0m[1me[0m[1mr[0m[1mr[0m[1ma[0m[1mf[0m[1mo[0m[1mr[0m[1mm[0m [1mp[0m[1ml[0m[1ma[0m[1mn[0m [1mf[0m[1mi[0m[1ml[0m[1me[0m
               $ snyk iac test /path/to/tf-plan.json
 
+       [1mT[0m[1me[0m[1ms[0m[1mt[0m [1mA[0m[1mR[0m[1mM[0m [1mf[0m[1mi[0m[1ml[0m[1me[0m
+              $ snyk iac test /path/to/arm_file.json
+
        [1mT[0m[1me[0m[1ms[0m[1mt[0m [1mm[0m[1ma[0m[1mt[0m[1mc[0m[1mh[0m[1mi[0m[1mn[0m[1mg[0m [1mf[0m[1mi[0m[1ml[0m[1me[0m[1ms[0m [1mi[0m[1mn[0m [1ma[0m [1md[0m[1mi[0m[1mr[0m[1me[0m[1mc[0m[1mt[0m[1mo[0m[1mr[0m[1my[0m
               $ snyk iac test /path/to/directory
 

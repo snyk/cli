@@ -369,6 +369,7 @@
            $ snyk iac test /path/to/kubernetes_file.yaml
            $ snyk iac test /path/to/terraform_file.tf
            $ snyk iac test /path/to/tf-plan.json
+           $ snyk iac test /path/to/arm_file.json
 
 
 

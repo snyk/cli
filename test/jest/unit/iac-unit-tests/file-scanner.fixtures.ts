@@ -99,3 +99,56 @@ export const parsedTerraformFileStub: IacFileParsed = {
     },
   },
 };
+
+export const parsedArmFileStub: IacFileParsed = {
+  engineType: EngineType.ARM,
+  projectType: IacProjectType.ARM,
+  fileContent: 'dont-care',
+  filePath: 'dont-care',
+  fileType: 'json',
+  jsonContent: {
+    $schema:
+      'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#',
+    contentVersion: '1.0.0.0',
+    parameters: {},
+    resources: [
+      {
+        type: 'Microsoft.ServiceFabric/clusters',
+        apiVersion: '2021-06-01',
+        name: 'denied',
+        properties: {},
+      },
+      {
+        type: 'Microsoft.ServiceFabric/clusters',
+        apiVersion: '2021-06-01',
+        name: 'allowed',
+        properties: {
+          azureActiveDirectory: {},
+        },
+      },
+    ],
+  },
+};
+
+export const expectedViolatedPoliciesForArm: Array<PolicyMetadata> = [
+  {
+    severity: 'medium' as SEVERITY,
+    resolve: 'Set an `azureActiveDirectory` attribute',
+    impact:
+      'Alternative certificate based authentication introduced management overhead. Certificates are harder to revoke and rotate than active directory membership',
+    msg: 'resources[0].properties.azureActiveDirectory',
+    remediation: {
+      terraform:
+        'Set an `azure_active_directory` block with the following attributes, `tenant_id`, `cluster_application_id`, `client_application_id`',
+      arm: 'Set an `azureActiveDirectory` attribute',
+    },
+    subType: 'Service Fabric',
+    issue: 'Service fabric does not use active directory authentication',
+    publicId: 'SNYK-CC-AZURE-473',
+    title: 'Service fabric does not use active directory authentication',
+    references: [
+      'https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/service_fabric_cluster',
+      'https://docs.microsoft.com/en-us/azure/service-fabric/service-fabric-cluster-creation-setup-aad',
+    ],
+  },
+];

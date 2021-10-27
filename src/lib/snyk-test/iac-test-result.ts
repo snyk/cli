@@ -3,11 +3,10 @@ import { BasicResultData, SEVERITY, TestDepGraphMeta } from './legacy';
 export interface AnnotatedIacIssue {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   severity: SEVERITY | 'none';
   isIgnored: boolean;
   cloudConfigPath: string[];
-  type: string;
   subType: string;
   path?: string[];
   documentation?: string;

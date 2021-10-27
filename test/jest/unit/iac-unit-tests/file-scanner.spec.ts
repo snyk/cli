@@ -1,4 +1,4 @@
-const mockFs = require('mock-fs');
+import * as mockFs from 'mock-fs';
 import * as path from 'path';
 import {
   scanFiles,
@@ -10,14 +10,17 @@ import { IacFileParsed } from '../../../../src/cli/commands/test/iac-local-execu
 import {
   paresdKubernetesFileStub,
   parsedTerraformFileStub,
+  parsedArmFileStub,
   expectedViolatedPoliciesForK8s,
   expectedViolatedPoliciesForTerraform,
+  expectedViolatedPoliciesForArm,
 } from './file-scanner.fixtures';
 
 describe('scanFiles', () => {
   const parsedFiles: Array<IacFileParsed> = [
     paresdKubernetesFileStub,
     parsedTerraformFileStub,
+    parsedArmFileStub,
   ];
 
   afterEach(() => {
@@ -45,6 +48,9 @@ describe('scanFiles', () => {
       );
       expect(scanResults[1].violatedPolicies).toEqual(
         expectedViolatedPoliciesForTerraform,
+      );
+      expect(scanResults[2].violatedPolicies).toEqual(
+        expectedViolatedPoliciesForArm,
       );
     });
 

@@ -103,25 +103,32 @@ export enum EngineType {
   Kubernetes,
   Terraform,
   CloudFormation,
+  ARM,
   Custom,
 }
 
 export interface PolicyMetadata {
-  id: string;
+  // New policies don't include the "id" field
+  id?: string;
   publicId: string;
-  type: string;
+  // New policies don't include the "type" field
+  type?: string;
   subType: string;
   title: string;
   documentation?: string; // e.g. "https://snyk.io/security-rules/SNYK-CC-K8S-2",
   isGeneratedByCustomRule?: boolean;
-  // Legacy field, still included in WASM eval output, but not in use.
-  description: string;
+  // Legacy field, still included in WASM eval output, but not in use. (not included in new policies)
+  description?: string;
   severity: SEVERITY | 'none'; // the 'null' value can be provided by the backend
   msg: string;
   issue: string;
   impact: string;
   resolve: string;
   references: string[];
+  // Included only in new policies
+  remediation?: Partial<
+    Record<'terraform' | 'cloudformation' | 'arm' | 'kubernetes', string>
+  >;
 }
 
 // Collection of all options supported by `iac test` command.

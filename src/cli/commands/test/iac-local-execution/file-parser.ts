@@ -1,4 +1,4 @@
-import { detectConfigType } from './parsers/k8s-or-cloudformation-parser';
+import { detectConfigType } from './parsers/config-type-detection';
 import { tryParsingTerraformFile } from './parsers/terraform-file-parser';
 import { NoFilesToScanError } from './file-loader';
 import {

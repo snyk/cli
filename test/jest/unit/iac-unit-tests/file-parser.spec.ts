@@ -27,6 +27,9 @@ import {
   expectedDuplicateKeyYamlErrorFileParsingResult,
   expectedInsufficientIndentationYamlErrorFileParsingResult,
   insufficientIndentationYamlErrorFileDataStub,
+  armJsonFileDataStub,
+  expectedArmParsingResult,
+  armJsonInvalidFileDataStub,
 } from './file-parser.fixtures';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { IacFileTypes } from '../../../../dist/lib/iac/constants';
@@ -50,12 +53,13 @@ const filesToParse: IacFileData[] = [
   multipleKubernetesYamlsFileDataStub,
   cloudFormationYAMLFileDataStub,
   cloudFormationJSONFileDataStub,
+  armJsonFileDataStub,
 ];
 
 describe('parseFiles', () => {
   it('parses multiple iac files as expected, skipping unrecognised schemas', async () => {
     const { parsedFiles, failedFiles } = await parseFiles(filesToParse);
-    expect(parsedFiles.length).toEqual(8);
+    expect(parsedFiles.length).toEqual(9);
     expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
     expect(parsedFiles[1]).toEqual(expectedKubernetesJsonParsingResult);
     expect(parsedFiles[2]).toEqual(expectedTerraformParsingResult);
@@ -69,6 +73,7 @@ describe('parseFiles', () => {
     });
     expect(parsedFiles[6]).toEqual(expectedCloudFormationYAMLParsingResult);
     expect(parsedFiles[7]).toEqual(expectedCloudFormationJSONParsingResult);
+    expect(parsedFiles[8]).toEqual(expectedArmParsingResult);
     expect(failedFiles.length).toEqual(0);
   });
 
@@ -76,9 +81,12 @@ describe('parseFiles', () => {
     const { parsedFiles, failedFiles } = await parseFiles([
       kubernetesYamlFileDataStub,
       kubernetesYamlInvalidFileDataStub,
+      armJsonFileDataStub,
+      armJsonInvalidFileDataStub,
     ]);
-    expect(parsedFiles.length).toEqual(1);
+    expect(parsedFiles.length).toEqual(2);
     expect(parsedFiles[0]).toEqual(expectedKubernetesYamlParsingResult);
+    expect(parsedFiles[1]).toEqual(expectedArmParsingResult);
     expect(failedFiles.length).toEqual(0);
   });
 

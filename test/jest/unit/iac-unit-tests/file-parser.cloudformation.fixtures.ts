@@ -75,7 +75,7 @@ export const expectedCloudFormationYAMLParsingResult: IacFileParsed = {
 
 export const expectedCloudFormationJSONParsingResult: IacFileParsed = {
   ...cloudFormationJSONFileDataStub,
-  docId: 0,
+  docId: undefined,
   projectType: IacProjectType.CLOUDFORMATION,
   engineType: EngineType.CloudFormation,
   jsonContent: cloudFormationJSON,
