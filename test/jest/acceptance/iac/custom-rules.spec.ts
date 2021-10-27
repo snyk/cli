@@ -71,16 +71,22 @@ describe('custom rules pull from a remote OCI registry', () => {
 
   const cases = [
     [
-      'registry-1.docker.io',
+      'Docker',
       process.env.OCI_DOCKER_REGISTRY_URL,
       process.env.OCI_DOCKER_REGISTRY_USERNAME,
       process.env.OCI_DOCKER_REGISTRY_PASSWORD,
     ],
     [
-      'azurecr.io',
+      'Azure',
       process.env.OCI_AZURE_REGISTRY_URL,
       process.env.OCI_AZURE_REGISTRY_USERNAME,
       process.env.OCI_AZURE_REGISTRY_PASSWORD,
+    ],
+    [
+      'Harbor',
+      process.env.OCI_HARBOR_REGISTRY_URL,
+      process.env.OCI_HARBOR_REGISTRY_USERNAME,
+      process.env.OCI_HARBOR_REGISTRY_PASSWORD,
     ],
   ];
   test.each(cases)(
