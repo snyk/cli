@@ -393,10 +393,13 @@ export function generateTags(options): Tag[] | undefined {
   }
 
   if (options['project-tags'] !== undefined && options['tags'] !== undefined) {
-    throw new ValidationError('Only one of --tags or --project-tags may be specified, not both');
+    throw new ValidationError(
+      'Only one of --tags or --project-tags may be specified, not both',
+    );
   }
 
-  const rawTags = options['tags'] === undefined ? options['project-tags'] : options['tags'];
+  const rawTags =
+    options['tags'] === undefined ? options['project-tags'] : options['tags'];
 
   if (rawTags === '') {
     return [];

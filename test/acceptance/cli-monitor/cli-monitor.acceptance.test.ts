@@ -1740,6 +1740,7 @@ if (!isWindows) {
           },
           facts: [{ type: 'depGraph', data: {} }],
         },
+        attributes: {},
       },
       'sends correct payload',
     );
@@ -1808,6 +1809,7 @@ if (!isWindows) {
             { type: 'dockerfileAnalysis', data: {} },
           ],
         },
+        attributes: {},
       },
       'sends correct payload',
     );
@@ -1867,6 +1869,7 @@ if (!isWindows) {
             facts: [{ type: 'depGraph', data: {} }],
           },
         ],
+        attributes: {},
       },
       t,
     );
@@ -1936,6 +1939,7 @@ if (!isWindows) {
           },
           facts: [{ type: 'depGraph', data: {} }],
         },
+        attributes: {},
       },
       'sends correct payload',
     );

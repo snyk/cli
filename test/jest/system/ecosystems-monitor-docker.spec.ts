@@ -65,6 +65,7 @@ describe('monitorEcosystem docker/container', () => {
         docker: true,
         'app-vulns': true,
         org: 'my-org',
+        tags: 'keyone=valueone',
       },
     );
 
@@ -116,6 +117,8 @@ describe('monitorEcosystem docker/container', () => {
         },
         projectName: undefined,
         method: 'cli',
+        attributes: {},
+        tags: [{ key: 'keyone', value: 'valueone' }],
       },
       qs: {
         org: 'my-org',

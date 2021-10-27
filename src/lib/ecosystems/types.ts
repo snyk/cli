@@ -1,7 +1,7 @@
 import { DepGraphData } from '@snyk/dep-graph';
 import { SEVERITY } from '../snyk-test/common';
 import { RemediationChanges } from '../snyk-test/legacy';
-import { Options } from '../types';
+import { Options, ProjectAttributes, Tag } from '../types';
 
 export type Ecosystem = 'cpp' | 'docker' | 'code';
 
@@ -133,4 +133,6 @@ export interface MonitorDependenciesRequest {
   projectName?: string;
   policy?: string;
   method?: 'cli';
+  tags?: Tag[];
+  attributes?: ProjectAttributes;
 }

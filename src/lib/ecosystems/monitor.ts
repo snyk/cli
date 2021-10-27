@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
-import { MonitorResult, Options } from '../types';
+import { MonitorResult, Options, ProjectAttributes, Tag } from '../types';
 import * as spinner from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
@@ -26,6 +26,10 @@ import {
 import { findAndLoadPolicyForScanResult } from './policy';
 import { getAuthHeader } from '../api-token';
 import { resolveAndMonitorFacts } from './resolve-monitor-facts';
+import {
+  generateProjectAttributes,
+  generateTags,
+} from '../../cli/commands/monitor';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -35,6 +39,10 @@ export async function monitorEcosystem(
   options: Options,
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const plugin = getPlugin(ecosystem);
+
+  const tags = generateTags(options);
+  const attributes = generateProjectAttributes(options);
+
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
   for (const path of paths) {
     try {
@@ -63,6 +71,8 @@ export async function monitorEcosystem(
     ecosystem,
     scanResultsByPath,
     options,
+    attributes,
+    tags,
   );
   return [monitorResults, errors];
 }
@@ -71,16 +81,20 @@ async function selectAndExecuteMonitorStrategy(
   ecosystem: Ecosystem,
   scanResultsByPath: { [dir: string]: ScanResult[] },
   options: Options,
+  attributes: ProjectAttributes,
+  tags: Tag[] | undefined,
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const isUnmanagedEcosystem = ecosystem === 'cpp';
   return isUnmanagedEcosystem
     ? await resolveAndMonitorFacts(scanResultsByPath, options)
-    : await monitorDependencies(scanResultsByPath, options);
+    : await monitorDependencies(scanResultsByPath, options, attributes, tags);
 }
 
 export async function generateMonitorDependenciesRequest(
   scanResult: ScanResult,
   options: Options,
+  attributes: ProjectAttributes,
+  tags: Tag[] | undefined,
 ): Promise<MonitorDependenciesRequest> {
   // WARNING! This mutates the payload. The project name logic should be handled in the plugin.
   scanResult.name =
@@ -95,6 +109,8 @@ export async function generateMonitorDependenciesRequest(
     scanResult,
     method: 'cli',
     projectName: options['project-name'] || config.PROJECT_NAME || undefined,
+    tags: tags,
+    attributes: attributes,
   };
 }
 
@@ -103,6 +119,8 @@ async function monitorDependencies(
     [dir: string]: ScanResult[];
   },
   options: Options,
+  attributes: ProjectAttributes,
+  tags: Tag[] | undefined,
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const results: EcosystemMonitorResult[] = [];
   const errors: EcosystemMonitorError[] = [];
@@ -112,6 +130,8 @@ async function monitorDependencies(
       const monitorDependenciesRequest = await generateMonitorDependenciesRequest(
         scanResult,
         options,
+        attributes,
+        tags,
       );
 
       const configOrg = config.org ? decodeURIComponent(config.org) : undefined;
