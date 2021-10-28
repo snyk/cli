@@ -24,6 +24,10 @@ module.exports = {
           to: '../bin',
         },
         {
+          from: 'node_modules/snyk-gradle-plugin/lib/legacy-init.gradle',
+          to: '../lib',
+        },
+        {
           from: 'node_modules/snyk-gradle-plugin/lib/init.gradle',
           to: '../lib',
         },
