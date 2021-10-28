@@ -51,7 +51,8 @@ export async function test(
     const customRulesPath = await customRulesPathForOrg(options.rules, org);
 
     const OCIRegistryURL =
-      iacOrgSettings.customRules?.ociRegistryURL ||
+      (iacOrgSettings.customRules?.isEnabled &&
+        iacOrgSettings.customRules?.ociRegistryURL) ||
       process.env.OCI_REGISTRY_URL;
 
     if (OCIRegistryURL && customRulesPath) {
