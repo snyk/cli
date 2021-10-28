@@ -39,7 +39,7 @@
     "@snyk/dep-graph": "^1.21.0",
     "@snyk/fix-pipenv-pipfile": "0.5.4",
     "@snyk/fix-poetry": "0.8.0",
-    "chalk": "4.1.1",
+    "chalk": "4.1.2",
     "debug": "^4.3.1",
     "lodash.groupby": "4.6.0",
     "lodash.sortby": "^4.7.0",
