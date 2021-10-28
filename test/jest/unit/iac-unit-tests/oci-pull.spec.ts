@@ -1,7 +1,7 @@
 import * as OCIPull from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
 import {
   CUSTOM_RULES_TARBALL,
-  extractURLComponents,
+  extractOCIRegistryURLComponents,
   FailedToBuildOCIArtifactError,
   InvalidRemoteRegistryURLError,
 } from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
@@ -11,9 +11,9 @@ import { promises as fs } from 'fs';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
 import * as measurableMethods from '../../../../src/cli/commands/test/iac-local-execution/measurable-methods';
 
-describe('extractURLComponents', () => {
+describe('extractOCIRegistryURLComponents', () => {
   it('extracts baseURL, repo and tag from an OCI URL', async () => {
-    const expected = extractURLComponents(
+    const expected = extractOCIRegistryURLComponents(
       'https://registry-1.docker.io/accountName/bundle-test:latest',
     );
     expect(expected).toEqual({
@@ -23,7 +23,7 @@ describe('extractURLComponents', () => {
     });
   });
   it('extracts components and a versioned tag', async () => {
-    const expected = extractURLComponents(
+    const expected = extractOCIRegistryURLComponents(
       'https://gcr.io/user/repo-test:0.5.2',
     );
     expect(expected).toEqual({
@@ -33,7 +33,9 @@ describe('extractURLComponents', () => {
     });
   });
   it('extracts components and a latest tag, when tag is undefined', async () => {
-    const expected = extractURLComponents('https://gcr.io/user/repo-test');
+    const expected = extractOCIRegistryURLComponents(
+      'https://gcr.io/user/repo-test',
+    );
     expect(expected).toEqual({
       registryBase: 'gcr.io',
       repo: 'user/repo-test',
@@ -43,7 +45,7 @@ describe('extractURLComponents', () => {
 
   it('throws an error if URL is invalid', () => {
     expect(() => {
-      extractURLComponents('url/not/valid');
+      extractOCIRegistryURLComponents('url/not/valid');
     }).toThrow(InvalidRemoteRegistryURLError);
   });
 });

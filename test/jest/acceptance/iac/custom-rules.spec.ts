@@ -52,6 +52,17 @@ describe('iac test --rules', () => {
       `Flag "--rules" is only supported if feature flag 'iacCustomRules' is enabled.`,
     );
   });
+
+  it('presents an error message when the user is not entitled to custom-rules', async () => {
+    const { stdout, exitCode } = await run(
+      `snyk iac test --org=no-entitlements --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+    );
+
+    expect(exitCode).toBe(2);
+    expect(stdout).toContain(
+      `Flag "--rules" is currently not supported for this org. To enable it, please contact snyk support.`,
+    );
+  });
 });
 
 describe('custom rules pull from a remote OCI registry', () => {
@@ -59,7 +70,7 @@ describe('custom rules pull from a remote OCI registry', () => {
     cmd: string,
     overrides?: Record<string, string>,
   ) => Promise<{ stdout: string; stderr: string; exitCode: number }>;
-  let teardown: () => void;
+  let teardown: () => Promise<unknown>;
 
   beforeAll(async () => {
     const result = await startMockServer();
@@ -67,7 +78,7 @@ describe('custom rules pull from a remote OCI registry', () => {
     teardown = result.teardown;
   });
 
-  afterAll(async () => teardown());
+  afterAll(async () => await teardown());
 
   const cases = [
     [
@@ -147,6 +158,42 @@ describe('custom rules pull from a remote OCI registry', () => {
     expect(exitCode).toBe(2);
     expect(stdout).toContain(
       'Remote and local custom rules bundle can not be used at the same time.',
+    );
+  });
+
+  it('presents an error message when the user is not part of the experiment', async () => {
+    const { stdout, exitCode } = await run(
+      `snyk iac test --org=no-flag ./iac/terraform/sg_open_ssh.tf`,
+      {
+        SNYK_CFG_OCI_REGISTRY_URL: process.env.OCI_DOCKER_REGISTRY_URL!,
+        SNYK_CFG_OCI_REGISTRY_USERNAME: process.env
+          .OCI_DOCKER_REGISTRY_USERNAME!,
+        SNYK_CFG_OCI_REGISTRY_PASSWORD: process.env
+          .OCI_DOCKER_REGISTRY_PASSWORD!,
+      },
+    );
+
+    expect(exitCode).toBe(2);
+    expect(stdout).toContain(
+      `The custom rules feature is not supported for this org - The feature flag 'iacCustomRules' is not currently enabled. It can be enabled via Snyk Preview, if you are on the Enterprise Plan.`,
+    );
+  });
+
+  it('presents an error message when the user is not entitled to custom-rules', async () => {
+    const { stdout, exitCode } = await run(
+      `snyk iac test --org=no-entitlements ./iac/terraform/sg_open_ssh.tf`,
+      {
+        SNYK_CFG_OCI_REGISTRY_URL: process.env.OCI_DOCKER_REGISTRY_URL!,
+        SNYK_CFG_OCI_REGISTRY_USERNAME: process.env
+          .OCI_DOCKER_REGISTRY_USERNAME!,
+        SNYK_CFG_OCI_REGISTRY_PASSWORD: process.env
+          .OCI_DOCKER_REGISTRY_PASSWORD!,
+      },
+    );
+
+    expect(exitCode).toBe(2);
+    expect(stdout).toContain(
+      `The custom rules feature is currently not supported for this org. To enable it, please contact snyk support.`,
     );
   });
 });

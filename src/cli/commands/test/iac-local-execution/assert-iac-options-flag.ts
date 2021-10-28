@@ -40,7 +40,7 @@ function getFlagName(key: string) {
 }
 
 export class FlagError extends CustomError {
-  constructor(key: string, featureFlag: string) {
+  constructor(key: string, featureFlag?: string) {
     const flag = getFlagName(key);
     let msg;
     if (featureFlag) {
@@ -65,6 +65,18 @@ export class FlagValueError extends CustomError {
     this.code = IaCErrorCodes.FlagValueError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
+  }
+}
+
+export class UnsupportedEntitlementFlagError extends CustomError {
+  constructor(key: string, entitlementName: string) {
+    const flag = getFlagName(key);
+    super(
+      `Unsupported flag: ${flag} - Missing the ${entitlementName} entitlement`,
+    );
+    this.code = IaCErrorCodes.UnsupportedEntitlementFlagError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `Flag "${flag}" is currently not supported for this org. To enable it, please contact snyk support.`;
   }
 }
 
