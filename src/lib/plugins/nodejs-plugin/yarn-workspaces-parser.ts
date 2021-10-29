@@ -7,7 +7,6 @@ import * as micromatch from 'micromatch';
 
 const debug = baseDebug('snyk-yarn-workspaces');
 import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
-import * as path from 'path';
 import { NoSupportedManifestsFoundError } from '../../errors';
 import {
   MultiProjectResultCustom,
@@ -23,25 +22,11 @@ export async function processYarnWorkspaces(
   },
   targetFiles: string[],
 ): Promise<MultiProjectResultCustom> {
-  // the order of folders is important
+  // the order of yarnTargetFiles folders is important
   // must have the root level most folders at the top
-  // const yarnTargetFiles: {
-  //   [dir: string]: Array<{
-  //     path: string;
-  //     base: string;
-  //     dir: string;
-  //   }>;
-  // } = targetFiles
-  //   .map((p) => ({ path: p, ...pathUtil.parse(p) }))
-  //   .filter((res) => ['package.json'].includes(res.base))
-  //   .sortBy('dir')
-  //   .groupBy('dir')
-  //   .value();
-
   const mappedAndFiltered = targetFiles
     .map((p) => ({ path: p, ...pathUtil.parse(p) }))
     .filter((res) => ['package.json'].includes(res.base));
-
   const sorted = sortBy(mappedAndFiltered, 'dir');
   const grouped = groupBy(sorted, 'dir');
 
@@ -83,7 +68,6 @@ export async function processYarnWorkspaces(
         yarnWorkspacesMap,
         workspaceRoot,
       );
-
       if (match) {
         debug(`${packageJsonFileName} matches an existing workspace pattern`);
         yarnWorkspacesFilesMap[packageJsonFileName] = {
@@ -99,9 +83,9 @@ export async function processYarnWorkspaces(
 
     if (isYarnWorkspacePackage || isRootPackageJson) {
       const rootDir = isYarnWorkspacePackage
-        ? path.dirname(yarnWorkspacesFilesMap[packageJsonFileName].root)
-        : path.dirname(packageJsonFileName);
-      const rootYarnLockfileName = path.join(rootDir, 'yarn.lock');
+        ? pathUtil.dirname(yarnWorkspacesFilesMap[packageJsonFileName].root)
+        : pathUtil.dirname(packageJsonFileName);
+      const rootYarnLockfileName = pathUtil.join(rootDir, 'yarn.lock');
       const yarnLock = await getFileContents(root, rootYarnLockfileName);
 
       if (
@@ -125,7 +109,7 @@ export async function processYarnWorkspaces(
       );
       const project: ScannedProjectCustom = {
         packageManager: 'yarn',
-        targetFile: path.relative(root, packageJson.fileName),
+        targetFile: pathUtil.relative(root, packageJson.fileName),
         depTree: res as any,
         plugin: {
           name: 'snyk-nodejs-lockfile-parser',
@@ -178,20 +162,23 @@ export function getWorkspacesMap(file: {
   return yarnWorkspacesMap;
 }
 
-function packageJsonBelongsToWorkspace(
+export function packageJsonBelongsToWorkspace(
   packageJsonFileName: string,
   yarnWorkspacesMap: YarnWorkspacesMap,
-  workspaceRoot,
+  workspaceRoot: string,
 ): boolean {
-  const workspaceRootFolder = path.dirname(workspaceRoot);
+  const workspaceRootFolder = pathUtil.dirname(
+    workspaceRoot.replace(/\\/g, '/'),
+  );
   const workspacesGlobs = (
     yarnWorkspacesMap[workspaceRoot].workspaces || []
-  ).map((p) => path.join(workspaceRootFolder, p));
-  const filePath = path.normalize(packageJsonFileName);
+  ).map((workspace) => pathUtil.join(workspaceRootFolder, workspace));
 
   const match = micromatch.isMatch(
-    filePath,
-    workspacesGlobs.map((p) => (p.endsWith('/**') ? p : p + '/**')),
+    packageJsonFileName.replace(/\\/g, '/'),
+    workspacesGlobs.map((p) =>
+      pathUtil.normalize(pathUtil.join(p, '**')).replace(/\\/g, '/'),
+    ),
   );
   return match;
 }
