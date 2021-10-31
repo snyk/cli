@@ -114,6 +114,9 @@ export function capitalizePackageManager(type: string | undefined) {
     case 'cloudformationconfig': {
       return 'CloudFormation';
     }
+    case 'armconfig': {
+      return 'ARM';
+    }
     default: {
       return 'Infrastructure as Code';
     }
@@ -180,11 +183,6 @@ function getIssueLevel(
   return severity === SEVERITY.HIGH ? 'error' : 'warning';
 }
 
-const iacTypeToText = {
-  k8s: 'Kubernetes',
-  terraform: 'Terraform',
-};
-
 export function extractReportingDescriptor(
   results: ResponseIssues,
 ): sarif.ReportingDescriptor[] {
@@ -200,7 +198,7 @@ export function extractReportingDescriptor(
         text: `${upperFirst(issue.severity)} severity - ${issue.title}`,
       },
       fullDescription: {
-        text: `${iacTypeToText[issue.type]} ${issue.subType}`,
+        text: `${upperFirst(issue.severity)} severity - ${issue.subType}`,
       },
       help: {
         text: `The issue is... \n${issue.iacDescription.issue}\n\n The impact of this is... \n ${issue.iacDescription.impact}\n\n You can resolve this by... \n${issue.iacDescription.resolve}`.replace(
@@ -216,7 +214,7 @@ export function extractReportingDescriptor(
         level: getIssueLevel(issue.severity),
       },
       properties: {
-        tags: ['security', `${issue.type}/${issue.subType}`],
+        tags: ['security', `${issue.subType}`],
         documentation: issue.documentation,
       },
     };
@@ -231,11 +229,7 @@ export function mapIacTestResponseToSarifResults(
   return issues.map(({ targetPath, issue }) => ({
     ruleId: issue.id,
     message: {
-      text: `This line contains a potential ${
-        issue.severity
-      } severity misconfiguration affecting the ${iacTypeToText[issue.type]} ${
-        issue.subType
-      }`,
+      text: `This line contains a potential ${issue.severity} severity misconfiguration affecting the ${issue.subType}`,
     },
     locations: [
       {

@@ -104,6 +104,9 @@ Find security issues in your Infrastructure as Code files.
 - `Test terraform plan file`:
   \$ snyk iac test /path/to/tf-plan.json
 
+- `Test ARM file`:
+  \$ snyk iac test /path/to/arm_file.json
+
 - `Test matching files in a directory`:
   \$ snyk iac test /path/to/directory
 

@@ -3,6 +3,7 @@ import { EngineType, IacFileData, IacFileParsed } from '../types';
 
 export const REQUIRED_K8S_FIELDS = ['apiVersion', 'kind', 'metadata'];
 export const REQUIRED_CLOUDFORMATION_FIELDS = ['Resources'];
+export const REQUIRED_ARM_FIELDS = ['$schema', 'contentVersion', 'resources'];
 
 export function detectConfigType(
   fileData: IacFileData,
@@ -18,7 +19,7 @@ export function detectConfigType(
           jsonContent: parsedFile,
           projectType: IacProjectType.CLOUDFORMATION,
           engineType: EngineType.CloudFormation,
-          docId,
+          docId: fileData.fileType === 'json' ? undefined : docId,
         };
       } else if (checkRequiredFieldsMatch(parsedFile, REQUIRED_K8S_FIELDS)) {
         return {
@@ -26,7 +27,14 @@ export function detectConfigType(
           jsonContent: parsedFile,
           projectType: IacProjectType.K8S,
           engineType: EngineType.Kubernetes,
-          docId,
+          docId: fileData.fileType === 'json' ? undefined : docId,
+        };
+      } else if (checkRequiredFieldsMatch(parsedFile, REQUIRED_ARM_FIELDS)) {
+        return {
+          ...fileData,
+          jsonContent: parsedFile,
+          projectType: IacProjectType.ARM,
+          engineType: EngineType.ARM,
         };
       } else {
         return null;

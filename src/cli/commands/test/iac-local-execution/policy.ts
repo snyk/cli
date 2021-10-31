@@ -50,7 +50,7 @@ function toIaCVulnAdapter(result: FormattedResult): IacVulnAdapter {
         path.splice(0, 0, result.targetFile);
 
         return {
-          id: cloudConfigResult.id,
+          id: cloudConfigResult.id as string,
           from: path,
         };
       },
