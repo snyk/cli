@@ -1,5 +1,7 @@
 const cloneDeep = require('lodash.clonedeep');
-import * as path from 'path';
+import * as pathLib from 'path';
+import sortBy = require('lodash.sortby');
+import groupBy = require('lodash.groupby');
 import * as cliInterface from '@snyk/cli-interface';
 import chalk from 'chalk';
 import { icon } from '../theme';
@@ -14,6 +16,7 @@ import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-m
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 import { errorMessageWithRetry, FailedToRunTestError } from '../errors';
+import { processYarnWorkspaces } from './nodejs-plugin/yarn-workspaces-parser';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -42,11 +45,19 @@ export async function getMultiPluginResult(
   const allResults: ScannedProjectCustom[] = [];
   const failedResults: FailedProjectScanError[] = [];
 
-  for (const targetFile of targetFiles) {
+  // process any yarn workspaces first
+  // the files need to be proceeded together as they provide context to each other
+  const {
+    scannedProjects,
+    unprocessedFiles,
+  } = await processYarnWorkspacesProjects(root, options, targetFiles);
+  allResults.push(...scannedProjects);
+  // process the rest 1 by 1 sent to relevant plugins
+  for (const targetFile of unprocessedFiles) {
     const optionsClone = cloneDeep(options);
-    optionsClone.file = path.relative(root, targetFile);
+    optionsClone.file = pathLib.relative(root, targetFile);
     optionsClone.packageManager = detectPackageManagerFromFile(
-      path.basename(targetFile),
+      pathLib.basename(targetFile),
     );
     try {
       const inspectRes = await getSinglePluginResult(
@@ -78,16 +89,18 @@ export async function getMultiPluginResult(
       );
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
-    } catch (err) {
+    } catch (error) {
+      const errMessage =
+        error.message ?? 'Something went wrong getting dependencies';
       // TODO: propagate this all the way back and include in --json output
       failedResults.push({
         targetFile,
-        error: err,
-        errMessage: err.message || 'Something went wrong getting dependencies',
+        error,
+        errMessage: errMessage,
       });
       debug(
         chalk.bold.red(
-          `\n${icon.ISSUE} Failed to get dependencies for ${targetFile}\nERROR: ${err.message}\n`,
+          `\n${icon.ISSUE} Failed to get dependencies for ${targetFile}\nERROR: ${errMessage}\n`,
         ),
       );
     }
@@ -108,4 +121,72 @@ export async function getMultiPluginResult(
     scannedProjects: allResults,
     failedResults,
   };
+}
+
+async function processYarnWorkspacesProjects(
+  root: string,
+  options: Options & (TestOptions | MonitorOptions),
+  targetFiles: string[],
+): Promise<{
+  scannedProjects: ScannedProjectCustom[];
+  unprocessedFiles: string[];
+}> {
+  try {
+    const { scannedProjects } = await processYarnWorkspaces(
+      root,
+      {
+        strictOutOfSync: options.strictOutOfSync,
+        dev: options.dev,
+      },
+      targetFiles,
+    );
+
+    const unprocessedFiles = filterOutProcessedWorkspaces(
+      scannedProjects,
+      targetFiles,
+    );
+    return { scannedProjects, unprocessedFiles };
+  } catch (e) {
+    return { scannedProjects: [], unprocessedFiles: targetFiles };
+  }
+}
+
+function filterOutProcessedWorkspaces(
+  scannedProjects: ScannedProjectCustom[],
+  allTargetFiles: string[],
+): string[] {
+  const mapped = allTargetFiles.map((p) => ({ path: p, ...pathLib.parse(p) }));
+  const sorted = sortBy(mapped, 'dir');
+  const targetFilesByDirectory: {
+    [dir: string]: Array<{
+      path: string;
+      base: string;
+      dir: string;
+    }>;
+  } = groupBy(sorted, 'dir');
+
+  const scanned = scannedProjects.map((p) => p.targetFile!);
+  const targetFiles: string[] = [];
+
+  for (const directory of Object.keys(targetFilesByDirectory)) {
+    for (const targetFile of targetFilesByDirectory[directory]) {
+      const { base, path } = targetFile;
+
+      // any non yarn workspace files should be scanned
+      if (!['package.json', 'yarn.lock'].includes(base)) {
+        targetFiles.push(path);
+        continue;
+      }
+
+      // check if Node manifest has already been processed a part or a workspace
+      const packageJsonFileName = pathLib.join(directory, 'package.json');
+      const alreadyScanned = scanned.some((f) =>
+        packageJsonFileName.endsWith(f),
+      );
+      if (!alreadyScanned) {
+        targetFiles.push(path);
+      }
+    }
+  }
+  return targetFiles;
 }
