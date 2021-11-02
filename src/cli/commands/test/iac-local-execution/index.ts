@@ -28,6 +28,7 @@ import {
 } from './measurable-methods';
 import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { FlagError } from './assert-iac-options-flag';
+import { config as userConfig } from '../../../../lib/user-config';
 import config from '../../../../lib/config';
 import { findAndLoadPolicy } from '../../../../lib/policy';
 import { CustomError } from '../../../../lib/errors';
@@ -53,7 +54,7 @@ export async function test(
     const OCIRegistryURL =
       (iacOrgSettings.customRules?.isEnabled &&
         iacOrgSettings.customRules?.ociRegistryURL) ||
-      process.env.OCI_REGISTRY_URL;
+      userConfig.get('oci-registry-url');
 
     if (OCIRegistryURL && customRulesPath) {
       throw new FailedToExecuteCustomRulesError();
@@ -65,8 +66,8 @@ export async function test(
       }
 
       const URLComponents = extractURLComponents(OCIRegistryURL);
-      const username = process.env.OCI_REGISTRY_USERNAME;
-      const password = process.env.OCI_REGISTRY_PASSWORD;
+      const username = userConfig.get('oci-registry-username');
+      const password = userConfig.get('oci-registry-password');
 
       const opt = {
         username,
