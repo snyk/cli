@@ -74,113 +74,106 @@ import * as ecoSystemPlugins from '../../../src/lib/ecosystems/plugins';
   - Jakub
 */
 
-const isWindows =
-  require('os-name')()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+// @later: remove this config stuff.
+// Was copied straight from ../src/cli-server.js
+before('setup', async (t) => {
+  versionNumber = await getVersion();
 
-if (!isWindows) {
-  // @later: remove this config stuff.
-  // Was copied straight from ../src/cli-server.js
-  before('setup', async (t) => {
-    versionNumber = await getVersion();
+  t.plan(3);
+  let key = await cli.config('get', 'api');
+  oldkey = key;
+  t.pass('existing user config captured');
 
-    t.plan(3);
-    let key = await cli.config('get', 'api');
-    oldkey = key;
-    t.pass('existing user config captured');
+  key = await cli.config('get', 'endpoint');
+  oldendpoint = key;
+  t.pass('existing user endpoint captured');
 
-    key = await cli.config('get', 'endpoint');
-    oldendpoint = key;
-    t.pass('existing user endpoint captured');
+  await new Promise((resolve) => {
+    server.listen(port, resolve);
+  });
+  t.pass('started demo server');
+  t.end();
+});
 
-    await new Promise((resolve) => {
-      server.listen(port, resolve);
+// @later: remove this config stuff.
+// Was copied straight from ../src/cli-server.js
+before('prime config', async (t) => {
+  await cli.config('set', 'api=' + apiKey);
+  t.pass('api token set');
+  await cli.config('unset', 'endpoint');
+  t.pass('endpoint removed');
+  t.end();
+});
+
+test(GenericTests.language, async (t) => {
+  for (const testName of Object.keys(GenericTests.tests)) {
+    t.test(
+      testName,
+      GenericTests.tests[testName](
+        { server, versionNumber, cli },
+        { chdirWorkspaces },
+      ),
+    );
+  }
+});
+
+test(AllProjectsTests.language, async (t) => {
+  for (const testName of Object.keys(AllProjectsTests.tests)) {
+    t.test(
+      testName,
+      AllProjectsTests.tests[testName](
+        { server, versionNumber, cli, plugins },
+        { chdirWorkspaces },
+      ),
+    );
+  }
+});
+
+test('Languages', async (t) => {
+  for (const languageTest of languageTests) {
+    t.test(languageTest.language, async (tt) => {
+      for (const testName of Object.keys(languageTest.tests)) {
+        tt.test(
+          testName,
+          languageTest.tests[testName](
+            { server, plugins, ecoSystemPlugins, versionNumber, cli },
+            { chdirWorkspaces },
+          ),
+        );
+        server.restore();
+      }
     });
-    t.pass('started demo server');
+  }
+});
+
+// TODO: try and remove this config stuff
+// Was copied straight from ../src/cli-server.js
+after('teardown', async (t) => {
+  t.plan(4);
+
+  delete process.env.SNYK_API;
+  delete process.env.SNYK_HOST;
+  delete process.env.SNYK_PORT;
+  t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
+
+  await new Promise((resolve) => {
+    server.close(resolve);
+  });
+  t.pass('server shutdown');
+  let key = 'set';
+  let value = 'api=' + oldkey;
+  if (!oldkey) {
+    key = 'unset';
+    value = 'api';
+  }
+  await cli.config(key, value);
+  t.pass('user config restored');
+  if (oldendpoint) {
+    await cli.config('endpoint', oldendpoint);
+    t.pass('user endpoint restored');
     t.end();
-  });
-
-  // @later: remove this config stuff.
-  // Was copied straight from ../src/cli-server.js
-  before('prime config', async (t) => {
-    await cli.config('set', 'api=' + apiKey);
-    t.pass('api token set');
-    await cli.config('unset', 'endpoint');
-    t.pass('endpoint removed');
+  } else {
+    t.pass('no endpoint');
     t.end();
-  });
-
-  test(GenericTests.language, async (t) => {
-    for (const testName of Object.keys(GenericTests.tests)) {
-      t.test(
-        testName,
-        GenericTests.tests[testName](
-          { server, versionNumber, cli },
-          { chdirWorkspaces },
-        ),
-      );
-    }
-  });
-
-  test(AllProjectsTests.language, async (t) => {
-    for (const testName of Object.keys(AllProjectsTests.tests)) {
-      t.test(
-        testName,
-        AllProjectsTests.tests[testName](
-          { server, versionNumber, cli, plugins },
-          { chdirWorkspaces },
-        ),
-      );
-    }
-  });
-
-  test('Languages', async (t) => {
-    for (const languageTest of languageTests) {
-      t.test(languageTest.language, async (tt) => {
-        for (const testName of Object.keys(languageTest.tests)) {
-          tt.test(
-            testName,
-            languageTest.tests[testName](
-              { server, plugins, ecoSystemPlugins, versionNumber, cli },
-              { chdirWorkspaces },
-            ),
-          );
-          server.restore();
-        }
-      });
-    }
-  });
-
-  // TODO: try and remove this config stuff
-  // Was copied straight from ../src/cli-server.js
-  after('teardown', async (t) => {
-    t.plan(4);
-
-    delete process.env.SNYK_API;
-    delete process.env.SNYK_HOST;
-    delete process.env.SNYK_PORT;
-    t.notOk(process.env.SNYK_PORT, 'fake env values cleared');
-
-    await new Promise((resolve) => {
-      server.close(resolve);
-    });
-    t.pass('server shutdown');
-    let key = 'set';
-    let value = 'api=' + oldkey;
-    if (!oldkey) {
-      key = 'unset';
-      value = 'api';
-    }
-    await cli.config(key, value);
-    t.pass('user config restored');
-    if (oldendpoint) {
-      await cli.config('endpoint', oldendpoint);
-      t.pass('user endpoint restored');
-      t.end();
-    } else {
-      t.pass('no endpoint');
-      t.end();
-    }
-  });
-}
+  }
+});
