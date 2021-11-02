@@ -253,6 +253,13 @@ jobs:
                 name: Running system tests (Jest)
                 command: npm run test:jest-system -- --ci
             - run:
+                name: Download AWS CLI
+                command: |
+                  msiexec.exe /i AWSCLIV2.msi /quiet
+                  [Environment]::SetEnvironmentVariable("Path", $env:PATH + `
+                  ";c:\Program Files\Amazon\AWSCLIV2", "Machine")
+                shell: powershell.exe
+            - run:
                 name: Running acceptance tests (Jest)
                 command: npm run test:jest-acceptance -- --ci
       - when:
@@ -317,6 +324,8 @@ jobs:
             - run:
                 name: Running system tests (Jest)
                 command: npm run test:jest-system -- --ci
+            - aws-cli/install:
+                version: 2.2.32
             - run:
                 name: Running acceptance tests (Jest)
                 command: npm run test:jest-acceptance -- --ci

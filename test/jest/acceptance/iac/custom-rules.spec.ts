@@ -1,3 +1,4 @@
+import { execSync } from 'child_process';
 import { startMockServer } from './helpers';
 
 jest.setTimeout(50000);
@@ -80,6 +81,33 @@ describe('custom rules pull from a remote OCI registry', () => {
 
   afterAll(async () => await teardown());
 
+  const getOciElasticRegistryPassword = () => {
+    const awsCommand =
+      process.platform === 'win32'
+        ? 'aws ecr get-login --region eu-west-1'
+        : 'aws ecr get-login-password --region eu-west-1';
+    let result = execSync(awsCommand, {
+      env: {
+        AWS_ACCESS_KEY_ID: process.env.OCI_ELASTIC_REGISTRY_ACCESS_KEY_ID,
+        AWS_SECRET_ACCESS_KEY:
+          process.env.OCI_ELASTIC_REGISTRY_SECRET_ACCESS_KEY,
+      },
+    }).toString();
+    if (process.platform === 'win32') {
+      // the command has a "docker login -u AWS -p " prefix
+      const prefix = 'docker login -u AWS -p';
+      // and a " -e none <url>" postifx
+      const postfix = ` -e none https://${
+        new URL(process.env.OCI_ELASTIC_REGISTRY_URL || '').hostname
+      }`;
+      result = result.substring(
+        prefix.length + 1,
+        result.length - postfix.length - 2,
+      );
+    }
+    return result;
+  };
+
   const cases = [
     [
       'Docker',
@@ -98,6 +126,12 @@ describe('custom rules pull from a remote OCI registry', () => {
       process.env.OCI_HARBOR_REGISTRY_URL,
       process.env.OCI_HARBOR_REGISTRY_USERNAME,
       process.env.OCI_HARBOR_REGISTRY_PASSWORD,
+    ],
+    [
+      'Elastic',
+      process.env.OCI_ELASTIC_REGISTRY_URL,
+      'AWS',
+      getOciElasticRegistryPassword(),
     ],
   ];
   test.each(cases)(

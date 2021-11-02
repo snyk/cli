@@ -22,10 +22,12 @@ export function extractOCIRegistryURLComponents(
   OCIRegistryURL: string,
 ): OCIRegistryURLComponents {
   try {
-    const url = OCIRegistryURL.split('://')[1];
-    const [registryBase, accountName, repoWithTag] = url.split('/');
-    const [repoName, tag = 'latest'] = repoWithTag.split(':');
-    const repo = accountName + '/' + repoName;
+    const url = new URL(OCIRegistryURL);
+    const registryBase = url.hostname;
+    // with or without a path, there will at least be a / in the pathname
+    const repoWithTag = url.pathname.substring(1);
+
+    const [repo, tag = 'latest'] = repoWithTag.split(':');
     return { registryBase, repo, tag };
   } catch {
     throw new InvalidRemoteRegistryURLError();
