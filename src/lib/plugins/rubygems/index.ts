@@ -1,17 +1,19 @@
 import { inspectors, Spec } from './inspectors';
 import { MissingTargetFileError } from '../../errors/missing-targetfile-error';
 import gemfileLockToDependencies = require('./gemfile-lock-to-dependencies');
-const get = require('lodash.get');
+import * as get from 'lodash.get';
 import { MultiProjectResult } from '@snyk/cli-interface/legacy/plugin';
+import * as types from '../types';
 
 export async function inspect(
   root: string,
   targetFile: string,
+  options: types.Options = {},
 ): Promise<MultiProjectResult> {
   if (!targetFile) {
     throw MissingTargetFileError(root);
   }
-  const specs = await gatherSpecs(root, targetFile);
+  const specs = await gatherSpecs(root, targetFile, options);
 
   return {
     plugin: {
@@ -41,10 +43,14 @@ function getDependenciesFromSpecs(specs) {
   return dependencies;
 }
 
-async function gatherSpecs(root, targetFile): Promise<Spec> {
+async function gatherSpecs(
+  root: string,
+  targetFile: string,
+  options: types.Options,
+): Promise<Spec> {
   for (const inspector of inspectors) {
     if (inspector.canHandle(targetFile)) {
-      return await inspector.gatherSpecs(root, targetFile);
+      return await inspector.gatherSpecs(root, targetFile, options);
     }
   }
 

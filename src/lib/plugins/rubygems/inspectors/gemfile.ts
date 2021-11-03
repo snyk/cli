@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { tryGetSpec } from './try-get-spec';
 import { Spec } from './index';
+import * as types from '../../types';
 
 /* Supported example patterns:
  * Gemfile
@@ -18,7 +19,11 @@ export function canHandle(file: string): boolean {
   return !!file && gemfileOrLockfilePattern.test(path.basename(file));
 }
 
-export async function gatherSpecs(root: string, target: string): Promise<Spec> {
+export async function gatherSpecs(
+  root: string,
+  target: string,
+  options: types.Options,
+): Promise<Spec> {
   const { dir, name } = path.parse(target);
   const isGemfileLock = gemfileLockPattern.test(target);
   // if the target is a Gemfile we treat is as the lockfile
@@ -28,8 +33,11 @@ export async function gatherSpecs(root: string, target: string): Promise<Spec> {
   );
 
   if (gemfileLock) {
+    const basePackageName = path.basename(root);
     return {
-      packageName: path.basename(root),
+      packageName: options.allSubProjects
+        ? path.join(basePackageName, dir)
+        : basePackageName,
       targetFile: path.join(dir, name),
       files: { gemfileLock },
     };

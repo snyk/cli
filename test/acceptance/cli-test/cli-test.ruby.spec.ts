@@ -3,6 +3,7 @@ const sortBy = require('lodash.sortby');
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
 import { CommandResult } from '../../../src/cli/commands/types';
+import * as path from 'path';
 
 export const RubyTests: AcceptanceTests = {
   language: 'Ruby',
@@ -784,6 +785,18 @@ export const RubyTests: AcceptanceTests = {
         '--all-projects',
         'Suggest using --all-projects',
       );
+    },
+
+    '`test monorepo --all-projects`': (params, utils) => async (t) => {
+      utils.chdirWorkspaces();
+      await params.cli.test('monorepo', { allProjects: true });
+
+      const req = params.server.popRequest();
+
+      const rootNodePkgId = req.body.depGraph.graph.nodes.find(
+        (x) => x.nodeId == 'root-node',
+      ).pkgId;
+      t.equal(rootNodePkgId, `monorepo${path.sep}sub-ruby-app@`);
     },
   },
 };
