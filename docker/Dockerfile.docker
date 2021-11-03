@@ -6,7 +6,7 @@ MAINTAINER Snyk Ltd
 RUN apt-get update && \
     apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common git && \
     curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+    if [ "$(uname -m)" = "aarch64" ]; then add-apt-repository "deb [arch=arm64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"; else add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"; fi && \
     apt-get update && apt-get install -y docker-ce && \
     npm install --global snyk snyk-to-html && \
     apt-get autoremove -y && \
