@@ -176,7 +176,7 @@ export const GenericTests: AcceptanceTests = {
           'Could not detect supported target files in /.' +
             '\nPlease see our documentation for supported' +
             ' languages and target files: ' +
-            'https://support.snyk.io/hc/en-us/articles/360000911957-Language-support' +
+            'https://snyk.co/udVgQ' +
             ' and make sure you' +
             ' are in the right directory.',
         );
