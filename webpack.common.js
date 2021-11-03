@@ -63,10 +63,8 @@ module.exports = {
         exclude: ['/node_modules'],
       },
       {
-        // `./node_modules/ssh2/lib/protocol/crypto/build/Release/sshcrypto.node` is a binary file introduced
-        // by snyk-docker-plugin -> docker-modem@3
-        test: /ssh2\/lib\/protocol\/crypto\/build\/Release\/sshcrypto\.node/i,
-        type: 'asset/resource',
+        test: /\.node$/,
+        loader: 'node-loader',
       },
     ],
   },
