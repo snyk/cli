@@ -357,6 +357,12 @@ function getProjectAttribute<T>(
   return values;
 }
 
+export function validateProjectAttributes(options): void {
+  // The validation is deep within the parsing, so call the generate but throw away the return for simplicity.
+  // Using this method makes it much clearer what the intent is of the caller.
+  generateProjectAttributes(options);
+}
+
 export function generateProjectAttributes(options): ProjectAttributes {
   return {
     criticality: getProjectAttribute(
@@ -430,6 +436,12 @@ export function generateTags(options): Tag[] | undefined {
   }
 
   return tags;
+}
+
+export function validateTags(options): void {
+  // The validation is deep within the parsing, so call the generate but throw away the return for simplicity.
+  // Using this method makes it much clearer what the intent is of the caller.
+  generateTags(options);
 }
 
 function validateMonitorPath(path: string, isDocker?: boolean): void {
