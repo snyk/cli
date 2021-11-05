@@ -23,6 +23,7 @@ test/acceptance/cli-test/iac/ @snyk/cloudconfig
 test/fixtures/container-projects/ @snyk/capsule
 test/fixtures/iac/ @snyk/cloudconfig
 test/smoke/spec/iac/ @snyk/cloudconfig
+test/smoke/spec/snyk_code_spec.sh @snyk/sast-team
 test/smoke/.iac-data/ @snyk/cloudconfig
 test/jest/unit/iac-unit-tests/ @snyk/cloudconfig
 test/jest/acceptance/iac/ @snyk/cloudconfig
