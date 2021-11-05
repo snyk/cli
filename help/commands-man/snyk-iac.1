@@ -1,6 +1,6 @@
 .\" generated with Ronn-NG/v0.9.1
 .\" http://github.com/apjanke/ronn-ng/tree/0.9.1
-.TH "SNYK\-IAC" "1" "October 2021" "Snyk.io"
+.TH "SNYK\-IAC" "1" "November 2021" "Snyk.io"
 .SH "NAME"
 \fBsnyk\-iac\fR \- Find security issues in your Infrastructure as Code files
 .SH "SYNOPSIS"
@@ -62,6 +62,13 @@ It enables to control whether the scan should analyse the full final state (e\.g
 Default: If the \fB\-\-scan\fR flag is not provided it would scan the proposed changes only by default\.
 .br
 Example #1: \fB\-\-scan=planned\-values\fR (full state scan) Example #2: \fB\-\-scan=resource\-changes\fR (proposed changes scan)
+.TP
+\fB\-\-rules=\fR\fIPATH_TO_CUSTOM_RULES_BUNDLE\fR
+Dedicated flag for Custom Rules scanning\.
+.br
+It enables the IaC scans to use a custom rules bundle generated via the \fBsnyk\-iac\-rules\fR SDK\. To download it and learn how to use it, go to https://github\.com/snyk/snyk\-iac\-rules\. This flag cannot be used if the custom rules settings were configured via the Snyk UI\. Default: If the \fB\-\-rules\fR flag is not provided it would scan the configuration files using the internal Snyk rules only\.
+.br
+Example: \fB\-\-rules=bundle\.tar\.gz\fR (scans the configuration files using custom rules and internal Snyk rules)
 .SS "Flags available accross all commands"
 .TP
 \fB\-\-insecure\fR
@@ -98,6 +105,9 @@ $ snyk iac test /path/to/arm_file\.json
 .TP
 \fBTest matching files in a directory\fR
 $ snyk iac test /path/to/directory
+.TP
+\fBTest matching files in a directory using a local custom rules bundle\fR
+$ snyk iac test /path/to/directory \-\-rules=bundle\.tar\.gz
 .SH "EXIT CODES"
 Possible exit codes and their meaning:
 .P

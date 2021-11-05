@@ -19,3 +19,6 @@
 
 - `Test matching files in a directory`:
   \$ snyk iac test /path/to/directory
+
+- `Test matching files in a directory using a local custom rules bundle`:
+  \$ snyk iac test /path/to/directory --rules=bundle.tar.gz

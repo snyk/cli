@@ -1,6 +1,6 @@
 .\" generated with Ronn-NG/v0.9.1
 .\" http://github.com/apjanke/ronn-ng/tree/0.9.1
-.TH "SNYK\-CONFIG" "1" "October 2021" "Snyk.io"
+.TH "SNYK\-CONFIG" "1" "November 2021" "Snyk.io"
 .SH "NAME"
 \fBsnyk\-config\fR \- Manage Snyk CLI configuration
 .SH "SYNOPSIS"
@@ -33,6 +33,15 @@ Defines the API endpoint to use\.
 .TP
 \fBdisable\-analytics\fR
 Turns off analytics reporting\.
+.TP
+\fBoci\-registry\-url\fR
+Configures the OCI registry used in IaC scannings with custom rules\.
+.TP
+\fBoci\-registry\-username\fR
+Configures the username for an OCI registry used in IaC scannings with custom rules\.
+.TP
+\fBoci\-registry\-password\fR
+Configures the password for an OCI registry used in IaC scannings with custom rules\.
 .SS "Flags available accross all commands"
 .TP
 \fB\-\-insecure\fR

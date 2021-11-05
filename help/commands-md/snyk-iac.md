@@ -67,6 +67,14 @@ Find security issues in your Infrastructure as Code files.
   Example #1: `--scan=planned-values` (full state scan)
   Example #2: `--scan=resource-changes` (proposed changes scan)
 
+- `--rules=`<PATH_TO_CUSTOM_RULES_BUNDLE>:
+  Dedicated flag for Custom Rules scanning.  
+  It enables the IaC scans to use a custom rules bundle generated via the `snyk-iac-rules` SDK. To download it and learn how to use it, go to
+  https://github.com/snyk/snyk-iac-rules.
+  This flag cannot be used if the custom rules settings were configured via the Snyk UI.
+  Default: If the `--rules` flag is not provided it would scan the configuration files using the internal Snyk rules only.  
+  Example: `--rules=bundle.tar.gz` (scans the configuration files using custom rules and internal Snyk rules)
+
 
 
 
@@ -109,6 +117,9 @@ Find security issues in your Infrastructure as Code files.
 
 - `Test matching files in a directory`:
   \$ snyk iac test /path/to/directory
+
+- `Test matching files in a directory using a local custom rules bundle`:
+  \$ snyk iac test /path/to/directory --rules=bundle.tar.gz
 
 
 ## EXIT CODES
