@@ -13,7 +13,7 @@ Describe "Snyk Code test command"
     It "finds vulns in a project in the same folder"
       When run run_test_in_subfolder
       The output should include "Static code analysis"
-      The output should include "✗ [High] Cross-site Scripting (XSS)"
+      The output should include "✗ [High] SQL Injection"
       The status should be failure
       The stderr should equal ""
     End
