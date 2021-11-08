@@ -49,7 +49,7 @@ export function allowAnalytics(): boolean {
  * given by the data parameter, or called from {@link addDataAndSend}.
  * @param customData the analytics data to send to the backend.
  */
-export async function postAnalytics(
+async function postAnalytics(
   customData,
 ): Promise<void | { res: needle.NeedleResponse; body: any }> {
   // if the user opt'ed out of analytics, then let's bail out early
@@ -80,7 +80,7 @@ export async function postAnalytics(
     const queryString =
       Object.keys(queryStringParams).length > 0 ? queryStringParams : undefined;
 
-    return makeRequest({
+    const res = await makeRequest({
       body: {
         data: analyticsData,
       },
@@ -90,6 +90,8 @@ export async function postAnalytics(
       method: 'post',
       headers: headers,
     });
+
+    return res;
   } catch (err) {
     debug('analytics', err); // this swallows the analytics error
   }
