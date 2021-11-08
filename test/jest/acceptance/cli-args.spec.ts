@@ -301,6 +301,19 @@ describe('cli args', () => {
     expect(code).toEqual(2);
   });
 
+  test('snyk container monitor --project-tags is implemented', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container monitor alpine --project-tags`,
+      {
+        env,
+      },
+    );
+    expect(stdout).toMatch(
+      "--project-tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --project-tags=",
+    );
+    expect(code).toEqual(2);
+  });
+
   const optionsToTest = [
     '--json-file-output',
     '--json-file-output=',

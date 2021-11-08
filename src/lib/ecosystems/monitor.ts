@@ -26,6 +26,12 @@ import {
 import { findAndLoadPolicyForScanResult } from './policy';
 import { getAuthHeader } from '../api-token';
 import { resolveAndMonitorFacts } from './resolve-monitor-facts';
+import {
+  generateProjectAttributes,
+  generateTags,
+  validateProjectAttributes,
+  validateTags,
+} from '../../cli/commands/monitor';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -35,6 +41,10 @@ export async function monitorEcosystem(
   options: Options,
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
   const plugin = getPlugin(ecosystem);
+
+  validateTags(options);
+  validateProjectAttributes(options);
+
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
   for (const path of paths) {
     try {
@@ -95,6 +105,8 @@ export async function generateMonitorDependenciesRequest(
     scanResult,
     method: 'cli',
     projectName: options['project-name'] || config.PROJECT_NAME || undefined,
+    tags: generateTags(options),
+    attributes: generateProjectAttributes(options),
   };
 }
 

@@ -357,6 +357,12 @@ function getProjectAttribute<T>(
   return values;
 }
 
+export function validateProjectAttributes(options): void {
+  // The validation is deep within the parsing, so call the generate but throw away the return for simplicity.
+  // Using this method makes it much clearer what the intent is of the caller.
+  generateProjectAttributes(options);
+}
+
 export function generateProjectAttributes(options): ProjectAttributes {
   return {
     criticality: getProjectAttribute(
@@ -388,23 +394,32 @@ export function generateProjectAttributes(options): ProjectAttributes {
  * @returns List of parsed tags or undefined if they are to be left untouched.
  */
 export function generateTags(options): Tag[] | undefined {
-  if (options['project-tags'] === undefined) {
+  if (options['project-tags'] === undefined && options['tags'] === undefined) {
     return undefined;
   }
 
-  if (options['project-tags'] === '') {
+  if (options['project-tags'] !== undefined && options['tags'] !== undefined) {
+    throw new ValidationError(
+      'Only one of --tags or --project-tags may be specified, not both',
+    );
+  }
+
+  const rawTags =
+    options['tags'] === undefined ? options['project-tags'] : options['tags'];
+
+  if (rawTags === '') {
     return [];
   }
 
   // When it's specified without the =, we raise an explicit error to avoid
   // accidentally clearing the existing tags;
-  if (options['project-tags'] === true) {
+  if (rawTags === true) {
     throw new ValidationError(
       `--project-tags must contain an '=' with a comma-separated list of pairs (also separated with an '='). To clear all existing values, pass no values i.e. --project-tags=`,
     );
   }
 
-  const keyEqualsValuePairs = options['project-tags'].split(',');
+  const keyEqualsValuePairs = rawTags.split(',');
 
   const tags: Tag[] = [];
   for (const keyEqualsValue of keyEqualsValuePairs) {
@@ -421,6 +436,12 @@ export function generateTags(options): Tag[] | undefined {
   }
 
   return tags;
+}
+
+export function validateTags(options): void {
+  // The validation is deep within the parsing, so call the generate but throw away the return for simplicity.
+  // Using this method makes it much clearer what the intent is of the caller.
+  generateTags(options);
 }
 
 function validateMonitorPath(path: string, isDocker?: boolean): void {
