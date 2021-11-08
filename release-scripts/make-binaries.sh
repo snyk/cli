@@ -3,10 +3,10 @@ set -e
 
 mkdir binary-releases
 
-npx pkg . --compress Brotli -t node14-alpine-x64 -o binary-releases/snyk-alpine
-npx pkg . --compress Brotli -t node14-linux-x64  -o binary-releases/snyk-linux
-npx pkg . --compress Brotli -t node14-macos-x64  -o binary-releases/snyk-macos
-npx pkg . --compress Brotli -t node14-win-x64    -o binary-releases/snyk-win-unsigned.exe
+npx pkg . --compress Brotli -t node16-alpine-x64 -o binary-releases/snyk-alpine
+npx pkg . --compress Brotli -t node16-linux-x64  -o binary-releases/snyk-linux
+npx pkg . --compress Brotli -t node16-macos-x64  -o binary-releases/snyk-macos
+npx pkg . --compress Brotli -t node16-win-x64    -o binary-releases/snyk-win-unsigned.exe
 
 # build docker package
 ./release-scripts/docker-desktop-release.sh

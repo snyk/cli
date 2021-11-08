@@ -22,11 +22,11 @@ jobs:
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
           - snyk_install_method: yarn
             os: windows
-          # For binary, use only the Node 14
+          # Binaries are compiled with Node 16 so don't need to test other versions.
           - snyk_install_method: binary
             node_version: 12
           - snyk_install_method: binary
-            node_version: 16
+            node_version: 14
         include:
           - snyk_install_method: binary
             os: ubuntu
