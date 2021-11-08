@@ -5,7 +5,7 @@ const SNYK_API_HTTPS = 'https://snyk.io/api/v1';
 const SNYK_API_HTTP = 'http://snyk.io/api/v1';
 const FAKE_HTTP_PROXY = `http://localhost:${fakeServerPort}`;
 
-jest.setTimeout(1000 * 60 * 1);
+jest.setTimeout(1000 * 60);
 
 describe('Proxy configuration behavior', () => {
   describe('*_PROXY against HTTPS host', () => {
@@ -71,7 +71,7 @@ describe('Proxy configuration behavior', () => {
         },
       });
 
-      expect(code).toBe(1);
+      expect(code).toBe(2);
 
       // Incorrect behavior when Needle tries to upgrade connection after 301 http->https and the Agent option is set to a strict http/s protocol.
       // See lines with `keepAlive` in request.ts for more details

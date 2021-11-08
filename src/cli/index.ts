@@ -338,17 +338,6 @@ async function main() {
   return res;
 }
 
-const cli = main().catch((e) => {
-  console.error('Something unexpected went wrong: ', e.stack);
-  console.error('Exit code: ' + EXIT_CODES.ERROR);
-  process.exit(EXIT_CODES.ERROR);
-});
-
-if (module.parent) {
-  // eslint-disable-next-line id-blacklist
-  module.exports = cli;
-}
-
 function validateUnsupportedOptionCombinations(
   options: AllSupportedCliOptions,
 ): void {
@@ -491,4 +480,20 @@ function validateOutputFile(
   if (fileOutputValue === "''" || fileOutputValue === '""') {
     throw error;
   }
+}
+
+function handleUnexpectedError(reason: unknown): never {
+  console.error('Something unexpected went wrong: ', reason);
+  console.error('Exit code: ' + EXIT_CODES.ERROR);
+  process.exit(EXIT_CODES.ERROR);
+}
+
+process.on('unhandledRejection', handleUnexpectedError);
+process.on('uncaughtException', handleUnexpectedError);
+
+const cli = main().catch(handleUnexpectedError);
+
+if (module.parent) {
+  // eslint-disable-next-line id-blacklist
+  module.exports = cli;
 }
