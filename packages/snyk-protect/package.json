@@ -20,7 +20,7 @@
     "snyk-protect": "bin/snyk-protect"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "build": "tsc",

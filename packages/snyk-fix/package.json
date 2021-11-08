@@ -16,7 +16,7 @@
     "test": "test"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "scripts": {
     "build": "tsc",

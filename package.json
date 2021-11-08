@@ -22,7 +22,7 @@
     "snyk": "bin/snyk"
   },
   "engines": {
-    "node": ">=10"
+    "node": ">=12"
   },
   "workspaces": [
     ".",

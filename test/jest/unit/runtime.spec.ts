@@ -1,37 +1,21 @@
-import * as runtime from '../../../src/cli/runtime';
+import { isSupported } from '../../../src/cli/runtime';
 
-describe('verify supported nodejs runtime versions', () => {
-  it('current runtime is supported', async () => {
-    expect(runtime.isSupported(process.versions.node)).toBeTruthy();
+describe('isSupported', () => {
+  it('supports this test runtime', async () => {
+    expect(isSupported(process.versions.node)).toBe(true);
   });
 
-  it('pre-release is supported', async () => {
-    expect(runtime.isSupported('11.0.0-pre')).toBeTruthy();
-  });
-});
-
-describe('verify unsupported nodejs runtime versions', () => {
-  it('v6.16.0 is not supported', async () => {
-    expect(runtime.isSupported('6.16.0')).toBeFalsy();
+  it('supports pre-release versions', async () => {
+    expect(isSupported('16.0.0-pre')).toBe(true);
   });
 
-  it('v0.10 is not supported', async () => {
-    expect(runtime.isSupported('0.10.48')).toBeFalsy();
+  it('supports minimum version', async () => {
+    expect(isSupported('12.0.0')).toBe(true);
   });
 
-  it('v0.12 is not supported', async () => {
-    expect(runtime.isSupported('0.12.18')).toBeFalsy();
-  });
-
-  it('v4.0.0 is not supported', async () => {
-    expect(runtime.isSupported('4.0.0')).toBeFalsy();
-  });
-
-  it('verifies v6.4.0 is not supported', async () => {
-    expect(runtime.isSupported('6.4.0')).toBeFalsy();
-  });
-
-  it('verifies v8.0.0 is not supported', async () => {
-    expect(runtime.isSupported('8.0.0')).toBeFalsy();
+  it('does not support versions below minimum version', async () => {
+    expect(isSupported('8.0.0')).toBe(false);
+    expect(isSupported('10.0.0')).toBe(false);
+    expect(isSupported('11.9.0')).toBe(false);
   });
 });

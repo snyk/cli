@@ -207,14 +207,13 @@ async function saveJsonResultsToFile(
   );
 }
 
-function checkRuntime() {
-  if (!runtime.isSupported(process.versions.node)) {
+function checkRuntime(): void | never {
+  if (runtime.isSupported(process.versions.node)) {
     console.error(
-      `Node.js version ${process.versions.node} is an unsupported Node.js ` +
-        `runtime! Supported runtime range is '${runtime.supportedRange}'`,
+      `Node.js v${process.versions.node} is no longer maintained. Please upgrade to Node.js ${runtime.supportedRange}.`,
     );
     console.error(
-      'Please upgrade your Node.js runtime. The last version of Snyk CLI that supports Node.js v8 is v1.454.0.',
+      'If you wish to use Snyk CLI despite this, downgrade to v1.756.0 or below',
     );
     process.exit(EXIT_CODES.ERROR);
   }
