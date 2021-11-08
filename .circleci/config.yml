@@ -9,7 +9,7 @@ defaults: &defaults
   parameters:
     node_version:
       type: string
-      default: '14.17.5'
+      default: '16.13.0'
     root_tap_tests:
       type: boolean
       default: false
@@ -34,7 +34,7 @@ commands:
         type: string
       npm_version:
         type: string
-        default: '7.21.1'
+        default: '8.1.0'
       npm_cache_directory:
         type: string
         default: /mnt/ramdisk/.npm
@@ -439,7 +439,7 @@ workflows:
                 - master
 
       - test-windows:
-          name: Windows, Node v14.17.5 - Packages, Jest, System Tests
+          name: Windows, Node v16.13.0 - Packages, Jest, System Tests
           context: nodejs-install
           requires:
             - Build
@@ -451,7 +451,7 @@ workflows:
           system_tests: true
           package_tests: true
       - test-windows:
-          name: Windows, Node v14.17.5 - Acceptance Tests
+          name: Windows, Node v16.13.0 - Acceptance Tests
           context: nodejs-install
           requires:
             - Build
@@ -461,7 +461,7 @@ workflows:
                 - master
           acceptance_tests: true
       - test-windows:
-          name: Windows, Node v14.17.5 - Root Tap Tests
+          name: Windows, Node v16.13.0 - Root Tap Tests
           context: nodejs-install
           requires:
             - Build
@@ -482,7 +482,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
+              node_version: ['12.22.7', '14.18.1', '16.13.0']
           jest_tests: true
           system_tests: true
           package_tests: true
@@ -497,7 +497,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
+              node_version: ['12.22.7', '14.18.1', '16.13.0']
           acceptance_tests: true
       - test-linux:
           name: Linux, Node v<< matrix.node_version >> - Root Tap Tests
@@ -510,7 +510,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
+              node_version: ['12.22.7', '14.18.1', '16.13.0']
           root_tap_tests: true
 
       - dev-release:

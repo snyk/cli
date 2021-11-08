@@ -17,20 +17,16 @@ jobs:
       matrix:
         os: [ubuntu, macos, windows]
         snyk_install_method: [binary, npm, yarn]
-        node_version: [10, 12, 14, 15]
+        node_version: [12, 14, 16]
         exclude:
           # Skip yarn for Windows, as it's a bit crazy to get it working in CI environment. Unless we see evidence we need it, I'd avoid it
           - snyk_install_method: yarn
             os: windows
           # For binary, use only the Node 14
           - snyk_install_method: binary
-            node_version: 10
-          - snyk_install_method: binary
             node_version: 12
           - snyk_install_method: binary
-            node_version: 15
-          - snyk_install_method: yarn # yarn doesn't support Node v10 anymore
-            node_version: 10
+            node_version: 16
         include:
           - snyk_install_method: binary
             os: ubuntu
@@ -53,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-node@v1 # Needed for fixtures installation
+      - uses: actions/setup-node@v2 # Needed for fixtures installation
         with:
           node-version: ${{ matrix.node_version }}
 

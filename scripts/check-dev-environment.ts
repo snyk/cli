@@ -4,19 +4,9 @@ type Issue = {
   enforce: boolean;
 };
 
-/**
- * We have a hack in .circleci/config.yml which uses npm@6 for regression
- * tests. Once that's removed we can remove this check.
- */
-const isCIHackInstall = (): boolean => {
-  return (
-    typeof process.env.CI === 'string' && process.env.NODE_ENV === 'production'
-  );
-};
-
 const checkDevEnvironment = async () => {
   const issues: Issue[] = [];
-  const expectedNpmVersion = '7';
+  const expectedNpmVersion = '8';
 
   try {
     // npm/7.14.0 node/v14.16.1 linux x64 workspaces/false
@@ -35,7 +25,7 @@ const checkDevEnvironment = async () => {
       issues.push({
         target: 'npm',
         reason: `Expected npm@${expectedNpmVersion} but found npm@${npmVersion}`,
-        enforce: !isCIHackInstall(),
+        enforce: true,
       });
     }
   } catch (error) {

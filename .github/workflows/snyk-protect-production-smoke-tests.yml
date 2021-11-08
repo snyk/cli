@@ -14,7 +14,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
-        node_version: [10, 12, 14, 16]
+        node_version: [12, 14, 16]
     runs-on: ${{ matrix.os }}-latest
     steps:
       # Avoid modifying line endings in fixtures.
@@ -24,21 +24,12 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node_version }}
+          cache: 'npm'
 
-      - name: npx npm@7 config get cache
-        id: npm7-cache-dir
-        run: |
-          echo "::set-output name=dir::$(npx npm@7 config get cache)"
-      - uses: actions/cache@v2
-        id: npm7-cache
-        with:
-          path: ${{ steps.npm7-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node${{ matrix.node_version }}-npm7-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node${{ matrix.node_version }}-npm7-
-
-      - run: npx npm@7 install
-      - run: npx npm@7 run test:smoke -w @snyk/protect
+      # Our dev environment needs npm@8 but we want to test bundled npm
+      # versions in our tests. So we're using npx here.
+      - run: npx npm@8 ci
+      - run: npx npm@8 run test:smoke -w @snyk/protect
         env:
           SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
           PRODUCTION_TEST: '1'
