@@ -44,3 +44,5 @@ lerna.json @snyk/hammer
 /tsconfig.json @snyk/hammer
 /tsconfig.settings.json @snyk/hammer
 CODEOWNERS @snyk/hammer
+/docker @snyk/hammer
+
