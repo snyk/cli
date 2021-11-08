@@ -92,22 +92,22 @@ describe('custom rules pull from a remote OCI registry', () => {
   test.each(cases)(
     'given %p as a registry and correct credentials, it returns a success exit code',
     async (
-      OCI_REGISTRY_NAME,
-      OCI_REGISTRY_URL,
-      OCI_REGISTRY_USERNAME,
-      OCI_REGISTRY_PASSWORD,
+      SNYK_CFG_OCI_REGISTRY_NAME,
+      SNYK_CFG_OCI_REGISTRY_URL,
+      SNYK_CFG_OCI_REGISTRY_USERNAME,
+      SNYK_CFG_OCI_REGISTRY_PASSWORD,
     ) => {
       const { stdout, exitCode } = await run(
         `snyk iac test ./iac/terraform/sg_open_ssh.tf`,
         {
-          OCI_REGISTRY_URL: OCI_REGISTRY_URL as string,
-          OCI_REGISTRY_USERNAME: OCI_REGISTRY_USERNAME as string,
-          OCI_REGISTRY_PASSWORD: OCI_REGISTRY_PASSWORD as string,
+          SNYK_CFG_OCI_REGISTRY_URL: SNYK_CFG_OCI_REGISTRY_URL as string,
+          SNYK_CFG_OCI_REGISTRY_USERNAME: SNYK_CFG_OCI_REGISTRY_USERNAME as string,
+          SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
         },
       );
-      expect(OCI_REGISTRY_URL).toBeDefined();
-      expect(OCI_REGISTRY_USERNAME).toBeDefined();
-      expect(OCI_REGISTRY_PASSWORD).toBeDefined();
+      expect(SNYK_CFG_OCI_REGISTRY_URL).toBeDefined();
+      expect(SNYK_CFG_OCI_REGISTRY_USERNAME).toBeDefined();
+      expect(SNYK_CFG_OCI_REGISTRY_PASSWORD).toBeDefined();
       expect(exitCode).toBe(1);
 
       expect(stdout).toContain('Testing ./iac/terraform/sg_open_ssh.tf');
@@ -124,7 +124,7 @@ describe('custom rules pull from a remote OCI registry', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/terraform/sg_open_ssh.tf`,
       {
-        OCI_REGISTRY_URL:
+        SNYK_CFG_OCI_REGISTRY_URL:
           'https://registry-1.docker.io/fake-repo-test/bundle:latest',
       },
     );
@@ -139,7 +139,7 @@ describe('custom rules pull from a remote OCI registry', () => {
     const { stdout, exitCode } = await run(
       `snyk iac test ./iac/terraform/sg_open_ssh.tf --rules=bundle.tar.gz`,
       {
-        OCI_REGISTRY_URL:
+        SNYK_CFG_OCI_REGISTRY_URL:
           'https://registry-1.docker.io/fake-test-repo/bundle:latest',
       },
     );

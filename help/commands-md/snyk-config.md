@@ -37,6 +37,15 @@ This command does not manage the `.snyk` file that's part of your project. See `
 - `disable-analytics`:
   Turns off analytics reporting.
 
+- `oci-registry-url`:
+  Configures the OCI registry used in IaC scannings with custom rules.
+
+- `oci-registry-username`:
+  Configures the username for an OCI registry used in IaC scannings with custom rules.
+
+- `oci-registry-password`:
+  Configures the password for an OCI registry used in IaC scannings with custom rules.
+
 
 
 

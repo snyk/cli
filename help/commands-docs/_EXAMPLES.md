@@ -30,6 +30,15 @@ See `snyk iac --help` for more details and examples:
     $ snyk iac test /path/to/tf-plan.json
     $ snyk iac test /path/to/arm_file.json
 
+To use your own custom rules to scan IaC configuration files, download the `snyk-iac-rules` SDK from https://github.com/snyk/snyk-iac-rules. Follow the
+instructions there to write, build, and push a custom rules bundle and then
+either use the Snyk UI to configure your custom rules settings or configure
+a remote OCI registry locally by running the following commands:
+
+    $ snyk config set oci-registry-url=https://registry-1.docker.io/username/repo:tag
+    $ snyk config set oci-registry-username=username
+    $ snyk config set oci-registry-password=password
+
 ### Static code analysis (SAST) scanning
 
 See `snyk code --help` for more details and examples:
