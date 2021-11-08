@@ -52,7 +52,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(stderr).toEqual('');
   });
 
-  test('`test yarn-out-of-sync` --strict-out-of-sync=false does not detect any files', async () => {
+  test('`test yarn-out-of-sync` --strict-out-of-sync=false scans all the workspace projects', async () => {
     const project = await createProjectFromWorkspace(
       'yarn-workspace-out-of-sync',
     );
@@ -66,13 +66,16 @@ describe('snyk test --all-projects (mocked server only)', () => {
     );
 
     expect(code).toEqual(0);
+    expect(stdout).toMatch('Tested 3 projects, no vulnerable paths were found');
+
     // detected only the workspace root
     expect(stdout).toMatch('Package manager:   yarn');
     expect(stdout).toMatch('Project name:      package.json');
-    // workspaces themselves failed to scan and were skipped
-    expect(stderr).toMatch(
-      '✗ 2/3 potential projects failed to get dependencies.',
-    );
+    // workspaces themselves detected too
+    expect(stderr).toMatch('');
+    // detected only the workspace root
+    expect(stdout).toMatch('Project name:      tomatoes');
+    expect(stdout).toMatch('Project name:      apples');
   });
 
   test('`test ruby-app --all-projects`', async () => {

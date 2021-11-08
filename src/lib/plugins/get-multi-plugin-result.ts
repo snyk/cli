@@ -147,6 +147,7 @@ async function processYarnWorkspacesProjects(
     );
     return { scannedProjects, unprocessedFiles };
   } catch (e) {
+    debug('ERROR: ', e)
     return { scannedProjects: [], unprocessedFiles: targetFiles };
   }
 }

@@ -664,8 +664,7 @@ export const AllProjectsTests: AcceptanceTests = {
         'same body for --all-projects and --file=mono-repo-go/hello-vendor/vendor/vendor.json',
       );
     },
-
-    '`monitor mono-repo-go with --all-projects and --detectin-depth=3`': (
+    '`monitor mono-repo-go with --all-projects and --detection-depth=3`': (
       params,
       utils,
     ) => async (t) => {
@@ -954,6 +953,106 @@ export const AllProjectsTests: AcceptanceTests = {
           'sends version number',
         );
       });
+    },
+    'monitor yarn-workspaces --all-projects --detection-depth=5 finds Yarn workspaces & Npm projects': (
+      params,
+      utils,
+    ) => async (t) => {
+      t.teardown(() => {
+        loadPlugin.restore();
+      });
+      utils.chdirWorkspaces();
+      const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
+
+      const result = await params.cli.monitor('yarn-workspaces', {
+        allProjects: true,
+        detectionDepth: 5,
+      });
+      // the parser is used directly
+      t.ok(
+        loadPlugin.withArgs('yarn').notCalled,
+        'skips load plugin for yarn as a parser is used directly',
+      );
+      t.equal(loadPlugin.withArgs('npm').callCount, 1, 'calls npm plugin once');
+
+      t.match(
+        result,
+        'Monitoring yarn-workspaces (package.json)',
+        'yarn workspace root was monitored',
+      );
+      t.match(
+        result,
+        'Monitoring yarn-workspaces (apple-lib)',
+        'yarn workspace was monitored',
+      );
+      t.match(
+        result,
+        'Monitoring yarn-workspaces (apples)',
+        'yarn workspace was monitored',
+      );
+      t.match(
+        result,
+        'Monitoring yarn-workspaces (tomatoes)',
+        'yarn workspace was monitored',
+      );
+      t.match(
+        result,
+        'Monitoring yarn-workspaces (not-in-a-workspace)',
+        'npm project was monitored',
+      );
+
+      const requests = params.server
+        .getRequests()
+        .filter((req) => req.url.includes('/monitor/'));
+      t.equal(requests.length, 5, 'correct amount of monitor requests');
+      let policyCount = 0;
+      const applesWorkspace =
+        process.platform === 'win32'
+          ? '\\apples\\package.json'
+          : 'apples/package.json';
+      const tomatoesWorkspace =
+        process.platform === 'win32'
+          ? '\\tomatoes\\package.json'
+          : 'tomatoes/package.json';
+      const rootWorkspace =
+        process.platform === 'win32'
+          ? '\\yarn-workspaces\\package.json'
+          : 'yarn-workspaces/package.json';
+      requests.forEach((req) => {
+        t.match(
+          req.url,
+          /\/api\/v1\/monitor\/(yarn\/graph|npm\/graph)/,
+          'puts at correct url',
+        );
+        t.equal(req.method, 'PUT', 'makes PUT request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+        if (req.body.targetFileRelativePath.endsWith(applesWorkspace)) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20160328',
+            'policy is as expected',
+          );
+          t.ok(req.body.policy, 'body contains policy');
+          policyCount += 1;
+        } else if (
+          req.body.targetFileRelativePath.endsWith(tomatoesWorkspace)
+        ) {
+          t.notOk(req.body.policy, 'body does not contain policy');
+        } else if (req.body.targetFileRelativePath.endsWith(rootWorkspace)) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20111130',
+            'policy is as expected',
+          );
+          t.ok(req.body.policy, 'body contains policy');
+          policyCount += 1;
+        }
+      });
+      t.equal(policyCount, 2, '2 policies found in a workspace');
     },
   },
 };

@@ -54,6 +54,7 @@ export async function processYarnWorkspaces(
   let rootWorkspaceManifestContent = {};
   // the folders must be ordered highest first
   for (const directory of Object.keys(yarnTargetFiles)) {
+    debug(`Processing ${directory} as a potential Yarn workspace`)
     let isYarnWorkspacePackage = false;
     let isRootPackageJson = false;
     const packageJsonFileName = pathUtil.join(directory, 'package.json');
