@@ -215,6 +215,7 @@ export const DockerTests: AcceptanceTests = {
                     dockerfilePackages: {
                       'openssl@1.5.0': {
                         instruction: 'RUN apk add openssl@1.5.0',
+                        installCommand: 'apk add openssl@1.5.0',
                       },
                     },
                     dockerfileLayers: {
@@ -264,6 +265,7 @@ export const DockerTests: AcceptanceTests = {
                   dockerfilePackages: {
                     'openssl@1.5.0': {
                       instruction: 'RUN apk add openssl@1.5.0',
+                      installCommand: 'apk add openssl@1.5.0',
                     },
                   },
                   dockerfileLayers: {
@@ -649,7 +651,7 @@ export const DockerTests: AcceptanceTests = {
                   data: {
                     dockerfilePackages: {
                       bzip2: {
-                        instruction: 'RUN test instruction',
+                        installCommand: 'test installCommand',
                       },
                     },
                   },
@@ -678,7 +680,7 @@ export const DockerTests: AcceptanceTests = {
         t.fail('should have found vuln');
       } catch (err) {
         const msg = err.message;
-        t.match(msg, "Image layer: 'RUN test instruction'");
+        t.match(msg, "Image layer: 'test installCommand'");
       }
     },
 
@@ -697,7 +699,7 @@ export const DockerTests: AcceptanceTests = {
                   data: {
                     dockerfilePackages: {
                       bzip2: {
-                        instruction: 'RUN test instruction',
+                        installCommand: 'test installCommand',
                       },
                     },
                   },
@@ -726,7 +728,7 @@ export const DockerTests: AcceptanceTests = {
         t.fail('should have found vuln');
       } catch (err) {
         const msg = err.message;
-        t.match(msg, "Image layer: 'RUN test instruction'");
+        t.match(msg, "Image layer: 'test installCommand'");
       }
     },
 
