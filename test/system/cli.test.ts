@@ -79,8 +79,9 @@ test('test without authentication', async (t) => {
       '`snyk` requires an authenticated account. Please run `snyk auth` and try again.',
       'error message is shown as expected',
     );
+  } finally {
+    await cli.config('set', 'api=' + apiKey);
   }
-  await cli.config('set', 'api=' + apiKey);
 });
 
 test('auth via key', async (t) => {
@@ -132,13 +133,14 @@ test('auth with no args', async (t) => {
       'http://localhost:12345/login?token=',
       'opens login with token param',
     );
-    ciStub.restore();
-    dockerStub.restore();
   } catch (e) {
     t.threw(e);
+  } finally {
+    ciStub.restore();
+    dockerStub.restore();
+    // turn console.log back on
+    enableLog();
   }
-  // turn console.log back on
-  enableLog();
 });
 
 test('auth with UTMs in environment variables', async (t) => {
@@ -173,7 +175,9 @@ test('auth with UTMs in environment variables', async (t) => {
       '&utm_medium=ide&utm_source=eclipse&utm_campaign=plugin',
       'opens login with utm tokens provided',
     );
-
+  } catch (e) {
+    t.threw(e);
+  } finally {
     // clean up environment variables
     delete process.env.SNYK_UTM_MEDIUM;
     delete process.env.SNYK_UTM_SOURCE;
@@ -184,8 +188,6 @@ test('auth with UTMs in environment variables', async (t) => {
 
     // restore original console.log
     console.log = origConsoleLog;
-  } catch (e) {
-    t.threw(e);
   }
 });
 
@@ -216,15 +218,15 @@ test('auth with default UTMs', async (t) => {
       '&utm_medium=cli&utm_source=cli&utm_campaign=cli&os=darwin&docker=false',
       'defualt utms are exists',
     );
-
+  } catch (e) {
+    t.threw(e);
+  } finally {
     // clean up stubs
     ciStub.restore();
     osStub.restore();
     isDockerStub.restore();
     // restore original console.log
     console.log = origConsoleLog;
-  } catch (e) {
-    t.threw(e);
   }
 });
 test('cli tests error paths', async (t) => {
@@ -262,9 +264,10 @@ test('snyk ignore - all options', async (t) => {
     });
     const pol = await policy.load(dir);
     t.deepEquals(pol.ignore, fullPolicy, 'policy written correctly');
-    clock.restore();
   } catch (err) {
     t.throws(err, 'ignore should succeed');
+  } finally {
+    clock.restore();
   }
 });
 
@@ -315,9 +318,10 @@ test('snyk ignore - default options', async (t) => {
       new Date().getTime(),
       'created date is the current date',
     );
-    clock.restore();
   } catch (e) {
     t.fail(e, 'ignore should succeed');
+  } finally {
+    clock.restore();
   }
 });
 
