@@ -14,6 +14,8 @@ type FakeServer = {
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
+  unauthorizeAction: (action: string, reason?: string) => void;
+  getSnykToken: () => string;
   listen: (port: string | number, callback: () => void) => void;
   restore: () => void;
   close: (callback: () => void) => void;
@@ -23,6 +25,7 @@ type FakeServer = {
 export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let requests: express.Request[] = [];
   let featureFlags: Map<string, boolean> = featureFlagDefaults();
+  let unauthorizedActions = new Map();
   let nextStatusCode: number | undefined = undefined;
   let nextResponse: any = undefined;
   let depGraphResponse: Record<string, unknown> | undefined = undefined;
@@ -32,6 +35,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     requests = [];
     depGraphResponse = undefined;
     featureFlags = featureFlagDefaults();
+    unauthorizedActions = new Map();
   };
 
   const getRequests = () => {
@@ -64,6 +68,18 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
     featureFlags.set(featureFlag, enabled);
+  };
+
+  const getSnykToken = (): string => snykToken;
+
+  const unauthorizeAction = (
+    action: string,
+    reason = 'unauthorized by test',
+  ) => {
+    unauthorizedActions.set(action, {
+      allowed: false,
+      reason,
+    });
   };
 
   const app = express();
@@ -383,9 +399,12 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200).send(baseResponse);
   });
 
-  app.get(basePath + '/authorization/:action', (req, res, next) => {
-    res.send({ result: { allowed: true } });
-    return next();
+  app.get(basePath + '/authorization/:action', (req, res) => {
+    const result = unauthorizedActions.get(req.params.action) || {
+      allowed: true,
+      reason: 'Default fake server response.',
+    };
+    res.send({ result });
   });
 
   app.put(basePath + '/monitor/:registry/graph', (req, res, next) => {
@@ -442,6 +461,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setNextResponse,
     setNextStatusCode,
     setFeatureFlag,
+    unauthorizeAction,
+    getSnykToken,
     listen,
     restore,
     close,

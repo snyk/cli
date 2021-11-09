@@ -2,7 +2,7 @@ import * as fse from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
 
-type TestProject = {
+export type TestProject = {
   path: (filePath?: string) => string;
   read: (filePath: string) => Promise<string>;
   readJSON: (filePath: string) => Promise<any>;
