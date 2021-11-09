@@ -3,10 +3,9 @@
  * "Contributing" is defined as having contributed a commit in the last 90 days.
  * This is use only on the `snyk monitor` command as that is used to monitor a project's dependencies in an
  * on-going manner.
- * It collects only a hash of the email of a git user and the most recent commit timestamp (both per the `git log`
+ * It collects the email of a git user and the most recent commit timestamp (both per the `git log`
  * output) and can be disabled by config (see https://snyk.io/policies/tracking-and-analytics/).
  */
-import * as crypto from 'crypto';
 import { exec } from 'child_process';
 import { Contributor } from '../types';
 
@@ -37,16 +36,12 @@ export async function getContributors(
 }
 
 export class GitCommitInfo {
-  authorHashedEmail: string;
+  authorEmail: string;
   commitTimestamp: string; // use ISO 8601 format
 
-  constructor(authorHashedEmail: string, commitTimestamp: string) {
-    if (isSha1Hash(authorHashedEmail)) {
-      this.authorHashedEmail = authorHashedEmail;
-      this.commitTimestamp = commitTimestamp;
-    } else {
-      throw new Error('authorHashedEmail must be a sha1 hash');
-    }
+  constructor(authorEmail: string, commitTimestamp: string) {
+    this.authorEmail = authorEmail;
+    this.commitTimestamp = commitTimestamp;
   }
 }
 
@@ -61,40 +56,38 @@ export class GitRepoCommitStats {
     return new GitRepoCommitStats([]);
   }
 
-  public addCommitInfo(info: GitCommitInfo) {
+  public addCommitInfo(info: GitCommitInfo): void {
     this.commitInfos.push(info);
   }
 
   public getUniqueAuthorsCount(): number {
-    const uniqueAuthorHashedEmails = this.getUniqueAuthorHashedEmails();
-    return uniqueAuthorHashedEmails.size;
+    const uniqueAuthorEmails = this.getUniqueAuthorEmails();
+    return uniqueAuthorEmails.size;
   }
 
   public getCommitsCount(): number {
     return this.commitInfos.length;
   }
 
-  public getUniqueAuthorHashedEmails(): Set<string> {
+  public getUniqueAuthorEmails(): Set<string> {
     const allCommitAuthorHashedEmails: string[] = this.commitInfos.map(
-      (c) => c.authorHashedEmail,
+      (c) => c.authorEmail,
     );
-    const uniqueAuthorHashedEmails: Set<string> = new Set(
+    const uniqueAuthorEmails: Set<string> = new Set(
       allCommitAuthorHashedEmails,
     );
-    return uniqueAuthorHashedEmails;
+    return uniqueAuthorEmails;
   }
 
   public getRepoContributors(): Contributor[] {
-    const uniqueAuthorHashedEmails = this.getUniqueAuthorHashedEmails();
+    const uniqueAuthorEmails = this.getUniqueAuthorEmails();
     const contributors: Contributor[] = [];
-
-    // for each uniqueAuthorHashedEmails, get the latest commit
-    for (const nextUniqueAuthorHashedEmail of uniqueAuthorHashedEmails) {
+    for (const nextUniqueAuthorEmail of uniqueAuthorEmails) {
       const latestCommitTimestamp = this.getMostRecentCommitTimestamp(
-        nextUniqueAuthorHashedEmail,
+        nextUniqueAuthorEmail,
       );
       contributors.push({
-        userId: nextUniqueAuthorHashedEmail,
+        email: nextUniqueAuthorEmail,
         lastCommitDate: latestCommitTimestamp,
       });
     }
@@ -103,7 +96,7 @@ export class GitRepoCommitStats {
 
   public getMostRecentCommitTimestamp(authorHashedEmail: string): string {
     for (const nextGI of this.commitInfos) {
-      if (nextGI.authorHashedEmail === authorHashedEmail) {
+      if (nextGI.authorEmail === authorHashedEmail) {
         return nextGI.commitTimestamp;
       }
     }
@@ -115,8 +108,7 @@ export function parseGitLogLine(logLine: string): GitCommitInfo {
   const lineComponents = logLine.split(SERIOUS_DELIMITER);
   const authorEmail = lineComponents[2];
   const commitTimestamp = lineComponents[3];
-  const hashedAuthorEmail = hashData(authorEmail);
-  const commitInfo = new GitCommitInfo(hashedAuthorEmail, commitTimestamp);
+  const commitInfo = new GitCommitInfo(authorEmail, commitTimestamp);
   return commitInfo;
 }
 
@@ -128,25 +120,6 @@ export function parseGitLog(gitLog: string): GitRepoCommitStats {
   const logLineInfos: GitCommitInfo[] = logLines.map(parseGitLogLine);
   const stats: GitRepoCommitStats = new GitRepoCommitStats(logLineInfos);
   return stats;
-}
-
-export function hashData(s: string): string {
-  const hashedData = crypto
-    .createHash('sha1')
-    .update(s)
-    .digest('hex');
-  return hashedData;
-}
-
-export function isSha1Hash(data: string): boolean {
-  // sha1 hash must be exactly 40 characters of 0-9 / a-f (i.e. lowercase hex characters)
-  // ^ == start anchor
-  // [0-9a-f] == characters 0,1,2,3,4,5,6,7,8,9,a,b,c,d,e,f only
-  // {40} 40 of the [0-9a-f] characters
-  // $ == end anchor
-  const matchRegex = new RegExp('^[0-9a-f]{40}$');
-  const looksHashed = matchRegex.test(data);
-  return looksHashed;
 }
 
 /**

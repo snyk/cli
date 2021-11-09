@@ -1,12 +1,20 @@
 import * as fs from 'fs';
 import * as tar from 'tar';
 import * as path from 'path';
+import * as crypto from 'crypto';
 import {
   FailedToInitLocalCacheError,
   LOCAL_POLICY_ENGINE_DIR,
 } from './local-cache';
 import { CUSTOM_RULES_TARBALL } from './oci-pull';
-import { hashData } from '../../../../lib/monitor/dev-count-analysis';
+
+function hashData(s: string): string {
+  const hashedData = crypto
+    .createHash('sha1')
+    .update(s)
+    .digest('hex');
+  return hashedData;
+}
 
 export function createIacDir(): void {
   // this path will be able to be customised by the user in the future

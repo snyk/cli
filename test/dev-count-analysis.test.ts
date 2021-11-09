@@ -1,18 +1,9 @@
 import { test } from 'tap';
-const osName = require('os-name');
-
-const isWindows =
-  osName()
-    .toLowerCase()
-    .indexOf('windows') === 0;
-
 import {
   GitCommitInfo,
   parseGitLog,
   GitRepoCommitStats,
   parseGitLogLine,
-  isSha1Hash,
-  hashData,
   getTimestampStartOfContributingDevTimeframe,
   separateLines,
   execShell,
@@ -20,47 +11,12 @@ import {
   runGitLog,
 } from '../src/lib/monitor/dev-count-analysis';
 
-const expectedEmailHashes = {
-  'someemail-1@somedomain.com': '069598f5bf317927731aecc6648bd521f6a12c92',
-  'someemail-2@somedomain.com': '15726593ee5b5182412ca858e2472477f4ce9f30',
-};
+const osName = require('os-name');
 
-test('hashData works', (t) => {
-  t.plan(2);
-
-  const email1 = 'someemail-1@somedomain.com';
-  const hashedEmail1 = hashData(email1);
-  t.equal(hashedEmail1, expectedEmailHashes['someemail-1@somedomain.com']);
-
-  const email2 = 'someemail-2@somedomain.com';
-  const hashedEmail2 = hashData(email2);
-  t.equal(hashedEmail2, expectedEmailHashes['someemail-2@somedomain.com']);
-});
-
-test('isSha1Hash works', (t) => {
-  t.plan(6);
-  t.ok(isSha1Hash('069598f5bf317927731aecc6648bd521f6a12c92'));
-  t.ok(isSha1Hash('0123456789abcdef0123456789abcdef01234567')); // all the possible hex characters
-  t.notOk(isSha1Hash('abcdefghijklmnopqrstuvwxyz01234567890')); // contains letters which are not hex characters
-  t.notOk(isSha1Hash('0123456789abcdef0123456789abcdef01234567a')); // more than 40 characters
-  t.notOk(isSha1Hash('0123456789abcdef0123456789abcdef0123456')); // less than 40 characters
-  t.notOk(isSha1Hash('someemail-1@somedomain.com')); // obviously an email
-});
-
-test('you cannot create a new GitCommitInfo if the email is not hashed', (t) => {
-  t.plan(1);
-  try {
-    new GitCommitInfo(
-      'someemail-1@somedomain.com',
-      '2020-02-06T11:43:11+00:00',
-    );
-    t.fail(
-      'GitCommitInfo constructor should throw exception if you try to pass a non-hahsed email',
-    );
-  } catch (err) {
-    t.pass();
-  }
-});
+const isWindows =
+  osName()
+    .toLowerCase()
+    .indexOf('windows') === 0;
 
 test('can calculate start of contributing developer period', (t) => {
   t.plan(1);
@@ -76,10 +32,7 @@ test('can parse a git log line', (t) => {
   const line =
     '0bd4d3c394a54ba54f6c44705ac73d7d87b39525_SNYK_SEPARATOR_some-user_SNYK_SEPARATOR_someemail-1@somedomain.com_SNYK_SEPARATOR_2020-02-06T11:43:11+00:00';
   const commitInfo: GitCommitInfo = parseGitLogLine(line);
-  t.equal(
-    commitInfo.authorHashedEmail,
-    expectedEmailHashes['someemail-1@somedomain.com'],
-  );
+  t.equal(commitInfo.authorEmail, 'someemail-1@somedomain.com');
 });
 
 test('can handle an empty git log', (t) => {
@@ -157,56 +110,40 @@ test('runGitLog returns empty string and does not throw error when git log comma
 });
 
 function validateGitParsing(gitLog: string, t) {
-  t.plan(17);
+  t.plan(13);
   const stats: GitRepoCommitStats = parseGitLog(gitLog);
 
   t.equal(stats.getCommitsCount(), 3);
   t.equal(stats.getUniqueAuthorsCount(), 2);
 
-  const uniqueAuthors: Set<string> = stats.getUniqueAuthorHashedEmails();
+  const uniqueAuthors: Set<string> = stats.getUniqueAuthorEmails();
   t.equal(uniqueAuthors.size, 2);
 
-  t.notOk(uniqueAuthors.has('someemail-1@somedomain.com'));
-  t.notOk(uniqueAuthors.has('someemail-2@somedomain.com'));
-  t.ok(uniqueAuthors.has(expectedEmailHashes['someemail-1@somedomain.com']));
-  t.ok(uniqueAuthors.has(expectedEmailHashes['someemail-2@somedomain.com']));
+  t.ok(uniqueAuthors.has('someemail-1@somedomain.com'));
+  t.ok(uniqueAuthors.has('someemail-2@somedomain.com'));
 
   const mostRecentCommitTimestampSomeEmail1 = stats.getMostRecentCommitTimestamp(
-    expectedEmailHashes['someemail-1@somedomain.com'],
+    'someemail-1@somedomain.com',
   );
   t.equal(mostRecentCommitTimestampSomeEmail1, '2020-02-06T11:43:11+00:00');
   const mostRecentCommitTimestampSomeEmail2 = stats.getMostRecentCommitTimestamp(
-    expectedEmailHashes['someemail-2@somedomain.com'],
+    'someemail-2@somedomain.com',
   );
   t.equal(mostRecentCommitTimestampSomeEmail2, '2020-02-02T23:31:13+02:00');
   t.equal(stats.getMostRecentCommitTimestamp('missing-email'), '');
 
   const contributors: {
-    userId: string;
+    email: string;
     lastCommitDate: string;
   }[] = stats.getRepoContributors();
   t.equal(contributors.length, 2);
 
-  t.notOk(
-    contributors.map((c) => c.userId).includes('someemail-1@somedomain.com'),
-  );
-  t.notOk(
-    contributors.map((c) => c.userId).includes('someemail-2@somedomain.com'),
-  );
-  t.ok(
-    contributors
-      .map((c) => c.userId)
-      .includes(expectedEmailHashes['someemail-1@somedomain.com']),
-  );
-  t.ok(
-    contributors
-      .map((c) => c.userId)
-      .includes(expectedEmailHashes['someemail-2@somedomain.com']),
-  );
+  t.ok(contributors.map((c) => c.email).includes('someemail-1@somedomain.com'));
+  t.ok(contributors.map((c) => c.email).includes('someemail-2@somedomain.com'));
 
-  const getTimestampById = (userId: string): string => {
+  const getTimestampById = (email: string): string => {
     for (const c of contributors) {
-      if (c.userId === userId) {
+      if (c.email === email) {
         return c.lastCommitDate;
       }
     }
@@ -214,11 +151,11 @@ function validateGitParsing(gitLog: string, t) {
   };
 
   t.equal(
-    getTimestampById(expectedEmailHashes['someemail-1@somedomain.com']),
+    getTimestampById('someemail-1@somedomain.com'),
     '2020-02-06T11:43:11+00:00',
   );
   t.equal(
-    getTimestampById(expectedEmailHashes['someemail-2@somedomain.com']),
+    getTimestampById('someemail-2@somedomain.com'),
     '2020-02-02T23:31:13+02:00',
   );
 }
