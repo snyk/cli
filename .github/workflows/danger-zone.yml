@@ -8,10 +8,13 @@ jobs:
     name: Danger JS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Danger
-        uses: danger/danger-js@9.1.8
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          cache: 'npm'
+      - run: npm install -g npm@7
+      - run: npm ci
+      - run: npx danger ci
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # https://github.com/danger/danger-js/issues/557#issuecomment-664851950
-          DANGER_DISABLE_TRANSPILATION: true
