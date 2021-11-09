@@ -357,7 +357,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   });
 
   app.get(basePath + '/iac-org-settings', (req, res) => {
-    res.status(200).send({
+    const baseResponse = {
       meta: {
         isPrivate: false,
         isLicensesEnabled: false,
@@ -366,7 +366,21 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       },
       customPolicies: {},
       customRules: {},
-    });
+      entitlements: {
+        iacCustomRulesEntitlement: true,
+      },
+    };
+
+    if (req.query.org === 'no-entitlements') {
+      return res.status(200).send({
+        ...baseResponse,
+        entitlements: {
+          iacCustomRulesEntitlement: false,
+        },
+      });
+    }
+
+    res.status(200).send(baseResponse);
   });
 
   app.get(basePath + '/authorization/:action', (req, res, next) => {

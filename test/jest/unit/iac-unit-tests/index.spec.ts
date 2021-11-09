@@ -1,5 +1,10 @@
 jest.mock('../../../../src/cli/commands/test/iac-local-execution/local-cache');
 jest.mock('../../../../src/cli/commands/test/iac-local-execution/file-loader');
+jest.mock('../../../../src/lib/feature-flags', () => ({
+  isFeatureFlagSupportedForOrg: async () => ({
+    ok: true,
+  }),
+}));
 jest.mock(
   '../../../../src/cli/commands/test/iac-local-execution/file-parser',
   () => {
@@ -56,12 +61,20 @@ jest.mock(
         org: 'org-name',
       },
       customPolicies: {},
-      customRules: {},
+      customRules: {
+        isEnabled: true,
+        ociRegistryURL: 'https://fake-registry/lib/img',
+        ociRegistryTag: 'latest',
+      },
+      entitlements: {
+        iacCustomRulesEntitlement: true,
+      },
     }),
   }),
 );
 
 import { test } from '../../../../src/cli/commands/test/iac-local-execution';
+import * as measurableMethods from '../../../../src/cli/commands/test/iac-local-execution/measurable-methods';
 import {
   IacFileParsed,
   IaCTestFlags,
@@ -69,6 +82,39 @@ import {
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 describe('test()', () => {
+  describe('Given an OCI registry configurations is provided in the IaC org settings', function() {
+    let pullSpy: jest.SpyInstance;
+
+    beforeAll(function() {
+      pullSpy = jest
+        .spyOn(measurableMethods, 'pull')
+        .mockImplementationOnce(async () => {});
+    });
+
+    afterEach(function() {
+      pullSpy.mockClear();
+    });
+
+    afterAll(function() {
+      pullSpy.mockReset();
+    });
+
+    it('attemps to pull the custom-rules bundle using the provided configurations', async () => {
+      const opts: IaCTestFlags = {};
+
+      await test('./iac/terraform/sg_open_ssh.tf', opts);
+
+      expect(pullSpy).toBeCalledWith(
+        {
+          registryBase: 'fake-registry',
+          repo: 'lib/img',
+          tag: 'latest',
+        },
+        expect.anything(),
+      );
+    });
+  });
+
   it('returns the unparsable files excluding content', async () => {
     const opts: IaCTestFlags = {};
     const { failures } = await test('./storage/', opts);

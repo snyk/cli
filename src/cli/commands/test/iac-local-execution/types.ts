@@ -68,16 +68,21 @@ export type FormattedResult = {
 
 export type IacCustomPolicies = Record<string, { severity?: string }>;
 
-export interface IaCCustomRulesConfigs {
+export interface IacCustomRules {
   isEnabled?: boolean;
   ociRegistryURL?: string;
   ociRegistryTag?: string;
 }
 
+export interface IacEntitlements {
+  iacCustomRulesEntitlement?: boolean;
+}
+
 export interface IacOrgSettings {
   meta: TestMeta;
   customPolicies: IacCustomPolicies;
-  customRules?: IaCCustomRulesConfigs;
+  customRules?: IacCustomRules;
+  entitlements?: IacEntitlements;
 }
 
 export interface TestMeta {
@@ -283,6 +288,7 @@ export enum IaCErrorCodes {
   // assert-iac-options-flag
   FlagError = 1090,
   FlagValueError = 1091,
+  UnsupportedEntitlementFlagError = 1092,
 
   // oci-pull errors
   FailedToExecuteCustomRulesError = 1100,
@@ -290,6 +296,8 @@ export enum IaCErrorCodes {
   FailedToBuildOCIArtifactError = 1102,
   InvalidRemoteRegistryURLError = 1103,
   InvalidManifestSchemaVersionError = 1104,
+  UnsupportedFeatureFlagPullError = 1105,
+  UnsupportedEntitlementPullError = 1106,
 }
 
 export interface TestReturnValue {
@@ -325,7 +333,7 @@ export interface OCIPullOptions {
   imageSavePath?: string;
 }
 
-export interface OciUrl {
+export interface OCIRegistryURLComponents {
   registryBase: string;
   repo: string;
   tag: string;
