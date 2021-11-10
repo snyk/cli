@@ -133,6 +133,12 @@ describe('custom rules pull from a remote OCI registry', () => {
       'AWS',
       getOciElasticRegistryPassword(),
     ],
+    [
+      'GitHub',
+      process.env.OCI_GITHUB_REGISTRY_URL,
+      process.env.OCI_GITHUB_REGISTRY_USERNAME,
+      process.env.OCI_GITHUB_REGISTRY_PASSWORD,
+    ],
   ];
   test.each(cases)(
     'given %p as a registry and correct credentials, it returns a success exit code',
