@@ -32,6 +32,18 @@ describe('extractOCIRegistryURLComponents', () => {
       tag: '0.5.2',
     });
   });
+
+  it('extracts components when no account provided', async () => {
+    const expected = extractOCIRegistryURLComponents(
+      'https://gcr.io/repo-test:0.5.2',
+    );
+    expect(expected).toEqual({
+      registryBase: 'gcr.io',
+      repo: 'repo-test',
+      tag: '0.5.2',
+    });
+  });
+
   it('extracts components and a latest tag, when tag is undefined', async () => {
     const expected = extractOCIRegistryURLComponents(
       'https://gcr.io/user/repo-test',
