@@ -79,11 +79,19 @@ export interface DepsFilePaths {
   [pkgKey: string]: string[];
 }
 
+export interface FileSignaturesDetails {
+  [pkgKey: string]: {
+    confidence: number;
+    filePaths: string[];
+  };
+}
+
 export interface TestResult {
   issues: Issue[];
   issuesData: IssuesData;
   depGraphData: DepGraphData;
   depsFilePaths?: DepsFilePaths;
+  fileSignaturesDetails?: FileSignaturesDetails;
   remediation?: RemediationChanges;
 }
 
