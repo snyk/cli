@@ -1,4 +1,4 @@
-*  @snyk/hammer @snyk/loki @snyk/tardis @snyk/tundra
+*  @snyk/hammer @snyk/snyk-open-source
 
 # monorepo packages
 packages/snyk-fix/ @snyk/tech-services
