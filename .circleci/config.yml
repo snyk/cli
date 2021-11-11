@@ -9,7 +9,7 @@ defaults: &defaults
   parameters:
     node_version:
       type: string
-      default: '14.17.5'
+      default: '14.17.4'
     root_tap_tests:
       type: boolean
       default: false
