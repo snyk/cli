@@ -8,6 +8,7 @@ export const config: Options = {
     'tap-junit', // used in circleci
     'lerna', // used in circleci
     'ts-loader', // used by webpack
+    'node-loader', // used by webpack
     'webpack-cli', // used in package.json scripts
     'pkg', // used for binary builds
   ],
