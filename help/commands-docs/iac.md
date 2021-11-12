@@ -8,7 +8,7 @@
 
 Find security issues in your Infrastructure as Code files.
 
-[For more information see IaC help page](https://snyk.co/ucT6Q)
+[For more information see the help page](https://docs.snyk.io/products/snyk-infrastructure-as-code)
 
 ## Commands
 

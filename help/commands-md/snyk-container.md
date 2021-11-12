@@ -1,4 +1,4 @@
-# snyk container -- Test container images for vulnerabilitie
+# snyk container -- Test container images for vulnerabilities
 
 ## Usage
 

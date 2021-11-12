@@ -37,7 +37,7 @@ const renderer = {
     return chalk.bold(text);
   },
   link(href, title, text) {
-    const renderedLink = chalk.underline.blue(href);
+    const renderedLink = chalk.bold.blueBright(href);
     if (text && text !== href) {
       return `${text} ${renderedLink}`;
     }
@@ -47,23 +47,25 @@ const renderer = {
     return quote;
   },
   list(body, ordered, start) {
-    return body
-      .split(listItemSeparator)
-      .map((listItem, listItemIndex) => {
-        const bulletPoint = ordered ? `${listItemIndex + start}. ` : '-  ';
-        return reflowText(listItem, getIdealTextWidth())
-          .split('\n')
-          .map((listItemLine, listItemLineIndex) => {
-            if (!listItemLine) {
-              return '';
-            }
-            return `${getLeftTextPadding()}${
-              listItemLineIndex === 0 ? bulletPoint : '   '
-            }${listItemLine}`;
-          })
-          .join('\n');
-      })
-      .join('\n');
+    return (
+      body
+        .split(listItemSeparator)
+        .map((listItem, listItemIndex) => {
+          const bulletPoint = ordered ? `${listItemIndex + start}. ` : '-  ';
+          return reflowText(listItem, getIdealTextWidth())
+            .split('\n')
+            .map((listItemLine, listItemLineIndex) => {
+              if (!listItemLine) {
+                return '';
+              }
+              return `${getLeftTextPadding()}${
+                listItemLineIndex === 0 ? bulletPoint : '   '
+              }${listItemLine}`;
+            })
+            .join('\n');
+        })
+        .join('\n') + '\n'
+    );
   },
   listitem(text) {
     return text + listItemSeparator;
@@ -77,7 +79,7 @@ const renderer = {
     );
   },
   codespan(text) {
-    return chalk.italic.blue(`${text}`);
+    return chalk.italic.blueBright(`${text}`);
   },
   code(code) {
     return code + '\n';
@@ -124,7 +126,8 @@ const htmlUnescapes = {
  */
 function unescape(text: string): string {
   Object.entries(htmlUnescapes).forEach(([escapedChar, unescapedChar]) => {
-    text = text.replaceAll(escapedChar, unescapedChar);
+    const escapedCharRegExp = new RegExp(escapedChar, 'g');
+    text = text.replace(escapedCharRegExp, unescapedChar);
   });
   return text;
 }

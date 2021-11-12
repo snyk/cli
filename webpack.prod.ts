@@ -1,8 +1,9 @@
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common.js');
+import { merge } from 'webpack-merge';
+import common from './webpack.common';
+import { Configuration } from 'webpack';
 const LicensePlugin = require('webpack-license-plugin');
 
-module.exports = merge(common, {
+export default merge(common as Configuration, {
   mode: 'production',
   devtool: 'source-map',
   optimization: {

@@ -36,7 +36,6 @@ function textLength(str: string): number {
 // Munge \n's and spaces in "text" so that the number of
 // characters between \n's is less than or equal to "width".
 export function reflowText(text: string, width: number): string {
-  console.log(process.stdout.columns);
   const HARD_RETURN = '\r|\n';
   const HARD_RETURN_GFM_RE = new RegExp(HARD_RETURN + '|<br />');
 

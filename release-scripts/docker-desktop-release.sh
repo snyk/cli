@@ -8,7 +8,7 @@ cp -r ./dist ./dist-docker/docker/
 cp ./package.json ./dist-docker/docker/
 cp ./config.default.json ./dist-docker/docker/
 mkdir ./dist-docker/docker/help/
-cp -r ./help/commands-txt ./dist-docker/docker/help/commands-txt
+cp -r ./help/commands-md ./dist-docker/docker/help/commands-md
 cp -r ./pysrc ./dist-docker/docker/pysrc
 
 # Snyk CLI entry script

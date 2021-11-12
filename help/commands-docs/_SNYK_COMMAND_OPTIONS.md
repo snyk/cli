@@ -82,7 +82,7 @@ Specify a custom Snyk project name.
 
 ### `--target-reference=<TARGET_REFERENCE>`
 
-  A reference which differentiates this project. For example, a branch name or version. Projects using the same reference can be used for grouping. Only supported for Snyk Open Source. [More information](https://snyk.info/3B0vTPs).
+A reference which differentiates this project. For example, a branch name or version. Projects using the same reference can be used for grouping. Only supported for Snyk Open Source. [More information](https://snyk.info/3B0vTPs).
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 

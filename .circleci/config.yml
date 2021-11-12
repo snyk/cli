@@ -187,7 +187,7 @@ jobs:
           command: npm install
       - run:
           name: Pruning dependencies
-          command: node ./release-scripts/prune-dependencies-in-packagejson.js
+          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
       - pack_snyk_cli
       - run:
           name: Installing packed Snyk CLI
@@ -358,7 +358,7 @@ jobs:
           command: ./release-scripts/update-dev-versions.sh
       - run:
           name: Pruning Snyk CLI dependencies
-          command: node ./release-scripts/prune-dependencies-in-packagejson.js
+          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
       - run:
           name: Building binaries
           command: |
@@ -403,7 +403,7 @@ jobs:
             git update-index --skip-worktree -- ./packages/snyk-protect/package.json
       - run:
           name: Pruning Snyk CLI dependencies
-          command: node ./release-scripts/prune-dependencies-in-packagejson.js
+          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
       - run:
           name: Bumping versions and publishing packages
           command: npx lerna publish minor --yes --no-push --no-git-tag-version --exact

@@ -1,9 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const webpackConfig = require('../webpack.common');
-const packageJson = require('../package.json');
+import * as fs from 'fs';
+import * as path from 'path';
+import webpackConfig from '../webpack.common';
 
-const externalPackages = Object.values(webpackConfig.externals);
+const packageJsonPath = path.resolve(__dirname, '../package.json');
+const packageJsonFile = fs.readFileSync(packageJsonPath, 'utf-8');
+const packageJson = JSON.parse(packageJsonFile);
+
+const externalPackages = Object.values(webpackConfig.externals) as string[];
 
 console.log(
   `Found ${externalPackages.length} external dependencies in webpack config`,

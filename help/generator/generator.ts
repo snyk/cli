@@ -26,11 +26,10 @@ const MARKDOWN_DIR = path.resolve(__dirname, '../commands-md');
 async function processMarkdown(markdownDoc, commandName) {
   const markdownFilePath = path.resolve(MARKDOWN_DIR, `${commandName}.md`);
 
-  console.info(`Generating markdown version ${commandName}.md`);
   fs.writeFileSync(markdownFilePath, markdownDoc);
 }
 
-async function run() {
+export async function generateHelp() {
   const getMdFilePath = (filename: string) =>
     path.resolve(__dirname, `./../commands-docs/${filename}.md`);
 
@@ -68,4 +67,4 @@ ${_notices}
   }
 }
 
-run();
+generateHelp();
