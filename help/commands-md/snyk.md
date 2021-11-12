@@ -142,6 +142,9 @@ For advanced usage, we offer language and context specific flags, listed further
   (only in `monitor` command)
   Set the project tags to one or more values (comma-separated key value pairs with an "=" separator). e.g. --project-tags=department=finance,team=alpha
 
+- `--tags`=<TAG>[,<TAG>]...>:
+  This is an alias for --project-tags.
+
 - `--policy-path`=<PATH_TO_POLICY_FILE>`:
   Manually pass a path to a snyk policy file.
 
