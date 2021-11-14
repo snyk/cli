@@ -16,7 +16,7 @@ export default async function config(
     let res = '';
 
     args.forEach((item) => {
-      const [key, val] = item.split('=');
+      const [key, val] = item.split(/=(.+)/);
       snyk.config.set(key, val);
       res += key + ' updated\n';
 
