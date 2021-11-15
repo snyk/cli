@@ -12,6 +12,10 @@ import {
   ResolveFactsState,
 } from './types';
 import { delayNextStep } from './common';
+import {
+  generateProjectAttributes,
+  generateTags,
+} from '../../cli/commands/monitor';
 
 export async function requestMonitorPollingToken(
   options: Options,
@@ -62,6 +66,8 @@ export async function pollingMonitorWithTokenUntilDone(
       isAsync,
       resolutionMeta,
       method: 'cli',
+      tags: generateTags(options),
+      attributes: generateProjectAttributes(options),
       projectName:
         resolutionMeta?.name || options['project-name'] || config.PROJECT_NAME,
     },

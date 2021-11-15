@@ -4,6 +4,7 @@ import { scanResults } from './fixtures/';
 import { resolveAndMonitorFacts } from '../../../../../src/lib/ecosystems/resolve-monitor-facts';
 import * as pluginAnalytics from '../../../../../src/lib/ecosystems/plugin-analytics';
 import * as analytics from '../../../../../src/lib/analytics';
+import * as httpClient from '../../../../../src/lib/request/promise';
 
 describe('resolve and test facts', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -175,5 +176,56 @@ describe('resolve and test facts', () => {
       },
     ]);
     expect(errors).toEqual([]);
+  });
+
+  it('successfully send tags and attributes for c/c++ projects', async () => {
+    const resolveAndTestFactsSpy = jest.spyOn(
+      pollingMonitor,
+      'requestMonitorPollingToken',
+    );
+
+    resolveAndTestFactsSpy.mockResolvedValueOnce({
+      token,
+      status: 'OK',
+      pollingTask,
+    });
+
+    const httpClientSpy = jest.spyOn(httpClient, 'makeRequest');
+
+    httpClientSpy.mockResolvedValueOnce({
+      ok: true,
+      org: 'fake-org-name',
+      id: 'fake-id',
+      isMonitored: true,
+      licensesPolicy: expect.any(Object),
+      uri: 'fake-url',
+      projectName: 'my-unmanaged-c-project',
+      trialStarted: false,
+      path: 'random-fake-path',
+    });
+
+    await resolveAndMonitorFacts(scanResults, ({
+      'project-tags': 'tag1=value1,tag2=value2,tag3=value3',
+      'project-business-criticality': 'medium',
+      'project-environment': 'saas',
+      'project-lifecycle': 'development',
+    } as unknown) as Options);
+    expect(httpClientSpy).toHaveBeenCalledTimes(1);
+    expect(httpClientSpy).toBeCalledWith(
+      expect.objectContaining({
+        body: expect.objectContaining({
+          tags: [
+            { key: 'tag1', value: 'value1' },
+            { key: 'tag2', value: 'value2' },
+            { key: 'tag3', value: 'value3' },
+          ],
+          attributes: {
+            criticality: ['medium'],
+            environment: ['saas'],
+            lifecycle: ['development'],
+          },
+        }),
+      }),
+    );
   });
 });
