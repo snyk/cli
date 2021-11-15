@@ -36,7 +36,7 @@ export interface ProtectOptions {
 }
 
 export interface Contributor {
-  userId: string;
+  email: string;
   lastCommitDate: string;
 }
 

@@ -5,7 +5,6 @@ import {
   SERIOUS_DELIMITER,
   MAX_COMMITS_IN_GIT_LOG,
   separateLines,
-  hashData,
 } from '../src/lib/monitor/dev-count-analysis';
 
 const testTimeout = 60000;
@@ -13,10 +12,10 @@ const testTimeout = 60000;
 const TIMESTAMP_TO_TEST = 1590174610000;
 
 describe('cli dev count via git log analysis', () => {
-  let expectedContributorUserIds: string[] = [];
-  let expectedMergeOnlyUserIds: string[] = [];
+  let expectedContributoremails: string[] = [];
+  let expectedMergeOnlyemails: string[] = [];
 
-  // this computes the expectedContributorUserIds and expectedMergeOnlyUserIds
+  // this computes the expectedContributoremails and expectedMergeOnlyemails
   beforeAll(async () => {
     const timestampEpochSecondsEndOfPeriod = Math.floor(
       TIMESTAMP_TO_TEST / 1000,
@@ -53,12 +52,8 @@ describe('cli dev count via git log analysis', () => {
       }
     }
 
-    expectedContributorUserIds = uniqueEmailsContainingAtLeastOneNonMergeCommit.map(
-      hashData,
-    );
-    expectedMergeOnlyUserIds = uniqueEmailsContainingOnlyMergeCommits.map(
-      hashData,
-    );
+    expectedContributoremails = uniqueEmailsContainingAtLeastOneNonMergeCommit;
+    expectedMergeOnlyemails = uniqueEmailsContainingOnlyMergeCommits;
   }, testTimeout);
 
   it(
@@ -69,9 +64,9 @@ describe('cli dev count via git log analysis', () => {
         periodDays: 10,
         repoPath: process.cwd(),
       });
-      const contributorUserIds = contributors.map((c) => c.userId);
-      expect(contributorUserIds.sort()).toEqual(
-        expectedContributorUserIds.sort(),
+      const contributoremails = contributors.map((c) => c.email);
+      expect(contributoremails.sort()).toEqual(
+        expectedContributoremails.sort(),
       );
     },
     testTimeout,
@@ -85,13 +80,13 @@ describe('cli dev count via git log analysis', () => {
         periodDays: 10,
         repoPath: process.cwd(),
       });
-      const contributorUserIds = contributors.map((c) => c.userId);
+      const contributoremails = contributors.map((c) => c.email);
 
-      // make sure none of uniqueEmailsContainingOnlyMergeCommits are in contributorUserIds
-      const legitUserIdsWhichAreAlsoInMergeOnlyUserIds = expectedMergeOnlyUserIds.filter(
-        (user) => contributorUserIds.includes(user),
+      // make sure none of uniqueEmailsContainingOnlyMergeCommits are in contributoremails
+      const legitemailsWhichAreAlsoInMergeOnlyemails = expectedMergeOnlyemails.filter(
+        (user) => contributoremails.includes(user),
       );
-      expect(legitUserIdsWhichAreAlsoInMergeOnlyUserIds).toHaveLength(0);
+      expect(legitemailsWhichAreAlsoInMergeOnlyemails).toHaveLength(0);
     },
     testTimeout,
   );
