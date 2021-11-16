@@ -1,11 +1,10 @@
 import { InspectResult } from '@snyk/cli-interface/legacy/plugin';
 import chalk from 'chalk';
-
 import config from '../config';
 import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
 import { MonitorResult, Options } from '../types';
-import * as spinner from '../../lib/spinner';
+import { spinner } from '../../lib/spinner';
 import { getPlugin } from './plugins';
 import { BadResult, GoodResult } from '../../cli/commands/monitor/types';
 import { formatErrorMonitorOutput, formatMonitorOutput } from '../formatters';

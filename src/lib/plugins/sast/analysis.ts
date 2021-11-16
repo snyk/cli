@@ -3,7 +3,7 @@ import { Log, ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
 import { api } from '../../api-token';
 import config from '../../config';
-import * as spinner from '../../spinner';
+import { spinner } from '../../spinner';
 import { Options } from '../../types';
 import { analysisProgressUpdate } from './utils';
 import { FeatureNotSupportedBySnykCodeError } from './errors/unsupported-feature-snyk-code-error';

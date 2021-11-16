@@ -16,7 +16,7 @@ import * as alerts from '../lib/alerts';
 import * as sln from '../lib/sln';
 import { TestCommandResult } from './commands/types';
 import { copy } from './copy';
-import * as spinner from '../lib/spinner';
+import { spinner } from '../lib/spinner';
 import * as errors from '../lib/errors/legacy-errors';
 import * as ansiEscapes from 'ansi-escapes';
 

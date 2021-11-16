@@ -20,7 +20,7 @@ import {
 import config from '../../../lib/config';
 import * as detect from '../../../lib/detect';
 import { GoodResult, BadResult } from './types';
-import * as spinner from '../../../lib/spinner';
+import { spinner } from '../../../lib/spinner';
 import * as analytics from '../../../lib/analytics';
 import { MethodArgs } from '../../args';
 import { apiOrOAuthTokenExists } from '../../../lib/api-token';

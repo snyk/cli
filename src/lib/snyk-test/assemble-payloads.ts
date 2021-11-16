@@ -6,7 +6,7 @@ import { Ecosystem } from '../ecosystems/types';
 import { Options, PolicyOptions, TestOptions } from '../types';
 import { Payload } from './types';
 import { assembleQueryString } from './common';
-import spinner = require('../spinner');
+import { spinner } from '../spinner';
 import { findAndLoadPolicyForScanResult } from '../ecosystems/policy';
 import { getAuthHeader } from '../../lib/api-token';
 import { DockerImageNotFoundError } from '../errors';

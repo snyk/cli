@@ -74,7 +74,7 @@ import { getEcosystem } from '../ecosystems';
 import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
 import { makeRequest } from '../request';
-import spinner = require('../spinner');
+import { spinner } from '../spinner';
 
 const debug = debugModule('snyk:run-test');
 

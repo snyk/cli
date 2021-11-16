@@ -3,7 +3,7 @@ import { isCI } from '../is-ci';
 import { makeRequest } from '../request/promise';
 import { Options } from '../types';
 import { TestCommandResult } from '../../cli/commands/types';
-import * as spinner from '../../lib/spinner';
+import { spinner } from '../../lib/spinner';
 import { Ecosystem, ScanResult, TestResult } from './types';
 import { getPlugin } from './plugins';
 import { TestDependenciesResponse } from '../snyk-test/legacy';
