@@ -10,12 +10,6 @@ import {
 import { getContainerImageSavePath } from '../lib/container';
 import { obfuscateArgs } from '../lib/utils';
 
-export declare interface Global extends NodeJS.Global {
-  ignoreUnknownCA: boolean;
-}
-
-declare const global: Global;
-
 const alias = abbrev(
   'copy',
   'version',
@@ -282,7 +276,12 @@ export function args(rawArgv: string[]): Args {
   }
 
   if (argv.insecure) {
-    global.ignoreUnknownCA = true;
+    // https://nodejs.org/docs/latest/api/cli.html#node_tls_reject_unauthorizedvalue
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+  }
+
+  if (process.env.NODE_TLS_REJECT_UNAUTHORIZED === '0') {
+    debug('Using insecure mode (ignore unknown certificate authority)');
   }
 
   debug(command, obfuscateArgs(argv));

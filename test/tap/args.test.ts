@@ -40,21 +40,6 @@ test('test command line monitor --package-manager', (t) => {
   t.end();
 });
 
-test('test --insecure', (t) => {
-  t.teardown(() => {
-    delete (global as any).ignoreUnknownCA;
-  });
-  const cliArgs = [
-    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
-    '/Users/dror/work/snyk/snyk-internal/cli',
-    'test',
-    '--insecure',
-  ];
-  args(cliArgs);
-  t.equal((global as any).ignoreUnknownCA, true, 'ignoreUnknownCA true');
-  t.end();
-});
-
 test('test command line test --all-sub-projects', (t) => {
   const cliArgs = [
     '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',

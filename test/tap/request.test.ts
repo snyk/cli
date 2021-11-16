@@ -2,10 +2,7 @@ import { afterEach, test } from 'tap';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
 import * as needle from 'needle';
-import { Global } from '../../src/cli/args';
 import * as http from 'http';
-
-declare const global: Global;
 
 const needleStub = sinon.stub(needle, 'request');
 
@@ -20,7 +17,7 @@ afterEach((done) => {
   delete process.env.https_proxy;
   delete process.env.http_proxy;
   delete process.env.no_proxy;
-  global.ignoreUnknownCA = false;
+  delete process.env.NODE_TLS_REJECT_UNAUTHORIZED;
   done();
 });
 
@@ -52,7 +49,6 @@ test('request calls needle as expected and returns status code and body', (t) =>
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),
@@ -90,7 +86,6 @@ test('request to localhost calls needle as expected', (t) => {
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),
@@ -129,7 +124,6 @@ test('request with timeout calls needle as expected', (t) => {
             timeout: 100000, // provided
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),
@@ -171,7 +165,6 @@ test('request with query string calls needle as expected', (t) => {
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),
@@ -210,7 +203,6 @@ test('request with json calls needle as expected', (t) => {
             timeout: 300000, // default
             json: false, // provided
             agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),
@@ -252,7 +244,6 @@ test('request with custom header calls needle as expected', (t) => {
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),
@@ -291,7 +282,6 @@ test('request with https proxy calls needle as expected', (t) => {
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.truthy,
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),
@@ -340,7 +330,6 @@ test('request with http proxy calls needle as expected', (t) => {
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.truthy,
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),
@@ -380,46 +369,6 @@ test('request with no proxy calls needle as expected', (t) => {
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
-          }),
-          sinon.match.func, // callback function
-        ),
-        'needle called as expected',
-      );
-    })
-    .catch((e) => t.fail('should not throw error', e));
-});
-
-test('request with insecure calls needle as expected', (t) => {
-  needleStub.yields(null, { statusCode: 200 }, 'text');
-  global.ignoreUnknownCA = true;
-  const payload = {
-    url: 'http://test.stub',
-  };
-  return request
-    .makeRequest(payload)
-    .then((response) => {
-      t.deepEquals(
-        response,
-        { res: { statusCode: 200 }, body: 'text' },
-        'response ok',
-      );
-      t.ok(
-        needleStub.calledWith(
-          'get', // default
-          'https://test.stub/', // turns http to https and appends /
-          sinon.match.falsy, // no data
-          sinon.match({
-            headers: sinon.match({
-              'x-snyk-cli-version': sinon.match.string, // dynamic version
-              'content-encoding': undefined, // should not set when no data
-              'content-length': undefined, // should not be set when no data
-            }),
-            follow_max: 5, // default
-            timeout: 300000, // default
-            json: undefined, // default
-            agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: false, // should be false when insecure mode enabled
           }),
           sinon.match.func, // callback function
         ),
@@ -476,7 +425,6 @@ test('request calls needle as expected and will not update HTTP to HTTPS if envv
             timeout: 300000, // default
             json: undefined, // default
             agent: sinon.match.instanceOf(http.Agent),
-            rejectUnauthorized: undefined, // should not be set when not use insecure mode
           }),
           sinon.match.func, // callback function
         ),

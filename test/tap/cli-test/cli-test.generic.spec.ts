@@ -1,7 +1,5 @@
-import * as sinon from 'sinon';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as needle from 'needle';
 import * as Ajv from 'ajv';
 import * as sarifSchema from './sarif-schema-2.1.0';
 import { AcceptanceTests } from '../cli-test.acceptance.test';
@@ -313,61 +311,6 @@ export const GenericTests: AcceptanceTests = {
 
         t.match(res.message, 'Local Snyk policy: found', 'found policy file');
       }
-    },
-
-    '`test --insecure`': (params, utils) => async (t) => {
-      t.plan(2);
-      utils.chdirWorkspaces('npm-package');
-
-      t.test('default (insecure false)', async (tt) => {
-        const requestStub = sinon
-          .stub(needle, 'request')
-          .callsFake((a, b, c, d, cb) => {
-            if (cb) {
-              cb(new Error('bail'), {} as any, null);
-            }
-            return {} as any;
-          });
-        tt.teardown(requestStub.restore);
-        try {
-          await params.cli.test('npm-package');
-          tt.fail('should fail');
-        } catch (e) {
-          tt.notOk(
-            (requestStub.firstCall.args[3] as any).rejectUnauthorized,
-            'rejectUnauthorized not present (same as true)',
-          );
-        }
-      });
-
-      t.test('insecure true', async (tt) => {
-        // Unfortunately, all acceptance tests run through cli/commands
-        // which bypasses `args`, and `ignoreUnknownCA` is a global set
-        // by `args`, so we simply set the global here.
-        // NOTE: due to this we add tests to `args.test.js`
-        (global as any).ignoreUnknownCA = true;
-        const requestStub = sinon
-          .stub(needle, 'request')
-          .callsFake((a, b, c, d, cb) => {
-            if (cb) {
-              cb(new Error('bail'), {} as any, null);
-            }
-            return {} as any;
-          });
-        tt.teardown(() => {
-          delete (global as any).ignoreUnknownCA;
-          requestStub.restore();
-        });
-        try {
-          await params.cli.test('npm-package');
-          tt.fail('should fail');
-        } catch (e) {
-          tt.false(
-            (requestStub.firstCall.args[3] as any).rejectUnauthorized,
-            'rejectUnauthorized false',
-          );
-        }
-      });
     },
 
     'error 401 handling': (params, utils) => async (t) => {

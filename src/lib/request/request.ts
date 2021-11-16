@@ -6,7 +6,6 @@ import * as zlib from 'zlib';
 import config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
-import { Global } from '../../cli/args';
 import { Payload } from './types';
 import { getVersion } from '../version';
 import * as https from 'https';
@@ -14,8 +13,6 @@ import * as http from 'http';
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');
-
-declare const global: Global;
 
 export async function makeRequest(
   payload: Payload,
@@ -122,11 +119,6 @@ export async function makeRequest(
     });
   } else {
     snykDebug('not using proxy');
-  }
-
-  if (global.ignoreUnknownCA) {
-    debug('Using insecure mode (ignore unknown certificate authority)');
-    options.rejectUnauthorized = false;
   }
 
   return new Promise((resolve, reject) => {
