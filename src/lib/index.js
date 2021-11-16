@@ -26,7 +26,6 @@ Object.defineProperty(snyk, 'api', {
 
 snyk.test = require('./snyk-test');
 snyk.policy = require('snyk-policy');
-snyk.isRequired = true; // changed to false when loaded via cli
 
 // this is the user config, and not the internal config
 snyk.config = require('./user-config').config;
