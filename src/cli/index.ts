@@ -45,6 +45,7 @@ import {
 import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 import { obfuscateArgs } from '../lib/utils';
+import { callHandlingUnexpectedErrors } from '../lib/unexpected-error';
 
 const debug = Debug('snyk');
 const EXIT_CODES = {
@@ -482,8 +483,4 @@ function validateOutputFile(
   }
 }
 
-main().catch((e) => {
-  console.error('Something unexpected went wrong: ', e.stack);
-  console.error('Exit code: ' + EXIT_CODES.ERROR);
-  process.exit(EXIT_CODES.ERROR);
-});
+callHandlingUnexpectedErrors(main, EXIT_CODES.ERROR);

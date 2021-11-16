@@ -1,6 +1,7 @@
 import * as fse from 'fs-extra';
 import * as os from 'os';
 import * as path from 'path';
+import { getFixturePath } from './getFixturePath';
 
 type TestProject = {
   path: (filePath?: string) => string;
@@ -64,10 +65,7 @@ const createProjectFromWorkspace = async (
 const createProjectFromFixture = async (
   fixtureName: string,
 ): Promise<TestProject> => {
-  return createProject(
-    fixtureName,
-    path.join(__dirname, '../../fixtures', fixtureName),
-  );
+  return createProject(fixtureName, getFixturePath(fixtureName));
 };
 
 export {
