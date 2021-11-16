@@ -22,6 +22,18 @@ describe('extractOCIRegistryURLComponents', () => {
       tag: 'latest',
     });
   });
+
+  it('extracts components from URL without protocol', async () => {
+    const expected = extractOCIRegistryURLComponents(
+      'gcr.io/user/repo-test:0.5.2',
+    );
+    expect(expected).toEqual({
+      registryBase: 'gcr.io',
+      repo: 'user/repo-test',
+      tag: '0.5.2',
+    });
+  });
+
   it('extracts components and a versioned tag', async () => {
     const expected = extractOCIRegistryURLComponents(
       'https://gcr.io/user/repo-test:0.5.2',
@@ -55,9 +67,27 @@ describe('extractOCIRegistryURLComponents', () => {
     });
   });
 
-  it('throws an error if URL is invalid', () => {
+  it('throws an error if a URL with an empty registry host is provided', function() {
     expect(() => {
-      extractOCIRegistryURLComponents('url/not/valid');
+      extractOCIRegistryURLComponents('https:///repository:0.2.0');
+    }).toThrow(InvalidRemoteRegistryURLError);
+  });
+
+  it('throws an error if a URL without a path is provided', function() {
+    expect(() => {
+      extractOCIRegistryURLComponents('https://registry');
+    }).toThrow(InvalidRemoteRegistryURLError);
+  });
+
+  it('throws an error if a URL with an empty path is provided', function() {
+    expect(() => {
+      extractOCIRegistryURLComponents('https://registry/');
+    }).toThrow(InvalidRemoteRegistryURLError);
+  });
+
+  it('throws an error if a URL with an empty repository name is provided', function() {
+    expect(() => {
+      extractOCIRegistryURLComponents('https://registry/:');
     }).toThrow(InvalidRemoteRegistryURLError);
   });
 });

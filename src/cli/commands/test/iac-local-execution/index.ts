@@ -50,6 +50,7 @@ import {
   UnsupportedFeatureFlagPullError,
 } from './oci-pull';
 import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
+import { isValidUrl } from './url-utils';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -157,16 +158,6 @@ export function removeFileContent({
   };
 }
 
-export function isValidURL(str: string): boolean {
-  let url;
-  try {
-    url = new URL(str);
-  } catch (e) {
-    return false;
-  }
-  return url.protocol === 'http:' || url.protocol === 'https:';
-}
-
 /**
  * Checks if the OCI registry URL has been provided.
  */
@@ -197,10 +188,6 @@ function getOCIRegistryURLComponentsFromSettings(
 ) {
   const settingsOCIRegistryURL = iacOrgSettings.customRules!.ociRegistryURL!;
 
-  if (!isValidURL(settingsOCIRegistryURL)) {
-    throw new InvalidRemoteRegistryURLError();
-  }
-
   return {
     ...extractOCIRegistryURLComponents(settingsOCIRegistryURL),
     tag: iacOrgSettings.customRules!.ociRegistryTag || 'latest',
@@ -213,7 +200,7 @@ function getOCIRegistryURLComponentsFromSettings(
 function getOCIRegistryURLComponentsFromEnv() {
   const envOCIRegistryURL = userConfig.get('oci-registry-url')!;
 
-  if (!isValidURL(envOCIRegistryURL)) {
+  if (!isValidUrl(envOCIRegistryURL)) {
     throw new InvalidRemoteRegistryURLError();
   }
 
