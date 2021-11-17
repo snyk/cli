@@ -1,12 +1,9 @@
-const { danger, warn, fail, message } = require('danger');
-const fs = require('fs');
+import { danger, fail, message, warn } from 'danger';
+import * as fs from 'fs';
 
-const MAX_COMMIT_MESSAGE_LENGTH = 72;
-const SMOKE_TEST_BRANCH = 'smoke/';
-const SMOKE_TEST_WORKFLOW_FILE_PATH = '.github/workflows/smoke-tests.yml';
-
-if (danger.github && danger.github.pr) {
+function validateCommitMessages() {
   const commitizenRegex = /^(feat|fix|chore|test|docs|perf|refactor|revert)(\(.*\))?:(.+)$/;
+  const maxMessageLength = 72;
   const ghCommits = danger.github.commits;
   let willTriggerRelease = false;
   for (const { commit } of ghCommits) {
@@ -24,9 +21,9 @@ if (danger.github && danger.github.pr) {
       );
     }
 
-    if (firstLine.length >= MAX_COMMIT_MESSAGE_LENGTH) {
+    if (firstLine.length >= maxMessageLength) {
       warn(
-        `Your commit message ["${firstLine}"](${url}) is too long. Keep first line of your commit under ${MAX_COMMIT_MESSAGE_LENGTH} characters.`,
+        `Your commit message ["${firstLine}"](${url}) is too long. Keep first line of your commit under ${maxMessageLength} characters.`,
       );
     }
   }
@@ -36,8 +33,9 @@ if (danger.github && danger.github.pr) {
       "This PR will not trigger a new version. It doesn't include any commit message with `feat` or `fix`.",
     );
   }
+}
 
-  // Forgotten tests check
+function recommendWritingTest() {
   const modifiedTest =
     danger.git.modified_files.some((f) => f.startsWith('test/')) ||
     danger.git.created_files.some((f) => f.startsWith('test/'));
@@ -46,12 +44,13 @@ if (danger.github && danger.github.pr) {
     danger.git.created_files.some((f) => f.startsWith('src/'));
 
   if (modifiedSrc && !modifiedTest) {
-    // TODO: let's be careful about wording here. Maybe including Contributing guidelines and project goals document here
     warn(
       "You've modified files in src/ directory, but haven't updated anything in test folder. Is there something that could be tested?",
     );
   }
+}
 
+function recommendJest() {
   // `.spec.ts` is always used for Jest tests
   // `.test.ts` is normally used for Tap tests and but there are also `.spec.ts` files which are used be Tap tests in test/acceptance.
   // either way, we should warn about new `.test.ts` or `.spec.ts` files being created outside the `/test/jest` folder
@@ -68,24 +67,29 @@ if (danger.github && danger.github.pr) {
     const msg = `Looks like you added a new Tap test. Consider making it a Jest test instead. See files in \`test/jest/(unit|system|acceptance)\` for examples. Files found:\n${joinedFileList}`;
     warn(msg);
   }
+}
 
-  // Smoke test modification check
+function recommendRunningSmokeTests() {
+  const branchPrefix = 'smoke/';
+  const workflowPath = '.github/workflows/smoke-tests.yml';
+
   const modifiedSmokeTest =
     danger.git.modified_files.some((f) => f.startsWith('test/smoke/')) ||
     danger.git.created_files.some((f) => f.startsWith('test/smoke/')) ||
-    danger.git.modified_files.includes(SMOKE_TEST_WORKFLOW_FILE_PATH);
+    danger.git.modified_files.includes(workflowPath);
 
   const isOnSmokeTestBranch = danger.github.pr.head.ref.startsWith(
-    SMOKE_TEST_BRANCH,
+    branchPrefix,
   );
 
   if (modifiedSmokeTest && !isOnSmokeTestBranch) {
     message(
-      `You are modifying something in test/smoke directory, yet you are not on the branch starting with ${SMOKE_TEST_BRANCH}. You can prefix your branch with ${SMOKE_TEST_BRANCH} and Smoke tests will trigger for this PR.`,
+      `You are modifying something in test/smoke directory, yet you are not on the branch starting with ${branchPrefix}. You can prefix your branch with ${branchPrefix} and Smoke tests will trigger for this PR.`,
     );
   }
+}
 
-  // Regenerate help manually
+function requireGeneratingHelpFiles() {
   const modifiedHelpFiles =
     danger.git.modified_files.some((f) =>
       f.startsWith('help/commands-docs/'),
@@ -100,8 +104,9 @@ if (danger.github && danger.github.pr) {
       "You've modified help files in /help/commands-docs. You need to regenerate manpages locally by running `npm run generate-help` and commiting the changed files. See [README in /help for more details](https://github.com/snyk/snyk/blob/master/help/README.md)",
     );
   }
+}
 
-  // Enforce usage of ES6 modules
+function recommendMigratingModuleSyntax() {
   const filesUsingNodeJSImportExport = danger.git.modified_files
     .filter((filePath) => {
       if (filePath.endsWith('.js')) {
@@ -123,3 +128,10 @@ if (danger.github && danger.github.pr) {
     warn(message);
   }
 }
+
+validateCommitMessages();
+requireGeneratingHelpFiles();
+recommendWritingTest();
+recommendJest();
+recommendRunningSmokeTests();
+recommendMigratingModuleSyntax();
