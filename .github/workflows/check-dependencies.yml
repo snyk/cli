@@ -24,4 +24,4 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-npm-
       - run: npm install
-      - run: npx ts-node ./scripts/check-dependencies.ts
+      - run: npx ts-node ./scripts/check-dependencies/cli.ts
