@@ -226,23 +226,30 @@ export function extractReportingDescriptor(
 export function mapIacTestResponseToSarifResults(
   issues: ResponseIssues,
 ): sarif.Result[] {
-  return issues.map(({ targetPath, issue }) => ({
-    ruleId: issue.id,
-    message: {
-      text: `This line contains a potential ${issue.severity} severity misconfiguration affecting the ${issue.subType}`,
-    },
-    locations: [
-      {
-        physicalLocation: {
-          artifactLocation: {
-            uri: targetPath,
-            uriBaseId: PROJECT_ROOT_KEY,
-          },
-          region: {
-            startLine: issue.lineNumber,
+  return issues.map(({ targetPath, issue }) => {
+    const hasLineNumber = issue.lineNumber && issue.lineNumber >= 0;
+    return {
+      ruleId: issue.id,
+      message: {
+        text: `This line contains a potential ${issue.severity} severity misconfiguration affecting the ${issue.subType}`,
+      },
+      locations: [
+        {
+          physicalLocation: {
+            artifactLocation: {
+              uri: targetPath,
+              uriBaseId: PROJECT_ROOT_KEY,
+            },
+            // We exclude the `region` key when the line number is missing or -1.
+            // https://docs.oasis-open.org/sarif/sarif/v2.0/csprd02/sarif-v2.0-csprd02.html#_Toc10127873
+            ...(hasLineNumber && {
+              region: {
+                startLine: issue.lineNumber,
+              },
+            }),
           },
         },
-      },
-    ],
-  }));
+      ],
+    };
+  });
 }
