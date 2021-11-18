@@ -1,5 +1,4 @@
 const abbrev = require('abbrev');
-require('../../lib/spinner').isRequired = false;
 
 // Wrapper for Commonjs compatibility
 async function callModule(mod, args) {

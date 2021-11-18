@@ -1,7 +1,6 @@
 import { SpinnerOptions } from './types';
 
 export = createSpinner;
-createSpinner.isRequired = true;
 
 import debugModule = require('debug');
 const debug = debugModule('snyk:spinner');
@@ -65,7 +64,7 @@ createSpinner.clearAll = () => {
 
 // taken from http://git.io/vWdUm and modified
 function spinner(opt: SpinnerOptions) {
-  if (module.exports.isRequired || isCI()) {
+  if (isCI()) {
     return false;
   }
   debug('creating spinner');
