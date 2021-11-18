@@ -8,7 +8,7 @@
 .SH "DESCRIPTION"
 Ignore a certain issue, according to its snyk ID for all occurrences\. This will update your local \fB\.snyk\fR to contain a similar block:
 .P
-\fByaml ignore: \'<ISSUE_ID>\': \- \'*\': reason: <REASON> expires: <EXPIRY>\fR
+\fByaml ignore: '<ISSUE_ID>': \- '*': reason: <REASON> expires: <EXPIRY>\fR
 .SH "OPTIONS"
 .TP
 \fB\-\-id\fR=\fIISSUE_ID\fR
@@ -38,7 +38,7 @@ Prints a help text\. You may specify a \fICOMMAND\fR to get more details\.
 .SH "EXAMPLES"
 .TP
 \fBIgnore a specific vulnerability\fR
-$ snyk ignore \-\-id=\'npm:qs:20170213\' \-\-expiry=\'2021\-01\-10\' \-\-reason=\'Module not affected by this vuln\'
+$ snyk ignore \-\-id='npm:qs:20170213' \-\-expiry='2021\-01\-10' \-\-reason='Module not affected by this vuln'
 .SH "EXIT CODES"
 Possible exit codes and their meaning:
 .P
@@ -63,7 +63,7 @@ How to use Service Accounts \fIhttps://snyk\.co/ucT6L\fR
 
 .TP
 \fBSNYK_CFG_KEY\fR
-Allows you to override any key that\'s also available as \fBsnyk config\fR option\.
+Allows you to override any key that's also available as \fBsnyk config\fR option\.
 .IP
 E\.g\. \fBSNYK_CFG_ORG\fR=myorg will override default org option in \fBconfig\fR with "myorg"\.
 .TP
@@ -82,7 +82,7 @@ Sets API host to use for Snyk requests\. Useful for on\-premise instances and co
 If set to the value of \fB0\fR, API requests aimed at \fBhttp\fR URLs will not be upgraded to \fBhttps\fR\. If not set, the default behavior will be to upgrade these requests from \fBhttp\fR to \fBhttps\fR\. Useful e\.g\., for reverse proxies\.
 .TP
 \fBHTTPS_PROXY\fR and \fBHTTP_PROXY\fR
-Allows you to specify a proxy to use for \fBhttps\fR and \fBhttp\fR calls\. The \fBhttps\fR in the \fBHTTPS_PROXY\fR means that \fIrequests using \fBhttps\fR protocol\fR will use this proxy\. The proxy itself doesn\'t need to use \fBhttps\fR\.
+Allows you to specify a proxy to use for \fBhttps\fR and \fBhttp\fR calls\. The \fBhttps\fR in the \fBHTTPS_PROXY\fR means that \fIrequests using \fBhttps\fR protocol\fR will use this proxy\. The proxy itself doesn't need to use \fBhttps\fR\.
 .SH "NOTICES"
 .SS "Snyk API usage policy"
-The use of Snyk\'s API, whether through the use of the \'snyk\' npm package or otherwise, is subject to the terms & conditions \fIhttps://snyk\.co/ucT6N\fR
+The use of Snyk's API, whether through the use of the 'snyk' npm package or otherwise, is subject to the terms & conditions \fIhttps://snyk\.co/ucT6N\fR

@@ -19,8 +19,8 @@
               Exclude from display base image vulnerabilities.
 
        [1m-[0m[1m-[0m[1mf[0m[1mi[0m[1ml[0m[1me[0m=[4mF[0m[4mI[0m[4mL[0m[4mE[0m[1m_[0m[4mP[0m[4mA[0m[4mT[0m[4mH[0m
-              Include the path to the image's  Dockerfile  for  more  detailed
-              advice.
+              Include the path to the image's Dockerfile for more detailed ad-
+              vice.
 
        [1m-[0m[1m-[0m[1mp[0m[1ml[0m[1ma[0m[1mt[0m[1mf[0m[1mo[0m[1mr[0m[1mm[0m=[4mP[0m[4mL[0m[4mA[0m[4mT[0m[4mF[0m[4mO[0m[4mR[0m[4mM[0m
               For  multi-architecture  images,  specify  the platform to test.
@@ -81,8 +81,8 @@
               Prints versions.
 
        [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m] [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m, [1m-[0m[1m-[0m[1mh[0m[1me[0m[1ml[0m[1mp[0m [[4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m], [1m-[0m[1mh[0m
-              Prints  a  help  text.  You  may  specify  a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more
-              details.
+              Prints  a  help  text. You may specify a [4mC[0m[4mO[0m[4mM[0m[4mM[0m[4mA[0m[4mN[0m[4mD[0m to get more de-
+              tails.
 
 [1mE[0m[1mX[0m[1mI[0m[1mT[0m [1mC[0m[1mO[0m[1mD[0m[1mE[0m[1mS[0m
        Possible exit codes and their meaning:
