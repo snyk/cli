@@ -10,7 +10,7 @@ module.exports = {
     filename: 'index.js',
     library: {
       name: 'snyk',
-      type: 'umd',
+      type: 'commonjs2',
     },
   },
   node: false, // don't mock node modules
