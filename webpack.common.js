@@ -60,7 +60,6 @@ module.exports = {
       {
         test: /\.ts$/i,
         loader: 'ts-loader',
-        exclude: ['/node_modules'],
       },
       {
         test: /\.node$/,
