@@ -11,7 +11,7 @@ const semver = require('semver');
 const errors = require('../errors/legacy-errors');
 const { default: npm } = require('../npm');
 const { yarn } = require('../yarn');
-const spinner = require('../spinner');
+const { spinner } = require('../spinner');
 const analytics = require('../analytics');
 
 function update(packages, live, pkgManager) {

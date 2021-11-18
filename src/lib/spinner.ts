@@ -1,15 +1,13 @@
 import { SpinnerOptions } from './types';
-
-export = createSpinner;
-
 import debugModule = require('debug');
-const debug = debugModule('snyk:spinner');
 import { isCI } from './is-ci';
+
+const debug = debugModule('snyk:spinner');
 const spinners = {};
 let sticky = false;
 let handleExit = false;
 
-function createSpinner(label: string): Promise<void> {
+async function addSpinner(label: string): Promise<void> {
   if (!label) {
     throw new Error('spinner requires a label');
   }
@@ -22,7 +20,7 @@ function createSpinner(label: string): Promise<void> {
   return new Promise((resolve) => {
     debug('spinner: %s', label);
     spinners[label].push(
-      spinner({
+      createSpinner({
         // string: '◐◓◑◒',
         stream: sticky ? process.stdout : process.stderr,
         interval: 75,
@@ -34,11 +32,11 @@ function createSpinner(label: string): Promise<void> {
   });
 }
 
-createSpinner.sticky = (s?: any) => {
+addSpinner.sticky = (s?: any) => {
   sticky = s === undefined ? true : s;
 };
 
-createSpinner.clear = <T>(label): ((valueToPassThrough: T) => T) => {
+addSpinner.clear = <T>(label): ((valueToPassThrough: T) => T) => {
   return (res: T) => {
     if (spinners[label] === undefined) {
       // clearing a non-existend spinner is ok by default
@@ -56,14 +54,18 @@ createSpinner.clear = <T>(label): ((valueToPassThrough: T) => T) => {
   };
 };
 
-createSpinner.clearAll = () => {
+addSpinner.clearAll = () => {
   Object.keys(spinners).map((lbl) => {
-    createSpinner.clear<void>(lbl)();
+    addSpinner.clear<void>(lbl)();
   });
 };
 
+type Spinner = {
+  clear: () => void;
+};
+
 // taken from http://git.io/vWdUm and modified
-function spinner(opt: SpinnerOptions) {
+function createSpinner(opt: SpinnerOptions): Spinner | false {
   if (isCI()) {
     return false;
   }
@@ -115,7 +117,7 @@ function spinner(opt: SpinnerOptions) {
     });
   }
 
-  (spinner as any).clear = () => {
+  (createSpinner as any).clear = () => {
     clearInterval(interval);
     // debug('spinner cleared');
     if (sticky) {
@@ -127,6 +129,8 @@ function spinner(opt: SpinnerOptions) {
   };
 
   return {
-    clear: (spinner as any).clear,
+    clear: (createSpinner as any).clear,
   };
 }
+
+export { addSpinner as spinner };

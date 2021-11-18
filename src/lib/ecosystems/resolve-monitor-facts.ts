@@ -1,5 +1,5 @@
 import { Options } from '../types';
-import * as spinner from '../../lib/spinner';
+import { spinner } from '../../lib/spinner';
 import {
   ScanResult,
   EcosystemMonitorError,
