@@ -15,6 +15,7 @@ src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code
 src/lib/plugins/sast/ @snyk/sast-team
 test/fixtures/sast/ @snyk/sast-team
 test/jest/unit/snyk-code/ @snyk/sast-team
+src/lib/formatters/iac-output.ts @snyk/group-infrastructure-as-code
 src/lib/iac/ @snyk/group-infrastructure-as-code
 src/lib/snyk-test/iac-test-result.ts @snyk/group-infrastructure-as-code
 src/lib/snyk-test/payload-schema.ts @snyk/group-infrastructure-as-code
@@ -25,6 +26,7 @@ test/fixtures/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/snyk_code_spec.sh @snyk/sast-team
 test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
+test/jest/unit/lib/formatters/iac-output.spec.ts @snyk/group-infrastructure-as-code
 test/jest/unit/iac-unit-tests/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
 src/lib/errors/invalid-iac-file.ts @snyk/group-infrastructure-as-code
