@@ -40,6 +40,7 @@ export async function resolveAndTestFacts(
           issuesData: response?.issuesData,
           depGraphData: response?.depGraphData,
           depsFilePaths: response?.depsFilePaths,
+          fileSignaturesDetails: response?.fileSignaturesDetails,
         });
       } catch (error) {
         const hasStatusCodeError = error.code >= 400 && error.code <= 500;

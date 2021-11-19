@@ -70,6 +70,7 @@ describe('resolve and test facts', () => {
       issuesData: {},
       issues: [],
       depGraphData,
+      fileSignaturesDetails: {},
     });
 
     const extractAndApplyPluginAnalyticsSpy = jest.spyOn(
@@ -99,6 +100,7 @@ describe('resolve and test facts', () => {
         issuesData: {},
         issues: [],
         depGraphData,
+        fileSignaturesDetails: {},
       },
     ]);
     expect(errors).toEqual([]);
