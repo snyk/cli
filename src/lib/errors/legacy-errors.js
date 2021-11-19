@@ -1,6 +1,7 @@
 const { default: config } = require('../config');
 const chalk = require('chalk');
 const { SEVERITIES } = require('../snyk-test/common');
+const { contactSupportMessage, reTryMessage } = require('../common');
 const analytics = require('../analytics');
 
 const errors = {
@@ -28,9 +29,7 @@ const errors = {
   noApiToken:
     '%s requires an authenticated account. Please run `snyk auth` ' +
     'and try again.',
-  timeout:
-    'The request has timed out on the server side.\nPlease re-run ' +
-    'this command with the `-d` flag and send the output to support@snyk.io.',
+  timeout: `The request has timed out on the server side.\n${reTryMessage}\n${contactSupportMessage}`,
   policyFile:
     'Bad policy file, please use --path=PATH to specify a ' +
     'directory with a .snyk file',

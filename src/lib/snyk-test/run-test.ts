@@ -75,6 +75,7 @@ import { Issue } from '../ecosystems/types';
 import { assembleEcosystemPayloads } from './assemble-payloads';
 import { makeRequest } from '../request';
 import { spinner } from '../spinner';
+import { contactSupportMessage, reTryMessage } from '../common';
 
 const debug = debugModule('snyk:run-test');
 
@@ -628,7 +629,7 @@ async function assembleLocalPayloads(
           'scannedProject is missing depGraph or depTree, cannot run test/monitor',
         );
         throw new FailedToRunTestError(
-          'Your test request could not be completed. Please email support@snyk.io',
+          `Your test request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
         );
       }
 

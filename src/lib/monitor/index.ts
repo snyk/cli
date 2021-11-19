@@ -50,6 +50,7 @@ import {
 import { countPathsToGraphRoot } from '../utils';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
+import { contactSupportMessage, reTryMessage } from '../common';
 
 const debug = Debug('snyk');
 
@@ -164,7 +165,7 @@ async function monitorDepTree(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      'Your monitor request could not be completed. Please email support@snyk.io',
+      'Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}',
     );
   }
 
@@ -249,7 +250,7 @@ async function monitorDepTree(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      'Your monitor request could not be completed. Please email support@snyk.io',
+      `Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
     );
   }
 
@@ -338,7 +339,7 @@ export async function monitorDepGraph(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      'Your monitor request could not be completed. Please email support@snyk.io',
+      'Your monitor request could not be completed. ',
     );
   }
 
@@ -407,7 +408,7 @@ export async function monitorDepGraph(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      'Your monitor request could not be completed. Please email support@snyk.io',
+      `Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
     );
   }
 
@@ -487,7 +488,7 @@ async function monitorDepGraphFromDepTree(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      'Your monitor request could not be completed. Please email support@snyk.io',
+      `Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
     );
   }
 
@@ -538,7 +539,7 @@ async function monitorDepGraphFromDepTree(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      'Your monitor request could not be completed. Please email support@snyk.io',
+      `Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
     );
   }
   const { res, body } = await makeRequest({
