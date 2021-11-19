@@ -35,7 +35,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     });
   });
 
-  test('`test yarn-out-of-sync` out of sync fails by default', async () => {
+  test('`test yarn-out-of-sync` skips the out of sync project and scans the rest', async () => {
     const project = await createProjectFromWorkspace(
       'yarn-workspace-out-of-sync',
     );
@@ -44,12 +44,45 @@ describe('snyk test --all-projects (mocked server only)', () => {
       cwd: project.path(),
       env,
     });
+    expect(code).toEqual(0);
+
+    expect(stdout).toMatch('Tested 2 projects, no vulnerable paths were found');
+
+    // detected only the workspace root
+    expect(stdout).toMatch('Package manager:   yarn');
+    expect(stdout).toMatch('Project name:      tomatoes');
+    expect(stdout).toMatch('Project name:      apples');
+    expect(stderr).toMatch(
+      '✗ 1/3 potential projects failed to get dependencies',
+    );
+    expect(stderr).toMatch(
+      `Dependency snyk was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
+    );
+  });
+
+  test('`test yarn-out-of-sync` with --fail-fast errors the whole scan', async () => {
+    const project = await createProjectFromWorkspace(
+      'yarn-workspace-out-of-sync',
+    );
+
+    const { code, stdout, stderr } = await runSnykCLI(
+      'test --all-projects --fail-fast',
+      {
+        cwd: project.path(),
+        env,
+      },
+    );
     expect(code).toEqual(2);
 
     expect(stdout).toMatch(
-      'Failed to get dependencies for all 3 potential projects.\nTip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>\nIf the issue persists contact support@snyk.io',
+      'Your test request could not be completed.\nTip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>\nIf the issue persists contact support@snyk.io',
     );
-    expect(stderr).toEqual('');
+    expect(stderr).toMatch(
+      '✗ 1/3 potential projects failed to get dependencies',
+    );
+    expect(stderr).toMatch(
+      `Dependency snyk was not found in yarn.lock. Your package.json and yarn.lock are probably out of sync. Please run "yarn install" and try again.`,
+    );
   });
 
   test('`test yarn-out-of-sync` --strict-out-of-sync=false scans all the workspace projects', async () => {
@@ -68,14 +101,13 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(0);
     expect(stdout).toMatch('Tested 3 projects, no vulnerable paths were found');
 
-    // detected only the workspace root
+    // detected the workspace root
     expect(stdout).toMatch('Package manager:   yarn');
     expect(stdout).toMatch('Project name:      package.json');
     // workspaces themselves detected too
-    expect(stderr).toMatch('');
-    // detected only the workspace root
     expect(stdout).toMatch('Project name:      tomatoes');
     expect(stdout).toMatch('Project name:      apples');
+    expect(stderr).toMatch('');
   });
 
   test('`test ruby-app --all-projects`', async () => {

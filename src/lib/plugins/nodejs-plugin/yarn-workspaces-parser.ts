@@ -54,7 +54,7 @@ export async function processYarnWorkspaces(
   let rootWorkspaceManifestContent = {};
   // the folders must be ordered highest first
   for (const directory of Object.keys(yarnTargetFiles)) {
-    debug(`Processing ${directory} as a potential Yarn workspace`)
+    debug(`Processing ${directory} as a potential Yarn workspace`);
     let isYarnWorkspacePackage = false;
     let isRootPackageJson = false;
     const packageJsonFileName = pathUtil.join(directory, 'package.json');
@@ -82,7 +82,13 @@ export async function processYarnWorkspaces(
       }
     }
 
-    if (isYarnWorkspacePackage || isRootPackageJson) {
+    if (!(isYarnWorkspacePackage || isRootPackageJson)) {
+      debug(
+        `${packageJsonFileName} is not part of any detected workspace, skipping`,
+      );
+      continue;
+    }
+    try {
       const rootDir = isYarnWorkspacePackage
         ? pathUtil.dirname(yarnWorkspacesFilesMap[packageJsonFileName].root)
         : pathUtil.dirname(packageJsonFileName);
@@ -118,10 +124,11 @@ export async function processYarnWorkspaces(
         },
       };
       result.scannedProjects.push(project);
-    } else {
-      debug(
-        `${packageJsonFileName} is not part of any detected workspace, skipping`,
-      );
+    } catch (e) {
+      if (settings.yarnWorkspaces) {
+        throw e;
+      }
+      debug(`Error process workspace: ${packageJsonFileName}. ERROR: ${e}`);
     }
   }
   if (!result.scannedProjects.length) {

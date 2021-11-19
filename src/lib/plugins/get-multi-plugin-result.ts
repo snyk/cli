@@ -147,7 +147,7 @@ async function processYarnWorkspacesProjects(
     );
     return { scannedProjects, unprocessedFiles };
   } catch (e) {
-    debug('ERROR: ', e)
+    debug('Error during detecting or processing Yarn Workspaces: ', e);
     return { scannedProjects: [], unprocessedFiles: targetFiles };
   }
 }
