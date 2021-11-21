@@ -22,15 +22,31 @@ export function extractOCIRegistryURLComponents(
   OCIRegistryURL: string,
 ): OCIRegistryURLComponents {
   try {
-    const url = new URL(OCIRegistryURL);
-    const registryBase = url.hostname;
-    // with or without a path, there will at least be a / in the pathname
-    const repoWithTag = url.pathname.substring(1);
+    const urlWithoutProtocol = OCIRegistryURL.includes('://')
+      ? OCIRegistryURL.split('://')[1]
+      : OCIRegistryURL;
+
+    const firstSlashIdx = urlWithoutProtocol.indexOf('/');
+    if (firstSlashIdx === -1) {
+      throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
+    }
+
+    const [registryHost, repoWithTag] = [
+      urlWithoutProtocol.substring(0, firstSlashIdx),
+      urlWithoutProtocol.substring(firstSlashIdx + 1),
+    ];
+    if (!registryHost || !repoWithTag) {
+      throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
+    }
 
     const [repo, tag = 'latest'] = repoWithTag.split(':');
-    return { registryBase, repo, tag };
+    if (!repo) {
+      throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
+    }
+
+    return { registryBase: registryHost, repo, tag };
   } catch {
-    throw new InvalidRemoteRegistryURLError();
+    throw new InvalidRemoteRegistryURLError(OCIRegistryURL);
   }
 }
 
@@ -106,12 +122,13 @@ export class InvalidManifestSchemaVersionError extends CustomError {
 }
 
 export class InvalidRemoteRegistryURLError extends CustomError {
-  constructor(message?: string) {
-    super(message || 'Invalid URL for Remote Registry');
+  constructor(url?: string) {
+    super('Invalid URL for Remote Registry');
     this.code = IaCErrorCodes.InvalidRemoteRegistryURLError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage =
-      'The Remote Registry URL is invalid, or does not include a http/https protocol. Please check it again.';
+    this.userMessage = `The provided remote registry URL${
+      url ? `: "${url}"` : ''
+    } is invalid. Please check it again.`;
   }
 }
 
