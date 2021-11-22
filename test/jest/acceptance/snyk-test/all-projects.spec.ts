@@ -47,7 +47,7 @@ describe('snyk test --all-projects (mocked server only)', () => {
     expect(code).toEqual(2);
 
     expect(stdout).toMatch(
-      'Failed to get dependencies for all 3 potential projects.\nTip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>. If the issue persists contact support@snyk.io',
+      'Failed to get dependencies for all 3 potential projects.\nTip: Re-run in debug mode to see more information: DEBUG=*snyk* <COMMAND>\nIf the issue persists contact support@snyk.io',
     );
     expect(stderr).toEqual('');
   });

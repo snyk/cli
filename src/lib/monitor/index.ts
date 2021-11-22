@@ -25,6 +25,7 @@ import {
   MonitorError,
   ConnectionTimeoutError,
   FailedToRunTestError,
+  errorMessageWithRetry,
 } from '../errors';
 import { pruneGraph } from '../prune';
 import { GRAPH_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
@@ -50,7 +51,6 @@ import {
 import { countPathsToGraphRoot } from '../utils';
 import * as alerts from '../alerts';
 import { abridgeErrorMessage } from '../error-format';
-import { contactSupportMessage, reTryMessage } from '../common';
 
 const debug = Debug('snyk');
 
@@ -165,7 +165,7 @@ async function monitorDepTree(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      'Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}',
+      errorMessageWithRetry('Your monitor request could not be completed.'),
     );
   }
 
@@ -250,7 +250,7 @@ async function monitorDepTree(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      `Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
+      errorMessageWithRetry('Your monitor request could not be completed.'),
     );
   }
 
@@ -408,7 +408,7 @@ export async function monitorDepGraph(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      `Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
+      errorMessageWithRetry('Your monitor request could not be completed.'),
     );
   }
 
@@ -488,7 +488,7 @@ async function monitorDepGraphFromDepTree(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      `Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
+      errorMessageWithRetry('Your monitor request could not be completed'),
     );
   }
 
@@ -539,7 +539,7 @@ async function monitorDepGraphFromDepTree(
       'scannedProject is missing depGraph or depTree, cannot run test/monitor',
     );
     throw new FailedToRunTestError(
-      `Your monitor request could not be completed.\n${reTryMessage}\n${contactSupportMessage}`,
+      errorMessageWithRetry('Your monitor request could not be completed.'),
     );
   }
   const { res, body } = await makeRequest({
