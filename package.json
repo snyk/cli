@@ -3,7 +3,7 @@
   "version": "1.0.0-monorepo",
   "description": "snyk library and cli utility",
   "files": [
-    "help",
+    "help/commands-md",
     "dist",
     "bin",
     "pysrc",
@@ -15,8 +15,7 @@
   "directories": {
     "lib": "src",
     "test": "test",
-    "man": "help/commands-man",
-    "doc": "help/commands-help"
+    "doc": "help/commands-md"
   },
   "bin": {
     "snyk": "bin/snyk"
@@ -42,7 +41,7 @@
     "build:prod": "lerna run build --ignore snyk && npm run build-cli:prod",
     "build-cli:dev": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.dev.js",
     "build-cli:prod": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.prod.js",
-    "generate-help": "./help/generator/generate-docs.sh",
+    "generate-help": "npx ts-node ./help/generator/generator.ts",
     "watch": "npm run build-cli:dev -- --watch",
     "test": "npm run test:acceptance && npm run test:system && npm run test:test && npm run test:jest && test:packages-unit && test:packages-acceptance",
     "test:acceptance": "tap test/acceptance/**/*.test.* test/acceptance/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
@@ -82,6 +81,7 @@
     "@snyk/inquirer": "^7.3.3-patch",
     "@snyk/snyk-cocoapods-plugin": "2.5.2",
     "@snyk/snyk-hex-plugin": "1.1.4",
+    "@types/marked": "^4.0.0",
     "abbrev": "^1.1.1",
     "ansi-escapes": "3.2.0",
     "chalk": "^2.4.2",
@@ -108,6 +108,7 @@
     "lodash.uniq": "^4.5.0",
     "lodash.upperfirst": "^4.3.1",
     "lodash.values": "^4.3.0",
+    "marked": "^4.0.1",
     "micromatch": "4.0.2",
     "needle": "2.6.0",
     "open": "^7.0.3",

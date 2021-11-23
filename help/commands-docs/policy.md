@@ -1,14 +1,15 @@
-# snyk-policy(1) -- Display the .snyk policy for a package
+# snyk policy -- Display the .snyk policy for a package
 
-## SYNOPSIS
+## Usage
 
-`snyk` `policy` \[<PATH_TO_POLICY_FILE>\] \[<OPTIONS>\]
+`snyk policy [<PATH_TO_POLICY_FILE>] [<OPTIONS>]`
 
-## DESCRIPTION
+## Description
 
 Displays a `.snyk` policy file.
 
-## OPTIONS
+## Options
 
-- <PATH_TO_POLICY_FILE>:
-  Manually pass a path to a snyk policy file.
+### `<PATH_TO_POLICY_FILE>`
+
+Manually pass a path to a snyk policy file.

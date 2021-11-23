@@ -1,4 +1,4 @@
-## EXIT CODES
+## Exit codes
 
 Possible exit codes and their meaning:
 

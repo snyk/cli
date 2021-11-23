@@ -1,16 +1,21 @@
 ### Flags available accross all commands
 
-- `--insecure`:
-  Ignore unknown certificate authorities.
+#### `--insecure`
 
-- `-d`:
-  Output debug logs.
+Ignore unknown certificate authorities.
 
-- `--quiet`, `-q`:
-  Silence all output.
+#### `-d`
 
-- `--version`, `-v`:
-  Prints versions.
+Output debug logs.
 
-- \[<COMMAND>\] `--help`, `--help` \[<COMMAND>\], `-h`:
-  Prints a help text. You may specify a <COMMAND> to get more details.
+#### `--quiet`, `-q`
+
+Silence all output.
+
+#### `--version`, `-v`
+
+Prints versions.
+
+#### `--help [<COMMAND>]`, `[<COMMAND>] --help`, `-h`
+
+Prints a help text. You may specify a `<COMMAND>` to get more details.

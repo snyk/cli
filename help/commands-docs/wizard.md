@@ -1,10 +1,10 @@
-# snyk-wizard(1) -- Configure your policy file to update, auto patch and ignore vulnerabilities
+# snyk wizard -- Configure your policy file to update, auto patch and ignore vulnerabilities
 
-## SYNOPSIS
+## Usage
 
-`snyk` `wizard` \[<OPTIONS>\]
+`snyk wizard [<OPTIONS>]`
 
-## DESCRIPTION
+## Description
 
 Snyk's wizard will:
 
@@ -13,4 +13,4 @@ Snyk's wizard will:
 - Create a .snyk policy file to guide snyk commands such as `test` and `protect`
 - Remember your dependencies to alert you when new vulnerabilities are disclosed
 
-## OPTIONS
+## Options

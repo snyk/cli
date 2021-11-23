@@ -1,9 +1,9 @@
-# snyk-test(1) -- test local project for vulnerabilities
+# snyk test -- test local project for vulnerabilities
 
-## SYNOPSIS
+## Usage
 
-`snyk` `test` \[<OPTIONS>\]
+`snyk test [<OPTIONS>]`
 
-## DESCRIPTION
+## Description
 
 Test command checks locally installed projects for vulnerabilities. It tries to autodetect supported manifest files with dependencies and test those.

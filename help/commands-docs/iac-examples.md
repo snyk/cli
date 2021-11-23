@@ -1,24 +1,31 @@
-## EXAMPLES
+## Examples
 
 [For more information see IaC help page](https://snyk.co/ucT6Q)
 
-- `Test CloudFormation file`:
-  \$ snyk iac test /path/to/cloudformation_file.yaml
+### `Test CloudFormation file`
 
-- `Test kubernetes file`:
-  \$ snyk iac test /path/to/kubernetes_file.yaml
+\$ snyk iac test /path/to/cloudformation_file.yaml
 
-- `Test terraform file`:
-  \$ snyk iac test /path/to/terraform_file.tf
+### `Test kubernetes file`
 
-- `Test terraform plan file`:
-  \$ snyk iac test /path/to/tf-plan.json
+\$ snyk iac test /path/to/kubernetes_file.yaml
 
-- `Test ARM file`:
-  \$ snyk iac test /path/to/arm_file.json
+### `Test terraform file`
 
-- `Test matching files in a directory`:
-  \$ snyk iac test /path/to/directory
+\$ snyk iac test /path/to/terraform_file.tf
 
-- `Test matching files in a directory using a local custom rules bundle`:
-  \$ snyk iac test /path/to/directory --rules=bundle.tar.gz
+### `Test terraform plan file`
+
+\$ snyk iac test /path/to/tf-plan.json
+
+### `Test ARM file`
+
+\$ snyk iac test /path/to/arm_file.json
+
+### `Test matching files in a directory`
+
+\$ snyk iac test /path/to/directory
+
+### `Test matching files in a directory using a local custom rules bundle`
+
+\$ snyk iac test /path/to/directory --rules=bundle.tar.gz
