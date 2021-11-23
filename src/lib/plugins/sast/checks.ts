@@ -4,11 +4,18 @@ import { api as getApiToken } from '../../api-token';
 import config from '../../config';
 import { assembleQueryString } from '../../snyk-test/common';
 
-interface SastSettings {
+interface LocalCodeEngine {
+  enabled: boolean;
+  url: string;
+  allowedCloudUpload: boolean;
+}
+
+export interface SastSettings {
   sastEnabled: boolean;
   code?: number;
   error?: string;
   userMessage?: string;
+  localCodeEngine: LocalCodeEngine;
 }
 
 interface TrackUsageResponse {

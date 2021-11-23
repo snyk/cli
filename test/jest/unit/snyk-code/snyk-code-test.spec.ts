@@ -98,6 +98,9 @@ describe('Test snyk code', () => {
     analyzeFoldersMock.mockResolvedValue(null);
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
     });
     trackUsageSpy.mockResolvedValue({});
 
@@ -123,6 +126,9 @@ describe('Test snyk code', () => {
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
     });
     trackUsageSpy.mockResolvedValue({});
 
@@ -152,6 +158,9 @@ describe('Test snyk code', () => {
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
     });
     trackUsageSpy.mockResolvedValue({});
 
@@ -203,7 +212,12 @@ describe('Test snyk code', () => {
   });
 
   it('should show error if sast is not enabled', async () => {
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({ sastEnabled: false });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: false,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
 
     await expect(
       snykTest('some/path', { code: true, _: [], _doubleDashArgs: [] }),
@@ -225,7 +239,12 @@ describe('Test snyk code', () => {
   });
 
   it('should show error if limit is reached', async () => {
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({ sastEnabled: true });
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
     trackUsageSpy.mockResolvedValueOnce({
       code: 429,
       userMessage: 'Test limit reached!',
@@ -253,6 +272,9 @@ describe('Test snyk code', () => {
       analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
       isSastEnabledForOrgSpy.mockResolvedValueOnce({
         sastEnabled: true,
+        localCodeEngine: {
+          enabled: false,
+        },
       });
       trackUsageSpy.mockResolvedValue({});
 
@@ -286,6 +308,9 @@ describe('Test snyk code', () => {
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
     });
     trackUsageSpy.mockResolvedValue({});
 
@@ -316,6 +341,9 @@ describe('Test snyk code', () => {
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
     isSastEnabledForOrgSpy.mockResolvedValueOnce({
       sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
     });
     trackUsageSpy.mockResolvedValue({});
 
@@ -348,6 +376,9 @@ describe('Test snyk code', () => {
         .mockRejectedValue(codeClientError);
       isSastEnabledForOrgSpy.mockResolvedValueOnce({
         sastEnabled: true,
+        localCodeEngine: {
+          enabled: false,
+        },
       });
       trackUsageSpy.mockResolvedValue({});
 
@@ -360,6 +391,25 @@ describe('Test snyk code', () => {
     },
   );
 
+  it('Throws an error if LCE is enabled', async () => {
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: true,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    await expect(
+      ecosystems.testEcosystem('code', ['.'], {
+        path: '',
+        code: true,
+      }),
+    ).rejects.toHaveProperty(
+      'message',
+      'Snyk Code Local Engine is enabled, Snyk Code CLI is temporary disabled.',
+    );
+  });
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
     const sessionToken = expect.any(String);
