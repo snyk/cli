@@ -13,7 +13,7 @@ import { convertSingleResultToMultiCustom } from './convert-single-splugin-res-t
 import { convertMultiResultToMultiCustom } from './convert-multi-plugin-res-to-multi-custom';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
-import { FailedToRunTestError } from '../errors';
+import { errorMessageWithRetry, FailedToRunTestError } from '../errors';
 
 const debug = debugModule('snyk-test');
 export interface ScannedProjectCustom
@@ -95,7 +95,9 @@ export async function getMultiPluginResult(
 
   if (!allResults.length) {
     throw new FailedToRunTestError(
-      `Failed to get dependencies for all ${targetFiles.length} potential projects. Run with \`-d\` for debug output and contact support@snyk.io`,
+      errorMessageWithRetry(
+        `Failed to get dependencies for all ${targetFiles.length} potential projects.`,
+      ),
     );
   }
 

@@ -31,3 +31,4 @@ export {
   NotSupportedIacAllProjects,
 } from './invalid-iac-file';
 export { NotFoundError } from './not-found-error';
+export { errorMessageWithRetry } from './error-with-retry';

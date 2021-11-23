@@ -32,6 +32,7 @@ import {
   NoSupportedManifestsFoundError,
   UnsupportedFeatureFlagError,
   NotFoundError,
+  errorMessageWithRetry,
 } from '../errors';
 import * as snyk from '../';
 import { isCI } from '../is-ci';
@@ -628,7 +629,7 @@ async function assembleLocalPayloads(
           'scannedProject is missing depGraph or depTree, cannot run test/monitor',
         );
         throw new FailedToRunTestError(
-          'Your test request could not be completed. Please email support@snyk.io',
+          errorMessageWithRetry('Your test request could not be completed.'),
         );
       }
 

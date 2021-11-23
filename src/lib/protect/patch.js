@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const flatten = require('lodash.flatten');
 const cloneDeep = require('lodash.clonedeep');
+const { contactSupportMessage } = require('../common');
 const applyPatch = require('./apply-patch');
 const stripVersions = require('./strip-versions');
 const getVulnSource = require('./get-vuln-source');
@@ -214,9 +215,7 @@ function patch(vulns, live) {
             console.log(chalk.red(errors.message(error)));
             debug(error.stack);
           });
-          throw new Error(
-            'Please email support@snyk.io if this problem persists.',
-          );
+          throw new Error(contactSupportMessage);
         }
 
         return res;
