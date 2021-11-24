@@ -446,7 +446,7 @@ async function parseRes(
       const dockerfilePackage = dockerfilePackages[vuln.name.split('/')[0]];
       if (dockerfilePackage) {
         (vuln as DockerIssue).dockerfileInstruction =
-          dockerfilePackage.instruction;
+          dockerfilePackage.installCommand;
       }
       (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
       return vuln;
