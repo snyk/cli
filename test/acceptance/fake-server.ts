@@ -84,6 +84,8 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const app = express();
   app.use(bodyParser.json({ limit: '50mb' }));
+  // Content-Type for v3 API endpoints is 'application/vnd.api+json'
+  app.use(express.json({ type: 'application/vnd.api+json', strict: false }));
   app.use((req, res, next) => {
     requests.push(req);
     next();
@@ -442,6 +444,36 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       uri: `${req.params.registry}/some/project-id`,
       isMonitored: true,
     });
+  });
+
+  // Apps endpoint
+  app.post(`${basePath}/orgs/:orgId/apps`, (req, res) => {
+    const { orgId } = req.params;
+    const name = req.body.name;
+    const redirectUris = req.body.redirectUris;
+    const scopes = req.body.scopes;
+    res.send(
+      JSON.stringify({
+        jsonapi: {
+          version: '1.0',
+        },
+        data: {
+          type: 'app',
+          id: '84144c1d-a491-4fe5-94d1-ba143ba71b6d',
+          attributes: {
+            name,
+            clientId: '9f26c6c6-e04b-4310-8ce4-c3a6289d0633',
+            redirectUris,
+            scopes,
+            isPublic: false,
+            clientSecret: 'super-secret-client-secret',
+          },
+          links: {
+            self: `/orgs/${orgId}/apps?version=2021-08-11~experimental`,
+          },
+        },
+      }),
+    );
   });
 
   app.post(basePath + '/track-iac-usage/cli', (req, res) => {

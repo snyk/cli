@@ -1,5 +1,6 @@
 {
   "API": "https://snyk.io/api/v1",
+  "API_V3_URL": "https://api.snyk.io/v3",
   "devDeps": false,
   "PRUNE_DEPS_THRESHOLD": 40000,
   "MAX_PATH_COUNT": 1500000,
