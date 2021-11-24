@@ -9,7 +9,7 @@ const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([['cliFailFast', false]]);
 };
 
-type FakeServer = {
+export type FakeServer = {
   getRequests: () => express.Request[];
   popRequest: () => express.Request;
   popRequests: (num: number) => express.Request[];

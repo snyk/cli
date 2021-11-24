@@ -31,6 +31,7 @@ export async function startMockServer() {
   };
 
   return {
+    server,
     run: async (
       cmd: string,
       overrides?: Record<string, string>,
