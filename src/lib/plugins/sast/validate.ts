@@ -7,7 +7,6 @@ import {
   FailedToRunTestError,
   FeatureNotSupportedForOrgError,
   NotFoundError,
-  CustomError,
 } from '../../errors';
 
 export async function validateCodeTest(options: Options) {
@@ -39,12 +38,6 @@ export async function validateCodeTest(options: Options) {
       org,
       'Snyk Code',
       'enable in Settings > Snyk Code',
-    );
-  }
-
-  if (sastSettingsResponse.localCodeEngine.enabled) {
-    throw new CustomError(
-      'Snyk Code Local Engine is enabled, Snyk Code CLI is temporary disabled.',
     );
   }
 
