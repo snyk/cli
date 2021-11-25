@@ -28,18 +28,11 @@ import {
   scanFiles,
   trackUsage,
 } from './measurable-methods';
-import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
-import {
-  UnsupportedEntitlementFlagError,
-  FlagError,
-} from './assert-iac-options-flag';
+import { UnsupportedEntitlementFlagError } from './assert-iac-options-flag';
 import { config as userConfig } from '../../../../lib/user-config';
 import config from '../../../../lib/config';
 import { findAndLoadPolicy } from '../../../../lib/policy';
-import {
-  CustomError,
-  UnsupportedFeatureFlagError,
-} from '../../../../lib/errors';
+import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import {
   extractOCIRegistryURLComponents,
@@ -47,9 +40,7 @@ import {
   InvalidManifestSchemaVersionError,
   InvalidRemoteRegistryURLError,
   UnsupportedEntitlementPullError,
-  UnsupportedFeatureFlagPullError,
 } from './oci-pull';
-import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import { isValidUrl } from './url-utils';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
@@ -66,7 +57,12 @@ export async function test(
     const iacOrgSettings = await getIacOrgSettings(orgPublicId);
 
     if (options.rules) {
-      await assertRulesFlagAvailable(orgPublicId, iacOrgSettings);
+      if (!iacOrgSettings.entitlements?.iacCustomRulesEntitlement) {
+        throw new UnsupportedEntitlementFlagError(
+          'rules',
+          'iacCustomRulesEntitlement',
+        );
+      }
       customRulesPath = options.rules;
     }
 
@@ -79,7 +75,9 @@ export async function test(
     }
 
     if (isOCIRegistryURLProvided) {
-      await assertPullAvailable(orgPublicId, iacOrgSettings);
+      if (!iacOrgSettings.entitlements?.iacCustomRulesEntitlement) {
+        throw new UnsupportedEntitlementPullError('iacCustomRulesEntitlement');
+      }
       await pullIaCCustomRules(iacOrgSettings);
     } else {
       await initLocalCache({ customRulesPath });
@@ -261,67 +259,6 @@ export async function pullIaCCustomRules(
       throw new InvalidRemoteRegistryURLError();
     } else {
       throw new FailedToPullCustomBundleError();
-    }
-  }
-}
-
-/**
- * Asserts the custom-rules feature is available for the provided org.
- */
-async function assertCustomRulesAvailable(
-  orgPublicId: string,
-  iacOrgSettings: IacOrgSettings,
-): Promise<void> {
-  const isCustomRulesEnabled = !!(
-    await isFeatureFlagSupportedForOrg('iacCustomRules', orgPublicId)
-  ).ok;
-
-  if (!isCustomRulesEnabled) {
-    throw new UnsupportedFeatureFlagError('iacCustomRules');
-  }
-
-  const isEntitledToCustomRules = !!iacOrgSettings.entitlements
-    ?.iacCustomRulesEntitlement;
-
-  if (!isEntitledToCustomRules) {
-    throw new UnsupportedEntitlementError('iacCustomRulesEntitlement');
-  }
-}
-
-/**
- * Asserts the --rules flag is available for the provided org.
- */
-async function assertRulesFlagAvailable(
-  orgPublicId: string,
-  iacOrgSettings: IacOrgSettings,
-) {
-  try {
-    await assertCustomRulesAvailable(orgPublicId, iacOrgSettings);
-  } catch (err) {
-    if (err instanceof UnsupportedEntitlementError) {
-      throw new UnsupportedEntitlementFlagError('rules', err.entitlement);
-    } else if (err instanceof UnsupportedFeatureFlagError) {
-      throw new FlagError('rules', err.featureFlag);
-    } else {
-      throw err;
-    }
-  }
-}
-
-/**
- * Asserts the feature custom-rules bundles pulling feature is available for the provided org.
- */
-async function assertPullAvailable(
-  orgPublicId: string,
-  iacOrgSettings: IacOrgSettings,
-) {
-  try {
-    await assertCustomRulesAvailable(orgPublicId, iacOrgSettings);
-  } catch (err) {
-    if (err instanceof UnsupportedEntitlementError) {
-      throw new UnsupportedEntitlementPullError(err.entitlement);
-    } else if (err instanceof UnsupportedFeatureFlagError) {
-      throw new UnsupportedFeatureFlagPullError(err.featureFlag);
     }
   }
 }
