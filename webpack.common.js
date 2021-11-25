@@ -2,7 +2,7 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: './src/cli/main.ts',
+  entry: './src/cli/index.ts',
   target: 'node10',
   output: {
     clean: true,

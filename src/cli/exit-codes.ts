@@ -1,0 +1,5 @@
+export const EXIT_CODES = {
+  VULNS_FOUND: 1,
+  ERROR: 2,
+  NO_SUPPORTED_PROJECTS_DETECTED: 3,
+};

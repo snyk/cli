@@ -45,14 +45,9 @@ import {
 import { SarifFileOutputEmptyError } from '../lib/errors/empty-sarif-output-error';
 import { InvalidDetectionDepthValue } from '../lib/errors/invalid-detection-depth-value';
 import { obfuscateArgs } from '../lib/utils';
-import { callHandlingUnexpectedErrors } from '../lib/unexpected-error';
+import { EXIT_CODES } from './exit-codes';
 
 const debug = Debug('snyk');
-const EXIT_CODES = {
-  VULNS_FOUND: 1,
-  ERROR: 2,
-  NO_SUPPORTED_PROJECTS_DETECTED: 3,
-};
 
 async function runCommand(args: Args) {
   const commandResult = await args.method(...args.options._);
@@ -241,7 +236,7 @@ function checkPaths(args) {
 
 type AllSupportedCliOptions = Options & MonitorOptions & TestOptions;
 
-async function main() {
+export async function main(): Promise<void> {
   checkRuntime();
 
   let res;
@@ -482,5 +477,3 @@ function validateOutputFile(
     throw error;
   }
 }
-
-callHandlingUnexpectedErrors(main, EXIT_CODES.ERROR);
