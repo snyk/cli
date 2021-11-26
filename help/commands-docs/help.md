@@ -1,11 +1,11 @@
-# snyk-help(1) -- Prints help topics
+# snyk help -- Prints help topics
 
-## SYNOPSIS
+## Usage
 
-`snyk` `help` \[<TOPIC>\] \[<OPTIONS>\]
+`snyk help [<TOPIC>] [<OPTIONS>]`
 
-## DESCRIPTION
+## Description
 
-Prints help information. Pass in name of a command as <TOPIC>.
+Prints help information. Pass in name of a command as `<TOPIC>`.
 
-## OPTIONS
+## Options

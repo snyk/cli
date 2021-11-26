@@ -92,8 +92,8 @@ if (danger.github && danger.github.pr) {
     ) ||
     danger.git.created_files.some((f) => f.startsWith('help/commands-docs/'));
   const modifiedGeneratedHelpFiles =
-    danger.git.modified_files.some((f) => f.startsWith('help/commands-txt/')) ||
-    danger.git.created_files.some((f) => f.startsWith('help/commands-txt/'));
+    danger.git.modified_files.some((f) => f.startsWith('help/commands-md/')) ||
+    danger.git.created_files.some((f) => f.startsWith('help/commands-md/'));
 
   if (modifiedHelpFiles && !modifiedGeneratedHelpFiles) {
     fail(

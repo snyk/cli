@@ -1,18 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import stripAnsi from 'strip-ansi';
+import { renderMarkdown } from './markdown-renderer';
 
 const DEFAULT_HELP = 'snyk';
 
 function readHelpFile(filename: string): string {
   const file = fs.readFileSync(filename, 'utf8');
-  if (typeof process.env.NO_COLOR !== 'undefined' || !process.stdout.isTTY) {
-    return stripAnsi(file);
-  }
-  return file;
+  return renderMarkdown(file);
 }
 
-export default async function help(item?: string | boolean) {
+export default async function help(item?: string | boolean): Promise<string> {
   if (!item || item === true || typeof item !== 'string' || item === 'help') {
     item = DEFAULT_HELP;
   }
@@ -24,15 +21,15 @@ export default async function help(item?: string | boolean) {
   try {
     const filename = path.resolve(
       __dirname,
-      '../../help/commands-txt', // this is a relative path from the webpack dist directory
-      item === DEFAULT_HELP ? `${DEFAULT_HELP}.txt` : `snyk-${item}.txt`,
+      '../../help/commands-md', // this is a relative path from the webpack dist directory
+      item === DEFAULT_HELP ? `${DEFAULT_HELP}.md` : `snyk-${item}.md`,
     );
     return readHelpFile(filename);
   } catch (error) {
     const filename = path.resolve(
       __dirname,
-      '../../help/commands-txt',
-      `${DEFAULT_HELP}.txt`,
+      '../../help/commands-md',
+      `${DEFAULT_HELP}.md`,
     );
     return readHelpFile(filename);
   }

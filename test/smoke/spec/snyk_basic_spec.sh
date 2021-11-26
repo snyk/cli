@@ -22,7 +22,7 @@ Describe "Snyk CLI basics"
   Describe "snyk help"
     It "prints help info"
       When run snyk help
-      The output should include "CLI and build-time tool to find & fix known vulnerabilities in"
+      The output should include "Snyk CLI scans and monitors your projects for security vulnerabilities"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
@@ -34,7 +34,7 @@ Describe "Snyk CLI basics"
 
     It "prints help info when called with unknown argument"
       When run snyk help hello
-      The output should include "CLI and build-time tool to find & fix known vulnerabilities in"
+      The output should include " Snyk CLI scans and monitors your projects for security vulnerabilities"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
@@ -42,7 +42,7 @@ Describe "Snyk CLI basics"
 
     It "prints help info when called with flag and unknown argument"
       When run snyk --help hello
-      The output should include "CLI and build-time tool to find & fix known vulnerabilities in"
+      The output should include " Snyk CLI scans and monitors your projects for security vulnerabilities"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""

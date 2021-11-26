@@ -1,4 +1,4 @@
-## EXAMPLES
+## Examples
 
 - `Authenticate in your CI without user interaction`:
   \$ snyk auth MY_API_TOKEN

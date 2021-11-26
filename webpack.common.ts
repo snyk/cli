@@ -1,7 +1,8 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+import { generateHelp } from './help/generator/generator';
 
-module.exports = {
+export default {
   entry: './src/cli/index.ts',
   target: 'node10',
   output: {
@@ -54,6 +55,13 @@ module.exports = {
         },
       ],
     }),
+    {
+      apply: (compiler) => {
+        compiler.hooks.afterEmit.tap('AfterEmitPlugin', async () => {
+          await generateHelp();
+        });
+      },
+    },
   ],
   module: {
     rules: [

@@ -1,14 +1,15 @@
-# snyk-woof(1) -- W00f
+# snyk woof -- W00f
 
-## SYNOPSIS
+## Usage
 
-`snyk` `woof` \[<OPTIONS>\]
+`snyk woof [<OPTIONS>]`
 
-## DESCRIPTION
+## Description
 
 Easter egg that prints a Patch ascii art.
 
-## OPTIONS
+## Options
 
-- `--language`=<LANGUAGE>:
-  Woof in a specific language. <LANGUAGE> should be a ISO 639-1 code.
+### `--language=<LANGUAGE>`
+
+Woof in a specific language. `<LANGUAGE>` should be an ISO 639-1 code.
