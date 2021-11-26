@@ -92,7 +92,9 @@ function formatScanResult(
       },
       severity: policy.severity,
       lineNumber,
-      documentation: `https://snyk.io/security-rules/${policy.publicId}`,
+      documentation: !isGeneratedByCustomRule
+        ? `https://snyk.io/security-rules/${policy.publicId}`
+        : undefined,
       isGeneratedByCustomRule,
     };
   });
