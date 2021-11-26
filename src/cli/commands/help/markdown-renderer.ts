@@ -11,7 +11,9 @@ const listItemSeparator = 'LISTITEMSEPARATOR'; // Helper string for rendering Li
  * @returns string
  */
 function getLeftTextPadding(): string {
-  return '  '.repeat(currentHeader);
+  return '  '.repeat(
+    currentHeader === 1 || currentHeader === 2 ? 1 : currentHeader - 1,
+  );
 }
 
 /**
@@ -47,25 +49,23 @@ const renderer = {
     return quote;
   },
   list(body, ordered, start) {
-    return (
-      body
-        .split(listItemSeparator)
-        .map((listItem, listItemIndex) => {
-          const bulletPoint = ordered ? `${listItemIndex + start}. ` : '-  ';
-          return reflowText(listItem, getIdealTextWidth())
-            .split('\n')
-            .map((listItemLine, listItemLineIndex) => {
-              if (!listItemLine) {
-                return '';
-              }
-              return `${getLeftTextPadding()}${
-                listItemLineIndex === 0 ? bulletPoint : '   '
-              }${listItemLine}`;
-            })
-            .join('\n');
-        })
-        .join('\n') + '\n'
-    );
+    return body
+      .split(listItemSeparator)
+      .map((listItem, listItemIndex) => {
+        const bulletPoint = ordered ? `${listItemIndex + start}. ` : '-  ';
+        return reflowText(listItem, getIdealTextWidth())
+          .split('\n')
+          .map((listItemLine, listItemLineIndex) => {
+            if (!listItemLine) {
+              return '';
+            }
+            return `${getLeftTextPadding()}${
+              listItemLineIndex === 0 ? bulletPoint : '   '
+            }${listItemLine}`;
+          })
+          .join('\n');
+      })
+      .join('\n');
   },
   listitem(text) {
     return text + listItemSeparator;
@@ -75,7 +75,7 @@ const renderer = {
       reflowText(text, getIdealTextWidth())
         .split('\n')
         .map((s) => getLeftTextPadding() + chalk.reset() + s)
-        .join('\n') + '\n\n'
+        .join('\n') + '\n'
     );
   },
   codespan(text) {
@@ -99,7 +99,7 @@ const renderer = {
         coloring = chalk.bold;
         break;
     }
-    return `${'  '.repeat(level === 1 ? 0 : currentHeader - 2)}${coloring(
+    return `\n${'  '.repeat(level === 1 ? 0 : currentHeader - 2)}${coloring(
       text,
     )}\n`;
   },

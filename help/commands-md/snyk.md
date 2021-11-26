@@ -1,14 +1,14 @@
 # Snyk CLI
 
-Snyk CLI scans and monitors your projects for security vulnerabilities
+Snyk CLI scans and monitors your projects for security vulnerabilities.
 
-Visit https://snyk.io for more details
+Visit https://snyk.io for more details.
 
 ## Not sure where to start?
 
-1. Authenticate with `snyk auth`
-2. Test your local project with `snyk test`
-3. Get alerted for new vulnerabilities with `snyk monitor`
+1. Authenticate with `snyk auth`.
+2. Test your local project with `snyk test`.
+3. Get alerted for new vulnerabilities with `snyk monitor`.
 
 ## Available commands
 
