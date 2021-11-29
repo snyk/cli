@@ -71,7 +71,7 @@ describe('Proxy configuration behavior', () => {
         },
       });
 
-      expect(code).toBe(1);
+      expect(code).toBe(2);
 
       // Incorrect behavior when Needle tries to upgrade connection after 301 http->https and the Agent option is set to a strict http/s protocol.
       // See lines with `keepAlive` in request.ts for more details
