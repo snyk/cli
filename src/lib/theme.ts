@@ -11,6 +11,7 @@ export const icon = {
 export const color = {
   status: {
     error: (text: string) => chalk.red(text),
+    warn: (text: string) => chalk.yellow(text),
     success: (text: string) => chalk.green(text),
   },
   severity: {

@@ -67,6 +67,12 @@ If you already have Snyk Protect set up, you can migrate to `@snyk/protect` by a
  }
 ```
 
+We have also created the [@snyk/cli-protect-upgrade](https://www.npmjs.com/package/@snyk/cli-protect-upgrade) npx script which you can use to update your project automatically. To use it, `cd` to the location containing the package.json to be updated and run:
+
+```
+npx @snyk/cli-protect-upgrade
+```
+
 ---
 
 Made with 💜 by Snyk

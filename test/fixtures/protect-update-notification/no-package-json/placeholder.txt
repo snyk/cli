@@ -1,0 +1,1 @@
+placeholder file so that the `no-package-json` folder which contains this file exists for testing

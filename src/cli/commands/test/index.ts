@@ -1,4 +1,5 @@
 import * as Debug from 'debug';
+import { EOL } from 'os';
 const cloneDeep = require('lodash.clonedeep');
 const assign = require('lodash.assign');
 import chalk from 'chalk';
@@ -32,6 +33,12 @@ import { setDefaultTestOptions } from './set-default-test-options';
 import { processCommandArgs } from '../process-command-args';
 import { formatTestError } from './format-test-error';
 import { displayResult } from '../../../lib/formatters/test/display-result';
+import * as analytics from '../../../lib/analytics';
+
+import {
+  getPackageJsonPathsContainingSnykDependency,
+  getProtectUpgradeWarningForPaths,
+} from '../../../lib/protect-update-notification';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -45,6 +52,16 @@ export default async function test(
   const options = setDefaultTestOptions(originalOptions);
   validateTestOptions(options);
   validateCredentials(options);
+
+  const packageJsonPathsWithSnykDepForProtect: string[] = getPackageJsonPathsContainingSnykDependency(
+    options.file,
+    paths,
+  );
+
+  analytics.add(
+    'upgradable-snyk-protect-paths',
+    packageJsonPathsWithSnykDepForProtect.length,
+  );
 
   // Handles no image arg provided to the container command until
   // a validation interface is implemented in the docker plugin.
@@ -255,6 +272,11 @@ export default async function test(
       if (!fail) {
         // return here to prevent throwing failure
         response += chalk.bold.green(summaryMessage);
+        response += EOL + EOL;
+        response += getProtectUpgradeWarningForPaths(
+          packageJsonPathsWithSnykDepForProtect,
+        );
+
         return TestCommandResult.createHumanReadableTestCommandResult(
           response,
           stringifiedJsonData,
@@ -277,6 +299,11 @@ export default async function test(
   }
 
   response += chalk.bold.green(summaryMessage);
+  response += EOL + EOL;
+  response += getProtectUpgradeWarningForPaths(
+    packageJsonPathsWithSnykDepForProtect,
+  );
+
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
     stringifiedJsonData,
