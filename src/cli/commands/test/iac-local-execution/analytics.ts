@@ -6,7 +6,6 @@ import { computeCustomRulesBundleChecksum } from './file-utils';
 export function addIacAnalytics(
   formattedResults: FormattedResult[],
   ignoredIssuesCount: number,
-  isLocalCustomRules: boolean,
 ): void {
   let totalIssuesCount = 0;
   const customRulesIdsFoundInIssues: { [customRuleId: string]: true } = {};
@@ -49,12 +48,10 @@ export function addIacAnalytics(
     'iac-custom-rules-issues-percentage',
     calculatePercentage(issuesFromCustomRulesCount, totalIssuesCount),
   );
-  if (!isLocalCustomRules) {
-    analytics.add(
-      'iac-custom-rules-checksum',
-      computeCustomRulesBundleChecksum(),
-    );
-  }
+  analytics.add(
+    'iac-custom-rules-checksum',
+    computeCustomRulesBundleChecksum(),
+  );
   analytics.add('iac-custom-rules-coverage-count', uniqueCustomRulesCount);
 }
 
