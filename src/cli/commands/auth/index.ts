@@ -48,12 +48,13 @@ async function webAuth(via: AuthCliCommands) {
     urlStr += '&redirectUri=' + Buffer.from(redirects[via]).toString('base64');
   }
 
-  // suppress this message in CI
-  if (!isCI()) {
-    console.log(browserAuthPrompt(isDocker(), urlStr));
-  } else {
-    return Promise.reject(MisconfiguredAuthInCI());
+  if (isCI()) {
+    // CI environments can't use a web browser
+    return Promise.reject(new MisconfiguredAuthInCI());
   }
+
+  console.log(browserAuthPrompt(isDocker(), urlStr));
+
   const spinner = new Spinner('Waiting...');
   spinner.setSpinnerString('|/-\\');
 
@@ -76,7 +77,7 @@ async function webAuth(via: AuthCliCommands) {
 async function testAuthComplete(
   token: string,
   ipFamily?: number,
-): Promise<{ res; body }> {
+): Promise<any> {
   const payload: Partial<Payload> = {
     body: {
       token,
@@ -104,10 +105,7 @@ async function testAuthComplete(
 
       // we have success
       if (body.api) {
-        return resolve({
-          res,
-          body,
-        });
+        return resolve(res);
       }
 
       // we need to wait and poll again in a moment
@@ -136,8 +134,7 @@ export default async function auth(
     promise = webAuth(via);
   }
 
-  return promise.then((data) => {
-    const res = data.res;
+  return promise.then((res) => {
     const body = res.body;
     debug(body);
 
@@ -160,16 +157,16 @@ export default async function auth(
  */
 function errorForFailedAuthAttempt(res, body) {
   if (res.statusCode === 401 || res.statusCode === 403) {
-    return AuthFailedError(body.userMessage, res.statusCode);
-  } else {
-    const userMessage = body && body.userMessage;
-    const error = new CustomError(userMessage || 'Auth request failed');
-    if (userMessage) {
-      error.userMessage = userMessage;
-    }
-    error.code = res.statusCode;
-    return error;
+    return new AuthFailedError(body.userMessage, res.statusCode);
   }
+
+  const userMessage = body && body.userMessage;
+  const error = new CustomError(userMessage || 'Auth request failed');
+  if (userMessage) {
+    error.userMessage = userMessage;
+  }
+  error.code = res.statusCode;
+  return error;
 }
 
 async function getIpFamily(): Promise<6 | undefined> {

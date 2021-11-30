@@ -52,7 +52,7 @@ export async function validatePayload(
   );
 
   if (reachableVulnsSupportedRes.code === 401) {
-    throw AuthFailedError(
+    throw new AuthFailedError(
       reachableVulnsSupportedRes.error,
       reachableVulnsSupportedRes.code,
     );

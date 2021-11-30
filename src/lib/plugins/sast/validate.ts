@@ -23,7 +23,7 @@ export async function validateCodeTest(options: Options) {
     sastSettingsResponse?.code === 401 ||
     sastSettingsResponse?.code === 403
   ) {
-    throw AuthFailedError(
+    throw new AuthFailedError(
       sastSettingsResponse.error,
       sastSettingsResponse.code,
     );

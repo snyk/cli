@@ -153,9 +153,9 @@ test('`snyk test` without docker flag - docker token and no api key', async (t) 
     await cli.test('foo:latest', {
       docker: false,
     });
-    t.fail('expected MissingApiTokenError');
+    t.fail('expected missing token error');
   } catch (err) {
-    t.equal(err.name, 'MissingApiTokenError', 'should throw if not docker');
+    t.equal(err.code, 401, 'should throw if not docker');
   }
 });
 

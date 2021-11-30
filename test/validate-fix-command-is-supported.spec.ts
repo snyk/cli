@@ -32,7 +32,7 @@ describe('setDefaultTestOptions', () => {
       .mockResolvedValue({ ok: false, code: 401, error: 'Invalid auth token' });
     const options = { path: '/', showVulnPaths: 'all' as ShowVulnPaths };
     await expect(validateFixCommandIsSupported(options)).rejects.toThrowError(
-      AuthFailedError('Invalid auth token', 401),
+      new AuthFailedError('Invalid auth token', 401),
     );
   });
 

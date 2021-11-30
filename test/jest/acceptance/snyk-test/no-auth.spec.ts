@@ -39,9 +39,7 @@ describe('snyk test without authentication', () => {
       env: removeAuth(project, env),
     });
 
-    expect(code).toEqual(0);
-    expect(stdout).toMatch(
-      '`snyk` requires an authenticated account. Please run `snyk auth` and try again.',
-    );
+    expect(code).toEqual(2);
+    expect(stdout).toMatch('`snyk` requires an authenticated account.');
   });
 });

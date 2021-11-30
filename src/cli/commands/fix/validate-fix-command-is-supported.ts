@@ -31,7 +31,7 @@ export async function validateFixCommandIsSupported(
   debug('Feature flag check returned: ', snykFixSupported);
 
   if (snykFixSupported.code === 401 || snykFixSupported.code === 403) {
-    throw AuthFailedError(snykFixSupported.error, snykFixSupported.code);
+    throw new AuthFailedError(snykFixSupported.error, snykFixSupported.code);
   }
 
   if (!snykFixSupported.ok) {

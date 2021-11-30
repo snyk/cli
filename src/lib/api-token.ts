@@ -1,9 +1,10 @@
 import { MissingApiTokenError } from '../lib/errors';
-
 import config from './config';
 import { config as userConfig } from './user-config';
+import { isCI } from './is-ci';
+import { MisconfiguredAuthInCI } from './errors/misconfigured-auth-in-ci-error';
 
-export function api() {
+export function api(): string | undefined {
   // note: config.TOKEN will potentially come via the environment
   return config.api || config.TOKEN || userConfig.get('api');
 }
@@ -16,16 +17,19 @@ export function getDockerToken(): string | undefined {
   return process.env.SNYK_DOCKER_TOKEN;
 }
 
-export function apiTokenExists() {
-  const configured = api();
-  if (!configured) {
+export function apiTokenExists(): string {
+  const token = api();
+  if (!token) {
+    if (isCI()) {
+      throw new MisconfiguredAuthInCI();
+    }
     throw new MissingApiTokenError();
   }
-  return configured;
+  return token;
 }
 
-export function apiOrOAuthTokenExists() {
-  const oauthToken: string | undefined = getOAuthToken();
+export function apiOrOAuthTokenExists(): string {
+  const oauthToken = getOAuthToken();
   if (oauthToken) {
     return oauthToken;
   }

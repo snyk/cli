@@ -5,7 +5,7 @@ Describe "Snyk CLI Authorization"
 
   It "fails when run in CI without token set"
     When run snyk auth
-    The output should include "Snyk is missing auth token in order to run inside CI"
+    The output should include "Provide your Snyk API token using a \"SNYK_TOKEN\" environment variable."
     The status should be failure
     # TODO: unusable with our current docker issues
     The stderr should equal ""

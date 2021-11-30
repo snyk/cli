@@ -491,7 +491,7 @@ function handleTestHttpErrorResponse(res, body) {
   switch (statusCode) {
     case 401:
     case 403:
-      err = AuthFailedError(userMessage, statusCode);
+      err = new AuthFailedError(userMessage, statusCode);
       err.innerError = body.stack;
       break;
     case 404:

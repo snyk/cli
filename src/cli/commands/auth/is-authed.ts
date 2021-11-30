@@ -1,34 +1,24 @@
-import * as snyk from '../../../lib';
 import config from '../../../lib/config';
+import { apiTokenExists } from '../../../lib/api-token';
 import { makeRequest } from '../../../lib/request';
+import { AuthFailedError } from '../../../lib/errors/authentication-failed-error';
 
-export function isAuthed() {
-  const token = snyk.config.get('api');
-  return verifyAPI(token).then((res: any) => {
-    return res.body.ok;
-  });
+export async function isAuthed(): Promise<void> {
+  const token = apiTokenExists();
+  const res = await verifyAPI(token);
+  if (!res.body.ok) {
+    throw new AuthFailedError(res.body.userMessage, res.statusCode);
+  }
 }
 
-export function verifyAPI(api) {
-  const payload = {
+export async function verifyAPI(api: string): Promise<any> {
+  const { res } = await makeRequest({
     body: {
       api,
     },
     method: 'POST',
     url: config.API + '/verify/token',
     json: true,
-  };
-
-  return new Promise((resolve, reject) => {
-    makeRequest(payload, (error, res, body) => {
-      if (error) {
-        return reject(error);
-      }
-
-      resolve({
-        res,
-        body,
-      });
-    });
   });
+  return res;
 }

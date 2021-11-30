@@ -28,7 +28,7 @@ test('setup', (t) => {
 
 test('auth shows an appropriate error message when a request times out', async (t) => {
   const failedReq = new Promise((resolve) => {
-    return resolve({ res: { statusCode: 502 } });
+    return resolve({ statusCode: 502 });
   });
   const verifyStub = sinon.stub(isAuthed, 'verifyAPI').returns(failedReq);
 
@@ -48,7 +48,7 @@ test('auth shows an appropriate error message when a request times out', async (
 test('auth shows an appropriate error message when a request fails with a user message', async (t) => {
   const userMessage = 'Oh no! The request failed';
   const failedReq = new Promise((resolve) => {
-    return resolve({ res: { statusCode: 502, body: { userMessage } } });
+    return resolve({ statusCode: 502, body: { userMessage } });
   });
   const verifyStub = sinon.stub(isAuthed, 'verifyAPI').returns(failedReq);
 

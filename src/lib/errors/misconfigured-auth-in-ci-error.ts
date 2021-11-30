@@ -1,13 +1,15 @@
 import { CustomError } from './custom-error';
 
-export function MisconfiguredAuthInCI() {
-  const errorMsg =
-    'Snyk is missing auth token in order to run inside CI. You must include ' +
-    'your API token as an environment value: `SNYK_TOKEN=12345678`';
+export class MisconfiguredAuthInCI extends CustomError {
+  private static ERROR_CODE = 401;
+  private static ERROR_STRING_CODE = 'noAuthInCI';
+  private static ERROR_MESSAGE =
+    '`snyk` requires an authenticated account. Provide your Snyk API token using a "SNYK_TOKEN" environment variable.';
 
-  const error = new CustomError(errorMsg);
-  error.code = 401;
-  error.strCode = 'noAuthInCI';
-  error.userMessage = errorMsg;
-  return error;
+  constructor() {
+    super(MisconfiguredAuthInCI.ERROR_MESSAGE);
+    this.code = MisconfiguredAuthInCI.ERROR_CODE;
+    this.strCode = MisconfiguredAuthInCI.ERROR_STRING_CODE;
+    this.userMessage = MisconfiguredAuthInCI.ERROR_MESSAGE;
+  }
 }

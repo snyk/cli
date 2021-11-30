@@ -152,7 +152,7 @@ async function monitorDependencies(
         });
       } catch (error) {
         if (error.code === 401) {
-          throw AuthFailedError();
+          throw new AuthFailedError();
         }
         if (error.code >= 400 && error.code < 500) {
           throw new MonitorError(error.code, error.message);

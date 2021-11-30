@@ -1,6 +1,5 @@
 import * as debugModule from 'debug';
 const debug = debugModule('snyk');
-
 import * as path from 'path';
 import * as inquirer from '@snyk/inquirer';
 import * as fs from 'fs';
@@ -10,7 +9,6 @@ import * as url from 'url';
 const cloneDeep = require('lodash.clonedeep');
 const get = require('lodash.get');
 import { exec } from 'child_process';
-import { apiTokenExists } from '../../../lib/api-token';
 import * as auth from '../auth/is-authed';
 import getVersion from '../version';
 import * as allPrompts from './prompts';
@@ -28,7 +26,6 @@ import npm, { getVersion as npmGetVersion } from '../../../lib/npm';
 import * as detect from '../../../lib/detect';
 import * as plugins from '../../../lib/plugins';
 import { ModuleInfo as moduleInfo } from '../../../lib/module-info';
-import { MisconfiguredAuthInCI } from '../../../lib/errors/misconfigured-auth-in-ci-error';
 import { MissingTargetFileError } from '../../../lib/errors/missing-targetfile-error';
 import * as pm from '../../../lib/package-managers';
 import { icon, color } from '../../../lib/theme';
@@ -102,13 +99,8 @@ async function processWizardFlow(options) {
   debug(message);
   const policyFile = await loadOrCreatePolicyFile(options);
 
-  const authed = await auth.isAuthed();
-  analytics.add('inline-auth', !authed);
-  if (!authed && isCI()) {
-    throw MisconfiguredAuthInCI();
-  }
+  await auth.isAuthed();
 
-  apiTokenExists();
   const cliIgnoreAuthorization = await authorization.actionAllowed(
     'cliIgnore',
     options,
