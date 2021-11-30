@@ -42,6 +42,7 @@ import {
   UnsupportedEntitlementPullError,
 } from './oci-pull';
 import { isValidUrl } from './url-utils';
+import chalk from 'chalk';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -69,6 +70,14 @@ export async function test(
     const isOCIRegistryURLProvided = checkOCIRegistryURLProvided(
       iacOrgSettings,
     );
+
+    if (isOCIRegistryURLProvided || customRulesPath) {
+      console.log(
+        chalk.hex('#ff9b00')(
+          'Using custom rules to generate misconfigurations.',
+        ),
+      );
+    }
 
     if (isOCIRegistryURLProvided && customRulesPath) {
       throw new FailedToExecuteCustomRulesError();
@@ -249,7 +258,7 @@ export async function pullIaCCustomRules(
       );
     } else if (err.statusCode === 404) {
       throw new FailedToPullCustomBundleError(
-        'The remote repository could not be found. Please check the provided URL.',
+        'The remote repository could not be found. Please check the provided registry URL.',
       );
     } else if (err instanceof InvalidManifestSchemaVersionError) {
       throw new FailedToPullCustomBundleError(err.message);
@@ -268,8 +277,10 @@ export class FailedToPullCustomBundleError extends CustomError {
     super(message || 'Could not pull custom bundle');
     this.code = IaCErrorCodes.FailedToPullCustomBundleError;
     this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `${message ? message + ' ' : ''}
-    We were unable to download the custom bundle to the disk. Please ensure access to the remote Registry and validate you have provided all the right parameters.`;
+    this.userMessage =
+      `${message ? message + ' ' : ''}` +
+      '\nWe were unable to download the custom bundle to the disk. Please ensure access to the remote Registry and validate you have provided all the right parameters.' +
+      '\nSee documentation on troubleshooting: https://docs.snyk.io/products/snyk-infrastructure-as-code/custom-rules/use-IaC-custom-rules-with-CLI/using-a-remote-custom-rules-bundle#troubleshooting';
   }
 }
 

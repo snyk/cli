@@ -23,6 +23,9 @@ describe('iac test --rules', () => {
     );
     expect(exitCode).toBe(1);
 
+    expect(stdout).toContain(
+      'Using custom rules to generate misconfigurations.',
+    );
     expect(stdout).toContain('Testing ./iac/terraform/sg_open_ssh.tf');
     expect(stdout).toContain('Infrastructure as code issues:');
     expect(stdout).toContain('Missing tags');
@@ -156,6 +159,9 @@ describe('custom rules pull from a remote OCI registry', () => {
       expect(SNYK_CFG_OCI_REGISTRY_PASSWORD).toBeDefined();
       expect(exitCode).toBe(1);
 
+      expect(stdout).toContain(
+        'Using custom rules to generate misconfigurations.',
+      );
       expect(stdout).toContain('Testing ./iac/terraform/sg_open_ssh.tf');
       expect(stdout).toContain('Infrastructure as code issues:');
       expect(stdout).toContain('Missing tags');
