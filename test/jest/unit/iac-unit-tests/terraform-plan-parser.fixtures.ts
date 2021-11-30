@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
 
 export enum PlanOutputCase {

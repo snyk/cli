@@ -1,6 +1,6 @@
 import { test } from 'tap';
 const protect = require('../src/lib/protect');
-import * as fs from 'fs';
+import fs from 'fs';
 
 test('npm deduped packages are found and patched correctly', async (t) => {
   let answers;

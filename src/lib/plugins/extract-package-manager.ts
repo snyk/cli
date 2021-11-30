@@ -1,4 +1,4 @@
-import * as cliInterface from '@snyk/cli-interface';
+import cliInterface from '@snyk/cli-interface';
 import { ScannedProjectCustom } from './get-multi-plugin-result';
 import { SupportedPackageManagers } from '../package-managers';
 

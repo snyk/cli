@@ -1,4 +1,4 @@
-import * as pathLib from 'path';
+import pathLib from 'path';
 import { Identity } from '../../types';
 
 export function formatDisplayName(

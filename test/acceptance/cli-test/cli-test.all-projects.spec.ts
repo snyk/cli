@@ -1,6 +1,6 @@
-import * as path from 'path';
-import * as sinon from 'sinon';
-import * as depGraphLib from '@snyk/dep-graph';
+import path from 'path';
+import sinon from 'sinon';
+import depGraphLib from '@snyk/dep-graph';
 import { CommandResult } from '../../../src/cli/commands/types';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { icon } from '../../../src/lib/theme';

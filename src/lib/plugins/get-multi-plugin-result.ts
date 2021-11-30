@@ -1,9 +1,9 @@
 const cloneDeep = require('lodash.clonedeep');
-import * as path from 'path';
-import * as cliInterface from '@snyk/cli-interface';
+import path from 'path';
+import cliInterface from '@snyk/cli-interface';
 import chalk from 'chalk';
 import { icon } from '../theme';
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 
 import { TestOptions, Options, MonitorOptions } from '../types';
 import { detectPackageManagerFromFile } from '../detect';

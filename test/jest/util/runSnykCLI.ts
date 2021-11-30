@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 import { runCommand, RunCommandResult, RunCommandOptions } from './runCommand';
 
 const cwd = process.cwd();

@@ -1,5 +1,5 @@
-import * as debugLib from 'debug';
-import * as ora from 'ora';
+import debugLib from 'debug';
+import ora from 'ora';
 
 import { EntityToFix, FixOptions } from '../../../../types';
 import { checkPackageToolSupported } from '../../../package-tool-supported';

@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import * as Proxyquire from 'proxyquire';
+import Proxyquire from 'proxyquire';
 const proxyquire = Proxyquire.noPreserveCache();
 
 test('getInfo returns null for isFromContainer=true', async (t) => {

@@ -1,7 +1,7 @@
-import * as pathLib from 'path';
-import * as toml from 'toml';
+import pathLib from 'path';
+import toml from 'toml';
 
-import * as debugLib from 'debug';
+import debugLib from 'debug';
 
 import { EntityToFix } from '../../../../../types';
 

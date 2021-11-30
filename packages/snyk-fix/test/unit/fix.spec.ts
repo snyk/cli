@@ -1,4 +1,4 @@
-import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
+import pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
 
 import * as snykFix from '../../src';
 import { generateEntityToFix } from '../helpers/generate-entity-to-fix';

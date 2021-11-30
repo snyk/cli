@@ -1,7 +1,7 @@
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { mkdir, readFileSync } from 'fs';
-import * as graphlib from '@snyk/graphlib';
+import graphlib from '@snyk/graphlib';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 
 export function silenceLog() {

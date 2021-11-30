@@ -5,9 +5,9 @@ import { getPatchedLodash } from '../util/getPatchedLodash';
 import { runCommand } from '../util/runCommand';
 import * as http from '../../src/lib/http';
 import * as analytics from '../../src/lib/analytics';
-import * as path from 'path';
-import * as os from 'os';
-import * as fse from 'fs-extra';
+import path from 'path';
+import os from 'os';
+import fse from 'fs-extra';
 
 jest.setTimeout(1000 * 60);
 

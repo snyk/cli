@@ -1,7 +1,7 @@
-import * as tap from 'tap';
+import tap from 'tap';
 import * as cli from '../../src/cli/commands';
 import { fakeServer } from './fake-server';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import * as snyk from '../../src/lib';
 import { getWorkspaceJSON, chdirWorkspaces } from './workspace-helper';
 

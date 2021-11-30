@@ -1,4 +1,4 @@
-import * as pathLib from 'path';
+import pathLib from 'path';
 import { getDisplayPath } from '../../../../../../src/cli/commands/fix/get-display-path';
 
 describe('getDisplayPath', () => {

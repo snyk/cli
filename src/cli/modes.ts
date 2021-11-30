@@ -1,4 +1,4 @@
-import * as abbrev from 'abbrev';
+import abbrev from 'abbrev';
 import { UnsupportedOptionCombinationError, CustomError } from '../lib/errors';
 
 interface ModeData {

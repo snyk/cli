@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { CommandResult } from '../../../src/cli/commands/types';
 import alerts = require('../../../src/lib/alerts');

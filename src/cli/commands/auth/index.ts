@@ -1,7 +1,7 @@
-import * as url from 'url';
-import * as open from 'open';
+import url from 'url';
+import open from 'open';
 import { v4 as uuidv4 } from 'uuid';
-import * as Debug from 'debug';
+import Debug from 'debug';
 import { Spinner } from 'cli-spinner';
 import * as snyk from '../../../lib';
 import { verifyAPI } from './is-authed';

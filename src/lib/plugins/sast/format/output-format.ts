@@ -1,5 +1,5 @@
-import * as Sarif from 'sarif';
-import * as Debug from 'debug';
+import Sarif from 'sarif';
+import Debug from 'debug';
 import chalk from 'chalk';
 import { icon, color } from '../../../theme';
 import { colorTextBySeverity, SEVERITY } from '../../../snyk-test/common';

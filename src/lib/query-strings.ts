@@ -1,5 +1,5 @@
-import * as url from 'url';
-import * as os from 'os';
+import url from 'url';
+import os from 'os';
 import { ArgsOptions } from './../cli/args';
 import { isDocker } from './is-docker';
 import { getIntegrationName, getIntegrationVersion } from './analytics/sources';

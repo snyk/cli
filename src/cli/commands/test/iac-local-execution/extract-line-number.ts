@@ -7,7 +7,7 @@ import {
 } from '@snyk/cloud-config-parser';
 import { UnsupportedFileTypeError } from './file-parser';
 import * as analytics from '../../../../lib/analytics';
-import * as Debug from 'debug';
+import Debug from 'debug';
 import { getErrorStringCode } from './error-utils';
 const debug = Debug('iac-extract-line-number');
 

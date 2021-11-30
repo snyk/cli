@@ -1,4 +1,4 @@
-import * as policy from 'snyk-policy';
+import policy from 'snyk-policy';
 import { display } from '../../lib/display-policy';
 import {
   FailedToLoadPolicyError,

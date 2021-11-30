@@ -1,8 +1,8 @@
 import { test } from 'tap';
 import * as utils from '../src/lib/monitor/utils';
 import { ScannedProject, DepTree } from '@snyk/cli-interface/legacy/common';
-import * as depGraphLib from '@snyk/dep-graph';
-import * as fs from 'fs';
+import depGraphLib from '@snyk/dep-graph';
+import fs from 'fs';
 import { MonitorMeta } from '../src/lib/types';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 

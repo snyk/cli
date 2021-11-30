@@ -1,6 +1,6 @@
-import * as fs from 'fs';
-import * as pathLib from 'path';
-import * as debugLib from 'debug';
+import fs from 'fs';
+import pathLib from 'path';
+import debugLib from 'debug';
 import { isLocalFolder, localFileSuppliedButNotFound } from '../detect';
 import { CustomError } from '../errors';
 import { validateK8sFile, makeValidateTerraformRequest } from './iac-parser';
@@ -21,7 +21,7 @@ import {
   IllegalTerraformFileError,
 } from '../errors/invalid-iac-file';
 import { Options, TestOptions, IacFileInDirectory } from '../types';
-import * as Queue from 'promise-queue';
+import Queue from 'promise-queue';
 
 const debug = debugLib('snyk-detect-iac');
 

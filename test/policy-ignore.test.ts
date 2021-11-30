@@ -1,7 +1,7 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import { test } from 'tap';
-import * as path from 'path';
-import * as policy from 'snyk-policy';
+import path from 'path';
+import policy from 'snyk-policy';
 
 import { extendExpiries } from './utils';
 

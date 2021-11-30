@@ -1,6 +1,6 @@
-import * as Debug from 'debug';
-import * as snykFix from '@snyk/fix';
-import * as ora from 'ora';
+import Debug from 'debug';
+import snykFix from '@snyk/fix';
+import ora from 'ora';
 
 import { MethodArgs } from '../../args';
 import * as snyk from '../../../lib';

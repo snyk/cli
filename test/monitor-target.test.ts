@@ -1,9 +1,9 @@
 import { test } from 'tap';
-import * as requestLib from 'needle';
-import * as path from 'path';
+import requestLib from 'needle';
+import path from 'path';
 
 const isEmpty = require('lodash.isempty');
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 import * as cli from '../src/cli/commands';
 import subProcess = require('../src/lib/sub-process');

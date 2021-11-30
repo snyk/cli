@@ -1,14 +1,14 @@
-import * as sinon from 'sinon';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as needle from 'needle';
-import * as Ajv from 'ajv';
+import sinon from 'sinon';
+import fs from 'fs';
+import path from 'path';
+import needle from 'needle';
+import Ajv from 'ajv';
 import * as sarifSchema from '../../support/sarif-schema-2.1.0';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
-import * as snykPolicy from 'snyk-policy';
+import snykPolicy from 'snyk-policy';
 
 const readJSON = (jsonPath: string) => {
   return JSON.parse(

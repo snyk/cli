@@ -1,5 +1,5 @@
-import * as snykPolicyLib from 'snyk-policy';
-import * as debugModule from 'debug';
+import snykPolicyLib from 'snyk-policy';
+import debugModule from 'debug';
 import { PackageExpanded } from 'snyk-resolve-deps';
 
 import { pluckPolicies } from '.';

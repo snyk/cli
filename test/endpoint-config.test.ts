@@ -1,5 +1,5 @@
 import { test, tearDown } from 'tap';
-import * as Proxyquire from 'proxyquire';
+import Proxyquire from 'proxyquire';
 const proxyquire = Proxyquire.noPreserveCache();
 import { InvalidEndpointConfigError } from '../src/lib/errors/invalid-endpoint-config-error';
 

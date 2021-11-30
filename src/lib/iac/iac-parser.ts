@@ -1,5 +1,5 @@
 //TODO(orka): take out into a new lib
-import * as debugLib from 'debug';
+import debugLib from 'debug';
 import { parseFileContent as parseYAMLOrJSON } from '@snyk/cloud-config-parser';
 import {
   IllegalIacFileErrorMsg,

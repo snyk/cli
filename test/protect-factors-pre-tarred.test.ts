@@ -1,6 +1,6 @@
 import { test } from 'tap';
 import { loadFromText } from 'snyk-policy';
-import * as fs from 'fs';
+import fs from 'fs';
 import { loadJson } from './utils';
 
 test('pre-tarred packages can be ignored', async (t) => {

@@ -1,4 +1,4 @@
-import * as debugLib from 'debug';
+import debugLib from 'debug';
 
 import { PluginFixResponse } from '../../../../types';
 import {

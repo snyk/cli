@@ -1,9 +1,9 @@
 import { AnalyticsPayload, ProtectResult } from './types';
 import { postJson } from './http';
 import { getApiBaseUrl } from './snyk-api';
-import * as os from 'os';
+import os from 'os';
 import { readFileSync, existsSync } from 'fs';
-import * as path from 'path';
+import path from 'path';
 
 function getVersion(): string {
   return JSON.parse(

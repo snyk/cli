@@ -1,6 +1,6 @@
-import * as pathLib from 'path';
-import * as fs from 'fs';
-import * as snykFix from '@snyk/fix';
+import pathLib from 'path';
+import fs from 'fs';
+import snykFix from '@snyk/fix';
 
 import fix from '../../../../../../src/cli/commands/fix';
 import * as snyk from '../../../../../../src/lib';

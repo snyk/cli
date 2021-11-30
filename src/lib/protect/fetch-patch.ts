@@ -1,6 +1,6 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import * as analytics from '../analytics';
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 import { makeRequest } from '../request';
 
 const debug = debugModule('snyk:fetch-patch');

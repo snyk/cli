@@ -1,4 +1,4 @@
-import * as cloneDeep from 'lodash.clonedeep';
+import cloneDeep from 'lodash.clonedeep';
 import { DepGraph } from '@snyk/dep-graph';
 import { ArgsOptions, MethodArgs } from '../cli/args';
 

@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import * as request from '../../../src/lib/request/promise';
-import * as dockerPlugin from 'snyk-docker-plugin';
+import dockerPlugin from 'snyk-docker-plugin';
 
 import { Options } from '../../../src/lib/types';
 import * as ecosystems from '../../../src/lib/ecosystems';

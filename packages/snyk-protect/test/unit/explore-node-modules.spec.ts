@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 import { findPhysicalModules } from '../../src/lib/explore-node-modules';
 
 describe('findPhysicalModules', () => {

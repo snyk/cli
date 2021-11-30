@@ -7,7 +7,7 @@ import {
   PolicyMetadata,
   TestMeta,
 } from './types';
-import * as path from 'path';
+import path from 'path';
 import { SEVERITY, SEVERITIES } from '../../../../lib/snyk-test/common';
 import { IacProjectType } from '../../../../lib/iac/constants';
 import { CustomError } from '../../../../lib/errors';

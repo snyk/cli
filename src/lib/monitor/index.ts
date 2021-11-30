@@ -1,11 +1,11 @@
-import * as Debug from 'debug';
-import * as path from 'path';
-import * as depGraphLib from '@snyk/dep-graph';
+import Debug from 'debug';
+import path from 'path';
+import depGraphLib from '@snyk/dep-graph';
 import * as snyk from '..';
 import { apiOrOAuthTokenExists, getAuthHeader } from '../api-token';
 import { makeRequest } from '../request';
 import config from '../config';
-import * as os from 'os';
+import os from 'os';
 const get = require('lodash.get');
 import { isCI } from '../is-ci';
 import * as analytics from '../analytics';

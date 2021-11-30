@@ -1,4 +1,4 @@
-import * as policy from 'snyk-policy';
+import policy from 'snyk-policy';
 import { test } from 'tap';
 import * as snyk from '../src/lib';
 const dir1 = __dirname + '/fixtures/qs-package';

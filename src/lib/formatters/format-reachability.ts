@@ -1,4 +1,4 @@
-import * as wrap from 'wrap-ansi';
+import wrap from 'wrap-ansi';
 import chalk from 'chalk';
 
 import {

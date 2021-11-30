@@ -1,7 +1,7 @@
-import * as debugLib from 'debug';
-import * as pMap from 'p-map';
-import * as ora from 'ora';
-import * as chalk from 'chalk';
+import debugLib from 'debug';
+import pMap from 'p-map';
+import ora from 'ora';
+import chalk from 'chalk';
 
 import * as outputFormatter from './lib/output-formatters/show-results-summary';
 import { loadPlugin } from './plugins/load-plugin';

@@ -1,6 +1,6 @@
-import * as fs from 'fs';
+import fs from 'fs';
 const orderBy = require('lodash.orderby');
-import * as path from 'path';
+import path from 'path';
 import stripAnsi from 'strip-ansi';
 
 import { groupVulnerabilities } from '../../../../../src/lib/formatters/test/format-test-results';

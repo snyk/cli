@@ -1,5 +1,5 @@
-import * as fse from 'fs-extra';
-import * as path from 'path';
+import fse from 'fs-extra';
+import path from 'path';
 import { fetchPatches, getAllPatches } from '../../src/lib/fetch-patches';
 import { VulnPatches } from '../../src/lib/types';
 

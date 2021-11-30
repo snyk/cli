@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 import {
   serializeCallGraphWithMetrics,

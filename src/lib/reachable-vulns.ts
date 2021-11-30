@@ -1,4 +1,4 @@
-import * as graphlib from '@snyk/graphlib';
+import graphlib from '@snyk/graphlib';
 import { CallGraph } from '@snyk/cli-interface/legacy/common';
 
 import {

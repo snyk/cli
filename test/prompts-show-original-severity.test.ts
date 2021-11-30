@@ -1,6 +1,6 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import { test } from 'tap';
-import * as path from 'path';
+import path from 'path';
 import { getPrompts } from '../src/cli/commands/protect/prompts';
 
 test('wizard prompts should show original severity', async (t) => {

@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import * as debugLib from 'debug';
+import debugLib from 'debug';
 import { getCodeAnalysisAndParseResults } from './analysis';
 import { validateCodeTest } from './validate';
 import {

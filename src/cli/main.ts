@@ -1,5 +1,5 @@
-import * as Debug from 'debug';
-import * as pathLib from 'path';
+import Debug from 'debug';
+import pathLib from 'path';
 
 // import args as a first internal module
 import { args as argsLib, Args, ArgsOptions } from './args';
@@ -18,7 +18,7 @@ import { TestCommandResult } from './commands/types';
 import { copy } from './copy';
 import { spinner } from '../lib/spinner';
 import * as errors from '../lib/errors/legacy-errors';
-import * as ansiEscapes from 'ansi-escapes';
+import ansiEscapes from 'ansi-escapes';
 
 import { isPathToPackageFile } from '../lib/detect';
 import {

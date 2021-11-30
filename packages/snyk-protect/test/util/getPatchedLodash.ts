@@ -1,5 +1,5 @@
-import * as fse from 'fs-extra';
-import * as path from 'path';
+import fse from 'fs-extra';
+import path from 'path';
 
 const getPatchedLodash = (): Promise<string> => {
   const patchedLodashPath = path.resolve(

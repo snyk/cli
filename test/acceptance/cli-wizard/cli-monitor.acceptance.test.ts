@@ -1,5 +1,5 @@
-import * as tap from 'tap';
-import * as fs from 'fs';
+import tap from 'tap';
+import fs from 'fs';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 

@@ -1,7 +1,7 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import { test } from 'tap';
-import * as path from 'path';
-import * as tryRequire from 'snyk-try-require';
+import path from 'path';
+import tryRequire from 'snyk-try-require';
 
 import interactive = require('./wizard-instrumented');
 import dedupePatches = require('../src/lib/protect/dedupe-patches');

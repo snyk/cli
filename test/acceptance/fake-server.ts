@@ -1,6 +1,6 @@
-import * as express from 'express';
-import * as http from 'http';
-import * as bodyParser from 'body-parser';
+import express from 'express';
+import http from 'http';
+import bodyParser from 'body-parser';
 
 const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([['cliFailFast', false]]);

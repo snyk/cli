@@ -1,5 +1,5 @@
-import * as mockFs from 'mock-fs';
-import * as path from 'path';
+import mockFs from 'mock-fs';
+import path from 'path';
 import {
   scanFiles,
   clearPolicyEngineCache,

@@ -1,6 +1,6 @@
 import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 

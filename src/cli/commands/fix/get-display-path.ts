@@ -1,4 +1,4 @@
-import * as pathLib from 'path';
+import pathLib from 'path';
 
 import { isLocalFolder } from '../../../lib/detect';
 

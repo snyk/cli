@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import { showFixTip } from '../../../../../src/lib/formatters/show-fix-tip';
 import { SupportedProjectTypes } from '../../../../../src/lib/types';
 import stripAnsi from 'strip-ansi';

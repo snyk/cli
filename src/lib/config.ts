@@ -1,7 +1,7 @@
-import * as snykConfig from 'snyk-config';
+import { loadConfig } from 'snyk-config';
 import { InvalidEndpointConfigError } from './errors/invalid-endpoint-config-error';
 import { config as userConfig } from './user-config';
-import * as url from 'url';
+import url from 'url';
 
 const DEFAULT_TIMEOUT = 5 * 60; // in seconds
 interface Config {
@@ -20,9 +20,7 @@ interface Config {
 }
 
 // TODO: fix the types!
-const config = (snykConfig.loadConfig(
-  __dirname + '/../..',
-) as unknown) as Config;
+const config = (loadConfig(__dirname + '/../..') as unknown) as Config;
 
 // allow user config override of the API endpoint
 const endpoint = userConfig.get('endpoint');

@@ -1,4 +1,4 @@
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 const debug = debugModule('snyk');
 const cloneDeep = require('lodash.clonedeep');
 

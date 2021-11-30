@@ -1,5 +1,5 @@
-import * as createDebug from 'debug';
-import * as needle from 'needle';
+import createDebug from 'debug';
+import needle from 'needle';
 import stripAnsi from 'strip-ansi';
 import { getAuthHeader, someTokenExists } from '../api-token';
 import config from '../config';

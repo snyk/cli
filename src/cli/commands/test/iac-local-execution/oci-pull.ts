@@ -1,6 +1,6 @@
-import * as registryClient from '@snyk/docker-registry-v2-client';
+import registryClient from '@snyk/docker-registry-v2-client';
 import { promises as fs } from 'fs';
-import * as path from 'path';
+import path from 'path';
 import {
   IaCErrorCodes,
   ImageManifest,
@@ -11,7 +11,7 @@ import {
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { LOCAL_POLICY_ENGINE_DIR } from './local-cache';
-import * as Debug from 'debug';
+import Debug from 'debug';
 import { initLocalCache } from './measurable-methods';
 import { createIacDir } from './file-utils';
 const debug = Debug('iac-oci-pull');

@@ -1,4 +1,4 @@
-import * as Debug from 'debug';
+import Debug from 'debug';
 import { exec } from 'child_process';
 import { CustomError } from './errors';
 

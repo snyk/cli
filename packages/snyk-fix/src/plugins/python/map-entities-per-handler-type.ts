@@ -1,4 +1,4 @@
-import * as debugLib from 'debug';
+import debugLib from 'debug';
 
 import { EntityToFix, WithUserMessage } from '../../types';
 import { getHandlerType } from './get-handler-type';

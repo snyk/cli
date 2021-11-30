@@ -1,7 +1,7 @@
-import * as abbrev from 'abbrev';
+import abbrev from 'abbrev';
 import { MethodResult } from './commands/types';
 
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 import { parseMode, displayModeHelp } from './modes';
 import {
   SupportedCliCommands,

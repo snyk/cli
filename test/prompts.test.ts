@@ -1,9 +1,9 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import { test } from 'tap';
 const flattenDeep = require('lodash.flattendeep');
-import * as path from 'path';
-import * as sinon from 'sinon';
-import * as inquirer from '@snyk/inquirer';
+import path from 'path';
+import sinon from 'sinon';
+import inquirer from '@snyk/inquirer';
 
 import wizard = require('../src/cli/commands/protect/wizard');
 

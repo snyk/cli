@@ -1,7 +1,7 @@
-import * as pathLib from 'path';
-import * as debugLib from 'debug';
+import pathLib from 'path';
+import debugLib from 'debug';
 
-import * as poetryFix from '@snyk/fix-poetry';
+import poetryFix from '@snyk/fix-poetry';
 
 import {
   EntityToFix,

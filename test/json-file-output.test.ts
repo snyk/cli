@@ -1,6 +1,6 @@
-import * as tap from 'tap';
+import tap from 'tap';
 const fs = require('fs');
-import * as pathLib from 'path';
+import pathLib from 'path';
 import { gte } from 'semver';
 const osName = require('os-name');
 

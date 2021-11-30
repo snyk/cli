@@ -1,4 +1,4 @@
-import * as _debug from 'debug';
+import _debug from 'debug';
 import { DepGraph, legacy } from '@snyk/dep-graph';
 
 import { DepTree } from './types';

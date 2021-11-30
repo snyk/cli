@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import * as tar from 'tar';
-import * as path from 'path';
-import * as crypto from 'crypto';
+import fs from 'fs';
+import tar from 'tar';
+import path from 'path';
+import crypto from 'crypto';
 import {
   FailedToInitLocalCacheError,
   LOCAL_POLICY_ENGINE_DIR,

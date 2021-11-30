@@ -1,6 +1,6 @@
-import * as policy from 'snyk-policy';
+import policy from 'snyk-policy';
 import { loadJson } from '../../utils';
-import * as path from 'path';
+import path from 'path';
 
 it('test sensibly bails if gets an old .snyk format', async () => {
   const vulns2 = loadJson(

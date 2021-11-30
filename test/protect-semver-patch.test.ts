@@ -1,7 +1,7 @@
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 const debug = debugModule('snyk');
 const protect = require('../src/lib/protect');
-import * as path from 'path';
+import path from 'path';
 import { test } from 'tap';
 const vulns = require('./fixtures/hoek@4.2.0-vuln.json').vulnerabilities;
 const unpatchableVulns = require('./fixtures/hoek@4.2.0-nopatch.json')

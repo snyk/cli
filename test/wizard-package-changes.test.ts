@@ -1,6 +1,6 @@
-import * as tap from 'tap';
-import * as _sinon from 'sinon';
-import * as proxyquire from 'proxyquire';
+import tap from 'tap';
+import _sinon from 'sinon';
+import proxyquire from 'proxyquire';
 import * as detect from '../src/lib/detect';
 const test = tap.test;
 const sinon = _sinon.createSandbox();

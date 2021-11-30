@@ -1,4 +1,4 @@
-import * as pathLib from 'path';
+import pathLib from 'path';
 
 import { EntityToFix } from '../../types';
 import { SUPPORTED_HANDLER_TYPES } from './supported-handler-types';

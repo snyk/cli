@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import * as proxyquire from 'proxyquire';
+import proxyquire from 'proxyquire';
 
 let analytics;
 

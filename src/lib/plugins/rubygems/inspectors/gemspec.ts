@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 import { Files, tryGetSpec } from './try-get-spec';
 import { Spec } from './index';
 

@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import { extractPatchMetadata } from './snyk-file';
 import { applyPatchToFile } from './patch';
 import { findPhysicalModules } from './explore-node-modules';

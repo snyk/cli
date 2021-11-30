@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import stripAnsi from 'strip-ansi';
 
 import { displayResult } from '../../../../../../src/lib/formatters/test/display-result';

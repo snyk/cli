@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import * as fs from 'fs';
-import * as Debug from 'debug';
-import * as pathUtil from 'path';
+import fs from 'fs';
+import Debug from 'debug';
+import pathUtil from 'path';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { validateOptions } from '../../../lib/options-validator';
 

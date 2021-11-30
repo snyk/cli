@@ -1,8 +1,8 @@
-import * as sinon from 'sinon';
-import * as get from 'lodash.get';
-import * as isObject from 'lodash.isobject';
-import * as path from 'path';
-import * as depGraphLib from '@snyk/dep-graph';
+import sinon from 'sinon';
+import get from 'lodash.get';
+import isObject from 'lodash.isobject';
+import path from 'path';
+import depGraphLib from '@snyk/dep-graph';
 
 interface AcceptanceTests {
   language: string;

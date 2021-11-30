@@ -1,5 +1,5 @@
 import { test } from 'tap';
-import * as path from 'path';
+import path from 'path';
 import * as sln from '../../src/lib/sln';
 
 test('parseFoldersFromSln when passed an existent filename', (t) => {

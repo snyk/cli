@@ -1,10 +1,10 @@
-import * as path from 'path';
-import * as fs from 'fs';
-import * as sinon from 'sinon';
+import path from 'path';
+import fs from 'fs';
+import sinon from 'sinon';
 import * as subProcess from '../../../src/lib/sub-process';
 
 import { AcceptanceTests } from './cli-test.acceptance.test';
-import * as depGraphLib from '@snyk/dep-graph';
+import depGraphLib from '@snyk/dep-graph';
 import { createCallGraph } from '../../utils';
 
 /**

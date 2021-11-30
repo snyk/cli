@@ -1,5 +1,5 @@
-import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
-import * as poetryFix from '@snyk/fix-poetry';
+import pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
+import poetryFix from '@snyk/fix-poetry';
 
 import { checkPackageToolSupported } from '../../../src/plugins/package-tool-supported';
 

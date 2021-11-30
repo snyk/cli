@@ -1,5 +1,5 @@
 import * as cli from '../src/cli/commands/';
-import * as tap from 'tap';
+import tap from 'tap';
 
 const urls = [
   // a repo with no dependencies so it will never be vulnerable (2017-05-15)

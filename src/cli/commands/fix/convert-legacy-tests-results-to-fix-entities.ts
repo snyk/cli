@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as pathLib from 'path';
+import fs from 'fs';
+import pathLib from 'path';
 import { convertLegacyTestResultToNew } from './convert-legacy-test-result-to-new';
 import { convertLegacyTestResultToScanResult } from './convert-legacy-test-result-to-scan-result';
 import { TestResult } from '../../../lib/snyk-test/legacy';

@@ -1,7 +1,7 @@
-import * as depcheck from 'depcheck';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as glob from 'glob';
+import depcheck from 'depcheck';
+import fs from 'fs';
+import path from 'path';
+import glob from 'glob';
 import { config } from '../check-dependencies.config';
 import { icon } from '../src/lib/theme';
 

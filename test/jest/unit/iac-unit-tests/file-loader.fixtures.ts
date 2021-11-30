@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 
 const fileContent = 'dont-care';
 const mixedDirectory = path.join(__dirname, 'mixed');

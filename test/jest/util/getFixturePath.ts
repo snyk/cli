@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 
 /**
  * Gets the path to a fixture.

@@ -1,4 +1,4 @@
-import * as debugLib from 'debug';
+import debugLib from 'debug';
 
 import { DependencyPins, FixChangesSummary } from '../../../../../types';
 import { generatePins } from './generate-pins';

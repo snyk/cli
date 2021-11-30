@@ -1,5 +1,5 @@
 const merge = require('lodash.merge');
-import * as Debug from 'debug';
+import Debug from 'debug';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 
 const debug = Debug('snyk-module-info');

@@ -5,7 +5,7 @@ import {
   getContainerName,
   isContainer,
 } from '../container';
-import * as depGraphLib from '@snyk/dep-graph';
+import depGraphLib from '@snyk/dep-graph';
 import { MonitorMeta } from '../types';
 import { PluginMetadata } from '@snyk/cli-interface/legacy/plugin';
 

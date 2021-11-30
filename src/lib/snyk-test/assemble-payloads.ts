@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 import config from '../config';
 import { isCI } from '../is-ci';
 import { getPlugin } from '../ecosystems';

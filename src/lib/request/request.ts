@@ -1,16 +1,16 @@
 import { debug as debugModule } from 'debug';
-import * as needle from 'needle';
+import needle from 'needle';
 import { parse, format } from 'url';
-import * as querystring from 'querystring';
-import * as zlib from 'zlib';
+import querystring from 'querystring';
+import zlib from 'zlib';
 import config from '../config';
 import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
 import { Global } from '../../cli/args';
 import { Payload } from './types';
 import { getVersion } from '../version';
-import * as https from 'https';
-import * as http from 'http';
+import https from 'https';
+import http from 'http';
 
 const debug = debugModule('snyk:req');
 const snykDebug = debugModule('snyk');

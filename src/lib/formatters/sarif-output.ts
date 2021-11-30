@@ -1,4 +1,4 @@
-import * as sarif from 'sarif';
+import sarif from 'sarif';
 import { TestResult } from '../snyk-test/legacy';
 const upperFirst = require('lodash.upperfirst');
 

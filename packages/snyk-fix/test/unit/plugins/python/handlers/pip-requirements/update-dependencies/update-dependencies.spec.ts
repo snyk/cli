@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import * as path from 'path';
+import path from 'path';
 import { updateDependencies } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies';
 import { parseRequirementsFile } from '../../../../../../../src/plugins/python/handlers/pip-requirements/update-dependencies/requirements-file-parser';
 

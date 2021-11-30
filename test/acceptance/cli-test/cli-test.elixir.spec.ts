@@ -1,6 +1,6 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { AcceptanceTests } from './cli-test.acceptance.test';
-import * as depGraphLib from '@snyk/dep-graph';
+import depGraphLib from '@snyk/dep-graph';
 
 export const ElixirTests: AcceptanceTests = {
   language: 'Elixir',

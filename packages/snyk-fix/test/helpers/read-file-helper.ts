@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as pathLib from 'path';
+import fs from 'fs';
+import pathLib from 'path';
 
 export function readFileHelper(workspacesPath: string, path: string): string {
   // because we write multiple time the file

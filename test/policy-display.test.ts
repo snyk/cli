@@ -1,6 +1,6 @@
-import * as policy from 'snyk-policy';
+import policy from 'snyk-policy';
 import { test } from 'tap';
-import * as fs from 'fs';
+import fs from 'fs';
 import { display } from '../src/lib/display-policy';
 import stripAnsi from 'strip-ansi';
 import { URL } from 'url';

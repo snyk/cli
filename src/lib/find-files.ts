@@ -1,9 +1,9 @@
-import * as fs from 'fs';
-import * as pathLib from 'path';
+import fs from 'fs';
+import pathLib from 'path';
 const sortBy = require('lodash.sortby');
 const groupBy = require('lodash.groupby');
 import { detectPackageManagerFromFile } from './detect';
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 const debug = debugModule('snyk:find-files');
 
 // TODO: use util.promisify once we move to node 8

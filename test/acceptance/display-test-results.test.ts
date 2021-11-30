@@ -1,9 +1,9 @@
-import * as tap from 'tap';
-import * as sinon from 'sinon';
-import * as fs from 'fs';
+import tap from 'tap';
+import sinon from 'sinon';
+import fs from 'fs';
 
 import config from '../../src/lib/config';
-import * as url from 'url';
+import url from 'url';
 import * as cli from '../../src/cli/commands';
 import * as snyk from '../../src/lib';
 import { chdirWorkspaces } from './workspace-helper';

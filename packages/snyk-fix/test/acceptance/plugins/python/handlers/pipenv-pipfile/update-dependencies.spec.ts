@@ -1,5 +1,5 @@
-import * as pathLib from 'path';
-import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
+import pathLib from 'path';
+import pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
 
 import * as snykFix from '../../../../../../src';
 

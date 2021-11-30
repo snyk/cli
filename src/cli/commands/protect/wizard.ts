@@ -1,12 +1,12 @@
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 const debug = debugModule('snyk');
 
-import * as path from 'path';
-import * as inquirer from '@snyk/inquirer';
-import * as fs from 'fs';
-import * as tryRequire from 'snyk-try-require';
+import path from 'path';
+import inquirer from '@snyk/inquirer';
+import fs from 'fs';
+import tryRequire from 'snyk-try-require';
 import chalk from 'chalk';
-import * as url from 'url';
+import url from 'url';
 const cloneDeep = require('lodash.clonedeep');
 const get = require('lodash.get');
 import { exec } from 'child_process';

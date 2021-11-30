@@ -1,4 +1,4 @@
-import * as tap from 'tap';
+import tap from 'tap';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import { getVersion } from '../../../src/lib/version';

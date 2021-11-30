@@ -1,4 +1,4 @@
-import * as sarif from 'sarif';
+import sarif from 'sarif';
 const upperFirst = require('lodash.upperfirst');
 const groupBy = require('lodash.groupby');
 const map = require('lodash.map');

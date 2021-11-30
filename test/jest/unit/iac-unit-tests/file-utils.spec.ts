@@ -1,5 +1,5 @@
 import { extractBundle } from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
-import * as tar from 'tar';
+import tar from 'tar';
 import { PassThrough } from 'stream';
 import { LOCAL_POLICY_ENGINE_DIR } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 

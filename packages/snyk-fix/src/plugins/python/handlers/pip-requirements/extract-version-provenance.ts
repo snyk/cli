@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as debugLib from 'debug';
+import path from 'path';
+import debugLib from 'debug';
 
 import {
   ParsedRequirements,

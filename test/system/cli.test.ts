@@ -1,15 +1,15 @@
-import * as util from 'util';
-import * as get from 'lodash.get';
-import * as isObject from 'lodash.isobject';
+import util from 'util';
+import get from 'lodash.get';
+import isObject from 'lodash.isobject';
 import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
 import * as dockerChecker from '../../src/lib/is-docker';
 import { makeTmpDirectory, silenceLog } from '../utils';
-import * as sinon from 'sinon';
-import * as proxyquire from 'proxyquire';
-import * as policy from 'snyk-policy';
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
+import policy from 'snyk-policy';
 import stripAnsi from 'strip-ansi';
-import * as os from 'os';
+import os from 'os';
 import * as isDocker from '../../src/lib/is-docker';
 
 type Ignore = {

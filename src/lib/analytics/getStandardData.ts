@@ -1,8 +1,8 @@
 import * as version from '../version';
 import { v4 as uuidv4 } from 'uuid';
-import * as os from 'os';
+import os from 'os';
 const osName = require('os-name');
-import * as crypto from 'crypto';
+import crypto from 'crypto';
 import { isCI } from '../is-ci';
 import {
   getIntegrationName,
@@ -14,7 +14,7 @@ import {
 
 import { StandardAnalyticsData } from './types';
 import { MetricsCollector } from '../metrics';
-import * as createDebug from 'debug';
+import createDebug from 'debug';
 import { ArgsOptions } from '../../cli/args';
 
 const debug = createDebug('snyk');

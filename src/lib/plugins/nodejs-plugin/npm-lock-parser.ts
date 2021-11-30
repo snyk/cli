@@ -1,10 +1,10 @@
-import * as baseDebug from 'debug';
+import baseDebug from 'debug';
 const debug = baseDebug('snyk-test');
-import * as path from 'path';
+import path from 'path';
 import { spinner } from '../../spinner';
 import * as analytics from '../../analytics';
-import * as fs from 'fs';
-import * as lockFileParser from 'snyk-nodejs-lockfile-parser';
+import fs from 'fs';
+import lockFileParser from 'snyk-nodejs-lockfile-parser';
 import { PkgTree } from 'snyk-nodejs-lockfile-parser';
 import { Options } from '../types';
 

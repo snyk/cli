@@ -3,7 +3,7 @@ const sortBy = require('lodash.sortby');
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { getWorkspaceJSON } from '../workspace-helper';
 import { CommandResult } from '../../../src/cli/commands/types';
-import * as path from 'path';
+import path from 'path';
 
 export const RubyTests: AcceptanceTests = {
   language: 'Ruby',

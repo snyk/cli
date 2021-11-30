@@ -1,5 +1,5 @@
 import { makeDirectoryIterator } from '../../../src/lib/iac/makeDirectoryIterator';
-import * as path from 'path';
+import path from 'path';
 
 describe('makeDirectoryIterator', () => {
   const fixturePath = path.join(

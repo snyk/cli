@@ -1,5 +1,5 @@
 import { Options } from '../../../../../../src/lib/types';
-import * as fs from 'fs';
+import fs from 'fs';
 import { extractDataToSendFromResults } from '../../../../../../src/lib/formatters/test/format-test-results';
 
 describe('extractDataToSendFromResults', () => {

@@ -1,4 +1,4 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 
 export const GoTests: AcceptanceTests = {

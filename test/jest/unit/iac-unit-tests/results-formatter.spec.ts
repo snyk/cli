@@ -11,7 +11,7 @@ import {
   generateScanResults,
   expectedFormattedResultsGeneratedByCustomRules,
 } from './results-formatter.fixtures';
-import * as cloudConfigParserModule from '@snyk/cloud-config-parser';
+import cloudConfigParserModule from '@snyk/cloud-config-parser';
 import {
   EngineType,
   PolicyMetadata,

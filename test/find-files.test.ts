@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 import { test } from 'tap';
 import { find } from '../src/lib/find-files';
 

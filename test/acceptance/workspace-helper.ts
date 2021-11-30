@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 import { readFileSync } from 'fs';
 
 const workspacePath = path.join(__dirname, 'workspaces');

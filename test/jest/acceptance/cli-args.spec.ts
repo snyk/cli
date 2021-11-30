@@ -1,5 +1,5 @@
-import * as fse from 'fs-extra';
-import * as path from 'path';
+import fse from 'fs-extra';
+import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { UnsupportedOptionCombinationError } from '../../../src/lib/errors/unsupported-option-combination-error';
 import { runSnykCLI } from '../util/runSnykCLI';

@@ -1,5 +1,5 @@
 import config from './config';
-import * as depGraphLib from '@snyk/dep-graph';
+import depGraphLib from '@snyk/dep-graph';
 import { DepDict, Options, MonitorOptions } from './types';
 import { legacyCommon as legacyApi } from '@snyk/cli-interface';
 import { countPathsToGraphRoot } from './utils';

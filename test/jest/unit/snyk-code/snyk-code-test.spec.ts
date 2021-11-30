@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 import stripAnsi from 'strip-ansi';
 import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
 jest.mock('@snyk/code-client');

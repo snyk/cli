@@ -1,5 +1,5 @@
-import * as debugModule from 'debug';
-import * as pathLib from 'path';
+import debugModule from 'debug';
+import pathLib from 'path';
 import chalk from 'chalk';
 import { icon } from '../theme';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';

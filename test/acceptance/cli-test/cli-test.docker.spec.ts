@@ -1,6 +1,6 @@
-import * as sinon from 'sinon';
-import * as fs from 'fs';
-import * as path from 'path';
+import sinon from 'sinon';
+import fs from 'fs';
+import path from 'path';
 
 import { AcceptanceTests } from './cli-test.acceptance.test';
 

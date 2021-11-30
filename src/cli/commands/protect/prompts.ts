@@ -11,13 +11,13 @@ export {
 
 const cloneDeep = require('lodash.clonedeep');
 const get = require('lodash.get');
-import * as semver from 'semver';
+import semver from 'semver';
 import { format as fmt } from 'util';
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 const protect = require('../../../lib/protect');
 import { parsePackageString as moduleToObject } from 'snyk-module';
 import config from '../../../lib/config';
-import * as snykPolicy from 'snyk-policy';
+import snykPolicy from 'snyk-policy';
 import chalk from 'chalk';
 import { icon, color } from '../../../lib/theme';
 import { AnnotatedIssue, SEVERITY } from '../../../lib/snyk-test/legacy';

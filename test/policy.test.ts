@@ -1,7 +1,7 @@
-import * as policy from 'snyk-policy';
+import policy from 'snyk-policy';
 import { test } from 'tap';
 import { extendExpiries } from './utils';
-import * as path from 'path';
+import path from 'path';
 
 test('policy is callable with string', async (t) => {
   const dir = path.resolve(__dirname + '/fixtures/jsbin-snyk-config');

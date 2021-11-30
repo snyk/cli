@@ -9,10 +9,10 @@
 */
 
 import { exec } from 'child_process';
-import * as createDebug from 'debug';
-import * as fs from 'fs';
+import createDebug from 'debug';
+import fs from 'fs';
 import { join } from 'path';
-import * as semver from 'semver';
+import semver from 'semver';
 import { ArgsOptions } from '../../cli/args';
 
 const debug = createDebug('snyk');

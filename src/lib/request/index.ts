@@ -1,7 +1,7 @@
 import { makeRequest } from './request';
 import alerts = require('../alerts');
 import { MetricsCollector } from '../metrics';
-import * as needle from 'needle';
+import needle from 'needle';
 
 // A hybrid async function: both returns a promise and takes a callback
 async function makeRequestWrapper(

@@ -1,5 +1,5 @@
 const values = require('lodash.values');
-import * as depGraphLib from '@snyk/dep-graph';
+import depGraphLib from '@snyk/dep-graph';
 import {
   DepsFilePaths,
   ScanResult,

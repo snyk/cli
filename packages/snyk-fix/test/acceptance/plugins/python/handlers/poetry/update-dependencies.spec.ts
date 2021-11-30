@@ -1,5 +1,5 @@
-import * as pathLib from 'path';
-import * as poetryFix from '@snyk/fix-poetry';
+import pathLib from 'path';
+import poetryFix from '@snyk/fix-poetry';
 
 import * as snykFix from '../../../../../../src';
 import {

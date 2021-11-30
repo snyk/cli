@@ -1,5 +1,5 @@
-import * as debugLib from 'debug';
-import * as pathLib from 'path';
+import debugLib from 'debug';
+import pathLib from 'path';
 const sortBy = require('lodash.sortby');
 const groupBy = require('lodash.groupby');
 

@@ -1,6 +1,6 @@
 import { readFileSync, unlinkSync } from 'fs';
-import * as path from 'path';
-import * as sarif from 'sarif';
+import path from 'path';
+import sarif from 'sarif';
 import { v4 as uuidv4 } from 'uuid';
 import { pathToFileURL } from 'url';
 

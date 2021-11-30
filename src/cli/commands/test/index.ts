@@ -1,4 +1,4 @@
-import * as Debug from 'debug';
+import Debug from 'debug';
 const cloneDeep = require('lodash.clonedeep');
 const assign = require('lodash.assign');
 import chalk from 'chalk';

@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as sinon from 'sinon';
+import fs from 'fs';
+import sinon from 'sinon';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { loadJson } from '../../utils';
 

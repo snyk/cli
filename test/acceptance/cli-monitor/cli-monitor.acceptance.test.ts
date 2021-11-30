@@ -1,7 +1,7 @@
-import * as tap from 'tap';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as sinon from 'sinon';
+import tap from 'tap';
+import path from 'path';
+import fs from 'fs';
+import sinon from 'sinon';
 import * as cli from '../../../src/cli/commands';
 import { fakeServer } from '../fake-server';
 import * as subProcess from '../../../src/lib/sub-process';
@@ -36,7 +36,7 @@ import * as plugins from '../../../src/lib/plugins/index';
 import * as ecosystemPlugins from '../../../src/lib/ecosystems/plugins';
 import { createCallGraph } from '../../utils';
 import { DepGraphBuilder } from '@snyk/dep-graph';
-import * as depGraphLib from '@snyk/dep-graph';
+import depGraphLib from '@snyk/dep-graph';
 
 /*
   TODO: enable these tests, once we switch from node-tap

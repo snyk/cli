@@ -1,5 +1,5 @@
-import * as cppPlugin from 'snyk-cpp-plugin';
-import * as dockerPlugin from 'snyk-docker-plugin';
+import cppPlugin from 'snyk-cpp-plugin';
+import dockerPlugin from 'snyk-docker-plugin';
 import { codePlugin } from '../plugins/sast';
 import { Ecosystem, EcosystemPlugin } from './types';
 

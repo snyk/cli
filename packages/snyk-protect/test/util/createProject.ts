@@ -1,6 +1,6 @@
-import * as fse from 'fs-extra';
-import * as os from 'os';
-import * as path from 'path';
+import fse from 'fs-extra';
+import os from 'os';
+import path from 'path';
 import { useLocalPackage } from './useLocalPackage';
 import { debuglog } from 'util';
 

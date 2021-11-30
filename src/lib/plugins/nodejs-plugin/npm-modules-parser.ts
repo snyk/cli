@@ -1,7 +1,7 @@
-import * as path from 'path';
-import * as fs from 'fs';
-import * as resolveNodeDeps from 'snyk-resolve-deps';
-import * as baseDebug from 'debug';
+import path from 'path';
+import fs from 'fs';
+import resolveNodeDeps from 'snyk-resolve-deps';
+import baseDebug from 'debug';
 const isEmpty = require('lodash.isempty');
 import { spinner } from '../../spinner';
 import * as analytics from '../../analytics';

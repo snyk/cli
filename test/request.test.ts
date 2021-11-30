@@ -1,9 +1,9 @@
 import { afterEach, test } from 'tap';
-import * as sinon from 'sinon';
-import * as proxyquire from 'proxyquire';
-import * as needle from 'needle';
+import sinon from 'sinon';
+import proxyquire from 'proxyquire';
+import needle from 'needle';
 import { Global } from '../src/cli/args';
-import * as http from 'http';
+import http from 'http';
 
 declare const global: Global;
 

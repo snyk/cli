@@ -1,7 +1,7 @@
-import * as fs from 'fs';
+import fs from 'fs';
 import { test } from 'tap';
-import * as path from 'path';
-import * as policy from 'snyk-policy';
+import path from 'path';
+import policy from 'snyk-policy';
 import { getPrompts } from '../src/cli/commands/protect/prompts';
 
 test('policy file populates ignore reasons', async (t) => {

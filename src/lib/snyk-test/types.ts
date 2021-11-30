@@ -1,4 +1,4 @@
-import * as depGraphLib from '@snyk/dep-graph';
+import depGraphLib from '@snyk/dep-graph';
 import { ScanResult } from '../ecosystems/types';
 import { GitTarget, ContainerTarget } from '../project-metadata/types';
 import { DepTree } from '../types';

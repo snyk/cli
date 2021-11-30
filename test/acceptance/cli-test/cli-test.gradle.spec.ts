@@ -1,10 +1,10 @@
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import { legacyPlugin as pluginApi } from '@snyk/cli-interface';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 import { CommandResult } from '../../../src/cli/commands/types';
 import { createCallGraph } from '../../utils';
-import * as fs from 'fs';
-import * as path from 'path';
+import fs from 'fs';
+import path from 'path';
 
 const readJSON = (jsonPath: string) => {
   return JSON.parse(

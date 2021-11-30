@@ -1,4 +1,4 @@
-import * as cppPlugin from 'snyk-cpp-plugin';
+import cppPlugin from 'snyk-cpp-plugin';
 import * as ecosystems from '../../../src/lib/ecosystems';
 import { Options } from '../../../src/lib/types';
 

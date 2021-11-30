@@ -1,4 +1,4 @@
-import * as path from 'path';
+import path from 'path';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { createProjectFromFixture } from '../../util/createProject';
 import { runSnykCLI } from '../../util/runSnykCLI';

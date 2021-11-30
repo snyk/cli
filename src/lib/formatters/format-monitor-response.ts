@@ -1,6 +1,6 @@
 const assign = require('lodash.assign');
 import chalk from 'chalk';
-import * as url from 'url';
+import url from 'url';
 
 import { MonitorResult } from '../types';
 import config from '../config';

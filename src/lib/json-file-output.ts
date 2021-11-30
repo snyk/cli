@@ -1,6 +1,6 @@
 import { gte } from 'semver';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
-import * as path from 'path';
+import path from 'path';
 
 export const MIN_VERSION_FOR_MKDIR_RECURSIVE = '10.12.0';
 

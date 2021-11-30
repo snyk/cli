@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import * as pathLib from 'path';
+import fs from 'fs';
+import pathLib from 'path';
 import * as snykFix from '../../../../../../../src';
 import { selectFileForPinning } from '../../../../../../../src/plugins/python/handlers/pip-requirements';
 import { SEVERITY } from '../../../../../../../src/types';

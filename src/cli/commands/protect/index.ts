@@ -1,4 +1,4 @@
-import * as debugModule from 'debug';
+import debugModule from 'debug';
 import * as snyk from '../../../lib/';
 import * as types from '../../../lib/types';
 const protect = require('../../../lib/protect');

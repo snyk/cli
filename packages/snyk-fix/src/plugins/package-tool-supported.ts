@@ -1,9 +1,9 @@
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 
-import * as pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
-import * as poetryFix from '@snyk/fix-poetry';
+import pipenvPipfileFix from '@snyk/fix-pipenv-pipfile';
+import poetryFix from '@snyk/fix-poetry';
 
-import * as ora from 'ora';
+import ora from 'ora';
 
 import { FixOptions } from '../types';
 

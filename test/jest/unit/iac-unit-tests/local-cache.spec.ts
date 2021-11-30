@@ -5,10 +5,10 @@ import {
 } from '../../../../src/cli/commands/test/iac-local-execution/local-cache';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';
 import { PassThrough } from 'stream';
-import * as needle from 'needle';
-import * as rimraf from 'rimraf';
-import * as fs from 'fs';
-import * as path from 'path';
+import needle from 'needle';
+import rimraf from 'rimraf';
+import fs from 'fs';
+import path from 'path';
 
 describe('initLocalCache - downloads bundle successfully', () => {
   beforeEach(() => {

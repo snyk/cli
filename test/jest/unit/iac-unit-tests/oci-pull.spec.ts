@@ -5,7 +5,7 @@ import {
   FailedToBuildOCIArtifactError,
   InvalidRemoteRegistryURLError,
 } from '../../../../src/cli/commands/test/iac-local-execution/oci-pull';
-import * as registryClient from '@snyk/docker-registry-v2-client';
+import registryClient from '@snyk/docker-registry-v2-client';
 import { layers, manifest, opt } from './oci-pull.fixtures';
 import { promises as fs } from 'fs';
 import * as fileUtilsModule from '../../../../src/cli/commands/test/iac-local-execution/file-utils';

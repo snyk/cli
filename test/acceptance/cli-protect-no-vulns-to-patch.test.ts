@@ -1,6 +1,6 @@
 import { test } from 'tap';
 import * as cli from '../../src/cli/commands';
-import * as sinon from 'sinon';
+import sinon from 'sinon';
 import * as snyk from '../../src/lib';
 
 test('`protect` with no vulns to patch', async (t) => {
