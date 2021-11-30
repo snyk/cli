@@ -132,15 +132,6 @@ export class InvalidRemoteRegistryURLError extends CustomError {
   }
 }
 
-export class UnsupportedFeatureFlagPullError extends CustomError {
-  constructor(featureFlag: string) {
-    super('OCI Pull not supported - Missing the ${featureFlag} feature flag');
-    this.code = IaCErrorCodes.UnsupportedFeatureFlagPullError;
-    this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `The custom rules feature is not supported for this org - The feature flag '${featureFlag}' is not currently enabled. It can be enabled via Snyk Preview, if you are on the Enterprise Plan.`;
-  }
-}
-
 export class UnsupportedEntitlementPullError extends CustomError {
   constructor(entitlement: string) {
     super(`OCI Pull not supported - Missing the ${entitlement} entitlement`);

@@ -99,7 +99,7 @@ describe('test()', () => {
       pullSpy.mockReset();
     });
 
-    it('attemps to pull the custom-rules bundle using the provided configurations', async () => {
+    it('attempts to pull the custom-rules bundle using the provided configurations', async () => {
       const opts: IaCTestFlags = {};
 
       await test('./iac/terraform/sg_open_ssh.tf', opts);
