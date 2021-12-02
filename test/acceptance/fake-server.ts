@@ -1,6 +1,9 @@
-import * as express from 'express';
-import * as http from 'http';
 import * as bodyParser from 'body-parser';
+import * as express from 'express';
+import * as fs from 'fs';
+import * as http from 'http';
+import * as path from 'path';
+import { getFixturePath } from '../jest/util/getFixturePath';
 
 const featureFlagDefaults = (): Map<string, boolean> => {
   return new Map([['cliFailFast', false]]);
@@ -14,6 +17,7 @@ type FakeServer = {
   setNextResponse: (r: any) => void;
   setNextStatusCode: (c: number) => void;
   setFeatureFlag: (featureFlag: string, enabled: boolean) => void;
+  unauthorizeAction: (action: string, reason?: string) => void;
   listen: (port: string | number, callback: () => void) => void;
   restore: () => void;
   close: (callback: () => void) => void;
@@ -23,6 +27,7 @@ type FakeServer = {
 export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
   let requests: express.Request[] = [];
   let featureFlags: Map<string, boolean> = featureFlagDefaults();
+  let unauthorizedActions = new Map();
   let nextStatusCode: number | undefined = undefined;
   let nextResponse: any = undefined;
   let depGraphResponse: Record<string, unknown> | undefined = undefined;
@@ -32,6 +37,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     requests = [];
     depGraphResponse = undefined;
     featureFlags = featureFlagDefaults();
+    unauthorizedActions = new Map();
   };
 
   const getRequests = () => {
@@ -64,6 +70,16 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   const setFeatureFlag = (featureFlag: string, enabled: boolean) => {
     featureFlags.set(featureFlag, enabled);
+  };
+
+  const unauthorizeAction = (
+    action: string,
+    reason = 'unauthorized by test',
+  ) => {
+    unauthorizedActions.set(action, {
+      allowed: false,
+      reason,
+    });
   };
 
   const app = express();
@@ -120,11 +136,19 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.send(response);
   });
 
-  app.get(basePath + '/vuln/:registry/:module', (req, res, next) => {
-    res.send({
-      vulnerabilities: [],
-    });
-    return next();
+  app.get(basePath + '/vuln/:registry/:module', (req, res) => {
+    try {
+      // Use one of the fixtures if it exists.
+      const body = fs.readFileSync(
+        path.resolve(getFixturePath('cli-test-results'), req.params.module),
+        'utf8',
+      );
+      res.send(JSON.parse(body));
+    } catch {
+      res.send({
+        vulnerabilities: [],
+      });
+    }
   });
 
   app.post(basePath + '/vuln/:registry', (req, res, next) => {
@@ -383,9 +407,12 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     res.status(200).send(baseResponse);
   });
 
-  app.get(basePath + '/authorization/:action', (req, res, next) => {
-    res.send({ result: { allowed: true } });
-    return next();
+  app.get(basePath + '/authorization/:action', (req, res) => {
+    const result = unauthorizedActions.get(req.params.action) || {
+      allowed: true,
+      reason: 'Default fake server response.',
+    };
+    res.send({ result });
   });
 
   app.put(basePath + '/monitor/:registry/graph', (req, res, next) => {
@@ -442,6 +469,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
     setNextResponse,
     setNextStatusCode,
     setFeatureFlag,
+    unauthorizeAction,
     listen,
     restore,
     close,

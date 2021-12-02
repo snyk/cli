@@ -20,8 +20,6 @@ const after = tap.runOnly ? only : test;
 import { runTest } from '../../src/lib/snyk-test/run-test';
 import { TestOptions, Options } from '../../src/lib/types';
 
-// @later: remove this config stuff.
-// Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
   t.plan(3);
   let key = await cli.config('get', 'api');
@@ -66,8 +64,6 @@ test('runTest annotates results with remediation data when traverseNodeModules',
   t.ok(result[0].vulnerabilities[0].parentDepType, 'has parentDepType');
 });
 
-// @later: try and remove this config stuff
-// Was copied straight from ../src/cli-server.js
 after('teardown', async (t) => {
   t.plan(4);
 

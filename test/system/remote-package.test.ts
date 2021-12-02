@@ -1,11 +1,11 @@
 import { test } from 'tap';
 import * as ciChecker from '../../src/lib/is-ci';
 import * as sinon from 'sinon';
+import { fakeServer } from '../acceptance/fake-server';
 
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
 const apiKey = '123456789';
-const notAuthorizedApiKey = 'notAuthorized';
 let oldkey;
 let oldendpoint;
 const BASE_API = '/api/v1';
@@ -13,7 +13,7 @@ process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 
-const server = require('../cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
+const server = fakeServer(BASE_API, apiKey);
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too
@@ -32,7 +32,7 @@ before('setup', async (t) => {
   oldendpoint = key; // just in case
   t.pass('existing user endpoint captured');
 
-  await server.listen(port);
+  await new Promise((resolve) => server.listen(port, resolve));
   t.pass('started demo server');
 });
 
@@ -187,8 +187,9 @@ test('test for existing remote package with dev-deps only', async (t) => {
 
 test('test for non-existing', async (t) => {
   try {
+    server.setNextStatusCode(500);
     const res = await cli.test('@123');
-    t.fails('should fail, instead received ' + res);
+    t.fail('should fail, instead received ' + res);
   } catch (error) {
     const res = error.message;
     const lastLine = res

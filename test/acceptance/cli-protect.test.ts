@@ -23,8 +23,6 @@ let oldendpoint;
 const server = fakeServer(BASE_API, apiKey);
 const before = tap.runOnly ? only : test;
 
-// @later: remove this config stuff.
-// Was copied straight from ../src/cli-server.js
 before('setup', async (t) => {
   t.plan(3);
   let key = await cli.config('get', 'api');
@@ -42,8 +40,6 @@ before('setup', async (t) => {
   t.end();
 });
 
-// @later: remove this config stuff.
-// Was copied straight from ../src/cli-server.js
 before('prime config', async (t) => {
   await cli.config('set', 'api=' + apiKey);
   t.pass('api token set');
@@ -172,8 +168,6 @@ test('`protect` with no policy', async (t) => {
   t.end();
 });
 
-// @later: try and remove this config stuff
-// Was copied straight from ../src/cli-server.js
 test('teardown', async (t) => {
   t.plan(4);
 

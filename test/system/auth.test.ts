@@ -3,16 +3,17 @@ import * as sinon from 'sinon';
 import stripAnsi from 'strip-ansi';
 import * as isAuthed from '../../src/cli/commands/auth/is-authed';
 import * as errors from '../../src/lib/errors/legacy-errors';
+import { fakeServer } from '../acceptance/fake-server';
+
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
 const apiKey = '123456789';
-const notAuthorizedApiKey = 'notAuthorized';
 const BASE_API = '/api/v1';
 process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 
-const server = require('../cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
+const server = fakeServer(BASE_API, apiKey);
 
 // ensure this is required *after* the demo server, since this will
 // configure our fake configuration too

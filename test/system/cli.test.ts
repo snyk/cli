@@ -11,6 +11,7 @@ import * as policy from 'snyk-policy';
 import stripAnsi from 'strip-ansi';
 import * as os from 'os';
 import * as isDocker from '../../src/lib/is-docker';
+import { fakeServer } from '../acceptance/fake-server';
 
 type Ignore = {
   [path: string]: {
@@ -27,7 +28,6 @@ type Policy = {
 const port = process.env.PORT || process.env.SNYK_PORT || '12345';
 
 const apiKey = '123456789';
-const notAuthorizedApiKey = 'notAuthorized';
 let oldKey;
 let oldEndPoint;
 const BASE_API = '/api/v1';
@@ -35,7 +35,7 @@ process.env.SNYK_API = 'http://localhost:' + port + BASE_API;
 process.env.SNYK_HOST = 'http://localhost:' + port;
 process.env.LOG_LEVEL = '0';
 
-const server = require('../cli-server')(BASE_API, apiKey, notAuthorizedApiKey);
+const server = fakeServer(BASE_API, apiKey);
 
 sinon.stub(util, 'promisify').returns(() => {});
 
@@ -57,7 +57,7 @@ before('setup', async (t) => {
   oldEndPoint = endPointKey; // just in case
   t.pass('existing user endpoint captured');
 
-  server.listen(port);
+  await new Promise((resolve) => server.listen(port, resolve));
 });
 
 before('prime config', async (t) => {
@@ -323,8 +323,13 @@ test('snyk ignore - default options', async (t) => {
 
 test('snyk ignore - not authorized', async (t) => {
   const dir = await makeTmpDirectory();
+  server.unauthorizeAction('cliIgnore');
+
+  t.teardown(() => {
+    server.restore();
+  });
+
   try {
-    await cli.config('set', 'api=' + notAuthorizedApiKey);
     await cli.ignore({
       id: 'ID3',
       'policy-path': dir,
