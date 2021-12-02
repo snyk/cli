@@ -10,21 +10,23 @@ export function addIacAnalytics(
   let totalIssuesCount = 0;
   const customRulesIdsFoundInIssues: { [customRuleId: string]: true } = {};
   let issuesFromCustomRulesCount = 0;
-  const issuesByType: Record<string, object> = {};
+  const projectTypeAnalytics: Record<string, object> = {};
   const packageManagers = Array<string>();
 
   formattedResults.forEach((res) => {
     totalIssuesCount =
       (totalIssuesCount || 0) + res.result.cloudConfigResults.length;
 
-    const packageManagerConfig = res.packageManager;
-    packageManagers.push(packageManagerConfig);
+    const projectType = res.packageManager;
+    packageManagers.push(projectType);
+    projectTypeAnalytics[projectType] = projectTypeAnalytics[projectType] ?? {
+      count: 0,
+    };
+    projectTypeAnalytics[projectType]['count']++;
 
     res.result.cloudConfigResults.forEach((policy) => {
-      issuesByType[packageManagerConfig] =
-        issuesByType[packageManagerConfig] ?? {};
-      issuesByType[packageManagerConfig][policy.severity] =
-        (issuesByType[packageManagerConfig][policy.severity] || 0) + 1;
+      projectTypeAnalytics[projectType][policy.severity] =
+        (projectTypeAnalytics[projectType][policy.severity] || 0) + 1;
 
       if (policy.isGeneratedByCustomRule) {
         issuesFromCustomRulesCount++;
@@ -40,7 +42,7 @@ export function addIacAnalytics(
   analytics.add('packageManager', Array.from(new Set(packageManagers)));
   analytics.add('iac-issues-count', totalIssuesCount);
   analytics.add('iac-ignored-issues-count', ignoredIssuesCount);
-  analytics.add('iac-type', issuesByType);
+  analytics.add('iac-type', projectTypeAnalytics);
   analytics.add('iac-metrics', performanceAnalyticsObject);
   analytics.add('iac-test-count', formattedResults.length);
   analytics.add('iac-custom-rules-issues-count', issuesFromCustomRulesCount);
