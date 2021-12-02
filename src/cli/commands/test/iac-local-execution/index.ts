@@ -71,7 +71,10 @@ export async function test(
       iacOrgSettings,
     );
 
-    if (isOCIRegistryURLProvided || customRulesPath) {
+    if (
+      (isOCIRegistryURLProvided || customRulesPath) &&
+      !(options.sarif || options.json)
+    ) {
       console.log(
         chalk.hex('#ff9b00')(
           'Using custom rules to generate misconfigurations.',

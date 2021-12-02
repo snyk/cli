@@ -35,6 +35,17 @@ describe('iac test --rules', () => {
     );
   });
 
+  it('does not show custom rules message if it scans local custom rules and uses --json flag', async () => {
+    const { stdout, exitCode } = await run(
+      `snyk iac test --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf --json`,
+    );
+    expect(exitCode).toBe(1);
+
+    expect(stdout).not.toContain(
+      'Using custom rules to generate misconfigurations.',
+    );
+  });
+
   it('presents an error message when the local rules cannot be found', async () => {
     const { stdout, exitCode } = await run(
       `snyk iac test --rules=./not/a/real/path.tar.gz ./iac/terraform/sg_open_ssh.tf`,
