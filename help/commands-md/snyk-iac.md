@@ -8,7 +8,7 @@
 
 Find security issues in your Infrastructure as Code files.
 
-[For more information see IaC help page](https://snyk.co/ucT6Q)
+[For more information see the help page](https://docs.snyk.io/products/snyk-infrastructure-as-code)
 
 ## Commands
 
@@ -117,23 +117,25 @@ Prints a help text. You may specify a `<COMMAND>` to get more details.
 
 [For more information see IaC help page](https://snyk.co/ucT6Q)
 
-### `Test CloudFormation file`
+### `Test a CloudFormation file`
 
 \$ snyk iac test /path/to/cloudformation_file.yaml
 
-### `Test kubernetes file`
+### `Test a Kubernetes file`
 
 \$ snyk iac test /path/to/kubernetes_file.yaml
 
-### `Test terraform file`
+### `Test a Terraform file`
 
 \$ snyk iac test /path/to/terraform_file.tf
 
-### `Test terraform plan file`
+### `Test a Terraform plan file`
 
-\$ snyk iac test /path/to/tf-plan.json
+\$ terraform plan -out=tfplan.binary
+\$ terraform show -json tfplan.binary > tf-plan.json
+\$ snyk iac test tf-plan.json
 
-### `Test ARM file`
+### `Test an ARM file`
 
 \$ snyk iac test /path/to/arm_file.json
 
@@ -175,13 +177,11 @@ E.g. `SNYK_CFG_ORG=myorg` will override default org option in `config` with "myo
 
 ### `SNYK_REGISTRY_USERNAME`
 
-Specify a username to use when connecting to a container registry. Note that using the `--username` flag will
-override this value. This will be ignored in favour of local Docker binary credentials when Docker is present.
+Specify a username to use when connecting to a container registry. Note that using the `--username` flag will override this value. This will be ignored in favour of local Docker binary credentials when Docker is present.
 
 ### `SNYK_REGISTRY_PASSWORD`
 
-Specify a password to use when connecting to a container registry. Note that using the `--password` flag will
-override this value. This will be ignored in favour of local Docker binary credentials when Docker is present.
+Specify a password to use when connecting to a container registry. Note that using the `--password` flag will override this value. This will be ignored in favour of local Docker binary credentials when Docker is present.
 
 ## Connecting to Snyk API
 
