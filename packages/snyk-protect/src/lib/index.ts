@@ -83,7 +83,7 @@ async function protect(projectFolderPath: string) {
     vuldIdAndPatches?.forEach((vp) => {
       vp.patches.forEach((patchDiffs) => {
         patchDiffs.patchDiffs.forEach((diff) => {
-          const patchedPath = applyPatchToFile(diff, fpp.path);
+          const patchedPath = applyPatchToFile(diff, fpp.path, vp.vulnId);
           console.log(`Patched: ${patchedPath}`);
         });
       });

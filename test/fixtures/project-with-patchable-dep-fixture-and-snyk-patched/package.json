@@ -1,0 +1,16 @@
+{
+  "name": "@snyk/project-with-patchable-dep-fixture",
+  "version": "1.0.0",
+  "description": "Not for production use. This project is for testing @snyk/protect.",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
+  },
+  "dependencies": {
+    "@snyk/patchable-dep-fixture": "^1.0.0",
+    "@snyk/protect": "latest"
+  },
+  "private": true,
+  "snyk": true
+}
