@@ -491,7 +491,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
+              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
           jest_tests: true
           system_tests: true
           package_tests: true
@@ -506,7 +506,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
+              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
           acceptance_tests: true
       - test-linux:
           name: Linux, Node v<< matrix.node_version >> - Root Tap Tests
@@ -519,7 +519,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5']
+              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
           root_tap_tests: true
 
       - dev-release:
