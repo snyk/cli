@@ -52,8 +52,6 @@ const isWindows =
     .indexOf('windows') === 0;
 
 if (!isWindows) {
-  // @later: remove this config stuff.
-  // Was copied straight from ../src/cli-server.js
   before('setup', async (t) => {
     versionNumber = await getVersion();
 
@@ -73,8 +71,6 @@ if (!isWindows) {
     t.end();
   });
 
-  // @later: remove this config stuff.
-  // Was copied straight from ../src/cli-server.js
   before('prime config', async (t) => {
     await cli.config('set', 'api=' + apiKey);
     t.pass('api token set');
@@ -2037,8 +2033,6 @@ if (!isWindows) {
     }
   });
 
-  // @later: try and remove this config stuff
-  // Was copied straight from ../src/cli-server.js
   after('teardown', async (t) => {
     t.plan(4);
 
