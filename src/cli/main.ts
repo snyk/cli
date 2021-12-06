@@ -253,7 +253,7 @@ export async function main(): Promise<void> {
       throw new UnsupportedOptionCombinationError([
         'Application vulnerabilities is currently not supported with JSON output. ' +
           'Please try using —app-vulns only to get application vulnerabilities, or ' +
-          '—json only to get your image vulnerabilties, excluding the application ones.',
+          '—json only to get your image vulnerabilities, excluding the application ones.',
       ]);
     }
     if (globalArgs.options['group-issues'] && globalArgs.options['iac']) {
