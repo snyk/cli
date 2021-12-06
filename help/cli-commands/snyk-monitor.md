@@ -97,22 +97,22 @@ A reference which differentiates this project. For example, a branch name or ver
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
 (only in `monitor` command)
-Set the project environment to one or more values (comma-separated). Allowed values: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed
+Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`. Allowed values: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
 (only in `monitor` command)
-Set the project lifecycle to one or more values (comma-separated). Allowed values: production, development, sandbox
+Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`. Allowed values: production, development, sandbox
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
 (only in `monitor` command)
-Set the project business criticality to one or more values (comma-separated). Allowed values: critical, high, medium, low
+Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`. Allowed values: critical, high, medium, low
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
 (only in `monitor` command)
-Set the project tags to one or more values (comma-separated key value pairs with an "=" separator). e.g. --project-tags=department=finance,team=alpha
+Set the project tags to one or more values (comma-separated key value pairs with an "=" separator). e.g. --project-tags=department=finance,team=alpha. To clear the project tags set `--project-tags=`
 
 ### `--tags=<TAG>[,<TAG>]...>`
 
