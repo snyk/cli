@@ -15,32 +15,27 @@ For advanced usage, we offer language and context specific flags, listed further
 
 ### `--all-projects`
 
-(only in `test` and `monitor` commands)
 Auto-detect all projects in working directory
 
 ### `--detection-depth=<DEPTH>`
 
-(only in `test` and `monitor` commands)
 Use with --all-projects or --yarn-workspaces to indicate how many sub-directories to search. `DEPTH` must be a number.
 
 Default: 4 (the current working directory and 3 sub-directories)
 
 ### `--exclude=<DIRECTORY>[,<DIRECTORY>]...>`
 
-(only in `test` and `monitor` commands)
 Can be used with --all-projects and --yarn-workspaces to indicate sub-directories and files to exclude. Must be comma separated.
 
 If using with `--detection-depth` exclude ignores directories at any level deep.
 
 ### `--prune-repeated-subdependencies`, `-p`
 
-(only in `test` and `monitor` commands)
 Prune dependency trees, removing duplicate sub-dependencies.
 Will still find all vulnerabilities, but potentially not all of the vulnerable paths.
 
 ### `--print-deps`
 
-(only in `test` and `monitor` commands)
 Print the dependency tree before sending it for analysis.
 
 ### `--remote-repo-url=<URL>`
@@ -96,22 +91,18 @@ A reference which differentiates this project. For example, a branch name or ver
 
 ### `--project-environment=<ENVIRONMENT>[,<ENVIRONMENT>]...>`
 
-(only in `monitor` command)
 Set the project environment to one or more values (comma-separated). To clear the project environment set `--project-environment=`. Allowed values: frontend, backend, internal, external, mobile, saas, onprem, hosted, distributed
 
 ### `--project-lifecycle=<LIFECYCLE>[,<LIFECYCLE>]...>`
 
-(only in `monitor` command)
 Set the project lifecycle to one or more values (comma-separated). To clear the project lifecycle set `--project-lifecycle=`. Allowed values: production, development, sandbox
 
 ### `--project-business-criticality=<BUSINESS_CRITICALITY>[,<BUSINESS_CRITICALITY>]...>`
 
-(only in `monitor` command)
 Set the project business criticality to one or more values (comma-separated). To clear the project business criticality set `--project-business-criticality=`. Allowed values: critical, high, medium, low
 
 ### `--project-tags=<TAG>[,<TAG>]...>`
 
-(only in `monitor` command)
 Set the project tags to one or more values (comma-separated key value pairs with an "=" separator). e.g. --project-tags=department=finance,team=alpha. To clear the project tags set `--project-tags=`
 
 ### `--tags=<TAG>[,<TAG>]...>`
@@ -126,21 +117,9 @@ Manually pass a path to a snyk policy file.
 
 Prints results in JSON format.
 
-### `--json-file-output=<OUTPUT_FILE_PATH>`
-
-(only in `test` command)
-Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
-This is especially useful if you want to display the human-readable test output via stdout and at the same time save the JSON format output to a file.
-
 ### `--sarif`
 
 Return results in SARIF format.
-
-### `--sarif-file-output=<OUTPUT_FILE_PATH>`
-
-(only in `test` command)
-Save test output in SARIF format directly to the <OUTPUT_FILE_PATH> file, regardless of whether or not you use the `--sarif` option.
-This is especially useful if you want to display the human-readable test output via stdout and at the same time save the SARIF format output to a file.
 
 ### `--severity-threshold=low|medium|high|critical`
 
@@ -171,7 +150,6 @@ Auto detects maven jars, aars, and wars in given directory. Individual testing c
 
 #### `--reachable`
 
-(only in `test` and `monitor` commands)
 Analyze your source code to find which vulnerable
 functions and packages are called.
 
@@ -203,7 +181,6 @@ Select certain values of configuration attributes to resolve the dependencies. E
 
 #### `--reachable`
 
-(only in `test` and `monitor` commands)
 Analyze your source code to find which vulnerable
 functions and packages are called.
 
@@ -249,7 +226,6 @@ Default: true
 
 #### `--yarn-workspaces`
 
-(only in `test` and `monitor` commands)
 Detect and scan yarn workspaces. You can specify how many sub-directories to search using `--detection-depth` and exclude directories and files using `--exclude`.
 
 ### CocoaPods options
