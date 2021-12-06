@@ -274,4 +274,10 @@ This repository is a monorepo, also covering other projects and tools:
 
 For any security issues or concerns, please see [SECURITY.md](SECURITY.md) file in this repository.
 
+## Notices
+
+### Snyk API usage policy
+
+The use of Snyk's API, whether through the use of the 'snyk' npm package or otherwise, is subject to the [Terms & Conditions](https://snyk.co/ucT6N).
+
 Made with 💜 by Snyk
