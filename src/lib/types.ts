@@ -89,6 +89,7 @@ export interface Options {
   'fail-fast'?: boolean;
   tags?: string;
   'target-reference'?: string;
+  'exclude-base-image-vulns'?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
