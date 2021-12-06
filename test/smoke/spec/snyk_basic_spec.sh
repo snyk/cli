@@ -48,14 +48,6 @@ Describe "Snyk CLI basics"
       The stderr should equal ""
     End
 
-    It "prints specific help info"
-      When run snyk woof --help
-      The output should include "W00f"
-      The status should be success
-      # TODO: unusable with our current docker issues
-      The stderr should equal ""
-    End
-
     It "prints specific help info for container"
       When run snyk -h container
       The output should include "Test container images for vulnerabilities"
@@ -73,8 +65,8 @@ Describe "Snyk CLI basics"
     End
 
     It "prints specific help info when called with flag and equals sign"
-      When run snyk --help=woof
-      The output should include "W00f"
+      When run snyk --help=iac
+      The output should include "Find security issues in your Infrastructure as Code files"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""

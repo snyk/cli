@@ -3,7 +3,7 @@
   "version": "1.0.0-monorepo",
   "description": "snyk library and cli utility",
   "files": [
-    "help/commands-md",
+    "help/cli-commands",
     "dist",
     "bin",
     "pysrc",
@@ -15,7 +15,7 @@
   "directories": {
     "lib": "src",
     "test": "test",
-    "doc": "help/commands-md"
+    "doc": "help/cli-commands"
   },
   "bin": {
     "snyk": "bin/snyk"
@@ -41,7 +41,6 @@
     "build:prod": "lerna run build --ignore snyk && npm run build-cli:prod",
     "build-cli:dev": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.dev.ts",
     "build-cli:prod": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.prod.ts",
-    "generate-help": "npx ts-node ./help/generator/generator.ts",
     "watch": "npm run build-cli:dev -- --watch",
     "test": "npm run test:acceptance && npm run test:system && npm run test:test && npm run test:jest && test:packages-unit && test:packages-acceptance",
     "test:acceptance": "tap test/acceptance/**/*.test.* test/acceptance/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",

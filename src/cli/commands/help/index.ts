@@ -21,14 +21,14 @@ export default async function help(item?: string | boolean): Promise<string> {
   try {
     const filename = path.resolve(
       __dirname,
-      '../../help/commands-md', // this is a relative path from the webpack dist directory
+      '../../help/cli-commands', // this is a relative path from the webpack dist directory
       item === DEFAULT_HELP ? `${DEFAULT_HELP}.md` : `snyk-${item}.md`,
     );
     return readHelpFile(filename);
   } catch (error) {
     const filename = path.resolve(
       __dirname,
-      '../../help/commands-md',
+      '../../help/cli-commands',
       `${DEFAULT_HELP}.md`,
     );
     return readHelpFile(filename);
