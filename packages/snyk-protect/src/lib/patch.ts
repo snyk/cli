@@ -1,7 +1,16 @@
 import * as path from 'path';
 import * as fs from 'fs';
 
-export function applyPatchToFile(patchContents: string, baseFolder: string) {
+export function createOldStylePatchAppliedFlagFilename(vulnId: string) {
+  const fileSafeVulnId = vulnId.replace(/:/g, '-'); // replace colon with dash for windows compatibility
+  return `.snyk-${fileSafeVulnId}.flag`;
+}
+
+export function applyPatchToFile(
+  patchContents: string,
+  baseFolder: string,
+  vulnId: string,
+) {
   const targetFilePath = path.join(
     baseFolder,
     extractTargetFilePathFromPatch(patchContents),
@@ -17,6 +26,14 @@ export function applyPatchToFile(patchContents: string, baseFolder: string) {
   const patchedContents = patchString(patchContents, contentsToPatch);
   fs.writeFileSync(targetFilePath, patchedContents);
   fs.writeFileSync(flagPath, '');
+
+  const oldStyleFlagFilenamePath = path.resolve(
+    baseFolder,
+    createOldStylePatchAppliedFlagFilename(vulnId),
+  );
+  const now = new Date().toISOString();
+  fs.writeFileSync(oldStyleFlagFilenamePath, now);
+
   return targetFilePath;
 }
 

@@ -33,6 +33,22 @@ describe('@snyk/protect', () => {
         project.read('node_modules/nyc/node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
 
+      expect(
+        fse.existsSync(
+          project.path(
+            `node_modules/nyc/node_modules/lodash/lodash.js.snyk-protect.flag`,
+          ),
+        ),
+      ).toBe(true);
+
+      expect(
+        fse.existsSync(
+          project.path(
+            `node_modules/nyc/node_modules/lodash/.snyk-SNYK-JS-LODASH-567746.flag`,
+          ),
+        ),
+      ).toBe(true);
+
       expect(log).toHaveBeenCalledWith('Applied Snyk patches.');
       expect(postJsonSpy).toHaveBeenCalledTimes(1);
       expect(postJsonSpy.mock.calls[0][1]).toEqual({
@@ -71,6 +87,33 @@ describe('@snyk/protect', () => {
       await expect(
         project.read('node_modules/lodash/lodash.js'),
       ).resolves.toEqual(patchedLodash);
+
+      expect(
+        fse.existsSync(
+          project.path(
+            `node_modules/nyc/node_modules/lodash/lodash.js.snyk-protect.flag`,
+          ),
+        ),
+      ).toBe(true);
+
+      expect(
+        fse.existsSync(
+          project.path(`node_modules/lodash/lodash.js.snyk-protect.flag`),
+        ),
+      ).toBe(true);
+
+      expect(
+        fse.existsSync(
+          project.path(
+            `node_modules/nyc/node_modules/lodash/.snyk-SNYK-JS-LODASH-567746.flag`,
+          ),
+        ),
+      ).toBe(true);
+      expect(
+        fse.existsSync(
+          project.path(`node_modules/lodash/.snyk-SNYK-JS-LODASH-567746.flag`),
+        ),
+      ).toBe(true);
 
       expect(log).toHaveBeenCalledWith('Applied Snyk patches.');
       expect(postJsonSpy).toHaveBeenCalledTimes(1);

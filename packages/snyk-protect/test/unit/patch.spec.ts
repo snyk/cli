@@ -3,6 +3,7 @@ import * as path from 'path';
 import {
   extractTargetFilePathFromPatch,
   patchString,
+  createOldStylePatchAppliedFlagFilename,
 } from '../../src/lib/patch';
 
 describe('patchString', () => {
@@ -82,5 +83,18 @@ describe('patchString', () => {
     expect(() => {
       patchString(patchContents, contentsToPatch);
     }).toThrow(Error);
+  });
+});
+
+describe('createOldStylePatchAppliedFlagFilename', () => {
+  it('creates a filename for the old style patch applied flag', () => {
+    expect(
+      createOldStylePatchAppliedFlagFilename('SNYK-JS-LODASH-567746'),
+    ).toBe('.snyk-SNYK-JS-LODASH-567746.flag');
+
+    // for Windows support, we replace the `:` with `-` for file system happiness
+    expect(createOldStylePatchAppliedFlagFilename('VULN:ID:WITH:COLONS')).toBe(
+      '.snyk-VULN-ID-WITH-COLONS.flag',
+    );
   });
 });
