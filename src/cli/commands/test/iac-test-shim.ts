@@ -17,9 +17,7 @@ export async function test(
   pathToScan: string,
   options: IaCTestOptions,
 ): Promise<TestReturnValue> {
-  // Ensure that all flags are correct. We do this to ensure that the
-  // caller doesn't accidentally mistype --experimental and send their
-  // configuration files to our backend by accident.
+  // Ensure that all flags are correct.
   assertIaCOptionsFlags(process.argv);
   const iacOrgSettings = await getIacOrgSettings(options.org || config.org);
   const shouldOptOutFromLocalExec = await isFeatureFlagSupportedForOrg(
@@ -27,7 +25,7 @@ export async function test(
     iacOrgSettings.meta.org,
   );
   if (shouldOptOutFromLocalExec.ok || options.legacy) {
-    // this path allows users to opt-out from the local IaC scan which is GA and continue using the remote-processing legacy flow.
+    // this path allows users to opt-out from the local IaC scan which is the default flow and continue using the remote-processing legacy flow.
     const results = await legacyTest(pathToScan, options);
     return {
       failures: options.iacDirFiles?.filter((file) => !!file.failureReason),

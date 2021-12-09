@@ -45,7 +45,7 @@ export interface IacFileScanResult extends IacFileParsed {
   violatedPolicies: PolicyMetadata[];
 }
 
-// This type is the integration point with the CLI test command, please note it is still partial in the experimental version
+// This type is the integration point with the CLI test command, please note it is still partial in the local execution version
 export type FormattedResult = {
   result: {
     cloudConfigResults: Array<PolicyMetadata>;
@@ -143,7 +143,6 @@ export type IaCTestFlags = Pick<
   | 'org'
   | 'insecure'
   | 'debug'
-  | 'experimental'
   | 'detectionDepth'
   | 'severityThreshold'
   | 'json'

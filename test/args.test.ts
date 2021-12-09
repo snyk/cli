@@ -400,37 +400,11 @@ test('test command line "iac test --help" should display help for mode', (t) => 
   t.end();
 });
 
-test('test command line "snyk iac --experimental" should be true on options', (t) => {
+test('test command line "snyk iac --detection-depth=1" should be 1 on options', (t) => {
   const cliArgsWithFlag = [
     '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'iac',
-    '--experimental',
-  ];
-  const resultWithFlag = args(cliArgsWithFlag);
-  t.ok(
-    resultWithFlag.options['experimental'],
-    'expected options[experimental] to be true',
-  );
-  const cliArgsWithoutFlag = [
-    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
-    '/Users/dror/work/snyk/snyk-internal/cli',
-    'iac',
-  ];
-  const resultWithoutFlag = args(cliArgsWithoutFlag);
-  t.notOk(
-    resultWithoutFlag.options['experimental'],
-    'expected options[experimental] to be false',
-  );
-  t.end();
-});
-
-test('test command line "snyk iac --experimental --detection-depth=1" should be 1 on options', (t) => {
-  const cliArgsWithFlag = [
-    '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
-    '/Users/dror/work/snyk/snyk-internal/cli',
-    'iac',
-    '--experimental',
     '--detection-depth=1',
   ];
   const resultWithFlag = args(cliArgsWithFlag);
@@ -443,7 +417,6 @@ test('test command line "snyk iac --experimental --detection-depth=1" should be 
     '/Users/dror/.nvm/versions/node/v6.9.2/bin/node',
     '/Users/dror/work/snyk/snyk-internal/cli',
     'iac',
-    '--experimental',
   ];
   const resultWithoutFlag = args(cliArgsWithoutFlag);
   t.equal(
