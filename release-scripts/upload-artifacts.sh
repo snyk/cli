@@ -6,11 +6,15 @@ declare -a StaticFiles=(
   "binary-releases/snyk-linux"
   "binary-releases/snyk-macos"
   "binary-releases/snyk-win.exe"
+  "binary-releases/snyk-for-docker-desktop-darwin-x64.tar.gz"
+  "binary-releases/snyk-for-docker-desktop-darwin-arm64.tar.gz"
   "binary-releases/docker-mac-signed-bundle.tar.gz"
   "binary-releases/snyk-alpine.sha256"
   "binary-releases/snyk-linux.sha256"
   "binary-releases/snyk-macos.sha256"
   "binary-releases/snyk-win.exe.sha256"
+  "binary-releases/snyk-for-docker-desktop-darwin-x64.tar.gz.sha256"
+  "binary-releases/snyk-for-docker-desktop-darwin-arm64.tar.gz.sha256"
   "binary-releases/docker-mac-signed-bundle.tar.gz.sha256"
 )
 

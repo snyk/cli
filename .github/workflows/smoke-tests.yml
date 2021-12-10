@@ -48,7 +48,7 @@ jobs:
             os: ubuntu
           - snyk_install_method: docker-bundle
             os: macos
-            snyk_cli_dl_file: docker-mac-signed-bundle.tar.gz
+            snyk_cli_dl_file: snyk-for-docker-desktop-darwin-x64.tar.gz
 
     steps:
       - uses: actions/checkout@v2
@@ -91,13 +91,11 @@ jobs:
       - name: Install snyk from Docker bundle
         if: ${{ matrix.snyk_install_method == 'docker-bundle' }}
         run: |
-          curl -Lo ./snyk-cli.tar.gz 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}'
-          sudo mkdir -p /usr/local/bin/snyk-mac
-          sudo mv ./snyk-cli.tar.gz /usr/local/bin/snyk-mac
-          sudo tar -xf /usr/local/bin/snyk-mac/snyk-cli.tar.gz -C /usr/local/bin/snyk-mac  # makes a folder called docker
-          sudo ln -s /usr/local/bin/snyk-mac/docker/snyk-mac.sh /usr/local/bin/snyk-mac/docker/snyk
-          ls -la /usr/local/bin/snyk-mac/docker
-          export PATH="/usr/local/bin/snyk-mac/docker:$PATH"
+          pushd "$(mktemp -d)"
+          curl 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz --strip-components=1
+          ls -la
+          sudo ln -s "$(pwd)/entrypoint.sh" /usr/local/bin/snyk
+          popd
           which snyk
           snyk version
 
