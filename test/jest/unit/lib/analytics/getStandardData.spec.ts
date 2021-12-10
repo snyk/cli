@@ -9,6 +9,9 @@ describe('getStandardData returns object', () => {
 
     expect(standardData).toMatchObject({
       os: expect.any(String),
+      osPlatform: expect.any(String),
+      osRelease: expect.any(String),
+      osArch: expect.any(String),
       version: '1.0.0-monorepo',
       id: expect.any(String),
       ci: expect.any(Boolean),
@@ -49,6 +52,9 @@ describe('getStandardData returns object', () => {
     const standardData = await getStandardData(args);
     expect(standardData).toMatchObject({
       os: expect.any(String),
+      osPlatform: expect.any(String),
+      osRelease: expect.any(String),
+      osArch: expect.any(String),
       version: '1.0.0-monorepo',
       id: expect.any(String),
       ci: expect.any(Boolean),
