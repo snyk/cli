@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 LATEST_PACKAGE_VERSION=$(npm view snyk version)
 echo "LATEST_PACKAGE_VERSION: ${LATEST_PACKAGE_VERSION}"

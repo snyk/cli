@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 shasum -a 256 -c snyk-alpine.sha256
 shasum -a 256 -c snyk-linux.sha256
