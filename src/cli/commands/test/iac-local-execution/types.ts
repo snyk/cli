@@ -32,8 +32,8 @@ export type IacVarsFilesDataByExtension = {
 };
 
 export interface IacVarsFileData {
-  varsFileContent: string;
-  varsFileType: IacVarsFileTypes;
+  fileContent: string;
+  fileType: IacVarsFileTypes;
 }
 
 export interface IacFileParsed extends IacFileData {

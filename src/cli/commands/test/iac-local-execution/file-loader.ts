@@ -85,8 +85,8 @@ export async function tryLoadVarsFiles(
           }
 
           varsFilesByExt[varsFileType]!.push({
-            varsFileContent,
-            varsFileType,
+            fileContent: varsFileContent,
+            fileType: varsFileType,
           });
         }
       }
