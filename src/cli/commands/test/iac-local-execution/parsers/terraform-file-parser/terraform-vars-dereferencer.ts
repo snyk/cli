@@ -1,15 +1,5 @@
-import hclToJson from './hcl-to-json';
-import {
-  EngineType,
-  IaCErrorCodes,
-  IacFileData,
-  IacFileParsed,
-  IacVarsFileData,
-  IacVarsFilesDataByExtension,
-} from '../types';
-import { CustomError } from '../../../../../lib/errors';
-import { getErrorStringCode } from '../error-utils';
-import { IacProjectType } from '../../../../../lib/iac/constants';
+import { IacVarsFileData, IacVarsFilesDataByExtension } from '../../types';
+import hclToJson from '../hcl-to-json';
 
 type StringRecord<T = unknown> = Record<string, T>;
 
@@ -22,7 +12,7 @@ const INPUTS_REF_REGEX = /^\${var\..*}$/;
 const ENV_VAR_REF_REGEX = /^TF_VAR_.*/;
 const LOCALS_REF_REGEX = /^\${local\..*}$/;
 
-function getDefaultValues(
+function getDefaultsValues(
   tfFiles: IacVarsFileData[],
   varsValues: StringRecord,
 ): StringRecord {
@@ -39,7 +29,7 @@ function getDefaultValues(
   return varsValues;
 }
 
-function getLocalValues(
+function getLocalsValues(
   tfFiles: IacVarsFileData[],
   localsValues: StringRecord,
 ): StringRecord {
@@ -56,7 +46,7 @@ function getLocalValues(
   return localsValues;
 }
 
-function getInputValues(
+function getInputsValues(
   tfVarsFiles: IacVarsFileData[],
   varsValues: StringRecord,
 ): StringRecord {
@@ -74,12 +64,12 @@ function getInputValues(
   return varsValues;
 }
 
-function buildInputsValues(
+function buildInputsValuesMap(
   varsFilesByExt: IacVarsFilesDataByExtension,
 ): StringRecord {
   const inputsValues: StringRecord = {};
   if (varsFilesByExt.tf) {
-    getDefaultValues(varsFilesByExt.tf, inputsValues);
+    getDefaultsValues(varsFilesByExt.tf, inputsValues);
   }
 
   Object.keys(process.env).forEach((key) => {
@@ -90,18 +80,18 @@ function buildInputsValues(
   });
 
   if (varsFilesByExt.tfvars) {
-    getInputValues(varsFilesByExt.tfvars, inputsValues);
+    getInputsValues(varsFilesByExt.tfvars, inputsValues);
   }
 
   return inputsValues;
 }
 
-function buildLocalsValues(
+function buildLocalsValuesMap(
   varsFilesByExt: IacVarsFilesDataByExtension,
 ): StringRecord {
   const localsValues: StringRecord = {};
   if (varsFilesByExt.tf) {
-    getLocalValues(varsFilesByExt.tf, localsValues);
+    getLocalsValues(varsFilesByExt.tf, localsValues);
   }
 
   return localsValues;
@@ -111,8 +101,8 @@ function buildVarsValuesMap(
   varsFilesByExt: IacVarsFilesDataByExtension,
 ): VarsValues {
   return {
-    inputs: buildInputsValues(varsFilesByExt),
-    locals: buildLocalsValues(varsFilesByExt),
+    inputs: buildInputsValuesMap(varsFilesByExt),
+    locals: buildLocalsValuesMap(varsFilesByExt),
   };
 }
 
@@ -154,42 +144,10 @@ function injectVarsValues(
   return subFileJsonExpr;
 }
 
-function dereferenceVars(
+export function dereferenceVars(
   jsonFileContent: StringRecord,
   varsFilesByExt: IacVarsFilesDataByExtension,
 ): StringRecord {
   const varsValues = buildVarsValuesMap(varsFilesByExt);
   return injectVarsValues(jsonFileContent, varsValues) as StringRecord;
-}
-
-export function tryParsingTerraformFile(
-  fileData: IacFileData,
-): Array<IacFileParsed> {
-  try {
-    let jsonContent = hclToJson(fileData.fileContent);
-
-    if (fileData.varsFilesByExt) {
-      jsonContent = dereferenceVars(jsonContent, fileData.varsFilesByExt);
-    }
-
-    return [
-      {
-        ...fileData,
-        jsonContent,
-        projectType: IacProjectType.TERRAFORM,
-        engineType: EngineType.Terraform,
-      },
-    ];
-  } catch (err) {
-    throw new FailedToParseTerraformFileError(fileData.filePath);
-  }
-}
-
-export class FailedToParseTerraformFileError extends CustomError {
-  constructor(filename: string) {
-    super('Failed to parse Terraform file');
-    this.code = IaCErrorCodes.FailedToParseTerraformFileError;
-    this.strCode = getErrorStringCode(this.code);
-    this.userMessage = `We were unable to parse the Terraform file "${filename}", please ensure it is valid HCL2. This can be done by running it through the 'terraform validate' command.`;
-  }
 }

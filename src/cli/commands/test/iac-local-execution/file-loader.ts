@@ -1,7 +1,7 @@
-import { makeDirectoryIterator } from '../../../../lib/iac/makeDirectoryIterator';
+import * as path from 'path';
 import { promises as fs } from 'fs';
+import { makeDirectoryIterator } from '../../../../lib/iac/makeDirectoryIterator';
 import {
-  IacVarsFileData,
   IaCErrorCodes,
   IacFileData,
   IaCTestFlags,
@@ -14,7 +14,6 @@ import { IacVarsFileTypes, IacFileTypes } from '../../../../lib/iac/constants';
 import { isLocalFolder } from '../../../../lib/detect';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
-import path = require('path');
 
 const DEFAULT_ENCODING = 'utf-8';
 
@@ -61,37 +60,48 @@ async function getIacFilesData(
   return filesToScan;
 }
 
+async function tryLoadTerraformVarsFiles(
+  filePath: string,
+): Promise<IacVarsFilesDataByExtension> {
+  const varsFilesByExt: IacVarsFilesDataByExtension = {};
+
+  const dirPath = path.dirname(filePath);
+
+  const varsFilesPaths = makeDirectoryIterator(dirPath, {
+    maxDepth: 0,
+  });
+
+  for (const varsFilePath of varsFilesPaths) {
+    const varsFileType = getFileType(varsFilePath) as IacVarsFileTypes;
+
+    if (VALID_VARS_FILE_TYPES.tf.includes(varsFileType)) {
+      const varsFileContent = (
+        await fs.readFile(varsFilePath, DEFAULT_ENCODING)
+      ).toString();
+
+      if (!varsFilesByExt[varsFileType]) {
+        varsFilesByExt[varsFileType] = [];
+      }
+
+      varsFilesByExt[varsFileType]!.push({
+        fileContent: varsFileContent,
+        fileType: varsFileType,
+      });
+    }
+  }
+
+  return varsFilesByExt;
+}
+
 export async function tryLoadVarsFiles(
   filePath: string,
   fileType: IacFileTypes,
 ) {
-  const varsFilesByExt: IacVarsFilesDataByExtension = {};
   switch (fileType) {
     case 'tf':
-      const dirPath = path.dirname(filePath);
-      const varsFilesPaths = makeDirectoryIterator(dirPath, {
-        maxDepth: 0,
-      });
-
-      for (const varsFilePath of varsFilesPaths) {
-        const varsFileType = getFileType(varsFilePath) as IacVarsFileTypes;
-        if (VALID_VARS_FILE_TYPES.tf.includes(varsFileType)) {
-          const varsFileContent = (
-            await fs.readFile(varsFilePath, DEFAULT_ENCODING)
-          ).toString();
-
-          if (!varsFilesByExt[varsFileType]) {
-            varsFilesByExt[varsFileType] = [];
-          }
-
-          varsFilesByExt[varsFileType]!.push({
-            fileContent: varsFileContent,
-            fileType: varsFileType,
-          });
-        }
-      }
+      return await tryLoadTerraformVarsFiles(filePath);
     default:
-      return varsFilesByExt;
+      return {};
   }
 }
 
