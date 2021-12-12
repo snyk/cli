@@ -53,7 +53,6 @@ describe('Sanitize args', () => {
         password: 'fakepass',
         debug: true,
         docker: true,
-        experimental: true,
       },
     ];
 
