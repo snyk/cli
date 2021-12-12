@@ -19,7 +19,7 @@ interface VarsValues {
 }
 
 const INPUTS_REF_REGEX = /^\${var\..*}$/;
-
+const ENV_VAR_REF_REGEX = /^TF_VAR_.*/;
 const LOCALS_REF_REGEX = /^\${local\..*}$/;
 
 function getDefaultValues(
@@ -82,6 +82,13 @@ function buildInputsValues(
     getDefaultValues(varsFilesByExt.tf, inputsValues);
   }
 
+  Object.keys(process.env).forEach((key) => {
+    if (ENV_VAR_REF_REGEX.test(key)) {
+      const valueName = key.slice(7);
+      inputsValues[valueName] = process.env[key];
+    }
+  });
+
   if (varsFilesByExt.tfvars) {
     getInputValues(varsFilesByExt.tfvars, inputsValues);
   }
@@ -109,37 +116,50 @@ function buildVarsValuesMap(
   };
 }
 
-function injectValues<T>(jsonFileValue: T, varsValues: VarsValues): T {
-  if (typeof jsonFileValue === 'string') {
-    if (INPUTS_REF_REGEX.test(jsonFileValue)) {
-      const inputName: string = (jsonFileValue as string).slice(6, -1);
-      if (varsValues.inputs[inputName]) {
-        return varsValues.inputs[inputName] as T;
-      }
-    } else if (LOCALS_REF_REGEX.test(jsonFileValue)) {
-      const localName: string = (jsonFileValue as string).slice(8, -1);
-      if (varsValues.locals[localName]) {
-        return varsValues.locals[localName] as T;
-      }
+function getVarValueFromStringExp(exp: string, varsValues: VarsValues) {
+  if (INPUTS_REF_REGEX.test(exp)) {
+    const inputName: string = exp.slice(6, -1);
+    if (varsValues.inputs[inputName]) {
+      return varsValues.inputs[inputName];
     }
-  } else if (Array.isArray(jsonFileValue)) {
-    jsonFileValue.forEach((el, i) => {
-      jsonFileValue[i] = injectValues(el, varsValues);
-    });
-  } else if (typeof jsonFileValue === 'object') {
-    Object.entries(jsonFileValue as StringRecord).forEach(([key, val]) => {
-      jsonFileValue[key] = injectValues(val, varsValues);
-    });
+  } else if (LOCALS_REF_REGEX.test(exp)) {
+    const localName: string = (exp as string).slice(8, -1);
+    if (varsValues.locals[localName]) {
+      return varsValues.locals[localName];
+    }
   }
-  return jsonFileValue;
+
+  return exp;
 }
 
-function dereferenceTFVars(
+function injectVarsValues(
+  subFileJsonExpr: unknown,
+  varsValues: VarsValues,
+): unknown {
+  if (typeof subFileJsonExpr === 'string') {
+    subFileJsonExpr = getVarValueFromStringExp(subFileJsonExpr, varsValues);
+  } else if (Array.isArray(subFileJsonExpr)) {
+    subFileJsonExpr.forEach((el, i) => {
+      (subFileJsonExpr as unknown[])[i] = injectVarsValues(el, varsValues);
+    });
+  } else if (typeof subFileJsonExpr === 'object') {
+    Object.entries(subFileJsonExpr as StringRecord).forEach(([key, val]) => {
+      (subFileJsonExpr as StringRecord)[key] = injectVarsValues(
+        val,
+        varsValues,
+      );
+    });
+  }
+
+  return subFileJsonExpr;
+}
+
+function dereferenceVars(
   jsonFileContent: StringRecord,
   varsFilesByExt: IacVarsFilesDataByExtension,
-) {
-  const values = buildVarsValuesMap(varsFilesByExt);
-  return injectValues(jsonFileContent, values);
+): StringRecord {
+  const varsValues = buildVarsValuesMap(varsFilesByExt);
+  return injectVarsValues(jsonFileContent, varsValues) as StringRecord;
 }
 
 export function tryParsingTerraformFile(
@@ -149,7 +169,7 @@ export function tryParsingTerraformFile(
     let jsonContent = hclToJson(fileData.fileContent);
 
     if (fileData.varsFilesByExt) {
-      jsonContent = dereferenceTFVars(jsonContent, fileData.varsFilesByExt);
+      jsonContent = dereferenceVars(jsonContent, fileData.varsFilesByExt);
     }
 
     return [
