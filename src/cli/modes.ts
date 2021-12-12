@@ -18,7 +18,6 @@ const modes: Record<string, ModeData> = {
     allowedCommands: ['test', 'monitor'],
     config: (args): [] => {
       args['docker'] = true;
-      args['experimental'] = true;
 
       return args;
     },
