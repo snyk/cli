@@ -7,6 +7,8 @@ export type IacProjectTypes =
   | 'multiiacconfig';
 export type IacFileTypes = 'yaml' | 'yml' | 'json' | 'tf';
 
+export type IacVarsFileTypes = 'tfvars' | 'tf';
+
 export enum IacProjectType {
   K8S = 'k8sconfig',
   TERRAFORM = 'terraformconfig',

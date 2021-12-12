@@ -1,16 +1,20 @@
 import { makeDirectoryIterator } from '../../../../lib/iac/makeDirectoryIterator';
 import { promises as fs } from 'fs';
 import {
+  IacVarsFileData,
   IaCErrorCodes,
   IacFileData,
   IaCTestFlags,
+  VALID_VARS_FILE_TYPES,
   VALID_FILE_TYPES,
+  IacVarsFilesDataByExtension,
 } from './types';
 import { getFileType } from '../../../../lib/iac/iac-parser';
-import { IacFileTypes } from '../../../../lib/iac/constants';
+import { IacVarsFileTypes, IacFileTypes } from '../../../../lib/iac/constants';
 import { isLocalFolder } from '../../../../lib/detect';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
+import path = require('path');
 
 const DEFAULT_ENCODING = 'utf-8';
 
@@ -53,14 +57,49 @@ async function getIacFilesData(
       filesToScan.push(fileData);
     }
   }
+
   return filesToScan;
+}
+
+export async function tryLoadVarsFiles(
+  filePath: string,
+  fileType: IacFileTypes,
+) {
+  const varsFilesByExt: IacVarsFilesDataByExtension = {};
+  switch (fileType) {
+    case 'tf':
+      const dirPath = path.dirname(filePath);
+      const varsFilesPaths = makeDirectoryIterator(dirPath, {
+        maxDepth: 0,
+      });
+
+      for (const varsFilePath of varsFilesPaths) {
+        const varsFileType = getFileType(varsFilePath) as IacVarsFileTypes;
+        if (VALID_VARS_FILE_TYPES.tf.includes(varsFileType)) {
+          const varsFileContent = (
+            await fs.readFile(varsFilePath, DEFAULT_ENCODING)
+          ).toString();
+
+          if (!varsFilesByExt[varsFileType]) {
+            varsFilesByExt[varsFileType] = [];
+          }
+
+          varsFilesByExt[varsFileType]!.push({
+            varsFileContent,
+            varsFileType,
+          });
+        }
+      }
+    default:
+      return varsFilesByExt;
+  }
 }
 
 export async function tryLoadFileData(
   pathToScan: string,
 ): Promise<IacFileData | null> {
   try {
-    const fileType = getFileType(pathToScan);
+    const fileType = getFileType(pathToScan) as IacFileTypes;
     if (!VALID_FILE_TYPES.includes(fileType)) {
       return null;
     }
@@ -69,10 +108,13 @@ export async function tryLoadFileData(
       await fs.readFile(pathToScan, DEFAULT_ENCODING)
     ).toString();
 
+    const varsFilesByExt = await tryLoadVarsFiles(pathToScan, fileType);
+
     return {
       filePath: pathToScan,
-      fileType: fileType as IacFileTypes,
+      fileType,
       fileContent,
+      varsFilesByExt,
     };
   } catch (err) {
     throw new FailedToLoadFileError(pathToScan);

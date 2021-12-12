@@ -4,15 +4,81 @@ import {
   IaCErrorCodes,
   IacFileData,
   IacFileParsed,
+  IacVarsFileData,
+  IacVarsFilesDataByExtension,
 } from '../types';
 import { CustomError } from '../../../../../lib/errors';
 import { getErrorStringCode } from '../error-utils';
 import { IacProjectType } from '../../../../../lib/iac/constants';
 
+type StringRecord<T = unknown> = Record<string, T>;
+
+function getDefaultValues(
+  tfFiles: IacVarsFileData[],
+  varsValues: StringRecord,
+): StringRecord {
+  tfFiles.forEach((tfFile) => {
+    const parsedVarsFile = hclToJson(tfFile.varsFileContent);
+    if (parsedVarsFile.variable) {
+      const fileVars = parsedVarsFile.variable as StringRecord<StringRecord>;
+      Object.entries(fileVars).forEach(([key, val]) => {
+        varsValues[key] = val.default;
+      });
+    }
+  });
+
+  return varsValues;
+}
+
+function getInputValues(
+  tfVarsFiles: IacVarsFileData[],
+  varsValues: StringRecord,
+): StringRecord {
+  tfVarsFiles.forEach((tfVarsFile) => {
+    const parsedVarsFile = hclToJson(tfVarsFile.varsFileContent);
+
+    if (parsedVarsFile) {
+      const fileVars = parsedVarsFile as StringRecord;
+      Object.entries(fileVars).forEach(([key, val]) => {
+        varsValues[key] = val;
+      });
+    }
+  });
+
+  return varsValues;
+}
+
+function buildVarsValues(varsFilesByExt: IacVarsFilesDataByExtension) {
+  const varsValues: StringRecord = {};
+  if (varsFilesByExt.tf) {
+    getDefaultValues(varsFilesByExt.tf, varsValues);
+  }
+
+  if (varsFilesByExt.tfvars) {
+    getInputValues(varsFilesByExt.tfvars, varsValues);
+  }
+
+  return varsValues;
+}
+
+function dereferenceTFVars(
+  jsonFileContent: StringRecord,
+  varsFilesByExt: IacVarsFilesDataByExtension,
+) {
+  const varsValues = buildVarsValues(varsFilesByExt);
+}
+
 export function tryParsingTerraformFile(
   fileData: IacFileData,
 ): Array<IacFileParsed> {
   try {
+    if (fileData.varsFilesByExt) {
+      dereferenceTFVars(
+        hclToJson(fileData.fileContent),
+        fileData.varsFilesByExt,
+      );
+    }
+
     return [
       {
         ...fileData,

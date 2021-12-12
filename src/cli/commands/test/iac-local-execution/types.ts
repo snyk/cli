@@ -1,4 +1,8 @@
-import { IacProjectType, IacProjectTypes } from '../../../../lib/iac/constants';
+import {
+  IacVarsFileTypes,
+  IacProjectType,
+  IacProjectTypes,
+} from '../../../../lib/iac/constants';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
 import {
   AnnotatedIssue,
@@ -14,8 +18,23 @@ import {
 
 export interface IacFileData extends IacFileInDirectory {
   fileContent: string;
+  varsFilesByExt?: IacVarsFilesDataByExtension;
 }
+
 export const VALID_FILE_TYPES = ['tf', 'json', 'yaml', 'yml'];
+
+export const VALID_VARS_FILE_TYPES = {
+  tf: ['tfvars', 'tf'],
+};
+
+export type IacVarsFilesDataByExtension = {
+  [key in IacVarsFileTypes]?: IacVarsFileData[];
+};
+
+export interface IacVarsFileData {
+  varsFileContent: string;
+  varsFileType: IacVarsFileTypes;
+}
 
 export interface IacFileParsed extends IacFileData {
   jsonContent: Record<string, unknown> | TerraformScanInput;
