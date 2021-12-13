@@ -41,3 +41,15 @@ export class FailedToParseTerraformFileError extends CustomError {
     this.userMessage = `We were unable to parse the Terraform file "${filename}", please ensure it is valid HCL2. This can be done by running it through the 'terraform validate' command.`;
   }
 }
+
+export class InvalidHclSyntaxError extends CustomError {
+  constructor(filePath: string, message?: string) {
+    super('Invalid HCL syntax');
+    this.code = IaCErrorCodes.InvalidHclSyntax;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage =
+      `The following file had invalid HCL syntax: ${filePath}` + message
+        ? `\n${message}`
+        : '';
+  }
+}

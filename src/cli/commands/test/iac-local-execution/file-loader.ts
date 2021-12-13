@@ -68,7 +68,7 @@ async function tryLoadTerraformVarsFiles(
   const dirPath = path.dirname(filePath);
 
   const varsFilesPaths = makeDirectoryIterator(dirPath, {
-    maxDepth: 0,
+    maxDepth: 1,
   });
 
   for (const varsFilePath of varsFilesPaths) {
@@ -86,6 +86,7 @@ async function tryLoadTerraformVarsFiles(
       varsFilesByExt[varsFileType]!.push({
         fileContent: varsFileContent,
         fileType: varsFileType,
+        filePath: varsFilePath,
       });
     }
   }

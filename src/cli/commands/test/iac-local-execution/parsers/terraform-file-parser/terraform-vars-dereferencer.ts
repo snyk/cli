@@ -1,5 +1,6 @@
 import { IacVarsFileData, IacVarsFilesDataByExtension } from '../../types';
 import hclToJson from '../hcl-to-json';
+import { InvalidHclSyntaxError } from './terraform-file-parser';
 
 type StringRecord<T = unknown> = Record<string, T>;
 
@@ -20,7 +21,14 @@ function getDefaultsValues(
     const parsedVarsFile = hclToJson(tfFile.fileContent);
     if (parsedVarsFile.variable) {
       const fileVars = parsedVarsFile.variable as StringRecord<StringRecord>;
+
       Object.entries(fileVars).forEach(([key, val]) => {
+        if (Array.isArray(val)) {
+          throw new InvalidHclSyntaxError(
+            tfFile.filePath,
+            `Invalid HCL syntax: Variable "${key}" was declared multiple times.`,
+          );
+        }
         varsValues[key] = val.default;
       });
     }

@@ -34,6 +34,7 @@ export type IacVarsFilesDataByExtension = {
 export interface IacVarsFileData {
   fileContent: string;
   fileType: IacVarsFileTypes;
+  filePath: string;
 }
 
 export interface IacFileParsed extends IacFileData {
@@ -271,6 +272,7 @@ export enum IaCErrorCodes {
   FailedToExtractCustomRulesError = 1003,
   InvalidCustomRules = 1004,
   InvalidCustomRulesPath = 1005,
+  InvalidHclSyntax = 1006,
 
   // file-loader errors
   NoFilesToScanError = 1010,
