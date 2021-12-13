@@ -9,14 +9,14 @@ interface VarsValues {
   locals: StringRecord;
 }
 
-const INPUTS_REF_REGEX = /^\${var\..*}$/;
-const ENV_VAR_REF_REGEX = /^TF_VAR_.*/;
+const VARS_REF_REGEX = /^\${var\..*}$/;
+const TF_ENV_VAR_REGEX = /^TF_VAR_.*/;
 const LOCALS_REF_REGEX = /^\${local\..*}$/;
 
-function getDefaultsValues(
+function fillDefaultsValues(
   tfFiles: IacVarsFileData[],
-  varsValues: StringRecord,
-): StringRecord {
+  varsValues: VarsValues,
+): void {
   tfFiles.forEach((tfFile) => {
     const parsedVarsFile = hclToJson(tfFile.fileContent);
     if (parsedVarsFile.variable) {
@@ -29,93 +29,92 @@ function getDefaultsValues(
             `Invalid HCL syntax: Variable "${key}" was declared multiple times.`,
           );
         }
-        varsValues[key] = val.default;
+        varsValues.inputs[key] = val.default;
       });
     }
   });
-
-  return varsValues;
 }
 
 function getLocalsValues(
   tfFiles: IacVarsFileData[],
-  localsValues: StringRecord,
-): StringRecord {
+  varsValues: VarsValues,
+): void {
   tfFiles.forEach((tfFile) => {
     const parsedLoacalsFile = hclToJson(tfFile.fileContent);
     if (parsedLoacalsFile.locals) {
       const fileLocals = parsedLoacalsFile.locals as StringRecord<StringRecord>;
       Object.entries(fileLocals).forEach(([key, val]) => {
-        localsValues[key] = val;
+        varsValues.locals[key] = val;
       });
     }
   });
-
-  return localsValues;
 }
 
 function getInputsValues(
   tfVarsFiles: IacVarsFileData[],
-  varsValues: StringRecord,
-): StringRecord {
+  varsValues: VarsValues,
+): void {
   tfVarsFiles.forEach((tfVarsFile) => {
     const parsedVarsFile = hclToJson(tfVarsFile.fileContent);
 
     if (parsedVarsFile) {
       const fileVars = parsedVarsFile as StringRecord;
       Object.entries(fileVars).forEach(([key, val]) => {
-        varsValues[key] = val;
+        varsValues.inputs[key] = val;
       });
     }
   });
-
-  return varsValues;
 }
 
-function buildInputsValuesMap(
-  varsFilesByExt: IacVarsFilesDataByExtension,
-): StringRecord {
-  const inputsValues: StringRecord = {};
-  if (varsFilesByExt.tf) {
-    getDefaultsValues(varsFilesByExt.tf, inputsValues);
-  }
-
+function fillEnvVarsValues(varsValues: VarsValues) {
   Object.keys(process.env).forEach((key) => {
-    if (ENV_VAR_REF_REGEX.test(key)) {
+    if (TF_ENV_VAR_REGEX.test(key)) {
       const valueName = key.slice(7);
-      inputsValues[valueName] = process.env[key];
+      varsValues.inputs[valueName] = process.env[key];
     }
   });
-
-  if (varsFilesByExt.tfvars) {
-    getInputsValues(varsFilesByExt.tfvars, inputsValues);
-  }
-
-  return inputsValues;
 }
 
-function buildLocalsValuesMap(
+function fillInputsValuesMap(
   varsFilesByExt: IacVarsFilesDataByExtension,
-): StringRecord {
-  const localsValues: StringRecord = {};
+  varsValues: VarsValues,
+): void {
   if (varsFilesByExt.tf) {
-    getLocalsValues(varsFilesByExt.tf, localsValues);
+    fillDefaultsValues(varsFilesByExt.tf, varsValues);
   }
 
-  return localsValues;
+  fillEnvVarsValues(varsValues);
+
+  if (varsFilesByExt.tfvars) {
+    getInputsValues(varsFilesByExt.tfvars, varsValues);
+  }
+}
+
+function fillLocalsValuesMap(
+  varsFilesByExt: IacVarsFilesDataByExtension,
+  varsValues: VarsValues,
+): void {
+  if (varsFilesByExt.tf) {
+    getLocalsValues(varsFilesByExt.tf, varsValues);
+  }
 }
 
 function buildVarsValuesMap(
   varsFilesByExt: IacVarsFilesDataByExtension,
 ): VarsValues {
-  return {
-    inputs: buildInputsValuesMap(varsFilesByExt),
-    locals: buildLocalsValuesMap(varsFilesByExt),
+  const varsValues = {
+    inputs: {},
+    locals: {},
   };
+
+  fillInputsValuesMap(varsFilesByExt, varsValues);
+  fillLocalsValuesMap(varsFilesByExt, varsValues);
+
+  return varsValues;
 }
 
 function getVarValueFromStringExp(exp: string, varsValues: VarsValues) {
-  if (INPUTS_REF_REGEX.test(exp)) {
+  if (VARS_REF_REGEX.test(exp)) {
     const inputName: string = exp.slice(6, -1);
     if (varsValues.inputs[inputName]) {
       return varsValues.inputs[inputName];
