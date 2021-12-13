@@ -44,7 +44,13 @@ function getLocalsValues(
     if (parsedLoacalsFile.locals) {
       const fileLocals = parsedLoacalsFile.locals as StringRecord<StringRecord>;
       Object.entries(fileLocals).forEach(([key, val]) => {
-        varsValues.locals[key] = val;
+        varsValues.locals[key] =
+          typeof val === 'string'
+            ? (varsValues.locals[key] = getVarValueFromStringExp(
+                val,
+                varsValues,
+              ))
+            : val;
       });
     }
   });
