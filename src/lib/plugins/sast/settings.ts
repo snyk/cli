@@ -1,4 +1,5 @@
 import { Options } from '../../types';
+import { SastSettings } from './types';
 import config from '../../config';
 import { getSastSettingsForOrg, trackUsage } from './checks';
 
@@ -10,7 +11,7 @@ import {
   CustomError,
 } from '../../errors';
 
-export async function validateCodeTest(options: Options) {
+export async function getSastSettings(options: Options): Promise<SastSettings> {
   const org = options.org || config.org;
 
   // This is an unexpected path, code plugin executed for non-code command.
@@ -55,4 +56,5 @@ export async function validateCodeTest(options: Options) {
       trackUsageResponse.code,
     );
   }
+  return sastSettingsResponse;
 }

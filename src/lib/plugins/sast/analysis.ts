@@ -1,22 +1,27 @@
 import { analyzeFolders, AnalysisSeverity } from '@snyk/code-client';
-import { Log, ReportingDescriptor, Result } from 'sarif';
+import { ReportingDescriptor, Result } from 'sarif';
 import { SEVERITY } from '../../snyk-test/legacy';
 import { api } from '../../api-token';
 import config from '../../config';
 import { spinner } from '../../spinner';
 import { Options } from '../../types';
+import { SastSettings, Log } from './types';
 import { analysisProgressUpdate } from './utils';
-import { FeatureNotSupportedBySnykCodeError } from './errors/unsupported-feature-snyk-code-error';
+import {
+  FeatureNotSupportedBySnykCodeError,
+  MissingConfigurationError,
+} from './errors';
 import { getProxyForUrl } from 'proxy-from-env';
 import { bootstrap } from 'global-agent';
 
 export async function getCodeAnalysisAndParseResults(
   root: string,
   options: Options,
+  sastSettings: SastSettings,
 ): Promise<Log | null> {
   await spinner.clearAll();
   analysisProgressUpdate();
-  const codeAnalysis = await getCodeAnalysis(root, options);
+  const codeAnalysis = await getCodeAnalysis(root, options, sastSettings);
   spinner.clearAll();
   return parseSecurityResults(codeAnalysis);
 }
@@ -24,8 +29,16 @@ export async function getCodeAnalysisAndParseResults(
 async function getCodeAnalysis(
   root: string,
   options: Options,
+  sastSettings: SastSettings,
 ): Promise<Log | null> {
-  const baseURL = config.CODE_CLIENT_PROXY_URL;
+  const isLocalCodeEngineEnabled = isLocalCodeEngine(sastSettings);
+  if (isLocalCodeEngineEnabled) {
+    validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
+  }
+
+  const baseURL = isLocalCodeEngineEnabled
+    ? sastSettings.localCodeEngine.url
+    : config.CODE_CLIENT_PROXY_URL;
 
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well
@@ -132,4 +145,16 @@ function getSecurityResultsOnly(
   }, []);
 
   return securityResults;
+}
+
+function isLocalCodeEngine(sastSettings: SastSettings): boolean {
+  const { sastEnabled, localCodeEngine } = sastSettings;
+
+  return sastEnabled && localCodeEngine.enabled;
+}
+
+function validateLocalCodeEngineUrl(localCodeEngineUrl: string): void {
+  if (localCodeEngineUrl.length === 0) {
+    throw new MissingConfigurationError('Local Code Engine');
+  }
 }

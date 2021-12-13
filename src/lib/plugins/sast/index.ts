@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import * as debugLib from 'debug';
 import { getCodeAnalysisAndParseResults } from './analysis';
-import { validateCodeTest } from './validate';
+import { getSastSettings } from './settings';
 import {
   getCodeDisplayedOutput,
   getPrefix,
@@ -26,12 +26,13 @@ export const codePlugin: EcosystemPlugin = {
   async test(paths, options) {
     try {
       analytics.add('sast-scan', true);
-      await validateCodeTest(options);
+      const sastSettings = await getSastSettings(options);
       // Currently code supports only one path
       const path = paths[0];
       const sarifTypedResult = await getCodeAnalysisAndParseResults(
         path,
         options,
+        sastSettings,
       );
 
       if (!sarifTypedResult) {

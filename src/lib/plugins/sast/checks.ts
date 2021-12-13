@@ -3,25 +3,7 @@ import { makeRequest } from '../../request';
 import { api as getApiToken } from '../../api-token';
 import config from '../../config';
 import { assembleQueryString } from '../../snyk-test/common';
-
-interface LocalCodeEngine {
-  enabled: boolean;
-  url: string;
-  allowedCloudUpload: boolean;
-}
-
-export interface SastSettings {
-  sastEnabled: boolean;
-  code?: number;
-  error?: string;
-  userMessage?: string;
-  localCodeEngine: LocalCodeEngine;
-}
-
-interface TrackUsageResponse {
-  code?: number;
-  userMessage?: string;
-}
+import { SastSettings, TrackUsageResponse } from './types';
 
 export async function getSastSettingsForOrg(org): Promise<SastSettings> {
   const response = await makeRequest({
