@@ -82,9 +82,14 @@ export function extractDataToSendFromResults(
 
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
-    stringifiedJsonData = jsonStringifyLargeObject(
-      formatJsonOutput(jsonData, options),
-    );
+    if (Array.isArray(jsonData) && options['app-vulns']) {
+      const jsonResult = jsonData.map((res) => formatJsonOutput(res, options));
+      stringifiedJsonData = jsonStringifyLargeObject(jsonResult);
+    } else {
+      stringifiedJsonData = jsonStringifyLargeObject(
+        formatJsonOutput(jsonData, options),
+      );
+    }
   }
 
   const dataToSend = options.sarif ? sarifData : jsonData;
