@@ -1,0 +1,225 @@
+{
+  "result": {
+    "affectedPkgs": {
+      "org.apache.logging.log4j:log4j-core@2.14.1": {
+        "pkg": {
+          "name": "org.apache.logging.log4j:log4j-core",
+          "version": "2.14.1"
+        },
+        "issues": {
+          "SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720": {
+            "issueId": "SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720",
+            "fixInfo": {
+              "isPatchable": false,
+              "upgradePaths": [
+                {
+                  "path": [
+                    {
+                      "name": "testproj-java-maven:testproj-java-maven",
+                      "version": "1.0-SNAPSHOT"
+                    },
+                    {
+                      "name": "org.apache.logging.log4j:log4j-core",
+                      "version": "2.14.1",
+                      "newVersion": "2.15.0"
+                    }
+                  ]
+                }
+              ],
+              "isRuntime": false,
+              "isPinnable": false
+            }
+          }
+        }
+      }
+    },
+    "issuesData": {
+      "SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720": {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H/E:H",
+        "alternativeIds": [],
+        "creationTime": "2021-12-10T10:08:46.155884Z",
+        "credit": [
+          "Chen Zhaojun of Alibaba Cloud Security Team"
+        ],
+        "cvssScore": 10,
+        "description": "## Overview\n\n[org.apache.logging.log4j:log4j-core](http://logging.apache.org/log4j/1.2/) is a logging library for Java.\n\n\nAffected versions of this package are vulnerable to Arbitrary Code Execution.\nApache Log4j2 JNDI features used in configuration, log messages, and parameters do not protect against attacker controlled LDAP and other JNDI related endpoints. An attacker who can control log messages or log message parameters can execute arbitrary code loaded from LDAP servers when message lookup substitution is enabled.\r\n\r\nFrom log4j 2.15.0, this behavior has been disabled by default. \r\n\r\n**Note**: `org.apache.logging.log4j:log4j-api` was originally deemed vulnerable, but Apache maintainers have since [clarified](https://issues.apache.org/jira/browse/LOG4J2-3201) that this only affects `org.apache.logging.log4j:log4j-core`.\n\n## Remediation\n\nUpgrade `org.apache.logging.log4j:log4j-core` to version 2.15.0 or higher.\n\n\nFor further remediation options, please refer to the [Log4Shell Remediation Cheat Sheet](https://snyk.io/blog/log4shell-remediation-cheat-sheet/).\n\nClick [here](https://snyk.io/blog/find-fix-log4shell-quickly-snyk/) for a guide on how to scan your projects for this vulnerability.\n\n## References\n\n- [Apache Jira Issues](https://issues.apache.org/jira/browse/LOG4J2-3198)\n\n- [Apache Jira Issues](https://issues.apache.org/jira/browse/LOG4J2-3201)\n\n- [Apache Security Advisory](https://logging.apache.org/log4j/2.x/security.html)\n\n- [GitHub PR](https://github.com/apache/logging-log4j2/pull/608)\n\n- [PoC](https://github.com/tangxiaofeng7/apache-log4j-poc)\n\n- [Snyk Blog and Vulnerability Breakdown](https://snyk.io/blog/log4j-rce-log4shell-vulnerability-cve-2021-4428/)\n",
+        "disclosureTime": "2021-12-10T10:02:55Z",
+        "exploit": "High",
+        "fixedIn": [
+          "2.15.0"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720",
+        "identifiers": {
+          "CVE": [
+            "CVE-2021-44228"
+          ],
+          "CWE": [
+            "CWE-502"
+          ],
+          "GHSA": [
+            "GHSA-jfh8-c2jp-5v3q"
+          ]
+        },
+        "language": "java",
+        "malicious": false,
+        "mavenModuleName": {
+          "artifactId": "log4j-core",
+          "groupId": "org.apache.logging.log4j"
+        },
+        "modificationTime": "2021-12-14T17:40:47.504845Z",
+        "moduleName": "org.apache.logging.log4j:log4j-core",
+        "packageManager": "maven",
+        "packageName": "org.apache.logging.log4j:log4j-core",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2021-12-10T10:10:01Z",
+        "references": [
+          {
+            "title": "Apache Jira Issues",
+            "url": "https://issues.apache.org/jira/browse/LOG4J2-3198"
+          },
+          {
+            "title": "Apache Jira Issues",
+            "url": "https://issues.apache.org/jira/browse/LOG4J2-3201"
+          },
+          {
+            "title": "Apache Security Advisory",
+            "url": "https://logging.apache.org/log4j/2.x/security.html"
+          },
+          {
+            "title": "GitHub PR",
+            "url": "https://github.com/apache/logging-log4j2/pull/608"
+          },
+          {
+            "title": "PoC",
+            "url": "https://github.com/tangxiaofeng7/apache-log4j-poc"
+          },
+          {
+            "title": "Snyk Blog and Vulnerability Breakdown",
+            "url": "https://snyk.io/blog/log4j-rce-log4shell-vulnerability-cve-2021-4428/"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "[2.0-beta9,2.15.0)"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "critical",
+        "socialTrendAlert": true,
+        "title": "Arbitrary Code Execution"
+      }
+    },
+    "remediation": {
+      "unresolved": [],
+      "upgrade": {
+        "org.apache.logging.log4j:log4j-core@2.14.1": {
+          "upgradeTo": "org.apache.logging.log4j:log4j-core@2.15.0",
+          "upgrades": [
+            "org.apache.logging.log4j:log4j-core@2.14.1"
+          ],
+          "vulns": [
+            "SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720"
+          ]
+        }
+      },
+      "patch": {},
+      "ignore": {},
+      "pin": {}
+    }
+  },
+  "meta": {
+    "isPrivate": true,
+    "isLicensesEnabled": true,
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "ignoreSettings": null,
+    "org": "demo-applications",
+    "licensesPolicy": {
+      "severities": {},
+      "orgLicenseRules": {
+        "AGPL-1.0": {
+          "licenseType": "AGPL-1.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "AGPL-3.0": {
+          "licenseType": "AGPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Artistic-1.0": {
+          "licenseType": "Artistic-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "Artistic-2.0": {
+          "licenseType": "Artistic-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CDDL-1.0": {
+          "licenseType": "CDDL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CPOL-1.02": {
+          "licenseType": "CPOL-1.02",
+          "severity": "high",
+          "instructions": ""
+        },
+        "EPL-1.0": {
+          "licenseType": "EPL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "GPL-2.0": {
+          "licenseType": "GPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "GPL-3.0": {
+          "licenseType": "GPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "LGPL-2.0": {
+          "licenseType": "LGPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-2.1": {
+          "licenseType": "LGPL-2.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-3.0": {
+          "licenseType": "LGPL-3.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-1.1": {
+          "licenseType": "MPL-1.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-2.0": {
+          "licenseType": "MPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MS-RL": {
+          "licenseType": "MS-RL",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "SimPL-2.0": {
+          "licenseType": "SimPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        }
+      }
+    }
+  }
+}

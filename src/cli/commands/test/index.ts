@@ -39,6 +39,10 @@ import {
   getPackageJsonPathsContainingSnykDependency,
   getProtectUpgradeWarningForPaths,
 } from '../../../lib/protect-update-notification';
+import {
+  containsSpotlightVulnIds,
+  notificationForSpotlightVulns,
+} from '../../../lib/spotlight-vuln-notification';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -286,6 +290,14 @@ export default async function test(
     }
 
     response += chalk.bold.red(summaryMessage);
+
+    response += EOL + EOL;
+    const foundSpotlightVulnIds = containsSpotlightVulnIds(results);
+    const spotlightVulnsMsg = notificationForSpotlightVulns(
+      foundSpotlightVulnIds,
+    );
+    response += spotlightVulnsMsg;
+
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
     // translation
