@@ -16,9 +16,7 @@ export function tryParsingTerraformFile(
   try {
     let jsonContent = hclToJson(fileData.fileContent);
 
-    if (fileData.varsFilesByExt) {
-      jsonContent = dereferenceVars(jsonContent, fileData.varsFilesByExt);
-    }
+    jsonContent = dereferenceVars(jsonContent, fileData.varsFilesByExt!);
 
     return [
       {

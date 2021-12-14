@@ -1,3 +1,4 @@
+import { values } from 'lodash';
 import { IacVarsFileData, IacVarsFilesDataByExtension } from '../../types';
 import hclToJson from '../hcl-to-json';
 import { InvalidHclSyntaxError } from './terraform-file-parser';
@@ -157,10 +158,18 @@ function injectVarsValues(
   return subFileJsonExpr;
 }
 
+function checkIfVarsMapHasValues(varsValues: VarsValues): boolean {
+  return Object.keys(varsValues).some(
+    (valuesMap) => Object.keys(valuesMap).length !== 0,
+  );
+}
+
 export function dereferenceVars(
   jsonFileContent: StringRecord,
   varsFilesByExt: IacVarsFilesDataByExtension,
 ): StringRecord {
   const varsValues = buildVarsValuesMap(varsFilesByExt);
-  return injectVarsValues(jsonFileContent, varsValues) as StringRecord;
+  return checkIfVarsMapHasValues(varsValues)
+    ? (injectVarsValues(jsonFileContent, varsValues) as StringRecord)
+    : jsonFileContent;
 }
