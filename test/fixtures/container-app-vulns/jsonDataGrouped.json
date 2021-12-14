@@ -1,0 +1,1809 @@
+[
+  {
+    "vulnerabilities": [
+      {
+        "title": "Improper Handling of Exceptional Conditions",
+        "credit": [
+          ""
+        ],
+        "packageName": "busybox",
+        "language": "linux",
+        "packageManager": "alpine:3.12",
+        "description": "## NVD Description\n<i> **Note:** </i>\n<i> Versions mentioned in the description apply to the upstream `busybox` package. </i>\n<i> See `How to fix?` for `Alpine:3.12` relevant versions. </i>\n\ndecompress_gunzip.c in BusyBox through 1.32.1 mishandles the error bit on the huft_build result pointer, with a resultant invalid free or segmentation fault, via malformed gzip data.\n## Remediation\nUpgrade `Alpine:3.12` `busybox` to version 1.32.1-r4 or higher.\n## References\n- [FEDORA](https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/3UDQGJRECXFS5EZVDH2OI45FMO436AC4/)\n- [FEDORA](https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/Z7ZIFKPRR32ZYA3WAA2NXFA3QHHOU6FJ/)\n- [FEDORA](https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/ZASBW7QRRLY5V2R44MQ4QQM4CZIDHM2U/)\n- [GENTOO](https://security.gentoo.org/glsa/202105-09)\n- [MISC](https://git.busybox.net/busybox/commit/?id=f25d254dfd4243698c31a4f3153d4ac72aa9e9bd)\n- [MLIST](https://lists.debian.org/debian-lts-announce/2021/04/msg00001.html)\n",
+        "identifiers": {
+          "ALTERNATIVE": [],
+          "CVE": [
+            "CVE-2021-28831"
+          ],
+          "CWE": [
+            "CWE-755"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "socialTrendAlert": false,
+        "cvssScore": 7.5,
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "patches": [],
+        "references": [
+          {
+            "title": "FEDORA",
+            "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/3UDQGJRECXFS5EZVDH2OI45FMO436AC4/"
+          },
+          {
+            "title": "FEDORA",
+            "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/Z7ZIFKPRR32ZYA3WAA2NXFA3QHHOU6FJ/"
+          },
+          {
+            "title": "FEDORA",
+            "url": "https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/ZASBW7QRRLY5V2R44MQ4QQM4CZIDHM2U/"
+          },
+          {
+            "title": "GENTOO",
+            "url": "https://security.gentoo.org/glsa/202105-09"
+          },
+          {
+            "title": "MISC",
+            "url": "https://git.busybox.net/busybox/commit/?id=f25d254dfd4243698c31a4f3153d4ac72aa9e9bd"
+          },
+          {
+            "title": "MLIST",
+            "url": "https://lists.debian.org/debian-lts-announce/2021/04/msg00001.html"
+          }
+        ],
+        "creationTime": "2021-03-31T03:45:09.434484Z",
+        "modificationTime": "2021-11-12T15:57:59.935783Z",
+        "publicationTime": "2021-03-31T03:45:09.443687Z",
+        "disclosureTime": "2021-03-19T05:15:00Z",
+        "id": "SNYK-ALPINE312-BUSYBOX-1089799",
+        "malicious": false,
+        "nvdSeverity": "high",
+        "relativeImportance": null,
+        "semver": {
+          "vulnerable": [
+            "<1.32.1-r4"
+          ]
+        },
+        "exploit": "Not Defined",
+        "from": [
+          [
+            "docker-image|cli-grouping@latest",
+            "busybox/ssl_client@1.31.1-r21"
+          ],
+          [
+            "docker-image|cli-grouping@latest",
+            "alpine-baselayout/alpine-baselayout@3.2.0-r7",
+            "busybox/busybox@1.31.1-r21"
+          ],
+          [
+            "docker-image|cli-grouping@latest",
+            "busybox/busybox@1.31.1-r21"
+          ]
+        ],
+        "upgradePath": [],
+        "isUpgradable": false,
+        "isPatchable": false,
+        "name": [
+          "busybox/ssl_client",
+          "busybox/busybox",
+          "busybox/busybox"
+        ],
+        "version": "1.31.1-r21",
+        "nearestFixedInVersion": "1.32.1-r4"
+      }
+    ],
+    "ok": false,
+    "dependencyCount": 14,
+    "org": "test-org",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "isPrivate": true,
+    "licensesPolicy": {
+      "severities": {},
+      "orgLicenseRules": {
+        "AGPL-1.0": {
+          "licenseType": "AGPL-1.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "AGPL-3.0": {
+          "licenseType": "AGPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Artistic-1.0": {
+          "licenseType": "Artistic-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "Artistic-2.0": {
+          "licenseType": "Artistic-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CDDL-1.0": {
+          "licenseType": "CDDL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CPOL-1.02": {
+          "licenseType": "CPOL-1.02",
+          "severity": "high",
+          "instructions": ""
+        },
+        "EPL-1.0": {
+          "licenseType": "EPL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "GPL-2.0": {
+          "licenseType": "GPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "GPL-3.0": {
+          "licenseType": "GPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "LGPL-2.0": {
+          "licenseType": "LGPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-2.1": {
+          "licenseType": "LGPL-2.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-3.0": {
+          "licenseType": "LGPL-3.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-1.1": {
+          "licenseType": "MPL-1.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-2.0": {
+          "licenseType": "MPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MS-RL": {
+          "licenseType": "MS-RL",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "SimPL-2.0": {
+          "licenseType": "SimPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        }
+      }
+    },
+    "packageManager": "apk",
+    "ignoreSettings": null,
+    "docker": {
+      "baseImage": "alpine:3.12.9",
+      "baseImageRemediation": {
+        "code": "REMEDIATION_AVAILABLE",
+        "advice": [
+          {
+            "message": "Base Image     Vulnerabilities  Severity\nalpine:3.12.9  1                0 critical, 1 high, 0 medium, 0 low\n"
+          },
+          {
+            "message": "Recommendations for base image upgrade:\n",
+            "bold": true
+          },
+          {
+            "message": "Minor upgrades",
+            "bold": true
+          },
+          {
+            "message": "Base Image   Vulnerabilities  Severity\nalpine:3.14  0                0 critical, 0 high, 0 medium, 0 low\n"
+          }
+        ]
+      }
+    },
+    "summary": "3 vulnerable dependency paths",
+    "filesystemPolicy": false,
+    "filtered": {
+      "ignore": [],
+      "patch": []
+    },
+    "uniqueCount": 1,
+    "projectName": "docker-image|cli-grouping",
+    "platform": "linux/amd64",
+    "scanResult": {
+      "facts": [
+        {
+          "type": "depGraph",
+          "data": {
+            "schemaVersion": "1.2.0",
+            "pkgManager": {
+              "name": "apk",
+              "repositories": [
+                {
+                  "alias": "alpine:3.12.9"
+                }
+              ]
+            },
+            "pkgs": [
+              {
+                "id": "docker-image|cli-grouping@latest",
+                "info": {
+                  "name": "docker-image|cli-grouping",
+                  "version": "latest"
+                }
+              },
+              {
+                "id": "busybox/busybox@1.31.1-r21",
+                "info": {
+                  "name": "busybox/busybox",
+                  "version": "1.31.1-r21"
+                }
+              },
+              {
+                "id": "musl/musl@1.1.24-r10",
+                "info": {
+                  "name": "musl/musl",
+                  "version": "1.1.24-r10"
+                }
+              },
+              {
+                "id": "alpine-baselayout/alpine-baselayout@3.2.0-r7",
+                "info": {
+                  "name": "alpine-baselayout/alpine-baselayout",
+                  "version": "3.2.0-r7"
+                }
+              },
+              {
+                "id": "alpine-keys/alpine-keys@2.4-r0",
+                "info": {
+                  "name": "alpine-keys/alpine-keys",
+                  "version": "2.4-r0"
+                }
+              },
+              {
+                "id": "openssl/libcrypto1.1@1.1.1l-r0",
+                "info": {
+                  "name": "openssl/libcrypto1.1",
+                  "version": "1.1.1l-r0"
+                }
+              },
+              {
+                "id": "openssl/libssl1.1@1.1.1l-r0",
+                "info": {
+                  "name": "openssl/libssl1.1",
+                  "version": "1.1.1l-r0"
+                }
+              },
+              {
+                "id": "zlib/zlib@1.2.11-r3",
+                "info": {
+                  "name": "zlib/zlib",
+                  "version": "1.2.11-r3"
+                }
+              },
+              {
+                "id": "apk-tools/apk-tools@2.10.8-r0",
+                "info": {
+                  "name": "apk-tools/apk-tools",
+                  "version": "2.10.8-r0"
+                }
+              },
+              {
+                "id": "libtls-standalone/libtls-standalone@2.9.1-r1",
+                "info": {
+                  "name": "libtls-standalone/libtls-standalone",
+                  "version": "2.9.1-r1"
+                }
+              },
+              {
+                "id": "busybox/ssl_client@1.31.1-r21",
+                "info": {
+                  "name": "busybox/ssl_client",
+                  "version": "1.31.1-r21"
+                }
+              },
+              {
+                "id": "ca-certificates/ca-certificates-bundle@20191127-r4",
+                "info": {
+                  "name": "ca-certificates/ca-certificates-bundle",
+                  "version": "20191127-r4"
+                }
+              },
+              {
+                "id": "musl/musl-utils@1.1.24-r10",
+                "info": {
+                  "name": "musl/musl-utils",
+                  "version": "1.1.24-r10"
+                }
+              },
+              {
+                "id": "libc-dev/libc-utils@0.7.2-r3",
+                "info": {
+                  "name": "libc-dev/libc-utils",
+                  "version": "0.7.2-r3"
+                }
+              },
+              {
+                "id": "pax-utils/scanelf@1.2.6-r0",
+                "info": {
+                  "name": "pax-utils/scanelf",
+                  "version": "1.2.6-r0"
+                }
+              }
+            ],
+            "graph": {
+              "rootNodeId": "root-node",
+              "nodes": [
+                {
+                  "nodeId": "root-node",
+                  "pkgId": "docker-image|cli-grouping@latest",
+                  "deps": [
+                    {
+                      "nodeId": "alpine-baselayout/alpine-baselayout@3.2.0-r7"
+                    },
+                    {
+                      "nodeId": "alpine-keys/alpine-keys@2.4-r0"
+                    },
+                    {
+                      "nodeId": "apk-tools/apk-tools@2.10.8-r0"
+                    },
+                    {
+                      "nodeId": "busybox/busybox@1.31.1-r21|2"
+                    },
+                    {
+                      "nodeId": "busybox/ssl_client@1.31.1-r21"
+                    },
+                    {
+                      "nodeId": "ca-certificates/ca-certificates-bundle@20191127-r4"
+                    },
+                    {
+                      "nodeId": "libc-dev/libc-utils@0.7.2-r3"
+                    },
+                    {
+                      "nodeId": "libtls-standalone/libtls-standalone@2.9.1-r1|2"
+                    },
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    },
+                    {
+                      "nodeId": "musl/musl-utils@1.1.24-r10|2"
+                    },
+                    {
+                      "nodeId": "openssl/libcrypto1.1@1.1.1l-r0|2"
+                    },
+                    {
+                      "nodeId": "openssl/libssl1.1@1.1.1l-r0|2"
+                    },
+                    {
+                      "nodeId": "pax-utils/scanelf@1.2.6-r0|2"
+                    },
+                    {
+                      "nodeId": "zlib/zlib@1.2.11-r3|2"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "busybox/busybox@1.31.1-r21|1",
+                  "pkgId": "busybox/busybox@1.31.1-r21",
+                  "deps": []
+                },
+                {
+                  "nodeId": "busybox/busybox@1.31.1-r21|2",
+                  "pkgId": "busybox/busybox@1.31.1-r21",
+                  "deps": [
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "musl/musl@1.1.24-r10",
+                  "pkgId": "musl/musl@1.1.24-r10",
+                  "deps": []
+                },
+                {
+                  "nodeId": "alpine-baselayout/alpine-baselayout@3.2.0-r7",
+                  "pkgId": "alpine-baselayout/alpine-baselayout@3.2.0-r7",
+                  "deps": [
+                    {
+                      "nodeId": "busybox/busybox@1.31.1-r21|1"
+                    },
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "alpine-keys/alpine-keys@2.4-r0",
+                  "pkgId": "alpine-keys/alpine-keys@2.4-r0",
+                  "deps": []
+                },
+                {
+                  "nodeId": "openssl/libcrypto1.1@1.1.1l-r0|1",
+                  "pkgId": "openssl/libcrypto1.1@1.1.1l-r0",
+                  "deps": []
+                },
+                {
+                  "nodeId": "openssl/libcrypto1.1@1.1.1l-r0|2",
+                  "pkgId": "openssl/libcrypto1.1@1.1.1l-r0",
+                  "deps": [
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "openssl/libssl1.1@1.1.1l-r0|1",
+                  "pkgId": "openssl/libssl1.1@1.1.1l-r0",
+                  "deps": []
+                },
+                {
+                  "nodeId": "openssl/libssl1.1@1.1.1l-r0|2",
+                  "pkgId": "openssl/libssl1.1@1.1.1l-r0",
+                  "deps": [
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    },
+                    {
+                      "nodeId": "openssl/libcrypto1.1@1.1.1l-r0|1"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "zlib/zlib@1.2.11-r3|1",
+                  "pkgId": "zlib/zlib@1.2.11-r3",
+                  "deps": []
+                },
+                {
+                  "nodeId": "zlib/zlib@1.2.11-r3|2",
+                  "pkgId": "zlib/zlib@1.2.11-r3",
+                  "deps": [
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "apk-tools/apk-tools@2.10.8-r0",
+                  "pkgId": "apk-tools/apk-tools@2.10.8-r0",
+                  "deps": [
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    },
+                    {
+                      "nodeId": "openssl/libcrypto1.1@1.1.1l-r0|1"
+                    },
+                    {
+                      "nodeId": "openssl/libssl1.1@1.1.1l-r0|1"
+                    },
+                    {
+                      "nodeId": "zlib/zlib@1.2.11-r3|1"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "libtls-standalone/libtls-standalone@2.9.1-r1|1",
+                  "pkgId": "libtls-standalone/libtls-standalone@2.9.1-r1",
+                  "deps": []
+                },
+                {
+                  "nodeId": "libtls-standalone/libtls-standalone@2.9.1-r1|2",
+                  "pkgId": "libtls-standalone/libtls-standalone@2.9.1-r1",
+                  "deps": [
+                    {
+                      "nodeId": "ca-certificates/ca-certificates-bundle@20191127-r4"
+                    },
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    },
+                    {
+                      "nodeId": "openssl/libcrypto1.1@1.1.1l-r0|1"
+                    },
+                    {
+                      "nodeId": "openssl/libssl1.1@1.1.1l-r0|1"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "busybox/ssl_client@1.31.1-r21",
+                  "pkgId": "busybox/ssl_client@1.31.1-r21",
+                  "deps": [
+                    {
+                      "nodeId": "libtls-standalone/libtls-standalone@2.9.1-r1|1"
+                    },
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "ca-certificates/ca-certificates-bundle@20191127-r4",
+                  "pkgId": "ca-certificates/ca-certificates-bundle@20191127-r4",
+                  "deps": []
+                },
+                {
+                  "nodeId": "musl/musl-utils@1.1.24-r10|1",
+                  "pkgId": "musl/musl-utils@1.1.24-r10",
+                  "deps": []
+                },
+                {
+                  "nodeId": "musl/musl-utils@1.1.24-r10|2",
+                  "pkgId": "musl/musl-utils@1.1.24-r10",
+                  "deps": [
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    },
+                    {
+                      "nodeId": "pax-utils/scanelf@1.2.6-r0|1"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "libc-dev/libc-utils@0.7.2-r3",
+                  "pkgId": "libc-dev/libc-utils@0.7.2-r3",
+                  "deps": [
+                    {
+                      "nodeId": "musl/musl-utils@1.1.24-r10|1"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "pax-utils/scanelf@1.2.6-r0|1",
+                  "pkgId": "pax-utils/scanelf@1.2.6-r0",
+                  "deps": []
+                },
+                {
+                  "nodeId": "pax-utils/scanelf@1.2.6-r0|2",
+                  "pkgId": "pax-utils/scanelf@1.2.6-r0",
+                  "deps": [
+                    {
+                      "nodeId": "musl/musl@1.1.24-r10"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "imageId",
+          "data": "sha256:cbe80b6028ea0c9d82cd6decf73b6cfa9465f0608d548349e18e70eae9a88b10"
+        },
+        {
+          "type": "imageLayers",
+          "data": [
+            "b171b9a62351cfaf72bc5885a302d334a5aba6f7f5fa407eca413e26c9c6532a/layer.tar",
+            "68abdc11af810c47938ea635241324170d5f14f78d14c3b62d47803bf43245e9/layer.tar"
+          ]
+        },
+        {
+          "type": "rootFs",
+          "data": [
+            "sha256:eb4bde6b29a6746e0779f80a09ca6f0806de61475059f7d56d6e20f6cc2e15f7",
+            "sha256:76ec89f59631ac0fb92d66a0da086db37ba572aba809c785a2b0e1f53268eff2"
+          ]
+        },
+        {
+          "type": "imageOsReleasePrettyName",
+          "data": "Alpine Linux v3.12"
+        }
+      ],
+      "target": {
+        "image": "docker-image|cli-grouping"
+      },
+      "identity": {
+        "type": "apk",
+        "args": {
+          "platform": "linux/amd64"
+        }
+      }
+    },
+    "path": "cli-grouping"
+  },
+  {
+    "vulnerabilities": [
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "alternativeIds": [
+          "SNYK-JS-CONNECT-10382"
+        ],
+        "creationTime": "2017-01-19T13:05:48.328000Z",
+        "credit": [
+          "bunkat"
+        ],
+        "cvssScore": 5.3,
+        "description": "## Overview\n[`connect`](https://www.npmjs.com/package/connect) is a high performance middleware framework.\n\nAffected versions of the package are vulnerable to Denial of Service (DoS) attacks. It is possible to crash the node server by requesting a url with a trailing backslash in the end.\n\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## Remediation\nUpgrade `connect` to version 2.0.0 or higher.\n\n## References\n- [GitHub Issue](https://github.com/senchalabs/connect/issues/452)\n- [GitHub Commit](https://github.com/senchalabs/connect/commit/2b0e8d69a14312fa2fd3449685be0c0896dfe53e)\n",
+        "disclosureTime": "2012-01-06T22:00:00Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "2.0.0"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "npm:connect:20120107",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-CONNECT-10382"
+          ],
+          "CVE": [],
+          "CWE": [
+            "CWE-400"
+          ]
+        },
+        "language": "js",
+        "malicious": false,
+        "modificationTime": "2019-12-02T14:39:43.351467Z",
+        "moduleName": "connect",
+        "packageManager": "npm",
+        "packageName": "connect",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2017-02-13T13:05:48.328000Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/senchalabs/connect/commit/2b0e8d69a14312fa2fd3449685be0c0896dfe53e"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/senchalabs/connect/issues/452"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            ">=1.4.0 <2.0.0"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "socialTrendAlert": false,
+        "title": "Denial of Service (DoS)",
+        "from": [
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "connect@1.9.2"
+          ]
+        ],
+        "upgradePath": [
+          false,
+          "express@3.0.0",
+          "connect@2.6.0"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": [
+          "connect"
+        ],
+        "version": "1.9.2"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+        "alternativeIds": [
+          "SNYK-JS-CONNECT-10005"
+        ],
+        "creationTime": "2013-06-30T22:08:59Z",
+        "credit": [
+          "Sergio Arcos"
+        ],
+        "cvssScore": 6.5,
+        "description": "## Overview\n[connect](https://www.npmjs.com/package/connect) is a stack of middleware that is executed in order in each request.\n\nAffected versions of this package are vulnerable to Cross-site Scripting (XSS). The `methodOverride` middleware allows the http post to override the method of the request with the value of the `_method` post key or with the header `x-http-method-override`.\r\n\r\nBecause the user post input was not checked, req.method could contain any kind of value. Because the req.method did not match any common method VERB, connect answered with a 404 page containing the \"Cannot [method] [url]\" content. The method was not properly encoded for output in the browser.\r\n\r\n\r\n**Example**\r\n\r\n```\r\n~ curl \"localhost:3000\" -d \"_method=<script src=http://nodesecurity.io/xss.js></script>\"\r\nCannot <SCRIPT SRC=HTTP://NODESECURITY.IO/XSS.JS></SCRIPT> /\r\n```\r\n\r\n**Mitigation factors**\r\n\r\nUpdate to version 2.8.2 or disable methodOverride. It is not possible to avoid the vulnerability if you have enabled this middleware in the top of your stack.\r\n\r\n**History**\r\n\r\n- (2013-06-27) [Bug reported](https://github.com/senchalabs/connect/issues/831)\r\n- (2013-06-27) [First fix: escape req.method output - v2.8.1](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\r\n- (2013-06-27) [Second fix: whitelist - v2.8.2](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n## Details\n\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\n\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\n\nInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\n\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\n \nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \n\n### Types of attacks\nThere are a few methods by which XSS can be manipulated:\n\n|Type|Origin|Description|\n|--|--|--|\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\n\n### Affected environments\nThe following environments are susceptible to an XSS attack:\n\n* Web servers\n* Application servers\n* Web application environments\n\n### How to prevent\nThis section describes the top best practices designed to specifically protect your code: \n\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \n* Give users the option to disable client-side scripts.\n* Redirect invalid requests.\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\n\n## Remediation\nUpgrade `connect` to version 2.8.2 or higher.\n## References\n- [GitHub Commit](https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a)\n- [GitHub Commit](https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135)\n- [NPM Security Advisory](https://www.npmjs.com/advisories/3)\n",
+        "disclosureTime": "2013-06-30T22:08:59Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "2.8.2"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "npm:connect:20130701",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-CONNECT-10005"
+          ],
+          "CVE": [
+            "CVE-2013-7370"
+          ],
+          "CWE": [
+            "CWE-79"
+          ],
+          "GHSA": [
+            "GHSA-3fw8-66wf-pr7m"
+          ],
+          "NSP": [
+            3
+          ]
+        },
+        "language": "js",
+        "malicious": false,
+        "modificationTime": "2020-06-12T14:36:44.911784Z",
+        "moduleName": "connect",
+        "packageManager": "npm",
+        "packageName": "connect",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2013-06-30T22:08:59Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/senchalabs/connect/commit/126187c4e12162e231b87350740045e5bb06e93a"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/senchalabs/connect/commit/277e5aad6a95d00f55571a9a0e11f2fa190d8135"
+          },
+          {
+            "title": "NPM Security Advisory",
+            "url": "https://www.npmjs.com/advisories/3"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "<2.8.2"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "socialTrendAlert": false,
+        "title": "Cross-site Scripting (XSS)",
+        "from": [
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "connect@1.9.2"
+          ]
+        ],
+        "upgradePath": [
+          false,
+          "express@3.3.2",
+          "connect@2.8.2"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": [
+          "connect"
+        ],
+        "version": "1.9.2"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:N",
+        "alternativeIds": [
+          "SNYK-JS-EXPRESS-10021"
+        ],
+        "creationTime": "2014-09-12T04:46:45Z",
+        "credit": [
+          "Paweł Hałdrzyński"
+        ],
+        "cvssScore": 5.4,
+        "description": "## Overview\r\n[`express`](https://www.npmjs.com/package/express) is a minimalist web framework.\r\n\r\nAffected versions of this package do not enforce the user's browser to set a specific charset in the content-type header while displaying 400 level response messages. This could be used by remote attackers to perform a cross-site scripting attack, by using non-standard encodings like UTF-7.\r\n\r\n## Details\r\nA cross-site scripting attack occurs when the attacker tricks a legitimate web-based application or site to accept a request as originating from a trusted source.\r\n\r\nThis is done by escaping the context of the web application; the web application then delivers that data to its users along with other trusted dynamic content, without validating it. The browser unknowingly executes malicious script on the client side (through client-side languages; usually JavaScript or HTML)  in order to perform actions that are otherwise typically blocked by the browser’s Same Origin Policy.\r\n\r\nֿInjecting malicious code is the most prevalent manner by which XSS is exploited; for this reason, escaping characters in order to prevent this manipulation is the top method for securing code against this vulnerability.\r\n\r\nEscaping means that the application is coded to mark key characters, and particularly key characters included in user input, to prevent those characters from being interpreted in a dangerous context. For example, in HTML, `<` can be coded as  `&lt`; and `>` can be coded as `&gt`; in order to be interpreted and displayed as themselves in text, while within the code itself, they are used for HTML tags. If malicious content is injected into an application that escapes special characters and that malicious content uses `<` and `>` as HTML tags, those characters are nonetheless not interpreted as HTML tags by the browser if they’ve been correctly escaped in the application code and in this way the attempted attack is diverted.\r\n \r\nThe most prominent use of XSS is to steal cookies (source: OWASP HttpOnly) and hijack user sessions, but XSS exploits have been used to expose sensitive information, enable access to privileged services and functionality and deliver malware. \r\n\r\n### Types of attacks\r\nThere are a few methods by which XSS can be manipulated:\r\n\r\n|Type|Origin|Description|\r\n|--|--|--|\r\n|**Stored**|Server|The malicious code is inserted in the application (usually as a link) by the attacker. The code is activated every time a user clicks the link.|\r\n|**Reflected**|Server|The attacker delivers a malicious link externally from the vulnerable web site application to a user. When clicked, malicious code is sent to the vulnerable web site, which reflects the attack back to the user’s browser.| \r\n|**DOM-based**|Client|The attacker forces the user’s browser to render a malicious page. The data in the page itself delivers the cross-site scripting data.|\r\n|**Mutated**| |The attacker injects code that appears safe, but is then rewritten and modified by the browser, while parsing the markup. An example is rebalancing unclosed quotation marks or even adding quotation marks to unquoted parameters.|\r\n\r\n### Affected environments\r\nThe following environments are susceptible to an XSS attack:\r\n\r\n* Web servers\r\n* Application servers\r\n* Web application environments\r\n\r\n### How to prevent\r\nThis section describes the top best practices designed to specifically protect your code: \r\n\r\n* Sanitize data input in an HTTP request before reflecting it back, ensuring all data is validated, filtered or escaped before echoing anything back to the user, such as the values of query parameters during searches. \r\n* Convert special characters such as `?`, `&`, `/`, `<`, `>` and spaces to their respective HTML or URL encoded equivalents. \r\n* Give users the option to disable client-side scripts.\r\n* Redirect invalid requests.\r\n* Detect simultaneous logins, including those from two separate IP addresses, and invalidate those sessions.\r\n* Use and enforce a Content Security Policy (source: Wikipedia) to disable any features that might be manipulated for an XSS attack.\r\n* Read the documentation for any of the libraries referenced in your code to understand which elements allow for embedded HTML.\r\n\r\n\r\n## Recommendations\r\nUpdate express to `3.11.0`, `4.5.0` or higher.\r\n\r\n## References\r\n- [GitHub release 3.11.0](https://github.com/expressjs/express/releases/tag/3.11.0)\r\n- [GitHub release 4.5.0](https://github.com/expressjs/express/releases/tag/4.5.0)",
+        "disclosureTime": "2014-09-12T04:46:45Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "3.11.0",
+          "4.5.0"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "npm:express:20140912",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-EXPRESS-10021"
+          ],
+          "CVE": [
+            "CVE-2014-6393"
+          ],
+          "CWE": [
+            "CWE-79"
+          ],
+          "GHSA": [
+            "GHSA-gpvr-g6gh-9mc2"
+          ],
+          "NSP": [
+            8
+          ]
+        },
+        "language": "js",
+        "malicious": false,
+        "modificationTime": "2019-11-20T10:01:33.495787Z",
+        "moduleName": "express",
+        "packageManager": "npm",
+        "packageName": "express",
+        "patches": [],
+        "proprietary": false,
+        "publicationTime": "2014-09-12T04:46:45Z",
+        "references": [
+          {
+            "title": "GitHub Release",
+            "url": "https://github.com/expressjs/express/releases/tag/3.11.0"
+          },
+          {
+            "title": "GitHub Release",
+            "url": "https://github.com/expressjs/express/releases/tag/4.5.0"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "<3.11.0",
+            ">=4.0.0 <4.5.0"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "socialTrendAlert": false,
+        "title": "Cross-site Scripting (XSS)",
+        "from": [
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11"
+          ]
+        ],
+        "upgradePath": [
+          false,
+          "express@3.11.0"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": [
+          "express"
+        ],
+        "version": "2.5.11"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "alternativeIds": [
+          "SNYK-JS-MIME-10788"
+        ],
+        "creationTime": "2017-09-26T05:48:40.307000Z",
+        "credit": [
+          "Cristian-Alexandru Staicu"
+        ],
+        "cvssScore": 3.7,
+        "description": "## Overview\n[mime](https://www.npmjs.com/package/mime) is a comprehensive, compact MIME type module.\n\nAffected versions of this package are vulnerable to Regular Expression Denial of Service (ReDoS). It uses regex the following regex `/.*[\\.\\/\\\\]/` in its lookup, which can cause a slowdown of 2 seconds for 50k characters.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `mime` to version 1.4.1, 2.0.3 or higher.\n## References\n- [GitHub Commit](https://github.com/broofa/node-mime/commit/1df903fdeb9ae7eaa048795b8d580ce2c98f40b0)\n- [GitHub Commit](https://github.com/broofa/node-mime/commit/855d0c4b8b22e4a80b9401a81f2872058eae274d)\n- [GitHub Issue](https://github.com/broofa/node-mime/issues/167)\n- [NPM Security Advisory](https://www.npmjs.com/advisories/535)\n",
+        "disclosureTime": "2017-09-07T21:00:00Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "1.4.1",
+          "2.0.3"
+        ],
+        "functions": [
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "mime.js",
+              "functionName": "mime.module.exports.lookup"
+            },
+            "version": [
+              "<1.2.6"
+            ]
+          },
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "mime.js",
+              "functionName": "Mime.prototype.lookup"
+            },
+            "version": [
+              ">=1.2.6 <1.4.1"
+            ]
+          },
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "Mime.js",
+              "functionName": "Mime.prototype.getType"
+            },
+            "version": [
+              ">=2.0.0 <2.0.3"
+            ]
+          }
+        ],
+        "functions_new": [
+          {
+            "functionId": {
+              "filePath": "mime.js",
+              "functionName": "mime.module.exports.lookup"
+            },
+            "version": [
+              "<1.2.6"
+            ]
+          },
+          {
+            "functionId": {
+              "filePath": "mime.js",
+              "functionName": "Mime.prototype.lookup"
+            },
+            "version": [
+              ">=1.2.6 <1.4.1"
+            ]
+          },
+          {
+            "functionId": {
+              "filePath": "Mime.js",
+              "functionName": "Mime.prototype.getType"
+            },
+            "version": [
+              ">=2.0.0 <2.0.3"
+            ]
+          }
+        ],
+        "id": "npm:mime:20170907",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-MIME-10788"
+          ],
+          "CVE": [
+            "CVE-2017-16138"
+          ],
+          "CWE": [
+            "CWE-400"
+          ],
+          "GHSA": [
+            "GHSA-wrvr-8mpx-r7pp"
+          ],
+          "NSP": [
+            535
+          ]
+        },
+        "language": "js",
+        "malicious": false,
+        "modificationTime": "2020-06-12T14:36:53.861216Z",
+        "moduleName": "mime",
+        "packageManager": "npm",
+        "packageName": "mime",
+        "patches": [
+          {
+            "comments": [],
+            "id": "patch:npm:mime:20170907:0",
+            "modificationTime": "2019-12-03T11:40:45.877450Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/mime/20170907/mime_20170907_0_0_855d0c4b8b22e4a80b9401a81f2872058eae274d.patch"
+            ],
+            "version": "=1.2.11 || =1.3.4"
+          }
+        ],
+        "proprietary": false,
+        "publicationTime": "2017-09-27T05:48:40Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/broofa/node-mime/commit/1df903fdeb9ae7eaa048795b8d580ce2c98f40b0"
+          },
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/broofa/node-mime/commit/855d0c4b8b22e4a80b9401a81f2872058eae274d"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/broofa/node-mime/issues/167"
+          },
+          {
+            "title": "NPM Security Advisory",
+            "url": "https://www.npmjs.com/advisories/535"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "<1.4.1",
+            ">=2.0.0 <2.0.3"
+          ]
+        },
+        "severity": "low",
+        "severityWithCritical": "low",
+        "socialTrendAlert": false,
+        "title": "Regular Expression Denial of Service (ReDoS)",
+        "from": [
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "connect@1.9.2",
+            "mime@1.2.4"
+          ],
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "mime@1.2.4"
+          ]
+        ],
+        "upgradePath": [
+          false,
+          "express@2.5.11",
+          "connect@1.9.2",
+          "mime@1.4.1"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": [
+          "mime",
+          "mime"
+        ],
+        "version": "1.2.4"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [
+          "SNYK-JS-QS-10019"
+        ],
+        "creationTime": "2014-08-06T06:10:22Z",
+        "credit": [
+          "Dustin Shiver"
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n\n[qs](https://www.npmjs.com/package/qs) is a querystring parser that supports nesting and arrays, with a depth limit.\n\n\nAffected versions of this package are vulnerable to Denial of Service (DoS).\nDuring parsing, the `qs` module may create a sparse area (an array where no elements are filled), and grow that array to the necessary size based on the indices used on it. An attacker can specify a high index value in a query string, thus making the server allocate a respectively big array. Truly large values can cause the server to run out of memory and cause it to crash - thus enabling a Denial-of-Service attack.\n\n## Remediation\n\nUpgrade `qs` to version 1.0.0 or higher.\n\n\n## Details\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its intended and legitimate users.\r\n\r\nUnlike other vulnerabilities, DoS attacks usually do not aim at breaching security. Rather, they are focused on making websites and services unavailable to genuine users resulting in downtime.\r\n\r\nOne popular Denial of Service vulnerability is DDoS (a Distributed Denial of Service), an attack that attempts to clog network pipes to the system by generating a large volume of traffic from many machines.\r\n\r\nWhen it comes to open source libraries, DoS vulnerabilities allow attackers to trigger such a crash or crippling of the service by using a flaw either in the application code or from the use of open source libraries.\r\n\r\nTwo common types of DoS vulnerabilities:\r\n\r\n* High CPU/Memory Consumption- An attacker sending crafted requests that could cause the system to take a disproportionate amount of time to process. For example, [commons-fileupload:commons-fileupload](SNYK-JAVA-COMMONSFILEUPLOAD-30082).\r\n\r\n* Crash - An attacker sending crafted requests that could cause the system to crash. For Example,  [npm `ws` package](npm:ws:20171108)\n\n## References\n\n- [GitHub Commit](https://github.com/tj/node-querystring/pull/114/commits/43a604b7847e56bba49d0ce3e222fe89569354d8)\n\n- [GitHub Issue](https://github.com/visionmedia/node-querystring/issues/104)\n\n- [NVD](https://nvd.nist.gov/vuln/detail/CVE-2014-7191)\n",
+        "disclosureTime": "2014-08-06T06:10:22Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "1.0.0"
+        ],
+        "functions": [
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "index.js",
+              "functionName": "compact"
+            },
+            "version": [
+              "<1.0.0"
+            ]
+          }
+        ],
+        "functions_new": [
+          {
+            "functionId": {
+              "filePath": "index.js",
+              "functionName": "compact"
+            },
+            "version": [
+              "<1.0.0"
+            ]
+          }
+        ],
+        "id": "npm:qs:20140806",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-QS-10019"
+          ],
+          "CVE": [
+            "CVE-2014-7191"
+          ],
+          "CWE": [
+            "CWE-400"
+          ],
+          "GHSA": [
+            "GHSA-jjv7-qpx3-h62q",
+            "GHSA-gqgv-6jq5-jjj9"
+          ],
+          "NSP": [
+            29
+          ]
+        },
+        "language": "js",
+        "malicious": false,
+        "modificationTime": "2019-02-18T08:28:59.375824Z",
+        "moduleName": "qs",
+        "packageManager": "npm",
+        "packageName": "qs",
+        "patches": [
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20140806:1",
+            "modificationTime": "2019-12-03T11:40:45.728930Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806/qs_20140806_0_1_snyk_npm.patch"
+            ],
+            "version": "=0.5.6"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20140806:0",
+            "modificationTime": "2019-12-03T11:40:45.741062Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806/qs_20140806_0_0_43a604b7847e56bba49d0ce3e222fe89569354d8_snyk.patch"
+            ],
+            "version": "<1.0.0 >=0.6.5"
+          }
+        ],
+        "proprietary": false,
+        "publicationTime": "2014-08-06T06:10:22Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/tj/node-querystring/pull/114/commits/43a604b7847e56bba49d0ce3e222fe89569354d8"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/visionmedia/node-querystring/issues/104"
+          },
+          {
+            "title": "NVD",
+            "url": "https://nvd.nist.gov/vuln/detail/CVE-2014-7191"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "<1.0.0"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "socialTrendAlert": false,
+        "title": "Denial of Service (DoS)",
+        "from": [
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "connect@1.9.2",
+            "qs@0.4.2"
+          ],
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "qs@0.4.2"
+          ]
+        ],
+        "upgradePath": [
+          false,
+          "express@2.5.11",
+          "connect@1.9.2",
+          "qs@1.0.0"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": [
+          "qs",
+          "qs"
+        ],
+        "version": "0.4.2"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "alternativeIds": [
+          "SNYK-JS-QS-10020"
+        ],
+        "creationTime": "2014-08-06T06:10:23Z",
+        "credit": [
+          "Tom Steele"
+        ],
+        "cvssScore": 6.5,
+        "description": "## Overview\n[qs](https://www.npmjs.com/package/qs) is a querystring parser that supports nesting and arrays, with a depth limit.\n\nAffected versions of this package are vulnerable to Denial of Service (DoS). When parsing a string representing a deeply nested object, qs will block the event loop for long periods of time. Such a delay may hold up the server's resources, keeping it from processing other requests in the meantime, thus enabling a Denial-of-Service attack.\n\n## Details\n\nDenial of Service (DoS) describes a family of attacks, all aimed at making a system inaccessible to its original and legitimate users. There are many types of DoS attacks, ranging from trying to clog the network pipes to the system by generating a large volume of traffic from many machines (a Distributed Denial of Service - DDoS - attack) to sending crafted requests that cause a system to crash or take a disproportional amount of time to process.\n\nThe Regular expression Denial of Service (ReDoS) is a type of Denial of Service attack. Regular expressions are incredibly powerful, but they aren't very intuitive and can ultimately end up making it easy for attackers to take your site down.\n\nLet’s take the following regular expression as an example:\n```js\nregex = /A(B|C+)+D/\n```\n\nThis regular expression accomplishes the following:\n- `A` The string must start with the letter 'A'\n- `(B|C+)+` The string must then follow the letter A with either the letter 'B' or some number of occurrences of the letter 'C' (the `+` matches one or more times). The `+` at the end of this section states that we can look for one or more matches of this section.\n- `D` Finally, we ensure this section of the string ends with a 'D'\n\nThe expression would match inputs such as `ABBD`, `ABCCCCD`, `ABCBCCCD` and `ACCCCCD`\n\nIt most cases, it doesn't take very long for a regex engine to find a match:\n\n```bash\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCD\")'\n0.04s user 0.01s system 95% cpu 0.052 total\n\n$ time node -e '/A(B|C+)+D/.test(\"ACCCCCCCCCCCCCCCCCCCCCCCCCCCCX\")'\n1.79s user 0.02s system 99% cpu 1.812 total\n```\n\nThe entire process of testing it against a 30 characters long string takes around ~52ms. But when given an invalid string, it takes nearly two seconds to complete the test, over ten times as long as it took to test a valid string. The dramatic difference is due to the way regular expressions get evaluated.\n\nMost Regex engines will work very similarly (with minor differences). The engine will match the first possible way to accept the current character and proceed to the next one. If it then fails to match the next one, it will backtrack and see if there was another way to digest the previous character. If it goes too far down the rabbit hole only to find out the string doesn’t match in the end, and if many characters have multiple valid regex paths, the number of backtracking steps can become very large, resulting in what is known as _catastrophic backtracking_.\n\nLet's look at how our expression runs into this problem, using a shorter string: \"ACCCX\". While it seems fairly straightforward, there are still four different ways that the engine could match those three C's:\n1. CCC\n2. CC+C\n3. C+CC\n4. C+C+C.\n\nThe engine has to try each of those combinations to see if any of them potentially match against the expression. When you combine that with the other steps the engine must take, we can use [RegEx 101 debugger](https://regex101.com/debugger) to see the engine has to take a total of 38 steps before it can determine the string doesn't match.\n\nFrom there, the number of steps the engine must use to validate a string just continues to grow.\n\n| String | Number of C's | Number of steps |\n| -------|-------------:| -----:|\n| ACCCX | 3 | 38\n| ACCCCX | 4 | 71\n| ACCCCCX | 5 | 136\n| ACCCCCCCCCCCCCCX | 14 | 65,553\n\n\nBy the time the string includes 14 C's, the engine has to take over 65,000 steps just to see if the string is valid. These extreme situations can cause them to work very slowly (exponentially related to input size, as shown above), allowing an attacker to exploit this and can cause the service to excessively consume CPU, resulting in a Denial of Service.\n\n## Remediation\nUpgrade `qs` to version 1.0.0 or higher.\n## References\n- [Node Security Advisory](https://nodesecurity.io/advisories/28)\n",
+        "disclosureTime": "2014-08-06T06:10:23Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "1.0.0"
+        ],
+        "functions": [],
+        "functions_new": [],
+        "id": "npm:qs:20140806-1",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-QS-10020"
+          ],
+          "CVE": [
+            "CVE-2014-10064"
+          ],
+          "CWE": [
+            "CWE-400"
+          ],
+          "GHSA": [
+            "GHSA-f9cm-p3w6-xvr3"
+          ],
+          "NSP": [
+            28
+          ]
+        },
+        "language": "js",
+        "malicious": false,
+        "modificationTime": "2020-06-12T14:36:44.334026Z",
+        "moduleName": "qs",
+        "packageManager": "npm",
+        "packageName": "qs",
+        "patches": [
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20140806-1:0",
+            "modificationTime": "2019-12-03T11:40:45.742148Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806-1/qs_20140806-1_0_0_snyk.patch"
+            ],
+            "version": "<1.0.0 >=0.6.5"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20140806-1:1",
+            "modificationTime": "2019-12-03T11:40:45.744535Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20140806-1/qs_20140806-1_0_1_snyk.patch"
+            ],
+            "version": "=0.5.6"
+          }
+        ],
+        "proprietary": false,
+        "publicationTime": "2014-08-06T06:10:23Z",
+        "references": [
+          {
+            "title": "Node Security Advisory",
+            "url": "https://nodesecurity.io/advisories/28"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "<1.0.0"
+          ]
+        },
+        "severity": "medium",
+        "severityWithCritical": "medium",
+        "socialTrendAlert": false,
+        "title": "Denial of Service (DoS)",
+        "from": [
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "connect@1.9.2",
+            "qs@0.4.2"
+          ],
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "qs@0.4.2"
+          ]
+        ],
+        "upgradePath": [
+          false,
+          "express@2.5.11",
+          "connect@1.9.2",
+          "qs@1.0.0"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": [
+          "qs",
+          "qs"
+        ],
+        "version": "0.4.2"
+      },
+      {
+        "CVSSv3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "alternativeIds": [
+          "SNYK-JS-QS-10407"
+        ],
+        "creationTime": "2017-02-14T11:44:54.163000Z",
+        "credit": [
+          "Snyk Security Research Team"
+        ],
+        "cvssScore": 7.5,
+        "description": "## Overview\n[qs](https://www.npmjs.com/package/qs) is a querystring parser that supports nesting and arrays, with a depth limit.\n\nAffected versions of this package are vulnerable to Prototype Override Protection Bypass. By default `qs` protects against attacks that attempt to overwrite an object's existing prototype properties, such as `toString()`, `hasOwnProperty()`,etc.\r\n\r\nFrom [`qs` documentation](https://github.com/ljharb/qs):\r\n> By default parameters that would overwrite properties on the object prototype are ignored, if you wish to keep the data from those fields either use plainObjects as mentioned above, or set allowPrototypes to true which will allow user input to overwrite those properties. WARNING It is generally a bad idea to enable this option as it can cause problems when attempting to use the properties that have been overwritten. Always be careful with this option.\r\n\r\nOverwriting these properties can impact application logic, potentially allowing attackers to work around security controls, modify data, make the application unstable and more.\r\n\r\nIn versions of the package affected by this vulnerability, it is possible to circumvent this protection and overwrite prototype properties and functions by prefixing the name of the parameter with `[` or `]`. e.g. `qs.parse(\"]=toString\")` will return `{toString = true}`, as a result, calling `toString()` on the object will throw an exception.\r\n\r\n**Example:**\r\n```js\r\nqs.parse('toString=foo', { allowPrototypes: false })\r\n// {}\r\n\r\nqs.parse(\"]=toString\", { allowPrototypes: false })\r\n// {toString = true} <== prototype overwritten\r\n```\r\n\r\nFor more information, you can check out our [blog](https://snyk.io/blog/high-severity-vulnerability-qs/).\r\n\r\n## Disclosure Timeline\r\n- February 13th, 2017 - Reported the issue to package owner.\r\n- February 13th, 2017 - Issue acknowledged by package owner.\r\n- February 16th, 2017 - Partial fix released in versions `6.0.3`, `6.1.1`, `6.2.2`, `6.3.1`.\r\n- March 6th, 2017     - Final fix released in versions `6.4.0`,`6.3.2`, `6.2.3`, `6.1.2` and `6.0.4`\n## Remediation\nUpgrade `qs` to version 6.0.4, 6.1.2, 6.2.3, 6.3.2 or higher.\n## References\n- [GitHub Commit](https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d)\n- [GitHub Issue](https://github.com/ljharb/qs/issues/200)\n",
+        "disclosureTime": "2017-02-13T00:00:00Z",
+        "exploit": "Not Defined",
+        "fixedIn": [
+          "6.0.4",
+          "6.1.2",
+          "6.2.3",
+          "6.3.2"
+        ],
+        "functions": [
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "lib/parse.js",
+              "functionName": "internals.parseObject"
+            },
+            "version": [
+              "<6.0.4"
+            ]
+          },
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "lib/parse.js",
+              "functionName": "parseObject"
+            },
+            "version": [
+              ">=6.2.0 <6.2.3",
+              "6.3.0"
+            ]
+          },
+          {
+            "functionId": {
+              "className": null,
+              "filePath": "lib/parse.js",
+              "functionName": "parseObjectRecursive"
+            },
+            "version": [
+              ">=6.3.1 <6.3.2"
+            ]
+          }
+        ],
+        "functions_new": [
+          {
+            "functionId": {
+              "filePath": "lib/parse.js",
+              "functionName": "internals.parseObject"
+            },
+            "version": [
+              "<6.0.4"
+            ]
+          },
+          {
+            "functionId": {
+              "filePath": "lib/parse.js",
+              "functionName": "parseObject"
+            },
+            "version": [
+              ">=6.2.0 <6.2.3",
+              "6.3.0"
+            ]
+          },
+          {
+            "functionId": {
+              "filePath": "lib/parse.js",
+              "functionName": "parseObjectRecursive"
+            },
+            "version": [
+              ">=6.3.1 <6.3.2"
+            ]
+          }
+        ],
+        "id": "npm:qs:20170213",
+        "identifiers": {
+          "ALTERNATIVE": [
+            "SNYK-JS-QS-10407"
+          ],
+          "CVE": [
+            "CVE-2017-1000048"
+          ],
+          "CWE": [
+            "CWE-20"
+          ],
+          "GHSA": [
+            "GHSA-gqgv-6jq5-jjj9"
+          ]
+        },
+        "language": "js",
+        "malicious": false,
+        "modificationTime": "2020-06-12T14:36:53.880024Z",
+        "moduleName": "qs",
+        "packageManager": "npm",
+        "packageName": "qs",
+        "patches": [
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20170213:0",
+            "modificationTime": "2019-12-03T11:40:45.855245Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/630_632.patch"
+            ],
+            "version": "=6.3.0"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20170213:1",
+            "modificationTime": "2019-12-03T11:40:45.856271Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/631_632.patch"
+            ],
+            "version": "=6.3.1"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20170213:2",
+            "modificationTime": "2019-12-03T11:40:45.857318Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/621_623.patch"
+            ],
+            "version": "=6.2.1"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20170213:3",
+            "modificationTime": "2019-12-03T11:40:45.858334Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/622_623.patch"
+            ],
+            "version": "=6.2.2"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20170213:4",
+            "modificationTime": "2019-12-03T11:40:45.859411Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/610_612.patch"
+            ],
+            "version": "=6.1.0"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20170213:5",
+            "modificationTime": "2019-12-03T11:40:45.860523Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/611_612.patch"
+            ],
+            "version": "=6.1.1"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20170213:6",
+            "modificationTime": "2019-12-03T11:40:45.861504Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/602_604.patch"
+            ],
+            "version": "=6.0.2"
+          },
+          {
+            "comments": [],
+            "id": "patch:npm:qs:20170213:7",
+            "modificationTime": "2019-12-03T11:40:45.862615Z",
+            "urls": [
+              "https://snyk-patches.s3.amazonaws.com/npm/qs/20170213/603_604.patch"
+            ],
+            "version": "=6.0.3"
+          }
+        ],
+        "proprietary": true,
+        "publicationTime": "2017-03-01T10:00:54Z",
+        "references": [
+          {
+            "title": "GitHub Commit",
+            "url": "https://github.com/ljharb/qs/commit/beade029171b8cef9cee0d03ebe577e2dd84976d"
+          },
+          {
+            "title": "GitHub Issue",
+            "url": "https://github.com/ljharb/qs/issues/200"
+          }
+        ],
+        "semver": {
+          "vulnerable": [
+            "<6.0.4",
+            ">=6.1.0 <6.1.2",
+            ">=6.2.0 <6.2.3",
+            ">=6.3.0 <6.3.2"
+          ]
+        },
+        "severity": "high",
+        "severityWithCritical": "high",
+        "socialTrendAlert": false,
+        "title": "Prototype Override Protection Bypass",
+        "from": [
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "connect@1.9.2",
+            "qs@0.4.2"
+          ],
+          [
+            "cli-grouping@1.0.0",
+            "express@2.5.11",
+            "qs@0.4.2"
+          ]
+        ],
+        "upgradePath": [
+          false,
+          "express@2.5.11",
+          "connect@1.9.2",
+          "qs@6.0.4"
+        ],
+        "isUpgradable": true,
+        "isPatchable": false,
+        "name": [
+          "qs",
+          "qs"
+        ],
+        "version": "0.4.2"
+      }
+    ],
+    "ok": false,
+    "dependencyCount": 6,
+    "org": "test-org",
+    "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.22.1\nignore: {}\npatch: {}\n",
+    "isPrivate": true,
+    "licensesPolicy": {
+      "severities": {},
+      "orgLicenseRules": {
+        "AGPL-1.0": {
+          "licenseType": "AGPL-1.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "AGPL-3.0": {
+          "licenseType": "AGPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "Artistic-1.0": {
+          "licenseType": "Artistic-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "Artistic-2.0": {
+          "licenseType": "Artistic-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CDDL-1.0": {
+          "licenseType": "CDDL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "CPOL-1.02": {
+          "licenseType": "CPOL-1.02",
+          "severity": "high",
+          "instructions": ""
+        },
+        "EPL-1.0": {
+          "licenseType": "EPL-1.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "GPL-2.0": {
+          "licenseType": "GPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "GPL-3.0": {
+          "licenseType": "GPL-3.0",
+          "severity": "high",
+          "instructions": ""
+        },
+        "LGPL-2.0": {
+          "licenseType": "LGPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-2.1": {
+          "licenseType": "LGPL-2.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "LGPL-3.0": {
+          "licenseType": "LGPL-3.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-1.1": {
+          "licenseType": "MPL-1.1",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MPL-2.0": {
+          "licenseType": "MPL-2.0",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "MS-RL": {
+          "licenseType": "MS-RL",
+          "severity": "medium",
+          "instructions": ""
+        },
+        "SimPL-2.0": {
+          "licenseType": "SimPL-2.0",
+          "severity": "high",
+          "instructions": ""
+        }
+      }
+    },
+    "packageManager": "npm",
+    "ignoreSettings": null,
+    "docker": {},
+    "summary": "11 vulnerable dependency paths",
+    "remediation": {
+      "unresolved": [],
+      "upgrade": {
+        "express@2.5.11": {
+          "upgradeTo": "express@3.11.0",
+          "upgrades": [
+            "express@2.5.11",
+            "connect@1.9.2",
+            "connect@1.9.2",
+            "mime@1.2.4",
+            "qs@0.4.2",
+            "qs@0.4.2",
+            "qs@0.4.2"
+          ],
+          "vulns": [
+            "npm:express:20140912",
+            "npm:connect:20130701",
+            "npm:connect:20120107",
+            "npm:mime:20170907",
+            "npm:qs:20140806",
+            "npm:qs:20140806-1",
+            "npm:qs:20170213"
+          ]
+        }
+      },
+      "patch": {},
+      "ignore": {},
+      "pin": {}
+    },
+    "filesystemPolicy": false,
+    "filtered": {
+      "ignore": [],
+      "patch": []
+    },
+    "uniqueCount": 7,
+    "targetFile": "/package.json",
+    "projectName": "cli-grouping",
+    "displayTargetFile": "/package.json",
+    "scanResult": {
+      "facts": [
+        {
+          "type": "depGraph",
+          "data": {
+            "schemaVersion": "1.2.0",
+            "pkgManager": {
+              "name": "npm"
+            },
+            "pkgs": [
+              {
+                "id": "cli-grouping@1.0.0",
+                "info": {
+                  "name": "cli-grouping",
+                  "version": "1.0.0"
+                }
+              },
+              {
+                "id": "formidable@1.0.17",
+                "info": {
+                  "name": "formidable",
+                  "version": "1.0.17"
+                }
+              },
+              {
+                "id": "mime@1.2.4",
+                "info": {
+                  "name": "mime",
+                  "version": "1.2.4"
+                }
+              },
+              {
+                "id": "qs@0.4.2",
+                "info": {
+                  "name": "qs",
+                  "version": "0.4.2"
+                }
+              },
+              {
+                "id": "connect@1.9.2",
+                "info": {
+                  "name": "connect",
+                  "version": "1.9.2"
+                }
+              },
+              {
+                "id": "mkdirp@0.3.0",
+                "info": {
+                  "name": "mkdirp",
+                  "version": "0.3.0"
+                }
+              },
+              {
+                "id": "express@2.5.11",
+                "info": {
+                  "name": "express",
+                  "version": "2.5.11"
+                }
+              }
+            ],
+            "graph": {
+              "rootNodeId": "root-node",
+              "nodes": [
+                {
+                  "nodeId": "root-node",
+                  "pkgId": "cli-grouping@1.0.0",
+                  "deps": [
+                    {
+                      "nodeId": "express@2.5.11"
+                    }
+                  ]
+                },
+                {
+                  "nodeId": "formidable@1.0.17",
+                  "pkgId": "formidable@1.0.17",
+                  "deps": [],
+                  "info": {
+                    "labels": {
+                      "scope": "prod"
+                    }
+                  }
+                },
+                {
+                  "nodeId": "mime@1.2.4",
+                  "pkgId": "mime@1.2.4",
+                  "deps": [],
+                  "info": {
+                    "labels": {
+                      "scope": "prod"
+                    }
+                  }
+                },
+                {
+                  "nodeId": "qs@0.4.2",
+                  "pkgId": "qs@0.4.2",
+                  "deps": [],
+                  "info": {
+                    "labels": {
+                      "scope": "prod"
+                    }
+                  }
+                },
+                {
+                  "nodeId": "connect@1.9.2",
+                  "pkgId": "connect@1.9.2",
+                  "deps": [
+                    {
+                      "nodeId": "formidable@1.0.17"
+                    },
+                    {
+                      "nodeId": "mime@1.2.4"
+                    },
+                    {
+                      "nodeId": "qs@0.4.2"
+                    }
+                  ],
+                  "info": {
+                    "labels": {
+                      "scope": "prod"
+                    }
+                  }
+                },
+                {
+                  "nodeId": "mkdirp@0.3.0",
+                  "pkgId": "mkdirp@0.3.0",
+                  "deps": [],
+                  "info": {
+                    "labels": {
+                      "scope": "prod"
+                    }
+                  }
+                },
+                {
+                  "nodeId": "express@2.5.11",
+                  "pkgId": "express@2.5.11",
+                  "deps": [
+                    {
+                      "nodeId": "connect@1.9.2"
+                    },
+                    {
+                      "nodeId": "mime@1.2.4"
+                    },
+                    {
+                      "nodeId": "mkdirp@0.3.0"
+                    },
+                    {
+                      "nodeId": "qs@0.4.2"
+                    }
+                  ],
+                  "info": {
+                    "labels": {
+                      "scope": "prod"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        },
+        {
+          "type": "testedFiles",
+          "data": [
+            "package.json",
+            "package-lock.json"
+          ]
+        },
+        {
+          "type": "imageId",
+          "data": "sha256:cbe80b6028ea0c9d82cd6decf73b6cfa9465f0608d548349e18e70eae9a88b10"
+        }
+      ],
+      "identity": {
+        "type": "npm",
+        "targetFile": "/package.json"
+      },
+      "target": {
+        "image": "docker-image|cli-grouping"
+      }
+    },
+    "path": "cli-grouping"
+  }
+]
