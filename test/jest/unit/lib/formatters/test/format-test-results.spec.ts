@@ -126,6 +126,81 @@ describe('extractDataToSendFromResults', () => {
     });
   });
 
+  describe('open source results grouping', () => {
+    const resultsFixture = JSON.parse(
+      fs.readFileSync(
+        'test/fixtures/npm/issue-grouping/singleProjectResults.json',
+        'utf-8',
+      ),
+    );
+
+    const jsonDataFixture = JSON.parse(
+      fs.readFileSync(
+        'test/fixtures/npm/issue-grouping/singleProjectJsonData.json',
+        'utf-8',
+      ),
+    );
+
+    const jsonDataGroupedFixture = JSON.parse(
+      fs.readFileSync(
+        'test/fixtures/npm/issue-grouping/singleProjectJsonDataGrouped.json',
+        'utf-8',
+      ),
+    );
+
+    const jsonDataNonGroupedFixture = JSON.parse(
+      fs.readFileSync(
+        'test/fixtures/npm/issue-grouping/singleProjectJsonDataNonGrouped.json',
+        'utf-8',
+      ),
+    );
+
+    it('should create grouped Snyk JSON and only grouped Snyk JSON if `--json` and `--group-issues` is set in the options', () => {
+      const options = {
+        json: true,
+        'group-issues': true,
+      } as Options;
+      const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+      const res = extractDataToSendFromResults(
+        resultsFixture,
+        jsonDataFixture,
+        options,
+      );
+      expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+        jsonDataGroupedFixture,
+      );
+      expect(res.stringifiedData).not.toBe('');
+      expect(res.stringifiedJsonData).not.toBe('');
+      expect(res.stringifiedSarifData).toBe('');
+      expect(JSON.parse(res.stringifiedJsonData).vulnerabilities).toHaveLength(
+        7,
+      );
+    });
+
+    it('should create non-grouped Snyk JSON and only Snyk JSON if `--json` is set in the options', () => {
+      const options = {
+        json: true,
+      } as Options;
+      const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+      const res = extractDataToSendFromResults(
+        resultsFixture,
+        jsonDataFixture,
+        options,
+      );
+      expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+      expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+        jsonDataNonGroupedFixture,
+      );
+      expect(res.stringifiedData).not.toBe('');
+      expect(res.stringifiedJsonData).not.toBe('');
+      expect(res.stringifiedSarifData).toBe('');
+      expect(JSON.parse(res.stringifiedJsonData).vulnerabilities).toHaveLength(
+        11,
+      );
+    });
+  });
+
   describe('container image json results', () => {
     const resultsContainerFixture = JSON.parse(
       fs.readFileSync('test/fixtures/basic-apk/results.json', 'utf-8'),
