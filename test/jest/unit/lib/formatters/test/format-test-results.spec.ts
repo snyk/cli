@@ -142,16 +142,16 @@ describe('extractDataToSendFromResults', () => {
         ),
       );
 
-      const jsonDataGroupedFixture = JSON.parse(
+      const resultJsonDataGroupedFixture = JSON.parse(
         fs.readFileSync(
-          'test/fixtures/npm/issue-grouping/singleProjectJsonDataGrouped.json',
+          'test/fixtures/npm/issue-grouping/singleProjectResultJsonDataGrouped.json',
           'utf-8',
         ),
       );
 
-      const jsonDataNonGroupedFixture = JSON.parse(
+      const resultJsonDataNonGroupedFixture = JSON.parse(
         fs.readFileSync(
-          'test/fixtures/npm/issue-grouping/singleProjectJsonDataNonGrouped.json',
+          'test/fixtures/npm/issue-grouping/singleProjectResultJsonDataNonGrouped.json',
           'utf-8',
         ),
       );
@@ -169,7 +169,7 @@ describe('extractDataToSendFromResults', () => {
         );
         expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
         expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-          jsonDataGroupedFixture,
+          resultJsonDataGroupedFixture,
         );
         expect(res.stringifiedData).not.toBe('');
         expect(res.stringifiedJsonData).not.toBe('');
@@ -191,7 +191,7 @@ describe('extractDataToSendFromResults', () => {
         );
         expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
         expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-          jsonDataNonGroupedFixture,
+          resultJsonDataNonGroupedFixture,
         );
         expect(res.stringifiedData).not.toBe('');
         expect(res.stringifiedJsonData).not.toBe('');
@@ -217,16 +217,16 @@ describe('extractDataToSendFromResults', () => {
         ),
       );
 
-      const jsonDataGroupedFixture = JSON.parse(
+      const resultJsonDataGroupedFixture = JSON.parse(
         fs.readFileSync(
-          'test/fixtures/npm/issue-grouping/multiProjectJsonDataGrouped.json',
+          'test/fixtures/npm/issue-grouping/multiProjectResultJsonDataGrouped.json',
           'utf-8',
         ),
       );
 
-      const jsonDataNonGroupedFixture = JSON.parse(
+      const resultJsonDataNonGroupedFixture = JSON.parse(
         fs.readFileSync(
-          'test/fixtures/npm/issue-grouping/multiProjectJsonDataNonGrouped.json',
+          'test/fixtures/npm/issue-grouping/multiProjectResultJsonDataNonGrouped.json',
           'utf-8',
         ),
       );
@@ -244,7 +244,7 @@ describe('extractDataToSendFromResults', () => {
         );
         expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
         expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-          jsonDataGroupedFixture,
+          resultJsonDataGroupedFixture,
         );
         expect(res.stringifiedData).not.toBe('');
         expect(res.stringifiedJsonData).not.toBe('');
@@ -269,7 +269,7 @@ describe('extractDataToSendFromResults', () => {
         );
         expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
         expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-          jsonDataNonGroupedFixture,
+          resultJsonDataNonGroupedFixture,
         );
         expect(res.stringifiedData).not.toBe('');
         expect(res.stringifiedJsonData).not.toBe('');
@@ -291,8 +291,11 @@ describe('extractDataToSendFromResults', () => {
     const jsonDataContainerFixture = JSON.parse(
       fs.readFileSync('test/fixtures/basic-apk/jsonData.json', 'utf-8'),
     );
-    const jsonDataGroupedContainerFixture = JSON.parse(
-      fs.readFileSync('test/fixtures/basic-apk/jsonDataGrouped.json', 'utf-8'),
+    const resultJsonDataGroupedContainerFixture = JSON.parse(
+      fs.readFileSync(
+        'test/fixtures/basic-apk/resultJsonDataGrouped.json',
+        'utf-8',
+      ),
     );
 
     it('should create Snyk grouped JSON for container image if `--json` and `--group-issues` are set in the options', () => {
@@ -308,7 +311,7 @@ describe('extractDataToSendFromResults', () => {
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
       expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-        jsonDataGroupedContainerFixture,
+        resultJsonDataGroupedContainerFixture,
       );
       expect(res.stringifiedData).not.toBe('');
       expect(res.stringifiedJsonData).not.toBe('');
@@ -329,15 +332,15 @@ describe('extractDataToSendFromResults', () => {
         'utf-8',
       ),
     );
-    const jsonDataGroupedContainerAppVulnsFixture = JSON.parse(
+    const resultJsonDataGroupedContainerAppVulnsFixture = JSON.parse(
       fs.readFileSync(
-        'test/fixtures/container-app-vulns/jsonDataGrouped.json',
+        'test/fixtures/container-app-vulns/resultJsonDataGrouped.json',
         'utf-8',
       ),
     );
-    const jsonDataNonGroupedContainerAppVulnsFixture = JSON.parse(
+    const resultJsonDataNonGroupedContainerAppVulnsFixture = JSON.parse(
       fs.readFileSync(
-        'test/fixtures/container-app-vulns/jsonDataNonGrouped.json',
+        'test/fixtures/container-app-vulns/resultJsonDataNonGrouped.json',
         'utf-8',
       ),
     );
@@ -355,7 +358,7 @@ describe('extractDataToSendFromResults', () => {
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
       expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-        jsonDataGroupedContainerAppVulnsFixture,
+        resultJsonDataGroupedContainerAppVulnsFixture,
       );
       expect(res.stringifiedData).not.toBe('');
       expect(res.stringifiedJsonData).not.toBe('');
@@ -380,7 +383,7 @@ describe('extractDataToSendFromResults', () => {
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
       expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-        jsonDataNonGroupedContainerAppVulnsFixture,
+        resultJsonDataNonGroupedContainerAppVulnsFixture,
       );
       expect(res.stringifiedData).not.toBe('');
       expect(res.stringifiedJsonData).not.toBe('');
