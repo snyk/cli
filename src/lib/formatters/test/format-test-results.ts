@@ -82,7 +82,7 @@ export function extractDataToSendFromResults(
 
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
-    if (Array.isArray(jsonData) && options['app-vulns']) {
+    if (Array.isArray(jsonData)) {
       const jsonResult = jsonData.map((res) => formatJsonOutput(res, options));
       stringifiedJsonData = jsonStringifyLargeObject(jsonResult);
     } else {

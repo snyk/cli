@@ -127,77 +127,160 @@ describe('extractDataToSendFromResults', () => {
   });
 
   describe('open source results grouping', () => {
-    const resultsFixture = JSON.parse(
-      fs.readFileSync(
-        'test/fixtures/npm/issue-grouping/singleProjectResults.json',
-        'utf-8',
-      ),
-    );
-
-    const jsonDataFixture = JSON.parse(
-      fs.readFileSync(
-        'test/fixtures/npm/issue-grouping/singleProjectJsonData.json',
-        'utf-8',
-      ),
-    );
-
-    const jsonDataGroupedFixture = JSON.parse(
-      fs.readFileSync(
-        'test/fixtures/npm/issue-grouping/singleProjectJsonDataGrouped.json',
-        'utf-8',
-      ),
-    );
-
-    const jsonDataNonGroupedFixture = JSON.parse(
-      fs.readFileSync(
-        'test/fixtures/npm/issue-grouping/singleProjectJsonDataNonGrouped.json',
-        'utf-8',
-      ),
-    );
-
-    it('should create grouped Snyk JSON and only grouped Snyk JSON if `--json` and `--group-issues` is set in the options', () => {
-      const options = {
-        json: true,
-        'group-issues': true,
-      } as Options;
-      const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
-      const res = extractDataToSendFromResults(
-        resultsFixture,
-        jsonDataFixture,
-        options,
+    describe('single project results grouping', () => {
+      const resultsFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/npm/issue-grouping/singleProjectResults.json',
+          'utf-8',
+        ),
       );
-      expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
-      expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-        jsonDataGroupedFixture,
+
+      const jsonDataFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/npm/issue-grouping/singleProjectJsonData.json',
+          'utf-8',
+        ),
       );
-      expect(res.stringifiedData).not.toBe('');
-      expect(res.stringifiedJsonData).not.toBe('');
-      expect(res.stringifiedSarifData).toBe('');
-      expect(JSON.parse(res.stringifiedJsonData).vulnerabilities).toHaveLength(
-        7,
+
+      const jsonDataGroupedFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/npm/issue-grouping/singleProjectJsonDataGrouped.json',
+          'utf-8',
+        ),
       );
+
+      const jsonDataNonGroupedFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/npm/issue-grouping/singleProjectJsonDataNonGrouped.json',
+          'utf-8',
+        ),
+      );
+
+      it('should create grouped Snyk JSON and only grouped Snyk JSON if `--json` and `--group-issues` is set in the options', () => {
+        const options = {
+          json: true,
+          'group-issues': true,
+        } as Options;
+        const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+        const res = extractDataToSendFromResults(
+          resultsFixture,
+          jsonDataFixture,
+          options,
+        );
+        expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+        expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+          jsonDataGroupedFixture,
+        );
+        expect(res.stringifiedData).not.toBe('');
+        expect(res.stringifiedJsonData).not.toBe('');
+        expect(res.stringifiedSarifData).toBe('');
+        expect(
+          JSON.parse(res.stringifiedJsonData).vulnerabilities,
+        ).toHaveLength(7);
+      });
+
+      it('should create non-grouped Snyk JSON and only Snyk JSON if `--json` is set in the options', () => {
+        const options = {
+          json: true,
+        } as Options;
+        const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+        const res = extractDataToSendFromResults(
+          resultsFixture,
+          jsonDataFixture,
+          options,
+        );
+        expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+        expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+          jsonDataNonGroupedFixture,
+        );
+        expect(res.stringifiedData).not.toBe('');
+        expect(res.stringifiedJsonData).not.toBe('');
+        expect(res.stringifiedSarifData).toBe('');
+        expect(
+          JSON.parse(res.stringifiedJsonData).vulnerabilities,
+        ).toHaveLength(11);
+      });
     });
 
-    it('should create non-grouped Snyk JSON and only Snyk JSON if `--json` is set in the options', () => {
-      const options = {
-        json: true,
-      } as Options;
-      const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
-      const res = extractDataToSendFromResults(
-        resultsFixture,
-        jsonDataFixture,
-        options,
+    describe('multiple project results grouping', () => {
+      const resultsFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/npm/issue-grouping/multiProjectResults.json',
+          'utf-8',
+        ),
       );
-      expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
-      expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
-        jsonDataNonGroupedFixture,
+
+      const jsonDataFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/npm/issue-grouping/multiProjectJsonData.json',
+          'utf-8',
+        ),
       );
-      expect(res.stringifiedData).not.toBe('');
-      expect(res.stringifiedJsonData).not.toBe('');
-      expect(res.stringifiedSarifData).toBe('');
-      expect(JSON.parse(res.stringifiedJsonData).vulnerabilities).toHaveLength(
-        11,
+
+      const jsonDataGroupedFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/npm/issue-grouping/multiProjectJsonDataGrouped.json',
+          'utf-8',
+        ),
       );
+
+      const jsonDataNonGroupedFixture = JSON.parse(
+        fs.readFileSync(
+          'test/fixtures/npm/issue-grouping/multiProjectJsonDataNonGrouped.json',
+          'utf-8',
+        ),
+      );
+
+      it('should create grouped Snyk JSON for each of the projects in the result if `--json` and `--group-issues` is set in the options', () => {
+        const options = {
+          json: true,
+          'group-issues': true,
+        } as Options;
+        const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+        const res = extractDataToSendFromResults(
+          resultsFixture,
+          jsonDataFixture,
+          options,
+        );
+        expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+        expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+          jsonDataGroupedFixture,
+        );
+        expect(res.stringifiedData).not.toBe('');
+        expect(res.stringifiedJsonData).not.toBe('');
+        expect(res.stringifiedSarifData).toBe('');
+        expect(
+          JSON.parse(res.stringifiedJsonData)[0].vulnerabilities,
+        ).toHaveLength(7);
+        expect(
+          JSON.parse(res.stringifiedJsonData)[1].vulnerabilities,
+        ).toHaveLength(2);
+      });
+
+      it('should create non-grouped Snyk JSON for each of the projects in the result if `--json` is set in the options', () => {
+        const options = {
+          json: true,
+        } as Options;
+        const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
+        const res = extractDataToSendFromResults(
+          resultsFixture,
+          jsonDataFixture,
+          options,
+        );
+        expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
+        expect(JSON.parse(res.stringifiedJsonData)).toMatchObject(
+          jsonDataNonGroupedFixture,
+        );
+        expect(res.stringifiedData).not.toBe('');
+        expect(res.stringifiedJsonData).not.toBe('');
+        expect(res.stringifiedSarifData).toBe('');
+        expect(
+          JSON.parse(res.stringifiedJsonData)[0].vulnerabilities,
+        ).toHaveLength(11);
+        expect(
+          JSON.parse(res.stringifiedJsonData)[1].vulnerabilities,
+        ).toHaveLength(4);
+      });
     });
   });
 
@@ -259,10 +342,9 @@ describe('extractDataToSendFromResults', () => {
       ),
     );
 
-    it('should create Snyk grouped JSON for each of the multiple test results if `--json`, `--app-vulns` and `--group-issues` are set in the options', () => {
+    it('should create Snyk grouped JSON for each of the multiple test results if `--json` and `--group-issues` are set in the options', () => {
       const options = {
         json: true,
-        'app-vulns': true,
         'group-issues': true,
       } as Options;
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
@@ -286,10 +368,9 @@ describe('extractDataToSendFromResults', () => {
       ).toHaveLength(7);
     });
 
-    it('should create a non-grouped JSON for each of the test results if `--json` and `--app-vulns` options are set and `--group-issues` is not set', () => {
+    it('should create a non-grouped JSON for each of the test results if `--json` option is set and `--group-issues` is not set', () => {
       const options = {
         json: true,
-        'app-vulns': true,
       } as Options;
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
