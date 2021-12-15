@@ -82,6 +82,7 @@
     "@snyk/snyk-hex-plugin": "1.1.4",
     "@types/marked": "^4.0.0",
     "abbrev": "^1.1.1",
+    "adm-zip": "^0.5.9",
     "ansi-escapes": "3.2.0",
     "chalk": "^2.4.2",
     "cli-spinner": "0.2.10",

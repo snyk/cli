@@ -249,6 +249,7 @@ export enum SupportedCliCommands {
   ignore = 'ignore',
   wizard = 'wizard',
   woof = 'woof',
+  log4shell = 'log4shell',
 }
 
 export interface IacFileInDirectory {
