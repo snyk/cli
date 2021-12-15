@@ -35,7 +35,7 @@ import {
 } from 'snyk-docker-plugin/dist';
 import { ScanResult } from '../../ecosystems/types';
 
-export function formatJsonOutput(jsonData, options: Options) {
+export function formatJsonVulnerabilityStructure(jsonData, options: Options) {
   const jsonDataClone = cloneDeep(jsonData);
 
   if (options['group-issues']) {
@@ -83,11 +83,13 @@ export function extractDataToSendFromResults(
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
     if (Array.isArray(jsonData)) {
-      const jsonResult = jsonData.map((res) => formatJsonOutput(res, options));
+      const jsonResult = jsonData.map((res) =>
+        formatJsonVulnerabilityStructure(res, options),
+      );
       stringifiedJsonData = jsonStringifyLargeObject(jsonResult);
     } else {
       stringifiedJsonData = jsonStringifyLargeObject(
-        formatJsonOutput(jsonData, options),
+        formatJsonVulnerabilityStructure(jsonData, options),
       );
     }
   }
