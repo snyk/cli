@@ -16,7 +16,7 @@ export default async function help(item?: string | boolean): Promise<string> {
 
   // cleanse the filename to only contain letters
   // aka: /\W/g but figured this was easier to read
-  item = item.replace(/[^a-z-]/gi, '');
+  item = item.replace(/[^a-z0-9-]/gi, '');
 
   try {
     const filename = path.resolve(
