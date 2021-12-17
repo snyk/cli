@@ -34,7 +34,7 @@ Describe "Snyk iac local test command"
 
       # Outputs issues
       The output should include "Infrastructure as code issues:"
-      #The output should include "✗ Container is running in privileged mode"
+      The output should include "✗ "
       The output should include "  introduced by"
     End
 
@@ -45,7 +45,7 @@ Describe "Snyk iac local test command"
 
           # Outputs issues
           The output should include "Infrastructure as code issues:"
-          #The output should include "✗ Container is running in privileged mode"
+          The output should include "✗ "
           The output should include "  introduced by"
         End
 
@@ -166,8 +166,6 @@ Describe "Snyk iac local test command"
       The output should include "Tested ../fixtures/iac/terraform/sg_open_ssh.tf for known issues, found"
     End
 
-    # TODO: currently skipped because the parser we're using doesn't fail on invalid terraform
-    # will be fixed before beta
     It "outputs an error for invalid terraforom files"
       When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf
       The status should equal 2
