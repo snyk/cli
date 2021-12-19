@@ -152,7 +152,7 @@ async function traverse(path: Path, handle: FileHandler) {
 }
 
 function isJavaArchive(path: Path) {
-  return path.endsWith('.jar') || path.endsWith('.war');
+  return path.endsWith('.jar') || path.endsWith('.war') || path.endsWith('ear');
 }
 
 function isJvmFile(path: Path) {
