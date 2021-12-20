@@ -37,6 +37,7 @@ A vulnerable version of log4j was detected:
 \t ./log4j-core-2.14.0.jar
 \t ./log4j-core-2.14.1.jar
 \t ./log4j-core-2.15.0.jar
+\t ./log4j-core-2.16.0.jar
 
  We highly recommend fixing this vulnerability. If it cannot be fixed by upgrading, see mitigation information here:
       \t- https://security.snyk.io/vuln/SNYK-JAVA-ORGAPACHELOGGINGLOG4J-2314720
