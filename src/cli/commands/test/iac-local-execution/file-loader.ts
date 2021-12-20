@@ -18,18 +18,9 @@ export async function loadFiles(
   pathToScan: string,
   options: IaCTestFlags = {},
 ): Promise<IacFileData[]> {
-  let iacFilesData: IacFileData[] = [];
-
-  if (isLocalFolder(pathToScan)) {
-    iacFilesData = await getIacFilesData(pathToScan, {
-      maxDepth: options.detectionDepth,
-    });
-  } else {
-    const iacFileData = await tryLoadFileData(pathToScan);
-    if (iacFileData) {
-      iacFilesData.push(iacFileData);
-    }
-  }
+  const iacFilesData: IacFileData[] = await getIacFilesData(pathToScan, {
+    maxDepth: options.detectionDepth,
+  });
 
   if (iacFilesData.length === 0) {
     throw new NoFilesToScanError();
@@ -42,15 +33,23 @@ async function getIacFilesData(
   pathToScan: string,
   options: { maxDepth?: number } = {},
 ): Promise<IacFileData[]> {
-  const directoryPaths = makeDirectoryIterator(pathToScan, {
-    maxDepth: options.maxDepth,
-  });
+  let directoryPaths: string[] | Generator<string> = [pathToScan];
+
+  if (isLocalFolder(pathToScan)) {
+    directoryPaths = makeDirectoryIterator(pathToScan, {
+      maxDepth: options.maxDepth,
+    });
+  }
 
   const filesToScan: IacFileData[] = [];
   for (const filePath of directoryPaths) {
-    const fileData = await tryLoadFileData(filePath);
-    if (fileData) {
-      filesToScan.push(fileData);
+    try {
+      const fileData = await tryLoadFileData(filePath);
+      if (fileData) {
+        filesToScan.push(fileData);
+      }
+    } catch {
+      throw new FailedToLoadFileError(filePath);
     }
   }
   return filesToScan;
@@ -59,24 +58,20 @@ async function getIacFilesData(
 export async function tryLoadFileData(
   pathToScan: string,
 ): Promise<IacFileData | null> {
-  try {
-    const fileType = getFileType(pathToScan);
-    if (!VALID_FILE_TYPES.includes(fileType)) {
-      return null;
-    }
-
-    const fileContent = (
-      await fs.readFile(pathToScan, DEFAULT_ENCODING)
-    ).toString();
-
-    return {
-      filePath: pathToScan,
-      fileType: fileType as IacFileTypes,
-      fileContent,
-    };
-  } catch (err) {
-    throw new FailedToLoadFileError(pathToScan);
+  const fileType = getFileType(pathToScan);
+  if (!VALID_FILE_TYPES.includes(fileType)) {
+    return null;
   }
+
+  const fileContent = (
+    await fs.readFile(pathToScan, DEFAULT_ENCODING)
+  ).toString();
+
+  return {
+    filePath: pathToScan,
+    fileType: fileType as IacFileTypes,
+    fileContent,
+  };
 }
 
 export class NoFilesToScanError extends CustomError {
