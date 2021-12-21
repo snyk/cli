@@ -18,54 +18,61 @@ export async function loadFiles(
   pathToScan: string,
   options: IaCTestFlags = {},
 ): Promise<IacFileData[]> {
-  let filePaths = [pathToScan];
+  const filePaths = getFilePathsFromDirectory(pathToScan, {
+    maxDepth: options.detectionDepth,
+  });
 
-  if (isLocalFolder(pathToScan)) {
-    filePaths = getFilePathsFromDirectory(pathToScan, {
-      maxDepth: options.detectionDepth,
-    });
-  }
-
-  const filesToScan: IacFileData[] = [];
-  for (const filePath of filePaths) {
-    try {
-      const fileData = await tryLoadFileData(filePath);
-      if (fileData) {
-        filesToScan.push(fileData);
-      }
-    } catch (e) {
-      throw new FailedToLoadFileError(filePath);
-    }
-  }
-
-  if (filesToScan.length === 0) {
+  if (filePaths.length === 0) {
     throw new NoFilesToScanError();
   }
-  return filesToScan.filter((file) => file.fileContent !== '');
+
+  const loadedFiles: IacFileData[] = await Promise.all(
+    filePaths.map(async (filePath) => {
+      try {
+        return await tryLoadFileData(filePath);
+      } catch (e) {
+        throw new FailedToLoadFileError(filePath);
+      }
+    }),
+  );
+
+  return loadedFiles.filter((file) => file.fileContent !== '');
+}
+
+function hasValidFileType(filePath: string): boolean {
+  return VALID_FILE_TYPES.includes(getFileType(filePath));
 }
 
 function getFilePathsFromDirectory(
   pathToScan: string,
   options: { maxDepth?: number } = {},
 ): string[] {
-  const directoryPaths = makeDirectoryIterator(pathToScan, {
-    maxDepth: options.maxDepth,
-  });
+  const resFilePaths: string[] = [];
 
-  const directoryFilePaths: string[] = [];
-  for (const filePath of directoryPaths) {
-    directoryFilePaths.push(filePath);
+  if (isLocalFolder(pathToScan)) {
+    // Directory
+    const dirIterator = makeDirectoryIterator(pathToScan, {
+      maxDepth: options.maxDepth,
+    });
+
+    for (const filePath of dirIterator) {
+      if (hasValidFileType(filePath)) {
+        resFilePaths.push(filePath);
+      }
+    }
+  } else {
+    // File
+    if (hasValidFileType(pathToScan)) {
+      resFilePaths.push(pathToScan);
+    }
   }
-  return directoryFilePaths;
+  return resFilePaths;
 }
 
 export async function tryLoadFileData(
   pathToScan: string,
-): Promise<IacFileData | null> {
+): Promise<IacFileData> {
   const fileType = getFileType(pathToScan);
-  if (!VALID_FILE_TYPES.includes(fileType)) {
-    return null;
-  }
 
   const fileContent = (
     await fs.readFile(pathToScan, DEFAULT_ENCODING)
