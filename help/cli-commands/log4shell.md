@@ -1,4 +1,4 @@
-# snyk log4shell -- Log4shell sniffer
+# snyk log4shell -- Finds Log4Shell vulnerability
 
 ## Usage
 

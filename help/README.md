@@ -1,6 +1,6 @@
 # CLI Help files
 
-Snyk CLI help files are in the `help/cli-commands` folder.
+[Snyk CLI help files are in the `help/cli-commands` folder.](./cli-commands)
 
 ## Updating or adding help documents
 

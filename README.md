@@ -160,11 +160,13 @@ Snyk also offers many integrations into developer tooling. These integrations wi
 
 # Getting started with Snyk CLI
 
-Once you installed the Snyk CLI, you can verify it's working by running
+Once you installed the Snyk CLI, you can verify it's working by running:
 
 ```bash
-snyk --version
+snyk --help
 ```
+
+See the [full Snyk CLI help](./help/cli-commands).
 
 ## Authorization
 
@@ -246,7 +248,7 @@ Here are some flags that you might find useful:
 
   Auto-detect all projects in working directory
 
-See all the available commands and options by running `--help`:
+[See all the available commands and options](./help/cli-commands) by running `--help`:
 
 ```bash
 snyk --help
