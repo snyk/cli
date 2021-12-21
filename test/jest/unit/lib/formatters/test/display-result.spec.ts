@@ -24,6 +24,30 @@ describe('displayResult', () => {
     expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
   });
 
+  it('Docker test result no file path and base image auto detected', () => {
+    const withRemediationBaseImage = JSON.parse(
+      fs.readFileSync(
+        path.resolve(
+          __dirname,
+          '../../../../../',
+          'acceptance/workspaces/fail-on/docker/fixable/vulns.json',
+        ),
+        'utf8',
+      ),
+    );
+    const withDetectedBaseImage = {
+      ...withRemediationBaseImage,
+      docker: { ...withRemediationBaseImage.docker, baseImage: 'base Image' },
+    };
+
+    const res = displayResult(
+      withDetectedBaseImage,
+      { showVulnPaths: 'all', path: 'src', docker: true },
+      3,
+    );
+    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+  });
+
   it('Docker test result with base image non resolvable warning', () => {
     const withWarning = JSON.parse(
       fs.readFileSync(
