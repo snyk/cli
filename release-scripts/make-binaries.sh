@@ -8,7 +8,8 @@ npx pkg . --compress Brotli -t node14-linux-x64  -o binary-releases/snyk-linux
 npx pkg . --compress Brotli -t node14-macos-x64  -o binary-releases/snyk-macos
 npx pkg . --compress Brotli -t node14-win-x64    -o binary-releases/snyk-win-unsigned.exe
 
-# build docker package
+./docker-desktop/build.sh darwin x64
+./docker-desktop/build.sh darwin arm64
 ./release-scripts/docker-desktop-release.sh
 
 # sign the windows binary
