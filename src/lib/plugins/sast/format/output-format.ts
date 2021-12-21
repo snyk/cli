@@ -5,11 +5,12 @@ import { icon, color } from '../../../theme';
 import { colorTextBySeverity, SEVERITY } from '../../../snyk-test/common';
 import { rightPadWithSpaces } from '../../../right-pad';
 import { Options } from '../../../types';
+import { Log } from '../types';
 
 const debug = Debug('code-output');
 
 export function getCodeDisplayedOutput(
-  codeTest: Sarif.Log,
+  codeTest: Log,
   meta: string,
   prefix: string,
 ): string {

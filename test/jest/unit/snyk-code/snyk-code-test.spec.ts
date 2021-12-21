@@ -6,6 +6,7 @@ jest.mock('@snyk/code-client');
 const analyzeFoldersMock = analyzeFolders as jest.Mock;
 
 import { loadJson } from '../../../utils';
+import config from '../../../../src/lib/config';
 import * as checks from '../../../../src/lib/plugins/sast/checks';
 import { config as userConfig } from '../../../../src/lib/user-config';
 import * as analysis from '../../../../src/lib/plugins/sast/analysis';
@@ -25,6 +26,8 @@ describe('Test snyk code', () => {
   let trackUsageSpy;
   const failedCodeTestMessage = "Failed to run 'code test'";
   const fakeApiKey = '123456789';
+  const baseURL = config.CODE_CLIENT_PROXY_URL;
+  const LCEbaseURL = 'https://my-proxy-server';
   const sampleSarifResponse = loadJson(
     path.join(__dirname, '/../../../fixtures/sast/sample-sarif.json'),
   );
@@ -410,6 +413,7 @@ describe('Test snyk code', () => {
       'Snyk Code Local Engine is enabled, Snyk Code CLI is temporary disabled.',
     );
   });
+
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
     const sessionToken = expect.any(String);
@@ -429,25 +433,122 @@ describe('Test snyk code', () => {
       fileOptions: { paths },
     };
 
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
+    };
+
     const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
       sampleAnalyzeFoldersResponse,
     );
-    await getCodeAnalysisAndParseResults('.', {
-      path: '',
-      code: true,
-    });
+    await getCodeAnalysisAndParseResults(
+      '.',
+      {
+        path: '',
+        code: true,
+      },
+      sastSettings,
+    );
 
     expect(analyzeFoldersSpy.mock.calls[0]).toEqual([codeAnalysisArgs]);
   });
 
-  it('analyzeFolders should should return the right sarif response', async () => {
+  it('analyzeFolders should return the right sarif response', async () => {
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: { url: '', allowCloudUpload: true, enabled: false },
+    };
+
     analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
-    const actual = await getCodeAnalysisAndParseResults('.', {
-      path: '',
-      code: true,
-    });
+    const actual = await getCodeAnalysisAndParseResults(
+      '.',
+      {
+        path: '',
+        code: true,
+      },
+      sastSettings,
+    );
 
     expect(actual).toEqual(sampleSarifResponse);
+  });
+
+  it.each([
+    [
+      "use LCE's baseUrl when feature is enabled",
+      LCEbaseURL,
+      {
+        sastEnabled: true,
+        localCodeEngine: {
+          url: LCEbaseURL,
+          allowCloudUpload: false,
+          enabled: true,
+        },
+      },
+    ],
+    [
+      "use cloud solution when LCE's feature is not enabled",
+      baseURL,
+      {
+        sastEnabled: true,
+        localCodeEngine: {
+          url: LCEbaseURL,
+          allowCloudUpload: true,
+          enabled: false,
+        },
+      },
+    ],
+  ])(
+    'Local code engine - analyzeFolders should %s',
+    async (msg, baseURL, sastSettings) => {
+      const sessionToken = expect.any(String);
+      const source = expect.any(String);
+      const severity = AnalysisSeverity.info;
+      const paths: string[] = ['.'];
+
+      const codeAnalysisArgs = {
+        connection: {
+          baseURL,
+          sessionToken,
+          source,
+        },
+        analysisOptions: {
+          severity,
+        },
+        fileOptions: { paths },
+      };
+
+      const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
+        sampleAnalyzeFoldersResponse,
+      );
+      await getCodeAnalysisAndParseResults(
+        '.',
+        {
+          path: '',
+          code: true,
+        },
+        sastSettings,
+      );
+
+      expect(analyzeFoldersSpy.mock.calls[0]).toEqual([codeAnalysisArgs]);
+    },
+  );
+
+  it('Local code engine - should throw error, when enabled and url is missing', async () => {
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: { url: '', allowCloudUpload: true, enabled: true },
+    };
+
+    await expect(
+      getCodeAnalysisAndParseResults(
+        '.',
+        {
+          path: '',
+          code: true,
+        },
+        sastSettings,
+      ),
+    ).rejects.toThrowError('Missing configuration for Local Code Engine.');
   });
 });
 
