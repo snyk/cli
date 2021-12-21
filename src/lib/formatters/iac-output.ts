@@ -12,11 +12,11 @@ import {
 import { printPath } from './remediation-based-format-issues';
 import { titleCaseText } from './legacy-format-issue';
 import * as sarif from 'sarif';
-import { SEVERITY } from '../../lib/snyk-test/legacy';
 import { colorTextBySeverity } from '../../lib/snyk-test/common';
 import { IacFileInDirectory } from '../../lib/types';
 import { isLocalFolder } from '../../lib/detect';
 import { getSeverityValue } from './get-severity-value';
+import { getIssueLevel } from './sarif-output';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -175,12 +175,6 @@ export function createSarifOutputForIac(
       },
     ],
   };
-}
-
-function getIssueLevel(
-  severity: SEVERITY | 'none',
-): sarif.ReportingConfiguration.level {
-  return severity === SEVERITY.HIGH ? 'error' : 'warning';
 }
 
 export function extractReportingDescriptor(
