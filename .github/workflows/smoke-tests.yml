@@ -94,7 +94,9 @@ jobs:
           pushd "$(mktemp -d)"
           curl 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz --strip-components=1
           ls -la
-          sudo ln -s "$(pwd)/entrypoint.sh" /usr/local/bin/snyk
+          sudo ln -s "$(pwd)/entrypoint.sh" ./snyk
+          export PATH="$(pwd):${PATH}"
+          echo "$(pwd)" >> "${GITHUB_PATH}"
           popd
           which snyk
           snyk version
@@ -176,7 +178,6 @@ jobs:
         env:
           SMOKE_TESTS_SNYK_TOKEN: ${{ secrets.SMOKE_TESTS_SNYK_TOKEN }}
         run: |
-          export PATH="/usr/local/bin/snyk-mac/docker:$PATH"
           which snyk
           snyk version
           shellspec -f d
