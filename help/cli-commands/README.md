@@ -46,10 +46,6 @@ Finds Log4Shell vulnerability.
 
 Manage Snyk CLI configuration.
 
-### [`snyk protect`](./protect.md)
-
-Applies the patches specified in your .snyk file to the local file system.
-
 ### [`snyk policy`](./policy.md)
 
 Display the `.snyk` policy for a package.
@@ -57,7 +53,3 @@ Display the `.snyk` policy for a package.
 ### [`snyk ignore`](./ignore.md)
 
 Modifies the `.snyk` policy to ignore stated issues.
-
-### [`snyk wizard`](./wizard.md)
-
-Configure your `.snyk` policy file.
