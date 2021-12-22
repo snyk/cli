@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { renderMarkdown } from './markdown-renderer';
 
-const DEFAULT_HELP = 'snyk';
+const DEFAULT_HELP = 'README';
 
 function readHelpFile(filename: string): string {
   const file = fs.readFileSync(filename, 'utf8');
@@ -22,7 +22,7 @@ export default async function help(item?: string | boolean): Promise<string> {
     const filename = path.resolve(
       __dirname,
       '../../help/cli-commands', // this is a relative path from the webpack dist directory
-      item === DEFAULT_HELP ? `${DEFAULT_HELP}.md` : `snyk-${item}.md`,
+      item === DEFAULT_HELP ? `${DEFAULT_HELP}.md` : `${item}.md`,
     );
     return readHelpFile(filename);
   } catch (error) {

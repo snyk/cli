@@ -39,6 +39,10 @@ const renderer = {
     return chalk.bold(text);
   },
   link(href, title, text) {
+    // Don't render links to relative paths (like local files)
+    if (href.startsWith('./')) {
+      return text;
+    }
     const renderedLink = chalk.bold.blueBright(href);
     if (text && text !== href) {
       return `${text} ${renderedLink}`;
