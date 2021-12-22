@@ -40,6 +40,7 @@ async function getCodeAnalysis(
     ? sastSettings.localCodeEngine.url
     : config.CODE_CLIENT_PROXY_URL;
 
+  const source = 'snyk-cli';
   // TODO(james) This mirrors the implementation in request.ts and we need to use this for deeproxy calls
   // This ensures we support lowercase http(s)_proxy values as well
   // The weird IF around it ensures we don't create an envvar with
@@ -66,9 +67,15 @@ async function getCodeAnalysis(
     : AnalysisSeverity.info;
 
   const result = await analyzeFolders({
-    connection: { baseURL, sessionToken, source: 'snyk-cli' },
+    connection: { baseURL, sessionToken, source },
     analysisOptions: { severity },
     fileOptions: { paths: [root] },
+    analysisContext: {
+      initiator: 'CLI',
+      flow: source,
+      orgDisplayName: config.org,
+      projectName: config.PROJECT_NAME,
+    },
   });
 
   if (result?.analysisResults.type === 'sarif') {
