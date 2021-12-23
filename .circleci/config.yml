@@ -4,6 +4,7 @@ orbs:
   win: circleci/windows@2.4.1
   aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@1.0.4
+  node: circleci/node@5.0.0
 
 defaults: &defaults
   parameters:
@@ -64,7 +65,6 @@ commands:
           command: |
             npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
             npm config set cache << parameters.npm_cache_directory >>
-            npm config set prefer-offline true
       - run:
           name: Installing project dependencies
           command: npm ci
@@ -274,7 +274,74 @@ jobs:
             - run:
                 name: Running system tests (Tap)
                 command: npm run test:system
-  test-linux:
+  test-linux-arm64:
+    <<: *defaults
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.large
+    working_directory: ~/snyk
+    steps:
+      - checkout
+      - node/install:
+          node-version: << parameters.node_version >>
+      - install_sdks_linux
+      - install_project_dependencies:
+          npm_cache_directory: ~/.npm
+          node_version: << parameters.node_version >>
+          npm_global_sudo: false
+      - attach_workspace:
+          at: .
+      - run:
+          name: Configuring Snyk CLI
+          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Running unit tests (Packages)
+                command: npm run test:packages-unit -- --ci
+      - when:
+          condition: << parameters.package_tests >>
+          steps:
+            - run:
+                name: Running acceptance tests (Packages)
+                command: npm run test:packages-acceptance -- --ci
+      - when:
+          condition: << parameters.root_tap_tests >>
+          steps:
+            - run:
+                name: Running root tests (Tap)
+                command: npm run test:test
+      - when:
+          condition: << parameters.jest_tests >>
+          steps:
+            - run:
+                name: Running root tests (Jest)
+                command: npm run test:jest -- --ci
+            - run:
+                name: Running unit tests (Jest)
+                command: npm run test:jest-unit -- --ci
+            - run:
+                name: Running system tests (Jest)
+                command: npm run test:jest-system -- --ci
+            - aws-cli/install:
+                version: 2.2.32
+            - run:
+                name: Running acceptance tests (Jest)
+                command: npm run test:jest-acceptance -- --ci
+      - when:
+          condition: << parameters.acceptance_tests >>
+          steps:
+            - run:
+                name: Running acceptance tests (Tap)
+                command: npm run test:acceptance
+      - when:
+          condition: << parameters.system_tests >>
+          steps:
+            - run:
+                name: Running system tests (Tap)
+                command: npm run test:system
+  test-linux-x64:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
@@ -437,18 +504,51 @@ workflows:
           name: Build
           context: nodejs-install
 
-      - regression-test:
-          name: Regression Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
+      # - regression-test:
+      #     name: Regression Tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
 
-      - test-windows:
-          name: Windows, Node v14.17.5 - Packages, Jest, System Tests
+      # - test-windows:
+      #     name: Windows, Node v14.17.5 - Packages, Jest, System Tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     jest_tests: true
+      #     system_tests: true
+      #     package_tests: true
+      # - test-windows:
+      #     name: Windows, Node v14.17.5 - Acceptance Tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     acceptance_tests: true
+      # - test-windows:
+      #     name: Windows, Node v14.17.5 - Root Tap Tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     root_tap_tests: true
+
+      - test-linux-arm64:
+          name: Linux arm64, Node v14.17.5 - Packages, Jest, System Tests
           context: nodejs-install
           requires:
             - Build
@@ -459,8 +559,8 @@ workflows:
           jest_tests: true
           system_tests: true
           package_tests: true
-      - test-windows:
-          name: Windows, Node v14.17.5 - Acceptance Tests
+      - test-linux-arm64:
+          name: Linux arm64, Node v14.17.5 - Acceptance Tests
           context: nodejs-install
           requires:
             - Build
@@ -469,8 +569,8 @@ workflows:
               ignore:
                 - master
           acceptance_tests: true
-      - test-windows:
-          name: Windows, Node v14.17.5 - Root Tap Tests
+      - test-linux-arm64:
+          name: Linux arm64, Node v14.17.5 - Root Tap Tests
           context: nodejs-install
           requires:
             - Build
@@ -479,64 +579,61 @@ workflows:
               ignore:
                 - master
           root_tap_tests: true
-
-      - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Packages, Jest, System Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
-          jest_tests: true
-          system_tests: true
-          package_tests: true
-      - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Acceptance Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
-          acceptance_tests: true
-      - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Root Tap Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
-          root_tap_tests: true
-
-      - dev-release:
-          name: Development Release
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-
-      - prod-release:
-          name: Production Release
-          context: nodejs-app-release
-          filters:
-            branches:
-              only:
-                - master
-          requires:
-            - Build
+      # - test-linux-x64:
+      #     name: Linux x64, Node v<< matrix.node_version >> - Packages, Jest, System Tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     matrix:
+      #       parameters:
+      #         node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.1']
+      #     jest_tests: true
+      #     system_tests: true
+      #     package_tests: true
+      # - test-linux-x64:
+      #     name: Linux x64, Node v<< matrix.node_version >> - Acceptance Tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     matrix:
+      #       parameters:
+      #         node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.1']
+      #     acceptance_tests: true
+      # - test-linux-x64:
+      #     name: Linux x64, Node v<< matrix.node_version >> - Root Tap Tests
+      #     context: nodejs-install
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      #     matrix:
+      #       parameters:
+      #         node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.1']
+      #     root_tap_tests: true
+      # - dev-release:
+      #     name: Development Release
+      #     requires:
+      #       - Build
+      #     filters:
+      #       branches:
+      #         ignore:
+      #           - master
+      # - prod-release:
+      #     name: Production Release
+      #     context: nodejs-app-release
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      #     requires:
+      #       - Build
