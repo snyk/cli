@@ -431,6 +431,10 @@ describe('Test snyk code', () => {
         severity,
       },
       fileOptions: { paths },
+      analysisContext: {
+        flow: 'snyk-cli',
+        initiator: 'CLI',
+      },
     };
 
     const sastSettings = {
@@ -515,6 +519,10 @@ describe('Test snyk code', () => {
           severity,
         },
         fileOptions: { paths },
+        analysisContext: {
+          flow: 'snyk-cli',
+          initiator: 'CLI',
+        },
       };
 
       const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(

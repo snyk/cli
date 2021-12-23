@@ -36,6 +36,7 @@ async function getCodeAnalysis(
     validateLocalCodeEngineUrl(sastSettings.localCodeEngine.url);
   }
 
+  const source = 'snyk-cli';
   const baseURL = isLocalCodeEngineEnabled
     ? sastSettings.localCodeEngine.url
     : config.CODE_CLIENT_PROXY_URL;
@@ -66,9 +67,15 @@ async function getCodeAnalysis(
     : AnalysisSeverity.info;
 
   const result = await analyzeFolders({
-    connection: { baseURL, sessionToken, source: 'snyk-cli' },
+    connection: { baseURL, sessionToken, source },
     analysisOptions: { severity },
     fileOptions: { paths: [root] },
+    analysisContext: {
+      initiator: 'CLI',
+      flow: source,
+      orgDisplayName: config.org,
+      projectName: config.PROJECT_NAME,
+    },
   });
 
   if (result?.analysisResults.type === 'sarif') {
