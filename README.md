@@ -168,13 +168,19 @@ snyk --help
 
 See the [full Snyk CLI help](./help/cli-commands).
 
-## Authorization
+## Authenticating Snyk CLI
 
 Snyk CLI depends on [Snyk.io](https://snyk.io) APIs. Connect your Snyk CLI with [Snyk.io](https://snyk.io) by running:
 
 ```bash
 snyk auth
 ```
+
+## Setting up language support
+
+Depending on your project's language, you might need to setup your language environment before using Snyk.
+
+See our [Language Support documentation](https://support.snyk.io/hc/en-us/articles/360020352437-Language-support-summary).
 
 ## Scanning your project
 
