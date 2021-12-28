@@ -170,7 +170,11 @@ export function getDisplayedOutput(
   const fixAdvice = fixTip ? `\n\n${fixTip}` : '';
 
   const dockerfileWarning = getDockerfileWarning(res.scanResult);
-  const dockerSuggestion = getDockerSuggestionText(options, config);
+  const dockerSuggestion = getDockerSuggestionText(
+    options,
+    config,
+    res?.docker?.baseImage,
+  );
 
   const vulns = res.vulnerabilities || [];
   const groupedVulns = groupVulnerabilities(vulns);
@@ -244,7 +248,7 @@ export function dockerUserCTA(options) {
   return '';
 }
 
-function getDockerSuggestionText(options, config): string {
+function getDockerSuggestionText(options, config, baseImageRes): string {
   if (!options.docker || options.isDockerUser) {
     return '';
   }
@@ -254,11 +258,13 @@ function getDockerSuggestionText(options, config): string {
     const optOutSuggestions =
       '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`';
     if (!options.file) {
-      dockerSuggestion +=
-        chalk.bold.white(
-          '\n\nPro tip: use `--file` option to get base image remediation advice.' +
-            `\nExample: $ snyk test --docker ${options.path} --file=path/to/Dockerfile`,
-        ) + optOutSuggestions;
+      if (!baseImageRes) {
+        dockerSuggestion +=
+          chalk.bold.white(
+            '\n\nSnyk wasn’t able to auto detect the base image, use `--file` option to get base image remediation advice.' +
+              `\nExample: $ snyk container test ${options.path} --file=path/to/Dockerfile`,
+          ) + optOutSuggestions;
+      }
     } else if (!options['exclude-base-image-vulns']) {
       dockerSuggestion +=
         chalk.bold.white(
@@ -268,7 +274,6 @@ function getDockerSuggestionText(options, config): string {
   }
   return dockerSuggestion;
 }
-
 function getDockerfileWarning(scanResult: ScanResult | undefined): string {
   if (!scanResult) {
     return '';

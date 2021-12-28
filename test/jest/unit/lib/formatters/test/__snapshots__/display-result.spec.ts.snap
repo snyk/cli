@@ -46,10 +46,58 @@ Tested 40 dependencies for known issues, found 3 issues.
 
 Tip: Detected multiple supported manifests (3), use --all-projects to scan all of them at once.
 
-Pro tip: use \`--file\` option to get base image remediation advice.
-Example: $ snyk test --docker src --file=path/to/Dockerfile
+Snyk wasn’t able to auto detect the base image, use \`--file\` option to get base image remediation advice.
+Example: $ snyk container test src --file=path/to/Dockerfile
 
 To remove this message in the future, please run \`snyk config set disableSuggestions=true\`"
+`;
+
+exports[`displayResult Docker test result no file path and base image auto detected 1`] = `
+"
+Testing src...
+
+✗ High severity vulnerability found in musl
+  Description: Out-of-bounds Write
+  Info: [URL]
+  Introduced through: meta-common-packages@meta
+  From: meta-common-packages@meta > musl@1.1.19-r10
+  Fixed in: 1.1.19-r11
+
+✗ High severity vulnerability found in expat
+  Description: XML External Entity (XXE) Injection
+  Info: [URL]
+  Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
+  From: expat@2.2.5-r0
+  From: .python-rundeps@0 > expat@2.2.5-r0
+  From: git@2.18.2-r0 > expat@2.2.5-r0
+  Remediation:
+    Upgrade direct dependency expat@2.2.5-r0 to expat@2.2.7-r0 (triggers upgrades to expat@2.2.7-r0)
+    Some paths have no direct dependency upgrade that can address this issue. 
+  Fixed in: 2.2.7-r0
+
+✗ High severity vulnerability found in expat
+  Description: XML External Entity (XXE) Injection
+  Info: [URL]
+  Introduced through: expat@2.2.5-r0, .python-rundeps@0, git@2.18.2-r0
+  From: expat@2.2.5-r0
+  From: .python-rundeps@0 > expat@2.2.5-r0
+  From: git@2.18.2-r0 > expat@2.2.5-r0
+  Remediation:
+    Upgrade direct dependency expat@2.2.5-r0 to expat@2.2.7-r1 (triggers upgrades to expat@2.2.7-r1)
+    Some paths have no direct dependency upgrade that can address this issue. 
+  Fixed in: 2.2.7-r1
+
+
+
+Organization:      gitphill
+Package manager:   undefined
+Docker image:      src
+Base image:        base Image
+Licenses:          enabled
+
+Tested 40 dependencies for known issues, found 3 issues.
+
+Tip: Detected multiple supported manifests (3), use --all-projects to scan all of them at once."
 `;
 
 exports[`displayResult Docker test result with base image name not found warning 1`] = `
