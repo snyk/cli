@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -e
+# Can't set -u as sdkman has unbound variables.
+set -eo pipefail
 
 sdk install java   11.0.11.hs-adpt
 sdk install maven  3.8.2

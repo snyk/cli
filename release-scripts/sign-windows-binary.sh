@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
 # create files as needed
 CERT_FILE=cert.pem

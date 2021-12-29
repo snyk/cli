@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 DEV_PACKAGE_VERSION=$(npm view snyk version)-$(git rev-parse HEAD)
 echo "DEV_PACKAGE_VERSION: ${DEV_PACKAGE_VERSION}"
