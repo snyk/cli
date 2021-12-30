@@ -177,6 +177,7 @@ export function getDisplayedOutput(
     config,
     res?.docker?.baseImage,
   );
+  const dockerDocsLink = getDockerRemediationDocsLink(dockerAdvice, config);
 
   const vulns = res.vulnerabilities || [];
   const groupedVulns = groupVulnerabilities(vulns);
@@ -239,6 +240,7 @@ export function getDisplayedOutput(
     dockerAdvice +
     dockerfileWarning +
     dockerSuggestion +
+    dockerDocsLink +
     dockerCTA
   );
 }
@@ -311,6 +313,19 @@ function getDockerfileWarning(scanResult: ScanResult | undefined): string {
   }
 
   return userMessage;
+}
+
+function getDockerRemediationDocsLink(dockerAdvice: string, config): string {
+  if (config.disableSuggestions === 'true' || dockerAdvice.length === 0) {
+    return '';
+  }
+
+  return (
+    chalk.white('\n\nLearn more: ') +
+    chalk.white.underline(
+      'https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/base-image-detection',
+    )
+  );
 }
 
 export function groupVulnerabilities(

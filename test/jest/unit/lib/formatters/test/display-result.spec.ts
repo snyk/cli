@@ -98,6 +98,26 @@ describe('displayResult', () => {
     expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
   });
 
+  it('Docker test result with remediation advice', () => {
+    const withRemediation = JSON.parse(
+      fs.readFileSync(
+        path.resolve(
+          __dirname,
+          '../../../../../',
+          'acceptance/workspaces/fail-on/docker/fixable/vulns-with-docker-remediation.json',
+        ),
+        'utf8',
+      ),
+    );
+
+    const res = displayResult(
+      withRemediation,
+      { showVulnPaths: 'all', path: 'src', docker: true },
+      3,
+    );
+    expect(stripAnsi(res).replace(/http.*/g, '[URL]')).toMatchSnapshot();
+  });
+
   it('Pip result with pins', () => {
     const withRemediation = JSON.parse(
       fs.readFileSync(

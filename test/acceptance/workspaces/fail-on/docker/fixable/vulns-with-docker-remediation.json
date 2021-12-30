@@ -1,0 +1,791 @@
+{
+  "vulnerabilities": [
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "creationTime": "2019-06-24T22:21:12.792623Z",
+      "credit": [""],
+      "cvssScore": 7.5,
+      "description": "## Overview\nIn libexpat in Expat before 2.2.7, XML input including XML names that contain a large number of colons could make the XML parser consume a high amount of RAM and CPU resources while processing (enough to be usable for denial-of-service attacks).\n\n## References\n- [Bugtraq Mailing List](https://seclists.org/bugtraq/2019/Jun/39)\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-20843)\n- [Debian Security Advisory](https://www.debian.org/security/2019/dsa-4472)\n- [Debian Security Announcement](https://lists.debian.org/debian-lts-announce/2019/06/msg00028.html)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-20843)\n- [GitHub Commit](https://github.com/libexpat/libexpat/pull/262/commits/11f8838bf99ea0a6f0b76f9760c43704d00c4ff6)\n- [GitHub Issue](https://github.com/libexpat/libexpat/issues/186)\n- [GitHub PR](https://github.com/libexpat/libexpat/pull/262)\n- [MISC](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5226)\n- [MISC](https://github.com/libexpat/libexpat/blob/R_2_2_7/expat/Changes)\n- [Netapp Security Advisory](https://security.netapp.com/advisory/ntap-20190703-0001/)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20843)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4040-1/)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4040-2/)\n",
+      "disclosureTime": "2019-06-24T17:15:00Z",
+      "id": "SNYK-LINUX-EXPAT-450908",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-DEBIAN8-EXPAT-450909",
+          "SNYK-DEBIAN9-EXPAT-450910",
+          "SNYK-DEBIANUNSTABLE-EXPAT-450911",
+          "SNYK-DEBIAN10-EXPAT-450912",
+          "SNYK-UBUNTU1404-EXPAT-451027",
+          "SNYK-UBUNTU1204-EXPAT-451028",
+          "SNYK-UBUNTU1810-EXPAT-451029",
+          "SNYK-UBUNTU1604-EXPAT-451030",
+          "SNYK-UBUNTU1804-EXPAT-451031",
+          "SNYK-ALPINE38-EXPAT-451858",
+          "SNYK-ALPINE39-EXPAT-453353",
+          "SNYK-ALPINE37-EXPAT-453374",
+          "SNYK-ALPINE310-EXPAT-453902",
+          "SNYK-DEBIAN11-EXPAT-518187",
+          "SNYK-UBUNTU1904-EXPAT-531483"
+        ],
+        "CVE": ["CVE-2018-20843"],
+        "CWE": ["CWE-611"]
+      },
+      "language": "linux",
+      "modificationTime": "2019-11-05T00:39:07.963227Z",
+      "packageManager": "linux",
+      "packageName": "expat",
+      "patches": [],
+      "publicationTime": "2019-06-24T22:21:12.802637Z",
+      "references": [
+        {
+          "title": "Bugtraq Mailing List",
+          "url": "https://seclists.org/bugtraq/2019/Jun/39"
+        },
+        {
+          "title": "CVE Details",
+          "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-20843"
+        },
+        {
+          "title": "Debian Security Advisory",
+          "url": "https://www.debian.org/security/2019/dsa-4472"
+        },
+        {
+          "title": "Debian Security Announcement",
+          "url": "https://lists.debian.org/debian-lts-announce/2019/06/msg00028.html"
+        },
+        {
+          "title": "Debian Security Tracker",
+          "url": "https://security-tracker.debian.org/tracker/CVE-2018-20843"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/libexpat/libexpat/pull/262/commits/11f8838bf99ea0a6f0b76f9760c43704d00c4ff6"
+        },
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/libexpat/libexpat/issues/186"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/libexpat/libexpat/pull/262"
+        },
+        {
+          "title": "MISC",
+          "url": "https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5226"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/blob/R_2_2_7/expat/Changes"
+        },
+        {
+          "title": "Netapp Security Advisory",
+          "url": "https://security.netapp.com/advisory/ntap-20190703-0001/"
+        },
+        {
+          "title": "Ubuntu CVE Tracker",
+          "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20843"
+        },
+        {
+          "title": "Ubuntu Security Advisory",
+          "url": "https://usn.ubuntu.com/4040-1/"
+        },
+        {
+          "title": "Ubuntu Security Advisory",
+          "url": "https://usn.ubuntu.com/4040-2/"
+        }
+      ],
+      "semver": {
+        "vulnerableByDistro": {
+          "alpine:3.10": ["<2.2.7-r0"],
+          "alpine:3.7": ["<2.2.7-r0"],
+          "alpine:3.8": ["<2.2.7-r0"],
+          "alpine:3.9": ["<2.2.7-r0"],
+          "debian:10": ["<2.2.6-2"],
+          "debian:11": ["<2.2.6-2"],
+          "debian:8": ["<2.1.0-6+deb8u5"],
+          "debian:9": ["<2.2.0-2+deb9u2"],
+          "debian:unstable": ["<2.2.6-2"],
+          "ubuntu:12.04": ["<2.0.1-7.2ubuntu1.6"],
+          "ubuntu:14.04": ["<2.1.0-4ubuntu1.4+esm1"],
+          "ubuntu:16.04": ["<2.1.0-7ubuntu0.16.04.4"],
+          "ubuntu:18.04": ["<2.2.5-3ubuntu0.1"],
+          "ubuntu:18.10": ["<2.2.6-1ubuntu0.18.10"],
+          "ubuntu:19.04": ["<2.2.6-1ubuntu0.19.04"]
+        },
+        "vulnerable": ["<2.2.7-r0"]
+      },
+      "severity": "high",
+      "title": "XML External Entity (XXE) Injection",
+      "from": ["docker-image|garethr/snyky@alpine", "expat@2.2.5-r0"],
+      "upgradePath": [false, "expat@2.2.7-r0"],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "expat",
+      "version": "2.2.5-r0",
+      "nearestFixedInVersion": "2.2.7-r0"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "creationTime": "2019-09-04T14:09:12.938810Z",
+      "credit": [""],
+      "cvssScore": 7.5,
+      "description": "## Overview\nIn libexpat before 2.2.8, crafted XML input could fool the parser into changing from DTD parsing to document parsing too early; a consecutive call to XML_GetCurrentLineNumber (or XML_GetCurrentColumnNumber) then resulted in a heap-based buffer over-read.\n\n## References\n- [BUGTRAQ](https://seclists.org/bugtraq/2019/Sep/30)\n- [CONFIRM](https://github.com/libexpat/libexpat/issues/342)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-15903)\n- [MISC](http://packetstormsecurity.com/files/154503/Slackware-Security-Advisory-expat-Updates.html)\n- [MISC](https://github.com/libexpat/libexpat/commit/c20b758c332d9a13afbbb276d30db1d183a85d43)\n- [MISC](https://github.com/libexpat/libexpat/issues/317)\n- [MISC](https://github.com/libexpat/libexpat/pull/318)\n- [UBUNTU](https://usn.ubuntu.com/4132-1/)\n- [UBUNTU](https://usn.ubuntu.com/4132-2/)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-15903)\n",
+      "disclosureTime": "2019-09-04T06:15:00Z",
+      "id": "SNYK-LINUX-EXPAT-460765",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-DEBIANUNSTABLE-EXPAT-460766",
+          "SNYK-DEBIAN9-EXPAT-460773",
+          "SNYK-DEBIAN10-EXPAT-460790",
+          "SNYK-DEBIAN8-EXPAT-460797",
+          "SNYK-UBUNTU1804-EXPAT-466555",
+          "SNYK-UBUNTU1604-EXPAT-466560",
+          "SNYK-UBUNTU1404-EXPAT-466562",
+          "SNYK-UBUNTU1204-EXPAT-466727",
+          "SNYK-ALPINE39-EXPAT-485094",
+          "SNYK-ALPINE37-EXPAT-489399",
+          "SNYK-ALPINE38-EXPAT-506879",
+          "SNYK-ALPINE310-EXPAT-513557",
+          "SNYK-DEBIAN11-EXPAT-518849",
+          "SNYK-UBUNTU1904-EXPAT-526122"
+        ],
+        "CVE": ["CVE-2019-15903"],
+        "CWE": ["CWE-611"]
+      },
+      "language": "linux",
+      "modificationTime": "2019-11-10T15:05:37.676802Z",
+      "packageManager": "linux",
+      "packageName": "expat",
+      "patches": [],
+      "publicationTime": "2019-09-04T14:09:12.945192Z",
+      "references": [
+        {
+          "title": "BUGTRAQ",
+          "url": "https://seclists.org/bugtraq/2019/Sep/30"
+        },
+        {
+          "title": "CONFIRM",
+          "url": "https://github.com/libexpat/libexpat/issues/342"
+        },
+        {
+          "title": "Debian Security Tracker",
+          "url": "https://security-tracker.debian.org/tracker/CVE-2019-15903"
+        },
+        {
+          "title": "MISC",
+          "url": "http://packetstormsecurity.com/files/154503/Slackware-Security-Advisory-expat-Updates.html"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/commit/c20b758c332d9a13afbbb276d30db1d183a85d43"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/issues/317"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/pull/318"
+        },
+        { "title": "UBUNTU", "url": "https://usn.ubuntu.com/4132-1/" },
+        { "title": "UBUNTU", "url": "https://usn.ubuntu.com/4132-2/" },
+        {
+          "title": "Ubuntu CVE Tracker",
+          "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-15903"
+        }
+      ],
+      "semver": {
+        "vulnerableByDistro": {
+          "alpine:3.10": ["<2.2.7-r1"],
+          "alpine:3.7": ["<2.2.7-r1"],
+          "alpine:3.8": ["<2.2.7-r1"],
+          "alpine:3.9": ["<2.2.7-r1"],
+          "debian:10": ["<2.2.6-2+deb10u1"],
+          "debian:11": ["<2.2.7-2"],
+          "debian:8": ["<2.1.0-6+deb8u6"],
+          "debian:9": ["<2.2.0-2+deb9u3"],
+          "debian:unstable": ["<2.2.7-2"],
+          "ubuntu:12.04": ["<2.0.1-7.2ubuntu1.7"],
+          "ubuntu:14.04": ["<2.1.0-4ubuntu1.4+esm2"],
+          "ubuntu:16.04": ["<2.1.0-7ubuntu0.16.04.5"],
+          "ubuntu:18.04": ["<2.2.5-3ubuntu0.2"],
+          "ubuntu:19.04": ["<2.2.6-1ubuntu0.19.5"]
+        },
+        "vulnerable": ["<2.2.7-r1"]
+      },
+      "severity": "high",
+      "title": "XML External Entity (XXE) Injection",
+      "from": ["docker-image|garethr/snyky@alpine", "expat@2.2.5-r0"],
+      "upgradePath": [false, "expat@2.2.7-r1"],
+      "isUpgradable": true,
+      "isPatchable": false,
+      "name": "expat",
+      "version": "2.2.5-r0",
+      "nearestFixedInVersion": "2.2.7-r1"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "creationTime": "2019-06-24T22:21:12.792623Z",
+      "credit": [""],
+      "cvssScore": 7.5,
+      "description": "## Overview\nIn libexpat in Expat before 2.2.7, XML input including XML names that contain a large number of colons could make the XML parser consume a high amount of RAM and CPU resources while processing (enough to be usable for denial-of-service attacks).\n\n## References\n- [Bugtraq Mailing List](https://seclists.org/bugtraq/2019/Jun/39)\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-20843)\n- [Debian Security Advisory](https://www.debian.org/security/2019/dsa-4472)\n- [Debian Security Announcement](https://lists.debian.org/debian-lts-announce/2019/06/msg00028.html)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-20843)\n- [GitHub Commit](https://github.com/libexpat/libexpat/pull/262/commits/11f8838bf99ea0a6f0b76f9760c43704d00c4ff6)\n- [GitHub Issue](https://github.com/libexpat/libexpat/issues/186)\n- [GitHub PR](https://github.com/libexpat/libexpat/pull/262)\n- [MISC](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5226)\n- [MISC](https://github.com/libexpat/libexpat/blob/R_2_2_7/expat/Changes)\n- [Netapp Security Advisory](https://security.netapp.com/advisory/ntap-20190703-0001/)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20843)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4040-1/)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4040-2/)\n",
+      "disclosureTime": "2019-06-24T17:15:00Z",
+      "id": "SNYK-LINUX-EXPAT-450908",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-DEBIAN8-EXPAT-450909",
+          "SNYK-DEBIAN9-EXPAT-450910",
+          "SNYK-DEBIANUNSTABLE-EXPAT-450911",
+          "SNYK-DEBIAN10-EXPAT-450912",
+          "SNYK-UBUNTU1404-EXPAT-451027",
+          "SNYK-UBUNTU1204-EXPAT-451028",
+          "SNYK-UBUNTU1810-EXPAT-451029",
+          "SNYK-UBUNTU1604-EXPAT-451030",
+          "SNYK-UBUNTU1804-EXPAT-451031",
+          "SNYK-ALPINE38-EXPAT-451858",
+          "SNYK-ALPINE39-EXPAT-453353",
+          "SNYK-ALPINE37-EXPAT-453374",
+          "SNYK-ALPINE310-EXPAT-453902",
+          "SNYK-DEBIAN11-EXPAT-518187",
+          "SNYK-UBUNTU1904-EXPAT-531483"
+        ],
+        "CVE": ["CVE-2018-20843"],
+        "CWE": ["CWE-611"]
+      },
+      "language": "linux",
+      "modificationTime": "2019-11-05T00:39:07.963227Z",
+      "packageManager": "linux",
+      "packageName": "expat",
+      "patches": [],
+      "publicationTime": "2019-06-24T22:21:12.802637Z",
+      "references": [
+        {
+          "title": "Bugtraq Mailing List",
+          "url": "https://seclists.org/bugtraq/2019/Jun/39"
+        },
+        {
+          "title": "CVE Details",
+          "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-20843"
+        },
+        {
+          "title": "Debian Security Advisory",
+          "url": "https://www.debian.org/security/2019/dsa-4472"
+        },
+        {
+          "title": "Debian Security Announcement",
+          "url": "https://lists.debian.org/debian-lts-announce/2019/06/msg00028.html"
+        },
+        {
+          "title": "Debian Security Tracker",
+          "url": "https://security-tracker.debian.org/tracker/CVE-2018-20843"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/libexpat/libexpat/pull/262/commits/11f8838bf99ea0a6f0b76f9760c43704d00c4ff6"
+        },
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/libexpat/libexpat/issues/186"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/libexpat/libexpat/pull/262"
+        },
+        {
+          "title": "MISC",
+          "url": "https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5226"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/blob/R_2_2_7/expat/Changes"
+        },
+        {
+          "title": "Netapp Security Advisory",
+          "url": "https://security.netapp.com/advisory/ntap-20190703-0001/"
+        },
+        {
+          "title": "Ubuntu CVE Tracker",
+          "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20843"
+        },
+        {
+          "title": "Ubuntu Security Advisory",
+          "url": "https://usn.ubuntu.com/4040-1/"
+        },
+        {
+          "title": "Ubuntu Security Advisory",
+          "url": "https://usn.ubuntu.com/4040-2/"
+        }
+      ],
+      "semver": {
+        "vulnerableByDistro": {
+          "alpine:3.10": ["<2.2.7-r0"],
+          "alpine:3.7": ["<2.2.7-r0"],
+          "alpine:3.8": ["<2.2.7-r0"],
+          "alpine:3.9": ["<2.2.7-r0"],
+          "debian:10": ["<2.2.6-2"],
+          "debian:11": ["<2.2.6-2"],
+          "debian:8": ["<2.1.0-6+deb8u5"],
+          "debian:9": ["<2.2.0-2+deb9u2"],
+          "debian:unstable": ["<2.2.6-2"],
+          "ubuntu:12.04": ["<2.0.1-7.2ubuntu1.6"],
+          "ubuntu:14.04": ["<2.1.0-4ubuntu1.4+esm1"],
+          "ubuntu:16.04": ["<2.1.0-7ubuntu0.16.04.4"],
+          "ubuntu:18.04": ["<2.2.5-3ubuntu0.1"],
+          "ubuntu:18.10": ["<2.2.6-1ubuntu0.18.10"],
+          "ubuntu:19.04": ["<2.2.6-1ubuntu0.19.04"]
+        },
+        "vulnerable": ["<2.2.7-r0"]
+      },
+      "severity": "high",
+      "title": "XML External Entity (XXE) Injection",
+      "from": [
+        "docker-image|garethr/snyky@alpine",
+        ".python-rundeps@0",
+        "expat@2.2.5-r0"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "expat",
+      "version": "2.2.5-r0",
+      "nearestFixedInVersion": "2.2.7-r0"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "creationTime": "2019-09-04T14:09:12.938810Z",
+      "credit": [""],
+      "cvssScore": 7.5,
+      "description": "## Overview\nIn libexpat before 2.2.8, crafted XML input could fool the parser into changing from DTD parsing to document parsing too early; a consecutive call to XML_GetCurrentLineNumber (or XML_GetCurrentColumnNumber) then resulted in a heap-based buffer over-read.\n\n## References\n- [BUGTRAQ](https://seclists.org/bugtraq/2019/Sep/30)\n- [CONFIRM](https://github.com/libexpat/libexpat/issues/342)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-15903)\n- [MISC](http://packetstormsecurity.com/files/154503/Slackware-Security-Advisory-expat-Updates.html)\n- [MISC](https://github.com/libexpat/libexpat/commit/c20b758c332d9a13afbbb276d30db1d183a85d43)\n- [MISC](https://github.com/libexpat/libexpat/issues/317)\n- [MISC](https://github.com/libexpat/libexpat/pull/318)\n- [UBUNTU](https://usn.ubuntu.com/4132-1/)\n- [UBUNTU](https://usn.ubuntu.com/4132-2/)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-15903)\n",
+      "disclosureTime": "2019-09-04T06:15:00Z",
+      "id": "SNYK-LINUX-EXPAT-460765",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-DEBIANUNSTABLE-EXPAT-460766",
+          "SNYK-DEBIAN9-EXPAT-460773",
+          "SNYK-DEBIAN10-EXPAT-460790",
+          "SNYK-DEBIAN8-EXPAT-460797",
+          "SNYK-UBUNTU1804-EXPAT-466555",
+          "SNYK-UBUNTU1604-EXPAT-466560",
+          "SNYK-UBUNTU1404-EXPAT-466562",
+          "SNYK-UBUNTU1204-EXPAT-466727",
+          "SNYK-ALPINE39-EXPAT-485094",
+          "SNYK-ALPINE37-EXPAT-489399",
+          "SNYK-ALPINE38-EXPAT-506879",
+          "SNYK-ALPINE310-EXPAT-513557",
+          "SNYK-DEBIAN11-EXPAT-518849",
+          "SNYK-UBUNTU1904-EXPAT-526122"
+        ],
+        "CVE": ["CVE-2019-15903"],
+        "CWE": ["CWE-611"]
+      },
+      "language": "linux",
+      "modificationTime": "2019-11-10T15:05:37.676802Z",
+      "packageManager": "linux",
+      "packageName": "expat",
+      "patches": [],
+      "publicationTime": "2019-09-04T14:09:12.945192Z",
+      "references": [
+        {
+          "title": "BUGTRAQ",
+          "url": "https://seclists.org/bugtraq/2019/Sep/30"
+        },
+        {
+          "title": "CONFIRM",
+          "url": "https://github.com/libexpat/libexpat/issues/342"
+        },
+        {
+          "title": "Debian Security Tracker",
+          "url": "https://security-tracker.debian.org/tracker/CVE-2019-15903"
+        },
+        {
+          "title": "MISC",
+          "url": "http://packetstormsecurity.com/files/154503/Slackware-Security-Advisory-expat-Updates.html"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/commit/c20b758c332d9a13afbbb276d30db1d183a85d43"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/issues/317"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/pull/318"
+        },
+        { "title": "UBUNTU", "url": "https://usn.ubuntu.com/4132-1/" },
+        { "title": "UBUNTU", "url": "https://usn.ubuntu.com/4132-2/" },
+        {
+          "title": "Ubuntu CVE Tracker",
+          "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-15903"
+        }
+      ],
+      "semver": {
+        "vulnerableByDistro": {
+          "alpine:3.10": ["<2.2.7-r1"],
+          "alpine:3.7": ["<2.2.7-r1"],
+          "alpine:3.8": ["<2.2.7-r1"],
+          "alpine:3.9": ["<2.2.7-r1"],
+          "debian:10": ["<2.2.6-2+deb10u1"],
+          "debian:11": ["<2.2.7-2"],
+          "debian:8": ["<2.1.0-6+deb8u6"],
+          "debian:9": ["<2.2.0-2+deb9u3"],
+          "debian:unstable": ["<2.2.7-2"],
+          "ubuntu:12.04": ["<2.0.1-7.2ubuntu1.7"],
+          "ubuntu:14.04": ["<2.1.0-4ubuntu1.4+esm2"],
+          "ubuntu:16.04": ["<2.1.0-7ubuntu0.16.04.5"],
+          "ubuntu:18.04": ["<2.2.5-3ubuntu0.2"],
+          "ubuntu:19.04": ["<2.2.6-1ubuntu0.19.5"]
+        },
+        "vulnerable": ["<2.2.7-r1"]
+      },
+      "severity": "high",
+      "title": "XML External Entity (XXE) Injection",
+      "from": [
+        "docker-image|garethr/snyky@alpine",
+        ".python-rundeps@0",
+        "expat@2.2.5-r0"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "expat",
+      "version": "2.2.5-r0",
+      "nearestFixedInVersion": "2.2.7-r1"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "creationTime": "2019-06-24T22:21:12.792623Z",
+      "credit": [""],
+      "cvssScore": 7.5,
+      "description": "## Overview\nIn libexpat in Expat before 2.2.7, XML input including XML names that contain a large number of colons could make the XML parser consume a high amount of RAM and CPU resources while processing (enough to be usable for denial-of-service attacks).\n\n## References\n- [Bugtraq Mailing List](https://seclists.org/bugtraq/2019/Jun/39)\n- [CVE Details](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-20843)\n- [Debian Security Advisory](https://www.debian.org/security/2019/dsa-4472)\n- [Debian Security Announcement](https://lists.debian.org/debian-lts-announce/2019/06/msg00028.html)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2018-20843)\n- [GitHub Commit](https://github.com/libexpat/libexpat/pull/262/commits/11f8838bf99ea0a6f0b76f9760c43704d00c4ff6)\n- [GitHub Issue](https://github.com/libexpat/libexpat/issues/186)\n- [GitHub PR](https://github.com/libexpat/libexpat/pull/262)\n- [MISC](https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5226)\n- [MISC](https://github.com/libexpat/libexpat/blob/R_2_2_7/expat/Changes)\n- [Netapp Security Advisory](https://security.netapp.com/advisory/ntap-20190703-0001/)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20843)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4040-1/)\n- [Ubuntu Security Advisory](https://usn.ubuntu.com/4040-2/)\n",
+      "disclosureTime": "2019-06-24T17:15:00Z",
+      "id": "SNYK-LINUX-EXPAT-450908",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-DEBIAN8-EXPAT-450909",
+          "SNYK-DEBIAN9-EXPAT-450910",
+          "SNYK-DEBIANUNSTABLE-EXPAT-450911",
+          "SNYK-DEBIAN10-EXPAT-450912",
+          "SNYK-UBUNTU1404-EXPAT-451027",
+          "SNYK-UBUNTU1204-EXPAT-451028",
+          "SNYK-UBUNTU1810-EXPAT-451029",
+          "SNYK-UBUNTU1604-EXPAT-451030",
+          "SNYK-UBUNTU1804-EXPAT-451031",
+          "SNYK-ALPINE38-EXPAT-451858",
+          "SNYK-ALPINE39-EXPAT-453353",
+          "SNYK-ALPINE37-EXPAT-453374",
+          "SNYK-ALPINE310-EXPAT-453902",
+          "SNYK-DEBIAN11-EXPAT-518187",
+          "SNYK-UBUNTU1904-EXPAT-531483"
+        ],
+        "CVE": ["CVE-2018-20843"],
+        "CWE": ["CWE-611"]
+      },
+      "language": "linux",
+      "modificationTime": "2019-11-05T00:39:07.963227Z",
+      "packageManager": "linux",
+      "packageName": "expat",
+      "patches": [],
+      "publicationTime": "2019-06-24T22:21:12.802637Z",
+      "references": [
+        {
+          "title": "Bugtraq Mailing List",
+          "url": "https://seclists.org/bugtraq/2019/Jun/39"
+        },
+        {
+          "title": "CVE Details",
+          "url": "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-20843"
+        },
+        {
+          "title": "Debian Security Advisory",
+          "url": "https://www.debian.org/security/2019/dsa-4472"
+        },
+        {
+          "title": "Debian Security Announcement",
+          "url": "https://lists.debian.org/debian-lts-announce/2019/06/msg00028.html"
+        },
+        {
+          "title": "Debian Security Tracker",
+          "url": "https://security-tracker.debian.org/tracker/CVE-2018-20843"
+        },
+        {
+          "title": "GitHub Commit",
+          "url": "https://github.com/libexpat/libexpat/pull/262/commits/11f8838bf99ea0a6f0b76f9760c43704d00c4ff6"
+        },
+        {
+          "title": "GitHub Issue",
+          "url": "https://github.com/libexpat/libexpat/issues/186"
+        },
+        {
+          "title": "GitHub PR",
+          "url": "https://github.com/libexpat/libexpat/pull/262"
+        },
+        {
+          "title": "MISC",
+          "url": "https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5226"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/blob/R_2_2_7/expat/Changes"
+        },
+        {
+          "title": "Netapp Security Advisory",
+          "url": "https://security.netapp.com/advisory/ntap-20190703-0001/"
+        },
+        {
+          "title": "Ubuntu CVE Tracker",
+          "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2018-20843"
+        },
+        {
+          "title": "Ubuntu Security Advisory",
+          "url": "https://usn.ubuntu.com/4040-1/"
+        },
+        {
+          "title": "Ubuntu Security Advisory",
+          "url": "https://usn.ubuntu.com/4040-2/"
+        }
+      ],
+      "semver": {
+        "vulnerableByDistro": {
+          "alpine:3.10": ["<2.2.7-r0"],
+          "alpine:3.7": ["<2.2.7-r0"],
+          "alpine:3.8": ["<2.2.7-r0"],
+          "alpine:3.9": ["<2.2.7-r0"],
+          "debian:10": ["<2.2.6-2"],
+          "debian:11": ["<2.2.6-2"],
+          "debian:8": ["<2.1.0-6+deb8u5"],
+          "debian:9": ["<2.2.0-2+deb9u2"],
+          "debian:unstable": ["<2.2.6-2"],
+          "ubuntu:12.04": ["<2.0.1-7.2ubuntu1.6"],
+          "ubuntu:14.04": ["<2.1.0-4ubuntu1.4+esm1"],
+          "ubuntu:16.04": ["<2.1.0-7ubuntu0.16.04.4"],
+          "ubuntu:18.04": ["<2.2.5-3ubuntu0.1"],
+          "ubuntu:18.10": ["<2.2.6-1ubuntu0.18.10"],
+          "ubuntu:19.04": ["<2.2.6-1ubuntu0.19.04"]
+        },
+        "vulnerable": ["<2.2.7-r0"]
+      },
+      "severity": "high",
+      "title": "XML External Entity (XXE) Injection",
+      "from": [
+        "docker-image|garethr/snyky@alpine",
+        "git@2.18.2-r0",
+        "expat@2.2.5-r0"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "expat",
+      "version": "2.2.5-r0",
+      "nearestFixedInVersion": "2.2.7-r0"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "creationTime": "2019-09-04T14:09:12.938810Z",
+      "credit": [""],
+      "cvssScore": 7.5,
+      "description": "## Overview\nIn libexpat before 2.2.8, crafted XML input could fool the parser into changing from DTD parsing to document parsing too early; a consecutive call to XML_GetCurrentLineNumber (or XML_GetCurrentColumnNumber) then resulted in a heap-based buffer over-read.\n\n## References\n- [BUGTRAQ](https://seclists.org/bugtraq/2019/Sep/30)\n- [CONFIRM](https://github.com/libexpat/libexpat/issues/342)\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-15903)\n- [MISC](http://packetstormsecurity.com/files/154503/Slackware-Security-Advisory-expat-Updates.html)\n- [MISC](https://github.com/libexpat/libexpat/commit/c20b758c332d9a13afbbb276d30db1d183a85d43)\n- [MISC](https://github.com/libexpat/libexpat/issues/317)\n- [MISC](https://github.com/libexpat/libexpat/pull/318)\n- [UBUNTU](https://usn.ubuntu.com/4132-1/)\n- [UBUNTU](https://usn.ubuntu.com/4132-2/)\n- [Ubuntu CVE Tracker](http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-15903)\n",
+      "disclosureTime": "2019-09-04T06:15:00Z",
+      "id": "SNYK-LINUX-EXPAT-460765",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-DEBIANUNSTABLE-EXPAT-460766",
+          "SNYK-DEBIAN9-EXPAT-460773",
+          "SNYK-DEBIAN10-EXPAT-460790",
+          "SNYK-DEBIAN8-EXPAT-460797",
+          "SNYK-UBUNTU1804-EXPAT-466555",
+          "SNYK-UBUNTU1604-EXPAT-466560",
+          "SNYK-UBUNTU1404-EXPAT-466562",
+          "SNYK-UBUNTU1204-EXPAT-466727",
+          "SNYK-ALPINE39-EXPAT-485094",
+          "SNYK-ALPINE37-EXPAT-489399",
+          "SNYK-ALPINE38-EXPAT-506879",
+          "SNYK-ALPINE310-EXPAT-513557",
+          "SNYK-DEBIAN11-EXPAT-518849",
+          "SNYK-UBUNTU1904-EXPAT-526122"
+        ],
+        "CVE": ["CVE-2019-15903"],
+        "CWE": ["CWE-611"]
+      },
+      "language": "linux",
+      "modificationTime": "2019-11-10T15:05:37.676802Z",
+      "packageManager": "linux",
+      "packageName": "expat",
+      "patches": [],
+      "publicationTime": "2019-09-04T14:09:12.945192Z",
+      "references": [
+        {
+          "title": "BUGTRAQ",
+          "url": "https://seclists.org/bugtraq/2019/Sep/30"
+        },
+        {
+          "title": "CONFIRM",
+          "url": "https://github.com/libexpat/libexpat/issues/342"
+        },
+        {
+          "title": "Debian Security Tracker",
+          "url": "https://security-tracker.debian.org/tracker/CVE-2019-15903"
+        },
+        {
+          "title": "MISC",
+          "url": "http://packetstormsecurity.com/files/154503/Slackware-Security-Advisory-expat-Updates.html"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/commit/c20b758c332d9a13afbbb276d30db1d183a85d43"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/issues/317"
+        },
+        {
+          "title": "MISC",
+          "url": "https://github.com/libexpat/libexpat/pull/318"
+        },
+        { "title": "UBUNTU", "url": "https://usn.ubuntu.com/4132-1/" },
+        { "title": "UBUNTU", "url": "https://usn.ubuntu.com/4132-2/" },
+        {
+          "title": "Ubuntu CVE Tracker",
+          "url": "http://people.ubuntu.com/~ubuntu-security/cve/CVE-2019-15903"
+        }
+      ],
+      "semver": {
+        "vulnerableByDistro": {
+          "alpine:3.10": ["<2.2.7-r1"],
+          "alpine:3.7": ["<2.2.7-r1"],
+          "alpine:3.8": ["<2.2.7-r1"],
+          "alpine:3.9": ["<2.2.7-r1"],
+          "debian:10": ["<2.2.6-2+deb10u1"],
+          "debian:11": ["<2.2.7-2"],
+          "debian:8": ["<2.1.0-6+deb8u6"],
+          "debian:9": ["<2.2.0-2+deb9u3"],
+          "debian:unstable": ["<2.2.7-2"],
+          "ubuntu:12.04": ["<2.0.1-7.2ubuntu1.7"],
+          "ubuntu:14.04": ["<2.1.0-4ubuntu1.4+esm2"],
+          "ubuntu:16.04": ["<2.1.0-7ubuntu0.16.04.5"],
+          "ubuntu:18.04": ["<2.2.5-3ubuntu0.2"],
+          "ubuntu:19.04": ["<2.2.6-1ubuntu0.19.5"]
+        },
+        "vulnerable": ["<2.2.7-r1"]
+      },
+      "severity": "high",
+      "title": "XML External Entity (XXE) Injection",
+      "from": [
+        "docker-image|garethr/snyky@alpine",
+        "git@2.18.2-r0",
+        "expat@2.2.5-r0"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "expat",
+      "version": "2.2.5-r0",
+      "nearestFixedInVersion": "2.2.7-r1"
+    },
+    {
+      "CVSSv3": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "creationTime": "2019-08-06T22:04:52.027240Z",
+      "credit": [""],
+      "cvssScore": 9.8,
+      "description": "## Overview\nmusl libc through 1.1.23 has an x87 floating-point stack adjustment imbalance, related to the math/i386/ directory. In some cases, use of this library could introduce out-of-bounds writes that are not present in an application's source code.\n\n## References\n- [Debian Security Tracker](https://security-tracker.debian.org/tracker/CVE-2019-14697)\n- [MISC](https://www.openwall.com/lists/musl/2019/08/06/1)\n- [OSS security Advisory](http://www.openwall.com/lists/oss-security/2019/08/06/4)\n",
+      "disclosureTime": "2019-08-06T16:15:00Z",
+      "id": "SNYK-LINUX-MUSL-458116",
+      "identifiers": {
+        "ALTERNATIVE": [
+          "SNYK-DEBIANUNSTABLE-MUSL-458117",
+          "SNYK-DEBIAN9-MUSL-458118",
+          "SNYK-DEBIAN10-MUSL-458127",
+          "SNYK-DEBIAN8-MUSL-458128",
+          "SNYK-ALPINE38-MUSL-458276",
+          "SNYK-ALPINE37-MUSL-458286",
+          "SNYK-ALPINE310-MUSL-458452",
+          "SNYK-ALPINE39-MUSL-458529",
+          "SNYK-DEBIAN11-MUSL-522584"
+        ],
+        "CVE": ["CVE-2019-14697"],
+        "CWE": ["CWE-787"]
+      },
+      "language": "linux",
+      "modificationTime": "2019-11-04T18:03:52.721307Z",
+      "packageManager": "linux",
+      "packageName": "musl",
+      "patches": [],
+      "publicationTime": "2019-08-06T22:04:52.037600Z",
+      "references": [
+        {
+          "title": "Debian Security Tracker",
+          "url": "https://security-tracker.debian.org/tracker/CVE-2019-14697"
+        },
+        {
+          "title": "MISC",
+          "url": "https://www.openwall.com/lists/musl/2019/08/06/1"
+        },
+        {
+          "title": "OSS security Advisory",
+          "url": "http://www.openwall.com/lists/oss-security/2019/08/06/4"
+        }
+      ],
+      "semver": {
+        "vulnerableByDistro": {
+          "alpine:3.10": ["<1.1.22-r3"],
+          "alpine:3.7": ["<1.1.18-r4"],
+          "alpine:3.8": ["<1.1.19-r11"],
+          "alpine:3.9": ["<1.1.20-r5"],
+          "debian:10": ["*"],
+          "debian:11": ["<1.1.23-2"],
+          "debian:8": ["*"],
+          "debian:9": ["*"],
+          "debian:unstable": ["<1.1.23-2"]
+        },
+        "vulnerable": ["<1.1.19-r11"]
+      },
+      "severity": "high",
+      "title": "Out-of-bounds Write",
+      "from": [
+        "docker-image|garethr/snyky@alpine",
+        "meta-common-packages@meta",
+        "musl@1.1.19-r10"
+      ],
+      "upgradePath": [],
+      "isUpgradable": false,
+      "isPatchable": false,
+      "name": "musl",
+      "version": "1.1.19-r10",
+      "nearestFixedInVersion": "1.1.19-r11"
+    }
+  ],
+  "ok": false,
+  "dependencyCount": 40,
+  "org": "gitphill",
+  "policy": "# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.\nversion: v1.14.0\nignore: {}\npatch: {}\n",
+  "isPrivate": true,
+  "licensesPolicy": { "severities": {}, "orgLicenseRules": {} },
+  "ignoreSettings": null,
+  "docker": {
+    "baseImage": "ubuntu:20.04",
+    "baseImageRemediation": {
+      "advice": [
+        {
+          "message": "Base Image    Vulnerabilities  Severity\nubuntu:20.04  19               0 critical, 0 high, 3 medium, 16 low\n"
+        },
+        {
+          "bold": true,
+          "message": "Recommendations for base image upgrade:\n"
+        },
+        {
+          "bold": true,
+          "message": "Major upgrades"
+        },
+        {
+          "message": "Base Image              Vulnerabilities  Severity\nubuntu:impish-20210928  13               0 critical, 0 high, 2 medium, 11 low\n"
+        }
+      ],
+      "code": "REMEDIATION_AVAILABLE"
+    }
+  },
+  "summary": "7 vulnerable dependency paths",
+  "filesystemPolicy": false,
+  "filtered": { "ignore": [], "patch": [] },
+  "uniqueCount": 3
+}
+
