@@ -69,7 +69,7 @@ function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
 
 export function extractDataToSendFromResults(
   results,
-  jsonData,
+  errorMappedResults,
   options: Options,
 ): OutputDataTypes {
   let sarifData = {};
@@ -85,18 +85,16 @@ export function extractDataToSendFromResults(
     stringifiedSarifData = jsonStringifyLargeObject(sarifData);
   }
 
+  const jsonResults = errorMappedResults.map((res) =>
+    createJsonResultOutput(res, options),
+  );
+
+  // backwards compat - strip array IFF only one result
+  const jsonData = jsonResults.length === 1 ? jsonResults[0] : jsonResults;
+
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
-    if (Array.isArray(jsonData)) {
-      const jsonResult = jsonData.map((res) =>
-        createJsonResultOutput(res, options),
-      );
-      stringifiedJsonData = jsonStringifyLargeObject(jsonResult);
-    } else {
-      stringifiedJsonData = jsonStringifyLargeObject(
-        createJsonResultOutput(jsonData, options),
-      );
-    }
+    stringifiedJsonData = jsonStringifyLargeObject(jsonData);
   }
 
   const dataToSend = options.sarif ? sarifData : jsonData;
@@ -105,7 +103,7 @@ export function extractDataToSendFromResults(
     : stringifiedJsonData;
 
   return {
-    stdout: dataToSend, // this is for the human-readable stdout output and is set (but not used) even if --json or --sarif is not set
+    stdout: dataToSend, // this is for the human-readable stdout output and is set even if --json or --sarif is set
     stringifiedData, // this will be used to display either the Snyk or SARIF format JSON to stdout if --json or --sarif is set
     stringifiedJsonData, // this will be used for the --json-file-output=<file.json> option
     stringifiedSarifData, // this will be used for the --sarif-file-output=<file.json> option

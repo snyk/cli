@@ -162,18 +162,12 @@ export default async function test(
     ? createErrorMappedResultsForJsonOutput(results)
     : results.map(mapIacTestResult);
 
-  // backwards compat - strip array IFF only one result
-  const jsonData =
-    errorMappedResults.length === 1
-      ? errorMappedResults[0]
-      : errorMappedResults;
-
   const {
     stdout: dataToSend,
     stringifiedData,
     stringifiedJsonData,
     stringifiedSarifData,
-  } = extractDataToSendFromResults(results, jsonData, options);
+  } = extractDataToSendFromResults(results, errorMappedResults, options);
 
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true)
