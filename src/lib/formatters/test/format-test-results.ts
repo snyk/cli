@@ -16,8 +16,8 @@ import {
 } from '../../snyk-test/legacy';
 import chalk from 'chalk';
 import config from '../../config';
-const cloneDeep = require('lodash.clonedeep');
-const orderBy = require('lodash.orderby');
+import * as cloneDeep from 'lodash.clonedeep';
+import * as orderBy from 'lodash.orderby';
 import * as analytics from '../../analytics';
 import { formatIssuesWithRemediation } from '../remediation-based-format-issues';
 import { formatIssues } from '../legacy-format-issue';
