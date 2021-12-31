@@ -54,14 +54,4 @@ describe('callHandlingUnexpectedErrors', () => {
     expect(stdout).toEqual('');
     expect(code).toEqual(2);
   });
-
-  it('cannot be used twice in a process', async () => {
-    const { code, stdout, stderr } = await runScript('usedTwice.ts');
-    expect(stderr).toMatch(
-      'Something unexpected went wrong: Error: Cannot handle unexpected errors for more than one callable.',
-    );
-    expect(stderr).toMatch('Exit code: 4');
-    expect(stdout).toEqual('');
-    expect(code).toEqual(4);
-  });
 });
