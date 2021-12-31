@@ -1,25 +1,22 @@
+import * as semver from 'semver';
+
 type Issue = {
   target: string;
   reason: string;
   enforce: boolean;
 };
 
-/**
- * We have a hack in .circleci/config.yml which uses npm@6 for regression
- * tests. Once that's removed we can remove this check.
- */
-const isCIHackInstall = (): boolean => {
-  return (
-    typeof process.env.CI === 'string' && process.env.NODE_ENV === 'production'
-  );
-};
-
 const checkDevEnvironment = async () => {
   const issues: Issue[] = [];
-  const expectedNpmVersion = '7';
+  const supportedNpmVersionRange = '>=7.21.1';
 
   try {
-    // npm/7.14.0 node/v14.16.1 linux x64 workspaces/false
+    /**
+     * Example: npm/7.14.0 node/v14.16.1 linux x64 workspaces/false
+     * Docs: https://docs.npmjs.com/cli/v8/using-npm/config#user-agent
+     *
+     * Note: Doesn't work with Lerna. https://github.com/snyk/snyk/pull/2002
+     */
     const userAgent = process.env.npm_config_user_agent;
     if (!userAgent) {
       throw new Error("Couldn't find npm_config_user_agent.");
@@ -30,18 +27,18 @@ const checkDevEnvironment = async () => {
       throw new Error(`Couldn't find npm version in user agent "${userAgent}"`);
     }
 
-    const [, npmVersion, npmMajor] = matches;
-    if (npmMajor !== expectedNpmVersion) {
+    const [, npmVersion] = matches;
+    if (!semver.satisfies(npmVersion, supportedNpmVersionRange)) {
       issues.push({
         target: 'npm',
-        reason: `Expected npm@${expectedNpmVersion} but found npm@${npmVersion}`,
-        enforce: !isCIHackInstall(),
+        reason: `Expected npm@${supportedNpmVersionRange} but found npm@${npmVersion}`,
+        enforce: true,
       });
     }
   } catch (error) {
     issues.push({
       target: 'npm',
-      reason: `Expected npm@${expectedNpmVersion} but faced an error:\n${error}`,
+      reason: `Expected npm@${supportedNpmVersionRange} but faced an error:\n${error}`,
       enforce: false,
     });
   }
