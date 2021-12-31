@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { runCommand } from '../../util/runCommand';
 import { getFixturePath } from '../../util/getFixturePath';
 
@@ -12,10 +13,9 @@ import { getFixturePath } from '../../util/getFixturePath';
  * NodeJS process.
  */
 describe('callHandlingUnexpectedErrors', () => {
-  async function runScript(file: string) {
-    return runCommand('npx', ['ts-node', file], {
-      cwd: getFixturePath('unexpected-error'),
-    });
+  async function runScript(filename: string) {
+    const file = path.resolve(getFixturePath('unexpected-error'), filename);
+    return runCommand('node', ['-r', 'ts-node/register', file]);
   }
 
   it('calls the provided callable', async () => {
@@ -60,8 +60,8 @@ describe('callHandlingUnexpectedErrors', () => {
     expect(stderr).toMatch(
       'Something unexpected went wrong: Error: Cannot handle unexpected errors for more than one callable.',
     );
-    expect(stderr).toMatch('Exit code: 2');
-    expect(stdout).toEqual('Result: firstCall\n');
-    expect(code).toEqual(2);
+    expect(stderr).toMatch('Exit code: 4');
+    expect(stdout).toEqual('');
+    expect(code).toEqual(4);
   });
 });

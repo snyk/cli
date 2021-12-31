@@ -1,9 +1,11 @@
 import { callHandlingUnexpectedErrors } from '../../../src/lib/unexpected-error';
 
 callHandlingUnexpectedErrors(async () => {
-  console.log('Result: firstCall')
+  return new Promise((resolve, reject) => {
+    setTimeout(() => reject(new Error('firstCall')), 100)
+  })
 }, 2);
 
 callHandlingUnexpectedErrors(async () => {
-  console.log('Result: secondCall')
-}, 2);
+  Promise.reject(new Error('secondCall'));
+}, 4);
