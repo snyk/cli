@@ -3,7 +3,7 @@ set -euo pipefail
 
 platform="${1}"
 arch="${2}"
-node_version="v16.13.1"
+node_version="v16.13.2"
 node_url="https://nodejs.org/dist/${node_version}/node-${node_version}-${platform}-${arch}.tar.gz"
 build_name="snyk-for-docker-desktop-${platform}-${arch}"
 build_filename="${build_name}.tar.gz"
