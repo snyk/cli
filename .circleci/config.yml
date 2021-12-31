@@ -100,22 +100,33 @@ commands:
             - ~\AppData\Local\Temp\chocolatey
   install_sdks_linux:
     steps:
+      - restore_cache:
+          name: Restoring SDKMAN install cache
+          keys:
+            - sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
       - run:
           name: Installing SDKMAN
+          # The install script comes from https://get.sdkman.io/?rcupdate=false
+          # We need to disable rcupdate as CircleCI uses a different setup.
           command: |
-            curl -s "https://get.sdkman.io?rcupdate=false" | bash
+            ./.circleci/vendor/sdkman-install.sh
             echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
             source $BASH_ENV
+      - save_cache:
+          name: Saving SDKMAN install cache
+          key: sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
+          paths:
+            - ~/.sdkman
       - restore_cache:
-          name: Restoring SDKMAN cache
+          name: Restoring SDKMAN archive cache
           keys:
-            - sdkman-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+            - sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
       - run:
           name: Installing SDKs
           command: ./.circleci/install-sdks-linux.sh
       - save_cache:
-          name: Saving SDKMAN cache
-          key: sdkman-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+          name: Saving SDKMAN archive cache
+          key: sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
           paths:
             - ~/.sdkman/archives
   install_node_windows:
