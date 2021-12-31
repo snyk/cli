@@ -73,17 +73,6 @@ commands:
           key: npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
           paths:
             - << parameters.npm_cache_directory >>
-  build_project:
-    steps:
-      - run:
-          name: Building project
-          command: npm run build:prod
-      - persist_to_workspace:
-          root: .
-          paths:
-            - dist/
-            - packages/*/dist
-            - pysrc
   install_sdks_windows:
     steps:
       - restore_cache:
@@ -170,7 +159,7 @@ commands:
             sudo apt update
             sudo apt install osslsigncode
 jobs:
-  build:
+  lint:
     <<: *defaults
     docker:
       - image: cimg/node:<< parameters.node_version >>
@@ -181,7 +170,23 @@ jobs:
       - run:
           name: Linting project
           command: npm run lint
-      - build_project
+  build:
+    <<: *defaults
+    docker:
+      - image: circleci/node:<< parameters.node_version >>
+    steps:
+      - checkout
+      - install_project_dependencies:
+          node_version: << parameters.node_version >>
+      - run:
+          name: Building project
+          command: npm run build:prod
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist/
+            - packages/*/dist
+            - pysrc
   regression-test:
     <<: *defaults
     docker:
@@ -443,9 +448,10 @@ workflows:
   version: 2
   test_and_release:
     jobs:
+      - lint:
+          name: Lint
       - build:
           name: Build
-          context: nodejs-install
 
       - regression-test:
           name: Regression Tests
@@ -535,6 +541,7 @@ workflows:
       - dev-release:
           name: Development Release
           requires:
+            - Lint
             - Build
           filters:
             branches:
@@ -549,4 +556,5 @@ workflows:
               only:
                 - master
           requires:
+            - Lint
             - Build
