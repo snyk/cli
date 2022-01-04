@@ -1,5 +1,5 @@
-import * as path from 'path';
 import * as sinon from 'sinon';
+import * as path from 'path';
 import * as depGraphLib from '@snyk/dep-graph';
 import { CommandResult } from '../../../src/cli/commands/types';
 import { AcceptanceTests } from './cli-test.acceptance.test';
@@ -576,6 +576,142 @@ export const AllProjectsTests: AcceptanceTests = {
         'Package manager:   govendor',
         'Go dep package manager',
       );
+    },
+    'test yarn-workspaces-v2-resolutions --all-projects --detection-depth=5 --strict-out-of-sync=false (yarn v2 with resolutions)': (
+      params,
+      utils,
+    ) => async (t) => {
+      // Yarn workspaces for Yarn 2 is only supported on Node 10+
+      utils.chdirWorkspaces();
+      const result = await params.cli.test('yarn-workspaces-v2-resolutions', {
+        allProjects: true,
+        detectionDepth: 5,
+        strictOutOfSync: false,
+        printDeps: true,
+      });
+      const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      // the parser is used directly
+      t.ok(loadPlugin.withArgs('yarn').notCalled, 'skips load plugin');
+      t.teardown(() => {
+        loadPlugin.restore();
+      });
+      t.match(
+        result.getDisplayResults(),
+        '✔ Tested 1 dependencies for known vulnerabilities, no vulnerable paths found.',
+        'correctly showing dep number',
+      );
+      t.match(result.getDisplayResults(), 'Package manager:   yarn\n');
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      package.json',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      tomatoes',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Project name:      apples',
+        'yarn project in output',
+      );
+      t.match(
+        result.getDisplayResults(),
+        'Tested 3 projects, no vulnerable paths were found.',
+        'no vulnerable paths found as both policies detected and applied.',
+      );
+    },
+    'test --all-projects --detection-depth=5 finds Yarn workspaces & Npm projects': (
+      params,
+      utils,
+    ) => async (t) => {
+      utils.chdirWorkspaces();
+      const result = await params.cli.test('yarn-workspaces', {
+        allProjects: true,
+        detectionDepth: 5,
+      });
+      const loadPlugin = sinon.spy(params.plugins, 'loadPlugin');
+      // the parser is used directly
+      t.ok(loadPlugin.withArgs('yarn').notCalled, 'skips load plugin');
+      t.teardown(() => {
+        loadPlugin.restore();
+      });
+      const output = result.getDisplayResults();
+
+      t.match(output, 'Package manager:   yarn\n');
+      t.match(output, 'Package manager:   npm\n');
+      t.match(
+        output,
+        'Project name:      not-in-a-workspace',
+        'npm project in output',
+      );
+      t.match(
+        output,
+        'Project name:      package.json',
+        'yarn project in output',
+      );
+      t.match(output, 'Project name:      tomatoes', 'yarn project in output');
+      t.match(output, 'Project name:      apples', 'yarn project in output');
+      t.match(output, 'Project name:      apple-lib', 'yarn project in output');
+
+      t.match(
+        output,
+        'Tested 5 projects, no vulnerable paths were found.',
+        'tested 4 workspace projects + 1 npm project',
+      );
+      let policyCount = 0;
+      const applesWorkspace =
+        process.platform === 'win32'
+          ? '\\apples\\package.json'
+          : 'apples/package.json';
+      const tomatoesWorkspace =
+        process.platform === 'win32'
+          ? '\\tomatoes\\package.json'
+          : 'tomatoes/package.json';
+      const rootWorkspace =
+        process.platform === 'win32'
+          ? '\\yarn-workspaces\\package.json'
+          : 'yarn-workspaces/package.json';
+
+      params.server.popRequests(5).forEach((req) => {
+        t.equal(req.method, 'POST', 'makes POST request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+        t.match(req.url, '/api/v1/test-dep-graph', 'posts to correct url');
+        t.ok(req.body.depGraph, 'body contains depGraph');
+
+        if (req.body.targetFileRelativePath.endsWith(applesWorkspace)) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20160328',
+            'policy is as expected',
+          );
+          t.ok(req.body.policy, 'body contains policy');
+          policyCount += 1;
+        } else if (
+          req.body.targetFileRelativePath.endsWith(tomatoesWorkspace)
+        ) {
+          t.notOk(req.body.policy, 'body does not contain policy');
+        } else if (req.body.targetFileRelativePath.endsWith(rootWorkspace)) {
+          t.match(
+            req.body.policy,
+            'npm:node-uuid:20111130',
+            'policy is as expected',
+          );
+          t.ok(req.body.policy, 'body contains policy');
+          policyCount += 1;
+        }
+        t.match(
+          req.body.depGraph.pkgManager.name,
+          /(yarn|npm)/,
+          'depGraph has package manager',
+        );
+      });
+      t.equal(policyCount, 2, '2 policies found in a workspace');
     },
   },
 };

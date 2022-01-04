@@ -593,7 +593,7 @@ async function assembleLocalPayloads(
       );
       if (options['fail-fast']) {
         throw new FailedToRunTestError(
-          'Your test request could not be completed. Please email support@snyk.io',
+          errorMessageWithRetry('Your test request could not be completed.'),
         );
       }
     }

@@ -1,6 +1,6 @@
 {
   "name": "not-in-a-workspace",
   "dependencies": {
-    "debug": "3.6.0"
+    "debug": "4.3.2"
   }
 }
