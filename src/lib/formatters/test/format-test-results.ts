@@ -69,7 +69,7 @@ function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
 
 export function extractDataToSendFromResults(
   results,
-  errorMappedResults,
+  mappedResults,
   options: Options,
 ): OutputDataTypes {
   let sarifData = {};
@@ -85,7 +85,7 @@ export function extractDataToSendFromResults(
     stringifiedSarifData = jsonStringifyLargeObject(sarifData);
   }
 
-  const jsonResults = errorMappedResults.map((res) =>
+  const jsonResults = mappedResults.map((res) =>
     createJsonResultOutput(res, options),
   );
 

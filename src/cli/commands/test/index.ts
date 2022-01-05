@@ -158,7 +158,7 @@ export default async function test(
   // resultOptions is now an array of 1 or more options used for
   // the tests results is now an array of 1 or more test results
   // values depend on `options.json` value - string or object
-  const errorMappedResults = !options.iac
+  const mappedResults = !options.iac
     ? createErrorMappedResultsForJsonOutput(results)
     : results.map(mapIacTestResult);
 
@@ -167,11 +167,11 @@ export default async function test(
     stringifiedData,
     stringifiedJsonData,
     stringifiedSarifData,
-  } = extractDataToSendFromResults(results, errorMappedResults, options);
+  } = extractDataToSendFromResults(results, mappedResults, options);
 
   if (options.json || options.sarif) {
     // if all results are ok (.ok == true)
-    if (errorMappedResults.every((res) => res.ok)) {
+    if (mappedResults.every((res) => res.ok)) {
       return TestCommandResult.createJsonTestCommandResult(
         stringifiedData,
         stringifiedJsonData,

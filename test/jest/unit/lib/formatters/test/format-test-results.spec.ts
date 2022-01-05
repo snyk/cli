@@ -11,7 +11,8 @@ describe('extractDataToSendFromResults', () => {
     const resultsFixture = JSON.parse(
       fs.readFileSync('test/fixtures/basic-npm/results.json', 'utf-8'),
     );
-    const errorMappedResultsFixture = JSON.parse(
+
+    const mappedResultsFixture = JSON.parse(
       fs.readFileSync('test/fixtures/basic-npm/jsonData.json', 'utf-8'),
     );
 
@@ -20,7 +21,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsFixture,
-        errorMappedResultsFixture,
+        mappedResultsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(0);
@@ -36,7 +37,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsFixture,
-        errorMappedResultsFixture,
+        mappedResultsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -51,7 +52,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsFixture,
-        errorMappedResultsFixture,
+        mappedResultsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -68,7 +69,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsFixture,
-        errorMappedResultsFixture,
+        mappedResultsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -84,7 +85,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsFixture,
-        errorMappedResultsFixture,
+        mappedResultsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -99,7 +100,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsFixture,
-        errorMappedResultsFixture,
+        mappedResultsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -116,7 +117,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsFixture,
-        errorMappedResultsFixture,
+        mappedResultsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -135,7 +136,7 @@ describe('extractDataToSendFromResults', () => {
         ),
       );
 
-      const errorMappedResultsFixture = JSON.parse(
+      const mappedResultsFixture = JSON.parse(
         fs.readFileSync(
           'test/fixtures/npm/issue-grouping/singleProjectJsonData.json',
           'utf-8',
@@ -164,7 +165,7 @@ describe('extractDataToSendFromResults', () => {
         const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
         const res = extractDataToSendFromResults(
           resultsFixture,
-          errorMappedResultsFixture,
+          mappedResultsFixture,
           options,
         );
         expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -186,7 +187,7 @@ describe('extractDataToSendFromResults', () => {
         const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
         const res = extractDataToSendFromResults(
           resultsFixture,
-          errorMappedResultsFixture,
+          mappedResultsFixture,
           options,
         );
         expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -210,7 +211,7 @@ describe('extractDataToSendFromResults', () => {
         ),
       );
 
-      const errorMappedResultsFixture = JSON.parse(
+      const mappedResultsFixture = JSON.parse(
         fs.readFileSync(
           'test/fixtures/npm/issue-grouping/multiProjectJsonData.json',
           'utf-8',
@@ -239,7 +240,7 @@ describe('extractDataToSendFromResults', () => {
         const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
         const res = extractDataToSendFromResults(
           resultsFixture,
-          errorMappedResultsFixture,
+          mappedResultsFixture,
           options,
         );
         expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -264,7 +265,7 @@ describe('extractDataToSendFromResults', () => {
         const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
         const res = extractDataToSendFromResults(
           resultsFixture,
-          errorMappedResultsFixture,
+          mappedResultsFixture,
           options,
         );
         expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -288,7 +289,8 @@ describe('extractDataToSendFromResults', () => {
     const resultsContainerFixture = JSON.parse(
       fs.readFileSync('test/fixtures/basic-apk/results.json', 'utf-8'),
     );
-    const errorMappedResultsContainerFixture = JSON.parse(
+
+    const mappedResultsContainerFixture = JSON.parse(
       fs.readFileSync('test/fixtures/basic-apk/jsonData.json', 'utf-8'),
     );
     const resultJsonDataGroupedContainerFixture = JSON.parse(
@@ -306,7 +308,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsContainerFixture,
-        errorMappedResultsContainerFixture,
+        mappedResultsContainerFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -326,7 +328,7 @@ describe('extractDataToSendFromResults', () => {
         'utf-8',
       ),
     );
-    const errorMappedResultsAppVulnsFixture = JSON.parse(
+    const mappedResultsAppVulnsFixture = JSON.parse(
       fs.readFileSync(
         'test/fixtures/container-app-vulns/jsonData.json',
         'utf-8',
@@ -353,7 +355,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsContainerAppVulnsFixture,
-        errorMappedResultsAppVulnsFixture,
+        mappedResultsAppVulnsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
@@ -378,7 +380,7 @@ describe('extractDataToSendFromResults', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       const res = extractDataToSendFromResults(
         resultsContainerAppVulnsFixture,
-        errorMappedResultsAppVulnsFixture,
+        mappedResultsAppVulnsFixture,
         options,
       );
       expect(jsonStringifySpy).toHaveBeenCalledTimes(1);
