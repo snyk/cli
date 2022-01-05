@@ -171,7 +171,6 @@ jobs:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
-    resource_class: large
     steps:
       - checkout
       - install_project_dependencies:
@@ -289,7 +288,6 @@ jobs:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
-    resource_class: large
     environment:
       TEMP: /mnt/ramdisk/tmp
     steps:
@@ -356,7 +354,6 @@ jobs:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
-    resource_class: large
     steps:
       - checkout
       - install_release_dependencies
@@ -389,7 +386,6 @@ jobs:
     <<: *defaults
     docker:
       - image: circleci/node:<< parameters.node_version >>
-    resource_class: large
     steps:
       - checkout
       - run:

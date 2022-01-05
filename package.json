@@ -49,8 +49,8 @@
     "test:jest-unit": "jest --runInBand \"/test/jest/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:jest-system": "jest --runInBand \"/test/jest/system/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:jest-acceptance": "jest --runInBand \"/test/jest/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
-    "test:packages-unit": "jest \"/packages/(.+)/test/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
-    "test:packages-acceptance": "jest \"/packages/(.+)/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
+    "test:packages-unit": "jest --runInBand \"/packages/(.+)/test/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
+    "test:packages-acceptance": "jest --runInBand \"/packages/(.+)/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:test": "tap test/*.test.* -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register",
     "test:smoke": "./scripts/run-smoke-tests-locally.sh"
   },
