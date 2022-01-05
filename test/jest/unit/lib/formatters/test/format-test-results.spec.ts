@@ -13,7 +13,7 @@ describe('extractDataToSendFromResults', () => {
     );
 
     const mappedResultsFixture = JSON.parse(
-      fs.readFileSync('test/fixtures/basic-npm/jsonData.json', 'utf-8'),
+      fs.readFileSync('test/fixtures/basic-npm/mappedResults.json', 'utf-8'),
     );
 
     it('should not create any JSON unless it is needed per options', () => {
@@ -138,7 +138,7 @@ describe('extractDataToSendFromResults', () => {
 
       const mappedResultsFixture = JSON.parse(
         fs.readFileSync(
-          'test/fixtures/npm/issue-grouping/singleProjectJsonData.json',
+          'test/fixtures/npm/issue-grouping/singleProjectMappedResults.json',
           'utf-8',
         ),
       );
@@ -213,7 +213,7 @@ describe('extractDataToSendFromResults', () => {
 
       const mappedResultsFixture = JSON.parse(
         fs.readFileSync(
-          'test/fixtures/npm/issue-grouping/multiProjectJsonData.json',
+          'test/fixtures/npm/issue-grouping/multiProjectMappedResults.json',
           'utf-8',
         ),
       );
@@ -291,7 +291,7 @@ describe('extractDataToSendFromResults', () => {
     );
 
     const mappedResultsContainerFixture = JSON.parse(
-      fs.readFileSync('test/fixtures/basic-apk/jsonData.json', 'utf-8'),
+      fs.readFileSync('test/fixtures/basic-apk/mappedResults.json', 'utf-8'),
     );
     const resultJsonDataGroupedContainerFixture = JSON.parse(
       fs.readFileSync(
@@ -330,7 +330,7 @@ describe('extractDataToSendFromResults', () => {
     );
     const mappedResultsAppVulnsFixture = JSON.parse(
       fs.readFileSync(
-        'test/fixtures/container-app-vulns/jsonData.json',
+        'test/fixtures/container-app-vulns/mappedResults.json',
         'utf-8',
       ),
     );
