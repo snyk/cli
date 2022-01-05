@@ -3,14 +3,20 @@ import { SEVERITY, TestResult } from '../../../../../src/lib/snyk-test/legacy';
 import { SupportedProjectTypes } from '../../../../../src/lib/types';
 
 describe('createSarifOutputForContainers', () => {
-  it('general', () => {
-    const testFile = getTestResult();
+  it('general with high severity issue', () => {
+    const testFile = getTestResult(SEVERITY.HIGH);
+    const sarif = createSarifOutputForContainers([testFile]);
+    expect(sarif).toMatchSnapshot();
+  });
+
+  it('general with critical severity issue', () => {
+    const testFile = getTestResult(SEVERITY.CRITICAL);
     const sarif = createSarifOutputForContainers([testFile]);
     expect(sarif).toMatchSnapshot();
   });
 });
 
-function getTestResult(): TestResult {
+function getTestResult(severity: SEVERITY): TestResult {
   return {
     vulnerabilities: [
       {
@@ -63,7 +69,7 @@ function getTestResult(): TestResult {
           },
           vulnerable: ['<2.2.7-r0'],
         },
-        severity: SEVERITY.HIGH,
+        severity,
         title: 'XML External Entity (XXE) Injection',
         from: [
           'docker-image|garethr/snyky@alpine',

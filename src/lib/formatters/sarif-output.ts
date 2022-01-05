@@ -1,5 +1,6 @@
 import * as sarif from 'sarif';
 import { TestResult } from '../snyk-test/legacy';
+import { SEVERITY } from '../snyk-test/legacy';
 const upperFirst = require('lodash.upperfirst');
 
 export function createSarifOutputForContainers(
@@ -20,6 +21,14 @@ export function createSarifOutputForContainers(
   return sarifRes;
 }
 
+export function getIssueLevel(
+  severity: SEVERITY | 'none',
+): sarif.ReportingConfiguration.level {
+  return severity === SEVERITY.HIGH || severity === SEVERITY.CRITICAL
+    ? 'error'
+    : 'warning';
+}
+
 export function getTool(testResult): sarif.Tool {
   const tool: sarif.Tool = {
     driver: {
@@ -38,7 +47,7 @@ export function getTool(testResult): sarif.Tool {
       if (pushedIds[vuln.id]) {
         return;
       }
-      const level = vuln.severity === 'high' ? 'error' : 'warning';
+      const level = getIssueLevel(vuln.severity);
       const cve = vuln['identifiers']['CVE'][0];
       pushedIds[vuln.id] = true;
       return {

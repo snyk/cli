@@ -7,12 +7,13 @@ import { SEVERITY } from '../../../../../src/lib/snyk-test/legacy';
 
 describe('createSarifOutputForIac', () => {
   function createResponseIssue(
+    severity = SEVERITY.HIGH,
     issueOverrides?: Partial<AnnotatedIacIssue>,
   ): IacTestResponse {
     const issue: AnnotatedIacIssue = {
       id: 'ID',
       title: 'TITLE',
-      severity: SEVERITY.HIGH,
+      severity,
       isIgnored: false,
       cloudConfigPath: ['resource', 'something'],
       subType: 'SUBTYPE',
@@ -49,8 +50,26 @@ describe('createSarifOutputForIac', () => {
     };
   }
 
+  it('treats a high severity issue as an error', () => {
+    const issue = createResponseIssue(SEVERITY.HIGH);
+    const sarif = createSarifOutputForIac([issue]);
+
+    const issueLevel =
+      sarif.runs?.[0]?.tool?.driver?.rules?.[0]?.defaultConfiguration?.level;
+    expect(issueLevel).toEqual('error');
+  });
+
+  it('treats a critical severity issue as an error', () => {
+    const issue = createResponseIssue(SEVERITY.CRITICAL);
+    const sarif = createSarifOutputForIac([issue]);
+
+    const issueLevel =
+      sarif.runs?.[0]?.tool?.driver?.rules?.[0]?.defaultConfiguration?.level;
+    expect(issueLevel).toEqual('error');
+  });
+
   it('includes an artifactLocation and region', () => {
-    const issue = createResponseIssue();
+    const issue = createResponseIssue(SEVERITY.HIGH);
     const sarif = createSarifOutputForIac([issue]);
 
     const location = sarif.runs?.[0]?.results?.[0]?.locations?.[0];
@@ -64,7 +83,7 @@ describe('createSarifOutputForIac', () => {
   });
 
   it('excludes the region if no line number was found', () => {
-    const issue = createResponseIssue({ lineNumber: -1 });
+    const issue = createResponseIssue(SEVERITY.HIGH, { lineNumber: -1 });
     const sarif = createSarifOutputForIac([issue]);
 
     const location = sarif.runs?.[0]?.results?.[0]?.locations?.[0];
@@ -76,7 +95,7 @@ describe('createSarifOutputForIac', () => {
   });
 
   it('excludes the region if no line number is present', () => {
-    const issue = createResponseIssue({ lineNumber: undefined });
+    const issue = createResponseIssue(SEVERITY.HIGH, { lineNumber: undefined });
     const sarif = createSarifOutputForIac([issue]);
 
     const location = sarif.runs?.[0]?.results?.[0]?.locations?.[0];
