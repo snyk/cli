@@ -1,11 +1,15 @@
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { IaCErrorCodes, IacFileData } from './types';
-import { parseFileContent } from '@snyk/cloud-config-parser';
+import { ParserFileType, parseFileContent } from '@snyk/cloud-config-parser';
 
 export function parseYAMLOrJSONFileData(fileData: IacFileData): any[] {
   try {
-    return parseFileContent(fileData.fileContent);
+    // this function will always be called with the file types recognised by the parser
+    return parseFileContent(
+      fileData.fileContent,
+      fileData.fileType as ParserFileType,
+    );
   } catch (e) {
     if (fileData.fileType === 'json') {
       throw new InvalidJsonFileError(fileData.filePath);
