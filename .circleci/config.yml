@@ -154,6 +154,26 @@ commands:
           command: |
             curl -fsSL https://git.io/shellspec | sh -s -- -y
             sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
+  build_binaries:
+    steps:
+      - restore_cache:
+          name: Restoring pkg cache
+          keys:
+            - pkg-cache-v1-{{ arch }}-{{ checksum "package-lock.json" }}
+      - run:
+          name: Building binaries
+          command: ./release-scripts/make-binaries.sh
+      - store_artifacts:
+          path: ./binary-releases
+      - run:
+          name: Validating binaries
+          working_directory: ./binary-releases
+          command: ../release-scripts/validate-checksums.sh
+      - save_cache:
+          name: Saving pkg cache
+          key: pkg-cache-v1-{{ arch }}-{{ checksum "package-lock.json" }}
+          paths:
+            - ~/.pkg-cache
   pack_snyk_cli:
     steps:
       - run:
@@ -370,18 +390,7 @@ jobs:
       - run:
           name: Pruning Snyk CLI dependencies
           command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - run:
-          name: Building binaries
-          command: |
-            cat package.json
-            ./release-scripts/make-binaries.sh
-            ls -la ./binary-releases
-      - store_artifacts:
-          path: ./binary-releases
-      - run:
-          name: Validating binaries
-          working_directory: ./binary-releases
-          command: ../release-scripts/validate-checksums.sh
+      - build_binaries
       - pack_snyk_cli
       - store_artifacts:
           path: ./dist-pack
@@ -417,17 +426,7 @@ jobs:
       - run:
           name: Bumping versions and publishing packages
           command: npx lerna publish minor --yes --no-push --no-git-tag-version --exact
-      - run:
-          name: Building binaries
-          command: |
-            ./release-scripts/make-binaries.sh
-            ls -la ./binary-releases
-      - store_artifacts:
-          path: ./binary-releases
-      - run:
-          name: Validating binaries
-          working_directory: ./binary-releases
-          command: ../release-scripts/validate-checksums.sh
+      - build_binaries
       - run:
           name: Generating release notes
           command: npx conventional-changelog-cli -p angular -l -r 1 > RELEASE_NOTES.txt
