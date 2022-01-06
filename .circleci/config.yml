@@ -20,25 +20,26 @@ orbs:
 #     https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
 #
 executors:
-  linux-x64-node14:
+  linux-x64-node14: &linux-x64-node14
     docker:
       - image: cimg/node:14.17.5
-  linux-x64-node12:
+  linux-x64-node12: &linux-x64-node12
     docker:
       - image: cimg/node:12.22.5
-  linux-x64:
+  linux-x64: &linux-x64
     machine:
       image: ubuntu-2004:202111-02
-  linux-arm64:
+  linux-arm64: &linux-arm64
     machine:
       image: ubuntu-2004:202101-01
     resource_class: arm.medium
-  darwin-x64:
+  darwin-x64: &darwin-x64
     macos:
       xcode: '13.2.1'
-  win32-x64:
+  win32-x64: &win32-x64
     machine:
       image: 'windows-server-2019-vs2019:stable'
+    resource_class: windows.medium
 
 #
 # Command Definitions
@@ -83,7 +84,11 @@ commands:
     steps:
       - when:
           condition:
-            matches: { pattern: '^linux.*$', value: << parameters.executor >> }
+            or:
+              - equal: [*linux-x64-node14, << parameters.executor >>]
+              - equal: [*linux-x64-node12, << parameters.executor >>]
+              - equal: [*linux-x64, << parameters.executor >>]
+              - equal: [*linux-arm64, << parameters.executor >>]
           steps:
             - restore_cache:
                 name: Restoring SDKMAN install cache
@@ -121,7 +126,8 @@ commands:
                   - ~/.sdkman/archives
       - when:
           condition:
-            matches: { pattern: '^win32.*$', value: << parameters.executor >> }
+            or:
+              - equal: [*win32-x64, << parameters.executor >>]
           steps:
             - restore_cache:
                 name: Restoring Chocolatey cache
@@ -244,7 +250,6 @@ jobs:
         type: executor
     executor: << parameters.executor >>
     steps:
-      - checkout
       - install_sdks:
           executor: << parameters.executor >>
       # TODO: conditionally install npm package or binary
