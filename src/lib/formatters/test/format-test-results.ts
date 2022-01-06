@@ -16,8 +16,8 @@ import {
 } from '../../snyk-test/legacy';
 import chalk from 'chalk';
 import config from '../../config';
-const cloneDeep = require('lodash.clonedeep');
-const orderBy = require('lodash.orderby');
+import * as cloneDeep from 'lodash.clonedeep';
+import * as orderBy from 'lodash.orderby';
 import * as analytics from '../../analytics';
 import { formatIssuesWithRemediation } from '../remediation-based-format-issues';
 import { formatIssues } from '../legacy-format-issue';
@@ -35,12 +35,18 @@ import {
 } from 'snyk-docker-plugin/dist';
 import { ScanResult } from '../../ecosystems/types';
 
-export function formatJsonVulnerabilityStructure(jsonData, options: Options) {
-  const jsonDataClone = cloneDeep(jsonData);
+function createJsonResultOutput(jsonResult, options: Options) {
+  const jsonResultClone = cloneDeep(jsonResult);
+  delete jsonResultClone.scanResult;
 
+  formatJsonVulnerabilityStructure(jsonResultClone, options);
+  return jsonResultClone;
+}
+
+function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
   if (options['group-issues']) {
-    jsonDataClone.vulnerabilities = Object.values(
-      (jsonDataClone.vulnerabilities || []).reduce((acc, vuln): Record<
+    jsonResult.vulnerabilities = Object.values(
+      (jsonResult.vulnerabilities || []).reduce((acc, vuln): Record<
         string,
         any
       > => {
@@ -52,19 +58,18 @@ export function formatJsonVulnerabilityStructure(jsonData, options: Options) {
     );
   }
 
-  if (jsonDataClone.vulnerabilities) {
-    jsonDataClone.vulnerabilities.forEach((vuln) => {
+  if (jsonResult.vulnerabilities) {
+    jsonResult.vulnerabilities.forEach((vuln) => {
       if (vuln.reachability) {
         vuln.reachability = getReachabilityJson(vuln.reachability);
       }
     });
   }
-  return jsonDataClone;
 }
 
 export function extractDataToSendFromResults(
   results,
-  jsonData,
+  mappedResults,
   options: Options,
 ): OutputDataTypes {
   let sarifData = {};
@@ -80,18 +85,16 @@ export function extractDataToSendFromResults(
     stringifiedSarifData = jsonStringifyLargeObject(sarifData);
   }
 
+  const jsonResults = mappedResults.map((res) =>
+    createJsonResultOutput(res, options),
+  );
+
+  // backwards compat - strip array IFF only one result
+  const jsonData = jsonResults.length === 1 ? jsonResults[0] : jsonResults;
+
   let stringifiedJsonData = '';
   if (options.json || options['json-file-output']) {
-    if (Array.isArray(jsonData)) {
-      const jsonResult = jsonData.map((res) =>
-        formatJsonVulnerabilityStructure(res, options),
-      );
-      stringifiedJsonData = jsonStringifyLargeObject(jsonResult);
-    } else {
-      stringifiedJsonData = jsonStringifyLargeObject(
-        formatJsonVulnerabilityStructure(jsonData, options),
-      );
-    }
+    stringifiedJsonData = jsonStringifyLargeObject(jsonData);
   }
 
   const dataToSend = options.sarif ? sarifData : jsonData;
@@ -100,7 +103,7 @@ export function extractDataToSendFromResults(
     : stringifiedJsonData;
 
   return {
-    stdout: dataToSend, // this is for the human-readable stdout output and is set (but not used) even if --json or --sarif is set
+    stdout: dataToSend, // this is for the human-readable stdout output and is set even if --json or --sarif is set
     stringifiedData, // this will be used to display either the Snyk or SARIF format JSON to stdout if --json or --sarif is set
     stringifiedJsonData, // this will be used for the --json-file-output=<file.json> option
     stringifiedSarifData, // this will be used for the --sarif-file-output=<file.json> option
