@@ -1,64 +1,66 @@
 version: 2.1
 
 orbs:
-  win: circleci/windows@2.4.1
-  aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@1.0.4
 
-defaults: &defaults
-  parameters:
-    node_version:
-      type: string
-      default: '14.17.5'
-    root_tap_tests:
-      type: boolean
-      default: false
-    jest_tests:
-      type: boolean
-      default: false
-    acceptance_tests:
-      type: boolean
-      default: false
-    system_tests:
-      type: boolean
-      default: false
-    package_tests:
-      type: boolean
-      default: false
-  working_directory: /mnt/ramdisk/snyk
+#
+# Executor Definitions
+# https://circleci.com/docs/2.0/executor-types
+#
+#   NodeJS Variants:
+#     https://circleci.com/developer/images/image/cimg/node
+#
+#   Linux Variants:
+#     https://circleci.com/developer/machine/image/ubuntu-2004
+#
+#   Windows Variants:
+#     https://circleci.com/developer/orbs/orb/circleci/windows
+#
+#   macOS Variants:
+#     https://circleci.com/docs/2.0/testing-ios/#supported-xcode-versions
+#
+executors:
+  linux-x64-node14:
+    docker:
+      - image: cimg/node:14.17.5
+  linux-x64-node12:
+    docker:
+      - image: cimg/node:12.22.5
+  linux-x64:
+    machine:
+      image: ubuntu-2004:202111-02
+  linux-arm64:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
+  darwin-x64:
+    macos:
+      xcode: '13.2.1'
+  win32-x64:
+    machine:
+      image: 'windows-server-2019-vs2019:stable'
 
+#
+# Command Definitions
+# https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands
+#
 commands:
   install_project_dependencies:
     parameters:
-      node_version:
-        type: string
       npm_version:
         type: string
         default: '7.21.1'
       npm_cache_directory:
         type: string
-        default: /mnt/ramdisk/.npm
-      npm_global_sudo:
-        type: boolean
-        default: true
+        default: ~/.npm
     steps:
       - restore_cache:
           name: Restoring npm cache
           keys:
-            - npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
-      - when:
-          condition:
-            not: << parameters.npm_global_sudo >>
-          steps:
-            run:
-              name: Installing npm
-              command: npm install -g npm@<< parameters.npm_version >>
-      - when:
-          condition: << parameters.npm_global_sudo >>
-          steps:
-            run:
-              name: Installing npm
-              command: sudo npm install -g npm@<< parameters.npm_version >>
+            - npm-cache-v2-{{ arch }}-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
+      - run:
+          name: Installing npm
+          command: sudo npm install -g npm@<< parameters.npm_version >>
       - run:
           name: Configuring npm
           command: |
@@ -70,79 +72,69 @@ commands:
           command: npm ci
       - save_cache:
           name: Saving npm cache
-          key: npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
+          key: npm-cache-v2-{{ arch }}-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
           paths:
             - << parameters.npm_cache_directory >>
-  install_sdks_windows:
-    steps:
-      - restore_cache:
-          name: Restoring Chocolatey cache
-          keys:
-            - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-      - run:
-          name: Installing SDKs
-          command: choco install .circleci/chocolatey.config --no-progress
-      - save_cache:
-          name: Saving Chocolatey cache
-          key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
-          paths:
-            - ~\AppData\Local\Temp\chocolatey
-  install_sdks_linux:
-    steps:
-      - restore_cache:
-          name: Restoring SDKMAN install cache
-          keys:
-            - sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
-      - run:
-          name: Installing Python
-          command: |
-            sudo apt update
-            sudo apt install python3 python3-pip python-is-python3
-      - run:
-          name: Installing SDKMAN
-          # The install script comes from https://get.sdkman.io/?rcupdate=false
-          # We need to disable rcupdate as CircleCI uses a different setup.
-          command: |
-            ./.circleci/vendor/sdkman-install.sh
-            echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
-            source $BASH_ENV
-      - save_cache:
-          name: Saving SDKMAN install cache
-          key: sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
-          paths:
-            - ~/.sdkman
-      - restore_cache:
-          name: Restoring SDKMAN archive cache
-          keys:
-            - sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
-      - run:
-          name: Installing SDKs
-          command: ./.circleci/install-sdks-linux.sh
-      - save_cache:
-          name: Saving SDKMAN archive cache
-          key: sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
-          paths:
-            - ~/.sdkman/archives
-  install_node_windows:
+  install_sdks:
     parameters:
-      node_version:
-        type: string
+      executor:
+        type: executor
+        default: linux-x64-node14
     steps:
-      - run:
-          name: Removing pre-installed NodeJS
-          command: |
-            $current_node_version = node --version
-            nvm uninstall $current_node_version
-      - run:
-          name: Installing NodeJS
-          command: choco install nodejs --version=<< parameters.node_version >> --no-progress
-  install_shellspec_dependencies:
-    steps:
-      - run:
-          name: Installing ShellSpec
-          command: |
-            curl -fsSL https://git.io/shellspec | sh -s -- -y
-            sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
+      - when:
+          condition:
+            matches: { pattern: '^linux.*$', value: << parameters.executor >> }
+          steps:
+            - restore_cache:
+                name: Restoring SDKMAN install cache
+                keys:
+                  - sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
+            - run:
+                name: Installing Python, AWS CLI
+                command: |
+                  sudo apt update
+                  sudo apt install python3 python3-pip python-is-python3 awscli
+            - run:
+                name: Installing SDKMAN
+                # The install script comes from https://get.sdkman.io/?rcupdate=false
+                # We need to disable rcupdate as CircleCI uses a different setup.
+                command: |
+                  ./.circleci/vendor/sdkman-install.sh
+                  echo -e '\nsource "/home/circleci/.sdkman/bin/sdkman-init.sh"' >> $BASH_ENV
+                  source $BASH_ENV
+            - save_cache:
+                name: Saving SDKMAN install cache
+                key: sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
+                paths:
+                  - ~/.sdkman
+            - restore_cache:
+                name: Restoring SDKMAN archive cache
+                keys:
+                  - sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+            - run:
+                name: Installing SDKs
+                command: ./.circleci/install-sdks-linux.sh
+            - save_cache:
+                name: Saving SDKMAN archive cache
+                key: sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
+                paths:
+                  - ~/.sdkman/archives
+      - when:
+          condition:
+            matches: { pattern: '^win32.*$', value: << parameters.executor >> }
+          steps:
+            - restore_cache:
+                name: Restoring Chocolatey cache
+                keys:
+                  - chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+            - run:
+                name: Installing SDKs
+                command: choco install .circleci/chocolatey.config --no-progress
+            - save_cache:
+                name: Saving Chocolatey cache
+                key: chocolatey-cache-v2-{{ arch }}-{{ checksum ".circleci/chocolatey.config" }}
+                paths:
+                  - ~\AppData\Local\Temp\chocolatey
   pack_snyk_cli:
     steps:
       - run:
@@ -158,26 +150,26 @@ commands:
           command: |
             sudo apt update
             sudo apt install osslsigncode
+
+#
+# Job Definitions
+# https://circleci.com/docs/2.0/configuration-reference/#jobs
+#
 jobs:
   lint:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux-x64-node14
     steps:
       - checkout
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
+      - install_project_dependencies
       - run:
           name: Linting project
           command: npm run lint
+
   build:
-    <<: *defaults
-    docker:
-      - image: circleci/node:<< parameters.node_version >>
+    executor: linux-x64-node14
     steps:
       - checkout
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
+      - install_project_dependencies
       - run:
           name: Building project
           command: npm run build:prod
@@ -187,16 +179,13 @@ jobs:
             - dist/
             - packages/*/dist
             - pysrc
+
   regression-test:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux-x64-node14
     steps:
       - checkout
-      - install_sdks_linux
-      - install_shellspec_dependencies
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
+      - install_sdks
+      - install_project_dependencies
       - attach_workspace:
           at: .
       - run:
@@ -212,6 +201,11 @@ jobs:
           command: sudo npm install -g snyk-*.tgz
           path: ./dist-pack
       - run:
+          name: Installing ShellSpec
+          command: |
+            curl -fsSL https://git.io/shellspec | sh -s -- -y
+            sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
+      - run:
           name: Running ShellSpec tests
           working_directory: ./test/smoke
           command: |
@@ -219,20 +213,13 @@ jobs:
             unset SNYK_API
             unset SNYK_API_KEY
             shellspec -f d -e REGRESSION_TEST=1
+
   unit-test:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
-    environment:
-      TEMP: /mnt/ramdisk/tmp
+    executor: linux-x64-node14
     steps:
-      - run:
-          name: Creating temporary directory
-          command: mkdir /mnt/ramdisk/tmp
       - checkout
-      - install_sdks_linux
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
+      - install_sdks
+      - install_project_dependencies
       - attach_workspace:
           at: .
       - run:
@@ -250,47 +237,35 @@ jobs:
       - run:
           name: Running root tests (Jest)
           command: npm run test:jest -- --ci
+
   acceptance-test:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
-    environment:
-      TEMP: /mnt/ramdisk/tmp
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
     steps:
-      - run:
-          name: Creating temporary directory
-          command: mkdir /mnt/ramdisk/tmp
       - checkout
-      - install_sdks_linux
-      - aws-cli/install:
-          version: 2.2.32
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
-      - attach_workspace:
-          at: .
-      - run:
-          name: Configuring Snyk CLI
-          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
-      - run:
-          name: Running acceptance tests (Packages)
-          command: npm run test:packages-acceptance -- --ci
-      - run:
-          name: Running acceptance tests (Jest)
-          command: npm run test:jest-acceptance -- --ci
+      - install_sdks:
+          executor: << parameters.executor >>
+      # TODO: conditionally install npm package or binary
+      # TODO: download relevant test binary and run tests
+      # - run:
+      #     name: Running acceptance tests (Packages)
+      #     command: npm run test:packages-acceptance -- --ci
+      # - run:
+      #     name: Running acceptance tests (Jest)
+      #     command: npm run test:jest-acceptance -- --ci
+
   tap-test:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
-    environment:
-      TEMP: /mnt/ramdisk/tmp
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
     steps:
-      - run:
-          name: Creating temporary directory
-          command: mkdir /mnt/ramdisk/tmp
       - checkout
-      - install_sdks_linux
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
+      - install_sdks:
+          executor: << parameters.executor >>
+      - install_project_dependencies
       - attach_workspace:
           at: .
       - run:
@@ -305,88 +280,13 @@ jobs:
       - run:
           name: Running acceptance tests (Tap)
           command: npm run test:acceptance
-  test-windows:
-    <<: *defaults
-    executor: win/default
-    working_directory: ~\snyk
-    steps:
-      - run:
-          name: Configuring Git
-          command: git config --global core.autocrlf false
-      - checkout
-      - install_node_windows:
-          node_version: << parameters.node_version >>
-      - install_sdks_windows
-      - install_project_dependencies:
-          npm_cache_directory: ~\AppData\Local\npm-cache
-          node_version: << parameters.node_version >>
-          npm_global_sudo: false
-      - attach_workspace:
-          at: .
-      - run:
-          name: Configuring Snyk CLI
-          command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
-      - when:
-          condition: << parameters.package_tests >>
-          steps:
-            - run:
-                name: Running unit tests (Packages)
-                command: npm run test:packages-unit -- --ci
-      - when:
-          condition: << parameters.package_tests >>
-          steps:
-            - run:
-                name: Running acceptance tests (Packages)
-                command: npm run test:packages-acceptance -- --ci
-      - when:
-          condition: << parameters.root_tap_tests >>
-          steps:
-            - run:
-                name: Running root tests (Tap)
-                command: npm run test:test
-      - when:
-          condition: << parameters.jest_tests >>
-          steps:
-            - run:
-                name: Running root tests (Jest)
-                command: npm run test:jest -- --ci
-            - run:
-                name: Running unit tests (Jest)
-                command: npm run test:jest-unit -- --ci
-            - run:
-                name: Running system tests (Jest)
-                command: npm run test:jest-system -- --ci
-            - run:
-                name: Download AWS CLI
-                command: |
-                  msiexec.exe /i AWSCLIV2.msi /quiet
-                  [Environment]::SetEnvironmentVariable("Path", $env:PATH + `
-                  ";c:\Program Files\Amazon\AWSCLIV2", "Machine")
-                shell: powershell.exe
-            - run:
-                name: Running acceptance tests (Jest)
-                command: npm run test:jest-acceptance -- --ci
-      - when:
-          condition: << parameters.acceptance_tests >>
-          steps:
-            - run:
-                name: Running acceptance tests (Tap)
-                command: npm run test:acceptance
-      - when:
-          condition: << parameters.system_tests >>
-          steps:
-            - run:
-                name: Running system tests (Tap)
-                command: npm run test:system
+
   dev-release:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux-x64-node14
     steps:
       - checkout
       - install_release_dependencies
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
+      - install_project_dependencies
       - attach_workspace:
           at: .
       - run:
@@ -410,60 +310,11 @@ jobs:
       - pack_snyk_cli
       - store_artifacts:
           path: ./dist-pack
-  prod-release:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
-    steps:
-      - checkout
-      - run:
-          name: Should I release?
-          command: ./release-scripts/should-i-release.sh
-      - gh/setup:
-          token: GH_TOKEN
-          version: 1.9.2
-      - aws-cli/install:
-          version: 2.2.32
-      - install_release_dependencies
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
-      - attach_workspace:
-          at: .
-      - run:
-          name: Updating package versions
-          command: |
-            ./release-scripts/update-versions.sh
-            git update-index --skip-worktree -- ./lerna.json
-            git update-index --skip-worktree -- ./package.json
-            git update-index --skip-worktree -- ./packages/snyk-protect/package.json
-      - run:
-          name: Pruning Snyk CLI dependencies
-          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - run:
-          name: Bumping versions and publishing packages
-          command: npx lerna publish minor --yes --no-push --no-git-tag-version --exact
-      - run:
-          name: Building binaries
-          command: |
-            ./release-scripts/make-binaries.sh
-            ls -la ./binary-releases
-      - store_artifacts:
-          path: ./binary-releases
-      - run:
-          name: Validating binaries
-          working_directory: ./binary-releases
-          command: ../release-scripts/validate-checksums.sh
-      - run:
-          name: Generating release notes
-          command: npx conventional-changelog-cli -p angular -l -r 1 > RELEASE_NOTES.txt
-      - run:
-          name: Publishing binaries
-          command: ./release-scripts/upload-artifacts.sh
-      - run:
-          name: Handling failed release
-          command: ./release-scripts/handle-failed-release.sh
-          when: on_fail
 
+#
+# Workflow Definitions
+# https://circleci.com/docs/2.0/configuration-reference/#workflows
+#
 workflows:
   version: 2
   test_and_release:
@@ -484,20 +335,7 @@ workflows:
             - Build # needed for importing local packages like @snyk/fix
 
       - acceptance-test:
-          name: Acceptance Test (Node v<< matrix.node_version >>)
-          context: nodejs-install
-          filters:
-            branches:
-              ignore:
-                - master
-          requires:
-            - Unit Test
-          matrix:
-            parameters:
-              node_version: ['12.22.5', '14.17.5']
-
-      - tap-test:
-          name: Tap Test (Node v<< matrix.node_version >>)
+          name: Acceptance Test (<< matrix.executor >>)
           context: nodejs-install
           filters:
             branches:
@@ -507,7 +345,20 @@ workflows:
             - Build
           matrix:
             parameters:
-              node_version: ['12.22.5', '14.17.5']
+              executor: [linux-x64-node14, linux-x64-node12, win32-x64]
+
+      - tap-test:
+          name: Tap Test (<< matrix.executor >>)
+          context: nodejs-install
+          filters:
+            branches:
+              ignore:
+                - master
+          requires:
+            - Build
+          matrix:
+            parameters:
+              executor: [linux-x64-node14, linux-x64-node12]
 
       - regression-test:
           name: Regression Tests
@@ -528,13 +379,3 @@ workflows:
           requires:
             - Lint
             - Build
-      # - prod-release:
-      #     name: Production Release
-      #     context: nodejs-app-release
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
-      #     requires:
-      #       - Lint
-      #       - Build
