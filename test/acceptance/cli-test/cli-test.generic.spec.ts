@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as needle from 'needle';
 import * as Ajv from 'ajv';
-import * as sarifSchema from '../../support/sarif-schema-2.1.0';
+import * as sarifSchema from './sarif-schema-2.1.0';
 import { AcceptanceTests } from './cli-test.acceptance.test';
 
 // ensure this is required *after* the demo server, since this will

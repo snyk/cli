@@ -10,16 +10,10 @@ defaults: &defaults
     node_version:
       type: string
       default: '14.17.5'
-    root_tap_tests:
-      type: boolean
-      default: false
     jest_tests:
       type: boolean
       default: false
     acceptance_tests:
-      type: boolean
-      default: false
-    system_tests:
       type: boolean
       default: false
     package_tests:
@@ -253,12 +247,6 @@ jobs:
                 name: Running acceptance tests (Packages)
                 command: npm run test:packages-acceptance -- --ci
       - when:
-          condition: << parameters.root_tap_tests >>
-          steps:
-            - run:
-                name: Running root tests (Tap)
-                command: npm run test:test
-      - when:
           condition: << parameters.jest_tests >>
           steps:
             - run:
@@ -286,12 +274,6 @@ jobs:
             - run:
                 name: Running acceptance tests (Tap)
                 command: npm run test:acceptance
-      - when:
-          condition: << parameters.system_tests >>
-          steps:
-            - run:
-                name: Running system tests (Tap)
-                command: npm run test:system
   test-linux:
     <<: *defaults
     docker:
@@ -324,12 +306,6 @@ jobs:
                 name: Running acceptance tests (Packages)
                 command: npm run test:packages-acceptance -- --ci
       - when:
-          condition: << parameters.root_tap_tests >>
-          steps:
-            - run:
-                name: Running root tests (Tap)
-                command: npm run test:test
-      - when:
           condition: << parameters.jest_tests >>
           steps:
             - run:
@@ -352,12 +328,25 @@ jobs:
             - run:
                 name: Running acceptance tests (Tap)
                 command: npm run test:acceptance
-      - when:
-          condition: << parameters.system_tests >>
-          steps:
-            - run:
-                name: Running system tests (Tap)
-                command: npm run test:system
+
+  test-tap:
+    <<: *defaults
+    docker:
+      - image: cimg/node:<< parameters.node_version >>
+    steps:
+      - checkout
+      - install_sdks_linux
+      - install_project_dependencies:
+          node_version: << parameters.node_version >>
+      - attach_workspace:
+          at: .
+      - run:
+          name: Configuring Snyk CLI
+          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Running Tap tests
+          command: npm run test:tap
+
   dev-release:
     <<: *defaults
     docker:
@@ -464,7 +453,7 @@ workflows:
                 - master
 
       - test-windows:
-          name: Windows, Node v14.17.5 - Packages, Jest, System Tests
+          name: Windows, Node v14.17.5 - Packages, Jest Tests
           context: nodejs-install
           requires:
             - Build
@@ -473,7 +462,6 @@ workflows:
               ignore:
                 - master
           jest_tests: true
-          system_tests: true
           package_tests: true
       - test-windows:
           name: Windows, Node v14.17.5 - Acceptance Tests
@@ -485,19 +473,9 @@ workflows:
               ignore:
                 - master
           acceptance_tests: true
-      - test-windows:
-          name: Windows, Node v14.17.5 - Root Tap Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          root_tap_tests: true
 
       - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Packages, Jest, System Tests
+          name: Linux, Node v<< matrix.node_version >> - Packages, Jest Tests
           context: nodejs-install
           requires:
             - Build
@@ -509,7 +487,6 @@ workflows:
             parameters:
               node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
           jest_tests: true
-          system_tests: true
           package_tests: true
       - test-linux:
           name: Linux, Node v<< matrix.node_version >> - Acceptance Tests
@@ -524,8 +501,9 @@ workflows:
             parameters:
               node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
           acceptance_tests: true
-      - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Root Tap Tests
+
+      - test-tap:
+          name: Tap Tests
           context: nodejs-install
           requires:
             - Build
@@ -533,10 +511,6 @@ workflows:
             branches:
               ignore:
                 - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
-          root_tap_tests: true
 
       - dev-release:
           name: Development Release

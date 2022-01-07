@@ -1,6 +1,0 @@
-#! /usr/bin/env sh
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-export NODE_OPTIONS=--no-deprecation
-
-exec "${SCRIPT_DIR}/node_modules/.bin/tap" --node-path "${SCRIPT_DIR}/node_modules/.bin/ts-node" --node-arg "--project=${SCRIPT_DIR}/tsconfig.json" --test-file-pattern '/\.test\.[tj]s$/' "$@"
