@@ -100,9 +100,11 @@ describe('iac test --sarif-file-output', () => {
         .artifactLocation.uri;
     const actualProjectRoot =
       jsonObj?.runs?.[0].originalUriBaseIds.PROJECTROOT.uri;
-    expect(actualPhysicalLocation).toEqual('./iac/file-output/sg_open_ssh.tf');
+    expect(actualPhysicalLocation).toEqual(
+      'test/fixtures/iac/file-output/sg_open_ssh.tf',
+    );
     expect(actualProjectRoot).toEqual(
-      pathToFileURL(path.join(path.resolve('./test/fixtures/'), '/')).href,
+      pathToFileURL(path.join(path.resolve(''), '/')).href,
     );
   });
 });

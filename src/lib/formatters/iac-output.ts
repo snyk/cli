@@ -4,6 +4,8 @@ import * as Debug from 'debug';
 import * as pathLib from 'path';
 import { pathToFileURL } from 'url';
 import upperFirst = require('lodash.upperfirst');
+import camelCase = require('lodash.camelcase');
+import { execSync } from 'child_process';
 
 import {
   IacTestResponse,
@@ -136,11 +138,16 @@ export function createSarifOutputForIac(
   const basePath = isLocalFolder(iacTestResponses[0].path)
     ? pathLib.resolve('.', iacTestResponses[0].path)
     : pathLib.resolve('.');
+  const repoRoot = getRepoRoot();
   const issues = iacTestResponses.reduce((collect: ResponseIssues, res) => {
     if (res.result) {
       // targetFile is the computed relative path of the scanned file
       // so needs to be cleaned up before assigning to the URI
-      const targetPath = res.targetFile.replace(/\\/g, '/');
+      const targetPath = getPathRelativeToRepoRoot(
+        repoRoot,
+        basePath,
+        res.targetFile,
+      );
       const mapped = res.result.cloudConfigResults.map((issue) => ({
         issue,
         targetPath,
@@ -152,18 +159,23 @@ export function createSarifOutputForIac(
 
   const tool: sarif.Tool = {
     driver: {
-      name: 'Snyk Infrastructure as Code',
+      name: 'Snyk IaC',
+      fullName: 'Snyk Infrastructure as Code',
+      informationUri:
+        'https://docs.snyk.io/products/snyk-infrastructure-as-code',
       rules: extractReportingDescriptor(issues),
     },
   };
   return {
+    $schema:
+      'https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json',
     version: '2.1.0',
     runs: [
       {
         // https://docs.oasis-open.org/sarif/sarif/v2.1.0/os/sarif-v2.1.0-os.html#_Toc34317498
         originalUriBaseIds: {
           [PROJECT_ROOT_KEY]: {
-            uri: pathToFileURL(pathLib.join(basePath, '/')).href,
+            uri: pathToFileURL(repoRoot).href,
             description: {
               text: 'The root directory for all project files.',
             },
@@ -171,6 +183,9 @@ export function createSarifOutputForIac(
         },
 
         tool,
+        automationDetails: {
+          id: 'snyk-iac',
+        },
         results: mapIacTestResponseToSarifResults(issues),
       },
     ],
@@ -214,6 +229,7 @@ export function extractReportingDescriptor(
     }
     tool[issue.id] = {
       id: issue.id,
+      name: upperFirst(camelCase(issue.title)).replace(/ /g, ''),
       shortDescription: {
         text: `${upperFirst(issue.severity)} severity - ${issue.title}`,
       },
@@ -232,8 +248,11 @@ export function extractReportingDescriptor(
       },
       properties: {
         tags,
-        documentation: issue.documentation,
+        problem: {
+          severity: issue.severity,
+        },
       },
+      helpUri: issue.documentation,
     };
   });
 
@@ -273,4 +292,22 @@ export function mapIacTestResponseToSarifResults(
       ],
     };
   });
+}
+
+function getRepoRoot() {
+  const cwd = process.cwd();
+  const stdout = execSync('git rev-parse --show-toplevel', {
+    encoding: 'utf8',
+    cwd,
+  });
+  return stdout.trim() + '/';
+}
+
+function getPathRelativeToRepoRoot(
+  repoRoot: string,
+  basePath: string,
+  filePath: string,
+) {
+  const fullPath = pathLib.resolve(basePath, filePath).replace(/\\/g, '/');
+  return fullPath.replace(repoRoot, '');
 }
