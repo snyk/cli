@@ -80,6 +80,17 @@ export class UnsupportedEntitlementFlagError extends CustomError {
   }
 }
 
+export class UnsupportedEntitlementCommandError extends CustomError {
+  constructor(key: string, entitlementName: string) {
+    super(
+      `Unsupported command: ${key} - Missing the ${entitlementName} entitlement`,
+    );
+    this.code = IaCErrorCodes.UnsupportedEntitlementFlagError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = `Command "${key}" is currently not supported for this org. To enable it, please contact snyk support.`;
+  }
+}
+
 /**
  * Validates the command line flags passed to the snyk iac test
  * command. The current argument parsing is very permissive and
