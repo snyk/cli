@@ -34,7 +34,7 @@
     "format": "prettier --write '**/*.{js,ts,json,yaml,yml,md}'",
     "format:changes": "./scripts/format/prettier-changes.sh",
     "lint": "npm-run-all --serial --continue-on-error lint:*",
-    "lint:js": "eslint --color --cache '**/*.{js,ts}'",
+    "lint:js": "eslint --quiet --color --cache '**/*.{js,ts}'",
     "lint:formatting": "prettier --check '**/*.{js,ts,json,yaml,yml,md}'",
     "build": "npm run build:dev",
     "build:dev": "lerna run build --ignore snyk && npm run build-cli:dev",
