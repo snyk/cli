@@ -222,16 +222,3 @@ test('find path is empty string', async (t) => {
     );
   }
 });
-
-test('find path is relative', async (t) => {
-  try {
-    await find('fixtures/find-files');
-    t.fail('expected exception to be thrown');
-  } catch (err) {
-    t.match(
-      err.message,
-      'Error finding files in path',
-      'throws expected exception',
-    );
-  }
-});
