@@ -391,14 +391,26 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       customPolicies: {},
       customRules: {},
       entitlements: {
+        infrastructureAsCode: true,
         iacCustomRulesEntitlement: true,
       },
     };
 
-    if (req.query.org === 'no-entitlements') {
+    if (req.query.org === 'no-iac-entitlements') {
       return res.status(200).send({
         ...baseResponse,
         entitlements: {
+          ...baseResponse.entitlements,
+          infrastructureAsCode: false,
+        },
+      });
+    }
+
+    if (req.query.org === 'no-custom-rules-entitlements') {
+      return res.status(200).send({
+        ...baseResponse,
+        entitlements: {
+          ...baseResponse.entitlements,
           iacCustomRulesEntitlement: false,
         },
       });

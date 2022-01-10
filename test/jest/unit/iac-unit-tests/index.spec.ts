@@ -67,6 +67,7 @@ jest.mock(
         ociRegistryTag: 'latest',
       },
       entitlements: {
+        infrastructureAsCode: true,
         iacCustomRulesEntitlement: true,
       },
     }),

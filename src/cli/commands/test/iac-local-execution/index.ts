@@ -28,6 +28,7 @@ import {
   scanFiles,
   trackUsage,
 } from './measurable-methods';
+import { UnsupportedEntitlementError } from '../../../../lib/errors/unsupported-entitlement-error';
 import { UnsupportedEntitlementFlagError } from './assert-iac-options-flag';
 import { config as userConfig } from '../../../../lib/user-config';
 import config from '../../../../lib/config';
@@ -56,6 +57,10 @@ export async function test(
     const orgPublicId = options.org ?? config.org;
 
     const iacOrgSettings = await getIacOrgSettings(orgPublicId);
+
+    if (!iacOrgSettings.entitlements?.infrastructureAsCode) {
+      throw new UnsupportedEntitlementError('infrastructureAsCode');
+    }
 
     if (options.rules) {
       if (!iacOrgSettings.entitlements?.iacCustomRulesEntitlement) {
