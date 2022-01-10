@@ -138,7 +138,7 @@ export function createSarifOutputForIac(
   const basePath = isLocalFolder(iacTestResponses[0].path)
     ? pathLib.resolve('.', iacTestResponses[0].path)
     : pathLib.resolve('.');
-  const repoRoot = getRepoRoot();
+  const repoRoot = getRepoRoot(basePath);
   const issues = iacTestResponses.reduce((collect: ResponseIssues, res) => {
     if (res.result) {
       // targetFile is the computed relative path of the scanned file
@@ -294,13 +294,17 @@ export function mapIacTestResponseToSarifResults(
   });
 }
 
-function getRepoRoot() {
-  const cwd = process.cwd();
-  const stdout = execSync('git rev-parse --show-toplevel', {
-    encoding: 'utf8',
-    cwd,
-  });
-  return stdout.trim() + '/';
+function getRepoRoot(basePath: string) {
+  try {
+    const cwd = process.cwd();
+    const stdout = execSync('git rev-parse --show-toplevel', {
+      encoding: 'utf8',
+      cwd,
+    });
+    return stdout.trim() + '/';
+  } catch {
+    return basePath;
+  }
 }
 
 function getPathRelativeToRepoRoot(
