@@ -23,7 +23,7 @@ const modes: Record<string, ModeData> = {
     },
   },
   iac: {
-    allowedCommands: ['test'],
+    allowedCommands: ['test', 'drift'],
     config: (args): [] => {
       args['iac'] = true;
 
