@@ -34,7 +34,7 @@ export async function getStandardData(
   args: ArgsOptions[],
 ): Promise<StandardAnalyticsData> {
   const isStandalone = version.isStandaloneBuild();
-  const snykVersion = await version.getVersion();
+  const snykVersion = version.getVersion();
   const seed = uuidv4();
   const shasum = crypto.createHash('sha1');
   const environment = isStandalone

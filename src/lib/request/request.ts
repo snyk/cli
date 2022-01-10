@@ -30,7 +30,7 @@ export async function makeRequest(
       process.env.HTTPS_PROXY || process.env.https_proxy;
   }
 
-  const versionNumber = await getVersion();
+  const versionNumber = getVersion();
   const body = payload.body;
   let data;
 
