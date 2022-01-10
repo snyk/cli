@@ -32,5 +32,5 @@ To test it, you can do the following:
 ```sh
 cd ./binary-releases
 tar xzf snyk-for-docker-desktop-darwin-x64.tar.gz
-./snyk-for-docker-desktop-darwin-x64/entrypoint.sh woof
+./docker/snyk-mac.sh woof
 ```
