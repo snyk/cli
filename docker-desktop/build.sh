@@ -8,8 +8,8 @@ node_url="https://nodejs.org/dist/${node_version}/node-${node_version}-${platfor
 build_name="snyk-for-docker-desktop-${platform}-${arch}"
 build_filename="${build_name}.tar.gz"
 build_sha_filename="${build_filename}.sha256"
-build_root="./docker-desktop/dist"
-build_dir="${build_root}/${build_name}"
+build_root="./docker-desktop/dist/${build_name}"
+build_dir="${build_root}/docker"
 output_dir="./binary-releases"
 
 if [[ -d "${build_dir}" ]]; then
@@ -22,7 +22,7 @@ mkdir -p "${build_dir}"
 mkdir -p "${output_dir}"
 
 # Include entrypoint.
-cp ./docker-desktop/src/entrypoint.sh "${build_dir}"
+cp ./docker-desktop/src/entrypoint.sh "${build_dir}/snyk-mac.sh"
 
 # Include Snyk CLI build.
 cp              ./package.json        "${build_dir}"
@@ -47,7 +47,7 @@ popd
 # We build from build_root so that build_name is the top-level directory in the
 # tarball. We want a top-level directory to avoid tarbombs.
 pushd "${build_root}"
-tar czfh "${build_filename}" "${build_name}"
+tar czfh "${build_filename}" docker
 shasum -a 256 "${build_filename}" > "${build_sha_filename}"
 popd
 
