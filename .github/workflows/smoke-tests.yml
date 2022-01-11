@@ -92,11 +92,12 @@ jobs:
         if: ${{ matrix.snyk_install_method == 'docker-bundle' }}
         run: |
           pushd "$(mktemp -d)"
-          curl 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz --strip-components=1
-          ls -la
-          sudo ln -s "$(pwd)/entrypoint.sh" ./snyk
-          export PATH="$(pwd):${PATH}"
-          echo "$(pwd)" >> "${GITHUB_PATH}"
+          curl 'https://static.snyk.io/cli/latest/${{ matrix.snyk_cli_dl_file }}' | tar -xz
+          ls -la docker
+          mkdir ./bin
+          sudo ln -s "$(pwd)/docker/snyk-mac.sh" ./bin/snyk
+          export PATH="$(pwd)/bin:${PATH}"
+          echo "$(pwd)/bin" >> "${GITHUB_PATH}"
           popd
           which snyk
           snyk version
