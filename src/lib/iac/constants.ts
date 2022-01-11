@@ -1,3 +1,5 @@
+import { ParserFileType } from '@snyk/cloud-config-parser';
+
 export type IacProjectTypes =
   | 'k8sconfig'
   | 'terraformconfig'
@@ -5,7 +7,7 @@ export type IacProjectTypes =
   | 'armconfig'
   | 'customconfig'
   | 'multiiacconfig';
-export type IacFileTypes = 'yaml' | 'yml' | 'json' | 'tf';
+export type IacFileTypes = ParserFileType | 'tf';
 
 export enum IacProjectType {
   K8S = 'k8sconfig',
