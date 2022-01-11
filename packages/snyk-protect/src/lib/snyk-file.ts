@@ -1,4 +1,5 @@
 import { VulnIdAndPackageName } from './types';
+import { deQuote } from './utils';
 
 const lineRegex = /^(\s*)(.*):(?:$| )+(.*)$/i;
 
@@ -54,7 +55,7 @@ export function extractPatchMetadata(
       );
     } else {
       vulnIdAndPackageNames.push({
-        vulnId,
+        vulnId: deQuote(vulnId.trim()),
         packageName: packageNames[0],
       });
     }

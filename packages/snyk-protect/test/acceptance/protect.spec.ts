@@ -143,6 +143,60 @@ describe('@snyk/protect', () => {
         },
       });
     });
+
+    it('works when the vulnId in a .snyk file is quoted', async () => {
+      const log = jest.spyOn(global.console, 'log');
+      const postJsonSpy = jest.spyOn(http, 'postJson');
+      const project = await createProject(
+        'single-patchable-module-with-quotes',
+      );
+      const patchedLodash = await getPatchedLodash();
+
+      await protect(project.path());
+
+      await expect(
+        project.read('node_modules/nyc/node_modules/lodash/lodash.js'),
+      ).resolves.toEqual(patchedLodash);
+
+      expect(
+        fse.existsSync(
+          project.path(
+            `node_modules/nyc/node_modules/lodash/lodash.js.snyk-protect.flag`,
+          ),
+        ),
+      ).toBe(true);
+
+      expect(
+        fse.existsSync(
+          project.path(
+            `node_modules/nyc/node_modules/lodash/.snyk-SNYK-JS-LODASH-567746.flag`,
+          ),
+        ),
+      ).toBe(true);
+
+      expect(log).toHaveBeenCalledWith('Applied Snyk patches.');
+      expect(postJsonSpy).toHaveBeenCalledTimes(1);
+      expect(postJsonSpy.mock.calls[0][1]).toEqual({
+        data: {
+          command: '@snyk/protect',
+          args: [],
+          version: '1.0.0-monorepo',
+          nodeVersion: process.version,
+          metadata: {
+            protectResult: {
+              type: 'APPLIED_PATCHES',
+              patchedModules: [
+                {
+                  vulnId: 'SNYK-JS-LODASH-567746',
+                  packageName: 'lodash',
+                  packageVersion: '4.17.15',
+                },
+              ],
+            },
+          },
+        },
+      });
+    });
   });
 
   describe('does not apply any patches and does not fail', () => {

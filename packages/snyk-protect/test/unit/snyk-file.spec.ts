@@ -62,6 +62,46 @@ patch:
       ]);
     });
 
+    it('with single quotes on vulnId', () => {
+      const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  'SNYK-JS-LODASH-567746':
+    - lodash:
+        patched: '2021-02-17T13:43:51.857Z'
+`;
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
+
+    it('with double quotes on vulnId', () => {
+      const dotSnykFileContents = `
+# Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
+version: v1.19.0
+ignore: {}
+# patches apply the minimum changes required to fix a vulnerability
+patch:
+  "SNYK-JS-LODASH-567746":
+    - lodash:
+        patched: '2021-02-17T13:43:51.857Z'
+`;
+      const snykFilePatchMetadata = extractPatchMetadata(dotSnykFileContents);
+      expect(snykFilePatchMetadata).toEqual([
+        {
+          vulnId: 'SNYK-JS-LODASH-567746',
+          packageName: 'lodash',
+        },
+      ]);
+    });
+
     it('with carriage returns in line endings', () => {
       const dotSnykFileContents = `
 # Snyk (https://snyk.io) policy file, patches or ignores known vulnerabilities.
