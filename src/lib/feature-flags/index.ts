@@ -3,6 +3,8 @@ import { getAuthHeader } from '../api-token';
 import config from '../config';
 import { assembleQueryString } from '../snyk-test/common';
 import { OrgFeatureFlagResponse } from './types';
+import { Options } from '../types';
+import { AuthFailedError } from '../errors';
 
 export async function isFeatureFlagSupportedForOrg(
   featureFlag: string,
@@ -20,4 +22,19 @@ export async function isFeatureFlagSupportedForOrg(
   });
 
   return (response as any).body;
+}
+
+export async function hasFeatureFlag(
+  featureFlag: string,
+  options: Options,
+): Promise<boolean | undefined> {
+  const { code, error, ok } = await isFeatureFlagSupportedForOrg(
+    featureFlag,
+    options.org,
+  );
+
+  if (code === 401 || code === 403) {
+    throw AuthFailedError(error, code);
+  }
+  return ok;
 }

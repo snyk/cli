@@ -31,6 +31,7 @@ import {
   validateProjectAttributes,
   validateTags,
 } from '../../cli/commands/monitor';
+import { isUnmanagedEcosystem } from './common';
 
 const SEPARATOR = '\n-------------------------------------------------------\n';
 
@@ -81,8 +82,7 @@ async function selectAndExecuteMonitorStrategy(
   scanResultsByPath: { [dir: string]: ScanResult[] },
   options: Options,
 ): Promise<[EcosystemMonitorResult[], EcosystemMonitorError[]]> {
-  const isUnmanagedEcosystem = ecosystem === 'cpp';
-  return isUnmanagedEcosystem
+  return isUnmanagedEcosystem(ecosystem)
     ? await resolveAndMonitorFacts(scanResultsByPath, options)
     : await monitorDependencies(scanResultsByPath, options);
 }

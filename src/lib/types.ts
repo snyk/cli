@@ -90,6 +90,7 @@ export interface Options {
   tags?: string;
   'target-reference'?: string;
   'exclude-base-image-vulns'?: boolean;
+  supportUnmanagedVulnDB?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
