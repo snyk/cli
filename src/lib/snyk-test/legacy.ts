@@ -1,4 +1,4 @@
-const values = require('lodash.values');
+import * as values from 'lodash.values';
 import * as depGraphLib from '@snyk/dep-graph';
 import {
   DepsFilePaths,
@@ -367,7 +367,7 @@ function convertTestDepGraphResultToLegacy(
 
   // generate the legacy vulns array (vuln-data + metada per vulnerable path).
   //   use the upgradePathsMap to find available upgrade-paths
-  let vulns: AnnotatedIssue[] = [];
+  const vulns: AnnotatedIssue[] = [];
 
   for (const pkgInfo of values(result.affectedPkgs)) {
     for (const vulnPkgPath of depGraph.pkgPathsToRoot(pkgInfo.pkg)) {
@@ -434,14 +434,6 @@ function convertTestDepGraphResultToLegacy(
     options.severityThreshold === SEVERITY.LOW
       ? undefined
       : options.severityThreshold;
-
-  if (
-    options.docker &&
-    dockerRes?.baseImage &&
-    options['exclude-base-image-vulns']
-  ) {
-    vulns = vulns.filter((vuln) => (vuln as DockerIssue).dockerfileInstruction);
-  }
 
   const legacyRes: LegacyVulnApiResult = {
     vulnerabilities: vulns,

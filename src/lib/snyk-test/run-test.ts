@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-const get = require('lodash.get');
+import * as get from 'lodash.get';
 import * as path from 'path';
 import * as pathUtil from 'path';
 import * as debugModule from 'debug';
@@ -451,6 +451,24 @@ async function parseRes(
       (vuln as DockerIssue).dockerBaseImage = res.docker!.baseImage;
       return vuln;
     });
+  }
+  if (
+    options.docker &&
+    res.docker?.baseImage &&
+    options['exclude-base-image-vulns']
+  ) {
+    const filteredVulns = res.vulnerabilities.filter(
+      (vuln) => (vuln as DockerIssue).dockerfileInstruction,
+    );
+    // `exclude-base-image-vulns` might have left us with no vulns, so `ok` is now `true`
+    if (
+      res.vulnerabilities.length !== 0 &&
+      filteredVulns.length === 0 &&
+      !res.ok
+    ) {
+      res.ok = true;
+    }
+    res.vulnerabilities = filteredVulns;
   }
 
   res.uniqueCount = countUniqueVulns(res.vulnerabilities);

@@ -1,63 +1,60 @@
-import { createFromJSON, DepGraphData } from '@snyk/dep-graph';
-import * as fs from 'fs';
 import * as path from 'path';
-import * as legacy from '../../../../src/lib/snyk-test/legacy';
-import {
-  Options,
-  SupportedProjectTypes,
-  TestOptions,
-} from '../../../../src/lib/types';
 import { fakeServer } from '../../../acceptance/fake-server';
 import { runSnykCLI } from '../../util/runSnykCLI';
 
 describe('container test projects behavior with --app-vulns, --file and --exclude-base-image-vulns flags', () => {
-  const fixturePath = path.normalize('test/fixtures/container-projects');
-
-  function readFixture(filename: string) {
-    const filePath = path.join(fixturePath, filename);
-    return fs.readFileSync(filePath, 'utf8');
-  }
-
-  function readJsonFixture(filename: string) {
-    const contents = readFixture(filename);
-    return JSON.parse(contents);
-  }
-
-  interface fixture {
-    res: legacy.TestDepGraphResponse;
-    depGraph: DepGraphData;
-    packageManager: SupportedProjectTypes;
-    options: Options & TestOptions;
-  }
-
-  const mockApkFixture = readJsonFixture(
-    'app-vuln-apk-fixture.json',
-  ) as fixture;
-  const mockNpmFixture = readJsonFixture(
-    'app-vuln-npm-fixture.json',
-  ) as fixture;
-
-  it('should return no vulnerability for apk fixture', async () => {
-    const result = legacy.convertTestDepGraphResultToLegacy(
-      mockApkFixture.res,
-      createFromJSON(mockApkFixture.depGraph),
-      mockApkFixture.packageManager,
-      mockApkFixture.options,
+  it('should find nothing when only vulns are in base image', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/os-app-alpine-and-debug.tar --json --exclude-base-image-vulns`,
     );
-    expect(result.vulnerabilities).toHaveLength(0);
-    expect(result.ok).toEqual(true);
-  });
 
-  it('should return vulnerabilities for npm fixture', async () => {
-    const result = legacy.convertTestDepGraphResultToLegacy(
-      mockNpmFixture.res,
-      createFromJSON(mockNpmFixture.depGraph),
-      mockNpmFixture.packageManager,
-      mockNpmFixture.options,
+    const jsonOutput = JSON.parse(stdout);
+    expect(jsonOutput.ok).toEqual(true);
+    expect(code).toEqual(0);
+  }, 10000);
+  it('should find all vulns when using --app-vulns', async () => {
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --experimental --app-vulns`,
     );
-    expect(result.vulnerabilities).toHaveLength(10);
-    expect(result.ok).toEqual(false);
-  });
+    const jsonOutput = JSON.parse(stdout);
+
+    expect(jsonOutput[0].ok).toEqual(false);
+    expect(jsonOutput[0].uniqueCount).toBeGreaterThan(0);
+    expect(jsonOutput[1].ok).toEqual(false);
+    expect(jsonOutput[1].uniqueCount).toBeGreaterThan(0);
+    expect(code).toEqual(1);
+  }, 10000);
+  it('should return only dockerfile instructions vulnerabilities when excluding base image vulns', async () => {
+    const dockerfilePath = path.normalize(
+      'test/fixtures/container-projects/Dockerfile-vulns',
+    );
+
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --file=${dockerfilePath} --exclude-base-image-vulns`,
+    );
+    const jsonOutput = JSON.parse(stdout);
+
+    expect(jsonOutput.ok).toEqual(false);
+    expect(jsonOutput.uniqueCount).toBeGreaterThan(0);
+    expect(code).toEqual(1);
+  }, 10000);
+
+  it('finds dockerfile instructions and app vulns when excluding base image vulns and using --app-vulns', async () => {
+    const dockerfilePath = path.normalize(
+      'test/fixtures/container-projects/Dockerfile-vulns',
+    );
+
+    const { code, stdout } = await runSnykCLI(
+      `container test docker-archive:test/fixtures/container-projects/os-packages-and-app-vulns.tar --json --experimental --app-vulns --file=${dockerfilePath} --exclude-base-image-vulns`,
+    );
+    const jsonOutput = JSON.parse(stdout);
+
+    expect(jsonOutput[0].ok).toEqual(false);
+    expect(jsonOutput[0].uniqueCount).toBeGreaterThan(0);
+    expect(jsonOutput[1].ok).toEqual(false);
+    expect(jsonOutput[1].uniqueCount).toBeGreaterThan(0);
+    expect(code).toEqual(1);
+  }, 10000);
 });
 
 describe('container test projects behavior with --app-vulns, --json flags', () => {
