@@ -50,7 +50,7 @@ Describe "Snyk CLI basics"
 
     It "prints specific help info for container"
       When run snyk -h container
-      The output should include "Test container images for vulnerabilities"
+      The output should include "test container images for vulnerabilities"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
@@ -74,7 +74,7 @@ Describe "Snyk CLI basics"
 
     It "prints help info for argument with mode"
       When run snyk --help container test
-      The output should include "Test container images for vulnerabilities"
+      The output should include "test container images for vulnerabilities"
       The status should be success
       # TODO: unusable with our current docker issues
       The stderr should equal ""
