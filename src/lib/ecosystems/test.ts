@@ -10,6 +10,8 @@ import { TestDependenciesResponse } from '../snyk-test/legacy';
 import { assembleQueryString } from '../snyk-test/common';
 import { getAuthHeader } from '../api-token';
 import { resolveAndTestFacts } from './resolve-test-facts';
+import { hasFeatureFlag } from '../feature-flags';
+import { isUnmanagedEcosystem } from './common';
 
 export async function testEcosystem(
   ecosystem: Ecosystem,
@@ -44,11 +46,21 @@ export async function testEcosystem(
   }
   const emptyResults: ScanResult[] = [];
   const scanResults = emptyResults.concat(...Object.values(scanResultsByPath));
+
+  const enhancedOptions = { ...options };
+
+  if (isUnmanagedEcosystem(ecosystem)) {
+    enhancedOptions.supportUnmanagedVulnDB = await hasFeatureFlag(
+      'snykUnmanagedVulnDB',
+      options,
+    );
+  }
+
   const readableResult = await plugin.display(
     scanResults,
     testResults,
     errors,
-    options,
+    enhancedOptions,
   );
 
   return TestCommandResult.createHumanReadableTestCommandResult(
@@ -62,8 +74,7 @@ export async function selectAndExecuteTestStrategy(
   scanResultsByPath: { [dir: string]: ScanResult[] },
   options: Options,
 ): Promise<[TestResult[], string[]]> {
-  const isUnmanagedEcosystem = ecosystem === 'cpp';
-  return isUnmanagedEcosystem
+  return isUnmanagedEcosystem(ecosystem)
     ? await resolveAndTestFacts(ecosystem, scanResultsByPath, options)
     : await testDependencies(scanResultsByPath, options);
 }
