@@ -85,7 +85,7 @@
     "chalk": "^2.4.2",
     "cli-spinner": "0.2.10",
     "configstore": "^5.0.1",
-    "debug": "^4.1.1",
+    "debug": "^4.3.3",
     "diff": "^4.0.1",
     "glob": "^7.1.7",
     "global-agent": "^2.1.12",
