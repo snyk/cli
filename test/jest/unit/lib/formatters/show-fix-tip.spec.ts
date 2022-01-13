@@ -1,17 +1,15 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import { showFixTip } from '../../../../../src/lib/formatters/show-fix-tip';
 import { SupportedProjectTypes } from '../../../../../src/lib/types';
 import stripAnsi from 'strip-ansi';
+import { getFixturePath } from '../../../util/getFixturePath';
 
 describe('showFixTip', () => {
   test.each(['yarn', 'npm'])('%p shows `snyk wizard` tip', (p) => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../',
-          'acceptance/fixtures/npm-package-with-severity-override/test-graph-result-patches.json',
+        getFixturePath(
+          'npm-package-with-severity-override/test-graph-result-patches.json',
         ),
         'utf8',
       ),
@@ -29,10 +27,8 @@ describe('showFixTip', () => {
   test.each(['pip', 'poetry'])('%p shows `snyk fix` tip', (p) => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../',
-          'acceptance/fixtures/npm-package-with-severity-override/test-graph-result-patches.json',
+        getFixturePath(
+          'npm-package-with-severity-override/test-graph-result-patches.json',
         ),
         'utf8',
       ),
@@ -55,10 +51,8 @@ describe('showFixTip', () => {
     (p) => {
       const withRemediation = JSON.parse(
         fs.readFileSync(
-          path.resolve(
-            __dirname,
-            '../../../../',
-            'acceptance/fixtures/npm-package-with-severity-override/test-graph-result-patches.json',
+          getFixturePath(
+            'npm-package-with-severity-override/test-graph-result-patches.json',
           ),
           'utf8',
         ),
@@ -101,10 +95,8 @@ describe('showFixTip', () => {
   ])('%p shows no fix related tip', (p) => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../',
-          'acceptance/fixtures/npm-package-with-severity-override/test-graph-result-patches.json',
+        getFixturePath(
+          'npm-package-with-severity-override/test-graph-result-patches.json',
         ),
         'utf8',
       ),

@@ -10,21 +10,6 @@ defaults: &defaults
     node_version:
       type: string
       default: '14.17.5'
-    root_tap_tests:
-      type: boolean
-      default: false
-    jest_tests:
-      type: boolean
-      default: false
-    acceptance_tests:
-      type: boolean
-      default: false
-    system_tests:
-      type: boolean
-      default: false
-    package_tests:
-      type: boolean
-      default: false
   working_directory: /mnt/ramdisk/snyk
 
 commands:
@@ -240,58 +225,31 @@ jobs:
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
-      - when:
-          condition: << parameters.package_tests >>
-          steps:
-            - run:
-                name: Running unit tests (Packages)
-                command: npm run test:packages-unit -- --ci
-      - when:
-          condition: << parameters.package_tests >>
-          steps:
-            - run:
-                name: Running acceptance tests (Packages)
-                command: npm run test:packages-acceptance -- --ci
-      - when:
-          condition: << parameters.root_tap_tests >>
-          steps:
-            - run:
-                name: Running root tests (Tap)
-                command: npm run test:test
-      - when:
-          condition: << parameters.jest_tests >>
-          steps:
-            - run:
-                name: Running root tests (Jest)
-                command: npm run test:jest -- --ci
-            - run:
-                name: Running unit tests (Jest)
-                command: npm run test:jest-unit -- --ci
-            - run:
-                name: Running system tests (Jest)
-                command: npm run test:jest-system -- --ci
-            - run:
-                name: Download AWS CLI
-                command: |
-                  msiexec.exe /i AWSCLIV2.msi /quiet
-                  [Environment]::SetEnvironmentVariable("Path", $env:PATH + `
-                  ";c:\Program Files\Amazon\AWSCLIV2", "Machine")
-                shell: powershell.exe
-            - run:
-                name: Running acceptance tests (Jest)
-                command: npm run test:jest-acceptance -- --ci
-      - when:
-          condition: << parameters.acceptance_tests >>
-          steps:
-            - run:
-                name: Running acceptance tests (Tap)
-                command: npm run test:acceptance
-      - when:
-          condition: << parameters.system_tests >>
-          steps:
-            - run:
-                name: Running system tests (Tap)
-                command: npm run test:system
+      - run:
+          name: Running packages unit tests
+          command: npm run test:packages-unit -- --ci
+      - run:
+          name: Running packages acceptance tests
+          command: npm run test:packages-acceptance -- --ci
+      - run:
+          name: Running root tests
+          command: npm run test:jest -- --ci
+      - run:
+          name: Running unit tests
+          command: npm run test:jest-unit -- --ci
+      - run:
+          name: Running system tests
+          command: npm run test:jest-system -- --ci
+      - run:
+          name: Download AWS CLI
+          command: |
+            msiexec.exe /i AWSCLIV2.msi /quiet
+            [Environment]::SetEnvironmentVariable("Path", $env:PATH + `
+            ";c:\Program Files\Amazon\AWSCLIV2", "Machine")
+          shell: powershell.exe
+      - run:
+          name: Running acceptance tests
+          command: npm run test:jest-acceptance -- --ci
   test-linux:
     <<: *defaults
     docker:
@@ -311,53 +269,48 @@ jobs:
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
-      - when:
-          condition: << parameters.package_tests >>
-          steps:
-            - run:
-                name: Running unit tests (Packages)
-                command: npm run test:packages-unit -- --ci
-      - when:
-          condition: << parameters.package_tests >>
-          steps:
-            - run:
-                name: Running acceptance tests (Packages)
-                command: npm run test:packages-acceptance -- --ci
-      - when:
-          condition: << parameters.root_tap_tests >>
-          steps:
-            - run:
-                name: Running root tests (Tap)
-                command: npm run test:test
-      - when:
-          condition: << parameters.jest_tests >>
-          steps:
-            - run:
-                name: Running root tests (Jest)
-                command: npm run test:jest -- --ci
-            - run:
-                name: Running unit tests (Jest)
-                command: npm run test:jest-unit -- --ci
-            - run:
-                name: Running system tests (Jest)
-                command: npm run test:jest-system -- --ci
-            - aws-cli/install:
-                version: 2.2.32
-            - run:
-                name: Running acceptance tests (Jest)
-                command: npm run test:jest-acceptance -- --ci
-      - when:
-          condition: << parameters.acceptance_tests >>
-          steps:
-            - run:
-                name: Running acceptance tests (Tap)
-                command: npm run test:acceptance
-      - when:
-          condition: << parameters.system_tests >>
-          steps:
-            - run:
-                name: Running system tests (Tap)
-                command: npm run test:system
+      - run:
+          name: Running packages unit tests
+          command: npm run test:packages-unit -- --ci
+      - run:
+          name: Running packages acceptance tests
+          command: npm run test:packages-acceptance -- --ci
+      - run:
+          name: Running root tests
+          command: npm run test:jest -- --ci
+      - run:
+          name: Running unit tests
+          command: npm run test:jest-unit -- --ci
+      - run:
+          name: Running system tests
+          command: npm run test:jest-system -- --ci
+      - aws-cli/install:
+          version: 2.2.32
+      - run:
+          name: Running acceptance tests
+          command: npm run test:jest-acceptance -- --ci
+
+  test-tap:
+    <<: *defaults
+    docker:
+      - image: cimg/node:<< parameters.node_version >>
+    parallelism: 2
+    steps:
+      - checkout
+      - install_sdks_linux
+      - install_project_dependencies:
+          node_version: << parameters.node_version >>
+      - attach_workspace:
+          at: .
+      - run:
+          name: Configuring Snyk CLI
+          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Running Tap tests
+          command: |
+            npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
+              $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
+
   dev-release:
     <<: *defaults
     docker:
@@ -464,7 +417,7 @@ workflows:
                 - master
 
       - test-windows:
-          name: Windows, Node v14.17.5 - Packages, Jest, System Tests
+          name: Jest Tests (Windows, Node v14.17.5)
           context: nodejs-install
           requires:
             - Build
@@ -472,32 +425,9 @@ workflows:
             branches:
               ignore:
                 - master
-          jest_tests: true
-          system_tests: true
-          package_tests: true
-      - test-windows:
-          name: Windows, Node v14.17.5 - Acceptance Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          acceptance_tests: true
-      - test-windows:
-          name: Windows, Node v14.17.5 - Root Tap Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          root_tap_tests: true
 
       - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Packages, Jest, System Tests
+          name: Jest Tests (Linux, Node v<< matrix.node_version >>)
           context: nodejs-install
           requires:
             - Build
@@ -508,11 +438,8 @@ workflows:
           matrix:
             parameters:
               node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
-          jest_tests: true
-          system_tests: true
-          package_tests: true
-      - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Acceptance Tests
+      - test-tap:
+          name: Tap Tests
           context: nodejs-install
           requires:
             - Build
@@ -520,24 +447,6 @@ workflows:
             branches:
               ignore:
                 - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
-          acceptance_tests: true
-      - test-linux:
-          name: Linux, Node v<< matrix.node_version >> - Root Tap Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-          matrix:
-            parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
-          root_tap_tests: true
-
       - dev-release:
           name: Development Release
           requires:
@@ -547,7 +456,6 @@ workflows:
             branches:
               ignore:
                 - master
-
       - prod-release:
           name: Production Release
           context: nodejs-app-release

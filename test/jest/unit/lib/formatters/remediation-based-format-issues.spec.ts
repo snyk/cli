@@ -1,19 +1,15 @@
 import * as fs from 'fs';
 const orderBy = require('lodash.orderby');
-import * as path from 'path';
 import stripAnsi from 'strip-ansi';
-
 import { groupVulnerabilities } from '../../../../../src/lib/formatters/test/format-test-results';
 import { formatIssuesWithRemediation } from '../../../../../src/lib/formatters/remediation-based-format-issues';
+import { getFixturePath } from '../../../util/getFixturePath';
+import { getWorkspacePath } from '../../../util/getWorkspacePath';
 
 it('with pins & unfixable & showVulnsPaths = all', () => {
   const withRemediation = JSON.parse(
     fs.readFileSync(
-      path.resolve(
-        __dirname,
-        '../../../../',
-        'acceptance/fixtures/pip-app-with-remediation/test-graph-results.json',
-      ),
+      getFixturePath('pip-app-with-remediation/test-graph-results.json'),
       'utf8',
     ),
   );
@@ -38,11 +34,7 @@ it('with pins & unfixable & showVulnsPaths = all', () => {
 it('with showVulnPaths = some', () => {
   const withRemediation = JSON.parse(
     fs.readFileSync(
-      path.resolve(
-        __dirname,
-        '../../../../',
-        'acceptance/fixtures/pip-app-with-remediation/test-graph-results.json',
-      ),
+      getFixturePath('pip-app-with-remediation/test-graph-results.json'),
       'utf8',
     ),
   );
@@ -66,10 +58,8 @@ it('with showVulnPaths = some', () => {
 it('with upgrades & patches', () => {
   const withRemediation = JSON.parse(
     fs.readFileSync(
-      path.resolve(
-        __dirname,
-        '../../../../',
-        'acceptance/fixtures/npm-package-with-severity-override/test-graph-result-patches.json',
+      getFixturePath(
+        'npm-package-with-severity-override/test-graph-result-patches.json',
       ),
       'utf8',
     ),
@@ -94,11 +84,7 @@ it('with upgrades & patches', () => {
 it('with reachable info', () => {
   const withRemediation = JSON.parse(
     fs.readFileSync(
-      path.resolve(
-        __dirname,
-        '../../../../',
-        'acceptance/workspaces/reachable-vulns/maven/test-dep-graph-response.json',
-      ),
+      getWorkspacePath('reachable-vulns/maven/test-dep-graph-response.json'),
       'utf8',
     ),
   );
@@ -123,10 +109,8 @@ it('with reachable info', () => {
 it('with license issues', () => {
   const withRemediation = JSON.parse(
     fs.readFileSync(
-      path.resolve(
-        __dirname,
-        '../../../../',
-        'acceptance/workspaces/ruby-app/test-graph-response-with-legal-instruction.json',
+      getWorkspacePath(
+        'ruby-app/test-graph-response-with-legal-instruction.json',
       ),
       'utf8',
     ),

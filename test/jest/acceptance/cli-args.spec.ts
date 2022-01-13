@@ -1,15 +1,8 @@
-import * as fse from 'fs-extra';
 import * as path from 'path';
-import { v4 as uuidv4 } from 'uuid';
 import { UnsupportedOptionCombinationError } from '../../../src/lib/errors/unsupported-option-combination-error';
 import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
-
-const createOutputDirectory = (): string => {
-  const outputPath = path.normalize(`test-output/${uuidv4()}`);
-  fse.ensureDirSync(outputPath);
-  return outputPath;
-};
+import { createProject } from '../util/createProject';
 
 const isWindows =
   require('os-name')()
@@ -375,26 +368,20 @@ describe('cli args', () => {
   });
 
   test('container test --json-file-output can be used at the same time as --sarif-file-output', async () => {
-    const outputDir = createOutputDirectory();
-    const jsonPath = path.normalize(
-      `${outputDir}/snyk-direct-json-test-output.json`,
-    );
-    const sarifPath = path.normalize(
-      `${outputDir}/snyk-direct-sarif-test-output.json`,
-    );
-    const dockerfilePath = path.normalize(
-      'test/acceptance/fixtures/docker/Dockerfile',
-    );
+    const project = await createProject('docker');
+    const jsonPath = 'snyk-direct-json-test-output.json';
+    const sarifPath = 'snyk-direct-sarif-test-output.json';
 
     const { code, stdout } = await runSnykCLI(
-      `container test hello-world --file=${dockerfilePath} --sarif-file-output=${sarifPath} --json-file-output=${jsonPath}`,
+      `container test hello-world --file=Dockerfile --sarif-file-output=${sarifPath} --json-file-output=${jsonPath}`,
       {
         env,
+        cwd: project.path(),
       },
     );
 
-    const sarifOutput = JSON.parse(await fse.readFile(sarifPath, 'utf-8'));
-    const jsonOutput = JSON.parse(await fse.readFile(jsonPath, 'utf-8'));
+    const sarifOutput = await project.readJSON(sarifPath);
+    const jsonOutput = await project.readJSON(jsonPath);
 
     expect(stdout).toMatch('Organization:');
     expect(jsonOutput.ok).toEqual(true);
@@ -403,66 +390,53 @@ describe('cli args', () => {
   });
 
   test('container test --sarif-file-output can be used at the same time as --sarif', async () => {
-    const outputDir = createOutputDirectory();
-    const sarifPath = path.normalize(
-      `${outputDir}/snyk-direct-sarif-test-output.json`,
-    );
-    const dockerfilePath = path.normalize(
-      'test/acceptance/fixtures/docker/Dockerfile',
-    );
+    const project = await createProject('docker');
+    const sarifPath = 'snyk-direct-sarif-test-output.json';
 
     const { code, stdout } = await runSnykCLI(
-      `container test hello-world --sarif --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
+      `container test hello-world --sarif --file=Dockerfile --sarif-file-output=${sarifPath}`,
       {
         env,
+        cwd: project.path(),
       },
     );
 
-    const sarifOutput = JSON.parse(await fse.readFile(sarifPath, 'utf-8'));
-
+    const sarifOutput = await project.readJSON(sarifPath);
     expect(stdout).toMatch('rules');
     expect(sarifOutput.version).toMatch('2.1.0');
     expect(code).toEqual(0);
   });
 
   test('container test --sarif-file-output without vulns', async () => {
-    const outputDir = createOutputDirectory();
-    const sarifPath = path.normalize(
-      `${outputDir}/snyk-direct-sarif-test-output.json`,
-    );
-    const dockerfilePath = path.normalize(
-      'test/acceptance/fixtures/docker/Dockerfile',
-    );
+    const project = await createProject('docker');
+    const sarifPath = 'snyk-direct-sarif-test-output.json';
 
     const { code } = await runSnykCLI(
-      `container test hello-world --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
+      `container test hello-world --file=Dockerfile --sarif-file-output=${sarifPath}`,
       {
         env,
+        cwd: project.path(),
       },
     );
 
-    const sarifOutput = JSON.parse(await fse.readFile(sarifPath, 'utf-8'));
+    const sarifOutput = await project.readJSON(sarifPath);
     expect(sarifOutput.version).toMatch('2.1.0');
     expect(code).toEqual(0);
   });
 
   test('container test --sarif-file-output can be used at the same time as --json', async () => {
-    const outputDir = createOutputDirectory();
-    const sarifPath = path.normalize(
-      `${outputDir}/snyk-direct-sarif-test-output.json`,
-    );
-    const dockerfilePath = path.normalize(
-      'test/acceptance/fixtures/docker/Dockerfile',
-    );
+    const project = await createProject('docker');
+    const sarifPath = 'snyk-direct-sarif-test-output.json';
 
     const { code, stdout } = await runSnykCLI(
-      `container test hello-world --json --file=${dockerfilePath} --sarif-file-output=${sarifPath}`,
+      `container test hello-world --json --file=Dockerfile --sarif-file-output=${sarifPath}`,
       {
         env,
+        cwd: project.path(),
       },
     );
 
-    const sarifOutput = JSON.parse(await fse.readFile(sarifPath, 'utf-8'));
+    const sarifOutput = await project.readJSON(sarifPath);
     const jsonOutput = JSON.parse(stdout);
 
     expect(jsonOutput.ok).toEqual(true);
@@ -474,14 +448,13 @@ describe('cli args', () => {
     // Previously we used to have a bug where --exclude-base-image-vulns returned exit code 2.
     // This test asserts that the bug no longer exists.
     test('container test --file=Dockerfile --exclude-base-image-vulns returns exit code 0', async () => {
-      const dockerfilePath = path.normalize(
-        'test/acceptance/fixtures/docker/Dockerfile.alpine-3.12.0',
-      );
+      const project = await createProject('docker');
 
       const { code, stdout } = await runSnykCLI(
-        `container test alpine:3.12.0 --json --file=${dockerfilePath} --exclude-base-image-vulns`,
+        `container test alpine:3.12.0 --json --file=Dockerfile.alpine-3.12.0 --exclude-base-image-vulns`,
         {
           env,
+          cwd: project.path(),
         },
       );
       const jsonOutput = JSON.parse(stdout);

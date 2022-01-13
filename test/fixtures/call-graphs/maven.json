@@ -20,11 +20,11 @@
       }
     },
     {
-            "v": "ch.qos.logback.classic.net.SocketNode"
-        },
-        {
-            "v": "com.ibm.wala.FakeRootClass:fakeWorldClinit"
-        }
+      "v": "ch.qos.logback.classic.net.SocketNode"
+    },
+    {
+      "v": "com.ibm.wala.FakeRootClass:fakeWorldClinit"
+    }
   ],
   "edges": [
     {

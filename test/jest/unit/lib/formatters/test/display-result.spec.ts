@@ -1,17 +1,14 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import stripAnsi from 'strip-ansi';
-
 import { displayResult } from '../../../../../../src/lib/formatters/test/display-result';
+import { getWorkspacePath } from '../../../../util/getWorkspacePath';
+import { getFixturePath } from '../../../../util/getFixturePath';
+
 describe('displayResult', () => {
   it('Docker test result', () => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../../',
-          'acceptance/workspaces/fail-on/docker/fixable/vulns.json',
-        ),
+        getWorkspacePath('fail-on/docker/fixable/vulns.json'),
         'utf8',
       ),
     );
@@ -27,11 +24,7 @@ describe('displayResult', () => {
   it('Docker test result no file path and base image auto detected', () => {
     const withRemediationBaseImage = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../../',
-          'acceptance/workspaces/fail-on/docker/fixable/vulns.json',
-        ),
+        getWorkspacePath('fail-on/docker/fixable/vulns.json'),
         'utf8',
       ),
     );
@@ -51,10 +44,8 @@ describe('displayResult', () => {
   it('Docker test result with base image non resolvable warning', () => {
     const withWarning = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../../',
-          'acceptance/workspaces/fail-on/docker/warning/dockerfile-base-image-non-resolvable.json',
+        getWorkspacePath(
+          'fail-on/docker/warning/dockerfile-base-image-non-resolvable.json',
         ),
         'utf8',
       ),
@@ -76,10 +67,8 @@ describe('displayResult', () => {
   it('Docker test result with base image name not found warning', () => {
     const withWarning = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../../',
-          'acceptance/workspaces/fail-on/docker/warning/dockerfile-base-image-name-not-found.json',
+        getWorkspacePath(
+          'fail-on/docker/warning/dockerfile-base-image-name-not-found.json',
         ),
         'utf8',
       ),
@@ -101,10 +90,8 @@ describe('displayResult', () => {
   it('Docker test result with remediation advice', () => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../../',
-          'acceptance/workspaces/fail-on/docker/fixable/vulns-with-docker-remediation.json',
+        getWorkspacePath(
+          'fail-on/docker/fixable/vulns-with-docker-remediation.json',
         ),
         'utf8',
       ),
@@ -121,11 +108,7 @@ describe('displayResult', () => {
   it('Pip result with pins', () => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../../',
-          'acceptance/fixtures/pip-app-with-remediation/test-graph-results.json',
-        ),
+        getFixturePath('pip-app-with-remediation/test-graph-results.json'),
         'utf8',
       ),
     );
@@ -141,10 +124,8 @@ describe('displayResult', () => {
   it('with license issues', () => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../../',
-          'acceptance/workspaces/ruby-app/test-graph-response-with-legal-instruction.json',
+        getWorkspacePath(
+          'ruby-app/test-graph-response-with-legal-instruction.json',
         ),
         'utf8',
       ),
@@ -161,10 +142,8 @@ describe('displayResult', () => {
   it('with Upgrades & Patches', () => {
     const withRemediation = JSON.parse(
       fs.readFileSync(
-        path.resolve(
-          __dirname,
-          '../../../../../',
-          'acceptance/fixtures/npm-package-with-severity-override/test-graph-result-patches.json',
+        getFixturePath(
+          'npm-package-with-severity-override/test-graph-result-patches.json',
         ),
         'utf8',
       ),
