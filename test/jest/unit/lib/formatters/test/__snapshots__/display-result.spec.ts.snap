@@ -20,7 +20,7 @@ Testing src...
   From: git@2.18.2-r0 > expat@2.2.5-r0
   Remediation:
     Upgrade direct dependency expat@2.2.5-r0 to expat@2.2.7-r0 (triggers upgrades to expat@2.2.7-r0)
-    Some paths have no direct dependency upgrade that can address this issue. 
+    Some paths have no direct dependency upgrade that can address this issue.
   Fixed in: 2.2.7-r0
 
 ✗ High severity vulnerability found in expat
@@ -32,7 +32,7 @@ Testing src...
   From: git@2.18.2-r0 > expat@2.2.5-r0
   Remediation:
     Upgrade direct dependency expat@2.2.5-r0 to expat@2.2.7-r1 (triggers upgrades to expat@2.2.7-r1)
-    Some paths have no direct dependency upgrade that can address this issue. 
+    Some paths have no direct dependency upgrade that can address this issue.
   Fixed in: 2.2.7-r1
 
 
@@ -72,7 +72,7 @@ Testing src...
   From: git@2.18.2-r0 > expat@2.2.5-r0
   Remediation:
     Upgrade direct dependency expat@2.2.5-r0 to expat@2.2.7-r0 (triggers upgrades to expat@2.2.7-r0)
-    Some paths have no direct dependency upgrade that can address this issue. 
+    Some paths have no direct dependency upgrade that can address this issue.
   Fixed in: 2.2.7-r0
 
 ✗ High severity vulnerability found in expat
@@ -84,7 +84,7 @@ Testing src...
   From: git@2.18.2-r0 > expat@2.2.5-r0
   Remediation:
     Upgrade direct dependency expat@2.2.5-r0 to expat@2.2.7-r1 (triggers upgrades to expat@2.2.7-r1)
-    Some paths have no direct dependency upgrade that can address this issue. 
+    Some paths have no direct dependency upgrade that can address this issue.
   Fixed in: 2.2.7-r1
 
 
@@ -186,7 +186,7 @@ Testing src...
   From: git@2.18.2-r0 > expat@2.2.5-r0
   Remediation:
     Upgrade direct dependency expat@2.2.5-r0 to expat@2.2.7-r0 (triggers upgrades to expat@2.2.7-r0)
-    Some paths have no direct dependency upgrade that can address this issue. 
+    Some paths have no direct dependency upgrade that can address this issue.
   Fixed in: 2.2.7-r0
 
 ✗ High severity vulnerability found in expat
@@ -198,7 +198,7 @@ Testing src...
   From: git@2.18.2-r0 > expat@2.2.5-r0
   Remediation:
     Upgrade direct dependency expat@2.2.5-r0 to expat@2.2.7-r1 (triggers upgrades to expat@2.2.7-r1)
-    Some paths have no direct dependency upgrade that can address this issue. 
+    Some paths have no direct dependency upgrade that can address this issue.
   Fixed in: 2.2.7-r1
 
 
@@ -299,8 +299,6 @@ Target file:       package-lock.json
 Project name:      shallow-goof
 Open source:       no
 Project path:      src
-
-Tip: Run \`snyk wizard\` to address these issues.
 
 Tip: Detected multiple supported manifests (3), use --all-projects to scan all of them at once."
 `;
