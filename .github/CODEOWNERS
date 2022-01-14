@@ -20,6 +20,8 @@ src/lib/iac/ @snyk/group-infrastructure-as-code
 src/lib/snyk-test/iac-test-result.ts @snyk/group-infrastructure-as-code
 src/lib/snyk-test/payload-schema.ts @snyk/group-infrastructure-as-code
 src/lib/snyk-test/run-iac-test.ts @snyk/group-infrastructure-as-code
+src/lib/formatters/docker/docker-format-test-results.ts @snyk/capsule
+test/jest/unit/lib/formatters/test/docker-display-result.spec.ts @snyk/capsule
 test/acceptance/cli-test/iac/ @snyk/group-infrastructure-as-code
 test/fixtures/container-projects/ @snyk/capsule
 test/fixtures/iac/ @snyk/group-infrastructure-as-code

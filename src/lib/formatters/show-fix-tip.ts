@@ -1,7 +1,6 @@
 import chalk from 'chalk';
 
 import { isLocalFolder } from '../detect';
-import { WIZARD_SUPPORTED_PACKAGE_MANAGERS } from '../package-managers';
 import { TestResult } from '../snyk-test/legacy';
 import { Options, SupportedProjectTypes, TestOptions } from '../types';
 
@@ -10,10 +9,6 @@ export function showFixTip(
   res: TestResult,
   options: TestOptions & Options,
 ): string {
-  if (WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(projectType)) {
-    return `Tip: Run ${chalk.bold('`snyk wizard`')} to address these issues.`;
-  }
-
   const snykFixSupported: SupportedProjectTypes[] = ['pip', 'poetry'];
   if (!snykFixSupported.includes(projectType) || !isLocalFolder(options.path)) {
     return '';

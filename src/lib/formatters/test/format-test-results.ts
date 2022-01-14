@@ -15,7 +15,6 @@ import {
   VulnMetaData,
 } from '../../snyk-test/legacy';
 import chalk from 'chalk';
-import config from '../../config';
 import * as cloneDeep from 'lodash.clonedeep';
 import * as orderBy from 'lodash.orderby';
 import * as analytics from '../../analytics';
@@ -29,11 +28,6 @@ import { jsonStringifyLargeObject } from '../../json';
 import { createSarifOutputForOpenSource } from '../open-source-sarif-output';
 import { getSeverityValue } from '../get-severity-value';
 import { showFixTip } from '../show-fix-tip';
-import {
-  DockerFileAnalysisErrorCode,
-  facts as dockerFacts,
-} from 'snyk-docker-plugin/dist';
-import { ScanResult } from '../../ecosystems/types';
 
 function createJsonResultOutput(jsonResult, options: Options) {
   const jsonResultClone = cloneDeep(jsonResult);
@@ -174,14 +168,6 @@ export function getDisplayedOutput(
   const fixTip = showFixTip(projectType, res, options);
   const fixAdvice = fixTip ? `\n\n${fixTip}` : '';
 
-  const dockerfileWarning = getDockerfileWarning(res.scanResult);
-  const dockerSuggestion = getDockerSuggestionText(
-    options,
-    config,
-    res?.docker?.baseImage,
-  );
-  const dockerDocsLink = getDockerRemediationDocsLink(dockerAdvice, config);
-
   const vulns = res.vulnerabilities || [];
   const groupedVulns = groupVulnerabilities(vulns);
   const sortedGroupedVulns: GroupedVuln[] = orderBy(
@@ -236,15 +222,7 @@ export function getDisplayedOutput(
   const ignoredIssues = '';
   const dockerCTA = dockerUserCTA(options);
   return (
-    prefix +
-    body +
-    multiProjAdvice +
-    ignoredIssues +
-    dockerAdvice +
-    dockerfileWarning +
-    dockerSuggestion +
-    dockerDocsLink +
-    dockerCTA
+    prefix + body + multiProjAdvice + ignoredIssues + dockerAdvice + dockerCTA
   );
 }
 
@@ -253,82 +231,6 @@ export function dockerUserCTA(options) {
     return '\n\nFor more free scans that keep your images secure, sign up to Snyk at https://dockr.ly/3ePqVcp';
   }
   return '';
-}
-
-function getDockerSuggestionText(options, config, baseImageRes): string {
-  if (!options.docker || options.isDockerUser) {
-    return '';
-  }
-
-  let dockerSuggestion = '';
-  if (config && config.disableSuggestions !== 'true') {
-    const optOutSuggestions =
-      '\n\nTo remove this message in the future, please run `snyk config set disableSuggestions=true`';
-    if (!options.file) {
-      if (!baseImageRes) {
-        dockerSuggestion +=
-          chalk.bold.white(
-            '\n\nSnyk wasn’t able to auto detect the base image, use `--file` option to get base image remediation advice.' +
-              `\nExample: $ snyk container test ${options.path} --file=path/to/Dockerfile`,
-          ) + optOutSuggestions;
-      }
-    } else if (!options['exclude-base-image-vulns']) {
-      dockerSuggestion +=
-        chalk.bold.white(
-          '\n\nPro tip: use `--exclude-base-image-vulns` to exclude from display Docker base image vulnerabilities.',
-        ) + optOutSuggestions;
-    }
-  }
-  return dockerSuggestion;
-}
-function getDockerfileWarning(scanResult: ScanResult | undefined): string {
-  if (!scanResult) {
-    return '';
-  }
-
-  const fact = scanResult.facts.find(
-    (fact) => fact.type === 'dockerfileAnalysis',
-  );
-  if (!fact) {
-    return '';
-  }
-
-  const dockerfileAnalysisFact = fact as dockerFacts.DockerfileAnalysisFact;
-  if (!dockerfileAnalysisFact.data.error) {
-    return '';
-  }
-
-  let userMessage = chalk.yellow(
-    '\n\nWarning: Unable to analyse Dockerfile provided through `--file`.',
-  );
-
-  switch (dockerfileAnalysisFact.data.error.code) {
-    case DockerFileAnalysisErrorCode.BASE_IMAGE_NAME_NOT_FOUND:
-      userMessage += chalk.yellow(
-        '\n         Dockerfile must begin with a FROM instruction. This may be after parser directives, comments, and globally scoped ARGs.',
-      );
-      break;
-    case DockerFileAnalysisErrorCode.BASE_IMAGE_NON_RESOLVABLE:
-      userMessage += chalk.yellow(
-        '\n         Dockerfile must have default values for all ARG instructions.',
-      );
-      break;
-  }
-
-  return userMessage;
-}
-
-function getDockerRemediationDocsLink(dockerAdvice: string, config): string {
-  if (config.disableSuggestions === 'true' || dockerAdvice.length === 0) {
-    return '';
-  }
-
-  return (
-    chalk.white('\n\nLearn more: ') +
-    chalk.white.underline(
-      'https://docs.snyk.io/products/snyk-container/getting-around-the-snyk-container-ui/base-image-detection',
-    )
-  );
 }
 
 export function groupVulnerabilities(
