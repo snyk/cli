@@ -5,25 +5,6 @@ import stripAnsi from 'strip-ansi';
 import { getFixturePath } from '../../../util/getFixturePath';
 
 describe('showFixTip', () => {
-  test.each(['yarn', 'npm'])('%p shows `snyk wizard` tip', (p) => {
-    const withRemediation = JSON.parse(
-      fs.readFileSync(
-        getFixturePath(
-          'npm-package-with-severity-override/test-graph-result-patches.json',
-        ),
-        'utf8',
-      ),
-    );
-    expect(
-      stripAnsi(
-        showFixTip(p as SupportedProjectTypes, withRemediation, {
-          path: 'src',
-          showVulnPaths: 'none',
-        }),
-      ),
-    ).toBe('Tip: Run `snyk wizard` to address these issues.');
-  });
-
   test.each(['pip', 'poetry'])('%p shows `snyk fix` tip', (p) => {
     const withRemediation = JSON.parse(
       fs.readFileSync(

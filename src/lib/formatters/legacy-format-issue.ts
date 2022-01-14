@@ -6,7 +6,6 @@ import { Options, TestOptions, ShowVulnPaths } from '../../lib/types';
 import { isLocalFolder } from '../../lib/detect';
 import { parsePackageString as snykModule } from 'snyk-module';
 import {
-  WIZARD_SUPPORTED_PACKAGE_MANAGERS,
   PINNING_SUPPORTED_PACKAGE_MANAGERS,
   SupportedPackageManagers,
 } from '../../lib/package-managers';
@@ -195,11 +194,6 @@ function createRemediationText(
   vuln: GroupedVuln,
   packageManager: SupportedPackageManagers,
 ): string {
-  let wizardHintText = '';
-  if (WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)) {
-    wizardHintText = 'Run `snyk wizard` to explore remediation options.';
-  }
-
   if (
     vuln.fixedIn &&
     PINNING_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager)
@@ -252,7 +246,7 @@ function createRemediationText(
 
         return (
           'Some paths have no direct dependency upgrade that' +
-          ` can address this issue. ${wizardHintText}`
+          ` can address this issue.`
         );
       }),
     );
