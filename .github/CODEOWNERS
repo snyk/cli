@@ -6,7 +6,7 @@ packages/snyk-protect/ @snyk/hammer
 packages/cli-alert/ @snyk/hammer
 
 README.md  @snyk/hammer
-src/cli/commands/test/formatters/format-reachability.ts  @snyk/flow
+src/cli/commands/test/formatters/format-reachability.ts  @snyk/tardis
 help/  @snyk/hammer
 src/cli/commands/test/iac-local-execution/ @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-output.ts @snyk/group-infrastructure-as-code
