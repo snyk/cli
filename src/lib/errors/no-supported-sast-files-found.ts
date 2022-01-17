@@ -6,7 +6,7 @@ export class NoSupportedSastFiles extends CustomError {
     'We found 0 supported files ' +
     '\nPlease see our documentation for Snyk Code language and framework support\n' +
     chalk.underline(
-      'https://support.snyk.io/hc/en-us/articles/360016973477-Snyk-Code-language-support',
+      'https://docs.snyk.io/products/snyk-code/snyk-code-language-and-framework-support',
     );
 
   constructor() {
