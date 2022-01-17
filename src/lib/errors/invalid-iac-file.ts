@@ -7,7 +7,7 @@ export function NotSupportedIacFileErrorMsg(fileName: string): string {
     fileName +
     '.\nPlease see our documentation for supported target files: ' +
     chalk.underline(
-      'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
+      'https://docs.snyk.io/products/snyk-infrastructure-as-code/scan-kubernetes-configuration-files/scan-and-fix-security-issues-in-kubernetes-configuration-files',
     ) +
     ' and make sure you are in the right directory.'
   );
@@ -19,7 +19,7 @@ export function IllegalIacFileErrorMsg(fileName: string): string {
     fileName +
     '.\nPlease see our documentation for supported target files: ' +
     chalk.underline(
-      'https://support.snyk.io/hc/en-us/articles/360006368877-Scan-and-fix-security-issues-in-your-Kubernetes-configuration-files',
+      'https://docs.snyk.io/products/snyk-infrastructure-as-code/scan-kubernetes-configuration-files/scan-and-fix-security-issues-in-kubernetes-configuration-files',
     ) +
     ' and make sure you are in the right directory.'
   );
