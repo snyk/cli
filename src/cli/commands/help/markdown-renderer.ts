@@ -79,7 +79,7 @@ const renderer = {
       reflowText(text, getIdealTextWidth())
         .split('\n')
         .map((s) => getLeftTextPadding() + chalk.reset() + s)
-        .join('\n') + '\n'
+        .join('\n') + '\n\n'
     );
   },
   codespan(text) {
@@ -103,7 +103,7 @@ const renderer = {
         coloring = chalk.bold;
         break;
     }
-    return `\n${'  '.repeat(level === 1 ? 0 : currentHeader - 2)}${coloring(
+    return `${'  '.repeat(level === 1 ? 0 : currentHeader - 2)}${coloring(
       text,
     )}\n`;
   },

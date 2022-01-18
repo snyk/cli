@@ -37,7 +37,7 @@ function textLength(str: string): number {
 // characters between \n's is less than or equal to "width".
 export function reflowText(text: string, width: number): string {
   const HARD_RETURN = '\r|\n';
-  const HARD_RETURN_GFM_RE = new RegExp(HARD_RETURN + '|<br />');
+  const HARD_RETURN_GFM_RE = new RegExp(HARD_RETURN + '|<br ?/?>');
 
   const splitRe = HARD_RETURN_GFM_RE;
   const sections = text.split(splitRe);

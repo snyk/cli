@@ -1,13 +1,15 @@
-name: Copy CLI help from snyk/user-docs
+name: Synchronize Help
 
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 12 * * 1-5' # Mon-Fri at 12
+  push:
+    branches: [chore/docs-action]
 
 jobs:
   build:
-    name: Copy CLI help from snyk/user-docs
+    name: synchronize-help
     runs-on: ubuntu-latest
     steps:
       - run: |
@@ -25,7 +27,7 @@ jobs:
             cd ./cli
             git --no-pager diff --name-only
             git add .
-            git commit -m "docs: synchronized help from snyk/user-docs"
+            git commit -m "docs: synchronizing help from snyk/user-docs"
             git push --force --set-upstream origin docs/automatic-gitbook-update
             gh pr create --title="Synchronizing CLI help from user-docs" --body="Automatic PR controlled by GitHub Action" --head docs/automatic-gitbook-update
           else
