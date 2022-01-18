@@ -175,7 +175,7 @@ jobs:
           npm_version: << parameters.npm_version >>
       - run:
           name: Linting project
-          command: npm run lint
+          command: make -k lint
   build:
     <<: *defaults
     docker:
@@ -189,7 +189,7 @@ jobs:
           npm_version: << parameters.npm_version >>
       - run:
           name: Building project
-          command: npm run build:prod
+          command: make build-prod
       - persist_to_workspace:
           root: .
           paths:
@@ -252,7 +252,7 @@ jobs:
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
       - run:
           name: Running acceptance tests
-          command: npm run test:acceptance
+          command: make test-acceptance
   test-linux:
     <<: *defaults
     docker:
@@ -275,12 +275,12 @@ jobs:
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
       - run:
           name: Running unit tests
-          command: npm run test:unit
+          command: make test-unit
       - aws-cli/install:
           version: << parameters.aws_version >>
       - run:
           name: Running acceptance tests
-          command: npm run test:acceptance
+          command: make test-acceptance
 
   test-tap:
     <<: *defaults
