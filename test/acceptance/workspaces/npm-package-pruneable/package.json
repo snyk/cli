@@ -9,6 +9,6 @@
   "author": "snyk",
   "license": "ISC",
   "dependencies": {
-    "a": "1.0.0"
+    "a": "1.0.2"
   }
 }
