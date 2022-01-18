@@ -14,7 +14,7 @@
     "wsrun": "^3.6.2"
   },
   "dependencies": {
-    "node-fetch": "^2.3.0",
+    "node-fetch": "^2.6.7",
     "snyk": "1.320.0"
   }
 }
