@@ -19,6 +19,7 @@ import { IacFileInDirectory } from '../../lib/types';
 import { isLocalFolder } from '../../lib/detect';
 import { getSeverityValue } from './get-severity-value';
 import { getIssueLevel } from './sarif-output';
+import { getVersion } from '../version';
 const debug = Debug('iac-output');
 
 function formatIacIssue(
@@ -161,6 +162,7 @@ export function createSarifOutputForIac(
     driver: {
       name: 'Snyk IaC',
       fullName: 'Snyk Infrastructure as Code',
+      version: getVersion(),
       informationUri:
         'https://docs.snyk.io/products/snyk-infrastructure-as-code',
       rules: extractReportingDescriptor(issues),
