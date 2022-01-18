@@ -1,0 +1,15 @@
+name: Copy CLI help from snyk/user-docs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  build:
+    name: Copy CLI help from snyk/user-docs
+    runs-on: ubuntu-latest
+    steps:
+      - run: ./scripts/copy-cli-help-from-snyk-user-docs.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
