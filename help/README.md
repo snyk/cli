@@ -1,21 +1,7 @@
 # CLI Help files
 
-[Snyk CLI help files are in the `help/cli-commands` folder.](./cli-commands)
+Snyk CLI Help files are managed by GitBook connected to the [snyk/user-docs](https://github.com/snyk/user-docs) repository.
 
-## Updating or adding help documents
+It's recommended to make all CLI Help changes there. Changes from GitBook are automatically [synced to the Snyk CLI repository with a GitHub Action into a PR that needs to be approved and merged](https://github.com/snyk/snyk/actions/workflows/sync-cli-help-to-user-docs.yml). This Action could also be manually triggered.
 
-All commands are documented in a Markdown format. They are automatically pushed to the [Snyk User Documentation site](https://docs.snyk.io).
-
-Don't use HTML tags. These markdown files are the source for the `--help` command output in the Snyk CLI.
-
-Contact **Team Hammer** or open an issue in this repository when in doubt.
-
-### CLI options
-
-```markdown
-### `--severity-threshold=low|medium|high|critical`
-
-Only report vulnerabilities of provided level or higher.
-```
-
-CLI flag should be a heading and in backticks. See already documented commands and flags for more examples.
+If you need to make changes tied to a specific PR, you can absolutely make them in this repository first, merge the changes and then move them over to the GitBook. CLI help files are a standard Markdown.

@@ -56,3 +56,4 @@ src/cli/commands/log4shell-hashes.ts @snyk/tundra
 src/cli/commands/log4shell.ts @snyk/tundra
 test/fixtures/unmanaged-log4j-fixture @snyk/tundra
 test/jest/acceptance/snyk-log4shell/log4shell-detection.spec.ts @snyk/tundra
+/.github @snyk/hammer
