@@ -7,6 +7,7 @@ async function callModule(mod, args) {
 }
 
 const commands = {
+  advise: async (...args) => callModule(import('./advise'), args),
   auth: async (...args) => callModule(import('./auth'), args),
   config: async (...args) => callModule(import('./config'), args),
   help: async (...args) => callModule(import('./help'), args),
