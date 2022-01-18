@@ -13,7 +13,7 @@ defaults: &defaults
   working_directory: /mnt/ramdisk/snyk
 
 commands:
-  install_project_dependencies:
+  setup_npm:
     parameters:
       node_version:
         type: string
@@ -26,6 +26,9 @@ commands:
       npm_global_sudo:
         type: boolean
         default: true
+      npm_install:
+        type: boolean
+        default: false
     steps:
       - restore_cache:
           name: Restoring npm cache
@@ -50,14 +53,17 @@ commands:
             npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
             npm config set cache << parameters.npm_cache_directory >>
             npm config set prefer-offline true
-      - run:
-          name: Installing project dependencies
-          command: npm ci
-      - save_cache:
-          name: Saving npm cache
-          key: npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
-          paths:
-            - << parameters.npm_cache_directory >>
+      - when:
+          condition: << parameters.npm_install >>
+          steps:
+            - run:
+                name: Installing project dependencies
+                command: npm ci
+            - save_cache:
+                name: Saving npm cache
+                key: npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
+                paths:
+                  - << parameters.npm_cache_directory >>
   install_sdks_windows:
     steps:
       - restore_cache:
@@ -144,13 +150,29 @@ commands:
             sudo apt update
             sudo apt install osslsigncode
 jobs:
+  install:
+    <<: *defaults
+    docker:
+      - image: cimg/node:<< parameters.node_version >>
+    steps:
+      - checkout
+      - setup_npm:
+          node_version: << parameters.node_version >>
+          npm_install: true
+      - persist_to_workspace:
+          root: .
+          paths:
+            - node_modules
+            - packages/*/node_modules
   lint:
     <<: *defaults
     docker:
       - image: cimg/node:<< parameters.node_version >>
     steps:
       - checkout
-      - install_project_dependencies:
+      - attach_workspace:
+          at: .
+      - setup_npm:
           node_version: << parameters.node_version >>
       - run:
           name: Linting project
@@ -161,7 +183,9 @@ jobs:
       - image: circleci/node:<< parameters.node_version >>
     steps:
       - checkout
-      - install_project_dependencies:
+      - attach_workspace:
+          at: .
+      - setup_npm:
           node_version: << parameters.node_version >>
       - run:
           name: Building project
@@ -178,12 +202,12 @@ jobs:
       - image: cimg/node:<< parameters.node_version >>
     steps:
       - checkout
-      - install_sdks_linux
-      - install_shellspec_dependencies
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
       - attach_workspace:
           at: .
+      - install_sdks_linux
+      - install_shellspec_dependencies
+      - setup_npm:
+          node_version: << parameters.node_version >>
       - run:
           name: Installing test fixture dependencies
           working_directory: ./test/fixtures/basic-npm
@@ -213,15 +237,16 @@ jobs:
           name: Configuring Git
           command: git config --global core.autocrlf false
       - checkout
+      - attach_workspace:
+          at: .
       - install_node_windows:
           node_version: << parameters.node_version >>
       - install_sdks_windows
-      - install_project_dependencies:
+      - setup_npm:
           npm_cache_directory: ~\AppData\Local\npm-cache
           node_version: << parameters.node_version >>
           npm_global_sudo: false
-      - attach_workspace:
-          at: .
+          npm_install: true # reinstalling as workspace node_modules is for linux
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
@@ -261,11 +286,11 @@ jobs:
           name: Creating temporary directory
           command: mkdir /mnt/ramdisk/tmp
       - checkout
-      - install_sdks_linux
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
       - attach_workspace:
           at: .
+      - install_sdks_linux
+      - setup_npm:
+          node_version: << parameters.node_version >>
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -297,11 +322,11 @@ jobs:
     parallelism: 2
     steps:
       - checkout
-      - install_sdks_linux
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
       - attach_workspace:
           at: .
+      - install_sdks_linux
+      - setup_npm:
+          node_version: << parameters.node_version >>
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -317,11 +342,11 @@ jobs:
       - image: cimg/node:<< parameters.node_version >>
     steps:
       - checkout
-      - install_release_dependencies
-      - install_project_dependencies:
-          node_version: << parameters.node_version >>
       - attach_workspace:
           at: .
+      - install_release_dependencies
+      - setup_npm:
+          node_version: << parameters.node_version >>
       - run:
           name: Updating package versions
           command: ./release-scripts/update-dev-versions.sh
@@ -349,6 +374,8 @@ jobs:
       - image: cimg/node:<< parameters.node_version >>
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Should I release?
           command: ./release-scripts/should-i-release.sh
@@ -358,10 +385,8 @@ jobs:
       - aws-cli/install:
           version: 2.2.32
       - install_release_dependencies
-      - install_project_dependencies:
+      - setup_npm:
           node_version: << parameters.node_version >>
-      - attach_workspace:
-          at: .
       - run:
           name: Updating package versions
           command: |
@@ -401,11 +426,16 @@ workflows:
   version: 2
   test_and_release:
     jobs:
+      - install:
+          name: Install
       - lint:
           name: Lint
+          requires:
+            - Install
       - build:
           name: Build
-
+          requires:
+            - Install
       - regression-test:
           name: Regression Tests
           context: nodejs-install
@@ -415,7 +445,6 @@ workflows:
             branches:
               ignore:
                 - master
-
       - test-windows:
           name: Jest Tests (Windows, Node v14.17.5)
           context: nodejs-install
@@ -425,7 +454,6 @@ workflows:
             branches:
               ignore:
                 - master
-
       - test-linux:
           name: Jest Tests (Linux, Node v<< matrix.node_version >>)
           context: nodejs-install
@@ -459,10 +487,10 @@ workflows:
       - prod-release:
           name: Production Release
           context: nodejs-app-release
+          requires:
+            - Lint
+            - Build
           filters:
             branches:
               only:
                 - master
-          requires:
-            - Lint
-            - Build
