@@ -1,7 +1,6 @@
-import { AdvisorClient } from './AdvisorClient';
-import { Package, ScoredPackage } from '../types';
+import { Package, ScoredPackage } from '../../cli/commands/advise/types';
 
-export class FakeAdvisorClient implements AdvisorClient {
+export class AdvisorClient {
   scorePackages(packages: Package[]): Promise<ScoredPackage[]> {
     const scoredPackages: ScoredPackage[] = packages.map(aPackage => ({
       name: aPackage.name,
@@ -9,5 +8,4 @@ export class FakeAdvisorClient implements AdvisorClient {
     }))
     return Promise.resolve(scoredPackages);
   }
-
 }

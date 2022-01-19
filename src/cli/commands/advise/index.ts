@@ -1,10 +1,10 @@
 import { CommandResult } from '../types';
 import * as path from 'path';
-import { FakeAdvisorClient } from './client/FakeAdvisorClient';
 import { formatAdviseResult } from './formatAdviseResult';
 import { readDependencies } from './readDependencies';
+import { AdvisorClient } from '../../../lib/advisor/AdvisorClient';
 
-const advisor = new FakeAdvisorClient();
+const advisor = new AdvisorClient();
 
 export default async function advise(): Promise<CommandResult> {
 
