@@ -7,7 +7,6 @@ node_version="v16.13.2"
 node_url="https://nodejs.org/dist/${node_version}/node-${node_version}-${platform}-${arch}.tar.gz"
 build_name="snyk-for-docker-desktop-${platform}-${arch}"
 build_filename="${build_name}.tar.gz"
-build_sha_filename="${build_filename}.sha256"
 build_root="./docker-desktop/dist/${build_name}"
 build_dir_name="docker"
 build_dir="${build_root}/${build_dir_name}"
@@ -49,8 +48,6 @@ popd
 # tarball. We want a top-level directory to avoid tarbombs.
 pushd "${build_root}"
 tar czfh "${build_filename}" "${build_dir_name}"
-shasum -a 256 "${build_filename}" > "${build_sha_filename}"
 popd
 
 mv "${build_root}/${build_filename}"     "${output_dir}"
-mv "${build_root}/${build_sha_filename}" "${output_dir}"

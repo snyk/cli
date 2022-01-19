@@ -5,26 +5,36 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.3
   gh: circleci/github-cli@1.0.4
 
-defaults: &defaults
-  parameters:
-    node_version:
-      type: string
-      default: '16.13.2'
-    npm_version:
-      type: string
-      default: '8.1.2'
-    aws_version:
-      type: string
-      default: '2.4.12'
-  working_directory: /mnt/ramdisk/snyk
+parameters:
+  node_version:
+    type: string
+    default: '16.13.2'
+  npm_version:
+    type: string
+    default: '8.1.2'
+  aws_version:
+    type: string
+    default: '2.4.12'
+
+executors:
+  linux:
+    parameters:
+      node_version:
+        type: string
+        default: << pipeline.parameters.node_version >>
+    docker:
+      - image: cimg/node:<< parameters.node_version >>
+    working_directory: /mnt/ramdisk/snyk
 
 commands:
   setup_npm:
     parameters:
       node_version:
         type: string
+        default: << pipeline.parameters.node_version >>
       npm_version:
         type: string
+        default: << pipeline.parameters.npm_version >>
       npm_cache_directory:
         type: string
         default: /mnt/ramdisk/.npm
@@ -148,14 +158,10 @@ commands:
             sudo apt install osslsigncode
 jobs:
   install:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
           npm_install: true
       - persist_to_workspace:
           root: .
@@ -163,30 +169,22 @@ jobs:
             - node_modules
             - packages/*/node_modules
   lint:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Linting project
           command: make -k lint
   build:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Building project
           command: make build-prod
@@ -197,18 +195,14 @@ jobs:
             - packages/*/dist
             - pysrc
   regression-test:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
           at: .
       - install_sdks_linux
       - install_shellspec_dependencies
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Installing test fixture dependencies
           working_directory: ./test/fixtures/basic-npm
@@ -230,7 +224,6 @@ jobs:
             unset SNYK_API_KEY
             shellspec -f d -e REGRESSION_TEST=1
   test-windows:
-    <<: *defaults
     executor: win/default
     working_directory: ~\snyk
     steps:
@@ -242,8 +235,6 @@ jobs:
           at: .
       - install_sdks_windows
       - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
           npm_global_sudo: false
           npm_install: true # reinstalling as workspace node_modules is for linux
           npm_cache_directory: ~\AppData\Local\npm-cache
@@ -254,9 +245,12 @@ jobs:
           name: Running acceptance tests
           command: make test-acceptance
   test-linux:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    parameters:
+      node_version:
+        type: string
+    executor:
+      name: linux
+      node_version: << parameters.node_version >>
     environment:
       TEMP: /mnt/ramdisk/tmp
     steps:
@@ -269,7 +263,6 @@ jobs:
       - install_sdks_linux
       - setup_npm:
           node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -283,18 +276,14 @@ jobs:
           command: make test-acceptance
 
   test-tap:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     parallelism: 2
     steps:
       - checkout
       - attach_workspace:
           at: .
       - install_sdks_linux
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -304,18 +293,17 @@ jobs:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
               $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
-  dev-release:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+  build-artifact:
+    executor: linux
+    parameters:
+      artifact:
+        type: string
     steps:
       - checkout
       - attach_workspace:
           at: .
       - install_release_dependencies
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Updating package versions
           command: ./release-scripts/update-dev-versions.sh
@@ -323,24 +311,17 @@ jobs:
           name: Pruning Snyk CLI dependencies
           command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
       - run:
-          name: Building binaries
-          command: |
-            cat package.json
-            ./release-scripts/make-binaries.sh
-            ls -la ./binary-releases
+          name: Building artifact
+          command: make binary-releases/<< parameters.artifact >>
       - store_artifacts:
-          path: ./binary-releases
-      - run:
-          name: Validating binaries
-          working_directory: ./binary-releases
-          command: ../release-scripts/validate-checksums.sh
-      - pack_snyk_cli
-      - store_artifacts:
-          path: ./dist-pack
+          path: binary-releases
+      - persist_to_workspace:
+          root: .
+          paths:
+            - binary-releases
+
   prod-release:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
@@ -354,9 +335,7 @@ jobs:
       - aws-cli/install:
           version: << parameters.aws_version >>
       - install_release_dependencies
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Updating package versions
           command: |
@@ -406,6 +385,25 @@ workflows:
           name: Build
           requires:
             - Install
+      - build-artifact:
+          name: Build (<< matrix.artifact >>)
+          requires:
+            - Build
+          filters:
+            branches:
+              ignore:
+                - master
+          matrix:
+            parameters:
+              artifact:
+                - snyk-node.tgz
+                - snyk-linux
+                - snyk-win.exe
+                - snyk-macos
+                - snyk-alpine
+                - snyk-for-docker-desktop-darwin-x64.tar.gz
+                - snyk-for-docker-desktop-darwin-arm64.tar.gz
+                - docker-mac-signed-bundle.tar.gz
       - regression-test:
           name: Regression Tests
           context: nodejs-install
@@ -440,15 +438,6 @@ workflows:
           name: Tap Tests
           context: nodejs-install
           requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - dev-release:
-          name: Development Release
-          requires:
-            - Lint
             - Build
           filters:
             branches:
