@@ -4,13 +4,12 @@ import * as needle from 'needle';
 
 export class AdvisorClient {
   async scorePackages(packages: Package[]): Promise<ScoredPackage[]> {
-
     const response = await post({
       url: 'https://api.snyk.io/unstable/advisor/scores/npm-package',
-      body: packages.map(aPackage => aPackage.name),
+      body: packages.map((aPackage) => aPackage.name),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': getAuthHeader(),
+        Authorization: getAuthHeader(),
       },
     });
 
@@ -25,16 +24,17 @@ const convertAdvisorResponse = (response: AdvisorResponse): ScoredPackage => {
     name: response.name,
     score: Math.round(100 * response.score),
     maintenance: response.labels.maintenance as Maintenance,
-  }
-}
+    popularity: response.labels.popularity,
+  };
+};
 
 type Request = {
-  url: string,
-  body: any,
-  headers: any,
-}
+  url: string;
+  body: any;
+  headers: any;
+};
 
-const post = ({url, body, headers}: Request): Promise<any> => {
+const post = ({ url, body, headers }: Request): Promise<any> => {
   return new Promise((resolve, reject) => {
     needle.request('post', url, body, { headers }, (err, res, respBody) => {
       if (err) {
@@ -44,19 +44,18 @@ const post = ({url, body, headers}: Request): Promise<any> => {
       resolve({ res, body: respBody });
     });
   });
-
-}
+};
 
 interface AdvisorResponse {
-  name:    string;
-  score:   number;
+  name: string;
+  score: number;
   pending: boolean;
-  labels:  AdvisorLabels;
+  labels: AdvisorLabels;
 }
 
 interface AdvisorLabels {
-  popularity:  string;
+  popularity: string;
   maintenance: string;
-  community:   string;
-  security:    string;
+  community: string;
+  security: string;
 }
