@@ -13,7 +13,16 @@ export type AdviseResult = {
 };
 
 export enum Maintenance {
-  HEALTHY = 'Healthy',
-  INACTIVE = 'Inactive',
-  SUSTAINABLE = 'Sustainable',
+  INACTIVE = 0,
+  SUSTAINABLE = 1,
+  HEALTHY = 2,
+}
+
+export const maintenanceFromString = (label: string): Maintenance => {
+  switch(label) {
+    case 'Inactive': return Maintenance.INACTIVE
+    case 'Sustainable': return Maintenance.SUSTAINABLE
+    case 'Healthy': return Maintenance.HEALTHY
+  }
+  throw new Error("Unknown maintenance label " + label);
 }

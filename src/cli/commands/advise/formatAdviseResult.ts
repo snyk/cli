@@ -66,7 +66,7 @@ const score = (s: number): string => {
 };
 
 const maintenance = (maint: Maintenance): string => {
-  const padded = maint.padEnd(maintenanceTitle.length);
+  const padded = capitalise(Maintenance[maint].padEnd(maintenanceTitle.length).toLowerCase());
   switch (maint) {
     case Maintenance.HEALTHY:
       return chalk.green(padded);
@@ -76,3 +76,9 @@ const maintenance = (maint: Maintenance): string => {
       return chalk.yellow(padded);
   }
 };
+
+const capitalise = (s: string): string => {
+  const firstChar = s[0].toUpperCase();
+  const otherChars = s.slice(1);
+  return firstChar + otherChars;
+}

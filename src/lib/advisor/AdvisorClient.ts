@@ -1,4 +1,4 @@
-import { Maintenance, Package, ScoredPackage } from './types';
+import { Package, ScoredPackage, maintenanceFromString } from './types';
 import { getAuthHeader } from '../api-token';
 import * as needle from 'needle';
 
@@ -23,7 +23,7 @@ const convertAdvisorResponse = (response: AdvisorResponse): ScoredPackage => {
   return {
     name: response.name,
     score: Math.round(100 * response.score),
-    maintenance: response.labels.maintenance as Maintenance,
+    maintenance: maintenanceFromString(response.labels.maintenance),
     popularity: response.labels.popularity,
   };
 };

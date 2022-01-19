@@ -5,36 +5,49 @@ import { readNpmDependencies } from './readNpmDependencies';
 import { AdvisorClient } from '../../../lib/advisor/AdvisorClient';
 import { processCommandArgs } from '../process-command-args';
 import { MethodArgs } from '../../args';
+import { Maintenance, maintenanceFromString, ScoredPackage } from '../../../lib/advisor/types';
+import { shouldDisplay } from '../../../lib/advisor/shouldDisplay';
 
 const advisor = new AdvisorClient();
 
 export default async function advise(...args0: MethodArgs): Promise<CommandResult> {
-  const { packageJsonPath, maxScore } = parseArgs(...args0);
+  const { packageJsonPath, acceptableScore, acceptableMaintenance, ci } = parseArgs(...args0);
 
   const dependencies = await readNpmDependencies(path.resolve(packageJsonPath));
 
   const dependenciesWithScores = await advisor.scorePackages(dependencies);
 
-  const filteredDependencies = dependenciesWithScores.filter(aDependency => aDependency.score <= maxScore)
+  const dependenciesToShow = dependenciesWithScores.filter(aDependency => shouldDisplay(aDependency, acceptableScore, acceptableMaintenance))
 
-  return formatAdviseResult({
-    dependencies: filteredDependencies,
-  })
+  const result = formatAdviseResult({
+    dependencies: dependenciesToShow,
+  });
+
+  if(dependenciesToShow.length > 0 && ci) {
+    throw new Error(result.result)
+  }
+
+  return result;
 }
 
 type AdviseOptions = {
+  ci: boolean,
   packageJsonPath: string,
-  maxScore: number,
+  acceptableScore: number | null,
+  acceptableMaintenance: Maintenance | null,
 }
 
 const parseArgs = (...args0: MethodArgs): AdviseOptions => {
 
   const { options } = processCommandArgs(...args0);
 
-  const maxScore = options.maxScore ? parseInt(options.maxScore) : 100;
+  const acceptableScore = options.acceptableScore ? parseInt(options.acceptableScore) : null;
+  const acceptableMaintenance = options.acceptableMaintenance ? maintenanceFromString(options.acceptableMaintenance) : null;
 
   return {
     packageJsonPath: './package.json',
-    maxScore,
+    acceptableScore,
+    acceptableMaintenance,
+    ci: !!options.ci,
   }
 }
