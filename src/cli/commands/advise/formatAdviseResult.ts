@@ -5,6 +5,8 @@ import {
 } from '../../../lib/advisor/types';
 import { CommandResult } from '../types';
 import chalk from 'chalk';
+import terminalLink from 'terminal-link';
+import supportsHyperlinks = require('supports-hyperlinks');
 
 export const formatAdviseResult = (result: AdviseResult): CommandResult => {
   return new CommandResult(toPlainText(result));
@@ -33,13 +35,28 @@ const toPlainText = (result: AdviseResult): string => {
 };
 
 const depFormat = (longestName: number): ((s: ScoredPackage) => string) => {
+  const link = (name: string): string =>
+    `https://snyk.io/advisor/npm-package/${name}`;
+
+  const name = (n: string): string => {
+    return terminalLink(n.padEnd(longestName), link(n), { fallback: false });
+  };
+
+  const popularity = (p: string): string => {
+    return p.padEnd('Key ecosystem project'.length);
+  };
+
   const formatDependency = (dep: ScoredPackage): string => {
-    return [
-      dep.name.padEnd(longestName),
+    const columns = [
+      name(dep.name),
       score(dep.score),
       maintenance(dep.maintenance),
-      dep.popularity,
-    ].join(columnSeparator);
+      popularity(dep.popularity),
+    ];
+    const finalColumns = !supportsHyperlinks.stdout
+      ? columns.concat([link(dep.name)])
+      : columns;
+    return finalColumns.join(columnSeparator);
   };
   return formatDependency;
 };
