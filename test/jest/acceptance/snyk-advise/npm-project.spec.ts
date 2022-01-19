@@ -51,3 +51,15 @@ test('returns a non-0 code in CI mode when there are issues', async () => {
   expect(code).not.toBe(0);
   expect(stdout).toMatch('lodash');
 });
+
+test('specify package.json location', async () => {
+  const project = await createProjectFromFixture(
+    'npm/with-vulnerable-lodash-dep',
+  );
+
+  const { stdout } = await runSnykCLI('advise npm/with-vulnerable-lodash-dep', {
+    cwd: project.path().replace('/npm/with-vulnerable-lodash-dep', ''),
+  });
+
+  expect(stdout).toMatch('lodash')
+})

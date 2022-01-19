@@ -5,7 +5,7 @@ import { readNpmDependencies } from './readNpmDependencies';
 import { AdvisorClient } from '../../../lib/advisor/AdvisorClient';
 import { processCommandArgs } from '../process-command-args';
 import { MethodArgs } from '../../args';
-import { Maintenance, maintenanceFromString, ScoredPackage } from '../../../lib/advisor/types';
+import { Maintenance, maintenanceFromString } from '../../../lib/advisor/types';
 import { shouldDisplay } from '../../../lib/advisor/shouldDisplay';
 
 const advisor = new AdvisorClient();
@@ -38,14 +38,13 @@ type AdviseOptions = {
 }
 
 const parseArgs = (...args0: MethodArgs): AdviseOptions => {
-
-  const { options } = processCommandArgs(...args0);
+  const { options, paths } = processCommandArgs(...args0);
 
   const acceptableScore = options.acceptableScore ? parseInt(options.acceptableScore) : null;
   const acceptableMaintenance = options.acceptableMaintenance ? maintenanceFromString(options.acceptableMaintenance) : null;
 
   return {
-    packageJsonPath: './package.json',
+    packageJsonPath: paths[0] + '/package.json',
     acceptableScore,
     acceptableMaintenance,
     ci: !!options.ci,
