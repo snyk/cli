@@ -19,6 +19,9 @@ const columnSeparator = ' | ';
 
 const toPlainText = (result: AdviseResult): string => {
   const deps = result.dependencies;
+  if(deps.length === 0) {
+    return 'No issues to report.';
+  }
   const longestName = Math.max(...deps.map((d) => d.name.length));
   const title = chalk.bold(
     [
