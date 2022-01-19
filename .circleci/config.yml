@@ -208,13 +208,8 @@ jobs:
           working_directory: ./test/fixtures/basic-npm
           command: npm install
       - run:
-          name: Pruning dependencies
-          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - pack_snyk_cli
-      - run:
-          name: Installing packed Snyk CLI
-          command: sudo npm install -g snyk-*.tgz
-          path: ./dist-pack
+          name: Installing Snyk CLI
+          command: make install NPM='sudo npm'
       - run:
           name: Running ShellSpec tests
           working_directory: ./test/smoke
@@ -408,7 +403,7 @@ workflows:
           name: Regression Tests
           context: nodejs-install
           requires:
-            - Build
+            - Build (snyk-node.tgz)
           filters:
             branches:
               ignore:
