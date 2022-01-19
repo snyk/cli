@@ -1,4 +1,4 @@
-import { AdviseResult } from './types';
+import { AdviseResult } from '../../../lib/advisor/types';
 import { CommandResult } from '../types';
 
 export const formatAdviseResult = (result: AdviseResult): CommandResult => {

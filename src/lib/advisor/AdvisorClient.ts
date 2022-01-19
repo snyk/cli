@@ -1,4 +1,4 @@
-import { Maintenance, Package, ScoredPackage } from '../../cli/commands/advise/types';
+import { Maintenance, Package, ScoredPackage } from './types';
 import { getAuthHeader } from '../api-token';
 import * as needle from 'needle';
 

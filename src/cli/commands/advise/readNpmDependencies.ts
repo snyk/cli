@@ -1,4 +1,4 @@
-import { Package } from './types';
+import { Package } from '../../../lib/advisor/types';
 import * as fse from 'fs-extra';
 
 export const readNpmDependencies = async (packageJsonPath: string): Promise<Package[]> => {
