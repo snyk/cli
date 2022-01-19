@@ -11,6 +11,6 @@ test('lists advisor scores for dependencies', async () => {
   });
 
   expect(code).toBe(0);
-  expect(stdout).toMatch('lodash: 88');
+  expect(stdout).toMatch(/lodash.*[0-9+]{2}.+Sustainable/);
   expect(stderr).toBe('');
 })

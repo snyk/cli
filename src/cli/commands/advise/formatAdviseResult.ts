@@ -7,6 +7,6 @@ export const formatAdviseResult = (result: AdviseResult): CommandResult => {
 
 const toPlainText = (result: AdviseResult): string => {
   return result.dependencies
-    .map(dep => `${dep.name}: ${dep.score}`)
+    .map(dep => `${dep.name}: ${100 * dep.score} ${dep.maintenance}`)
     .join('\n');
 }
