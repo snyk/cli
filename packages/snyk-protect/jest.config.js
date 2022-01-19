@@ -1,7 +1,3 @@
-module.exports = {
-  preset: 'ts-jest',
-  testMatch: [
-    '<rootDir>/test/**/*.spec.ts',
-    '<rootDir>\\test\\**\\*.spec.ts', // for Windows
-  ],
-};
+const { createJestConfig } = require('../../test/createJestConfig');
+
+module.exports = createJestConfig({ displayName: '@snyk/protect' });

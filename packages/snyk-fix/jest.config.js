@@ -1,3 +1,3 @@
-module.exports = {
-  preset: 'ts-jest',
-};
+const { createJestConfig } = require('../../test/createJestConfig');
+
+module.exports = createJestConfig({ displayName: '@snyk/fix' });
