@@ -23,7 +23,7 @@ export class AdvisorClient {
 const convertAdvisorResponse = (response: AdvisorResponse): ScoredPackage => {
   return {
     name: response.name,
-    score: response.score,
+    score: Math.round(100 * response.score),
     maintenance: response.labels.maintenance as Maintenance,
   }
 }

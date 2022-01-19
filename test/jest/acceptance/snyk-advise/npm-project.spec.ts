@@ -14,3 +14,15 @@ test('lists advisor scores for dependencies', async () => {
   expect(stdout).toMatch(/lodash.*[0-9+]{2}.+Sustainable/);
   expect(stderr).toBe('');
 })
+
+test('filtering packages by score', async () => {
+  const project = await createProjectFromFixture(
+    'npm/with-vulnerable-lodash-dep',
+  );
+
+  const { stdout } = await runSnykCLI('advise --maxScore=70', {
+    cwd: project.path(),
+  });
+
+  expect(stdout).not.toMatch(/lodash/);
+});
