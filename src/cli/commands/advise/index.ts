@@ -1,14 +1,14 @@
 import { CommandResult } from '../types';
 import * as path from 'path';
 import { formatAdviseResult } from './formatAdviseResult';
-import { readDependencies } from './readDependencies';
+import { readNpmDependencies } from './readNpmDependencies';
 import { AdvisorClient } from '../../../lib/advisor/AdvisorClient';
 
 const advisor = new AdvisorClient();
 
 export default async function advise(): Promise<CommandResult> {
 
-  const dependencies = await readDependencies(path.resolve('./package.json'));
+  const dependencies = await readNpmDependencies(path.resolve('./package.json'));
 
   const dependenciesWithScores = await advisor.scorePackages(dependencies);
 
