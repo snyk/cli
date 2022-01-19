@@ -1,7 +1,3 @@
-export type Environment = {
-  npmVersion?: string | undefined;
-};
-
 export type StandardAnalyticsData = {
   version: string;
   os: string;
@@ -13,7 +9,6 @@ export type StandardAnalyticsData = {
   integrationEnvironmentVersion: string;
   id: string;
   ci: boolean;
-  environment: Environment;
   durationMs: number;
   metrics: any[] | undefined;
 };

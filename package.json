@@ -29,8 +29,6 @@
   ],
   "scripts": {
     "clean": "npx rimraf node_modules dist binary-releases test-results *.tgz tsconfig.tsbuildinfo .eslintcache pysrc packages/*/node_modules packages/*/dist packages/*/tsconfig.tsbuildinfo packages/*/*.tgz",
-    "prepare": "npm run check-dev-environment",
-    "check-dev-environment": "ts-node ./scripts/check-dev-environment.ts",
     "format": "prettier --write '**/*.{js,ts,json,yaml,yml,md}'",
     "format:changes": "./scripts/format/prettier-changes.sh",
     "lint": "npm-run-all --serial --continue-on-error lint:*",

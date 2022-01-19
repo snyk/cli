@@ -12,7 +12,6 @@ import { exec } from 'child_process';
 import * as createDebug from 'debug';
 import * as fs from 'fs';
 import { join } from 'path';
-import * as semver from 'semver';
 import { ArgsOptions } from '../../cli/args';
 
 const debug = createDebug('snyk');
@@ -180,28 +179,4 @@ export async function isInstalled(commandToCheck: string): Promise<boolean> {
     return false;
   }
   return true;
-}
-
-// This only works for programs that output a valid version when called with --version flag!
-export async function getCommandVersion(
-  commandToCheck: string,
-): Promise<string | undefined> {
-  const isCommandInstalled = await isInstalled(commandToCheck);
-
-  if (isCommandInstalled) {
-    try {
-      let version: string | null = await runCommand(
-        `${commandToCheck} --version`,
-      );
-      // Remove newline
-      version = version.trim();
-      version = semver.valid(version);
-      if (version !== null) {
-        return version;
-      }
-    } catch (error) {
-      return undefined;
-    }
-  }
-  return undefined;
 }

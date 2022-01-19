@@ -15,6 +15,9 @@ parameters:
   aws_version:
     type: string
     default: '2.4.12'
+  gh_version:
+    type: string
+    default: '1.9.2'
 
 executors:
   linux:
@@ -100,15 +103,17 @@ commands:
             - ~\AppData\Local\Temp\chocolatey
   install_sdks_linux:
     steps:
-      - restore_cache:
-          name: Restoring SDKMAN install cache
-          keys:
-            - sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
       - run:
           name: Installing Python
           command: |
             sudo apt update
             sudo apt install python3 python3-pip python-is-python3
+      - aws-cli/install:
+          version: << pipeline.parameters.aws_version >>
+      - restore_cache:
+          name: Restoring SDKMAN install cache
+          keys:
+            - sdkman-install-cache-v3-{{ arch }}-{{ checksum ".circleci/vendor/sdkman-install.sh" }}
       - run:
           name: Installing SDKMAN
           # The install script comes from https://get.sdkman.io/?rcupdate=false
@@ -218,9 +223,14 @@ jobs:
             unset SNYK_API
             unset SNYK_API_KEY
             shellspec -f d -e REGRESSION_TEST=1
+
   test-windows:
     executor: win/default
-    working_directory: ~\snyk
+    working_directory: C:\Users\circleci\snyk
+    parameters:
+      test_snyk_command:
+        type: string
+        default: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
     steps:
       - run:
           name: Configuring Git
@@ -229,20 +239,47 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_windows
-      - setup_npm:
-          npm_global_sudo: false
-          npm_install: true # reinstalling as workspace node_modules is for linux
-          npm_cache_directory: ~\AppData\Local\npm-cache
       - run:
-          name: Configuring Snyk CLI
-          command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
+          name: Configuring artifact
+          command: << parameters.test_snyk_command >> config set "api=$env:SNYK_API_KEY"
       - run:
-          name: Running acceptance tests
+          name: Testing artifact
           command: make test-acceptance
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+
   test-linux:
+    executor: linux
+    environment:
+      TEMP: /mnt/ramdisk/tmp
+    parameters:
+      test_snyk_command:
+        type: string
+        default: /mnt/ramdisk/snyk/binary-releases/snyk-linux
+    steps:
+      - run:
+          name: Creating temporary directory
+          command: mkdir /mnt/ramdisk/tmp
+      - checkout
+      - attach_workspace:
+          at: .
+      - install_sdks_linux
+      - run:
+          name: Configuring artifact
+          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Testing artifact
+          command: make test-acceptance
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+
+  test-node:
     parameters:
       node_version:
         type: string
+      test_snyk_command:
+        type: string
+        default: snyk
     executor:
       name: linux
       node_version: << parameters.node_version >>
@@ -256,16 +293,53 @@ jobs:
       - attach_workspace:
           at: .
       - install_sdks_linux
-      - setup_npm:
-          node_version: << parameters.node_version >>
+      - run:
+          name: Installing Snyk CLI
+          command: make install NPM='sudo npm'
+      - run:
+          name: Configuring Snyk CLI
+          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Running acceptance tests
+          command: make test-acceptance
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+
+  test-unit:
+    executor: linux
+    environment:
+      TEMP: /mnt/ramdisk/tmp
+    steps:
+      - run:
+          name: Creating temporary directory
+          command: mkdir /mnt/ramdisk/tmp
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_npm
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
       - run:
           name: Running unit tests
           command: make test-unit
-      - aws-cli/install:
-          version: << parameters.aws_version >>
+
+  test-acceptance:
+    executor: linux
+    environment:
+      TEMP: /mnt/ramdisk/tmp
+    steps:
+      - run:
+          name: Creating temporary directory
+          command: mkdir /mnt/ramdisk/tmp
+      - checkout
+      - attach_workspace:
+          at: .
+      - setup_npm
+      - install_sdks_linux
+      - run:
+          name: Configuring Snyk CLI
+          command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
       - run:
           name: Running acceptance tests
           command: make test-acceptance
@@ -326,9 +400,9 @@ jobs:
           command: ./release-scripts/should-i-release.sh
       - gh/setup:
           token: GH_TOKEN
-          version: 1.9.2
+          version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
-          version: << parameters.aws_version >>
+          version: << pipeline.parameters.aws_version >>
       - install_release_dependencies
       - setup_npm
       - run:
@@ -400,7 +474,7 @@ workflows:
                 - snyk-for-docker-desktop-darwin-arm64.tar.gz
                 - docker-mac-signed-bundle.tar.gz
       - regression-test:
-          name: Regression Tests
+          name: Regression Tests (snyk-node.tgz)
           context: nodejs-install
           requires:
             - Build (snyk-node.tgz)
@@ -409,26 +483,57 @@ workflows:
               ignore:
                 - master
       - test-windows:
-          name: Jest Tests (Windows)
+          name: Acceptance Tests (snyk-win.exe)
           context: nodejs-install
           requires:
-            - Build
+            - Build (snyk-win.exe)
           filters:
             branches:
               ignore:
                 - master
       - test-linux:
-          name: Jest Tests (Linux, Node v<< matrix.node_version >>)
+          name: Acceptance Tests (snyk-linux)
           context: nodejs-install
           requires:
-            - Build
+            - Build (snyk-linux)
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-node:
+          name: Acceptance Tests (Node v<< matrix.node_version >>)
+          context: nodejs-install
+          requires:
+            - Build (snyk-node.tgz)
           filters:
             branches:
               ignore:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.9', '14.18.2', '16.13.2']
+              node_version:
+                - '10.24.1'
+                - '12.22.9'
+                - '14.18.2'
+                - '16.13.2'
+      - test-unit:
+          name: Unit Tests
+          context: nodejs-install
+          requires:
+            - Build
+          filters:
+            branches:
+              ignore:
+                - master
+      - test-acceptance:
+          name: Acceptance Tests
+          context: nodejs-install
+          requires:
+            - Unit Tests
+          filters:
+            branches:
+              ignore:
+                - master
       - test-tap:
           name: Tap Tests
           context: nodejs-install

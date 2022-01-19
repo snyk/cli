@@ -1,5 +1,4 @@
 import { getStandardData } from '../../../../../src/lib/analytics/getStandardData';
-import { getCommandVersion } from '../../../../../src/lib/analytics/sources';
 import { argsFrom } from './utils';
 
 describe('getStandardData returns object', () => {
@@ -15,24 +14,20 @@ describe('getStandardData returns object', () => {
       version: '1.0.0-monorepo',
       id: expect.any(String),
       ci: expect.any(Boolean),
-      environment: {
-        npmVersion: await getCommandVersion('npm'),
-      },
-      // prettier-ignore
       metrics: {
-        'network_time': {
+        network_time: {
           type: 'timer',
           values: [],
           total: expect.any(Number),
         },
-        'cpu_time': {
+        cpu_time: {
           type: 'synthetic',
           values: expect.any(Array),
           total: expect.any(Number),
         },
       },
       nodeVersion: expect.any(String),
-      standalone: false,
+      standalone: expect.any(Boolean),
       durationMs: expect.any(Number),
       integrationName: expect.any(String),
       integrationVersion: expect.any(String),
@@ -58,24 +53,20 @@ describe('getStandardData returns object', () => {
       version: '1.0.0-monorepo',
       id: expect.any(String),
       ci: expect.any(Boolean),
-      environment: {
-        npmVersion: await getCommandVersion('npm'),
-      },
-      // prettier-ignore
       metrics: {
-        'network_time': {
+        network_time: {
           type: 'timer',
           values: [],
           total: expect.any(Number),
         },
-        'cpu_time': {
+        cpu_time: {
           type: 'synthetic',
           values: expect.any(Array),
           total: expect.any(Number),
         },
       },
       nodeVersion: expect.any(String),
-      standalone: false,
+      standalone: expect.any(Boolean),
       durationMs: expect.any(Number),
       integrationName: 'JENKINS',
       integrationVersion: '1.2.3',
