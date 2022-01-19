@@ -68,4 +68,11 @@ spec_helper_configure() {
   snyk() {
     eval "${SNYK_COMMAND:=$ORIGINAL_SNYK_EXECUTABLE}" "$@"
   }
+
+  check_if_node10() {
+    if command -v node > /dev/null 2>&1; then
+      if node --version | grep -Eq '^v10.*'; then echo 1
+      fi
+    fi
+  }
 }

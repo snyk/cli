@@ -5,6 +5,7 @@ Describe "Snyk monitor command"
   After snyk_logout
 
   Describe "monitor npm project"
+    Skip if "skip for node 10" check_if_node10
     run_monitor_in_subfolder() {
       cd ../fixtures/basic-npm || return
       snyk monitor
