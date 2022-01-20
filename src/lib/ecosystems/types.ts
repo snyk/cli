@@ -23,7 +23,7 @@ export interface ScanResult {
   facts: Facts[];
   name?: string;
   policy?: string;
-  target?: GitTarget | ContainerTarget;
+  target?: GitTarget | ContainerTarget | {};
   analytics?: Analytics[];
 }
 

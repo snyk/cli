@@ -48,5 +48,5 @@ export interface ResolutionMeta {
   identity: {
     type: string;
   };
-  target?: GitTarget | ContainerTarget;
+  target?: GitTarget | ContainerTarget | {};
 }

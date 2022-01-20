@@ -18,7 +18,7 @@ export interface ScanResult {
   readonly facts: Facts[];
   readonly name?: string;
   readonly policy?: string;
-  readonly target?: GitTarget | ContainerTarget;
+  readonly target?: GitTarget | ContainerTarget | {};
 }
 
 export interface Identity {
