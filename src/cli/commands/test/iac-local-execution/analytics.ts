@@ -5,7 +5,11 @@ import { computeCustomRulesBundleChecksum } from './file-utils';
 
 export function addIacAnalytics(
   formattedResults: FormattedResult[],
-  ignoredIssuesCount: number,
+  opts: {
+    ignoredIssuesCount: number;
+    isLocalCustomRules: boolean;
+    isRemoteCustomRules: boolean;
+  },
 ): void {
   let totalIssuesCount = 0;
   const customRulesIdsFoundInIssues: { [customRuleId: string]: true } = {};
@@ -41,10 +45,13 @@ export function addIacAnalytics(
 
   analytics.add('packageManager', Array.from(new Set(packageManagers)));
   analytics.add('iac-issues-count', totalIssuesCount);
-  analytics.add('iac-ignored-issues-count', ignoredIssuesCount);
+  analytics.add('iac-ignored-issues-count', opts.ignoredIssuesCount);
   analytics.add('iac-type', projectTypeAnalytics);
   analytics.add('iac-metrics', performanceAnalyticsObject);
-  analytics.add('iac-test-count', formattedResults.length);
+  analytics.add('iac-test-count', formattedResults.length); // TODO: remove this once we all analytics use iac-files-count
+  analytics.add('iac-files-count', formattedResults.length);
+  analytics.add('iac-local-custom-rules', opts.isLocalCustomRules);
+  analytics.add('iac-remote-custom-rules', opts.isRemoteCustomRules);
   analytics.add('iac-custom-rules-issues-count', issuesFromCustomRulesCount);
   analytics.add(
     'iac-custom-rules-issues-percentage',
