@@ -59,7 +59,7 @@ describe('iac test --rules', () => {
 
   it('presents an error message when the user is not entitled to custom-rules', async () => {
     const { stdout, exitCode } = await run(
-      `snyk iac test --org=no-entitlements --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
+      `snyk iac test --org=no-custom-rules-entitlements --rules=./iac/custom-rules/custom.tar.gz ./iac/terraform/sg_open_ssh.tf`,
     );
 
     expect(exitCode).toBe(2);
@@ -215,7 +215,7 @@ describe('custom rules pull from a remote OCI registry', () => {
 
   it('presents an error message when the user is not entitled to custom-rules', async () => {
     const { stdout, exitCode } = await run(
-      `snyk iac test --org=no-entitlements ./iac/terraform/sg_open_ssh.tf`,
+      `snyk iac test --org=no-custom-rules-entitlements ./iac/terraform/sg_open_ssh.tf`,
       {
         SNYK_CFG_OCI_REGISTRY_URL: process.env.OCI_DOCKER_REGISTRY_URL!,
         SNYK_CFG_OCI_REGISTRY_USERNAME: process.env
