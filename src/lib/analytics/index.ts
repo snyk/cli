@@ -98,7 +98,7 @@ async function postAnalytics(
 }
 
 /**
- * Adds a key-value pair to the analytics data `metadata` field. This doesn't send the analytis, just stages it for
+ * Adds a key-value pair to the analytics data `metadata` field. This doesn't send the analytics, just stages it for
  * sending later (via the {@link addDataAndSend} function).
  * @param key
  * @param value
@@ -107,11 +107,18 @@ export function add(key: string, value: unknown): void {
   if (typeof value === 'string') {
     value = stripAnsi(value);
   }
+
   if (metadata[key]) {
-    if (!Array.isArray(metadata[key])) {
-      metadata[key] = [metadata[key]];
+    if (typeof value === 'number' && typeof metadata[key] === 'number') {
+      metadata[key] += value;
+    } else {
+      if (!Array.isArray(metadata[key])) {
+        metadata[key] = [metadata[key]];
+      }
+      Array.isArray(value)
+        ? metadata[key].push(...value)
+        : metadata[key].push(value);
     }
-    metadata[key].push(value);
   } else {
     metadata[key] = value;
   }
