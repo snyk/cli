@@ -17,7 +17,7 @@ cp ./release-scripts/snyk-mac.sh ./dist-docker/docker/
 cd ./dist-docker/docker/
 
 # Download macOS NodeJS binary, using same as pkg
-curl "https://nodejs.org/dist/v12.18.3/node-v12.18.3-darwin-x64.tar.gz" | tar -xz
+curl "https://nodejs.org/dist/v12.22.9/node-v12.22.9-darwin-x64.tar.gz" | tar -xz
 
 cd ..
 

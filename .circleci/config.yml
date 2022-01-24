@@ -9,7 +9,7 @@ defaults: &defaults
   parameters:
     node_version:
       type: string
-      default: '14.17.5'
+      default: '14.18.3'
   working_directory: /mnt/ramdisk/snyk
 
 commands:
@@ -446,7 +446,7 @@ workflows:
               ignore:
                 - master
       - test-windows:
-          name: Jest Tests (Windows, Node v14.17.5)
+          name: Jest Tests (Windows, Node v14.18.3)
           context: nodejs-install
           requires:
             - Build
@@ -465,7 +465,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
+              node_version: ['10.24.1', '12.22.9', '14.18.3', '16.13.2']
       - test-tap:
           name: Tap Tests
           context: nodejs-install
