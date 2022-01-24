@@ -394,26 +394,6 @@ describe('Test snyk code', () => {
     },
   );
 
-  it('Throws an error if LCE is enabled', async () => {
-    isSastEnabledForOrgSpy.mockResolvedValueOnce({
-      sastEnabled: true,
-      localCodeEngine: {
-        enabled: true,
-      },
-    });
-    trackUsageSpy.mockResolvedValue({});
-
-    await expect(
-      ecosystems.testEcosystem('code', ['.'], {
-        path: '',
-        code: true,
-      }),
-    ).rejects.toHaveProperty(
-      'message',
-      'Snyk Code Local Engine is enabled, Snyk Code CLI is temporary disabled.',
-    );
-  });
-
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
     const sessionToken = expect.any(String);

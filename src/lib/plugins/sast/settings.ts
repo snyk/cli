@@ -8,7 +8,6 @@ import {
   FailedToRunTestError,
   FeatureNotSupportedForOrgError,
   NotFoundError,
-  CustomError,
 } from '../../errors';
 
 export async function getSastSettings(options: Options): Promise<SastSettings> {
@@ -40,12 +39,6 @@ export async function getSastSettings(options: Options): Promise<SastSettings> {
       org,
       'Snyk Code',
       'enable in Settings > Snyk Code',
-    );
-  }
-
-  if (sastSettingsResponse.localCodeEngine.enabled) {
-    throw new CustomError(
-      'Snyk Code Local Engine is enabled, Snyk Code CLI is temporary disabled.',
     );
   }
 
