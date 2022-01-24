@@ -71,6 +71,11 @@ commands:
                   - << parameters.npm_cache_directory >>
   install_sdks_windows:
     steps:
+      - run:
+          name: Removing pre-installed NodeJS
+          command: |
+            $current_node_version = node --version
+            nvm uninstall $current_node_version
       - restore_cache:
           name: Restoring Chocolatey cache
           keys:
@@ -119,19 +124,6 @@ commands:
           key: sdkman-archive-cache-v3-{{ arch }}-{{ checksum ".circleci/install-sdks-linux.sh" }}
           paths:
             - ~/.sdkman/archives
-  install_node_windows:
-    parameters:
-      node_version:
-        type: string
-    steps:
-      - run:
-          name: Removing pre-installed NodeJS
-          command: |
-            $current_node_version = node --version
-            nvm uninstall $current_node_version
-      - run:
-          name: Installing NodeJS
-          command: choco install nodejs --version=<< parameters.node_version >> --no-progress
   install_shellspec_dependencies:
     steps:
       - run:
@@ -248,8 +240,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - install_node_windows:
-          node_version: << parameters.node_version >>
       - install_sdks_windows
       - setup_npm:
           node_version: << parameters.node_version >>
