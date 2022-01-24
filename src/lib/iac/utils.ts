@@ -9,9 +9,7 @@ export function convertIacResultsToScanResult(
       type: iacResult.packageManager,
       targetFile: iacResult.targetFile,
     },
-    facts: iacResult.result.cloudConfigResults.map((result) => {
-      return { data: result, type: 'iacIssues' };
-    }),
+    facts: [{ data: iacResult.result.cloudConfigResults, type: 'iacIssues' }],
     name: iacResult.projectName,
     target: {
       remoteUrl: 'http://github.com/YairZ101/private_iac_goof.git',
