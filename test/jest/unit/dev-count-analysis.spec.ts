@@ -5,7 +5,7 @@ import {
   SERIOUS_DELIMITER,
   MAX_COMMITS_IN_GIT_LOG,
   separateLines,
-} from '../src/lib/monitor/dev-count-analysis';
+} from '../../../src/lib/monitor/dev-count-analysis';
 
 const testTimeout = 60000;
 

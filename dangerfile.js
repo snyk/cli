@@ -65,7 +65,7 @@ if (danger.github && danger.github.pr) {
 
   if (newTestFiles.length) {
     const joinedFileList = newTestFiles.map((f) => '- `' + f + '`').join('\n');
-    const msg = `Looks like you added a new Tap test. Consider making it a Jest test instead. See files in \`test/jest/(unit|system|acceptance)\` for examples. Files found:\n${joinedFileList}`;
+    const msg = `Looks like you added a new Tap test. Consider making it a Jest test instead. See files in \`test/jest/(unit|acceptance)\` for examples. Files found:\n${joinedFileList}`;
     warn(msg);
   }
 

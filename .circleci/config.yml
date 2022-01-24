@@ -263,9 +263,6 @@ jobs:
           name: Running unit tests
           command: npm run test:jest-unit -- --ci
       - run:
-          name: Running system tests
-          command: npm run test:jest-system -- --ci
-      - run:
           name: Running acceptance tests
           command: npm run test:jest-acceptance -- --ci
   test-linux:
@@ -300,9 +297,6 @@ jobs:
       - run:
           name: Running unit tests
           command: npm run test:jest-unit -- --ci
-      - run:
-          name: Running system tests
-          command: npm run test:jest-system -- --ci
       - aws-cli/install:
           version: << parameters.aws_version >>
       - run:

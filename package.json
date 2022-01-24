@@ -45,7 +45,6 @@
     "test": "npm run test:jest && test:packages-unit && test:packages-acceptance && npm run test:tap",
     "test:jest": "jest --runInBand \"/test/[^/]+\\.spec\\.ts\"",
     "test:jest-unit": "jest --runInBand \"/test/jest/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
-    "test:jest-system": "jest --runInBand \"/test/jest/system/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:jest-acceptance": "jest --runInBand \"/test/jest/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:packages-unit": "jest --runInBand \"/packages/(.+)/test/unit/((.+)/)*[^/]+\\.spec\\.ts\"",
     "test:packages-acceptance": "jest --runInBand \"/packages/(.+)/test/acceptance/((.+)/)*[^/]+\\.spec\\.ts\"",

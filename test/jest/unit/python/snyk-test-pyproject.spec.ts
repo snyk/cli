@@ -1,14 +1,15 @@
-import { join } from 'path';
 import { mocked } from 'ts-jest/utils';
 import { NeedleResponse } from 'needle';
-import test from '../../../../../src/cli/commands/test';
-import { loadPlugin } from '../../../../../src/lib/plugins/index';
-import { CommandResult } from '../../../../../src/cli/commands/types';
-import { makeRequest } from '../../../../../src/lib/request/request';
-import * as featureFlagsModule from '../../../../../src/lib/feature-flags';
+import test from '../../../../src/cli/commands/test';
+import { loadPlugin } from '../../../../src/lib/plugins/index';
+import { CommandResult } from '../../../../src/cli/commands/types';
+import { makeRequest } from '../../../../src/lib/request/request';
+import * as featureFlagsModule from '../../../../src/lib/feature-flags';
+import { getWorkspacePath } from '../../util/getWorkspacePath';
+import { getFixturePath } from '../../util/getFixturePath';
 
-jest.mock('../../../../../src/lib/plugins/index');
-jest.mock('../../../../../src/lib/request/request');
+jest.mock('../../../../src/lib/plugins/index');
+jest.mock('../../../../src/lib/request/request');
 
 const mockedLoadPlugin = mocked(loadPlugin, true);
 const mockedMakeRequest = mocked(makeRequest);
@@ -34,11 +35,7 @@ describe('snyk test for python project', () => {
   describe('no flag is used', () => {
     describe('project contains pyproject.toml file', () => {
       it('should scan poetry vulnerabilities', async () => {
-        const fixturePath = join(
-          __dirname,
-          '../../../../acceptance/workspaces',
-          'poetry-app',
-        );
+        const fixturePath = getWorkspacePath('poetry-app');
 
         const plugin = {
           async inspect() {
@@ -118,11 +115,7 @@ describe('snyk test for python project', () => {
   describe('--all-projects flag is used to scan the project', () => {
     describe('project does not contain poetry.lock file', () => {
       it('should not attempt to scan poetry vulnerabilities', async () => {
-        const fixturePath = join(
-          __dirname,
-          'fixtures',
-          'pyproject-without-poetry',
-        );
+        const fixturePath = getFixturePath('pyproject-without-poetry');
         const plugin = {
           async inspect() {
             return {
@@ -200,12 +193,7 @@ describe('snyk test for python project', () => {
 
     describe('project does contain poetry.lock file', () => {
       it('should scan poetry vulnerabilities', async () => {
-        const fixturePath = join(
-          __dirname,
-          'fixtures',
-          'pyproject-with-poetry',
-        );
-
+        const fixturePath = getFixturePath('pyproject-with-poetry');
         const pipfilePythonPluginResponse = {
           async inspect() {
             return {

@@ -1,8 +1,8 @@
-import { validateFixCommandIsSupported } from '../src/cli/commands/fix/validate-fix-command-is-supported';
-import { AuthFailedError } from '../src/lib/errors';
-import { FeatureNotSupportedByEcosystemError } from '../src/lib/errors/not-supported-by-ecosystem';
-import * as featureFlags from '../src/lib/feature-flags';
-import { ShowVulnPaths } from '../src/lib/types';
+import { validateFixCommandIsSupported } from '../../../src/cli/commands/fix/validate-fix-command-is-supported';
+import { AuthFailedError } from '../../../src/lib/errors';
+import { FeatureNotSupportedByEcosystemError } from '../../../src/lib/errors/not-supported-by-ecosystem';
+import * as featureFlags from '../../../src/lib/feature-flags';
+import { ShowVulnPaths } from '../../../src/lib/types';
 describe('setDefaultTestOptions', () => {
   afterEach(() => {
     jest.clearAllMocks();

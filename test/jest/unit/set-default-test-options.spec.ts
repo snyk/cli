@@ -1,4 +1,4 @@
-import { setDefaultTestOptions } from '../src/cli/commands/test/set-default-test-options';
+import { setDefaultTestOptions } from '../../../src/cli/commands/test/set-default-test-options';
 
 describe('setDefaultTestOptions', () => {
   it('defaults to show-vulnerable-paths:some & org from config when no options passed in', () => {

@@ -1,9 +1,9 @@
-import { fakeServer } from '../../../../../acceptance/fake-server';
-import { runSnykCLI } from '../../../../util/runSnykCLI';
-import { createProjectFromWorkspace } from '../../../../util/createProject';
+import { fakeServer } from '../../../acceptance/fake-server';
+import { runSnykCLI } from '../../util/runSnykCLI';
+import { createProjectFromWorkspace } from '../../util/createProject';
 
 jest.setTimeout(1000 * 60);
-describe('snyk fix (system tests)', () => {
+describe('snyk fix', () => {
   let server: ReturnType<typeof fakeServer>;
   let env: Record<string, string>;
 

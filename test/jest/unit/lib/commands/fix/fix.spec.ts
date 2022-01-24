@@ -1,65 +1,31 @@
 import * as pathLib from 'path';
 import * as fs from 'fs';
 import * as snykFix from '@snyk/fix';
-
 import fix from '../../../../../../src/cli/commands/fix';
 import * as snyk from '../../../../../../src/lib';
 import * as featureFlags from '../../../../../../src/lib/feature-flags';
 import * as analytics from '../../../../../../src/lib/analytics';
-
 import stripAnsi from 'strip-ansi';
+import { getWorkspacePath } from '../../../../util/getWorkspacePath';
+import { getFixturePath } from '../../../../util/getFixturePath';
 
 const testTimeout = 100000;
 
-const pipAppWorkspace = pathLib.join(
-  __dirname,
-  '../../../../../',
-  'acceptance',
-  'workspaces',
-  'pip-app',
-);
-
-const npmWorkspace = pathLib.join(
-  __dirname,
-  '../../../../../',
-  'acceptance',
-  'workspaces',
-  'no-vulns',
-);
-
+const pipAppWorkspace = getWorkspacePath('pip-app');
+const npmWorkspace = getWorkspacePath('no-vulns');
 const pipRequirementsTxt = pathLib.join(pipAppWorkspace, 'requirements.txt');
-
-const pipRequirementsCustomTxt = pathLib.join(
-  __dirname,
-  '../../../../../',
-  'acceptance',
-  'workspaces',
-  'pip-app-custom',
-  'base.txt',
-);
+const pipRequirementsCustomTxt = getWorkspacePath('pip-app-custom/base.txt');
 
 const pipWithRemediation = JSON.parse(
   fs.readFileSync(
-    pathLib.resolve(
-      __dirname,
-      '../../../../../',
-      'fixtures',
-      'snyk-fix',
-      'test-result-pip-with-remediation.json',
-    ),
+    getFixturePath('snyk-fix/test-result-pip-with-remediation.json'),
     'utf8',
   ),
 );
 
 const pipNoIssues = JSON.parse(
   fs.readFileSync(
-    pathLib.resolve(
-      __dirname,
-      '../../../../../',
-      'fixtures',
-      'snyk-fix',
-      'test-result-pip-no-vulns.json',
-    ),
+    getFixturePath('snyk-fix/test-result-pip-no-vulns.json'),
     'utf8',
   ),
 );
