@@ -13,7 +13,6 @@ defaults: &defaults
     npm_version:
       type: string
       default: '8.1.2'
-  working_directory: /mnt/ramdisk/snyk
 
 commands:
   setup_npm:
@@ -22,9 +21,6 @@ commands:
         type: string
       npm_version:
         type: string
-      npm_cache_directory:
-        type: string
-        default: /mnt/ramdisk/.npm
       npm_global_sudo:
         type: boolean
         default: true
@@ -53,7 +49,6 @@ commands:
           name: Configuring npm
           command: |
             npm config set '//registry.npmjs.org/:_authToken' '${NPM_TOKEN}'
-            npm config set cache << parameters.npm_cache_directory >>
             npm config set prefer-offline true
       - when:
           condition: << parameters.npm_install >>
@@ -65,7 +60,7 @@ commands:
                 name: Saving npm cache
                 key: npm-cache-v2-{{ arch }}-node<< parameters.node_version >>-npm<< parameters.npm_version >>-{{ checksum "package-lock.json" }}
                 paths:
-                  - << parameters.npm_cache_directory >>
+                  - ~/.npm
   install_sdks_windows:
     steps:
       - restore_cache:
@@ -253,7 +248,6 @@ jobs:
           npm_version: << parameters.npm_version >>
           npm_global_sudo: false
           npm_install: true # reinstalling as workspace node_modules is for linux
-          npm_cache_directory: ~\AppData\Local\npm-cache
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
@@ -286,12 +280,7 @@ jobs:
     <<: *defaults
     docker:
       - image: cimg/node:<< parameters.node_version >>
-    environment:
-      TEMP: /mnt/ramdisk/tmp
     steps:
-      - run:
-          name: Creating temporary directory
-          command: mkdir /mnt/ramdisk/tmp
       - checkout
       - attach_workspace:
           at: .
