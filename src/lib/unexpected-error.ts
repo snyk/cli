@@ -15,17 +15,6 @@ export async function callHandlingUnexpectedErrors(
     process.exit(exitCode);
   }
 
-  /**
-   * As the only point we'll know if a given callable has unexpected errors is
-   * when NodeJS exits, we can't handle unexpected errors for more than one
-   * callable. We'll never know which callable an error came from.
-   */
-  if (process.listenerCount('uncaughtException') > 1) {
-    handleUnexpectedError(
-      new Error('Cannot handle unexpected errors for more than one callable.'),
-    );
-  }
-
   process.on('uncaughtException', handleUnexpectedError);
 
   /**

@@ -9,7 +9,10 @@ defaults: &defaults
   parameters:
     node_version:
       type: string
-      default: '14.17.5'
+      default: '16.13.2'
+    npm_version:
+      type: string
+      default: '8.1.2'
   working_directory: /mnt/ramdisk/snyk
 
 commands:
@@ -19,7 +22,6 @@ commands:
         type: string
       npm_version:
         type: string
-        default: '7.21.1'
       npm_cache_directory:
         type: string
         default: /mnt/ramdisk/.npm
@@ -158,6 +160,7 @@ jobs:
       - checkout
       - setup_npm:
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
           npm_install: true
       - persist_to_workspace:
           root: .
@@ -174,19 +177,21 @@ jobs:
           at: .
       - setup_npm:
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
       - run:
           name: Linting project
           command: npm run lint
   build:
     <<: *defaults
     docker:
-      - image: circleci/node:<< parameters.node_version >>
+      - image: cimg/node:<< parameters.node_version >>
     steps:
       - checkout
       - attach_workspace:
           at: .
       - setup_npm:
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
       - run:
           name: Building project
           command: npm run build:prod
@@ -208,6 +213,7 @@ jobs:
       - install_shellspec_dependencies
       - setup_npm:
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
       - run:
           name: Installing test fixture dependencies
           working_directory: ./test/fixtures/basic-npm
@@ -243,10 +249,11 @@ jobs:
           node_version: << parameters.node_version >>
       - install_sdks_windows
       - setup_npm:
-          npm_cache_directory: ~\AppData\Local\npm-cache
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
           npm_global_sudo: false
           npm_install: true # reinstalling as workspace node_modules is for linux
+          npm_cache_directory: ~\AppData\Local\npm-cache
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
@@ -291,6 +298,7 @@ jobs:
       - install_sdks_linux
       - setup_npm:
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -327,6 +335,7 @@ jobs:
       - install_sdks_linux
       - setup_npm:
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -347,6 +356,7 @@ jobs:
       - install_release_dependencies
       - setup_npm:
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
       - run:
           name: Updating package versions
           command: ./release-scripts/update-dev-versions.sh
@@ -387,6 +397,7 @@ jobs:
       - install_release_dependencies
       - setup_npm:
           node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
       - run:
           name: Updating package versions
           command: |
@@ -446,7 +457,7 @@ workflows:
               ignore:
                 - master
       - test-windows:
-          name: Jest Tests (Windows, Node v14.17.5)
+          name: Jest Tests (Windows)
           context: nodejs-install
           requires:
             - Build
@@ -465,7 +476,7 @@ workflows:
                 - master
           matrix:
             parameters:
-              node_version: ['10.24.1', '12.22.5', '14.17.5', '16.13.0']
+              node_version: ['10.24.1', '12.22.9', '14.18.2', '16.13.2']
       - test-tap:
           name: Tap Tests
           context: nodejs-install
