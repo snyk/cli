@@ -144,7 +144,11 @@ export async function test(
       // run their tests by squashing the error.
     }
 
-    addIacAnalytics(filteredIssues, ignoreCount);
+    addIacAnalytics(filteredIssues, {
+      ignoredIssuesCount: ignoreCount,
+      isLocalCustomRules: !!customRulesPath,
+      isRemoteCustomRules: isOCIRegistryURLProvided,
+    });
 
     // TODO: add support for proper typing of old TestResult interface.
     return {
