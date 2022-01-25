@@ -1,4 +1,4 @@
-import { processCommandArgs } from '../src/cli/commands/process-command-args';
+import { processCommandArgs } from '../../../src/cli/commands/process-command-args';
 describe('display help message', () => {
   it('should return undefined options & `cwd` path when path is undefined', () => {
     const cliArgs = [undefined, {}];

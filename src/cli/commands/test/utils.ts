@@ -2,7 +2,7 @@ import { TestResult } from '../../../lib/snyk-test/legacy';
 
 export function getPathWithOptionalProjectName(
   currPath: string,
-  testResult: TestResult,
+  testResult: Pick<TestResult, 'projectName'>,
 ): string {
   let projectName = testResult.projectName;
   if (projectName) {

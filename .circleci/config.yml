@@ -251,23 +251,8 @@ jobs:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
       - run:
-          name: Running packages unit tests
-          command: npm run test:packages-unit -- --ci
-      - run:
-          name: Running packages acceptance tests
-          command: npm run test:packages-acceptance -- --ci
-      - run:
-          name: Running root tests
-          command: npm run test:jest -- --ci
-      - run:
-          name: Running unit tests
-          command: npm run test:jest-unit -- --ci
-      - run:
-          name: Running system tests
-          command: npm run test:jest-system -- --ci
-      - run:
           name: Running acceptance tests
-          command: npm run test:jest-acceptance -- --ci
+          command: npm run test:acceptance
   test-linux:
     <<: *defaults
     docker:
@@ -289,25 +274,13 @@ jobs:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
       - run:
-          name: Running packages unit tests
-          command: npm run test:packages-unit -- --ci
-      - run:
-          name: Running packages acceptance tests
-          command: npm run test:packages-acceptance -- --ci
-      - run:
-          name: Running root tests
-          command: npm run test:jest -- --ci
-      - run:
           name: Running unit tests
-          command: npm run test:jest-unit -- --ci
-      - run:
-          name: Running system tests
-          command: npm run test:jest-system -- --ci
+          command: npm run test:unit
       - aws-cli/install:
           version: << parameters.aws_version >>
       - run:
           name: Running acceptance tests
-          command: npm run test:jest-acceptance -- --ci
+          command: npm run test:acceptance
 
   test-tap:
     <<: *defaults
