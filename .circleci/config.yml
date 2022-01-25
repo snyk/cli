@@ -13,6 +13,9 @@ defaults: &defaults
     npm_version:
       type: string
       default: '8.1.2'
+    aws_version:
+      type: string
+      default: '2.4.12'
   working_directory: /mnt/ramdisk/snyk
 
 commands:
@@ -273,13 +276,6 @@ jobs:
           name: Running system tests
           command: npm run test:jest-system -- --ci
       - run:
-          name: Download AWS CLI
-          command: |
-            msiexec.exe /i AWSCLIV2.msi /quiet
-            [Environment]::SetEnvironmentVariable("Path", $env:PATH + `
-            ";c:\Program Files\Amazon\AWSCLIV2", "Machine")
-          shell: powershell.exe
-      - run:
           name: Running acceptance tests
           command: npm run test:jest-acceptance -- --ci
   test-linux:
@@ -318,7 +314,7 @@ jobs:
           name: Running system tests
           command: npm run test:jest-system -- --ci
       - aws-cli/install:
-          version: 2.2.32
+          version: << parameters.aws_version >>
       - run:
           name: Running acceptance tests
           command: npm run test:jest-acceptance -- --ci
@@ -393,7 +389,7 @@ jobs:
           token: GH_TOKEN
           version: 1.9.2
       - aws-cli/install:
-          version: 2.2.32
+          version: << parameters.aws_version >>
       - install_release_dependencies
       - setup_npm:
           node_version: << parameters.node_version >>
