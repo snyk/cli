@@ -4,7 +4,7 @@ import * as authorization from '../../lib/authorization';
 import * as auth from './auth/is-authed';
 import { apiTokenExists } from '../../lib/api-token';
 import { isCI } from '../../lib/is-ci';
-import { MethodResult } from './types';
+import { IgnoreRules, MethodResult } from './types';
 
 import * as Debug from 'debug';
 const debug = Debug('snyk');
@@ -46,9 +46,15 @@ export default function ignore(options): Promise<MethodResult> {
         options.reason = 'None Given';
       }
 
+      const isPathProvided = !!options.path;
+      if (!isPathProvided) {
+        options.path = '*';
+      }
+
       debug(
-        'changing policy: ignore "%s", for all paths, reason: "%s", until: %o',
+        `changing policy: ignore "%s", for %s, reason: "%s", until: %o`,
         options.id,
+        isPathProvided ? 'all paths' : `path: '${options.path}'`,
         options.reason,
         options.expiry,
       );
@@ -62,15 +68,39 @@ export default function ignore(options): Promise<MethodResult> {
           throw Error('policyFile');
         })
         .then(async function ignoreIssue(pol) {
-          pol.ignore[options.id] = [
-            {
-              '*': {
-                reason: options.reason,
-                expires: options.expiry,
-                created: new Date(),
-              },
-            },
-          ];
+          let ignoreRulePathDataIdx = -1;
+          const ignoreParams = {
+            reason: options.reason,
+            expires: options.expiry,
+            created: new Date(),
+          };
+
+          const ignoreRules: IgnoreRules = pol.ignore;
+
+          const issueIgnorePaths = ignoreRules[options.id] ?? [];
+
+          // Checking if the an ignore rule for this issue exists for the provided path.
+          ignoreRulePathDataIdx = issueIgnorePaths.findIndex(
+            (ignoreMetadata) => !!ignoreMetadata[options.path],
+          );
+
+          // If an ignore rule for this path doesn't exist, create one.
+          if (ignoreRulePathDataIdx === -1) {
+            issueIgnorePaths.push({
+              [options.path]: ignoreParams,
+            });
+          }
+          // Otherwise, update the existing rule's metadata.
+          else {
+            issueIgnorePaths[ignoreRulePathDataIdx][
+              options.path
+            ] = ignoreParams;
+          }
+
+          ignoreRules[options.id] = issueIgnorePaths;
+
+          pol.ignore = ignoreRules;
+
           return await policy.save(pol, options['policy-path']);
         });
     });
