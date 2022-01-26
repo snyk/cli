@@ -954,7 +954,7 @@ export const AllProjectsTests: AcceptanceTests = {
         );
       });
     },
-    'monitor yarn-workspaces --all-projects --detection-depth=5 finds Yarn workspaces & Npm projects': (
+    'monitor yarn-workspaces --all-projects --detection-depth=5 finds Yarn workspaces, Npm and Yarn projects': (
       params,
       utils,
     ) => async (t) => {
@@ -969,9 +969,10 @@ export const AllProjectsTests: AcceptanceTests = {
         detectionDepth: 5,
       });
       // the parser is used directly
-      t.ok(
-        loadPlugin.withArgs('yarn').notCalled,
-        'skips load plugin for yarn as a parser is used directly',
+      t.equal(
+        loadPlugin.withArgs('yarn').callCount,
+        1,
+        'loads plugin for yarn as we detect a Yarn projevct inside a workspace',
       );
       t.equal(loadPlugin.withArgs('npm').callCount, 1, 'calls npm plugin once');
 
@@ -1000,11 +1001,16 @@ export const AllProjectsTests: AcceptanceTests = {
         'Monitoring yarn-workspaces (not-in-a-workspace)',
         'npm project was monitored',
       );
+      t.match(
+        result,
+        'Monitoring yarn-workspaces (not-part-of-workspace)',
+        'yarn project was monitored',
+      );
 
       const requests = params.server
         .getRequests()
         .filter((req) => req.url.includes('/monitor/'));
-      t.equal(requests.length, 5, 'correct amount of monitor requests');
+      t.equal(requests.length, 6, 'correct amount of monitor requests');
       let policyCount = 0;
       const applesWorkspace =
         process.platform === 'win32'

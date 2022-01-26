@@ -1,7 +1,5 @@
-const cloneDeep = require('lodash.clonedeep');
+import * as cloneDeep from 'lodash.clonedeep';
 import * as pathLib from 'path';
-import sortBy = require('lodash.sortby');
-import groupBy = require('lodash.groupby');
 import * as cliInterface from '@snyk/cli-interface';
 import chalk from 'chalk';
 import { icon } from '../theme';
@@ -52,6 +50,7 @@ export async function getMultiPluginResult(
     unprocessedFiles,
   } = await processYarnWorkspacesProjects(root, options, targetFiles);
   allResults.push(...scannedProjects);
+  debug(`Not part of a workspace: ${unprocessedFiles.join(', ')}}`);
   // process the rest 1 by 1 sent to relevant plugins
   for (const targetFile of unprocessedFiles) {
     const optionsClone = cloneDeep(options);
@@ -142,6 +141,7 @@ async function processYarnWorkspacesProjects(
     );
 
     const unprocessedFiles = filterOutProcessedWorkspaces(
+      root,
       scannedProjects,
       targetFiles,
     );
@@ -152,41 +152,34 @@ async function processYarnWorkspacesProjects(
   }
 }
 
-function filterOutProcessedWorkspaces(
+export function filterOutProcessedWorkspaces(
+  root: string,
   scannedProjects: ScannedProjectCustom[],
   allTargetFiles: string[],
 ): string[] {
-  const mapped = allTargetFiles.map((p) => ({ path: p, ...pathLib.parse(p) }));
-  const sorted = sortBy(mapped, 'dir');
-  const targetFilesByDirectory: {
-    [dir: string]: Array<{
-      path: string;
-      base: string;
-      dir: string;
-    }>;
-  } = groupBy(sorted, 'dir');
-
-  const scanned = scannedProjects.map((p) => p.targetFile!);
   const targetFiles: string[] = [];
 
-  for (const directory of Object.keys(targetFilesByDirectory)) {
-    for (const targetFile of targetFilesByDirectory[directory]) {
-      const { base, path } = targetFile;
+  const scanned = scannedProjects
+    .map((p) => p.targetFile!)
+    .map((p) => pathLib.resolve(process.cwd(), root, p));
+  const all = allTargetFiles.map((p) => ({
+    path: pathLib.resolve(process.cwd(), root, p),
+    original: p,
+  }));
 
-      // any non yarn workspace files should be scanned
-      if (!['package.json', 'yarn.lock'].includes(base)) {
-        targetFiles.push(path);
-        continue;
-      }
+  for (const entry of all) {
+    const { path, original } = entry;
+    const { base } = pathLib.parse(path);
 
-      // check if Node manifest has already been processed a part or a workspace
-      const packageJsonFileName = pathLib.join(directory, 'package.json');
-      const alreadyScanned = scanned.some((f) =>
-        packageJsonFileName.endsWith(f),
-      );
-      if (!alreadyScanned) {
-        targetFiles.push(path);
-      }
+    if (!['package.json', 'yarn.lock'].includes(base)) {
+      targetFiles.push(original);
+      continue;
+    }
+    // standardise to package.json
+    // we discover the lockfiles but targetFile is package.json
+    if (!scanned.includes(path.replace('yarn.lock', 'package.json'))) {
+      targetFiles.push(original);
+      continue;
     }
   }
   return targetFiles;
