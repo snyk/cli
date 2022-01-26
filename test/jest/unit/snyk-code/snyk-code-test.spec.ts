@@ -521,6 +521,33 @@ describe('Test snyk code', () => {
     },
   );
 
+  it('Local Code Engine - Always calls code-client with url coming from sastSettings', async () => {
+    const sastSettings = {
+      sastEnabled: true,
+      localCodeEngine: {
+        url: 'http://lce:31111/api',
+        allowCloudUpload: false,
+        enabled: true,
+      },
+    };
+
+    const analyzeFoldersSpy = analyzeFoldersMock.mockResolvedValue(
+      sampleAnalyzeFoldersResponse,
+    );
+    await getCodeAnalysisAndParseResults(
+      '.',
+      {
+        path: '',
+        code: true,
+      },
+      sastSettings,
+    );
+
+    expect(analyzeFoldersSpy.mock.calls[0][0].connection.baseURL).toBe(
+      'http://lce:31111/api',
+    );
+  });
+
   it('Local code engine - should throw error, when enabled and url is missing', async () => {
     const sastSettings = {
       sastEnabled: true,
