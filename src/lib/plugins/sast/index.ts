@@ -44,8 +44,8 @@ export const codePlugin: EcosystemPlugin = {
       if (options.sarif || options.json) {
         if (numOfIssues > 0) {
           if (options['no-markdown']) {
-            sarifTypedResult.runs?.[0].results?.forEach((result) => {
-              result.message = omit(result.message, ['markdown']);
+            sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
+              delete message.markdown;
             });
           }
           hasIssues(jsonStringifyLargeObject(sarifTypedResult));
