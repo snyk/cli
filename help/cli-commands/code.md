@@ -53,6 +53,10 @@ Print results in JSON format.
 
 Return results in SARIF format.
 
+## `--no-markdown`
+
+Should be used when using `--sarif`. Will remove the `markdown` field from the `result.message` object. Might help if parsing `arguments` is not working properly.
+
 ### `--severity-threshold=low|medium|high|critical`
 
 Report only vulnerabilities at the specified level or higher. Note that the Snyk Code configuration issues do not currently use the `critical` severity level.

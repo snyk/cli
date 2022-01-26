@@ -11,6 +11,7 @@ import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
+const omit = require('lodash.omit');
 
 const debug = debugLib('snyk-code-test');
 
@@ -40,9 +41,13 @@ export const codePlugin: EcosystemPlugin = {
       }
       const numOfIssues = sarifTypedResult!.runs?.[0].results?.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
-
       if (options.sarif || options.json) {
         if (numOfIssues > 0) {
+          if (options['no-markdown']) {
+            sarifTypedResult.runs?.[0].results?.forEach((result) => {
+              result.message = omit(result.message, ['markdown']);
+            });
+          }
           hasIssues(jsonStringifyLargeObject(sarifTypedResult));
         }
         return { readableResult: jsonStringifyLargeObject(sarifTypedResult) };

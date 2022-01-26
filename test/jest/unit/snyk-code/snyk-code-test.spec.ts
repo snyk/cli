@@ -331,6 +331,45 @@ describe('Test snyk code', () => {
     }
   });
 
+  it('succeed testing with correct exit code - with sarif output and no markdown', async () => {
+    const sampleSarif = loadJson(
+      path.join(
+        __dirname,
+        '/../../../fixtures/sast/sample-analyze-folders-response.json',
+      ),
+    );
+    const options: ArgsOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      sarif: true,
+      _: [],
+      _doubleDashArgs: [],
+      'no-markdown': true,
+    };
+
+    analyzeFoldersMock.mockResolvedValue(sampleSarif);
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    try {
+      await snykTest('some/path', options);
+    } catch (error) {
+      const errMessage = error.message.trim();
+      expect(error.code).toBe('VULNS');
+      const output = JSON.parse(errMessage);
+      expect(Object.keys(output.runs[0].results[0].message)).not.toContain(
+        'markdown',
+      );
+    }
+  });
+
   it('succeed testing with correct exit code - and analytics added', async () => {
     const analyticSend = jest.spyOn(analytics, 'add');
 
