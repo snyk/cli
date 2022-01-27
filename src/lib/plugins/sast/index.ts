@@ -40,9 +40,13 @@ export const codePlugin: EcosystemPlugin = {
       }
       const numOfIssues = sarifTypedResult!.runs?.[0].results?.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
-
       if (options.sarif || options.json) {
         if (numOfIssues > 0) {
+          if (options['no-markdown']) {
+            sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
+              delete message.markdown;
+            });
+          }
           hasIssues(jsonStringifyLargeObject(sarifTypedResult));
         }
         return { readableResult: jsonStringifyLargeObject(sarifTypedResult) };
