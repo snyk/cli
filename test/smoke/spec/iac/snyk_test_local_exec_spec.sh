@@ -145,61 +145,6 @@ Describe "Snyk iac local test command"
       End
     End
 
-  Describe "terraform single file scan"
-    It "finds issues in terraform file"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf
-      The status should equal 1 # issues found
-      The output should include "Testing ../fixtures/iac/terraform/sg_open_ssh.tf..."
-
-      # Outputs issues
-      The output should include "Infrastructure as code issues:"
-      The output should include "✗ "
-      The output should include "  introduced by"
-    End
-
-    It "filters out issues when using severity threshold"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --severity-threshold=high
-      The status should equal 0 # no issues found
-      The output should include "Testing ../fixtures/iac/terraform/sg_open_ssh.tf..."
-
-      The output should include "Infrastructure as code issues:"
-      The output should include "Tested ../fixtures/iac/terraform/sg_open_ssh.tf for known issues, found"
-    End
-
-    It "outputs an error for invalid terraforom files"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh_invalid_hcl2.tf
-      The status should equal 2
-      The output should include "We were unable to parse the Terraform file"
-    End
-
-    It "outputs the expected text when running with --sarif flag"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --sarif
-      The status should equal 1
-      The output should include '"id": "SNYK-CC-TF-1",'
-      The output should include '"ruleId": "SNYK-CC-TF-1",'
-      The output should not include '"startLine": "-1",'
-    End
-
-    It "outputs the expected text when running with --json flag"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --json
-      The status should equal 1
-      The output should include '"id": "SNYK-CC-TF-1",'
-      The output should include '"packageManager": "terraformconfig",'
-      The output should include '"projectType": "terraformconfig",'
-      The output should not include '"startLine": "-1",'
-      The result of function check_valid_json should be success
-    End
-
-    It "outputs the expected text when running with --json flag and getting no vulnerabilities"
-      When run snyk iac test ../fixtures/iac/terraform/sg_open_ssh.tf  --severity-threshold=high --json
-      The status should equal 0 # no issues found
-      The output should not include '"id": "SNYK-CC-TF-1",'
-      The output should include '"packageManager": "terraformconfig",'
-      The output should not include '"startLine": "-1",'
-      The result of function check_valid_json should be success
-    End
-  End
-
   Describe "directory scanning"
     It "finds issues in a directory with Terraform files"
       When run snyk iac test ../fixtures/iac/terraform/
