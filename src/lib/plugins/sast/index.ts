@@ -11,7 +11,6 @@ import { EcosystemPlugin } from '../../ecosystems/types';
 import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
-const omit = require('lodash.omit');
 
 const debug = debugLib('snyk-code-test');
 
