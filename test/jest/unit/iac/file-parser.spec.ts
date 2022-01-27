@@ -9,13 +9,8 @@ import {
 } from '../../../../src/cli/commands/test/iac-local-execution/parsers/terraform-file-parser';
 import {
   expectedKubernetesYamlParsingResult,
-  expectedTerraformParsingResult,
-  expectedTerraformJsonParsingResult,
   kubernetesYamlInvalidFileDataStub,
   kubernetesYamlFileDataStub,
-  terraformFileDataStub,
-  invalidTerraformFileDataStub,
-  terraformPlanDataStub,
   kubernetesJsonFileDataStub,
   expectedKubernetesJsonParsingResult,
   multipleKubernetesYamlsFileDataStub,
@@ -27,10 +22,7 @@ import {
   expectedDuplicateKeyYamlErrorFileParsingResult,
   expectedInsufficientIndentationYamlErrorFileParsingResult,
   insufficientIndentationYamlErrorFileDataStub,
-  armJsonFileDataStub,
-  expectedArmParsingResult,
-  armJsonInvalidFileDataStub,
-} from './file-parser.fixtures';
+} from './file-parser.kubernetes.fixtures';
 import { IacFileData } from '../../../../src/cli/commands/test/iac-local-execution/types';
 import { IacFileTypes } from '../../../../dist/lib/iac/constants';
 import {
@@ -43,6 +35,18 @@ import {
   InvalidJsonFileError,
   InvalidYamlFileError,
 } from '../../../../src/cli/commands/test/iac-local-execution/yaml-parser';
+import {
+  expectedTerraformJsonParsingResult,
+  expectedTerraformParsingResult,
+  invalidTerraformFileDataStub,
+  terraformFileDataStub,
+  terraformPlanDataStub,
+} from './file-parser.terraform.fixtures';
+import { expectedArmParsingResult } from './file-parser.arm.fixtures';
+import {
+  armJsonFileDataStub,
+  armJsonInvalidFileDataStub,
+} from './file-parser.arm.fixtures';
 
 const filesToParse: IacFileData[] = [
   kubernetesYamlFileDataStub,
