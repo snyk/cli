@@ -6,6 +6,8 @@ packages/snyk-protect/ @snyk/hammer
 packages/cli-alert/ @snyk/hammer
 
 README.md  @snyk/hammer
+src/cli/commands/test @snyk/snyk-open-source
+src/cli/commands/monitor @snyk/snyk-open-source
 src/cli/commands/test/formatters/format-reachability.ts  @snyk/tardis
 help/  @snyk/hammer
 src/cli/commands/test/iac-local-execution/ @snyk/group-infrastructure-as-code
@@ -15,6 +17,7 @@ src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code
 src/lib/plugins/sast/ @snyk/sast-team
 test/fixtures/sast/ @snyk/sast-team
 test/jest/unit/snyk-code/ @snyk/sast-team
+src/lib/plugins @snyk/snyk-open-source
 src/lib/formatters/iac-output.ts @snyk/group-infrastructure-as-code
 src/lib/iac/ @snyk/group-infrastructure-as-code
 src/lib/snyk-test/iac-test-result.ts @snyk/group-infrastructure-as-code
@@ -36,13 +39,13 @@ help/commands-docs/iac-examples.md @snyk/group-infrastructure-as-code
 help/commands-docs/iac.md @snyk/group-infrastructure-as-code
 test/jest/util/ @snyk/hammer
 dangerfile.js @snyk/hammer
-package.json @snyk/hammer
-package-lock.json @snyk/hammer
-config.default.js @snyk/hammer
-webpack.common.js @snyk/hammer
-webpack.dev.js @snyk/hammer
-webpack.prod.js @snyk/hammer
-lerna.json @snyk/hammer
+/package.json @snyk/hammer
+/package-lock.json @snyk/hammer
+/config.default.js @snyk/hammer
+/webpack.common.js @snyk/hammer
+/webpack.dev.js @snyk/hammer
+/webpack.prod.js @snyk/hammer
+/lerna.json @snyk/hammer
 /tsconfig.json @snyk/hammer
 /tsconfig.settings.json @snyk/hammer
 CODEOWNERS @snyk/hammer
