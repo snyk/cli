@@ -24,9 +24,7 @@ describe('Kubernetes single file scan', () => {
 
     expect(stdout).toContain('Testing ./iac/kubernetes/pod-privileged.yaml');
     expect(stdout).toContain('Infrastructure as code issues:');
-    expect(stdout).toContain(
-      '✗ Privileged container',
-    );
+    expect(stdout).toContain('✗ Privileged container');
     expect(stdout).toContain(
       '[DocId: 0] > input > spec > containers[example] > securityContext > privileged',
     );
@@ -50,7 +48,9 @@ describe('Kubernetes single file scan', () => {
     );
 
     expect(exitCode).toBe(3);
-    expect(stdout).toContain('Could not find any valid infrastructure as code files. Supported file extensions are tf, yml, yaml & json.');
+    expect(stdout).toContain(
+      'Could not find any valid infrastructure as code files. Supported file extensions are tf, yml, yaml & json.',
+    );
   });
 
   it('outputs the expected text when running with --sarif flag', async () => {
@@ -82,6 +82,8 @@ describe('Kubernetes single file scan', () => {
     );
 
     expect(exitCode).toBe(2);
-    expect(stdout).toContain('We were unable to parse the YAML file "./iac/kubernetes/helm-config.yaml". Please ensure that it contains properly structured YAML, without any template directives');
+    expect(stdout).toContain(
+      'We were unable to parse the YAML file "./iac/kubernetes/helm-config.yaml". Please ensure that it contains properly structured YAML, without any template directives',
+    );
   });
 });

@@ -40,9 +40,7 @@ describe('CloudFormation single file scan', () => {
 
     expect(stdout).toContain('Testing ./iac/cloudformation/fargate-valid.json');
     expect(stdout).toContain('Infrastructure as code issues:');
-    expect(stdout).toContain(
-      '✗ S3 restrict public bucket control is disabled',
-    );
+    expect(stdout).toContain('✗ S3 restrict public bucket control is disabled');
     expect(stdout).toContain(
       'Resources[CodePipelineArtifactBucket] > Properties > PublicAccessBlockConfiguration > RestrictPublicBuckets',
     );
@@ -66,7 +64,9 @@ describe('CloudFormation single file scan', () => {
     );
 
     expect(exitCode).toBe(2);
-    expect(stdout).toContain('We were unable to parse the YAML file "./iac/cloudformation/invalid-cfn.yml". Please ensure that it contains properly structured YAML, without any template directives');
+    expect(stdout).toContain(
+      'We were unable to parse the YAML file "./iac/cloudformation/invalid-cfn.yml". Please ensure that it contains properly structured YAML, without any template directives',
+    );
   });
 
   it('outputs the expected text when running with --sarif flag', async () => {
