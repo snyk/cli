@@ -106,7 +106,7 @@ export interface EcosystemPlugin {
   test?: (
     paths: string[],
     options: Options,
-  ) => Promise<{ readableResult: string }>;
+  ) => Promise<{ readableResult: string; sarifResult?: string }>;
 }
 
 export interface EcosystemMonitorError {
