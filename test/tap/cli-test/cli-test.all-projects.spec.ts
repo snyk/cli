@@ -638,27 +638,43 @@ export const AllProjectsTests: AcceptanceTests = {
         loadPlugin.restore();
       });
       const output = result.getDisplayResults();
-
       t.match(output, 'Package manager:   yarn\n');
       t.match(output, 'Package manager:   npm\n');
       t.match(
         output,
-        'Project name:      not-in-a-workspace',
-        'npm project in output',
+        'Target file:       not-part-of-workspace/package-lock.json',
+        'npm project in outside of yarn workspace is in output',
+      );
+      t.match(
+        output,
+        'Target file:       not-part-of-workspace-yarn/yarn.lock',
+        'yarn project outside of workspace is in the output',
       );
       t.match(
         output,
         'Project name:      package.json',
         'yarn project in output',
       );
-      t.match(output, 'Project name:      tomatoes', 'yarn project in output');
-      t.match(output, 'Project name:      apples', 'yarn project in output');
-      t.match(output, 'Project name:      apple-lib', 'yarn project in output');
+      t.match(
+        output,
+        'Project name:      tomatoes',
+        'workspace yarn project in output',
+      );
+      t.match(
+        output,
+        'Project name:      apples',
+        'workspace yarn project in output',
+      );
+      t.match(
+        output,
+        'Project name:      apple-lib',
+        'workspace yarn project in output',
+      );
 
       t.match(
         output,
-        'Tested 5 projects, no vulnerable paths were found.',
-        'tested 4 workspace projects + 1 npm project',
+        'Tested 6 projects, no vulnerable paths were found.',
+        'tested 4 workspace projects, 1 npm project and 1 yarn project',
       );
       let policyCount = 0;
       const applesWorkspace =
@@ -674,7 +690,10 @@ export const AllProjectsTests: AcceptanceTests = {
           ? '\\yarn-workspaces\\package.json'
           : 'yarn-workspaces/package.json';
 
-      params.server.popRequests(5).forEach((req) => {
+      const backendRequests = params.server.popRequests(6);
+      t.equal(backendRequests.length, 6);
+
+      backendRequests.forEach((req) => {
         t.equal(req.method, 'POST', 'makes POST request');
         t.equal(
           req.headers['x-snyk-cli-version'],
