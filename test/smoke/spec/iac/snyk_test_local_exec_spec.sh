@@ -26,61 +26,6 @@ Describe "Snyk iac local test command"
     End
   End
 
-  Describe "CloudFormation single file scan"
-      It "finds issues in CloudFormation YAML file"
-        When run snyk iac test ../fixtures/iac/cloudformation/aurora-valid.yml
-        The status should equal 1 # issues found
-        The output should include "Testing ../fixtures/iac/cloudformation/aurora-valid.yml..."
-
-        # Outputs issues
-        The output should include "Infrastructure as code issues:"
-        The output should include "✗ Non-Encrypted SNS Topic"
-        The output should include "  introduced by"
-      End
-
-      It "finds issues in CloudFormation JSON file"
-              When run snyk iac test ../fixtures/iac/cloudformation/fargate-valid.json
-              The status should equal 1 # issues found
-              The output should include "Testing ../fixtures/iac/cloudformation/fargate-valid.json..."
-
-              # Outputs issues
-              The output should include "Infrastructure as code issues:"
-              The output should include "✗ S3 bucket versioning disabled"
-              The output should include "  introduced by"
-            End
-
-      It "filters out issues when using severity threshold"
-        When run snyk iac test ../fixtures/iac/cloudformation/aurora-valid.yml  --severity-threshold=high
-        The status should equal 0 # no issues found
-        The output should include "Testing ../fixtures/iac/cloudformation/aurora-valid.yml..."
-
-        The output should include "Infrastructure as code issues:"
-        The output should include "Tested ../fixtures/iac/cloudformation/aurora-valid.yml for known issues, found"
-      End
-
-      It "outputs an error for files with no valid YAML"
-        When run snyk iac test ../fixtures/iac/cloudformation/invalid-cfn.yml
-        The status should equal 2
-        The output should include "We were unable to parse the YAML file"
-      End
-
-      It "outputs the expected text when running with --sarif flag"
-        When run snyk iac test ../fixtures/iac/cloudformation/aurora-valid.yml --sarif
-        The status should equal 1
-        The output should include '"id": "SNYK-CC-TF-55",'
-        The output should include '"ruleId": "SNYK-CC-TF-55",'
-      End
-
-      It "outputs the expected text when running with --json flag"
-        When run snyk iac test ../fixtures/iac/cloudformation/aurora-valid.yml --json
-        The status should equal 1
-        The output should include '"id": "SNYK-CC-TF-55",'
-        The output should include '"packageManager": "cloudformationconfig",'
-        The output should include '"projectType": "cloudformationconfig",'
-        The result of function check_valid_json should be success
-      End
-    End
-
   Describe "Terraform plan scanning"
     # Note that this now defaults to the delta scan, not the full scan.
     # in the future a flag will be added to control this functionality.
