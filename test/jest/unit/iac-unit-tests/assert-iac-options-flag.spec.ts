@@ -9,6 +9,7 @@ describe('assertIaCOptionsFlags()', () => {
 
   it('accepts all command line flags accepted by the iac command', () => {
     const options = [
+      '--API',
       '--debug',
       '--insecure',
       '--detection-depth',
@@ -35,6 +36,13 @@ describe('assertIaCOptionsFlags()', () => {
   });
 
   it('throws an error if an unexpected flag is present', () => {
+    const options = ['--project-name'];
+    expect(() =>
+      assertIaCOptionsFlags([...command, ...options, ...files]),
+    ).toThrow();
+  });
+
+  it('throws an error if the --api flag is present', () => {
     const options = ['--project-name'];
     expect(() =>
       assertIaCOptionsFlags([...command, ...options, ...files]),

@@ -155,6 +155,10 @@ export type IaCTestFlags = Pick<
   | 'policy-path'
 > & {
   // Supported flags not yet covered by Options or TestOptions
+  api?: string;
+  // for some reason container/oss ONLY support uppercase flag
+  // so this is included here for consistency.
+  API?: string;
   'json-file-output'?: string;
   'sarif-file-output'?: string;
   v?: boolean;

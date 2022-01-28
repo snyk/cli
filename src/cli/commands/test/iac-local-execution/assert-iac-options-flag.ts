@@ -4,6 +4,7 @@ import { getErrorStringCode } from './error-utils';
 import { IaCErrorCodes, IaCTestFlags, TerraformPlanScanMode } from './types';
 
 const keys: (keyof IaCTestFlags)[] = [
+  'API',
   'org',
   'debug',
   'insecure',
@@ -30,7 +31,7 @@ const keys: (keyof IaCTestFlags)[] = [
 const allowed = new Set<string>(keys);
 
 function camelcaseToDash(key: string) {
-  return key.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
+  return key.replace(/[A-Z][a-z]/g, (m) => '-' + m.toLowerCase());
 }
 
 function getFlagName(key: string) {
@@ -42,12 +43,22 @@ function getFlagName(key: string) {
 export class FlagError extends CustomError {
   constructor(key: string, featureFlag?: string) {
     const flag = getFlagName(key);
-    let msg;
+    let msg: string;
     if (featureFlag) {
       msg = `Flag "${flag}" is only supported if feature flag '${featureFlag}' is enabled. The feature flag can be enabled via Snyk Preview if you are on the Enterprise Plan`;
     } else {
       msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags`;
     }
+    super(msg);
+    this.code = IaCErrorCodes.FlagError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = msg;
+  }
+}
+
+export class APIFlagError extends CustomError {
+  constructor() {
+    const msg = `Flag "--api" is case sensitive please use --API=<endpoint> instead`;
     super(msg);
     this.code = IaCErrorCodes.FlagError;
     this.strCode = getErrorStringCode(this.code);
@@ -95,6 +106,13 @@ export function assertIaCOptionsFlags(argv: string[]) {
   // We process the process.argv so we don't get default values.
   const parsed = args(argv);
   for (const key of Object.keys(parsed.options)) {
+    // This is bananas. The flag --api=foo will override the config.api value
+    // which is the auth token saved in the snyk config file under the "api"
+    // key. But --API=foo will set the config.API value which is the endpoint
+    // saved in the snyk config file under the endpoint key
+    if (key === 'api') {
+      throw new APIFlagError();
+    }
     // The _ property is a special case that contains non
     // flag strings passed to the command line (usually files)
     // and `iac` is the command provided.
