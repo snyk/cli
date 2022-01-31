@@ -13,6 +13,8 @@ help/  @snyk/hammer
 src/cli/commands/test/iac-local-execution/ @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-output.ts @snyk/group-infrastructure-as-code
 src/cli/commands/test/iac-test-shim.ts @snyk/group-infrastructure-as-code
+src/cli/commands/apps @snyk/moose
+src/lib/apps @snyk/moose
 src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code
 src/lib/plugins/sast/ @snyk/sast-team
 test/fixtures/sast/ @snyk/sast-team
@@ -32,6 +34,7 @@ test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/formatters/iac-output.spec.ts @snyk/group-infrastructure-as-code
 test/jest/unit/iac-unit-tests/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
+test/jest/acceptance/snyk-apps @snyk-moose
 src/lib/errors/invalid-iac-file.ts @snyk/group-infrastructure-as-code
 src/lib/errors/unsupported-options-iac-error.ts @snyk/group-infrastructure-as-code
 src/lib/errors/no-supported-sast-files-found.ts @snyk/sast-team

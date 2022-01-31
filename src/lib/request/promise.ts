@@ -1,3 +1,4 @@
+import { getAuthHeader } from '../api-token';
 import * as request from './index';
 
 export async function makeRequest<T>(payload: any): Promise<T> {
@@ -13,6 +14,34 @@ export async function makeRequest<T>(payload: any): Promise<T> {
         });
       }
       resolve(body);
+    });
+  });
+}
+
+/**
+ * All v3 request will essentially be the same and are JSON by default
+ * Thus if no headers provided default headers are used
+ * @param {any} payload for the request
+ * @returns
+ */
+export async function makeRequestV3<T>(payload: any): Promise<T> {
+  return new Promise((resolve, reject) => {
+    payload.headers = payload.headers ?? {
+      'Content-Type': 'application/vnd.api+json',
+      authorization: getAuthHeader(),
+    };
+    payload.json = true;
+    request.makeRequest(payload, (error, res, body) => {
+      if (error) {
+        return reject(error);
+      }
+      if (res.statusCode >= 400) {
+        return reject({
+          code: res.statusCode,
+          body: JSON.parse(body as any),
+        });
+      }
+      resolve(JSON.parse(body as any) as T);
     });
   });
 }
