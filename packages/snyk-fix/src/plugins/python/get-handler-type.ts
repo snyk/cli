@@ -7,9 +7,16 @@ export function getHandlerType(
   entity: EntityToFix,
 ): SUPPORTED_HANDLER_TYPES | null {
   const targetFile = entity.scanResult.identity.targetFile;
+
   if (!targetFile) {
     return null;
   }
+
+  const packageManagerOverride = entity.options.packageManager;
+  if (packageManagerOverride) {
+    return getTypeFromPackageManager(packageManagerOverride);
+  }
+
   const path = pathLib.parse(targetFile);
   if (isRequirementsTxtManifest(targetFile)) {
     return SUPPORTED_HANDLER_TYPES.REQUIREMENTS;
@@ -23,4 +30,15 @@ export function getHandlerType(
 
 export function isRequirementsTxtManifest(targetFile: string): boolean {
   return targetFile.endsWith('.txt');
+}
+
+function getTypeFromPackageManager(packageManager: string) {
+  switch (packageManager) {
+    case 'pip':
+      return SUPPORTED_HANDLER_TYPES.REQUIREMENTS;
+    case 'poetry':
+      return SUPPORTED_HANDLER_TYPES.POETRY;
+    default:
+      return null;
+  }
 }

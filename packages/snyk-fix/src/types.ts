@@ -191,7 +191,10 @@ export interface EntityToFix {
 // Partial CLI test options interface
 // defining only what is used by @snyk/fix
 // add more as needed
-export interface PythonTestOptions {
+interface BaseTestOptions {
+  packageManager?: string;
+}
+export interface PythonTestOptions extends BaseTestOptions {
   command?: string; // python interpreter to use for python tests
   dev?: boolean;
 }
