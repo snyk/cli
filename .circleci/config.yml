@@ -253,7 +253,43 @@ jobs:
       - run:
           name: Running acceptance tests
           command: npm run test:acceptance
-  test-linux:
+  test-node:
+    <<: *defaults
+    parameters:
+      test_snyk_command:
+        type: string
+        default: snyk
+    docker:
+      - image: cimg/node:<< parameters.node_version >>
+    environment:
+      TEMP: /mnt/ramdisk/tmp
+    steps:
+      - run:
+          name: Creating temporary directory
+          command: mkdir /mnt/ramdisk/tmp
+      - checkout
+      - attach_workspace:
+          at: .
+      - install_sdks_linux
+      - aws-cli/install:
+          # For IaC acceptance tests.
+          version: << parameters.aws_version >>
+      - setup_npm:
+          node_version: << parameters.node_version >>
+          npm_version: << parameters.npm_version >>
+      - run:
+          name: Installing packed Snyk CLI
+          command: sudo npm install -g snyk-*.tgz
+          path: ./dist-pack
+      - run:
+          name: Configuring Snyk CLI
+          command: << parameters.test_snyk_command >> config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Running acceptance tests
+          command: npm run test:acceptance
+          environment:
+            TEST_SNYK_COMMAND: << parameters.test_snyk_command >>
+  test-jest:
     <<: *defaults
     docker:
       - image: cimg/node:<< parameters.node_version >>
@@ -277,6 +313,7 @@ jobs:
           name: Running unit tests
           command: npm run test:unit
       - aws-cli/install:
+          # For IaC acceptance tests.
           version: << parameters.aws_version >>
       - run:
           name: Running acceptance tests
@@ -304,7 +341,7 @@ jobs:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
               $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
-  dev-release:
+  build-artifacts:
     <<: *defaults
     docker:
       - image: cimg/node:<< parameters.node_version >>
@@ -337,6 +374,10 @@ jobs:
       - pack_snyk_cli
       - store_artifacts:
           path: ./dist-pack
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist-pack
   prod-release:
     <<: *defaults
     docker:
@@ -424,11 +465,11 @@ workflows:
             branches:
               ignore:
                 - master
-      - test-linux:
-          name: Jest Tests (Linux, Node v<< matrix.node_version >>)
+      - test-node:
+          name: Acceptance Tests (Node v<< matrix.node_version >>)
           context: nodejs-install
           requires:
-            - Build
+            - Build Artifacts
           filters:
             branches:
               ignore:
@@ -436,6 +477,15 @@ workflows:
           matrix:
             parameters:
               node_version: ['10.24.1', '12.22.9', '14.18.2', '16.13.2']
+      - test-jest:
+          name: Jest Tests
+          context: nodejs-install
+          requires:
+            - Build
+          filters:
+            branches:
+              ignore:
+                - master
       - test-tap:
           name: Tap Tests
           context: nodejs-install
@@ -445,10 +495,9 @@ workflows:
             branches:
               ignore:
                 - master
-      - dev-release:
-          name: Development Release
+      - build-artifacts:
+          name: Build Artifacts
           requires:
-            - Lint
             - Build
           filters:
             branches:
