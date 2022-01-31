@@ -107,4 +107,13 @@ describe('iac test --sarif-file-output', () => {
       pathToFileURL(path.join(path.resolve(''), '/')).href,
     );
   });
+
+  it('does not include file content in analytics logs', async () => {
+    const { stdout, exitCode } = await run(
+      `snyk iac test ./iac/file-logging -d`,
+    );
+    expect(exitCode).toBe(1);
+
+    expect(stdout).not.toContain('PRIVATE_FILE_CONTENT_CHECK');
+  });
 });
