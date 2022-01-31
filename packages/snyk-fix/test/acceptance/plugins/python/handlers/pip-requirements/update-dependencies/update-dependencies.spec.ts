@@ -1183,7 +1183,7 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         .replace(/\\/g, '/')
         .replace(/packages\/snyk-fix\//g, ''),
     ).toMatchSnapshot();
-    // 3 files with upgrades + 1 more to apply pins
+    // 3 files with upgrades 1 more to apply pins
     expect(writeFileSpy).toHaveBeenCalledTimes(4);
     expect(result.results.python.succeeded[0].original).toEqual(entityToFix1);
     expect(result.results.python.succeeded[1].original).toEqual(entityToFix2);
@@ -1225,5 +1225,80 @@ describe('fix *req*.txt / *.txt Python projects', () => {
         userMessage: expect.stringContaining('requirements.txt'),
       },
     ]);
+  });
+});
+
+describe('fix custom named Python projects with --file & --packageManager parameters', () => {
+  let filesToDelete: string[] = [];
+  afterEach(() => {
+    filesToDelete.map((f) => fs.unlinkSync(f));
+  });
+  const workspacesPath = pathLib.resolve(__dirname, 'workspaces');
+
+  it('fixes *.frozen manifest with a --packageManager option', async () => {
+    // Arrange
+    const targetFile = 'with-frozen-requirements/requirements.frozen';
+    filesToDelete = [
+      pathLib.join(
+        workspacesPath,
+        'with-frozen-requirements/fixed-requirements.frozen',
+      ),
+    ];
+
+    const testResult = {
+      ...generateTestResult(),
+      remediation: {
+        unresolved: [],
+        upgrade: {},
+        patch: {},
+        ignore: {},
+        pin: {
+          'django@1.6.1': {
+            upgradeTo: 'django@2.0.1',
+            vulns: ['VULN-1'],
+            isTransitive: false,
+          },
+        },
+      },
+    };
+
+    const entityToFix = generateEntityToFixWithFileReadWrite(
+      workspacesPath,
+      targetFile,
+      testResult,
+      {
+        packageManager: 'pip',
+      },
+    );
+
+    // Act
+    const result = await snykFix.fix([entityToFix], {
+      quiet: true,
+      stripAnsi: true,
+    });
+    // Assert
+    expect(result).toMatchObject({
+      exceptions: {},
+      results: {
+        python: {
+          failed: [],
+          skipped: [],
+          succeeded: [
+            {
+              original: entityToFix,
+              changes: [
+                {
+                  from: 'Django@1.6.1',
+                  success: true,
+                  userMessage: 'Upgraded Django from 1.6.1 to 2.0.1',
+                  issueIds: ['VULN-1'],
+                  to: 'Django@2.0.1',
+                },
+              ],
+            },
+          ],
+        },
+      },
+    });
   });
 });

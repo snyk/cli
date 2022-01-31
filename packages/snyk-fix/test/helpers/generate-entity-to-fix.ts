@@ -41,6 +41,7 @@ export function generateEntityToFixWithFileReadWrite(
   options: {
     command?: string;
     dev?: boolean;
+    packageManager?: string;
   } = {
     command: 'python3',
   },
