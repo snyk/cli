@@ -8,7 +8,6 @@ import {
   getIntegrationVersion,
   getIntegrationEnvironment,
   getIntegrationEnvironmentVersion,
-  getCommandVersion,
 } from './sources';
 import { StandardAnalyticsData } from './types';
 import { MetricsCollector } from '../metrics';
@@ -37,13 +36,7 @@ export async function getStandardData(
   const snykVersion = version.getVersion();
   const seed = uuidv4();
   const shasum = crypto.createHash('sha1');
-  const environment = isStandalone
-    ? {}
-    : {
-        npmVersion: await getCommandVersion('npm'),
-      };
   const durationMs = Date.now() - START_TIME;
-
   const metrics = getMetrics(durationMs);
 
   const data = {
@@ -60,7 +53,6 @@ export async function getStandardData(
     integrationEnvironmentVersion: getIntegrationEnvironmentVersion(args),
     id: shasum.update(seed).digest('hex'),
     ci: isCI(),
-    environment,
     durationMs,
     metrics,
   };

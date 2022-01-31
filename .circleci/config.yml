@@ -220,7 +220,7 @@ jobs:
             shellspec -f d -e REGRESSION_TEST=1
   test-windows:
     executor: win/default
-    working_directory: ~\snyk
+    working_directory: C:\Users\circleci\snyk
     steps:
       - run:
           name: Configuring Git
@@ -234,11 +234,13 @@ jobs:
           npm_install: true # reinstalling as workspace node_modules is for linux
           npm_cache_directory: ~\AppData\Local\npm-cache
       - run:
-          name: Configuring Snyk CLI
-          command: node ./bin/snyk config set "api=$env:SNYK_API_KEY"
+          name: Configuring artifact
+          command: C:\Users\circleci\snyk\binary-releases\snyk-win.exe config set "api=$env:SNYK_API_KEY"
       - run:
-          name: Running acceptance tests
+          name: Testing artifact
           command: npm run test:acceptance
+          environment:
+            TEST_SNYK_COMMAND: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
   test-linux:
     parameters:
       node_version:
@@ -361,11 +363,6 @@ workflows:
           name: Build
           requires:
             - Install
-      - test-windows:
-          name: Jest Tests (Windows)
-          context: nodejs-install
-          requires:
-            - Build
       - test-linux:
           name: Jest Tests (Linux, Node v<< matrix.node_version >>)
           context: nodejs-install
@@ -388,6 +385,11 @@ workflows:
               only:
                 - /^chore\/.+$/
                 - master
+      - test-windows:
+          name: Acceptance Tests (snyk-win.exe)
+          context: nodejs-install
+          requires:
+            - Build Artifacts
       - regression-test:
           name: Regression Tests
           context: nodejs-install
@@ -399,12 +401,12 @@ workflows:
           requires:
             - Lint
             - Tap Tests
-            - Jest Tests (Windows)
             - Jest Tests (Linux, Node v10.24.1)
             - Jest Tests (Linux, Node v12.22.9)
             - Jest Tests (Linux, Node v14.18.2)
             - Jest Tests (Linux, Node v16.13.2)
             - Build Artifacts
+            - Acceptance Tests (snyk-win.exe)
             - Regression Tests
           filters:
             branches:
