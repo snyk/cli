@@ -1,30 +1,51 @@
-version: 2.1
+version: '2.1'
 
 orbs:
+  # https://circleci.com/developer/orbs/orb/circleci/windows
   win: circleci/windows@2.4.1
+  # https://circleci.com/developer/orbs/orb/circleci/aws-cli
   aws-cli: circleci/aws-cli@2.0.3
+  # https://circleci.com/developer/orbs/orb/circleci/github-cli
   gh: circleci/github-cli@1.0.4
 
-defaults: &defaults
-  parameters:
-    node_version:
-      type: string
-      default: '16.13.2'
-    npm_version:
-      type: string
-      default: '8.1.2'
-    aws_version:
-      type: string
-      default: '2.4.12'
-  working_directory: /mnt/ramdisk/snyk
+parameters:
+  node_version:
+    type: string
+    # https://circleci.com/developer/images/image/cimg/node
+    default: '16.13.2'
+  npm_version:
+    type: string
+    # match whatever's bundled with node_version
+    default: '8.1.2'
+  aws_version:
+    type: string
+    # https://github.com/aws/aws-cli/blob/v2/CHANGELOG.rst
+    default: '2.4.12'
+  gh_version:
+    type: string
+    # https://github.com/cli/cli/releases
+    default: '1.9.2'
+
+executors:
+  linux:
+    parameters:
+      node_version:
+        type: string
+        default: << pipeline.parameters.node_version >>
+    docker:
+      - image: cimg/node:<< parameters.node_version >>
+    # Using RAM Disk. https://circleci.com/docs/2.0/executor-types/#ram-disks
+    working_directory: /mnt/ramdisk/snyk
 
 commands:
   setup_npm:
     parameters:
       node_version:
         type: string
+        default: << pipeline.parameters.node_version >>
       npm_version:
         type: string
+        default: << pipeline.parameters.npm_version >>
       npm_cache_directory:
         type: string
         default: /mnt/ramdisk/.npm
@@ -148,14 +169,10 @@ commands:
             sudo apt install osslsigncode
 jobs:
   install:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
           npm_install: true
       - persist_to_workspace:
           root: .
@@ -163,30 +180,22 @@ jobs:
             - node_modules
             - packages/*/node_modules
   lint:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Linting project
           command: npm run lint
   build:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Building project
           command: npm run build:prod
@@ -197,18 +206,14 @@ jobs:
             - packages/*/dist
             - pysrc
   regression-test:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
           at: .
       - install_sdks_linux
       - install_shellspec_dependencies
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Installing test fixture dependencies
           working_directory: ./test/fixtures/basic-npm
@@ -230,7 +235,6 @@ jobs:
             unset SNYK_API_KEY
             shellspec -f d -e REGRESSION_TEST=1
   test-windows:
-    <<: *defaults
     executor: win/default
     working_directory: ~\snyk
     steps:
@@ -242,8 +246,6 @@ jobs:
           at: .
       - install_sdks_windows
       - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
           npm_global_sudo: false
           npm_install: true # reinstalling as workspace node_modules is for linux
           npm_cache_directory: ~\AppData\Local\npm-cache
@@ -254,9 +256,12 @@ jobs:
           name: Running acceptance tests
           command: npm run test:acceptance
   test-linux:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    parameters:
+      node_version:
+        type: string
+    executor:
+      name: linux
+      node_version: << parameters.node_version >>
     environment:
       TEMP: /mnt/ramdisk/tmp
     steps:
@@ -269,7 +274,6 @@ jobs:
       - install_sdks_linux
       - setup_npm:
           node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -277,24 +281,20 @@ jobs:
           name: Running unit tests
           command: npm run test:unit
       - aws-cli/install:
-          version: << parameters.aws_version >>
+          version: << pipeline.parameters.aws_version >>
       - run:
           name: Running acceptance tests
           command: npm run test:acceptance
 
   test-tap:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     parallelism: 2
     steps:
       - checkout
       - attach_workspace:
           at: .
       - install_sdks_linux
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Configuring Snyk CLI
           command: node ./bin/snyk config set "api=${SNYK_API_KEY}"
@@ -305,17 +305,13 @@ jobs:
               $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
   dev-release:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
           at: .
       - install_release_dependencies
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Updating package versions
           command: ./release-scripts/update-dev-versions.sh
@@ -338,9 +334,7 @@ jobs:
       - store_artifacts:
           path: ./dist-pack
   prod-release:
-    <<: *defaults
-    docker:
-      - image: cimg/node:<< parameters.node_version >>
+    executor: linux
     steps:
       - checkout
       - attach_workspace:
@@ -350,13 +344,11 @@ jobs:
           command: ./release-scripts/should-i-release.sh
       - gh/setup:
           token: GH_TOKEN
-          version: 1.9.2
+          version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
-          version: << parameters.aws_version >>
+          version: << pipeline.parameters.aws_version >>
       - install_release_dependencies
-      - setup_npm:
-          node_version: << parameters.node_version >>
-          npm_version: << parameters.npm_version >>
+      - setup_npm
       - run:
           name: Updating package versions
           command: |
