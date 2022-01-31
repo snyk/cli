@@ -214,10 +214,6 @@ jobs:
           working_directory: ./test/fixtures/basic-npm
           command: npm install
       - run:
-          name: Pruning dependencies
-          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - pack_snyk_cli
-      - run:
           name: Installing packed Snyk CLI
           command: sudo npm install -g snyk-*.tgz
           path: ./dist-pack
@@ -304,7 +300,7 @@ jobs:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
               $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
-  dev-release:
+  build-artifacts:
     <<: *defaults
     docker:
       - image: cimg/node:<< parameters.node_version >>
@@ -337,6 +333,10 @@ jobs:
       - pack_snyk_cli
       - store_artifacts:
           path: ./dist-pack
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist-pack
   prod-release:
     <<: *defaults
     docker:
@@ -410,7 +410,7 @@ workflows:
           name: Regression Tests
           context: nodejs-install
           requires:
-            - Build
+            - Build Artifacts
           filters:
             branches:
               ignore:
@@ -445,10 +445,9 @@ workflows:
             branches:
               ignore:
                 - master
-      - dev-release:
-          name: Development Release
+      - build-artifacts:
+          name: Build Artifacts
           requires:
-            - Lint
             - Build
           filters:
             branches:
