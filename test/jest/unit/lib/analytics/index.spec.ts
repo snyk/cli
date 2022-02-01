@@ -59,4 +59,49 @@ describe('analytics module', () => {
       k3: [{ test: 'test' }, { test: 'test' }],
     });
   });
+
+  it('adds "iac-type" data to the current analytics metadata', async () => {
+    const requestSpy = jest.spyOn(request, 'makeRequest');
+    requestSpy.mockResolvedValue();
+
+    analytics.add('iac-type', {
+      cloudformationconfig: {
+        count: 1,
+        low: 8,
+        medium: 9,
+      },
+    });
+    analytics.add('iac-type', {
+      terraformconfig: {
+        count: 1,
+        medium: 15,
+        high: 10,
+        low: 15,
+      },
+    });
+    analytics.add('iac-type', {
+      terraformconfig: {
+        count: 1,
+        low: 5,
+      },
+      cloudformationconfig: {
+        count: 1,
+        low: 2,
+        medium: 6,
+        high: 20,
+      },
+    });
+
+    await analytics.addDataAndSend({
+      args: argsFrom({}),
+    });
+
+    expect(requestSpy.mock.calls[0][0].body.data.metadata).toHaveProperty(
+      'iac-type',
+      {
+        cloudformationconfig: { count: 2, low: 10, medium: 15, high: 20 },
+        terraformconfig: { count: 2, medium: 15, high: 10, low: 20 },
+      },
+    );
+  });
 });
