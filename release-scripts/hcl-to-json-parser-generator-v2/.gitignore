@@ -1,0 +1,6 @@
+bin
+pkg
+src/*
+!src/hcltojson-v2
+src/hcltojson-v2/vendor
+src/hcltojson-v2/dist
