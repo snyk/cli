@@ -102,7 +102,7 @@
     "lodash.uniq": "^4.5.0",
     "lodash.upperfirst": "^4.3.1",
     "lodash.values": "^4.3.0",
-    "marked": "^4.0.1",
+    "marked": "^4.0.9",
     "micromatch": "4.0.2",
     "needle": "2.6.0",
     "open": "^7.0.3",
