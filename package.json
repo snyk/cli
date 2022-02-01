@@ -128,11 +128,11 @@
     "snyk-resolve-deps": "4.7.3",
     "snyk-sbt-plugin": "2.12.0",
     "snyk-try-require": "^2.0.2",
-    "strip-ansi": "^5.2.0",
+    "strip-ansi": "^6.0.0",
     "tar": "^6.1.2",
     "tempy": "^1.0.1",
     "uuid": "^8.3.2",
-    "wrap-ansi": "^5.1.0"
+    "wrap-ansi": "^6.2.0"
   },
   "devDependencies": {
     "@types/body-parser": "^1.19.1",
