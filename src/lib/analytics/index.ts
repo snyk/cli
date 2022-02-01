@@ -109,15 +109,36 @@ export function add(key: string, value: unknown): void {
   }
 
   if (metadata[key]) {
-    if (typeof value === 'number' && typeof metadata[key] === 'number') {
-      metadata[key] += value;
-    } else {
-      if (!Array.isArray(metadata[key])) {
-        metadata[key] = [metadata[key]];
-      }
-      Array.isArray(value)
-        ? metadata[key].push(...value)
-        : metadata[key].push(value);
+    switch (key) {
+      case 'iac-metrics':
+        break;
+      case 'iac-type':
+        if (typeof value === 'object') {
+          for (const type in value) {
+            if (metadata[key][type]) {
+              for (const metric in value[type]) {
+                metadata[key][type][metric] &&
+                typeof value[type][metric] === 'number'
+                  ? (metadata[key][type][metric] += value[type][metric])
+                  : (metadata[key][type][metric] = value[type][metric]);
+              }
+            } else {
+              metadata[key][type] = value[type];
+            }
+          }
+        }
+        break;
+      default:
+        if (typeof value === 'number' && typeof metadata[key] === 'number') {
+          metadata[key] += value;
+        } else {
+          if (!Array.isArray(metadata[key])) {
+            metadata[key] = [metadata[key]];
+          }
+          Array.isArray(value)
+            ? metadata[key].push(...value)
+            : metadata[key].push(value);
+        }
     }
   } else {
     metadata[key] = value;
