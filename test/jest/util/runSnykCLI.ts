@@ -17,6 +17,14 @@ const runSnykCLI = async (
   return await runCommand('node', [cliPath, ...args], options);
 };
 
+const runSnykCLIWithArray = async (
+  args: string[],
+  options?: RunCommandOptions,
+): Promise<RunCommandResult> => {
+  const cliPath = path.resolve(cwd, './bin/snyk');
+  return await runCommand('node', [cliPath, ...args], options);
+};
+
 const runSnykCLIWithUserInputs = async (
   argsString: string,
   inputs: string[],
@@ -32,4 +40,4 @@ const runSnykCLIWithUserInputs = async (
   );
 };
 
-export { runSnykCLI, runSnykCLIWithUserInputs };
+export { runSnykCLI, runSnykCLIWithArray, runSnykCLIWithUserInputs };
