@@ -16,9 +16,9 @@ src/cli/commands/test/iac-test-shim.ts @snyk/group-infrastructure-as-code
 src/cli/commands/apps @snyk/moose
 src/lib/apps @snyk/moose
 src/lib/cloud-config-projects.ts @snyk/group-infrastructure-as-code
-src/lib/plugins/sast/ @snyk/sast-team
-test/fixtures/sast/ @snyk/sast-team
-test/jest/unit/snyk-code/ @snyk/sast-team
+src/lib/plugins/sast/ @snyk/nebula
+test/fixtures/sast/ @snyk/nebula
+test/jest/unit/snyk-code/ @snyk/nebula
 src/lib/plugins @snyk/snyk-open-source
 src/lib/formatters/iac-output.ts @snyk/group-infrastructure-as-code
 src/lib/iac/ @snyk/group-infrastructure-as-code
@@ -29,7 +29,7 @@ test/acceptance/cli-test/iac/ @snyk/group-infrastructure-as-code
 test/fixtures/container-projects/ @snyk/capsule
 test/fixtures/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
-test/smoke/spec/snyk_code_spec.sh @snyk/sast-team
+test/smoke/spec/snyk_code_spec.sh @snyk/nebula
 test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/formatters/iac-output.spec.ts @snyk/group-infrastructure-as-code
 test/jest/unit/iac-unit-tests/ @snyk/group-infrastructure-as-code
@@ -37,7 +37,7 @@ test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/snyk-apps @snyk-moose
 src/lib/errors/invalid-iac-file.ts @snyk/group-infrastructure-as-code
 src/lib/errors/unsupported-options-iac-error.ts @snyk/group-infrastructure-as-code
-src/lib/errors/no-supported-sast-files-found.ts @snyk/sast-team
+src/lib/errors/no-supported-sast-files-found.ts @snyk/nebula
 help/commands-docs/iac-examples.md @snyk/group-infrastructure-as-code
 help/commands-docs/iac.md @snyk/group-infrastructure-as-code
 test/jest/util/ @snyk/hammer
