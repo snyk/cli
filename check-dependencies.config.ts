@@ -9,6 +9,7 @@ export const config: Options = {
     'node-loader', // used by webpack
     'webpack-cli', // used in package.json scripts
     'pkg', // used for binary builds
+    'conventional-changelog-cli', // used for generating release notes
   ],
   ignoreDirs: ['node_modules', 'dist', 'fixtures', 'test-output'],
 };
