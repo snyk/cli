@@ -32,7 +32,7 @@ test/smoke/spec/iac/ @snyk/group-infrastructure-as-code
 test/smoke/spec/snyk_code_spec.sh @snyk/nebula
 test/smoke/.iac-data/ @snyk/group-infrastructure-as-code
 test/jest/unit/lib/formatters/iac-output.spec.ts @snyk/group-infrastructure-as-code
-test/jest/unit/iac-unit-tests/ @snyk/group-infrastructure-as-code
+test/jest/unit/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/iac/ @snyk/group-infrastructure-as-code
 test/jest/acceptance/snyk-apps @snyk-moose
 src/lib/errors/invalid-iac-file.ts @snyk/group-infrastructure-as-code
