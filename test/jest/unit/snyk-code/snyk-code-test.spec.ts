@@ -473,6 +473,33 @@ describe('Test snyk code', () => {
     },
   );
 
+  it('When code-client fails, generalizes message for non-auth failures', async () => {
+    const codeClientError = {
+      apiName: 'extendBundle',
+      statusCode: 421,
+      statusText: '[Connection issue] Connection refused',
+    };
+
+    jest
+      .spyOn(analysis, 'getCodeAnalysisAndParseResults')
+      .mockRejectedValue(codeClientError);
+
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    await expect(
+      ecosystems.testEcosystem('code', ['.'], {
+        path: '',
+        code: true,
+      }),
+    ).rejects.toHaveProperty('message', "Failed to run 'code test'");
+  });
+
   it('analyzeFolders should be called with the right arguments', async () => {
     const baseURL = expect.any(String);
     const sessionToken = expect.any(String);
@@ -537,7 +564,7 @@ describe('Test snyk code', () => {
 
   it.each([
     [
-      "use LCE's baseUrl when feature is enabled",
+      "use LCE's url as base when LCE is enabled",
       LCEbaseURL,
       {
         sastEnabled: true,
@@ -562,7 +589,7 @@ describe('Test snyk code', () => {
     ],
   ])(
     'Local code engine - analyzeFolders should %s',
-    async (msg, baseURL, sastSettings) => {
+    async (msg, url, sastSettings) => {
       const sessionToken = expect.any(String);
       const source = expect.any(String);
       const severity = AnalysisSeverity.info;
@@ -570,7 +597,7 @@ describe('Test snyk code', () => {
 
       const codeAnalysisArgs = {
         connection: {
-          baseURL,
+          baseURL: url,
           sessionToken,
           source,
         },

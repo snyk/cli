@@ -12,7 +12,8 @@ import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
 
-const debug = debugLib('snyk-code-test');
+debugLib.enable('snyk-code');
+const debug = debugLib('snyk-code');
 
 export const codePlugin: EcosystemPlugin = {
   // We currently don't use scan/display. we will need to consolidate ecosystem plugins
@@ -80,7 +81,12 @@ export const codePlugin: EcosystemPlugin = {
       } else {
         err = new Error(error);
       }
-      debug(chalk.bold.red(error.statusText || error.message));
+      debug(
+        chalk.bold.red(
+          `statusCode:${error.code ||
+            error.statusCode}, message: ${error.statusText || error.message}`,
+        ),
+      );
       throw err;
     }
   },
@@ -96,8 +102,10 @@ function isCodeClientError(error: object): boolean {
 
 function isUnauthorizedError(error: any): boolean {
   return (
-    (error.statusCode >= 400 && error.statusCode < 500) ||
-    (error.code >= 400 && error.code < 500)
+    error.statusCode === 401 ||
+    error.statusCode === 403 ||
+    error.code === 403 ||
+    error.code === 401
   );
 }
 
