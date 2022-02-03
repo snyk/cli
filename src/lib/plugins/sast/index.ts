@@ -40,28 +40,29 @@ export const codePlugin: EcosystemPlugin = {
       }
       const numOfIssues = sarifTypedResult!.runs?.[0].results?.length || 0;
       analytics.add('sast-issues-found', numOfIssues);
-      if (options.sarif || options.json) {
-        if (numOfIssues > 0) {
-          if (options['no-markdown']) {
-            sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
-              delete message.markdown;
-            });
-          }
-          hasIssues(jsonStringifyLargeObject(sarifTypedResult));
-        }
-        return { readableResult: jsonStringifyLargeObject(sarifTypedResult) };
-      }
       const meta = getMeta(options, path);
       const prefix = getPrefix(path);
-      const readableResult = getCodeDisplayedOutput(
+      let readableResult = getCodeDisplayedOutput(
         sarifTypedResult!,
         meta,
         prefix,
       );
-      if (numOfIssues > 0) {
-        hasIssues(readableResult);
+      let sarifResult;
+      if (numOfIssues > 0 && options['no-markdown']) {
+        sarifTypedResult.runs?.[0].results?.forEach(({ message }) => {
+          delete message.markdown;
+        });
       }
-      return { readableResult };
+      if (options['sarif-file-output']) {
+        sarifResult = jsonStringifyLargeObject(sarifTypedResult);
+      }
+      if (options.sarif || options.json) {
+        readableResult = jsonStringifyLargeObject(sarifTypedResult);
+      }
+      if (numOfIssues > 0) {
+        hasIssues(readableResult, sarifResult);
+      }
+      return sarifResult ? { readableResult, sarifResult } : { readableResult };
     } catch (error) {
       let err: Error;
       if (isCodeClientError(error)) {
@@ -100,9 +101,11 @@ function isUnauthorizedError(error: any): boolean {
   );
 }
 
-function hasIssues(readableResult: string): Error {
+function hasIssues(readableResult: string, sarifResult?: string): Error {
   const err = new Error(readableResult) as any;
   err.code = 'VULNS';
-
+  if (sarifResult !== undefined) {
+    err.sarifStringifiedResults = sarifResult;
+  }
   throw err;
 }

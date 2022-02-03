@@ -258,6 +258,46 @@ describe('Test snyk code', () => {
     ).rejects.toHaveProperty('userMessage', 'Test limit reached!');
   });
 
+  it('should create sarif result when `--sarif-file-output` is used', async () => {
+    const options: ArgsOptions = {
+      path: '',
+      traverseNodeModules: false,
+      showVulnPaths: 'none',
+      code: true,
+      _: [],
+      _doubleDashArgs: [],
+      'sarif-file-output': 'test.json',
+    };
+
+    analyzeFoldersMock.mockResolvedValue(sampleAnalyzeFoldersResponse);
+    isSastEnabledForOrgSpy.mockResolvedValueOnce({
+      sastEnabled: true,
+      localCodeEngine: {
+        enabled: false,
+      },
+    });
+    trackUsageSpy.mockResolvedValue({});
+
+    try {
+      await snykTest('some/path', options);
+    } catch (error) {
+      // check if stringified sarif result exists
+      expect(error.sarifStringifiedResults).toBeTruthy();
+
+      const errSarifResult = error.sarifStringifiedResults.trim();
+      const expectedSarifOutput = jsonStringifyLargeObject(
+        sampleSarifResponse,
+      ).trim();
+      const errMessage = stripAscii(stripAnsi(error.message.trim()));
+      const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
+
+      // check if error code and message is correct and sarif result is as expected
+      expect(error.code).toBe('VULNS');
+      expect(errMessage).toBe(expectedOutput);
+      expect(errSarifResult).toBe(expectedSarifOutput);
+    }
+  });
+
   it.each([
     ['sarif', { sarif: true }],
     ['json', { json: true }],

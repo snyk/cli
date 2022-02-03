@@ -22,8 +22,15 @@ export async function testEcosystem(
   // TODO: this is an intermediate step before consolidating ecosystem plugins
   // to accept flows that act differently in the testDependencies step
   if (plugin.test) {
-    const { readableResult: res } = await plugin.test(paths, options);
-    return TestCommandResult.createHumanReadableTestCommandResult(res, '');
+    const { readableResult: res, sarifResult: sarifRes } = await plugin.test(
+      paths,
+      options,
+    );
+    return TestCommandResult.createHumanReadableTestCommandResult(
+      res,
+      '',
+      sarifRes,
+    );
   }
   const scanResultsByPath: { [dir: string]: ScanResult[] } = {};
   for (const path of paths) {
