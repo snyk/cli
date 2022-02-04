@@ -152,15 +152,6 @@ commands:
           command: |
             curl -fsSL https://git.io/shellspec | sh -s -- -y
             sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
-  npm_pack_all:
-    steps:
-      - run:
-          name: Creating npm pack tarballs
-          command: |
-            mkdir dist-pack
-            npm pack --pack-destination=./dist-pack --workspace @snyk/fix
-            npm pack --pack-destination=./dist-pack --workspace @snyk/protect
-            npm pack --pack-destination=./dist-pack
 
 jobs:
   install:
@@ -216,7 +207,6 @@ jobs:
       - run:
           name: Pruning dependencies
           command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - npm_pack_all
       - run:
           name: Installing packed Snyk CLI
           command: sudo npm install -g ./dist-pack/snyk-[0-9]*.tgz
@@ -313,7 +303,13 @@ jobs:
       - run:
           name: Preparing packages
           command: ./release-scripts/prepare-packages-for-release.sh
-      - npm_pack_all
+      - run:
+          name: Creating npm pack tarballs
+          command: |
+            mkdir dist-pack
+            npm pack --pack-destination=./dist-pack --workspace @snyk/fix
+            npm pack --pack-destination=./dist-pack --workspace @snyk/protect
+            npm pack --pack-destination=./dist-pack
       - store_artifacts:
           path: ./dist-pack
       - run:
@@ -377,11 +373,6 @@ workflows:
           name: Build
           requires:
             - Install
-      - regression-test:
-          name: Regression Tests
-          context: nodejs-install
-          requires:
-            - Build
       - test-windows:
           name: Jest Tests (Windows)
           context: nodejs-install
@@ -409,12 +400,16 @@ workflows:
               only:
                 - /^chore\/.+$/
                 - master
+      - regression-test:
+          name: Regression Tests
+          context: nodejs-install
+          requires:
+            - Build Artifacts
       - should-release:
           name: Release?
           type: approval
           requires:
             - Lint
-            - Regression Tests
             - Tap Tests
             - Jest Tests (Windows)
             - Jest Tests (Linux, Node v10.24.1)
@@ -422,6 +417,7 @@ workflows:
             - Jest Tests (Linux, Node v14.18.2)
             - Jest Tests (Linux, Node v16.13.2)
             - Build Artifacts
+            - Regression Tests
           filters:
             branches:
               only:
