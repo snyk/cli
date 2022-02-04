@@ -209,7 +209,7 @@ jobs:
           command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
       - run:
           name: Installing packed Snyk CLI
-          command: sudo npm install -g ./dist-pack/snyk-[0-9]*.tgz
+          command: sudo npm install -g ./dist-pack/snyk.tgz
       - run:
           name: Running ShellSpec tests
           working_directory: ./test/smoke
@@ -307,9 +307,14 @@ jobs:
           name: Creating npm pack tarballs
           command: |
             mkdir dist-pack
-            npm pack --pack-destination=./dist-pack --workspace @snyk/fix
-            npm pack --pack-destination=./dist-pack --workspace @snyk/protect
-            npm pack --pack-destination=./dist-pack
+            mv "$(npm pack --workspace '@snyk/fix')" dist-pack/snyk-fix.tgz
+            mv "$(npm pack --workspace '@snyk/protect')" dist-pack/snyk-protect.tgz
+            mv "$(npm pack)" dist-pack/snyk.tgz
+            pushd dist-pack
+            shasum -a 256 snyk-fix.tgz > snyk-fix.tgz.sha256
+            shasum -a 256 snyk-protect.tgz > snyk-protect.tgz.sha256
+            shasum -a 256 snyk.tgz > snyk.tgz.sha256
+            popd
       - store_artifacts:
           path: ./dist-pack
       - run:
@@ -319,8 +324,7 @@ jobs:
           path: ./binary-releases
       - run:
           name: Validating artifacts
-          working_directory: ./binary-releases
-          command: ../release-scripts/validate-checksums.sh
+          command: ./release-scripts/validate-checksums.sh
       - persist_to_workspace:
           root: .
           paths:
@@ -338,8 +342,7 @@ jobs:
       - setup_npm
       - run:
           name: Validating binaries
-          working_directory: ./binary-releases
-          command: ../release-scripts/validate-checksums.sh
+          command: ./release-scripts/validate-checksums.sh
       - gh/setup:
           token: GH_TOKEN
           version: << pipeline.parameters.gh_version >>
@@ -348,9 +351,9 @@ jobs:
       - run:
           name: Publishing npm packages
           command: |
-            npm publish dist-pack/snyk-fix-[0-9]*.tgz
-            npm publish dist-pack/snyk-protect-[0-9]*.tgz
-            npm publish dist-pack/snyk-[0-9]*.tgz
+            npm publish dist-pack/snyk-fix.tgz
+            npm publish dist-pack/snyk-protect.tgz
+            npm publish dist-pack/snyk.tgz
       - run:
           name: Publishing artifacts
           command: ./release-scripts/upload-artifacts.sh
