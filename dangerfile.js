@@ -48,7 +48,7 @@ if (danger.github && danger.github.pr) {
   if (modifiedSrc && !modifiedTest) {
     // TODO: let's be careful about wording here. Maybe including Contributing guidelines and project goals document here
     warn(
-      "You've modified files in src/ directory, but haven't updated anything in test folder. Is there something that could be tested?",
+      "You've modified files in `src/` directory, but haven't updated anything in test folder. Is there something that could be tested?",
     );
   }
 
@@ -81,7 +81,7 @@ if (danger.github && danger.github.pr) {
 
   if (modifiedSmokeTest && !isOnSmokeTestBranch) {
     message(
-      `You are modifying something in test/smoke directory, yet you are not on the branch starting with ${SMOKE_TEST_BRANCH}. You can prefix your branch with ${SMOKE_TEST_BRANCH} and Smoke tests will trigger for this PR.`,
+      `You are modifying something in \`test/smoke\` directory, yet you are not on the branch starting with ${SMOKE_TEST_BRANCH}. You can prefix your branch with ${SMOKE_TEST_BRANCH} and Smoke tests will trigger for this PR.`,
     );
   }
 
@@ -105,5 +105,19 @@ if (danger.github && danger.github.pr) {
       "Since the CLI is unifying on a standard and improved tooling, we're starting to migrate old-style `import`s and `export`s to ES6 ones.\nA file you've modified is using either `module.exports` or `require()`. If you can, please update them to ES6 [import syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) and [export syntax](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/export).\n Files found:\n" +
       filesUsingNodeJSImportExport;
     warn(message);
+  }
+
+  // Warn if changes to help files are created in snyk/snyk repo instead of snyk/user-docs
+  const modifiedHelp = danger.git.modified_files.some((f) =>
+    f.startsWith('help/'),
+  );
+  const createdHelp = danger.git.created_files.some((f) =>
+    f.startsWith('help/'),
+  );
+
+  if (modifiedHelp || createdHelp) {
+    warn(
+      'Please make changes to `snyk help` text in [Gitbook](https://docs.snyk.io/features/snyk-cli/commands). Changes will be automatically synchronised to Snyk CLI as a [scheduled PR](https://github.com/snyk/snyk/actions/workflows/sync-cli-help-to-user-docs.yml).\nFor more information, see: [`help/README.md`](https://github.com/snyk/snyk/tree/master/help/README.md).',
+    );
   }
 }
