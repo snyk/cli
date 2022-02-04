@@ -14,8 +14,6 @@ const checkDevEnvironment = async () => {
     /**
      * Example: npm/7.14.0 node/v14.16.1 linux x64 workspaces/false
      * Docs: https://docs.npmjs.com/cli/v8/using-npm/config#user-agent
-     *
-     * Note: Doesn't work with Lerna. https://github.com/snyk/snyk/pull/2002
      */
     const userAgent = process.env.npm_config_user_agent;
     if (!userAgent) {

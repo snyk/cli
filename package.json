@@ -24,7 +24,6 @@
     "node": ">=10"
   },
   "workspaces": [
-    ".",
     "packages/*"
   ],
   "scripts": {
@@ -37,8 +36,8 @@
     "lint:js": "eslint --quiet --color --cache '**/*.{js,ts}'",
     "lint:formatting": "prettier --check '**/*.{js,ts,json,yaml,yml,md}'",
     "build": "npm run build:dev",
-    "build:dev": "lerna run build --ignore snyk && npm run build-cli:dev",
-    "build:prod": "lerna run build --ignore snyk && npm run build-cli:prod",
+    "build:dev": "npm run build --workspaces && npm run build-cli:dev",
+    "build:prod": "npm run build --workspaces && npm run build-cli:prod",
     "build-cli:dev": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.dev.ts",
     "build-cli:prod": "node --max-old-space-size=8192 node_modules/webpack/bin/webpack.js --config webpack.prod.ts",
     "watch": "npm run build-cli:dev -- --watch",
@@ -160,7 +159,6 @@
     "express": "^4.17.1",
     "fs-extra": "^9.1.0",
     "jest": "^27.4.7",
-    "lerna": "^3.22.1",
     "lodash": "^4.17.20",
     "mock-fs": "^4.13.0",
     "nock": "^10.0.6",
