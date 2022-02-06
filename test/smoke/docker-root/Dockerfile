@@ -1,4 +1,4 @@
-FROM node:12
+FROM node:12.22.9
 
 COPY ./smoke/ /snyk/smoke/
 COPY ./fixtures/ /snyk/fixtures/
