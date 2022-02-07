@@ -82,6 +82,7 @@ You can also use these direct links to download the executables:
 - macOS: https://static.snyk.io/cli/latest/snyk-macos
 - Windows: https://static.snyk.io/cli/latest/snyk-win.exe
 - Linux: https://static.snyk.io/cli/latest/snyk-linux
+- Linux (arm64): https://static.snyk.io/cli/latest/snyk-linux-arm64
 - Alpine: https://static.snyk.io/cli/latest/snyk-alpine
 
 Drawback of this method is, that you will have to manually keep the Snyk CLI up to date.

@@ -36,6 +36,10 @@ executors:
       - image: cimg/node:<< parameters.node_version >>
     # Using RAM Disk. https://circleci.com/docs/2.0/executor-types/#ram-disks
     working_directory: /mnt/ramdisk/snyk
+  linux-arm64:
+    machine:
+      image: ubuntu-2004:202101-01
+    resource_class: arm.medium
 
 commands:
   setup_npm:
@@ -241,6 +245,29 @@ jobs:
           command: npm run test:acceptance
           environment:
             TEST_SNYK_COMMAND: C:\Users\circleci\snyk\binary-releases\snyk-win.exe
+  test-linux-arm64:
+    executor: linux-arm64
+    working_directory: /home/circleci/snyk
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - install_sdks_linux
+      - run:
+          name: Installing Node.js
+          command: |
+            sudo apt update
+            sudo apt install nodejs npm
+      - setup_npm:
+          npm_cache_directory: /home/circleci/.npm
+      - run:
+          name: Configuring artifact
+          command: /home/circleci/snyk/binary-releases/snyk-linux-arm64 config set "api=${SNYK_API_KEY}"
+      - run:
+          name: Testing artifact
+          command: npm run test:acceptance
+          environment:
+            TEST_SNYK_COMMAND: /home/circleci/snyk/binary-releases/snyk-linux-arm64
   test-linux:
     parameters:
       node_version:
@@ -390,6 +417,11 @@ workflows:
           context: nodejs-install
           requires:
             - Build Artifacts
+      - test-linux-arm64:
+          name: Acceptance Tests (snyk-linux-arm64)
+          context: nodejs-install
+          requires:
+            - Build Artifacts
       - regression-test:
           name: Regression Tests
           context: nodejs-install
@@ -407,6 +439,7 @@ workflows:
             - Jest Tests (Linux, Node v16.13.2)
             - Build Artifacts
             - Acceptance Tests (snyk-win.exe)
+            - Acceptance Tests (snyk-linux-arm64)
             - Regression Tests
           filters:
             branches:
