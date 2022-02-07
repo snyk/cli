@@ -51,8 +51,9 @@ export async function run(
   return new Promise((resolve, reject) => {
     const root = join(__dirname, '../../../../');
     const main = join(root, 'bin/snyk');
+    const snykCommand = process.env.TEST_SNYK_COMMAND || `node ${main}`;
     const child = exec(
-      cmd.trim().replace(/^snyk/, `node ${main}`),
+      cmd.trim().replace(/^snyk/, snykCommand),
       {
         env,
         cwd: cwd ?? join(root, 'test/fixtures'),
