@@ -321,9 +321,6 @@ jobs:
     executor: linux
     steps:
       - checkout
-      - run:
-          name: Should I release?
-          command: ./release-scripts/should-i-release.sh
       - attach_workspace:
           at: .
       - setup_npm
@@ -336,11 +333,18 @@ jobs:
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
+          name: Ensure master branch
+          command: |
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+              echo "Release must be on 'master' branch."
+              exit 1
+            fi
+      - run:
           name: Publishing npm packages
           command: |
-            npm publish binary-releases/snyk-fix.tgz
-            npm publish binary-releases/snyk-protect.tgz
-            npm publish binary-releases/snyk.tgz
+            npm publish ./binary-releases/snyk-fix.tgz
+            npm publish ./binary-releases/snyk-protect.tgz
+            npm publish ./binary-releases/snyk.tgz
       - run:
           name: Publishing artifacts
           command: ./release-scripts/upload-artifacts.sh
@@ -405,7 +409,6 @@ workflows:
             - Jest Tests (Linux, Node v12.22.9)
             - Jest Tests (Linux, Node v14.18.2)
             - Jest Tests (Linux, Node v16.13.2)
-            - Build Artifacts
             - Acceptance Tests (snyk-win.exe)
             - Regression Tests
           filters:
