@@ -1,4 +1,4 @@
-FROM node:14-slim
+FROM node:14.18.2-slim
 
 MAINTAINER Snyk Ltd
 
