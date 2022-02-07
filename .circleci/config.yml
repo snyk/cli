@@ -338,9 +338,9 @@ jobs:
       - run:
           name: Publishing npm packages
           command: |
-            npm publish binary-releases/snyk-fix.tgz
-            npm publish binary-releases/snyk-protect.tgz
-            npm publish binary-releases/snyk.tgz
+            npm publish ./binary-releases/snyk-fix.tgz
+            npm publish ./binary-releases/snyk-protect.tgz
+            npm publish ./binary-releases/snyk.tgz
       - run:
           name: Publishing artifacts
           command: ./release-scripts/upload-artifacts.sh
