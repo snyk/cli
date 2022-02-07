@@ -333,6 +333,13 @@ jobs:
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
       - run:
+          name: Ensure master branch
+          command: |
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+              echo "Release must be on 'master' branch."
+              exit 1
+            fi
+      - run:
           name: Publishing npm packages
           command: |
             npm publish ./binary-releases/snyk-fix.tgz
