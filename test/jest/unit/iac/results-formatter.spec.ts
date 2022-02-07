@@ -82,6 +82,7 @@ describe('formatScanResults', () => {
         generateScanResults(optionsObject.generateOptions),
         optionsObject.formatOptions,
         meta,
+        {},
       );
 
       expect(formattedResults.length).toEqual(1);
@@ -106,6 +107,7 @@ describe('parser failures should return -1 for lineNumber', () => {
       generateScanResults(),
       { severityThreshold: SEVERITY.HIGH },
       meta,
+      {},
     );
 
     expect(formattedResults.length).toEqual(1);
@@ -122,6 +124,7 @@ describe('parser failures should return -1 for lineNumber', () => {
       generateScanResults(),
       { severityThreshold: SEVERITY.HIGH },
       meta,
+      {},
     );
 
     expect(formattedResults.length).toEqual(1);

@@ -31,6 +31,7 @@ import { isFeatureFlagSupportedForOrg } from '../../../../lib/feature-flags';
 import { initRules } from './rules';
 import { NoFilesToScanError } from './file-loader';
 import { parseTerraformFiles } from './file-parser';
+import { formatAndShareResults } from './share-results';
 
 // this method executes the local processing engine and then formats the results to adapt with the CLI output.
 // this flow is the default GA flow for IAC scanning.
@@ -126,10 +127,21 @@ export async function test(
       scannedFiles,
       iacOrgSettings.customPolicies,
     );
+
+    let projectPublicIds: Record<string, string> = {};
+    if (options.report) {
+      projectPublicIds = await formatAndShareResults(
+        resultsWithCustomSeverities,
+        options,
+        orgPublicId,
+      );
+    }
+
     const formattedResults = formatScanResults(
       resultsWithCustomSeverities,
       options,
       iacOrgSettings.meta,
+      projectPublicIds,
     );
 
     const { filteredIssues, ignoreCount } = filterIgnoredIssues(

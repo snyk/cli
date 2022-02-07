@@ -22,6 +22,7 @@ const keys: (keyof IaCTestFlags)[] = [
   'quiet',
   'scan',
   'legacy',
+  'report',
 
   // PolicyOptions
   'ignore-policy',
@@ -40,16 +41,27 @@ function getFlagName(key: string) {
 }
 
 export class FlagError extends CustomError {
-  constructor(key: string, featureFlag?: string) {
+  constructor(key: string) {
     const flag = getFlagName(key);
-    let msg;
-    if (featureFlag) {
-      msg = `Flag "${flag}" is only supported if feature flag '${featureFlag}' is enabled. The feature flag can be enabled via Snyk Preview if you are on the Enterprise Plan`;
-    } else {
-      msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags`;
-    }
+    const msg = `Unsupported flag "${flag}" provided. Run snyk iac test --help for supported flags`;
     super(msg);
     this.code = IaCErrorCodes.FlagError;
+    this.strCode = getErrorStringCode(this.code);
+    this.userMessage = msg;
+  }
+}
+
+export class FeatureFlagError extends CustomError {
+  constructor(key: string, featureFlag: string, hasSnykPreview?: boolean) {
+    const flag = getFlagName(key);
+    let msg;
+    if (hasSnykPreview) {
+      msg = `Flag "${flag}" is only supported if feature flag '${featureFlag}' is enabled. The feature flag can be enabled via Snyk Preview if you are on the Enterprise Plan`;
+    } else {
+      msg = `Flag "${flag}" is only supported if feature flag "${featureFlag}" is enabled. To enable it, please contact Snyk support.`;
+    }
+    super(msg);
+    this.code = IaCErrorCodes.FeatureFlagError;
     this.strCode = getErrorStringCode(this.code);
     this.userMessage = msg;
   }
@@ -110,7 +122,7 @@ export function assertIaCOptionsFlags(argv: string[]) {
     // flag strings passed to the command line (usually files)
     // and `iac` is the command provided.
     if (key !== '_' && key !== 'iac' && !allowed.has(key)) {
-      throw new FlagError(key, '');
+      throw new FlagError(key);
     }
   }
 
@@ -132,4 +144,8 @@ function assertTerraformPlanModes(scanModeArgValue: string) {
   ) {
     throw new FlagValueError('scan', scanModeArgValue);
   }
+}
+
+export function isIacShareResultsOptions(options) {
+  return options.iac && options.report && !options.legacy;
 }

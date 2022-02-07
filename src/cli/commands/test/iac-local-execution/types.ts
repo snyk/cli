@@ -1,4 +1,8 @@
-import { IacProjectType, IacProjectTypes } from '../../../../lib/iac/constants';
+import {
+  IacFileTypes,
+  IacProjectType,
+  IacProjectTypes,
+} from '../../../../lib/iac/constants';
 import { SEVERITY } from '../../../../lib/snyk-test/common';
 import {
   AnnotatedIssue,
@@ -49,6 +53,15 @@ export type ParsingResults = {
 };
 
 export interface IacFileScanResult extends IacFileParsed {
+  violatedPolicies: PolicyMetadata[];
+}
+
+export interface IacShareResultsFormat {
+  projectName: string;
+  targetFile: string;
+  filePath: string;
+  fileType: IacFileTypes;
+  projectType: IacProjectType;
   violatedPolicies: PolicyMetadata[];
 }
 
@@ -149,6 +162,7 @@ export interface PolicyMetadata {
   remediation?: Partial<
     Record<'terraform' | 'cloudformation' | 'arm' | 'kubernetes', string>
   >;
+  docId?: number;
 }
 
 // Collection of all options supported by `iac test` command.
@@ -163,6 +177,7 @@ export type IaCTestFlags = Pick<
   | 'severityThreshold'
   | 'json'
   | 'sarif'
+  | 'report'
 
   // PolicyOptions
   | 'ignore-policy'
@@ -304,6 +319,7 @@ export enum IaCErrorCodes {
   FlagError = 1090,
   FlagValueError = 1091,
   UnsupportedEntitlementFlagError = 1092,
+  FeatureFlagError = 1093,
 
   // oci-pull errors
   FailedToExecuteCustomRulesError = 1100,

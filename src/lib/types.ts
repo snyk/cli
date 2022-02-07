@@ -93,6 +93,7 @@ export interface Options {
   supportUnmanagedVulnDB?: boolean;
   'no-markdown'?: boolean;
   'max-depth'?: number;
+  report?: boolean;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny

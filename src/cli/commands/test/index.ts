@@ -43,6 +43,8 @@ import {
   containsSpotlightVulnIds,
   notificationForSpotlightVulns,
 } from '../../../lib/spotlight-vuln-notification';
+import config from '../../../lib/config';
+import { isIacShareResultsOptions } from './iac-local-execution/assert-iac-options-flag';
 
 const debug = Debug('snyk-test');
 const SEPARATOR = '\n-------------------------------------------------------\n';
@@ -108,6 +110,8 @@ export default async function test(
         // this path is an experimental feature feature for IaC which does issue scanning locally without sending files to our Backend servers.
         // once ready for GA, it is aimed to deprecate our remote-processing model, so IaC file scanning in the CLI is done locally.
         const { results, failures } = await iacTest(path, testOpts);
+        testOpts.org = results[0]?.org;
+        testOpts.projectName = results[0]?.projectName;
         res = results;
         iacScanFailures = failures;
       } else {
@@ -292,6 +296,13 @@ export default async function test(
     );
     response += spotlightVulnsMsg;
 
+    if (isIacShareResultsOptions(options)) {
+      response +=
+        chalk.bold.white(
+          `Your test results are available at: ${config.ROOT}/org/${resultOptions[0].org}/projects under the name ${resultOptions[0].projectName}`,
+        ) + EOL;
+    }
+
     const error = new Error(response) as any;
     // take the code of the first problem to go through error
     // translation
@@ -309,6 +320,13 @@ export default async function test(
   response += getProtectUpgradeWarningForPaths(
     packageJsonPathsWithSnykDepForProtect,
   );
+
+  if (isIacShareResultsOptions(options)) {
+    response +=
+      chalk.bold.white(
+        `Your test results are available at: ${config.ROOT}/org/${resultOptions[0].org}/projects under the name ${resultOptions[0].projectName}`,
+      ) + EOL;
+  }
 
   return TestCommandResult.createHumanReadableTestCommandResult(
     response,
