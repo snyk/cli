@@ -395,9 +395,9 @@ workflows:
           context: nodejs-install
           requires:
             - Build Artifacts
-      - should-release:
-          name: Release?
-          type: approval
+      - release:
+          name: Release
+          context: nodejs-app-release
           requires:
             - Lint
             - Tap Tests
@@ -408,15 +408,6 @@ workflows:
             - Build Artifacts
             - Acceptance Tests (snyk-win.exe)
             - Regression Tests
-          filters:
-            branches:
-              only:
-                - master
-      - release:
-          name: Release
-          context: nodejs-app-release
-          requires:
-            - Release?
           filters:
             branches:
               only:
