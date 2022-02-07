@@ -8,13 +8,17 @@ import { icon } from '../src/lib/theme';
 const checkDependencies = async () => {
   let exitCode = 0;
 
-  const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+  const rootPackagePath = path.resolve(__dirname, '..');
+  const packageJson = JSON.parse(
+    fs.readFileSync(path.resolve(rootPackagePath, 'package.json'), 'utf-8'),
+  );
+  const workspaceGlobs = [rootPackagePath].concat(packageJson.workspaces);
 
   console.log();
   console.log('-'.repeat(32));
   console.log();
 
-  for (const workspaceGlob of packageJson.workspaces) {
+  for (const workspaceGlob of workspaceGlobs) {
     const workspacePaths = glob.sync(workspaceGlob).map((p) => path.resolve(p));
     for (const workspacePath of workspacePaths) {
       console.log(`Checking ${workspacePath}`);

@@ -48,7 +48,6 @@ dangerfile.js @snyk/hammer
 /webpack.common.js @snyk/hammer
 /webpack.dev.js @snyk/hammer
 /webpack.prod.js @snyk/hammer
-/lerna.json @snyk/hammer
 /tsconfig.json @snyk/hammer
 /tsconfig.settings.json @snyk/hammer
 CODEOWNERS @snyk/hammer

@@ -152,21 +152,7 @@ commands:
           command: |
             curl -fsSL https://git.io/shellspec | sh -s -- -y
             sudo ln -s ${HOME}/.local/lib/shellspec/shellspec /usr/local/bin/shellspec
-  pack_snyk_cli:
-    steps:
-      - run:
-          name: Packing Snyk CLI
-          command: |
-            mkdir ./dist-pack
-            cd ./dist-pack
-            npm pack ..
-  install_release_dependencies:
-    steps:
-      - run:
-          name: Installing release dependencies
-          command: |
-            sudo apt update
-            sudo apt install osslsigncode
+
 jobs:
   install:
     executor: linux
@@ -221,11 +207,9 @@ jobs:
       - run:
           name: Pruning dependencies
           command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - pack_snyk_cli
       - run:
           name: Installing packed Snyk CLI
-          command: sudo npm install -g snyk-*.tgz
-          path: ./dist-pack
+          command: sudo npm install -g ./binary-releases/snyk.tgz
       - run:
           name: Running ShellSpec tests
           working_directory: ./test/smoke
@@ -304,80 +288,59 @@ jobs:
             npx tap -Rspec --timeout=300 --node-arg=-r --node-arg=ts-node/register \
               $(circleci tests glob "test/tap/*.test.*" | circleci tests split)
 
-  dev-release:
+  build-artifacts:
     executor: linux
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - install_release_dependencies
       - setup_npm
       - run:
-          name: Updating package versions
-          command: ./release-scripts/update-dev-versions.sh
-      - run:
-          name: Pruning Snyk CLI dependencies
-          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - run:
-          name: Building binaries
+          name: Installing build dependencies
           command: |
-            cat package.json
-            ./release-scripts/make-binaries.sh
-            ls -la ./binary-releases
+            sudo apt update
+            sudo apt install osslsigncode
+      - run:
+          name: Preparing packages
+          command: ./release-scripts/prepare-packages-for-release.sh
+      - run:
+          name: Building artifacts
+          command: ./release-scripts/make-binaries.sh
       - store_artifacts:
           path: ./binary-releases
       - run:
-          name: Validating binaries
-          working_directory: ./binary-releases
-          command: ../release-scripts/validate-checksums.sh
-      - pack_snyk_cli
-      - store_artifacts:
-          path: ./dist-pack
-  prod-release:
+          name: Validating artifacts
+          command: ./release-scripts/validate-checksums.sh
+      - persist_to_workspace:
+          root: .
+          paths:
+            - binary-releases
+  release:
     executor: linux
     steps:
       - checkout
-      - attach_workspace:
-          at: .
       - run:
           name: Should I release?
           command: ./release-scripts/should-i-release.sh
+      - attach_workspace:
+          at: .
+      - setup_npm
+      - run:
+          name: Validating artifacts
+          command: ./release-scripts/validate-checksums.sh
       - gh/setup:
           token: GH_TOKEN
           version: << pipeline.parameters.gh_version >>
       - aws-cli/install:
           version: << pipeline.parameters.aws_version >>
-      - install_release_dependencies
-      - setup_npm
       - run:
-          name: Updating package versions
+          name: Publishing npm packages
           command: |
-            ./release-scripts/update-versions.sh
-            git update-index --skip-worktree -- ./lerna.json
-            git update-index --skip-worktree -- ./package.json
-            git update-index --skip-worktree -- ./packages/snyk-protect/package.json
+            npm publish binary-releases/snyk-fix.tgz
+            npm publish binary-releases/snyk-protect.tgz
+            npm publish binary-releases/snyk.tgz
       - run:
-          name: Pruning Snyk CLI dependencies
-          command: npx ts-node ./release-scripts/prune-dependencies-in-packagejson.ts
-      - run:
-          name: Bumping versions and publishing packages
-          command: npx lerna publish minor --yes --no-push --no-git-tag-version --exact
-      - run:
-          name: Building binaries
-          command: |
-            ./release-scripts/make-binaries.sh
-            ls -la ./binary-releases
-      - store_artifacts:
-          path: ./binary-releases
-      - run:
-          name: Validating binaries
-          working_directory: ./binary-releases
-          command: ../release-scripts/validate-checksums.sh
-      - run:
-          name: Generating release notes
-          command: npx conventional-changelog-cli -p angular -l -r 1 > RELEASE_NOTES.txt
-      - run:
-          name: Publishing binaries
+          name: Publishing artifacts
           command: ./release-scripts/upload-artifacts.sh
       - run:
           name: Handling failed release
@@ -398,33 +361,16 @@ workflows:
           name: Build
           requires:
             - Install
-      - regression-test:
-          name: Regression Tests
-          context: nodejs-install
-          requires:
-            - Build
-          filters:
-            branches:
-              ignore:
-                - master
       - test-windows:
           name: Jest Tests (Windows)
           context: nodejs-install
           requires:
             - Build
-          filters:
-            branches:
-              ignore:
-                - master
       - test-linux:
           name: Jest Tests (Linux, Node v<< matrix.node_version >>)
           context: nodejs-install
           requires:
             - Build
-          filters:
-            branches:
-              ignore:
-                - master
           matrix:
             parameters:
               node_version: ['10.24.1', '12.22.9', '14.18.2', '16.13.2']
@@ -433,25 +379,42 @@ workflows:
           context: nodejs-install
           requires:
             - Build
-          filters:
-            branches:
-              ignore:
-                - master
-      - dev-release:
-          name: Development Release
+      - build-artifacts:
+          name: Build Artifacts
           requires:
-            - Lint
             - Build
           filters:
             branches:
-              ignore:
+              only:
+                - /^chore\/.+$/
                 - master
-      - prod-release:
-          name: Production Release
+      - regression-test:
+          name: Regression Tests
+          context: nodejs-install
+          requires:
+            - Build Artifacts
+      - should-release:
+          name: Release?
+          type: approval
+          requires:
+            - Lint
+            - Tap Tests
+            - Jest Tests (Windows)
+            - Jest Tests (Linux, Node v10.24.1)
+            - Jest Tests (Linux, Node v12.22.9)
+            - Jest Tests (Linux, Node v14.18.2)
+            - Jest Tests (Linux, Node v16.13.2)
+            - Build Artifacts
+            - Regression Tests
+          filters:
+            branches:
+              only:
+                - master
+      - release:
+          name: Release
           context: nodejs-app-release
           requires:
-            - Lint
-            - Build
+            - Release?
           filters:
             branches:
               only:
