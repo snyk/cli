@@ -71,5 +71,7 @@ export default {
     extensions: ['.ts', '.js', '.json'],
     modules: ['packages', 'node_modules'],
   },
-  externals: {},
+  externals: {
+    'node-pty': 'node-pty',
+  },
 };
