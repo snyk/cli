@@ -6,6 +6,8 @@ packages/snyk-protect/ @snyk/hammer
 packages/cli-alert/ @snyk/hammer
 
 README.md  @snyk/hammer
+release-scripts/hcl-to-json-parser-generator/ @snyk/group-infrastructure-as-code
+release-scripts/hcl-to-json-parser-generator-v2/ @snyk/group-infrastructure-as-code
 src/cli/commands/test @snyk/snyk-open-source
 src/cli/commands/monitor @snyk/snyk-open-source
 src/cli/commands/test/formatters/format-reachability.ts  @snyk/tardis
