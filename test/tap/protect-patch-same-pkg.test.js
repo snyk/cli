@@ -4,7 +4,7 @@ const { getFixturePath } = require('../jest/util/getFixturePath');
 const answers = require(getFixturePath('patch-same-package-answers.json'));
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
-const noop = function() {};
+const noop = function () {};
 
 // spies
 let execSpy = sinon.spy();
@@ -13,23 +13,23 @@ const writeSpy = sinon.spy();
 
 // main proxy
 const patch = proxyquire('../../src/lib/protect/patch', {
-  glob: function(pattern, options, cb) {
+  glob: function (pattern, options, cb) {
     cb(null, ['uglify.js.orig']);
   },
-  './get-vuln-source': function() {
+  './get-vuln-source': function () {
     return 'foo';
   },
-  './write-patch-flag': function(now, vuln) {
+  './write-patch-flag': function (now, vuln) {
     return Promise.resolve(vuln);
   },
   fs: {
-    renameSync: function(filename) {
+    renameSync: function (filename) {
       renameSpy(filename);
     },
-    writeFileSync: function(filename, body) {
+    writeFileSync: function (filename, body) {
       writeSpy(filename, body);
     },
-    createWriteStream: function() {
+    createWriteStream: function () {
       // fake event emitter (sort of)
       return {
         on: noop,
@@ -39,17 +39,17 @@ const patch = proxyquire('../../src/lib/protect/patch', {
       };
     },
   },
-  './apply-patch': function(patch) {
+  './apply-patch': function (patch) {
     execSpy(patch);
     return Promise.resolve();
   },
 });
 
-test('if two patches for same package selected, only newest runs', function(t) {
+test('if two patches for same package selected, only newest runs', function (t) {
   const latestId = 'uglify-js-20151024';
   const tasks = toTasks(answers).patch;
   return patch(tasks, true)
-    .then(function(res) {
+    .then(function (res) {
       t.equal(
         Object.keys(res.patch).length,
         tasks.length,
@@ -58,10 +58,10 @@ test('if two patches for same package selected, only newest runs', function(t) {
       t.match(execSpy.args[0], new RegExp(latestId), 'correct patch picked');
       t.equal(execSpy.callCount, 1, 'patch only applied once');
     })
-    .then(function() {
+    .then(function () {
       // 2nd test
       execSpy = sinon.spy();
-      return patch(tasks.reverse(), true).then(function() {
+      return patch(tasks.reverse(), true).then(function () {
         t.match(
           execSpy.args[0],
           new RegExp(latestId),
@@ -72,10 +72,10 @@ test('if two patches for same package selected, only newest runs', function(t) {
     });
 });
 
-test('different patches are not affected', function(t) {
+test('different patches are not affected', function (t) {
   const answers = require(getFixturePath('forever-answers.json'));
   execSpy = sinon.spy();
-  return patch(toTasks(answers).patch, true).then(function() {
+  return patch(toTasks(answers).patch, true).then(function () {
     t.equal(execSpy.callCount, 2, 'two patches applied');
   });
 });

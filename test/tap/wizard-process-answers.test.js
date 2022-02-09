@@ -4,7 +4,7 @@ const proxyquire = require('proxyquire');
 const path = require('path');
 const sinon = require('sinon');
 const fs = require('fs');
-const noop = function() {};
+const noop = function () {};
 const snyk = require('../../src/lib');
 const { getFixturePath } = require('../jest/util/getFixturePath');
 
@@ -19,7 +19,7 @@ const save = (p) => {
   return Promise.resolve();
 };
 
-snyk.policy.save = function(data) {
+snyk.policy.save = function (data) {
   policySaveSpy(data);
   return Promise.resolve();
 };
@@ -45,17 +45,17 @@ tap.beforeEach((done) => {
 // proxies
 const getVulnSource = proxyquire('../../src/lib/protect/get-vuln-source', {
   fs: {
-    statSync: function() {
+    statSync: function () {
       return true;
     },
   },
 });
 
 const mockfs = {
-  writeFileSync: function(filename, body) {
+  writeFileSync: function (filename, body) {
     writeSpy(filename, body);
   },
-  createWriteStream: function() {
+  createWriteStream: function () {
     // fake event emitter (sort of)
     return {
       on: noop,
@@ -68,18 +68,18 @@ const mockfs = {
 
 const wizard = proxyquire('../../src/cli/commands/protect/wizard', {
   '../../../lib/npm': {
-    default: function(cmd) {
+    default: function (cmd) {
       execSpy(cmd);
       return Promise.resolve(true);
     },
-    getVersion: function() {
+    getVersion: function () {
       return Promise.resolve('6.0.0');
     },
   },
   fs: mockfs,
   '../../../src/lib/protect': proxyquire('../../src/lib/protect', {
     fs: {
-      statSync: function() {
+      statSync: function () {
         return true;
       },
     },
@@ -93,13 +93,13 @@ const wizard = proxyquire('../../src/cli/commands/protect/wizard', {
       ),
       './get-vuln-source': getVulnSource,
       fs: mockfs,
-      './apply-patch': function() {
+      './apply-patch': function () {
         return Promise.resolve();
       },
     }),
     './update': proxyquire('../../src/lib/protect/update', {
       '../npm': {
-        default: function(cmd, packages, live, cwd, flags) {
+        default: function (cmd, packages, live, cwd, flags) {
           execSpy(cmd, packages, live, cwd, flags);
           return Promise.resolve(true);
         },
@@ -108,19 +108,19 @@ const wizard = proxyquire('../../src/cli/commands/protect/wizard', {
   }),
 });
 
-test('pre-tarred packages can be patched', function(t) {
+test('pre-tarred packages can be patched', function (t) {
   const answers = require(getFixturePath('forever-answers.json'));
 
   wizard
     .processAnswers(answers, mockPolicy)
-    .then(function() {
+    .then(function () {
       t.equal(policySaveSpy.callCount, 1, 'write functon was only called once');
       const vulns = Object.keys(policySaveSpy.args[0][0].patch);
       const expect = Object.keys(answers)
-        .filter(function(key) {
+        .filter(function (key) {
           return key.slice(0, 5) !== 'misc-';
         })
-        .map(function(key) {
+        .map(function (key) {
           return answers[key].vuln.id;
         });
       t.deepEqual(vulns, expect, 'two patches included');
@@ -129,23 +129,23 @@ test('pre-tarred packages can be patched', function(t) {
     .then(t.end);
 });
 
-test('process answers handles shrinkwrap', function(t) {
+test('process answers handles shrinkwrap', function (t) {
   t.plan(2);
 
-  t.test('non-shrinkwrap package', function(t) {
+  t.test('non-shrinkwrap package', function (t) {
     execSpy = sinon.spy();
     const answers = require(getFixturePath('forever-answers.json'));
     answers['misc-test-no-monitor'] = true;
     wizard
       .processAnswers(answers, mockPolicy)
-      .then(function() {
+      .then(function () {
         t.equal(execSpy.callCount, 0, 'shrinkwrap was not called');
       })
       .catch(t.threw)
       .then(t.end);
   });
 
-  t.test('shrinkwraped package', function(t) {
+  t.test('shrinkwraped package', function (t) {
     execSpy = sinon.spy();
     const cwd = process.cwd();
     process.chdir(getFixturePath('pkg-mean-io/'));
@@ -153,7 +153,7 @@ test('process answers handles shrinkwrap', function(t) {
     answers['misc-test-no-monitor'] = true;
     wizard
       .processAnswers(answers, mockPolicy)
-      .then(function() {
+      .then(function () {
         const shrinkCall = execSpy.getCall(2); // get the 2nd call (as the first is the install of snyk)
         t.equal(shrinkCall.args[0], 'shrinkwrap', 'shrinkwrap was called');
         process.chdir(cwd);
@@ -163,7 +163,7 @@ test('process answers handles shrinkwrap', function(t) {
   });
 });
 
-test('wizard updates vulns without changing dep type', function(t) {
+test('wizard updates vulns without changing dep type', function (t) {
   execSpy = sinon.spy();
   const cwd = process.cwd();
   process.chdir(getFixturePath('pkg-SC-1472/'));
@@ -171,7 +171,7 @@ test('wizard updates vulns without changing dep type', function(t) {
   answers['misc-test-no-monitor'] = true;
   wizard
     .processAnswers(answers, mockPolicy)
-    .then(function() {
+    .then(function () {
       t.equal(execSpy.callCount, 3, 'uninstall, install prod, install dev');
       t.equal(execSpy.getCall(1).args[1].length, 1, '1 prod dep');
       t.equal(execSpy.getCall(1).args[1].length, 1, '2 dev dep');
@@ -181,7 +181,7 @@ test('wizard updates vulns without changing dep type', function(t) {
     .then(t.end);
 });
 
-test('wizard replaces npms default scripts.test', function(t) {
+test('wizard replaces npms default scripts.test', function (t) {
   const old = process.cwd();
   const dir = getFixturePath('no-deps');
   writeSpy = sinon.spy(); // create a new spy
@@ -195,19 +195,19 @@ test('wizard replaces npms default scripts.test', function(t) {
       },
       mockPolicy,
     )
-    .then(function() {
+    .then(function () {
       t.equal(writeSpy.callCount, 1, 'package was written to');
       const pkg = JSON.parse(writeSpy.args[0][1]);
       t.equal(pkg.scripts.test, 'snyk test', 'default npm exit 1 was replaced');
     })
     .catch(t.threw)
-    .then(function() {
+    .then(function () {
       process.chdir(old);
       t.end();
     });
 });
 
-test('wizard replaces prepends to scripts.test', function(t) {
+test('wizard replaces prepends to scripts.test', function (t) {
   const old = process.cwd();
   const dir = getFixturePath('demo-os');
   const prevPkg = require(dir + '/package.json');
@@ -222,7 +222,7 @@ test('wizard replaces prepends to scripts.test', function(t) {
       },
       mockPolicy,
     )
-    .then(function() {
+    .then(function () {
       t.equal(writeSpy.callCount, 1, 'package was written to');
       const pkg = JSON.parse(writeSpy.args[0][1]);
       t.equal(
@@ -232,13 +232,13 @@ test('wizard replaces prepends to scripts.test', function(t) {
       );
     })
     .catch(t.threw)
-    .then(function() {
+    .then(function () {
       process.chdir(old);
       t.end();
     });
 });
 
-test('wizard detects existing snyk in scripts.test', function(t) {
+test('wizard detects existing snyk in scripts.test', function (t) {
   const old = process.cwd();
   const dir = getFixturePath('pkg-mean-io');
   const prevPkg = require(dir + '/package.json');
@@ -253,19 +253,19 @@ test('wizard detects existing snyk in scripts.test', function(t) {
       },
       mockPolicy,
     )
-    .then(function() {
+    .then(function () {
       t.equal(writeSpy.callCount, 1, 'package was written to');
       const pkg = JSON.parse(writeSpy.args[0][1]);
       t.equal(pkg.scripts.test, prevPkg.scripts.test, 'test script untouched');
     })
     .catch(t.threw)
-    .then(function() {
+    .then(function () {
       process.chdir(old);
       t.end();
     });
 });
 
-test('wizard maintains whitespace at beginning and end of package.json', function(t) {
+test('wizard maintains whitespace at beginning and end of package.json', function (t) {
   const old = process.cwd();
   const dir = getFixturePath('pkg-mean-io');
   writeSpy = sinon.spy(); // create a new spy
@@ -283,7 +283,7 @@ test('wizard maintains whitespace at beginning and end of package.json', functio
         packageTrailing: '\n\n',
       },
     )
-    .then(function() {
+    .then(function () {
       const pkgString = writeSpy.args[0][1];
       t.equal(pkgString.substr(0, 2), '\n{', 'newline at beginning of file');
       t.equal(
@@ -293,13 +293,13 @@ test('wizard maintains whitespace at beginning and end of package.json', functio
       );
     })
     .catch(t.threw)
-    .then(function() {
+    .then(function () {
       process.chdir(old);
       t.end();
     });
 });
 
-test('wizard updates vulns and retains indentation', async function(t) {
+test('wizard updates vulns and retains indentation', async function (t) {
   const old = process.cwd();
   const dir = getFixturePath('four-spaces');
   const manifestPath = path.resolve(dir, 'package.json');
@@ -321,7 +321,7 @@ test('wizard updates vulns and retains indentation', async function(t) {
   t.end();
 });
 
-test('wizard updates vulns but does not install snyk', async function(t) {
+test('wizard updates vulns but does not install snyk', async function (t) {
   const old = process.cwd();
   const dir = getFixturePath('basic-npm');
   const answersPath = path.resolve(dir, 'answers.json');

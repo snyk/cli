@@ -4,10 +4,7 @@ import { runSnykCLI } from '../util/runSnykCLI';
 import { fakeServer } from '../../acceptance/fake-server';
 import { createProject } from '../util/createProject';
 
-const isWindows =
-  require('os-name')()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = require('os-name')().toLowerCase().indexOf('windows') === 0;
 
 jest.setTimeout(1000 * 60 * 5);
 

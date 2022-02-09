@@ -1,4 +1,4 @@
-# snyk policy -- display the `.snyk` policy for a package
+# Policy
 
 ## Usage
 
@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk policy` command displays a `.snyk` policy file.
+The `snyk policy` command displays the `.snyk` policy file for a package.
 
 ## Argument: `<PATH_TO_POLICY_FILE>`
 

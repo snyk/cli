@@ -6,7 +6,8 @@ const SMOKE_TEST_BRANCH = 'smoke/';
 const SMOKE_TEST_WORKFLOW_FILE_PATH = '.github/workflows/smoke-tests.yml';
 
 if (danger.github && danger.github.pr) {
-  const commitizenRegex = /^(feat|fix|chore|test|docs|perf|refactor|revert)(\(.*\))?:(.+)$/;
+  const commitizenRegex =
+    /^(feat|fix|chore|test|docs|perf|refactor|revert)(\(.*\))?:(.+)$/;
   const ghCommits = danger.github.commits;
   let willTriggerRelease = false;
   for (const { commit } of ghCommits) {
@@ -75,9 +76,8 @@ if (danger.github && danger.github.pr) {
     danger.git.created_files.some((f) => f.startsWith('test/smoke/')) ||
     danger.git.modified_files.includes(SMOKE_TEST_WORKFLOW_FILE_PATH);
 
-  const isOnSmokeTestBranch = danger.github.pr.head.ref.startsWith(
-    SMOKE_TEST_BRANCH,
-  );
+  const isOnSmokeTestBranch =
+    danger.github.pr.head.ref.startsWith(SMOKE_TEST_BRANCH);
 
   if (modifiedSmokeTest && !isOnSmokeTestBranch) {
     message(

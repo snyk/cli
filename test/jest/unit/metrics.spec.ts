@@ -1,8 +1,10 @@
 const debugMock: string[][] = [];
 jest.mock('debug', () => {
-  const factory = (key) => (...args) => {
-    debugMock.push([key, ...args]);
-  };
+  const factory =
+    (key) =>
+    (...args) => {
+      debugMock.push([key, ...args]);
+    };
   factory.default = factory;
   return factory;
 });

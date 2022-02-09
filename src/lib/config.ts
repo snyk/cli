@@ -21,9 +21,7 @@ interface Config {
 }
 
 // TODO: fix the types!
-const config = (snykConfig.loadConfig(
-  __dirname + '/../..',
-) as unknown) as Config;
+const config = snykConfig.loadConfig(__dirname + '/../..') as unknown as Config;
 
 // allow user config override of the API endpoint
 const endpoint = userConfig.get('endpoint');

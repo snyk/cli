@@ -48,8 +48,7 @@ export default {
           to: '../gosrc/',
         },
         {
-          from:
-            'node_modules/@snyk/java-call-graph-builder/config.default.json',
+          from: 'node_modules/@snyk/java-call-graph-builder/config.default.json',
           to: '../',
         },
       ],

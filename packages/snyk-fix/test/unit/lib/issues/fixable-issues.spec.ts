@@ -7,7 +7,7 @@ describe('hasFixableIssues', () => {
       {
         issues: [],
         issuesData: {},
-        depGraphData: ({} as unknown) as DepGraphData,
+        depGraphData: {} as unknown as DepGraphData,
         remediation: {
           ignore: {},
           patch: {
@@ -39,7 +39,7 @@ describe('hasFixableIssues', () => {
       {
         issues: [],
         issuesData: {},
-        depGraphData: ({} as unknown) as DepGraphData,
+        depGraphData: {} as unknown as DepGraphData,
         remediation: {
           ignore: {},
           patch: {},
@@ -71,7 +71,7 @@ describe('hasFixableIssues', () => {
       {
         issues: [],
         issuesData: {},
-        depGraphData: ({} as unknown) as DepGraphData,
+        depGraphData: {} as unknown as DepGraphData,
         remediation: {
           ignore: {},
           patch: {},
@@ -103,7 +103,7 @@ describe('hasFixableIssues', () => {
       {
         issues: [],
         issuesData: {},
-        depGraphData: ({} as unknown) as DepGraphData,
+        depGraphData: {} as unknown as DepGraphData,
         remediation: {
           ignore: {},
           patch: {
@@ -146,7 +146,7 @@ describe('hasFixableIssues', () => {
       {
         issues: [],
         issuesData: {},
-        depGraphData: ({} as unknown) as DepGraphData,
+        depGraphData: {} as unknown as DepGraphData,
         remediation: {
           ignore: {},
           patch: {},
@@ -169,7 +169,7 @@ describe('hasFixableIssues', () => {
       {
         issues: [],
         issuesData: {},
-        depGraphData: ({} as unknown) as DepGraphData,
+        depGraphData: {} as unknown as DepGraphData,
         remediation: {
           ignore: {},
           patch: {},
@@ -202,12 +202,12 @@ describe('hasFixableIssues', () => {
       {
         issues: [],
         issuesData: {},
-        depGraphData: ({} as unknown) as DepGraphData,
+        depGraphData: {} as unknown as DepGraphData,
       },
       {
         issues: [],
         issuesData: {},
-        depGraphData: ({} as unknown) as DepGraphData,
+        depGraphData: {} as unknown as DepGraphData,
         remediation: {
           ignore: {},
           patch: {},

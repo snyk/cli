@@ -582,10 +582,7 @@ function generatePrompt(
 
     const choices: Action[] = [];
 
-    const from = vuln.from
-      .slice(1)
-      .filter(Boolean)
-      .shift();
+    const from = vuln.from.slice(1).filter(Boolean).shift();
 
     // FIXME this should be handled a little more gracefully
     if (vuln.from.length === 1) {
@@ -705,7 +702,7 @@ function generatePrompt(
             // echo out what would be upgraded
             const via =
               'Fixed through previous upgrade instruction to ' +
-              ((updatedTo as unknown) as Prompt).vuln.upgradePath[1];
+              (updatedTo as unknown as Prompt).vuln.upgradePath[1];
             console.log(['', messageIntro, infoLink, via].join('\n'));
           }
         }

@@ -54,9 +54,8 @@ export default function wizard(options?: Options) {
 async function processPackageManager(options: Options) {
   const packageManager = detect.detectPackageManager(process.cwd(), options);
 
-  const supportsWizard = pm.WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(
-    packageManager,
-  );
+  const supportsWizard =
+    pm.WIZARD_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager);
   if (!supportsWizard) {
     return Promise.reject(
       `Snyk wizard for ${pm.SUPPORTED_PACKAGE_MANAGER_NAME[packageManager]} projects is not currently supported`,
@@ -196,12 +195,9 @@ async function processWizardFlow(options) {
           return tryRequire(packageFile).then((pkg) => {
             options.packageLeading = pkg.leading;
             options.packageTrailing = pkg.trailing;
-            return interactive(
-              res,
-              pkg,
-              combinedPolicy,
-              options,
-            ).then((answers) => processAnswers(answers, policyFile, options));
+            return interactive(res, pkg, combinedPolicy, options).then(
+              (answers) => processAnswers(answers, policyFile, options),
+            );
           });
         });
       });

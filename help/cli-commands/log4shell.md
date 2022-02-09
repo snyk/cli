@@ -1,4 +1,4 @@
-# snyk log4shell -- find Log4Shell vulnerability
+# Log4shell
 
 ## Usage
 
@@ -10,17 +10,17 @@ The `snyk log4shell` command finds traces of the Log4J library that are affected
 
 ## Managed projects
 
-To test Java projects using their package manager manifest files, see [Snyk for Java (Gradle, Maven)](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
+To test for Log4Shell vulnerabilities in Java projects using their package manager manifest files, use the `snyk test` command. See the [test command help](https://docs.snyk.io/features/snyk-cli/commands/test) and [Snyk for Java (Gradle, Maven)](https://docs.snyk.io/products/snyk-open-source/language-and-package-manager-support/snyk-for-java-gradle-maven).
 
-For information about `snyk test --scan-all-unmanaged`, see the Maven options section of the [CLI reference](https://docs.snyk.io/features/snyk-cli/cli-reference).
+To test unmanaged files, use `snyk test --scan-all-unmanaged`. See the Maven options section of the [test command help](https://docs.snyk.io/features/snyk-cli/commands/test).
 
 ## Exit codes
 
 Possible exit codes and their meaning:
 
-**0**: success, Log4Shell not found<br />
-**1**: action_needed, Log4Shell found<br />
-**2**: failure, try to re-run command<br />
+**0**: success, Log4Shell not found\
+**1**: action_needed, Log4Shell found\
+**2**: failure, try to re-run command
 
 ## Debug
 

@@ -112,7 +112,7 @@ export function displayResult(
     TEST_SUPPORTED_IAC_PROJECTS.includes(res.packageManager as IacProjectType)
   ) {
     return getIacDisplayedOutput(
-      (res as any) as IacTestResponse,
+      res as any as IacTestResponse,
       testedInfoText,
       meta,
       prefix,

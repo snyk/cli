@@ -9,13 +9,13 @@ const fixture = require(getFixturePath('protect-via-snyk/package.json'));
 
 const wizard = proxyquire('../../src/cli/commands/protect/wizard', {
   '@snyk/inquirer': {
-    prompt: function(q, cb) {
+    prompt: function (q, cb) {
       cb(q);
     },
   },
   '../../../lib/npm': {
-    getVersion: function() {
-      return new Promise(function(resolve) {
+    getVersion: function () {
+      return new Promise(function (resolve) {
         return resolve('5.0.1');
       });
     },
@@ -25,16 +25,16 @@ const wizard = proxyquire('../../src/cli/commands/protect/wizard', {
     installDev: () => new Promise((resolve) => resolve()),
   },
   fs: {
-    readFileSync: function() {
+    readFileSync: function () {
       return JSON.stringify(fixture);
     },
-    writeFileSync: function(filename, body) {
+    writeFileSync: function (filename, body) {
       spy(body);
     },
   },
 });
 
-test('npm - prepare is added and postinstall is removed', function(t) {
+test('npm - prepare is added and postinstall is removed', function (t) {
   const expectedResults = cloneDeep(fixture);
   process.chdir(dir);
 
@@ -49,7 +49,7 @@ test('npm - prepare is added and postinstall is removed', function(t) {
         save: () => Promise.resolve(),
       },
     )
-    .then(function() {
+    .then(function () {
       t.equal(spy.callCount, 1, 'write function was only called once');
       const pkg = JSON.parse(spy.args[0][0]);
       t.pass('package was valid JSON');
@@ -61,7 +61,7 @@ test('npm - prepare is added and postinstall is removed', function(t) {
     });
 });
 
-test('yarn - prepare is added and postinstall is removed', function(t) {
+test('yarn - prepare is added and postinstall is removed', function (t) {
   const expectedResults = cloneDeep(fixture);
   process.chdir(dir);
   spy.resetHistory();
@@ -79,7 +79,7 @@ test('yarn - prepare is added and postinstall is removed', function(t) {
         packageManager: 'yarn',
       },
     )
-    .then(function() {
+    .then(function () {
       t.equal(spy.callCount, 1, 'write function was only called once');
       const pkg = JSON.parse(spy.args[0][0]);
       t.pass('package was valid JSON');

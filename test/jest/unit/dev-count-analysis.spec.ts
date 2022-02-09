@@ -20,10 +20,11 @@ describe('cli dev count via git log analysis', () => {
     const timestampEpochSecondsEndOfPeriod = Math.floor(
       TIMESTAMP_TO_TEST / 1000,
     );
-    const timestampEpochSecondsStartOfPeriod = getTimestampStartOfContributingDevTimeframe(
-      new Date(TIMESTAMP_TO_TEST),
-      10,
-    );
+    const timestampEpochSecondsStartOfPeriod =
+      getTimestampStartOfContributingDevTimeframe(
+        new Date(TIMESTAMP_TO_TEST),
+        10,
+      );
 
     const withMergesGitLogCommand = `git --no-pager log --pretty=tformat:"%H${SERIOUS_DELIMITER}%an${SERIOUS_DELIMITER}%ae${SERIOUS_DELIMITER}%aI${SERIOUS_DELIMITER}%s" --after="${timestampEpochSecondsStartOfPeriod}" --until="${timestampEpochSecondsEndOfPeriod}" --max-count=${MAX_COMMITS_IN_GIT_LOG}`;
     const withMergesGitLogStdout: string = await execShell(
@@ -83,9 +84,10 @@ describe('cli dev count via git log analysis', () => {
       const contributoremails = contributors.map((c) => c.email);
 
       // make sure none of uniqueEmailsContainingOnlyMergeCommits are in contributoremails
-      const legitemailsWhichAreAlsoInMergeOnlyemails = expectedMergeOnlyemails.filter(
-        (user) => contributoremails.includes(user),
-      );
+      const legitemailsWhichAreAlsoInMergeOnlyemails =
+        expectedMergeOnlyemails.filter((user) =>
+          contributoremails.includes(user),
+        );
       expect(legitemailsWhichAreAlsoInMergeOnlyemails).toHaveLength(0);
     },
     testTimeout,

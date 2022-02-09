@@ -120,9 +120,9 @@ function parseSecurityResults(codeAnalysis: Log | null): Log | null {
   return codeAnalysis;
 }
 
-function getSecurityRulesMap(
-  rules: ReportingDescriptor[],
-): { [ruleId: string]: ReportingDescriptor[] } {
+function getSecurityRulesMap(rules: ReportingDescriptor[]): {
+  [ruleId: string]: ReportingDescriptor[];
+} {
   const securityRulesMap = rules.reduce((acc, rule) => {
     const { id: ruleId, properties } = rule;
     const isSecurityRule = properties?.categories?.some(

@@ -18,12 +18,12 @@ type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
 // the compiler to be happy, so we need to unwrap it with the messy
 // Awaiter<ReturnType<T>> rather than just using ReturnType<T> directly.
 export function asyncPerformanceAnalyticsDecorator<
-  T extends (...args: any[]) => Promise<any>
+  T extends (...args: any[]) => Promise<any>,
 >(
   measurableMethod: T,
   analyticsKey: PerformanceAnalyticsKey,
 ): (...args: Parameters<T>) => Promise<Awaited<ReturnType<T>>> {
-  return async function(...args) {
+  return async function (...args) {
     const startTime = Date.now();
     const returnValue = await measurableMethod(...args);
     const durationMs = Date.now() - startTime;
@@ -33,12 +33,12 @@ export function asyncPerformanceAnalyticsDecorator<
 }
 
 export function performanceAnalyticsDecorator<
-  T extends (...args: any[]) => any
+  T extends (...args: any[]) => any,
 >(
   measurableMethod: T,
   analyticsKey: PerformanceAnalyticsKey,
 ): (...args: Parameters<T>) => ReturnType<T> {
-  return function(...args) {
+  return function (...args) {
     const startTime = Date.now();
     const returnValue = measurableMethod(...args);
     const durationMs = Date.now() - startTime;

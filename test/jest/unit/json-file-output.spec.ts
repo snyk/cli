@@ -7,10 +7,7 @@ import {
 } from '../../../src/lib/json-file-output';
 const osName = require('os-name');
 
-const isWindows =
-  osName()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = osName().toLowerCase().indexOf('windows') === 0;
 
 describe('createDirectory', () => {
   it('returns true if directory already exists - non-recursive', async () => {

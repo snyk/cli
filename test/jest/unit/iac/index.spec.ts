@@ -83,20 +83,20 @@ import {
 import { IacProjectType } from '../../../../src/lib/iac/constants';
 
 describe('test()', () => {
-  describe('Given an OCI registry configurations is provided in the IaC org settings', function() {
+  describe('Given an OCI registry configurations is provided in the IaC org settings', function () {
     let pullSpy: jest.SpyInstance;
 
-    beforeAll(function() {
+    beforeAll(function () {
       pullSpy = jest
         .spyOn(measurableMethods, 'pull')
         .mockImplementationOnce(async () => {});
     });
 
-    afterEach(function() {
+    afterEach(function () {
       pullSpy.mockClear();
     });
 
-    afterAll(function() {
+    afterAll(function () {
       pullSpy.mockReset();
     });
 

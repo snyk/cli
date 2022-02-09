@@ -164,8 +164,7 @@ describe('fix Pipfile Python projects', () => {
                   issueIds: ['vuln-id'],
                   reason: 'Locking failed',
                   success: false,
-                  tip:
-                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  tip: 'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
                   to: 'django@2.0.1',
                   userMessage: 'Failed to upgrade django from 1.6.1 to 2.0.1',
                 },
@@ -174,8 +173,7 @@ describe('fix Pipfile Python projects', () => {
                   issueIds: [],
                   reason: 'Locking failed',
                   success: false,
-                  tip:
-                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  tip: 'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
                   to: 'transitive@1.1.1',
                   userMessage: 'Failed to pin transitive from 1.0.0 to 1.1.1',
                 },
@@ -263,8 +261,7 @@ describe('fix Pipfile Python projects', () => {
                   success: false,
                   reason: err,
                   userMessage: 'Failed to upgrade django from 1.6.1 to 2.0.1',
-                  tip:
-                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  tip: 'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
                   issueIds: ['vuln-id'],
                   from: 'django@1.6.1',
                   to: 'django@2.0.1',
@@ -273,8 +270,7 @@ describe('fix Pipfile Python projects', () => {
                   success: false,
                   reason: err,
                   userMessage: 'Failed to pin transitive from 1.0.0 to 1.1.1',
-                  tip:
-                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  tip: 'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
                   issueIds: [],
                   from: 'transitive@1.0.0',
                   to: 'transitive@1.1.1',
@@ -716,8 +712,7 @@ describe('fix Pipfile Python projects (fix sequentially)', () => {
                   issueIds: ['vuln-id'],
                   reason: err,
                   success: false,
-                  tip:
-                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  tip: 'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
                   to: 'django@2.0.1',
                   userMessage: 'Failed to upgrade django from 1.6.1 to 2.0.1',
                 },
@@ -726,8 +721,7 @@ describe('fix Pipfile Python projects (fix sequentially)', () => {
                   issueIds: [],
                   reason: err,
                   success: false,
-                  tip:
-                    'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
+                  tip: 'Try running `pipenv install django==2.0.1 transitive==1.1.1`',
                   to: 'transitive@1.1.1',
                   userMessage: 'Failed to pin transitive from 1.0.0 to 1.1.1',
                 },

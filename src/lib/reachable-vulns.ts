@@ -16,9 +16,7 @@ import { isMultiProjectScan } from './is-multi-project-scan';
 
 const featureFlag = 'reachableVulns';
 
-export function serializeCallGraphWithMetrics(
-  callGraph: CallGraph,
-): {
+export function serializeCallGraphWithMetrics(callGraph: CallGraph): {
   callGraph: any;
   nodeCount: number;
   edgeCount: number;

@@ -5,8 +5,9 @@ import * as path from 'path';
 import { test } from 'tap';
 import { getFixturePath } from '../jest/util/getFixturePath';
 const vulns = require(getFixturePath('hoek@4.2.0-vuln.json')).vulnerabilities;
-const unpatchableVulns = require(getFixturePath('hoek@4.2.0-nopatch.json'))
-  .vulnerabilities;
+const unpatchableVulns = require(getFixturePath(
+  'hoek@4.2.0-nopatch.json',
+)).vulnerabilities;
 import { exec } from 'child_process';
 import { readFileSync } from 'fs';
 

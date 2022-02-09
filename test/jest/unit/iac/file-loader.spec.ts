@@ -98,13 +98,11 @@ describe('loadFiles', () => {
         mockFs({
           [level1Directory]: {
             [path.basename(level2Directory)]: {
-              [path.basename(
-                level2FileStub.filePath,
-              )]: level2FileStub.fileContent,
+              [path.basename(level2FileStub.filePath)]:
+                level2FileStub.fileContent,
               [path.basename(level3Directory)]: {
-                [path.basename(
-                  level3FileStub.filePath,
-                )]: level3FileStub.fileContent,
+                [path.basename(level3FileStub.filePath)]:
+                  level3FileStub.fileContent,
               },
             },
           },

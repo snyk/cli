@@ -92,7 +92,7 @@ function createSpinner(opt: SpinnerOptions): Spinner | false {
 
   let delay = typeof opt.delay === 'number' ? opt.delay : 2;
 
-  const interval = (setInterval(() => {
+  const interval = setInterval(() => {
     if (--delay >= 0) {
       return;
     }
@@ -100,7 +100,7 @@ function createSpinner(opt: SpinnerOptions): Spinner | false {
     const c = sprite[s];
     str.write(c + ' ' + (opt.label || '') + CR);
     wrote = true;
-  }, ms) as unknown) as NodeJS.Timer;
+  }, ms) as unknown as NodeJS.Timer;
 
   const unref = typeof opt.unref === 'boolean' ? opt.unref : true;
   if (unref && typeof interval.unref === 'function') {

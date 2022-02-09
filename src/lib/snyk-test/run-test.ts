@@ -392,7 +392,7 @@ async function parseRes(
   // refactor to separate
   if (depGraph && pkgManager) {
     res = convertTestDepGraphResultToLegacy(
-      (res as any) as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
+      res as any as TestDepGraphResponse, // Double "as" required by Typescript for dodgy assertions
       depGraph,
       pkgManager,
       options,
@@ -593,9 +593,9 @@ async function assembleLocalPayloads(
       if (!options.json && !options.quiet) {
         console.warn(
           chalk.bold.red(
-            `${icon.ISSUE} ${failedResults.length}/${failedResults.length +
-              deps.scannedProjects
-                .length} potential projects failed to get dependencies.`,
+            `${icon.ISSUE} ${failedResults.length}/${
+              failedResults.length + deps.scannedProjects.length
+            } potential projects failed to get dependencies.`,
           ),
         );
         failedResults.forEach((f) => {
@@ -653,12 +653,10 @@ async function assembleLocalPayloads(
 
       // prefer dep-graph fallback on dep tree
       // TODO: clean up once dep-graphs only
-      const pkg:
-        | DepTree
-        | depGraphLib.DepGraph
-        | undefined = scannedProject.depGraph
-        ? scannedProject.depGraph
-        : scannedProject.depTree;
+      const pkg: DepTree | depGraphLib.DepGraph | undefined =
+        scannedProject.depGraph
+          ? scannedProject.depGraph
+          : scannedProject.depTree;
 
       if (options['print-deps']) {
         if (scannedProject.depGraph) {
@@ -811,13 +809,8 @@ async function assembleLocalPayloads(
           },
         ]);
       } else if (scannedProject.callGraph) {
-        const {
-          callGraph,
-          nodeCount,
-          edgeCount,
-        } = serializeCallGraphWithMetrics(
-          scannedProject.callGraph as CallGraph,
-        );
+        const { callGraph, nodeCount, edgeCount } =
+          serializeCallGraphWithMetrics(scannedProject.callGraph as CallGraph);
         debug(
           `Adding call graph to payload, node count: ${nodeCount}, edge count: ${edgeCount}`,
         );
@@ -871,8 +864,9 @@ async function assembleRemotePayloads(root, options): Promise<Payload[]> {
   addPackageAnalytics(pkg.name, pkg.version);
   const encodedName = encodeURIComponent(pkg.name + '@' + pkg.version);
   // options.vulnEndpoint is only used by `snyk protect` (i.e. local filesystem tests)
-  const url = `${config.API}${options.vulnEndpoint ||
-    `/vuln/${options.packageManager}`}/${encodedName}`;
+  const url = `${config.API}${
+    options.vulnEndpoint || `/vuln/${options.packageManager}`
+  }/${encodedName}`;
   return [
     {
       method: 'GET',

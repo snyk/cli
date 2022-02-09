@@ -27,17 +27,17 @@ function filterIgnored(rule, vulns) {
 // skipped intentially - only used for debugging tests
 test(
   'protect correctly filters (single)',
-  function(t) {
+  function (t) {
     t.plan(1);
     Promise.resolve(vulns)
-      .then(function(res) {
+      .then(function (res) {
         // exact match
         const total = res.vulnerabilities.length;
         const runFilter = runFilterShared.bind(null, res);
         const vulns = runFilter('*');
         t.equal(vulns.length, total - 1, 'removed with * _only_ rule');
       })
-      .catch(function(e) {
+      .catch(function (e) {
         console.log(e.stack);
         t.fail(e);
       });
@@ -45,9 +45,9 @@ test(
   { skip: true },
 );
 
-test('protect correctly filters', function(t) {
+test('protect correctly filters', function (t) {
   Promise.resolve(vulns)
-    .then(function(res) {
+    .then(function (res) {
       // exact match
       const total = res.vulnerabilities.length;
       let vulns;
@@ -85,10 +85,10 @@ test('protect correctly filters', function(t) {
     .catch(t.threw);
 });
 
-test('ignores real vuln data', function(t) {
+test('ignores real vuln data', function (t) {
   const vulns2 = require(getFixturePath(
     'test-jsbin-vulns-updated.json',
-  )).vulnerabilities.filter(function(v) {
+  )).vulnerabilities.filter(function (v) {
     return v.id === 'npm:uglify-js:20150824' || v.id === 'npm:semver:20150403';
   });
   const policy = require('snyk-policy');
@@ -96,13 +96,13 @@ test('ignores real vuln data', function(t) {
   t.plan(1);
   policy
     .load(getFixturePath('jsbin-snyk-config'))
-    .then(function(config) {
+    .then(function (config) {
       return filterIgnored(config.ignore, vulns2);
     })
-    .then(function(res) {
+    .then(function (res) {
       t.equal(res.length, 0, 'all vulns have been ignored');
     })
-    .catch(function(e) {
+    .catch(function (e) {
       console.log(e.stack);
       t.fail(e);
     });

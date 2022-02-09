@@ -9,10 +9,7 @@ import {
 import { CUSTOM_RULES_TARBALL } from './oci-pull';
 
 function hashData(s: string): string {
-  const hashedData = crypto
-    .createHash('sha1')
-    .update(s)
-    .digest('hex');
+  const hashedData = crypto.createHash('sha1').update(s).digest('hex');
   return hashedData;
 }
 

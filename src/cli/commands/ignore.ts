@@ -92,9 +92,8 @@ export default function ignore(options): Promise<MethodResult> {
           }
           // Otherwise, update the existing rule's metadata.
           else {
-            issueIgnorePaths[ignoreRulePathDataIdx][
-              options.path
-            ] = ignoreParams;
+            issueIgnorePaths[ignoreRulePathDataIdx][options.path] =
+              ignoreParams;
           }
 
           ignoreRules[options.id] = issueIgnorePaths;

@@ -4,7 +4,7 @@ import * as policy from 'snyk-policy';
 import { getPrompts } from '../../src/cli/commands/protect/prompts';
 import { getFixturePath } from '../jest/util/getFixturePath';
 
-test('ensure that when there is not remediation, prompt text is correct', async function(t) {
+test('ensure that when there is not remediation, prompt text is correct', async function (t) {
   const vulns = JSON.parse(
     fs.readFileSync(getFixturePath('colonizers-vulns.json'), 'utf-8'),
   ).vulnerabilities;
@@ -14,12 +14,12 @@ test('ensure that when there is not remediation, prompt text is correct', async 
     const promptOptions = getPrompts(vulns, config);
     // firstly filter down to just the update prompts
     const res = promptOptions
-      .map(function(_) {
+      .map(function (_) {
         return _.choices;
       })
-      .map(function(_) {
+      .map(function (_) {
         return _
-          ? _.filter(function(_) {
+          ? _.filter(function (_) {
               return _.key === 'u';
             }).pop()
           : false;
@@ -29,7 +29,7 @@ test('ensure that when there is not remediation, prompt text is correct', async 
     // now pick out those that say they'll notify and check the vuln really
     // doesn't have a remediation path
     // res = res.filter(_ => _.name.indexOf('notify') !== -1);
-    res.forEach(function(_) {
+    res.forEach(function (_) {
       if (_.name.indexOf('notify') !== -1) {
         t.notEqual(
           _.value.vuln.upgradePath.filter(Boolean).length,

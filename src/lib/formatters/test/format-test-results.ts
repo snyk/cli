@@ -46,15 +46,15 @@ function createJsonResultOutput(jsonResult, options: Options) {
 function formatJsonVulnerabilityStructure(jsonResult, options: Options) {
   if (options['group-issues']) {
     jsonResult.vulnerabilities = Object.values(
-      (jsonResult.vulnerabilities || []).reduce((acc, vuln): Record<
-        string,
-        any
-      > => {
-        vuln.from = [vuln.from].concat(acc[vuln.id]?.from || []);
-        vuln.name = [vuln.name].concat(acc[vuln.id]?.name || []);
-        acc[vuln.id] = vuln;
-        return acc;
-      }, {}),
+      (jsonResult.vulnerabilities || []).reduce(
+        (acc, vuln): Record<string, any> => {
+          vuln.from = [vuln.from].concat(acc[vuln.id]?.from || []);
+          vuln.name = [vuln.name].concat(acc[vuln.id]?.name || []);
+          acc[vuln.id] = vuln;
+          return acc;
+        },
+        {},
+      ),
     );
   }
 
@@ -331,9 +331,7 @@ function getDockerRemediationDocsLink(dockerAdvice: string, config): string {
   );
 }
 
-export function groupVulnerabilities(
-  vulns,
-): {
+export function groupVulnerabilities(vulns): {
   [vulnId: string]: GroupedVuln;
 } {
   return vulns.reduce((map, curr) => {

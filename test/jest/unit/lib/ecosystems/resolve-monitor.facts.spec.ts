@@ -204,12 +204,12 @@ describe('resolve and test facts', () => {
       path: 'random-fake-path',
     });
 
-    await resolveAndMonitorFacts(scanResults, ({
+    await resolveAndMonitorFacts(scanResults, {
       'project-tags': 'tag1=value1,tag2=value2,tag3=value3',
       'project-business-criticality': 'medium',
       'project-environment': 'saas',
       'project-lifecycle': 'development',
-    } as unknown) as Options);
+    } as unknown as Options);
     expect(httpClientSpy).toHaveBeenCalledTimes(1);
     expect(httpClientSpy).toBeCalledWith(
       expect.objectContaining({

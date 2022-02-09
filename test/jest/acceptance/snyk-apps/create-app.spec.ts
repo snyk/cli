@@ -110,9 +110,7 @@ describe('snyk-apps: create app', () => {
     });
 
     it('should prompt for scopes and print error if not provided', async () => {
-      const {
-        stdout,
-      } = await runSnykCLIWithUserInputs(
+      const { stdout } = await runSnykCLIWithUserInputs(
         'apps create --interactive --experimental',
         [testData.appName, ENTER, testData.redirectURIs, ENTER, ENTER],
         { env },
@@ -123,9 +121,7 @@ describe('snyk-apps: create app', () => {
     });
 
     it('should prompt for org id and use default if not provided', async () => {
-      const {
-        stdout,
-      } = await runSnykCLIWithUserInputs(
+      const { stdout } = await runSnykCLIWithUserInputs(
         'apps create --interactive --experimental',
         [
           testData.appName,
@@ -143,10 +139,7 @@ describe('snyk-apps: create app', () => {
     });
 
     it('should create app with user provided data (interactive mode)', async () => {
-      const {
-        stdout,
-        code,
-      } = await runSnykCLIWithUserInputs(
+      const { stdout, code } = await runSnykCLIWithUserInputs(
         'apps create --interactive --experimental',
         [
           testData.appName,
@@ -189,10 +182,7 @@ describe('snyk-apps: create app', () => {
    */
   describe('scriptable mode', () => {
     it('should throw error when org id not provided', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `apps create --name=${testData.appName} --redirect-uris=${testData.redirectURIs} --scopes=${testData.scopes} --experimental`,
         { env },
       );
@@ -204,10 +194,7 @@ describe('snyk-apps: create app', () => {
     });
 
     it('should throw error when app name not provided', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `apps create --org=${testData.orgId} --redirect-uris=${testData.redirectURIs} --scopes=${testData.scopes} --experimental`,
         { env },
       );
@@ -219,10 +206,7 @@ describe('snyk-apps: create app', () => {
     });
 
     it('should throw error when redirect uris not provided', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `apps create --org=${testData.orgId} --name=${testData.appName} --scopes=${testData.scopes} --experimental`,
         { env },
       );
@@ -234,10 +218,7 @@ describe('snyk-apps: create app', () => {
     });
 
     it('shoud throw error when scopes not provided', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `apps create --org=${testData.orgId} --name=${testData.appName} --redirect-uris=${testData.redirectURIs} --experimental`,
         { env },
       );
@@ -248,10 +229,7 @@ describe('snyk-apps: create app', () => {
     });
 
     it('should create app with user provided data', async () => {
-      const {
-        code,
-        stdout,
-      } = await runSnykCLI(
+      const { code, stdout } = await runSnykCLI(
         `apps create --org=${testData.orgId} --name=${testData.appName} --redirect-uris=${testData.redirectURIs} --scopes=${testData.scopes} --experimental`,
         { env },
       );

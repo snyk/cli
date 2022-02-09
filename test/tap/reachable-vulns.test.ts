@@ -81,9 +81,8 @@ test('validatePayload - supported package manager (maven) with feature flag', as
     isFeatureFlagSupportedForOrgStub.calledOnce,
     'called is feature flag only once',
   );
-  const [featureFlagArg, orgArg] = isFeatureFlagSupportedForOrgStub.getCall(
-    0,
-  ).args;
+  const [featureFlagArg, orgArg] =
+    isFeatureFlagSupportedForOrgStub.getCall(0).args;
   t.equal(featureFlagArg, 'reachableVulns', 'correct feature flag passed');
   t.deepEqual(orgArg, org, 'correct org payload passed');
 });

@@ -10,9 +10,10 @@ const yarnWorkspacesMap = {
 };
 
 const yarnWorkspacesMapWindows = {
-  'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace-out-of-sync\\package.json': {
-    workspaces: ['packages'],
-  },
+  'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace-out-of-sync\\package.json':
+    {
+      workspaces: ['packages'],
+    },
   'C:\\snyk\\test\\acceptance\\workspaces\\yarn-workspace\\package.json': {
     workspaces: ['libs/*/**', 'tools/*'],
   },

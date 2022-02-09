@@ -45,10 +45,8 @@ export async function getMultiPluginResult(
 
   // process any yarn workspaces first
   // the files need to be proceeded together as they provide context to each other
-  const {
-    scannedProjects,
-    unprocessedFiles,
-  } = await processYarnWorkspacesProjects(root, options, targetFiles);
+  const { scannedProjects, unprocessedFiles } =
+    await processYarnWorkspacesProjects(root, options, targetFiles);
   allResults.push(...scannedProjects);
   debug(`Not part of a workspace: ${unprocessedFiles.join(', ')}}`);
   // process the rest 1 by 1 sent to relevant plugins
@@ -75,17 +73,19 @@ export async function getMultiPluginResult(
         resultWithScannedProjects = inspectRes;
       }
 
-      const pluginResultWithCustomScannedProjects = convertMultiResultToMultiCustom(
-        resultWithScannedProjects,
-        optionsClone.packageManager,
-        optionsClone.file,
-      );
+      const pluginResultWithCustomScannedProjects =
+        convertMultiResultToMultiCustom(
+          resultWithScannedProjects,
+          optionsClone.packageManager,
+          optionsClone.file,
+        );
       // annotate the package manager, project name & targetFile to be used
       // for test & monitor
       // TODO: refactor how we display meta to not have to do this
-      (options as any).projectNames = resultWithScannedProjects.scannedProjects.map(
-        (scannedProject) => scannedProject?.depTree?.name,
-      );
+      (options as any).projectNames =
+        resultWithScannedProjects.scannedProjects.map(
+          (scannedProject) => scannedProject?.depTree?.name,
+        );
 
       allResults.push(...pluginResultWithCustomScannedProjects.scannedProjects);
     } catch (error) {

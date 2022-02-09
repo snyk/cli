@@ -193,9 +193,9 @@ export function args(rawArgv: string[]): Args {
   }
 
   // TODO: eventually all arguments should be transformed like this.
-  const argumentsToTransform: Array<Partial<
-    SupportedUserReachableFacingCliArgs
-  >> = [
+  const argumentsToTransform: Array<
+    Partial<SupportedUserReachableFacingCliArgs>
+  > = [
     'package-manager',
     'packages-folder',
     'severity-threshold',

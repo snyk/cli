@@ -82,7 +82,7 @@ function jsDiff(patchContent, relative, live) {
   const patchedFiles = {};
   return new Promise((resolve, reject) => {
     diff.applyPatches(patchContent, {
-      loadFile: function(index, callback) {
+      loadFile: function (index, callback) {
         try {
           const fileName = trimUpToFirstSlash(index.oldFileName);
           if (patchedFiles[fileName]) {
@@ -104,7 +104,7 @@ function jsDiff(patchContent, relative, live) {
           callback(err);
         }
       },
-      patched: function(index, content, callback) {
+      patched: function (index, content, callback) {
         try {
           if (content === false) {
             // `false` means the patch does not match the original content.
@@ -123,14 +123,14 @@ function jsDiff(patchContent, relative, live) {
           callback(err);
         }
       },
-      compareLine: function(_, line, operation, patchContent) {
+      compareLine: function (_, line, operation, patchContent) {
         if (operation === ' ') {
           // Ignore when no patch operators as GNU patch does
           return true;
         }
         return line === patchContent;
       },
-      complete: function(error) {
+      complete: function (error) {
         if (error) {
           return reject(error);
         }

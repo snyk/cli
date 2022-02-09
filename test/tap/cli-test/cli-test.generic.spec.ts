@@ -56,64 +56,58 @@ export const GenericTests: AcceptanceTests = {
       }
     },
 
-    'userMessage and error code correctly bubbles with npm': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-      try {
-        await params.cli.test('npm-package', { org: 'missing-org' });
-        t.fail('expect to err');
-      } catch (err) {
-        t.equal(
-          err.userMessage,
-          'Org missing-org was not found or you may not have the correct permissions',
-          'got correct err message',
-        );
-        t.equal(err.code, 404);
-      }
-      t.end();
-    },
+    'userMessage and error code correctly bubbles with npm':
+      (params, utils) => async (t) => {
+        utils.chdirWorkspaces();
+        try {
+          await params.cli.test('npm-package', { org: 'missing-org' });
+          t.fail('expect to err');
+        } catch (err) {
+          t.equal(
+            err.userMessage,
+            'Org missing-org was not found or you may not have the correct permissions',
+            'got correct err message',
+          );
+          t.equal(err.code, 404);
+        }
+        t.end();
+      },
 
-    'userMessage and error code correctly bubbles with npm and json output': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-      try {
-        await params.cli.test('npm-package', {
-          org: 'missing-org',
-          json: true,
-        });
-        t.fail('expect to err');
-      } catch (err) {
-        t.has(
-          err.jsonStringifiedResults,
-          'Org missing-org was not found or you may not have the correct permissions',
-          'got correct err message',
-        );
-        t.equal(err.code, 404);
-      }
-      t.end();
-    },
+    'userMessage and error code correctly bubbles with npm and json output':
+      (params, utils) => async (t) => {
+        utils.chdirWorkspaces();
+        try {
+          await params.cli.test('npm-package', {
+            org: 'missing-org',
+            json: true,
+          });
+          t.fail('expect to err');
+        } catch (err) {
+          t.has(
+            err.jsonStringifiedResults,
+            'Org missing-org was not found or you may not have the correct permissions',
+            'got correct err message',
+          );
+          t.equal(err.code, 404);
+        }
+        t.end();
+      },
 
-    'userMessage correctly bubbles with everything other than npm': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-      try {
-        await params.cli.test('ruby-app', { org: 'missing-org' });
-        t.fail('expect to err');
-      } catch (err) {
-        t.equal(
-          err.userMessage,
-          'Org missing-org was not found or you may not have the correct permissions',
-          'got correct err message',
-        );
-      }
-      t.end();
-    },
+    'userMessage correctly bubbles with everything other than npm':
+      (params, utils) => async (t) => {
+        utils.chdirWorkspaces();
+        try {
+          await params.cli.test('ruby-app', { org: 'missing-org' });
+          t.fail('expect to err');
+        } catch (err) {
+          t.equal(
+            err.userMessage,
+            'Org missing-org was not found or you may not have the correct permissions',
+            'got correct err message',
+          );
+        }
+        t.end();
+      },
 
     /**
      * Remote package `test`
@@ -143,46 +137,43 @@ export const GenericTests: AcceptanceTests = {
       t.notMatch(output, 'snyk wizard', 'does not suggest `snyk wizard`');
     },
 
-    '`test sinatra --registry=rubygems` sends remote Rubygems request:': (
-      params,
-    ) => async (t) => {
-      await params.cli.test('sinatra', { registry: 'rubygems', org: 'ACME' });
-      const req = params.server.popRequest();
-      t.equal(req.method, 'GET', 'makes GET request');
-      t.equal(
-        req.headers['x-snyk-cli-version'],
-        params.versionNumber,
-        'sends version number',
-      );
-      t.match(req.url, '/vuln/rubygems/sinatra', 'gets from correct url');
-      t.equal(req.query.org, 'ACME', 'org sent as a query in request');
-    },
+    '`test sinatra --registry=rubygems` sends remote Rubygems request:':
+      (params) => async (t) => {
+        await params.cli.test('sinatra', { registry: 'rubygems', org: 'ACME' });
+        const req = params.server.popRequest();
+        t.equal(req.method, 'GET', 'makes GET request');
+        t.equal(
+          req.headers['x-snyk-cli-version'],
+          params.versionNumber,
+          'sends version number',
+        );
+        t.match(req.url, '/vuln/rubygems/sinatra', 'gets from correct url');
+        t.equal(req.query.org, 'ACME', 'org sent as a query in request');
+      },
 
     /**
      * Local source `test`
      */
 
-    '`test /` test for non-existent with path specified': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces();
-      try {
-        await params.cli.test('/');
-        t.fail('should have failed');
-      } catch (err) {
-        t.pass('throws err');
-        t.match(
-          err.message,
-          'Could not detect supported target files in /.' +
-            '\nPlease see our documentation for supported' +
-            ' languages and target files: ' +
-            'https://snyk.co/udVgQ' +
-            ' and make sure you' +
-            ' are in the right directory.',
-        );
-      }
-    },
+    '`test /` test for non-existent with path specified':
+      (params, utils) => async (t) => {
+        utils.chdirWorkspaces();
+        try {
+          await params.cli.test('/');
+          t.fail('should have failed');
+        } catch (err) {
+          t.pass('throws err');
+          t.match(
+            err.message,
+            'Could not detect supported target files in /.' +
+              '\nPlease see our documentation for supported' +
+              ' languages and target files: ' +
+              'https://snyk.co/udVgQ' +
+              ' and make sure you' +
+              ' are in the right directory.',
+          );
+        }
+      },
 
     '`test empty --file=readme.md`': (params, utils) => async (t) => {
       utils.chdirWorkspaces();
@@ -294,26 +285,24 @@ export const GenericTests: AcceptanceTests = {
       });
     },
 
-    '`test npm-package-with-git-url ` handles git url with patch policy': (
-      params,
-      utils,
-    ) => async (t) => {
-      utils.chdirWorkspaces('npm-package-with-git-url');
-      const vulns = readJSON(
-        getFixturePath('npm-package-with-git-url/test-graph-result.json'),
-      );
-      params.server.setNextResponse(vulns);
-      try {
-        await params.cli.test();
-        t.fail('should fail');
-      } catch (res) {
-        params.server.popRequest();
+    '`test npm-package-with-git-url ` handles git url with patch policy':
+      (params, utils) => async (t) => {
+        utils.chdirWorkspaces('npm-package-with-git-url');
+        const vulns = readJSON(
+          getFixturePath('npm-package-with-git-url/test-graph-result.json'),
+        );
+        params.server.setNextResponse(vulns);
+        try {
+          await params.cli.test();
+          t.fail('should fail');
+        } catch (res) {
+          params.server.popRequest();
 
-        t.match(res.message, 'for known vulnerabilities', 'found results');
+          t.match(res.message, 'for known vulnerabilities', 'found results');
 
-        t.match(res.message, 'Local Snyk policy: found', 'found policy file');
-      }
-    },
+          t.match(res.message, 'Local Snyk policy: found', 'found policy file');
+        }
+      },
 
     '`test --insecure`': (params, utils) => async (t) => {
       t.plan(2);

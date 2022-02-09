@@ -161,8 +161,10 @@ describe('custom rules pull from a remote OCI registry', () => {
         `snyk iac test ./iac/terraform/sg_open_ssh.tf`,
         {
           SNYK_CFG_OCI_REGISTRY_URL: SNYK_CFG_OCI_REGISTRY_URL as string,
-          SNYK_CFG_OCI_REGISTRY_USERNAME: SNYK_CFG_OCI_REGISTRY_USERNAME as string,
-          SNYK_CFG_OCI_REGISTRY_PASSWORD: SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
+          SNYK_CFG_OCI_REGISTRY_USERNAME:
+            SNYK_CFG_OCI_REGISTRY_USERNAME as string,
+          SNYK_CFG_OCI_REGISTRY_PASSWORD:
+            SNYK_CFG_OCI_REGISTRY_PASSWORD as string,
         },
       );
       expect(SNYK_CFG_OCI_REGISTRY_URL).toBeDefined();
@@ -218,10 +220,10 @@ describe('custom rules pull from a remote OCI registry', () => {
       `snyk iac test --org=no-custom-rules-entitlements ./iac/terraform/sg_open_ssh.tf`,
       {
         SNYK_CFG_OCI_REGISTRY_URL: process.env.OCI_DOCKER_REGISTRY_URL!,
-        SNYK_CFG_OCI_REGISTRY_USERNAME: process.env
-          .OCI_DOCKER_REGISTRY_USERNAME!,
-        SNYK_CFG_OCI_REGISTRY_PASSWORD: process.env
-          .OCI_DOCKER_REGISTRY_PASSWORD!,
+        SNYK_CFG_OCI_REGISTRY_USERNAME:
+          process.env.OCI_DOCKER_REGISTRY_USERNAME!,
+        SNYK_CFG_OCI_REGISTRY_PASSWORD:
+          process.env.OCI_DOCKER_REGISTRY_PASSWORD!,
       },
     );
 

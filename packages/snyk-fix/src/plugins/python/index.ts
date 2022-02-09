@@ -30,9 +30,8 @@ export async function pythonFix(
     },
   };
   const results = handlerResult.python;
-  const { entitiesPerType, skipped: notSupported } = mapEntitiesPerHandlerType(
-    entities,
-  );
+  const { entitiesPerType, skipped: notSupported } =
+    mapEntitiesPerHandlerType(entities);
   results.skipped.push(...notSupported);
 
   spinner.stopAndPersist({

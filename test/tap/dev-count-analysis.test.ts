@@ -13,10 +13,7 @@ import {
 
 const osName = require('os-name');
 
-const isWindows =
-  osName()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = osName().toLowerCase().indexOf('windows') === 0;
 
 test('can calculate start of contributing developer period', (t) => {
   t.plan(1);
@@ -122,13 +119,11 @@ function validateGitParsing(gitLog: string, t) {
   t.ok(uniqueAuthors.has('someemail-1@somedomain.com'));
   t.ok(uniqueAuthors.has('someemail-2@somedomain.com'));
 
-  const mostRecentCommitTimestampSomeEmail1 = stats.getMostRecentCommitTimestamp(
-    'someemail-1@somedomain.com',
-  );
+  const mostRecentCommitTimestampSomeEmail1 =
+    stats.getMostRecentCommitTimestamp('someemail-1@somedomain.com');
   t.equal(mostRecentCommitTimestampSomeEmail1, '2020-02-06T11:43:11+00:00');
-  const mostRecentCommitTimestampSomeEmail2 = stats.getMostRecentCommitTimestamp(
-    'someemail-2@somedomain.com',
-  );
+  const mostRecentCommitTimestampSomeEmail2 =
+    stats.getMostRecentCommitTimestamp('someemail-2@somedomain.com');
   t.equal(mostRecentCommitTimestampSomeEmail2, '2020-02-02T23:31:13+02:00');
   t.equal(stats.getMostRecentCommitTimestamp('missing-email'), '');
 

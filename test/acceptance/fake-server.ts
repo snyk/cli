@@ -321,8 +321,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       isMonitored: true,
       trialStarted: true,
       licensesPolicy: {},
-      uri:
-        'http://example-url/project/project-public-id/history/snapshot-public-id',
+      uri: 'http://example-url/project/project-public-id/history/snapshot-public-id',
       projectName: 'test-project',
     });
   });

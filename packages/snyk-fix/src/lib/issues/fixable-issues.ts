@@ -1,8 +1,6 @@
 import { DependencyPins, DependencyUpdates, TestResult } from '../../types';
 
-export function hasFixableIssues(
-  results: TestResult[],
-): {
+export function hasFixableIssues(results: TestResult[]): {
   hasFixes: boolean;
   count: number;
 } {

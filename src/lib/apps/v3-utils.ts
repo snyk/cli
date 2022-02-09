@@ -98,14 +98,8 @@ Meta:\t${meta}`;
 }
 
 export function handleCreateAppRes(res: ICreateAppResponse): string {
-  const {
-    name,
-    clientId,
-    redirectUris,
-    scopes,
-    isPublic,
-    clientSecret,
-  } = res.data.attributes;
+  const { name, clientId, redirectUris, scopes, isPublic, clientSecret } =
+    res.data.attributes;
 
   return `Snyk App created successfully!
 Please ensure you save the following details:

@@ -5,7 +5,7 @@ const test = require('tap').test;
 const snyk = require('../../src/lib');
 const { getFixturePath } = require('../jest/util/getFixturePath');
 
-test('bad patch file does not apply', function(t) {
+test('bad patch file does not apply', function (t) {
   // check the target file first
   const root = getFixturePath('semver-patch-fail');
   const dir = path.resolve(root, './node_modules/semver');
@@ -27,16 +27,16 @@ test('bad patch file does not apply', function(t) {
     true,
     'http://some.patch.url',
   )
-    .then(function() {
+    .then(function () {
       t.fail('patch successfully applied');
       fs.writeFileSync(dir + '/semver.js', semver);
     })
-    .catch(function(error) {
+    .catch(function (error) {
       const semver2 = fs.readFileSync(dir + '/semver.js', 'utf8');
       t.equal(semver, semver2, 'target was untouched');
       t.equal(error.code, 'FAIL_PATCH', 'patch failed, task exited correctly');
     })
-    .then(function() {
+    .then(function () {
       // clean up
       /* TODO:
       These promises might throw, but you still want to run all of them
@@ -50,14 +50,14 @@ test('bad patch file does not apply', function(t) {
         new Promise((r) => fs.writeFile(dir + '/semver.js', semver, r)),
       ]);
     })
-    .then(function() {
+    .then(function () {
       t.ok('clean up done');
     })
-    .catch(function(e) {
+    .catch(function (e) {
       console.log(e);
       t.fail('clean up failed');
     })
-    .then(function() {
+    .then(function () {
       if (old === undefined) {
         snyk.config.delete('disable-analytics');
       } else {

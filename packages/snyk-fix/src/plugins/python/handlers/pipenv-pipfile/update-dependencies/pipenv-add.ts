@@ -30,14 +30,10 @@ export async function pipenvAdd(
     const targetFilePath = pathLib.resolve(entity.workspace.path, targetFile);
     const { dir } = pathLib.parse(targetFilePath);
     if (!options.dryRun && upgrades.length) {
-      const {
-        stderr,
-        stdout,
-        command,
-        exitCode,
-      } = await pipenvPipfileFix.pipenvInstall(dir, upgrades, {
-        python: entity.options.command,
-      });
+      const { stderr, stdout, command, exitCode } =
+        await pipenvPipfileFix.pipenvInstall(dir, upgrades, {
+          python: entity.options.command,
+        });
       debug('`pipenv add` returned:', { stderr, stdout, command });
       if (exitCode !== 0) {
         pipenvCommand = command;

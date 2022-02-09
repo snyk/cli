@@ -56,10 +56,8 @@ let policyEngineCache: { [key in EngineType]: PolicyEngine | null } = {
 async function buildPolicyEngine(
   engineType: EngineType,
 ): Promise<PolicyEngine> {
-  const [
-    policyEngineCoreDataPath,
-    policyEngineMetaDataPath,
-  ] = getLocalCachePath(engineType);
+  const [policyEngineCoreDataPath, policyEngineMetaDataPath] =
+    getLocalCachePath(engineType);
 
   try {
     const wasmFile = fs.readFileSync(policyEngineCoreDataPath);

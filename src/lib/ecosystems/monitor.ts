@@ -120,10 +120,8 @@ async function monitorDependencies(
   for (const [path, scanResults] of Object.entries(scans)) {
     await spinner(`Monitoring dependencies in ${path}`);
     for (const scanResult of scanResults) {
-      const monitorDependenciesRequest = await generateMonitorDependenciesRequest(
-        scanResult,
-        options,
-      );
+      const monitorDependenciesRequest =
+        await generateMonitorDependenciesRequest(scanResult, options);
 
       const configOrg = config.org ? decodeURIComponent(config.org) : undefined;
 

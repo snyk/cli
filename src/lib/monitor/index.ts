@@ -515,10 +515,8 @@ async function monitorDepGraphFromDepTree(
     treeMissingDeps = missingDeps;
   }
 
-  const depGraph: depGraphLib.DepGraph = await depGraphLib.legacy.depTreeToGraph(
-    depTree,
-    packageManager,
-  );
+  const depGraph: depGraphLib.DepGraph =
+    await depGraphLib.legacy.depTreeToGraph(depTree, packageManager);
   const target = await projectMetadata.getInfo(scannedProject, meta, depTree);
 
   if (isGitTarget(target) && target.branch) {

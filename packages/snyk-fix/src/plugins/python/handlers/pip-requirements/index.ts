@@ -253,9 +253,7 @@ function filterOutAppliedUpgrades(
   return pinRemediation;
 }
 
-function sortByDirectory(
-  entities: EntityToFix[],
-): {
+function sortByDirectory(entities: EntityToFix[]): {
   [dir: string]: Array<{
     entity: EntityToFix;
     dir: string;
@@ -274,9 +272,7 @@ function sortByDirectory(
   return groupBy(sorted, 'dir');
 }
 
-export async function selectFileForPinning(
-  entity: EntityToFix,
-): Promise<{
+export async function selectFileForPinning(entity: EntityToFix): Promise<{
   fileName: string;
   fileContent: string;
 }> {

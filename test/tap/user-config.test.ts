@@ -9,26 +9,26 @@ test('can unset config values', async (t) => {
   config('foo' as any).catch(t.pass);
 
   await config()
-    .then(function(v) {
+    .then(function (v) {
       before = v;
       return config('set', 'foo=10');
     })
-    .then(function(v) {
+    .then(function (v) {
       t.pass('value set', v);
       return config('get', 'foo');
     })
-    .then(function(value) {
+    .then(function (value) {
       t.equal(value, '10', 'got value from config');
       return config('unset', 'foo');
     })
-    .then(function() {
+    .then(function () {
       return config();
     })
-    .then(function(all) {
+    .then(function (all) {
       t.equal(before, all, 'final config matches');
       config('unset', 'bar');
     })
-    .catch(function(e) {
+    .catch(function (e) {
       t.fail(e);
     });
 });
@@ -41,26 +41,26 @@ test('can set config values with = inside', async (t) => {
   config('foo' as any).catch(t.pass);
 
   await config()
-    .then(function(v) {
+    .then(function (v) {
       before = v;
       return config('set', 'foo=10=');
     })
-    .then(function(v) {
+    .then(function (v) {
       t.pass('value set', v);
       return config('get', 'foo');
     })
-    .then(function(value) {
+    .then(function (value) {
       t.equal(value, '10=', 'got value from config');
       return config('unset', 'foo');
     })
-    .then(function() {
+    .then(function () {
       return config();
     })
-    .then(function(all) {
+    .then(function (all) {
       t.equal(before, all, 'final config matches');
       config('unset', 'bar');
     })
-    .catch(function(e) {
+    .catch(function (e) {
       t.fail(e);
     });
 });

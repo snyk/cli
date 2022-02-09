@@ -81,16 +81,18 @@ function update(packages, live, pkgManager) {
             }
           })
           .then(() => {
-            const prodUpdate = (upgrade.prod
-              ? install(pkgManager, findUpgrades(upgrade.prod), live)
-              : Promise.resolve(true)
+            const prodUpdate = (
+              upgrade.prod
+                ? install(pkgManager, findUpgrades(upgrade.prod), live)
+                : Promise.resolve(true)
             ).catch((e) => {
               error = e;
               return false;
             });
-            const devUpdate = (upgrade.dev
-              ? installDev(pkgManager, findUpgrades(upgrade.dev), live)
-              : Promise.resolve(true)
+            const devUpdate = (
+              upgrade.dev
+                ? installDev(pkgManager, findUpgrades(upgrade.dev), live)
+                : Promise.resolve(true)
             ).catch((e) => {
               error = e;
               return false;

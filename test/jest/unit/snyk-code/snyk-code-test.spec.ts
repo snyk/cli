@@ -38,10 +38,7 @@ describe('Test snyk code', () => {
     ),
   );
 
-  const isWindows =
-    osName()
-      .toLowerCase()
-      .indexOf('windows') === 0;
+  const isWindows = osName().toLowerCase().indexOf('windows') === 0;
   const fixturePath = path.join(__dirname, '../../../fixtures', 'sast');
   const cwd = process.cwd();
 
@@ -285,9 +282,8 @@ describe('Test snyk code', () => {
       expect(error.sarifStringifiedResults).toBeTruthy();
 
       const errSarifResult = error.sarifStringifiedResults.trim();
-      const expectedSarifOutput = jsonStringifyLargeObject(
-        sampleSarifResponse,
-      ).trim();
+      const expectedSarifOutput =
+        jsonStringifyLargeObject(sampleSarifResponse).trim();
       const errMessage = stripAscii(stripAnsi(error.message.trim()));
       const expectedOutput = stripAscii(stripAnsi(testOutput.trim()));
 
@@ -326,9 +322,8 @@ describe('Test snyk code', () => {
         await ecosystems.testEcosystem('code', ['some/path'], options);
       } catch (error) {
         const errMessage = error.message.trim();
-        const expectedOutput = jsonStringifyLargeObject(
-          sampleSarifResponse,
-        ).trim();
+        const expectedOutput =
+          jsonStringifyLargeObject(sampleSarifResponse).trim();
 
         // exit code 1
         expect(error.code).toBe('VULNS');
@@ -361,9 +356,8 @@ describe('Test snyk code', () => {
       await snykTest('some/path', options);
     } catch (error) {
       const errMessage = error.message.trim();
-      const expectedOutput = jsonStringifyLargeObject(
-        sampleSarifResponse,
-      ).trim();
+      const expectedOutput =
+        jsonStringifyLargeObject(sampleSarifResponse).trim();
 
       // exit code 1
       expect(error.code).toBe('VULNS');

@@ -1,4 +1,4 @@
-# snyk container -- test container images for vulnerabilities
+# Container
 
 ## Usage
 
@@ -6,7 +6,7 @@
 
 ## Description
 
-The `snyk container` command finds vulnerabilities in container images.
+The `snyk container` command tests container images for vulnerabilities.
 
 For more information see [Snyk CLI for container security](https://docs.snyk.io/products/snyk-container/snyk-cli-for-container-security).
 
@@ -24,12 +24,12 @@ Capture the container image layers and dependencies and monitor for vulnerabilit
 
 Possible exit codes and their meaning:
 
-**0**: success, no vulnerabilities found<br />
-**1**: action_needed, vulnerabilities found<br />
-**2**: failure, try to re-run command<br />
-**3**: failure, no supported projects detected<br />
+**0**: success, no vulnerabilities found\
+**1**: action_needed, vulnerabilities found\
+**2**: failure, try to re-run command\
+**3**: failure, no supported projects detected
 
-## Congifure the Snyk CLI
+## Configure the Snyk CLI
 
 You can use environment variables to configure the Snyk CLI and also set variables to configure the Snyk CLI to connect with the Snyk API. There are environment variables that apply to the container command. See [Configure the Snyk CLI](https://docs.snyk.io/features/snyk-cli/configure-the-snyk-cli).
 
@@ -59,6 +59,8 @@ Manually pass a path to a `.snyk` policy file.
 
 Print results in JSON format.
 
+Example: `$ snyk container test --json-file-output=vuln.json`
+
 ### `--json-file-output=<OUTPUT_FILE_PATH>`
 
 Save test output in JSON format directly to the specified file, regardless of whether or not you use the `--json` option.
@@ -75,7 +77,7 @@ Save test output in SARIF format directly to the `<OUTPUT_FILE_PATH>` file, rega
 
 This is especially useful if you want to display the human-readable test output using stdout and at the same time save the SARIF format output to a file.
 
-### `--severity-threshold=low|medium|high|critical`
+### `--severity-threshold=<low|medium|high|critical>`
 
 Report only vulnerabilities at the specified level or higher.
 
@@ -96,3 +98,23 @@ Specify a username to use when connecting to a container registry. This is ignor
 ### `--password=<CONTAINER_REGISTRY_PASSWORD>`
 
 Specify a password to use when connecting to a container registry. This is ignored in favor of local Docker binary credentials when Docker is present.
+
+## Examples for the container test command
+
+### Scan and monitor Docker images
+
+`$ snyk container test <image>`&#x20;
+
+`$ snyk container monitor <image>`
+
+### Option to get more information including base image remediation
+
+`--file=path/to/Dockerfile`
+
+### Scan a Docker image created using the given Dockerfile and with a specified policy path
+
+`$ snyk container test app:latest --file=Dockerfile`
+
+`$ snyk container test app:latest --file=Dockerfile --policy-path=path/to/.snyk`
+
+For more information and examples see [Advanced Snyk Container CLI usage](https://docs.snyk.io/snyk-container/snyk-cli-for-container-security/advanced-snyk-container-cli-usage).

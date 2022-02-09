@@ -46,14 +46,15 @@ export default async function fix(...args: MethodArgs): Promise<string> {
     (res) => Object.keys(res.testResult.issues).length,
   );
   const { dryRun, quiet, sequential: sequentialFix } = options;
-  const { fixSummary, meta, results: resultsByPlugin } = await snykFix.fix(
-    results,
-    {
-      dryRun,
-      quiet,
-      sequentialFix,
-    },
-  );
+  const {
+    fixSummary,
+    meta,
+    results: resultsByPlugin,
+  } = await snykFix.fix(results, {
+    dryRun,
+    quiet,
+    sequentialFix,
+  });
 
   setSnykFixAnalytics(
     fixSummary,

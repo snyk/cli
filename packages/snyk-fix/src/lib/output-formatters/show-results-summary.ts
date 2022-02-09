@@ -25,22 +25,12 @@ export async function showResultsSummary(
   options: FixOptions,
   total: number,
 ): Promise<string> {
-  const successfulFixesSummary = generateSuccessfulFixesSummary(
-    resultsByPlugin,
-  );
-  const {
-    summary: unresolvedSummary,
-    count: unresolvedCount,
-  } = generateUnresolvedSummary(resultsByPlugin, exceptions);
-  const {
-    summary: overallSummary,
-    count: changedCount,
-  } = generateOverallSummary(
-    resultsByPlugin,
-    exceptions,
-    nothingToFix,
-    options,
-  );
+  const successfulFixesSummary =
+    generateSuccessfulFixesSummary(resultsByPlugin);
+  const { summary: unresolvedSummary, count: unresolvedCount } =
+    generateUnresolvedSummary(resultsByPlugin, exceptions);
+  const { summary: overallSummary, count: changedCount } =
+    generateOverallSummary(resultsByPlugin, exceptions, nothingToFix, options);
 
   const getHelpText = `${reTryMessage}. ${contactSupportMessage}`;
 

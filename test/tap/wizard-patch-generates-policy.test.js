@@ -8,10 +8,7 @@ const fs = require('fs');
 const exec = require('child_process').exec;
 const { getFixturePath } = require('../jest/util/getFixturePath');
 const vulns = require(getFixturePath('debug-2.1.0-vuln.json')).vulnerabilities;
-const iswindows =
-  require('os-name')()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const iswindows = require('os-name')().toLowerCase().indexOf('windows') === 0;
 
 tap.beforeEach((done) => {
   policy.create().then((p) => {
@@ -23,7 +20,7 @@ tap.beforeEach((done) => {
 test(
   'patch via wizard produces policy (on debug@2.1.0)',
   { skip: iswindows },
-  function(t) {
+  function (t) {
     const name = 'debug';
     const version = '2.1.0';
     const cwd = process.cwd();
@@ -33,7 +30,7 @@ test(
 
     const dir = getFixturePath('debug-package');
     npm('install', name + '@' + version, dir)
-      .then(function() {
+      .then(function () {
         debug(
           'installed to %s, cd-ing to %s',
           dir,
@@ -41,7 +38,7 @@ test(
         );
         process.chdir(dir + '/node_modules/debug');
       })
-      .then(function() {
+      .then(function () {
         const answers = {
           // answers
           'misc-test-no-monitor': true,
@@ -52,21 +49,21 @@ test(
           vuln: vulns[0], // only contains 1 vuln (ms@0.6.2)
         };
 
-        return wizard.processAnswers(answers, mockPolicy).then(function() {
+        return wizard.processAnswers(answers, mockPolicy).then(function () {
           // now check if the policy file worked.
-          return policy.load(process.cwd()).then(function(res) {
+          return policy.load(process.cwd()).then(function (res) {
             const patched = Object.keys(res.patch);
             t.equal(patched.length, 1, 'contains 1 patch');
             t.equal(patched[0], id, 'patch contains the correct vuln id');
           });
         });
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error.stack);
         t.fail(error);
       })
-      .then(function() {
-        return npm('uninstall', name, dir).then(function() {
+      .then(function () {
+        return npm('uninstall', name, dir).then(function () {
           process.chdir(cwd); // restore cwd
           t.pass('packages cleaned up');
         });
@@ -77,7 +74,7 @@ test(
 test(
   'patch via wizard produces policy (on openapi-node@3.0.3)',
   { skip: iswindows },
-  function(t) {
+  function (t) {
     const name = 'openapi-node';
     const version = '3.0.3';
     const cwd = process.cwd();
@@ -89,19 +86,19 @@ test(
 
     const dir = getFixturePath(name);
     npm('install', name + '@' + version, dir)
-      .then(function() {
+      .then(function () {
         // debug('installed to %s, cd-ing to %s', dir, dir + '/node_modules/' + name);
         process.chdir(dir);
       })
-      .then(function() {
+      .then(function () {
         // prevents monitor run, and package updates
         answers['misc-test-no-monitor'] = true;
         answers['misc-add-test'] = false;
         answers['misc-add-protect'] = false;
 
-        return wizard.processAnswers(answers, mockPolicy).then(function() {
+        return wizard.processAnswers(answers, mockPolicy).then(function () {
           // now check if the policy file worked.
-          return policy.load(process.cwd()).then(function(res) {
+          return policy.load(process.cwd()).then(function (res) {
             const patched = Object.keys(res.patch).sort();
             const target = [id, altId].sort();
             t.equal(
@@ -117,12 +114,12 @@ test(
           });
         });
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error.stack);
         t.fail(error);
       })
-      .then(function() {
-        return npm('uninstall', name, dir).then(function() {
+      .then(function () {
+        return npm('uninstall', name, dir).then(function () {
           fs.unlinkSync('.snyk');
           process.chdir(cwd); // restore cwd
           t.pass('packages cleaned up');
@@ -135,7 +132,7 @@ function npm(method, packages, dir) {
   if (!Array.isArray(packages)) {
     packages = [packages];
   }
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     // `--prefix .` forces the install to take place, even if we have it
     // installed ourselves
     const cmd = 'npm ' + method + ' --prefix . ' + packages.join(' ');
@@ -145,7 +142,7 @@ function npm(method, packages, dir) {
       {
         cwd: dir,
       },
-      function(error, stdout, stderr) {
+      function (error, stdout, stderr) {
         if (error) {
           return reject(error);
         }

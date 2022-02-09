@@ -72,9 +72,8 @@ export async function test(
       customRulesPath = options.rules;
     }
 
-    const isOCIRegistryURLProvided = checkOCIRegistryURLProvided(
-      iacOrgSettings,
-    );
+    const isOCIRegistryURLProvided =
+      checkOCIRegistryURLProvided(iacOrgSettings);
 
     if (
       (isOCIRegistryURLProvided || customRulesPath) &&
@@ -152,7 +151,7 @@ export async function test(
 
     // TODO: add support for proper typing of old TestResult interface.
     return {
-      results: (filteredIssues as unknown) as TestResult[],
+      results: filteredIssues as unknown as TestResult[],
       // NOTE: No file or parsed file data should leave this function.
       failures: isLocalFolder(pathToScan)
         ? failedFiles.map(removeFileContent)

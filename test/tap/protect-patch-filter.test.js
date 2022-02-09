@@ -9,10 +9,10 @@ const exec = require('child_process').exec;
 test.skip(
   'patch is correctly skipped during tests',
   { timeout: 1000 * 60 * 3 },
-  function(t) {
+  function (t) {
     const dir = getFixturePath('protect-via-snyk');
     npm('install', '', dir)
-      .then(function() {
+      .then(function () {
         debug('installing to %s', dir);
         const rule = {
           patch: {
@@ -30,17 +30,17 @@ test.skip(
         const res = policy.filter(vulns, rule, dir);
         t.equal(res.ok, true, 'all vulns removed');
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error.stack);
         t.fail(error);
       })
-      .then(function() {
-        return npm('uninstall', ['semver', 'snyk'], dir).then(function() {
+      .then(function () {
+        return npm('uninstall', ['semver', 'snyk'], dir).then(function () {
           t.pass('packages cleaned up');
           t.end();
         });
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error.stack);
         t.fail(error);
       });
@@ -51,7 +51,7 @@ function npm(method, packages, dir) {
   if (!Array.isArray(packages)) {
     packages = [packages];
   }
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     const cmd = 'npm ' + method + ' ' + packages.join(' ');
     debug(cmd);
     exec(
@@ -59,7 +59,7 @@ function npm(method, packages, dir) {
       {
         cwd: dir,
       },
-      function(error, stdout, stderr) {
+      function (error, stdout, stderr) {
         if (error) {
           return reject(error);
         }

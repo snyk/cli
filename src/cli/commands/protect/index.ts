@@ -30,13 +30,10 @@ export default async function protectFunc(
   protectOptions.traverseNodeModules = true;
 
   try {
-    const packageManager: pm.SupportedPackageManagers = detect.detectPackageManager(
-      process.cwd(),
-      protectOptions,
-    );
-    const supportsProtect = pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS.includes(
-      packageManager,
-    );
+    const packageManager: pm.SupportedPackageManagers =
+      detect.detectPackageManager(process.cwd(), protectOptions);
+    const supportsProtect =
+      pm.PROTECT_SUPPORTED_PACKAGE_MANAGERS.includes(packageManager);
     if (!supportsProtect) {
       throw new Error(
         'Snyk protect for ' +

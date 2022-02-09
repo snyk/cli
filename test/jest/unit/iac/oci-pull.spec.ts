@@ -67,25 +67,25 @@ describe('extractOCIRegistryURLComponents', () => {
     });
   });
 
-  it('throws an error if a URL with an empty registry host is provided', function() {
+  it('throws an error if a URL with an empty registry host is provided', function () {
     expect(() => {
       extractOCIRegistryURLComponents('https:///repository:0.2.0');
     }).toThrow(InvalidRemoteRegistryURLError);
   });
 
-  it('throws an error if a URL without a path is provided', function() {
+  it('throws an error if a URL without a path is provided', function () {
     expect(() => {
       extractOCIRegistryURLComponents('https://registry');
     }).toThrow(InvalidRemoteRegistryURLError);
   });
 
-  it('throws an error if a URL with an empty path is provided', function() {
+  it('throws an error if a URL with an empty path is provided', function () {
     expect(() => {
       extractOCIRegistryURLComponents('https://registry/');
     }).toThrow(InvalidRemoteRegistryURLError);
   });
 
-  it('throws an error if a URL with an empty repository name is provided', function() {
+  it('throws an error if a URL with an empty repository name is provided', function () {
     expect(() => {
       extractOCIRegistryURLComponents('https://registry/:');
     }).toThrow(InvalidRemoteRegistryURLError);

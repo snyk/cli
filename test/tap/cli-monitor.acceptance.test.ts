@@ -51,10 +51,7 @@ import { getWorkspacePath } from '../jest/util/getWorkspacePath';
   - Jakub
 */
 
-const isWindows =
-  require('os-name')()
-    .toLowerCase()
-    .indexOf('windows') === 0;
+const isWindows = require('os-name')().toLowerCase().indexOf('windows') === 0;
 
 if (!isWindows) {
   before('setup', async (t) => {

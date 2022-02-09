@@ -42,9 +42,8 @@ export async function checkPackageToolSupported(
     return;
   }
 
-  const { supported, versions } = supportFunc[
-    packageManager
-  ].isSupportedVersion(version);
+  const { supported, versions } =
+    supportFunc[packageManager].isSupportedVersion(version);
   if (!supported) {
     const spinnerMessage = ` ${version} ${packageManager} version detected. Currently the following ${packageManager} versions are supported: ${versions.join(
       ',',

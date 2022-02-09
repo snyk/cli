@@ -15,34 +15,30 @@ const requestPath = '/api/v1/verify/token';
  * (http_proxy, https_proxy, no_proxy)
  * see https://www.gnu.org/software/wget/manual/html_node/Proxies.html
  */
-test('request respects proxy environment variables', function(t) {
+test('request respects proxy environment variables', function (t) {
   t.plan(6);
 
-  t.test('direct http access', function(t) {
-    const nockClient = nock(httpRequestHost)
-      .post(requestPath)
-      .reply(200, {});
+  t.test('direct http access', function (t) {
+    const nockClient = nock(httpRequestHost).post(requestPath).reply(200, {});
     return makeRequest({ method: 'post', url: httpRequestHost + requestPath })
-      .then(function() {
+      .then(function () {
         t.ok(nockClient.isDone(), 'direct call without a proxy');
         nock.cleanAll();
       })
       .catch((err) => t.fail(err.message));
   });
 
-  t.test('direct https access', function(t) {
-    const nockClient = nock(httpsRequestHost)
-      .post(requestPath)
-      .reply(200, {});
+  t.test('direct https access', function (t) {
+    const nockClient = nock(httpsRequestHost).post(requestPath).reply(200, {});
     return makeRequest({ method: 'post', url: httpsRequestHost + requestPath })
-      .then(function() {
+      .then(function () {
         t.ok(nockClient.isDone(), 'direct call without a proxy');
         nock.cleanAll();
       })
       .catch((err) => t.fail(err.message));
   });
 
-  t.test('http_proxy', function(t) {
+  t.test('http_proxy', function (t) {
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -56,7 +52,7 @@ test('request respects proxy environment variables', function(t) {
     });
 
     process.env.http_proxy = `http://localhost:${proxyPort}`;
-    const proxy = http.createServer(function(req, res) {
+    const proxy = http.createServer(function (req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'http_proxy url ok');
       res.end();
     });
@@ -70,7 +66,7 @@ test('request respects proxy environment variables', function(t) {
       });
   });
 
-  t.test('HTTP_PROXY', function(t) {
+  t.test('HTTP_PROXY', function (t) {
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -83,7 +79,7 @@ test('request respects proxy environment variables', function(t) {
     });
 
     process.env.HTTP_PROXY = `http://localhost:${proxyPort}`;
-    const proxy = http.createServer(function(req, res) {
+    const proxy = http.createServer(function (req, res) {
       t.equal(req.url, httpRequestHost + requestPath, 'HTTP_PROXY url ok');
       res.end();
     });
@@ -96,7 +92,7 @@ test('request respects proxy environment variables', function(t) {
       });
   });
 
-  t.test('https_proxy', function(t) {
+  t.test('https_proxy', function (t) {
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -128,7 +124,7 @@ test('request respects proxy environment variables', function(t) {
           'Proxy-agent: Node.js-Proxy\r\n' +
           'Connection: close\r\n' +
           '\r\n',
-        function() {
+        function () {
           cltSocket.end();
         },
       );
@@ -143,7 +139,7 @@ test('request respects proxy environment variables', function(t) {
       });
   });
 
-  t.test('HTTPS_PROXY', function(t) {
+  t.test('HTTPS_PROXY', function (t) {
     // NO_PROXY is set in CircleCI and brakes test purpose
     const tmpNoProxy = process.env.NO_PROXY;
     delete process.env.NO_PROXY;
@@ -174,7 +170,7 @@ test('request respects proxy environment variables', function(t) {
           'Proxy-agent: Node.js-Proxy\r\n' +
           'Connection: close\r\n' +
           '\r\n',
-        function() {
+        function () {
           cltSocket.end();
         },
       );

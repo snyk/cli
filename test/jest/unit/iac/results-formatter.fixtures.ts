@@ -168,18 +168,16 @@ export const expectedFormattedResultsWithLineNumber = generateFormattedResults({
     withLineNumber: true,
   },
 });
-export const expectedFormattedResultsWithoutLineNumber = generateFormattedResults(
-  {
+export const expectedFormattedResultsWithoutLineNumber =
+  generateFormattedResults({
     cloudConfigResultsOptions: {
       withLineNumber: false,
     },
-  },
-);
-export const expectedFormattedResultsGeneratedByCustomRules = generateFormattedResults(
-  {
+  });
+export const expectedFormattedResultsGeneratedByCustomRules =
+  generateFormattedResults({
     cloudConfigResultsOptions: {
       isGeneratedByCustomRule: true,
     },
     packageManager: IacProjectType.CUSTOM,
-  },
-);
+  });

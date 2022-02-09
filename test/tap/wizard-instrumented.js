@@ -5,13 +5,13 @@ const sinon = require('sinon');
 let spy;
 const wizard = proxyquire('../../src/cli/commands/protect/wizard', {
   '@snyk/inquirer': {
-    prompt: function(q, cb) {
+    prompt: function (q, cb) {
       if (!cb) {
         cb = (_) => Promise.resolve(_);
       }
 
       if (spy) {
-        const res = q.reduce(function(acc, curr, i, all) {
+        const res = q.reduce(function (acc, curr, i, all) {
           if (curr.when && !curr.when(acc)) {
             return acc;
           }
@@ -35,7 +35,7 @@ function respondWith(q, res) {
   if (q.type === 'list') {
     return (
       q.choices
-        .map(function(choice) {
+        .map(function (choice) {
           if (choice.value.choice === res) {
             return choice;
           }
@@ -66,13 +66,13 @@ function interactive(vulns, originalResponses, options) {
     options = {};
   }
 
-  let callback = function() {};
+  let callback = function () {};
 
   if (options.callback) {
     callback = options.callback;
   }
 
-  spy = sinon.spy(function(q, i, j, all, acc) {
+  spy = sinon.spy(function (q, i, j, all, acc) {
     const intercept = callback(q, i, j, all, acc);
 
     if (intercept !== undefined) {
@@ -114,7 +114,7 @@ function interactive(vulns, originalResponses, options) {
 
   return wizard
     .interactive(vulns, options.pkg, options.policy, options)
-    .then(function(res) {
+    .then(function (res) {
       if (responses.length) {
         throw new Error(
           'Too many responses. Remaining: ' + JSON.stringify(responses),

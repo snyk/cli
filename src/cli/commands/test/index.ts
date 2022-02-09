@@ -57,10 +57,8 @@ export default async function test(
   validateTestOptions(options);
   validateCredentials(options);
 
-  const packageJsonPathsWithSnykDepForProtect: string[] = getPackageJsonPathsContainingSnykDependency(
-    options.file,
-    paths,
-  );
+  const packageJsonPathsWithSnykDepForProtect: string[] =
+    getPackageJsonPathsContainingSnykDependency(options.file, paths);
 
   analytics.add(
     'upgradable-snyk-protect-paths',

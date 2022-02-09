@@ -83,8 +83,9 @@ export const codePlugin: EcosystemPlugin = {
       }
       debug(
         chalk.bold.red(
-          `statusCode:${error.code ||
-            error.statusCode}, message: ${error.statusText || error.message}`,
+          `statusCode:${error.code || error.statusCode}, message: ${
+            error.statusText || error.message
+          }`,
         ),
       );
       throw err;

@@ -1,8 +1,11 @@
 import { IssuesData } from '../../types';
 
-export function getIssueCountBySeverity(
-  issueData: IssuesData[],
-): { low: string[]; medium: string[]; high: string[]; critical: string[] } {
+export function getIssueCountBySeverity(issueData: IssuesData[]): {
+  low: string[];
+  medium: string[];
+  high: string[];
+  critical: string[];
+} {
   const total = {
     low: [],
     medium: [],
