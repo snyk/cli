@@ -25,17 +25,18 @@ jobs:
           if [[ $(git -C ./cli status --porcelain) ]]; then
             echo "Documentation changes detected"
             cd ./cli
+            npx prettier --write ./help/cli-commands
             git --no-pager diff --name-only
             git add .
             git commit -m "docs: synchronizing help from snyk/user-docs"
             git push --force --set-upstream origin docs/automatic-gitbook-update
-            if [[ ! $(gh pr view docs/automatic-gitbook-update) ]]; then
+            if [[ ! $(gh pr view docs/automatic-gitbook-update 2>&1 | grep -q "no open pull requests";) ]]; then
               echo "Creating PR"
               gh pr create --title="Synchronizing CLI help from user-docs" --body="Automatic PR controlled by GitHub Action" --head docs/automatic-gitbook-update
             fi
-            echo "PR exists, pushed changes to it"
+            echo "PR exists, pushed changes to it."
           else
-            echo "No documentation changes detected, exiting"
+            echo "No documentation changes detected, exiting."
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
