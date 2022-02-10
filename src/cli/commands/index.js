@@ -9,6 +9,7 @@ async function callModule(mod, args) {
 const commands = {
   auth: async (...args) => callModule(import('./auth'), args),
   config: async (...args) => callModule(import('./config'), args),
+  drift: async (...args) => callModule(import('./drift'), args),
   help: async (...args) => callModule(import('./help'), args),
   ignore: async (...args) => callModule(import('./ignore'), args),
   monitor: async (...args) => callModule(import('./monitor'), args),

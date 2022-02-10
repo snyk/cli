@@ -18,6 +18,9 @@ interface Config {
   TOKEN: string;
   CODE_CLIENT_PROXY_URL: string;
   DISABLE_ANALYTICS: unknown;
+  CACHE_PATH?: string;
+  DRIFTCTL_PATH?: string;
+  DRIFTCTL_URL?: string;
 }
 
 // TODO: fix the types!

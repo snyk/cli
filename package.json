@@ -82,6 +82,7 @@
     "configstore": "^5.0.1",
     "debug": "^4.1.1",
     "diff": "^4.0.1",
+    "env-paths": "^2.0.0",
     "glob": "^7.1.7",
     "global-agent": "^2.1.12",
     "lodash.assign": "^4.2.0",
