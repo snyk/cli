@@ -4,6 +4,7 @@ set -euo pipefail
 pushd binary-releases
 shasum -a 256 -c snyk-alpine.sha256
 shasum -a 256 -c snyk-linux.sha256
+shasum -a 256 -c snyk-linux-arm64.sha256
 shasum -a 256 -c snyk-macos.sha256
 shasum -a 256 -c snyk-win.exe.sha256
 shasum -a 256 -c snyk-for-docker-desktop-darwin-x64.tar.gz.sha256
