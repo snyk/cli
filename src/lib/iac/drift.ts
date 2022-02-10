@@ -37,7 +37,7 @@ const driftctlChecksums = {
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
 const driftctlPath = cachePath + '/driftctl_' + driftctlVersion;
 
-interface DriftCTLOptions {
+export interface DriftCTLOptions {
   quiet?: true;
   filter?: string;
   output?: string;
@@ -52,6 +52,12 @@ interface DriftCTLOptions {
   'tf-lockfile'?: string;
   'config-dir'?: string;
   from?: string; // TODO We only handle one from at a time due to snyk cli arg parsing
+}
+
+export interface DriftCTLResult {
+  returnCode: number;
+  stdout?: string;
+  stderr?: string;
 }
 
 export function parseArgs(
@@ -137,17 +143,44 @@ export function parseArgs(
   return args;
 }
 
-export async function driftctl(args: string[]): Promise<number> {
+export async function driftctl(
+  args: string[],
+  isTestSubCommand: boolean,
+): Promise<DriftCTLResult> {
   debug('running driftctl %s ', args.join(' '));
 
   const path = await findOrDownload();
 
-  return await launch(path, args);
+  return await launch(path, args, isTestSubCommand);
 }
 
-async function launch(path: string, args: string[]): Promise<number> {
-  return new Promise<number>((resolve, reject) => {
-    const child = child_process.spawn(path, args, { stdio: 'inherit' });
+async function launch(
+  path: string,
+  args: string[],
+  isTestSubCommand: boolean,
+): Promise<DriftCTLResult> {
+  if (isTestSubCommand) {
+    args.shift();
+  }
+
+  return new Promise<DriftCTLResult>((resolve, reject) => {
+    let child: child_process.ChildProcess;
+
+    if (isTestSubCommand) {
+      child = child_process.spawn(path, ['scan', ...args], { stdio: 'pipe' });
+    } else {
+      child = child_process.spawn(path, args, { stdio: 'inherit' });
+    }
+
+    let output = '';
+    child.stdout?.on('data', function(data) {
+      output += data.toString();
+    });
+
+    let err = '';
+    child.stderr?.on('data', function(data) {
+      err += data.toString();
+    });
 
     child.on('error', (error) => {
       reject(error);
@@ -158,7 +191,7 @@ async function launch(path: string, args: string[]): Promise<number> {
         //failed to find why this could happen...
         reject(new Error('Process was terminated'));
       } else {
-        resolve(code);
+        resolve({ returnCode: code, stdout: output, stderr: err });
       }
     });
   });
