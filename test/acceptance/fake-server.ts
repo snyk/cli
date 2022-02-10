@@ -497,7 +497,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.get(basePath + '/download/driftctl', (req, res) => {
     const fixturePath = getFixturePath('iac');
-    const path1 = path.join(fixturePath, '/drift/args-echo');
+    const path1 = path.join(fixturePath, 'drift', 'args-echo');
     const body = fs.readFileSync(path1);
     res.send(body);
   });

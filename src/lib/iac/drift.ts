@@ -6,6 +6,8 @@ import * as fs from 'fs';
 import { spinner } from '../spinner';
 import { makeRequest } from '../request';
 import config from '../../lib/config';
+import * as path from 'path';
+import * as crypto from 'crypto';
 
 const cachePath = config.CACHE_PATH ?? envPaths('snyk').cache;
 const debug = debugLib('drift');
@@ -15,7 +17,7 @@ const driftctlChecksums = {
   'driftctl_windows_386.exe':
     '0336132cc0c24beaef2535e0a129d146c1a267f6296d5d6bcc7fbe0b02f0bc78',
   driftctl_darwin_amd64:
-    '07eae8f9e537183031bb78203c1c50a0ca80e114716598946b76baadcbca26566',
+    '07eae8f9e537183031bb78203c1c50a0ca80e114716598946b76baadcbca2656',
   driftctl_linux_386:
     '4b83a5644ce72d3eabd915ffc1bba13ad1d61914984801800f598b35db2fe054',
   driftctl_linux_amd64:
@@ -35,7 +37,7 @@ const driftctlChecksums = {
 };
 
 const dctlBaseUrl = 'https://github.com/snyk/driftctl/releases/download/';
-const driftctlPath = cachePath + '/driftctl_' + driftctlVersion;
+const driftctlPath = path.join(cachePath, 'driftctl_' + driftctlVersion);
 
 interface DriftCTLOptions {
   quiet?: true;
@@ -250,7 +252,6 @@ function validateChecksum(body: string) {
     return;
   }
 
-  const crypto = require('crypto');
   const computedHash = crypto
     .createHash('sha256')
     .update(body)
@@ -261,7 +262,6 @@ function validateChecksum(body: string) {
     throw new Error('Downloaded file has inconsistent checksum...');
   }
 }
-
 function driftctlFileName(): string {
   let platform = 'linux';
   switch (os.platform()) {

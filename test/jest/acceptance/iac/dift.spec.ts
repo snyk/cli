@@ -2,6 +2,9 @@ import { startMockServer } from './helpers';
 import envPaths from 'env-paths';
 import { driftctlVersion } from '../../../../src/lib/iac/drift';
 import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { getFixturePath } from '../../util/getFixturePath';
 
 const paths = envPaths('snyk');
 
@@ -36,9 +39,17 @@ describe('iac drift scan', () => {
     expect(exitCode).toBe(2);
   });
 
+  if (os.platform() === 'win32') {
+    return; // skip following tests
+  }
+
   it('Launch driftctl from SNYK_DRIFTCTL_PATH env var when org has the entitlement', async () => {
     const { stdout, stderr, exitCode } = await run(`snyk iac drift scan`, {
-      SNYK_DRIFTCTL_PATH: './iac/drift/args-echo',
+      SNYK_DRIFTCTL_PATH: path.join(
+        getFixturePath('iac'),
+        'drift',
+        'args-echo',
+      ),
     });
 
     expect(stdout).toMatch('scan --config-dir ' + paths.cache + ' --to aws+tf');
@@ -47,7 +58,7 @@ describe('iac drift scan', () => {
   });
 
   it('Download and launch driftctl when executable is not found and org has the entitlement', async () => {
-    const cachedir = '/tmp/driftctl_download_' + Date.now();
+    const cachedir = path.join(os.tmpdir(), 'driftctl_download_' + Date.now());
     const { stdout, stderr, exitCode } = await run(`snyk iac drift scan`, {
       SNYK_DRIFTCTL_URL: apiUrl + '/download/driftctl',
       SNYK_CACHE_PATH: cachedir,
@@ -56,6 +67,8 @@ describe('iac drift scan', () => {
     expect(stdout).toMatch('scan --config-dir ' + cachedir + ' --to aws+tf');
     expect(stderr).toMatch('');
     expect(exitCode).toBe(0);
-    expect(fs.existsSync(cachedir + '/driftctl_' + driftctlVersion)).toBe(true);
+    expect(
+      fs.existsSync(path.join(cachedir, 'driftctl_' + driftctlVersion)),
+    ).toBe(true);
   });
 });
