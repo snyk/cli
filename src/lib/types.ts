@@ -92,6 +92,7 @@ export interface Options {
   'exclude-base-image-vulns'?: boolean;
   supportUnmanagedVulnDB?: boolean;
   'no-markdown'?: boolean;
+  'max-depth'?: number;
 }
 
 // TODO(kyegupov): catch accessing ['undefined-properties'] via noImplicitAny
@@ -117,6 +118,7 @@ export interface MonitorOptions {
   reachableVulnsTimeout?: number;
   initScript?: string;
   yarnWorkspaces?: boolean;
+  'max-depth'?: number;
 }
 
 export interface MonitorMeta {
