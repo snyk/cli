@@ -37,6 +37,7 @@ export async function startMockServer() {
       cwd?: string,
     ) => run(cmd, { ...env, ...overrides }, cwd),
     teardown: async () => new Promise((resolve) => server.close(resolve)),
+    apiUrl: SNYK_API,
   };
 }
 

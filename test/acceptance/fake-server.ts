@@ -395,6 +395,7 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       entitlements: {
         infrastructureAsCode: true,
         iacCustomRulesEntitlement: true,
+        iacDrift: true,
       },
     };
 
@@ -414,6 +415,16 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
         entitlements: {
           ...baseResponse.entitlements,
           iacCustomRulesEntitlement: false,
+        },
+      });
+    }
+
+    if (req.query.org === 'no-iac-drift-entitlements') {
+      return res.status(200).send({
+        ...baseResponse,
+        entitlements: {
+          ...baseResponse.entitlements,
+          iacDrift: false,
         },
       });
     }
@@ -482,6 +493,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
 
   app.post(basePath + '/analytics/cli', (req, res) => {
     res.status(200).send({});
+  });
+
+  app.get(basePath + '/download/driftctl', (req, res) => {
+    const fixturePath = getFixturePath('iac');
+    const path1 = path.join(fixturePath, '/drift/args-echo');
+    const body = fs.readFileSync(path1);
+    res.send(body);
   });
 
   const listen = (port: string | number, callback: () => void) => {
