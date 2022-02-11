@@ -68,6 +68,12 @@ export type FormattedResult = {
 
 export type IacCustomPolicies = Record<string, { severity?: string }>;
 
+export enum RulesOrigin {
+  Local = 'local',
+  Remote = 'remote',
+  Internal = 'internal',
+}
+
 export interface IacCustomRules {
   isEnabled?: boolean;
   ociRegistryURL?: string;
