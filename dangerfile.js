@@ -6,35 +6,23 @@ const SMOKE_TEST_BRANCH = 'smoke/';
 const SMOKE_TEST_WORKFLOW_FILE_PATH = '.github/workflows/smoke-tests.yml';
 
 if (danger.github && danger.github.pr) {
-  const commitizenRegex = /^(feat|fix|chore|test|docs|perf|refactor|revert)(\(.*\))?:(.+)$/;
   const ghCommits = danger.github.commits;
-  let willTriggerRelease = false;
   for (const { commit } of ghCommits) {
     const { message, url } = commit;
-    const firstLine = message.split('\n')[0];
+    const [firstLine] = message.split('\n', 1);
 
-    if (message.startsWith('feat') || message.startsWith('fix')) {
-      willTriggerRelease = true;
-    }
-
-    const regexMatch = commitizenRegex.exec(firstLine);
-    if (!regexMatch) {
+    const firstLineRegex = /^(feat|fix|chore|test|docs|refactor|revert)(\(.*\))?:(.+)$/;
+    if (!firstLineRegex.test(firstLine)) {
       fail(
-        `Commit ["${firstLine}"](${url}) is not a valid commitizen message. See [Contributing page](https://github.com/snyk/snyk/blob/master/.github/CONTRIBUTING.md#commit-types) with required commit message format.`,
+        `"[${firstLine}](${url})" is not using a valid commit message format. For commit guidelines, see: [CONTRIBUTING](https://github.com/snyk/snyk/blob/master/CONTRIBUTING.md#creating-commits).`,
       );
     }
 
     if (firstLine.length >= MAX_COMMIT_MESSAGE_LENGTH) {
       warn(
-        `Your commit message ["${firstLine}"](${url}) is too long. Keep first line of your commit under ${MAX_COMMIT_MESSAGE_LENGTH} characters.`,
+        `"[${firstLine}](${url})" is too long. Keep the first line of your commit message under ${MAX_COMMIT_MESSAGE_LENGTH} characters.`,
       );
     }
-  }
-
-  if (!willTriggerRelease) {
-    message(
-      "This PR will not trigger a new version. It doesn't include any commit message with `feat` or `fix`.",
-    );
   }
 
   // Forgotten tests check
