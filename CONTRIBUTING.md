@@ -40,26 +40,6 @@ If you encounter vague errors without a clear solution at any point, try startin
 npm run clean
 ```
 
-## Creating a branch
-
-To make changes, first create a new branch. Make sure to give it a descriptive name so you can find it later.
-
-```sh
-git checkout -b docs/contributing
-```
-
-### Branch types
-
-You can use these prefixes in your branch name to enable additional checks.
-
-| Prefix   | Description                                                                                                   |
-| -------- | ------------------------------------------------------------------------------------------------------------- |
-| `chore/` | Build and test all artifacts. Same as a [release pipeline](#creating-a-release) without the release step.     |
-| `smoke/` | Run [smoke tests](https://github.com/snyk/snyk/actions/workflows/smoke-tests.yml) against the latest release. |
-| default  | Build and test your changes.                                                                                  |
-
-For more information, see: [Pull request checks](#pull-request-checks).
-
 ## Building
 
 Install project dependencies.
@@ -177,6 +157,32 @@ When making changes, ensure documentation is updated accordingly.
 Customer-facing documentation is [available on GitBook](https://docs.snyk.io/features/snyk-cli).
 
 `snyk help` output must also be [edited on GitBook](https://docs.snyk.io/features/snyk-cli/commands). Changes will automatically be pulled into Snyk CLI as pull requests.
+
+## Creating a branch
+
+Create a new branch before making any changes. Make sure to give it a descriptive name so that you can find it later.
+
+```sh
+git checkout -b type/topic
+```
+
+For example:
+
+```sh
+git checkout -b docs/contributing
+```
+
+### Branch types
+
+You can use these prefixes in your branch name to enable additional checks.
+
+| Prefix   | Description                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------- |
+| `chore/` | Build and test all artifacts. Same as a [release pipeline](#creating-a-release) without the release step.     |
+| `smoke/` | Run [smoke tests](https://github.com/snyk/snyk/actions/workflows/smoke-tests.yml) against the latest release. |
+| default  | Build and test your changes.                                                                                  |
+
+For more information, see: [Pull request checks](#pull-request-checks).
 
 ## Creating commits
 
