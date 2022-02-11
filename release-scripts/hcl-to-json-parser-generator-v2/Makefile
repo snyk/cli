@@ -14,6 +14,15 @@ test: $(PROJECT_OUT)/hcltojson-v2.js
 clean:
 	rm -rf $(PROJECT_OUT) bin pkg $(PROJECT_SRC)/vendor
 
+print-%  : ; @echo $* = $($*)
+
+.PHONY: release
+release:
+ifndef version
+$(error version is not set. Please provide a version)
+endif
+	chmod +x ./test-and-release.sh && ./test-and-release.sh $(version)
+
 $(GOBIN)/gopherjs:
 	go get github.com/gopherjs/gopherjs
 
