@@ -6,3 +6,7 @@ test-output
 test-results
 test/**/workspaces
 .iac-data
+src/cli/commands/test/iac-local-execution/parsers/hcl-to-json/parser.js
+src/cli/commands/test/iac-local-execution/parsers/hcl-to-json-v2/parser.js
+release-scripts/hcl-to-json-parser-generator/src/hcltojson/test.js
+release-scripts/hcl-to-json-parser-generator-v2/src/hcltojson/test.js

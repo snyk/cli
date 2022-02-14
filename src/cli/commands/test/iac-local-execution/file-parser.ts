@@ -1,5 +1,8 @@
 import { detectConfigType } from './parsers/config-type-detection';
-import { tryParsingTerraformFile } from './parsers/terraform-file-parser';
+import {
+  FailedToParseTerraformFileError,
+  tryParsingTerraformFile,
+} from './parsers/terraform-file-parser';
 import { NoFilesToScanError } from './file-loader';
 import {
   isTerraformPlan,
@@ -7,6 +10,7 @@ import {
 } from './parsers/terraform-plan-parser';
 
 import {
+  EngineType,
   IaCErrorCodes,
   IacFileData,
   IacFileParsed,
@@ -19,6 +23,8 @@ import * as analytics from '../../../../lib/analytics';
 import { CustomError } from '../../../../lib/errors';
 import { getErrorStringCode } from './error-utils';
 import { parseYAMLOrJSONFileData } from './yaml-parser';
+import hclToJsonV2 from './parsers/hcl-to-json-v2';
+import { IacProjectType } from '../../../../lib/iac/constants';
 
 export async function parseFiles(
   filesData: IacFileData[],
@@ -45,6 +51,43 @@ export async function parseFiles(
     parsedFiles,
     failedFiles,
   };
+}
+
+export function parseTerraformFiles(filesData: IacFileData[]): ParsingResults {
+  // the parser expects a map of <filePath>:<fileContent> key-value pairs
+  const files = filesData.reduce((map, fileData) => {
+    map[fileData.filePath] = fileData.fileContent;
+    return map;
+  }, {});
+  const { parsedFiles, failedFiles } = hclToJsonV2(files);
+
+  // only throw an error when there were multiple files provided
+  if (filesData.length === 1 && Object.keys(failedFiles).length === 1) {
+    throw new FailedToParseTerraformFileError(filesData[0].filePath);
+  }
+
+  const parsingResults: ParsingResults = {
+    parsedFiles: [],
+    failedFiles: [],
+  };
+  for (const fileData of filesData) {
+    if (parsedFiles[fileData.filePath]) {
+      parsingResults.parsedFiles.push({
+        ...fileData,
+        jsonContent: JSON.parse(parsedFiles[fileData.filePath]),
+        projectType: IacProjectType.TERRAFORM,
+        engineType: EngineType.Terraform,
+      });
+    } else if (failedFiles[fileData.filePath]) {
+      parsingResults.failedFiles.push(
+        generateFailedParsedFile(
+          fileData,
+          new Error(failedFiles[fileData.filePath]),
+        ),
+      );
+    }
+  }
+  return parsingResults;
 }
 
 function generateFailedParsedFile(

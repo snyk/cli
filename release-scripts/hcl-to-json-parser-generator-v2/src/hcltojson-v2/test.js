@@ -24,6 +24,12 @@ const expectedParsedJSON =
   '\t\t\t\t"name": "allow_ssh"\n' +
   '\t\t\t}\n' +
   '\t\t}\n' +
+  '\t},\n' +
+  '\t"variable": {\n' +
+  '\t\t"dummy": {\n' +
+  '\t\t\t"default": "dummy_value",\n' +
+  '\t\t\t"type": "string"\n' +
+  '\t\t}\n' +
   '\t}\n' +
   '}';
 

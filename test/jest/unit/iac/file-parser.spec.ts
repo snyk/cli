@@ -1,6 +1,7 @@
 import {
   UnsupportedFileTypeError,
   parseFiles,
+  parseTerraformFiles,
 } from '../../../../src/cli/commands/test/iac-local-execution/file-parser';
 import { NoFilesToScanError } from '../../../../src/cli/commands/test/iac-local-execution/file-loader';
 import {
@@ -160,5 +161,32 @@ describe('parseFiles', () => {
     expect(() => tryParsingTerraformFile(invalidTerraformFileDataStub)).toThrow(
       FailedToParseTerraformFileError,
     );
+  });
+});
+
+describe('parseTerraformFiles', () => {
+  it('parses multiple Terraform files as expected', () => {
+    const { parsedFiles, failedFiles } = parseTerraformFiles([
+      terraformFileDataStub,
+    ]);
+    expect(parsedFiles.length).toEqual(1);
+    expect(parsedFiles[0]).toEqual(expectedTerraformParsingResult);
+    expect(failedFiles.length).toEqual(0);
+  });
+
+  it('does not throw an error if a file parse failed in a directory scan', () => {
+    const { parsedFiles, failedFiles } = parseTerraformFiles([
+      invalidTerraformFileDataStub,
+      terraformFileDataStub,
+    ]);
+    expect(parsedFiles.length).toEqual(1);
+    expect(parsedFiles[0]).toEqual(expectedTerraformParsingResult);
+    expect(failedFiles.length).toEqual(1);
+  });
+
+  it('throws an error if a file parse failed in a file scan', () => {
+    expect(() => {
+      parseTerraformFiles([invalidTerraformFileDataStub]);
+    }).toThrow(FailedToParseTerraformFileError);
   });
 });

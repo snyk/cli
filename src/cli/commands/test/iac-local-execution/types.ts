@@ -15,7 +15,14 @@ import {
 export interface IacFileData extends IacFileInDirectory {
   fileContent: string;
 }
-export const VALID_FILE_TYPES = ['tf', 'json', 'yaml', 'yml'];
+
+export enum ValidFileType {
+  Terraform = 'tf',
+  JSON = 'json',
+  YAML = 'yaml',
+  YML = 'yml',
+}
+export const VALID_FILE_TYPES = Object.values(ValidFileType);
 
 export interface IacFileParsed extends IacFileData {
   jsonContent: Record<string, unknown> | TerraformScanInput;
