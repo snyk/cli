@@ -237,7 +237,7 @@ echo "sdkman_curl_max_time=10" >> "$sdkman_config_file"
 echo "sdkman_debug_mode=false" >> "$sdkman_config_file"
 echo "sdkman_insecure_ssl=false" >> "$sdkman_config_file"
 echo "sdkman_rosetta2_compatible=false" >> "$sdkman_config_file"
-echo "sdkman_selfupdate_enable=true" >> "$sdkman_config_file"
+echo "sdkman_selfupdate_enable=false" >> "$sdkman_config_file"
 
 echo "Download script archive..."
 curl --location --progress-bar "${SDKMAN_SERVICE}/broker/download/sdkman/install/${SDKMAN_VERSION}/${SDKMAN_PLATFORM}" > "$sdkman_zip_file"
