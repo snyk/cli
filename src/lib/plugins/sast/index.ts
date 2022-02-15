@@ -12,7 +12,6 @@ import { FailedToRunTestError, NoSupportedSastFiles } from '../../errors';
 import { jsonStringifyLargeObject } from '../../json';
 import * as analytics from '../../analytics';
 
-debugLib.enable('snyk-code');
 const debug = debugLib('snyk-code');
 
 export const codePlugin: EcosystemPlugin = {
