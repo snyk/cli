@@ -1,4 +1,4 @@
-# snyk config -- manage Snyk CLI configuration
+# Config
 
 ## Usage
 
