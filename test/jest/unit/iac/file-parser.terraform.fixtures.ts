@@ -85,7 +85,7 @@ resource "aws_security_group" "allow_ssh" {
 }`;
 export const invalidTerraformFileDataStub: IacFileData = {
   fileContent: invalidTerraformFileContent,
-  filePath: 'dont-care',
+  filePath: 'dont-care-invalid',
   fileType: 'tf',
 };
 

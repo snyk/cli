@@ -9,6 +9,7 @@ require (
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
-	github.com/snyk/snyk-iac-parsers v0.1.0
+	github.com/snyk/snyk-iac-parsers v0.2.0
+	github.com/tmccombs/hcl2json v0.3.3 // indirect
 	github.com/zclconf/go-cty v1.10.0 // indirect
 )

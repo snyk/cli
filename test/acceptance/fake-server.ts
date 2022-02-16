@@ -6,7 +6,10 @@ import * as path from 'path';
 import { getFixturePath } from '../jest/util/getFixturePath';
 
 const featureFlagDefaults = (): Map<string, boolean> => {
-  return new Map([['cliFailFast', false]]);
+  return new Map([
+    ['cliFailFast', false],
+    ['iacTerraformVarSupport', false],
+  ]);
 };
 
 type FakeServer = {
@@ -357,6 +360,13 @@ export const fakeServer = (basePath: string, snykToken: string): FakeServer => {
       res.send({
         ok: false,
         userMessage: `Org ${org} doesn't have '${flag}' feature enabled'`,
+      });
+      return;
+    }
+
+    if (org === 'tf-lang-support') {
+      res.send({
+        ok: true,
       });
       return;
     }

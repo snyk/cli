@@ -17,9 +17,11 @@ const DEFAULT_ENCODING = 'utf-8';
 export async function loadFiles(
   pathToScan: string,
   options: IaCTestFlags = {},
+  validFileTypes?: string[],
 ): Promise<IacFileData[]> {
   const filePaths = getFilePathsFromDirectory(pathToScan, {
     maxDepth: options.detectionDepth,
+    validFileTypes,
   });
 
   if (filePaths.length === 0) {
@@ -39,13 +41,19 @@ export async function loadFiles(
   return loadedFiles.filter((file) => file.fileContent !== '');
 }
 
-function hasValidFileType(filePath: string): boolean {
-  return VALID_FILE_TYPES.includes(getFileType(filePath));
+function hasValidFileType(
+  filePath: string,
+  validFileTypes: string[] = VALID_FILE_TYPES,
+): boolean {
+  return validFileTypes.includes(getFileType(filePath));
 }
 
 function getFilePathsFromDirectory(
   pathToScan: string,
-  options: { maxDepth?: number } = {},
+  options: {
+    maxDepth?: number;
+    validFileTypes?: string[];
+  } = {},
 ): string[] {
   const resFilePaths: string[] = [];
 
@@ -56,13 +64,13 @@ function getFilePathsFromDirectory(
     });
 
     for (const filePath of dirIterator) {
-      if (hasValidFileType(filePath)) {
+      if (hasValidFileType(filePath, options.validFileTypes)) {
         resFilePaths.push(filePath);
       }
     }
   } else {
     // File
-    if (hasValidFileType(pathToScan)) {
+    if (hasValidFileType(pathToScan, options.validFileTypes)) {
       resFilePaths.push(pathToScan);
     }
   }
